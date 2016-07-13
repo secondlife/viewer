@@ -1,0 +1,1184 @@
+<llsd>
+    <map>
+    <key>AllowMultipleViewers</key>
+        <map>
+        <key>Comment</key>
+            <string>Allow multiple viewers.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>AllowTapTapHoldRun</key>
+        <map>
+        <key>Comment</key>
+            <string>Tapping a direction key twice and holding it down makes avatar run</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>AppearanceCameraMovement</key>
+        <map>
+        <key>Comment</key>
+            <string>When entering appearance editing mode, camera zooms in on currently selected portion of avatar</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>AudioLevelMedia</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio level of Quicktime movies</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.699999988079071044921875</real>
+        </map>
+    <key>AudioLevelMic</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio level of microphone input</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1749999970197677612304688</real>
+        </map>
+    <key>AudioLevelMusic</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio level of streaming music</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0</real>
+        </map>
+    <key>AudioLevelSFX</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio level of in-world sound effects</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.699999988079071044921875</real>
+        </map>
+    <key>AudioLevelVoice</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio level of voice chat</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AudioStreamingMedia</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable streaming</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>AvatarAxisDeadZone0</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 0 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1000000014901161193847656</real>
+        </map>
+    <key>AvatarAxisDeadZone1</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 1 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1000000014901161193847656</real>
+        </map>
+    <key>AvatarAxisDeadZone2</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 2 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1000000014901161193847656</real>
+        </map>
+    <key>AvatarAxisDeadZone3</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 3 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarAxisDeadZone4</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 4 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.01999999955296516418457031</real>
+        </map>
+    <key>AvatarAxisDeadZone5</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 5 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>AvatarAxisScale3</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 3 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0</real>
+        </map>
+    <key>AvatarAxisScale4</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 4 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>2</real>
+        </map>
+    <key>AvatarAxisScale5</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 5 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>2</real>
+        </map>
+    <key>AvatarFeathering</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar feathering (less is softer)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>AvatarFileName</key>
+        <map>
+        <key>Comment</key>
+            <string>Alternative avatar file name</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>avatar_lad_tentacles.xml</string>
+        </map>
+    <key>BuildAxisDeadZone0</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 0 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>BuildAxisDeadZone1</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 1 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>BuildAxisDeadZone2</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 2 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>BuildAxisDeadZone3</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 3 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>BuildAxisDeadZone4</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 4 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>BuildAxisDeadZone5</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 5 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>BuildAxisScale0</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 0 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>BuildAxisScale1</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 1 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>BuildAxisScale2</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 2 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>BuildAxisScale3</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 3 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>BuildAxisScale4</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 4 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>BuildAxisScale5</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 5 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>6</real>
+        </map>
+    <key>BuildFeathering</key>
+        <map>
+        <key>Comment</key>
+            <string>Build feathering (less is softer)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>12</real>
+        </map>
+    <key>BulkChangeEveryoneCopy</key>
+        <map>
+        <key>Comment</key>
+            <string>Bulk changed objects can be copied by everyone</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>BulkChangeNextOwnerCopy</key>
+        <map>
+        <key>Comment</key>
+            <string>Bulk changed objects can be copied by next owner</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>BulkChangeNextOwnerModify</key>
+        <map>
+        <key>Comment</key>
+            <string>Bulk changed objects can be modified by next owner</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>BulkChangeShareWithGroup</key>
+        <map>
+        <key>Comment</key>
+            <string>Bulk changed objects are shared with the currently active group</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>CacheValidateCounter</key>
+        <map>
+        <key>Comment</key>
+            <string>Used to distribute cache validation</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>122</integer>
+        </map>
+    <key>CameraPosOnLogout</key>
+        <map>
+        <key>Comment</key>
+            <string>Camera position when last logged out (global coordinates)</string>
+        <key>Type</key>
+            <string>Vector3D</string>
+        <key>Value</key>
+            <array>
+                <real>288290.4477181434631347656</real>
+                <real>275988.5277819633483886719</real>
+                <real>49.10921102762222290039062</real>
+            </array>
+        </map>
+    <key>ClickToWalk</key>
+        <map>
+        <key>Comment</key>
+            <string>Click in world to walk to location</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>ConversationSortOrder</key>
+        <map>
+        <key>Comment</key>
+            <string>Specifies sort key for conversations</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>CurrentGrid</key>
+        <map>
+        <key>Comment</key>
+            <string>Currently Selected Grid</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>util.agni.lindenlab.com</string>
+        </map>
+    <key>Cursor3D</key>
+        <map>
+        <key>Comment</key>
+            <string>Treat Joystick values as absolute positions (not deltas).</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>FirstLoginThisInstall</key>
+        <map>
+        <key>Comment</key>
+            <string>Specifies that you have not logged in with the viewer since you performed a clean install</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>FirstRunThisInstall</key>
+        <map>
+        <key>Comment</key>
+            <string>Specifies that you have not run the viewer since you performed a clean install</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>FlycamAxisDeadZone0</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 0 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>FlycamAxisDeadZone1</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 1 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>FlycamAxisDeadZone2</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 2 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>FlycamAxisDeadZone3</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 3 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>FlycamAxisDeadZone4</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 4 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>FlycamAxisDeadZone5</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 5 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.009999999776482582092285156</real>
+        </map>
+    <key>FlycamAxisDeadZone6</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 6 dead zone.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>FlycamAxisScale0</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 0 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>42</real>
+        </map>
+    <key>FlycamAxisScale1</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 1 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>40</real>
+        </map>
+    <key>FlycamAxisScale2</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 2 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>40</real>
+        </map>
+    <key>FlycamAxisScale3</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 3 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0</real>
+        </map>
+    <key>FlycamAxisScale4</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 4 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>2</real>
+        </map>
+    <key>FlycamAxisScale5</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 5 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>3</real>
+        </map>
+    <key>FlycamAxisScale6</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam axis 6 scaler.</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0</real>
+        </map>
+    <key>FlycamFeathering</key>
+        <map>
+        <key>Comment</key>
+            <string>Flycam feathering (less is softer)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>5</real>
+        </map>
+    <key>FocusPosOnLogout</key>
+        <map>
+        <key>Comment</key>
+            <string>Camera focus point when last logged out (global coordinates)</string>
+        <key>Type</key>
+            <string>Vector3D</string>
+        <key>Value</key>
+            <array>
+                <real>288287.8830481640761718154</real>
+                <real>275991.5973855691263452172</real>
+                <real>47.96361158013021963597566</real>
+            </array>
+        </map>
+    <key>ForceShowGrid</key>
+        <map>
+        <key>Comment</key>
+            <string>Always show grid dropdown on login screen</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>HttpProxyType</key>
+        <map>
+        <key>Comment</key>
+            <string>Proxy type to use for HTTP operations</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>None</string>
+        </map>
+    <key>JoystickInitialized</key>
+        <map>
+        <key>Comment</key>
+            <string>Whether or not a joystick has been detected and initiailized.</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>UnknownDevice</string>
+        </map>
+    <key>LSLFindCaseInsensitivity</key>
+        <map>
+        <key>Comment</key>
+            <string>Use case insensitivity when searching in LSL editor</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>LastFeatureVersion</key>
+        <map>
+        <key>Comment</key>
+            <string>[DO NOT MODIFY] Feature Table Version number for tracking rendering system changes</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>37</integer>
+        </map>
+    <key>LastGPUString</key>
+        <map>
+        <key>Comment</key>
+            <string>[DO NOT MODIFY] previous GPU id string for tracking hardware changes</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>NVIDIA Corporation NVIDIA GeForce GT 750M OpenGL Engine</string>
+        </map>
+    <key>LastPrefTab</key>
+        <map>
+        <key>Comment</key>
+            <string>Last selected tab in preferences window</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>LastRunVersion</key>
+        <map>
+        <key>Comment</key>
+            <string>Version number of last instance of the viewer that you ran</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>Second Life Project Bento 5.0.0.315657</string>
+        </map>
+    <key>LocalCacheVersion</key>
+        <map>
+        <key>Comment</key>
+            <string>Version number of cache</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>7</integer>
+        </map>
+    <key>LoginLocation</key>
+        <map>
+        <key>Comment</key>
+            <string>Default Login location (&apos;last&apos;, &apos;home&apos;) preference</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>home</string>
+        </map>
+    <key>MapScale</key>
+        <map>
+        <key>Comment</key>
+            <string>World map zoom level (pixels per region)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>256</real>
+        </map>
+    <key>MaxJointsPerMeshObject</key>
+        <map>
+        <key>Comment</key>
+            <string>Maximum joints per rigged mesh object</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>51</real>
+        </map>
+    <key>MediaEnablePopups</key>
+        <map>
+        <key>Comment</key>
+            <string>If true, enable targeted links and javascript in media to open new media browser windows without a prompt.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>MediaShowOnOthers</key>
+        <map>
+        <key>Comment</key>
+            <string>Whether or not to show media on other avatars</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>MigrateCacheDirectory</key>
+        <map>
+        <key>Comment</key>
+            <string>Check for old version of disk cache to migrate to current location</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>NavBarShowParcelProperties</key>
+        <map>
+        <key>Comment</key>
+            <string>Show parcel property icons in navigation bar</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>NextLoginLocation</key>
+        <map>
+        <key>Comment</key>
+            <string>Location to log into for this session - set from command line or the login panel, cleared following a successfull login.</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>home</string>
+        </map>
+    <key>NotificationConferenceIMOptions</key>
+        <map>
+        <key>Comment</key>
+            <string>
+        Specifies how the UI responds to Conference IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>none</string>
+        </map>
+    <key>NotificationFriendIMOptions</key>
+        <map>
+        <key>Comment</key>
+            <string>
+        Specifies how the UI responds to Friend IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>openconversations</string>
+        </map>
+    <key>NotificationGroupChatOptions</key>
+        <map>
+        <key>Comment</key>
+            <string>
+        Specifies how the UI responds to Group Chat Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>none</string>
+        </map>
+    <key>NotificationNearbyChatOptions</key>
+        <map>
+        <key>Comment</key>
+            <string>
+        Specifies how the UI responds to Nearby Chat Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>none</string>
+        </map>
+    <key>NotificationNonFriendIMOptions</key>
+        <map>
+        <key>Comment</key>
+            <string>
+        Specifies how the UI responds to Non Friend IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>openconversations</string>
+        </map>
+    <key>NumSessions</key>
+        <map>
+        <key>Comment</key>
+            <string>Number of successful logins to Second Life</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>1674</integer>
+        </map>
+    <key>PlayTypingAnim</key>
+        <map>
+        <key>Comment</key>
+            <string>Your avatar plays the typing animation whenever you type in the chat bar</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>PoolSizeExpCache</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for ExpCache</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>5</integer>
+        </map>
+    <key>PreferredBrowserBehavior</key>
+        <map>
+        <key>Comment</key>
+            <string>Use system browser for any links (0), use builtin browser for SL links and system one for others (1) or use builtin browser only (2).</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <string>0</string>
+        </map>
+    <key>PreferredMaturity</key>
+        <map>
+        <key>Comment</key>
+            <string>Setting for the user&apos;s preferred maturity level (consts in indra_constants.h)</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>42</integer>
+        </map>
+    <key>PresetGraphicActive</key>
+        <map>
+        <key>Comment</key>
+            <string>Name of currently selected preference</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>Default</string>
+        </map>
+    <key>ProbeHardwareOnStartup</key>
+        <map>
+        <key>Comment</key>
+            <string>Query current hardware configuration on application startup</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>QAMode</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable Testing Features.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>RenderAnisotropic</key>
+        <map>
+        <key>Comment</key>
+            <string>Render textures using anisotropic filtering</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>RenderAvatarCloth</key>
+        <map>
+        <key>Comment</key>
+            <string>Controls if avatars use wavy cloth</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>RenderAvatarLODFactor</key>
+        <map>
+        <key>Comment</key>
+            <string>Controls level of detail of avatars (multiplier for current screen area when calculated level of detail)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>RenderFSAASamples</key>
+        <map>
+        <key>Comment</key>
+            <string>Number of samples to use for FSAA (0 = no AA).</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>2</integer>
+        </map>
+    <key>RenderFarClip</key>
+        <map>
+        <key>Comment</key>
+            <string>Distance of far clip plane from camera (meters)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>128</real>
+        </map>
+    <key>RenderMaxPartCount</key>
+        <map>
+        <key>Comment</key>
+            <string>Maximum number of particles to display on screen</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <real>2048</real>
+        </map>
+    <key>RenderQualityPerformance</key>
+        <map>
+        <key>Comment</key>
+            <string>Which graphics settings you&apos;ve chosen</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>4</real>
+        </map>
+    <key>RenderReflectionDetail</key>
+        <map>
+        <key>Comment</key>
+            <string>Detail of reflection render pass.</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>RenderTerrainLODFactor</key>
+        <map>
+        <key>Comment</key>
+            <string>Controls level of detail of terrain (multiplier for current screen area when calculated level of detail)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>2</real>
+        </map>
+    <key>RenderVBOEnable</key>
+        <map>
+        <key>Comment</key>
+            <string>Use GL Vertex Buffer Objects</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>RenderVolumeLODFactor</key>
+        <map>
+        <key>Comment</key>
+            <string>Controls level of detail of primitives (multiplier for current screen area when calculated level of detail)</string>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1.125</real>
+        </map>
+    <key>ShowAdvancedGraphicsSettings</key>
+        <map>
+        <key>Comment</key>
+            <string>Show advanced graphics settings</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>ShowBanLines</key>
+        <map>
+        <key>Comment</key>
+            <string>Show in-world ban/access borders</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>ShowStartLocation</key>
+        <map>
+        <key>Comment</key>
+            <string>Display starting location menu on login screen</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>SkeletonFileName</key>
+        <map>
+        <key>Comment</key>
+            <string>Alternative skeleton file name</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>avatar_skeleton_tentacles.xml</string>
+        </map>
+    <key>SkyPresetName</key>
+        <map>
+        <key>Comment</key>
+            <string>Sky preset to use. May be superseded by region settings or by a day cycle (see DayCycleName).</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>Sunset</string>
+        </map>
+    <key>SnapshotConfigURL</key>
+        <map>
+        <key>Comment</key>
+            <string>URL to fetch Snapshot Sharing configuration data from.</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>http://photos.apps.avatarsunited.com/viewer_config</string>
+        </map>
+    <key>SnapshotFormat</key>
+        <map>
+        <key>Comment</key>
+            <string>Save snapshots in this format (0 = PNG, 1 = JPEG, 2 = BMP)</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>SnapshotQuality</key>
+        <map>
+        <key>Comment</key>
+            <string>Quality setting of postcard JPEGs (0 = worst, 100 = best)</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>100</integer>
+        </map>
+    <key>SpellCheck</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable spellchecking on line and text editors</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>SpellCheckDictionary</key>
+        <map>
+        <key>Comment</key>
+            <string>Current primary and secondary dictionaries used for spell checking</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>English (United States)</string>
+        </map>
+    <key>TextureMemory</key>
+        <map>
+        <key>Comment</key>
+            <string>Amount of memory to use for textures in MB (0 = autodetect)</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>256</integer>
+        </map>
+    <key>UseDayCycle</key>
+        <map>
+        <key>Comment</key>
+            <string>Whether to use use a day cycle or a fixed sky.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>UseDebugMenus</key>
+        <map>
+        <key>Comment</key>
+            <string>Turns on &quot;Debug&quot; menu</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>UseEnvironmentFromRegion</key>
+        <map>
+        <key>Comment</key>
+            <string>Choose whether to use the region&apos;s environment settings, or override them with the local settings.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>0</boolean>
+        </map>
+    <key>VFSOldSize</key>
+        <map>
+        <key>Comment</key>
+            <string>[DO NOT MODIFY] Controls resizing of local file cache</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>102</integer>
+        </map>
+    <key>VFSSalt</key>
+        <map>
+        <key>Comment</key>
+            <string>[DO NOT MODIFY] Controls local file caching behavior</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>260093998</integer>
+        </map>
+    <key>VersionChannelName</key>
+        <map>
+        <key>Comment</key>
+            <string>Version information generated by running the viewer</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>Second Life Release</string>
+        </map>
+    <key>VertexShaderEnable</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable/disable all GLSL shaders (debug)</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <boolean>1</boolean>
+        </map>
+    <key>VoiceInputAudioDevice</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio input device to use for voice</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>C-Media USB Audio Device</string>
+        </map>
+    <key>VoiceOutputAudioDevice</key>
+        <map>
+        <key>Comment</key>
+            <string>Audio output device to use for voice</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>C-Media USB Audio Device</string>
+        </map>
+    <key>WLSkyDetail</key>
+        <map>
+        <key>Comment</key>
+            <string>Controls vertex detail on the WindLight sky.  Lower numbers will give better performance and uglier skies.</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>48</integer>
+        </map>
+    <key>WebProfileFloaterRect</key>
+        <map>
+        <key>Comment</key>
+            <string>Web profile floater dimensions</string>
+        <key>Type</key>
+            <string>Rect</string>
+        <key>Value</key>
+            <array>
+                <integer>1189</integer>
+                <integer>957</integer>
+                <integer>1674</integer>
+                <integer>277</integer>
+            </array>
+        </map>
+    <key>WindowHeight</key>
+        <map>
+        <key>Comment</key>
+            <string>SL viewer window height</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>1000</integer>
+        </map>
+    <key>WindowWidth</key>
+        <map>
+        <key>Comment</key>
+            <string>SL viewer window width</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>1626</integer>
+        </map>
+    <key>WindowX</key>
+        <map>
+        <key>Comment</key>
+            <string>X coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>50</integer>
+        </map>
+    <key>WindowY</key>
+        <map>
+        <key>Comment</key>
+            <string>Y coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>50</integer>
+        </map>
+    </map>
+</llsd>

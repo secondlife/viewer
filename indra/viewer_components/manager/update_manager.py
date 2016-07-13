@@ -204,11 +204,14 @@ def make_VVM_UUID_hash(platform_key):
         #fake it
         return hashlib.md5(str(uuid.uuid1())).hexdigest()
 
-def query_vvm(log_file_handle, platform_key, settings, summary_dict):
+def query_vvm(log_file_handle = None, platform_key = None, settings = None, summary_dict = None, UpdaterServiceURL = None, UpdaterWillingToTest = None):
     result_data = None
     #URI template /update/v1.1/channelname/version/platformkey/platformversion/willing-to-test/uniqueid
     #https://wiki.lindenlab.com/wiki/Viewer_Version_Manager_REST_API#Viewer_Update_Query
-    base_URI = 'https://update.secondlife.com/update/'
+    if UpdaterServiceURL:
+        baseURI = UpdaterServiceURL
+    else:
+        base_URI = 'https://update.secondlife.com/update/'
     channelname = summary_dict['Channel']
     #this is kind of a mess because the settings value a) in a map and b) is both the cohort and the version
     version = summary_dict['Version']
@@ -229,11 +232,17 @@ def query_vvm(log_file_handle, platform_key, settings, summary_dict):
         </map>
     </map>
     """
-    try:
-        test_ok = settings['test']['Value']
-    except KeyError as ke:
-        #normal case, no testing key
-        test_ok = 'testok'
+    if UpdaterWillingToTest is not None:
+        if UpdaterWillingToTest:
+            test_ok = 'testok'
+        else:
+            test_ok = 'testno'
+    else:   
+        try:
+            test_ok = settings['test']['Value']
+        except KeyError:
+            #normal case, no testing key
+            test_ok = 'testok'
     UUID = make_VVM_UUID_hash(platform_key)
     #because urljoin can't be arsed to take multiple elements
     query_string =  '/v1.0/' + channelname + '/' + version + '/' + platform_key + '/' + platform_version + '/' + test_ok + '/' + UUID
@@ -245,7 +254,7 @@ def query_vvm(log_file_handle, platform_key, settings, summary_dict):
         return None
     return result_data
 
-def download(url = None, version = None, download_dir = None, size = 0, background = False):
+def download(url = None, version = None, download_dir = None, size = 0, background = False, chunk_size = 1024):
     download_tries = 0
     download_success = False
     #for background execution
@@ -259,7 +268,7 @@ def download(url = None, version = None, download_dir = None, size = 0, backgrou
             after_frame(message = "Trying again to download new version " + version + " Please wait.")
         if not background:
             try:
-                download_update.download_update(url = url, download_dir = download_dir, size = size, progressbar = True)
+                download_update.download_update(url = url, download_dir = download_dir, size = size, progressbar = True, chunk_size = chunk_size)
                 download_success = True
             except:
                 download_tries += 1    
@@ -268,7 +277,7 @@ def download(url = None, version = None, download_dir = None, size = 0, backgrou
             try:
                 #Python does not have a facility to multithread a method, so we make the method a standalone
                 #and subprocess that
-                subprocess.call(path_to_downloader, "--url = %s --dir = %s --pb --size= %s" % (url, download_dir, size))
+                subprocess.call(path_to_downloader, "--url = %s --dir = %s --pb --size = %s --chunk_size = %s" % (url, download_dir, size, chunk_size))
                 download_success = True
             except:
                 download_tries += 1
@@ -294,11 +303,12 @@ def install(platform_key = None, download_dir = None, log_file_handle = None, in
             silent_write(log_file_handle, "Failed to update viewer to " + version)
             return False
         
-def download_and_install(downloaded = None, url = None, version = None, download_dir = None, size = None, platform_key = None, log_file_handle = None, in_place = None):
+def download_and_install(downloaded = None, url = None, version = None, download_dir = None, size = None, 
+                         platform_key = None, log_file_handle = None, in_place = None, chunk_size = 1024):
     #extracted to a method because we do it twice in update_manager() and this makes the logic clearer
     if not downloaded:
         #do the download, exit if we fail
-        if not download(url = url, version = version, download_dir = download_dir, size = size): 
+        if not download(url = url, version = version, download_dir = download_dir, size = size, chunk_size = chunk_size): 
             return (False, 'download', version)  
     #do the install
     path_to_new_launcher = install(platform_key = platform_key, download_dir = download_dir, 
@@ -313,7 +323,8 @@ def download_and_install(downloaded = None, url = None, version = None, download
         #propagate failure
         return (False, 'apply', version)    
             
-def update_manager():
+def update_manager(cli_overrides = None):
+    #cli_overrides is a dict where the keys are specific parameters of interest and the values are the arguments to 
     #comments that begin with '323:' are steps taken from the algorithm in the description of SL-323. 
     #  Note that in the interest of efficiency, such as determining download success once at the top
     #  The code does follow precisely the same order as the algorithm.
@@ -356,7 +367,11 @@ def update_manager():
             print "Update manager exited with (%s, %s, %s)" % (False, 'setup', None)
             return (False, 'setup', None)
 
-    settings = get_settings(log_file_handle, parent_dir)
+    if cli_overrides['settings'] is not None:
+        settings = get_settings(log_file_handle, cli_overrides['settings'])
+    else:
+        settings = get_settings(log_file_handle, parent_dir)
+        
     if settings is None:
         silent_write(log_file_handle, "Failed to load viewer settings")
         print "Update manager exited with (%s, %s, %s)" % (False, 'setup', None)
@@ -375,22 +390,34 @@ def update_manager():
             <string>0</string>
         </map>
     """
-    try:
-        install_automatically = settings['UpdaterServiceSetting']['Value']
-    #because, for some godforsaken reason, we delete the setting rather than changing the value
-    except KeyError:
-        install_automatically = 1
+    if cli_overrides['set']['UpdaterServiceSetting'] is not None:
+        install_automatically = cli_overrides['set']['UpdaterServiceSetting']
+    else:
+        try:
+            install_automatically = settings['UpdaterServiceSetting']['Value']
+        #because, for some godforsaken reason, we delete the setting rather than changing the value
+        except KeyError:
+            install_automatically = 1
+    
+    #use default chunk size if none is given        
+    if cli_overrides['set']['UpdaterMaximumBandwidth ']:
+        chunk_size = cli_overrides['set']['UpdaterMaximumBandwidth ']
+    else:
+        chunk_size = 1024
 
     #get channel and version
     try:
         summary_dict = get_summary(platform_key, os.path.abspath(os.path.realpath(__file__)))
+        if cli_overrides['channel']:
+            summary_dict['Channel'] = cli_overrides['channel']
     except:
         silent_write(log_file_handle, "Could not obtain channel and version, exiting.")
         print "Update manager exited with (%s, %s, %s)" % (False, 'setup', None)
         return (False, 'setup', None)        
 
     #323: On launch, the Viewer Manager should query the Viewer Version Manager update api.
-    result_data = query_vvm(log_file_handle, platform_key, settings, summary_dict)
+    UpdaterServiceURL = cli_overrides['update-service']
+    result_data = query_vvm(log_file_handle, platform_key, settings, summary_dict, UpdaterServiceURL)
     #nothing to do or error
     if not result_data:
         silent_write.write(og_file_handle, "No update found.")
@@ -417,7 +444,7 @@ def update_manager():
         #323: Check for a completed download of the required update; if found, display an alert, install the required update, and launch the newly installed viewer.
         #323: If [optional download and] Install Automatically: display an alert, install the update and launch updated viewer.
         return download_and_install(downloaded = downloaded, url = result_data['url'], version = result_data['version'], download_dir = download_dir, 
-                                    size = result_data['size'], platform_key = platform_key, log_file_handle = log_file_handle, in_place = in_place)
+                                    size = result_data['size'], platform_key = platform_key, log_file_handle = log_file_handle, in_place = in_place, chunk_size = chunk_size)
     else:
         #323: If the update response indicates that there is an optional update: 
         #323: Check to see if the optional update has already been downloaded.
@@ -436,7 +463,7 @@ def update_manager():
             choice = frame.choice.get()
             if choice == 1:
                 return download_and_install(downloaded = downloaded, url = result_data['url'], version = result_data['version'], download_dir = download_dir, 
-                                    size = result_data['size'], platform_key = platform_key, log_file_handle = log_file_handle, in_place = in_place)
+                                    size = result_data['size'], platform_key = platform_key, log_file_handle = log_file_handle, in_place = in_place, chunk_size = chunk_size)
             elif choice == 2:
                 tempfile.mkstmp(suffix = ".next", dir = download_dir)
                 return (True, None, None)

@@ -18,8 +18,11 @@
 # Copyright (c) 2013, Linden Research, Inc.
 
 import argparse
+import collections
 import InstallerUserMessage
+import llsd
 import os
+import platform
 import sys
 import subprocess
 import update_manager
@@ -31,7 +34,88 @@ def after_frame(my_message, timeout = 10000):
    #this is done before basic_message so that we aren't blocked by mainloop()
    frame.after(timout, lambda: frame._delete_window)
    frame.basic_message(message = my_message)
+   
+def get_cmd_line():
+   platform_name = platform.system()
+   #find the parent of the logs and user_settings directories
+   if (platform_name == 'mac'):
+      settings_file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'Resources/app_settings/cmd_line.xml')
+   elif (platform_name == 'lnx'): 
+      settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'app_settings/cmd_line.xml')
+   #using list format of join is important here because the Windows pathsep in a string escapes the next char
+   elif (platform_name == 'win'):
+      settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'app_settings/cmd_line.xml')
+   else:
+      settings_dir = None
+      
+   try:
+      cmd_line = llsd.parse((open(settings_file)).read())
+   except:
+      cmd_line = None
+   
+   return cmd_line
 
+def get_settings():
+   #return the settings file parsed into a dict
+   try:
+      settings_file = os.path.abspath(os.path.join(parent_dir,'user_settings','settings.xml'))
+      settings = llsd.parse((open(settings_file)).read())
+   except llsd.LLSDParseError as lpe:
+      silent_write(log_file_handle, "Could not parse settings file %s" % lpe)
+      return None
+   return settings
+
+   
+def capture_vmp_args(arg_list = None, cmd_line = None):
+   #expected input format: arg_list = ['--set', 'foo', 'bar', '-X', '-Y', 'qux']
+   #take a copy of the viewer parameters that are of interest to VMP.
+   #the regex for a parameter is --<param> {opt1} {opt2}
+   cli_overrides = {}   
+   cmd_line = get_cmd_line()
+   
+   vmp_params = {'--channel':'channel', '--settings':'settings', '--update-service':'update-service', '--set':'set'}
+   #the settings set with --set.  All such settings have only one argument.
+   vmp_setters = ('UpdaterMaximumBandwidth', 'UpdaterServiceCheckPeriod', 'UpdaterServicePath', 'UpdaterServiceSetting', 'UpdaterServiceURL', 'UpdaterWillingToTest')   
+   
+   #Here turn the list into a queue, popping off the left as we go. Note that deque() makes a copy by value, not by reference
+   #Because of the complexity introduced by the uncertainty of how many options a parameter can take, this is far less complicated code than the more
+   #pythonic (x,y) = <some generator> since we will sometimes have (x), sometimes (x,y) and sometimes (x,y,z)
+   #also, because the pop is destructive, we prevent ourselves from iterating back over list elements that iterator methods would peek ahead at
+   vmp_queue = collections.deque(arg_list)
+   while (len(vmp_queue)):
+      param = vmp_queue.popleft()
+      #if it is not one of ours, pop through args until we get to the next parameter
+      if param in vmp_params.keys():
+         if param == '--set':
+            setting_name = vmp_queue.popleft()
+            setting_value = vmp_queue.popleft()
+            if setting_name in vmp_setters:
+               cli_overrides[vmp_params[param]] = (setting_name, setting_value)
+         else:
+            #find out how many args this parameter has
+            count = cmd_line[param]['count']
+            param_args = []
+            if count:
+               for argh in range(1,count):
+                  param_args.append(vmp_queue.popleft())
+            #the parameter name is the key, the (possibly empty) list of args is the value
+            cli_overrides[vmp_params[param]] = param_args
+            
+   #to prevent KeyErrors on missing keys, set the remainder to None
+   for key in vmp_params:
+      if key != '--set':
+         try:
+            cli_overrides[key]
+         except KeyError:
+            cli_overrides[key] = None
+      else:
+         for arg in vmp_setters:
+            try:
+               cli_overrides[key][arg]
+            except KeyError:
+               cli_overrides[key][arg] = None
+   return cli_overrides
+   
 cwd = os.path.dirname(os.path.realpath(__file__))
 
 executable_name = ""
@@ -58,11 +142,15 @@ viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),execu
 
 parser = argparse.ArgumentParser()
 args = parser.parse_known_args(sys.argv)
+print args[1]
+sys.exit()
+#args[1] looks like ['./SL_Launcher', '--set', 'foo', 'bar', '-X', '-Y', 'qux'], dump the progname
 args_list_to_pass = args[1][1:]
+vmp_args = capture_vmp_args(args_list_to_pass)
 #make a copy by value, not by reference
 command = list(args_list_to_pass)
 
-(success, state, condition) = update_manager.update_manager()
+(success, state, condition) = update_manager.update_manager(cli_overrides)
 # From update_manager:
 #  (False, 'setup', None): error occurred before we knew what the update was (e.g., in setup or parsing)
 #  (False, 'download', version): we failed to download the new version
