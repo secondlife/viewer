@@ -714,6 +714,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                 self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
                 #this copies over the python wrapper script, see SL-322
                 self.path2basename("../viewer_components/manager","SL_Launcher")
+                self.path2basename("../viewer_components/manager","*.py")
                 self.end_prefix()
 
             # most everything goes in the Resources directory
