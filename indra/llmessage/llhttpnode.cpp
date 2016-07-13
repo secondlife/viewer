@@ -31,6 +31,7 @@
 
 #include "llstl.h"
 #include "llhttpconstants.h"
+#include <stdexcept>
 
 const std::string CONTEXT_HEADERS("headers");
 const std::string CONTEXT_PATH("path");
@@ -92,8 +93,9 @@ LLHTTPNode::~LLHTTPNode()
 
 
 namespace {
-	class NotImplemented
+	struct NotImplemented: public std::runtime_error
 	{
+		NotImplemented(): std::runtime_error("LLHTTPNode::NotImplemented") {}
 	};
 }
 

@@ -35,12 +35,14 @@
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
 #endif
 #include <boost/lexical_cast.hpp>
-
+#include <stdexcept>
 
 namespace {
-	class RelocateError {};
-	
-	
+	struct RelocateError: public std::runtime_error
+	{
+		RelocateError(): std::runtime_error("llupdateinstaller: RelocateError") {}
+	};
+
 	std::string copy_to_temp(std::string const & path)
 	{
 		std::string scriptFile = gDirUtilp->getBaseFileName(path);

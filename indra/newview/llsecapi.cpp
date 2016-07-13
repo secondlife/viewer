@@ -69,7 +69,7 @@ void initializeSecHandler()
 	}
 	if (!exception_msg.empty())  // an exception was thrown.
 	{
-		throw LLProtectedDataException(exception_msg.c_str());
+		throw LLProtectedDataException(exception_msg);
 	}
 
 }
