@@ -128,13 +128,6 @@ private:
 	S32 mRowGap;
 };
 
-void ll_kdu_error( void )
-{
-	// *FIX: This exception is bad, bad, bad. It gets thrown from a
-	// destructor which can lead to immediate program termination!
-	throw "ll_kdu_error() throwing an exception";
-}
-
 // Stuff for new kdu error handling
 class LLKDUMessageWarning : public kdu_message
 {
