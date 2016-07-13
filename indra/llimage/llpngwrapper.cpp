@@ -31,6 +31,13 @@
 #include "llimage.h"
 #include "llpngwrapper.h"
 
+#include <stdexcept>
+
+struct PngError: public std::runtime_error
+{
+    PngError(png_const_charp msg): std::runtime_error(msg) {}
+};
+
 // ---------------------------------------------------------------------------
 // LLPngWrapper
 // ---------------------------------------------------------------------------
@@ -75,11 +82,10 @@ BOOL LLPngWrapper::isValidPng(U8* src)
 }
 
 // Called by the libpng library when a fatal encoding or decoding error
-// occurs.  We simply throw the error message and let our try/catch
-// block clean up.
+// occurs. We throw PngError and let our try/catch block clean up.
 void LLPngWrapper::errorHandler(png_structp png_ptr, png_const_charp msg)
 {
-	throw msg;
+	throw PngError(msg);
 }
 
 // Called by the libpng library when reading (decoding) the PNG file. We
@@ -129,7 +135,7 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 			this, &errorHandler, NULL);
 		if (mReadPngPtr == NULL)
 		{
-			throw "Problem creating png read structure";
+			throw PngError("Problem creating png read structure");
 		}
 
 		// Allocate/initialize the memory for image information.
@@ -187,9 +193,9 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 
 		mFinalSize = dataPtr.mOffset;
 	}
-	catch (png_const_charp msg)
+	catch (const PngError& msg)
 	{
-		mErrorMessage = msg;
+		mErrorMessage = msg.what();
 		releaseResources();
 		return (FALSE);
 	}
@@ -288,14 +294,14 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest)
 
 		if (mColorType == -1)
 		{
-			throw "Unsupported image: unexpected number of channels";
+			throw PngError("Unsupported image: unexpected number of channels");
 		}
 
 		mWritePngPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
 			NULL, &errorHandler, NULL);
 		if (!mWritePngPtr)
 		{
-			throw "Problem creating png write structure";
+			throw PngError("Problem creating png write structure");
 		}
 
 		mWriteInfoPtr = png_create_info_struct(mWritePngPtr);
@@ -339,9 +345,9 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest)
 		png_write_end(mWritePngPtr, mWriteInfoPtr);
 		mFinalSize = dataPtr.mOffset;
 	}
-	catch (png_const_charp msg)
+	catch (const PngError& msg)
 	{
-		mErrorMessage = msg;
+		mErrorMessage = msg.what();
 		releaseResources();
 		return (FALSE);
 	}
