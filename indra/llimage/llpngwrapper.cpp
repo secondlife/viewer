@@ -33,10 +33,12 @@
 
 #include <stdexcept>
 
+namespace {
 struct PngError: public std::runtime_error
 {
     PngError(png_const_charp msg): std::runtime_error(msg) {}
 };
+} // anonymous namespace
 
 // ---------------------------------------------------------------------------
 // LLPngWrapper
