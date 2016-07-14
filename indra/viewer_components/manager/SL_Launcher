@@ -20,6 +20,9 @@
 import argparse
 import collections
 import InstallerUserMessage
+#NOTA BENE: 
+#   For POSIX platforms, llsd.py will be imported from the same directory.  
+#   For Windows, llsd.py will be compiled into the executable by pyinstaller
 import llsd
 import os
 import platform
