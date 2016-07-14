@@ -712,9 +712,11 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             if self.prefix(dst="MacOS"):
                 self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
-                #this copies over the python wrapper script, see SL-322
+                #this copies over the python wrapper script and associated utilities, see SL-321, SL-322 and SL-323
                 self.path2basename("../viewer_components/manager","SL_Launcher")
                 self.path2basename("../viewer_components/manager","*.py")
+                self.path2basename("../viewer_components/manager/base","*py")
+                self.path2basename("../viewer_components/manager/util","*py")
                 self.end_prefix()
 
             # most everything goes in the Resources directory
