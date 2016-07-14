@@ -124,7 +124,7 @@ struct LLProtectedDataException: public std::runtime_error
 	{
 		LL_WARNS("SECAPI") << "Protected Data Error: " << msg << LL_ENDL;
 	}
-	std::string getMessage() { return what(); }
+	std::string getMessage() const { return what(); }
 };
 
 // class LLCertificate
@@ -344,8 +344,8 @@ public:
 		LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
 	}
 	virtual ~LLCertException() throw() {}
-	LLPointer<LLCertificate> getCert() { return mCert; }
-	std::string getMessage() { return what(); }
+	LLPointer<LLCertificate> getCert() const { return mCert; }
+	std::string getMessage() const { return what(); }
 protected:
 	LLPointer<LLCertificate> mCert;
 };
