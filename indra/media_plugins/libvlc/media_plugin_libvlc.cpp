@@ -54,6 +54,7 @@ class MediaPluginLibVLC :
 		void initVLC();
 		void playMedia();
 		void resetVLC();
+		void setVolume(const F64 volume);
 
 		static void* lock(void* data, void** p_pixels);
 		static void unlock(void* data, void* id, void* const* raw_pixels);
@@ -72,6 +73,7 @@ class MediaPluginLibVLC :
 		struct gVLCContext gVLCCallbackContext;
 
 		std::string mURL;
+		F64 mCurVolume;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +91,8 @@ MediaPluginLibVLC::MediaPluginLibVLC( LLPluginInstance::sendMessageFunction host
 	gLibVLC = 0;
 	gLibVLCMedia = 0;
 	gLibVLCMediaPlayer = 0;
+
+	mCurVolume = 0.0;
 
 	mURL = std::string();
 }
@@ -200,10 +204,10 @@ void MediaPluginLibVLC::playMedia()
 	message_begin.setValueBoolean("history_forward_available", false);
 	sendMessage(message_begin);
 
-	// volume should be initialized - when media is in range, the distance based attenuation
-	// will set the correct value
-	// https://jira.secondlife.com/browse/MAINT-6527
-	libvlc_audio_set_volume(gLibVLCMediaPlayer, 0);
+	// volume level gets set before VLC is initialized (thanks media system) so we have to record
+	// it in mCurVolume and set it again here so that volume levels are correctly initialized
+	setVolume(mCurVolume);
+
 	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, unlock, display, &gVLCCallbackContext);
 	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
 	libvlc_media_player_play(gLibVLCMediaPlayer);
@@ -218,6 +222,28 @@ void MediaPluginLibVLC::playMedia()
 	message_complete.setValueS32("result_code", 200);
 	message_complete.setValue("result_string", "OK");
 	sendMessage(message_complete);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginLibVLC::setVolume(const F64 volume)
+{
+	mCurVolume = volume;
+
+	if (gLibVLCMediaPlayer)
+	{
+		int result = libvlc_audio_set_volume(gLibVLCMediaPlayer, (int)(volume * 100));
+		if (result != 0)
+		{
+			// volume wasn't set but not much to be done here
+		}
+	}
+	else
+	{
+		// volume change was requested but VLC wasn't ready.
+		// that's okay thought because we saved the value in mCurVolume and 
+		// the next volume change after the VLC system is initilzied  will set it
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -388,11 +414,9 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
 			}
 			else if (message_name == "set_volume")
 			{
-				if (gLibVLCMediaPlayer)
-				{
-					F64 volume = message_in.getValueReal("volume");
-					libvlc_audio_set_volume(gLibVLCMediaPlayer, (int)(volume * 100));
-				}
+				// volume comes in 0 -> 1.0
+				F64 volume = message_in.getValueReal("volume");
+				setVolume(volume);
 			}
 		}
     }
