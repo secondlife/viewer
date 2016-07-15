@@ -904,7 +904,8 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 			base[label]["Samples"].asInteger());			
 	}
 
-	exportCharts(baseline, target);
+	// BENTO - this currently crashes
+	// exportCharts(baseline, target);
 
 	os.flush();
 	os.close();
