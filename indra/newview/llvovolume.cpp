@@ -86,7 +86,6 @@ BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
-F32 LLVOVolume::sRiggedLODFactor = 2.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
@@ -1253,10 +1252,7 @@ BOOL LLVOVolume::calcLOD()
 		}
 
 		distance = avatar->mDrawable->mDistanceWRTCamera;
-		F32 avatar_radius = avatar->getBinRadius();
-		F32 object_radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
-		radius = object_radius * LLVOVolume::sRiggedLODFactor;
-		radius = llmin(radius, avatar_radius);
+		radius = avatar->getBinRadius();
 	}
 	else
 	{

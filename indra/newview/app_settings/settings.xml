@@ -10218,17 +10218,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>RenderRiggedLODFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls level of detail of worn rigged meshes (multiplier for current screen area when calculated level of detail)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>2.5</real>
-    </map>
     <key>RenderWater</key>
     <map>
       <key>Comment</key>
