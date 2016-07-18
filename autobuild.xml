@@ -1140,9 +1140,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b9c6eb4cf7fe48172a566ce0307d3c61</string>
+              <string>cb7ee4b54e14dee34c61547783f177b3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/316979/arch/Darwin/installer/googlemock-1.7.0.316979-darwin64-316979.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/317828/arch/Darwin/installer/googlemock-1.7.0.317828-darwin64-317828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1152,9 +1152,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>03aea814571e3c49b5305fb40805926a</string>
+              <string>ad51f68702f25ba245fff312c50c8876</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/316979/arch/Linux/installer/googlemock-1.7.0.316979-linux-316979.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/317828/arch/Linux/installer/googlemock-1.7.0.317828-linux-317828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1164,9 +1164,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>480300a88ccbc2bc1c327fa3c9e36b0d</string>
+              <string>7866b1d4ee7f91892c5d9b94ec8f0179</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/316979/arch/Linux/installer/googlemock-1.7.0.316979-linux64-316979.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/317828/arch/Linux/installer/googlemock-1.7.0.317828-linux64-317828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1176,9 +1176,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f30208eaa61c2682dfe24ca0e78d63bc</string>
+              <string>78e78331d0fcedfceae195f5531383e8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/316979/arch/CYGWIN/installer/googlemock-1.7.0.316979-windows-316979.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/317828/arch/CYGWIN/installer/googlemock-1.7.0.317828-windows-317828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1188,16 +1188,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5014823154fafb27cd9a0451049259f4</string>
+              <string>700de1d5ac0fc2f99f03c06ef352afdc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/316979/arch/CYGWIN/installer/googlemock-1.7.0.316979-windows64-316979.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-googlemock/rev/317828/arch/CYGWIN/installer/googlemock-1.7.0.317828-windows64-317828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.316979</string>
+        <string>1.7.0.317828</string>
       </map>
       <key>gstreamer</key>
       <map>
