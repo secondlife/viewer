@@ -473,10 +473,6 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 				if (params.mTextureList[i].notNull())
 				{
 					gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
-					if (LLViewerTexture::MEDIA_TEXTURE == params.mTextureList[i]->getType())
-					{
-						gGL.setInverseTexCoordByY(true);
-					}
 				}
 			}
 		}
@@ -486,54 +482,13 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 			{
 				params.mTexture->addTextureStats(params.mVSize);
 				gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
-
-				if (!gPipeline.mVertexShadersEnabled)
-				{
-					if (LLViewerTexture::MEDIA_TEXTURE == params.mTexture->getType() && !params.mTextureMatrix)
-					{
-						static const float fIdntInvY[] = {
-							1, 0, 0, 0,
-							0, -1, 0, 0,
-							0, 0, 1, 0,
-							0, 0, 0, 1
-						};
-
-						gGL.getTexUnit(0)->activate();
-						gGL.matrixMode(LLRender::MM_TEXTURE);
-						gGL.loadMatrix((GLfloat*)fIdntInvY);
-						gPipeline.mTextureMatrixOps++;
-
-						tex_setup = true;
-					}
-				}
-				else
-				{
-					gGL.setInverseTexCoordByY(LLViewerTexture::MEDIA_TEXTURE == params.mTexture->getType());
-				}
-
 				if (params.mTextureMatrix)
 				{
 					tex_setup = true;
 					gGL.getTexUnit(0)->activate();
 					gGL.matrixMode(LLRender::MM_TEXTURE);
 					gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
-
-					if (LLViewerTexture::MEDIA_TEXTURE == params.mTexture->getType() && !gPipeline.mVertexShadersEnabled)
-					{
-						static const float fIdntInvY[] = {
-							1, 0, 0, 0,
-							0, -1, 0, 0,
-							0, 0, 1, 0,
-							0, 0, 0, 1
-						};
-
-						gGL.multMatrix(fIdntInvY);
-						gPipeline.mMatrixOpCount++;
-					}
-
 					gPipeline.mTextureMatrixOps++;
-
-					tex_setup = true;
 				}
 			}
 			else
