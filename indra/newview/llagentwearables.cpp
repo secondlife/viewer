@@ -1373,6 +1373,30 @@ void LLAgentWearables::findAttachmentsAddRemoveInfo(LLInventoryModel::item_array
 	// LL_INFOS() << "remove " << remove_count << " add " << add_count << LL_ENDL;
 }
 
+std::vector<LLViewerObject*> LLAgentWearables::getTempAttachments()
+{
+	llvo_vec_t temp_attachs;
+	if (isAgentAvatarValid())
+	{
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); iter != gAgentAvatarp->mAttachmentPoints.end();)
+		{
+			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
+			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+				attachment_iter != attachment->mAttachedObjects.end();
+				++attachment_iter)
+			{
+				LLViewerObject *objectp = (*attachment_iter);
+				if (objectp && objectp->isTempAttachment())
+				{
+					temp_attachs.push_back(objectp);
+				}
+			}
+		}
+	}
+	return temp_attachs;
+}
+
 void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remove)
 {
 	if (!isAgentAvatarValid()) return;

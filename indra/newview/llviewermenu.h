@@ -108,6 +108,7 @@ void handle_look_at_selection(const LLSD& param);
 void handle_zoom_to_object(LLUUID object_id);
 void handle_object_return();
 void handle_object_delete();
+void handle_object_edit();
 
 void handle_buy_land();
 

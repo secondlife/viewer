@@ -3916,6 +3916,10 @@ void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
 	LL_DEBUGS("Avatar") << "setAttachmentInvLinkEnable => " << (int) val << LL_ENDL;
 	mAttachmentInvLinkEnabled = val;
 }
+boost::signals2::connection LLAppearanceMgr::setAttachmentsChangedCallback(attachments_changed_callback_t cb)
+{
+	return mAttachmentsChangeSignal.connect(cb);
+}
 
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
@@ -3942,6 +3946,8 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	LLAttachmentsMgr::instance().onAttachmentArrived(item_id);
+
+	mAttachmentsChangeSignal();
 }
 
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
@@ -3962,6 +3968,8 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 	{
 		//LL_INFOS() << "no link changes, inv link not enabled" << LL_ENDL;
 	}
+
+	mAttachmentsChangeSignal();
 }
 
 BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
