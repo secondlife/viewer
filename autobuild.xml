@@ -2056,11 +2056,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a865a677e8ef30a9b571ab38b29f645a</string>
+              <string>e4d357e4bb0a5ddd9545c06b9abdaac8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-llceflib/rev/316980/arch/CYGWIN/installer/llceflib-1.5.3.316980-windows-316980.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-llceflib/rev/317829/arch/CYGWIN/installer/llceflib-1.5.3.317829-windows-317829.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2070,16 +2070,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>663da7496b3cbad4901889a5efeb1e04</string>
+              <string>8fe4a44a6346186d213642cc70ac8798</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-llceflib/rev/316980/arch/CYGWIN/installer/llceflib-1.5.3.316980-windows64-316980.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-llceflib/rev/317829/arch/CYGWIN/installer/llceflib-1.5.3.317829-windows64-317829.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.3.316980</string>
+        <string>1.5.3.317829</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
