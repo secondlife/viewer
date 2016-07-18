@@ -41,11 +41,13 @@
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
 #include "llfloateroutfitsnapshot.h"
+#include "llimagedimensionsinfo.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lllocalbitmaps.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"
 #include "llviewertexturelist.h"
@@ -1057,6 +1059,36 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
         LLLocalBitmap* unit = new LLLocalBitmap(filename);
         if (unit->getValid())
         {
+            std::string exten = gDirUtilp->getExtension(filename);
+            U32 codec = LLImageBase::getCodecFromExtension(exten);
+
+            LLImageDimensionsInfo image_info;
+            std::string image_load_error;
+            if (!image_info.load(filename, codec))
+            {
+                image_load_error = image_info.getLastError();
+            }
+
+            S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
+            S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+
+            if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
+            {
+                LLStringUtil::format_map_t args;
+                args["WIDTH"] = llformat("%d", max_width);
+                args["HEIGHT"] = llformat("%d", max_height);
+
+                image_load_error = LLTrans::getString("texture_load_dimensions_error", args);
+            }
+
+            if (!image_load_error.empty())
+            {
+                LLSD subst;
+                subst["REASON"] = image_load_error;
+                LLNotificationsUtil::add("ImageLoadError", subst);
+                return;
+            }
+
             S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
             void *nruserdata = NULL;
             nruserdata = (void *)&outfit_id;

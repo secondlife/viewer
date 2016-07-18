@@ -11016,4 +11016,16 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      yestext="OK"/>
   </notification>
   
+  
+  <notification
+   icon="alert.tga"
+   name="ImageLoadError"
+   type="alertmodal">
+   [REASON]
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
 </notifications>
