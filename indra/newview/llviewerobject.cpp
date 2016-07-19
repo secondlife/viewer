@@ -5022,6 +5022,12 @@ void LLViewerObject::restoreHudText()
         {
             initHudText();
         }
+        else
+        {
+            // Restore default values
+            mText->setZCompare(TRUE);
+            mText->setDoFade(TRUE);
+        }
         mText->setColor(mHudTextColor);
         mText->setString(mHudText);
     }
