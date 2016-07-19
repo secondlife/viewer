@@ -45,6 +45,7 @@
 #include <cctype>
 // external library headers
 #include <boost/range/iterator_range.hpp>
+#include <boost/throw_exception.hpp>
 #if LL_WINDOWS
 #pragma warning (push)
 #pragma warning (disable : 4701) // compiler thinks might use uninitialized var, but no
@@ -174,7 +175,7 @@ std::string LLEventPumps::registerNew(const LLEventPump& pump, const std::string
     // Unless we're permitted to tweak it, that's Bad.
     if (! tweak)
     {
-        throw LLEventPump::DupPumpName(std::string("Duplicate LLEventPump name '") + name + "'");
+        BOOST_THROW_EXCEPTION(LLEventPump::DupPumpName(std::string("Duplicate LLEventPump name '") + name + "'"));
     }
     // The passed name isn't unique, but we're permitted to tweak it. Find the
     // first decimal-integer suffix not already taken. The insert() attempt
@@ -326,8 +327,9 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     // is only when the existing connection object is still connected.
     if (found != mConnections.end() && found->second.connected())
     {
-        throw DupListenerName(std::string("Attempt to register duplicate listener name '") + name +
-                              "' on " + typeid(*this).name() + " '" + getName() + "'");
+        BOOST_THROW_EXCEPTION(
+            DupListenerName(std::string("Attempt to register duplicate listener name '") + name +
+                            "' on " + typeid(*this).name() + " '" + getName() + "'"));
     }
     // Okay, name is unique, try to reconcile its dependencies. Specify a new
     // "node" value that we never use for an mSignal placement; we'll fix it
@@ -353,8 +355,9 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
         // unsortable. If we leave the new node in mDeps, it will continue
         // to screw up all future attempts to sort()! Pull it out.
         mDeps.remove(name);
-        throw Cycle(std::string("New listener '") + name + "' on " + typeid(*this).name() +
-                    " '" + getName() + "' would cause cycle: " + e.what());
+        BOOST_THROW_EXCEPTION(
+            Cycle(std::string("New listener '") + name + "' on " + typeid(*this).name() +
+                  " '" + getName() + "' would cause cycle: " + e.what()));
     }
     // Walk the list to verify that we haven't changed the order.
     float previous = 0.0, myprev = 0.0;
@@ -418,7 +421,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
             // NOW remove the offending listener node.
             mDeps.remove(name);
             // Having constructed a description of the order change, inform caller.
-            throw OrderChange(out.str());
+            BOOST_THROW_EXCEPTION(OrderChange(out.str()));
         }
         // This node becomes the previous one.
         previous = dmi->second;
@@ -608,7 +611,7 @@ bool LLListenerOrPumpName::operator()(const LLSD& event) const
 {
     if (! mListener)
     {
-        throw Empty("attempting to call uninitialized");
+        BOOST_THROW_EXCEPTION(Empty("attempting to call uninitialized"));
     }
     return (*mListener)(event);
 }

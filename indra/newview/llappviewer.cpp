@@ -122,6 +122,7 @@
 #include "llleap.h"
 #include "stringize.h"
 #include "llcoros.h"
+#include "llexception.h"
 #if !LL_LINUX
 #include "cef/llceflib.h"
 #endif
@@ -131,6 +132,7 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include <boost/throw_exception.hpp>
 
 #if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in processMarkerFiles
@@ -230,8 +232,6 @@
 
 #include "llcoproceduremanager.h"
 #include "llviewereventrecorder.h"
-
-#include <stdexcept>
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -5513,7 +5513,7 @@ void LLAppViewer::forceErrorInfiniteLoop()
 void LLAppViewer::forceErrorSoftwareException()
 {
    	LL_WARNS() << "Forcing a deliberate exception" << LL_ENDL;
-    throw std::runtime_error("User selected Force Software Exception");
+    BOOST_THROW_EXCEPTION(LLException("User selected Force Software Exception"));
 }
 
 void LLAppViewer::forceErrorDriverCrash()

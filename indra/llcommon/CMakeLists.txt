@@ -157,6 +157,7 @@ set(llcommon_HEADER_FILES
     lleventfilter.h
     llevents.h
     lleventemitter.h
+    llexception.h
     llfasttimer.h
     llfile.h
     llfindlocale.h

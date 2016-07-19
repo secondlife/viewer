@@ -34,12 +34,13 @@
 
 #include "kdu_block_coding.h"
 
-#include <stdexcept>
+#include "llexception.h"
+#include <boost/throw_exception.hpp>
 
 namespace {
-struct KDUError: public std::runtime_error
+struct KDUError: public LLException
 {
-    KDUError(const std::string& msg): std::runtime_error(msg) {}
+    KDUError(const std::string& msg): LLException(msg) {}
 };
 } // anonymous namespace
 
@@ -180,7 +181,7 @@ void LLKDUMessageError::flush(bool end_of_message)
 {
 	if (end_of_message) 
 	{
-		throw KDUError("LLKDUMessageError::flush()");
+		BOOST_THROW_EXCEPTION(KDUError("LLKDUMessageError::flush()"));
 	}
 }
 

@@ -21,6 +21,7 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/throw_exception.hpp>
 // other Linden headers
 #include "llerror.h"
 #include "llstring.h"
@@ -69,7 +70,7 @@ public:
         // Rule out empty vector
         if (plugin.empty())
         {
-            throw Error("no plugin command");
+            BOOST_THROW_EXCEPTION(Error("no plugin command"));
         }
 
         // Don't leave desc empty either, but in this case, if we weren't
@@ -112,7 +113,7 @@ public:
         // If that didn't work, no point in keeping this LLLeap object.
         if (! mChild)
         {
-            throw Error(STRINGIZE("failed to run " << mDesc));
+            BOOST_THROW_EXCEPTION(Error(STRINGIZE("failed to run " << mDesc)));
         }
 
         // Okay, launch apparently worked. Change our mDonePump listener.

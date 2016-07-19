@@ -29,6 +29,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llsecapi.h"
 #include "llsechandler_basic.h"
+#include <boost/throw_exception.hpp>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <map>
@@ -69,7 +70,7 @@ void initializeSecHandler()
 	}
 	if (!exception_msg.empty())  // an exception was thrown.
 	{
-		throw LLProtectedDataException(exception_msg);
+		BOOST_THROW_EXCEPTION(LLProtectedDataException(exception_msg));
 	}
 
 }

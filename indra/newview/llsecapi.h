@@ -32,7 +32,7 @@
 #include <openssl/x509.h>
 #include <ostream>
 #include "llpointer.h"
-#include <stdexcept>
+#include "llexception.h"
 
 #ifdef LL_WINDOWS
 #pragma warning(disable:4250)
@@ -117,10 +117,10 @@
 
 
 
-struct LLProtectedDataException: public std::runtime_error
+struct LLProtectedDataException: public LLException
 {
 	LLProtectedDataException(const std::string& msg):
-		std::runtime_error(msg)
+		LLException(msg)
 	{
 		LL_WARNS("SECAPI") << "Protected Data Error: " << msg << LL_ENDL;
 	}
@@ -331,11 +331,11 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
 
 // All error handling is via exceptions.
 
-class LLCertException: public std::runtime_error
+class LLCertException: public LLException
 {
 public:
 	LLCertException(LLPointer<LLCertificate> cert, const std::string& msg):
-		std::runtime_error(msg)
+		LLException(msg)
 	{
 
 		mCert = cert;
