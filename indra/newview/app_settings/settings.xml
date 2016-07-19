@@ -10218,6 +10218,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>RenderRiggedFactorMultiplier</key>
+    <map>
+      <key>Comment</key>
+      <string>Affects level of detail for worn rigged meshes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>7.5</real>
+    </map>
     <key>RenderWater</key>
     <map>
       <key>Comment</key>
