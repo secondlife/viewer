@@ -64,7 +64,7 @@ void initializeSecHandler()
 		}
 		catch (LLProtectedDataException e)
 		{
-			exception_msg = e.getMessage();
+			exception_msg = e.what();
 		}
 	}
 	if (!exception_msg.empty())  // an exception was thrown.
