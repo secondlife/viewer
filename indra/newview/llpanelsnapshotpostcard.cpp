@@ -95,13 +95,6 @@ LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 // virtual
 BOOL LLPanelSnapshotPostcard::postBuild()
 {
-	// pick up the user's up-to-date email address
-	gAgent.sendAgentUserInfoRequest();
-
-	std::string name_string;
-	LLAgentUI::buildFullname(name_string);
-	getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
-
 	// For the first time a user focuses to .the msg box, all text will be selected.
 	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(&LLPanelSnapshotPostcard::onMsgFormFocusRecieved, this));
 
@@ -115,6 +108,16 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 // virtual
 void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
+	// pick up the user's up-to-date email address
+	if (mAgentEmail.empty())
+	{
+		gAgent.sendAgentUserInfoRequest();
+
+		std::string name_string;
+		LLAgentUI::buildFullname(name_string);
+		getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
+	}
+
 	LLPanelSnapshot::onOpen(key);
 }
 
