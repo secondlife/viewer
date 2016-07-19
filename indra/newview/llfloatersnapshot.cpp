@@ -916,7 +916,7 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshotBase* view,
 }
 
 // static
-void LLFloaterSnapshotBase::ImplBase::onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status)
+void LLFloaterSnapshot::Impl::onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status)
 {
 	floater->impl->setStatus(STATUS_FINISHED, status, "profile");
 }
@@ -1001,14 +1001,14 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	// Filters
 	LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
-    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
-    for (U32 i = 0; i < filter_list.size(); i++)
-    {
-        filterbox->add(filter_list[i]);
-    }
-    childSetCommitCallback("filters_combobox", ImplBase::onClickFilter, this);
+	std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+	for (U32 i = 0; i < filter_list.size(); i++)
+	{
+		filterbox->add(filter_list[i]);
+	}
+	childSetCommitCallback("filters_combobox", ImplBase::onClickFilter, this);
     
-	LLWebProfile::setImageUploadResultCallback(boost::bind(&ImplBase::onSnapshotUploadFinished, this, _1));
+	LLWebProfile::setImageUploadResultCallback(boost::bind(&Impl::onSnapshotUploadFinished, this, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&Impl::onSendingPostcardFinished, this, _1));
 
 	sThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");

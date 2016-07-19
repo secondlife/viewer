@@ -256,8 +256,6 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
     }
     childSetCommitCallback("filters_combobox", ImplBase::onClickFilter, this);
 
-    LLWebProfile::setImageUploadResultCallback(boost::bind(&ImplBase::onSnapshotUploadFinished, this, _1));
-
     sThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
     // create preview window

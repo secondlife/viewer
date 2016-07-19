@@ -101,7 +101,6 @@ public:
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
 	static void onCommitFreezeFrame(LLUICtrl* ctrl, void* data);
-	static void onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status);
 
 	virtual LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true) = 0;
 	virtual LLSnapshotModel::ESnapshotType getActiveSnapshotType(LLFloaterSnapshotBase* floater);
@@ -179,6 +178,7 @@ public:
 	BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
 	void setImageSizeSpinnersValues(LLFloaterSnapshotBase *view, S32 width, S32 height);
 	void updateSpinners(LLFloaterSnapshotBase* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL is_width_changed);
+	static void onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status);
 
 	/*virtual*/ LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true);
 	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat(LLFloaterSnapshotBase* floater);

@@ -82,6 +82,8 @@ public:
     {}
     void updateResolution(void* data);
 
+    static void onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status);
+
     /*virtual*/ LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true);
     /*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat(LLFloaterSnapshotBase* floater);
     /*virtual*/ std::string getSnapshotPanelPrefix();
