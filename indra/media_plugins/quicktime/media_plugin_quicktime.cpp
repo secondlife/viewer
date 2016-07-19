@@ -311,9 +311,7 @@ private:
 			MatrixRecord transform;
 			SetIdentityMatrix( &transform );	// transforms are additive so start from identify matrix
 			double scaleX = (double) mWidth / mNaturalWidth;
-
-            // 2016-05-31 CP remove local flip (via -1.0) since texture coods for media on a prim are now flipped for VLC/CEF
-			double scaleY = 1.0 * (double) mHeight / mNaturalHeight;
+			double scaleY = -1.0 * (double) mHeight / mNaturalHeight;
 			double centerX = mWidth / 2.0;
 			double centerY = mHeight / 2.0;
 			ScaleMatrix( &transform, X2Fix( scaleX ), X2Fix( scaleY ), X2Fix( centerX ), X2Fix( centerY ) );
