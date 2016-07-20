@@ -213,4 +213,89 @@ private:
 	mutable LLRootHandle<T> mHandle;
 };
 
+/*
+ * $TODO: Derive from LLException
+ */
+struct LLExeceptionStaleHandle : public std::runtime_error
+{
+public:
+    LLExeceptionStaleHandle():
+        std::runtime_error("Attempt to access stale handle.")
+   {}
+};
+
+/**
+ * This is a simple wrapper for Handles, allowing direct calls to the underlying 
+ * pointer. The checked handle will throw a LLExeceptionStaleHandle if an attempt 
+ * is made to access the object referenced by the handle and that object has 
+ * been destroyed.
+ **/
+template <typename T> 
+class LLCheckedHandle: private boost::noncopyable
+{
+public:
+    LLCheckedHandle(LLHandle<T> handle):
+        mHandle(handle)
+    { }
+
+    /**
+     * Retrieve the underlying pointer by resolving the handle. If the handle
+     * returns NULL for the pointer throw an LLExeceptionStaleHandle exception.
+     */
+    T* get() const
+    {
+        T* ptr = mHandle.get();
+        if (!ptr)
+            BOOST_THROW_EXCEPTION(LLExeceptionStaleHandle());
+        return ptr;
+    }
+
+    /**
+     * Test the handle to see if it is still valid. Returns true if it is,
+     * false if it is not. Does not trow.
+     */
+    bool test() const
+    {
+        return (mHandle.get() != NULL);
+    }
+
+    /**
+     * Test the underlying handle.  If it is no longer valid, throw a LLExeceptionStaleHandle.
+     */
+    void check() const
+    {
+        get();
+    }
+
+    /**
+     * Get the contained handle. 
+     */
+    LLHandle<T> getHandle() const
+    {
+        return mHandle;
+    }
+
+    /**
+     * Converts the LLCheckedHandle to a bool. Allows for if (chkdHandle) {} 
+     * Does not throw.
+     */
+    operator bool() const
+    {
+        return test();
+    }
+
+    /**
+     * Attempt to call a method or access a member in the structure referenced 
+     * by the handle.  If the handle no longer points to a valid structure 
+     * throw a LLExeceptionStaleHandle.
+     */
+    T* operator ->() const
+    {
+        return get();
+    }
+
+private:
+    LLHandle<T> mHandle;
+};
+
 #endif
