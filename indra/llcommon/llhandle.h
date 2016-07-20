@@ -28,8 +28,10 @@
 #define LLHANDLE_H
 
 #include "llpointer.h"
+#include <stdexcept>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/throw_exception.hpp>
 
 /**
  * Helper object for LLHandle. Don't instantiate these directly, used
@@ -216,7 +218,7 @@ private:
 /*
  * $TODO: Derive from LLException
  */
-struct LLExeceptionStaleHandle : public std::runtime_error
+class LLExeceptionStaleHandle : public std::runtime_error
 {
 public:
     LLExeceptionStaleHandle():
