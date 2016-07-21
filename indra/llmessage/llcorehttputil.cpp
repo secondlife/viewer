@@ -280,10 +280,8 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         LLCore::HttpStatus::type_enum_t errType = status.getType();
 
         LL_WARNS()
-            << "\n--------------------------------------------------------------------------\n"
-            << " Error[" << status.toTerseString() << "] cannot access url '" << response->getRequestURL()
+            << "Error[" << status.toTerseString() << "] cannot access url '" << response->getRequestURL()
             << "' because " << status.toString()
-            << "\n--------------------------------------------------------------------------"
             << LL_ENDL;
         if ((errType >= 400) && (errType < 500))
         {
