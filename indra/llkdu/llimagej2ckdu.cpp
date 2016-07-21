@@ -72,23 +72,6 @@ private:
 //
 void set_default_colour_weights(kdu_params *siz);
 
-const char* engineInfoLLImageJ2CKDU()
-{
-	static std::string version = llformat("KDU %s", KDU_CORE_VERSION);
-	return version.c_str();
-}
-
-LLImageJ2CKDU* createLLImageJ2CKDU()
-{
-	return new LLImageJ2CKDU();
-}
-
-void destroyLLImageJ2CKDU(LLImageJ2CKDU* kdu)
-{
-	delete kdu;
-	kdu = NULL;
-}
-
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
 {
 	return new LLImageJ2CKDU();
@@ -102,7 +85,8 @@ void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
 
 const char* fallbackEngineInfoLLImageJ2CImpl()
 {
-	return engineInfoLLImageJ2CKDU();
+	static std::string version = llformat("KDU %s", KDU_CORE_VERSION);
+	return version.c_str();
 }
 
 class LLKDUDecodeState

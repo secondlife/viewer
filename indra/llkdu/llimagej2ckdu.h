@@ -92,16 +92,4 @@ private:
 	LLKDUDecodeState *mDecodeState;
 };
 
-#if LL_WINDOWS
-# define LLSYMEXPORT __declspec(dllexport)
-#elif LL_LINUX
-# define LLSYMEXPORT __attribute__ ((visibility("default")))
-#else
-# define LLSYMEXPORT
-#endif
-
-extern "C" LLSYMEXPORT const char* engineInfoLLImageJ2CKDU();
-extern "C" LLSYMEXPORT LLImageJ2CKDU* createLLImageJ2CKDU();
-extern "C" LLSYMEXPORT void destroyLLImageJ2CKDU(LLImageJ2CKDU* kdu);
-
 #endif
