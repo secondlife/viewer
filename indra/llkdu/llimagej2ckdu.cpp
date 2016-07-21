@@ -72,21 +72,15 @@ private:
 //
 void set_default_colour_weights(kdu_params *siz);
 
+// Factory function: see declaration in llimagej2c.cpp
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
 {
 	return new LLImageJ2CKDU();
 }
 
-void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
+std::string LLImageJ2CKDU::getEngineInfo() const
 {
-	delete impl;
-	impl = NULL;
-}
-
-const char* fallbackEngineInfoLLImageJ2CImpl()
-{
-	static std::string version = llformat("KDU %s", KDU_CORE_VERSION);
-	return version.c_str();
+	return llformat("KDU %s", KDU_CORE_VERSION);
 }
 
 class LLKDUDecodeState

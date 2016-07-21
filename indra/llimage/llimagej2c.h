@@ -30,6 +30,7 @@
 #include "llimage.h"
 #include "llassettype.h"
 #include "llmetricperformancetester.h"
+#include <boost/scoped_ptr.hpp>
 
 // JPEG2000 : compression rate used in j2c conversion.
 const F32 DEFAULT_COMPRESSION_RATE = 1.f/8.f;
@@ -94,7 +95,7 @@ protected:
 	S8  mRawDiscardLevel;
 	F32 mRate;
 	BOOL mReversible;
-	LLImageJ2CImpl *mImpl;
+	boost::scoped_ptr<LLImageJ2CImpl> mImpl;
 	std::string mLastError;
 
     // Image compression/decompression tester
@@ -124,10 +125,10 @@ protected:
 	virtual BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL) = 0;
 	virtual BOOL initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0) = 0;
 
+	virtual std::string getEngineInfo() const = 0;
+
 	friend class LLImageJ2C;
 };
-
-#define LINDEN_J2C_COMMENT_PREFIX "LL_"
 
 //
 // This class is used for performance data gathering only.

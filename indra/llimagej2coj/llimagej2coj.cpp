@@ -33,23 +33,16 @@
 #include "lltimer.h"
 //#include "llmemory.h"
 
-const char* fallbackEngineInfoLLImageJ2CImpl()
-{
-	static std::string version_string =
-		std::string("OpenJPEG: " OPENJPEG_VERSION ", Runtime: ")
-		+ opj_version();
-	return version_string.c_str();
-}
-
+// Factory function: see declaration in llimagej2c.cpp
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
 {
 	return new LLImageJ2COJ();
 }
 
-void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
+std::string LLImageJ2COJ::getEngineInfo() const
 {
-	delete impl;
-	impl = NULL;
+	return std::string("OpenJPEG: " OPENJPEG_VERSION ", Runtime: ")
+		+ opj_version();
 }
 
 // Return string from message, eliminating final \n if present

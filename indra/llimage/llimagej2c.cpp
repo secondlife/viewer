@@ -31,18 +31,13 @@
 #include "llmath.h"
 #include "llmemory.h"
 #include "llsd.h"
+#include <boost/scoped_ptr.hpp>
 
-typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
-typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
-typedef const char* (*EngineInfoLLImageJ2CFunction)();
-
-// Declare the prototype for theses functions here. Their functionality
-// will be implemented in other files which define a derived LLImageJ2CImpl
-// but only ONE static library which has the implementation for these
-// functions should ever be included.
+// Declare the prototype for this factory function here. It is implemented in
+// other files which define a LLImageJ2CImpl subclass, but only ONE static
+// library which has the implementation for this function should ever be
+// linked.
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
-void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl);
-const char* fallbackEngineInfoLLImageJ2CImpl();
 
 // Test data gathering handle
 LLImageCompressionTester* LLImageJ2C::sTesterp = NULL ;
@@ -51,7 +46,10 @@ const std::string sTesterName("ImageCompressionTester");
 //static
 std::string LLImageJ2C::getEngineInfo()
 {
-    return fallbackEngineInfoLLImageJ2CImpl();
+	// All known LLImageJ2CImpl implementation subclasses are cheap to
+	// construct.
+	boost::scoped_ptr<LLImageJ2CImpl> impl(fallbackCreateLLImageJ2CImpl());
+	return impl->getEngineInfo();
 }
 
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
@@ -61,7 +59,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mReversible(FALSE),
 							mAreaUsedForDataSizeCalcs(0)
 {
-	mImpl = fallbackCreateLLImageJ2CImpl();
+	mImpl.reset(fallbackCreateLLImageJ2CImpl());
 	claimMem(mImpl);
 
 	// Clear data size table
@@ -83,13 +81,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 }
 
 // virtual
-LLImageJ2C::~LLImageJ2C()
-{
-	if ( mImpl )
-	{
-        fallbackDestroyLLImageJ2CImpl(mImpl);
-	}
-}
+LLImageJ2C::~LLImageJ2C() {}
 
 // virtual
 void LLImageJ2C::resetLastError()
