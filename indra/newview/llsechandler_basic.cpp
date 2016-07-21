@@ -586,8 +586,7 @@ LLPointer<LLCertificate> LLBasicCertificateVector::erase(iterator _iter)
 //
 // LLBasicCertificateStore
 // This class represents a store of CA certificates.  The basic implementation
-// uses a pem file such as the legacy CA.pem stored in the existing 
-// SL implementation.
+// uses a crt file such as the ca-bundle.crt in the existing SL implementation.
 LLBasicCertificateStore::LLBasicCertificateStore(const std::string& filename)
 {
 	mFilename = filename;
@@ -596,39 +595,51 @@ LLBasicCertificateStore::LLBasicCertificateStore(const std::string& filename)
 
 void LLBasicCertificateStore::load_from_file(const std::string& filename)
 {
+    int loaded = 0;
+
 	// scan the PEM file extracting each certificate
-	if (!LLFile::isfile(filename))
+	if (LLFile::isfile(filename))
 	{
-		return;
-	}
-	
-	BIO* file_bio = BIO_new(BIO_s_file());
-	if(file_bio)
-	{
-		if (BIO_read_filename(file_bio, filename.c_str()) > 0)
-		{	
-			X509 *cert_x509 = NULL;
-			while((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) && 
-				  (cert_x509 != NULL))
-			{
-				try
-				{
-					add(new LLBasicCertificate(cert_x509));
-				}
-				catch (...)
-				{
-					LL_WARNS("SECAPI") << "Failure creating certificate from the certificate store file." << LL_ENDL;
-				}
-				X509_free(cert_x509);
-				cert_x509 = NULL;
-			}
-			BIO_free(file_bio);
-		}
-	}
-	else
-	{
-		LL_WARNS("SECAPI") << "Could not allocate a file BIO" << LL_ENDL;
-	}
+        BIO* file_bio = BIO_new(BIO_s_file());
+        if(file_bio)
+        {
+            if (BIO_read_filename(file_bio, filename.c_str()) > 0)
+            {	
+                X509 *cert_x509 = NULL;
+                while((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) && 
+                      (cert_x509 != NULL))
+                {
+                    try
+                    {
+                        add(new LLBasicCertificate(cert_x509));
+                        loaded++;
+                    }
+                    catch (...)
+                    {
+                        LL_WARNS("SECAPI") << "Failure creating certificate from the certificate store file." << LL_ENDL;
+                    }
+                    X509_free(cert_x509);
+                    cert_x509 = NULL;
+                }
+                BIO_free(file_bio);
+            }
+            else
+            {
+                LL_WARNS("SECAPI") << "BIO read failed for " << filename << LL_ENDL;
+            }
+
+            LL_INFOS("SECAPI") << "loaded " << loaded << " certificates from " << filename << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("SECAPI") << "Could not allocate a file BIO" << LL_ENDL;
+        }
+    }
+    else
+    {
+        // since the user certificate store may not be there, this is not a warning
+        LL_INFOS("SECAPI") << "Certificate store not found at " << filename << LL_ENDL;
+    }
 }
 
 
@@ -664,7 +675,7 @@ void LLBasicCertificateStore::save()
 // return the store id
 std::string LLBasicCertificateStore::storeId() const
 {
-	// this is the basic handler which uses the CA.pem store,
+	// this is the basic handler which uses the ca-bundle.crt store,
 	// so we ignore this.
 	return std::string("");
 }
@@ -1014,7 +1025,11 @@ void LLBasicCertificateStore::validate(int validation_policy,
 									   const LLSD& validation_params)
 {
 	// If --no-verify-ssl-cert was passed on the command line, stop right now.
-	if (gSavedSettings.getBOOL("NoVerifySSLCert")) return;
+	if (gSavedSettings.getBOOL("NoVerifySSLCert"))
+    {
+        LL_WARNS_ONCE("SECAPI") << "All Certificate validation disabled; viewer operation is insecure" << LL_ENDL;
+        return;
+    }
 
 	if(cert_chain->size() < 1)
 	{
@@ -1062,7 +1077,6 @@ void LLBasicCertificateStore::validate(int validation_policy,
 	t_cert_cache::iterator cache_entry = mTrustedCertCache.find(sha1_hash);
 	if(cache_entry != mTrustedCertCache.end())
 	{
-		LL_DEBUGS("SECAPI") << "Found cert in cache" << LL_ENDL;	
 		// this cert is in the cache, so validate the time.
 		if (validation_policy & VALIDATION_POLICY_TIME)
 		{
@@ -1079,6 +1093,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 			}
 		}
 		// successfully found in cache
+		LL_DEBUGS("SECAPI") << "Valid cert for " << validation_params[CERT_HOSTNAME].asString() << " found in cache" << LL_ENDL;
 		return;
 	}
 	if(current_cert_info.isUndefined())
@@ -1123,6 +1138,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 		if(found_store_cert != end())
 		{
 			mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);
+            LL_DEBUGS("SECAPI") << "Valid cert for " << validation_params[CERT_HOSTNAME].asString() << " found in cert store" << LL_ENDL;	
 			return;
 		}
 		
@@ -1160,6 +1176,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 			}			
 			// successfully validated.
 			mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);		
+            LL_DEBUGS("SECAPI") << "Valid CA cert for " << validation_params[CERT_HOSTNAME].asString() << " found in cert store" << LL_ENDL;	
 			return;
 		}
 		previous_cert = (*current_cert);
@@ -1176,6 +1193,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 		throw LLCertValidationTrustException((*cert_chain)[cert_chain->size()-1]);
 
 	}
+    LL_DEBUGS("SECAPI") << "Valid ? cert for " << validation_params[CERT_HOSTNAME].asString() << " found in cert store" << LL_ENDL;	
 	mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);	
 }
 
@@ -1214,13 +1232,13 @@ void LLSecAPIBasicHandler::init()
 														"CA.pem");
 		
 		
-		LL_DEBUGS("SECAPI") << "Loading certificate store from " << store_file << LL_ENDL;
+		LL_INFOS("SECAPI") << "Loading user certificate store from " << store_file << LL_ENDL;
 		mStore = new LLBasicCertificateStore(store_file);
 		
-		// grab the application CA.pem file that contains the well-known certs shipped
+		// grab the application ca-bundle.crt file that contains the well-known certs shipped
 		// with the product
-		std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
-		LL_INFOS() << "app path " << ca_file_path << LL_ENDL;
+		std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "ca-bundle.crt");
+		LL_INFOS("SECAPI") << "Loading application certificate store from " << ca_file_path << LL_ENDL;
 		LLPointer<LLBasicCertificateStore> app_ca_store = new LLBasicCertificateStore(ca_file_path);
 		
 		// push the applicate CA files into the store, therefore adding any new CA certs that 

@@ -2825,7 +2825,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 
 	if(statusCode != 0)
 	{
-		LL_WARNS("Voice") << "Connector.Create response failure: " << statusString << LL_ENDL;
+		LL_WARNS("Voice") << "Connector.Create response failure ("<< statusCode << "): " << statusString << LL_ENDL;
 		LLSD args;
 		std::stringstream errs;
 		errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";

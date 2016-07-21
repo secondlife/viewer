@@ -18,6 +18,7 @@ include(Hunspell)
 include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
+include(LLCA)
 include(LLCharacter)
 include(LLCommon)
 include(LLCoreHttp)
@@ -1601,6 +1602,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/viewerart.xml
     ${CMAKE_SOURCE_DIR}/../etc/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
+    ${AUTOBUILD_INSTALL_DIR}/ca-bundle.crt
     packages-info.txt
     )
 

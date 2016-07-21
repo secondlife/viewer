@@ -212,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad0061db7188a1b9a974eb0512eeeb8d</string>
+              <string>6fb1d3c448fb40ba45b81fe4495cf563</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/Darwin/installer/curl-7.47.0.312763-darwin-312763.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/317905/arch/Darwin/installer/curl-7.47.0.317905-darwin-317905.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -224,9 +224,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f49d4ed203b03852a3f6b01b18319f7a</string>
+              <string>dc094009bdbade0ae348bb4cacb437e0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/Linux/installer/curl-7.47.0.312763-linux-312763.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/317905/arch/Linux/installer/curl-7.47.0.317905-linux-317905.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -236,18 +236,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e0d4f4a5a5bbcba610aafbb91c30b2b</string>
+              <string>f906f15db6160867b55edfb2a975e3c8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/CYGWIN/installer/curl-7.47.0.312763-windows-312763.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/317905/arch/CYGWIN/installer/curl-7.47.0.317905-windows-317905.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.47.0.312763</string>
+        <string>7.47.0.317905</string>
       </map>
       <key>db</key>
       <map>
@@ -1464,6 +1464,46 @@
         </map>
         <key>version</key>
         <string>0.0.1</string>
+      </map>
+      <key>llca</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2016, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/ca-license.txt</string>
+        <key>name</key>
+        <string>llca</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0a336cc09ab757feb560b9e3fab2e0ec</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ll-ca/rev/317913/arch/Linux/installer/llca-2016.07.20.317913-common-317913.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6d4d8efee8b7a5893b693c8f06a5d17b</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llca/rev/317939/arch/Darwin/installer/llca-2016.07.21.317939-darwin-317939.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2016.07.21.317939</string>
       </map>
       <key>llceflib</key>
       <map>

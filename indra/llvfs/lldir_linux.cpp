@@ -220,7 +220,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 		}
 	}
 	
-	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
+	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "ca-bundle.crt");
 }
 
 U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &mask)

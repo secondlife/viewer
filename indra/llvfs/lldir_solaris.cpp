@@ -238,7 +238,7 @@ void LLDir_Solaris::initAppDirs(const std::string &app_name,
 		}
 	}
 	
-	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
+	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "ca-bundle.crt");
 }
 
 U32 LLDir_Solaris::countFilesInDir(const std::string &dirname, const std::string &mask)
