@@ -42,9 +42,7 @@ except ImportError:
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 
-mydir = os.path.dirname(__file__)       # expected to be .../indra/llcorehttp/tests/
-sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
-from indra.util.fastest_elementtree import parse as xml_parse
+from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
 from testrunner import freeport, run, debug, VERBOSE
 
