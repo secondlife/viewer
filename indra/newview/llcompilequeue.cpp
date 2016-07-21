@@ -342,12 +342,14 @@ void LLFloaterCompileQueue::processExperienceIdResults(LLSD result, LLUUID paren
 
 }
 
+/// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
+/// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
 bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloater,
     const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
     LLSD result;
     LLCheckedHandle<LLFloaterCompileQueue> floater(hfloater);
-    // Calls to floater may fail. If they do they throw LLExeceptionStaleHandle.
+    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
     bool monocompile = floater->mMono;
     F32 fetch_timeout = gSavedSettings.getF32("QueueInventoryFetchTimeout");
@@ -541,11 +543,13 @@ LLFloaterResetQueue::~LLFloaterResetQueue()
 { 
 }
 
-bool LLFloaterResetQueue::resetObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, 
+/// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
+/// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
+bool LLFloaterResetQueue::resetObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater,
     const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
     LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);
-    // Calls to floater may fail. If they do they throw LLExeceptionStaleHandle.
+    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
 
     std::string buffer;
@@ -596,11 +600,13 @@ LLFloaterRunQueue::~LLFloaterRunQueue()
 { 
 }
 
-bool LLFloaterRunQueue::runObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, 
+/// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
+/// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
+bool LLFloaterRunQueue::runObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater,
     const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
     LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);
-    // Calls to floater may fail. If they do they throw LLExeceptionStaleHandle.
+    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
 
     std::string buffer;
@@ -651,11 +657,13 @@ LLFloaterNotRunQueue::~LLFloaterNotRunQueue()
 { 
 }
 
+/// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
+/// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
 bool LLFloaterNotRunQueue::stopObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, 
     const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
     LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);
-    // Calls to floater may fail. If they do they throw LLExeceptionStaleHandle.
+    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
 
     std::string buffer;
@@ -708,7 +716,8 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
 {
     LLCoros::set_consuming(true);
     LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);    
-    // Calls to floater may fail. If they do they throw LLExeceptionStaleHandle. This is expected if the dialog closes.
+    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle. 
+    // This is expected if the dialog closes.
     LLEventMailDrop        maildrop(QUEUE_EVENTPUMP_NAME, true);
     F32 fetch_timeout = gSavedSettings.getF32("QueueInventoryFetchTimeout");
 
@@ -793,15 +802,10 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         floater->addStringMessage("Done");
         floater->getChildView("close")->setEnabled(TRUE);
     }
-    catch (LLExeceptionStaleHandle &)
+    catch (LLCheckedHandleBase::Stale &)
     {
         // This is expected.  It means that floater has been closed before 
         // processing was completed.
-        LL_WARNS("SCRIPTQ") << "LLExeceptionStaleHandle caught! Floater has most likely been closed." << LL_ENDL;
-    }
-    catch (...)
-    {
-        // Rethrow the caught exception.
-        throw;
+        LL_DEBUGS("SCRIPTQ") << "LLExeceptionStaleHandle caught! Floater has most likely been closed." << LL_ENDL;
     }
 }

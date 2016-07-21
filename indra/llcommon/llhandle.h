@@ -28,6 +28,7 @@
 #define LLHANDLE_H
 
 #include "llpointer.h"
+#include "llexception.h"
 #include <stdexcept>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -215,64 +216,53 @@ private:
 	mutable LLRootHandle<T> mHandle;
 };
 
-/*
- * $TODO: Derive from LLException
- */
-class LLExeceptionStaleHandle : public std::runtime_error
+
+
+class LLCheckedHandleBase
 {
 public:
-    LLExeceptionStaleHandle():
-        std::runtime_error("Attempt to access stale handle.")
-   {}
+    class Stale : public LLException
+    {
+    public:
+        Stale() :
+            LLException("Attempt to access stale handle.")
+        {}
+    };
+
+protected:
+    LLCheckedHandleBase() { }
+
 };
 
 /**
  * This is a simple wrapper for Handles, allowing direct calls to the underlying 
- * pointer. The checked handle will throw a LLExeceptionStaleHandle if an attempt 
+ * pointer. The checked handle will throw a Stale if an attempt 
  * is made to access the object referenced by the handle and that object has 
  * been destroyed.
  **/
 template <typename T> 
-class LLCheckedHandle: private boost::noncopyable
+class LLCheckedHandle: public LLCheckedHandleBase
 {
 public:
+
     LLCheckedHandle(LLHandle<T> handle):
         mHandle(handle)
     { }
 
     /**
-     * Retrieve the underlying pointer by resolving the handle. If the handle
-     * returns NULL for the pointer throw an LLExeceptionStaleHandle exception.
-     */
-    T* get() const
-    {
-        T* ptr = mHandle.get();
-        if (!ptr)
-            BOOST_THROW_EXCEPTION(LLExeceptionStaleHandle());
-        return ptr;
-    }
-
-    /**
-     * Test the handle to see if it is still valid. Returns true if it is,
-     * false if it is not. Does not trow.
-     */
-    bool test() const
-    {
-        return (mHandle.get() != NULL);
-    }
-
-    /**
-     * Test the underlying handle.  If it is no longer valid, throw a LLExeceptionStaleHandle.
+     * Test the underlying handle.  If it is no longer valid, throw a Stale exception.
      */
     void check() const
     {
-        get();
+        T* ptr = mHandle.get();
+        if (!ptr)
+            BOOST_THROW_EXCEPTION(Stale());
     }
 
     /**
-     * Get the contained handle. 
+     * Cast back to an appropriate handle
      */
-    LLHandle<T> getHandle() const
+    operator LLHandle<T>() const
     {
         return mHandle;
     }
@@ -281,22 +271,26 @@ public:
      * Converts the LLCheckedHandle to a bool. Allows for if (chkdHandle) {} 
      * Does not throw.
      */
-    operator bool() const
+    explicit operator bool() const
     {
-        return test();
+        return (mHandle.get() != NULL);
     }
 
     /**
      * Attempt to call a method or access a member in the structure referenced 
      * by the handle.  If the handle no longer points to a valid structure 
-     * throw a LLExeceptionStaleHandle.
+     * throw a Stale.
      */
     T* operator ->() const
     {
-        return get();
+        T* ptr = mHandle.get();
+        if (!ptr)
+            BOOST_THROW_EXCEPTION(Stale());
+        return ptr;
     }
 
 private:
+
     LLHandle<T> mHandle;
 };
 
