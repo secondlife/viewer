@@ -34,6 +34,7 @@
 #include <map>
 // std headers
 // external library headers
+#include <boost/throw_exception.hpp>
 // other Linden headers
 #include "llsdserialize.h"
 #include "llerror.h"
@@ -351,7 +352,7 @@ LLSD errorException(const LLEventWithID& result, const std::string& desc)
     // returning it, deliver it via exception.
     if (result.second)
     {
-        throw LLErrorEvent(desc, result.first);
+        BOOST_THROW_EXCEPTION(LLErrorEvent(desc, result.first));
     }
     // That way, our caller knows a simple return must be from the reply
     // pump (pump 0).

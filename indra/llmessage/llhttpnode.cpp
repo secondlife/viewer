@@ -31,6 +31,8 @@
 
 #include "llstl.h"
 #include "llhttpconstants.h"
+#include "llexception.h"
+#include <boost/throw_exception.hpp>
 
 const std::string CONTEXT_HEADERS("headers");
 const std::string CONTEXT_PATH("path");
@@ -92,27 +94,28 @@ LLHTTPNode::~LLHTTPNode()
 
 
 namespace {
-	class NotImplemented
+	struct NotImplemented: public LLException
 	{
+		NotImplemented(): LLException("LLHTTPNode::NotImplemented") {}
 	};
 }
 
 // virtual
 LLSD LLHTTPNode::simpleGet() const
 {
-	throw NotImplemented();
+	BOOST_THROW_EXCEPTION(NotImplemented());
 }
 
 // virtual
 LLSD LLHTTPNode::simplePut(const LLSD& input) const
 {
-	throw NotImplemented();
+	BOOST_THROW_EXCEPTION(NotImplemented());
 }
 
 // virtual
 LLSD LLHTTPNode::simplePost(const LLSD& input) const
 {
-	throw NotImplemented();
+	BOOST_THROW_EXCEPTION(NotImplemented());
 }
 
 
@@ -172,7 +175,7 @@ void LLHTTPNode::del(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
 // virtual
 LLSD LLHTTPNode::simpleDel(const LLSD&) const
 {
-	throw NotImplemented();
+	BOOST_THROW_EXCEPTION(NotImplemented());
 }
 
 // virtual

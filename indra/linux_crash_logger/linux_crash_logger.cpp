@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	app.mainLoop();
+	app.frame();
 	app.cleanup();
 	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
 	return 0;

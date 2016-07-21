@@ -317,10 +317,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	}
 	
 	// Run the application main loop
-	if(!LLApp::isQuitting()) 
-	{
-		viewer_app_ptr->mainLoop();
-	}
+	while (! viewer_app_ptr->frame()) 
+	{}
 
 	if (!LLApp::isError())
 	{

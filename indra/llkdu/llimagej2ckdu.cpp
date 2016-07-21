@@ -34,6 +34,16 @@
 
 #include "kdu_block_coding.h"
 
+#include "llexception.h"
+#include <boost/throw_exception.hpp>
+
+namespace {
+struct KDUError: public LLException
+{
+    KDUError(const std::string& msg): LLException(msg) {}
+};
+} // anonymous namespace
+
 class kdc_flow_control {
 	
 public:
@@ -128,13 +138,6 @@ private:
 	S32 mRowGap;
 };
 
-void ll_kdu_error( void )
-{
-	// *FIX: This exception is bad, bad, bad. It gets thrown from a
-	// destructor which can lead to immediate program termination!
-	throw "ll_kdu_error() throwing an exception";
-}
-
 // Stuff for new kdu error handling
 class LLKDUMessageWarning : public kdu_message
 {
@@ -178,7 +181,7 @@ void LLKDUMessageError::flush(bool end_of_message)
 {
 	if (end_of_message) 
 	{
-		throw "KDU throwing an exception";
+		BOOST_THROW_EXCEPTION(KDUError("LLKDUMessageError::flush()"));
 	}
 }
 
@@ -422,9 +425,9 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			mTPosp->x = 0;
 		}
 	}
-	catch (const char* msg)
+	catch (const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
 		return FALSE;
 	}
 	catch (...)
@@ -512,9 +515,9 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					return FALSE;
 				}
 			}
-			catch (const char* msg)
+			catch (const KDUError& msg)
 			{
-				base.setLastError(ll_safe_string(msg));
+				base.setLastError(msg.what());
 				base.decodeFailed();
 				cleanupCodeStream();
 				return TRUE; // done
@@ -705,9 +708,9 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		base.updateData(); // set width, height
 		delete[] output_buffer;
 	}
-	catch(const char* msg)
+	catch(const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
 		return FALSE;
 	}
 	catch( ... )
@@ -729,9 +732,9 @@ BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 		setupCodeStream(base, FALSE, MODE_FAST);
 		return TRUE;
 	}
-	catch (const char* msg)
+	catch (const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
 		return FALSE;
 	}
 	catch (...)
