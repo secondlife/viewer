@@ -1465,6 +1465,58 @@
         <key>version</key>
         <string>0.0.1</string>
       </map>
+      <key>llbase</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/llbase-license.txt</string>
+        <key>name</key>
+        <string>llbase</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>313f5c8edd328e05c59cbe980512f84c</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/317790/arch/Darwin/installer/llbase-0.8.6.317790-darwin-317790.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e85171c70b57dd086b956ba36e6f2306</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/317790/arch/Linux/installer/llbase-0.8.6.317790-linux-317790.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>07b0d64d812cfaf3025b799cea5fe446</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/317790/arch/CYGWIN/installer/llbase-0.8.6.0-windows-317790.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.8.6.317790</string>
+      </map>
       <key>llceflib</key>
       <map>
         <key>copyright</key>
