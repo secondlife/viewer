@@ -357,6 +357,8 @@ void MediaPluginLibVLC::playMedia()
 	libvlc_video_set_callbacks(mLibVLCMediaPlayer, lock, unlock, display, &mLibVLCCallbackContext);
 	libvlc_video_set_format(mLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
 
+	// note this relies on the "set_loop" message arriving before the "start" (play) one
+	// but that appears to always be the case
 	if (mIsLooping)
 	{
 		libvlc_media_add_option(mLibVLCMedia, "input-repeat=-1");
