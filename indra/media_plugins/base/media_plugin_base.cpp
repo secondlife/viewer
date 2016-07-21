@@ -73,6 +73,7 @@ std::string MediaPluginBase::statusString()
 		case STATUS_PLAYING:	result = "playing";		break;
 		case STATUS_PAUSED:		result = "paused";		break;
 		case STATUS_DONE:		result = "done";		break;
+		case STATUS_BUFFERING:	result = "buffering";	break;
 		default:
 			// keep the empty string
 		break;

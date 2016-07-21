@@ -56,7 +56,8 @@ protected:
 		STATUS_ERROR,
 		STATUS_PLAYING,
 		STATUS_PAUSED,
-		STATUS_DONE
+		STATUS_DONE,
+		STATUS_BUFFERING
 	} EStatus;
 
    /** Plugin shared memory. */
