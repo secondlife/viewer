@@ -212,10 +212,6 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 		parent->setStatus(STATUS_LOADING);
 		break;
 
-	case libvlc_MediaPlayerBuffering:
-		parent->setStatus(STATUS_BUFFERING);
-		break;
-
 	case libvlc_MediaPlayerPlaying:
 		parent->mDuration = (float)(libvlc_media_get_duration(parent->mLibVLCMedia)) / 1000.0f;
 		parent->setStatus(STATUS_PLAYING);
@@ -276,7 +272,6 @@ void MediaPluginLibVLC::playMedia()
 		if (em)
 		{
 			libvlc_event_detach(em, libvlc_MediaPlayerOpening, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerBuffering, eventCallbacks, NULL);
 			libvlc_event_detach(em, libvlc_MediaPlayerPlaying, eventCallbacks, NULL);
 			libvlc_event_detach(em, libvlc_MediaPlayerPaused, eventCallbacks, NULL);
 			libvlc_event_detach(em, libvlc_MediaPlayerStopped, eventCallbacks, NULL);
@@ -321,7 +316,6 @@ void MediaPluginLibVLC::playMedia()
 	if (em)
 	{
 		libvlc_event_attach(em, libvlc_MediaPlayerOpening, eventCallbacks, this);
-		libvlc_event_attach(em, libvlc_MediaPlayerBuffering, eventCallbacks, this);
 		libvlc_event_attach(em, libvlc_MediaPlayerPlaying, eventCallbacks, this);
 		libvlc_event_attach(em, libvlc_MediaPlayerPaused, eventCallbacks, this);
 		libvlc_event_attach(em, libvlc_MediaPlayerStopped, eventCallbacks, this);
