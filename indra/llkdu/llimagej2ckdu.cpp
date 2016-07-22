@@ -106,62 +106,67 @@ private:
 	S32 mRowGap;
 };
 
-void ll_kdu_error( void )
-{
-	// *FIX: This exception is bad, bad, bad. It gets thrown from a
-	// destructor which can lead to immediate program termination!
-	throw "ll_kdu_error() throwing an exception";
-}
-
 // Stuff for new kdu error handling
-class LLKDUMessageWarning : public kdu_message
+class LLKDUMessage: public kdu_message
 {
 public:
-	/*virtual*/ void put_text(const char *s);
-	/*virtual*/ void put_text(const kdu_uint16 *s);
+	LLKDUMessage(const std::string& type):
+		mType(type)
+	{}
 
-	static LLKDUMessageWarning sDefaultMessage;
-};
-
-class LLKDUMessageError : public kdu_message
-{
-public:
-	/*virtual*/ void put_text(const char *s);
-	/*virtual*/ void put_text(const kdu_uint16 *s);
-	/*virtual*/ void flush(bool end_of_message = false);
-	static LLKDUMessageError sDefaultMessage;
-};
-
-void LLKDUMessageWarning::put_text(const char *s)
-{
-	LL_INFOS() << "KDU Warning: " << s << LL_ENDL;
-}
-
-void LLKDUMessageWarning::put_text(const kdu_uint16 *s)
-{
-	LL_INFOS() << "KDU Warning: " << s << LL_ENDL;
-}
-
-void LLKDUMessageError::put_text(const char *s)
-{
-	LL_INFOS() << "KDU Error: " << s << LL_ENDL;
-}
-
-void LLKDUMessageError::put_text(const kdu_uint16 *s)
-{
-	LL_INFOS() << "KDU Error: " << s << LL_ENDL;
-}
-
-void LLKDUMessageError::flush(bool end_of_message)
-{
-	if (end_of_message) 
+	virtual void put_text(const char *s)
 	{
-		throw "KDU throwing an exception";
+		LL_INFOS() << "KDU " << mType << ": " << s << LL_ENDL;
 	}
-}
 
-LLKDUMessageWarning LLKDUMessageWarning::sDefaultMessage;
-LLKDUMessageError	LLKDUMessageError::sDefaultMessage;
+	virtual void put_text(const kdu_uint16 *s)
+	{
+		// The previous implementation simply streamed 's' to the log. So
+		// either this put_text() override was never called -- or it produced
+		// some baffling log messages -- because I assert that streaming a
+		// const kdu_uint16* to a std::ostream will display only the hex value
+		// of the pointer.
+		LL_INFOS() << "KDU " << mType << ": "
+				   << utf16str_to_utf8str(llutf16string(s)) << LL_ENDL;
+	}
+
+private:
+	std::string mType;
+};
+
+struct LLKDUMessageWarning : public LLKDUMessage
+{
+	LLKDUMessageWarning():
+		LLKDUMessage("Warning")
+	{}
+};
+static LLKDUMessageWarning sWarningHandler;
+
+struct LLKDUMessageError : public LLKDUMessage
+{
+	LLKDUMessageError():
+		LLKDUMessage("Error")
+	{}
+
+	virtual void flush(bool end_of_message = false)
+	{
+		// According to the documentation nat found:
+		// http://pirlwww.lpl.arizona.edu/resources/guide/software/Kakadu/html_pages/globals__kdu$mize_errors.html
+		// "If a kdu_error object is destroyed, handler→flush will be called with
+		// an end_of_message argument equal to true and the process will
+		// subsequently be terminated through exit. The termination may be
+		// avoided, however, by throwing an exception from within the message
+		// terminating handler→flush call."
+		// So throwing an exception here isn't arbitrary: we MUST throw an
+		// exception if we want to recover from a KDU error.
+		if (end_of_message) 
+		{
+			throw "KDU throwing an exception";
+		}
+	}
+};
+static LLKDUMessageError sErrorHandler;
+
 static bool kdu_message_initialized = false;
 
 LLImageJ2CKDU::LLImageJ2CKDU() : LLImageJ2CImpl(),
@@ -196,8 +201,8 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	if (!kdu_message_initialized)
 	{
 		kdu_message_initialized = true;
-		kdu_customize_errors(&LLKDUMessageError::sDefaultMessage);
-		kdu_customize_warnings(&LLKDUMessageWarning::sDefaultMessage);
+		kdu_customize_errors(&sErrorHandler);
+		kdu_customize_warnings(&sWarningHandler);
 	}
 
 	if (mCodeStreamp)
