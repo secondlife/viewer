@@ -907,7 +907,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 	
 	if(mMediaSource && mMediaSource->hasMedia())
 	{
+// on OS X (maybe Linux) and on 2D media like login/search, the coords are wrong.
+// they are fine on 3D media - so we flip (or is it unflip) them here for anything
+// except windows (Which appears to be correct on both counts)
+#if LL_WINDOWS
 		coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
+#else
+		coords_opengl = ! mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
+#endif
 	}
 	
 	x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
