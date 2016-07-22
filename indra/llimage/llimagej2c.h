@@ -48,10 +48,10 @@ public:
 
 	// Base class overrides
 	/*virtual*/ std::string getExtension() { return std::string("j2c"); }
-	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw *raw_imagep, F32 decode_time);
-	/*virtual*/ BOOL decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count);
-	/*virtual*/ BOOL encode(const LLImageRaw *raw_imagep, F32 encode_time);
+	/*virtual*/ bool updateData();
+	/*virtual*/ bool decode(LLImageRaw *raw_imagep, F32 decode_time);
+	/*virtual*/ bool decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count);
+	/*virtual*/ bool encode(const LLImageRaw *raw_imagep, F32 encode_time);
 	/*virtual*/ S32 calcHeaderSize();
 	/*virtual*/ S32 calcDataSize(S32 discard_level = 0);
 	/*virtual*/ S32 calcDiscardLevelBytes(S32 bytes);
@@ -60,17 +60,17 @@ public:
 	/*virtual*/ void resetLastError();
 	/*virtual*/ void setLastError(const std::string& message, const std::string& filename = std::string());
 	
-	BOOL initDecode(LLImageRaw &raw_image, int discard_level, int* region);
-	BOOL initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels);
+	bool initDecode(LLImageRaw &raw_image, int discard_level, int* region);
+	bool initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels);
 	
 	// Encode with comment text 
-	BOOL encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time=0.0);
+	bool encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time=0.0);
 
-	BOOL validate(U8 *data, U32 file_size);
-	BOOL loadAndValidate(const std::string &filename);
+	bool validate(U8 *data, U32 file_size);
+	bool loadAndValidate(const std::string &filename);
 
 	// Encode accessors
-	void setReversible(const BOOL reversible); // Use non-lossy?
+	void setReversible(const bool reversible); // Use non-lossy?
 	void setMaxBytes(S32 max_bytes);
 	S32 getMaxBytes() const { return mMaxBytes; }
 
@@ -94,7 +94,7 @@ protected:
 
 	S8  mRawDiscardLevel;
 	F32 mRate;
-	BOOL mReversible;
+	bool mReversible;
 	boost::scoped_ptr<LLImageJ2CImpl> mImpl;
 	std::string mLastError;
 
@@ -112,18 +112,18 @@ protected:
 	// Return value:
 	// true: image size and number of channels was determined
 	// false: error on decode
-	virtual BOOL getMetadata(LLImageJ2C &base) = 0;
+	virtual bool getMetadata(LLImageJ2C &base) = 0;
 	// Decode the raw image optionally aborting (to continue later) after
 	// decode_time seconds.  Decode at most max_channel_count and start
 	// decoding channel first_channel.
 	// Return value:
 	// true: decoding complete (even if it failed)
 	// false: time expired while decoding
-	virtual BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count) = 0;
-	virtual BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
-							BOOL reversible=FALSE) = 0;
-	virtual BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL) = 0;
-	virtual BOOL initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0) = 0;
+	virtual bool decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count) = 0;
+	virtual bool encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
+							bool reversible=false) = 0;
+	virtual bool initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL) = 0;
+	virtual bool initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0) = 0;
 
 	virtual std::string getEngineInfo() const = 0;
 

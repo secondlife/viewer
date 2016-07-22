@@ -88,11 +88,11 @@ class LLKDUDecodeState
 public:
 	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap);
 	~LLKDUDecodeState();
-	BOOL processTileDecode(F32 decode_time, BOOL limit_time = TRUE);
+	bool processTileDecode(F32 decode_time, bool limit_time = true);
 
 private:
 	S32 mNumComponents;
-	BOOL mUseYCC;
+	bool mUseYCC;
 	kdu_dims mDims;
 	kdu_sample_allocator mAllocator;
 	kdu_tile_comp mComps[4];
@@ -190,7 +190,7 @@ LLImageJ2CKDU::~LLImageJ2CKDU()
 // Stuff for new simple decode
 void transfer_bytes(kdu_byte *dest, kdu_line_buf &src, int gap, int precision);
 
-void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECodeStreamMode mode)
+void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode)
 {
 	S32 data_size = base.getDataSize();
 	S32 max_bytes = (base.getMaxBytes() ? base.getMaxBytes() : data_size);
@@ -316,12 +316,12 @@ void LLImageJ2CKDU::cleanupCodeStream()
 	mTileIndicesp = NULL;
 }
 
-BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
+bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
 {
 	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
 }
 
-BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
+bool LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
 	mPrecinctsSize = precincts_size;
 	if (mPrecinctsSize != -1)
@@ -345,10 +345,10 @@ BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 		mLevels = llclamp(mLevels,MIN_DECOMPOSITION_LEVELS,MAX_DECOMPOSITION_LEVELS);
 		base.setLevels(mLevels);
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
+bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
 {
 	base.resetLastError();
 
@@ -360,7 +360,7 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		//findDiscardLevelsBoundaries(base);
 
 		base.updateRawDiscardLevel();
-		setupCodeStream(base, TRUE, mode);
+		setupCodeStream(base, true, mode);
 
 		mRawImagep = &raw_image;
 		mCodeStreamp->change_appearance(false, true, false);
@@ -408,20 +408,20 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 	catch (const char* msg)
 	{
 		base.setLastError(ll_safe_string(msg));
-		return FALSE;
+		return false;
 	}
 	catch (...)
 	{
 		base.setLastError("Unknown J2C error");
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-// Returns TRUE to mean done, whether successful or not.
-BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
+// Returns true to mean done, whether successful or not.
+bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
 {
 	ECodeStreamMode mode = MODE_FAST;
 
@@ -433,7 +433,7 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		{
 			// Initializing the J2C decode failed, bail out.
 			cleanupCodeStream();
-			return TRUE; // done
+			return true; // done
 		}
 	}
 
@@ -492,7 +492,7 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 				{
 					// Not finished decoding yet.
 					//					setLastError("Ran out of time while decoding");
-					return FALSE;
+					return false;
 				}
 			}
 			catch (const char* msg)
@@ -500,14 +500,14 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 				base.setLastError(ll_safe_string(msg));
 				base.decodeFailed();
 				cleanupCodeStream();
-				return TRUE; // done
+				return true; // done
 			}
 			catch (...)
 			{
 				base.setLastError( "Unknown J2C error" );
 				base.decodeFailed();
 				cleanupCodeStream();
-				return TRUE; // done
+				return true; // done
 			}
 
 
@@ -519,11 +519,11 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 	cleanupCodeStream();
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time, BOOL reversible)
+bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time, bool reversible)
 {
 	// Declare and set simple arguments
 	bool transpose = false;
@@ -691,36 +691,36 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 	catch(const char* msg)
 	{
 		base.setLastError(ll_safe_string(msg));
-		return FALSE;
+		return false;
 	}
 	catch( ... )
 	{
 		base.setLastError( "Unknown J2C error" );
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
+bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 {
 	// *FIX: kdu calls our callback function if there's an error, and
 	// then bombs. To regain control, we throw an exception, and
 	// catch it here.
 	try
 	{
-		setupCodeStream(base, FALSE, MODE_FAST);
-		return TRUE;
+		setupCodeStream(base, false, MODE_FAST);
+		return true;
 	}
 	catch (const char* msg)
 	{
 		base.setLastError(ll_safe_string(msg));
-		return FALSE;
+		return false;
 	}
 	catch (...)
 	{
 		base.setLastError( "Unknown J2C error" );
-		return FALSE;
+		return false;
 	}
 }
 
@@ -830,7 +830,7 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 	{
 		//std::cout << "Parsing discard level = " << discard_level << std::endl;
 		// Create the input codestream object.
-		setupCodeStream(base, TRUE, MODE_FAST);
+		setupCodeStream(base, true, MODE_FAST);
 		mCodeStreamp->apply_input_restrictions(0, 4, discard_level, 0, NULL);
 		mCodeStreamp->set_max_bytes(KDU_LONG_MAX,true);
 		siz_params *siz_in = mCodeStreamp->access_siz();
@@ -1189,7 +1189,7 @@ LLKDUDecodeState::~LLKDUDecodeState()
 	mTile.close();
 }
 
-BOOL LLKDUDecodeState::processTileDecode(F32 decode_time, BOOL limit_time)
+bool LLKDUDecodeState::processTileDecode(F32 decode_time, bool limit_time)
 /* Decompresses a tile, writing the data into the supplied byte buffer.
 The buffer contains interleaved image components, if there are any.
 Although you may think of the buffer as belonging entirely to this tile,
@@ -1221,11 +1221,11 @@ separation between consecutive rows in the real buffer. */
 		{
 			if (limit_time && decode_timer.getElapsedTimeF32() > decode_time)
 			{
-				return FALSE;
+				return false;
 			}
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 // kdc_flow_control 
