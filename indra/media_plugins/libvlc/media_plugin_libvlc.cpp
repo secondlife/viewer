@@ -572,6 +572,11 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 				}
 				else if (message_name == "seek")
 				{
+					if (mDuration > 0)
+					{
+						F64 normalized_offset = message_in.getValueReal("time") / mDuration;
+						libvlc_media_player_set_position(mLibVLCMediaPlayer, normalized_offset);
+					}
 				}
 				else if (message_name == "set_loop")
 				{
