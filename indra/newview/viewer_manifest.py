@@ -355,7 +355,7 @@ class Windows_i686_Manifest(ViewerManifest):
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
         
-        self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
+        #note, launcher and friends do not need viewer_manifest in Windows as the scripts are compiled into executables
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
@@ -712,9 +712,10 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             if self.prefix(dst="MacOS"):
                 self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
-                #this copies over the python wrapper script and associated utilities, see SL-321, SL-322 and SL-323
+                #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
                 self.path2basename("../viewer_components/manager","SL_Launcher")
                 self.path2basename("../viewer_components/manager","*.py")
+                self.path2basename("../../../../../packages/llbase","*")
                 self.end_prefix()
 
             # most everything goes in the Resources directory
@@ -1067,7 +1068,10 @@ class LinuxManifest(ViewerManifest):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
-            self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
+            #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
+            self.path2basename("../viewer_components/manager","SL_Launcher")
+            self.path2basename("../viewer_components/manager","*.py")
+            self.path2basename("../packages/llbase","*")
             self.end_prefix("bin")
 
         if self.prefix("res-sdl"):
