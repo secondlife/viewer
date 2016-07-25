@@ -914,8 +914,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, category_id);
 			if( item_array )
 			{
+				LLInventoryModel::LLCategoryUpdate update(category_id, 1);
+				gInventory.accountForUpdate(update);
+
 				// *FIX: bit of a hack to call update server from here...
-				new_item->updateServer(TRUE);
+				new_item->updateParentOnServer(FALSE);
 				item_array->push_back(new_item);
 			}
 			else
@@ -956,9 +959,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 				item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
 				if(item_array)
 				{
+					LLInventoryModel::LLCategoryUpdate update(parent_id, 1);
+					gInventory.accountForUpdate(update);
 					// *FIX: bit of a hack to call update server from
 					// here...
-					new_item->updateServer(TRUE);
+					new_item->updateParentOnServer(FALSE);
 					item_array->push_back(new_item);
 				}
 				else
