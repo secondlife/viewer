@@ -1639,7 +1639,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			
 			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
 			discard_agent_offer->startFetch();
-			if (catp || (itemp && itemp->isFinished()))
+			if ((catp && gInventory.isCategoryComplete(mObjectID)) || (itemp && itemp->isFinished()))
 			{
 				discard_agent_offer->done();
 			}
