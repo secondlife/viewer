@@ -101,7 +101,8 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
-     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
+     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+    || fatal "$variant configuration failed"
 
   end_section "Configure $variant"
 }
