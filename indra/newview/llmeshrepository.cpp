@@ -3934,7 +3934,7 @@ const LLSD* LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 	{
 		LLMutexLock lock(mHeaderMutex);
 		mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
-		if (iter != mMeshHeader.end())
+		if (iter != mMeshHeader.end() && mMeshHeaderSize[mesh_id] > 0)
 		{
 			return &(iter->second);
 		}
