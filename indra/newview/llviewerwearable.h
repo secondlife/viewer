@@ -82,7 +82,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w);
 
-	/*virtual*/ void	revertValues();
+	/*virtual*/ void	revertValues(bool update_panel = true);
 	/*virtual*/ void	saveValues();
 
 	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
