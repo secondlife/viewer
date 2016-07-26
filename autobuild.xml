@@ -1482,28 +1482,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0a336cc09ab757feb560b9e3fab2e0ec</string>
+              <string>d22e7794691d1f44e400369ae1eb397f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ll-ca/rev/317913/arch/Linux/installer/llca-2016.07.20.317913-common-317913.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llca/rev/318103/arch/Linux/installer/llca-2016.07.26.318103-common-318103.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6d4d8efee8b7a5893b693c8f06a5d17b</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llca/rev/317939/arch/Darwin/installer/llca-2016.07.21.317939-darwin-317939.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
         </map>
         <key>version</key>
-        <string>2016.07.21.317939</string>
+        <string>2016.07.26.318103</string>
       </map>
       <key>llceflib</key>
       <map>
