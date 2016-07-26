@@ -433,7 +433,7 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 	// old_wearable may still be referred to by other inventory items. Revert
 	// unsaved changes so other inventory items aren't affected by the changes
 	// that were just saved.
-	old_wearable->revertValues(false);
+	old_wearable->revertValuesWithoutUpdate();
 }
 
 void LLAgentWearables::revertWearable(const LLWearableType::EType type, const U32 index)

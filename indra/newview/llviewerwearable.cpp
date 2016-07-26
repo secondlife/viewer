@@ -451,7 +451,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 
 	// Probably reduntant, but ensure that the newly created wearable is not dirty by setting current value of params in new wearable
 	// to be the same as the saved values (which were loaded from src at param->cloneParam(this))
-	revertValues(false);
+	revertValuesWithoutUpdate();
 }
 
 void LLViewerWearable::setItemID(const LLUUID& item_id)
@@ -459,16 +459,21 @@ void LLViewerWearable::setItemID(const LLUUID& item_id)
 	mItemID = item_id;
 }
 
-void LLViewerWearable::revertValues(bool update_panel)
+void LLViewerWearable::revertValues()
 {
 	LLWearable::revertValues();
 
 
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
-	if( panel && update_panel)
+	if( panel )
 	{
 		panel->updateScrollingPanelList();
 	}
+}
+
+void LLViewerWearable::revertValuesWithoutUpdate()
+{
+	LLWearable::revertValues();
 }
 
 void LLViewerWearable::saveValues()
