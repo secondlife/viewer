@@ -240,6 +240,7 @@ private:
 typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLUUID id)> floater_commit_callback;
 typedef boost::function<void()> floater_close_callback;
 typedef boost::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
+typedef boost::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
 
 class LLFloaterTexturePicker : public LLFloater
 {
@@ -298,6 +299,7 @@ public:
 	void setOnFloaterCloseCallback(const floater_close_callback& cb) { mOnFloaterCloseCallback = cb; }
 	void setOnFloaterCommitCallback(const floater_commit_callback& cb) { mOnFloaterCommitCallback = cb; }
 	void setSetImageAssetIDCallback(const set_image_asset_id_callback& cb) { mSetImageAssetIDCallback = cb; }
+	void setOnUpdateImageStatsCallback(const set_on_update_image_stats_callback& cb) { mOnUpdateImageStatsCallback = cb; }
 	const LLUUID& getDefaultImageAssetID() { return mDefaultImageAssetID; }
 	const LLUUID& getBlankImageAssetID() { return mBlankImageAssetID; }
 
@@ -364,6 +366,7 @@ private:
 	floater_close_callback mOnFloaterCloseCallback;
 	floater_commit_callback mOnFloaterCommitCallback;
 	set_image_asset_id_callback mSetImageAssetIDCallback;
+	set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
 };
 
 #endif  // LL_LLTEXTURECTRL_H

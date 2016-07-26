@@ -55,6 +55,9 @@
 
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
 
+#define MAX_OUTFIT_PHOTO_WIDTH 256
+#define MAX_OUTFIT_PHOTO_HEIGHT 256
+
 LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
       mTexturesObserver(NULL),
@@ -74,7 +77,8 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mItemHorizontalGap(p.item_horizontal_gap),
       mItemsInRow(p.items_in_row),
       mRowPanWidthFactor(p.row_panel_width_factor),
-      mGalleryWidthFactor(p.gallery_width_factor)
+      mGalleryWidthFactor(p.gallery_width_factor),
+      mTextureSelected(NULL)
 {
     updateGalleryWidth();
 }
@@ -1069,8 +1073,8 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
                 image_load_error = image_info.getLastError();
             }
 
-            S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-            S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+            S32 max_width = MAX_OUTFIT_PHOTO_WIDTH;
+            S32 max_height = MAX_OUTFIT_PHOTO_HEIGHT;
 
             if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
             {
@@ -1078,14 +1082,14 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
                 args["WIDTH"] = llformat("%d", max_width);
                 args["HEIGHT"] = llformat("%d", max_height);
 
-                image_load_error = LLTrans::getString("texture_load_dimensions_error", args);
+                image_load_error = LLTrans::getString("outfit_photo_load_dimensions_error", args);
             }
 
             if (!image_load_error.empty())
             {
                 LLSD subst;
                 subst["REASON"] = image_load_error;
-                LLNotificationsUtil::add("ImageLoadError", subst);
+                LLNotificationsUtil::add("OutfitPhotoLoadError", subst);
                 return;
             }
 
@@ -1158,7 +1162,43 @@ void LLOutfitGallery::onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LL
         else
         {
             image_item_id = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+            if (image_item_id.isNull())
+            {
+                LL_WARNS() << "id or image_item_id is NULL!" << LL_ENDL;
+                return;
+            }
         }
+
+        std::string image_load_error;
+        S32 max_width = MAX_OUTFIT_PHOTO_WIDTH;
+        S32 max_height = MAX_OUTFIT_PHOTO_HEIGHT;
+        if (mTextureSelected.isNull() ||
+            mTextureSelected->getFullWidth() == 0 ||
+            mTextureSelected->getFullHeight() == 0)
+        {
+            image_load_error = LLTrans::getString("outfit_photo_verify_dimensions_error");
+            LL_WARNS() << "Cannot verify selected texture dimensions" << LL_ENDL;
+            return;
+        }
+        S32 width = mTextureSelected->getFullWidth();
+        S32 height = mTextureSelected->getFullHeight();
+        if ((width > max_width) || (height > max_height))
+        {
+            LLStringUtil::format_map_t args;
+            args["WIDTH"] = llformat("%d", max_width);
+            args["HEIGHT"] = llformat("%d", max_height);
+
+            image_load_error = LLTrans::getString("outfit_photo_select_dimensions_error", args);
+        }
+
+        if (!image_load_error.empty())
+        {
+            LLSD subst;
+            subst["REASON"] = image_load_error;
+            LLNotificationsUtil::add("OutfitPhotoLoadError", subst);
+            return;
+        }
+
         checkRemovePhoto(getSelectedOutfitUUID());
         linkPhotoToOutfit(image_item_id, getSelectedOutfitUUID());
     }
@@ -1196,15 +1236,14 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
                 NULL);
 
             mFloaterHandle = floaterp->getHandle();
+            mTextureSelected = NULL;
 
             LLFloaterTexturePicker* texture_floaterp = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
             if (texture_floaterp)
             {
                 texture_floaterp->setTextureSelectedCallback(boost::bind(&LLOutfitGallery::onTextureSelectionChanged, this, _1));
-            }
-            if (texture_floaterp)
-            {
                 texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLOutfitGallery::onTexturePickerCommit, this, _1, _2));
+                texture_floaterp->setOnUpdateImageStatsCallback(boost::bind(&LLOutfitGallery::onTexturePickerUpdateImageStats, this, _1));
             }
 
             floaterp->openFloater();
@@ -1240,4 +1279,9 @@ void LLOutfitGallery::onAfterOutfitSnapshotSave()
     {
         mOutfitLinkPending = selected_outfit_id;
     }
+}
+
+void LLOutfitGallery::onTexturePickerUpdateImageStats(LLPointer<LLViewerTexture> texture)
+{
+    mTextureSelected = texture;
 }

@@ -11019,9 +11019,9 @@ Cannot create large prims that intersect other players.  Please re-try when othe
   
   <notification
    icon="alert.tga"
-   name="ImageLoadError"
+   name="OutfitPhotoLoadError"
    type="alertmodal">
-   [REASON]
+    [REASON]
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
