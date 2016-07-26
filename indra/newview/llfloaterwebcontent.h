@@ -92,7 +92,7 @@ protected:
 	void onClickStop();
 	void onEnterAddress();
 	void onPopExternal();
-	void onTestVideo(std::string url);
+	void onTestURL(std::string url);
 
 	static void preCreate(Params& p);
 	void open_media(const Params& );
@@ -114,6 +114,7 @@ protected:
 	std::string		mUUID;
 	bool			mShowPageTitle;
     bool            mAllowNavigation;
+	bool			mDevelopMode;
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H

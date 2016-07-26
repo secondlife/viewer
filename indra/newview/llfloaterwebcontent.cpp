@@ -82,7 +82,7 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
 	mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
 	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind(&LLFloaterWebContent::onPopExternal, this));
-	mCommitCallbackRegistrar.add( "WebContent.TestVideo", boost::bind(&LLFloaterWebContent::onTestVideo, this, _2));
+	mCommitCallbackRegistrar.add( "WebContent.TestURL", boost::bind(&LLFloaterWebContent::onTestURL, this, _2));
 }
 
 BOOL LLFloaterWebContent::postBuild()
@@ -110,6 +110,9 @@ BOOL LLFloaterWebContent::postBuild()
     
 	// initialize the URL history using the system URL History manager
 	initializeURLHistory();
+
+	// if "Develop" Menu open, sety a flag and change things to be more useful for devs
+	mDevelopMode = gSavedSettings.getBOOL("QAMode");
 
 	return TRUE;
 }
@@ -196,8 +199,6 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 						width + getRect().getWidth() - browser_rect.getWidth(), 
 						height + getRect().getHeight() - browser_rect.getHeight());
 
-	LL_DEBUGS() << "geometry change: " << geom << LL_ENDL;
-	
 	LLRect new_rect;
 	getParent()->screenRectToLocal(geom, &new_rect);
 	setShape(new_rect);	
@@ -206,8 +207,6 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 // static
 void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 {
-	LL_DEBUGS() << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << LL_ENDL;
-
 	if (!p.id.isProvided())
 	{
 		p.id = LLUUID::generateNewID().asString();
@@ -225,12 +224,6 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 		// and close the least recently opened one if this will put us over the limit.
 
 		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
-		LL_DEBUGS() << "total instance count is " << instances.size() << LL_ENDL;
-
-		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
-		{
-			LL_DEBUGS() << "    " << (*iter)->getKey()["target"] << LL_ENDL;
-		}	
 
 		if(instances.size() >= (size_t)browser_window_limit)
 		{
@@ -242,7 +235,6 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 
 void LLFloaterWebContent::open_media(const Params& p)
 {
-	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url);
 	mWebBrowser->setTarget(p.target);
@@ -252,6 +244,10 @@ void LLFloaterWebContent::open_media(const Params& p)
 
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
+
+	// turn additional debug controls on but only for Develop mode (Develop menu open)
+	getChild<LLLayoutPanel>("debug_controls")->setVisible(mDevelopMode);
+
 	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
     mAllowNavigation = p.allow_back_forward_navigation;
 	getChildView("address")->setEnabled(address_entry_enabled);
@@ -516,7 +512,7 @@ void LLFloaterWebContent::onPopExternal()
 	};
 }
 
-void LLFloaterWebContent::onTestVideo(std::string url)
+void LLFloaterWebContent::onTestURL(std::string url)
 {
 	LLStringUtil::trim(url);
 	if (url.length() > 0)

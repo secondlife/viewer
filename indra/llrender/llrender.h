@@ -355,7 +355,6 @@ public:
 	void multMatrix(const GLfloat* m);
 	void matrixMode(U32 mode);	
 	U32 getMatrixMode();
-	void setInverseTexCoordByY(bool v);
 
 	const glh::matrix4f& getModelviewMatrix();
 	const glh::matrix4f& getProjectionMatrix();

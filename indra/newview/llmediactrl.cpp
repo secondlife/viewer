@@ -911,7 +911,7 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 	}
 	
 	x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
-	if (  coords_opengl )
+	if ( ! coords_opengl )
 	{
 		y = ll_round((F32)(y) * LLUI::getScaleFactor().mV[VY]);
 	}

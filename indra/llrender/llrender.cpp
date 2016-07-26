@@ -1466,14 +1466,6 @@ U32 LLRender::getMatrixMode()
 	return mMatrixMode;
 }
 
-void LLRender::setInverseTexCoordByY(bool v)
-{
-	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	if (shader)
-	{
-		shader->uniform1b(LLShaderMgr::INVERSE_TEX_Y, v);
-	}
-}
 
 void LLRender::loadIdentity()
 {
