@@ -27,6 +27,7 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 import sys
+import os
 import os.path
 import shutil
 import errno
@@ -702,6 +703,7 @@ class Darwin_i386_Manifest(ViewerManifest):
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        llbasedir = os.path.join(pkgdir, os.pardir)
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
             self.path("Info.plist", dst="Info.plist")
@@ -715,8 +717,14 @@ class Darwin_i386_Manifest(ViewerManifest):
                 #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
                 self.path2basename("../viewer_components/manager","SL_Launcher")
                 self.path2basename("../viewer_components/manager","*.py")
-                self.path2basename("../../../../../packages/llbase","*")
-                self.end_prefix()
+                llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
+                if not os.path.exists(llbase_path):
+                    os.makedirs(llbase_path)
+                if self.prefix(dst="llbase"):
+                    self.path2basename("../packages/llbase","*.py")
+                    self.path2basename("../packages/llbase","_cllsd.so")
+                    self.end_prefix()
+                self.end_prefix()         
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -1071,7 +1079,13 @@ class LinuxManifest(ViewerManifest):
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             self.path2basename("../viewer_components/manager","SL_Launcher")
             self.path2basename("../viewer_components/manager","*.py")
-            self.path2basename("../packages/llbase","*")
+            llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
+            if not os.path.exists(llbase_path):
+                os.makedirs(llbase_path)
+            if self.prefix(dst="llbase"):
+                self.path2basename("../packages/llbase","*.py")
+                self.path2basename("../packages/llbase","_cllsd.so")
+                self.end_prefix()            
             self.end_prefix("bin")
 
         if self.prefix("res-sdl"):

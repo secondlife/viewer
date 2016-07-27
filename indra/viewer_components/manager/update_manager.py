@@ -1,29 +1,35 @@
 #!/usr/bin/env python
 
-# $LicenseInfo:firstyear=2016&license=internal$
-# 
-# Copyright (c) 2016, Linden Research, Inc.
-# 
-# The following source code is PROPRIETARY AND CONFIDENTIAL. Use of
-# this source code is governed by the Linden Lab Source Code Disclosure
-# Agreement ("Agreement") previously entered between you and Linden
-# Lab. By accessing, using, copying, modifying or distributing this
-# software, you acknowledge that you have been informed of your
-# obligations under the Agreement and agree to abide by those obligations.
-# 
-# ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-# WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-# COMPLETENESS OR PERFORMANCE.
-# $/LicenseInfo$
-# Copyright (c) 2013, Linden Research, Inc.
-
-"""
-@file   update_manager.py
+"""\
+@file update_manager.py
 @author coyot
-@date   2016-05-16
+@date 2016-05-16
+@brief executes viewer update checking and manages downloading and applying of updates
+
+$LicenseInfo:firstyear=2016&license=viewerlgpl$
+Second Life Viewer Source Code
+Copyright (C) 2016, Linden Research, Inc.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation;
+version 2.1 of the License only.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+$/LicenseInfo$
 """
 
 from llbase import llrest
+from llbase.llrest import RESTError
 from llbase import llsd
 from urlparse import urljoin
 
@@ -55,9 +61,9 @@ def silent_write(log_file_handle, text):
 def after_frame(my_message, timeout = 10000):
     #pop up a InstallerUserMessage.basic_message that kills itself after timeout milliseconds
     #note that this blocks the caller for the duration of timeout
-    frame = InstallerUserMessage(title = "Second Life Installer", icon_name="head-sl-logo.gif")
+    frame = InstallerUserMessage.InstallerUserMessage(title = "Second Life Installer", icon_name="head-sl-logo.gif")
     #this is done before basic_message so that we aren't blocked by mainloop()
-    frame.after(timout, lambda: frame._delete_window)
+    frame.after(timeout, lambda: frame._delete_window)
     frame.basic_message(message = my_message)
 
 def convert_version_file_style(version):
@@ -146,8 +152,10 @@ def check_for_completed_download(download_dir):
 
 def get_settings(log_file_handle, parent_dir):
     #return the settings file parsed into a dict
+    print str(parent_dir)
     try:
         settings_file = os.path.abspath(os.path.join(parent_dir,'user_settings','settings.xml'))
+        print "Settings file: " + str(settings_file)
         settings = llsd.parse((open(settings_file)).read())
     except llsd.LLSDParseError as lpe:
         silent_write(log_file_handle, "Could not parse settings file %s" % lpe)
@@ -213,7 +221,7 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
     else:
         base_URI = 'https://update.secondlife.com/update/'
     channelname = summary_dict['Channel']
-    #this is kind of a mess because the settings value a) in a map and b) is both the cohort and the version
+    #this is kind of a mess because the settings value is a) in a map and b) is both the cohort and the version
     version = summary_dict['Version']
     platform_version = platform.release()
     #this will always return something usable, error handling in method
@@ -250,7 +258,7 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
     try:
         result_data = VVMService.get(query_string)
     except RESTError as re:
-        silent_write.write(log_file_handle, "Failed to query VVM using %s failed as %s" % (urljoin(base_URI,query_string, re)))
+        silent_write(log_file_handle, "Failed to query VVM using %s failed as %s" % (urljoin(base_URI,query_string), re))
         return None
     return result_data
 
@@ -342,6 +350,8 @@ def update_manager(cli_overrides = None):
     platform_key = get_platform_key()
     parent_dir = get_parent_path(platform_key)
     log_file_handle = get_log_file_handle(parent_dir)
+    settings = None
+    print "parent dir: " + str(parent_dir)
 
     #check to see if user has install rights
     #get the owner of the install and the current user
@@ -367,10 +377,12 @@ def update_manager(cli_overrides = None):
             print "Update manager exited with (%s, %s, %s)" % (False, 'setup', None)
             return (False, 'setup', None)
 
-    if cli_overrides['settings'] is not None:
-        settings = get_settings(log_file_handle, cli_overrides['settings'])
-    else:
-        settings = get_settings(log_file_handle, parent_dir)
+    if cli_overrides is not None: 
+        if '--settings' in cli_overrides.keys():
+            if cli_overrides['--settings'] is not None:
+                settings = get_settings(log_file_handle, cli_overrides['--settings'])
+            else:
+                settings = get_settings(log_file_handle, parent_dir)
         
     if settings is None:
         silent_write(log_file_handle, "Failed to load viewer settings")
@@ -379,7 +391,7 @@ def update_manager(cli_overrides = None):
 
     #323: If a complete download of that update is found, check the update preference:
     #settings['UpdaterServiceSetting'] = 0 is manual install
-    """
+    """ssh://hg@bitbucket.org/lindenlab/viewer-release-maint-6585
     <key>UpdaterServiceSetting</key>
         <map>
         <key>Comment</key>
@@ -390,8 +402,10 @@ def update_manager(cli_overrides = None):
             <string>0</string>
         </map>
     """
-    if cli_overrides['set']['UpdaterServiceSetting'] is not None:
-        install_automatically = cli_overrides['set']['UpdaterServiceSetting']
+    if cli_overrides is not None: 
+        if '--set' in cli_overrides.keys():
+            if 'UpdaterServiceSetting' in cli_overrides['--set'].keys():
+                install_automatically = cli_overrides['--set']['UpdaterServiceSetting']
     else:
         try:
             install_automatically = settings['UpdaterServiceSetting']['Value']
@@ -399,28 +413,37 @@ def update_manager(cli_overrides = None):
         except KeyError:
             install_automatically = 1
     
-    #use default chunk size if none is given        
-    if cli_overrides['set']['UpdaterMaximumBandwidth ']:
-        chunk_size = cli_overrides['set']['UpdaterMaximumBandwidth ']
+    #use default chunk size if none is given     
+    if cli_overrides is not None: 
+        if '--set' in cli_overrides.keys():
+            if 'UpdaterMaximumBandwidth' in cli_overrides['--set'].keys():    
+                chunk_size = cli_overrides['--set']['UpdaterMaximumBandwidth']
     else:
         chunk_size = 1024
 
     #get channel and version
     try:
         summary_dict = get_summary(platform_key, os.path.abspath(os.path.realpath(__file__)))
-        if cli_overrides['channel']:
-            summary_dict['Channel'] = cli_overrides['channel']
-    except:
+        if cli_overrides is not None:
+            if 'channel' in cli_overrides.keys():
+                summary_dict['Channel'] = cli_overrides['channel']
+    except Exception, e:
         silent_write(log_file_handle, "Could not obtain channel and version, exiting.")
+        silent_write(log_file_handle, e.message)
         print "Update manager exited with (%s, %s, %s)" % (False, 'setup', None)
         return (False, 'setup', None)        
 
     #323: On launch, the Viewer Manager should query the Viewer Version Manager update api.
-    UpdaterServiceURL = cli_overrides['update-service']
+    if cli_overrides is not None:
+        if '--update-service' in cli_overrides.keys():
+            UpdaterServiceURL = cli_overrides['--update-service']
+    else:
+        #tells query_vvm to use the default
+        UpdaterServiceURL = None
     result_data = query_vvm(log_file_handle, platform_key, settings, summary_dict, UpdaterServiceURL)
     #nothing to do or error
     if not result_data:
-        silent_write.write(og_file_handle, "No update found.")
+        silent_write(log_file_handle, "No update found.")
         print "Update manager exited with (%s, %s, %s)" % (True, None, None)
         return (True, None, None)
 

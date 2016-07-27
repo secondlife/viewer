@@ -17,43 +17,51 @@
 # $/LicenseInfo$
 # Copyright (c) 2013, Linden Research, Inc.
 
+import os
+import sys
+
+#module globals
+log_file_handle = None
+cwd = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(cwd, 'llbase'))
+
 import argparse
 import collections
 import InstallerUserMessage
 #NOTA BENE: 
 #   For POSIX platforms, llsd.py will be imported from the same directory.  
 #   For Windows, llsd.py will be compiled into the executable by pyinstaller
-import llsd
-import os
+from llbase import llsd
 import platform
-import sys
 import subprocess
 import update_manager
 
-def after_frame(my_message, timeout = 10000):
-   #pop up a InstallerUserMessage.basic_message that kills itself after timeout milliseconds
-   #note that this blocks the caller for the duration of timeout
-   frame = InstallerUserMessage(title = "Second Life Installer", icon_name="head-sl-logo.gif")
-   #this is done before basic_message so that we aren't blocked by mainloop()
-   frame.after(timout, lambda: frame._delete_window)
-   frame.basic_message(message = my_message)
-   
+
+def silent_write(log_file_handle, text):
+   #if we have a log file, write.  If not, do nothing.
+   #this is so we don't have to keep trapping for an exception with a None handle
+   #oh and because it is best effort, it is also a holey_write ;)
+   if (log_file_handle):
+      #prepend text for easy grepping
+      log_file_handle.write("SL LAUNCHER: " + text + "\n")
+  
 def get_cmd_line():
    platform_name = platform.system()
    #find the parent of the logs and user_settings directories
-   if (platform_name == 'mac'):
+   if (platform_name == 'Darwin'):
       settings_file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'Resources/app_settings/cmd_line.xml')
-   elif (platform_name == 'lnx'): 
+   elif (platform_name == 'Linux'): 
       settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'app_settings/cmd_line.xml')
    #using list format of join is important here because the Windows pathsep in a string escapes the next char
-   elif (platform_name == 'win'):
+   elif (platform_name == 'Windows'):
       settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'app_settings/cmd_line.xml')
    else:
-      settings_dir = None
+      settings_file = None
       
    try:
       cmd_line = llsd.parse((open(settings_file)).read())
    except:
+      silent_write(log_file_handle, "Could not parse settings file %s" % settings_file)
       cmd_line = None
    
    return cmd_line
@@ -68,7 +76,6 @@ def get_settings():
       return None
    return settings
 
-   
 def capture_vmp_args(arg_list = None, cmd_line = None):
    #expected input format: arg_list = ['--set', 'foo', 'bar', '-X', '-Y', 'qux']
    #take a copy of the viewer parameters that are of interest to VMP.
@@ -96,7 +103,8 @@ def capture_vmp_args(arg_list = None, cmd_line = None):
                cli_overrides[vmp_params[param]] = (setting_name, setting_value)
          else:
             #find out how many args this parameter has
-            count = cmd_line[param]['count']
+            no_dashes = vmp_params[param]
+            count = cmd_line[no_dashes]['count']
             param_args = []
             if count:
                for argh in range(1,count):
@@ -112,6 +120,7 @@ def capture_vmp_args(arg_list = None, cmd_line = None):
          except KeyError:
             cli_overrides[key] = None
       else:
+         cli_overrides["--set"] = {}
          for arg in vmp_setters:
             try:
                cli_overrides[key][arg]
@@ -119,7 +128,10 @@ def capture_vmp_args(arg_list = None, cmd_line = None):
                cli_overrides[key][arg] = None
    return cli_overrides
    
-cwd = os.path.dirname(os.path.realpath(__file__))
+#main entry point   
+#this and a few other update manager methods really should be refactored into a util lib
+parent_dir = update_manager.get_parent_path(update_manager.get_platform_key())
+log_file_handle = update_manager.get_log_file_handle(parent_dir)
 
 executable_name = ""
 if sys.platform.startswith('darwin'):
@@ -137,23 +149,18 @@ else:
    #SL doesn't run on VMS or punch cards
    sys.exit("Unsupported platform")
    
-#check for an update
-#TODO
-
 #find the viewer to be lauched
 viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),executable_name) 
 
 parser = argparse.ArgumentParser()
 args = parser.parse_known_args(sys.argv)
-print args[1]
-sys.exit()
 #args[1] looks like ['./SL_Launcher', '--set', 'foo', 'bar', '-X', '-Y', 'qux'], dump the progname
 args_list_to_pass = args[1][1:]
 vmp_args = capture_vmp_args(args_list_to_pass)
 #make a copy by value, not by reference
 command = list(args_list_to_pass)
 
-(success, state, condition) = update_manager.update_manager(cli_overrides)
+(success, state, condition) = update_manager.update_manager(vmp_args)
 # From update_manager:
 #  (False, 'setup', None): error occurred before we knew what the update was (e.g., in setup or parsing)
 #  (False, 'download', version): we failed to download the new version
@@ -167,8 +174,8 @@ command = list(args_list_to_pass)
 #  No update, update succeeded in place in foreground, or background update started: silently launch the current viewer channel
 #  Updated succeed to a different channel, launch that viewer and exit
 if not success:
-   msg = 'Update failed in the %s process.  Please check logs.  Viewer will launch starting momentarily.'
-   after_frame(msg)
+   msg = 'Update failed in the %s process.  Please check logs.  Viewer will launch starting momentarily.' % state
+   update_manager.after_frame(msg)
    command.insert(0,viewer_binary)
    viewer_process = subprocess.Popen(command)
    #at the moment, we just exit here.  Later, the crash monitor will be launched at this point

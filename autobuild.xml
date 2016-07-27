@@ -1482,9 +1482,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>313f5c8edd328e05c59cbe980512f84c</string>
+              <string>13998879705aa1af36c6ea8f480901e3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/317790/arch/Darwin/installer/llbase-0.8.6.317790-darwin-317790.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/318106/arch/Darwin/installer/llbase-0.8.6.318106-darwin-318106.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1494,9 +1494,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e85171c70b57dd086b956ba36e6f2306</string>
+              <string>80ef3f9f6bde28787b02837ace2ad84c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/317790/arch/Linux/installer/llbase-0.8.6.317790-linux-317790.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/318106/arch/Linux/installer/llbase-0.8.6.318106-linux-318106.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1506,16 +1506,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07b0d64d812cfaf3025b799cea5fe446</string>
+              <string>57837daafa60f98a4d9fa4dfe53d995e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/317790/arch/CYGWIN/installer/llbase-0.8.6.0-windows-317790.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/318106/arch/CYGWIN/installer/llbase-0.8.6.0-windows-318106.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.8.6.317790</string>
+        <string>0.8.6.318106</string>
       </map>
       <key>llceflib</key>
       <map>
