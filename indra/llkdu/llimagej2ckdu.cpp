@@ -422,6 +422,13 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 	// Now we are ready to walk through the tiles processing them one-by-one.
 	kdu_byte *buffer = raw_image.getData();
+	if (!buffer)
+	{
+		base.setLastError("Memory error");
+		base.decodeFailed();
+		cleanupCodeStream();
+		return true; // done
+	}
 
 	while (mTPosp->y < mTileIndicesp->size.y)
 	{
