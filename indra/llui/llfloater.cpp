@@ -2263,7 +2263,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
-		LLFloater* floaterp = (LLFloater*)viewp;
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);
 		if (floaterp->isDependent())
 		{
 			// dependents are moved with their "dependee"
@@ -2320,7 +2320,7 @@ void LLFloaterView::restoreAll()
 	// make sure all subwindows aren't minimized
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
-		LLFloater* floaterp = (LLFloater*)*child_it;
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
 		if (floaterp)
 		{
 			floaterp->setMinimized(FALSE);
@@ -2600,7 +2600,7 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 				++child_it) //loop floaters
 			{
 				// Examine minimized children.
-				LLFloater* floater = (LLFloater*)((LLView*)*child_it);
+				LLFloater* floater = dynamic_cast<LLFloater*>(*child_it);
 				if(floater->isMinimized()) 
 				{
 					LLRect r = floater->getRect();
@@ -2653,7 +2653,7 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 			continue;
 		}
 
-		LLFloater* floaterp = (LLFloater*)viewp;
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);
 
 		// Attempt to close floater.  This will cause the "do you want to save"
 		// dialogs to appear.
@@ -2719,8 +2719,7 @@ BOOL LLFloaterView::allChildrenClosed()
 	// by setting themselves invisible)
 	for (child_list_const_iter_t it = getChildList()->begin(); it != getChildList()->end(); ++it)
 	{
-		LLView* viewp = *it;
-		LLFloater* floaterp = (LLFloater*)viewp;
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(*it);
 
 		if (floaterp->getVisible() && !floaterp->isDead() && floaterp->isCloseable())
 		{
@@ -2956,7 +2955,7 @@ void LLFloaterView::syncFloaterTabOrder()
 		// otherwise, make sure the focused floater is in the front of the child list
 		for ( child_list_const_reverse_iter_t child_it = getChildList()->rbegin(); child_it != getChildList()->rend(); ++child_it)
 		{
-			LLFloater* floaterp = (LLFloater*)*child_it;
+			LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
 			if (gFocusMgr.childHasKeyboardFocus(floaterp))
 			{
 				bringToFront(floaterp, FALSE);
@@ -2978,7 +2977,7 @@ LLFloater*	LLFloaterView::getParentFloater(LLView* viewp) const
 
 	if (parentp == this)
 	{
-		return (LLFloater*)viewp;
+		return dynamic_cast<LLFloater*>(viewp);
 	}
 
 	return NULL;
