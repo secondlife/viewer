@@ -61,7 +61,7 @@ private:
 	static void unlock(void* data, void* id, void* const* raw_pixels);
 	static void display(void* data, void* id);
 
-	/*virtual*/ void setDirty(int left, int top, int right, int bottom) override;
+	/*virtual*/ void setDirty(int left, int top, int right, int bottom) /* override, but that is not supported in gcc 4.6 */;
 
 	static void eventCallbacks(const libvlc_event_t* event, void* ptr);
 
