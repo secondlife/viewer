@@ -1155,7 +1155,8 @@ class LinuxManifest(ViewerManifest):
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+            # makes some small assumptions about our packaged dir structure
+            self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name \*.py \! -name SL_Launcher \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) 
 
 class Linux_i686_Manifest(LinuxManifest):
     def construct(self):
