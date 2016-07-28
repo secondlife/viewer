@@ -1,29 +1,31 @@
 #!/usr/bin/env python
 
-# $LicenseInfo:firstyear=2016&license=internal$
-# 
-# Copyright (c) 2016, Linden Research, Inc.
-# 
-# The following source code is PROPRIETARY AND CONFIDENTIAL. Use of
-# this source code is governed by the Linden Lab Source Code Disclosure
-# Agreement ("Agreement") previously entered between you and Linden
-# Lab. By accessing, using, copying, modifying or distributing this
-# software, you acknowledge that you have been informed of your
-# obligations under the Agreement and agree to abide by those obligations.
-# 
-# ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-# WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-# COMPLETENESS OR PERFORMANCE.
-# $/LicenseInfo$
-# 
-# Taken from: https://gist.github.com/garyvdm/392ae20c673c7ee58d76
-
 """
 @file   with_setup_args.py
 @author garyvdm
 @date   2016-06-02
-"""
 
+$LicenseInfo:firstyear=2016&license=viewerlgpl$
+Second Life Viewer Source Code
+Copyright (C) 2016, Linden Research, Inc.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation;
+version 2.1 of the License only.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+$/LicenseInfo$
+"""
 
 def with_setup_args(setup, teardown=None):
     """Decorator to add setup and/or teardown methods to a test function::
