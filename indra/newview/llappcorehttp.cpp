@@ -154,9 +154,19 @@ void LLAppCoreHttp::init()
 	}
 
 	// Point to our certs or SSH/https: will fail on connect
-	status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
-														LLCore::HttpRequest::GLOBAL_POLICY_ID,
-														gDirUtilp->getCAFile(), NULL);
+    std::string ca_file = gDirUtilp->getCAFile();
+    if ( LLFile::isfile(ca_file) )
+    {
+        LL_DEBUGS("Init") << "Setting CA File to " << ca_file << LL_ENDL;
+        status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+                                                            LLCore::HttpRequest::GLOBAL_POLICY_ID,
+                                                            ca_file, NULL);
+    }
+    else
+    {
+        LL_ERRS("Init") << "Missing CA File; should be at " << ca_file << LL_ENDL;
+    }
+    
 	if (! status)
 	{
 		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  " << status.toString()
