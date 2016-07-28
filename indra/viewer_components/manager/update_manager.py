@@ -252,8 +252,15 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
             #normal case, no testing key
             test_ok = 'testok'
     UUID = make_VVM_UUID_hash(platform_key)
+    print repr(channelname)
+    print repr(version)
+    print repr(platform_key)
+    print repr(platform_version)
+    print repr(test_ok)
+    print repr(UUID)
     #because urljoin can't be arsed to take multiple elements
-    query_string =  '/v1.0/' + channelname + '/' + version + '/' + platform_key + '/' + platform_version + '/' + test_ok + '/' + UUID
+    #channelname is a list because although it can only be one word, it is a kind of argument and viewer args can take multiple keywords.
+    query_string =  '/v1.0/' + channelname[0] + '/' + version + '/' + platform_key + '/' + platform_version + '/' + test_ok + '/' + UUID
     VVMService = llrest.SimpleRESTService(name='VVM', baseurl=base_URI)
     try:
         result_data = VVMService.get(query_string)
@@ -351,7 +358,7 @@ def update_manager(cli_overrides = None):
     parent_dir = get_parent_path(platform_key)
     log_file_handle = get_log_file_handle(parent_dir)
     settings = None
-    print "parent dir: " + str(parent_dir)
+    print "cli_overrides: " + str(cli_overrides)
 
     #check to see if user has install rights
     #get the owner of the install and the current user
