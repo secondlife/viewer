@@ -1395,7 +1395,11 @@ void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool f
 		}
 
 		// From purgeObject()
-		LLPreview::hide(object_id);
+		LLViewerInventoryItem *item = getItem(object_id);
+		if (item && (item->getType() != LLAssetType::AT_LSL_TEXT))
+		{
+			LLPreview::hide(object_id, TRUE);
+		}
 		deleteObject(object_id, fix_broken_links, do_notify_observers);
 	}
 }

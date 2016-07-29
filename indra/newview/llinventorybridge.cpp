@@ -1933,13 +1933,15 @@ BOOL LLItemBridge::removeItem()
 	}
 
 	// move it to the trash
-	LLPreview::hide(mUUID, TRUE);
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 	const LLUUID& trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = getItem();
 	if (!item) return FALSE;
-
+	if (item->getType() != LLAssetType::AT_LSL_TEXT)
+	{
+		LLPreview::hide(mUUID, TRUE);
+	}
 	// Already in trash
 	if (model->isObjectDescendentOf(mUUID, trash_id)) return FALSE;
 
