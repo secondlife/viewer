@@ -479,7 +479,6 @@ void LLFloaterTexturePicker::draw()
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
 		{
-            LL_WARNS() << "mImageAssetID: " << mImageAssetID << LL_ENDL;
 			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
 			mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 		}
