@@ -305,7 +305,7 @@ public:
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-	const LLSD* getMeshHeader(const LLUUID& mesh_id);
+	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
@@ -506,7 +506,7 @@ public:
 	bool meshRezEnabled();
 	
 
-	const LLSD* getMeshHeader(const LLUUID& mesh_id);
+	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
 			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
