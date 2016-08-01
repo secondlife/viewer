@@ -322,6 +322,8 @@ public:
 	static void		onBtnUpload(void* userdata);
 	static void		onLocalScrollCommit(LLUICtrl* ctrl, void* userdata);
 
+	void 			setLocalTextureEnabled(BOOL enabled);
+
 protected:
 	LLPointer<LLViewerTexture> mTexturep;
 	LLView*				mOwner;

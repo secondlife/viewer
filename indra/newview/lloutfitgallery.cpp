@@ -1244,6 +1244,7 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
                 texture_floaterp->setTextureSelectedCallback(boost::bind(&LLOutfitGallery::onTextureSelectionChanged, this, _1));
                 texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLOutfitGallery::onTexturePickerCommit, this, _1, _2));
                 texture_floaterp->setOnUpdateImageStatsCallback(boost::bind(&LLOutfitGallery::onTexturePickerUpdateImageStats, this, _1));
+                texture_floaterp->setLocalTextureEnabled(FALSE);
             }
 
             floaterp->openFloater();

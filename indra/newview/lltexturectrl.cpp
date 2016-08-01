@@ -941,6 +941,11 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	mInventoryPanel->setFilterSubString(search_string);
 }
 
+void LLFloaterTexturePicker::setLocalTextureEnabled(BOOL enabled)
+{
+	mModeSelector->setIndexEnabled(1,enabled);
+}
+
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 {
 	LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
