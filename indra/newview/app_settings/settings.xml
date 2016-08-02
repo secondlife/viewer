@@ -10092,6 +10092,17 @@
     <key>Value</key>
     <integer>10</integer>
   </map>
+  <key>ComplexityChangesPopUpDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay before viewer will show avatar complexity notice again</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>300</integer>
+  </map>
   <key>RenderAvatarMaxComplexity</key>
   <map>
     <key>Comment</key>
@@ -10103,6 +10114,50 @@
     <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>RenderHUDObjectsWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many objects if objects count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1000</integer>
+  </map>
+  <key>RenderHUDTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many textures if texture count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>200</integer>
+  </map>
+  <key>RenderHUDOversizedTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>How many textures with size 1024 * 1024 or bigger HUD can contain before notifying user</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
+  <key>RenderHUDTexturesVirtualMemoryWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD textures using memory above this value (Virtual memory, in pixels)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>10000000</integer>
   </map>
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>

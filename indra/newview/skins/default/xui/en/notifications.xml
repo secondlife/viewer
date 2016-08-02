@@ -3320,6 +3320,20 @@ Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Renderin
   </notification>
 
   <notification
+   icon = "notifytip.tga"
+   name = "HUDComplexityWarning"
+   type = "notifytip"
+   log_to_chat = "false">
+    <unique combine = "cancel_old">
+      <context>HUDComplexityWarning</context>
+    </unique>
+    [HUD_REASON], it is likely to negatively affect your performance.
+    <usetemplate
+     ignoretext="Warn me when my HUD complexity is too high"
+     name="notifyignore"/>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="FirstRun"
    type="alertmodal">
