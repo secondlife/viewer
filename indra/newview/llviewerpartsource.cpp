@@ -441,10 +441,20 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 			return NULL;
 		}
 
+		F32 prev_max_age = pssp->mPartSysData.mMaxAge;
+		F32 prev_start_age = pssp->mPartSysData.mStartAge;
 		if (!pssp->mPartSysData.unpackBlock(block_num))
 		{
 			return NULL;
 		}
+		else if (pssp->mPartSysData.mMaxAge
+				 && (prev_max_age != pssp->mPartSysData.mMaxAge || prev_start_age != pssp->mPartSysData.mStartAge))
+		{
+			// reusing existing pss, so reset time to allow particles to start again
+			pssp->mLastUpdateTime = 0.f;
+			pssp->mLastPartTime = 0.f;
+		}
+
 		if (pssp->mPartSysData.mTargetUUID.notNull())
 		{
 			LLViewerObject *target_objp = gObjectList.findObject(pssp->mPartSysData.mTargetUUID);

@@ -29,6 +29,14 @@
      name="NotRunning">
         Not running
     </floater.string>
+    <floater.string
+     name="Timeout">
+        Timeout: [OBJECT_NAME]
+    </floater.string>
+    <floater.string
+     name="LoadingObjInv">
+        Loading inventory for: [OBJECT_NAME]
+    </floater.string>
     <button
      follows="right|bottom"
      height="24"

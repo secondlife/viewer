@@ -94,7 +94,8 @@ BOOL LLPreviewNotecard::postBuild()
 	if (item)
 	{
 		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-		getChildView("Delete")->setEnabled(true);
+		BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID());
+		getChildView("Delete")->setEnabled(!source_library);
 	}
 	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 
@@ -219,6 +220,7 @@ void LLPreviewNotecard::loadAsset()
 		BOOL is_owner = gAgent.allowOperation(PERM_OWNER, perm, GP_OBJECT_MANIPULATE);
 		BOOL allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
 		BOOL allow_modify = canModify(mObjectUUID, item);
+		BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
 
 		if (allow_copy || gAgent.isGodlike())
 		{
@@ -288,7 +290,7 @@ void LLPreviewNotecard::loadAsset()
 			getChildView("lock")->setVisible( TRUE);
 		}
 
-		if(allow_modify || is_owner)
+		if((allow_modify || is_owner) && !source_library)
 		{
 			getChildView("Delete")->setEnabled(TRUE);
 		}

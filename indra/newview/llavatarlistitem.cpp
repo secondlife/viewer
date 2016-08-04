@@ -77,8 +77,10 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
 	mShowPermissions(false),
+	mShowCompleteName(false),
 	mHovered(false),
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mGreyOutUsername("")
 {
 	if (not_from_ui_factory)
 	{
@@ -399,14 +401,28 @@ void LLAvatarListItem::updateAvatarName()
 
 void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
 {
-	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
+    if(mShowCompleteName && highlight.empty())
+    {
+        LLTextUtil::textboxSetGreyedVal(mAvatarName, mAvatarNameStyle, name, mGreyOutUsername);
+    }
+    else
+    {
+        LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
+    }
 }
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
 	mAvatarNameCacheConnection.disconnect();
 
-	setAvatarName(av_name.getDisplayName());
+	mGreyOutUsername = "";
+	std::string name_string = mShowCompleteName? av_name.getCompleteName(false) : av_name.getDisplayName();
+	if(av_name.getCompleteName() != av_name.getUserName())
+	{
+	    mGreyOutUsername = "[ " + av_name.getUserName(true) + " ]";
+	    LLStringUtil::toLower(mGreyOutUsername);
+	}
+	setAvatarName(name_string);
 	setAvatarToolTip(av_name.getUserName());
 
 	//requesting the list to resort

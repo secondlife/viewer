@@ -42,6 +42,8 @@
 #include "llfloaterperms.h"
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
+#include "llstatusbar.h"	// can_afford_transaction()
+#include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include "llstring.h"
 #include "lleconomy.h"
@@ -161,12 +163,15 @@ void LLFloaterNameDesc::onBtnOK( )
 	
 	LLAssetStorage::LLStoreAssetCallback callback = NULL;
 	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
-	void *nruserdata = NULL;
-	std::string display_name = LLStringUtil::null;
 
-    LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+    if (can_afford_transaction(expected_upload_cost))
+    {
+        void *nruserdata = NULL;
+        std::string display_name = LLStringUtil::null;
+
+        LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
             mFilenameAndPath,
-            getChild<LLUICtrl>("name_form")->getValue().asString(), 
+            getChild<LLUICtrl>("name_form")->getValue().asString(),
             getChild<LLUICtrl>("description_form")->getValue().asString(), 0,
             LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
             LLFloaterPerms::getNextOwnerPerms("Uploads"),
@@ -174,7 +179,14 @@ void LLFloaterNameDesc::onBtnOK( )
             LLFloaterPerms::getEveryonePerms("Uploads"),
             expected_upload_cost));
 
-    upload_new_resource(uploadInfo, callback, nruserdata);
+        upload_new_resource(uploadInfo, callback, nruserdata);
+    }
+    else
+    {
+        LLSD args;
+        args["COST"] = llformat("%d", expected_upload_cost);
+        LLNotificationsUtil::add("ErrorTextureCannotAfford", args);
+    }
 
 	closeFloater(false);
 }
