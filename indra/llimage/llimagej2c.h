@@ -130,6 +130,8 @@ protected:
 	friend class LLImageJ2C;
 };
 
+#define LINDEN_J2C_COMMENT_PREFIX "LL_" // Used by LLAppearanceUtility
+
 //
 // This class is used for performance data gathering only.
 // Tracks the image compression / decompression data,
