@@ -1,5 +1,5 @@
 /** 
- * @file llfloatersnapshot.cpp
+ * @file llfloateroutfitsnapshot.cpp
  * @brief Snapshot preview window for saving as an outfit thumbnail in visual outfit gallery
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
@@ -256,7 +256,7 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
     }
     childSetCommitCallback("filters_combobox", ImplBase::onClickFilter, this);
 
-    sThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
+    mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
     // create preview window
     LLRect full_screen_rect = getRootView()->getRect();

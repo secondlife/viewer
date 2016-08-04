@@ -53,7 +53,7 @@ public:
     static LLFloaterOutfitSnapshot* getInstance();
     /*virtual*/ void saveTexture();
 
-    static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
+    const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
 
     void setOutfitID(LLUUID id) { mOutfitID = id; }
     LLUUID getOutfitID() { return mOutfitID; }

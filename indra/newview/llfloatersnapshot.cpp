@@ -50,7 +50,6 @@
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-LLUICtrl* LLFloaterSnapshotBase::sThumbnailPlaceholder = NULL;
 LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
@@ -1011,7 +1010,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&Impl::onSnapshotUploadFinished, this, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&Impl::onSendingPostcardFinished, this, _1));
 
-	sThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
+	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
 	// create preview window
 	LLRect full_screen_rect = getRootView()->getRect();
@@ -1060,7 +1059,7 @@ void LLFloaterSnapshotBase::draw()
 
 	LLFloater::draw();
 
-	if (previewp && !isMinimized() && sThumbnailPlaceholder->getVisible())
+	if (previewp && !isMinimized() && mThumbnailPlaceholder->getVisible())
 	{		
 		if(previewp->getThumbnailImage())
 		{
@@ -1089,7 +1088,7 @@ void LLFloaterSnapshotBase::draw()
 
 			gGL.pushUIMatrix();
 			LLUI::translate((F32) thumbnail_rect.mLeft, (F32) thumbnail_rect.mBottom);
-			sThumbnailPlaceholder->draw();
+			mThumbnailPlaceholder->draw();
 			gGL.popUIMatrix();
 		}
 	}

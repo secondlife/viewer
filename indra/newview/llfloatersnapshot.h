@@ -56,7 +56,7 @@ public:
 	LLSnapshotLivePreview* getPreviewView();
 	const LLVector3d& getPosTakenGlobal();
 
-	static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
+	const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
 
 	void setRefreshLabelVisible(bool value) { mRefreshLabel->setVisible(value); }
 	void setSuccessLabelPanelVisible(bool value) { mSucceessLblPanel->setVisible(value); }
@@ -67,7 +67,7 @@ public:
 	ImplBase* impl;
 
 protected:
-	static LLUICtrl* sThumbnailPlaceholder;
+	LLUICtrl* mThumbnailPlaceholder;
 	LLUICtrl *mRefreshBtn, *mRefreshLabel;
 	LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
 };
