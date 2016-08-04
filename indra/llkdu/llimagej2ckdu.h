@@ -74,12 +74,17 @@ protected:
 	virtual bool initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL);
 	virtual bool initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0);
 	virtual std::string getEngineInfo() const;
-	void findDiscardLevelsBoundaries(LLImageJ2C &base);
 
 private:
 	bool initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level = -1, int* region = NULL);
 	void setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode);
 	void cleanupCodeStream();
+
+	// This method was public, but the only call to it is commented out in our
+	// own initDecode() method. I (nat 2016-08-04) don't know what it does or
+	// why. Even if it should be uncommented, it should probably still be
+	// private.
+//	void findDiscardLevelsBoundaries(LLImageJ2C &base);
 
 	// Helper class to hold a kdu_codestream, which is a handle to the
 	// underlying implementation object. When CodeStreamHolder is reset() or
