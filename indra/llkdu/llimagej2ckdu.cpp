@@ -713,6 +713,8 @@ bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 /* STATIC                        copy_block                                  */
 /*****************************************************************************/
 
+/*==========================================================================*|
+// Only called by copy_tile(), which is itself commented out
 static void copy_block(kdu_block *in, kdu_block *out)
 {
 	if (in->K_max_prime != out->K_max_prime)
@@ -741,11 +743,14 @@ static void copy_block(kdu_block *in, kdu_block *out)
 		out->set_max_bytes(num_bytes,false);
 	memcpy(out->byte_buffer,in->byte_buffer,(size_t) num_bytes);
 }
+|*==========================================================================*/
 
 /*****************************************************************************/
 /* STATIC                        copy_tile                                   */
 /*****************************************************************************/
 
+/*==========================================================================*|
+// Only called by findDiscardLevelsBoundaries(), which is itself commented out
 static void
 copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
 		  kdu_params *siz_in, kdu_params *siz_out, int skip_components,
@@ -802,10 +807,13 @@ copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
         }
     }
 }
+|*==========================================================================*/
 
 // Find the block boundary for each discard level in the input image.
 // We parse the input blocks and copy them in a temporary output stream.
 // For the moment, we do nothing more that parsing the raw list of blocks and outputing result.
+/*==========================================================================*|
+// See comments in header file for why this is commented out.
 void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 {
 	// We need the number of levels in that image before starting.
@@ -909,6 +917,7 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 	}
 	return;
 }
+|*==========================================================================*/
 
 void set_default_colour_weights(kdu_params *siz)
 {
