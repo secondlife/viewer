@@ -138,15 +138,21 @@ struct LLKDUMessageWarning : public LLKDUMessage
 {
 	LLKDUMessageWarning():
 		LLKDUMessage("Warning")
-	{}
+	{
+		kdu_customize_warnings(this);
+	}
 };
+// Instantiating LLKDUMessageWarning calls kdu_customize_warnings() with the
+// new instance. Make it static so this only happens once.
 static LLKDUMessageWarning sWarningHandler;
 
 struct LLKDUMessageError : public LLKDUMessage
 {
 	LLKDUMessageError():
 		LLKDUMessage("Error")
-	{}
+	{
+		kdu_customize_errors(this);
+	}
 
 	virtual void flush(bool end_of_message = false)
 	{
@@ -165,20 +171,20 @@ struct LLKDUMessageError : public LLKDUMessage
 		}
 	}
 };
+// Instantiating LLKDUMessageError calls kdu_customize_errors() with the new
+// instance. Make it static so this only happens once.
 static LLKDUMessageError sErrorHandler;
 
-static bool kdu_message_initialized = false;
-
 LLImageJ2CKDU::LLImageJ2CKDU() : LLImageJ2CImpl(),
-mInputp(NULL),
-mCodeStreamp(NULL),
-mTPosp(NULL),
-mTileIndicesp(NULL),
-mRawImagep(NULL),
-mDecodeState(NULL),
-mBlocksSize(-1),
-mPrecinctsSize(-1),
-mLevels(0)
+	mInputp(),
+	mCodeStreamp(),
+	mTPosp(),
+	mTileIndicesp(),
+	mRawImagep(NULL),
+	mDecodeState(),
+	mBlocksSize(-1),
+	mPrecinctsSize(-1),
+	mLevels(0)
 {
 }
 
@@ -198,38 +204,27 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 	//
 	//  Initialization
 	//
-	if (!kdu_message_initialized)
-	{
-		kdu_message_initialized = true;
-		kdu_customize_errors(&sErrorHandler);
-		kdu_customize_warnings(&sWarningHandler);
-	}
-
-	if (mCodeStreamp)
-	{
-		mCodeStreamp->destroy();
-		delete mCodeStreamp;
-		mCodeStreamp = NULL;
-	}
+	mCodeStreamp.reset();
 
 	if (!mInputp && base.getData())
 	{
 		// The compressed data has been loaded
 		// Setup the source for the codestream
-		mInputp = new LLKDUMemSource(base.getData(), data_size);
+		mInputp.reset(new LLKDUMemSource(base.getData(), data_size));
 	}
 
 	if (mInputp)
 	{
+		// This is LLKDUMemSource::reset(), not boost::scoped_ptr::reset().
 		mInputp->reset();
 	}
-	mCodeStreamp = new kdu_codestream;
 
-	mCodeStreamp->create(mInputp);
+	mCodeStreamp->create(mInputp.get());
 
 	// Set the maximum number of bytes to use from the codestream
-	// *TODO: This seems to be wrong. The base class should have no idea of how j2c compression works so no
-	// good way of computing what's the byte range to be used.
+	// *TODO: This seems to be wrong. The base class should have no idea of
+	// how j2c compression works so no good way of computing what's the byte
+	// range to be used.
 	mCodeStreamp->set_max_bytes(max_bytes,true);
 
 	//	If you want to flip or rotate the image for some reason, change
@@ -286,34 +281,18 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 	
 	if (!keep_codestream)
 	{
-		mCodeStreamp->destroy();
-		delete mCodeStreamp;
-		mCodeStreamp = NULL;
-		delete mInputp;
-		mInputp = NULL;
+		mCodeStreamp.reset();
+		mInputp.reset();
 	}
 }
 
 void LLImageJ2CKDU::cleanupCodeStream()
 {
-	delete mInputp;
-	mInputp = NULL;
-
-	delete mDecodeState;
-	mDecodeState = NULL;
-
-	if (mCodeStreamp)
-	{
-		mCodeStreamp->destroy();
-		delete mCodeStreamp;
-		mCodeStreamp = NULL;
-	}
-
-	delete mTPosp;
-	mTPosp = NULL;
-
-	delete mTileIndicesp;
-	mTileIndicesp = NULL;
+	mInputp.reset();
+	mDecodeState.reset();
+	mCodeStreamp.reset();
+	mTPosp.reset();
+	mTileIndicesp.reset();
 }
 
 bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
@@ -395,12 +374,12 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 		if (!mTileIndicesp)
 		{
-			mTileIndicesp = new kdu_dims;
+			mTileIndicesp.reset(new kdu_dims);
 		}
 		mCodeStreamp->get_valid_tiles(*mTileIndicesp);
 		if (!mTPosp)
 		{
-			mTPosp = new kdu_coords;
+			mTPosp.reset(new kdu_coords);
 			mTPosp->y = 0;
 			mTPosp->x = 0;
 		}
@@ -427,7 +406,7 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 	LLTimer decode_timer;
 
-	if (!mCodeStreamp)
+	if (!mCodeStreamp->exists())
 	{
 		if (!initDecode(base, raw_image, decode_time, mode, first_channel, max_channel_count))
 		{
@@ -478,15 +457,14 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					kdu_coords offset = tile_dims.pos - dims.pos;
 					int row_gap = channels*dims.size.x; // inter-row separation
 					kdu_byte *buf = buffer + offset.y*row_gap + offset.x*channels;
-					mDecodeState = new LLKDUDecodeState(tile, buf, row_gap);
+					mDecodeState.reset(new LLKDUDecodeState(tile, buf, row_gap));
 				}
 				// Do the actual processing
 				F32 remaining_time = decode_time - decode_timer.getElapsedTimeF32();
 				// This is where we do the actual decode.  If we run out of time, return false.
 				if (mDecodeState->processTileDecode(remaining_time, (decode_time > 0.0f)))
 				{
-					delete mDecodeState;
-					mDecodeState = NULL;
+					mDecodeState.reset();
 				}
 				else
 				{

@@ -48,6 +48,8 @@
 #endif
 
 #include "kdu_sample_processing.h"
+#include <boost/scoped_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 class LLKDUDecodeState;
 class LLKDUMemSource;
@@ -79,18 +81,51 @@ private:
 	void setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode);
 	void cleanupCodeStream();
 
+	// Helper class to hold a kdu_codestream, which is a handle to the
+	// underlying implementation object. When CodeStreamHolder is reset() or
+	// destroyed, it calls kdu_codestream::destroy() -- which kdu_codestream
+	// itself does not.
+	//
+	// Call through it like a smart pointer using operator->().
+	//
+	// Every RAII class must be noncopyable. For this we don't need move
+	// support.
+	class CodeStreamHolder: public boost::noncopyable
+	{
+	public:
+		~CodeStreamHolder()
+		{
+			reset();
+		}
+
+		void reset()
+		{
+			if (mCodeStream.exists())
+			{
+				mCodeStream.destroy();
+			}
+		}
+
+		kdu_codestream* operator->() { return &mCodeStream; }
+
+	private:
+		kdu_codestream mCodeStream;
+	};
+
 	// Encode variable
-	LLKDUMemSource *mInputp;
-	kdu_codestream *mCodeStreamp;
-	kdu_coords *mTPosp; // tile position
-	kdu_dims *mTileIndicesp;
+	boost::scoped_ptr<LLKDUMemSource> mInputp;
+	CodeStreamHolder mCodeStreamp;
+	boost::scoped_ptr<kdu_coords> mTPosp; // tile position
+	boost::scoped_ptr<kdu_dims> mTileIndicesp;
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;
 
 	// Temporary variables for in-progress decodes...
+	// We don't own this LLImageRaw. We're simply pointing to an instance
+	// passed into initDecode().
 	LLImageRaw *mRawImagep;
-	LLKDUDecodeState *mDecodeState;
+	boost::scoped_ptr<LLKDUDecodeState> mDecodeState;
 };
 
 #endif
