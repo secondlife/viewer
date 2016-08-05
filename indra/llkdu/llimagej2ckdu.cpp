@@ -165,6 +165,12 @@ struct LLKDUMessageError : public LLKDUMessage
 		// terminating handler→flush call."
 		// So throwing an exception here isn't arbitrary: we MUST throw an
 		// exception if we want to recover from a KDU error.
+		// Because this confused me: the above quote specifically refers to
+		// the kdu_error class, which is constructed internally within KDU at
+		// the point where a fatal error is discovered and reported. It is NOT
+		// talking about the kdu_message subclass passed to
+		// kdu_customize_errors(). Destroying this static object at program
+		// shutdown will NOT engage the behavior described above.
 		if (end_of_message) 
 		{
 			throw "KDU throwing an exception";
