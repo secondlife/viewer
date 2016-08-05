@@ -202,6 +202,10 @@ LLImageJ2CKDU::~LLImageJ2CKDU()
 // Stuff for new simple decode
 void transfer_bytes(kdu_byte *dest, kdu_line_buf &src, int gap, int precision);
 
+// This is called by the real (private) initDecode() (keep_codestream true)
+// and getMetadata() methods (keep_codestream false). As far as nat can tell,
+// mode is always MODE_FAST. It was called by findDiscardLevelsBoundaries()
+// as well, when that still existed, with keep_codestream true and MODE_FAST.
 void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode)
 {
 	S32 data_size = base.getDataSize();
@@ -212,6 +216,12 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 	//
 	mCodeStreamp.reset();
 
+	// It's not clear to nat under what circumstances we would reuse a
+	// pre-existing LLKDUMemSource instance. As of 2016-08-05, it consists of
+	// two U32s and a pointer, so it's not as if it would be a huge overhead
+	// to allocate a new one every time.
+	// Also -- why is base.getData() tested specifically here? If that returns
+	// NULL, shouldn't we bail out of the whole method?
 	if (!mInputp && base.getData())
 	{
 		// The compressed data has been loaded
@@ -301,6 +311,9 @@ void LLImageJ2CKDU::cleanupCodeStream()
 	mTileIndicesp.reset();
 }
 
+// This is the protected virtual method called by LLImageJ2C::initDecode().
+// However, as far as nat can tell, LLImageJ2C::initDecode() is called only by
+// llimage_libtest.cpp's load_image() function. No detectable production use.
 bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
 {
 	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
@@ -333,6 +346,9 @@ bool LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 	return true;
 }
 
+// This is the real (private) initDecode() called both by the protected
+// initDecode() method and by decodeImpl(). As far as nat can tell, only the
+// decodeImpl() usage matters for production.
 bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
 {
 	base.resetLastError();
