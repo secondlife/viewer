@@ -31,17 +31,30 @@
 #include "llpointer.h"
 #include "llmath.h"
 #include "llkdumem.h"
+#include "stringize.h"
 
 #include "kdu_block_coding.h"
 
 #include <stdexcept>
+#include <iostream>
 
 namespace {
+// exception used to keep KDU from terminating entire program -- see comments
+// in LLKDUMessageError::flush()
 struct KDUError: public std::runtime_error
 {
-    KDUError(const std::string& msg): std::runtime_error(msg) {}
+	KDUError(const std::string& msg): std::runtime_error(msg) {}
 };
 } // anonymous namespace
+
+// stream kdu_dims to std::ostream
+// Turns out this must NOT be in the anonymous namespace!
+inline
+std::ostream& operator<<(std::ostream& out, const kdu_dims& dims)
+{
+	return out << "(" << dims.pos.x << "," << dims.pos.y << "),"
+				  "[" << dims.size.x << "x" << dims.size.y << "]";
+}
 
 class kdc_flow_control {
 	
@@ -287,13 +300,19 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 
 	S32 components = mCodeStreamp->get_num_components();
 
-	if (components >= 3)
-	{ // Check that components have consistent dimensions (for PPM file)
-		kdu_dims dims1; mCodeStreamp->get_dims(1,dims1);
-		kdu_dims dims2; mCodeStreamp->get_dims(2,dims2);
-		if ((dims1 != dims) || (dims2 != dims))
+	// Check that components have consistent dimensions (for PPM file)
+	for (int idx = 1; idx < components; ++idx)
+	{
+		kdu_dims other_dims;
+		mCodeStreamp->get_dims(idx, other_dims);
+		if (other_dims != dims)
 		{
-			LL_ERRS() << "Components don't have matching dimensions!" << LL_ENDL;
+			// This method is only called from methods that catch KDUError.
+			// We want to fail the image load, not crash the viewer.
+			throw KDUError(STRINGIZE("Component " << idx << " dimensions "
+									 << other_dims
+									 << " do not match component 0 dimensions "
+									 << dims << "!"));
 		}
 	}
 
