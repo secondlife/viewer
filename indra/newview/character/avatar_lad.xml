@@ -4065,38 +4065,38 @@
     </param>
 	
     <param
-     id="30689"
-     group="1"
-     name="EyeBone_Big_Eyes"
-     value_min="-1"
-     value_max="0.56">
-      <param_skeleton>
-	  
-	    <!-- Experimental: Added Scale to the System eyes. From first look this affects only custom meshes.
-		   | The result is: Custom eyes now scale in the same way as system eyes do
-		   | Revert by setting scale to scale="0 0 0" for mEyeLeft and mEyeRight
-		   -->
-        <bone
-         name="mEyeLeft"
-         scale="0.3195 0.3280 0.3280"
+    id="30689"
+    group="1"
+    name="EyeBone_Big_Eyes"
+    value_min="-1.1"
+    value_max="1.1">
+     <param_skeleton>
+      
+        <!-- Experimental: Added Scale to the System eyes. From first look this affects only custom meshes.
+           | The result is: Custom eyes now scale in the same way as system eyes do
+           | Revert by setting scale to scale="0 0 0" for mEyeLeft and mEyeRight
+           -->
+       <bone
+        name="mEyeLeft"
+        scale="0.248 0.25 0.25"
+        offset="0 0 0" />
+
+       <bone
+        name="mEyeRight"
+        scale="0.248 0.25 0.25"
+        offset="0 0 0" />
+
+       <bone
+        name="mFaceEyeAltLeft"
+        scale="0.248 0.25 0.25"
          offset="0 0 0" />
 
-        <bone
-         name="mEyeRight"
-         scale="0.3195 0.3280 0.3280"
-         offset="0 0 0" />
+       <bone
+        name="mFaceEyeAltRight"
+        scale="0.248 0.25 0.25"
+        offset="0 0 0" />
 
-        <bone
-         name="mFaceEyeAltLeft"
-         scale="0.3195 0.3280 0.3280"
-		 offset="0 0 0" />
-
-        <bone
-         name="mFaceEyeAltRight"
-         scale="0.3195 0.3280 0.3280"
-         offset="0 0 0" />
-
-      </param_skeleton>
+     </param_skeleton>
     </param>
 
     <param
