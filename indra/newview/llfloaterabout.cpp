@@ -276,7 +276,7 @@ void LLFloaterAbout::handleServerReleaseNotes(LLSD results)
     }
     LLAppViewer::instance()->setServerReleaseNotesURL(location);
 
-    LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
+    LLFloaterAbout* floater_about = LLFloaterReg::findTypedInstance<LLFloaterAbout>("sl_about");
     if (floater_about)
     {
         floater_about->setSupportText(location);
