@@ -150,8 +150,10 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
         LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
         if (!joint)
         {
+            // There's no point continuing after this error - means
+            // that either the skeleton or lad file is broken.
             LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
-            continue;
+			return FALSE;
         }
 
         // store it
