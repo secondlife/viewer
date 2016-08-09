@@ -942,6 +942,12 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
 	llassert( getComponents() <= 4 );
 	// This is fairly bogus, but it'll do for now.
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return;
+	}
+
 	U8 *pos = getData();
 	U32 x, y;
 	for (x = 0; x < getWidth(); x++)
@@ -1136,7 +1142,6 @@ void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
 	llassert( (3 == src->getComponents()) || (4 == src->getComponents()) );
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
-
 	U8* src_data = src->getData();
 	U8* dst_data = dst->getData();
 	S32 pixels = getWidth() * getHeight();
@@ -1193,6 +1198,12 @@ void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 // Fill the buffer with a constant color
 void LLImageRaw::fill( const LLColor4U& color )
 {
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return;
+	}
+
 	S32 pixels = getWidth() * getHeight();
 	if( 4 == getComponents() )
 	{
@@ -1402,6 +1413,12 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 {
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
+
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return false;
+	}
 
 	S32 old_width = getWidth();
 	S32 old_height = getHeight();
