@@ -4870,7 +4870,7 @@
     <key>InventoryTrashMaxCapacity</key>
     <map>
         <key>Comment</key>
-        <string>Maximum capacity of the Trash folder. User will ve offered to clean it up when exceeded.</string>
+        <string>Maximum capacity of the Trash folder. User will be offered to clean it up when exceeded.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
