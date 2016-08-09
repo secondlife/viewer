@@ -5606,11 +5606,11 @@ void LLVOAvatar::showAttachmentPosOverrides(bool verbose) const
     {
         std::stringstream ss;
         std::copy(joint_names.begin(), joint_names.end(), std::ostream_iterator<std::string>(ss, ","));
-        LL_INFOS() << getFullname() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
+        LL_DEBUGS("Avatar") << getFullname() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
     {
-        LL_INFOS() << getFullname() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
+        LL_DEBUGS("Avatar") << getFullname() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
     }
 
     if (!verbose)

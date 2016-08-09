@@ -4783,7 +4783,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 pAvatarVO->addAttachmentPosOverridesForObject(vobj);
 				if (pAvatarVO->isSelf())
 				{
-					//pAvatarVO->showAttachmentPosOverrides();
+                    bool verbose = true;
+					pAvatarVO->showAttachmentPosOverrides(verbose);
 				}
             }
 
