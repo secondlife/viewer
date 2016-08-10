@@ -146,6 +146,7 @@ public:
 	static void update();
 
 	static LLFloaterSnapshot* getInstance();
+	static LLFloaterSnapshot* findInstance();
 	/*virtual*/ void saveTexture();
 	BOOL saveLocal();
 	static void setAgentEmail(const std::string& email);

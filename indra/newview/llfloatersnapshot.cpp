@@ -1255,11 +1255,17 @@ void LLFloaterSnapshotBase::ImplBase::updateLivePreview()
 //static 
 void LLFloaterSnapshot::update()
 {
-	LLFloaterSnapshot* inst = getInstance();
+	LLFloaterSnapshot* inst = findInstance();
 	if (inst != NULL)
 	{
 		inst->impl->updateLivePreview();
 	}
+}
+
+// static
+LLFloaterSnapshot* LLFloaterSnapshot::findInstance()
+{
+	return LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
 }
 
 // static

@@ -311,11 +311,18 @@ void LLFloaterOutfitSnapshot::onOpen(const LLSD& key)
 // static 
 void LLFloaterOutfitSnapshot::update()
 {
-    LLFloaterOutfitSnapshot* inst = getInstance();
+    LLFloaterOutfitSnapshot* inst = findInstance();
     if (inst != NULL)
     {
         inst->impl->updateLivePreview();
     }
+}
+
+
+// static
+LLFloaterOutfitSnapshot* LLFloaterOutfitSnapshot::findInstance()
+{
+    return LLFloaterReg::findTypedInstance<LLFloaterOutfitSnapshot>("outfit_snapshot");
 }
 
 // static
