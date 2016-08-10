@@ -192,7 +192,6 @@ BOOL LLFloaterReporter::postBuild()
 	mOwnerName = LLStringUtil::null;
 
 	getChild<LLUICtrl>("summary_edit")->setFocus(TRUE);
-	getChild<LLCheckBoxCtrl>("screen_check")->set(TRUE);
 
 	mDefaultSummary = getChild<LLUICtrl>("details_edit")->getValue().asString();
 
@@ -246,8 +245,6 @@ LLFloaterReporter::~LLFloaterReporter()
 // virtual
 void LLFloaterReporter::draw()
 {
-	getChildView("screen_check")->setEnabled(TRUE );
-
 	LLFloater::draw();
 }
 
@@ -255,7 +252,6 @@ void LLFloaterReporter::enableControls(BOOL enable)
 {
 	getChildView("category_combo")->setEnabled(enable);
 	getChildView("chat_check")->setEnabled(enable);
-	getChildView("screen_check")->setEnabled(enable);
 	getChildView("screenshot")->setEnabled(FALSE);
 	getChildView("pick_btn")->setEnabled(enable);
 	getChildView("summary_edit")->setEnabled(enable);
@@ -452,19 +448,10 @@ void LLFloaterReporter::onClickSend(void *userdata)
 		}
 		else
 		{
-			if(self->getChild<LLUICtrl>("screen_check")->getValue())
-			{
-				self->getChildView("send_btn")->setEnabled(FALSE);
-				self->getChildView("cancel_btn")->setEnabled(FALSE);
-				// the callback from uploading the image calls sendReportViaLegacy()
-				self->uploadImage();
-			}
-			else
-			{
-				self->sendReportViaLegacy(self->gatherReport());
-				LLUploadDialog::modalUploadFinished();
-				self->closeFloater();
-			}
+			self->getChildView("send_btn")->setEnabled(FALSE);
+			self->getChildView("cancel_btn")->setEnabled(FALSE);
+			// the callback from uploading the image calls sendReportViaLegacy()
+			self->uploadImage();
 		}
 	}
 }
@@ -713,10 +700,7 @@ LLSD LLFloaterReporter::gatherReport()
 	// only send a screenshot ID if we're asked to and the email is 
 	// going to LL - Estate Owners cannot see the screenshot asset
 	LLUUID screenshot_id = LLUUID::null;
-	if (getChild<LLUICtrl>("screen_check")->getValue())
-	{
-		screenshot_id = getChild<LLUICtrl>("screenshot")->getValue();
-	};
+	screenshot_id = getChild<LLUICtrl>("screenshot")->getValue();
 
 	LLSD report = LLSD::emptyMap();
 	report["report-type"] = (U8) mReportType;
@@ -770,7 +754,7 @@ void LLFloaterReporter::finishedARPost(const LLSD &)
 
 void LLFloaterReporter::sendReportViaCaps(std::string url, std::string sshot_url, const LLSD& report)
 {
-	if(getChild<LLUICtrl>("screen_check")->getValue().asBoolean() && !sshot_url.empty())
+	if(!sshot_url.empty())
     {
 		// try to upload screenshot
         LLResourceUploadInfo::ptr_t uploadInfo(new  LLARScreenShotUploader(report, mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType));
