@@ -205,9 +205,15 @@ std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
 
 	std::string label;
 	up.extractParts();
-	up.glueFirst(label);
-	std::string query = url.substr(label.size());
-	return query;
+	up.glueFirst(label, false);
+
+	size_t pos = url.find(label);
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+	pos += label.size();
+	return url.substr(pos);
 }
 
 
