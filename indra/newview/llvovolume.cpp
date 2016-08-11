@@ -3650,10 +3650,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 
 	if (isMesh())
 	{
-		const LLSD* header_ptr = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
-		LLSD header = header_ptr ? *header_ptr : LLSD();
-
-		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD, unscaled_value);
+		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
 	}
 	else
 	{
