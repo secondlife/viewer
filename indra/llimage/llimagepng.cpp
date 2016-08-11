@@ -47,7 +47,7 @@ LLImagePNG::~LLImagePNG()
 // Virtual
 // Parse PNG image information and set the appropriate
 // width, height and component (channel) information.
-BOOL LLImagePNG::updateData()
+bool LLImagePNG::updateData()
 {
     resetLastError();
 
@@ -55,7 +55,7 @@ BOOL LLImagePNG::updateData()
     if (!getData() || (0 == getDataSize()))
     {
         setLastError("Uninitialized instance of LLImagePNG");
-        return FALSE;
+        return false;
     }
 
 	// Decode the PNG data and extract sizing information
@@ -63,25 +63,25 @@ BOOL LLImagePNG::updateData()
 	if (!pngWrapper.isValidPng(getData()))
 	{
 		setLastError("LLImagePNG data does not have a valid PNG header!");
-		return FALSE;
+		return false;
 	}
 
 	LLPngWrapper::ImageInfo infop;
 	if (! pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
 	{
 		setLastError(pngWrapper.getErrorMessage());
-		return FALSE;
+		return false;
 	}
 
 	setSize(infop.mWidth, infop.mHeight, infop.mComponents);
 
-	return TRUE;
+	return true;
 }
 
 // Virtual
 // Decode an in-memory PNG image into the raw RGB or RGBA format
 // used within SecondLife.
-BOOL LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
+bool LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 {
 	llassert_always(raw_image);
 
@@ -91,7 +91,7 @@ BOOL LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
     if (!getData() || (0 == getDataSize()))
     {
         setLastError("LLImagePNG trying to decode an image with no data!");
-        return FALSE;
+        return false;
     }
 
 	// Decode the PNG data into the raw image
@@ -99,21 +99,21 @@ BOOL LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 	if (!pngWrapper.isValidPng(getData()))
 	{
 		setLastError("LLImagePNG data does not have a valid PNG header!");
-		return FALSE;
+		return false;
 	}
 
 	if (! pngWrapper.readPng(getData(), getDataSize(), raw_image))
 	{
 		setLastError(pngWrapper.getErrorMessage());
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Virtual
 // Encode the in memory RGB image into PNG format.
-BOOL LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
+bool LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 {
 	llassert_always(raw_image);
 
@@ -133,7 +133,7 @@ BOOL LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 	{
 		setLastError(pngWrapper.getErrorMessage());
 		delete[] tmpWriteBuffer;
-		return FALSE;
+		return false;
 	}
 
 	// Resize internal buffer and copy from temp
@@ -143,6 +143,6 @@ BOOL LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 
 	delete[] tmpWriteBuffer;
 
-	return TRUE;
+	return true;
 }
 

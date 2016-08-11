@@ -140,13 +140,6 @@
              function="Advanced.ShowDebugSettings"
              parameter="all" />
         </menu_item_call>
-        <menu_item_call
-         label="UI/Color Settings"
-         name="UI/Color Settings">
-            <menu_item_call.on_click
-             function="Advanced.ShowDebugSettings"
-             parameter="skin" />
-        </menu_item_call>
         <menu_item_separator />
         <menu_item_call
          label="XUI Preview Tool"

@@ -78,7 +78,7 @@ LLImageBMP::LLImageBMP()
 	mColorPalette( NULL ),
 	mBitmapOffset( 0 ),
 	mBitsPerPixel( 0 ),
-	mOriginAtTop( FALSE )
+	mOriginAtTop( false )
 {
 	mBitfieldMask[0] = 0;
 	mBitfieldMask[1] = 0;
@@ -92,7 +92,7 @@ LLImageBMP::~LLImageBMP()
 }
 
 
-BOOL LLImageBMP::updateData()
+bool LLImageBMP::updateData()
 {
 	resetLastError();
 
@@ -101,7 +101,7 @@ BOOL LLImageBMP::updateData()
 	if (!mdata || (0 == getDataSize()))
 	{
 		setLastError("Uninitialized instance of LLImageBMP");
-		return FALSE;
+		return false;
 	}
 
 	// Read the bitmap headers in order to get all the useful info
@@ -120,12 +120,12 @@ BOOL LLImageBMP::updateData()
 		if ((mdata[0] != 'B') || (mdata[1] != 'A'))
 		{
 			setLastError("OS/2 bitmap array BMP files are not supported");
-			return FALSE;
+			return false;
 		}
 		else
 		{
 			setLastError("Does not appear to be a bitmap file");
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -160,12 +160,12 @@ BOOL LLImageBMP::updateData()
 	llendianswizzleone(header.mNumColors);
 	llendianswizzleone(header.mNumColorsImportant);
 
-	BOOL windows_nt_version = FALSE;
-	BOOL windows_95_version = FALSE;
+	bool windows_nt_version = false;
+	bool windows_95_version = false;
 	if( 12 == header.mSize )
 	{
 		setLastError("Windows 2.x and OS/2 1.x BMP files are not supported");
-		return FALSE;
+		return false;
 	}
 	else
 	if( 40 == header.mSize )
@@ -173,7 +173,7 @@ BOOL LLImageBMP::updateData()
 		if( 3 == header.mCompression )
 		{
 			// Windows NT
-			windows_nt_version = TRUE;
+			windows_nt_version = true;
 		}
 		else
 		{
@@ -184,32 +184,32 @@ BOOL LLImageBMP::updateData()
 	if( 12 <= header.mSize && 64 <= header.mSize )
 	{
 		setLastError("OS/2 2.x BMP files are not supported");
-		return FALSE;
+		return false;
 	}
 	else
 	if( 108 == header.mSize )
 	{
 		// BITMAPV4HEADER
-		windows_95_version = TRUE;
+		windows_95_version = true;
 	}
 	else
 	if( 108 < header.mSize )
 	{
 		// BITMAPV5HEADER or greater
 		// Should work as long at Microsoft maintained backwards compatibility (which they did in V4 and V5)
-		windows_95_version = TRUE;
+		windows_95_version = true;
 	}
 
 	S32 width = header.mWidth;
 	S32 height = header.mHeight;
 	if (height < 0)
 	{
-		mOriginAtTop = TRUE;
+		mOriginAtTop = true;
 		height = -height;
 	}
 	else
 	{
-		mOriginAtTop = FALSE;
+		mOriginAtTop = false;
 	}
 
 	mBitsPerPixel = header.mBitsPerPixel;
@@ -228,10 +228,10 @@ BOOL LLImageBMP::updateData()
 	case 16: // Started work on 16, but doesn't work yet
 		// These are legal, but we don't support them yet.
 		setLastError("Unsupported bit depth");
-		return FALSE;
+		return false;
 	default:
 		setLastError("Unrecognized bit depth");
-		return FALSE;
+		return false;
 	}
 
 	setSize(width, height, components);
@@ -244,11 +244,11 @@ BOOL LLImageBMP::updateData()
 
 	case 1:
 		setLastError("8 bit RLE compression not supported.");
-		return FALSE;
+		return false;
 
 	case 2: 
 		setLastError("4 bit RLE compression not supported.");
-		return FALSE;
+		return false;
 
 	case 3:
 		// Windows NT or Windows 95
@@ -256,7 +256,7 @@ BOOL LLImageBMP::updateData()
 
 	default:
 		setLastError("Unsupported compression format.");
-		return FALSE;
+		return false;
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -267,13 +267,13 @@ BOOL LLImageBMP::updateData()
 		if( (16 != header.mBitsPerPixel) && (32 != header.mBitsPerPixel) )
 		{
 			setLastError("Bitfield encoding requires 16 or 32 bits per pixel.");
-			return FALSE;
+			return false;
 		}
 
 		if( 0 != header.mNumColors )
 		{
 			setLastError("Bitfield encoding is not compatible with a color table.");
-			return FALSE;
+			return false;
 		}
 
 		
@@ -322,15 +322,15 @@ BOOL LLImageBMP::updateData()
 		if (!mColorPalette)
 		{
 			LL_ERRS() << "Out of memory in LLImageBMP::updateData()" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 		memcpy( mColorPalette, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE + extension_size, color_palette_size );	/* Flawfinder: ignore */
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageBMP::decode(LLImageRaw* raw_image, F32 decode_time)
+bool LLImageBMP::decode(LLImageRaw* raw_image, F32 decode_time)
 {
 	llassert_always(raw_image);
 	
@@ -341,7 +341,7 @@ BOOL LLImageBMP::decode(LLImageRaw* raw_image, F32 decode_time)
 	if (!mdata || (0 == getDataSize()))
 	{
 		setLastError("llimagebmp trying to decode an image with no data!");
-		return FALSE;
+		return false;
 	}
 	
 	raw_image->resize(getWidth(), getHeight(), 3);
@@ -349,7 +349,7 @@ BOOL LLImageBMP::decode(LLImageRaw* raw_image, F32 decode_time)
 	U8* src = mdata + mBitmapOffset;
 	U8* dst = raw_image->getData();
 
-	BOOL success = FALSE;
+	bool success = false;
 
 	switch( mBitsPerPixel )
 	{
@@ -393,7 +393,7 @@ U32 LLImageBMP::countTrailingZeros( U32 m )
 }
 
 
-BOOL LLImageBMP::decodeColorMask16( U8* dst, U8* src )
+bool LLImageBMP::decodeColorMask16( U8* dst, U8* src )
 {
 	llassert( 16 == mBitsPerPixel );
 
@@ -426,10 +426,10 @@ BOOL LLImageBMP::decodeColorMask16( U8* dst, U8* src )
 		src += alignment_bytes;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageBMP::decodeColorMask32( U8* dst, U8* src )
+bool LLImageBMP::decodeColorMask32( U8* dst, U8* src )
 {
 	// Note: alpha is not supported
 
@@ -445,7 +445,7 @@ BOOL LLImageBMP::decodeColorMask32( U8* dst, U8* src )
 
 	if (getWidth() * getHeight() * 4 > getDataSize() - mBitmapOffset)
 	{ //here we have situation when data size in src less than actually needed
-		return FALSE;
+		return false;
 	}
 
 	S32 src_row_span = getWidth() * 4;
@@ -469,11 +469,11 @@ BOOL LLImageBMP::decodeColorMask32( U8* dst, U8* src )
 		src += alignment_bytes;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLImageBMP::decodeColorTable8( U8* dst, U8* src )
+bool LLImageBMP::decodeColorTable8( U8* dst, U8* src )
 {
 	llassert( (8 == mBitsPerPixel) && (mColorPaletteColors >= 256) );
 
@@ -482,7 +482,7 @@ BOOL LLImageBMP::decodeColorTable8( U8* dst, U8* src )
 
 	if ((getWidth() * getHeight()) + getHeight() * alignment_bytes > getDataSize() - mBitmapOffset)
 	{ //here we have situation when data size in src less than actually needed
-		return FALSE;
+		return false;
 	}
 
 	for( S32 row = 0; row < getHeight(); row++ )
@@ -499,11 +499,11 @@ BOOL LLImageBMP::decodeColorTable8( U8* dst, U8* src )
 		src += alignment_bytes;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLImageBMP::decodeTruecolor24( U8* dst, U8* src )
+bool LLImageBMP::decodeTruecolor24( U8* dst, U8* src )
 {
 	llassert( 24 == mBitsPerPixel );
 	llassert( 3 == getComponents() );
@@ -512,7 +512,7 @@ BOOL LLImageBMP::decodeTruecolor24( U8* dst, U8* src )
 
 	if ((getWidth() * getHeight() * 3) + getHeight() * alignment_bytes > getDataSize() - mBitmapOffset)
 	{ //here we have situation when data size in src less than actually needed
-		return FALSE;
+		return false;
 	}
 
 	for( S32 row = 0; row < getHeight(); row++ )
@@ -528,10 +528,10 @@ BOOL LLImageBMP::decodeTruecolor24( U8* dst, U8* src )
 		src += alignment_bytes;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
+bool LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 {
 	llassert_always(raw_image);
 	
@@ -563,7 +563,7 @@ BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 	// Allocate the new buffer for the data.
 	if(!allocateData(file_bytes)) //memory allocation failed
 	{
-		return FALSE ;
+		return false ;
 	}
 
 	magic[0] = 'B'; magic[1] = 'M';
@@ -663,5 +663,5 @@ BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 		}
 	}
 
-	return TRUE;
+	return true;
 }

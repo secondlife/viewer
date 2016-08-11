@@ -1418,6 +1418,20 @@ void LLFloaterSnapshot::postPanelSwitch()
 }
 
 // static
+void LLFloaterSnapshot::inventorySaveFailed()
+{
+    LLFloaterSnapshot* instance = findInstance();
+    if (!instance)
+    {
+        llassert(instance != NULL);
+        return;
+    }
+
+    instance->impl.updateControls(instance);
+    instance->impl.setStatus(Impl::STATUS_FINISHED, false, "inventory");
+}
+
+// static
 LLPointer<LLImageFormatted> LLFloaterSnapshot::getImageData()
 {
 	// FIXME: May not work for textures.

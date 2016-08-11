@@ -83,6 +83,7 @@ public:
 	static void addFriend(std::string url);
 	static void removeFriend(std::string url);
 	static void blockObject(std::string url);
+	static void unblockObject(std::string url);
 
 	/// specify the callbacks to enable this class's functionality
 	typedef boost::function<void (const std::string&)> url_callback_t;
