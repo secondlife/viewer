@@ -38,9 +38,9 @@ public:
 	LLImagePNG();
 
 	/*virtual*/ std::string getExtension() { return std::string("png"); }
-	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
-	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
+	/*virtual*/ bool updateData();
+	/*virtual*/ bool decode(LLImageRaw* raw_image, F32 decode_time);
+	/*virtual*/ bool encode(const LLImageRaw* raw_image, F32 encode_time);
 };
 
 #endif

@@ -48,6 +48,8 @@
 #endif
 
 #include "kdu_sample_processing.h"
+#include <boost/scoped_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 class LLKDUDecodeState;
 class LLKDUMemSource;
@@ -65,43 +67,70 @@ public:
 	virtual ~LLImageJ2CKDU();
 	
 protected:
-	/*virtual*/ BOOL getMetadata(LLImageJ2C &base);
-	/*virtual*/ BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count);
-	/*virtual*/ BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
-								BOOL reversible=FALSE);
-	/*virtual*/ BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL);
-	/*virtual*/ BOOL initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0);
-	void findDiscardLevelsBoundaries(LLImageJ2C &base);
+	virtual bool getMetadata(LLImageJ2C &base);
+	virtual bool decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count);
+	virtual bool encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
+								bool reversible=false);
+	virtual bool initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL);
+	virtual bool initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0);
+	virtual std::string getEngineInfo() const;
 
 private:
-	BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level = -1, int* region = NULL);
-	void setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECodeStreamMode mode);
+	bool initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level = -1, int* region = NULL);
+	void setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode);
 	void cleanupCodeStream();
 
+	// This method was public, but the only call to it is commented out in our
+	// own initDecode() method. I (nat 2016-08-04) don't know what it does or
+	// why. Even if it should be uncommented, it should probably still be
+	// private.
+//	void findDiscardLevelsBoundaries(LLImageJ2C &base);
+
+	// Helper class to hold a kdu_codestream, which is a handle to the
+	// underlying implementation object. When CodeStreamHolder is reset() or
+	// destroyed, it calls kdu_codestream::destroy() -- which kdu_codestream
+	// itself does not.
+	//
+	// Call through it like a smart pointer using operator->().
+	//
+	// Every RAII class must be noncopyable. For this we don't need move
+	// support.
+	class CodeStreamHolder: public boost::noncopyable
+	{
+	public:
+		~CodeStreamHolder()
+		{
+			reset();
+		}
+
+		void reset()
+		{
+			if (mCodeStream.exists())
+			{
+				mCodeStream.destroy();
+			}
+		}
+
+		kdu_codestream* operator->() { return &mCodeStream; }
+
+	private:
+		kdu_codestream mCodeStream;
+	};
+
 	// Encode variable
-	LLKDUMemSource *mInputp;
-	kdu_codestream *mCodeStreamp;
-	kdu_coords *mTPosp; // tile position
-	kdu_dims *mTileIndicesp;
+	boost::scoped_ptr<LLKDUMemSource> mInputp;
+	CodeStreamHolder mCodeStreamp;
+	boost::scoped_ptr<kdu_coords> mTPosp; // tile position
+	boost::scoped_ptr<kdu_dims> mTileIndicesp;
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;
 
 	// Temporary variables for in-progress decodes...
+	// We don't own this LLImageRaw. We're simply pointing to an instance
+	// passed into initDecode().
 	LLImageRaw *mRawImagep;
-	LLKDUDecodeState *mDecodeState;
+	boost::scoped_ptr<LLKDUDecodeState> mDecodeState;
 };
-
-#if LL_WINDOWS
-# define LLSYMEXPORT __declspec(dllexport)
-#elif LL_LINUX
-# define LLSYMEXPORT __attribute__ ((visibility("default")))
-#else
-# define LLSYMEXPORT
-#endif
-
-extern "C" LLSYMEXPORT const char* engineInfoLLImageJ2CKDU();
-extern "C" LLSYMEXPORT LLImageJ2CKDU* createLLImageJ2CKDU();
-extern "C" LLSYMEXPORT void destroyLLImageJ2CKDU(LLImageJ2CKDU* kdu);
 
 #endif
