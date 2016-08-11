@@ -193,6 +193,17 @@ char* ll_pretty_print_sd(const LLSD& sd)
 	return buffer;
 }
 
+std::string ll_stream_notation_sd(const LLSD& sd)
+{
+	std::ostringstream stream;
+	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);
+	stream << LLSDOStreamer<LLSDNotationFormatter>(sd);
+	stream << std::ends;
+
+    return stream.str();
+}
+
+
 //compares the structure of an LLSD to a template LLSD and stores the
 //"valid" values in a 3rd LLSD.  Default values pulled from the template
 //if the tested LLSD does not contain the key/value pair.
