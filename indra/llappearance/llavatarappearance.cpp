@@ -186,7 +186,8 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	mPelvisToFoot(0.f),
 	mHeadOffset(),
 	mRoot(NULL),
-	mWearableData(wearable_data)
+	mWearableData(wearable_data),
+    mNextJointNum(0)
 {
 	llassert_always(mWearableData);
 	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
@@ -624,6 +625,8 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 	{
 		volume_num++;
 	}
+
+    joint->setJointNum(mNextJointNum++);
 
 	// setup children
 	LLAvatarBoneInfo::child_list_t::const_iterator iter;
@@ -1276,7 +1279,6 @@ LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
     if (!mSkeleton[num])
     {
         mSkeleton[num] = createAvatarJoint();
-		mSkeleton[num]->setJointNum(num);
     }
 	return mSkeleton[num];
 }

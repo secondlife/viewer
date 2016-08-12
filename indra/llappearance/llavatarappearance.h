@@ -139,6 +139,8 @@ public:
 
 	typedef std::map<std::string, LLJoint*> joint_map_t;
 	joint_map_t			mJointMap;
+
+    S32					mNextJointNum;
 	
 	void		computeBodySize();
 
