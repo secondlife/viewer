@@ -8547,6 +8547,8 @@ We're having trouble connecting to your voice server:
 
 [HOSTID]
 
+:UDP: 3478, 3479, 5060, 5062, 12000-17000
+
 Voice communications will not be available.
 Please check your network and firewall setup.
     <tag>voice</tag>
