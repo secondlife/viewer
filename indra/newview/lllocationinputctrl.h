@@ -166,6 +166,7 @@ private:
 	// callbacks
 	bool					onLocationContextMenuItemEnabled(const LLSD& userdata);
 	void 					onLocationContextMenuItemClicked(const LLSD& userdata);
+	void					callbackRebakeRegion(const LLSD& notification, const LLSD& response);
 	void					onParcelIconClick(EParcelIcon icon);
 
 	void                    createNavMeshStatusListenerForCurrentRegion();

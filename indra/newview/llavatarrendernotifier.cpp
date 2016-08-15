@@ -63,7 +63,7 @@ mLatestAgentComplexity(0),
 mLatestOverLimitPct(0.0f),
 mShowOverLimitAgents(false),
 mNotifyOutfitLoading(false),
-mLastCofVersion(-1),
+mLastCofVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
 mLastOutfitRezStatus(-1),
 mLastSkeletonSerialNum(-1)
 {
@@ -207,8 +207,8 @@ void LLAvatarRenderNotifier::updateNotificationState()
         mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
     }
     else if (mLastCofVersion >= 0
-        && (mLastCofVersion != gAgentAvatarp->mLastUpdateRequestCOFVersion
-            || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
+        && (mLastCofVersion != LLAppearanceMgr::instance().getCOFVersion()
+        || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
     {
         // version mismatch in comparison to previous outfit - outfit changed
         mNotifyOutfitLoading = true;

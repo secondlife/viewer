@@ -1150,6 +1150,22 @@ Error encoding snapshot.
 
   <notification
    icon="alertmodal.tga"
+   name="ErrorPhotoCannotAfford"
+   type="alertmodal">
+    You need L$[COST] to save a photo to your inventory. You may either buy L$ or save the photo to your computer instead.
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ErrorTextureCannotAfford"
+   type="alertmodal">
+    You need L$[COST] to save a texture to your inventory. You may either buy L$ or save the photo to your computer instead.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ErrorUploadingPostcard"
    type="alertmodal">
 There was a problem sending a snapshot due to the following reason: [REASON]
@@ -3524,6 +3540,19 @@ Teleport all Residents in this region home?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ChangeObjectBonusFactor"
+   type="alertmodal">
+    Lowering the object bonus after builds have been established in a region may cause objects to be returned or deleted. Are you sure you want to change object bonus?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm changing object bonus factor"
+     name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
   </notification>
@@ -6888,6 +6917,19 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="PathfindingDirtyRebake"
+   persist="true"
+   type="notify">
+   <unique/>
+   The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
+   <usetemplate
+     name="okbutton"
+     yestext="Rebake region"
+   />
+  </notification>
+
+  <notification
      icon="notify.tga"
      name="DynamicPathfindingDisabled"
      persist="true"
@@ -8279,8 +8321,18 @@ Appearance has been saved to XML to [PATH]
     <notification icon="notifytip.tga"
 		name="AppearanceToXMLFailed" type="notifytip">
 Failed to save appearance to XML.
+  </notification>
+
+  <notification
     icon="notifytip.tga"
-	name="PresetNotDeleted"
+    name="PresetNotSaved"
+    type="notifytip">
+Error saving preset [NAME].
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="PresetNotDeleted"
     type="notifytip">
 Error deleting preset [NAME].
   </notification>

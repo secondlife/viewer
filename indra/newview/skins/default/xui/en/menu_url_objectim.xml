@@ -16,6 +16,13 @@
         <menu_item_call.on_click
          function="Url.Block" />
     </menu_item_call>
+    <menu_item_call
+     label="Unblock"
+     layout="topleft"
+     name="unblock_object">
+        <menu_item_call.on_click
+         function="Url.Unblock" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call

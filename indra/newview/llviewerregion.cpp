@@ -264,16 +264,17 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         }
 
         S32 id = ++mHttpResponderID;
-        ++mSeedCapAttempts;
 
         LLSD capabilityNames = LLSD::emptyArray();
         buildCapabilityNames(capabilityNames);
 
         LL_INFOS("AppInit", "Capabilities") << "Requesting seed from " << url 
-            << " (attempt #" << mSeedCapAttempts << ")" << LL_ENDL;
+            << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
 
         regionp = NULL;
         result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
+
+        ++mSeedCapAttempts;
 
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed

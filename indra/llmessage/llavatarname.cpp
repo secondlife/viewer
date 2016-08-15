@@ -166,7 +166,7 @@ void LLAvatarName::setExpires(F64 expires)
 	mExpires = LLFrameTimer::getTotalSeconds() + expires;
 }
 
-std::string LLAvatarName::getCompleteName() const
+std::string LLAvatarName::getCompleteName(bool use_parentheses) const
 {
 	std::string name;
 	if (sUseDisplayNames)
@@ -182,7 +182,14 @@ std::string LLAvatarName::getCompleteName() const
 			name = mDisplayName;
 			if(sUseUsernames)
 			{
-				name += " (" + mUsername + ")";
+				if(use_parentheses)
+				{
+				    name += " (" + mUsername + ")";
+				}
+				else
+				{
+				    name += "  [ " + mUsername + " ]";
+				}
 			}
 		}
 	}
@@ -220,7 +227,7 @@ std::string LLAvatarName::getDisplayName() const
 	}
 }
 
-std::string LLAvatarName::getUserName() const
+std::string LLAvatarName::getUserName(bool lowercase) const
 {
 	std::string name;
 	if (mLegacyLastName.empty() || (mLegacyLastName == "Resident"))
@@ -238,7 +245,15 @@ std::string LLAvatarName::getUserName() const
 	}
 	else
 	{
-		name = mLegacyFirstName + " " + mLegacyLastName;
+		if(lowercase)
+		{
+		    name = mLegacyFirstName + "." + mLegacyLastName;
+		    LLStringUtil::toLower(name);
+		}
+		else
+		{
+		    name = mLegacyFirstName + " " + mLegacyLastName;
+	    }
 	}
 	return name;
 }

@@ -60,7 +60,7 @@ LLImageRaw::~LLImageRaw() { }
 U8* LLImageRaw::allocateData(S32 ) { return NULL; }
 void LLImageRaw::deleteData() { }
 U8* LLImageRaw::reallocateData(S32 ) { return NULL; }
-BOOL LLImageRaw::resize(U16, U16, S8) { return TRUE; } // this method always returns TRUE...
+bool LLImageRaw::resize(U16, U16, S8) { return true; } // this method always returns true...
 
 LLImageBase::LLImageBase()
 : LLTrace::MemTrackable<LLImageBase>("LLImageBase"),
@@ -89,8 +89,8 @@ LLImageFormatted::~LLImageFormatted() { }
 U8* LLImageFormatted::allocateData(S32 ) { return NULL; }
 S32 LLImageFormatted::calcDataSize(S32 ) { return 0; }
 S32 LLImageFormatted::calcDiscardLevelBytes(S32 ) { return 0; }
-BOOL LLImageFormatted::decodeChannels(LLImageRaw*, F32, S32, S32) { return FALSE; }
-BOOL LLImageFormatted::copyData(U8 *, S32) { return TRUE; }  // this method always returns TRUE...
+bool LLImageFormatted::decodeChannels(LLImageRaw*, F32, S32, S32) { return false; }
+bool LLImageFormatted::copyData(U8 *, S32) { return true; }  // this method always returns true...
 void LLImageFormatted::deleteData() { }
 void LLImageFormatted::dump() { }
 U8* LLImageFormatted::reallocateData(S32 ) { return NULL; }
@@ -103,14 +103,14 @@ LLImageJ2C::~LLImageJ2C() { }
 S32 LLImageJ2C::calcDataSize(S32 ) { return 0; }
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 ) { return 0; }
 S32 LLImageJ2C::calcHeaderSize() { return 0; }
-BOOL LLImageJ2C::decode(LLImageRaw*, F32) { return FALSE; }
-BOOL LLImageJ2C::decodeChannels(LLImageRaw*, F32, S32, S32 ) { return FALSE; }
+bool LLImageJ2C::decode(LLImageRaw*, F32) { return false; }
+bool LLImageJ2C::decodeChannels(LLImageRaw*, F32, S32, S32 ) { return false; }
 void LLImageJ2C::decodeFailed() { }
-BOOL LLImageJ2C::encode(const LLImageRaw*, F32) { return FALSE; }
+bool LLImageJ2C::encode(const LLImageRaw*, F32) { return false; }
 S8  LLImageJ2C::getRawDiscardLevel() { return 0; }
 void LLImageJ2C::resetLastError() { }
 void LLImageJ2C::setLastError(const std::string&, const std::string&) { }
-BOOL LLImageJ2C::updateData() { return FALSE; }
+bool LLImageJ2C::updateData() { return false; }
 void LLImageJ2C::updateRawDiscardLevel() { }
 
 LLKDUMemIn::LLKDUMemIn(const U8*, const U32, const U16, const U16, const U8, siz_params*) { }
@@ -212,12 +212,12 @@ namespace tut
 		{
 		public:
 			// Provides public access to some protected methods for testing
-			BOOL callGetMetadata(LLImageJ2C &base) { return getMetadata(base); }
-			BOOL callDecodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
+			bool callGetMetadata(LLImageJ2C &base) { return getMetadata(base); }
+			bool callDecodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
 			{
 				return decodeImpl(base, raw_image, decode_time, first_channel, max_channel_count);
 			}
-			BOOL callEncodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text)
+			bool callEncodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text)
 			{
 				return encodeImpl(base, raw_image, comment_text);
 			}
@@ -254,10 +254,10 @@ namespace tut
 	void llimagej2ckdu_object_t::test<1>()
 	{
 		LLImageJ2C* image = new LLImageJ2C();
-		BOOL res = mImage->callGetMetadata(*image);
-		// Trying to set up a data stream with all NIL values and stubbed KDU will "work" and return TRUE
-		// Note that is linking with KDU, that call will throw an exception and fail, returning FALSE
-		ensure("getMetadata() test failed", res == TRUE);
+		bool res = mImage->callGetMetadata(*image);
+		// Trying to set up a data stream with all NIL values and stubbed KDU will "work" and return true
+		// Note that is linking with KDU, that call will throw an exception and fail, returning false
+		ensure("getMetadata() test failed", res);
 	}
 
 	// Test 2 : test decodeImpl()
@@ -266,9 +266,9 @@ namespace tut
 	{
 		LLImageJ2C* image = new LLImageJ2C();
 		LLImageRaw* raw = new LLImageRaw();
-		BOOL res = mImage->callDecodeImpl(*image, *raw, 0.0, 0, 0);
-		// Decoding returns TRUE whenever there's nothing else to do, including if decoding failed, so we'll get TRUE here
-		ensure("decodeImpl() test failed", res == TRUE);
+		bool res = mImage->callDecodeImpl(*image, *raw, 0.0, 0, 0);
+		// Decoding returns true whenever there's nothing else to do, including if decoding failed, so we'll get true here
+		ensure("decodeImpl() test failed", res);
 	}
 
 	// Test 3 : test encodeImpl()
@@ -277,8 +277,8 @@ namespace tut
 	{
 		LLImageJ2C* image = new LLImageJ2C();
 		LLImageRaw* raw = new LLImageRaw();
-		BOOL res = mImage->callEncodeImpl(*image, *raw, NULL);
-		// Encoding returns TRUE unless an exception was raised, so we'll get TRUE here though nothing really was done
-		ensure("encodeImpl() test failed", res == TRUE);
+		bool res = mImage->callEncodeImpl(*image, *raw, NULL);
+		// Encoding returns true unless an exception was raised, so we'll get true here though nothing really was done
+		ensure("encodeImpl() test failed", res);
 	}
 }

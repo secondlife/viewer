@@ -54,6 +54,19 @@ BOOL LLToastScriptQuestion::postBuild()
 
 	return TRUE;
 }
+
+// virtual
+void LLToastScriptQuestion::setFocus(BOOL b)
+{
+    LLToastPanel::setFocus(b);
+    // toast can fade out and disappear with focus ON, so reset to default anyway
+    LLButton* dfbutton = getDefaultButton();
+    if (dfbutton && dfbutton->getVisible() && dfbutton->getEnabled())
+    {
+        dfbutton->setFocus(b);
+    }
+}
+
 void LLToastScriptQuestion::snapToMessageHeight()
 {
 	LLTextBox* mMessage = getChild<LLTextBox>("top_info_message");
@@ -118,6 +131,12 @@ void LLToastScriptQuestion::createButtons()
 			button->setRect(rect);
 
 			buttons_width += rect.getWidth() + LEFT_PAD;
+
+			if (form_element.has("default") && form_element["default"].asBoolean())
+			{
+				button->setFocus(TRUE);
+				setDefaultBtn(button);
+			}
 		}
 	}
 }
