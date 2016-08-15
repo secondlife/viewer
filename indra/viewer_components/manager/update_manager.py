@@ -28,9 +28,21 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-from llbase import llrest
-from llbase.llrest import RESTError
-from llbase import llsd
+import os
+
+#NOTA BENE: 
+#   For POSIX platforms, llbase will be imported from the same directory.  
+#   For Windows, llbase will be compiled into the executable by pyinstaller
+try:
+    from llbase import llrest
+    from llbase.llrest import RESTError
+    from llbase import llsd    
+except:
+    #if Windows, this is expected, if not, we're dead
+    if os.name == 'nt':
+        pass
+
+from copy import deepcopy
 from urlparse import urljoin
 
 import apply_update
@@ -40,7 +52,6 @@ import fnmatch
 import hashlib
 import InstallerUserMessage
 import json
-import os
 import platform
 import re
 import shutil
@@ -58,13 +69,14 @@ def silent_write(log_file_handle, text):
         #prepend text for easy grepping
         log_file_handle.write("UPDATE MANAGER: " + text + "\n")
 
-def after_frame(my_message, timeout = 10000):
+def after_frame(message, timeout = 10000):
     #pop up a InstallerUserMessage.basic_message that kills itself after timeout milliseconds
     #note that this blocks the caller for the duration of timeout
     frame = InstallerUserMessage.InstallerUserMessage(title = "Second Life Installer", icon_name="head-sl-logo.gif")
     #this is done before basic_message so that we aren't blocked by mainloop()
-    frame.after(timeout, lambda: frame._delete_window)
-    frame.basic_message(message = my_message)
+    #frame.after(timeout, lambda: frame._delete_window)
+    frame.after(timeout, lambda: frame.destroy())
+    frame.basic_message(message = message)
 
 def convert_version_file_style(version):
     #converts a version string a.b.c.d to a_b_c_d as used in downloaded filenames
@@ -155,6 +167,10 @@ def get_settings(log_file_handle, parent_dir):
     print str(parent_dir)
     try:
         settings_file = os.path.abspath(os.path.join(parent_dir,'user_settings','settings.xml'))
+        #this happens when the path to settings file happens on the command line
+        #we get a full path and don't need to munge it
+        if not os.path.exists(settings_file):
+            settings_file = parent_dir
         print "Settings file: " + str(settings_file)
         settings = llsd.parse((open(settings_file)).read())
     except llsd.LLSDParseError as lpe:
@@ -223,9 +239,15 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
     channelname = summary_dict['Channel']
     #this is kind of a mess because the settings value is a) in a map and b) is both the cohort and the version
     version = summary_dict['Version']
-    platform_version = platform.release()
+    #we need to use the dotted versions of the platform versions in order to be compatible with VVM rules and arithmetic
+    if platform_key == 'win':
+        platform_version = platform.win32_ver()[1]
+    elif platform_key == 'mac':
+        platform_version = platform.mac_ver()[0]
+    else:
+        platform_version = platform.release()
     #this will always return something usable, error handling in method
-    hashed_UUID = make_VVM_UUID_hash(platform_key)
+    UUID = str(make_VVM_UUID_hash(platform_key))
     #note that this will not normally be in a settings.xml file and is only here for test builds.
     #for test builds, add this key to the ../user_settings/settings.xml
     """
@@ -251,16 +273,10 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
         except KeyError:
             #normal case, no testing key
             test_ok = 'testok'
-    UUID = make_VVM_UUID_hash(platform_key)
-    print repr(channelname)
-    print repr(version)
-    print repr(platform_key)
-    print repr(platform_version)
-    print repr(test_ok)
-    print repr(UUID)
     #because urljoin can't be arsed to take multiple elements
-    #channelname is a list because although it can only be one word, it is a kind of argument and viewer args can take multiple keywords.
-    query_string =  '/v1.0/' + channelname[0] + '/' + version + '/' + platform_key + '/' + platform_version + '/' + test_ok + '/' + UUID
+    #channelname is a list because although it is only one string, it is a kind of argument and viewer args can take multiple keywords.
+    query_string =  urllib.quote('v1.0/' + channelname[0] + '/' + version + '/' + platform_key + '/' + platform_version + '/' + test_ok + '/' + UUID)
+    silent_write(log_file_handle, "About to query VVM: %s" % base_URI + query_string)
     VVMService = llrest.SimpleRESTService(name='VVM', baseurl=base_URI)
     try:
         result_data = VVMService.get(query_string)
@@ -269,25 +285,28 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
         return None
     return result_data
 
-def download(url = None, version = None, download_dir = None, size = 0, background = False, chunk_size = 1024):
+def download(url = None, version = None, download_dir = None, size = 0, background = False, chunk_size = None, log_file_handle = None):
     download_tries = 0
     download_success = False
+    if not chunk_size:
+        chunk_size = 1024
     #for background execution
     path_to_downloader = os.path.join(os.path.dirname(os.path.realpath(__file__)), "download_update.py")
     #three strikes and you're out
     while download_tries < 3 and not download_success:
         #323: Check for a partial update of the required update; in either event, display an alert that a download is required, initiate the download, and then install and launch
         if download_tries == 0:
-            after_frame(message = "Downloading new version " + version + " Please wait.")
+            after_frame(message = "Downloading new version " + version + " Please wait.", timeout = 5000)
         else:
-            after_frame(message = "Trying again to download new version " + version + " Please wait.")
+            after_frame(message = "Trying again to download new version " + version + " Please wait.", timeout = 5000)
         if not background:
             try:
                 download_update.download_update(url = url, download_dir = download_dir, size = size, progressbar = True, chunk_size = chunk_size)
                 download_success = True
-            except:
+            except Exception, e:
                 download_tries += 1    
                 silent_write(log_file_handle, "Failed to download new version " + version + ". Trying again.")
+                silent_write(log_file_handle, "Logging download exception: %s" % e.message)
         else:
             try:
                 #Python does not have a facility to multithread a method, so we make the method a standalone
@@ -308,6 +327,9 @@ def install(platform_key = None, download_dir = None, log_file_handle = None, in
     if downloaded != 'skip':
         after_frame(message = "New version downloaded.  Installing now, please wait.")
         success = apply_update.apply_update(download_dir, platform_key, log_file_handle, in_place)
+        print download_dir
+        print success
+        version = download_dir.split('/')[-1]
         if success:
             silent_write(log_file_handle, "successfully updated to " + version)
             shutil.rmtree(download_dir)
@@ -323,7 +345,7 @@ def download_and_install(downloaded = None, url = None, version = None, download
     #extracted to a method because we do it twice in update_manager() and this makes the logic clearer
     if not downloaded:
         #do the download, exit if we fail
-        if not download(url = url, version = version, download_dir = download_dir, size = size, chunk_size = chunk_size): 
+        if not download(url = url, version = version, download_dir = download_dir, size = size, chunk_size = chunk_size, log_file_handle = log_file_handle): 
             return (False, 'download', version)  
     #do the install
     path_to_new_launcher = install(platform_key = platform_key, download_dir = download_dir, 
@@ -385,9 +407,10 @@ def update_manager(cli_overrides = None):
             return (False, 'setup', None)
 
     if cli_overrides is not None: 
-        if '--settings' in cli_overrides.keys():
-            if cli_overrides['--settings'] is not None:
-                settings = get_settings(log_file_handle, cli_overrides['--settings'])
+        print "update manager settings file: " + str(cli_overrides['settings'])
+        if 'settings' in cli_overrides.keys():
+            if cli_overrides['settings'] is not None:
+                settings = get_settings(log_file_handle, cli_overrides['settings'][0])
             else:
                 settings = get_settings(log_file_handle, parent_dir)
         
@@ -398,7 +421,7 @@ def update_manager(cli_overrides = None):
 
     #323: If a complete download of that update is found, check the update preference:
     #settings['UpdaterServiceSetting'] = 0 is manual install
-    """ssh://hg@bitbucket.org/lindenlab/viewer-release-maint-6585
+    """
     <key>UpdaterServiceSetting</key>
         <map>
         <key>Comment</key>
@@ -431,9 +454,11 @@ def update_manager(cli_overrides = None):
     #get channel and version
     try:
         summary_dict = get_summary(platform_key, os.path.abspath(os.path.realpath(__file__)))
+        #we send the override to the VVM, but retain the summary.json version for in_place computations
+        channel_override_summary = deepcopy(summary_dict)        
         if cli_overrides is not None:
             if 'channel' in cli_overrides.keys():
-                summary_dict['Channel'] = cli_overrides['channel']
+                channel_override_summary['Channel'] = cli_overrides['channel']
     except Exception, e:
         silent_write(log_file_handle, "Could not obtain channel and version, exiting.")
         silent_write(log_file_handle, e.message)
@@ -447,7 +472,8 @@ def update_manager(cli_overrides = None):
     else:
         #tells query_vvm to use the default
         UpdaterServiceURL = None
-    result_data = query_vvm(log_file_handle, platform_key, settings, summary_dict, UpdaterServiceURL)
+    result_data = query_vvm(log_file_handle, platform_key, settings, channel_override_summary, UpdaterServiceURL)
+    
     #nothing to do or error
     if not result_data:
         silent_write(log_file_handle, "No update found.")
@@ -465,6 +491,7 @@ def update_manager(cli_overrides = None):
     #and launcher will launch the viewer in this install location.  Otherwise, it will launch the Launcher from 
     #the new location and kill itself.
     in_place = (summary_dict['Channel'] == result_data['channel'])
+    print "summary %s, result %s, in_place %s" % (summary_dict['Channel'], result_data['channel'], in_place)
     
     #determine if we've tried this download before
     downloaded = check_for_completed_download(download_dir)
@@ -502,7 +529,7 @@ def update_manager(cli_overrides = None):
                 return (True, None, None)
         else:
             #multithread a download
-            download(url = result_data['url'], version = result_data['version'], download_dir = download_dir, size = result_data['size'], background = True)
+            download(url = result_data['url'], version = result_data['version'], download_dir = download_dir, size = result_data['size'], background = True, log_file_handle = log_file_handle)
             print "Update manager exited with (%s, %s, %s)" % (True, 'background', True)
             return (True, 'background', True)                  
 

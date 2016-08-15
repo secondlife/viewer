@@ -45,6 +45,8 @@ def download_update(url = None, download_dir = None, size = None, progressbar = 
     #chunk_size is in bytes, amount to download at once
     
     queue = Queue.Queue()
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir)
     #the url split provides the basename of the filename
     filename = os.path.join(download_dir, url.split('/')[-1])
     req = requests.get(url, stream=True)

@@ -78,11 +78,17 @@ class InstallerUserMessage(tk.Tk):
 
         #defines what to do when window is closed
         self.protocol("WM_DELETE_WINDOW", self._delete_window)
+        
+        #callback id
+        self.id = -1
 
     def _delete_window(self):
         #capture and discard all destroy events before the choice is set
         if not ((self.choice == None) or (self.choice == "")):
             try:
+                #initialized value.  If we have an outstanding callback, kill it before killing ourselves
+                if self.id != -1:
+                    self.after_cancel(self.id)
                 self.destroy()
             except:
                 #tk may try to destroy the same object twice
@@ -217,8 +223,11 @@ class InstallerUserMessage(tk.Tk):
 
     def check_scheduler(self):
         if self.value < self.progress["maximum"]:
-            self.check_queue()
-            self.after(100, self.check_scheduler)
+            self.check_queue()            
+            self.id = self.after(100, self.check_scheduler)
+        else:
+            #prevent a race condition between polling and the widget destruction
+            self.after_cancel(self.id)
 
     def check_queue(self):
         while self.queue.qsize():

@@ -31,7 +31,12 @@ import InstallerUserMessage
 #NOTA BENE: 
 #   For POSIX platforms, llsd.py will be imported from the same directory.  
 #   For Windows, llsd.py will be compiled into the executable by pyinstaller
-from llbase import llsd
+try:
+   from llbase import llsd
+except:
+   #if Windows, this is expected, if not, we're dead
+   if os.name == 'nt':
+      pass
 import platform
 import subprocess
 import update_manager
@@ -158,6 +163,7 @@ args = parser.parse_known_args(sys.argv)
 #args[1] looks like ['./SL_Launcher', '--set', 'foo', 'bar', '-X', '-Y', 'qux'], dump the progname
 args_list_to_pass = args[1][1:]
 vmp_args = capture_vmp_args(args_list_to_pass)
+print "vmp args: " + repr(vmp_args)
 #make a copy by value, not by reference
 command = list(args_list_to_pass)
 
