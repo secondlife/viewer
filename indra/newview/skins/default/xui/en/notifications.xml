@@ -1638,14 +1638,14 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
-   name="IntelOldDriver"
+   name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
 
-    Visit [_URL] to check for driver updates?
+    Visit [URL] to check for driver updates?
     <tag>confirm</tag>
     <url option="0" name="url">
-      http://www.intel.com/p/en_US/support/detect/graphics
+    [URL]
     </url>
     <usetemplate
      ignoretext="My graphics driver is out of date"
@@ -1654,45 +1654,6 @@ Visit [_URL] for more information?
      yestext="Yes"/>
     <tag>fail</tag>
   </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="AMDOldDriver"
-   type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://support.amd.com/us/Pages/AMDSupportHub.aspx
-    </url>
-    <usetemplate
-     ignoretext="My graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="NVIDIAOldDriver"
- type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://www.nvidia.com/Download/index.aspx?lang=en-us
-    </url>
-    <usetemplate
-     ignoretext="My graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
 
   <notification
    icon="alertmodal.tga"
