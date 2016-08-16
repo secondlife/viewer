@@ -7392,16 +7392,13 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// No backsies zone - if we get here, the message should be valid and usable, will be processed.
     LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
 
-    if (isSelf())
-    {
-        // Note:
-        // locally the COF is maintained via LLInventoryModel::accountForUpdate
-        // which is called from various places.  This should match the simhost's 
-        // idea of what the COF version is.  AIS however maintains its own version
-        // of the COF that should be considered canonical. 
-        mLastUpdateReceivedCOFVersion = thisAppearanceVersion;
-    }
-		
+    // Note:
+    // locally the COF is maintained via LLInventoryModel::accountForUpdate
+    // which is called from various places.  This should match the simhost's 
+    // idea of what the COF version is.  AIS however maintains its own version
+    // of the COF that should be considered canonical. 
+    mLastUpdateReceivedCOFVersion = thisAppearanceVersion;
+
     if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
     {
         updateVisualComplexity();
