@@ -1317,6 +1317,12 @@ void LLFloaterSnapshotBase::postPanelSwitch()
 	impl->setStatus(ImplBase::STATUS_READY);
 }
 
+void LLFloaterSnapshotBase::inventorySaveFailed()
+{
+    impl->updateControls(this);
+    impl->setStatus(ImplBase::STATUS_FINISHED, false, "inventory");
+}
+
 LLPointer<LLImageFormatted> LLFloaterSnapshotBase::getImageData()
 {
 	// FIXME: May not work for textures.

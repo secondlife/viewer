@@ -3440,6 +3440,12 @@ std::string LLAppViewer::getViewerInfoString() const
 	{
 		support << '\n' << LLTrans::getString("AboutTraffic", args);
 	}
+
+	// SLT timestamp
+	LLSD substitution;
+	substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
+	support << "\n" << LLTrans::getString("AboutTime", substitution);
+
 	return support.str();
 }
 

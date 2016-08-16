@@ -35,6 +35,8 @@
 #include "llpanelsnapshot.h"
 #include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
+#include "llstatusbar.h"	// can_afford_transaction()
+#include "llnotificationsutil.h"
 
 /**
  * The panel provides UI for saving snapshot as an inventory texture.
@@ -153,10 +155,24 @@ void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotInventoryBase::onSend()
 {
-    if (mSnapshotFloater)
+    S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+    if (can_afford_transaction(expected_upload_cost))
     {
-        mSnapshotFloater->saveTexture();
-        mSnapshotFloater->postSave();
+        if (mSnapshotFloater)
+        {
+            mSnapshotFloater->saveTexture();
+            mSnapshotFloater->postSave();
+        }
+    }
+    else
+    {
+        LLSD args;
+        args["COST"] = llformat("%d", expected_upload_cost);
+        LLNotificationsUtil::add("ErrorPhotoCannotAfford", args);
+        if (mSnapshotFloater)
+        {
+            mSnapshotFloater->inventorySaveFailed();
+        }
     }
 }
 

@@ -61,6 +61,7 @@ public:
 	void setRefreshLabelVisible(bool value) { mRefreshLabel->setVisible(value); }
 	void setSuccessLabelPanelVisible(bool value) { mSucceessLblPanel->setVisible(value); }
 	void setFailureLabelPanelVisible(bool value) { mFailureLblPanel->setVisible(value); }
+	void inventorySaveFailed();
 
 	class ImplBase;
 	friend class ImplBase;

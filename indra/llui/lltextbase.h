@@ -270,6 +270,7 @@ public:
 	friend class LLUICtrlFactory;
 
 	typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
+	typedef boost::signals2::signal<bool (const LLUUID& blocked_id, const std::string from)> is_blocked_signal_t;
 
 	struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
 	{
@@ -456,6 +457,7 @@ public:
 	virtual void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
 	boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
 	boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
+	boost::signals2::connection setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb);
 
 	void					setWordWrap(bool wrap);
 	LLScrollContainer*		getScrollContainer() const { return mScroller; }
@@ -685,6 +687,7 @@ protected:
 
 	// Used to check if user with given ID is avatar's friend
 	is_friend_signal_t*         mIsFriendSignal;
+	is_blocked_signal_t*        mIsObjectBlockedSignal;
 
 	LLUIString					mLabel;	// text label that is visible when no user text provided
 };

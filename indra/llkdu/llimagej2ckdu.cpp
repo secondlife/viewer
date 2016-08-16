@@ -72,37 +72,15 @@ private:
 //
 void set_default_colour_weights(kdu_params *siz);
 
-const char* engineInfoLLImageJ2CKDU()
-{
-	static std::string version = llformat("KDU %s", KDU_CORE_VERSION);
-	return version.c_str();
-}
-
-LLImageJ2CKDU* createLLImageJ2CKDU()
-{
-	return new LLImageJ2CKDU();
-}
-
-void destroyLLImageJ2CKDU(LLImageJ2CKDU* kdu)
-{
-	delete kdu;
-	kdu = NULL;
-}
-
+// Factory function: see declaration in llimagej2c.cpp
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
 {
 	return new LLImageJ2CKDU();
 }
 
-void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
+std::string LLImageJ2CKDU::getEngineInfo() const
 {
-	delete impl;
-	impl = NULL;
-}
-
-const char* fallbackEngineInfoLLImageJ2CImpl()
-{
-	return engineInfoLLImageJ2CKDU();
+	return llformat("KDU %s", KDU_CORE_VERSION);
 }
 
 class LLKDUDecodeState
@@ -110,11 +88,11 @@ class LLKDUDecodeState
 public:
 	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap);
 	~LLKDUDecodeState();
-	BOOL processTileDecode(F32 decode_time, BOOL limit_time = TRUE);
+	bool processTileDecode(F32 decode_time, bool limit_time = true);
 
 private:
 	S32 mNumComponents;
-	BOOL mUseYCC;
+	bool mUseYCC;
 	kdu_dims mDims;
 	kdu_sample_allocator mAllocator;
 	kdu_tile_comp mComps[4];
@@ -128,74 +106,85 @@ private:
 	S32 mRowGap;
 };
 
-void ll_kdu_error( void )
-{
-	// *FIX: This exception is bad, bad, bad. It gets thrown from a
-	// destructor which can lead to immediate program termination!
-	throw "ll_kdu_error() throwing an exception";
-}
-
 // Stuff for new kdu error handling
-class LLKDUMessageWarning : public kdu_message
+class LLKDUMessage: public kdu_message
 {
 public:
-	/*virtual*/ void put_text(const char *s);
-	/*virtual*/ void put_text(const kdu_uint16 *s);
+	LLKDUMessage(const std::string& type):
+		mType(type)
+	{}
 
-	static LLKDUMessageWarning sDefaultMessage;
-};
-
-class LLKDUMessageError : public kdu_message
-{
-public:
-	/*virtual*/ void put_text(const char *s);
-	/*virtual*/ void put_text(const kdu_uint16 *s);
-	/*virtual*/ void flush(bool end_of_message = false);
-	static LLKDUMessageError sDefaultMessage;
-};
-
-void LLKDUMessageWarning::put_text(const char *s)
-{
-	LL_INFOS() << "KDU Warning: " << s << LL_ENDL;
-}
-
-void LLKDUMessageWarning::put_text(const kdu_uint16 *s)
-{
-	LL_INFOS() << "KDU Warning: " << s << LL_ENDL;
-}
-
-void LLKDUMessageError::put_text(const char *s)
-{
-	LL_INFOS() << "KDU Error: " << s << LL_ENDL;
-}
-
-void LLKDUMessageError::put_text(const kdu_uint16 *s)
-{
-	LL_INFOS() << "KDU Error: " << s << LL_ENDL;
-}
-
-void LLKDUMessageError::flush(bool end_of_message)
-{
-	if (end_of_message) 
+	virtual void put_text(const char *s)
 	{
-		throw "KDU throwing an exception";
+		LL_INFOS() << "KDU " << mType << ": " << s << LL_ENDL;
 	}
-}
 
-LLKDUMessageWarning LLKDUMessageWarning::sDefaultMessage;
-LLKDUMessageError	LLKDUMessageError::sDefaultMessage;
-static bool kdu_message_initialized = false;
+	virtual void put_text(const kdu_uint16 *s)
+	{
+		// The previous implementation simply streamed 's' to the log. So
+		// either this put_text() override was never called -- or it produced
+		// some baffling log messages -- because I assert that streaming a
+		// const kdu_uint16* to a std::ostream will display only the hex value
+		// of the pointer.
+		LL_INFOS() << "KDU " << mType << ": "
+				   << utf16str_to_utf8str(llutf16string(s)) << LL_ENDL;
+	}
+
+private:
+	std::string mType;
+};
+
+struct LLKDUMessageWarning : public LLKDUMessage
+{
+	LLKDUMessageWarning():
+		LLKDUMessage("Warning")
+	{
+		kdu_customize_warnings(this);
+	}
+};
+// Instantiating LLKDUMessageWarning calls kdu_customize_warnings() with the
+// new instance. Make it static so this only happens once.
+static LLKDUMessageWarning sWarningHandler;
+
+struct LLKDUMessageError : public LLKDUMessage
+{
+	LLKDUMessageError():
+		LLKDUMessage("Error")
+	{
+		kdu_customize_errors(this);
+	}
+
+	virtual void flush(bool end_of_message = false)
+	{
+		// According to the documentation nat found:
+		// http://pirlwww.lpl.arizona.edu/resources/guide/software/Kakadu/html_pages/globals__kdu$mize_errors.html
+		// "If a kdu_error object is destroyed, handler→flush will be called with
+		// an end_of_message argument equal to true and the process will
+		// subsequently be terminated through exit. The termination may be
+		// avoided, however, by throwing an exception from within the message
+		// terminating handler→flush call."
+		// So throwing an exception here isn't arbitrary: we MUST throw an
+		// exception if we want to recover from a KDU error.
+		if (end_of_message) 
+		{
+			throw "KDU throwing an exception";
+		}
+	}
+};
+// Instantiating LLKDUMessageError calls kdu_customize_errors() with the new
+// instance. Make it static so this only happens once.
+static LLKDUMessageError sErrorHandler;
 
 LLImageJ2CKDU::LLImageJ2CKDU() : LLImageJ2CImpl(),
-mInputp(NULL),
-mCodeStreamp(NULL),
-mTPosp(NULL),
-mTileIndicesp(NULL),
-mRawImagep(NULL),
-mDecodeState(NULL),
-mBlocksSize(-1),
-mPrecinctsSize(-1),
-mLevels(0)
+	mInputp(),
+	mCodeStreamp(),
+	mTPosp(),
+	mTileIndicesp(),
+	mRawImagep(NULL),
+	mDecodeState(),
+	mBlocksSize(-1),
+	mPrecinctsSize(-1),
+	mLevels(0)
 {
 }
 
@@ -207,7 +196,7 @@ LLImageJ2CKDU::~LLImageJ2CKDU()
 // Stuff for new simple decode
 void transfer_bytes(kdu_byte *dest, kdu_line_buf &src, int gap, int precision);
 
-void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECodeStreamMode mode)
+void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode)
 {
 	S32 data_size = base.getDataSize();
 	S32 max_bytes = (base.getMaxBytes() ? base.getMaxBytes() : data_size);
@@ -215,38 +204,27 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	//
 	//  Initialization
 	//
-	if (!kdu_message_initialized)
-	{
-		kdu_message_initialized = true;
-		kdu_customize_errors(&LLKDUMessageError::sDefaultMessage);
-		kdu_customize_warnings(&LLKDUMessageWarning::sDefaultMessage);
-	}
-
-	if (mCodeStreamp)
-	{
-		mCodeStreamp->destroy();
-		delete mCodeStreamp;
-		mCodeStreamp = NULL;
-	}
+	mCodeStreamp.reset();
 
 	if (!mInputp && base.getData())
 	{
 		// The compressed data has been loaded
 		// Setup the source for the codestream
-		mInputp = new LLKDUMemSource(base.getData(), data_size);
+		mInputp.reset(new LLKDUMemSource(base.getData(), data_size));
 	}
 
 	if (mInputp)
 	{
+		// This is LLKDUMemSource::reset(), not boost::scoped_ptr::reset().
 		mInputp->reset();
 	}
-	mCodeStreamp = new kdu_codestream;
 
-	mCodeStreamp->create(mInputp);
+	mCodeStreamp->create(mInputp.get());
 
 	// Set the maximum number of bytes to use from the codestream
-	// *TODO: This seems to be wrong. The base class should have no idea of how j2c compression works so no
-	// good way of computing what's the byte range to be used.
+	// *TODO: This seems to be wrong. The base class should have no idea of
+	// how j2c compression works so no good way of computing what's the byte
+	// range to be used.
 	mCodeStreamp->set_max_bytes(max_bytes,true);
 
 	//	If you want to flip or rotate the image for some reason, change
@@ -303,42 +281,26 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	
 	if (!keep_codestream)
 	{
-		mCodeStreamp->destroy();
-		delete mCodeStreamp;
-		mCodeStreamp = NULL;
-		delete mInputp;
-		mInputp = NULL;
+		mCodeStreamp.reset();
+		mInputp.reset();
 	}
 }
 
 void LLImageJ2CKDU::cleanupCodeStream()
 {
-	delete mInputp;
-	mInputp = NULL;
-
-	delete mDecodeState;
-	mDecodeState = NULL;
-
-	if (mCodeStreamp)
-	{
-		mCodeStreamp->destroy();
-		delete mCodeStreamp;
-		mCodeStreamp = NULL;
-	}
-
-	delete mTPosp;
-	mTPosp = NULL;
-
-	delete mTileIndicesp;
-	mTileIndicesp = NULL;
+	mInputp.reset();
+	mDecodeState.reset();
+	mCodeStreamp.reset();
+	mTPosp.reset();
+	mTileIndicesp.reset();
 }
 
-BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
+bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
 {
 	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
 }
 
-BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
+bool LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
 	mPrecinctsSize = precincts_size;
 	if (mPrecinctsSize != -1)
@@ -362,10 +324,10 @@ BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 		mLevels = llclamp(mLevels,MIN_DECOMPOSITION_LEVELS,MAX_DECOMPOSITION_LEVELS);
 		base.setLevels(mLevels);
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
+bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
 {
 	base.resetLastError();
 
@@ -377,7 +339,7 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		//findDiscardLevelsBoundaries(base);
 
 		base.updateRawDiscardLevel();
-		setupCodeStream(base, TRUE, mode);
+		setupCodeStream(base, true, mode);
 
 		mRawImagep = &raw_image;
 		mCodeStreamp->change_appearance(false, true, false);
@@ -412,12 +374,12 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 		if (!mTileIndicesp)
 		{
-			mTileIndicesp = new kdu_dims;
+			mTileIndicesp.reset(new kdu_dims);
 		}
 		mCodeStreamp->get_valid_tiles(*mTileIndicesp);
 		if (!mTPosp)
 		{
-			mTPosp = new kdu_coords;
+			mTPosp.reset(new kdu_coords);
 			mTPosp->y = 0;
 			mTPosp->x = 0;
 		}
@@ -425,32 +387,32 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 	catch (const char* msg)
 	{
 		base.setLastError(ll_safe_string(msg));
-		return FALSE;
+		return false;
 	}
 	catch (...)
 	{
 		base.setLastError("Unknown J2C error");
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-// Returns TRUE to mean done, whether successful or not.
-BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
+// Returns true to mean done, whether successful or not.
+bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
 {
 	ECodeStreamMode mode = MODE_FAST;
 
 	LLTimer decode_timer;
 
-	if (!mCodeStreamp)
+	if (!mCodeStreamp->exists())
 	{
 		if (!initDecode(base, raw_image, decode_time, mode, first_channel, max_channel_count))
 		{
 			// Initializing the J2C decode failed, bail out.
 			cleanupCodeStream();
-			return TRUE; // done
+			return true; // done
 		}
 	}
 
@@ -460,6 +422,13 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 	// Now we are ready to walk through the tiles processing them one-by-one.
 	kdu_byte *buffer = raw_image.getData();
+	if (!buffer)
+	{
+		base.setLastError("Memory error");
+		base.decodeFailed();
+		cleanupCodeStream();
+		return true; // done
+	}
 
 	while (mTPosp->y < mTileIndicesp->size.y)
 	{
@@ -495,21 +464,20 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					kdu_coords offset = tile_dims.pos - dims.pos;
 					int row_gap = channels*dims.size.x; // inter-row separation
 					kdu_byte *buf = buffer + offset.y*row_gap + offset.x*channels;
-					mDecodeState = new LLKDUDecodeState(tile, buf, row_gap);
+					mDecodeState.reset(new LLKDUDecodeState(tile, buf, row_gap));
 				}
 				// Do the actual processing
 				F32 remaining_time = decode_time - decode_timer.getElapsedTimeF32();
 				// This is where we do the actual decode.  If we run out of time, return false.
 				if (mDecodeState->processTileDecode(remaining_time, (decode_time > 0.0f)))
 				{
-					delete mDecodeState;
-					mDecodeState = NULL;
+					mDecodeState.reset();
 				}
 				else
 				{
 					// Not finished decoding yet.
 					//					setLastError("Ran out of time while decoding");
-					return FALSE;
+					return false;
 				}
 			}
 			catch (const char* msg)
@@ -517,14 +485,14 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 				base.setLastError(ll_safe_string(msg));
 				base.decodeFailed();
 				cleanupCodeStream();
-				return TRUE; // done
+				return true; // done
 			}
 			catch (...)
 			{
 				base.setLastError( "Unknown J2C error" );
 				base.decodeFailed();
 				cleanupCodeStream();
-				return TRUE; // done
+				return true; // done
 			}
 
 
@@ -536,11 +504,11 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 	cleanupCodeStream();
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time, BOOL reversible)
+bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time, bool reversible)
 {
 	// Declare and set simple arguments
 	bool transpose = false;
@@ -708,36 +676,36 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 	catch(const char* msg)
 	{
 		base.setLastError(ll_safe_string(msg));
-		return FALSE;
+		return false;
 	}
 	catch( ... )
 	{
 		base.setLastError( "Unknown J2C error" );
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
+bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 {
 	// *FIX: kdu calls our callback function if there's an error, and
 	// then bombs. To regain control, we throw an exception, and
 	// catch it here.
 	try
 	{
-		setupCodeStream(base, FALSE, MODE_FAST);
-		return TRUE;
+		setupCodeStream(base, false, MODE_FAST);
+		return true;
 	}
 	catch (const char* msg)
 	{
 		base.setLastError(ll_safe_string(msg));
-		return FALSE;
+		return false;
 	}
 	catch (...)
 	{
 		base.setLastError( "Unknown J2C error" );
-		return FALSE;
+		return false;
 	}
 }
 
@@ -745,6 +713,8 @@ BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 /* STATIC                        copy_block                                  */
 /*****************************************************************************/
 
+/*==========================================================================*|
+// Only called by copy_tile(), which is itself commented out
 static void copy_block(kdu_block *in, kdu_block *out)
 {
 	if (in->K_max_prime != out->K_max_prime)
@@ -773,11 +743,14 @@ static void copy_block(kdu_block *in, kdu_block *out)
 		out->set_max_bytes(num_bytes,false);
 	memcpy(out->byte_buffer,in->byte_buffer,(size_t) num_bytes);
 }
+|*==========================================================================*/
 
 /*****************************************************************************/
 /* STATIC                        copy_tile                                   */
 /*****************************************************************************/
 
+/*==========================================================================*|
+// Only called by findDiscardLevelsBoundaries(), which is itself commented out
 static void
 copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
 		  kdu_params *siz_in, kdu_params *siz_out, int skip_components,
@@ -834,10 +807,13 @@ copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
         }
     }
 }
+|*==========================================================================*/
 
 // Find the block boundary for each discard level in the input image.
 // We parse the input blocks and copy them in a temporary output stream.
 // For the moment, we do nothing more that parsing the raw list of blocks and outputing result.
+/*==========================================================================*|
+// See comments in header file for why this is commented out.
 void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 {
 	// We need the number of levels in that image before starting.
@@ -847,7 +823,7 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 	{
 		//std::cout << "Parsing discard level = " << discard_level << std::endl;
 		// Create the input codestream object.
-		setupCodeStream(base, TRUE, MODE_FAST);
+		setupCodeStream(base, true, MODE_FAST);
 		mCodeStreamp->apply_input_restrictions(0, 4, discard_level, 0, NULL);
 		mCodeStreamp->set_max_bytes(KDU_LONG_MAX,true);
 		siz_params *siz_in = mCodeStreamp->access_siz();
@@ -941,6 +917,7 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 	}
 	return;
 }
+|*==========================================================================*/
 
 void set_default_colour_weights(kdu_params *siz)
 {
@@ -1206,7 +1183,7 @@ LLKDUDecodeState::~LLKDUDecodeState()
 	mTile.close();
 }
 
-BOOL LLKDUDecodeState::processTileDecode(F32 decode_time, BOOL limit_time)
+bool LLKDUDecodeState::processTileDecode(F32 decode_time, bool limit_time)
 /* Decompresses a tile, writing the data into the supplied byte buffer.
 The buffer contains interleaved image components, if there are any.
 Although you may think of the buffer as belonging entirely to this tile,
@@ -1238,11 +1215,11 @@ separation between consecutive rows in the real buffer. */
 		{
 			if (limit_time && decode_timer.getElapsedTimeF32() > decode_time)
 			{
-				return FALSE;
+				return false;
 			}
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 // kdc_flow_control 

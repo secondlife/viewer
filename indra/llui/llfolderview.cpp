@@ -1629,9 +1629,9 @@ void LLFolderView::update()
 	if (mNeedsAutoSelect)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_AUTO_SELECT);
-		// select new item only if a filtered item not currently selected
+		// select new item only if a filtered item not currently selected and there was a selection
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->getViewModelItem()->potentiallyVisible()))
+		if (!mAutoSelectOverride && selected_itemp && !selected_itemp->getViewModelItem()->potentiallyVisible())
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors

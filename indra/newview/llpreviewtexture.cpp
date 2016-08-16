@@ -38,6 +38,7 @@
 #include "llimagetga.h"
 #include "llimagepng.h"
 #include "llinventory.h"
+#include "llinventorymodel.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
 #include "lltrans.h"
@@ -120,18 +121,22 @@ BOOL LLPreviewTexture::postBuild()
 	childSetAction("save_tex_btn", LLPreviewTexture::onSaveAsBtn, this);
 	getChildView("save_tex_btn")->setVisible( true);
 	getChildView("save_tex_btn")->setEnabled(canSaveAs());
-	
-	if (!mCopyToInv) 
-	{
-		const LLInventoryItem* item = getItem();
-		
-		if (item)
-		{
-			childSetCommitCallback("desc", LLPreview::onText, this);
-			getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-			getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
-		}
-	}
+
+    const LLInventoryItem* item = getItem();
+    if (item)
+    {
+        if (!mCopyToInv)
+        {
+            childSetCommitCallback("desc", LLPreview::onText, this);
+            getChild<LLUICtrl>("desc")->setValue(item->getDescription());
+            getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
+        }
+        BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID());
+        if (source_library)
+        {
+            getChildView("Discard")->setEnabled(false);
+        }
+    }
 
 	// Fill in ratios list with common aspect ratio values
 	mRatiosList.clear();
@@ -525,6 +530,15 @@ void LLPreviewTexture::loadAsset()
 	{
 		// check that we can copy inworld items into inventory
 		getChildView("Keep")->setEnabled(mIsCopyable);
+	}
+	else
+	{
+		// check that we can remove item
+		BOOL source_library = gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
+		if (source_library)
+		{
+			getChildView("Discard")->setEnabled(false);
+		}
 	}
 }
 

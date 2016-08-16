@@ -242,6 +242,8 @@ public:
 	bool useLabelSuffix() { return mUseLabelSuffix; }
 	virtual void updateMenu();
 
+	void finishRenamingItem( void );
+
     // Note: We may eventually have to move that method up the hierarchy to LLFolderViewItem.
 	LLHandle<LLFolderView>	getHandle() const { return getDerivedHandle<LLFolderView>(); }
     
@@ -255,7 +257,6 @@ protected:
 	void commitRename( const LLSD& data );
 	void onRenamerLost();
 
-	void finishRenamingItem( void );
 	void closeRenamer( void );
 
 	bool selectFirstItem();
