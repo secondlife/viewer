@@ -116,7 +116,6 @@ def capture_vmp_args(arg_list = None, cmd_line = None):
                   param_args.append(vmp_queue.popleft())
             #the parameter name is the key, the (possibly empty) list of args is the value
             cli_overrides[vmp_params[param]] = param_args
-            print "cli override param %s vmp_param %s args %s count %s" % (param, vmp_params[param], param_args, count)
             
    #to prevent KeyErrors on missing keys, set the remainder to None
    for key in vmp_params:
@@ -163,7 +162,6 @@ args = parser.parse_known_args(sys.argv)
 #args[1] looks like ['./SL_Launcher', '--set', 'foo', 'bar', '-X', '-Y', 'qux'], dump the progname
 args_list_to_pass = args[1][1:]
 vmp_args = capture_vmp_args(args_list_to_pass)
-print "vmp args: " + repr(vmp_args)
 #make a copy by value, not by reference
 command = list(args_list_to_pass)
 

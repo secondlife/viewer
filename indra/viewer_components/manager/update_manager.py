@@ -164,14 +164,12 @@ def check_for_completed_download(download_dir):
 
 def get_settings(log_file_handle, parent_dir):
     #return the settings file parsed into a dict
-    print str(parent_dir)
     try:
         settings_file = os.path.abspath(os.path.join(parent_dir,'user_settings','settings.xml'))
         #this happens when the path to settings file happens on the command line
         #we get a full path and don't need to munge it
         if not os.path.exists(settings_file):
             settings_file = parent_dir
-        print "Settings file: " + str(settings_file)
         settings = llsd.parse((open(settings_file)).read())
     except llsd.LLSDParseError as lpe:
         silent_write(log_file_handle, "Could not parse settings file %s" % lpe)
@@ -230,14 +228,19 @@ def make_VVM_UUID_hash(platform_key):
 
 def query_vvm(log_file_handle = None, platform_key = None, settings = None, summary_dict = None, UpdaterServiceURL = None, UpdaterWillingToTest = None):
     result_data = None
+    baseURI = None
     #URI template /update/v1.1/channelname/version/platformkey/platformversion/willing-to-test/uniqueid
     #https://wiki.lindenlab.com/wiki/Viewer_Version_Manager_REST_API#Viewer_Update_Query
+    #note that the only two valid options are:
+    # # version-phx0.damballah.lindenlab.com
+    # # version-qa.secondlife-staging.com
     if UpdaterServiceURL:
-        baseURI = UpdaterServiceURL
+        #we can't really expect the users to put the protocol or base dir on, they will give us a host
+        base_URI = urljoin('https://' + UpdaterServiceURL[0], '/update/')
     else:
         base_URI = 'https://update.secondlife.com/update/'
     channelname = summary_dict['Channel']
-    #this is kind of a mess because the settings value is a) in a map and b) is both the cohort and the version
+    #this is kind of a mess because the settings value is a) in a map and b) is both the cohort and the version in one string
     version = summary_dict['Version']
     #we need to use the dotted versions of the platform versions in order to be compatible with VVM rules and arithmetic
     if platform_key == 'win':
@@ -327,8 +330,6 @@ def install(platform_key = None, download_dir = None, log_file_handle = None, in
     if downloaded != 'skip':
         after_frame(message = "New version downloaded.  Installing now, please wait.")
         success = apply_update.apply_update(download_dir, platform_key, log_file_handle, in_place)
-        print download_dir
-        print success
         version = download_dir.split('/')[-1]
         if success:
             silent_write(log_file_handle, "successfully updated to " + version)
@@ -380,7 +381,6 @@ def update_manager(cli_overrides = None):
     parent_dir = get_parent_path(platform_key)
     log_file_handle = get_log_file_handle(parent_dir)
     settings = None
-    print "cli_overrides: " + str(cli_overrides)
 
     #check to see if user has install rights
     #get the owner of the install and the current user
@@ -407,12 +407,11 @@ def update_manager(cli_overrides = None):
             return (False, 'setup', None)
 
     if cli_overrides is not None: 
-        print "update manager settings file: " + str(cli_overrides['settings'])
         if 'settings' in cli_overrides.keys():
             if cli_overrides['settings'] is not None:
                 settings = get_settings(log_file_handle, cli_overrides['settings'][0])
-            else:
-                settings = get_settings(log_file_handle, parent_dir)
+        else:
+            settings = get_settings(log_file_handle, parent_dir)   
         
     if settings is None:
         silent_write(log_file_handle, "Failed to load viewer settings")
@@ -433,9 +432,9 @@ def update_manager(cli_overrides = None):
         </map>
     """
     if cli_overrides is not None: 
-        if '--set' in cli_overrides.keys():
-            if 'UpdaterServiceSetting' in cli_overrides['--set'].keys():
-                install_automatically = cli_overrides['--set']['UpdaterServiceSetting']
+        if 'set' in cli_overrides.keys():
+            if 'UpdaterServiceSetting' in cli_overrides['set'].keys():
+                install_automatically = cli_overrides['set']['UpdaterServiceSetting']
     else:
         try:
             install_automatically = settings['UpdaterServiceSetting']['Value']
@@ -445,9 +444,9 @@ def update_manager(cli_overrides = None):
     
     #use default chunk size if none is given     
     if cli_overrides is not None: 
-        if '--set' in cli_overrides.keys():
-            if 'UpdaterMaximumBandwidth' in cli_overrides['--set'].keys():    
-                chunk_size = cli_overrides['--set']['UpdaterMaximumBandwidth']
+        if 'set' in cli_overrides.keys():
+            if 'UpdaterMaximumBandwidth' in cli_overrides['set'].keys():    
+                chunk_size = cli_overrides['set']['UpdaterMaximumBandwidth']
     else:
         chunk_size = 1024
 
@@ -468,7 +467,7 @@ def update_manager(cli_overrides = None):
     #323: On launch, the Viewer Manager should query the Viewer Version Manager update api.
     if cli_overrides is not None:
         if '--update-service' in cli_overrides.keys():
-            UpdaterServiceURL = cli_overrides['--update-service']
+            UpdaterServiceURL = cli_overrides['update-service']
     else:
         #tells query_vvm to use the default
         UpdaterServiceURL = None
