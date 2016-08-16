@@ -48,7 +48,8 @@ def silent_write(log_file_handle, text):
    #oh and because it is best effort, it is also a holey_write ;)
    if (log_file_handle):
       #prepend text for easy grepping
-      log_file_handle.write("SL LAUNCHER: " + text + "\n")
+      timestamp = datetime.utcnow().strftime("%Y-%m-%D %H:%M:%S")
+      log_file_handle.write(timestamp + " LAUNCHER: " + text + "\n")
   
 def get_cmd_line():
    platform_name = platform.system()
@@ -136,7 +137,7 @@ def capture_vmp_args(arg_list = None, cmd_line = None):
 #main entry point   
 #this and a few other update manager methods really should be refactored into a util lib
 parent_dir = update_manager.get_parent_path(update_manager.get_platform_key())
-log_file_handle = update_manager.get_log_file_handle(parent_dir)
+log_file_handle = update_manager.get_log_file_handle(parent_dir, 'launcher.log')
 
 executable_name = ""
 if sys.platform.startswith('darwin'):

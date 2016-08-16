@@ -43,6 +43,7 @@ except:
         pass
 
 from copy import deepcopy
+from datetime import datetime
 from urlparse import urljoin
 
 import apply_update
@@ -67,7 +68,8 @@ def silent_write(log_file_handle, text):
     #oh and because it is best effort, it is also a holey_write ;)
     if (log_file_handle):
         #prepend text for easy grepping
-        log_file_handle.write("UPDATE MANAGER: " + text + "\n")
+        timestamp = datetime.utcnow().strftime("%Y-%m-%D %H:%M:%S")
+        log_file_handle.write(timestamp + " UPDATE MANAGER: " + text + "\n")
 
 def after_frame(message, timeout = 10000):
     #pop up a InstallerUserMessage.basic_message that kills itself after timeout milliseconds
@@ -176,10 +178,12 @@ def get_settings(log_file_handle, parent_dir):
         return None
     return settings
 
-def get_log_file_handle(parent_dir):
+def get_log_file_handle(parent_dir, filename = None):
     #return a write handle on the log file
     #plus log rotation and not dying on failure
-    log_file = os.path.join(parent_dir, 'update_manager.log')
+    if not filename:
+        return None
+    log_file = os.path.join(parent_dir, filename)
     old_file = log_file + '.old'
     #if someone's log files are present but not writable, they've screwed up their install.
     if os.access(log_file, os.W_OK):
@@ -234,6 +238,7 @@ def query_vvm(log_file_handle = None, platform_key = None, settings = None, summ
     #note that the only two valid options are:
     # # version-phx0.damballah.lindenlab.com
     # # version-qa.secondlife-staging.com
+    print "updater service host: " + repr(UpdaterServiceURL)
     if UpdaterServiceURL:
         #we can't really expect the users to put the protocol or base dir on, they will give us a host
         base_URI = urljoin('https://' + UpdaterServiceURL[0], '/update/')
@@ -379,7 +384,7 @@ def update_manager(cli_overrides = None):
     #setup and getting initial parameters
     platform_key = get_platform_key()
     parent_dir = get_parent_path(platform_key)
-    log_file_handle = get_log_file_handle(parent_dir)
+    log_file_handle = get_log_file_handle(parent_dir, 'update_manager.log')
     settings = None
 
     #check to see if user has install rights
@@ -466,10 +471,12 @@ def update_manager(cli_overrides = None):
 
     #323: On launch, the Viewer Manager should query the Viewer Version Manager update api.
     if cli_overrides is not None:
-        if '--update-service' in cli_overrides.keys():
+        if 'update-service' in cli_overrides.keys():
             UpdaterServiceURL = cli_overrides['update-service']
+        else:
+            #tells query_vvm to use the default
+            UpdaterServiceURL = None
     else:
-        #tells query_vvm to use the default
         UpdaterServiceURL = None
     result_data = query_vvm(log_file_handle, platform_key, settings, channel_override_summary, UpdaterServiceURL)
     
