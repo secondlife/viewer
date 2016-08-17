@@ -38,9 +38,10 @@
 #include <boost/exception/diagnostic_information.hpp>
 
 namespace {
-struct KDUError: public LLException
+// Failure to load an image shouldn't crash the whole viewer.
+struct KDUError: public LLContinueError
 {
-    KDUError(const std::string& msg): LLException(msg) {}
+    KDUError(const std::string& msg): LLContinueError(msg) {}
 };
 } // anonymous namespace
 

@@ -34,9 +34,10 @@
 #include "llexception.h"
 
 namespace {
-struct PngError: public LLException
+// Failure to load an image shouldn't crash the whole viewer.
+struct PngError: public LLContinueError
 {
-    PngError(png_const_charp msg): LLException(msg) {}
+    PngError(png_const_charp msg): LLContinueError(msg) {}
 };
 } // anonymous namespace
 
