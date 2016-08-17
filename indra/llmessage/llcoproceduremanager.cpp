@@ -28,6 +28,7 @@
 #include "linden_common.h" 
 #include "llcoproceduremanager.h"
 #include <boost/assign.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 //=========================================================================
 // Map of pool sizes for known pools
@@ -395,7 +396,8 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
             }
             catch (...)
             {
-                LL_WARNS() << "A non std::exception was thrown from " << coproc->mName << " with id=" << coproc->mId << "." << " in pool \"" << mPoolName << "\"" << LL_ENDL;
+                LL_WARNS() << "A non std::exception was thrown from " << coproc->mName << " with id=" << coproc->mId << "." << " in pool \"" << mPoolName << "\"\n"
+                           << boost::current_exception_diagnostic_information() << LL_ENDL;
             }
 
             LL_INFOS() << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;

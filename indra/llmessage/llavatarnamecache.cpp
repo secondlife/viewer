@@ -43,6 +43,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include "llexception.h"
 
 #include <map>
 #include <set>
@@ -237,7 +238,7 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
     }
     catch (...)
     {
-        LL_WARNS() << "Caught unknown exception." << LL_ENDL;
+        LOG_UNHANDLED_EXCEPTION();
     }
 }
 

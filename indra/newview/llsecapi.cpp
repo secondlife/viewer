@@ -121,6 +121,7 @@ LLSD LLCredential::getLoginParams()
 	}
 	catch (...)
 	{
+		LOG_UNHANDLED_EXCEPTION();
 		// we could have corrupt data, so simply return a null login param if so
 		LL_WARNS("AppInit") << "Invalid credential" << LL_ENDL;
 	}

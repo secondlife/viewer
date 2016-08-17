@@ -42,6 +42,7 @@
 #include "llevents.h"
 #include "lleventfilter.h"
 #include "lleventcoro.h"
+#include "llexception.h"
 
 //*********************
 // LLLogin
@@ -269,7 +270,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
 	sendProgressEvent("offline", "fail.login", error_response);
 	}
 	catch (...) {
-		LL_ERRS() << "login exception caught" << LL_ENDL; 
+		CRASH_ON_UNHANDLED_EXCEPTION();
 	}
 }
 

@@ -74,9 +74,10 @@ struct LLContinueError: public LLException
      crash_on_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__)
 void crash_on_unhandled_exception_(const char*, int, const char*);
 
-/// Call this from a catch (const LLContinueError&) clause
-#define LOG_UNHANDLED_EXCEPTION(EXC) \
-     log_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__, EXC)
-void log_unhandled_exception_(const char*, int, const char*, const LLContinueError&);
+/// Call this from a catch (const LLContinueError&) clause, or from a catch
+/// (...) clause in which you do NOT want the viewer to crash.
+#define LOG_UNHANDLED_EXCEPTION() \
+     log_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__)
+void log_unhandled_exception_(const char*, int, const char*);
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */

@@ -31,6 +31,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include "llexception.h"
 #include <algorithm>
 #include <iterator>
 
@@ -160,7 +161,7 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
     }
     catch (...)
     {
-        LL_WARNS() << "Caught unknown exception." << LL_ENDL;
+        LOG_UNHANDLED_EXCEPTION();
     }
 
     mPendingObjectQuota.clear();

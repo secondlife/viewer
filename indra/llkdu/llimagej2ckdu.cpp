@@ -35,6 +35,7 @@
 #include "kdu_block_coding.h"
 
 #include "llexception.h"
+#include <boost/exception/diagnostic_information.hpp>
 
 namespace {
 struct KDUError: public LLException
@@ -400,7 +401,8 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 	}
 	catch (...)
 	{
-		base.setLastError("Unknown J2C error");
+		base.setLastError("Unknown J2C error: " +
+						  boost::current_exception_diagnostic_information());
 		return false;
 	}
 
@@ -498,7 +500,8 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			}
 			catch (...)
 			{
-				base.setLastError( "Unknown J2C error" );
+				base.setLastError("Unknown J2C error: " +
+								  boost::current_exception_diagnostic_information());
 				base.decodeFailed();
 				cleanupCodeStream();
 				return true; // done
@@ -689,7 +692,8 @@ bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 	}
 	catch( ... )
 	{
-		base.setLastError( "Unknown J2C error" );
+		base.setLastError("Unknown J2C error: " +
+						  boost::current_exception_diagnostic_information());
 		return false;
 	}
 
@@ -713,7 +717,8 @@ bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 	}
 	catch (...)
 	{
-		base.setLastError( "Unknown J2C error" );
+		base.setLastError("Unknown J2C error: " +
+						  boost::current_exception_diagnostic_information());
 		return false;
 	}
 }

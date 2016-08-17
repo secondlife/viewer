@@ -21,21 +21,28 @@
 // other Linden headers
 #include "llerror.h"
 
-void crash_on_unhandled_exception_(const char* file, int line, const char* pretty_function)
+namespace {
+// used by crash_on_unhandled_exception_() and log_unhandled_exception_()
+void log_unhandled_exception_(LLError::ELevel level,
+                              const char* file, int line, const char* pretty_function)
 {
-    // LL_ERRS() terminates, but also propagates message into crash dump.
-    LL_ERRS() << file << "(" << line << "): Unhandled exception caught in " << pretty_function
-              << ":\n" << boost::current_exception_diagnostic_information() << LL_ENDL;
+    // log same message but allow caller-specified severity level
+    // lllog() is the macro underlying LL_ERRS(), LL_WARNS() et al.
+    lllog(level, false) << file << "(" << line << "): Unhandled exception caught in "
+                        << pretty_function
+                        << ":\n" << boost::current_exception_diagnostic_information() << LL_ENDL;
+}
 }
 
-void log_unhandled_exception_(const char* file, int line, const char* pretty_function,
-                             const LLContinueError& e)
+void crash_on_unhandled_exception_(const char* file, int line, const char* pretty_function)
+{
+    // LL_ERRS() terminates and propagates message into crash dump.
+    log_unhandled_exception_(LLError::LEVEL_ERROR, file, line, pretty_function);
+}
+
+void log_unhandled_exception_(const char* file, int line, const char* pretty_function)
 {
     // Use LL_WARNS() because we seriously do not expect this to happen
-    // routinely, but we DO expect to return from this function. Deriving your
-    // exception from LLContinueError implies that such an exception should
-    // NOT be fatal to the viewer, only to its current task.
-    LL_WARNS() << file << "(" << line << "): Unhandled " << typeid(e).name()
-               << " exception caught in " << pretty_function
-               << ":\n" << boost::current_exception_diagnostic_information() << LL_ENDL;
+    // routinely, but we DO expect to return from this function.
+    log_unhandled_exception_(LLError::LEVEL_WARN, file, line, pretty_function);
 }

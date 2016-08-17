@@ -38,6 +38,7 @@
 #include "llexception.h"
 #include <vector>
 #include <ios>
+#include <boost/exception/diagnostic_information.hpp>
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
@@ -618,7 +619,8 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
 				}
 				catch (...)
 				{
-					LL_WARNS("SECAPI") << "Failure creating certificate from the certificate store file." << LL_ENDL;
+					LL_WARNS("SECAPI") << "Failure creating certificate from the certificate store file: "
+									   << boost::current_exception_diagnostic_information() << LL_ENDL;
 				}
 				X509_free(cert_x509);
 				cert_x509 = NULL;
@@ -1365,7 +1367,8 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	}
 	catch (...)
 	{
-		LL_WARNS() << "LLProtectedDataException(Error writing Protected Data Store)" << LL_ENDL;
+		LL_WARNS() << "LLProtectedDataException(Error writing Protected Data Store): "
+				   << boost::current_exception_diagnostic_information() << LL_ENDL;
 		// it's good practice to clean up any secure information on error
 		// (even though this file isn't really secure.  Perhaps in the future
 		// it may be, however.
@@ -1394,7 +1397,8 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	catch (...)
 	{
 		LL_WARNS() << "LLProtectedDataException(Error renaming '" << tmp_filename
-                   << "' to '" << mProtectedDataFilename << "')" << LL_ENDL;
+				   << "' to '" << mProtectedDataFilename << "'): "
+				   << boost::current_exception_diagnostic_information() << LL_ENDL;
 		// it's good practice to clean up any secure information on error
 		// (even though this file isn't really secure.  Perhaps in the future
 		// it may be, however.
