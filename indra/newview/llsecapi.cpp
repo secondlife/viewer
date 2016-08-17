@@ -29,6 +29,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llsecapi.h"
 #include "llsechandler_basic.h"
+#include "llexception.h"
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <map>
@@ -64,12 +65,12 @@ void initializeSecHandler()
 		}
 		catch (LLProtectedDataException e)
 		{
-			exception_msg = e.getMessage();
+			exception_msg = e.what();
 		}
 	}
 	if (!exception_msg.empty())  // an exception was thrown.
 	{
-		throw LLProtectedDataException(exception_msg.c_str());
+		LLTHROW(LLProtectedDataException(exception_msg));
 	}
 
 }

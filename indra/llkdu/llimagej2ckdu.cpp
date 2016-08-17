@@ -34,6 +34,15 @@
 
 #include "kdu_block_coding.h"
 
+#include "llexception.h"
+
+namespace {
+struct KDUError: public LLException
+{
+    KDUError(const std::string& msg): LLException(msg) {}
+};
+} // anonymous namespace
+
 class kdc_flow_control {
 	
 public:
@@ -167,7 +176,7 @@ struct LLKDUMessageError : public LLKDUMessage
 		// exception if we want to recover from a KDU error.
 		if (end_of_message) 
 		{
-			throw "KDU throwing an exception";
+		LLTHROW(KDUError("LLKDUMessageError::flush()"));
 		}
 	}
 };
@@ -384,9 +393,9 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			mTPosp->x = 0;
 		}
 	}
-	catch (const char* msg)
+	catch (const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
 		return false;
 	}
 	catch (...)
@@ -480,9 +489,9 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					return false;
 				}
 			}
-			catch (const char* msg)
+			catch (const KDUError& msg)
 			{
-				base.setLastError(ll_safe_string(msg));
+				base.setLastError(msg.what());
 				base.decodeFailed();
 				cleanupCodeStream();
 				return true; // done
@@ -673,9 +682,9 @@ bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		base.updateData(); // set width, height
 		delete[] output_buffer;
 	}
-	catch(const char* msg)
+	catch(const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
 		return false;
 	}
 	catch( ... )
@@ -697,9 +706,9 @@ bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 		setupCodeStream(base, false, MODE_FAST);
 		return true;
 	}
-	catch (const char* msg)
+	catch (const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
 		return false;
 	}
 	catch (...)
