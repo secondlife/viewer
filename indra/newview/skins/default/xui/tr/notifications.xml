@@ -480,6 +480,9 @@ Dış görünüm klasöründe hiç giysi, vücut bölümü ya da aksesuar yok.
 	<notification name="CannotWearInfoNotComplete">
 		Bu öğe henüz yüklenmediği için kullanamazsınız. Lütfen bir dakika sonra tekrar deneyin.
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Oturum açmak için lütfen parolanızı girin.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Hata! Boş bırakılan alan(lar) var.
 Avatarınızın Kullanıcı adını girmeniz gerekmektedir.
@@ -547,6 +550,9 @@ Not: Bu işlem önbelleği temizleyecek.
 	</notification>
 	<notification name="ChangeConnectionPort">
 		Port ayarları, [APP_NAME] uygulamasını yeniden başlattıktan sonra geçerli olur.
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		Bu hata ayıklama ayarı değişikliği [APP_NAME] uygulamasını yeniden başlattıktan sonra geçerli olacak.
 	</notification>
 	<notification name="ChangeSkin">
 		Yeni dış katman [APP_NAME] uygulamasını yeniden başlattıktan sonra görüntülenecek.
@@ -1366,12 +1372,13 @@ Yeni bir ana konum ayarlamak isteyebilirsiniz.
 			<ignore name="ignore" text="Giysilerin karşıdan yüklenmesi uzun zaman alıyor"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 Görsel karmaşıklık] seviyeniz: [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] düzeyiniz [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="Avatarımın karmaşıklık düzeyi çok yüksekse beni uyar" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 Görsel karmaşıklık] seviyeniz: [AGENT_COMPLEXITY].
+		[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] düzeyiniz [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] yüklemesi tamamlandı.
@@ -1485,6 +1492,10 @@ Lütfen sadece bir nesne seçin ve tekrar deneyin.
 	<notification name="ConfirmBakeTerrain">
 		Geçerli yüzeyi bu şekilde kaydetmeyi, yüzey yükseltme/alçaltma sınırları için merkez olarak kullanmayı ve &apos;Geri Çevir&apos; aracı için varsayılan olarak ayarlamayı gerçekten istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		Yükselti Ayarları için girdiğiniz düşük değer, yüksek değerden daha fazla. Devam edilsin mi?
+		<usetemplate canceltext="Tekrar Sorma" name="yesnocancelbuttons" notext="İptal Et" yestext="Tamam"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		Sadece [MAX_AGENTS] tane İzin Verilen Sakin belirleyebilirsiniz.
@@ -1721,14 +1732,6 @@ Gruptan ayrılmak istiyor musunuz?
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Gruptan ayrılınamıyor. Gruptan ayrılamazsınız çünkü grubun son sahibisiniz. Lütfen önce sahip rolüne başka bir üye atayın.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="GroupDepartError">
-		Gruptan ayrılma işlemi yapılamıyor: [reason].
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="GroupDepart">
-		[group_name] grubundan ayrıldınız.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2400,6 +2403,10 @@ Bu işlemi tamamlamadan önce Rahatsız Etme&apos;yi kapatmak ister misiniz?
 		Çöp kutunuzun içeriğini kalıcı olarak silmek istediğinize emin misiniz?
 		<usetemplate ignoretext="Envanter Çöp Kutusu klasörünü boşaltmadan önce doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
+	<notification name="TrashIsFull">
+		Çöpte yer kalmamış. Bu durum oturum açma sırasında sorun yaşamanıza neden olabilir.
+		<usetemplate name="okcancelbuttons" notext="Çöpü daha sonra boşaltacağım" yestext="Çöp kutusunu şimdi boşalt"/>
+	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Seyahat, web ve arama geçmişinizi silmek istediğinize emin misiniz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
@@ -2984,7 +2991,7 @@ Bu bölgede kalmaya devam ederseniz oturumunuz sonlandırılacak.
 Bu bölgede kalmaya devam ederseniz oturumunuz sonlandırılacak.
 	</notification>
 	<notification name="LoadWebPage">
-		[URL] web sayfası yüklensin mi?
+		Bu web sayfası yüklensin mi: [URL] ?
 
 [MESSAGE]
 
@@ -3257,11 +3264,15 @@ Güvenliğiniz için birkaç saniye engellenecek.
 	<notification name="AttachmentSaved">
 		Aksesuar kaydedildi.
 	</notification>
-	<notification name="PresetNotSaved">
-		[NAME] ön ayarı kaydedilirken hata oluştu.
+	<notification name="AppearanceToXMLSaved">
+		Görünüm XML olarak [PATH] konumuna kaydedildi
 	</notification>
-	<notification name="PresetNotDeleted">
-		[NAME] ön ayarı silinirken hata oluştu.
+	<notification name="AppearanceToXMLFailed">
+		Görünüm XML olarak kaydedilemedi.
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+[NAME] ön ayarı silinirken hata oluştu.
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Bu öğe için yardım başlığı bulunamıyor.
@@ -4068,6 +4079,9 @@ Lütfen bir dakika sonra tekrar deneyin.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Nesneyi iliştirmek için yeterli komut dosyası kaynağı mevcut değil!
+	</notification>
+	<notification name="IllegalAttachment">
+		Aksesuar avatarda var olmayan bir noktaya karşılık geliyor. Bunun yerine göğüs kısmına eklendi.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Buraya nesne düşüremezsiniz; Ücretsiz Deneme alanını deneyin.

@@ -22,7 +22,6 @@
 			<menu_item_check label="Non disturbare" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="Acquista L$..." name="Buy and Sell L$"/>
-		<menu_item_call label="Casella venditore in uscita..." name="MerchantOutbox"/>
 		<menu_item_call label="Annunci Marketplace..." name="MarketplaceListings"/>
 		<menu_item_call label="Dashboard dell&apos;account..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=it"/>
@@ -368,6 +367,7 @@
 			<menu_item_check label="Informazioni sull&apos;animazione" name="Animation Info"/>
 			<menu_item_check label="Disabilita livello di dettaglio" name="Disable LOD"/>
 			<menu_item_check label="Mostra schemi collisione" name="Show Collision Skeleton"/>
+			<menu_item_check label="Mostra ossa" name="Show Bones"/>
 			<menu_item_check label="Mostra bersaglio" name="Display Agent Target"/>
 			<menu_item_call label="Debug texture dell&apos;avatar" name="Debug Avatar Textures"/>
 		</menu>

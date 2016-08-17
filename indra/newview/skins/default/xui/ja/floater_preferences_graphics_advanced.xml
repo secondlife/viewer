@@ -15,7 +15,7 @@
 	<text name="AvatarText">
 		アバター
 	</text>
-	<slider label="最大の複雑さ：" name="IndirectMaxComplexity" tool_tip="どの時点で複雑な表示のアバターをベタ色の人形として表示するかを管理します"/>
+	<slider label="最大の複雑さ：" name="IndirectMaxComplexity" tool_tip="どの点で視覚的に複雑なアバターを JellyDoll として描くかを制御します"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
