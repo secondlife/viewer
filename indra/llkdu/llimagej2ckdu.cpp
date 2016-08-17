@@ -176,7 +176,7 @@ struct LLKDUMessageError : public LLKDUMessage
 		// exception if we want to recover from a KDU error.
 		if (end_of_message) 
 		{
-		LLTHROW(KDUError("LLKDUMessageError::flush()"));
+			LLTHROW(KDUError("LLKDUMessageError::flush()"));
 		}
 	}
 };
