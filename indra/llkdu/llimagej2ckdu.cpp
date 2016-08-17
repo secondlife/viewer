@@ -1,4 +1,4 @@
- /** 
+/** 
  * @file llimagej2ckdu.cpp
  * @brief This is an implementation of JPEG2000 encode/decode using Kakadu
  *
@@ -36,6 +36,8 @@
 
 #include "llexception.h"
 #include <boost/exception/diagnostic_information.hpp>
+#include <sstream>
+#include <iomanip>
 
 namespace {
 // Failure to load an image shouldn't crash the whole viewer.
@@ -43,6 +45,40 @@ struct KDUError: public LLContinueError
 {
     KDUError(const std::string& msg): LLContinueError(msg) {}
 };
+
+// KDU defines int error codes as hex values, so we should log them in hex
+// so we can grep KDU headers for the hex. However those hex values
+// generally "happen" to encode big-endian multibyte character sequences,
+// e.g. KDU_ERROR_EXCEPTION is 0x6b647545: 'kduE'
+// But beware because KDU_NULL_EXCEPTION is simply 0 -- which doesn't
+// preclude somebody from throwing it.
+std::string report_kdu_exception(kdu_exception mb)
+{
+    std::ostringstream out;
+    // always report mb in hex
+    out << "kdu_exception " << std::hex << mb;
+
+    // Also display as many chars as are encoded in the kdu_exception
+    // value. Make a char array; reserve 1 extra byte for nul terminator.
+    char bytes[sizeof(kdu_exception) + 1];
+    // Back up through 'bytes'
+    char *bptr = bytes + sizeof(bytes);
+    *(--bptr) = '\0';
+    while (mb)
+    {
+        // store low-order byte of mb in next-left char
+        *(--bptr) = char(mb & 0xFF);
+        // then shift mb right by one byte
+        mb >>= 8;
+    }
+    // did that produce any characters?
+    if (*bptr)
+    {
+        out << " (" << bptr << ')';
+    }
+
+    return out.str();
+}
 } // anonymous namespace
 
 class kdc_flow_control {
@@ -400,6 +436,15 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		base.setLastError(msg.what());
 		return false;
 	}
+	catch (kdu_exception kdu_value)
+	{
+		// KDU internally throws kdu_exception. It's possible that such an
+		// exception might leak out into our code. Catch kdu_exception
+		// specially because boost::current_exception_diagnostic_information()
+		// could do nothing with it.
+		base.setLastError(report_kdu_exception(kdu_value));
+		return false;
+	}
 	catch (...)
 	{
 		base.setLastError("Unknown J2C error: " +
@@ -495,6 +540,17 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			catch (const KDUError& msg)
 			{
 				base.setLastError(msg.what());
+				base.decodeFailed();
+				cleanupCodeStream();
+				return true; // done
+			}
+			catch (kdu_exception kdu_value)
+			{
+				// KDU internally throws kdu_exception. It's possible that such an
+				// exception might leak out into our code. Catch kdu_exception
+				// specially because boost::current_exception_diagnostic_information()
+				// could do nothing with it.
+				base.setLastError(report_kdu_exception(kdu_value));
 				base.decodeFailed();
 				cleanupCodeStream();
 				return true; // done
@@ -691,6 +747,15 @@ bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		base.setLastError(msg.what());
 		return false;
 	}
+	catch (kdu_exception kdu_value)
+	{
+		// KDU internally throws kdu_exception. It's possible that such an
+		// exception might leak out into our code. Catch kdu_exception
+		// specially because boost::current_exception_diagnostic_information()
+		// could do nothing with it.
+		base.setLastError(report_kdu_exception(kdu_value));
+		return false;
+	}
 	catch( ... )
 	{
 		base.setLastError("Unknown J2C error: " +
@@ -714,6 +779,15 @@ bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 	catch (const KDUError& msg)
 	{
 		base.setLastError(msg.what());
+		return false;
+	}
+	catch (kdu_exception kdu_value)
+	{
+		// KDU internally throws kdu_exception. It's possible that such an
+		// exception might leak out into our code. Catch kdu_exception
+		// specially because boost::current_exception_diagnostic_information()
+		// could do nothing with it.
+		base.setLastError(report_kdu_exception(kdu_value));
 		return false;
 	}
 	catch (...)
