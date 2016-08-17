@@ -233,7 +233,8 @@ void LLInspectGroup::processGroupData()
 
 		getChild<LLUICtrl>("group_details")->setValue( LLSD(data->mCharter) );
 
-		getChild<LLUICtrl>("group_icon")->setValue( LLSD(data->mInsigniaID) );
+		// LLGroupIconCtrl
+		getChild<LLUICtrl>("group_icon")->setValue(LLSD(mGroupID));
 
 		std::string cost;
 		bool is_member = LLGroupActions::isInGroup(mGroupID);
