@@ -32,7 +32,6 @@
 #include "llpngwrapper.h"
 
 #include "llexception.h"
-#include <boost/throw_exception.hpp>
 
 namespace {
 struct PngError: public LLException
@@ -88,7 +87,7 @@ BOOL LLPngWrapper::isValidPng(U8* src)
 // occurs. We throw PngError and let our try/catch block clean up.
 void LLPngWrapper::errorHandler(png_structp png_ptr, png_const_charp msg)
 {
-	BOOST_THROW_EXCEPTION(PngError(msg));
+	LLTHROW(PngError(msg));
 }
 
 // Called by the libpng library when reading (decoding) the PNG file. We
@@ -138,7 +137,7 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 			this, &errorHandler, NULL);
 		if (mReadPngPtr == NULL)
 		{
-			BOOST_THROW_EXCEPTION(PngError("Problem creating png read structure"));
+			LLTHROW(PngError("Problem creating png read structure"));
 		}
 
 		// Allocate/initialize the memory for image information.
@@ -297,14 +296,14 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest)
 
 		if (mColorType == -1)
 		{
-			BOOST_THROW_EXCEPTION(PngError("Unsupported image: unexpected number of channels"));
+			LLTHROW(PngError("Unsupported image: unexpected number of channels"));
 		}
 
 		mWritePngPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
 			NULL, &errorHandler, NULL);
 		if (!mWritePngPtr)
 		{
-			BOOST_THROW_EXCEPTION(PngError("Problem creating png write structure"));
+			LLTHROW(PngError("Problem creating png write structure"));
 		}
 
 		mWriteInfoPtr = png_create_info_struct(mWritePngPtr);

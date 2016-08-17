@@ -34,12 +34,12 @@
 #include "llapr.h"
 #include "apr_signal.h"
 #include "llevents.h"
+#include "llexception.h"
 
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
-#include <boost/throw_exception.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <limits>
@@ -531,9 +531,8 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
 	if (! params.validateBlock(true))
 	{
-		BOOST_THROW_EXCEPTION(
-			LLProcessError(STRINGIZE("not launched: failed parameter validation\n"
-									 << LLSDNotationStreamer(params))));
+		LLTHROW(LLProcessError(STRINGIZE("not launched: failed parameter validation\n"
+										 << LLSDNotationStreamer(params))));
 	}
 
 	mPostend = params.postend;
@@ -598,11 +597,10 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 		}
 		else
 		{
-			BOOST_THROW_EXCEPTION(
-				LLProcessError(STRINGIZE("For " << params.executable()
-										 << ": unsupported FileParam for " << which
-										 << ": type='" << fparam.type()
-										 << "', name='" << fparam.name() << "'")));
+			LLTHROW(LLProcessError(STRINGIZE("For " << params.executable()
+											 << ": unsupported FileParam for " << which
+											 << ": type='" << fparam.type()
+											 << "', name='" << fparam.name() << "'")));
 		}
 	}
 	// By default, pass APR_NO_PIPE for unspecified slots.
@@ -681,7 +679,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr,
 										   gAPRPoolp)))
 	{
-		BOOST_THROW_EXCEPTION(LLProcessError(STRINGIZE(params << " failed")));
+		LLTHROW(LLProcessError(STRINGIZE(params << " failed")));
 	}
 
 	// arrange to call status_callback()
@@ -1066,7 +1064,7 @@ PIPETYPE& LLProcess::getPipe(FILESLOT slot)
 	PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
 	if (! wp)
 	{
-		BOOST_THROW_EXCEPTION(NoPipe(error));
+		LLTHROW(NoPipe(error));
 	}
 	return *wp;
 }

@@ -30,7 +30,6 @@
 #include "llexception.h"
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/throw_exception.hpp>
 #include <curl/curl.h>
 #include "lldir.h"
 #include "llevents.h"
@@ -468,7 +467,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 
 	if(!mCurl)
 	{
-		BOOST_THROW_EXCEPTION(DownloadError("failed to initialize curl"));
+		LLTHROW(DownloadError("failed to initialize curl"));
 	}
     throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_NOSIGNAL, true));
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_FOLLOWLOCATION, true));
@@ -509,7 +508,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	mHeaderList = curl_slist_append(mHeaderList, rangeHeaderFormat.str().c_str());
 	if(mHeaderList == 0)
 	{
-		BOOST_THROW_EXCEPTION(DownloadError("cannot add Range header"));
+		LLTHROW(DownloadError("cannot add Range header"));
 	}
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HTTPHEADER, mHeaderList));
 
@@ -525,7 +524,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	mDownloadData["hash"] = hash;
 	mDownloadData["current_version"] = ll_get_version();
 	LLSD path = uri.pathArray();
-	if(path.size() == 0) BOOST_THROW_EXCEPTION(DownloadError("no file path"));
+	if(path.size() == 0) LLTHROW(DownloadError("no file path"));
 	std::string fileName = path[path.size() - 1].asString();
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
 	mDownloadData["path"] = filePath;
@@ -548,9 +547,9 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 	if(code != CURLE_OK) {
 		const char * errorString = curl_easy_strerror(code);
 		if(errorString != 0) {
-			BOOST_THROW_EXCEPTION(DownloadError(curl_easy_strerror(code)));
+			LLTHROW(DownloadError(curl_easy_strerror(code)));
 		} else {
-			BOOST_THROW_EXCEPTION(DownloadError("unknown curl error"));
+			LLTHROW(DownloadError("unknown curl error"));
 		}
 	} else {
 		; // No op.

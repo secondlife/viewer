@@ -35,7 +35,6 @@
 #include "llpumpio.h"
 #include "llhttpclient.h"
 #include "llexception.h"
-#include <boost/throw_exception.hpp>
 
 /*****************************************************************************
 *   NetworkIO
@@ -53,7 +52,7 @@ public:
         ll_init_apr();
         if (! gAPRPoolp)
         {
-            BOOST_THROW_EXCEPTION(LLException("Can't initialize APR"));
+            LLTHROW(LLException("Can't initialize APR"));
         }
 
         // Create IO Pump to use for HTTP Requests.
@@ -61,7 +60,7 @@ public:
         LLHTTPClient::setPump(*mServicePump);
         if (ll_init_ares() == NULL || !gAres->isInitialized())
         {
-            BOOST_THROW_EXCEPTION(LLException("Can't start DNS resolver"));
+            LLTHROW(LLException("Can't start DNS resolver"));
         }
 
         // You can interrupt pump() without waiting the full timeout duration

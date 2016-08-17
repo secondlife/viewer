@@ -36,7 +36,6 @@
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
 #endif
 #include <boost/lexical_cast.hpp>
-#include <boost/throw_exception.hpp>
 
 namespace {
 	struct RelocateError: public LLException
@@ -49,7 +48,7 @@ namespace {
 		std::string scriptFile = gDirUtilp->getBaseFileName(path);
 		std::string newPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, scriptFile);
 		apr_status_t status = apr_file_copy(path.c_str(), newPath.c_str(), APR_FILE_SOURCE_PERMS, gAPRPoolp);
-		if(status != APR_SUCCESS) BOOST_THROW_EXCEPTION(RelocateError());
+		if(status != APR_SUCCESS) LLTHROW(RelocateError());
 		
 		return newPath;
 	}

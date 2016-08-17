@@ -132,7 +132,6 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-#include <boost/throw_exception.hpp>
 
 #if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in processMarkerFiles
@@ -5513,7 +5512,7 @@ void LLAppViewer::forceErrorInfiniteLoop()
 void LLAppViewer::forceErrorSoftwareException()
 {
    	LL_WARNS() << "Forcing a deliberate exception" << LL_ENDL;
-    BOOST_THROW_EXCEPTION(LLException("User selected Force Software Exception"));
+    LLTHROW(LLException("User selected Force Software Exception"));
 }
 
 void LLAppViewer::forceErrorDriverCrash()

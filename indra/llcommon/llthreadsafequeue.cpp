@@ -26,8 +26,8 @@
 #include "linden_common.h"
 #include <apr_pools.h>
 #include <apr_queue.h>
-#include <boost/throw_exception.hpp>
 #include "llthreadsafequeue.h"
+#include "llexception.h"
 
 
 
@@ -42,13 +42,13 @@ LLThreadSafeQueueImplementation::LLThreadSafeQueueImplementation(apr_pool_t * po
 {
 	if(mOwnsPool) {
 		apr_status_t status = apr_pool_create(&mPool, 0);
-		if(status != APR_SUCCESS) BOOST_THROW_EXCEPTION(LLThreadSafeQueueError("failed to allocate pool"));
+		if(status != APR_SUCCESS) LLTHROW(LLThreadSafeQueueError("failed to allocate pool"));
 	} else {
 		; // No op.
 	}
 	
 	apr_status_t status = apr_queue_create(&mQueue, capacity, mPool);
-	if(status != APR_SUCCESS) BOOST_THROW_EXCEPTION(LLThreadSafeQueueError("failed to allocate queue"));
+	if(status != APR_SUCCESS) LLTHROW(LLThreadSafeQueueError("failed to allocate queue"));
 }
 
 
@@ -69,9 +69,9 @@ void LLThreadSafeQueueImplementation::pushFront(void * element)
 	apr_status_t status = apr_queue_push(mQueue, element);
 	
 	if(status == APR_EINTR) {
-		BOOST_THROW_EXCEPTION(LLThreadSafeQueueInterrupt());
+		LLTHROW(LLThreadSafeQueueInterrupt());
 	} else if(status != APR_SUCCESS) {
-		BOOST_THROW_EXCEPTION(LLThreadSafeQueueError("push failed"));
+		LLTHROW(LLThreadSafeQueueError("push failed"));
 	} else {
 		; // Success.
 	}
@@ -89,9 +89,9 @@ void * LLThreadSafeQueueImplementation::popBack(void)
 	apr_status_t status = apr_queue_pop(mQueue, &element);
 
 	if(status == APR_EINTR) {
-		BOOST_THROW_EXCEPTION(LLThreadSafeQueueInterrupt());
+		LLTHROW(LLThreadSafeQueueInterrupt());
 	} else if(status != APR_SUCCESS) {
-		BOOST_THROW_EXCEPTION(LLThreadSafeQueueError("pop failed"));
+		LLTHROW(LLThreadSafeQueueError("pop failed"));
 	} else {
 		return element;
 	}

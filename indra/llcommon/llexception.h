@@ -14,6 +14,7 @@
 
 #include <stdexcept>
 #include <boost/exception/exception.hpp>
+#include <boost/throw_exception.hpp>
 
 // "Found someone who can comfort me
 //  But there are always exceptions..."
@@ -29,12 +30,6 @@
  * boost::current_exception_diagnostic_information() is quite wonderful: if
  * all we need to do with an exception is log it, in most places we should
  * catch (...) and log boost::current_exception_diagnostic_information().
- *
- * Please use BOOST_THROW_EXCEPTION()
- * http://www.boost.org/doc/libs/release/libs/exception/doc/BOOST_THROW_EXCEPTION.html
- * to throw viewer exceptions whenever possible. This enriches the exception's
- * diagnostic_information() with the source file, line and containing function
- * of the BOOST_THROW_EXCEPTION() macro.
  *
  * There may be circumstances in which it would be valuable to distinguish an
  * exception explicitly thrown by viewer code from an exception thrown by
@@ -64,6 +59,15 @@ struct LLContinueError: public LLException
         LLException(what)
     {}
 };
+
+/**
+ * Please use LLTHROW() to throw viewer exceptions whenever possible. This
+ * enriches the exception's diagnostic_information() with the source file,
+ * line and containing function of the LLTHROW() macro.
+ */
+// Currently we implement that using BOOST_THROW_EXCEPTION(). Wrap it in
+// LLTHROW() in case we ever want to revisit that implementation decision.
+#define LLTHROW(x) BOOST_THROW_EXCEPTION(x)
 
 /// Call this macro from a catch (...) clause
 #define CRASH_ON_UNHANDLED_EXCEPTION() \
