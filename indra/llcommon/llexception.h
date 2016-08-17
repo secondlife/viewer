@@ -15,15 +15,20 @@
 #include <stdexcept>
 #include <boost/exception/exception.hpp>
 
+// "Found someone who can comfort me
+//  But there are always exceptions..."
+//  - Empty Pages, Traffic, from John Barleycorn (1970)
+//    https://www.youtube.com/watch?v=dRH0CGVK7ic
+
 /**
  * LLException is intended as the common base class from which all
- * viewer-specific exceptions are derived. It is itself a subclass of
- * boost::exception; use catch (const boost::exception& e) clause to log the
- * string from boost::diagnostic_information(e).
+ * viewer-specific exceptions are derived. Rationale for why it's derived from
+ * both std::exception and boost::exception is explained in
+ * tests/llexception_test.cpp.
  *
- * Since it is also derived from std::exception, a generic catch (const
- * std::exception&) should also work, though what() is unlikely to be as
- * informative as boost::diagnostic_information().
+ * boost::current_exception_diagnostic_information() is quite wonderful: if
+ * all we need to do with an exception is log it, in most places we should
+ * catch (...) and log boost::current_exception_diagnostic_information().
  *
  * Please use BOOST_THROW_EXCEPTION()
  * http://www.boost.org/doc/libs/release/libs/exception/doc/BOOST_THROW_EXCEPTION.html
@@ -59,5 +64,15 @@ struct LLContinueError: public LLException
         LLException(what)
     {}
 };
+
+/// Call this macro from a catch (...) clause
+#define CRASH_ON_UNHANDLED_EXCEPTION() \
+     crash_on_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__)
+void crash_on_unhandled_exception_(const char*, int, const char*);
+
+/// Call this from a catch (const LLContinueError&) clause
+#define LOG_UNHANDLED_EXCEPTION(EXC) \
+     log_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__, EXC)
+void log_unhandled_exception_(const char*, int, const char*, const LLContinueError&);
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */
