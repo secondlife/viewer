@@ -452,6 +452,8 @@ def update_manager(cli_overrides = None):
         if 'set' in cli_overrides.keys():
             if 'UpdaterMaximumBandwidth' in cli_overrides['set'].keys():    
                 chunk_size = cli_overrides['set']['UpdaterMaximumBandwidth']
+        else:
+            chunk_size = 1024
     else:
         chunk_size = 1024
 

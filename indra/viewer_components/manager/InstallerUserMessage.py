@@ -50,7 +50,7 @@ class InstallerUserMessage(tk.Tk):
     #Linden standard green color, from Marketing
     linden_green = "#487A7B"
 
-    def __init__(self, text="", title="", width=500, height=200, icon_name = None, icon_path = None):
+    def __init__(self, text="", title="", width=500, height=200, wraplength = 400, icon_name = None, icon_path = None):
         tk.Tk.__init__(self)
         self.grid()
         self.title(title)
@@ -71,7 +71,8 @@ class InstallerUserMessage(tk.Tk):
 
         #find a few things
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
-        self.icon_dir = os.path.abspath(os.path.join(self.script_dir, 'icons'))
+        self.contents_dir = os.path.dirname(self.script_dir)
+        self.icon_dir = os.path.abspath(os.path.join(self.contents_dir, 'Resources/vmp_icons'))
 
         #finds the icon and creates the widget
         self.find_icon(icon_path, icon_name)
@@ -104,6 +105,7 @@ class InstallerUserMessage(tk.Tk):
         if not icon_path:
             icon_path = self.icon_dir
         icon_path = os.path.join(icon_path, icon_name)
+        print icon_path
         if os.path.exists(icon_path):
             icon = tk.PhotoImage(file=icon_path)
             self.image_label = tk.Label(image = icon)
@@ -222,12 +224,16 @@ class InstallerUserMessage(tk.Tk):
         self.check_scheduler()
 
     def check_scheduler(self):
-        if self.value < self.progress["maximum"]:
-            self.check_queue()            
-            self.id = self.after(100, self.check_scheduler)
-        else:
-            #prevent a race condition between polling and the widget destruction
-            self.after_cancel(self.id)
+        try:
+            if self.value < self.progress["maximum"]:
+                self.check_queue()            
+                self.id = self.after(100, self.check_scheduler)
+            else:
+                #prevent a race condition between polling and the widget destruction
+                self.after_cancel(self.id)
+        except tk.TclError:
+            #we're already dead, just die quietly
+            pass
 
     def check_queue(self):
         while self.queue.qsize():
@@ -264,7 +270,7 @@ class ThreadedClient(threading.Thread):
 
 if __name__ == "__main__":
     #When run as a script, just test the InstallUserMessage.  
-    #To proceed with the test, close the first window, select on the second.  The third will close by itself.
+    #To proceed with the test, close the first window, select on the second and fourth.  The third will close by itself.
     import sys
     import tempfile
 
@@ -278,6 +284,8 @@ if __name__ == "__main__":
 
     #basic message window test
     frame2 = InstallerUserMessage(text = "Something in the way she moves....", title = "Beatles Quotes for 100", icon_name="head-sl-logo.gif")
+    print frame2.contents_dir
+    print frame2.icon_dir
     frame2.basic_message(message = "...attracts me like no other.")
     print "Destroyed!"
     sys.stdout.flush()

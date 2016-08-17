@@ -767,6 +767,12 @@ class Darwin_i386_Manifest(ViewerManifest):
                 self.path("uk.lproj")
                 self.path("zh-Hans.lproj")
 
+                #VMP icons
+                if self.prefix("vmp_icons"):
+                    self.path("*.png")
+                    self.path("*.gif")
+                    self.end_prefix("vmp_icons")
+
                 def path_optional(src, dst):
                     """
                     For a number of our self.path() calls, not only do we want
