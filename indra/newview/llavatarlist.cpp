@@ -140,6 +140,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowProfileBtn(p.show_profile_btn)
 , mShowSpeakingIndicator(p.show_speaking_indicator)
 , mShowPermissions(p.show_permissions_granted)
+, mShowCompleteName(false)
 {
 	setCommitOnSelectionChange(true);
 
@@ -172,6 +173,11 @@ void LLAvatarList::setShowIcons(std::string param_name)
 {
 	mIconParamName= param_name;
 	mShowIcons = gSavedSettings.getBOOL(mIconParamName);
+}
+
+std::string LLAvatarList::getAvatarName(LLAvatarName av_name)
+{
+	return mShowCompleteName? av_name.getCompleteName(false) : av_name.getDisplayName();
 }
 
 // virtual
@@ -279,7 +285,7 @@ void LLAvatarList::refresh()
 		LLAvatarName av_name;
 		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
 
-		if (!have_filter || findInsensitive(av_name.getDisplayName(), mNameFilter))
+		if (!have_filter || findInsensitive(getAvatarName(av_name), mNameFilter))
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -297,7 +303,7 @@ void LLAvatarList::refresh()
 				}
 				else
 				{
-					std::string display_name = av_name.getDisplayName();
+					std::string display_name = getAvatarName(av_name);
 					addNewItem(buddy_id, 
 						display_name.empty() ? waiting_str : display_name, 
 						LLAvatarTracker::instance().isBuddyOnline(buddy_id));
@@ -327,7 +333,7 @@ void LLAvatarList::refresh()
 			const LLUUID& buddy_id = it->asUUID();
 			LLAvatarName av_name;
 			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
-			if (!findInsensitive(av_name.getDisplayName(), mNameFilter))
+			if (!findInsensitive(getAvatarName(av_name), mNameFilter))
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -381,6 +387,7 @@ void LLAvatarList::updateAvatarNames()
 	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
 		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
+		item->setShowCompleteName(mShowCompleteName);
 		item->updateAvatarName();
 	}
 	mNeedUpdateNames = false;
@@ -400,7 +407,7 @@ bool LLAvatarList::filterHasMatches()
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(av_name.getDisplayName(), mNameFilter))
+		if (have_name && !findInsensitive(getAvatarName(av_name), mNameFilter))
 		{
 			continue;
 		}
@@ -434,6 +441,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
+	item->setShowCompleteName(mShowCompleteName);
 	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
@@ -444,6 +452,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setShowProfileBtn(mShowProfileBtn);
 	item->showSpeakingIndicator(mShowSpeakingIndicator);
 	item->setShowPermissions(mShowPermissions);
+
 
 	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
 

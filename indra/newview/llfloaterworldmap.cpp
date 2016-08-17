@@ -963,10 +963,10 @@ F32 LLFloaterWorldMap::getDistanceToDestination(const LLVector3d &destination,
 }
 
 
-void LLFloaterWorldMap::clearLocationSelection(BOOL clear_ui)
+void LLFloaterWorldMap::clearLocationSelection(BOOL clear_ui, BOOL dest_reached)
 {
 	LLCtrlListInterface *list = mListSearchResults;
-	if (list)
+	if (list && (!dest_reached || (list->getItemCount() == 1)))
 	{
 		list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	}
