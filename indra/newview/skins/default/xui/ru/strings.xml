@@ -41,6 +41,9 @@
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
+	<string name="BuildConfig">
+		Конфигурация построения [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
 		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -71,6 +74,9 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Ошибка при получении URL-адреса заметок о выпуске сервера.
+	</string>
+	<string name="BuildConfiguration">
+		Конфигурация построения
 	</string>
 	<string name="ProgressRestoring">
 		Восстановление...
@@ -1387,6 +1393,9 @@ support@secondlife.com.
 	<string name="BodyPartsRightLeg">
 		Правая нога
 	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Улучшенный скелет
+	</string>
 	<string name="GraphicsQualityLow">
 		низкая
 	</string>
@@ -1835,6 +1844,51 @@ support@secondlife.com.
 	<string name="Avatar Center">
 		Центр аватара
 	</string>
+	<string name="Left Ring Finger">
+		Левый безымянный палец
+	</string>
+	<string name="Right Ring Finger">
+		Правый безымянный палец
+	</string>
+	<string name="Tail Base">
+		Основание хвоста
+	</string>
+	<string name="Tail Tip">
+		Кончик хвоста
+	</string>
+	<string name="Left Wing">
+		Левое крыло
+	</string>
+	<string name="Right Wing">
+		Правое крыло
+	</string>
+	<string name="Jaw">
+		Пасть
+	</string>
+	<string name="Alt Left Ear">
+		Альт. левое ухо
+	</string>
+	<string name="Alt Right Ear">
+		Альт. правое ухо
+	</string>
+	<string name="Alt Left Eye">
+		Альт. левый глаз
+	</string>
+	<string name="Alt Right Eye">
+		Альт. правый глаз
+	</string>
+	<string name="Tongue">
+		Язык
+	</string>
+	<string name="Groin">
+		Пах
+	</string>
+	<string name="Left Hind Foot">
+		Левая задняя нога
+	</string>
+	<string name="Right Hind Foot">
+		Правая задняя нога
+	</string>
 	<string name="Invalid Attachment">
 		Неверная точка присоединения
 	</string>
@@ -2224,11 +2278,11 @@ support@secondlife.com.
 	<string name="ATTACH_BELLY">
 		Живот
 	</string>
-	<string name="ATTACH_RPEC">
-		Правая грудь
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		Левая грудь
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		Правая грудь
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		Данные в игре в центре 2
@@ -2259,6 +2313,51 @@ support@secondlife.com.
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Центр аватара
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Левый безымянный палец
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Правый безымянный палец
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Основание хвоста
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Кончик хвоста
+	</string>
+	<string name="ATTACH_LWING">
+		Левое крыло
+	</string>
+	<string name="ATTACH_RWING">
+		Правое крыло
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Пасть
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Альт. левое ухо
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Альт. правое ухо
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Альт. левый глаз
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Альт. правый глаз
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Язык
+	</string>
+	<string name="ATTACH_GROIN">
+		Пах
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Левая задняя нога
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Правая задняя нога
 	</string>
 	<string name="CursorPos">
 		Строка [LINE], столбец [COLUMN]
@@ -4247,10 +4346,10 @@ support@secondlife.com.
 		Оффлайн
 	</string>
 	<string name="not_online_msg">
-		Пользователь оффлайн - сообщение будет сохранено и доставлено позже.
+		Пользователь не в онлайне - сообщение будет сохранено и доставлено позже.
 	</string>
 	<string name="not_online_inventory">
-		Пользователь оффлайн - инвентарь сохранен.
+		Пользователь не в онлайне - инвентарь сохранен.
 	</string>
 	<string name="answered_call">
 		На ваш звонок ответили

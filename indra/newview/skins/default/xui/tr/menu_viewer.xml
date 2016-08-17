@@ -22,7 +22,6 @@
 			<menu_item_check label="Rahatsız Etme" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="L$ Satın Al..." name="Buy and Sell L$"/>
-		<menu_item_call label="Satıcı Giden Kutusu..." name="MerchantOutbox"/>
 		<menu_item_call label="Pazaryeri ilanları..." name="MarketplaceListings"/>
 		<menu_item_call label="Hesap kontrol paneli..." name="Manage My Account"/>
 		<menu_item_call label="Tercihler..." name="Preferences"/>
@@ -419,6 +418,7 @@
 			<menu_item_check label="Ayrıntı Seviyesi Bilgisini Devre Dışı Bırak" name="Disable LOD"/>
 			<menu_item_check label="Debug Character Vis" name="Debug Character Vis"/>
 			<menu_item_check label="Çarpışma İskeletini Göster" name="Show Collision Skeleton"/>
+			<menu_item_check label="Kemikleri Göster" name="Show Bones"/>
 			<menu_item_check label="Aracı Hedefini Göster" name="Display Agent Target"/>
 			<menu_item_call label="Aksesuarların Dökümünü Al" name="Dump Attachments"/>
 			<menu_item_call label="Avatar Dokuları İçin Hata Ayıklama" name="Debug Avatar Textures"/>

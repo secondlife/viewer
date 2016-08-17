@@ -26,6 +26,7 @@
 	<menu_item_call label="Editar mi vestuario" name="Edit Outfit"/>
 	<menu_item_call label="Editar mi anatomía" name="Edit My Shape"/>
 	<menu_item_call label="Altura del avatar" name="Hover Height"/>
+	<menu_item_call label="Restablecer esqueleto" name="Reset Skeleton"/>
 	<menu_item_call label="Mis amigos" name="Friends..."/>
 	<menu_item_call label="Mis grupos" name="Groups..."/>
 	<menu_item_call label="Mi perfil" name="Profile..."/>

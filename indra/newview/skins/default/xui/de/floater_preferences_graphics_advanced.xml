@@ -15,7 +15,7 @@
 	<text name="AvatarText">
 		Avatar
 	</text>
-	<slider label="Maximale Komplexität:" name="IndirectMaxComplexity" tool_tip="Bestimmt, an welchem Punkt ein visuell komplexer Avatar als „Gummibärchen“ dargestellt wird"/>
+	<slider label="Maximale Komplexität:" name="IndirectMaxComplexity" tool_tip="Bestimmt, an welchem Punkt ein visuell komplexer Avatar als JellyDoll dargestellt wird"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

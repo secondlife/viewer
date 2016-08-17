@@ -16,9 +16,9 @@
 		Saída
 	</text>
 	<text name="My volume label">
-		Meu volume:
+		Volume do microfone:
 	</text>
-	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Mude o volume usando o controle deslizante"/>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Mude o volume do microfone usando o controle deslizante"/>
 	<text name="wait_text">
 		Aguarde
 	</text>

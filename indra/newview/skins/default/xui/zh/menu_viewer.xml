@@ -22,7 +22,6 @@
 			<menu_item_check label="請勿打擾" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="購買 L$…" name="Buy and Sell L$"/>
-		<menu_item_call label="商家發件匣…" name="MerchantOutbox"/>
 		<menu_item_call label="Marketplace 刊登…" name="MarketplaceListings"/>
 		<menu_item_call label="帳戶主控臺…" name="Manage My Account"/>
 		<menu_item_call label="偏好設定…" name="Preferences"/>
@@ -419,6 +418,7 @@
 			<menu_item_check label="停用細節層次" name="Disable LOD"/>
 			<menu_item_check label="除錯字元可見性" name="Debug Character Vis"/>
 			<menu_item_check label="顯示碰撞骨架" name="Show Collision Skeleton"/>
+			<menu_item_check label="顯示骨頭" name="Show Bones"/>
 			<menu_item_check label="顯示用戶目標" name="Display Agent Target"/>
 			<menu_item_call label="傾印附件" name="Dump Attachments"/>
 			<menu_item_call label="除錯化身材質" name="Debug Avatar Textures"/>

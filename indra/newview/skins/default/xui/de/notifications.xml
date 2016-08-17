@@ -487,6 +487,9 @@ Der Outfit-Ordner enthält keine Kleidung, Körperteile oder Anhänge.
 	<notification name="CannotWearInfoNotComplete">
 		Sie können das Objekt nicht anziehen, weil es noch nicht geladen wurde. Warten Sie kurz und versuchen Sie es dann noch einmal.
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Bitte geben Sie zur Anmeldung Ihr Kennwort ein.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Sue haben ein Feld leer gelassen.
 Sie müssen den Benutzernamen Ihres Avatars eingeben.
@@ -554,6 +557,9 @@ Hinweis: Der Cache wird dabei gelöscht/geleert.
 	</notification>
 	<notification name="ChangeConnectionPort">
 		Die Port-Einstellungen werden nach einem Neustart von [APP_NAME] wirksam.
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		Die Debug-Einstellung tritt nach Neustart von [APP_NAME] in Kraft.
 	</notification>
 	<notification name="ChangeSkin">
 		Die neue Benutzeroberfläche wird nach einem Neustart von [APP_NAME] angezeigt.
@@ -1380,12 +1386,13 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 			<ignore name="ignore" text="Das Herunterladen der Kleidung dauert lange"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		Ihre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 visuelle Komplexität] ist [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		Ihre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 Avatarkomplexität] ist [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="Warnen, falls Avatarkomplexität zu hoch ist" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		Ihre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 visuelle Komplexität] ist [AGENT_COMPLEXITY].
+		Ihre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 Avatarkomplexität] ist [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		Installation von [APP_NAME] vollständig abgeschlossen.
@@ -1500,6 +1507,10 @@ Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 un
 	<notification name="ConfirmBakeTerrain">
 		Möchten Sie das aktuelle Terrain formen, es zum Mittelpunkt der oberen und unteren Terraingrenzen und zum Standard des „Zurücksetzen“-Tools machen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		Sie sind dabei, für Höhenbereiche untere Werte anzugeben, die größer sind als die oberen Werte. Fortfahren?
+		<usetemplate canceltext="Nicht fragen" name="yesnocancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		Es sind maximal [MAX_AGENTS] zulässige Einwohner erlaubt.
@@ -1733,14 +1744,6 @@ Diese Gruppe verlassen?
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Sie können die Gruppe nicht verlassen, da Sie der letzte Besitzer der Gruppe sind. Weisen Sie die Besitzerrolle zuerst einem anderen Mitglied zu.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepartError">
-		Kann Gruppe nicht verlassen: [reason].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		Sie haben die Gruppe „[group_name]“ verlassen.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2414,6 +2417,10 @@ Möchten Sie den Nicht-stören-Modus deaktivieren, bevor Sie diese Transaktion a
 	<notification name="ConfirmEmptyTrash">
 		Sind Sie sicher, dass Sie den Inhalt Ihres Papierkorbs löschen möchten?
 		<usetemplate ignoretext="Bestätigen, bevor der Ordner Papierkorb im Inventar geleert wird" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="TrashIsFull">
+		Ihr Papierkorb läuft über. Dies kann zu Anmeldeproblemen führen.
+		<usetemplate name="okcancelbuttons" notext="Papierkorb später leeren" yestext="Papierkorb jetzt leeren"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Sind Sie sicher, dass Sie Ihren Reise-, Internet- und Suchverlauf löschen möchten?
@@ -3272,11 +3279,15 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	<notification name="AttachmentSaved">
 		Der Anhang wurde gespeichert.
 	</notification>
-	<notification name="PresetNotSaved">
-		Fehler beim Speichern der Voreinstellung [NAME].
+	<notification name="AppearanceToXMLSaved">
+		Erscheinungsbild als XML in [PATH] gespeichert
 	</notification>
-	<notification name="PresetNotDeleted">
-		Fehler beim Löschen der Voreinstellung [NAME].
+	<notification name="AppearanceToXMLFailed">
+		Fehler beim Speichern des Erscheinungsbilds als XML.
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+Fehler beim Löschen der Voreinstellung [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Hilfethema für dieses Element wurde nicht gefunden.
@@ -4088,6 +4099,9 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Nicht genügend Skriptressourcen verfügbar, um Objekt anzuhängen.
+	</notification>
+	<notification name="IllegalAttachment">
+		Der Anhang hat einen nicht vorhandenen Punkt auf dem Avatar angefordert. Der Anhang wurde stattdessen auf der Brust angebracht.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Ablegen von Objekten hier nicht möglich; versuchen Sie es mit dem kostenlosen Testbereich.
