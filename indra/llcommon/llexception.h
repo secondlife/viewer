@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <boost/exception/exception.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/current_function.hpp>
 
 // "Found someone who can comfort me
 //  But there are always exceptions..."
@@ -71,13 +72,13 @@ struct LLContinueError: public LLException
 
 /// Call this macro from a catch (...) clause
 #define CRASH_ON_UNHANDLED_EXCEPTION() \
-     crash_on_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__)
+     crash_on_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
 void crash_on_unhandled_exception_(const char*, int, const char*);
 
 /// Call this from a catch (const LLContinueError&) clause, or from a catch
 /// (...) clause in which you do NOT want the viewer to crash.
 #define LOG_UNHANDLED_EXCEPTION() \
-     log_unhandled_exception_(__FILE__, __LINE__, __PRETTY_FUNCTION__)
+     log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
 void log_unhandled_exception_(const char*, int, const char*);
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */
