@@ -44,6 +44,7 @@
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
 #include "llexception.h"
+#include "stringize.h"
 
 #include <map>
 #include <set>
@@ -232,13 +233,12 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
         LLAvatarNameCache::handleAvNameCacheSuccess(results, httpResults);
 
     }
-    catch (std::exception e)
-    {
-        LL_WARNS() << "Caught exception '" << e.what() << "'" << LL_ENDL;
-    }
     catch (...)
     {
-        LOG_UNHANDLED_EXCEPTION();
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
+                                          << "('" << url << "', " << agentIds.size()
+                                          << " Agent Ids)"));
+        throw;
     }
 }
 

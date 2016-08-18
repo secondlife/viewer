@@ -24,25 +24,32 @@
 namespace {
 // used by crash_on_unhandled_exception_() and log_unhandled_exception_()
 void log_unhandled_exception_(LLError::ELevel level,
-                              const char* file, int line, const char* pretty_function)
+                              const char* file, int line, const char* pretty_function,
+                              const std::string& context)
 {
     // log same message but allow caller-specified severity level
     // lllog() is the macro underlying LL_ERRS(), LL_WARNS() et al.
     lllog(level, false) << file << "(" << line << "): Unhandled exception caught in "
-                        << pretty_function
-                        << ":\n" << boost::current_exception_diagnostic_information() << LL_ENDL;
+                        << pretty_function;
+    if (! context.empty())
+    {
+        LL_CONT << ": " << context;
+    }
+    LL_CONT << ":\n" << boost::current_exception_diagnostic_information() << LL_ENDL;
 }
 }
 
-void crash_on_unhandled_exception_(const char* file, int line, const char* pretty_function)
+void crash_on_unhandled_exception_(const char* file, int line, const char* pretty_function,
+                                   const std::string& context)
 {
     // LL_ERRS() terminates and propagates message into crash dump.
-    log_unhandled_exception_(LLError::LEVEL_ERROR, file, line, pretty_function);
+    log_unhandled_exception_(LLError::LEVEL_ERROR, file, line, pretty_function, context);
 }
 
-void log_unhandled_exception_(const char* file, int line, const char* pretty_function)
+void log_unhandled_exception_(const char* file, int line, const char* pretty_function,
+                              const std::string& context)
 {
     // Use LL_WARNS() because we seriously do not expect this to happen
     // routinely, but we DO expect to return from this function.
-    log_unhandled_exception_(LLError::LEVEL_WARN, file, line, pretty_function);
+    log_unhandled_exception_(LLError::LEVEL_WARN, file, line, pretty_function, context);
 }

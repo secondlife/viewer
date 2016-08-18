@@ -32,6 +32,7 @@
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
 #include "llexception.h"
+#include "stringize.h"
 #include <algorithm>
 #include <iterator>
 
@@ -155,13 +156,11 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
         } while (false);
 
     }
-    catch (std::exception e)
-    {
-        LL_WARNS() << "Caught exception '" << e.what() << "'" << LL_ENDL;
-    }
     catch (...)
     {
-        LOG_UNHANDLED_EXCEPTION();
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
+                                          << "('" << url << "')"));
+        throw;
     }
 
     mPendingObjectQuota.clear();

@@ -31,6 +31,7 @@
  * boost::current_exception_diagnostic_information() is quite wonderful: if
  * all we need to do with an exception is log it, in most places we should
  * catch (...) and log boost::current_exception_diagnostic_information().
+ * See CRASH_ON_UNHANDLED_EXCEPTION() and LOG_UNHANDLED_EXCEPTION() below.
  *
  * There may be circumstances in which it would be valuable to distinguish an
  * exception explicitly thrown by viewer code from an exception thrown by
@@ -71,14 +72,14 @@ struct LLContinueError: public LLException
 #define LLTHROW(x) BOOST_THROW_EXCEPTION(x)
 
 /// Call this macro from a catch (...) clause
-#define CRASH_ON_UNHANDLED_EXCEPTION() \
-     crash_on_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
-void crash_on_unhandled_exception_(const char*, int, const char*);
+#define CRASH_ON_UNHANDLED_EXCEPTION(CONTEXT) \
+     crash_on_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
+void crash_on_unhandled_exception_(const char*, int, const char*, const std::string&);
 
 /// Call this from a catch (const LLContinueError&) clause, or from a catch
 /// (...) clause in which you do NOT want the viewer to crash.
-#define LOG_UNHANDLED_EXCEPTION() \
-     log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
-void log_unhandled_exception_(const char*, int, const char*);
+#define LOG_UNHANDLED_EXCEPTION(CONTEXT) \
+     log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
+void log_unhandled_exception_(const char*, int, const char*, const std::string&);
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */
