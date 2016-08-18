@@ -1593,6 +1593,13 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
+void LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
+{
+    gSavedSettings.setF32("UIScaleFactor", ui_scale_factor);
+    LLViewerWindow::reshape(window_width, window_height);
+    mResDirty = true;
+}
+
 void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
 {
 	LLAppViewer::instance()->pingMainloopTimeout(msg);
