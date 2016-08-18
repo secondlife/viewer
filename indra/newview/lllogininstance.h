@@ -34,7 +34,6 @@
 class LLLogin;
 class LLEventStream;
 class LLNotificationsInterface;
-class LLUpdaterService;
 
 // This class hosts the login module and is used to 
 // negotiate user authentication attempts.
@@ -60,10 +59,6 @@ public:
 
 	// Only valid when authSuccess == true.
 	const F64 getLastTransferRateBPS() { return mTransferRate; }
-
-	// Whether to tell login to skip optional update request.
-	// False by default.
-	void setSkipOptionalUpdate(bool state) { mSkipOptionalUpdate = state; }
 	void setSerialNumber(const std::string& sn) { mSerialNumber = sn; }
 	void setLastExecEvent(int lee) { mLastExecEvent = lee; }
 	void setLastExecDuration(S32 duration) { mLastExecDuration = duration; }
@@ -72,10 +67,6 @@ public:
 	void setNotificationsInterface(LLNotificationsInterface* ni) { mNotifications = ni; }
 	LLNotificationsInterface& getNotificationsInterface() const { return *mNotifications; }
 
-	typedef boost::function<void()> UpdaterLauncherCallback;
-	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }
-
-	void setUpdaterService(LLUpdaterService * updaterService) { mUpdaterService = updaterService; }
 private:
 	void constructAuthParams(LLPointer<LLCredential> user_credentials);
 	void updateApp(bool mandatory, const std::string& message);
@@ -97,7 +88,6 @@ private:
 	std::string mLoginState;
 	LLSD mRequestData;
 	LLSD mResponseData;
-	bool mSkipOptionalUpdate;
 	bool mAttemptComplete;
 	F64 mTransferRate;
 	std::string mSerialNumber;
@@ -105,10 +95,7 @@ private:
 	S32 mLastExecDuration;
 	std::string mPlatform;
 	std::string mPlatformVersion;
-	UpdaterLauncherCallback mUpdaterLauncher;
 	LLEventDispatcher mDispatcher;
-	LLUpdaterService * mUpdaterService;	
-	boost::scoped_ptr<Disposable> mUpdateStateMachine;
 };
 
 #endif
