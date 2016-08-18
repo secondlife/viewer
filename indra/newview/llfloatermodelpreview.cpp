@@ -4244,7 +4244,9 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
 	bool upload_joint_positions = mp->childGetValue("upload_joints").asBoolean();
 
-	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
+
+    // MAINT-6647 - removed SLM files
+	//mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
 						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl,
