@@ -3317,6 +3317,9 @@ Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Renderin
      <context>AgentComplexityNotice</context>
    </unique>
 Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+    <usetemplate
+     ignoretext="Warn me about my avatar complexity changes"
+     name="notifyignore"/>
   </notification>
 
   <notification
