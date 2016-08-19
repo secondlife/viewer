@@ -106,7 +106,7 @@ public:
 	void refresh();
 	
 	void			loadModel(S32 lod);
-	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = true);
+	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
 	
 	void onViewOptionChecked(LLUICtrl* ctrl);
 	bool isViewOptionChecked(const LLSD& userdata);
@@ -261,7 +261,7 @@ public:
 	void setPreviewLOD(S32 lod);
 	void clearModel(S32 lod);
     void getJointAliases(JointMap& joint_map);
-	void loadModel(std::string filename, S32 lod, bool force_disable_slm = true);
+	void loadModel(std::string filename, S32 lod, bool force_disable_slm = false);
 	void loadModelCallback(S32 lod);
     bool lodsReady() { return !mGenLOD && mLodsQuery.empty(); }
     void queryLODs() { mGenLOD = true; };

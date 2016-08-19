@@ -1667,10 +1667,6 @@ void LLModelPreview::saveUploadData(bool save_skinweights, bool save_joint_posit
 
 void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_positions)
 {
-	if (!gSavedSettings.getBOOL("MeshImportUseSLM"))
-	{
-		return;
-	}
 
 	std::set<LLPointer<LLModel> > meshes;
 	std::map<LLModel*, std::string> mesh_binary;
@@ -4245,8 +4241,10 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	bool upload_joint_positions = mp->childGetValue("upload_joints").asBoolean();
 
 
-    // MAINT-6647 - removed SLM files
-	//mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
+	if (gSavedSettings.getBOOL("MeshImportUseSLM"))
+	{
+        mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
+    }
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
 						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl,
