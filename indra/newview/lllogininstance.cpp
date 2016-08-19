@@ -192,11 +192,19 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	// (re)initialize the request params with creds.
 	LLSD request_params = user_credential->getLoginParams();
 
+    unsigned char hashed_unique_id_string[MD5HEX_STR_SIZE];
+    if ( ! llHashedUniqueID(hashed_unique_id_string) )
+    {
+
+		LL_WARNS() << "Not providing a unique id in request params" << LL_ENDL;
+
+	}
 	request_params["start"] = construct_start_string();
 	request_params["agree_to_tos"] = false; // Always false here. Set true in 
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
 	request_params["last_exec_duration"] = mLastExecDuration;
+	request_params["mac"] = (char*)hashed_unique_id_string;
 	request_params["version"] = LLVersionInfo::getVersion();
 	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["platform"] = mPlatform;
