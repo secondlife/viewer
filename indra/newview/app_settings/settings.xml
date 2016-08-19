@@ -7940,6 +7940,17 @@
       <key>Value</key>
       <integer>100000</integer>
     </map>
+    <key>PrimTextMaxDrawDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum draw distance beyond which PRIM_TEXT won't be rendered</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>64.0</real>
+    </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
       <key>Comment</key>
