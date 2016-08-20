@@ -5819,7 +5819,9 @@ void LLAppViewer::launchUpdater()
 */
 void LLAppViewer::showReleaseNotesIfRequired()
 {
-	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion && gSavedSettings.getBOOL("UpdaterShowReleaseNotes"))
+	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
+		&& !gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	{
 		LLSD info(getViewerInfo());
 		LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
