@@ -55,7 +55,8 @@ LLFloaterWebContent::_Params::_Params()
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
 	show_page_title("show_page_title", true),
-    clean_browser("clean_browser", false)
+	clean_browser("clean_browser", false),
+	dev_mode("dev_mode", false)
 {}
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
@@ -74,7 +75,8 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
     mCurrentURL(""),
-    mDisplayURL("")
+    mDisplayURL(""),
+    mDevelopMode(params.dev_mode) // if called from "Develop" Menu, set a flag and change things to be more useful for devs
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -110,9 +112,6 @@ BOOL LLFloaterWebContent::postBuild()
     
 	// initialize the URL history using the system URL History manager
 	initializeURLHistory();
-
-	// if "Develop" Menu open, sety a flag and change things to be more useful for devs
-	mDevelopMode = gSavedSettings.getBOOL("QAMode");
 
 	return TRUE;
 }

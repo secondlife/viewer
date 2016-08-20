@@ -58,7 +58,8 @@ public:
                                 allow_back_forward_navigation,
 								trusted_content,
 								show_page_title,
-                                clean_browser;
+								clean_browser,
+								dev_mode;
 		Optional<LLRect>		preferred_media_size;
 
 		_Params();
