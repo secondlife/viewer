@@ -183,8 +183,9 @@ bool LLUrlEntryBase::isLinkDisabled() const
 
 bool LLUrlEntryBase::isWikiLinkCorrect(std::string url)
 {
-	std::string label = getLabelFromWikiLink(url);
-	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
+	LLWString label = utf8str_to_wstring(getLabelFromWikiLink(url));
+	label.erase(std::remove(label.begin(), label.end(), L'\u200B'), label.end());
+	return (LLUrlRegistry::instance().hasUrl(wstring_to_utf8str(label))) ? false : true;
 }
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
