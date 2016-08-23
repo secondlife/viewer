@@ -149,7 +149,7 @@ public:
 
 	inline void affineTransform(const LLVector4a& v, LLVector4a& res)
     {
-        affineTransformNonSSE(v,res);
+        affineTransformSSE(v,res);
     }
 };
 

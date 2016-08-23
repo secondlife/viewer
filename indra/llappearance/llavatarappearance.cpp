@@ -663,18 +663,16 @@ BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
 BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 {
     LL_DEBUGS("BVH") << "numBones " << info->mNumBones << " numCollisionVolumes " << info->mNumCollisionVolumes << LL_ENDL;
-	//-------------------------------------------------------------------------
+    mNextJointNum = 0;
+
 	// allocate joints
-	//-------------------------------------------------------------------------
 	if (!allocateCharacterJoints(info->mNumBones))
 	{
 		LL_ERRS() << "Can't allocate " << info->mNumBones << " joints" << LL_ENDL;
 		return FALSE;
 	}
 	
-	//-------------------------------------------------------------------------
 	// allocate volumes
-	//-------------------------------------------------------------------------
 	if (info->mNumCollisionVolumes)
 	{
 		if (!allocateCollisionVolumes(info->mNumCollisionVolumes))
