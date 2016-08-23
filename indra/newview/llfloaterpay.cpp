@@ -72,6 +72,8 @@ struct LLGiveMoneyInfo
 		mFloater(floater), mAmount(amount){}
 };
 
+typedef boost::shared_ptr<LLGiveMoneyInfo> give_money_ptr;
+
 ///----------------------------------------------------------------------------
 /// Class LLFloaterPay
 ///----------------------------------------------------------------------------
@@ -94,18 +96,18 @@ public:
 							bool is_group);
 	static bool payConfirmationCallback(const LLSD& notification,
 										const LLSD& response,
-										LLGiveMoneyInfo* info);
+										give_money_ptr info);
 
 private:
 	static void onCancel(void* data);
 	static void onKeystroke(LLLineEditor* editor, void* data);
-	static void onGive(void* data);
+	static void onGive(give_money_ptr info);
 	void give(S32 amount);
 	static void processPayPriceReply(LLMessageSystem* msg, void **userdata);
 	void finishPayUI(const LLUUID& target_id, BOOL is_group);
 
 protected:
-	std::vector<LLGiveMoneyInfo*> mCallbackData;
+	std::vector<give_money_ptr> mCallbackData;
 	money_callback mCallback;
 	LLTextBox* mObjectNameText;
 	LLUUID mTargetUUID;
@@ -113,7 +115,7 @@ protected:
 	BOOL mHaveName;
 
 	LLButton* mQuickPayButton[MAX_PAY_BUTTONS];
-	LLGiveMoneyInfo* mQuickPayInfo[MAX_PAY_BUTTONS];
+	give_money_ptr mQuickPayInfo[MAX_PAY_BUTTONS];
 
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
@@ -136,7 +138,11 @@ LLFloaterPay::LLFloaterPay(const LLSD& key)
 // Destroys the object
 LLFloaterPay::~LLFloaterPay()
 {
-	std::for_each(mCallbackData.begin(), mCallbackData.end(), DeletePointer());
+    std::vector<give_money_ptr>::iterator iter;
+    for (iter = mCallbackData.begin(); iter != mCallbackData.end(); ++iter)
+    {
+        (*iter)->mFloater = NULL;
+    }
 	mCallbackData.clear();
 	// Name callbacks will be automatically disconnected since LLFloater is trackable
 	
@@ -148,40 +154,40 @@ BOOL LLFloaterPay::postBuild()
 {
 	S32 i = 0;
 	
-	LLGiveMoneyInfo* info = new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_0);
+	give_money_ptr info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_0));
 	mCallbackData.push_back(info);
 
-	childSetAction("fastpay 1",&LLFloaterPay::onGive,info);
+	childSetAction("fastpay 1", boost::bind(LLFloaterPay::onGive, info));
 	getChildView("fastpay 1")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 1");
 	mQuickPayInfo[i] = info;
 	++i;
 
-	info = new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_1);
+	info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_1));
 	mCallbackData.push_back(info);
 
-	childSetAction("fastpay 5",&LLFloaterPay::onGive,info);
+	childSetAction("fastpay 5", boost::bind(LLFloaterPay::onGive, info));
 	getChildView("fastpay 5")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 5");
 	mQuickPayInfo[i] = info;
 	++i;
 
-	info = new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_2);
+	info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_2));
 	mCallbackData.push_back(info);
 
-	childSetAction("fastpay 10",&LLFloaterPay::onGive,info);
+	childSetAction("fastpay 10", boost::bind(LLFloaterPay::onGive, info));
 	getChildView("fastpay 10")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 10");
 	mQuickPayInfo[i] = info;
 	++i;
 
-	info = new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_3);
+	info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_3));
 	mCallbackData.push_back(info);
 
-	childSetAction("fastpay 20",&LLFloaterPay::onGive,info);
+	childSetAction("fastpay 20", boost::bind(LLFloaterPay::onGive, info));
 	getChildView("fastpay 20")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 20");
@@ -195,10 +201,10 @@ BOOL LLFloaterPay::postBuild()
 	getChild<LLLineEditor>("amount")->setKeystrokeCallback(&LLFloaterPay::onKeystroke, this);
 	getChild<LLLineEditor>("amount")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
-	info = new LLGiveMoneyInfo(this, 0);
+	info = give_money_ptr(new LLGiveMoneyInfo(this, 0));
 	mCallbackData.push_back(info);
 
-	childSetAction("pay btn",&LLFloaterPay::onGive,info);
+	childSetAction("pay btn", boost::bind(LLFloaterPay::onGive, info));
 	setDefaultBtn("pay btn");
 	getChildView("pay btn")->setVisible(FALSE);
 	getChildView("pay btn")->setEnabled(FALSE);
@@ -415,9 +421,9 @@ void LLFloaterPay::payDirectly(money_callback callback,
 	floater->finishPayUI(target_id, is_group);
 }
 
-bool LLFloaterPay::payConfirmationCallback(const LLSD& notification, const LLSD& response, LLGiveMoneyInfo* info)
+bool LLFloaterPay::payConfirmationCallback(const LLSD& notification, const LLSD& response, give_money_ptr info)
 {
-	if (!info || !info->mFloater)
+	if (!info.get() || !info->mFloater)
 	{
 		return false;
 	}
@@ -479,54 +485,61 @@ void LLFloaterPay::onKeystroke(LLLineEditor*, void* data)
 }
 
 // static
-void LLFloaterPay::onGive(void* data)
+void LLFloaterPay::onGive(give_money_ptr info)
 {
-	LLGiveMoneyInfo* info = reinterpret_cast<LLGiveMoneyInfo*>(data);
-	LLFloaterPay* floater = info->mFloater;
-	if(info && floater)
-	{
-		S32 amount = info->mAmount;
-		if(amount == 0)
-		{
-			amount = atoi(floater->getChild<LLUICtrl>("amount")->getValue().asString().c_str());
-		}
-		if (amount > PAY_AMOUNT_NOTIFICATION && gStatusBar && gStatusBar->getBalance() > amount)
-		{
-			LLUUID payee_id = LLUUID::null;
-			BOOL is_group = false;
-			if (floater->mObjectSelection.notNull())
-			{
-				LLSelectNode* node = floater->mObjectSelection->getFirstRootNode();
-				if (node)
-				{
-					node->mPermissions->getOwnership(payee_id, is_group);
-				}
-				else
-				{
-					// object no longer exists
-					LLNotificationsUtil::add("PayObjectFailed");
-					floater->closeFloater();
-					return;
-				}
-			}
-			else
-			{
-				is_group = floater->mTargetIsGroup;
-				payee_id = floater->mTargetUUID;
-			}
+    if (!info.get() || !info->mFloater)
+    {
+        return;
+    }
 
-			LLSD args;
-			args["TARGET"] = LLSLURL( is_group ? "group" : "agent", payee_id, "completename").getSLURLString();
-			args["AMOUNT"] = amount;
+    LLFloaterPay* floater = info->mFloater;
+    S32 amount = info->mAmount;
+    if (amount == 0)
+    {
+        LLUICtrl* text_field = floater->getChild<LLUICtrl>("amount");
+        if (!text_field)
+        {
+            return;
+        }
+        amount = atoi(text_field->getValue().asString().c_str());
+    }
 
-			LLNotificationsUtil::add("PayConfirmation", args, LLSD(), boost::bind(&LLFloaterPay::payConfirmationCallback, _1, _2, info));
-		}
-		else
-		{
-			floater->give(amount);
-			floater->closeFloater();
-		}
-	}
+    if (amount > PAY_AMOUNT_NOTIFICATION && gStatusBar && gStatusBar->getBalance() > amount)
+    {
+        LLUUID payee_id = LLUUID::null;
+        BOOL is_group = false;
+        if (floater->mObjectSelection.notNull())
+        {
+            LLSelectNode* node = floater->mObjectSelection->getFirstRootNode();
+            if (node)
+            {
+                node->mPermissions->getOwnership(payee_id, is_group);
+            }
+            else
+            {
+                // object no longer exists
+                LLNotificationsUtil::add("PayObjectFailed");
+                floater->closeFloater();
+                return;
+            }
+        }
+        else
+        {
+            is_group = floater->mTargetIsGroup;
+            payee_id = floater->mTargetUUID;
+        }
+
+        LLSD args;
+        args["TARGET"] = LLSLURL(is_group ? "group" : "agent", payee_id, "completename").getSLURLString();
+        args["AMOUNT"] = amount;
+
+        LLNotificationsUtil::add("PayConfirmation", args, LLSD(), boost::bind(&LLFloaterPay::payConfirmationCallback, _1, _2, info));
+    }
+    else
+    {
+        floater->give(amount);
+        floater->closeFloater();
+    }
 }
 
 void LLFloaterPay::give(S32 amount)
