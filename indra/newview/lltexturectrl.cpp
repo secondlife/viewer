@@ -306,7 +306,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 
 void LLFloaterTexturePicker::onClose(bool app_quitting)
 {
-	if (mOnFloaterCloseCallback)
+	if (mOwner && mOnFloaterCloseCallback)
 	{
 		mOnFloaterCloseCallback();
 	}
