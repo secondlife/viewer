@@ -2320,7 +2320,17 @@ void LLFloaterView::restoreAll()
 	// make sure all subwindows aren't minimized
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
-		LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
+		LLFloater* floaterp = nullptr;
+		try
+		{
+			floaterp = dynamic_cast<LLFloater*>(*child_it);
+		}
+		catch (std::exception e) // See MAINT-6511
+		{
+			LL_WARNS() << "Caught exception: " << e.what() << LL_ENDL;
+			continue;
+		}
+
 		if (floaterp)
 		{
 			floaterp->setMinimized(FALSE);
