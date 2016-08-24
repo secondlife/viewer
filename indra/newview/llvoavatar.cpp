@@ -3605,7 +3605,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
         // that affect the body size calculation, computed body size
         // can get stale much more easily. Simplest fix is to update
         // it frequently.
-        computeBodySize();
+        // SL-427: this appears to be too frequent, moving to only do on animation state change.
+        // computeBodySize();
     
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
@@ -5093,6 +5094,12 @@ void LLVOAvatar::processAnimationStateChanges()
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL start )
 {
+    // SL-402, SL-427 - we need to update body size often enough to
+    // keep appearances in sync, but not so often that animations
+    // cause constant jiggling of the body or camera. Possible
+    // compromise is to do it on animation changes:
+    computeBodySize();
+    
 	BOOL result = FALSE;
 
 	if ( start ) // start animation
