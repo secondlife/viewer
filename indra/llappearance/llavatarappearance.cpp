@@ -459,11 +459,56 @@ void LLAvatarAppearance::cleanupClass()
 
 using namespace LLAvatarAppearanceDefines;
 
+void LLAvatarAppearance::compareJointStateMaps(joint_state_map_t& last_state,
+                                               joint_state_map_t& curr_state)
+{
+    if (!last_state.empty() && (last_state != curr_state))
+    {
+        S32 diff_count = 0;
+        joint_state_map_t::iterator it;
+        for (it=last_state.begin(); it != last_state.end(); ++it)
+        {
+            const std::string& key = it->first;
+            if (last_state[key] != curr_state[key])
+            {
+                LL_DEBUGS("AvatarBodySize") << "BodySize change " << key << " " << last_state[key] << "->" << curr_state[key] << LL_ENDL;
+                diff_count++;
+            }
+        }
+        if (diff_count > 0)
+        {
+            LL_DEBUGS("AvatarBodySize") << "Total of BodySize changes " << diff_count << LL_ENDL;
+        }
+        
+    }
+}
+
 //------------------------------------------------------------------------
 // The viewer can only suggest a good size for the agent,
 // the simulator will keep it inside a reasonable range.
 void LLAvatarAppearance::computeBodySize() 
 {
+    mLastBodySizeState = mCurrBodySizeState;
+
+    mCurrBodySizeState["mPelvis scale"] = mPelvisp->getScale();
+    mCurrBodySizeState["mSkull pos"] = mSkullp->getPosition();
+    mCurrBodySizeState["mSkull scale"] = mSkullp->getScale();
+    mCurrBodySizeState["mNeck pos"] = mNeckp->getPosition();
+    mCurrBodySizeState["mNeck scale"] = mNeckp->getScale();
+    mCurrBodySizeState["mChest pos"] = mChestp->getPosition();
+    mCurrBodySizeState["mChest scale"] = mChestp->getScale();
+    mCurrBodySizeState["mHead pos"] = mHeadp->getPosition();
+    mCurrBodySizeState["mHead scale"] = mHeadp->getScale();
+    mCurrBodySizeState["mTorso pos"] = mTorsop->getPosition();
+    mCurrBodySizeState["mTorso scale"] = mTorsop->getScale();
+    mCurrBodySizeState["mHipLeft pos"] = mHipLeftp->getPosition();
+    mCurrBodySizeState["mHipLeft scale"] = mHipLeftp->getScale();
+    mCurrBodySizeState["mKneeLeft pos"] = mKneeLeftp->getPosition();
+    mCurrBodySizeState["mKneeLeft scale"] = mKneeLeftp->getScale();
+    mCurrBodySizeState["mAnkleLeft pos"] = mAnkleLeftp->getPosition();
+    mCurrBodySizeState["mAnkleLeft scale"] = mAnkleLeftp->getScale();
+    mCurrBodySizeState["mFootLeft pos"] = mFootLeftp->getPosition();
+
 	LLVector3 pelvis_scale = mPelvisp->getScale();
 
 	// some of the joints have not been cached
@@ -523,6 +568,8 @@ void LLAvatarAppearance::computeBodySize()
 	if (new_body_size != mBodySize || old_offset != mAvatarOffset.mV[VZ])
 	{
 		mBodySize = new_body_size;
+
+        compareJointStateMaps(mLastBodySizeState, mCurrBodySizeState);
 	}
 }
 

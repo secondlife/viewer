@@ -141,7 +141,12 @@ public:
 	joint_map_t			mJointMap;
 
     S32					mNextJointNum;
-	
+
+    typedef std::map<std::string, LLVector3> joint_state_map_t;
+    joint_state_map_t mLastBodySizeState;
+    joint_state_map_t mCurrBodySizeState;
+    void compareJointStateMaps(joint_state_map_t& last_state,
+                               joint_state_map_t& curr_state);
 	void		computeBodySize();
 
 public:
