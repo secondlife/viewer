@@ -240,7 +240,7 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     {
         callable();
     }
-    catch (const LLContinueError& e)
+    catch (const LLContinueError&)
     {
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
     }
