@@ -2320,7 +2320,7 @@ void LLFloaterView::restoreAll()
 	// make sure all subwindows aren't minimized
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
-		LLFloater* floaterp = nullptr;
+		LLFloater* floaterp = NULL;
 		try
 		{
 			floaterp = dynamic_cast<LLFloater*>(*child_it);
