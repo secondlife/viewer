@@ -238,7 +238,7 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  upload_item docs "$build_dir/autobuild-package.xml" text/xml
+                  upload_output "autobuild metadata" "$build_dir/autobuild-package.xml" text/xml
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
@@ -254,12 +254,12 @@ do
               if [ -r "$build_dir/doxygen_warnings.log" ]
               then
                   record_event "Doxygen warnings generated; see doxygen_warnings.log"
-                  upload_item log "$build_dir/doxygen_warnings.log" text/plain
+                  upload_output "doxygen log" "$build_dir/doxygen_warnings.log" text/plain ## TBD
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
+                  upload_output "doxygen" "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
               fi
               ;;
             *)
@@ -319,10 +319,10 @@ then
       # upload debian package and create repository
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
-        upload_item debian $deb_file binary/octet-stream
+        upload_output "installer" $deb_file binary/octet-stream
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
-        upload_item debian_private $deb_file binary/octet-stream
+        upload_output debian $deb_file binary/octet-stream
         have_private_repo=true
       done
 
@@ -339,7 +339,7 @@ then
       if [ $have_private_repo = true ]; then
         eval "$python_command \"$redirect\" '\${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html'"\
             >"$build_log_dir/private.html" || fatal generating redirect
-        upload_item global_redirect "$build_log_dir/private.html" text/html
+        upload_output global_redirect "$build_log_dir/private.html" text/html private ## TBD
         
       fi
 
@@ -367,9 +367,9 @@ then
       succeeded=$build_coverity
     else
       # Upload base package.
-      upload_item installer "$package" binary/octet-stream
-      upload_item quicklink "$package" binary/octet-stream
-      [ -f $build_dir/summary.json ] && upload_item installer $build_dir/summary.json text/plain
+      upload_output installer "$package" binary/octet-stream
+
+      [ -f $build_dir/summary.json ] && upload_output "installer metadata" $build_dir/summary.json application/json
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -377,8 +377,7 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          upload_item installer "$package" binary/octet-stream
-          upload_item quicklink "$package" binary/octet-stream
+          upload_output "installer $package_id" "$package" binary/octet-stream private
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
@@ -389,7 +388,7 @@ then
         # Upload crash reporter files
         for symbolfile in $symbolfiles
         do
-          upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
+          upload_output symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
 
         # Upload the llphysicsextensions_tpv package, if one was produced
@@ -397,7 +396,7 @@ then
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            upload_item private_artifact "$llphysicsextensions_package" binary/octet-stream
+            upload_output "llphysicsextensions_package" "$llphysicsextensions_package" binary/octet-stream private
         fi
         ;;
       *)
