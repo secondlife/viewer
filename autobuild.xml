@@ -840,9 +840,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>022649e284163b8ee23e3c9a81302fa7</string>
+              <string>ed2820c2a56943d4fcb58330bd799c74</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297460/arch/Darwin/installer/googlemock-1.7.0.297460-darwin-297460.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-google-mock/rev/319024/arch/Darwin/installer/googlemock-1.7.0.319024-darwin-319024.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -852,9 +852,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e08b0e9e269b80b549f6044c4e608fb5</string>
+              <string>92bf278562af22637a1cd9b6d82947f2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297460/arch/Linux/installer/googlemock-1.7.0.297460-linux-297460.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-google-mock/rev/319024/arch/Linux/installer/googlemock-1.7.0.319024-linux-319024.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -864,16 +864,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f30de5bf36e8ca8681883fe8fd8e0092</string>
+              <string>3391f911974cf9cf3e850a5d9a05802f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297460/arch/CYGWIN/installer/googlemock-1.7.0.297460-windows-297460.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-google-mock/rev/319024/arch/CYGWIN/installer/googlemock-1.7.0.319024-windows-319024.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.297460</string>
+        <string>1.7.0.319024</string>
       </map>
       <key>gperftools</key>
       <map>
