@@ -95,12 +95,32 @@ struct LLStopWhenHandled
     result_type operator()(InputIterator first, InputIterator last) const
     {
         for (InputIterator si = first; si != last; ++si)
-		{
-            if (*si)
-			{
-                return true;
-			}
-		}
+        {
+            try
+            {
+                if (*si)
+                {
+                    return true;
+                }
+            }
+            catch (const LLContinueError&)
+            {
+                // We catch LLContinueError here because an LLContinueError-
+                // based exception means the viewer as a whole should carry on
+                // to the best of our ability. Therefore subsequent listeners
+                // on the same LLEventPump should still receive this event.
+
+                // The iterator passed to a boost::signals2 Combiner is very
+                // clever, but provides no contextual information. We would
+                // very much like to be able to log the name of the LLEventPump
+                // plus the name of this particular listener, but alas.
+                LOG_UNHANDLED_EXCEPTION("LLEventPump");
+            }
+            // We do NOT catch (...) here because we might as well let it
+            // propagate out to the generic handler. If we were able to log
+            // context information here, that would be great, but we can't, so
+            // there's no point.
+        }
         return false;
     }
 };
