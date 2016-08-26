@@ -358,7 +358,7 @@ if $succeeded
 then
   if $build_viewer
   then
-    begin_section Upload Installer
+    begin_section "Uploads"
     # Upload installer
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
@@ -412,7 +412,7 @@ then
           done
       fi
     fi
-    end_section Upload Installer
+    end_section "Uploads"
   else
     record_event "skipping upload of installer"
   fi
