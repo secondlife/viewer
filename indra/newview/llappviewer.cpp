@@ -1537,10 +1537,14 @@ bool LLAppViewer::frame()
 			resumeMainloopTimeout();
 
 			pingMainloopTimeout("Main:End");
-		}	
+		}
+	}
+	catch (const LLContinueError&)
+	{
+		LOG_UNHANDLED_EXCEPTION("");
 	}
 	catch(std::bad_alloc)
-	{			
+	{
 		LLMemory::logMemoryInfo(TRUE) ;
 
 		//stop memory leaking simulation
@@ -1548,7 +1552,7 @@ bool LLAppViewer::frame()
 			LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
 		if(mem_leak_instance)
 		{
-			mem_leak_instance->stop() ;				
+			mem_leak_instance->stop() ;
 			LL_WARNS() << "Bad memory allocation in LLAppViewer::frame()!" << LL_ENDL ;
 		}
 		else
@@ -1558,6 +1562,10 @@ bool LLAppViewer::frame()
 
 			LL_ERRS() << "Bad memory allocation in LLAppViewer::frame()!" << LL_ENDL ;
 		}
+	}
+	catch (...)
+	{
+		CRASH_ON_UNHANDLED_EXCEPTION("");
 	}
 
 	if (LLApp::isExiting())
@@ -1572,7 +1580,7 @@ bool LLAppViewer::frame()
 			catch(std::bad_alloc)
 			{
 				LL_WARNS() << "Bad memory allocation when saveFinalSnapshot() is called!" << LL_ENDL ;
-				
+
 				//stop memory leaking simulation
 				LLFloaterMemLeak* mem_leak_instance =
 				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1581,12 +1589,16 @@ bool LLAppViewer::frame()
 					mem_leak_instance->stop() ;
 				}
 			}
+			catch (...)
+			{
+				CRASH_ON_UNHANDLED_EXCEPTION("saveFinalSnapshot()");
+			}
 		}
-		
+
 		delete gServicePump;
-		
+
 		destroyMainloopTimeout();
-		
+
 		LL_INFOS() << "Exiting main_loop" << LL_ENDL;
 	}
 
