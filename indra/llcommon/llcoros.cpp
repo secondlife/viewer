@@ -242,10 +242,15 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     }
     catch (const LLContinueError&)
     {
+        // Any uncaught exception derived from LLContinueError will be caught
+        // here and logged. This coroutine will terminate but the rest of the
+        // viewer will carry on.
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
     }
     catch (...)
     {
+        // Any OTHER kind of uncaught exception will cause the viewer to
+        // crash, hopefully informatively.
         CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
     }
     // This cleanup isn't perfectly symmetrical with the way we initially set
