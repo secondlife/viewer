@@ -1007,7 +1007,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			std::string uuid = self->getClickUUID();
 			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << target << "\", uri is " << url << LL_ENDL;
 
-			LLWeb::loadURL(url, target, std::string());
+			// try as slurl first
+			if (!LLURLDispatcher::dispatch(url, "clicked", NULL, mTrusted))
+			{
+				LLWeb::loadURL(url, target, std::string());
+			}
 
 			// CP: removing this code because we no longer support popups so this breaks the flow.
 			//     replaced with a bare call to LLWeb::LoadURL(...)
