@@ -202,10 +202,9 @@ then
     export additional_packages=
 fi
 
-# dump environment variables for debugging
-begin_section "Environment"
-env|sort
-end_section "Environment"
+initialize_context
+codeticket addinput "${viewer_channel}" "viewer_channel"
+initialize_build
 
 # Now run the build
 succeeded=true
@@ -338,7 +337,7 @@ then
 
       if [ $have_private_repo = true ]; then
         eval "$python_command \"$redirect\" '\${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html'"\
-            >"$build_log_dir/private.html" || fatal generating redirect
+            >"$build_log_dir/private.html" || fatal "generating global redirect"
         upload_output global_redirect "$build_log_dir/private.html" text/html private ## TBD
         
       fi
