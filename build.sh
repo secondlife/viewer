@@ -182,6 +182,7 @@ then
     pass
 fi
 
+begin_section "autobuild initialize"
 # ensure AUTOBUILD is in native path form for child processes
 AUTOBUILD="$(native_path "$AUTOBUILD")"
 # set "$autobuild" to cygwin path form for use locally in this script
@@ -194,6 +195,7 @@ fi
 
 # load autobuild provided shell functions and variables
 eval "$("$autobuild" --quiet source_environment)"
+end_section "autobuild initialize"
 
 # something about the additional_packages mechanism messes up buildscripts results.py on Linux
 # since we don't care about those packages on Linux, just zero it out, yes - a HACK
