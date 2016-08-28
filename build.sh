@@ -205,7 +205,7 @@ then
 fi
 
 initialize_context
-codeticket addinput "${viewer_channel}" "viewer_channel"
+codeticket addinput parameter "viewer_channel" "${viewer_channel}"
 initialize_build
 
 # Now run the build
