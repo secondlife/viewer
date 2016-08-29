@@ -30,23 +30,25 @@
 #include "llupdateinstaller.h"
 #include "lldir.h" 
 #include "llsd.h"
+#include "llexception.h"
 
 #if defined(LL_WINDOWS)
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
 #endif
 #include <boost/lexical_cast.hpp>
 
-
 namespace {
-	class RelocateError {};
-	
-	
+	struct RelocateError: public LLException
+	{
+		RelocateError(): LLException("llupdateinstaller: RelocateError") {}
+	};
+
 	std::string copy_to_temp(std::string const & path)
 	{
 		std::string scriptFile = gDirUtilp->getBaseFileName(path);
 		std::string newPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, scriptFile);
 		apr_status_t status = apr_file_copy(path.c_str(), newPath.c_str(), APR_FILE_SOURCE_PERMS, gAPRPoolp);
-		if(status != APR_SUCCESS) throw RelocateError();
+		if(status != APR_SUCCESS) LLTHROW(RelocateError());
 		
 		return newPath;
 	}

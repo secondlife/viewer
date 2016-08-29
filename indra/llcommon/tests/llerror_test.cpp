@@ -237,8 +237,21 @@ namespace tut
 	void ErrorTestObject::test<4>()
 		// file abbreviation
 	{
-		std::string thisFile = __FILE__;
-		std::string abbreviateFile = LLError::abbreviateFile(thisFile);
+		std::string prev, abbreviateFile = __FILE__;
+        do
+        {
+            prev = abbreviateFile;
+            abbreviateFile = LLError::abbreviateFile(abbreviateFile);
+            // __FILE__ is assumed to end with
+            // indra/llcommon/tests/llerror_test.cpp. This test used to call
+            // abbreviateFile() exactly once, then check below whether it
+            // still contained the string 'indra'. That fails if the FIRST
+            // part of the pathname also contains indra! Certain developer
+            // machine images put local directory trees under
+            // /ngi-persist/indra, which is where we observe the problem. So
+            // now, keep calling abbreviateFile() until it returns its
+            // argument unchanged, THEN check.
+        } while (abbreviateFile != prev);
 
 		ensure_ends_with("file name abbreviation",
 			abbreviateFile,

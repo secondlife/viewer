@@ -29,16 +29,17 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include "llhasheduniqueid.h"
+#include "llexception.h"
 
 class LLUpdaterServiceImpl;
 
 class LLUpdaterService
 {
 public:
-	class UsageError: public std::runtime_error
+	class UsageError: public LLException
 	{
 	public:
-		UsageError(const std::string& msg) : std::runtime_error(msg) {}
+		UsageError(const std::string& msg) : LLException(msg) {}
 	};
 	
 	// Name of the event pump through which update events will be delivered.

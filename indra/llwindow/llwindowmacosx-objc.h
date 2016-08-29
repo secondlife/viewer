@@ -69,7 +69,7 @@ typedef const NativeKeyEventData * NSKeyEventRef;
 // These are defined in llappviewermacosx.cpp.
 bool initViewer();
 void handleQuit();
-bool runMainLoop();
+bool pumpMainLoop();
 void initMainLoop();
 void cleanupViewer();
 void handleUrl(const char* url);

@@ -39,6 +39,7 @@
 #include "llerror.h"
 #include "llcoros.h"
 #include "llmake.h"
+#include "llexception.h"
 
 #include "lleventfilter.h"
 
@@ -351,7 +352,7 @@ LLSD errorException(const LLEventWithID& result, const std::string& desc)
     // returning it, deliver it via exception.
     if (result.second)
     {
-        throw LLErrorEvent(desc, result.first);
+        LLTHROW(LLErrorEvent(desc, result.first));
     }
     // That way, our caller knows a simple return must be from the reply
     // pump (pump 0).
