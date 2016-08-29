@@ -1398,6 +1398,12 @@ bool LLInvFVBridge::canShare() const
 				// Categories can be given.
 				can_share = (model->getCategory(mUUID) != NULL);
 			}
+
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			if ((mUUID == trash_id) || gInventory.isObjectDescendentOf(mUUID, trash_id))
+			{
+				can_share = false;
+			}
 		}
 	}
 
