@@ -264,7 +264,6 @@ private:
 	 * to avoid unsynchronized outfit state or performing duplicate operations.
 	 */
 	bool mOutfitLocked;
-	S32  mInFlightCounter;
 	LLTimer mInFlightTimer;
 	static bool mActive;
 
