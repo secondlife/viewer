@@ -174,7 +174,7 @@ S32 LLResourceUploadInfo::getEconomyUploadCost()
         getAssetType() == LLAssetType::AT_ANIMATION ||
         getAssetType() == LLAssetType::AT_MESH)
     {
-        return LLGlobalEconomy::Singleton::instance().getPriceUpload();
+        return LLGlobalEconomy::instance().getPriceUpload();
     }
 
     return 0;

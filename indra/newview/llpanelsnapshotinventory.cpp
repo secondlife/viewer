@@ -104,7 +104,7 @@ void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotInventory::onSend()
 {
-    S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+    S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
     if (can_afford_transaction(expected_upload_cost))
     {
         LLFloaterSnapshot::saveTexture();

@@ -83,7 +83,7 @@ class LLFileEnableUpload : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         return true;
-// 		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+// 		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
 // 		return new_value;
 	}
 };
@@ -422,7 +422,7 @@ class LLFileUploadBulk : public view_listener_t
 		if (picker.getMultipleOpenFiles())
 		{
             std::string filename = picker.getFirstFile();
-            S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+            S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 
             while (!filename.empty())
             {
