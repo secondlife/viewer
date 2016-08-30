@@ -342,10 +342,9 @@ then
       done
 
       if [ $have_private_repo = true ]; then
-        eval "$python_command \"$redirect\" '\${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html'"\
+        $python_command  $(native_path "$helper/hg/bin/redirect.py") "${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html"\
             >"$build_log_dir/private.html" || fatal "generating global redirect"
-        upload_output global_redirect "$build_log_dir/private.html" text/html private ## TBD
-        
+        upload_output global_redirect "$build_log_dir/private.html" text/html private
       fi
 
       end_section "Upload Debian Repository"
