@@ -28,6 +28,7 @@
 #define LLPANELTOPINFOBAR_H_
 
 #include "llpanel.h"
+#include "llinitdestroyclass.h"
 
 class LLButton;
 class LLTextBox;

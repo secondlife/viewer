@@ -33,6 +33,7 @@
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
+#include "llinitdestroyclass.h"
 
 #include "llcoros.h"
 #include "lleventcoro.h"

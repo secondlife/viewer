@@ -28,6 +28,7 @@
 #define LL_LLSEARCHHISTORY_H
 
 #include "llsingleton.h"
+#include "llinitdestroyclass.h"
 #include "llui.h"
 
 /**

@@ -34,6 +34,7 @@
 #include "../llagent.h"
 #include "message.h"
 #include "llurlentry.h"
+#include "llpounceable.h"
 
 namespace {
 	const LLUUID TEST_PARCEL_ID("11111111-1111-1111-1111-111111111111");
@@ -62,7 +63,7 @@ void LLMessageSystem::addUUID(char const *,LLUUID const &) { }
 void LLMessageSystem::addUUIDFast(char const *,LLUUID const &) { }
 void LLMessageSystem::nextBlockFast(char const *) { }
 void LLMessageSystem::newMessage(char const *) { }
-LLMessageSystem * gMessageSystem;
+LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 char const* const _PREHASH_AgentID = 0;   // never dereferenced during this test
 char const* const _PREHASH_AgentData = 0; // never dereferenced during this test
 LLAgent gAgent;

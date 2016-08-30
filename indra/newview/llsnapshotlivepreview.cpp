@@ -1032,7 +1032,7 @@ void LLSnapshotLivePreview::saveTexture()
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
-		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
         std::string name = "Snapshot: " + pos_string;
         std::string desc = "Taken by " + who_took_it + " at " + pos_string;
 
