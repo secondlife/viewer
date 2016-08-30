@@ -1483,6 +1483,7 @@ Save Changes?
    icon="alertmodal.tga"
    name="DeleteNotecard"
    type="alertmodal">
+   <unique/>
 Delete Notecard?
     <tag>confirm</tag>
     <usetemplate
