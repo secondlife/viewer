@@ -115,9 +115,10 @@ void LLSingletonBase::pop_initializing()
     }
     if (list.back() != this)
     {
+        LLSingletonBase* back(list.back());
         logerrs("Push/pop mismatch in stack of currently-initializing LLSingletons: ",
                 demangle(typeid(*this).name()).c_str(), "::getInstance() trying to pop ",
-                demangle(typeid(*list.back()).name()).c_str());
+                demangle(typeid(*back).name()).c_str());
     }
     // Here we're sure that list.back() == this. Whew, pop it.
     list.pop_back();
@@ -148,7 +149,8 @@ void LLSingletonBase::capture_dependency(EInitState initState)
             {
                 // 'found' is an iterator; *found is an LLSingletonBase*; **found
                 // is the actual LLSingletonBase instance.
-                out << demangle(typeid(**found).name()) << " -> ";
+                LLSingletonBase* foundp(*found);
+                out << demangle(typeid(*foundp).name()) << " -> ";
             }
             // We promise to capture dependencies from both the constructor
             // and the initSingleton() method, so an LLSingleton's instance
