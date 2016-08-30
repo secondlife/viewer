@@ -12,7 +12,7 @@
 #if ! defined(LL_LLCLEANUP_H)
 #define LL_LLCLEANUP_H
 
-#include "llerror.h"
+#include <boost/current_function.hpp>
 
 // Instead of directly calling SomeClass::cleanupClass(), use
 // SUBSYSTEM_CLEANUP(SomeClass);
@@ -21,10 +21,13 @@
 // shutdown schemes.
 #define SUBSYSTEM_CLEANUP(CLASSNAME)                                    \
     do {                                                                \
-        LL_INFOS("Cleanup") << "Calling " #CLASSNAME "::cleanupClass()" << LL_ENDL; \
+        log_subsystem_cleanup(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, #CLASSNAME); \
         CLASSNAME::cleanupClass();                                      \
     } while (0)
 // Use ancient do { ... } while (0) macro trick to permit a block of
 // statements with the same syntax as a single statement.
+
+void log_subsystem_cleanup(const char* file, int line, const char* function,
+                           const char* classname);
 
 #endif /* ! defined(LL_LLCLEANUP_H) */

@@ -36,34 +36,35 @@
 #if ! defined(LL_LLINITDESTROYCLASS_H)
 #define LL_LLINITDESTROYCLASS_H
 
-#include "llerror.h"
 #include "llsingleton.h"
 #include <boost/function.hpp>
-#include <boost/signals2/signal.hpp>
 #include <typeinfo>
+#include <vector>
+#include <utility>                  // std::pair
 
 /**
  * LLCallbackRegistry is an implementation detail base class for
- * LLInitClassList and LLDestroyClassList. It's a very thin wrapper around a
- * Boost.Signals2 signal object.
+ * LLInitClassList and LLDestroyClassList. It accumulates the initClass() or
+ * destroyClass() callbacks for registered classes.
  */
 class LLCallbackRegistry
 {
 public:
-	typedef boost::signals2::signal<void()> callback_signal_t;
-	
-	void registerCallback(const callback_signal_t::slot_type& slot)
+	typedef boost::function<void()> func_t;
+
+	void registerCallback(const std::string& name, const func_t& func)
 	{
-		mCallbacks.connect(slot);
+		mCallbacks.push_back(FuncList::value_type(name, func));
 	}
 
-	void fireCallbacks()
-	{
-		mCallbacks();
-	}
+	void fireCallbacks() const;
 
 private:
-	callback_signal_t mCallbacks;
+	// Arguably this should be a boost::signals2::signal, which is, after all,
+	// a sequence of callables. We manage it by hand so we can log a name for
+	// each registered function we call.
+	typedef std::vector< std::pair<std::string, func_t> > FuncList;
+	FuncList mCallbacks;
 };
 
 /**
@@ -108,9 +109,9 @@ template<typename T>
 class LLRegisterWith
 {
 public:
-	LLRegisterWith(boost::function<void ()> func)
+	LLRegisterWith(const std::string& name, const LLCallbackRegistry::func_t& func)
 	{
-		T::instance().registerCallback(func);
+		T::instance().registerCallback(name, func);
 	}
 
 	// this avoids a MSVC bug where non-referenced static members are "optimized" away
@@ -141,15 +142,6 @@ public:
 	// When this static member is initialized, the subclass initClass() method
 	// is registered on LLInitClassList. See sRegister definition below.
 	static LLRegisterWith<LLInitClassList> sRegister;
-private:
-
-	// Provide a default initClass() method in case subclass misspells (or
-	// omits) initClass(). This turns a potential build error into a fatal
-	// runtime error.
-	static void initClass()
-	{
-		LL_ERRS() << "No static initClass() method defined for " << typeid(T).name() << LL_ENDL;
-	}
 };
 
 /**
@@ -171,20 +163,17 @@ public:
 	// method is registered on LLInitClassList. See sRegister definition
 	// below.
 	static LLRegisterWith<LLDestroyClassList> sRegister;
-private:
-
-	// Provide a default destroyClass() method in case subclass misspells (or
-	// omits) destroyClass(). This turns a potential build error into a fatal
-	// runtime error.
-	static void destroyClass()
-	{
-		LL_ERRS() << "No static destroyClass() method defined for " << typeid(T).name() << LL_ENDL;
-	}
 };
 
 // Here's where LLInitClass<T> specifies the subclass initClass() method.
-template <typename T> LLRegisterWith<LLInitClassList> LLInitClass<T>::sRegister(&T::initClass);
+template <typename T>
+LLRegisterWith<LLInitClassList>
+LLInitClass<T>::sRegister(std::string(typeid(T).name()) + "::initClass",
+						  &T::initClass);
 // Here's where LLDestroyClass<T> specifies the subclass destroyClass() method.
-template <typename T> LLRegisterWith<LLDestroyClassList> LLDestroyClass<T>::sRegister(&T::destroyClass);
+template <typename T>
+LLRegisterWith<LLDestroyClassList>
+LLDestroyClass<T>::sRegister(std::string(typeid(T).name()) + "::destroyClass",
+							 &T::destroyClass);
 
 #endif /* ! defined(LL_LLINITDESTROYCLASS_H) */
