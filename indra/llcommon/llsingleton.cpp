@@ -316,8 +316,9 @@ void intrusive_ptr_release(LLSingletonBase::MasterRefcount* mrc)
 }
 
 /*---------------------------- Logging helpers -----------------------------*/
-//static
-void LLSingletonBase::logerrs(const char* p1, const char* p2, const char* p3, const char* p4)
+namespace {
+void log(LLError::ELevel level,
+         const char* p1, const char* p2, const char* p3, const char* p4)
 {
     // Check LLError::is_available() because some of LLError's infrastructure
     // is itself an LLSingleton. If that LLSingleton has not yet been
@@ -325,31 +326,30 @@ void LLSingletonBase::logerrs(const char* p1, const char* p2, const char* p3, co
     // around and around we go.
     if (LLError::is_available())
     {
-        LL_ERRS() << p1 << p2 << p3 << p4 << LL_ENDL;
+        lllog(level, false) << p1 << p2 << p3 << p4 << LL_ENDL;
     }
     else
     {
         // Caller may be a test program, or something else whose stderr is
         // visible to the user.
         std::cerr << p1 << p2 << p3 << p4 << std::endl;
-        // The other important side effect of LL_ERRS() is
-        // https://www.youtube.com/watch?v=OMG7paGJqhQ (emphasis on OMG)
-        LLError::crashAndLoop(std::string());
     }
 }
+} // anonymous namespace        
 
 //static
 void LLSingletonBase::logwarns(const char* p1, const char* p2, const char* p3, const char* p4)
 {
-    // See logerrs() remarks about is_available().
-    if (LLError::is_available())
-    {
-        LL_WARNS() << p1 << p2 << p3 << p4 << LL_ENDL;
-    }
-    else
-    {
-        std::cerr << p1 << p2 << p3 << p4 << std::endl;
-    }
+    log(LLError::LEVEL_WARN, p1, p2, p3, p4);
+}
+
+//static
+void LLSingletonBase::logerrs(const char* p1, const char* p2, const char* p3, const char* p4)
+{
+    log(LLError::LEVEL_ERROR, p1, p2, p3, p4);
+    // The other important side effect of LL_ERRS() is
+    // https://www.youtube.com/watch?v=OMG7paGJqhQ (emphasis on OMG)
+    LLError::crashAndLoop(std::string());
 }
 
 std::string LLSingletonBase::demangle(const char* mangled)
