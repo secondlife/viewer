@@ -159,7 +159,7 @@ build()
     package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
 
   else
-      echo "Skipping build due to configuration build_viewer=${build_viewer}"
+      record_event "Skipping build due to configuration build_viewer=${build_viewer}"
       echo true >"$build_dir"/build_ok
   fi
 }
@@ -232,6 +232,9 @@ do
   then
       begin_section "Build $variant"
       build "$variant" "$build_dir"
+      end_section "Build $variant"
+
+      begin_section "post-build $variant"
       if `cat "$build_dir/build_ok"`
       then
           case "$variant" in
@@ -270,7 +273,8 @@ do
       else
           record_failure "Build of \"$variant\" failed."
       fi
-      end_section "Build $variant"
+      begin_section "post-build $variant"
+
   else
       record_event "configure for $variant failed: build skipped"
   fi
@@ -320,7 +324,7 @@ then
       # upload debian package and create repository
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
-        upload_output "installer" $deb_file binary/octet-stream
+        upload_output "deb" $deb_file binary/octet-stream
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
         upload_output debian $deb_file binary/octet-stream
