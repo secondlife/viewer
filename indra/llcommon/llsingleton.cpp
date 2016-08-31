@@ -353,7 +353,7 @@ void log(LLError::ELevel level,
     // around and around we go.
     if (LLError::is_available())
     {
-        lllog(level, false) << p1 << p2 << p3 << p4 << LL_ENDL;
+        lllog(level, false, "LLSingleton") << p1 << p2 << p3 << p4 << LL_ENDL;
     }
     else
     {
