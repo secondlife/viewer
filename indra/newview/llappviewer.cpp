@@ -2100,10 +2100,34 @@ bool LLAppViewer::cleanup()
 	LLError::LLCallStacks::cleanup();
 
 	removeMarkerFiles();
-	
-    LL_INFOS() << "Goodbye!" << LL_ENDL;
 
-    removeDumpDir();
+	// It's not at first obvious where, in this long sequence, generic cleanup
+	// calls OUGHT to go. So let's say this: as we migrate cleanup from
+	// explicit hand-placed calls into the generic mechanism, eventually
+	// all cleanup will get subsumed into the generic calls. So the calls you
+	// still see above are calls that MUST happen before the generic cleanup
+	// kicks in.
+    
+	// This calls every remaining LLSingleton's cleanupSingleton() method.
+	// This method should perform any cleanup that might take significant
+	// realtime, or might throw an exception.
+	LLSingletonBase::cleanupAll();
+
+	// This calls every remaining LLSingleton's deleteSingleton() method.
+	// No class destructor should perform any cleanup that might take
+	// significant realtime, or throw an exception.
+	// LLSingleton machinery includes a last-gasp implicit deleteAll() call,
+	// so this explicit call shouldn't strictly be necessary. However, by the
+	// time the runtime engages that implicit call, it may already have
+	// destroyed things like std::cerr -- so the implicit deleteAll() refrains
+	// from logging anything. Since both cleanupAll() and deleteAll() call
+	// their respective cleanup methods in computed dependency order, it's
+	// probably useful to be able to log that order.
+	LLSingletonBase::deleteAll();
+
+	LL_INFOS() << "Goodbye!" << LL_ENDL;
+
+	removeDumpDir();
 
 	// return 0;
 	return true;
