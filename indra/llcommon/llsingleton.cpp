@@ -36,6 +36,11 @@
 #include <sstream>
 #include <stdexcept>
 
+namespace {
+void log(LLError::ELevel level,
+         const char* p1="", const char* p2="", const char* p3="", const char* p4="");
+} // anonymous namespace
+
 // Our master list of all LLSingletons is itself an LLSingleton. We used to
 // store it in a function-local static, but that could get destroyed before
 // the last of the LLSingletons -- and ~LLSingletonBase() definitely wants to
@@ -172,7 +177,13 @@ void LLSingletonBase::capture_dependency(EInitState initState)
             // Record the dependency.
             // initializing.back() is the LLSingletonBase* currently being
             // initialized. Store 'this' in its mDepends set.
-            initializing.back()->mDepends.insert(this);
+            LLSingletonBase* current(initializing.back());
+            if (current->mDepends.insert(this).second)
+            {
+                // only log the FIRST time we hit this dependency!
+                log(LLError::LEVEL_DEBUG, demangle(typeid(*current).name()).c_str(),
+                    " depends on ", demangle(typeid(*this).name()).c_str());
+            }
         }
     }
 }
@@ -229,6 +240,8 @@ void LLSingletonBase::cleanupAll()
         {
             sp->mCleaned = true;
 
+            log(LLError::LEVEL_DEBUG, "calling ",
+                demangle(typeid(*sp).name()).c_str(), "::cleanupSingleton()");
             try
             {
                 sp->cleanupSingleton();
@@ -267,6 +280,7 @@ void LLSingletonBase::deleteAll()
             else
             {
                 // properly initialized: call it.
+                log(LLError::LEVEL_DEBUG, "calling ", name.c_str(), "::deleteSingleton()");
                 // From this point on, DO NOT DEREFERENCE sp!
                 sp->mDeleteSingleton();
             }
@@ -320,6 +334,19 @@ namespace {
 void log(LLError::ELevel level,
          const char* p1, const char* p2, const char* p3, const char* p4)
 {
+    // Check whether we're in the implicit final LLSingletonBase::deleteAll()
+    // call. We've carefully arranged for deleteAll() to be called when the
+    // last SingletonLifetimeManager instance is destroyed -- in other words,
+    // when the last translation unit containing an LLSingleton instance
+    // cleans up static data. That could happen after std::cerr is destroyed!
+    // The is_available() test below ensures that we'll stop logging once
+    // LLError has been cleaned up. If we had a similar portable test for
+    // std::cerr, this would be a good place to use it. As we do not, just
+    // don't log anything during implicit final deleteAll(). Detect that by
+    // the master refcount having gone to zero.
+    if (sMasterRefcount.refcount == 0)
+        return;
+
     // Check LLError::is_available() because some of LLError's infrastructure
     // is itself an LLSingleton. If that LLSingleton has not yet been
     // initialized, trying to log will engage LLSingleton machinery... and
