@@ -158,9 +158,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3e98849010a229b4ae3255d4030321b</string>
+              <string>66849777a83cb69cec3c06b07da7cd3d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/lindenlab_3p-colladadom/rev/319021/arch/Darwin/installer/colladadom-2.3.319021-darwin-319021.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Darwin/installer/colladadom-2.3.297450-darwin-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -170,9 +170,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ddd22be69d4f0ff38409fa42e4b38f6</string>
+              <string>d627c2a679f3afb8d3e090d42f53cd2e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/lindenlab_3p-colladadom/rev/319021/arch/Linux/installer/colladadom-2.3.319021-linux-319021.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Linux/installer/colladadom-2.3.297450-linux-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -182,16 +182,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c504c44983d5af4c19c8785f392f481b</string>
+              <string>220897a1893a188aa9d31efb48909878</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/lindenlab_3p-colladadom/rev/319021/arch/CYGWIN/installer/colladadom-2.3.319021-windows-319021.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/CYGWIN/installer/colladadom-2.3.297450-windows-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.319021</string>
+        <string>2.3.297450</string>
       </map>
       <key>curl</key>
       <map>
