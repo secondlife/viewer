@@ -2027,7 +2027,7 @@ bool LLAppViewer::cleanup()
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}	
 
-	LLMetricPerformanceTesterBasic::cleanClass() ;
+	SUBSYSTEM_CLEANUP(LLMetricPerformanceTesterBasic) ;
 
 	LL_INFOS() << "Cleaning up Media and Textures" << LL_ENDL;
 
