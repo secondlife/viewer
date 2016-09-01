@@ -34,6 +34,7 @@
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "llinitdestroyclass.h"
 
 class LLMenuItemCallGL;
 class LLToggleableMenu;

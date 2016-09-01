@@ -208,6 +208,7 @@
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
+#include "llcleanup.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -2158,7 +2159,7 @@ void LLViewerWindow::shutdownGL()
 	// Shutdown GL cleanly.  Order is very important here.
 	//--------------------------------------------------------
 	LLFontGL::destroyDefaultFonts();
-	LLFontManager::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLFontManager);
 	stop_glerror();
 
 	gSky.cleanup();
@@ -2181,7 +2182,7 @@ void LLViewerWindow::shutdownGL()
 	LLWorldMapView::cleanupTextures();
 
 	LLViewerTextureManager::cleanup() ;
-	LLImageGL::cleanupClass() ;
+	SUBSYSTEM_CLEANUP(LLImageGL) ;
 
 	LL_INFOS() << "All textures and llimagegl images are destroyed!" << LL_ENDL ;
 
@@ -2194,7 +2195,7 @@ void LLViewerWindow::shutdownGL()
 
 	gGL.shutdown();
 
-	LLVertexBuffer::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 
 	LL_INFOS() << "LLVertexBuffer cleaned." << LL_ENDL ;
 }

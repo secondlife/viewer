@@ -42,6 +42,7 @@
 #include "lldiriterator.h"
 #include "v4coloru.h"
 #include "llsdserialize.h"
+#include "llcleanup.h"
 
 // system libraries
 #include <iostream>
@@ -634,7 +635,7 @@ int main(int argc, char** argv)
 	}
 	
 	// Cleanup and exit
-	LLImage::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLImage);
 	if (fast_timer_log_thread)
 	{
 		fast_timer_log_thread->shutdown();

@@ -84,11 +84,6 @@ public:
 	LLMuteList();
 	~LLMuteList();
 
-	// Implemented locally so that we can perform some delayed initialization. 
-	// Callers should be careful to call this one and not LLSingleton<LLMuteList>::getInstance()
-	// which would circumvent that mechanism. -MG
-	static LLMuteList* getInstance();
-
 	void addObserver(LLMuteListObserver* observer);
 	void removeObserver(LLMuteListObserver* observer);
 

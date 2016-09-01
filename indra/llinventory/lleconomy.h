@@ -42,18 +42,11 @@ public:
 	virtual void onEconomyDataChange() = 0;
 };
 
-class LLGlobalEconomy
+class LLGlobalEconomy: public LLSingleton<LLGlobalEconomy>
 {
 public:
 	LLGlobalEconomy();
 	virtual ~LLGlobalEconomy();
-
-	// This class defines its singleton internally as a typedef instead of inheriting from
-	// LLSingleton like most others because the LLRegionEconomy sub-class might also
-	// become a singleton and this pattern will more easily disambiguate them.
-	typedef LLSingleton<LLGlobalEconomy> Singleton;
-
-	void initSingleton() { }
 
 	virtual void print();
 

@@ -30,6 +30,7 @@
 #include "llpanel.h"
 #include "llbutton.h"
 #include "lllayoutstack.h"
+#include "llinitdestroyclass.h"
 
 class LLLocationInputCtrl;
 class LLMenuGL;
