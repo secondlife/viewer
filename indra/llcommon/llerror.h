@@ -305,22 +305,31 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 /////////////////////////////////
 // Error Logging Macros
-// See top of file for common usage.	
+// See top of file for common usage.
 /////////////////////////////////
 
-// this macro uses a one-shot do statement to avoid parsing errors when writing control flow statements
-// without braces:
-// if (condition) LL_INFOS() << "True" << LL_ENDL; else LL_INFOS()() << "False" << LL_ENDL
+// Instead of using LL_DEBUGS(), LL_INFOS() et al., it may be tempting to
+// directly code the lllog() macro so you can pass in the LLError::ELevel as a
+// variable. DON'T DO IT! The reason is that the first time control passes
+// through lllog(), it initializes a local static LLError::CallSite with that
+// *first* ELevel value. All subsequent visits will decide whether or not to
+// emit output based on the *first* ELevel value bound into that static
+// CallSite instance. lllog() assumes its ELevel argument never varies.
 
-#define lllog(level, once, ...)																	          \
-	do {                                                                                                  \
-		const char* tags[] = {"", ##__VA_ARGS__};													      \
-		::size_t tag_count = LL_ARRAY_SIZE(tags) - 1;													  \
-		static LLError::CallSite _site(                                                                   \
-		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, &tags[1], tag_count);\
-		if (LL_UNLIKELY(_site.shouldLog()))			                                                      \
-		{                                                                                                 \
-			std::ostringstream* _out = LLError::Log::out();                                               \
+// this macro uses a one-shot do statement to avoid parsing errors when
+// writing control flow statements without braces:
+// if (condition) LL_INFOS() << "True" << LL_ENDL; else LL_INFOS()() << "False" << LL_ENDL;
+
+#define lllog(level, once, ...)                                     \
+	do {                                                            \
+		const char* tags[] = {"", ##__VA_ARGS__};                   \
+		::size_t tag_count = LL_ARRAY_SIZE(tags) - 1;               \
+		static LLError::CallSite _site(                             \
+			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG),    \
+			__FUNCTION__, once, &tags[1], tag_count);               \
+		if (LL_UNLIKELY(_site.shouldLog()))                         \
+		{                                                           \
+			std::ostringstream* _out = LLError::Log::out();         \
 			(*_out)
 
 //Use this construct if you need to do computation in the middle of a
