@@ -28,8 +28,7 @@ void log_unhandled_exception_(LLError::ELevel level,
                               const std::string& context)
 {
     // log same message but allow caller-specified severity level
-    // lllog() is the macro underlying LL_ERRS(), LL_WARNS() et al.
-    lllog(level, false, "LLException")
+    LL_VLOGS(level, "LLException")
         << file << "(" << line << "): Unhandled exception caught in " << pretty_function;
     if (! context.empty())
     {
