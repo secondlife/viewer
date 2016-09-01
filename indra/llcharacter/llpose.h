@@ -85,12 +85,13 @@ class LLJointStateBlender
 protected:
 	LLPointer<LLJointState>	mJointStates[JSB_NUM_JOINT_STATES];
 	S32				mPriorities[JSB_NUM_JOINT_STATES];
+	LLUUID			mMoutionIds[JSB_NUM_JOINT_STATES];
 	BOOL			mAdditiveBlends[JSB_NUM_JOINT_STATES];
 public:
 	LLJointStateBlender();
 	~LLJointStateBlender();
 	void blendJointStates(BOOL apply_now = TRUE);
-	BOOL addJointState(const LLPointer<LLJointState>& joint_state, S32 priority, BOOL additive_blend);
+	BOOL addJointState(const LLPointer<LLJointState>& joint_state, LLUUID source_id, S32 priority, BOOL additive_blend);
 	void interpolate(F32 u);
 	void clear();
 	void resetCachedJoint();
