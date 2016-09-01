@@ -40,6 +40,7 @@ set(llcommon_SOURCE_FILES
     llbase64.cpp
     llbitpack.cpp
     llcallbacklist.cpp
+    llcleanup.cpp
     llcommon.cpp
     llcommonutils.cpp
     llcoros.cpp
@@ -66,6 +67,7 @@ set(llcommon_SOURCE_FILES
     llframetimer.cpp
     llheartbeat.cpp
     llinitparam.cpp
+    llinitdestroyclass.cpp
     llinstancetracker.cpp
     llleap.cpp
     llleaplistener.cpp
@@ -134,6 +136,7 @@ set(llcommon_HEADER_FILES
     llbitpack.h
     llboost.h
     llcallbacklist.h
+    llcleanup.h
     llcommon.h
     llcommonutils.h
     llcoros.h
@@ -167,6 +170,7 @@ set(llcommon_HEADER_FILES
     llhash.h
     llheartbeat.h
     llindexedvector.h
+    llinitdestroyclass.h
     llinitparam.h
     llinstancetracker.h
     llkeythrottle.h
@@ -183,6 +187,7 @@ set(llcommon_HEADER_FILES
     llmortician.h
     llnametable.h
     llpointer.h
+    llpounceable.h
     llpredicate.h
     llpreprocessor.h
     llpriqueuemap.h
@@ -327,6 +332,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llpounceable "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)
