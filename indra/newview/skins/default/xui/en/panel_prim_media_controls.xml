@@ -374,9 +374,11 @@
 		  layout="topleft"
 		  tool_tip="Movie play progress"
 		  width="200">
-		<slider_bar.commit_callback
-			function="MediaCtrl.JumpProgress" />
-	  </slider_bar>
+      <slider_bar.mouse_down_callback
+        function="MediaCtrl.MouseDown" />
+      <slider_bar.mouse_up_callback
+        function="MediaCtrl.MouseUp" />
+    </slider_bar>
 	</layout_panel>
 	<layout_panel
 		name="skip_back"

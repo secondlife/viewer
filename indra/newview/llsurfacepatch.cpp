@@ -230,8 +230,8 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 	const F32 xyScaleInv = (1.f / xyScale)*(0.2222222222f);
 
 	F32 vec[3] = {
-					fmod((F32)(mOriginGlobal.mdV[0] + x)*xyScaleInv, 256.f),
-					fmod((F32)(mOriginGlobal.mdV[1] + y)*xyScaleInv, 256.f),
+                    (F32)fmod((F32)(mOriginGlobal.mdV[0] + x)*xyScaleInv, 256.f),
+                    (F32)fmod((F32)(mOriginGlobal.mdV[1] + y)*xyScaleInv, 256.f),
 					0.f
 				};
 	F32 rand_val = llclamp(noise2(vec)* 0.75f + 0.5f, 0.f, 1.f);

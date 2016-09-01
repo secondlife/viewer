@@ -240,6 +240,15 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 
 //----------------------------------------------------------------------------
 
+#if LL_LINUX
+// gcc 4.7.2 produces this error for the following function, which nat has
+// been unable to diagnose as an actual problem:
+// llimagegl.cpp:247:2: error: '<anonymous>.LLTrace::BlockTimer::mStartTime'
+// may be used uninitialized in this function [-Werror=uninitialized]
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+
 static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_STATS("Image Stats");
 // static
 void LLImageGL::updateStats(F32 current_time)
@@ -249,6 +258,11 @@ void LLImageGL::updateStats(F32 current_time)
 	sBoundTextureMemory = sCurBoundTextureMemory;
 	sCurBoundTextureMemory = S32Bytes(0);
 }
+
+#if LL_LINUX
+// In general we do want to know about uninitialized variables!
+#pragma GCC diagnostic pop
+#endif
 
 //static
 S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)

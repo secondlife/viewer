@@ -27,6 +27,8 @@
 
 #include "linden_common.h" 
 #include "llcoproceduremanager.h"
+#include "llexception.h"
+#include "stringize.h"
 #include <boost/assign.hpp>
 
 //=========================================================================
@@ -388,14 +390,14 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
             {
                 coproc->mProc(httpAdapter, coproc->mId);
             }
-            catch (std::exception &e)
-            {
-                LL_WARNS() << "Coprocedure(" << coproc->mName << ") id=" << coproc->mId.asString() <<
-                    " threw an exception! Message=\"" << e.what() << "\"" << LL_ENDL;
-            }
             catch (...)
             {
-                LL_WARNS() << "A non std::exception was thrown from " << coproc->mName << " with id=" << coproc->mId << "." << " in pool \"" << mPoolName << "\"" << LL_ENDL;
+                LOG_UNHANDLED_EXCEPTION(STRINGIZE("Coprocedure('" << coproc->mName
+                                                  << "', id=" << coproc->mId.asString()
+                                                  << ") in pool '" << mPoolName << "'"));
+                // must NOT omit this or we deplete the pool
+                mActiveCoprocs.erase(itActive);
+                throw;
             }
 
             LL_INFOS() << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
