@@ -41,7 +41,7 @@ namespace tut
 		public:
 			virtual bool init() { return true; }
 			virtual bool cleanup() { return true; }
-			virtual bool mainLoop() { return true; }
+			virtual bool frame() { return true; }
 		};
 		LLTestApp* mApp;
 		application()

@@ -114,7 +114,7 @@ void LLCrashLoggerLinux::gatherPlatformSpecificFiles()
 {
 }
 
-bool LLCrashLoggerLinux::mainLoop()
+bool LLCrashLoggerLinux::frame()
 {
 	bool send_logs = true;
 	if(CRASH_BEHAVIOR_ASK == getCrashBehavior())

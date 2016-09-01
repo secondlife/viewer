@@ -104,10 +104,10 @@ void LLWeb::loadURL(const std::string& url, const std::string& target, const std
 
 // static
 // Explicitly open a Web URL using the Web content floater
-void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
+void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid, bool dev_mode)
 {
 	LLFloaterWebContent::Params p;
-	p.url(url).target(target).id(uuid);
+	p.url(url).target(target).id(uuid).dev_mode(dev_mode);
 	LLFloaterReg::showInstance("web_content", p);
 }
 

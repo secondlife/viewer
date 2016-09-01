@@ -95,10 +95,8 @@ int main( int argc, char **argv )
 	}
 
 		// Run the application main loop
-	if(!LLApp::isQuitting()) 
-	{
-		viewer_app_ptr->mainLoop();
-	}
+	while (! viewer_app_ptr->frame()) 
+	{}
 
 	if (!LLApp::isError())
 	{

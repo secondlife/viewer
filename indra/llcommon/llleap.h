@@ -13,9 +13,9 @@
 #define LL_LLLEAP_H
 
 #include "llinstancetracker.h"
+#include "llexception.h"
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 /**
  * LLSD Event API Plugin class. Because instances are managed by
@@ -67,9 +67,9 @@ public:
      * string(s) passed to create() might come from an external source. This
      * way the caller can catch LLLeap::Error and try to recover.
      */
-    struct Error: public std::runtime_error
+    struct Error: public LLException
     {
-        Error(const std::string& what): std::runtime_error(what) {}
+        Error(const std::string& what): LLException(what) {}
     };
 
     virtual ~LLLeap();

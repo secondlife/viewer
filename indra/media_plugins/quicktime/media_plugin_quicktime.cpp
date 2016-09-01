@@ -837,9 +837,7 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 			else if(message_name == "cleanup")
 			{
 				// TODO: clean up here
-                LLPluginMessage message("base", "goodbye");
-                sendMessage(message);
-            }
+			}
 			else if(message_name == "shm_added")
 			{
 				SharedSegmentInfo info;
@@ -921,7 +919,10 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 				#endif
 				message.setValueS32("depth", mDepth);
 				message.setValueU32("internalformat", GL_RGB);
-				message.setValueBoolean("coords_opengl", true);	// true == use OpenGL-style coordinates, false == (0,0) is upper left.
+
+                // note this apparently only has an effect when media is opened in 2D browser. 
+                // see https://jira.secondlife.com/browse/BUG-18252 - media flipped in 2D so flipping it back.
+				message.setValueBoolean("coords_opengl", false);	// true == use OpenGL-style coordinates, false == (0,0) is upper left.
 				message.setValueBoolean("allow_downsample", true);
 				sendMessage(message);
 			}
