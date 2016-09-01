@@ -246,6 +246,8 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
     getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
     childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
 
+    getChild<LLButton>("retract_btn")->setCommitCallback(boost::bind(&LLFloaterOutfitSnapshot::onExtendFloater, this));
+    getChild<LLButton>("extend_btn")->setCommitCallback(boost::bind(&LLFloaterOutfitSnapshot::onExtendFloater, this));
 
     // Filters
     LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
@@ -277,6 +279,7 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
     impl->mPreviewHandle = previewp->getHandle();
     previewp->setContainer(this);
     impl->updateControls(this);
+    impl->setAdvanced(gSavedSettings.getBOOL("AdvanceOutfitSnapshot"));
     impl->updateLayout(this);
 
     previewp->mKeepAspectRatio = FALSE;
@@ -300,12 +303,18 @@ void LLFloaterOutfitSnapshot::onOpen(const LLSD& key)
     gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
 
     impl->updateControls(this);
+    impl->setAdvanced(gSavedSettings.getBOOL("AdvanceOutfitSnapshot"));
     impl->updateLayout(this);
 
     LLPanel* snapshot_panel = getChild<LLPanel>("panel_outfit_snapshot_inventory");
     snapshot_panel->onOpen(LLSD());
     postPanelSwitch();
 
+}
+
+void LLFloaterOutfitSnapshot::onExtendFloater()
+{
+	impl->setAdvanced(gSavedSettings.getBOOL("AdvanceOutfitSnapshot"));
 }
 
 // static 

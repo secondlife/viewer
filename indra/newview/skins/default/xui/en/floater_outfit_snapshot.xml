@@ -50,8 +50,8 @@
      width="167" />
 	<button
        follows="left|top"
-	   control_name="AdvanceSnapshot"
-	   invisibility_control="AdvanceSnapshot"
+	   control_name="AdvanceOutfitSnapshot"
+	   invisibility_control="AdvanceOutfitSnapshot"
        height="25"
 	   is_toggle="true"
        layout="topleft"
@@ -65,8 +65,8 @@
        width="31" />
    <button
        follows="left|top"
-	   control_name="AdvanceSnapshot"
-	   visibility_control="AdvanceSnapshot"
+	   control_name="AdvanceOutfitSnapshot"
+	   visibility_control="AdvanceOutfitSnapshot"
        height="25"
 	   is_toggle="true"
        layout="topleft"

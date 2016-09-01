@@ -158,8 +158,6 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 {
 	LLSnapshotLivePreview* previewp = getPreviewView();
 
-	BOOL advanced = gSavedSettings.getBOOL("AdvanceSnapshot");
-
 	//BD - Automatically calculate the size of our snapshot window to enlarge
 	//     the snapshot preview to its maximum size, this is especially helpfull
 	//     for pretty much every aspect ratio other than 1:1.
@@ -175,16 +173,16 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 	}
 
 	S32 floater_width = 224.f;
-	if(advanced)
+	if(mAdvanced)
 	{
 		floater_width = floater_width + panel_width;
 	}
 
 	LLUICtrl* thumbnail_placeholder = floaterp->getChild<LLUICtrl>("thumbnail_placeholder");
-	thumbnail_placeholder->setVisible(advanced);
+	thumbnail_placeholder->setVisible(mAdvanced);
 	thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
-	floaterp->getChild<LLUICtrl>("image_res_text")->setVisible(advanced);
-	floaterp->getChild<LLUICtrl>("file_size_label")->setVisible(advanced);
+	floaterp->getChild<LLUICtrl>("image_res_text")->setVisible(mAdvanced);
+	floaterp->getChild<LLUICtrl>("file_size_label")->setVisible(mAdvanced);
 	if(!floaterp->isMinimized())
 	{
 		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
@@ -996,7 +994,9 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
-    
+
+    getChild<LLButton>("retract_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
+    getChild<LLButton>("extend_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
 
 	// Filters
 	LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
@@ -1038,6 +1038,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	impl->mPreviewHandle = previewp->getHandle();
     previewp->setContainer(this);
 	impl->updateControls(this);
+	impl->setAdvanced(gSavedSettings.getBOOL("AdvanceSnapshot"));
 	impl->updateLayout(this);
 	
 
@@ -1110,10 +1111,16 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
 
 	impl->updateControls(this);
+	impl->setAdvanced(gSavedSettings.getBOOL("AdvanceSnapshot"));
 	impl->updateLayout(this);
 
 	// Initialize default tab.
 	getChild<LLSideTrayPanelContainer>("panel_container")->getCurrentPanel()->onOpen(LLSD());
+}
+
+void LLFloaterSnapshot::onExtendFloater()
+{
+	impl->setAdvanced(gSavedSettings.getBOOL("AdvanceSnapshot"));
 }
 
 //virtual

@@ -50,6 +50,8 @@ public:
 
     static void update();
 
+    void onExtendFloater();
+
     static LLFloaterOutfitSnapshot* getInstance();
     static LLFloaterOutfitSnapshot* findInstance();
     /*virtual*/ void saveTexture();
