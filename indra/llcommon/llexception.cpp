@@ -20,6 +20,7 @@
 #include <boost/exception/diagnostic_information.hpp>
 // other Linden headers
 #include "llerror.h"
+#include "llerrorcontrol.h"
 
 namespace {
 // used by crash_on_unhandled_exception_() and log_unhandled_exception_()
@@ -28,8 +29,8 @@ void log_unhandled_exception_(LLError::ELevel level,
                               const std::string& context)
 {
     // log same message but allow caller-specified severity level
-    LL_VLOGS(level, "LLException")
-        << file << "(" << line << "): Unhandled exception caught in " << pretty_function;
+    LL_VLOGS(level, "LLException") << LLError::abbreviateFile(file)
+        << "(" << line << "): Unhandled exception caught in " << pretty_function;
     if (! context.empty())
     {
         LL_CONT << ": " << context;
