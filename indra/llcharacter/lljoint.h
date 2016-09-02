@@ -278,6 +278,10 @@ public:
 	void clearAttachmentScaleOverrides();
     void showAttachmentScaleOverrides(const std::string& av_info) const;
 
+    // These are used in checks of whether a pos/scale override is considered significant.
+    bool aboveJointPosThreshold(const LLVector3& pos) const;
+    bool aboveJointScaleThreshold(const LLVector3& scale) const;
+    
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }
 	//Setter for the joints id

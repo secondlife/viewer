@@ -404,16 +404,16 @@ void showJointScaleOverrides( const LLJoint& joint, const std::string& note, con
         LL_DEBUGS("Avatar") << av_info << " joint " << joint.getName() << " " << note << " " << os.str() << LL_ENDL;
 }
 
-bool above_joint_pos_threshold(const LLVector3& diff)
+bool LLJoint::aboveJointPosThreshold(const LLVector3& pos) const
 {
-	//return !diff.isNull();
+    LLVector3 diff = pos - getDefaultPosition();
 	const F32 max_joint_pos_offset = 0.0001f; // 0.1 mm
 	return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
 }
 
-bool above_joint_scale_threshold(const LLVector3& diff)
+bool LLJoint::aboveJointScaleThreshold(const LLVector3& scale) const
 {
-	//return !diff.isNull();
+    LLVector3 diff = scale - getDefaultScale();
 	const F32 max_joint_scale_offset = 0.0001f; // 0.1 mm
 	return diff.lengthSquared() > max_joint_scale_offset * max_joint_scale_offset;
 }
@@ -434,15 +434,6 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
     //{
     //    return;
     //}
-    if (!above_joint_pos_threshold(pos-getDefaultPosition()))
-    {
-        if (do_debug_joint(getName()))
-        {
-            LL_DEBUGS("Avatar") << "Attachment pos override ignored for " << getName()
-                                << ", pos " << pos << " is same as default pos" << LL_ENDL;
-        }
-		return;
-    }
 
     LLVector3 before_pos;
     LLUUID before_mesh_id;
@@ -627,15 +618,6 @@ void LLJoint::addAttachmentScaleOverride( const LLVector3& scale, const LLUUID& 
 	{
 		return;
 	}
-    if (!above_joint_scale_threshold(scale-getDefaultScale()))
-    {
-        if (do_debug_joint(getName()))
-        {
-            LL_DEBUGS("Avatar") << "Attachment scale override ignored for " << getName()
-                                << ", scale " << scale << " is same as default scale" << LL_ENDL;
-        }
-		return;
-    }
 	if (!m_attachmentScaleOverrides.count())
 	{
 		if (do_debug_joint(getName()))

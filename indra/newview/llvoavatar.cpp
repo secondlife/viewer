@@ -5539,16 +5539,25 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 					{   									
 						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-                        bool override_changed;
-                        pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString(), override_changed );
-
-                        if (override_changed)
+                        if (pJoint->aboveJointPosThreshold(jointPos))
                         {
-                            //If joint is a pelvis then handle old/new pelvis to foot values
-                            if ( lookingForJoint == "mPelvis" )
-                            {	
-                                pelvisGotSet = true;											
-                            }										
+                            bool override_changed;
+                            pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString(), override_changed );
+                            
+                            if (override_changed)
+                            {
+                                //If joint is a pelvis then handle old/new pelvis to foot values
+                                if ( lookingForJoint == "mPelvis" )
+                                {	
+                                    pelvisGotSet = true;											
+                                }										
+                            }
+                            if (pSkinData->mLockScaleIfJointPosition)
+                            {
+                                // Note that unlike positions, there's no threshold check here,
+                                // just a lock at the default value.
+                                pJoint->addAttachmentScaleOverride(pJoint->getDefaultScale(), mesh_id, avString());
+                            }
                         }
 					}										
 				}																
@@ -5566,25 +5575,6 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
                     
 				}
 			}							
-		}
-                        // Set the joint scales
-                        // FIXME replace with real logic for finding scale, probably inside the bindcnt loop above
-        const LLUUID& mesh_id = pSkinData->mMeshID;
-		for (int i = 0; i < jointCnt; ++i)
-		{
-			std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-			LLJoint* pJoint = getJoint(lookingForJoint);
-			if (pJoint)
-			{
-				if (pJoint->getName() == "mCollarRight" ||
-					pJoint->getName() == "mShoulderRight" ||
-					pJoint->getName() == "mElbowRight" ||
-					pJoint->getName() == "mHandRight")
-				{
-					LLVector3 jointScale(2.0f, 2.0f, 2.0f);
-					pJoint->addAttachmentScaleOverride(jointScale, mesh_id, avString());
-				}
-			}
 		}
 	}
 					
@@ -8489,6 +8479,20 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			{
 				apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
 								 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str());
+			}
+		}
+        // Joint scale overrides
+		for (iter = mSkeleton.begin(); iter != end; ++iter)
+		{
+			LLJoint* pJoint = (*iter);
+		
+			LLVector3 scale;
+			LLUUID mesh_id;
+
+			if (pJoint->hasAttachmentScaleOverride(scale,mesh_id))
+			{
+				apr_file_printf( file, "\t\t<joint_scale name=\"%s\" scale=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
+								 pJoint->getName().c_str(), scale[0], scale[1], scale[2], mesh_id.asString().c_str());
 			}
 		}
 		F32 pelvis_fixup;
