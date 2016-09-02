@@ -38,6 +38,7 @@ class LLInventoryPanel;
 class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
+class LLInventoryCallback;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
@@ -387,9 +388,9 @@ void update_inventory_item(
 	LLPointer<LLInventoryCallback> cb);
 
 void update_inventory_category(
-	const LLUUID& cat_id,
-	const LLSD& updates,
-	LLPointer<LLInventoryCallback> cb);
+    const LLUUID& cat_id,
+    const LLSD& updates,
+    LLPointer<LLInventoryCallback> cb);
 
 void remove_inventory_items(
 	LLInventoryObject::object_list_t& items,

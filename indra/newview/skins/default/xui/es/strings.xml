@@ -32,6 +32,9 @@
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
+	<string name="BuildConfig">
+		Configuración de constitución [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
 		Estás en la posición [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1], de [REGION], alojada en &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -55,13 +58,16 @@ Tarjeta gráfica: [GRAPHICS_CARD]
 Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
 Versión de LLCEFLib/CEF: [LLCEFLIB_VERSION]
-Versión del servidor de voz: [VOICE_VERSION]
+Versión de Voice Server: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Error al obtener la URL de las notas de la versión del servidor.
+	</string>
+	<string name="BuildConfiguration">
+		Configuración de constitución
 	</string>
 	<string name="ProgressRestoring">
 		Restaurando...
@@ -1372,6 +1378,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="BodyPartsRightLeg">
 		Pierna der.
 	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Esqueleto mejorado
+	</string>
 	<string name="GraphicsQualityLow">
 		Bajo
 	</string>
@@ -1814,6 +1823,51 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="Avatar Center">
 		Centro del avatar
 	</string>
+	<string name="Left Ring Finger">
+		Dedo anular izquierdo
+	</string>
+	<string name="Right Ring Finger">
+		Dedo anular derecho
+	</string>
+	<string name="Tail Base">
+		Base de la cola
+	</string>
+	<string name="Tail Tip">
+		Extremo de la cola
+	</string>
+	<string name="Left Wing">
+		Ala izquierda
+	</string>
+	<string name="Right Wing">
+		Ala derecha
+	</string>
+	<string name="Jaw">
+		Mandíbula
+	</string>
+	<string name="Alt Left Ear">
+		Oreja izquierda alternativa
+	</string>
+	<string name="Alt Right Ear">
+		Oreja derecha alternativa
+	</string>
+	<string name="Alt Left Eye">
+		Ojo izquierdo alternativo
+	</string>
+	<string name="Alt Right Eye">
+		Ojo derecho alternativo
+	</string>
+	<string name="Tongue">
+		Lengua
+	</string>
+	<string name="Groin">
+		Ingle
+	</string>
+	<string name="Left Hind Foot">
+		Pata trasera izquierda
+	</string>
+	<string name="Right Hind Foot">
+		Pata trasera derecha
+	</string>
 	<string name="Invalid Attachment">
 		Punto de colocación no válido
 	</string>
@@ -2203,11 +2257,11 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="ATTACH_BELLY">
 		Vientre
 	</string>
-	<string name="ATTACH_RPEC">
-		Pecho derecho
+	<string name="ATTACH_LEFT_PEC">
+		Pectoral izquierdo
 	</string>
-	<string name="ATTACH_LPEC">
-		Pecho izquierdo
+	<string name="ATTACH_RIGHT_PEC">
+		Pectoral derecho
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD: Centro 2
@@ -2238,6 +2292,51 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Centro del avatar
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Dedo anular izquierdo
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Dedo anular derecho
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Base de la cola
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Extremo de la cola
+	</string>
+	<string name="ATTACH_LWING">
+		Ala izquierda
+	</string>
+	<string name="ATTACH_RWING">
+		Ala derecha
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Mandíbula
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Oreja izquierda alternativa
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Oreja derecha alternativa
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Ojo izquierdo alternativo
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Ojo derecho alternativo
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Lengua
+	</string>
+	<string name="ATTACH_GROIN">
+		Ingle
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Pata trasera izquierda
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Pata trasera derecha
 	</string>
 	<string name="CursorPos">
 		Línea [LINE], Columna [COLUMN]
@@ -4164,6 +4263,12 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="OfflineStatus">
 		Desconectado/a
+	</string>
+	<string name="not_online_msg">
+		El usuario no está conectado: el mensaje se almacenará para entregárselo más tarde.
+	</string>
+	<string name="not_online_inventory">
+		El usuario no está conectado: el inventario se ha guardado.
 	</string>
 	<string name="answered_call">
 		Han respondido a tu llamada

@@ -480,6 +480,9 @@ Superato il limite di oggetti collegati [MAX_ATTACHMENTS]. Per favore prima stac
 	<notification name="CannotWearInfoNotComplete">
 		Non puoi indossare quell&apos;elemento perchè non è ancora stato caricato. Riprova fra un minuto.
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Inserisci la tua password per accedere.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Spiacenti. Un campo è vuoto.
 Inserisci il Nome utente del tuo avatar.
@@ -547,6 +550,9 @@ Nota: questa operazione cancellerà la cache.
 	</notification>
 	<notification name="ChangeConnectionPort">
 		Le impostazioni della porta avranno effetto dopo il riavvio di [APP_NAME].
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		La modifica della impostazione di debug avrà effetto dopo il riavvio di [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
 		La nuova pelle comparirà dopo il riavvio di [APP_NAME].
@@ -1366,12 +1372,13 @@ Puoi comunque usare [SECOND_LIFE] normalmente e gli altri residenti ti vedranno 
 			<ignore name="ignore" text="Lo scaricamento sta richiedendo parecchio tempo"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		La tua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complessità visiva] è [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		La [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complessità del tuo avatar] è [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="Avvisami se la complessità del mio avatar è eccessiva" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		La tua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complessità visiva] è [AGENT_COMPLEXITY].
+		La [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complessità del tuo avatar] è [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		L&apos;installazione di [APP_NAME] è terminata.
@@ -1485,6 +1492,10 @@ Sostituisci la texture [TEXTURE_NUM] con una a 24-bit 512x512 oppure con una imm
 	<notification name="ConfirmBakeTerrain">
 		Vuoi veramente impostare come base il terreno corrente, impostarlo come riferimento per i limiti dei rialzi/abbassamenti di tutto il territorio ed il suo valore impostato come base per lo strumento &apos;Ripristina&apos;?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		Stai per usare valori bassi maggiori dei valori alti di Intervalli altitudine. Vuoi procedere?
+		<usetemplate canceltext="Non chiedere" name="yesnocancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		Puoi avere al massimo [MAX_AGENTS] residenti consentiti.
@@ -1722,14 +1733,6 @@ Lasciare il gruppo?
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Impossibile abbandonare il gruppo. Non puoi abbandonare il gruppo perché sei l&apos;ultimo proprietario del gruppo. Devi prima assegnare a un altro membro il ruolo di proprietario.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepartError">
-		Impossibile abbandonare il gruppo: [reason].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		Hai abbandonato il gruppo [group_name].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2405,6 +2408,10 @@ Vuoi disattivare la modalità Non disturbare prima di completare questa transazi
 	<notification name="ConfirmEmptyTrash">
 		Vuoi veramente eliminare in modo permanente il contenuto del tuo Cestino?
 		<usetemplate ignoretext="Conferma prima di svuotare la cartella del Cestino inventario" name="okcancelignore" notext="Annulla" yestext="OK"/>
+	</notification>
+	<notification name="TrashIsFull">
+		Il cestino è troppo pieno. Ciò potrebbe causare problemi durante l&apos;accesso.
+		<usetemplate name="okcancelbuttons" notext="Svuota il cestino più tardi" yestext="Svuota il cestino adesso"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Vuoi veramente eliminare la cronologia viaggi, web e ricerche fatte?
@@ -3262,11 +3269,15 @@ Per sicurezza, verranno bloccati per alcuni secondi.
 	<notification name="AttachmentSaved">
 		L&apos;elemento da collegare è stato salvato.
 	</notification>
-	<notification name="PresetNotSaved">
-		Errore durante il salvataggio del valore predefinito [NAME].
+	<notification name="AppearanceToXMLSaved">
+		L&apos;aspetto è stato salvato in XML su [PATH]
 	</notification>
-	<notification name="PresetNotDeleted">
-		Errore durante l&apos;eliminazione del valore predefinito [NAME].
+	<notification name="AppearanceToXMLFailed">
+		L&apos;aspetto non è stato salvato in XML.
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+Errore nella cancellazione del valore predefinito [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Impossibile trovare l&apos;argomento nell&apos;aiuto per questo elemento.
@@ -4080,6 +4091,9 @@ Riprova tra un minuto.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Risorse di script non sufficienti per collegare l&apos;oggetto.
+	</notification>
+	<notification name="IllegalAttachment">
+		Il collegamento ha richiesto un punto sull&apos;avatar che non esiste. È stato collegato al petto.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Non puoi lasciare oggetti qui, prova la zona Prova gratuita.

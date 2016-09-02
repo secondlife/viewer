@@ -40,9 +40,10 @@
 #include "xform.h"
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
-// BENTO JOINT COUNT LIMIT - need to set this to final skeleton size
-// (bones + attachments) + 2, rounded to next multiple of 4.
-const U32 LL_CHARACTER_MAX_ANIMATED_JOINTS = 192; // must be divisible by 4!
+// Need to set this to count of animate-able joints,
+// currently = #bones + #collision_volumes + #attachments + 2,
+// rounded to next multiple of 4.
+const U32 LL_CHARACTER_MAX_ANIMATED_JOINTS = 216; // must be divisible by 4!
 const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 110;
 
 // These should be higher than the joint_num of any
@@ -265,8 +266,8 @@ public:
 
 	virtual BOOL isAnimatable() const { return TRUE; }
 
-	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
-	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
+	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
+	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
 	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
 	void clearAttachmentPosOverrides();
     void showAttachmentPosOverrides(const std::string& av_info) const;

@@ -38,9 +38,14 @@
 #include "llavataractions.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "lllogchat.h"
+#include "llparcel.h"
 #include "llviewermenu.h"			// for gMenuHolder
 #include "llconversationmodel.h"
 #include "llviewerobjectlist.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+#include "llvoavatarself.h"
+#include "roles_constants.h"
 
 namespace LLPanelPeopleMenus
 {
@@ -77,9 +82,13 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		registrar.add("Avatar.InviteToGroup",	boost::bind(&LLAvatarActions::inviteToGroup,			id));
 		registrar.add("Avatar.TeleportRequest",	boost::bind(&PeopleContextMenu::requestTeleport,		this));
 		registrar.add("Avatar.Calllog",			boost::bind(&LLAvatarActions::viewChatHistory,			id));
+		registrar.add("Avatar.Freeze",			boost::bind(&LLAvatarActions::freezeAvatar,					id));
+		registrar.add("Avatar.Eject",			boost::bind(&PeopleContextMenu::eject,					this));
+
 
 		enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&PeopleContextMenu::checkContextMenuItem,	this, _2));
+		enable_registrar.add("Avatar.EnableFreezeEject", boost::bind(&PeopleContextMenu::enableFreezeEject, this, _2));
 
 		// create the context menu from the XUI
 		menu = createFromFile("menu_people_nearby.xml");
@@ -258,6 +267,50 @@ bool PeopleContextMenu::checkContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
+bool PeopleContextMenu::enableFreezeEject(const LLSD& userdata)
+{
+    if((gAgent.getID() == mUUIDs.front()) || (mUUIDs.size() != 1))
+    {
+        return false;
+    }
+
+    const LLUUID& id = mUUIDs.front();
+
+    // Use avatar_id if available, otherwise default to right-click avatar
+    LLVOAvatar* avatar = NULL;
+    if (id.notNull())
+    {
+        LLViewerObject* object = gObjectList.findObject(id);
+        if (object)
+        {
+            if( !object->isAvatar() )
+            {
+                object = NULL;
+            }
+            avatar = (LLVOAvatar*) object;
+        }
+    }
+    if (!avatar) return false;
+
+    // Gods can always freeze
+    if (gAgent.isGodlike()) return true;
+
+    // Estate owners / managers can freeze
+    // Parcel owners can also freeze
+    const LLVector3& pos = avatar->getPositionRegion();
+    const LLVector3d& pos_global = avatar->getPositionGlobal();
+    LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos_global)->getParcel();
+    LLViewerRegion* region = avatar->getRegion();
+    if (!region) return false;
+
+    bool new_value = region->isOwnedSelf(pos);
+    if (!new_value || region->isOwnedGroup(pos))
+    {
+        new_value = LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_ADMIN);
+    }
+    return new_value;
+}
+
 void PeopleContextMenu::requestTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::teleportRequest(),
@@ -270,6 +323,39 @@ void PeopleContextMenu::offerTeleport()
 	// boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
 	// so we have to use a wrapper.
 	LLAvatarActions::offerTeleport(mUUIDs);
+}
+
+void PeopleContextMenu::eject()
+{
+	if((gAgent.getID() == mUUIDs.front()) || (mUUIDs.size() != 1))
+	{
+		return;
+	}
+
+	const LLUUID& id = mUUIDs.front();
+
+	// Use avatar_id if available, otherwise default to right-click avatar
+	LLVOAvatar* avatar = NULL;
+	if (id.notNull())
+	{
+		LLViewerObject* object = gObjectList.findObject(id);
+		if (object)
+		{
+			if( !object->isAvatar() )
+			{
+				object = NULL;
+			}
+			avatar = (LLVOAvatar*) object;
+		}
+	}
+	if (!avatar) return;
+	LLSD payload;
+	payload["avatar_id"] = avatar->getID();
+	std::string fullname = avatar->getFullname();
+
+	const LLVector3d& pos = avatar->getPositionGlobal();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos)->getParcel();
+	LLAvatarActions::ejectAvatar(id ,LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_MANAGE_BANNED));
 }
 
 void PeopleContextMenu::startConference()
@@ -320,6 +406,8 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("block_unblock"));
+		items.push_back(std::string("freeze"));
+		items.push_back(std::string("eject"));
 	}
 
     hide_context_entries(menu, items, disabled_items);

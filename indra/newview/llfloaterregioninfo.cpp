@@ -412,6 +412,11 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->getChild<LLUICtrl>("object_bonus_spin")->setValue(LLSD(object_bonus_factor) );
 	panel->getChild<LLUICtrl>("access_combo")->setValue(LLSD(sim_access) );
 
+	LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
+	if (panel)
+	{
+		panel_general->setObjBonusFactor(object_bonus_factor);
+	}
 
  	// detect teen grid for maturity
 
@@ -461,6 +466,16 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 	if (!floater) return NULL;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
+	return panel;
+}
+
+// static
+LLPanelRegionGeneralInfo* LLFloaterRegionInfo::getPanelGeneral()
+{
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if (!floater) return NULL;
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
+	LLPanelRegionGeneralInfo* panel = (LLPanelRegionGeneralInfo*)tab->getChild<LLPanel>("General");
 	return panel;
 }
 
@@ -717,7 +732,42 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	childSetAction("im_btn", onClickMessage, this);
 //	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
 
-	return LLPanelRegionInfo::postBuild();
+	LLUICtrl* apply_btn = findChild<LLUICtrl>("apply_btn");
+	if (apply_btn)
+	{
+		apply_btn->setCommitCallback(boost::bind(&LLPanelRegionGeneralInfo::onBtnSet, this));
+	}
+
+	refresh();
+	return TRUE;
+}
+
+void LLPanelRegionGeneralInfo::onBtnSet()
+{
+	if(mObjBonusFactor == getChild<LLUICtrl>("object_bonus_spin")->getValue().asReal())
+	{
+		if (sendUpdate())
+		{
+			disableButton("apply_btn");
+		}
+	}
+	else
+	{
+		LLNotificationsUtil::add("ChangeObjectBonusFactor", LLSD(), LLSD(), boost::bind(&LLPanelRegionGeneralInfo::onChangeObjectBonus, this, _1, _2));
+	}
+}
+
+bool LLPanelRegionGeneralInfo::onChangeObjectBonus(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		if (sendUpdate())
+		{
+			disableButton("apply_btn");
+		}
+	}
+	return false;
 }
 
 void LLPanelRegionGeneralInfo::onClickKick()

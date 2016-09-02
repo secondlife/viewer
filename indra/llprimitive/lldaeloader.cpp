@@ -1404,7 +1404,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                         // incorrect.
                         LLUUID fake_mesh_id;
                         fake_mesh_id.generate();
-                        pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, "");
+                        bool dummy; // not used
+                        pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, "", dummy);
                     }
                     else
                     {
@@ -2248,7 +2249,11 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 		// retrieve index to distinguish items inside same parent
 		size_t ind = 0;
 		parent->getChildren().find(element, ind);
-		index_string = "_" + boost::lexical_cast<std::string>(ind);
+
+		if (ind > 0)
+		{
+			index_string = "_" + boost::lexical_cast<std::string>(ind);
+		}
 
 		// if parent has a name or ID, use it
 		std::string name = parent->getAttribute("name");

@@ -3628,10 +3628,8 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 	F32 radius = getScale().length()*0.5f;
 
 	if (isMesh())
-	{	
-		LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
-
-		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD, unscaled_value);
+	{
+		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
 	}
 	else
 	{
@@ -4783,7 +4781,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 pAvatarVO->addAttachmentOverridesForObject(vobj);
 				if (pAvatarVO->isSelf())
 				{
-					//pAvatarVO->showAttachmentOverrides();
+                    bool verbose = true;
+					pAvatarVO->showAttachmentOverrides(verbose);
 				}
             }
 

@@ -40,12 +40,14 @@
 #include "llcorehttputil.h"
 #include "lleventfilter.h"
 
+#include "boost/make_shared.hpp"
+
 namespace LLEventPolling
 {
 namespace Details
 {
 
-    class LLEventPollImpl
+    class LLEventPollImpl: public boost::enable_shared_from_this<LLEventPollImpl>
     {
     public:
         LLEventPollImpl(const LLHost &sender);
@@ -113,7 +115,7 @@ namespace Details
         {
             std::string coroname =
                 LLCoros::instance().launch("LLEventPollImpl::eventPollCoro",
-                boost::bind(&LLEventPollImpl::eventPollCoro, this, url));
+                boost::bind(&LLEventPollImpl::eventPollCoro, this->shared_from_this(), url));
             LL_INFOS("LLEventPollImpl") << coroname << " with  url '" << url << LL_ENDL;
         }
     }
@@ -142,7 +144,7 @@ namespace Details
         int errorCount = 0;
         int counter = mCounter; // saved on the stack for logging. 
 
-        LL_INFOS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
+        LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
         mAdapter = httpAdapter;
 
@@ -170,7 +172,7 @@ namespace Details
             {
                 if (status == LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT))
                 {   // A standard timeout response we get this when there are no events.
-                    LL_INFOS("LLEventPollImpl") << "All is very quiet on target server. It may have gone idle?" << LL_ENDL;
+                    LL_DEBUGS("LLEventPollImpl") << "All is very quiet on target server. It may have gone idle?" << LL_ENDL;
                     errorCount = 0;
                     continue;
                 }
@@ -264,7 +266,7 @@ namespace Details
                 }
             }
         }
-        LL_INFOS("LLEventPollImpl") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
+        LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
     }
 
 }
@@ -273,8 +275,7 @@ namespace Details
 LLEventPoll::LLEventPoll(const std::string&	poll_url, const LLHost& sender):
     mImpl()
 { 
-    mImpl = boost::unique_ptr<LLEventPolling::Details::LLEventPollImpl>
-            (new LLEventPolling::Details::LLEventPollImpl(sender));
+    mImpl = boost::make_shared<LLEventPolling::Details::LLEventPollImpl>(sender);
     mImpl->start(poll_url);
 }
 

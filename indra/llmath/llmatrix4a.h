@@ -121,7 +121,7 @@ public:
 		res.add(z);
 	}
 
-	inline void affineTransform(const LLVector4a& v, LLVector4a& res)
+	inline void affineTransformSSE(const LLVector4a& v, LLVector4a& res)
 	{
 		LLVector4a x,y,z;
 
@@ -137,6 +137,20 @@ public:
 		z.add(mMatrix[3]);
 		res.setAdd(x,z);
 	}
+
+    inline void affineTransformNonSSE(const LLVector4a& v, LLVector4a& res)
+    {
+        F32 x = v[0] * mMatrix[0][0] + v[1] * mMatrix[1][0] + v[2] * mMatrix[2][0] + mMatrix[3][0];
+        F32 y = v[0] * mMatrix[0][1] + v[1] * mMatrix[1][1] + v[2] * mMatrix[2][1] + mMatrix[3][1];
+        F32 z = v[0] * mMatrix[0][2] + v[1] * mMatrix[1][2] + v[2] * mMatrix[2][2] + mMatrix[3][2];
+        F32 w = 1.0f;
+        res.set(x,y,z,w);
+    }
+
+	inline void affineTransform(const LLVector4a& v, LLVector4a& res)
+    {
+        affineTransformSSE(v,res);
+    }
 };
 
 #endif

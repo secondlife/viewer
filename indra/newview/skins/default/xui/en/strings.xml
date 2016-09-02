@@ -54,6 +54,7 @@ LLCEFLib/CEF Version: [LLCEFLIB_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
+	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
 	<string name="BuildConfiguration">Build Configuration</string>
 
@@ -2669,8 +2670,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="ATTACH_LULEG">Left Upper Leg</string>
 	<string name="ATTACH_LLLEG">Left Lower Leg</string>
 	<string name="ATTACH_BELLY">Belly</string>
-	<string name="ATTACH_RPEC">Right Pec</string>
-	<string name="ATTACH_LPEC">Left Pec</string>
+	<string name="ATTACH_LEFT_PEC">Left Pec</string>
+	<string name="ATTACH_RIGHT_PEC">Right Pec</string>
 	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">HUD Top Right</string>
 	<string name="ATTACH_HUD_TOP_CENTER">HUD Top Center</string>

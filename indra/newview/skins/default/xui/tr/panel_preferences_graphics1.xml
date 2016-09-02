@@ -24,10 +24,15 @@
 	<text name="BetterText">
 		Daha iyi
 	</text>
+	<slider label="Avatarın Maksimum Karmaşıklığı:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık bir avatarın hangi noktadan itibaren JellyDolll olarak çizileceğini kontrol eder"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
 	<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
 	<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
 	<button label="Ayarları ön ayar olarak kaydet..." name="PrefSaveButton"/>
 	<button label="Ön ayarı yükle..." name="PrefLoadButton"/>
+	min_val=&quot;0,125&quot;
 	<button label="Ön ayarı sil..." name="PrefDeleteButton"/>
 	<button label="Önerilen ayarlara dön" name="Defaults"/>
 	<button label="Gelişmiş Ayarlar..." name="AdvancedSettings"/>

@@ -773,7 +773,8 @@ const U8* LLImageBase::getData() const
 { 
 	if(mBadBufferAllocation)
 	{
-		LL_ERRS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
+		LL_WARNS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
+		return NULL;
 	}
 
 	return mData; 
@@ -783,7 +784,8 @@ U8* LLImageBase::getData()
 { 
 	if(mBadBufferAllocation)
 	{
-		LL_ERRS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
+		LL_WARNS() << "Bad memory allocation for the image buffer!" << LL_ENDL;
+		return NULL;
 	}
 
 	return mData; 
@@ -895,30 +897,30 @@ void LLImageRaw::setDataAndSize(U8 *data, S32 width, S32 height, S8 components)
 	sGlobalRawMemory += getDataSize();
 }
 
-BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
+bool LLImageRaw::resize(U16 width, U16 height, S8 components)
 {
 	if ((getWidth() == width) && (getHeight() == height) && (getComponents() == components))
 	{
-		return TRUE;
+		return true;
 	}
 	// Reallocate the data buffer.
 	deleteData();
 
 	allocateDataSize(width,height,components);
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
-							 const U8 *data, U32 stride, BOOL reverse_y)
+bool LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
+							 const U8 *data, U32 stride, bool reverse_y)
 {
 	if (!getData())
 	{
-		return FALSE;
+		return false;
 	}
 	if (!data)
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Should do some simple bounds checking
@@ -933,7 +935,7 @@ BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 				data + from_offset, getComponents()*width);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
@@ -988,7 +990,7 @@ void LLImageRaw::verticalFlip()
 }
 
 
-void LLImageRaw::expandToPowerOfTwo(S32 max_dim, BOOL scale_image)
+void LLImageRaw::expandToPowerOfTwo(S32 max_dim, bool scale_image)
 {
 	// Find new sizes
 	S32 new_width  = expandDimToPowerOfTwo(getWidth(), max_dim);
@@ -997,7 +999,7 @@ void LLImageRaw::expandToPowerOfTwo(S32 max_dim, BOOL scale_image)
 	scale( new_width, new_height, scale_image );
 }
 
-void LLImageRaw::contractToPowerOfTwo(S32 max_dim, BOOL scale_image)
+void LLImageRaw::contractToPowerOfTwo(S32 max_dim, bool scale_image)
 {
 	// Find new sizes
 	S32 new_width  = contractDimToPowerOfTwo(getWidth(), MIN_IMAGE_SIZE);
@@ -1397,7 +1399,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 }
 
 
-BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
+bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 {
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
 
@@ -1406,7 +1408,7 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 	
 	if( (old_width == new_width) && (old_height == new_height) )
 	{
-		return TRUE;  // Nothing to do.
+		return true;  // Nothing to do.
 	}
 
 	// Reallocate the data buffer.
@@ -1441,7 +1443,7 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		U8 *new_data = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), new_data_size); 
 		if(NULL == new_data) 
 		{
-			return FALSE; 
+			return false; 
 		}
 
 		bilinear_scale(getData(), old_width, old_height, getComponents(), old_width*getComponents(), new_data, new_width, new_height, getComponents(), new_width*getComponents());
@@ -1476,7 +1478,7 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		}
 	}
 
-	return TRUE ;
+	return true ;
 }
 
 void LLImageRaw::copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step )
@@ -1795,7 +1797,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	ifs.read ((char*)buffer, length);
 	ifs.close();
 	
-	BOOL success;
+	bool success;
 
 	success = image->updateData();
 	if (success)
@@ -1971,7 +1973,7 @@ S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 //----------------------------------------------------------------------------
 
 // Subclasses that can handle more than 4 channels should override this function.
-BOOL LLImageFormatted::decodeChannels(LLImageRaw* raw_image,F32  decode_time, S32 first_channel, S32 max_channel)
+bool LLImageFormatted::decodeChannels(LLImageRaw* raw_image,F32  decode_time, S32 first_channel, S32 max_channel)
 {
 	llassert( (first_channel == 0) && (max_channel == 4) );
 	return decode( raw_image, decode_time );  // Loads first 4 channels by default.
@@ -2022,7 +2024,7 @@ void LLImageFormatted::sanityCheck()
 
 //----------------------------------------------------------------------------
 
-BOOL LLImageFormatted::copyData(U8 *data, S32 size)
+bool LLImageFormatted::copyData(U8 *data, S32 size)
 {
 	if ( data && ((data != getData()) || (size != getDataSize())) )
 	{
@@ -2030,7 +2032,7 @@ BOOL LLImageFormatted::copyData(U8 *data, S32 size)
 		allocateData(size);
 		memcpy(getData(), data, size);	/* Flawfinder: ignore */
 	}
-	return TRUE;
+	return true;
 }
 
 // LLImageFormatted becomes the owner of data
@@ -2066,7 +2068,7 @@ void LLImageFormatted::appendData(U8 *data, S32 size)
 
 //----------------------------------------------------------------------------
 
-BOOL LLImageFormatted::load(const std::string &filename, int load_size)
+bool LLImageFormatted::load(const std::string &filename, int load_size)
 {
 	resetLastError();
 
@@ -2077,12 +2079,12 @@ BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 	if (!apr_file)
 	{
 		setLastError("Unable to open file for reading", filename);
-		return FALSE;
+		return false;
 	}
 	if (file_size == 0)
 	{
 		setLastError("File is empty",filename);
-		return FALSE;
+		return false;
 	}
 
 	// Constrain the load size to acceptable values
@@ -2090,7 +2092,7 @@ BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 	{
 		load_size = file_size;
 	}
-	BOOL res;
+	bool res;
 	U8 *data = allocateData(load_size);
 	apr_size_t bytes_read = load_size;
 	apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
@@ -2098,7 +2100,7 @@ BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 	{
 		deleteData();
 		setLastError("Unable to read file",filename);
-		res = FALSE;
+		res = false;
 	}
 	else
 	{
@@ -2108,7 +2110,7 @@ BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 	return res;
 }
 
-BOOL LLImageFormatted::save(const std::string &filename)
+bool LLImageFormatted::save(const std::string &filename)
 {
 	resetLastError();
 
@@ -2117,15 +2119,15 @@ BOOL LLImageFormatted::save(const std::string &filename)
 	if (!outfile.getFileHandle())
 	{
 		setLastError("Unable to open file for writing", filename);
-		return FALSE;
+		return false;
 	}
 	
 	outfile.write(getData(), 	getDataSize());
 	outfile.close() ;
-	return TRUE;
+	return true;
 }
 
-// BOOL LLImageFormatted::save(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
+// bool LLImageFormatted::save(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
 // Depricated to remove VFS dependency.
 // Use:
 // LLVFile::writeFile(image->getData(), image->getDataSize(), vfs, uuid, type);

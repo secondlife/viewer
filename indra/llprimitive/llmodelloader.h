@@ -137,7 +137,9 @@ public:
 	virtual void setNoOptimize() { mNoOptimize = true; }
 
 	virtual void run();
-	
+
+    static bool getSLMFilename(const std::string& model_filename, std::string& slm_filename);
+
 	// Will try SLM or derived class OpenFile as appropriate
 	//
 	virtual bool doLoadModel();

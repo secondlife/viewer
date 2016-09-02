@@ -354,7 +354,7 @@ void LLAvatarRenderInfoAccountant::resetRenderInfoScanTimer()
 // are returned for a new LLViewerRegion, and is the earliest time to get render info
 void LLAvatarRenderInfoAccountant::scanNewRegion(const LLUUID& region_id)
 {
-	LL_INFOS("AvatarRenderInfo") << region_id << LL_ENDL;
+	LL_DEBUGS("AvatarRenderInfo") << region_id << LL_ENDL;
 
 	// Reset the global timer so it will scan regions on the next call to ::idle
 	LLAvatarRenderInfoAccountant::getInstance()->resetRenderInfoScanTimer();

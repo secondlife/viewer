@@ -65,7 +65,7 @@ public:
 	
 	// For normal names, returns "James Linden (james.linden)"
 	// When display names are disabled returns just "James Linden"
-	std::string getCompleteName() const;
+	std::string getCompleteName(bool use_parentheses = true) const;
 	
 	// Returns "James Linden" or "bobsmith123 Resident" for backwards
 	// compatibility with systems like voice and muting
@@ -80,7 +80,7 @@ public:
 	// Returns "James Linden" or "bobsmith123 Resident"
 	// Used where we explicitely prefer or need a non UTF-8 legacy (ASCII) name
 	// Also used for backwards compatibility with systems like voice and muting
-	std::string getUserName() const;
+	std::string getUserName(bool lowercase = false) const;
 	
 	// Returns "james.linden" or the legacy name for very old names
 	std::string getAccountName() const { return mUsername; }

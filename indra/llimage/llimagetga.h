@@ -41,25 +41,25 @@ public:
 	LLImageTGA(const std::string& file_name);
 
 	/*virtual*/ std::string getExtension() { return std::string("tga"); }
-	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time=0.0);
-	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time=0.0);
+	/*virtual*/ bool updateData();
+	/*virtual*/ bool decode(LLImageRaw* raw_image, F32 decode_time=0.0);
+	/*virtual*/ bool encode(const LLImageRaw* raw_image, F32 encode_time=0.0);
 
-	BOOL			 decodeAndProcess(LLImageRaw* raw_image, F32 domain, F32 weight);
+	bool			 decodeAndProcess(LLImageRaw* raw_image, F32 domain, F32 weight);
 	
 private:
-	BOOL			 decodeTruecolor( LLImageRaw* raw_image, BOOL rle, BOOL flipped );
+	bool			 decodeTruecolor( LLImageRaw* raw_image, bool rle, bool flipped );
 
-	BOOL			 decodeTruecolorRle8( LLImageRaw* raw_image );
-	BOOL			 decodeTruecolorRle15( LLImageRaw* raw_image );
-	BOOL			 decodeTruecolorRle24( LLImageRaw* raw_image );
-	BOOL			 decodeTruecolorRle32( LLImageRaw* raw_image, BOOL &alpha_opaque );
+	bool			 decodeTruecolorRle8( LLImageRaw* raw_image );
+	bool			 decodeTruecolorRle15( LLImageRaw* raw_image );
+	bool			 decodeTruecolorRle24( LLImageRaw* raw_image );
+	bool			 decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque );
 
 	void			 decodeTruecolorPixel15( U8* dst, const U8* src );
 
-	BOOL			 decodeTruecolorNonRle( LLImageRaw* raw_image, BOOL &alpha_opaque );
+	bool			 decodeTruecolorNonRle( LLImageRaw* raw_image, bool &alpha_opaque );
 	
-	BOOL			 decodeColorMap( LLImageRaw* raw_image, BOOL rle, BOOL flipped );
+	bool			 decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped );
 
 	void			 decodeColorMapPixel8(U8* dst, const U8* src);
 	void			 decodeColorMapPixel15(U8* dst, const U8* src);
@@ -100,7 +100,7 @@ private:
 	S32		mColorMapLength; 
 	S32		mColorMapBytesPerEntry;
 
-	BOOL	mIs15Bit;
+	bool	mIs15Bit;
 
 	static const U8 s5to8bits[32];
 };

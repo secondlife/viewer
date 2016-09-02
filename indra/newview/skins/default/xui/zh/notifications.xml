@@ -480,6 +480,9 @@
 	<notification name="CannotWearInfoNotComplete">
 		無法穿戴該物件，它尚未完成載入。 請稍候再試。
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		請輸入密碼以便登入。
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		糟糕！ 發現有內容留白。
 你必須為化身輸入一個使用者名稱。
@@ -547,6 +550,9 @@
 	</notification>
 	<notification name="ChangeConnectionPort">
 		重新啟動 [APP_NAME] 後將啟用新的埠設定。
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		這個除錯設定將在重新啟動 [APP_NAME] 後啟用。
 	</notification>
 	<notification name="ChangeSkin">
 		重新啟動 [APP_NAME] 後將顯現新的皮膚。
@@ -1359,12 +1365,13 @@
 			<ignore name="ignore" text="服裝花太多時間下載"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 視覺複雜度]是[AGENT_COMPLEXITY]。
+	<notification name="AgentComplexityWithVisibility">
+		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 化身複雜度]是[AGENT_COMPLEXITY]。
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="警告我化身的複雜度是否可能過高" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 視覺複雜度]是[AGENT_COMPLEXITY]。
+		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 化身複雜度]是[AGENT_COMPLEXITY]。
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] 安裝完成。
@@ -1478,6 +1485,10 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ConfirmBakeTerrain">
 		你真的要確定產出目前地形，使其成為地形升/降極限的中間值，並設為「復原」工具的預設值？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		你設的海拔範圍值，低值大於高值。　 繼續？
+		<usetemplate canceltext="不要問" name="yesnocancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		你最多只能有 [MAX_AGENTS] 位允許居民。
@@ -1711,14 +1722,6 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		無法離開群組。 你是此群組僅存的所有人，不得離開群組。 請先把所有人職銜指派給另一人。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="GroupDepartError">
-		無法離開群組：[reason]。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="GroupDepart">
-		你已經離開[group_name]群組。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2390,6 +2393,10 @@ SHA1 指紋：[MD5_DIGEST]
 		你確定你要對你垃圾筒中的內容進行刪除？
 		<usetemplate ignoretext="在我清空收納區垃圾筒資料夾前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="TrashIsFull">
+		你的垃圾桶快滿了。 這可能會造成登入的問題。
+		<usetemplate name="okcancelbuttons" notext="我稍後再清空垃圾桶" yestext="現在清空垃圾桶"/>
+	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		你確定要刪除你的旅行、網頁及搜尋歷史紀錄嗎？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
@@ -2973,11 +2980,11 @@ SHA1 指紋：[MD5_DIGEST]
 如果你繼續留在這地區，你將會被登出。
 	</notification>
 	<notification name="LoadWebPage">
-		載入網頁 [URL]?
+		載入網頁 [URL]？
 
 [MESSAGE]
 
-來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人：[NAME_SLURL]）
+來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人是[NAME_SLURL]）
 		<form name="form">
 			<button name="Gotopage" text="前往頁面"/>
 			<button name="Cancel" text="取消"/>
@@ -3246,11 +3253,15 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="AttachmentSaved">
 		附件已儲存。
 	</notification>
-	<notification name="PresetNotSaved">
-		儲存預設名稱[NAME]時出錯。
+	<notification name="AppearanceToXMLSaved">
+		外觀已經存成位於[PATH]的XML
 	</notification>
-	<notification name="PresetNotDeleted">
-		刪除預設名稱[NAME]時出錯。
+	<notification name="AppearanceToXMLFailed">
+		將外觀存為XML失敗。
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+刪除預設名稱[NAME]時出錯。
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		找不到這個元件的幫助主題。
@@ -4064,6 +4075,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		腳本資源不足，無法附著物件！
+	</notification>
+	<notification name="IllegalAttachment">
+		這個附件要求了化身上不存在的點。 因此已將該附件附著到胸部。
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		你無法在此卸除物件，請到「自由嘗試」區域再試。

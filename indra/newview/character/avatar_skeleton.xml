@@ -1,4 +1,4 @@
-<linden_skeleton num_bones="132" num_collision_volumes="26" version="2.0">
+<linden_skeleton num_bones="133" num_collision_volumes="26" version="2.0">
    <bone aliases="hip avatar_mPelvis" connected="false" end="0.000 0.000 0.084" group="Torso" name="mPelvis" pivot="0.000000 0.000000 1.067015" pos="0.000 0.000 1.067" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
       <collision_volume end="0.030 0.000 0.095" group="Collision" name="PELVIS" pos="-0.01 0 -0.02" rot="0.000000 8.00000 0.000000" scale="0.12 0.16 0.17" support="base"/>
       <collision_volume end="-0.100 0.000 0.000" group="Collision" name="BUTT" pos="-0.06 0 -0.1" rot="0.000000 0.00000 0.000000" scale="0.1 0.1 0.1" support="base"/>
@@ -21,11 +21,11 @@
                            <bone aliases="head avatar_mHead" connected="true" end="0.000 0.000 0.079" group="Torso" name="mHead" pivot="0.000000 -0.000000 0.075630" pos="0.000 -0.000 0.076" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                               <collision_volume end="0.000 0.000 0.100" group="Collision" name="HEAD" pos="0.02 0 0.07" rot="0.000000 0.000000 0.000000" scale="0.11 0.09 0.12" support="base"/>
                               <bone aliases="figureHair avatar_mSkull" connected="false" end="0.000 0.000 0.033" group="Extra" name="mSkull" pivot="0.000000 0.000000 0.079000" pos="0.000 0.000 0.079" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
-                              <bone aliases="avatar_mEyeRight" connected="false" end="0.100 0.000 0.000" group="Extra" name="mEyeRight" pivot="0.098466 -0.036000 0.079000" pos="0.098 -0.036 0.079" rot="0.000000 0.000000 -0.000000" scale="1.000 1.000 1.000" support="base"/>
-                              <bone aliases="avatar_mEyeLeft" connected="false" end="0.100 0.000 0.000" group="Extra" name="mEyeLeft" pivot="0.098461 0.036000 0.079000" pos="0.098 0.036 0.079" rot="0.000000 -0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
-                              <bone connected="false" end="0.100 0.000 0.000" group="Face" name="mFaceEyeAltRight" pivot="0.098466 -0.036000 0.079000" pos="0.098 -0.036 0.079" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
-                              <bone connected="false" end="0.100 0.000 0.000" group="Face" name="mFaceEyeAltLeft" pivot="0.098461 0.036000 0.079000" pos="0.098 0.036 0.079" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
-                              <bone connected="false" end="0.020 0.000 0.000" group="Face" name="mFaceRoot" pivot="0.025 0.000 0.045" pos="0.025 0.000 0.045" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                              <bone aliases="avatar_mEyeRight" connected="false" end="0.025 0.000 0.000" group="Extra" name="mEyeRight" pivot="0.098466 -0.036000 0.079000" pos="0.098 -0.036 0.079" rot="0.000000 0.000000 -0.000000" scale="1.000 1.000 1.000" support="base"/>
+                              <bone aliases="avatar_mEyeLeft" connected="false" end="0.025 0.000 0.000" group="Extra" name="mEyeLeft" pivot="0.098461 0.036000 0.079000" pos="0.098 0.036 0.079" rot="0.000000 -0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
+                              <bone connected="false" end="0.020 0.000 0.000" group="Face" name="mFaceRoot" pivot="0.025000 0.000000 0.045000" pos="0.025 0.000 0.045" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                                 <bone connected="false" end="0.025 0.000 0.000" group="Face" name="mFaceEyeAltRight" pivot="0.073466 -0.036000 0.0339300" pos="0.073 -0.036 0.034" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.025 0.000 0.000" group="Face" name="mFaceEyeAltLeft" pivot="0.073461 0.036000 0.0339300" pos="0.073 0.036 0.034" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.024 0.004 0.018" group="Face" name="mFaceForeheadLeft" pivot="0.061 0.035 0.083" pos="0.061 0.035 0.083" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.024 -0.004 0.018" group="Face" name="mFaceForeheadRight" pivot="0.061 -0.035 0.083" pos="0.061 -0.035 0.083" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.023 0.013 0.000" group="Eyes" name="mFaceEyebrowOuterLeft" pivot="0.064 0.051 0.048" pos="0.064 0.051 0.048" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
@@ -34,10 +34,10 @@
                                  <bone connected="false" end="0.023 -0.013 0.000" group="Eyes" name="mFaceEyebrowOuterRight" pivot="0.064 -0.051 0.048" pos="0.064 -0.051 0.048" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.027 0.000 0.000" group="Eyes" name="mFaceEyebrowCenterRight" pivot="0.070 -0.043 0.056" pos="0.070 -0.043 0.056" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.026 0.000 0.000" group="Eyes" name="mFaceEyebrowInnerRight" pivot="0.075 -0.022 0.051" pos="0.075 -0.022 0.051" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.038 0.000 0.000" group="Eyes" name="mFaceEyeLidUpperLeft" pivot="0.062 0.036 0.039" pos="0.062 0.036 0.039" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.036 0.000 0.000" group="Eyes" name="mFaceEyeLidLowerLeft" pivot="0.061 0.036 0.027" pos="0.061 0.036 0.027" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.038 0.000 0.000" group="Eyes" name="mFaceEyeLidUpperRight" pivot="0.062 -0.036 0.039" pos="0.062 -0.036 0.039" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.036 0.000 0.000" group="Eyes" name="mFaceEyeLidLowerRight" pivot="0.061 -0.036 0.027" pos="0.061 -0.036 0.027" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.027 0.000 0.005" group="Eyes" name="mFaceEyeLidUpperLeft" pivot="0.073 0.036 0.034" pos="0.073 0.036 0.034" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.024 0.000 -0.007" group="Eyes" name="mFaceEyeLidLowerLeft" pivot="0.073 0.036 0.034" pos="0.073 0.036 0.034" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.027 0.000 0.005" group="Eyes" name="mFaceEyeLidUpperRight" pivot="0.073 -0.036 0.034" pos="0.073 -0.036 0.034" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.024 0.000 -0.007" group="Eyes" name="mFaceEyeLidLowerRight" pivot="0.073 -0.036 0.034" pos="0.073 -0.036 0.034" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="-0.019 0.018 0.025" group="Ears" name="mFaceEar1Left" pivot="0.000 0.080 0.002" pos="0.000 0.080 0.002" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
                                     <bone connected="true" end="0.000 0.000 0.033" group="Ears" name="mFaceEar2Left" pivot="-0.019 0.018 0.025" pos="-0.019 0.018 0.025" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  </bone>
@@ -48,27 +48,30 @@
                                  <bone connected="false" end="0.025 0.000 0.000" group="Face" name="mFaceNoseCenter" pivot="0.102 0.000 0.000" pos="0.102 0.000 0.000" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.015 -0.004 0.000" group="Face" name="mFaceNoseRight" pivot="0.086 -0.015 -0.004" pos="0.086 -0.015 -0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.013 0.030 0.000" group="Face" name="mFaceCheekLowerLeft" pivot="0.050 0.034 -0.031" pos="0.050 0.034 -0.031" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.022 0.015 0.001" group="Face" name="mFaceCheekUpperLeft" pivot="0.070 0.034 -0.005" pos="0.070 0.034 -0.005" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.022 0.015 0.000" group="Face" name="mFaceCheekUpperLeft" pivot="0.070 0.034 -0.005" pos="0.070 0.034 -0.005" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.013 -0.030 0.000" group="Face" name="mFaceCheekLowerRight" pivot="0.050 -0.034 -0.031" pos="0.050 -0.034 -0.031" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.022 -0.015 0.001" group="Face" name="mFaceCheekUpperRight" pivot="0.070 -0.034 -0.005" pos="0.070 -0.034 -0.005" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.048 0.003 0.000" group="Lips" name="mFaceLipUpperLeft" pivot="0.058 0.012 -0.033" pos="0.058 0.012 -0.033" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.048 -0.003 0.000" group="Lips" name="mFaceLipUpperRight" pivot="0.058 -0.012 -0.033" pos="0.058 -0.012 -0.033" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.045 0.008 0.000" group="Lips" name="mFaceLipCornerLeft" pivot="0.048 0.024 -0.040" pos="0.048 0.024 -0.040" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.045 -0.008 0.000" group="Lips" name="mFaceLipCornerRight" pivot="0.048 -0.024 -0.040" pos="0.048 -0.024 -0.040" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.044 0.000 -0.021" group="Mouth" name="mFaceJaw" pivot="0.020 0.000 -0.037" pos="0.020 0.000 -0.037" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-                                    <bone connected="true" end="0.020 0.000 0.008" group="Mouth" name="mFaceTongueBase" pivot="0.044 0.000 -0.021" pos="0.044 0.000 -0.021" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-                                       <bone connected="true" end="0.007 0.000 0.003" group="Mouth" name="mFaceTongueTip" pivot="0.020 0.000 0.008" pos="0.020 0.000 0.008" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.022 -0.015 0.000" group="Face" name="mFaceCheekUpperRight" pivot="0.070 -0.034 -0.005" pos="0.070 -0.034 -0.005" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.059 0.000 -0.039" group="Mouth" name="mFaceJaw" pivot="-0.001 0.000 -0.015" pos="-0.001 0.000 -0.015" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                    <bone connected="false" end="0.021 0.000 -0.018" group="Mouth" name="mFaceChin" pivot="0.074 0.000 -0.054" pos="0.074 0.000 -0.054" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.035 0.000 0.000" group="Mouth" name="mFaceTeethLower" pivot="0.021 0.000 -0.039" pos="0.021 0.000 -0.039" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                       <bone connected="false" end="0.034 0.017 0.005" group="Lips" name="mFaceLipLowerLeft" pivot="0.045 0.000 0.000" pos="0.045 0.000 0.000" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                       <bone connected="false" end="0.034 -0.017 0.005" group="Lips" name="mFaceLipLowerRight" pivot="0.045 0.000 0.000" pos="0.045 0.000 0.000" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                       <bone connected="false" end="0.040 0.000 0.002" group="Lips" name="mFaceLipLowerCenter" pivot="0.045 0.000 0.000" pos="0.045 0.000 0.000" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                       <bone connected="false" end="0.022 0.000 0.007" group="Mouth" name="mFaceTongueBase" pivot="0.039 0.000 0.005" pos="0.039 0.000 0.005" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                          <bone connected="true" end="0.010 0.000 0.000" group="Mouth" name="mFaceTongueTip" pivot="0.022 0.000 0.007" pos="0.022 0.000 0.007" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                       </bone>
                                     </bone>
-                                    <bone connected="false" end="0.047 0.003 0.000" group="Lips" name="mFaceLipLowerLeft" pivot="0.032 0.014 -0.012" pos="0.032 0.014 -0.012" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                    <bone connected="false" end="0.047 -0.003 0.000" group="Lips" name="mFaceLipLowerRight" pivot="0.032 -0.014 -0.012" pos="0.032 -0.014 -0.012" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                    <bone connected="false" end="0.048 0.000 0.000" group="Lips" name="mFaceLipLowerCenter" pivot="0.037 0.000 -0.017" pos="0.037 0.000 -0.017" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                    <bone connected="false" end="0.021 0.000 -0.018" group="Mouth" name="mFaceChin" pivot="0.053 0.000 -0.032" pos="0.053 0.000 -0.032" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  </bone>
+                                 <bone connected="false" end="-0.017 0.000 0.000" group="Face" name="mFaceJawShaper" pivot="0.000 0.000 0.000" pos="0.000 0.000 0.000" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.036 0.000 0.000" group="Face" name="mFaceForeheadCenter" pivot="0.069 0.000 0.065" pos="0.069 0.000 0.065" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.048 0.000 0.000" group="Lips" name="mFaceLipUpperCenter" pivot="0.060 0.000 -0.030" pos="0.060 0.000 -0.030" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.014 0.000 0.000" group="Nose" name="mFaceNoseBase" pivot="0.094 0.000 -0.016" pos="0.094 0.000 -0.016" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.061 0.000 -0.010" group="Mouth" name="mFaceTeethLower" pivot="0.020 0.000 -0.044" pos="0.020 0.000 -0.044" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.061 0.000 0.000" group="Mouth" name="mFaceTeethUpper" pivot="0.020 0.000 -0.030" pos="0.020 0.000 -0.030" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.035 0.000 0.000" group="Mouth" name="mFaceTeethUpper" pivot="0.020 0.000 -0.030" pos="0.020 0.000 -0.030" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                    <bone connected="false" end="0.041 0.015 0.000" group="Lips" name="mFaceLipUpperLeft" pivot="0.045 0.000 -0.003" pos="0.045 0.000 -0.003" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.041 -0.015 0.000" group="Lips" name="mFaceLipUpperRight" pivot="0.045 0.000 -0.003" pos="0.045 0.000 -0.003" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.045 0.051 0.000" group="Lips" name="mFaceLipCornerLeft" pivot="0.028 -0.019 -0.010" pos="0.028 -0.019 -0.010" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.045 -0.051 0.000" group="Lips" name="mFaceLipCornerRight" pivot="0.028 0.019 -0.010" pos="0.028 0.019 -0.010" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.043 0.000 0.002" group="Lips" name="mFaceLipUpperCenter" pivot="0.045 0.000 -0.003" pos="0.045 0.000 -0.003" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                 </bone>
                                  <bone connected="false" end="0.016 0.000 0.000" group="Face" name="mFaceEyecornerInnerLeft" pivot="0.075 0.017 0.032" pos="0.075 0.017 0.032" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.016 0.000 0.000" group="Face" name="mFaceEyecornerInnerRight" pivot="0.075 -0.017 0.032" pos="0.075 -0.017 0.032" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.015 0.000 0.008" group="Nose" name="mFaceNoseBridge" pivot="0.091 0.000 0.020" pos="0.091 0.000 0.020" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
@@ -103,9 +106,9 @@
                                           <bone connected="true" end="-0.013 0.016 -0.004" group="Hand" name="mHandPinky3Left" pivot="-0.015 0.018 -0.004" pos="-0.015 0.018 -0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                        </bone>
                                     </bone>
-                                    <bone connected="false" end="0.028 0.032 -0.001" group="Hand" name="mHandThumb1Left" pivot="0.031 0.026 0.004" pos="0.031 0.026 0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-                                       <bone connected="true" end="0.023 0.031 -0.001" group="Hand" name="mHandThumb2Left" pivot="0.028 0.032 -0.001" pos="0.028 0.032 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-                                          <bone connected="true" end="0.015 0.025 0.001" group="Hand" name="mHandThumb3Left" pivot="0.023 0.031 -0.001" pos="0.023 0.031 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.028 0.032 0.000" group="Hand" name="mHandThumb1Left" pivot="0.031 0.026 0.004" pos="0.031 0.026 0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                       <bone connected="true" end="0.023 0.031 0.000" group="Hand" name="mHandThumb2Left" pivot="0.028 0.032 -0.001" pos="0.028 0.032 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                          <bone connected="true" end="0.015 0.025 0.000" group="Hand" name="mHandThumb3Left" pivot="0.023 0.031 -0.001" pos="0.023 0.031 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                        </bone>
                                     </bone>
                                  </bone>
@@ -140,9 +143,9 @@
                                           <bone connected="true" end="-0.013 -0.016 -0.004" group="Hand" name="mHandPinky3Right" pivot="-0.015 -0.018 -0.004" pos="-0.015 -0.018 -0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                        </bone>
                                     </bone>
-                                    <bone connected="false" end="0.028 -0.032 -0.001" group="Hand" name="mHandThumb1Right" pivot="0.031 -0.026 0.004" pos="0.031 -0.026 0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-                                       <bone connected="true" end="0.023 -0.031 -0.001" group="Hand" name="mHandThumb2Right" pivot="0.028 -0.032 -0.001" pos="0.028 -0.032 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-                                          <bone connected="true" end="0.015 -0.025 0.001" group="Hand" name="mHandThumb3Right" pivot="0.023 -0.031 -0.001" pos="0.023 -0.031 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+                                    <bone connected="false" end="0.028 -0.032 0.000" group="Hand" name="mHandThumb1Right" pivot="0.031 -0.026 0.004" pos="0.031 -0.026 0.004" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                       <bone connected="true" end="0.023 -0.031 0.000" group="Hand" name="mHandThumb2Right" pivot="0.028 -0.032 -0.001" pos="0.028 -0.032 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                                          <bone connected="true" end="0.015 -0.025 0.000" group="Hand" name="mHandThumb3Right" pivot="0.023 -0.031 -0.001" pos="0.023 -0.031 -0.001" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                        </bone>
                                     </bone>
                                  </bone>
@@ -179,8 +182,8 @@
             <collision_volume end="-0.010 0.000 -0.150" group="Collision" name="R_LOWER_LEG" pos="-0.02 0.0 -0.2" rot="0.000000 0.00000 0.000000" scale="0.06 0.06 0.25" support="base"/>
             <bone aliases="rFoot avatar_mAnkleRight" connected="true" end="0.112 0.000 -0.061" group="Legs" name="mAnkleRight" pivot="-0.028869 0.000000 -0.468494" pos="-0.029 0.000 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                <collision_volume end="0.089 0.000 -0.026" group="Collision" name="R_FOOT" pos="0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05" support="base"/>
-               <bone aliases="avatar_mFootRight" connected="true" end="0.105 -0.010 -0.000" group="Extra" name="mFootRight" pivot="0.111956 -0.000000 -0.060637" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
-                  <bone aliases="avatar_mToeRight" connected="true" end="0.020 0.000 0.000" group="Extra" name="mToeRight" pivot="0.105399 -0.010408 -0.000104" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
+               <bone aliases="avatar_mFootRight" connected="true" end="0.105 -0.010 0.000" group="Extra" name="mFootRight" pivot="0.111956 -0.000000 -0.060637" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
+                  <bone aliases="avatar_mToeRight" connected="false" end="0.020 0.000 0.000" group="Extra" name="mToeRight" pivot="0.105399 -0.010408 -0.000104" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
                </bone>
             </bone>
          </bone>
@@ -192,7 +195,7 @@
             <bone aliases="lFoot avatar_mAnkleLeft" connected="true" end="0.112 0.000 -0.061" group="Legs" name="mAnkleLeft" pivot="-0.028887 0.001378 -0.468449" pos="-0.029 0.001 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                <collision_volume end="0.089 0.000 -0.026" group="Collision" name="L_FOOT" pos="0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05" support="base"/>
                <bone aliases="avatar_mFootLeft" connected="true" end="0.105 0.008 0.001" group="Extra" name="mFootLeft" pivot="0.111956 -0.000000 -0.060620" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
-                  <bone aliases="avatar_mToeLeft" connected="true" end="0.020 0.000 0.000" group="Extra" name="mToeLeft" pivot="0.105387 0.008270 0.000871" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
+                  <bone aliases="avatar_mToeLeft" connected="false" end="0.020 0.000 0.000" group="Extra" name="mToeLeft" pivot="0.105387 0.008270 0.000871" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
                </bone>
             </bone>
          </bone>
@@ -210,20 +213,20 @@
       </bone>
       <bone connected="false" end="0.004 0.000 -0.066" group="Groin" name="mGroin" pivot="0.064 0.000 -0.097" pos="0.064 0.000 -0.097" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
       <bone connected="false" end="-0.204 0.000 0.000" group="Limb" name="mHindLimbsRoot" pivot="-0.200 0.000 0.084" pos="-0.200 0.000 0.084" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-        <bone connected="false" end="0.002 -0.046 -0.491" group="Limb" name="mHindLimb1Left" pivot="-0.204 0.129 -0.125" pos="-0.204 0.129 -0.125" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-          <bone connected="true" end="-0.030 -0.003 -0.468" group="Limb" name="mHindLimb2Left" pivot="0.002 -0.046 -0.491" pos="0.002 -0.046 -0.491" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-            <bone connected="true" end="0.112 0.000 -0.061" group="Limb" name="mHindLimb3Left" pivot="-0.030 -0.003 -0.468" pos="-0.030 -0.003 -0.468" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-              <bone connected="true" end="0.105 0.008 0.001" group="Limb" name="mHindLimb4Left" pivot="0.112 0.000 -0.061" pos="0.112 0.000 -0.061" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+         <bone connected="false" end="0.002 -0.046 -0.491" group="Limb" name="mHindLimb1Left" pivot="-0.204 0.129 -0.125" pos="-0.204 0.129 -0.125" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+            <bone connected="true" end="-0.030 -0.003 -0.468" group="Limb" name="mHindLimb2Left" pivot="0.002 -0.046 -0.491" pos="0.002 -0.046 -0.491" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+               <bone connected="true" end="0.112 0.000 -0.061" group="Limb" name="mHindLimb3Left" pivot="-0.030 -0.003 -0.468" pos="-0.030 -0.003 -0.468" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                  <bone connected="true" end="0.105 0.008 0.000" group="Limb" name="mHindLimb4Left" pivot="0.112 0.000 -0.061" pos="0.112 0.000 -0.061" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+               </bone>
             </bone>
-          </bone>
-        </bone>
-        <bone connected="false" end="0.002 0.046 -0.491" group="Limb" name="mHindLimb1Right" pivot="-0.204 -0.129 -0.125" pos="-0.204 -0.129 -0.125" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-          <bone connected="true" end="-0.030 0.003 -0.468" group="Limb" name="mHindLimb2Right" pivot="0.002 0.046 -0.491" pos="0.002 0.046 -0.491" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-            <bone connected="true" end="0.112 0.000 -0.061" group="Limb" name="mHindLimb3Right" pivot="-0.030 0.003 -0.468" pos="-0.030 0.003 -0.468" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-              <bone connected="true" end="0.105 0.008 0.001" group="Limb" name="mHindLimb4Right" pivot="0.112 -0.000 -0.061" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="extended" />
+         </bone>
+         <bone connected="false" end="0.002 0.046 -0.491" group="Limb" name="mHindLimb1Right" pivot="-0.204 -0.129 -0.125" pos="-0.204 -0.129 -0.125" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+            <bone connected="true" end="-0.030 0.003 -0.468" group="Limb" name="mHindLimb2Right" pivot="0.002 0.046 -0.491" pos="0.002 0.046 -0.491" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+               <bone connected="true" end="0.112 0.000 -0.061" group="Limb" name="mHindLimb3Right" pivot="-0.030 0.003 -0.468" pos="-0.030 0.003 -0.468" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                  <bone connected="true" end="0.105 -0.008 0.000" group="Limb" name="mHindLimb4Right" pivot="0.112 0.000 -0.061" pos="0.112 0.000 -0.061" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
+               </bone>
             </bone>
-          </bone>
-        </bone>
+         </bone>
       </bone>
-    </bone>
+   </bone>
 </linden_skeleton>

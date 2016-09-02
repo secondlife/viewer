@@ -3723,6 +3723,17 @@
         <key>Value</key>
         <integer>1</integer>
     </map>
+    <key>QueueInventoryFetchTimeout</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time llcompilequeue will wait for inventory fetch to complete (in seconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>300.0</real>
+    </map>
     <key>FindLandArea</key>
     <map>
       <key>Comment</key>
@@ -6429,7 +6440,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>MeshUploadLogXML</key>
   <map>
@@ -11087,6 +11098,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>FriendsListHideUsernames</key>
+    <map>
+        <key>Comment</key>
+            <string>Show both Display name and Username in Friend list</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
+    <key>NearbyListHideUsernames</key>
+    <map>
+        <key>Comment</key>
+            <string>Show both Display name and Username in Nearby list</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map> 
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>

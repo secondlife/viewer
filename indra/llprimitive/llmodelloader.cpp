@@ -150,6 +150,23 @@ void LLModelLoader::run()
 	doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
 }
 
+// static
+bool LLModelLoader::getSLMFilename(const std::string& model_filename, std::string& slm_filename)
+{
+    slm_filename = model_filename;
+
+    std::string::size_type i = model_filename.rfind(".");
+    if (i != std::string::npos)
+    {
+        slm_filename.replace(i, model_filename.size()-1, ".slm");
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool LLModelLoader::doLoadModel()
 {
 	//first, look for a .slm file of the same name that was modified later
@@ -157,20 +174,17 @@ bool LLModelLoader::doLoadModel()
 
 	if (mTrySLM)
 	{
-		std::string filename = mFilename;
-			
-		std::string::size_type i = filename.rfind(".");
-		if (i != std::string::npos)
-		{
-			filename.replace(i, filename.size()-1, ".slm");
+        std::string slm_filename;
+        if (getSLMFilename(mFilename, slm_filename))
+        {
 			llstat slm_status;
-			if (LLFile::stat(filename, &slm_status) == 0)
+			if (LLFile::stat(slm_filename, &slm_status) == 0)
 			{ //slm file exists
 				llstat dae_status;
 				if (LLFile::stat(mFilename, &dae_status) != 0 ||
 					dae_status.st_mtime < slm_status.st_mtime)
 				{
-					if (loadFromSLM(filename))
+					if (loadFromSLM(slm_filename))
 					{ //slm successfully loaded, if this fails, fall through and
 						//try loading from dae
 

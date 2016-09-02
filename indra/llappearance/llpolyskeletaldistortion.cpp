@@ -150,15 +150,11 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
         LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
         if (!joint)
         {
+            // There's no point continuing after this error - means
+            // that either the skeleton or lad file is broken.
             LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
-            continue;
+			return FALSE;
         }
-
-        // BENTO remove?
-        //if (mJointScales.find(joint) != mJointScales.end())
-        //{
-        //    LL_WARNS() << "Scale deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
-        //}
 
         // store it
         mJointScales[joint] = bone_info->mScaleDeformation;
@@ -178,11 +174,6 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 
         if (bone_info->mHasPositionDeformation)
         {
-            // BENTO remove?
-            //if (mJointOffsets.find(joint) != mJointOffsets.end())
-            //{
-            //    LL_WARNS() << "Offset deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
-            //}
             mJointOffsets[joint] = bone_info->mPositionDeformation;
         }
     }
@@ -218,9 +209,10 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
                 newScale = newScale + offset;
 				//An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
-				// needed? // joint->storeScaleForReset( newScale );				
+				// needed? 
+				// joint->storeScaleForReset( newScale );				
 
-                // BENTO debugging stuff can be pulled.
+                // BENTO for detailed stack tracing of params.
                 std::stringstream ostr;
                 ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
                 LLScopedContextString str(ostr.str());
@@ -237,8 +229,8 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 LLVector3 positionDelta = iter->second;				
                 newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
                 // SL-315
-                // BENTO - allow attachment positions to override requests from the params.
-                joint->setPosition(newPosition, true);
+                bool allow_attachment_pos_overrides = true;
+                joint->setPosition(newPosition, allow_attachment_pos_overrides);
         }
 
         if (mLastWeight != mCurWeight && !mIsAnimating)

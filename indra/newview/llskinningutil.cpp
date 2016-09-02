@@ -72,7 +72,7 @@ U32 get_valid_joint_index(const std::string& name, LLVOAvatar *avatar, std::vect
             return j;
         }
     }
-    // BENTO how to handle?
+    // Shouldn't ever get here, because of the name cleanup pass in remapSkinInfoJoints()
     LL_ERRS() << "no valid joints in joint_names" << LL_ENDL;
     return 0;
 }
@@ -118,7 +118,7 @@ U32 LLSkinningUtil::getMaxJointCount()
     U32 result = LL_MAX_JOINTS_PER_MESH_OBJECT;
     if (!sIncludeEnhancedSkeleton)
     {
-        // BENTO - currently the remap logic does not guarantee joint count <= 52;
+        // Currently the remap logic does not guarantee joint count <= 52;
         // if one of the base ancestors is not rigged in a given mesh, an extended
 		// joint can still be included.
         result = llmin(result,(U32)52);
@@ -160,6 +160,16 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
     U32 max_joints = getMeshJointCount(skin);
 
     // Compute the remap
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        // Fix invalid names to "mPelvis". Currently meshes with
+        // invalid names will be blocked on upload, so this is just
+        // needed for handling of any legacy bad data.
+        if (!avatar->getJoint(skin->mJointNames[j]))
+        {
+            skin->mJointNames[j] = "mPelvis";
+        }
+    }
     std::vector<U32> j_proxy(skin->mJointNames.size());
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
     {
@@ -179,8 +189,6 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
             {
                 top++;
             }
-
-             
         }
     }
     // Then use j_proxy to fill in j_remap for the joints that will be discarded
@@ -285,7 +293,7 @@ void LLSkinningUtil::remapSkinWeights(LLVector4a* weights, U32 num_vertices, con
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	const S32 max_joints = skin->mJointNames.size();
+	const S32 max_joints = skin->mJointRemap.size();
     if (skin->mJointRemap.size()>0)
     {
         // Check the weights are consistent with the current remap.

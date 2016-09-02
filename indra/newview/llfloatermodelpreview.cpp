@@ -1656,22 +1656,17 @@ void LLModelPreview::saveUploadData(bool save_skinweights, bool save_joint_posit
 	if (!mLODFile[LLModel::LOD_HIGH].empty())
 	{
 		std::string filename = mLODFile[LLModel::LOD_HIGH];
-		
-		std::string::size_type i = filename.rfind(".");
-		if (i != std::string::npos)
-		{
-			filename.replace(i, filename.size()-1, ".slm");
-			saveUploadData(filename, save_skinweights, save_joint_positions);
+        std::string slm_filename;
+
+        if (LLModelLoader::getSLMFilename(filename, slm_filename))
+        {
+			saveUploadData(slm_filename, save_skinweights, save_joint_positions);
 		}
 	}
 }
 
 void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_positions)
 {
-	if (!gSavedSettings.getBOOL("MeshImportUseSLM"))
-	{
-		return;
-	}
 
 	std::set<LLPointer<LLModel> > meshes;
 	std::map<LLModel*, std::string> mesh_binary;
@@ -1818,6 +1813,12 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	}
 	else
 	{
+        // For MAINT-6647, we have set force_disable_slm to true,
+        // which means this code path will never be taken. Trying to
+        // re-use SLM files has never worked properly; in particular,
+        // it tends to force the UI into strange checkbox options
+        // which cannot be altered.
+        
 		//only try to load from slm if viewer is configured to do so and this is the 
 		//initial model load (not an LoD or physics shape)
 		mModelLoader->mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mUploadData.empty();
@@ -4239,7 +4240,11 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
 	bool upload_joint_positions = mp->childGetValue("upload_joints").asBoolean();
 
-	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
+
+	if (gSavedSettings.getBOOL("MeshImportUseSLM"))
+	{
+        mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
+    }
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
 						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl,

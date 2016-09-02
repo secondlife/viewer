@@ -3,8 +3,9 @@
 	<text name="tell_me_label">
 		Avisar:
 	</text>
-	<check_box label="Quando eu gasto ou recebo L$" name="notify_money_change_checkbox"/>
+	<check_box label="Quando eu gastar L$" name="notify_money_spend_checkbox"/>
 	<check_box label="Quando meus amigos entram e saem" name="friends_online_notify_checkbox"/>
+	<check_box label="Quando eu receber L$" name="notify_money_received_checkbox"/>
 	<text name="show_label">
 		Mostrar sempre:
 	</text>
