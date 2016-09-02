@@ -52,11 +52,17 @@ def fix_name(element):
 def enforce_precision_rules(element):
     pass
 
-def float_tuple(str):
+def float_tuple(str, n=3):
     try:
-        return [float(e) for e in str.split(" ")]
+        result = tuple(float(e) for e in str.split())
+        if len(result)==n:
+            return result
+        else:
+            print "tuple length wrong:", str,"gave",result,"wanted len",n,"got len",len(result)
+            raise Exception()
     except:
-        return (0,0,0)
+        print "convert failed for:",str
+        raise
 
 def check_symmetry(name, field, vec1, vec2):
     if vec1[0] != vec2[0]:
@@ -232,6 +238,41 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
         print "BAD FILE:", unfixable,"errs could not be fixed"
             
 
+def slider_info(ladtree,skeltree):
+    for param in ladtree.iter("param"):
+        for skel_param in param.iter("param_skeleton"):
+            bones = [b for b in skel_param.iter("bone")]
+        if bones:
+            print "param",param.get("name"),"id",param.get("id")
+            value_min = float(param.get("value_min"))
+            value_max = float(param.get("value_max"))
+            neutral = 100.0 * (0.0-value_min)/(value_max-value_min)
+            print "  neutral",neutral
+            for b in bones:
+                scale = float_tuple(b.get("scale","0 0 0"))
+                offset = float_tuple(b.get("offset","0 0 0"))
+                print "  bone", b.get("name"), "scale", scale, "offset", offset
+                print "    scale",scale
+                print "    offset",offset
+                scale_min = [value_min * s for s in scale]
+                scale_max = [value_max * s for s in scale]
+                offset_min = [value_min * t for t in offset]
+                offset_max = [value_max * t for t in offset]
+                if (scale_min != scale_max):
+                    print "    Scale MinX", scale_min[0]
+                    print "    Scale MinY", scale_min[1]
+                    print "    Scale MinZ", scale_min[2]
+                    print "    Scale MaxX", scale_max[0]
+                    print "    Scale MaxY", scale_max[1]
+                    print "    Scale MaxZ", scale_max[2]
+                if (offset_min != offset_max):
+                    print "    Offset MinX", offset_min[0]
+                    print "    Offset MinY", offset_min[1]
+                    print "    Offset MinZ", offset_min[2]
+                    print "    Offset MaxX", offset_max[0]
+                    print "    Offset MaxY", offset_max[1]
+                    print "    Offset MaxZ", offset_max[2]
+    
 # Check contents of avatar_lad file relative to a specified skeleton
 def validate_lad_tree(ladtree,skeltree,orig_ladtree):
     print "validate_lad_tree"
@@ -376,6 +417,7 @@ if __name__ == "__main__":
     parser.add_argument("--remove", nargs="+", help="remove specified joints")
     parser.add_argument("--list", action="store_true", help="list joint names")
     parser.add_argument("--compare", help="alternate skeleton file to compare")
+    parser.add_argument("--slider_info", help="information about the lad file sliders and affected bones", action="store_true")
     parser.add_argument("infilename", help="name of a skel .xml file to input", default="avatar_skeleton.xml")
     parser.add_argument("outfilename", nargs="?", help="name of a skel .xml file to output")
     args = parser.parse_args()
@@ -426,6 +468,9 @@ if __name__ == "__main__":
         compare_tree = etree.parse(args.compare)
         compare_skel_trees(compare_tree,tree)
 
+    if ladtree and tree and args.slider_info:
+        slider_info(ladtree,tree)
+        
     if args.outfilename:
         f = open(args.outfilename,"w")
         print >>f, etree.tostring(tree, pretty_print=True) #need update to get: , short_empty_elements=True)
