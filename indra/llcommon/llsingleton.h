@@ -66,8 +66,10 @@ protected:
     } EInitState;
 
     // Base-class constructor should only be invoked by the DERIVED_TYPE
-    // constructor.
-    LLSingletonBase();
+    // constructor, which passes the DERIVED_TYPE class name for logging
+    // purposes. Within LLSingletonBase::LLSingletonBase, of course the
+    // formula typeid(*this).name() produces "LLSingletonBase".
+    LLSingletonBase(const char* name);
     virtual ~LLSingletonBase();
 
     // Every new LLSingleton should be added to/removed from the master list
@@ -87,11 +89,15 @@ protected:
     // single C++ scope, else we'd use RAII to track it. But we do know that
     // LLSingletonBase's constructor definitely runs just before
     // LLSingleton's, which runs just before the specific subclass's.
-    void push_initializing();
+    void push_initializing(const char*);
     // LLSingleton is, and must remain, the only caller to initSingleton().
     // That being the case, we control exactly when it happens -- and we can
     // pop the stack immediately thereafter.
     void pop_initializing();
+private:
+    // logging
+    static void log_initializing(const char* verb, const char* name);
+protected:
     // If a given call to B::getInstance() happens during either A::A() or
     // A::initSingleton(), record that A directly depends on B.
     void capture_dependency(EInitState);
@@ -281,7 +287,9 @@ private:
     };
 
 protected:
-    LLSingleton()
+    // Use typeid(DERIVED_TYPE) rather than typeid(*this) because, until our
+    // constructor completes, *this isn't yet a full-fledged DERIVED_TYPE.
+    LLSingleton(): LLSingletonBase(typeid(DERIVED_TYPE).name())
     {
         // populate base-class function pointer with the static
         // deleteSingleton() function for this particular specialization

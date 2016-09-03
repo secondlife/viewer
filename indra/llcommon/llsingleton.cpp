@@ -38,7 +38,11 @@
 
 namespace {
 void log(LLError::ELevel level,
-         const char* p1="", const char* p2="", const char* p3="", const char* p4="");
+         const char* p1, const char* p2, const char* p3, const char* p4);
+
+void logdebugs(const char* p1="", const char* p2="", const char* p3="", const char* p4="");
+
+bool oktolog();
 } // anonymous namespace
 
 // Our master list of all LLSingletons is itself an LLSingleton. We used to
@@ -95,38 +99,64 @@ LLSingletonBase::list_t& LLSingletonBase::get_initializing()
     return sList;
 }
 
-LLSingletonBase::LLSingletonBase():
+LLSingletonBase::LLSingletonBase(const char* name):
     mCleaned(false),
     mDeleteSingleton(NULL)
 {
     // Make this the currently-initializing LLSingleton.
-    push_initializing();
+    push_initializing(name);
 }
 
 LLSingletonBase::~LLSingletonBase() {}
 
-void LLSingletonBase::push_initializing()
+void LLSingletonBase::push_initializing(const char* name)
 {
+    // log BEFORE pushing so logging singletons don't cry circularity
+    log_initializing("Pushing", name);
     get_initializing().push_back(this);
 }
 
 void LLSingletonBase::pop_initializing()
 {
     list_t& list(get_initializing());
+
     if (list.empty())
     {
         logerrs("Underflow in stack of currently-initializing LLSingletons at ",
                 demangle(typeid(*this).name()).c_str(), "::getInstance()");
     }
-    if (list.back() != this)
+
+    // Now we know list.back() exists: capture it
+    LLSingletonBase* back(list.back());
+    // and pop it
+    list.pop_back();
+
+    if (back != this)
     {
-        LLSingletonBase* back(list.back());
         logerrs("Push/pop mismatch in stack of currently-initializing LLSingletons: ",
                 demangle(typeid(*this).name()).c_str(), "::getInstance() trying to pop ",
                 demangle(typeid(*back).name()).c_str());
     }
-    // Here we're sure that list.back() == this. Whew, pop it.
-    list.pop_back();
+
+    // log AFTER popping so logging singletons don't cry circularity
+    log_initializing("Popping", typeid(*back).name());
+}
+
+//static
+void LLSingletonBase::log_initializing(const char* verb, const char* name)
+{
+    if (oktolog())
+    {
+        LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
+        list_t& list(get_initializing());
+        for (list_t::const_reverse_iterator ri(list.rbegin()), rend(list.rend());
+             ri != rend; ++ri)
+        {
+            LLSingletonBase* sb(*ri);
+            LL_CONT << ' ' << demangle(typeid(*sb).name());
+        }
+        LL_ENDL;
+    }
 }
 
 void LLSingletonBase::capture_dependency(EInitState initState)
@@ -181,8 +211,8 @@ void LLSingletonBase::capture_dependency(EInitState initState)
             if (current->mDepends.insert(this).second)
             {
                 // only log the FIRST time we hit this dependency!
-                log(LLError::LEVEL_DEBUG, demangle(typeid(*current).name()).c_str(),
-                    " depends on ", demangle(typeid(*this).name()).c_str());
+                logdebugs(demangle(typeid(*current).name()).c_str(),
+                          " depends on ", demangle(typeid(*this).name()).c_str());
             }
         }
     }
@@ -240,8 +270,8 @@ void LLSingletonBase::cleanupAll()
         {
             sp->mCleaned = true;
 
-            log(LLError::LEVEL_DEBUG, "calling ",
-                demangle(typeid(*sp).name()).c_str(), "::cleanupSingleton()");
+            logdebugs("calling ",
+                      demangle(typeid(*sp).name()).c_str(), "::cleanupSingleton()");
             try
             {
                 sp->cleanupSingleton();
@@ -280,7 +310,7 @@ void LLSingletonBase::deleteAll()
             else
             {
                 // properly initialized: call it.
-                log(LLError::LEVEL_DEBUG, "calling ", name.c_str(), "::deleteSingleton()");
+                logdebugs("calling ", name.c_str(), "::deleteSingleton()");
                 // From this point on, DO NOT DEREFERENCE sp!
                 sp->mDeleteSingleton();
             }
@@ -331,6 +361,12 @@ void intrusive_ptr_release(LLSingletonBase::MasterRefcount* mrc)
 
 /*---------------------------- Logging helpers -----------------------------*/
 namespace {
+bool oktolog()
+{
+    // See comments in log() below.
+    return sMasterRefcount.refcount && LLError::is_available();
+}
+
 void log(LLError::ELevel level,
          const char* p1, const char* p2, const char* p3, const char* p4)
 {
@@ -361,6 +397,11 @@ void log(LLError::ELevel level,
         // visible to the user.
         std::cerr << p1 << p2 << p3 << p4 << std::endl;
     }
+}
+
+void logdebugs(const char* p1, const char* p2, const char* p3, const char* p4)
+{
+    log(LLError::LEVEL_DEBUG, p1, p2, p3, p4);
 }
 } // anonymous namespace        
 
