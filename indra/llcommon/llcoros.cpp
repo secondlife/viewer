@@ -44,16 +44,25 @@ void LLCoros::no_cleanup(CoroData*) {}
 
 // CoroData for the currently-running coroutine. Use a thread_specific_ptr
 // because each thread potentially has its own distinct pool of coroutines.
-// This thread_specific_ptr does NOT own the CoroData object! That's owned by
-// LLCoros::mCoros. It merely identifies it. For this reason we instantiate
-// it with a no-op cleanup function.
-boost::thread_specific_ptr<LLCoros::CoroData>
-LLCoros::sCurrentCoro(LLCoros::no_cleanup);
+LLCoros::Current::Current()
+{
+    // Use a function-static instance so this thread_specific_ptr is
+    // instantiated on demand. Since we happen to know it's consumed by
+    // LLSingleton, this is likely to happen before the runtime has finished
+    // initializing module-static data. For the same reason, we can't package
+    // this pointer in an LLSingleton.
+
+    // This thread_specific_ptr does NOT own the CoroData object! That's owned
+    // by LLCoros::mCoros. It merely identifies it. For this reason we
+    // instantiate it with a no-op cleanup function.
+    static boost::thread_specific_ptr<LLCoros::CoroData> sCurrent(LLCoros::no_cleanup);
+    mCurrent = &sCurrent;
+}
 
 //static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
-    CoroData* current = sCurrentCoro.get();
+    CoroData* current = Current();
     if (! current)
     {
         LL_ERRS("LLCoros") << "Calling " << caller << " from non-coroutine context!" << LL_ENDL;
@@ -79,20 +88,23 @@ bool LLCoros::get_consuming()
     return get_CoroData("get_consuming()").mConsuming;
 }
 
-llcoro::Suspending::Suspending():
-    mSuspended(LLCoros::sCurrentCoro.get())
+llcoro::Suspending::Suspending()
 {
-    // Revert mCurrentCoro to the value it had at the moment we last switched
+    LLCoros::Current current;
+    // Remember currently-running coroutine: we're about to suspend it.
+    mSuspended = current;
+    // Revert Current to the value it had at the moment we last switched
     // into this coroutine.
-    LLCoros::sCurrentCoro.reset(mSuspended->mPrev);
+    current.reset(mSuspended->mPrev);
 }
 
 llcoro::Suspending::~Suspending()
 {
+    LLCoros::Current current;
     // Okay, we're back, update our mPrev
-    mSuspended->mPrev = LLCoros::sCurrentCoro.get();
-    // and reinstate our sCurrentCoro.
-    LLCoros::sCurrentCoro.reset(mSuspended);
+    mSuspended->mPrev = current;
+    // and reinstate our Current.
+    current.reset(mSuspended);
 }
 
 LLCoros::LLCoros():
@@ -212,7 +224,7 @@ bool LLCoros::kill(const std::string& name)
 
 std::string LLCoros::getName() const
 {
-    CoroData* current = sCurrentCoro.get();
+    CoroData* current = Current();
     if (! current)
     {
         // not in a coroutine
@@ -228,8 +240,8 @@ void LLCoros::setStackSize(S32 stacksize)
 }
 
 // Top-level wrapper around caller's coroutine callable. This function accepts
-// the coroutine library's implicit coro::self& parameter and sets sCurrentSelf
-// but does not pass it down to the caller's callable.
+// the coroutine library's implicit coro::self& parameter and saves it, but
+// does not pass it down to the caller's callable.
 void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& callable)
 {
     // capture the 'self' param in CoroData
@@ -237,8 +249,8 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     // run the code the caller actually wants in the coroutine
     callable();
     // This cleanup isn't perfectly symmetrical with the way we initially set
-    // data->mPrev, but this is our last chance to reset mCurrentCoro.
-    sCurrentCoro.reset(data->mPrev);
+    // data->mPrev, but this is our last chance to reset Current.
+    Current().reset(data->mPrev);
 }
 
 /*****************************************************************************
@@ -261,7 +273,7 @@ LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
     mPrev(prev),
     mName(name),
     // Wrap the caller's callable in our toplevel() function so we can manage
-    // sCurrentCoro appropriately at startup and shutdown of each coroutine.
+    // Current appropriately at startup and shutdown of each coroutine.
     mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
     // don't consume events unless specifically directed
     mConsuming(false),
@@ -272,13 +284,13 @@ LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
 std::string LLCoros::launch(const std::string& prefix, const callable_t& callable)
 {
     std::string name(generateDistinctName(prefix));
-    // pass the current value of sCurrentCoro as previous context
-    CoroData* newCoro = new CoroData(sCurrentCoro.get(), name,
-                                     callable, mStackSize);
+    Current current;
+    // pass the current value of Current as previous context
+    CoroData* newCoro = new CoroData(current, name, callable, mStackSize);
     // Store it in our pointer map
     mCoros.insert(name, newCoro);
     // also set it as current
-    sCurrentCoro.reset(newCoro);
+    current.reset(newCoro);
     /* Run the coroutine until its first wait, then return here */
     (newCoro->mCoro)(std::nothrow);
     return name;

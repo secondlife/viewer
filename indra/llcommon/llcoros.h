@@ -35,6 +35,7 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
+#include <boost/noncopyable.hpp>
 #include <string>
 #include <stdexcept>
 
@@ -145,6 +146,10 @@ public:
      */
     std::string getName() const;
 
+    /// Get an opaque, distinct token for the running coroutine (or main).
+    typedef void* id;
+    static id get_id() { return Current(); }
+
     /// for delayed initialization
     void setStackSize(S32 stacksize);
 
@@ -222,8 +227,21 @@ private:
     typedef boost::ptr_map<std::string, CoroData> CoroMap;
     CoroMap mCoros;
 
-    // identify the current coroutine's CoroData
-    static boost::thread_specific_ptr<LLCoros::CoroData> sCurrentCoro;
+    // Identify the current coroutine's CoroData. Use a little helper class so
+    // a caller can either use a temporary instance, or instantiate a named
+    // variable and access it multiple times.
+    class Current
+    {
+    public:
+        Current();
+
+        operator LLCoros::CoroData*() { return get(); }
+        LLCoros::CoroData* get() { return mCurrent->get(); }
+        void reset(LLCoros::CoroData* ptr) { mCurrent->reset(ptr); }
+
+    private:
+        boost::thread_specific_ptr<LLCoros::CoroData>* mCurrent;
+    };
 };
 
 namespace llcoro
@@ -231,7 +249,7 @@ namespace llcoro
 
 /// Instantiate one of these in a block surrounding any leaf point when
 /// control literally switches away from this coroutine.
-class Suspending
+class Suspending: boost::noncopyable
 {
 public:
     Suspending();
