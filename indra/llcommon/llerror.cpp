@@ -414,11 +414,6 @@ namespace
 
 namespace LLError
 {
-	bool is_available()
-	{
-		return Globals::instanceExists();
-	}
-
 	class SettingsConfig : public LLRefCount
 	{
 		friend class Settings;
@@ -458,7 +453,7 @@ namespace LLError
 		Settings();
 
 		SettingsConfigPtr getSettingsConfig();
-	
+
 		void reset();
 		SettingsStoragePtr saveAndReset();
 		void restore(SettingsStoragePtr pSettingsStorage);
@@ -466,7 +461,7 @@ namespace LLError
 	private:
 		SettingsConfigPtr mSettingsConfig;
 	};
-	
+
 	SettingsConfig::SettingsConfig()
 		: LLRefCount(),
 		mPrintLocation(false),
@@ -501,25 +496,30 @@ namespace LLError
 	{
 		return mSettingsConfig;
 	}
-	
+
 	void Settings::reset()
 	{
 		Globals::getInstance()->invalidateCallSites();
 		mSettingsConfig = new SettingsConfig();
 	}
-	
+
 	SettingsStoragePtr Settings::saveAndReset()
 	{
 		SettingsStoragePtr oldSettingsConfig(mSettingsConfig.get());
 		reset();
 		return oldSettingsConfig;
 	}
-	
+
 	void Settings::restore(SettingsStoragePtr pSettingsStorage)
 	{
 		Globals::getInstance()->invalidateCallSites();
 		SettingsConfigPtr newSettingsConfig(dynamic_cast<SettingsConfig *>(pSettingsStorage.get()));
 		mSettingsConfig = newSettingsConfig;
+	}
+
+	bool is_available()
+	{
+		return Settings::instanceExists() && Globals::instanceExists();
 	}
 }
 
