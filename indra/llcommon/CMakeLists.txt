@@ -43,6 +43,7 @@ set(llcommon_SOURCE_FILES
     llcleanup.cpp
     llcommon.cpp
     llcommonutils.cpp
+    llcoro_get_id.cpp
     llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
@@ -139,6 +140,7 @@ set(llcommon_HEADER_FILES
     llcleanup.h
     llcommon.h
     llcommonutils.h
+    llcoro_get_id.h
     llcoros.h
     llcrc.h
     llcriticaldamp.h
