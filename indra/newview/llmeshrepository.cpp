@@ -1753,6 +1753,11 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 
 bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
+	if (data == NULL || data_size == 0)
+	{
+		return false;
+	}
+
 	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
 	std::string mesh_string((char*) data, data_size);
 	std::istringstream stream(mesh_string);
