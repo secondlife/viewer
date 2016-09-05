@@ -195,7 +195,7 @@ LLJointStateBlender::~LLJointStateBlender()
 //-----------------------------------------------------------------------------
 // addJointState()
 //-----------------------------------------------------------------------------
-BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_state, LLUUID source_id, S32 priority, BOOL additive_blend)
+BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_state, S32 priority, BOOL additive_blend)
 {
 	llassert(joint_state);
 
@@ -210,26 +210,23 @@ BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_sta
 			mJointStates[i] = joint_state;
 			mPriorities[i] = priority;
 			mAdditiveBlends[i] = additive_blend;
-			mMoutionIds[i] = source_id;
 			return TRUE;
 		} 
-		else if (priority > mPriorities[i] || (priority == mPriorities[i] && source_id > mMoutionIds[i]))
+		else if (priority > mPriorities[i])
 		{
 			// we're at a higher priority than the current joint state in this slot
 			// so shift everyone over
-			// previous joint states (newer motions) with same priority and source motion should stay in place
+			// previous joint states (newer motions) with same priority should stay in place
 			for (S32 j = JSB_NUM_JOINT_STATES - 1; j > i; j--)
 			{
 				mJointStates[j] = mJointStates[j - 1];
 				mPriorities[j] = mPriorities[j - 1];
 				mAdditiveBlends[j] = mAdditiveBlends[j - 1];
-				mMoutionIds[j] = mMoutionIds[j - 1];
 			}
 			// now store ourselves in this slot
 			mJointStates[i] = joint_state;
 			mPriorities[i] = priority;
 			mAdditiveBlends[i] = additive_blend;
-			mMoutionIds[i] = source_id;
 			return TRUE;
 		}
 	}
@@ -492,11 +489,11 @@ BOOL LLPoseBlender::addMotion(LLMotion* motion)
 
 		if (jsp->getPriority() == LLJoint::USE_MOTION_PRIORITY)
 		{
-			joint_blender->addJointState(jsp, motion->getID(), motion->getPriority(), motion->getBlendType() == LLMotion::ADDITIVE_BLEND);
+			joint_blender->addJointState(jsp, motion->getPriority(), motion->getBlendType() == LLMotion::ADDITIVE_BLEND);
 		}
 		else
 		{
-			joint_blender->addJointState(jsp, motion->getID(), jsp->getPriority(), motion->getBlendType() == LLMotion::ADDITIVE_BLEND);
+			joint_blender->addJointState(jsp, jsp->getPriority(), motion->getBlendType() == LLMotion::ADDITIVE_BLEND);
 		}
 
 		// add it to our list of active blenders
