@@ -185,6 +185,9 @@ public:
 	
 	void wearBaseOutfit();
 
+	void setOutfitImage(const LLUUID& image_id) {mCOFImageID = image_id;}
+	LLUUID getOutfitImage() {return mCOFImageID;}
+
 	// Overrides the base outfit with the content from COF
 	// @return false if there is no base outfit
 	bool updateBaseOutfit();
@@ -268,6 +271,8 @@ private:
 	S32  mInFlightCounter;
 	LLTimer mInFlightTimer;
 	static bool mActive;
+
+	LLUUID mCOFImageID;
 
 	std::auto_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 
