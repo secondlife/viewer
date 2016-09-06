@@ -141,9 +141,12 @@ build()
   local variant="$1"
   if $build_viewer
   then
+    begin_section "autobuild $variant"
     "$autobuild" build --no-configure -c $variant || fatal "failed building $variant"
     echo true >"$build_dir"/build_ok
-
+    end_section "autobuild $variant"
+    
+    begin_section "extensions $variant"
     # Run build extensions
     if [ -d ${build_dir}/packages/build-extensions ]
     then
@@ -157,6 +160,7 @@ build()
 
     # *TODO: Make this a build extension.
     package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+    end_section "extensions $variant"
 
   else
       record_event "Skipping build due to configuration build_viewer=${build_viewer}"
@@ -273,7 +277,7 @@ do
       else
           record_failure "Build of \"$variant\" failed."
       fi
-      begin_section "post-build $variant"
+      end_section "post-build $variant"
 
   else
       record_event "configure for $variant failed: build skipped"
@@ -340,13 +344,6 @@ then
           mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed
         fi
       done
-
-      if [ $have_private_repo = true ]; then
-        python_cmd "$helpers/redirect.py" "${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html"\
-            >"$build_log_dir/private.html" || fatal "generating global redirect"
-        upload_output global_redirect "$build_log_dir/private.html" text/html private
-      fi
-
       end_section "Upload Debian Repository"
       
     else
@@ -373,7 +370,7 @@ then
       # Upload base package.
       upload_output installer "$package" binary/octet-stream
 
-      [ -f $build_dir/summary.json ] && upload_output "installer metadata" $build_dir/summary.json application/json
+      [ -f $build_dir/summary.json ] && upload_output "installer metadata" $build_dir/summary.json application/json display
 
       # Upload additional packages.
       for package_id in $additional_packages
