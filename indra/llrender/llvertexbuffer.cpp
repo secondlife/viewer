@@ -153,27 +153,31 @@ LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
 
 volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 {
-	llassert(vbo_block_size(size) == size);
+	if (vbo_block_size(size) != size)
+    {
+        LL_WARNS() << "Invalid vbo block size " << size << "; not allocating" << LL_ENDL;
+        return NULL;
+    }
 	
 	volatile U8* ret = NULL;
 
-	U32 i = vbo_block_index(size);
+	U32 block_index = vbo_block_index(size);
 
-	if (mFreeList.size() <= i)
+	if (mFreeList.size() <= block_index)
 	{
-		mFreeList.resize(i+1);
+		mFreeList.resize(block_index+1);
 	}
 
-	if (mFreeList[i].empty() || for_seed)
+	if (mFreeList[block_index].empty() || for_seed)
 	{
 		//make a new buffer
 		name = genBuffer();
 		
 		glBindBufferARB(mType, name);
 
-		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
+		if (!for_seed && block_index < LL_VBO_POOL_SEED_COUNT)
 		{ //record this miss
-			mMissCount[i]++;	
+			mMissCount[block_index]++;	
 		}
 
 		if (mType == GL_ARRAY_BUFFER_ARB)
@@ -202,7 +206,11 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 
 		if (for_seed)
 		{ //put into pool for future use
-			llassert(mFreeList.size() > i);
+			if (mFreeList.size() <= block_index)
+            {
+                LL_WARNS() << "VBO free list is not big enough for size " << size << LL_ENDL;
+                return NULL;
+            }
 
 			Record rec;
 			rec.mGLName = name;
@@ -216,13 +224,13 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			{
 				sIndexBytesPooled += size;
 			}
-			mFreeList[i].push_back(rec);
+			mFreeList[block_index].push_back(rec);
 		}
 	}
 	else
 	{
-		name = mFreeList[i].front().mGLName;
-		ret = mFreeList[i].front().mClientData;
+		name = mFreeList[block_index].front().mGLName;
+		ret = mFreeList[block_index].front().mClientData;
 
 		if (mType == GL_ARRAY_BUFFER_ARB)
 		{
@@ -233,7 +241,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			sIndexBytesPooled -= size;
 		}
 
-		mFreeList[i].pop_front();
+		mFreeList[block_index].pop_front();
 	}
 
 	return ret;
@@ -265,7 +273,7 @@ void LLVBOPool::seedPool()
 		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
 	}
 
-	for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
+	for (U32 i = 0; i < mFreeList.size(); i++)
 	{
 		if (mMissCount[i] > mFreeList[i].size())
 		{ 
