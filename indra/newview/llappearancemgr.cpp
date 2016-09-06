@@ -2966,6 +2966,16 @@ void LLAppearanceMgr::updateIsDirty()
 		gInventory.collectDescendentsIf(base_outfit, outfit_cats, outfit_items,
 									  LLInventoryModel::EXCLUDE_TRASH, collector);
 
+		for (U32 i = 0; i < outfit_items.size(); ++i)
+		{
+			LLViewerInventoryItem* linked_item = outfit_items.at(i)->getLinkedItem();
+			if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+			{
+				outfit_items.erase(outfit_items.begin() + i);
+				break;
+			}
+		}
+
 		if(outfit_items.size() != cof_items.size())
 		{
 			LL_DEBUGS("Avatar") << "item count different - base " << outfit_items.size() << " cof " << cof_items.size() << LL_ENDL;
