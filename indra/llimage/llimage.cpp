@@ -1402,7 +1402,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 {
     S32 components = getComponents();
-	if (! ((1 == components) || (3 == components) || (4 == components) )
+	if (! ((1 == components) || (3 == components) || (4 == components) ))
     {
         LL_WARNS() << "Invalid getComponents value (" << components << ")" << LL_ENDL;
         return false;
