@@ -671,6 +671,7 @@ LLSD LLModel::writeModel(
 	const LLModel::Decomposition& decomp,
 	BOOL upload_skin,
 	BOOL upload_joints,
+    BOOL lock_scale_if_joint_position,
 	BOOL nowrite,
 	BOOL as_slm,
 	int submodel_id)
@@ -690,7 +691,7 @@ LLSD LLModel::writeModel(
 
 	if (skinning)
 	{ //write skinning block
-		mdl["skin"] = high->mSkinInfo.asLLSD(upload_joints);
+		mdl["skin"] = high->mSkinInfo.asLLSD(upload_joints, lock_scale_if_joint_position);
 	}
 
 	if (!decomp.mBaseHull.empty() ||
@@ -1451,11 +1452,17 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 		mPelvisOffset = skin["pelvis_offset"].asReal();
 	}
 
-    // FIXME BENTO check contents of asset.
-    mLockScaleIfJointPosition = true;
+    if (skin.has("lock_scale_if_joint_position"))
+    {
+        mLockScaleIfJointPosition = skin["lock_scale_if_joint_position"].asBoolean();
+    }
+	else
+	{
+		mLockScaleIfJointPosition = false;
+	}
 }
 
-LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
+LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_position) const
 {
 	LLSD ret;
 
@@ -1492,6 +1499,11 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
 				}
 			}
 		}
+
+        if (lock_scale_if_joint_position)
+        {
+            ret["lock_scale_if_joint_position"] = mLockScaleIfJointPosition;
+        }
 
 		ret["pelvis_offset"] = mPelvisOffset;
 	}
