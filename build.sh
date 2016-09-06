@@ -298,7 +298,7 @@ then
     if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
     then
       begin_section "Build Viewer Debian Package"
-      have_private_repo=false
+
       # mangle the changelog
       dch --force-bad-version \
           --distribution unstable \
@@ -328,11 +328,12 @@ then
       # upload debian package and create repository
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
-        upload_output "deb" $deb_file binary/octet-stream
+        deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
+        upload_output "debian $deb_pkg" $deb_file binary/octet-stream
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
-        upload_output debian $deb_file binary/octet-stream
-        have_private_repo=true
+        deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
+        upload_output "debian $deb_pkg" $deb_file binary/octet-stream private
       done
 
       create_deb_repo
