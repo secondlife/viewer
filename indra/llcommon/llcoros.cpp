@@ -39,7 +39,12 @@
 #include "llerror.h"
 #include "stringize.h"
 
-// do nothing, when we need nothing done
+namespace {
+void no_op() {}
+} // anonymous namespace
+
+// Do nothing, when we need nothing done. This is a static member of LLCoros
+// because CoroData is a private nested class.
 void LLCoros::no_cleanup(CoroData*) {}
 
 // CoroData for the currently-running coroutine. Use a thread_specific_ptr
@@ -56,6 +61,35 @@ LLCoros::Current::Current()
     // by LLCoros::mCoros. It merely identifies it. For this reason we
     // instantiate it with a no-op cleanup function.
     static boost::thread_specific_ptr<LLCoros::CoroData> sCurrent(LLCoros::no_cleanup);
+
+    // If this is the first time we're accessing sCurrent for the running
+    // thread, its get() will be NULL. This could be a problem, in that
+    // llcoro::get_id() would return the same (NULL) token value for the "main
+    // coroutine" in every thread, whereas what we really want is a distinct
+    // value for every distinct stack in the process. So if get() is NULL,
+    // give it a heap CoroData: this ensures that llcoro::get_id() will return
+    // distinct values.
+    // This tactic is "leaky": sCurrent explicitly does not destroy any
+    // CoroData to which it points, and we do NOT enter these "main coroutine"
+    // CoroData instances in the LLCoros::mCoros map. They are dummy entries,
+    // and they will leak at process shutdown: one CoroData per thread.
+    if (! sCurrent.get())
+    {
+        // It's tempting to provide a distinct name for each thread's "main
+        // coroutine." But as getName() has always returned the empty string
+        // to mean "not in a coroutine," empty string should suffice here --
+        // and truthfully the additional (thread-safe!) machinery to ensure
+        // uniqueness just doesn't feel worth the trouble.
+        // We use a no-op callable and a minimal stack size because, although
+        // CoroData's constructor in fact initializes its mCoro with a
+        // coroutine with that stack size, no one ever actually enters it by
+        // calling mCoro().
+        sCurrent.reset(new CoroData(0,  // no prev
+                                    "", // not a named coroutine
+                                    no_op,  // no-op callable
+                                    1024)); // stacksize moot
+    }
+
     mCurrent = &sCurrent;
 }
 
@@ -63,17 +97,21 @@ LLCoros::Current::Current()
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
     CoroData* current = Current();
-    if (! current)
-    {
-        LL_ERRS("LLCoros") << "Calling " << caller << " from non-coroutine context!" << LL_ENDL;
-    }
+    // With the dummy CoroData set in LLCoros::Current::Current(), this
+    // pointer should never be NULL.
+    llassert_always(current);
     return *current;
 }
 
 //static
 LLCoros::coro::self& LLCoros::get_self()
 {
-    return *get_CoroData("get_self()").mSelf;
+    CoroData& current = get_CoroData("get_self()");
+    if (! current.mSelf)
+    {
+        LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
+    }
+    return *current.mSelf;
 }
 
 //static
@@ -224,13 +262,7 @@ bool LLCoros::kill(const std::string& name)
 
 std::string LLCoros::getName() const
 {
-    CoroData* current = Current();
-    if (! current)
-    {
-        // not in a coroutine
-        return "";
-    }
-    return current->mName;
+    return Current()->mName;
 }
 
 void LLCoros::setStackSize(S32 stacksize)

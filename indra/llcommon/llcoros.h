@@ -234,6 +234,7 @@ private:
         Current();
 
         operator LLCoros::CoroData*() { return get(); }
+        LLCoros::CoroData* operator->() { return get(); }
         LLCoros::CoroData* get() { return mCurrent->get(); }
         void reset(LLCoros::CoroData* ptr) { mCurrent->reset(ptr); }
 
