@@ -31,10 +31,10 @@
 
 #include <boost/optional.hpp>
 #include <string>
-#include <stdexcept>
 #include <utility>                  // std::pair
 #include "llevents.h"
 #include "llerror.h"
+#include "llexception.h"
 
 /**
  * Like LLListenerOrPumpName, this is a class intended for parameter lists:
@@ -234,11 +234,11 @@ LLSD errorException(const LLEventWithID& result, const std::string& desc);
  * because it's not an error in event processing: rather, this exception
  * announces an event that bears error information (for some other API).
  */
-class LL_COMMON_API LLErrorEvent: public std::runtime_error
+class LL_COMMON_API LLErrorEvent: public LLException
 {
 public:
     LLErrorEvent(const std::string& what, const LLSD& data):
-        std::runtime_error(what),
+        LLException(what),
         mData(data)
     {}
     virtual ~LLErrorEvent() throw() {}

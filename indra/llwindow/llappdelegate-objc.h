@@ -41,7 +41,7 @@
 
 @property (retain) NSString *currentInputLanguage;
 
-- (void) mainLoop;
+- (void) oneFrame;
 - (void) showInputWindow:(bool)show withEvent:(NSEvent*)textEvent;
 - (void) languageUpdated;
 - (bool) romanScript;

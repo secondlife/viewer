@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llcommandlineparser.h"
+#include "llexception.h"
 
 // *NOTE: The boost::lexical_cast generates 
 // the warning C4701(local used with out assignment) in VC7.1.
@@ -50,6 +51,7 @@
 #include "llsdserialize.h"
 #include "llerror.h"
 #include "stringize.h"
+#include "llexception.h"
 #include <string>
 #include <set>
 #include <iostream>
@@ -98,14 +100,14 @@ namespace
     bool gPastLastOption = false;
 }
 
-class LLCLPError : public std::logic_error {
+class LLCLPError : public LLException {
 public:
-    LLCLPError(const std::string& what) : std::logic_error(what) {}
+    LLCLPError(const std::string& what) : LLException(what) {}
 };
 
-class LLCLPLastOption : public std::logic_error {
+class LLCLPLastOption : public LLException {
 public:
-    LLCLPLastOption(const std::string& what) : std::logic_error(what) {}
+    LLCLPLastOption(const std::string& what) : LLException(what) {}
 };
 
 class LLCLPValue : public po::value_semantic_codecvt_helper<char> 
@@ -202,17 +204,17 @@ protected:
     {
         if(gPastLastOption)
         {
-            throw(LLCLPLastOption("Don't parse no more!"));
+            LLTHROW(LLCLPLastOption("Don't parse no more!"));
         }
 
         // Error checks. Needed?
         if (!value_store.empty() && !is_composing()) 
         {
-            throw(LLCLPError("Non composing value with multiple occurences."));
+            LLTHROW(LLCLPError("Non composing value with multiple occurences."));
         }
         if (new_tokens.size() < min_tokens() || new_tokens.size() > max_tokens())
         {
-            throw(LLCLPError("Illegal number of tokens specified."));
+            LLTHROW(LLCLPError("Illegal number of tokens specified."));
         }
         
         if(value_store.empty())
@@ -466,7 +468,7 @@ onevalue(const std::string& option,
     {
         // What does it mean when the user specifies a command-line switch
         // that requires a value, but omits the value? Complain.
-        throw LLCLPError(STRINGIZE("No value specified for --" << option << "!"));
+        LLTHROW(LLCLPError(STRINGIZE("No value specified for --" << option << "!")));
     }
     else if (value.size() > 1)
     {
@@ -484,9 +486,9 @@ void badvalue(const std::string& option,
     // If the user passes an unusable value for a command-line switch, it
     // seems like a really bad idea to just ignore it, even with a log
     // warning.
-    throw LLCLPError(STRINGIZE("Invalid value specified by command-line switch '" << option
-                               << "' for variable '" << varname << "' of type " << type
-                               << ": '" << value << "'"));
+    LLTHROW(LLCLPError(STRINGIZE("Invalid value specified by command-line switch '" << option
+                                 << "' for variable '" << varname << "' of type " << type
+                                 << ": '" << value << "'")));
 }
 
 template <typename T>

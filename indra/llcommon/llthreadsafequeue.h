@@ -27,9 +27,8 @@
 #ifndef LL_LLTHREADSAFEQUEUE_H
 #define LL_LLTHREADSAFEQUEUE_H
 
-
+#include "llexception.h"
 #include <string>
-#include <stdexcept>
 
 
 struct apr_pool_t; // From apr_pools.h
@@ -40,11 +39,11 @@ class LLThreadSafeQueueImplementation; // See below.
 // A general queue exception.
 //
 class LL_COMMON_API LLThreadSafeQueueError:
-public std::runtime_error
+	public LLException
 {
 public:
 	LLThreadSafeQueueError(std::string const & message):
-	std::runtime_error(message)
+		LLException(message)
 	{
 		; // No op.
 	}

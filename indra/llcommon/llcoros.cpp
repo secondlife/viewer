@@ -38,6 +38,7 @@
 #include "llevents.h"
 #include "llerror.h"
 #include "stringize.h"
+#include "llexception.h"
 
 // do nothing, when we need nothing done
 void LLCoros::no_cleanup(CoroData*) {}
@@ -235,7 +236,23 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     // capture the 'self' param in CoroData
     data->mSelf = &self;
     // run the code the caller actually wants in the coroutine
-    callable();
+    try
+    {
+        callable();
+    }
+    catch (const LLContinueError&)
+    {
+        // Any uncaught exception derived from LLContinueError will be caught
+        // here and logged. This coroutine will terminate but the rest of the
+        // viewer will carry on.
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+    }
+    catch (...)
+    {
+        // Any OTHER kind of uncaught exception will cause the viewer to
+        // crash, hopefully informatively.
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+    }
     // This cleanup isn't perfectly symmetrical with the way we initially set
     // data->mPrev, but this is our last chance to reset mCurrentCoro.
     sCurrentCoro.reset(data->mPrev);
