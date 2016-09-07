@@ -46,6 +46,7 @@ private:
     // This, on the other hand, is a stack whose top indicates the LLSingleton
     // currently being initialized.
     static list_t& get_initializing();
+    static list_t& get_initializing_from(MasterList*);
     // Produce a vector<LLSingletonBase*> of master list, in dependency order.
     typedef std::vector<LLSingletonBase*> vec_t;
     static vec_t dep_sort();
@@ -65,11 +66,19 @@ protected:
         DELETED
     } EInitState;
 
+    // Define tag<T> to pass to our template constructor. You can't explicitly
+    // invoke a template constructor with ordinary template syntax:
+    // http://stackoverflow.com/a/3960925/5533635
+    template <typename T>
+    struct tag
+    {
+        typedef T type;
+    };
+
     // Base-class constructor should only be invoked by the DERIVED_TYPE
-    // constructor, which passes the DERIVED_TYPE class name for logging
-    // purposes. Within LLSingletonBase::LLSingletonBase, of course the
-    // formula typeid(*this).name() produces "LLSingletonBase".
-    LLSingletonBase(const char* name);
+    // constructor, which passes tag<DERIVED_TYPE> for various purposes.
+    template <typename DERIVED_TYPE>
+    LLSingletonBase(tag<DERIVED_TYPE>);
     virtual ~LLSingletonBase();
 
     // Every new LLSingleton should be added to/removed from the master list
@@ -100,7 +109,7 @@ private:
 protected:
     // If a given call to B::getInstance() happens during either A::A() or
     // A::initSingleton(), record that A directly depends on B.
-    void capture_dependency(EInitState);
+    void capture_dependency(list_t& initializing, EInitState);
 
     // delegate LL_ERRS() logging to llsingleton.cpp
     static void logerrs(const char* p1, const char* p2="",
@@ -171,12 +180,15 @@ void intrusive_ptr_add_ref(LLSingletonBase::MasterRefcount*);
 void intrusive_ptr_release(LLSingletonBase::MasterRefcount*);
 
 // Most of the time, we want LLSingleton_manage_master() to forward its
-// methods to LLSingletonBase::add_master() and remove_master().
+// methods to real LLSingletonBase methods.
 template <class T>
 struct LLSingleton_manage_master
 {
     void add(LLSingletonBase* sb) { sb->add_master(); }
     void remove(LLSingletonBase* sb) { sb->remove_master(); }
+    void push_initializing(LLSingletonBase* sb) { sb->push_initializing(typeid(T).name()); }
+    void pop_initializing (LLSingletonBase* sb) { sb->pop_initializing(); }
+    LLSingletonBase::list_t& get_initializing(T*) { return LLSingletonBase::get_initializing(); }
 };
 
 // But for the specific case of LLSingletonBase::MasterList, don't.
@@ -185,7 +197,23 @@ struct LLSingleton_manage_master<LLSingletonBase::MasterList>
 {
     void add(LLSingletonBase*) {}
     void remove(LLSingletonBase*) {}
+    void push_initializing(LLSingletonBase*) {}
+    void pop_initializing (LLSingletonBase*) {}
+    LLSingletonBase::list_t& get_initializing(LLSingletonBase::MasterList* instance)
+    {
+        return LLSingletonBase::get_initializing_from(instance);
+    }
 };
+
+// Now we can implement LLSingletonBase's template constructor.
+template <typename DERIVED_TYPE>
+LLSingletonBase::LLSingletonBase(tag<DERIVED_TYPE>):
+    mCleaned(false),
+    mDeleteSingleton(NULL)
+{
+    // Make this the currently-initializing LLSingleton.
+    LLSingleton_manage_master<DERIVED_TYPE>().push_initializing(this);
+}
 
 /**
  * LLSingleton implements the getInstance() method part of the Singleton
@@ -287,9 +315,10 @@ private:
     };
 
 protected:
-    // Use typeid(DERIVED_TYPE) rather than typeid(*this) because, until our
-    // constructor completes, *this isn't yet a full-fledged DERIVED_TYPE.
-    LLSingleton(): LLSingletonBase(typeid(DERIVED_TYPE).name())
+    // Pass DERIVED_TYPE explicitly to LLSingletonBase's constructor because,
+    // until our subclass constructor completes, *this isn't yet a
+    // full-fledged DERIVED_TYPE.
+    LLSingleton(): LLSingletonBase(LLSingletonBase::tag<DERIVED_TYPE>())
     {
         // populate base-class function pointer with the static
         // deleteSingleton() function for this particular specialization
@@ -363,7 +392,7 @@ public:
             // breaking cyclic dependencies
             sData.mInstance->initSingleton();
             // pop this off stack of initializing singletons
-            sData.mInstance->pop_initializing();
+            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
             break;
 
         case INITIALIZED:
@@ -378,7 +407,7 @@ public:
             sData.mInitState = INITIALIZED; 
             sData.mInstance->initSingleton(); 
             // pop this off stack of initializing singletons
-            sData.mInstance->pop_initializing();
+            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
             break;
         }
 
@@ -387,7 +416,9 @@ public:
         // an LLSingleton that directly depends on DERIVED_TYPE. If this call
         // came from another LLSingleton, rather than from vanilla application
         // code, record the dependency.
-        sData.mInstance->capture_dependency(sData.mInitState);
+        sData.mInstance->capture_dependency(
+            LLSingleton_manage_master<DERIVED_TYPE>().get_initializing(sData.mInstance),
+            sData.mInitState);
         return sData.mInstance;
     }
 

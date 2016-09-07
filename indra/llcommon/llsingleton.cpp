@@ -30,7 +30,9 @@
 #include "llerror.h"
 #include "llerrorcontrol.h"         // LLError::is_available()
 #include "lldependencies.h"
+#include "llcoro_get_id.h"
 #include <boost/foreach.hpp>
+#include <boost/unordered_map.hpp>
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -61,13 +63,43 @@ private:
 public:
     // No need to make this private with accessors; nobody outside this source
     // file can see it.
-    LLSingletonBase::list_t mList;
+
+    // This is the master list of all instantiated LLSingletons (save the
+    // MasterList itself) in arbitrary order. You MUST call dep_sort() before
+    // traversing this list.
+    LLSingletonBase::list_t mMaster;
+
+    // We need to maintain a stack of LLSingletons currently being
+    // initialized, either in the constructor or in initSingleton(). However,
+    // managing that as a stack depends on having a DISTINCT 'initializing'
+    // stack for every C++ stack in the process! And we have a distinct C++
+    // stack for every running coroutine. It would be interesting and cool to
+    // implement a generic coroutine-local-storage mechanism and use that
+    // here. The trouble is that LLCoros is itself an LLSingleton, so
+    // depending on LLCoros functionality could dig us into infinite
+    // recursion. (Moreover, when we reimplement LLCoros on top of
+    // Boost.Fiber, that library already provides fiber_specific_ptr -- so
+    // it's not worth a great deal of time and energy implementing a generic
+    // equivalent on top of boost::dcoroutine, which is on its way out.)
+    // Instead, use a map of llcoro::id to select the appropriate
+    // coro-specific 'initializing' stack. llcoro::get_id() is carefully
+    // implemented to avoid requiring LLCoros.
+    typedef boost::unordered_map<llcoro::id, LLSingletonBase::list_t> InitializingMap;
+    InitializingMap mInitializing;
+
+    // non-static method, cf. LLSingletonBase::get_initializing()
+    list_t& get_initializing_()
+    {
+        // map::operator[] has find-or-create semantics, exactly what we need
+        // here. It returns a reference to the selected mapped_type instance.
+        return mInitializing[llcoro::get_id()];
+    }
 };
 
 //static
 LLSingletonBase::list_t& LLSingletonBase::get_master()
 {
-    return LLSingletonBase::MasterList::instance().mList;
+    return LLSingletonBase::MasterList::instance().mMaster;
 }
 
 void LLSingletonBase::add_master()
@@ -88,23 +120,16 @@ void LLSingletonBase::remove_master()
     get_master().remove(this);
 }
 
-// Wrapping our initializing list in a static method ensures that it will be
-// constructed on demand. This list doesn't also need to be in an LLSingleton
-// because (a) it should be empty by program shutdown and (b) none of our
-// destructors reference it.
 //static
 LLSingletonBase::list_t& LLSingletonBase::get_initializing()
 {
-    static list_t sList;
-    return sList;
+    return LLSingletonBase::MasterList::instance().get_initializing_();
 }
 
-LLSingletonBase::LLSingletonBase(const char* name):
-    mCleaned(false),
-    mDeleteSingleton(NULL)
+//static
+LLSingletonBase::list_t& LLSingletonBase::get_initializing_from(MasterList* master)
 {
-    // Make this the currently-initializing LLSingleton.
-    push_initializing(name);
+    return master->get_initializing_();;
 }
 
 LLSingletonBase::~LLSingletonBase() {}
@@ -159,13 +184,12 @@ void LLSingletonBase::log_initializing(const char* verb, const char* name)
     }
 }
 
-void LLSingletonBase::capture_dependency(EInitState initState)
+void LLSingletonBase::capture_dependency(list_t& initializing, EInitState initState)
 {
     // Did this getInstance() call come from another LLSingleton, or from
     // vanilla application code? Note that although this is a nontrivial
     // method, the vast majority of its calls arrive here with initializing
     // empty().
-    list_t& initializing(get_initializing());
     if (! initializing.empty())
     {
         // getInstance() is being called by some other LLSingleton. But -- is
