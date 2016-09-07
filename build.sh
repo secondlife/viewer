@@ -390,7 +390,7 @@ then
         # Upload crash reporter files
         for symbolfile in $symbolfiles
         do
-          python_cmd "$helpers/codeticket.py" output --label symbolfile "$build_dir/$symbolfile"
+          python_cmd "$helpers/codeticket.py" output --label symbolfile --output "$build_dir/$symbolfile"
         done
 
         # Upload the llphysicsextensions_tpv package, if one was produced
