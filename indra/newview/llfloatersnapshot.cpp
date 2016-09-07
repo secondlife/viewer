@@ -1235,14 +1235,14 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 	return 0;
 }
 
-void LLFloaterSnapshotBase::ImplBase::updateLivePreview()
+BOOL LLFloaterSnapshotBase::ImplBase::updatePreviewList(bool initialized)
 {
 	LLFloaterFacebook* floater_facebook = LLFloaterReg::findTypedInstance<LLFloaterFacebook>("facebook");
 	LLFloaterFlickr* floater_flickr = LLFloaterReg::findTypedInstance<LLFloaterFlickr>("flickr");
 	LLFloaterTwitter* floater_twitter = LLFloaterReg::findTypedInstance<LLFloaterTwitter>("twitter");
 
-	if (!mFloater && !floater_facebook && !floater_flickr && !floater_twitter)
-		return;
+	if (!initialized && !floater_facebook && !floater_flickr && !floater_twitter)
+		return FALSE;
 
 	BOOL changed = FALSE;
 	LL_DEBUGS() << "npreviews: " << LLSnapshotLivePreview::sList.size() << LL_ENDL;
@@ -1251,8 +1251,13 @@ void LLFloaterSnapshotBase::ImplBase::updateLivePreview()
 	{
 		changed |= LLSnapshotLivePreview::onIdle(*iter);
 	}
+	return changed;
+}
 
-	if (mFloater && changed)
+
+void LLFloaterSnapshotBase::ImplBase::updateLivePreview()
+{
+	if (ImplBase::updatePreviewList(true) && mFloater)
 	{
 		LL_DEBUGS() << "changed" << LL_ENDL;
 		updateControls(mFloater);
@@ -1266,6 +1271,10 @@ void LLFloaterSnapshot::update()
 	if (inst != NULL)
 	{
 		inst->impl->updateLivePreview();
+	}
+	else
+	{
+		ImplBase::updatePreviewList(false);
 	}
 }
 

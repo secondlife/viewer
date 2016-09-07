@@ -116,6 +116,8 @@ public:
 	virtual EStatus getStatus() const { return mStatus; }
 	virtual void setNeedRefresh(bool need);
 
+	static BOOL updatePreviewList(bool initialized);
+
 	void setAdvanced(bool advanced) { mAdvanced = advanced; }
 
 	virtual LLSnapshotModel::ESnapshotLayerType getLayerType(LLFloaterSnapshotBase* floater) = 0;
