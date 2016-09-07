@@ -94,6 +94,15 @@ public:
         // here. It returns a reference to the selected mapped_type instance.
         return mInitializing[llcoro::get_id()];
     }
+
+    void cleanup_initializing_()
+    {
+        InitializingMap::iterator found = mInitializing.find(llcoro::get_id());
+        if (found != mInitializing.end())
+        {
+            mInitializing.erase(found);
+        }
+    }
 };
 
 //static
@@ -129,7 +138,7 @@ LLSingletonBase::list_t& LLSingletonBase::get_initializing()
 //static
 LLSingletonBase::list_t& LLSingletonBase::get_initializing_from(MasterList* master)
 {
-    return master->get_initializing_();;
+    return master->get_initializing_();
 }
 
 LLSingletonBase::~LLSingletonBase() {}
@@ -156,6 +165,17 @@ void LLSingletonBase::pop_initializing()
     // and pop it
     list.pop_back();
 
+    // The viewer launches an open-ended number of coroutines. While we don't
+    // expect most of them to initialize LLSingleton instances, our present
+    // get_initializing() logic could lead to an open-ended number of map
+    // entries. So every time we pop the stack back to empty, delete the entry
+    // entirely.
+    if (list.empty())
+    {
+        MasterList::instance().cleanup_initializing_();
+    }
+
+    // Now validate the newly-popped LLSingleton.
     if (back != this)
     {
         logerrs("Push/pop mismatch in stack of currently-initializing LLSingletons: ",
