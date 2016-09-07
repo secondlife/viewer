@@ -371,8 +371,6 @@ then
       # Upload base package.
       python_cmd "$helpers/codeticket.py" output --label installer --output "$package" 
 
-      [ -f $build_dir/summary.json ] && python_cmd "$helpers/codeticket.py" output --label "installer metadata" --output $build_dir/summary.json --mimetype application/json --display
-
       # Upload additional packages.
       for package_id in $additional_packages
       do
