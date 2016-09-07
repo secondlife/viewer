@@ -246,7 +246,7 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  python_cmd "$helpers/codeticket.py" output --label "autobuild metadata" --output "$build_dir/autobuild-package.xml" --mimetype text/xml --display
+                  python_cmd "$helpers/codeticket.py" output --label "autobuild metadata" --output "$build_dir/autobuild-package.xml" --mimetype text/xml
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
