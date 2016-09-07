@@ -246,7 +246,7 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  upload_output "autobuild metadata" "$build_dir/autobuild-package.xml" text/xml
+                  python_cmd "$helpers/codeticket.py" output --label "autobuild metadata" --output "$build_dir/autobuild-package.xml" --mimetype text/xml --display
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
@@ -262,12 +262,12 @@ do
               if [ -r "$build_dir/doxygen_warnings.log" ]
               then
                   record_event "Doxygen warnings generated; see doxygen_warnings.log"
-                  upload_output "doxygen log" "$build_dir/doxygen_warnings.log" text/plain ## TBD
+                  python_cmd "$helpers/codeticket.py" output --label "doxygen log" --output "$build_dir/doxygen_warnings.log" --mimetype text/plain ## TBD
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  upload_output "doxygen" "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
+                  python_cmd "$helpers/codeticket.py" output --label "doxygen" --output "$build_dir/viewer-doxygen.tar.bz2"
               fi
               ;;
             *)
@@ -329,11 +329,11 @@ then
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
         deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
-        upload_output "debian $deb_pkg" $deb_file binary/octet-stream
+        python_cmd "$helpers/codeticket.py" output --label "debian $deb_pkg" --output $deb_file
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
         deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
-        upload_output "debian $deb_pkg" $deb_file binary/octet-stream private
+        python_cmd "$helpers/codeticket.py" output --label "debian $deb_pkg" --output "$deb_file" --private
       done
 
       create_deb_repo
@@ -369,9 +369,9 @@ then
       succeeded=$build_coverity
     else
       # Upload base package.
-      upload_output installer "$package" binary/octet-stream
+      python_cmd "$helpers/codeticket.py" output --label installer --output "$package" 
 
-      [ -f $build_dir/summary.json ] && upload_output "installer metadata" $build_dir/summary.json application/json display
+      [ -f $build_dir/summary.json ] && python_cmd "$helpers/codeticket.py" output --label "installer metadata" --output $build_dir/summary.json --mimetype application/json --display
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -379,7 +379,7 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          upload_output "installer $package_id" "$package" binary/octet-stream private
+          python_cmd "$helpers/codeticket.py" output --label "installer $package_id" --output "$package" --private
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
@@ -390,7 +390,7 @@ then
         # Upload crash reporter files
         for symbolfile in $symbolfiles
         do
-          upload_output symbolfile "$build_dir/$symbolfile" binary/octet-stream
+          python_cmd "$helpers/codeticket.py" output --label symbolfile "$build_dir/$symbolfile"
         done
 
         # Upload the llphysicsextensions_tpv package, if one was produced
@@ -398,7 +398,7 @@ then
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            upload_output "llphysicsextensions_package" "$llphysicsextensions_package" binary/octet-stream private
+            python_cmd "$helpers/codeticket.py" output --label "llphysicsextensions_package" --output "$llphysicsextensions_package" --private
         fi
         ;;
       *)
