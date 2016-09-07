@@ -249,7 +249,7 @@ do
                   python_cmd "$helpers/codeticket.py" output --label "autobuild metadata" --output "$build_dir/autobuild-package.xml" --mimetype text/xml --display
                   if [ "$arch" != "Linux" ]
                   then
-                      record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
+                      record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
                   else
                       record_event "TBD - no dependency graph for linux (probable python version dependency)"
                   fi
