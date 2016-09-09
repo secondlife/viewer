@@ -922,7 +922,7 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 
                 // note this apparently only has an effect when media is opened in 2D browser. 
                 // see https://jira.secondlife.com/browse/BUG-18252 - media flipped in 2D so flipping it back.
-				message.setValueBoolean("coords_opengl", false);	// true == use OpenGL-style coordinates, false == (0,0) is upper left.
+				message.setValueBoolean("coords_opengl", true);	// true == use OpenGL-style coordinates, false == (0,0) is upper left.
 				message.setValueBoolean("allow_downsample", true);
 				sendMessage(message);
 			}
