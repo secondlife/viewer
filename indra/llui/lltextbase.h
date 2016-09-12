@@ -673,7 +673,7 @@ protected:
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets
-	LLContextMenu*				mPopupMenu;
+	LLHandle<LLContextMenu>		mPopupMenuHandle;
 	LLView*						mDocumentView;
 	LLScrollContainer*			mScroller;
 
