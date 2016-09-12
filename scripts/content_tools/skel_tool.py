@@ -296,12 +296,16 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
         #    print etree.tostring(skel_param)
         #    for k,v in skel_param.attrib.iteritems():
         #        print k,"->",v
-        #print "skel_param",skel_param_name
         for bone in skel_param.iter("bone"):
             bone_name = bone.get("name")
             if not bone_name in bone_names:
                 print "skel param references invalid bone",bone_name
                 print etree.tostring(bone)
+            bone_scale = float_tuple(bone.get("scale","0 0 0"))
+            bone_offset = float_tuple(bone.get("offset","0 0 0"))
+            param = bone.getparent().getparent()
+            if bone_scale==(0, 0, 0) and bone_offset==(0, 0, 0):
+                print "no-op bone",bone.get("name"),"in param",param.get("id","-1")
     drivers = {}
     for driven_param in ladtree.iter("driven"):
         driver = driven_param.getparent().getparent()
