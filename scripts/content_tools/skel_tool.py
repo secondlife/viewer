@@ -305,7 +305,31 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
             bone_offset = float_tuple(bone.get("offset","0 0 0"))
             param = bone.getparent().getparent()
             if bone_scale==(0, 0, 0) and bone_offset==(0, 0, 0):
-                print "no-op bone",bone.get("name"),"in param",param.get("id","-1")
+                print "no-op bone",bone_name,"in param",param.get("id","-1")
+            # check symmetry of sliders
+            if "Right" in bone.get("name"):
+                left_name = bone_name.replace("Right","Left")
+                left_bone = None
+                for b in skel_param.iter("bone"):
+                    if b.get("name")==left_name:
+                        left_bone = b
+                if left_bone is None:
+                    print "left_bone not found",left_name,"in",param.get("id","-1")
+                else:
+                    left_scale = float_tuple(left_bone.get("scale","0 0 0"))
+                    left_offset = float_tuple(left_bone.get("offset","0 0 0"))
+                    if left_scale != bone_scale:
+                        print "scale mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1")
+                    param_id = int(param.get("id","-1"))
+                    if param_id in [661]: # shear
+                        expected_offset = tuple([bone_offset[0],bone_offset[1],-bone_offset[2]])
+                    elif param_id in [30656, 31663, 32663]: # shift
+                        expected_offset = bone_offset
+                    else:
+                        expected_offset = tuple([bone_offset[0],-bone_offset[1],bone_offset[2]])
+                    if left_offset != expected_offset:
+                        print "offset mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1")
+                    
     drivers = {}
     for driven_param in ladtree.iter("driven"):
         driver = driven_param.getparent().getparent()
