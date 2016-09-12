@@ -5876,7 +5876,20 @@ You cannot undo this action.
      notext="Cancel"
      yestext="Unlink"/>
   </notification>
-
+  
+  <notification
+   icon="alertmodal.tga"
+   name="HelpReportAbuseConfirm"
+   type="alertmodal">
+   <unique/>
+Thank you for taking the time to inform us of this issue. 
+We will review your report for possible violations and take
+the appropriate action.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseSelectCategory"
