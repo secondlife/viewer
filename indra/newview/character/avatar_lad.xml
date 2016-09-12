@@ -996,7 +996,7 @@
 		<bone name="mTail3" scale="0.05 0.1 0.1" />
 		<bone name="mTail4" scale="0.05 0.1 0.1" />
 		<bone name="mTail5" scale="0.05 0.1 0.1" />
-		<bone name="mTail6" scale="0.05 0    0" />
+		<bone name="mTail6" scale="0.05 0.1 0.1" />
 
 		<bone name="mWing1Right" scale="0.0 0.0 0.0" offset="-0.01 -0.01 0" />
 		<bone name="mWing1Left"  scale="0.0 0.0 0.0" offset="-0.01  0.01 0" />
