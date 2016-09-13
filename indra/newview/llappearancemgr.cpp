@@ -1875,15 +1875,15 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
+	// Check whether the outfit contains any wearables
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	LLFindWearables is_wearable;
 	gInventory.collectDescendentsIf(outfit_cat_id,
 		cats,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
-		is_worn);
+		is_wearable);
 
 	return items.size() > 0;
 }
