@@ -1961,7 +1961,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     LLContextMenu* menu = static_cast<LLContextMenu*>(mPopupMenuHandle.get());
     if (menu)
     {
-        menu->updateParent(NULL);
+        menu->die();
         mPopupMenuHandle.markDead();
     }
 	llassert(LLMenuGL::sMenuContainer != NULL);
