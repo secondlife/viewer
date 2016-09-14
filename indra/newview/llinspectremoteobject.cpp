@@ -181,7 +181,7 @@ void LLInspectRemoteObject::update()
 	getChild<LLUICtrl>("map_btn")->setEnabled(! mSLurl.empty());
 
 	// disable the Block button if we don't have the object ID (will this ever happen?)
-	getChild<LLUICtrl>("block_btn")->setEnabled(! mObjectID.isNull());
+	getChild<LLUICtrl>("block_btn")->setEnabled(!mObjectID.isNull() && !LLMuteList::getInstance()->isMuted(mObjectID));
 }
 
 //////////////////////////////////////////////////////////////////////////////

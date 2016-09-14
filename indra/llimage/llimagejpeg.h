@@ -51,9 +51,9 @@ public:
 	LLImageJPEG(S32 quality = 75);
 
 	/*virtual*/ std::string getExtension() { return std::string("jpg"); }
-	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
-	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
+	/*virtual*/ bool updateData();
+	/*virtual*/ bool decode(LLImageRaw* raw_image, F32 decode_time);
+	/*virtual*/ bool encode(const LLImageRaw* raw_image, F32 encode_time);
 
 	void			setEncodeQuality( S32 q )	{ mEncodeQuality = q; } // on a scale from 1 to 100
 	S32				getEncodeQuality()			{ return mEncodeQuality; }
@@ -73,7 +73,7 @@ public:
 	static void		errorEmitMessage(j_common_ptr cinfo, int msg_level);
 	static void		errorOutputMessage(j_common_ptr cinfo);
 
-	static BOOL		decompress(LLImageJPEG* imagep);
+	static bool		decompress(LLImageJPEG* imagep);
 
 protected:
 	U8*				mOutputBuffer;		// temp buffer used during encoding

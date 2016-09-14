@@ -16,12 +16,6 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 
-check_for()
-{
-    if [ -e "$2" ]; then found_dict='FOUND'; else found_dict='MISSING'; fi
-    echo "$1 ${found_dict} '$2' " 1>&2
-}
-
 build_dir_Darwin()
 {
   echo build-darwin-i386
@@ -101,13 +95,14 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    "$autobuild" configure -c $variant -- \
+    "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
-     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
+     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+    || fatal "$variant configuration failed"
 
   end_section "Configure $variant"
 }
@@ -146,52 +141,46 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    "$autobuild" build --no-configure -c $variant
-    build_ok=$?
-
+    "$autobuild" build --no-configure -c $variant || fatal "failed building $variant"
+    
     # Run build extensions
-    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
-        for extension in ${build_dir}/packages/build-extensions/*.sh; do
+    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]
+    then
+        for extension in ${build_dir}/packages/build-extensions/*.sh
+        do
             begin_section "Extension $extension"
             . $extension
             end_section "Extension $extension"
-            if [ $build_ok -ne 0 ]; then
-                break
-            fi
         done
     fi
 
     # *TODO: Make this a build extension.
-    package_llphysicsextensions_tpv
-    tpvlib_build_ok=$?
-    if [ $build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
-    then
+    package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+
+    echo true >"$build_dir"/build_ok
+  else
+      echo "Skipping build due to configuration build_viewer=${build_viewer}"
       echo true >"$build_dir"/build_ok
-    else
-      echo false >"$build_dir"/build_ok
-    fi
   fi
 }
 
-# Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
-if [ "x$arch" = x ]
+################################################################
+# Start of the actual script
+################################################################
+
+# Check to see if we were invoked from the master buildscripts wrapper, if not, fail
+if [ "x${BUILDSCRIPTS_SUPPORT_FUNCTIONS}" = x ]
 then
-  top=`hg root`
-  if [ -x "$top/../buildscripts/hg/bin/build.sh" ]
-  then
-    exec "$top/../buildscripts/hg/bin/build.sh" "$top"
-  else
-    cat <<EOF
-This script, if called in a development environment, requires that the branch
-independent build script repository be checked out next to this repository.
-This repository is located at http://bitbucket.org/lindenlabinternal/sl-buildscripts
-EOF
+    echo "This script relies on being run by the master Linden Lab buildscripts" 1>&2
     exit 1
-  fi
 fi
 
 # Check to see if we're skipping the platform
-eval '$build_'"$arch" || pass
+if ! eval '$build_'"$arch"
+then
+    record_event "building on architecture $arch is disabled"
+    pass
+fi
 
 # ensure AUTOBUILD is in native path form for child processes
 AUTOBUILD="$(native_path "$AUTOBUILD")"
@@ -204,7 +193,7 @@ then
 fi
 
 # load autobuild provided shell functions and variables
-eval "$("$autobuild" source_environment)"
+eval "$("$autobuild" --quiet source_environment)"
 
 # something about the additional_packages mechanism messes up buildscripts results.py on Linux
 # since we don't care about those packages on Linux, just zero it out, yes - a HACK
@@ -235,14 +224,13 @@ do
 
   begin_section "Initialize $variant Build Directory"
   rm -rf "$build_dir"
-  mkdir -p "$build_dir"
   mkdir -p "$build_dir/tmp"
   end_section "Initialize $variant Build Directory"
 
   if pre_build "$variant" "$build_dir"
   then
       begin_section "Build $variant"
-      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
+      build "$variant" "$build_dir"
       if `cat "$build_dir/build_ok"`
       then
           case "$variant" in
@@ -255,7 +243,7 @@ do
                   then
                       record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
                   else
-                      record_event "TBD - no dependency graph for linux (probable python version dependency)" 1>&2
+                      record_event "TBD - no dependency graph for linux (probable python version dependency)"
                   fi
                   end_section "Autobuild metadata"
               else
@@ -306,11 +294,10 @@ then
       dch --force-bad-version \
           --distribution unstable \
           --newversion "${VIEWER_VERSION}" \
-          "Automated build #$build_id, repository $branch revision $revision." \
-          >> "$build_log" 2>&1
+          "Automated build #$build_id, repository $branch revision $revision."
 
       # build the debian package
-      $pkg_default_debuild_command  >>"$build_log" 2>&1 || record_failure "\"$pkg_default_debuild_command\" failed."
+      $pkg_default_debuild_command || record_failure "\"$pkg_default_debuild_command\" failed."
 
       # Unmangle the changelog file
       hg revert debian/changelog
@@ -359,10 +346,10 @@ then
       end_section "Upload Debian Repository"
       
     else
-      echo debian build not enabled
+      record_event "debian build not enabled"
     fi
   else
-    echo skipping debian build due to failed build.
+    record_event "skipping debian build due to failed build"
   fi
 fi
 
@@ -376,7 +363,7 @@ then
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
-      # Coverity doesn't package, so it's ok, anything else is fail
+      record_event "??? mystery event $package // $build_coverity"
       succeeded=$build_coverity
     else
       # Upload base package.
@@ -428,12 +415,12 @@ then
     fi
     end_section Upload Installer
   else
-    echo skipping upload of installer
+    record_event "skipping upload of installer"
   fi
 
   
 else
-  echo skipping upload of installer due to failed build.
+    record_event "skipping upload of installer due to failed build"
 fi
 
 # The branch independent build.sh script invoking this script will finish processing

@@ -476,13 +476,63 @@ void LLAvatarActions::kick(const LLUUID& id)
 }
 
 // static
+void LLAvatarActions::freezeAvatar(const LLUUID& id)
+{
+	std::string fullname;
+	gCacheName->getFullName(id, fullname);
+	LLSD payload;
+	payload["avatar_id"] = id;
+
+	if (!fullname.empty())
+	{
+		LLSD args;
+		args["AVATAR_NAME"] = fullname;
+		LLNotificationsUtil::add("FreezeAvatarFullname", args, payload, handleFreezeAvatar);
+	}
+	else
+	{
+		LLNotificationsUtil::add("FreezeAvatar", LLSD(), payload, handleFreezeAvatar);
+	}
+}
+
+// static
+void LLAvatarActions::ejectAvatar(const LLUUID& id, bool ban_enabled)
+{
+	std::string fullname;
+	gCacheName->getFullName(id, fullname);
+	LLSD payload;
+	payload["avatar_id"] = id;
+	payload["ban_enabled"] = ban_enabled;
+	LLSD args;
+	if (!fullname.empty())
+	{
+		args["AVATAR_NAME"] = fullname;
+	}
+
+	if (ban_enabled)
+	{
+			LLNotificationsUtil::add("EjectAvatarFullname", args, payload, handleEjectAvatar);
+	}
+	else
+	{
+		if (!fullname.empty())
+		{
+			LLNotificationsUtil::add("EjectAvatarFullnameNoBan", args, payload, handleEjectAvatar);
+		}
+		else
+		{
+			LLNotificationsUtil::add("EjectAvatarNoBan", LLSD(), payload, handleEjectAvatar);
+		}
+	}
+}
+
+// static
 void LLAvatarActions::freeze(const LLUUID& id)
 {
 	LLSD payload;
 	payload["avatar_id"] = id;
 	LLNotifications::instance().add("FreezeUser", LLSD(), payload, handleFreeze);
 }
-
 // static
 void LLAvatarActions::unfreeze(const LLUUID& id)
 {
@@ -1133,10 +1183,77 @@ bool LLAvatarActions::handleKick(const LLSD& notification, const LLSD& response)
 	}
 	return false;
 }
-bool LLAvatarActions::handleFreeze(const LLSD& notification, const LLSD& response)
+
+bool LLAvatarActions::handleFreezeAvatar(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
 
+	if (0 == option || 1 == option)
+	{
+	    U32 flags = 0x0;
+	    if (1 == option)
+	    {
+	        // unfreeze
+	        flags |= 0x1;
+	    }
+	    LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+		LLMessageSystem* msg = gMessageSystem;
+
+		msg->newMessage("FreezeUser");
+		msg->nextBlock("AgentData");
+		msg->addUUID("AgentID", gAgent.getID());
+		msg->addUUID("SessionID", gAgent.getSessionID());
+		msg->nextBlock("Data");
+		msg->addUUID("TargetID", avatar_id );
+		msg->addU32("Flags", flags );
+		gAgent.sendReliableMessage();
+	}
+	return false;
+}
+
+bool LLAvatarActions::handleEjectAvatar(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (2 == option)
+	{
+		return false;
+	}
+	LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+	bool ban_enabled = notification["payload"]["ban_enabled"].asBoolean();
+
+	if (0 == option)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		U32 flags = 0x0;
+		msg->newMessage("EjectUser");
+		msg->nextBlock("AgentData");
+		msg->addUUID("AgentID", gAgent.getID() );
+		msg->addUUID("SessionID", gAgent.getSessionID() );
+		msg->nextBlock("Data");
+		msg->addUUID("TargetID", avatar_id );
+		msg->addU32("Flags", flags );
+		gAgent.sendReliableMessage();
+	}
+	else if (ban_enabled)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+
+		U32 flags = 0x1;
+		msg->newMessage("EjectUser");
+		msg->nextBlock("AgentData");
+		msg->addUUID("AgentID", gAgent.getID() );
+		msg->addUUID("SessionID", gAgent.getSessionID() );
+		msg->nextBlock("Data");
+		msg->addUUID("TargetID", avatar_id );
+		msg->addU32("Flags", flags );
+		gAgent.sendReliableMessage();
+	}
+	return false;
+}
+
+bool LLAvatarActions::handleFreeze(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
@@ -1153,6 +1270,7 @@ bool LLAvatarActions::handleFreeze(const LLSD& notification, const LLSD& respons
 	}
 	return false;
 }
+
 bool LLAvatarActions::handleUnfreeze(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);

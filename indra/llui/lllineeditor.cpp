@@ -400,12 +400,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 
 	if (mMaxLengthChars)
 	{
-		LLWString truncated_wstring = utf8str_to_wstring(truncated_utf8);
-		if (truncated_wstring.size() > (U32)mMaxLengthChars)
-		{
-			truncated_wstring = truncated_wstring.substr(0, mMaxLengthChars);
-		}
-		mText.assign(wstring_to_utf8str(truncated_wstring));
+		mText.assign(utf8str_symbol_truncate(truncated_utf8, mMaxLengthChars));
 	}
 
 	if (all_selected)

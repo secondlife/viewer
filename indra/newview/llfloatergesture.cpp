@@ -528,7 +528,8 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
-				LLClipboard::instance().addToClipboard(item->getUUID(),LLAssetType::AT_GESTURE);
+				LLWString item_name = utf8str_to_wstring(item->getName());
+				LLClipboard::instance().addToClipboard(item_name, 0, item_name.size());
 			}
 		}
 	}

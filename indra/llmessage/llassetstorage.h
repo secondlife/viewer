@@ -181,6 +181,10 @@ protected:
 // Map of known bad assets
 typedef std::map<LLUUID,U64,lluuid_less> toxic_asset_map_t;
 
+// *TODO: these typedefs are passed into the VFS via a legacy C function pointer
+// future project would be to convert these to C++ callables (std::function<>) so that 
+// we can use bind and remove the userData parameter.
+// 
 typedef void (*LLGetAssetCallback)(LLVFS *vfs, const LLUUID &asset_id,
 										 LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status);
 

@@ -564,6 +564,17 @@ LL_COMMON_API S32 utf8str_compare_insensitive(
 	const std::string& rhs);
 
 /**
+* @brief Properly truncate a utf8 string to a maximum character count.
+*
+* If symbol_len is longer than the string passed in, the return
+* value == utf8str.
+* @param utf8str A valid utf8 string to truncate.
+* @param symbol_len The maximum number of symbols in the return value.
+* @return Returns a valid utf8 string with symbol count <= max_len.
+*/
+LL_COMMON_API std::string utf8str_symbol_truncate(const std::string& utf8str, const S32 symbol_len);
+
+/**
  * @brief Replace all occurences of target_char with replace_char
  *
  * @param utf8str A utf8 string to process.

@@ -837,5 +837,12 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
         }
     }
 
+    // Let the Snapshot floater know we have failed uploading.
+    LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot)
+    {
+        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
+    }
+
 }
 
