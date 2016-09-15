@@ -4374,10 +4374,13 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 // Returns true if the item can be moved to Current Outfit or any outfit folder.
 static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
 {
-	if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
-		(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
-		(inv_item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
-		(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
+	LLInventoryType::EType inv_type = inv_item->getInventoryType();
+	if ((inv_type != LLInventoryType::IT_WEARABLE) &&
+		(inv_type != LLInventoryType::IT_GESTURE) &&
+		(inv_type != LLInventoryType::IT_ATTACHMENT) &&
+		(inv_type != LLInventoryType::IT_OBJECT) &&
+		(inv_type != LLInventoryType::IT_SNAPSHOT) &&
+		(inv_type != LLInventoryType::IT_TEXTURE))
 	{
 		return FALSE;
 	}
@@ -4386,6 +4389,11 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 	if(flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
 	{
 		return FALSE;
+	}
+
+	if((inv_type == LLInventoryType::IT_TEXTURE) || (inv_type == LLInventoryType::IT_SNAPSHOT))
+	{
+		return TRUE;
 	}
 
 	if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
@@ -4438,6 +4446,14 @@ void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
 
 void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
 {
+	if((inv_item->getInventoryType() == LLInventoryType::IT_TEXTURE) || (inv_item->getInventoryType() == LLInventoryType::IT_SNAPSHOT))
+	{
+		LLAppearanceMgr::instance().removeOutfitPhoto(mUUID);
+		LLPointer<LLInventoryCallback> cb = NULL;
+		link_inventory_object(mUUID, LLConstPointer<LLInventoryObject>(inv_item), cb);
+		return;
+	}
+
 	// BAP - should skip if dup.
 	if (move_is_into_current_outfit)
 	{

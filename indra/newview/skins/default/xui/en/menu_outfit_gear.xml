@@ -39,8 +39,35 @@
          function="Gear.OnVisible"
          parameter="take_off" />
     </menu_item_call>
-
-            <menu_item_separator name="sepatator1" />
+    <menu_item_call
+     label="Upload Photo (L$10)"
+     layout="topleft"
+     name="upload_photo">
+        <on_click
+         function="Gear.UploadPhoto" />
+    </menu_item_call>
+    <menu_item_call
+     label="Select Photo"
+     layout="topleft"
+     name="select_photo">
+        <on_click
+         function="Gear.SelectPhoto" />
+    </menu_item_call>
+    <menu_item_call
+     label="Take a Snapshot"
+     layout="topleft"
+     name="take_snapshot">
+        <on_click
+         function="Gear.TakeSnapshot" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove Photo"
+     layout="topleft"
+     name="remove_photo">
+        <on_click
+         function="Gear.RemovePhoto" />
+    </menu_item_call>
+  <menu_item_separator name="sepatator1" />
             <!-- copied (with minor modifications) from menu_inventory_add.xml -->
             <!--  *TODO: generate dynamically? -->
             <menu
@@ -234,4 +261,15 @@
          function="Gear.OnVisible"
          parameter="delete" />
     </menu_item_call>
+    <menu_item_separator name="sepatator3" />
+    <menu_item_check
+     label="Sort Folders Always by Name"
+     layout="topleft"
+     name="sort_folders_by_name">
+        <on_click
+         function="Gear.SortByName" />
+        <on_check
+         function="CheckControl"
+         parameter="OutfitGallerySortByName" />
+    </menu_item_check>
 </toggleable_menu>

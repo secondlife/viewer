@@ -137,6 +137,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AdvanceOutfitSnapshot</key>
+    <map>
+      <key>Comment</key>
+      <string>Display advanced parameter settings in outfit snaphot interface</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AgentPause</key>
     <map>
       <key>Comment</key>
@@ -14723,6 +14734,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>OutfitGallerySortByName</key>
+    <map>
+      <key>Comment</key>
+      <string>Always sort outfits by name in Outfit Gallery</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>OutfitOperationsTimeout</key>
     <map>
