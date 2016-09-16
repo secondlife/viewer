@@ -156,8 +156,8 @@ protected:
 private:
 	LLDragAndDropButton*		mTrashButton;
 	LLToggleableMenu*			mMenuGearDefault;
-	LLMenuGL*					mMenuAdd;
 	LLMenuButton*				mGearMenuButton;
+	LLHandle<LLView>			mMenuAddHandle;
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //

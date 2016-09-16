@@ -62,6 +62,8 @@ private:
 	void onSendToFacebook();
 	void onSendToTwitter();
 	void onSendToFlickr();
+
+	LLFloaterSnapshotBase* mSnapshotFloater;
 };
 
 static LLPanelInjector<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptions");
@@ -86,6 +88,7 @@ LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
 // virtual
 BOOL LLPanelSnapshotOptions::postBuild()
 {
+	mSnapshotFloater = getParentByType<LLFloaterSnapshotBase>();
 	return LLPanel::postBuild();
 }
 
@@ -112,7 +115,7 @@ void LLPanelSnapshotOptions::openPanel(const std::string& panel_name)
 
 	parent->openPanel(panel_name);
 	parent->getCurrentPanel()->onOpen(LLSD());
-	LLFloaterSnapshot::postPanelSwitch();
+	mSnapshotFloater->postPanelSwitch();
 }
 
 void LLPanelSnapshotOptions::onSaveToProfile()

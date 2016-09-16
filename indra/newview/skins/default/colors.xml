@@ -948,4 +948,13 @@
   <color
     name="SyntaxLslStringLiteral"
     value="1 0.14 0 1" />
+  <color
+    name="OutfitGalleryItemSelected"
+    value="0.22 0.45 0.35 1" />
+  <color
+    name="OutfitGalleryItemWorn"
+    value="0.33 0.58 0.47 1" />
+  <color
+    name="OutfitGalleryItemUnselected"
+    value="0.4 0.4 0.4 1" />
 </colors>
