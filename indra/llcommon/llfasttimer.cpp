@@ -231,37 +231,37 @@ void BlockTimer::incrementalUpdateTimerTree()
 		// sort timers by time last called, so call graph makes sense
 		TimeBlockTreeNode& tree_node = timerp->getTreeNode();
 		if (tree_node.mNeedsSorting)
-{
+        {
 			std::sort(tree_node.mChildren.begin(), tree_node.mChildren.end(), SortTimerByName());
-}
+        }
 
 		// skip root timer
 		if (timerp != &BlockTimer::getRootTimeBlock())
-{
+        {
 			TimeBlockAccumulator& accumulator = timerp->getCurrentAccumulator();
 
 			if (accumulator.mMoveUpTree)
-{
+            {
 				// since ancestors have already been visited, re-parenting won't affect tree traversal
-			//step up tree, bringing our descendants with us
-			LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
-				" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
-			timerp->setParent(timerp->getParent()->getParent());
+                //step up tree, bringing our descendants with us
+                LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
+                    " to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
+                timerp->setParent(timerp->getParent()->getParent());
 				accumulator.mParent = timerp->getParent();
 				accumulator.mMoveUpTree = false;
 
-			// don't bubble up any ancestors until descendants are done bubbling up
+                // don't bubble up any ancestors until descendants are done bubbling up
 				// as ancestors may call this timer only on certain paths, so we want to resolve
 				// child-most block locations before their parents
-			it.skipAncestors();
-		}
-	}
+                it.skipAncestors();
+            }
+        }
 	}
 }
 
 
 void BlockTimer::updateTimes()
-	{
+{
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimerStackRecord* stack_record	= LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!stack_record) return;
@@ -321,19 +321,19 @@ void BlockTimer::processTimes()
 }
 
 std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren()
-		{
+{
 	return getTreeNode().mChildren.begin(); 
-		}
+}
 
 std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren()
-		{
+{
 	return getTreeNode().mChildren.end();
 }
 
 std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren()
 {
 	return getTreeNode().mChildren;
-	}
+}
 
 bool BlockTimerStatHandle::hasChildren()
 {
@@ -358,6 +358,7 @@ void BlockTimer::logStats()
 		}
 		call_count++;
 
+        S32 num_stats = 0;
 		F64Seconds total_time(0);
 		LLSD sd;
 
@@ -367,10 +368,20 @@ void BlockTimer::logStats()
 				it != end_it; 
 			++it)
 			{
+                num_stats++;
 				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
 				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());	
 				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
+                BlockTimerStatHandle *parent = timer.getParent();
+                if (parent)
+                {
+                    sd[timer.getName()]["Parent"] = (LLSD::String) parent->getName();;
+                }
+                else
+                {
+                    sd[timer.getName()]["Parent"] = LLSD::String();
+                }
 				
 				// computing total time here because getting the root timer's getCountHistory
 				// doesn't work correctly on the first frame
@@ -380,6 +391,7 @@ void BlockTimer::logStats()
 
 		sd["Total"]["Time"] = (LLSD::Real) total_time.value();
 		sd["Total"]["Calls"] = (LLSD::Integer) 1;
+        sd["Total"]["NumStats"] = (LLSD::Integer) num_stats;
 
 		{		
 			LLMutexLock lock(sLogLock);
@@ -405,7 +417,7 @@ void BlockTimer::dumpCurTimes()
 		U32 num_calls = last_frame_recording.getSum(timerp->callCount());
 
 		// Don't bother with really brief times, keep output concise
-		if (total_time < F32Milliseconds(0.1f)) continue;
+		if (total_time < F32Milliseconds(0.0)) continue;
 
 		std::ostringstream out_str;
 		BlockTimerStatHandle* parent_timerp = timerp;
@@ -429,7 +441,7 @@ void BlockTimer::writeLog(std::ostream& os)
 	while (!sLogQueue.empty())
 	{
 		LLSD& sd = sLogQueue.front();
-		LLSDSerialize::toXML(sd, os);
+		LLSDSerialize::toPrettyXML(sd, os);
 		LLMutexLock lock(sLogLock);
 		sLogQueue.pop();
 	}

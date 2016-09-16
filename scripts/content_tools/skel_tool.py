@@ -27,7 +27,6 @@ $/LicenseInfo$
 """
 
 import argparse
-
 from lxml import etree
  
 def get_joint_names(tree):

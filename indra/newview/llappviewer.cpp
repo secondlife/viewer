@@ -636,12 +636,14 @@ public:
 	{
 		std::ofstream os(mFile.c_str());
 		
+        os << "<linden_frame_timer>\n";
 		while (!LLAppViewer::instance()->isQuitting())
 		{
 			LLTrace::BlockTimer::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
+        os << "</linden_frame_timer>\n";
 
 		os.close();
 	}
