@@ -223,7 +223,13 @@ LLSingletonBase::LLSingletonBase(tag<DERIVED_TYPE>):
  * Derive your class from LLSingleton, passing your subclass name as
  * LLSingleton's template parameter, like so:
  *
- *   class Foo: public LLSingleton<Foo>{};
+ *   class Foo: public LLSingleton<Foo>
+ *   {
+ *       // use this macro at start of every LLSingleton subclass
+ *       LLSINGLETON(Foo);
+ *   public:
+ *       // ...
+ *   };
  *
  *   Foo& instance = Foo::instance();
  *
@@ -278,6 +284,16 @@ private:
     {
         return new DERIVED_TYPE();
     }
+
+    // We know of no way to instruct the compiler that every subclass
+    // constructor MUST be private. However, we can make the LLSINGLETON()
+    // macro both declare a private constructor and provide the required
+    // friend declaration. How can we ensure that every subclass uses
+    // LLSINGLETON()? By making that macro provide a definition for this pure
+    // virtual method. If you get "can't instantiate class due to missing pure
+    // virtual method" for this method, then add LLSINGLETON(yourclass) in the
+    // subclass body.
+    virtual void you_must_use_LLSINGLETON_macro() = 0;
 
     // stores pointer to singleton instance
     struct SingletonLifetimeManager
@@ -449,5 +465,55 @@ private:
 
 template<typename T>
 typename LLSingleton<T>::SingletonData LLSingleton<T>::sData;
+
+/**
+ * Use LLSINGLETON(Foo); at the start of an LLSingleton<Foo> subclass body
+ * when you want to declare an out-of-line constructor:
+ *
+ * @code
+ *   class Foo: public LLSingleton<Foo>
+ *   {
+ *       // use this macro at start of every LLSingleton subclass
+ *       LLSINGLETON(Foo);
+ *   public:
+ *       // ...
+ *   };
+ *   // ...
+ *   [inline]
+ *   Foo::Foo() { ... }
+ * @endcode
+ *
+ * Unfortunately, this mechanism does not permit you to define even a simple
+ * (but nontrivial) constructor within the class body. If it's literally
+ * trivial, use LLSINGLETON_EMPTY_CTOR(); if not, use LLSINGLETON() and define
+ * the constructor outside the class body. If you must define it in a header
+ * file, use 'inline' (unless it's a template class) to avoid duplicate-symbol
+ * errors at link time.
+ */
+#define LLSINGLETON(DERIVED_CLASS)                                      \
+private:                                                                \
+    /* implement LLSingleton pure virtual method whose sole purpose */  \
+    /* is to remind people to use this macro */                         \
+    virtual void you_must_use_LLSINGLETON_macro() {}                    \
+    friend class LLSingleton<DERIVED_CLASS>;                            \
+    DERIVED_CLASS()
+
+/**
+ * Use LLSINGLETON_EMPTY_CTOR(Foo); at the start of an LLSingleton<Foo>
+ * subclass body when the constructor is trivial:
+ *
+ * @code
+ *   class Foo: public LLSingleton<Foo>
+ *   {
+ *       // use this macro at start of every LLSingleton subclass
+ *       LLSINGLETON_EMPTY_CTOR(Foo);
+ *   public:
+ *       // ...
+ *   };
+ * @endcode
+ */
+#define LLSINGLETON_EMPTY_CTOR(DERIVED_CLASS)                           \
+    /* LLSINGLETON() is carefully implemented to permit exactly this */ \
+    LLSINGLETON(DERIVED_CLASS) {}
 
 #endif

@@ -37,9 +37,9 @@ class LLViewerRegion;
 // reported that user's agent is too 'heavy' for their settings
 class LLAvatarRenderNotifier : public LLSingleton<LLAvatarRenderNotifier>
 {
-public:
-	LLAvatarRenderNotifier();
+	LLSINGLETON(LLAvatarRenderNotifier);
 
+public:
     void displayNotification(bool show_over_limit);
 	bool isNotificationVisible();
 

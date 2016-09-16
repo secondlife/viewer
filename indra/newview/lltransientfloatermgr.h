@@ -38,9 +38,7 @@ class LLTransientFloater;
  */
 class LLTransientFloaterMgr: public LLSingleton<LLTransientFloaterMgr>
 {
-protected:
-	LLTransientFloaterMgr();
-	friend class LLSingleton<LLTransientFloaterMgr>;
+	LLSINGLETON(LLTransientFloaterMgr);
 
 public:
 	enum ETransientGroup

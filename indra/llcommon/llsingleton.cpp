@@ -57,8 +57,7 @@ bool oktolog();
 class LLSingletonBase::MasterList:
     public LLSingleton<LLSingletonBase::MasterList>
 {
-private:
-    friend class LLSingleton<LLSingletonBase::MasterList>;
+    LLSINGLETON_EMPTY_CTOR(MasterList);
 
 public:
     // No need to make this private with accessors; nobody outside this source

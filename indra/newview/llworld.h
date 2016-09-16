@@ -61,8 +61,8 @@ class LLVOAvatar;
 
 class LLWorld : public LLSingleton<LLWorld>
 {
+	LLSINGLETON(LLWorld);
 public:
-	LLWorld();
 	void destroyClass();
 
 	LLViewerRegion*	addRegion(const U64 &region_handle, const LLHost &host);

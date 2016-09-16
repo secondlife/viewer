@@ -42,11 +42,11 @@ public:
 	virtual void onEconomyDataChange() = 0;
 };
 
-class LLGlobalEconomy: public LLSingleton<LLGlobalEconomy>
+class LLBaseEconomy
 {
 public:
-	LLGlobalEconomy();
-	virtual ~LLGlobalEconomy();
+	LLBaseEconomy();
+	virtual ~LLBaseEconomy();
 
 	virtual void print();
 
@@ -54,7 +54,7 @@ public:
 	void	removeObserver(LLEconomyObserver* observer);
 	void	notifyObservers();
 
-	static void processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data);
+	static void processEconomyData(LLMessageSystem *msg, LLBaseEconomy* econ_data);
 
 	S32		calculateTeleportCost(F32 distance) const;
 	S32		calculateLightRent(const LLVector3& object_size) const;
@@ -101,8 +101,12 @@ private:
 	std::list<LLEconomyObserver*> mObservers;
 };
 
+class LLGlobalEconomy: public LLSingleton<LLGlobalEconomy>, public LLBaseEconomy
+{
+	LLSINGLETON_EMPTY_CTOR(LLGlobalEconomy);
+};
 
-class LLRegionEconomy : public LLGlobalEconomy
+class LLRegionEconomy : public LLBaseEconomy
 {
 public:
 	LLRegionEconomy();

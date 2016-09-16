@@ -34,21 +34,22 @@
 // Capture execution sequence by appending to log string.
 std::string sLog;
 
-#define DECLARE_CLASS(CLS)                      \
-struct CLS: public LLSingleton<CLS>             \
-{                                               \
-    static enum dep_flag {                      \
-        DEP_NONE, /* no dependency */           \
-        DEP_CTOR, /* dependency in ctor */      \
+#define DECLARE_CLASS(CLS)                          \
+struct CLS: public LLSingleton<CLS>                 \
+{                                                   \
+    LLSINGLETON(CLS);                               \
+    ~CLS();                                         \
+public:                                             \
+    static enum dep_flag {                          \
+        DEP_NONE, /* no dependency */               \
+        DEP_CTOR, /* dependency in ctor */          \
         DEP_INIT  /* dependency in initSingleton */ \
-    } sDepFlag;                                 \
-                                                \
-    CLS();                                      \
-    void initSingleton();                       \
-    void cleanupSingleton();                    \
-    ~CLS();                                     \
-};                                              \
-                                                \
+    } sDepFlag;                                     \
+                                                    \
+    void initSingleton();                           \
+    void cleanupSingleton();                        \
+};                                                  \
+                                                    \
 CLS::dep_flag CLS::sDepFlag = DEP_NONE
 
 DECLARE_CLASS(A);
@@ -93,7 +94,7 @@ namespace tut
         // We need a class created with the LLSingleton template to test with.
         class LLSingletonTest: public LLSingleton<LLSingletonTest>
         {
-
+            LLSINGLETON_EMPTY_CTOR(LLSingletonTest);
         };
     };
 

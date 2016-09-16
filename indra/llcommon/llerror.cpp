@@ -374,9 +374,8 @@ namespace
 
 	class Globals : public LLSingleton<Globals>
 	{
+		LLSINGLETON(Globals);
 	public:
-		Globals();
-
 		std::ostringstream messageStream;
 		bool messageStreamInUse;
 
@@ -449,9 +448,8 @@ namespace LLError
 
 	class Settings : public LLSingleton<Settings>
 	{
+		LLSINGLETON(Settings);
 	public:
-		Settings();
-
 		SettingsConfigPtr getSettingsConfig();
 
 		void reset();
@@ -486,8 +484,7 @@ namespace LLError
 		mRecorders.clear();
 	}
 
-	Settings::Settings()
-		: LLSingleton<Settings>(),
+	Settings::Settings():
 		mSettingsConfig(new SettingsConfig())
 	{
 	}

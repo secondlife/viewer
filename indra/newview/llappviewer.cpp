@@ -383,6 +383,7 @@ const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
  */
 class LLDeferredTaskList: public LLSingleton<LLDeferredTaskList>
 {
+	LLSINGLETON_EMPTY_CTOR(LLDeferredTaskList);
 	LOG_CLASS(LLDeferredTaskList);
 
 	friend class LLAppViewer;
@@ -732,7 +733,7 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::instance().~LLViewerEventRecorder();
+	LLViewerEventRecorder::deleteSingleton();
 
 	LLLoginInstance::instance().setUpdaterService(0);
 	

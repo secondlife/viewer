@@ -36,10 +36,8 @@ class Hunspell;
 
 class LLSpellChecker : public LLSingleton<LLSpellChecker>, public LLInitClass<LLSpellChecker>
 {
-	friend class LLSingleton<LLSpellChecker>;
+	LLSINGLETON(LLSpellChecker);
 	friend class LLInitClass<LLSpellChecker>;
-protected:
-	LLSpellChecker();
 	~LLSpellChecker();
 
 public:

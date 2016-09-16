@@ -78,9 +78,7 @@ class LLInitClassList :
 	public LLCallbackRegistry, 
 	public LLSingleton<LLInitClassList>
 {
-	friend class LLSingleton<LLInitClassList>;
-private:
-	LLInitClassList() {}
+	LLSINGLETON_EMPTY_CTOR(LLInitClassList);
 };
 
 /**
@@ -94,9 +92,7 @@ class LLDestroyClassList :
 	public LLCallbackRegistry, 
 	public LLSingleton<LLDestroyClassList>
 {
-	friend class LLSingleton<LLDestroyClassList>;
-private:
-	LLDestroyClassList() {}
+	LLSINGLETON_EMPTY_CTOR(LLDestroyClassList);
 };
 
 /**

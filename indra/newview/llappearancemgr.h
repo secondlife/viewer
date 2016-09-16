@@ -42,9 +42,10 @@ class LLOutfitUnLockTimer;
 
 class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
+	LLSINGLETON(LLAppearanceMgr);
+	~LLAppearanceMgr();
 	LOG_CLASS(LLAppearanceMgr);
 
-	friend class LLSingleton<LLAppearanceMgr>;
 	friend class LLOutfitUnLockTimer;
 	
 public:
@@ -233,10 +234,6 @@ private:
     static void debugAppearanceUpdateCOF(const LLSD& content);
 
 	std::string		mAppearanceServiceURL;
-	
-protected:
-	LLAppearanceMgr();
-	~LLAppearanceMgr();
 
 private:
 

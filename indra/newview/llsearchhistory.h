@@ -37,6 +37,7 @@
  */
 class LLSearchHistory : public LLSingleton<LLSearchHistory>, private LLDestroyClass<LLSearchHistory>
 {
+	LLSINGLETON(LLSearchHistory);
 	friend class LLDestroyClass<LLSearchHistory>;
 public:
 
@@ -72,7 +73,6 @@ public:
 	 */
 	void addEntry(const std::string& search_text);
 
-	LLSearchHistory();
 
 	/**
 	 * Class for storing data about single search request.

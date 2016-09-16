@@ -288,19 +288,19 @@ public:
 
 class RecordToChatConsole : public LLSingleton<RecordToChatConsole>
 {
+	LLSINGLETON(RecordToChatConsole);
 public:
-	RecordToChatConsole()
-		: LLSingleton<RecordToChatConsole>(),
-		mRecorder(new RecordToChatConsoleRecorder())
-	{
-	}
-
 	void startRecorder() { LLError::addRecorder(mRecorder); }
 	void stopRecorder() { LLError::removeRecorder(mRecorder); }
 
 private:
 	LLError::RecorderPtr mRecorder;
 };
+
+RecordToChatConsole::RecordToChatConsole():
+	mRecorder(new RecordToChatConsoleRecorder())
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -2120,10 +2120,7 @@ void LLViewerWindow::shutdownViews()
 
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
-	if (LLNavigationBar::instanceExists())
-	{
-		delete LLNavigationBar::getInstance();
-	}
+	LLNavigationBar::deleteSingleton();
 	LL_INFOS() << "LLNavigationBar destroyed." << LL_ENDL ;
 	
 	// destroy menus after instantiating navbar above, as it needs

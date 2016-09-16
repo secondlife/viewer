@@ -104,7 +104,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-class LLTeleportHistoryFlatItemStorage: public LLSingleton<LLTeleportHistoryFlatItemStorage> {
+class LLTeleportHistoryFlatItemStorage: public LLSingleton<LLTeleportHistoryFlatItemStorage>
+{
+	LLSINGLETON_EMPTY_CTOR(LLTeleportHistoryFlatItemStorage);
 protected:
 	typedef std::vector< LLHandle<LLTeleportHistoryFlatItem> > flat_item_list_t;
 

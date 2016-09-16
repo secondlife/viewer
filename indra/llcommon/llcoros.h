@@ -85,6 +85,7 @@ class Suspending;
  */
 class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 {
+    LLSINGLETON(LLCoros);
 public:
     /// Canonical boost::dcoroutines::coroutine signature we use
     typedef boost::dcoroutines::coroutine<void()> coro;
@@ -175,8 +176,6 @@ public:
     class Future;
 
 private:
-    LLCoros();
-    friend class LLSingleton<LLCoros>;
     friend class llcoro::Suspending;
     friend llcoro::id llcoro::get_id();
     std::string generateDistinctName(const std::string& prefix) const;

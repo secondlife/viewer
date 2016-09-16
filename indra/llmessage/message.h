@@ -69,10 +69,10 @@ const S32 MESSAGE_MAX_PER_FRAME = 400;
 
 class LLMessageStringTable : public LLSingleton<LLMessageStringTable>
 {
-public:
-	LLMessageStringTable();
+	LLSINGLETON(LLMessageStringTable);
 	~LLMessageStringTable();
 
+public:
 	char *getString(const char *str);
 
 	U32	 mUsed;

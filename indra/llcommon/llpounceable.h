@@ -76,7 +76,8 @@ template <typename T>
 class LLPounceableQueueSingleton:
     public LLSingleton<LLPounceableQueueSingleton<T> >
 {
-private:
+    LLSINGLETON_EMPTY_CTOR(LLPounceableQueueSingleton);
+
     typedef LLPounceableTraits<T, LLPounceableStatic> traits;
     typedef typename traits::owner_ptr owner_ptr;
     typedef typename traits::signal_t signal_t;

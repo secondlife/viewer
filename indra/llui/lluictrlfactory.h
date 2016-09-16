@@ -57,22 +57,24 @@ protected:
 
 class LLDefaultChildRegistry : public LLChildRegistry<LLDefaultChildRegistry>
 {
-protected:
-	LLDefaultChildRegistry(){}
-	friend class LLSingleton<LLDefaultChildRegistry>;
+	LLSINGLETON_EMPTY_CTOR(LLDefaultChildRegistry);
 };
 
 // lookup widget name by type
 class LLWidgetNameRegistry 
 :	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry>
-{};
+{
+	LLSINGLETON_EMPTY_CTOR(LLWidgetNameRegistry);
+};
 
 // lookup function for generating empty param block by widget type
 // this is used for schema generation
 //typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
 //class LLDefaultParamBlockRegistry
 //:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry>
-//{};
+//{
+//	LLSINGLETON(LLDefaultParamBlockRegistry);
+//};
 
 extern LLTrace::BlockTimerStatHandle FTM_WIDGET_SETUP;
 extern LLTrace::BlockTimerStatHandle FTM_WIDGET_CONSTRUCTION;
@@ -85,31 +87,15 @@ extern template class LLUICtrlFactory* LLSingleton<class LLUICtrlFactory>::getIn
 
 class LLUICtrlFactory : public LLSingleton<LLUICtrlFactory>
 {
-private:
-	friend class LLSingleton<LLUICtrlFactory>;
-	LLUICtrlFactory();
+	LLSINGLETON(LLUICtrlFactory);
 	~LLUICtrlFactory();
 
 	// only partial specialization allowed in inner classes, so use extra dummy parameter
 	template <typename PARAM_BLOCK, int DUMMY>
 	class ParamDefaults : public LLSingleton<ParamDefaults<PARAM_BLOCK, DUMMY> > 
 	{
+		LLSINGLETON(ParamDefaults);
 	public:
-		ParamDefaults()
-		{
-			// look up template file for this param block...
-			const std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
-			if (param_block_tag)
-			{	// ...and if it exists, back fill values using the most specific template first
-				PARAM_BLOCK params;
-				LLUICtrlFactory::loadWidgetTemplate(*param_block_tag, params);
-				mPrototype.fillFrom(params);
-			}
-			// recursively fill from base class param block
-			((typename PARAM_BLOCK::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename PARAM_BLOCK::base_block_t, DUMMY>::instance().get());
-
-		}
-
 		const PARAM_BLOCK& get() { return mPrototype; }
 
 	private:
@@ -120,6 +106,7 @@ private:
 	template<int DUMMY>
 	class ParamDefaults<LLInitParam::BaseBlock, DUMMY> : public LLSingleton<ParamDefaults<LLInitParam::BaseBlock, DUMMY> >
 	{
+		LLSINGLETON(ParamDefaults);
 	public:
 		const LLInitParam::BaseBlock& get() { return mBaseBlock; }
 	private:
@@ -296,6 +283,25 @@ private:
 	class LLPanel*		mDummyPanel;
 	std::vector<std::string>	mFileNames;
 };
+
+template <typename PARAM_BLOCK, int DUMMY>
+LLUICtrlFactory::ParamDefaults<PARAM_BLOCK, DUMMY>::ParamDefaults()
+{
+	// look up template file for this param block...
+	const std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
+	if (param_block_tag)
+	{	// ...and if it exists, back fill values using the most specific template first
+		PARAM_BLOCK params;
+		LLUICtrlFactory::loadWidgetTemplate(*param_block_tag, params);
+		mPrototype.fillFrom(params);
+	}
+	// recursively fill from base class param block
+	((typename PARAM_BLOCK::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename PARAM_BLOCK::base_block_t, DUMMY>::instance().get());
+
+}
+
+template <int DUMMY>
+LLUICtrlFactory::ParamDefaults<LLInitParam::BaseBlock, DUMMY>::ParamDefaults() {}
 
 // this is here to make gcc happy with reference to LLUICtrlFactory
 template<typename DERIVED>
