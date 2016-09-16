@@ -42,9 +42,9 @@ enum LLLOCALE_ID
 
 class LLResMgr : public LLSingleton<LLResMgr>
 {
-public:
-	LLResMgr();
+	LLSINGLETON(LLResMgr);
 
+public:
 	void				setLocale( LLLOCALE_ID locale_id );
 	LLLOCALE_ID			getLocale() const						{ return mLocale; }
 

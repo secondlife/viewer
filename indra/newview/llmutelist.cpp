@@ -47,6 +47,7 @@
 #include "pipeline.h"
 
 #include <boost/tokenizer.hpp>
+#include <boost/bind.hpp>
 
 #include "lldispatcher.h"
 #include "llxfermanager.h"
@@ -146,22 +147,6 @@ std::string LLMute::getDisplayType() const
 	}
 }
 
-
-/* static */
-LLMuteList* LLMuteList::getInstance()
-{
-	// Register callbacks at the first time that we find that the message system has been created.
-	static BOOL registered = FALSE;
-	if( !registered && gMessageSystem != NULL)
-	{
-		registered = TRUE;
-		// Register our various callbacks
-		gMessageSystem->setHandlerFuncFast(_PREHASH_MuteListUpdate, processMuteListUpdate);
-		gMessageSystem->setHandlerFuncFast(_PREHASH_UseCachedMuteList, processUseCachedMuteList);
-	}
-	return LLSingleton<LLMuteList>::getInstance(); // Call the "base" implementation.
-}
-
 //-----------------------------------------------------------------------------
 // LLMuteList()
 //-----------------------------------------------------------------------------
@@ -169,6 +154,18 @@ LLMuteList::LLMuteList() :
 	mIsLoaded(FALSE)
 {
 	gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
+
+	// Register our callbacks. We may be constructed before gMessageSystem, so
+	// use callWhenReady() to register them as soon as gMessageSystem becomes
+	// available.
+	// When using bind(), must be explicit about default arguments such as
+	// that last NULL.
+	gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
+											 _PREHASH_MuteListUpdate, processMuteListUpdate,
+											 static_cast<void**>(NULL)));
+	gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
+											 _PREHASH_UseCachedMuteList, processUseCachedMuteList,
+											 static_cast<void**>(NULL)));
 }
 
 //-----------------------------------------------------------------------------

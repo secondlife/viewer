@@ -247,7 +247,10 @@ class LLRegistrySingleton
 	:	public LLRegistry<KEY, VALUE, COMPARATOR>,
 		public LLSingleton<DERIVED_TYPE>
 {
-	friend class LLSingleton<DERIVED_TYPE>;
+	// This LLRegistrySingleton doesn't use LLSINGLETON(LLRegistrySingleton)
+	// because the concrete class is actually DERIVED_TYPE, not
+	// LLRegistrySingleton. So each concrete subclass needs
+	// LLSINGLETON(whatever) -- not this intermediate base class.
 public:
 	typedef LLRegistry<KEY, VALUE, COMPARATOR>		registry_t;
 	typedef const KEY&								ref_const_key_t;
@@ -269,7 +272,7 @@ public:
 
 		~ScopedRegistrar()
 		{
-			if (!singleton_t::destroyed())
+			if (singleton_t::instanceExists())
 			{
 				popScope();
 			}

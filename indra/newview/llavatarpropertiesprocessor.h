@@ -187,13 +187,12 @@ public:
 class LLAvatarPropertiesProcessor
 	: public LLSingleton<LLAvatarPropertiesProcessor>
 {
-public:
-	
-	LLAvatarPropertiesProcessor();
+	LLSINGLETON(LLAvatarPropertiesProcessor);
 	virtual ~LLAvatarPropertiesProcessor();
 
+public:
 	void addObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer);
-	
+
 	void removeObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer);
 
 	// Request various types of avatar data.  Duplicate requests will be

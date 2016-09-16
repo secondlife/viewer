@@ -41,12 +41,11 @@
  */
 class LLProductInfoRequestManager : public LLSingleton<LLProductInfoRequestManager>
 {
+	LLSINGLETON(LLProductInfoRequestManager);
 public:
-	LLProductInfoRequestManager();
 	std::string getDescriptionForSku(const std::string& sku);
 
 private:
-	friend class LLSingleton<LLProductInfoRequestManager>;	
 	/* virtual */ void initSingleton();
 
     void getLandDescriptionsCoro(std::string url);

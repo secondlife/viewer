@@ -208,6 +208,7 @@
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
+#include "llcleanup.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -287,19 +288,19 @@ public:
 
 class RecordToChatConsole : public LLSingleton<RecordToChatConsole>
 {
+	LLSINGLETON(RecordToChatConsole);
 public:
-	RecordToChatConsole()
-		: LLSingleton<RecordToChatConsole>(),
-		mRecorder(new RecordToChatConsoleRecorder())
-	{
-	}
-
 	void startRecorder() { LLError::addRecorder(mRecorder); }
 	void stopRecorder() { LLError::removeRecorder(mRecorder); }
 
 private:
 	LLError::RecorderPtr mRecorder;
 };
+
+RecordToChatConsole::RecordToChatConsole():
+	mRecorder(new RecordToChatConsoleRecorder())
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -2119,10 +2120,7 @@ void LLViewerWindow::shutdownViews()
 
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
-	if (LLNavigationBar::instanceExists())
-	{
-		delete LLNavigationBar::getInstance();
-	}
+	LLNavigationBar::deleteSingleton();
 	LL_INFOS() << "LLNavigationBar destroyed." << LL_ENDL ;
 	
 	// destroy menus after instantiating navbar above, as it needs
@@ -2158,7 +2156,7 @@ void LLViewerWindow::shutdownGL()
 	// Shutdown GL cleanly.  Order is very important here.
 	//--------------------------------------------------------
 	LLFontGL::destroyDefaultFonts();
-	LLFontManager::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLFontManager);
 	stop_glerror();
 
 	gSky.cleanup();
@@ -2181,7 +2179,7 @@ void LLViewerWindow::shutdownGL()
 	LLWorldMapView::cleanupTextures();
 
 	LLViewerTextureManager::cleanup() ;
-	LLImageGL::cleanupClass() ;
+	SUBSYSTEM_CLEANUP(LLImageGL) ;
 
 	LL_INFOS() << "All textures and llimagegl images are destroyed!" << LL_ENDL ;
 
@@ -2194,7 +2192,7 @@ void LLViewerWindow::shutdownGL()
 
 	gGL.shutdown();
 
-	LLVertexBuffer::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 
 	LL_INFOS() << "LLVertexBuffer cleaned." << LL_ENDL ;
 }

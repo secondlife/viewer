@@ -58,9 +58,9 @@ protected:
 //===============================================================================
 class LLAccountingCostManager : public LLSingleton<LLAccountingCostManager>
 {
+	LLSINGLETON(LLAccountingCostManager);
+
 public:
-	//Ctor
-	LLAccountingCostManager();
 	//Store an object that will be eventually fetched
 	void addObject( const LLUUID& objectID );
 	//Request quotas for object list

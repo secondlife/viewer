@@ -48,8 +48,7 @@ struct ViewerAssetEntry : public LLDictionaryEntry
 class LLViewerAssetDictionary : public LLSingleton<LLViewerAssetDictionary>,
 						  public LLDictionary<LLViewerAssetType::EType, ViewerAssetEntry>
 {
-public:
-	LLViewerAssetDictionary();
+	LLSINGLETON(LLViewerAssetDictionary);
 };
 
 LLViewerAssetDictionary::LLViewerAssetDictionary()

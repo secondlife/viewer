@@ -689,6 +689,8 @@ namespace action_give_inventory
 
 	struct LLShareInfo : public LLSingleton<LLShareInfo>
 	{
+		LLSINGLETON_EMPTY_CTOR(LLShareInfo);
+	public:
 		std::vector<LLAvatarName> mAvatarNames;
 		uuid_vec_t mAvatarUuids;
 	};

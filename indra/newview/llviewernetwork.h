@@ -58,16 +58,15 @@ protected:
  **/
 class LLGridManager : public LLSingleton<LLGridManager>
 {
+	/// Instantiate the grid manager, load default grids, selects the default grid
+	LLSINGLETON(LLGridManager);
+	~LLGridManager();
+
   public:
 	/* ================================================================
 	 * @name Initialization and Configuration
 	 * @{
 	 */
-	/// Instantiate the grid manager, load default grids, selects the default grid
-	LLGridManager(const std::string& grid_file);
-	LLGridManager();
-	~LLGridManager();
-	
 	/// add grids from an external grids file
 	void initialize(const std::string& grid_file);
 	

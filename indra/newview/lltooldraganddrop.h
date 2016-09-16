@@ -43,10 +43,9 @@ class LLPickInfo;
 
 class LLToolDragAndDrop : public LLTool, public LLSingleton<LLToolDragAndDrop>
 {
+	LLSINGLETON(LLToolDragAndDrop);
 public:
 	typedef boost::signals2::signal<void ()> enddrag_signal_t;
-
-	LLToolDragAndDrop();
 
 	// overridden from LLTool
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
@@ -281,8 +280,8 @@ private:
 	class LLDragAndDropDictionary : public LLSingleton<LLDragAndDropDictionary>,
 									public LLDictionary<EDragAndDropType, DragAndDropEntry>
 	{
+		LLSINGLETON(LLDragAndDropDictionary);
 	public:
-		LLDragAndDropDictionary();
 		dragOrDrop3dImpl get(EDragAndDropType dad_type, EDropTarget drop_target);
 	};
 };

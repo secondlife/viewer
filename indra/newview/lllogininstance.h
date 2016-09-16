@@ -40,11 +40,11 @@ class LLUpdaterService;
 // negotiate user authentication attempts.
 class LLLoginInstance : public LLSingleton<LLLoginInstance>
 {
+	LLSINGLETON(LLLoginInstance);
+	~LLLoginInstance();
+
 public:
 	class Disposable;
-
-	LLLoginInstance();
-	~LLLoginInstance();
 
 	void connect(LLPointer<LLCredential> credentials); // Connect to the current grid choice.
 	void connect(const std::string& uri, LLPointer<LLCredential> credentials);	// Connect to the given uri.

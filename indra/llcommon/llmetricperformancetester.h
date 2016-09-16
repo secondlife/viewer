@@ -156,7 +156,7 @@ public:
 	/**
 	 * @brief Delete all testers and reset the tester map
 	 */
-	static void cleanClass() ;
+	static void cleanupClass() ;
 
 private:
 	// Add a tester to the map. Returns false if adding fails.

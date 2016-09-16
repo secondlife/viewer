@@ -38,7 +38,8 @@ class LLUIColor;
 
 class LLUIColorTable : public LLSingleton<LLUIColorTable>
 {
-LOG_CLASS(LLUIColorTable);
+	LLSINGLETON_EMPTY_CTOR(LLUIColorTable);
+	LOG_CLASS(LLUIColorTable);
 
 	// consider using sorted vector, can be much faster
 	typedef std::map<std::string, LLUIColor>  string_color_map_t;
