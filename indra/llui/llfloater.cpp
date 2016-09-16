@@ -2318,7 +2318,8 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterView::restoreAll()
 {
 	// make sure all subwindows aren't minimized
-	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	child_list_t child_list = *(getChildList());
+	for (child_list_const_iter_t child_it = child_list.begin(); child_it != child_list.end(); ++child_it)
 	{
 		LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
 		if (floaterp)

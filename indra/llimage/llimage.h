@@ -277,6 +277,9 @@ protected:
 public:
 	static S32 sGlobalRawMemory;
 	static S32 sRawImageCount;
+
+private:
+	bool validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw* dst);
 };
 
 // Compressed representation of image.
