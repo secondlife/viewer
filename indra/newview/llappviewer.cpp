@@ -135,6 +135,7 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include <boost/throw_exception.hpp>
 
 #if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in processMarkerFiles
