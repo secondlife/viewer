@@ -270,15 +270,15 @@ namespace LLError
 		// DevStudio: type_info::name() includes the text "class " at the start
 
 		static const std::string class_prefix = "class ";
-
 		std::string name = mangled;
-		std::string::size_type p = name.find(class_prefix);
-		if (p == std::string::npos)
+		if (0 != name.compare(0, class_prefix.length(), class_prefix))
 		{
+			LL_DEBUGS() << "Did not see '" << class_prefix << "' prefix on '"
+					   << name << "'" << LL_ENDL;
 			return name;
 		}
 
-		return name.substr(p + class_prefix.size());
+		return name.substr(class_prefix.length());
 
 #else
 		return mangled;
