@@ -60,21 +60,13 @@
 #include <dinput.h>
 #include <Dbt.h.>
 
-// culled from winuser.h
-#ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
-const S32	WM_MOUSEWHEEL = 0x020A;
-#endif
-#ifndef WHEEL_DELTA /* Added to be compatible with later SDK's */
-const S32	WHEEL_DELTA = 120;     /* Value for rolling one detent */
-#endif
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
 const F32	ICON_FLASH_TIME = 0.5f;
-const F32	DEFAULT_DPI = 96.0f;
 
-#ifndef WM_DPICHANGED                   
-const S32	WM_DPICHANGED = 0x02E0;
+#ifndef WM_DPICHANGED
+#define WM_DPICHANGED 0x02E0
 #endif
 
 extern BOOL gDebugWindowProc;
@@ -2631,7 +2623,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_DPICHANGED:
 			{
 				LPRECT lprc_new_scale;
-				F32 new_scale = LOWORD(w_param) / 96.0f;
+				F32 new_scale = LOWORD(w_param) / USER_DEFAULT_SCREEN_DPI;
 				lprc_new_scale = (LPRECT)l_param;
 				S32 new_width = lprc_new_scale->right - lprc_new_scale->left;
 				S32 new_height = lprc_new_scale->bottom - lprc_new_scale->top;
@@ -3990,7 +3982,7 @@ F32 LLWindowWin32::getSystemUISize()
 				hr = pGDFM(hMonitor, MDT_EFFECTIVE_DPI, &dpix, &dpiy);
 				if (hr == S_OK)
 				{
-					scale_value = dpix / DEFAULT_DPI;
+					scale_value = dpix / USER_DEFAULT_SCREEN_DPI;
 				}
 				else
 				{
@@ -4009,7 +4001,7 @@ F32 LLWindowWin32::getSystemUISize()
 	else
 	{
 		LL_WARNS() << "Could not load shcore.dll library (included by <ShellScalingAPI.h> from Win 8.1 SDK). Using legacy DPI awareness API of Win XP/7" << LL_ENDL;
-		scale_value = GetDeviceCaps(hdc, LOGPIXELSX) / DEFAULT_DPI;
+		scale_value = GetDeviceCaps(hdc, LOGPIXELSX) / USER_DEFAULT_SCREEN_DPI;
 	}
 
 	ReleaseDC(hWnd, hdc);
