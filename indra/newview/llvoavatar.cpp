@@ -6925,6 +6925,32 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	}
 }
 
+//static
+LLSD LLVOAvatar::getAllAvatarsFrameData()
+{
+    LLSD result = LLSD::emptyArray();
+    
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		 iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		LLVOAvatar* inst = (LLVOAvatar*) *iter;
+        LLSD avatar_record = inst->getAvatarFrameData();
+		result.append(avatar_record);
+    }
+	return result;
+}
+
+LLSD LLVOAvatar::getAvatarFrameData()
+{
+    LLSD avatar_record;
+    avatar_record["Name"] = (LLSD::String) getFullname();
+    avatar_record["UUID"] = (LLSD::UUID) getID();
+    avatar_record["Self"] = (LLSD::Boolean) isSelf();
+	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
+    avatar_record["RezStatus"] = (LLSD::String) viz_string;
+    return avatar_record;
+}
+
 // call periodically to keep isFullyLoaded up to date.
 // returns true if the value has changed.
 BOOL LLVOAvatar::updateIsFullyLoaded()

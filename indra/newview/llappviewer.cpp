@@ -635,15 +635,15 @@ public:
 	void run()
 	{
 		std::ofstream os(mFile.c_str());
-		
-        os << "<linden_frame_timer>\n";
+
+        LLTrace::BlockTimer::writeHeader(os);
 		while (!LLAppViewer::instance()->isQuitting())
 		{
 			LLTrace::BlockTimer::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
-        os << "</linden_frame_timer>\n";
+        LLTrace::BlockTimer::writeFooter(os);
 
 		os.close();
 	}
@@ -1356,7 +1356,19 @@ bool LLAppViewer::mainLoop()
 		LL_RECORD_BLOCK_TIME(FTM_FRAME);
 		LLTrace::BlockTimer::processTimes();
 		LLTrace::get_frame_recording().nextPeriod();
-		LLTrace::BlockTimer::logStats();
+		if (LLTrace::BlockTimer::sExtendedLogging)
+		{
+            LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
+            if (avatar_sd.size()>0)
+            {
+                LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
+            }
+			LLTrace::BlockTimer::logStatsExtended();
+		}
+		else
+		{
+			LLTrace::BlockTimer::logStats();
+		}
 
 		LLTrace::get_thread_recorder()->pullFromChildren();
 
@@ -2612,6 +2624,10 @@ bool LLAppViewer::initConfiguration()
 	{
 		LLTrace::BlockTimer::sLog = true;
 		LLTrace::BlockTimer::sLogName = std::string("performance");		
+        if (gSavedSettings.getString("PerformanceLogFormat")=="extended")
+        {
+            LLTrace::BlockTimer::sExtendedLogging = true;
+        }
 	}
 	
 	std::string test_name(gSavedSettings.getString("LogMetrics"));

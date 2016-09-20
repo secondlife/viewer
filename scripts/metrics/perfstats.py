@@ -52,14 +52,19 @@ def summarize(filename, timers):
     event, root = context.next()
 
     frame_count = 0
+    my_total = 0.0
     for event, elem in context:
         if event == "end" and elem.tag == "llsd":
             # process frame record here
             xmlstr = etree.tostring(elem, encoding="utf8", method="xml")
             sd = llsd.parse_xml(xmlstr)
+            if args.verbose:
+                print "FRAME #",frame_count
             for t in timers: 
                 if t in sd:
                     time_val = sd[t]['Time']
+                    if args.verbose:
+                        print t,time_val
                     if not t in summary:
                         summary[t] = {'n':0, 'sum':0.0}
                     summary[t]['n'] += 1

@@ -328,6 +328,9 @@ public:
 	static void 	logPendingPhasesAllAvatars();
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
+    static LLSD     getAllAvatarsFrameData();
+    LLSD            getAvatarFrameData();
+
     void            calcMutedAVColor();
 
 protected:

@@ -195,6 +195,16 @@
       <string>LogPerformance</string>
     </map>
 
+    <key>logformat</key>
+    <map>
+      <key>desc</key>
+      <string>Format for performance log, "standard" or "extended"</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>PerformanceLogFormat</string>
+    </map>
+    
     <key>multiple</key>		  
     <map>
       <key>desc</key>

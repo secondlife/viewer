@@ -189,8 +189,11 @@ public:
 
 	static BlockTimerStatHandle& getRootTimeBlock();
 	static void pushLog(LLSD sd);
+    static void pushLogExtraRecord(const std::string& name, LLSD& sd); // add additional records to be included with the logged timers. Requires "--logformat extended" for results to be seen.
 	static void setLogLock(class LLMutex* mutex);
 	static void writeLog(std::ostream& os);
+    static void writeHeader(std::ostream& os);
+    static void writeFooter(std::ostream& os);
 	static void updateTimes();
 	
 	static U64 countsPerSecond();
@@ -204,6 +207,7 @@ public:
 
 	// call this once a frame to periodically log timers
 	static void logStats();
+	static void logStatsExtended();
 
 	// dumps current cumulative frame stats to log
 	// call nextFrame() to reset timers
@@ -235,7 +239,9 @@ public:
 	static std::string		sLogName;
 	static bool				sMetricLog,
 							sLog;	
+    static bool				sExtendedLogging;
 	static U64				sClockResolution;
+    static LLSD             sExtraLogRecords;
 
 };
 
