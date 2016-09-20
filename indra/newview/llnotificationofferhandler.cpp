@@ -100,11 +100,11 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 			{
 				//Will not play a notification sound for inventory and teleport offer based upon chat preference
 				bool playSound = (notification->getName() == "UserGiveItem"
-								  && gSavedSettings.getBOOL("PlaySoundInventoryOffer")
+								  && gSavedSettings.getBOOL("PlaySoundInventoryOffer"))
 								 || ((notification->getName() == "TeleportOffered"
 								     || notification->getName() == "TeleportOffered_MaturityExceeded"
 								     || notification->getName() == "TeleportOffered_MaturityBlocked")
-								    && gSavedSettings.getBOOL("PlaySoundTeleportOffer")));
+								    && gSavedSettings.getBOOL("PlaySoundTeleportOffer"));
 
 				if (playSound)
 				{
