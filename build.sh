@@ -209,7 +209,7 @@ then
 fi
 
 initialize_context
-codeticket addinput parameter "viewer_channel" "${viewer_channel}"
+python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}"
 initialize_build
 
 # Now run the build
@@ -246,7 +246,7 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  python_cmd "$helpers/codeticket.py" output --label "autobuild metadata" --output "$build_dir/autobuild-package.xml" --mimetype text/xml
+                  python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
@@ -262,12 +262,12 @@ do
               if [ -r "$build_dir/doxygen_warnings.log" ]
               then
                   record_event "Doxygen warnings generated; see doxygen_warnings.log"
-                  python_cmd "$helpers/codeticket.py" output --label "doxygen log" --output "$build_dir/doxygen_warnings.log" --mimetype text/plain ## TBD
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Log" "$build_dir/doxygen_warnings.log" --mimetype text/plain ## TBD
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  python_cmd "$helpers/codeticket.py" output --label "doxygen" --output "$build_dir/viewer-doxygen.tar.bz2"
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2"
               fi
               ;;
             *)
@@ -329,11 +329,11 @@ then
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
         deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
-        python_cmd "$helpers/codeticket.py" output --label "debian $deb_pkg" --output $deb_file
+        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" $deb_file
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
         deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
-        python_cmd "$helpers/codeticket.py" output --label "debian $deb_pkg" --output "$deb_file" --private
+        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" "$deb_file" --private
       done
 
       create_deb_repo
@@ -369,7 +369,7 @@ then
       succeeded=$build_coverity
     else
       # Upload base package.
-      python_cmd "$helpers/codeticket.py" output --label installer --output "$package" 
+      python_cmd "$helpers/codeticket.py" addoutput Installer --output "$package" 
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -377,7 +377,7 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          python_cmd "$helpers/codeticket.py" output --label "installer $package_id" --output "$package" --private
+          python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package"
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
@@ -388,7 +388,7 @@ then
         # Upload crash reporter files
         for symbolfile in $symbolfiles
         do
-          python_cmd "$helpers/codeticket.py" output --label symbolfile --output "$build_dir/$symbolfile"
+          python_cmd "$helpers/codeticket.py" addoutput "Symbolfile $(basename "$build_dir/$symbolfile")" "$build_dir/$symbolfile"
         done
 
         # Upload the llphysicsextensions_tpv package, if one was produced
@@ -396,7 +396,7 @@ then
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            python_cmd "$helpers/codeticket.py" output --label "llphysicsextensions_package" --output "$llphysicsextensions_package" --private
+            python_cmd "$helpers/codeticket.py" addoutput "llphysicsextensions_package" "$llphysicsextensions_package" --private
         fi
         ;;
       *)
