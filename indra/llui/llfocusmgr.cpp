@@ -186,7 +186,6 @@ void LLFocusMgr::releaseFocusIfNeeded( LLView* view )
 	LLUI::removePopup(view);
 }
 
-
 void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL keystrokes_only)
 {
 	// notes if keyboard focus is changed again (by onFocusLost/onFocusReceived)

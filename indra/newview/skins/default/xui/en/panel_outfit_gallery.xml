@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   border="false"
+   follows="all"
+   height="430"
+   name="Outfit Gallery"
+   layout="topleft"
+   left="0"
+   top="0"
+   width="318">
+  <string name="outfit_photo_string">
+    Photo of "[OUTFIT_NAME]" outfit
+  </string>
+  <string name="no_outfits_msg">
+    You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]
+  </string>
+  <string name="no_matched_outfits_msg">
+    Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].
+  </string>
+  <text
+    type="string"
+    clip_partial="false"
+    follows="left|top"
+    layout="topleft"
+    left="13"
+    name="no_outfits_txt"
+    top="0"
+    height="32"
+    valign="center"
+    parse_urls="true"
+    wrap="true">
+    Searching...
+  </text> 
+  <scroll_container
+   border="true"
+   bevel_style="none"
+   follows="all"
+   height="400"
+   width="312"
+   min_width="312"
+   layout="topleft"
+   left="4"
+   top="0"
+   name="gallery_scroll_panel"
+   opaque="false"
+   top_pad="0">
+   <!--outfit_gallery_item
+    layout="topleft"
+    left="10"
+    name="preview_outfit1"
+    height="175"
+    width="150"
+    follows="left|top"/-->
+     <!--layout_stack follows="left|right" height="180" width="498" layout="topleft" left="0" animate="false" top="0" name="top_gallery_stack" orientation="horizontal">
+      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top_gallery_panel">
+        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/>
+      </layout_panel>
+      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
+        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
+      </layout_panel>
+      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
+        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
+      </layout_panel>
+    </layout_stack>
+    <layout_stack follows="left|right" height="180" width="498" layout="topleft" left="0" animate="false" top="190" name="top_gallery_stack" orientation="horizontal">
+      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top_gallery_panel">
+        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/>
+      </layout_panel>
+      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
+        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
+      </layout_panel>
+      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
+        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
+      </layout_panel>
+    </layout_stack>
+     <layout_stack follows="left|right" height="180" width="498" layout="topleft" left="0" animate="false" top="380" name="top_gallery_stack" orientation="horizontal">
+       <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top_gallery_panel">
+         <outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/>
+       </layout_panel>
+       <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
+         <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
+       </layout_panel>
+       <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
+         <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
+       </layout_panel>
+     </layout_stack-->
+    <!--</panel>-->  
+  </scroll_container> 
+  <panel
+     background_visible="true"
+	 follows="bottom|left|right"
+	 height="28"
+	 layout="topleft"
+	 left="4"
+	 top_pad="0"
+	 visible="true"
+	 name="bottom_panel"
+	 width="312">
+     <menu_button
+       follows="bottom|left"
+       tool_tip="Show additional options"
+       height="25"
+       image_hover_unselected="Toolbar_Left_Over"
+       image_overlay="OptionsMenu_Off"
+       image_selected="Toolbar_Left_Selected"
+       image_unselected="Toolbar_Left_Off"
+       layout="topleft"
+       left="0"
+       name="options_gear_btn"
+       top="1"
+       width="31" />
+     <icon
+       follows="bottom|left|right"
+       height="25"
+       image_name="Toolbar_Middle_Off"
+       layout="topleft"
+       left_pad="1"
+       name="dummy_icon"
+       width="243"/>
+      <button
+       follows="bottom|right"
+       height="25"
+       image_hover_unselected="Toolbar_Right_Over"
+       image_overlay="TrashItem_Off"
+       image_selected="Toolbar_Right_Selected"
+       image_unselected="Toolbar_Right_Off"
+       layout="topleft"
+       left_pad="1"
+       name="trash_btn"
+       tool_tip="Delete selected outfit"
+       width="31"/>
+    </panel>
+</panel>

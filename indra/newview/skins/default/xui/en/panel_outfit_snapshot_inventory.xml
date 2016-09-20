@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_outfit_snapshot_inventory"
+ width="490">
+    <icon
+     follows="top|left"
+     height="18"
+     image_name="Snapshot_Inventory"
+     layout="topleft"
+     left="12"
+     mouse_opaque="true"
+     name="title_icon"
+     top="6"
+     width="18" />
+    <text
+     follows="top|left|right"
+     font="SansSerifBold"
+     height="14"
+     layout="topleft"
+     left_pad="12"
+     length="1"
+     name="title"
+     right="-10"
+     text_color="white"
+     type="string"
+     top_delta="3">
+        Inventory
+    </text>
+    <view_border 
+     bevel_style="in"
+     follows="left|top|right" 
+     height="1"
+     left="9"
+     layout="topleft"
+     name="hr"
+     right="-5"
+     top_pad="5"
+     />
+    <text
+     follows="top|left"
+     font="SansSerif"
+     height="56"
+     layout="topleft"
+     left="10"
+     length="1"
+     name="hint_lbl"
+     top_pad="6"
+     width="200"
+     type="string"
+     word_wrap="true">
+        Uploading an image to your inventory costs L$[UPLOAD_COST].
+    </text>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     right="-5"
+     top="337"
+     width="97">
+      <button.commit_callback
+       function="Inventory.SaveOutfitCancel" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="23"
+     label="UPLOAD L$10"
+     layout="topleft"
+     left="10"
+     name="save_btn"
+     top_delta="0"
+     width="97">
+      <button.commit_callback
+       function="Inventory.SaveOutfitPhoto" />
+    </button>
+</panel>
