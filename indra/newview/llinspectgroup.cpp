@@ -41,6 +41,7 @@
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 #include "lluictrl.h"
+#include "llgroupiconctrl.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectGroup
@@ -233,8 +234,7 @@ void LLInspectGroup::processGroupData()
 
 		getChild<LLUICtrl>("group_details")->setValue( LLSD(data->mCharter) );
 
-		// LLGroupIconCtrl
-		getChild<LLUICtrl>("group_icon")->setValue(LLSD(mGroupID));
+		getChild<LLGroupIconCtrl>("group_icon")->setIconId(data->mInsigniaID);
 
 		std::string cost;
 		bool is_member = LLGroupActions::isInGroup(mGroupID);
