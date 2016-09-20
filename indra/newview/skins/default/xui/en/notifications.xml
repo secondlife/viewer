@@ -7407,7 +7407,8 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="TeleportOffered_MaturityExceeded"
    log_to_im="true"
    log_to_chat="false"
-   type="offer">
+   type="offer"
+   sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
 “[MESSAGE]”
@@ -7432,7 +7433,8 @@ This region contains [REGION_CONTENT_MATURITY] content, but your current prefere
    name="TeleportOffered_MaturityBlocked"
    log_to_im="true"
    log_to_chat="false"
-   type="notifytip">
+   type="notifytip"
+   sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
 “[MESSAGE]”
