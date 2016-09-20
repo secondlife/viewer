@@ -252,8 +252,6 @@ def slider_info(ladtree,skeltree):
                 scale = float_tuple(b.get("scale","0 0 0"))
                 offset = float_tuple(b.get("offset","0 0 0"))
                 print "  bone", b.get("name"), "scale", scale, "offset", offset
-                print "    scale",scale
-                print "    offset",offset
                 scale_min = [value_min * s for s in scale]
                 scale_max = [value_max * s for s in scale]
                 offset_min = [value_min * t for t in offset]
@@ -446,7 +444,7 @@ if __name__ == "__main__":
     parser.add_argument("--list", action="store_true", help="list joint names")
     parser.add_argument("--compare", help="alternate skeleton file to compare")
     parser.add_argument("--slider_info", help="information about the lad file sliders and affected bones", action="store_true")
-    parser.add_argument("infilename", help="name of a skel .xml file to input", default="avatar_skeleton.xml")
+    parser.add_argument("infilename", nargs="?", help="name of a skel .xml file to input", default="avatar_skeleton.xml")
     parser.add_argument("outfilename", nargs="?", help="name of a skel .xml file to output")
     args = parser.parse_args()
 
