@@ -6940,15 +6940,97 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
 	return result;
 }
 
+LLSD get_volume_sd(LLVOVolume* volume,
+                   LLVOVolume::texture_cost_t& textures)
+{
+    LLSD sd;
+    sd["TriangleCount"] = (LLSD::Integer) volume->getTriangleCount();
+    sd["HighLODTriangleCount"] = (LLSD::Integer) volume->getHighLODTriangleCount();
+    // Called just to collect textures as a side-effect
+    volume->getRenderCost(textures);
+    return sd;
+}
+
 LLSD LLVOAvatar::getAvatarFrameData()
 {
-    LLSD avatar_record;
-    avatar_record["Name"] = (LLSD::String) getFullname();
-    avatar_record["UUID"] = (LLSD::UUID) getID();
-    avatar_record["Self"] = (LLSD::Boolean) isSelf();
+    LLSD av_sd;
+    av_sd["Name"] = (LLSD::String) getFullname();
+    av_sd["UUID"] = (LLSD::UUID) getID();
+    av_sd["Self"] = (LLSD::Boolean) isSelf();
 	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-    avatar_record["RezStatus"] = (LLSD::String) viz_string;
-    return avatar_record;
+    av_sd["RezStatus"] = (LLSD::String) viz_string;
+    av_sd["ARCCalculated"] = (LLSD::Integer) getVisualComplexity();
+    av_sd["ARCReported"] = (LLSD::Integer) getReportedVisualComplexity();
+    av_sd["AttachmentSurfaceArea"] = (LLSD::Real) getAttachmentSurfaceArea();
+    LLSD av_attachments = LLSD::emptyArray();
+
+    LLVOVolume::texture_cost_t textures;
+
+    // For each attached volume (top level or child), generate an LLSD record 
+    for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+         attachment_point != mAttachmentPoints.end();
+         ++attachment_point)
+    {
+        LLViewerJointAttachment* attachment = attachment_point->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+             attachment_iter != attachment->mAttachedObjects.end();
+             ++attachment_iter)
+        {
+            const LLViewerObject* attached_object = (*attachment_iter);
+            if (attached_object && !attached_object->isHUDAttachment())
+            {
+                const LLDrawable* drawable = attached_object->mDrawable;
+                if (drawable)
+                {
+                    const LLVOVolume* volume = drawable->getVOVolume();
+                    if (volume)
+                    {
+                        LLSD attachment_sd = get_volume_sd(const_cast<LLVOVolume*>(volume), textures);
+                        av_attachments.append(attachment_sd);
+
+                        const_child_list_t children = volume->getChildren();
+                        for (const_child_list_t::const_iterator child_iter = children.begin();
+                             child_iter != children.end();
+                             ++child_iter)
+                        {
+                            LLViewerObject* child_obj = *child_iter;
+                            LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+                            if (child)
+                            {
+                                LLSD attachment_sd = get_volume_sd(const_cast<LLVOVolume*>(child), textures);
+                                av_attachments.append(attachment_sd);
+
+                                // Second level children aren't accounted for!
+                                const_child_list_t grand_children = child->getChildren();
+                                if (grand_children.begin() != grand_children.end())
+                                {
+                                    LL_ERRS() << "GRANDCHILDREN ARE NOT ACCOUNTED FOR CURRENTLY!!!"
+                                        " FIX CALCULATIONS HERE AND IN calculateUpdateRenderComplexity() !!!" << LL_ENDL;
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+    }
+    av_sd["Attachments"] = av_attachments;
+
+	LLSD av_attachment_textures = LLSD::emptyArray();
+    for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+         volume_texture != textures.end();
+         ++volume_texture)
+    {
+        LLSD tex_sd;
+        tex_sd["UUID"] = volume_texture->first;
+        tex_sd["Cost"] = volume_texture->second;
+        av_attachment_textures.append(tex_sd);
+    }
+    av_sd["AttachmentTextures"] = av_attachment_textures;
+
+    return av_sd;
 }
 
 // call periodically to keep isFullyLoaded up to date.
@@ -7047,9 +7129,9 @@ bool LLVOAvatar::isTooComplex() const
         // so that unlimited will completely disable the overly complex impostor rendering
         // yes, this leaves them vulnerable to griefing objects... their choice
         too_complex = (   max_render_cost > 0
-                       && (   mVisualComplexity > max_render_cost
-                           || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
-                           ));
+                          && (   mVisualComplexity > max_render_cost
+                                 || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
+                              ));
 	}
 
 	return too_complex;
@@ -8974,6 +9056,8 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 								}
 							}
 
+                            // FIXME should we be doing this after the loop over attachments,
+                            // so textures used by multiple attachments don't get charged multiple times?
 							for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
 								 volume_texture != textures.end();
 								 ++volume_texture)

@@ -396,7 +396,6 @@ void BlockTimer::logStats()
             sLogQueue.push(sd);
         }
     }
-
 }
 
 // static
@@ -404,7 +403,7 @@ void BlockTimer::logStatsExtended()
 {
     // get ready for next frame
     if (sLog)
-    { //output current frame counts to performance log
+    {   //output current frame counts to performance log
 
         static S32 call_count = 0;
         if (call_count % 100 == 0)

@@ -1296,6 +1296,7 @@ static LLTrace::BlockTimerStatHandle FTM_PUMP_SERVICE("Service");
 static LLTrace::BlockTimerStatHandle FTM_SERVICE_CALLBACK("Callback");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_AUTOPILOT("Autopilot");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE("Update");
+static LLTrace::BlockTimerStatHandle FTM_FRAME_DATA_LOGGING("FrameDataLogging");
 
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
@@ -1356,19 +1357,30 @@ bool LLAppViewer::mainLoop()
 		LL_RECORD_BLOCK_TIME(FTM_FRAME);
 		LLTrace::BlockTimer::processTimes();
 		LLTrace::get_frame_recording().nextPeriod();
-		if (LLTrace::BlockTimer::sExtendedLogging)
-		{
-            LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
-            if (avatar_sd.size()>0)
+
+        if (LLTrace::BlockTimer::sLog)
+        {
+            // Output per-frame performance data
+            LL_RECORD_BLOCK_TIME(FTM_FRAME_DATA_LOGGING);
+            if (LLTrace::BlockTimer::sExtendedLogging)
             {
-                LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
+                if (LLStartUp::getStartupState() >= STATE_STARTED)
+                {
+                    LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
+                    if (avatar_sd.size()>0)
+                    {
+                        LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
+                    }
+                    LLSD startup_sd = (LLSD::String) LLStartUp::getStartupStateString();
+                    LLTrace::BlockTimer::pushLogExtraRecord("StartupState", startup_sd);
+                    LLTrace::BlockTimer::logStatsExtended();
+                }
             }
-			LLTrace::BlockTimer::logStatsExtended();
-		}
-		else
-		{
-			LLTrace::BlockTimer::logStats();
-		}
+            else
+            {
+                LLTrace::BlockTimer::logStats();
+            }
+        }
 
 		LLTrace::get_thread_recorder()->pullFromChildren();
 
