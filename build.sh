@@ -208,9 +208,9 @@ then
     export additional_packages=
 fi
 
-initialize_context
-python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}"
 initialize_build
+python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}"
+initialize_version
 
 # Now run the build
 succeeded=true
@@ -396,7 +396,7 @@ then
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            python_cmd "$helpers/codeticket.py" addoutput "llphysicsextensions_package" "$llphysicsextensions_package" --private
+            python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private
         fi
         ;;
       *)
