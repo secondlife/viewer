@@ -1455,113 +1455,126 @@ void HttpRequestTestObjectType::test<14>()
 
 	set_test_name("HttpRequest GET timeout");
 
-	// Handler can be stack-allocated *if* there are no dangling
-	// references to it after completion of this method.
-	// Create before memory record as the string copy will bump numbers.
-	TestHandler2 handler(this, "handler");
-    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
-    std::string url_base(get_base_url() + "/sleep/");	// path to a 30-second sleep
-		
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-	mHandlerCalls = 0;
-
-	HttpRequest * req = NULL;
-	HttpOptions::ptr_t opts;
-	
-	try
+	// The before-and-after memory test for this can fail since GetMemTotal()
+	// counts EVERYTHING, including memory used outside llcorehttp. Rider
+	// suggests running the whole test twice: the first time to fully allocate
+	// whatever is consumed by other subsystems, the second time to try the
+	// before-and-after check.
+	for (unsigned short attempt = 0; attempt < 2; ++attempt)
 	{
-        // Get singletons created
-		HttpRequest::createService();
-		
-		// Start threading early so that thread memory is invariant
-		// over the test.
-		HttpRequest::startThread();
+		// Handler can be stack-allocated *if* there are no dangling
+		// references to it after completion of this method.
+		// Create before memory record as the string copy will bump numbers.
+		TestHandler2 handler(this, "handler");
+		LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+		std::string url_base(get_base_url() + "/sleep/");   // path to a 30-second sleep
 
-		// create a new ref counted object with an implicit reference
-		req = new HttpRequest();
-		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+		// record the total amount of dynamically allocated memory
+		mMemTotal = GetMemTotal();
+		mHandlerCalls = 0;
 
-        opts = HttpOptions::ptr_t(new HttpOptions);
-		opts->setRetries(0);			// Don't retry
-		opts->setTimeout(2);
-		
-		// Issue a GET that sleeps
-		mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
-		HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
-													 0U,
-													 url_base,
-													 0,
-													 0,
-													 opts,
-                                                     HttpHeaders::ptr_t(),
-                                                     handlerp);
-		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		HttpRequest * req = NULL;
+		HttpOptions::ptr_t opts;
 
-		// Run the notification pump.
-		int count(0);
-		int limit(LOOP_COUNT_LONG);
-		while (count++ < limit && mHandlerCalls < 1)
+		try
 		{
-			req->update(1000000);
-			usleep(LOOP_SLEEP_INTERVAL);
-		}
-		ensure("Request executed in reasonable time", count < limit);
-		ensure("One handler invocation for request", mHandlerCalls == 1);
+			// Get singletons created
+			HttpRequest::createService();
 
-		// Okay, request a shutdown of the servicing thread
-		mStatus = HttpStatus();
-		handle = req->requestStopThread(handlerp);
-		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
-	
-		// Run the notification pump again
-		count = 0;
-		limit = LOOP_COUNT_LONG;
-		while (count++ < limit && mHandlerCalls < 2)
-		{
-			req->update(1000000);
-			usleep(LOOP_SLEEP_INTERVAL);
-		}
-		ensure("Second request executed in reasonable time", count < limit);
-		ensure("Second handler invocation", mHandlerCalls == 2);
+			// Start threading early so that thread memory is invariant
+			// over the test.
+			HttpRequest::startThread();
 
-		// See that we actually shutdown the thread
-		count = 0;
-		limit = LOOP_COUNT_SHORT;
-		while (count++ < limit && ! HttpService::isStopped())
-		{
-			usleep(LOOP_SLEEP_INTERVAL);
-		}
-		ensure("Thread actually stopped running", HttpService::isStopped());
+			// create a new ref counted object with an implicit reference
+			req = new HttpRequest();
+			ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-		// release options
-        opts.reset();
-		
-		// release the request object
-		delete req;
-		req = NULL;
+			opts = HttpOptions::ptr_t(new HttpOptions);
+			opts->setRetries(0);            // Don't retry
+			opts->setTimeout(2);
 
-		// Shut down service
-		HttpRequest::destroyService();
-	
-		ensure("Two handler calls on the way out", 2 == mHandlerCalls);
+			// Issue a GET that sleeps
+			mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
+			HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+														 0U,
+														 url_base,
+														 0,
+														 0,
+														 opts,
+														 HttpHeaders::ptr_t(),
+														 handlerp);
+			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+			// Run the notification pump.
+			int count(0);
+			int limit(LOOP_COUNT_LONG);
+			while (count++ < limit && mHandlerCalls < 1)
+			{
+				req->update(1000000);
+				usleep(LOOP_SLEEP_INTERVAL);
+			}
+			ensure("Request executed in reasonable time", count < limit);
+			ensure("One handler invocation for request", mHandlerCalls == 1);
+
+			// Okay, request a shutdown of the servicing thread
+			mStatus = HttpStatus();
+			handle = req->requestStopThread(handlerp);
+			ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+			// Run the notification pump again
+			count = 0;
+			limit = LOOP_COUNT_LONG;
+			while (count++ < limit && mHandlerCalls < 2)
+			{
+				req->update(1000000);
+				usleep(LOOP_SLEEP_INTERVAL);
+			}
+			ensure("Second request executed in reasonable time", count < limit);
+			ensure("Second handler invocation", mHandlerCalls == 2);
+
+			// See that we actually shutdown the thread
+			count = 0;
+			limit = LOOP_COUNT_SHORT;
+			while (count++ < limit && ! HttpService::isStopped())
+			{
+				usleep(LOOP_SLEEP_INTERVAL);
+			}
+			ensure("Thread actually stopped running", HttpService::isStopped());
+
+			// release options
+			opts.reset();
+
+			// release the request object
+			delete req;
+			req = NULL;
+
+			// Shut down service
+			HttpRequest::destroyService();
+
+			ensure("Two handler calls on the way out", 2 == mHandlerCalls);
 
 #if defined(WIN32)
-		// Can only do this memory test on Windows.  On other platforms,
-		// the LL logging system holds on to memory and produces what looks
-		// like memory leaks...
-	
-		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
-		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+			// Can only do this memory test on Windows.	 On other platforms,
+			// the LL logging system holds on to memory and produces what looks
+			// like memory leaks...
+
+			// don't check the first time around this loop, see comment at top
+			// of test
+			if (attempt)
+			{
+				// printf("Old mem:	 %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+				ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+			}
 #endif
-	}
-	catch (...)
-	{
-		stop_thread(req);
-        opts.reset();
-		delete req;
-		HttpRequest::destroyService();
-		throw;
+		}
+		catch (...)
+		{
+			stop_thread(req);
+			opts.reset();
+			delete req;
+			HttpRequest::destroyService();
+			throw;
+		}
 	}
 }
 
