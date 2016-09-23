@@ -30,16 +30,25 @@ import argparse
 from lxml import etree
 import sys
 from llbase import llsd
+import re
 
-def process_frame_record(elem):
-    frame_data = {}
+def export_csv(filename, timer_data):
+    if args.verbose:
+        print timer_data
+    f = open(filename,"w")
+    for fd in timer_data:
+        print >>f, ",".join([str(d) for d in fd])
+    f.close()
     
-def summarize(filename, timers):
-    print "collecting timers",timers
+def export(filename, timers):
+    if re.match(".*\.csv$", filename):
+        export_csv(filename, timers)
+    else:
+        print "unknown extension for export",filename
 
-    summary = {}
-
-    print "do summarize here"
+# optimized to avoid blowing out memory when processing huge files,
+# but not especially efficient the way we parse twice.
+def get_frame_record(filename):
     f = open(filename)
 
     # get an iterable
@@ -56,27 +65,95 @@ def summarize(filename, timers):
     for event, elem in context:
         if event == "end" and elem.tag == "llsd":
             # process frame record here
+            frame_count += 1
+
             xmlstr = etree.tostring(elem, encoding="utf8", method="xml")
             sd = llsd.parse_xml(xmlstr)
-            if args.verbose:
-                print "FRAME #",frame_count
-            for t in timers: 
-                if t in sd:
-                    time_val = sd[t]['Time']
-                    if args.verbose:
-                        print t,time_val
-                    if not t in summary:
-                        summary[t] = {'n':0, 'sum':0.0}
-                    summary[t]['n'] += 1
-                    summary[t]['sum'] += time_val
+            yield sd
             
-            frame_count += 1
             if frame_count % 100 == 0:
                 # avoid accumulating lots of junk under root
                 root.clear()
 
     print "Read",frame_count,"frame records"
     f.close()
+    
+def collect_timer_data(filename, timers, avatar_fields, max_records, prune=None):
+    print "collect_timer_data", timers,"avatar_fields",avatar_fields
+    all_timers = []
+    times = {}
+    frame_data = []
+    frame_count = 0
+    maxval = {}
+    header = []
+    iter_rec = iter(get_frame_record(filename))
+    next(iter_rec) # first frame data is garbage
+    next(iter_rec) # first couple of frames tend to be junk
+    for sd in iter_rec:
+        for t in sd['Timers']:
+            if timers is None:
+                all_timers.append(t)
+            if timers is None or t in timers:
+                times[t] = sd['Timers'][t]['Time']
+                if not t in maxval:
+                    maxval[t] = 0.0
+                maxval[t] = max(times[t],maxval[t])
+        if frame_count==0:
+            if timers is None:
+                time_header = sorted([t for t in all_timers if (prune is None or maxval[t]>prune)])
+            else:
+                time_header = timers
+        times_list = [times[i] for i in time_header]
+
+        if avatar_fields:
+            av_data = {}
+            for i, av in enumerate(sd['Extra']['Avatars']):
+                if not av['Self']:
+                    continue
+                for av_field in avatar_fields:
+                    if av_field in av:
+                        av_key = "Avatar.Self." + av_field
+                        av_data[av_key] = av[av_field]
+                    else:
+                        print "av lacks requested field!",av_field
+
+            av_list = [av_data[av_key] for av_key in sorted(av_data.keys())]
+            header = time_header + [av_key for av_key in sorted(av_data.keys())]
+            
+        if frame_count==0:    
+            frame_data.append(header)
+        frame_data.append(times_list + av_list)
+
+        frame_count += 1
+        if frame_count >= max_records:
+            break
+    return frame_data
+
+def summarize(filename, timers, max_records=None):
+    print "collecting timers",timers
+
+    summary = {}
+
+    print "do summarize here, max_records", max_records
+
+    frame_count = 0
+    for sd in get_frame_record(filename):
+        frame_count += 1
+        if max_records is not None and frame_count >= max_records:
+            print "read enough records"
+            break
+        if args.verbose:
+            print "FRAME #",frame_count
+            #print sd
+        for t in timers: 
+            if t in sd['Timers']:
+                time_val = sd['Timers'][t]['Time']
+                if args.verbose:
+                    print t,time_val
+                if not t in summary:
+                    summary[t] = {'n':0, 'sum':0.0}
+                summary[t]['n'] += 1
+                summary[t]['sum'] += time_val
 
     for t in timers:
         if t in summary:
@@ -88,12 +165,21 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true",help="verbose flag")
-    parser.add_argument("infilename", help="name of performance file", default="performance.slp")
     parser.add_argument("--timers", help="specify timers to be examined", nargs="+")
+    parser.add_argument("--avatar_fields", help="specify avatar fields to be examined", nargs="+")
+    parser.add_argument("--export", help="export results to specified file")
     parser.add_argument("--summary", action="store_true", help="print summary stats for the requested timers") 
+    parser.add_argument("--max_records", type=int, help="limit to number of frames to process") 
+    parser.add_argument("infilename", help="name of performance file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
+    timer_data = collect_timer_data(args.infilename, args.timers, args.avatar_fields, args.max_records, 0.001)
+
+    if args.export:
+        export(args.export, timer_data)
+        
     if args.infilename and args.summary:
-        summarize(args.infilename, args.timers)
+        summarize(args.infilename, args.timers, args.max_records)
+
 
     print "done"
