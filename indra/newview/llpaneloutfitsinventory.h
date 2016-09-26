@@ -30,8 +30,9 @@
 
 #include "llpanel.h"
 
+class LLOutfitGallery;
 class LLOutfitsList;
-class LLOutfitListGearMenu;
+class LLOutfitListGearMenuBase;
 class LLPanelAppearanceTab;
 class LLPanelWearing;
 class LLMenuGL;
@@ -72,10 +73,13 @@ protected:
 	void 					initTabPanels();
 	void 					onTabChange();
 	bool 					isCOFPanelActive() const;
+	bool 					isOutfitsListPanelActive() const;
+	bool 					isOutfitsGalleryPanelActive() const;
 
 private:
 	LLPanelAppearanceTab*	mActivePanel;
 	LLOutfitsList*			mMyOutfitsPanel;
+    LLOutfitGallery*        mOutfitGalleryPanel;
 	LLPanelWearing*			mCurrentOutfitPanel;
 
 	// tab panels                                                                   //
