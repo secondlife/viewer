@@ -27,7 +27,7 @@
 #ifndef LL_LLSNAPSHOTLIVEPREVIEW_H
 #define LL_LLSNAPSHOTLIVEPREVIEW_H
 
-#include "llpanelsnapshot.h"
+#include "llsnapshotmodel.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
 
@@ -40,14 +40,6 @@ class LLSnapshotLivePreview : public LLView
 {
 	LOG_CLASS(LLSnapshotLivePreview);
 public:
-	enum ESnapshotType
-	{
-		SNAPSHOT_POSTCARD,
-		SNAPSHOT_TEXTURE,
-		SNAPSHOT_LOCAL,
-		SNAPSHOT_WEB
-	};
-
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
@@ -80,8 +72,8 @@ public:
 	void setMaxImageSize(S32 size) ;
 	S32  getMaxImageSize() {return mMaxImageSize ;}
 
-	ESnapshotType getSnapshotType() const { return mSnapshotType; }
-	LLFloaterSnapshot::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
+    LLSnapshotModel::ESnapshotType getSnapshotType() const { return mSnapshotType; }
+    LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
 	BOOL getSnapshotUpToDate() const { return mSnapshotUpToDate; }
 	BOOL isSnapshotActive() { return mSnapshotActive; }
 	LLViewerTexture* getThumbnailImage() const { return mThumbnailImage ; }
@@ -98,16 +90,16 @@ public:
 	void setImageScaled(BOOL scaled) { mImageScaled[mCurImageIndex] = scaled; }
 	const LLVector3d& getPosTakenGlobal() const { return mPosTakenGlobal; }
 
-	void setSnapshotType(ESnapshotType type) { mSnapshotType = type; }
-	void setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat format);
+    void setSnapshotType(LLSnapshotModel::ESnapshotType type) { mSnapshotType = type; }
+    void setSnapshotFormat(LLSnapshotModel::ESnapshotFormat format);
 	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
-	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
+	void setSnapshotBufferType(LLSnapshotModel::ESnapshotLayerType type) { mSnapshotBufferType = type; }
     void setAllowRenderUI(BOOL allow) { mAllowRenderUI = allow; }
     void setAllowFullScreenPreview(BOOL allow) { mAllowFullScreenPreview = allow; }
     void setFilter(std::string filter_name) { mFilterName = filter_name; }
     std::string  getFilter() const { return mFilterName; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
-	void saveTexture();
+    void saveTexture(BOOL outfit_snapshot = FALSE, std::string name = "");
 	BOOL saveLocal();
 
 	LLPointer<LLImageFormatted>	getFormattedImage();
@@ -169,14 +161,14 @@ private:
 	LLVector3d					mPosTakenGlobal;
 	S32							mSnapshotQuality;
 	S32							mDataSize;
-	ESnapshotType				mSnapshotType;
-	LLFloaterSnapshot::ESnapshotFormat	mSnapshotFormat;
+    LLSnapshotModel::ESnapshotType				mSnapshotType;
+    LLSnapshotModel::ESnapshotFormat	mSnapshotFormat;
 	BOOL						mSnapshotUpToDate;
 	LLFrameTimer				mFallAnimTimer;
 	LLVector3					mCameraPos;
 	LLQuaternion				mCameraRot;
 	BOOL						mSnapshotActive;
-	LLViewerWindow::ESnapshotType mSnapshotBufferType;
+	LLSnapshotModel::ESnapshotLayerType mSnapshotBufferType;
     std::string                 mFilterName;
 
 public:
