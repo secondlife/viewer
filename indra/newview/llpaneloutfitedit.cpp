@@ -779,6 +779,10 @@ void LLPanelOutfitEdit::onVisibilityChanged(const LLSD &in_visible_chain)
 	{
 		update();
 	}
+	else
+	{
+		mWearableListManager->holdProgress(); //list population restarts with visibility
+	}
 }
 
 void LLPanelOutfitEdit::onAddWearableClicked(void)

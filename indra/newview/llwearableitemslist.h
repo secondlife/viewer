@@ -453,7 +453,7 @@ public:
 
 	virtual ~LLWearableItemsList();
 
-	/*virtual*/ void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
+	/*virtual*/ LLPanel* createNewItem(LLViewerInventoryItem* item);
 
 	void updateList(const LLUUID& category_id);
 

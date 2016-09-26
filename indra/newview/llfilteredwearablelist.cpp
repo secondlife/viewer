@@ -93,4 +93,9 @@ void LLFilteredWearableListManager::populateList()
 	mWearableList->refreshList(item_array);
 }
 
+void LLFilteredWearableListManager::holdProgress()
+{
+    mWearableList->setForceRefresh(false);
+}
+
 // EOF
