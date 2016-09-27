@@ -49,7 +49,6 @@
          layout="topleft"
          left="8"
          name="preset_views_list"
-         opaque="true"
          top="24"
          width="212"
          visible="false">
@@ -107,7 +106,6 @@
           layout="topleft"
           left="8"
           name="camera_modes_list"
-          opaque="true"
           top="24"
           width="212"
           visible="false">
