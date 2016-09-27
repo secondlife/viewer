@@ -1379,6 +1379,16 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 
 		if ( !missingSkeletonOrScene )
 		{
+            // FIXME: mesh_id is used to determine which mesh gets to
+            // set the joint offset, in the event of a conflict. Since
+            // we don't know the mesh id yet, we can't guarantee that
+            // joint offsets will be applied with the same priority as
+            // in the uploaded model. If the file contains multiple
+            // meshes with conflicting joint offsets, preview may be
+            // incorrect.
+            LLUUID fake_mesh_id;
+            fake_mesh_id.generate();
+
 			//Set the joint translations on the avatar
             JointMap :: const_iterator masterJointIt = mJointMap.begin();
             JointMap :: const_iterator masterJointItEnd = mJointMap.end();
@@ -1393,19 +1403,16 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                     LLJoint* pJoint = mJointLookupFunc(lookingForJoint,mOpaqueData);
                     if ( pJoint )
                     {   
-                        // FIXME: mesh_id is used to determine which
-                        // mesh gets to set the joint offset, in the
-                        // event of a conflict. Since we don't know
-                        // the mesh id yet, we can't guarantee that
-                        // joint offsets will be applied with the same
-                        // priority as in the uploaded model. If the
-                        // file contains multiple meshes with
-                        // conflicting joint offsets, preview may be
-                        // incorrect.
-                        LLUUID fake_mesh_id;
-                        fake_mesh_id.generate();
-                        bool dummy; // not used
-                        pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, "", dummy);
+                        const LLVector3& joint_pos = jointTransform.getTranslation();
+                        if (pJoint->aboveJointPosThreshold(joint_pos))
+                        {
+                            bool override_changed; // not used
+                            pJoint->addAttachmentPosOverride(joint_pos, fake_mesh_id, "", override_changed);
+                            if (model->mSkinInfo.mLockScaleIfJointPosition)
+                            {
+                                pJoint->addAttachmentScaleOverride(pJoint->getDefaultScale(), fake_mesh_id, "");
+                            }
+                        }
                     }
                     else
                     {

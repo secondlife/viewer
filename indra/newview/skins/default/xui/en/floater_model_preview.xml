@@ -1217,6 +1217,13 @@
              label_text.text_color="White"
              name="upload_joints"
              top_pad="15"/>
+           <check_box
+             follows="top|left"
+             height="15"
+             label="Lock scale if joint position defined"
+             label_text.text_color="White"
+             name="lock_scale_if_joint_position"
+             top_pad="15"/>
            <text
              follows="top|left"
              height="15"
