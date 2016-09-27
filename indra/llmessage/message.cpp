@@ -4007,7 +4007,7 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("untrustedSimulatorMessage", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 

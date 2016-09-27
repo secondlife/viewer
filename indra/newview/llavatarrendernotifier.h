@@ -33,6 +33,25 @@
 
 class LLViewerRegion;
 
+struct LLHUDComplexity
+{
+    LLHUDComplexity()
+    {
+        objectsCost = 0;
+        objectsCount = 0;
+        texturesCost = 0;
+        texturesCount = 0;
+        largeTexturesCount = 0;
+        texturesSizeTotal = 0;
+    }
+    U32 objectsCost;
+    U32 objectsCount;
+    U32 texturesCost;
+    U32 texturesCount;
+    U32 largeTexturesCount;
+    F64 texturesSizeTotal;
+};
+
 // Class to notify user about drastic changes in agent's render weights or if other agents
 // reported that user's agent is too 'heavy' for their settings
 class LLAvatarRenderNotifier : public LLSingleton<LLAvatarRenderNotifier>
@@ -79,6 +98,23 @@ private:
     // Used to detect changes in voavatar's rezzed status.
     // If value decreases - there were changes in outfit.
     S32 mLastOutfitRezStatus;
+};
+
+// Class to notify user about heavy set of HUD
+class LLHUDRenderNotifier : public LLSingleton<LLHUDRenderNotifier>
+{
+public:
+    LLHUDRenderNotifier();
+    ~LLHUDRenderNotifier();
+
+    void updateNotificationHUD(LLHUDComplexity new_complexity);
+
+private:
+    void displayHUDNotification(const char* message);
+
+    LLHUDComplexity mReportedHUDComplexity;
+    LLHUDComplexity mLatestHUDComplexity;
+    LLFrameTimer mHUDPopUpDelayTimer;
 };
 
 #endif /* ! defined(LL_llavatarrendernotifier_H) */

@@ -305,7 +305,7 @@ public:
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-	const LLSD* getMeshHeader(const LLUUID& mesh_id);
+	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
@@ -475,6 +475,7 @@ public:
 	
 	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
 
+	F32 getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
 	LLMeshRepository();
@@ -506,7 +507,7 @@ public:
 	bool meshRezEnabled();
 	
 
-	const LLSD* getMeshHeader(const LLUUID& mesh_id);
+	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
 			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,

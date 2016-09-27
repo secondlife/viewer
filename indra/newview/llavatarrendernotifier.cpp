@@ -51,6 +51,11 @@ static const F32 RENDER_ALLOWED_CHANGE_PCT = 0.1;
 // wait seconds before processing over limit updates after last complexity change
 static const U32 OVER_LIMIT_UPDATE_DELAY = 70;
 
+static const U32 WARN_HUD_OBJECTS_LIMIT = 1000;
+static const U32 WARN_HUD_TEXTURES_LIMIT = 200;
+static const U32 WARN_HUD_OVERSIZED_TEXTURES_LIMIT = 6;
+static const U32 WARN_HUD_TEXTURE_MEMORY_LIMIT = 10000000; // in pixels
+
 
 LLAvatarRenderNotifier::LLAvatarRenderNotifier() :
 mAgentsCount(0),
@@ -262,5 +267,130 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
         // next 'over limit' update should be displayed after delay to make sure information got updated at server side
         mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
     }
+}
+
+// LLHUDRenderNotifier
+
+LLHUDRenderNotifier::LLHUDRenderNotifier()
+{
+}
+
+LLHUDRenderNotifier::~LLHUDRenderNotifier()
+{
+}
+
+void LLHUDRenderNotifier::updateNotificationHUD(LLHUDComplexity new_complexity)
+{
+    if (!isAgentAvatarValid())
+    {
+        // data not ready.
+        return;
+    }
+
+    static const char* hud_memory = "hud_render_memory_warning";
+    static const char* hud_cost = "hud_render_cost_warning";
+    static const char* hud_heavy = "hud_render_heavy_textures_warning";
+    static const char* hud_cramped = "hud_render_cramped_warning";
+    static const char* hud_textures = "hud_render_textures_warning";
+
+    static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U); // ties max HUD cost to avatar cost
+    static LLCachedControl<U32> max_objects_count(gSavedSettings, "RenderHUDObjectsWarning", WARN_HUD_OBJECTS_LIMIT);
+    static LLCachedControl<U32> max_textures_count(gSavedSettings, "RenderHUDTexturesWarning", WARN_HUD_TEXTURES_LIMIT);
+    static LLCachedControl<U32> max_oversized_count(gSavedSettings, "RenderHUDOversizedTexturesWarning", WARN_HUD_OVERSIZED_TEXTURES_LIMIT);
+    static LLCachedControl<U32> max_texture_memory(gSavedSettings, "RenderHUDTexturesVirtualMemoryWarning", WARN_HUD_TEXTURE_MEMORY_LIMIT);
+
+    if (mHUDPopUpDelayTimer.hasExpired())
+    {
+        // Show warning with highest importance (5m delay between warnings by default)
+        // TODO:
+        // Consider showing message with list of issues.
+        // For now shows one after another if update arrives and timer expired, so
+        // consider showing only one most important or consider triggering not
+        // only in case of update
+        if (mReportedHUDComplexity.texturesSizeTotal < new_complexity.texturesSizeTotal
+            && new_complexity.texturesSizeTotal > max_texture_memory)
+        {
+            displayHUDNotification(hud_memory);
+            LL_DEBUGS("HUDdetail") << "HUD memory usage over limit,"
+                                   << " was " << mReportedHUDComplexity.texturesSizeTotal
+                                   << " is " << new_complexity.texturesSizeTotal << LL_ENDL;
+            mReportedHUDComplexity.texturesSizeTotal = new_complexity.texturesSizeTotal;
+        }
+        else if ((mReportedHUDComplexity.objectsCost < new_complexity.objectsCost
+            || mReportedHUDComplexity.texturesCost < new_complexity.texturesCost)
+            && max_render_cost > 0
+            && new_complexity.objectsCost + new_complexity.texturesCost > max_render_cost)
+        {
+            LL_DEBUGS("HUDdetail") << "HUD complexity over limit,"
+                                   << " HUD textures cost: " << new_complexity.texturesCost
+                                   << " HUD objects cost: " << new_complexity.objectsCost << LL_ENDL;
+            displayHUDNotification(hud_cost);
+            mReportedHUDComplexity.objectsCost = new_complexity.objectsCost;
+            mReportedHUDComplexity.texturesCost = new_complexity.texturesCost;
+        }
+        else if (mReportedHUDComplexity.largeTexturesCount < new_complexity.largeTexturesCount
+            && new_complexity.largeTexturesCount > max_oversized_count)
+        {
+            LL_DEBUGS("HUDdetail") << "HUD contains to many large textures: "
+                                   << new_complexity.largeTexturesCount << LL_ENDL;
+            displayHUDNotification(hud_heavy);
+            mReportedHUDComplexity.largeTexturesCount = new_complexity.largeTexturesCount;
+        }
+        else if (mReportedHUDComplexity.texturesCount < new_complexity.texturesCount
+            && new_complexity.texturesCount > max_textures_count)
+        {
+            LL_DEBUGS("HUDdetail") << "HUD contains too many textures: "
+                                   << new_complexity.texturesCount << LL_ENDL;
+            displayHUDNotification(hud_cramped);
+            mReportedHUDComplexity.texturesCount = new_complexity.texturesCount;
+        }
+        else if (mReportedHUDComplexity.objectsCount < new_complexity.objectsCount
+            && new_complexity.objectsCount > max_objects_count)
+        {
+            LL_DEBUGS("HUDdetail") << "HUD contains too many objects: "
+                                   << new_complexity.objectsCount << LL_ENDL;
+            displayHUDNotification(hud_textures);
+            mReportedHUDComplexity.objectsCount = new_complexity.objectsCount;
+        }
+        else
+        {
+            // all warnings displayed, just store everything so that we will
+            // be able to reduce values and show warnings again later
+            mReportedHUDComplexity = new_complexity;
+        }
+    }
+
+    if (mLatestHUDComplexity.objectsCost != new_complexity.objectsCost
+        || mLatestHUDComplexity.objectsCount != new_complexity.objectsCount
+        || mLatestHUDComplexity.texturesCost != new_complexity.texturesCost
+        || mLatestHUDComplexity.texturesCount != new_complexity.texturesCount
+        || mLatestHUDComplexity.largeTexturesCount != new_complexity.largeTexturesCount
+        || mLatestHUDComplexity.texturesSizeTotal != new_complexity.texturesSizeTotal)
+    {
+        LL_INFOS("HUDdetail") << "HUD textures count: " << new_complexity.texturesCount
+            << " HUD textures cost: " << new_complexity.texturesCost
+            << " Large textures: " << new_complexity.largeTexturesCount
+            << " HUD objects cost: " << new_complexity.objectsCost
+            << " HUD objects count: " << new_complexity.objectsCount << LL_ENDL;
+
+        mLatestHUDComplexity = new_complexity;
+    }
+    
+}
+
+void LLHUDRenderNotifier::displayHUDNotification(const char* message)
+{
+    static LLCachedControl<U32> pop_up_delay(gSavedSettings, "ComplexityChangesPopUpDelay", 300);
+    static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
+    LLDate expire_date(LLDate::now().secondsSinceEpoch() + expire_delay);
+
+    LLSD args;
+    args["HUD_REASON"] = LLTrans::getString(message);
+
+    LLNotifications::instance().add(LLNotification::Params()
+        .name("HUDComplexityWarning")
+        .expiry(expire_date)
+        .substitutions(args));
+    mHUDPopUpDelayTimer.resetWithExpiry(pop_up_delay);
 }
 

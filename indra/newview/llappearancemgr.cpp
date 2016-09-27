@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -1517,6 +1518,26 @@ void LLAppearanceMgr::replaceCurrentOutfit(const LLUUID& new_outfit)
 	wearInventoryCategory(cat, false, false);
 }
 
+// Remove existing photo link from outfit folder.
+void LLAppearanceMgr::removeOutfitPhoto(const LLUUID& outfit_id)
+{
+    LLInventoryModel::cat_array_t sub_cat_array;
+    LLInventoryModel::item_array_t outfit_item_array;
+    gInventory.collectDescendents(
+        outfit_id,
+        sub_cat_array,
+        outfit_item_array,
+        LLInventoryModel::EXCLUDE_TRASH);
+    BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+    {
+        LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
+        if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+        {
+            gInventory.removeItem(outfit_item->getUUID());
+        }
+    }
+}
+
 // Open outfit renaming dialog.
 void LLAppearanceMgr::renameOutfit(const LLUUID& outfit_id)
 {
@@ -1854,15 +1875,15 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
+	// Check whether the outfit contains any wearables
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	LLFindWearables is_wearable;
 	gInventory.collectDescendentsIf(outfit_cat_id,
 		cats,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
-		is_worn);
+		is_wearable);
 
 	return items.size() > 0;
 }
@@ -2945,6 +2966,16 @@ void LLAppearanceMgr::updateIsDirty()
 		gInventory.collectDescendentsIf(base_outfit, outfit_cats, outfit_items,
 									  LLInventoryModel::EXCLUDE_TRASH, collector);
 
+		for (U32 i = 0; i < outfit_items.size(); ++i)
+		{
+			LLViewerInventoryItem* linked_item = outfit_items.at(i)->getLinkedItem();
+			if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+			{
+				outfit_items.erase(outfit_items.begin() + i);
+				break;
+			}
+		}
+
 		if(outfit_items.size() != cof_items.size())
 		{
 			LL_DEBUGS("Avatar") << "item count different - base " << outfit_items.size() << " cof " << cof_items.size() << LL_ENDL;
@@ -3092,6 +3123,14 @@ void appearance_mgr_update_dirty_state()
 {
 	if (LLAppearanceMgr::instanceExists())
 	{
+		LLAppearanceMgr& app_mgr = LLAppearanceMgr::instance();
+		LLUUID image_id = app_mgr.getOutfitImage();
+		if(image_id.notNull())
+		{
+			LLPointer<LLInventoryCallback> cb = NULL;
+			link_inventory_object(app_mgr.getBaseOutfitUUID(), image_id, cb);
+		}
+
 		LLAppearanceMgr::getInstance()->updateIsDirty();
 		LLAppearanceMgr::getInstance()->setOutfitLocked(false);
 		gAgentWearables.notifyLoadingFinished();
@@ -3101,7 +3140,21 @@ void appearance_mgr_update_dirty_state()
 void update_base_outfit_after_ordering()
 {
 	LLAppearanceMgr& app_mgr = LLAppearanceMgr::instance();
-	
+	LLInventoryModel::cat_array_t sub_cat_array;
+	LLInventoryModel::item_array_t outfit_item_array;
+	gInventory.collectDescendents(app_mgr.getBaseOutfitUUID(),
+								sub_cat_array,
+								outfit_item_array,
+								LLInventoryModel::EXCLUDE_TRASH);
+	BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+	{
+		LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
+		if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+		{
+			app_mgr.setOutfitImage(linked_item->getLinkedUUID());
+		}
+	}
+
 	LLPointer<LLInventoryCallback> dirty_state_updater =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
 

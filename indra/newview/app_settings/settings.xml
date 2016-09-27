@@ -137,6 +137,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AdvanceOutfitSnapshot</key>
+    <map>
+      <key>Comment</key>
+      <string>Display advanced parameter settings in outfit snaphot interface</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AgentPause</key>
     <map>
       <key>Comment</key>
@@ -4504,28 +4515,6 @@
       <key>Value</key>
       <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
-    <key>WebProfileURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Web Profiles</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://my.secondlife.com/[AGENT_NAME]</string>
-    </map>
-	<key>WebProfileNonProductionURL</key>
-	<map>
-		<key>Comment</key>
-		<string>URL for Web Profiles on Non-Production grids</string>
-		<key>Persist</key>
-		<integer>0</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string>https://my-demo.secondlife.com/[AGENT_NAME]</string>
-	</map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4870,7 +4859,7 @@
     <key>InventoryTrashMaxCapacity</key>
     <map>
         <key>Comment</key>
-        <string>Maximum capacity of the Trash folder. User will ve offered to clean it up when exceeded.</string>
+        <string>Maximum capacity of the Trash folder. User will be offered to clean it up when exceeded.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -7940,6 +7929,17 @@
       <key>Value</key>
       <integer>100000</integer>
     </map>
+    <key>PrimTextMaxDrawDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum draw distance beyond which PRIM_TEXT won't be rendered</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>64.0</real>
+    </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
       <key>Comment</key>
@@ -10092,6 +10092,17 @@
     <key>Value</key>
     <integer>10</integer>
   </map>
+  <key>ComplexityChangesPopUpDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay before viewer will show avatar complexity notice again</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>300</integer>
+  </map>
   <key>RenderAvatarMaxComplexity</key>
   <map>
     <key>Comment</key>
@@ -10103,6 +10114,50 @@
     <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>RenderHUDObjectsWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many objects if objects count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1000</integer>
+  </map>
+  <key>RenderHUDTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many textures if texture count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>200</integer>
+  </map>
+  <key>RenderHUDOversizedTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>How many textures with size 1024 * 1024 or bigger HUD can contain before notifying user</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
+  <key>RenderHUDTexturesVirtualMemoryWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD textures using memory above this value (Virtual memory, in pixels)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>10000000</integer>
   </map>
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
@@ -14657,6 +14712,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>OutfitGallerySortByName</key>
+    <map>
+      <key>Comment</key>
+      <string>Always sort outfits by name in Outfit Gallery</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>OutfitOperationsTimeout</key>
     <map>

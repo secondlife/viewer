@@ -1071,7 +1071,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 std::string LLDAELoader::preprocessDAE(std::string filename)
 {
 	// Open a DAE file for some preprocessing (like removing space characters in IDs), see MAINT-5678
-	std::ifstream inFile;
+	llifstream inFile;
 	inFile.open(filename.c_str(), std::ios_base::in);
 	std::stringstream strStream;
 	strStream << inFile.rdbuf();

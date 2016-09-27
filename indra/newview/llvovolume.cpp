@@ -3650,10 +3650,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 
 	if (isMesh())
 	{
-		const LLSD* header_ptr = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
-		LLSD header = header_ptr ? *header_ptr : LLSD();
-
-		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD, unscaled_value);
+		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
 	}
 	else
 	{
@@ -4454,7 +4451,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	LL_RECORD_BLOCK_TIME(FTM_REGISTER_FACE);
 	if (type == LLRenderPass::PASS_ALPHA && facep->getTextureEntry()->getMaterialParams().notNull() && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT))
 	{
-		LL_WARNS("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
+		LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
 	}
 
 	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)

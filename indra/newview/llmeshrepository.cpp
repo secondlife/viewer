@@ -1753,6 +1753,11 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 
 bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
+	if (data == NULL || data_size == 0)
+	{
+		return false;
+	}
+
 	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
 	std::string mesh_string((char*) data, data_size);
 	std::istringstream stream(mesh_string);
@@ -3010,12 +3015,23 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 	}
 	else if (data && data_size > 0)
 	{
-		// header was successfully retrieved from sim, cache in vfs
-		LLSD header = gMeshRepo.mThread->mMeshHeader[mesh_id];
+		// header was successfully retrieved from sim and parsed, cache in vfs
+		S32 header_bytes = 0;
+		LLSD header;
 
-		S32 version = header["version"].asInteger();
+		gMeshRepo.mThread->mHeaderMutex->lock();
+		LLMeshRepoThread::mesh_header_map::iterator iter = gMeshRepo.mThread->mMeshHeader.find(mesh_id);
+		if (iter != gMeshRepo.mThread->mMeshHeader.end())
+		{
+			header_bytes = (S32)gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
+			header = iter->second;
+		}
+		gMeshRepo.mThread->mHeaderMutex->unlock();
 
-		if (version <= MAX_MESH_VERSION)
+		if (header_bytes > 0
+			&& !header.has("404")
+			&& header.has("version")
+			&& header["version"].asInteger() <= MAX_MESH_VERSION)
 		{
 			std::stringstream str;
 
@@ -3062,6 +3078,17 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 				{
 					file.write(block, remaining);
 				}
+			}
+		}
+		else
+		{
+			LL_WARNS(LOG_MESH) << "Trying to cache nonexistent mesh, mesh id: " << mesh_id << LL_ENDL;
+
+			// headerReceived() parsed header, but header's data is invalid so none of the LODs will be available
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			for (int i(0); i < 4; ++i)
+			{
+				gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, i));
 			}
 		}
 	}
@@ -3906,8 +3933,8 @@ void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 
 bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 {
-	const LLSD* mesh = mThread->getMeshHeader(mesh_id);
-	if (mesh && mesh->has("physics_mesh") && (*mesh)["physics_mesh"].has("size") && ((*mesh)["physics_mesh"]["size"].asInteger() > 0))
+	LLSD mesh = mThread->getMeshHeader(mesh_id);
+	if (mesh.has("physics_mesh") && mesh["physics_mesh"].has("size") && (mesh["physics_mesh"]["size"].asInteger() > 0))
 	{
 		return true;
 	}
@@ -3921,26 +3948,27 @@ bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 	return false;
 }
 
-const LLSD* LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
+LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
 	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	return mThread->getMeshHeader(mesh_id);
 }
 
-const LLSD* LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
+LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 {
+	static LLSD dummy_ret;
 	if (mesh_id.notNull())
 	{
 		LLMutexLock lock(mHeaderMutex);
 		mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
 		if (iter != mMeshHeader.end() && mMeshHeaderSize[mesh_id] > 0)
 		{
-			return &(iter->second);
+			return iter->second;
 		}
 	}
 
-	return NULL;
+	return dummy_ret;
 }
 
 
@@ -3955,10 +3983,11 @@ void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3
 
 S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
 {
-	if (mThread)
+	if (mThread && mesh_id.notNull())
 	{
+		LLMutexLock lock(mThread->mHeaderMutex);
 		LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
-		if (iter != mThread->mMeshHeader.end())
+		if (iter != mThread->mMeshHeader.end() && mThread->mMeshHeaderSize[mesh_id] > 0)
 		{
 			LLSD& header = iter->second;
 
@@ -4028,6 +4057,20 @@ void LLMeshRepository::uploadError(LLSD& args)
 {
 	LLMutexLock lock(mMeshMutex);
 	mUploadErrorQ.push(args);
+}
+
+F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
+{
+    if (mThread && mesh_id.notNull())
+    {
+        LLMutexLock lock(mThread->mHeaderMutex);
+        LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
+        if (iter != mThread->mMeshHeader.end() && mThread->mMeshHeaderSize[mesh_id] > 0)
+        {
+            return getStreamingCost(iter->second, radius, bytes, bytes_visible, lod, unscaled_value);
+        }
+    }
+    return 0.f;
 }
 
 //static

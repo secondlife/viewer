@@ -201,6 +201,7 @@
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
+#include "llfloateroutfitsnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llfloaterinventory.h"
 
@@ -1124,17 +1125,23 @@ bool LLAppViewer::init()
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{
+		std::string url;
 		if (gGLManager.mIsIntel)
 		{
-			LLNotificationsUtil::add("IntelOldDriver");
+			url = LLTrans::getString("IntelDriverPage");
 		}
 		else if (gGLManager.mIsNVIDIA)
 		{
-			LLNotificationsUtil::add("NVIDIAOldDriver");
+			url = LLTrans::getString("NvidiaDriverPage");
 		}
 		else if (gGLManager.mIsATI)
 		{
-			LLNotificationsUtil::add("AMDOldDriver");
+			url = LLTrans::getString("AMDDriverPage");
+		}
+
+		if (!url.empty())
+		{
+			LLNotificationsUtil::add("OldGPUDriver", LLSD().with("URL", url));
 		}
 	}
 #endif
@@ -1451,6 +1458,7 @@ bool LLAppViewer::mainLoop()
 					display();
 					pingMainloopTimeout("Main:Snapshot");
 					LLFloaterSnapshot::update(); // take snapshots
+					LLFloaterOutfitSnapshot::update();
 					gGLActive = FALSE;
 				}
 			}
@@ -5813,7 +5821,9 @@ void LLAppViewer::launchUpdater()
 */
 void LLAppViewer::showReleaseNotesIfRequired()
 {
-	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion && gSavedSettings.getBOOL("UpdaterShowReleaseNotes"))
+	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
+		&& !gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	{
 		LLSD info(getViewerInfo());
 		LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);

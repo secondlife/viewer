@@ -1232,6 +1232,9 @@ void LLFloaterPreference::refreshEnabledState()
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
+
+	// Cannot have floater active until caps have been received
+	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
@@ -1369,9 +1372,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	disableUnavailableSettings();
 
 	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
-
-	// Cannot have floater active until caps have been received
-	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
 }
 
 // static

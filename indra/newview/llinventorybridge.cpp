@@ -41,6 +41,7 @@
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloateroutfitphotopreview.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
@@ -1397,6 +1398,12 @@ bool LLInvFVBridge::canShare() const
 			{
 				// Categories can be given.
 				can_share = (model->getCategory(mUUID) != NULL);
+			}
+
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			if ((mUUID == trash_id) || gInventory.isObjectDescendentOf(mUUID, trash_id))
+			{
+				can_share = false;
 			}
 		}
 	}
@@ -4368,10 +4375,13 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 // Returns true if the item can be moved to Current Outfit or any outfit folder.
 static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
 {
-	if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
-		(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
-		(inv_item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
-		(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
+	LLInventoryType::EType inv_type = inv_item->getInventoryType();
+	if ((inv_type != LLInventoryType::IT_WEARABLE) &&
+		(inv_type != LLInventoryType::IT_GESTURE) &&
+		(inv_type != LLInventoryType::IT_ATTACHMENT) &&
+		(inv_type != LLInventoryType::IT_OBJECT) &&
+		(inv_type != LLInventoryType::IT_SNAPSHOT) &&
+		(inv_type != LLInventoryType::IT_TEXTURE))
 	{
 		return FALSE;
 	}
@@ -4380,6 +4390,11 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 	if(flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
 	{
 		return FALSE;
+	}
+
+	if((inv_type == LLInventoryType::IT_TEXTURE) || (inv_type == LLInventoryType::IT_SNAPSHOT))
+	{
+		return !move_is_into_current_outfit;
 	}
 
 	if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
@@ -4432,6 +4447,20 @@ void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
 
 void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
 {
+	if((inv_item->getInventoryType() == LLInventoryType::IT_TEXTURE) || (inv_item->getInventoryType() == LLInventoryType::IT_SNAPSHOT))
+	{
+		const LLUUID &my_outifts_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+		if(mUUID != my_outifts_id)
+		{
+			LLFloaterOutfitPhotoPreview* photo_preview  = LLFloaterReg::showTypedInstance<LLFloaterOutfitPhotoPreview>("outfit_photo_preview", inv_item->getUUID());
+			if(photo_preview)
+			{
+				photo_preview->setOutfitID(mUUID);
+			}
+		}
+		return;
+	}
+
 	// BAP - should skip if dup.
 	if (move_is_into_current_outfit)
 	{

@@ -2499,6 +2499,13 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
   <string name="av_render_most_of">You may not be rendered by most of those around you.</string>
   <string name="av_render_anyone">You may not be rendered by anyone around you.</string>
 
+  <!-- HUD complexity rendering messages, see llavatarrendernotifier. -->
+  <string name="hud_render_memory_warning">Your HUD uses a lot of texture memory</string>
+  <string name="hud_render_cost_warning">Your HUD contains a lot of expensive objects and textures</string>
+  <string name="hud_render_heavy_textures_warning">Your HUD contains a lot of large textures</string>
+  <string name="hud_render_cramped_warning">Your HUD contains too many objects</string>
+  <string name="hud_render_textures_warning">Your HUD contains too many textures</string>
+
   <!-- AgeYearsA = singular,
        AgeYearsB = plural,
        AgeYearsC = plural for non-English languages like Russian
@@ -2834,6 +2841,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<!-- media -->
 	<string name="Multiple Media">Multiple Media</string>
 	<string name="Play Media">Play/Pause Media</string>
+
+	<!-- Drivers support/update pages -->
+	<string name="IntelDriverPage">http://www.intel.com/p/en_US/support/detect/graphics</string>
+	<string name="NvidiaDriverPage">http://www.nvidia.com/Download/index.aspx?lang=en-us</string>
+	<string name="AMDDriverPage">http://support.amd.com/us/Pages/AMDSupportHub.aspx</string>
+
 
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">
@@ -3808,6 +3821,9 @@ Abuse Report</string>
 
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+  <string name="outfit_photo_load_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please resize or use another image</string>
+  <string name="outfit_photo_select_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please select another texture</string>
+  <string name="outfit_photo_verify_dimensions_error">Cannot verify photo dimensions. Please wait until photo size is displayed in picker</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>

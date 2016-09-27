@@ -38,6 +38,7 @@
 #include "llfloatersnapshot.h" // FIXME: replace with a snapshot storage model
 #include "llpanelsnapshot.h"
 #include "llpostcard.h"
+#include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerwindow.h"
 #include "llviewerregion.h"
@@ -64,12 +65,13 @@ private:
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "postcard_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "postcard_size_combo"; }
 	/*virtual*/ std::string getImageSizePanelName() const	{ return "postcard_image_size_lp"; }
-	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG; }
+	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG; }
+	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
 	/*virtual*/ void updateControls(const LLSD& info);
 
 	bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
-    static void sendPostcardFinished(LLSD result);
-    void sendPostcard();
+	static void sendPostcardFinished(LLSD result);
+	void sendPostcard();
 
 	void onMsgFormFocusRecieved();
 	void onFormatComboCommit(LLUICtrl* ctrl);
@@ -93,13 +95,6 @@ LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 // virtual
 BOOL LLPanelSnapshotPostcard::postBuild()
 {
-	// pick up the user's up-to-date email address
-	gAgent.sendAgentUserInfoRequest();
-
-	std::string name_string;
-	LLAgentUI::buildFullname(name_string);
-	getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
-
 	// For the first time a user focuses to .the msg box, all text will be selected.
 	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(&LLPanelSnapshotPostcard::onMsgFormFocusRecieved, this));
 
@@ -113,6 +108,16 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 // virtual
 void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
+	// pick up the user's up-to-date email address
+	if (mAgentEmail.empty())
+	{
+		gAgent.sendAgentUserInfoRequest();
+
+		std::string name_string;
+		LLAgentUI::buildFullname(name_string);
+		getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
+	}
+
 	LLPanelSnapshot::onOpen(key);
 }
 
@@ -190,8 +195,8 @@ void LLPanelSnapshotPostcard::sendPostcard()
             getChild<LLUICtrl>("to_form")->getValue().asString(),
             getChild<LLUICtrl>("subject_form")->getValue().asString(),
             getChild<LLUICtrl>("msg_form")->getValue().asString(),
-            LLFloaterSnapshot::getPosTakenGlobal(),
-            LLFloaterSnapshot::getImageData(),
+            mSnapshotFloater->getPosTakenGlobal(),
+            mSnapshotFloater->getImageData(),
             boost::bind(&LLPanelSnapshotPostcard::sendPostcardFinished, _4)));
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
@@ -205,7 +210,7 @@ void LLPanelSnapshotPostcard::sendPostcard()
     // Give user feedback of the event.
     gViewerWindow->playSnapshotAnimAndSound();
 
-    LLFloaterSnapshot::postSave();
+    mSnapshotFloater->postSave();
 }
 
 void LLPanelSnapshotPostcard::onMsgFormFocusRecieved()
@@ -263,4 +268,9 @@ void LLPanelSnapshotPostcard::onSend()
 
 	// Send postcard.
 	sendPostcard();
+}
+
+LLSnapshotModel::ESnapshotType LLPanelSnapshotPostcard::getSnapshotType()
+{
+    return LLSnapshotModel::SNAPSHOT_POSTCARD;
 }

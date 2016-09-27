@@ -1483,6 +1483,7 @@ Save Changes?
    icon="alertmodal.tga"
    name="DeleteNotecard"
    type="alertmodal">
+   <unique/>
 Delete Notecard?
     <tag>confirm</tag>
     <usetemplate
@@ -1638,14 +1639,14 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
-   name="IntelOldDriver"
+   name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
 
-    Visit [_URL] to check for driver updates?
+    Visit [URL] to check for driver updates?
     <tag>confirm</tag>
     <url option="0" name="url">
-      http://www.intel.com/p/en_US/support/detect/graphics
+    [URL]
     </url>
     <usetemplate
      ignoretext="My graphics driver is out of date"
@@ -1654,45 +1655,6 @@ Visit [_URL] for more information?
      yestext="Yes"/>
     <tag>fail</tag>
   </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="AMDOldDriver"
-   type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://support.amd.com/us/Pages/AMDSupportHub.aspx
-    </url>
-    <usetemplate
-     ignoretext="My graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="NVIDIAOldDriver"
- type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://www.nvidia.com/Download/index.aspx?lang=en-us
-    </url>
-    <usetemplate
-     ignoretext="My graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
 
   <notification
    icon="alertmodal.tga"
@@ -3356,6 +3318,23 @@ Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Renderin
      <context>AgentComplexityNotice</context>
    </unique>
 Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+    <usetemplate
+     ignoretext="Warn me about my avatar complexity changes"
+     name="notifyignore"/>
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "HUDComplexityWarning"
+   type = "notifytip"
+   log_to_chat = "false">
+    <unique combine = "cancel_old">
+      <context>HUDComplexityWarning</context>
+    </unique>
+    [HUD_REASON], it is likely to negatively affect your performance.
+    <usetemplate
+     ignoretext="Warn me when my HUD complexity is too high"
+     name="notifyignore"/>
   </notification>
 
   <notification
@@ -5897,7 +5876,20 @@ You cannot undo this action.
      notext="Cancel"
      yestext="Unlink"/>
   </notification>
-
+  
+  <notification
+   icon="alertmodal.tga"
+   name="HelpReportAbuseConfirm"
+   type="alertmodal">
+   <unique/>
+Thank you for taking the time to inform us of this issue. 
+We will review your report for possible violations and take
+the appropriate action.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseSelectCategory"
@@ -7415,7 +7407,8 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="TeleportOffered_MaturityExceeded"
    log_to_im="true"
    log_to_chat="false"
-   type="offer">
+   type="offer"
+   sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
 “[MESSAGE]”
@@ -7440,7 +7433,8 @@ This region contains [REGION_CONTENT_MATURITY] content, but your current prefere
    name="TeleportOffered_MaturityBlocked"
    log_to_im="true"
    log_to_chat="false"
-   type="notifytip">
+   type="notifytip"
+   sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
 “[MESSAGE]”
@@ -11170,4 +11164,16 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      yestext="OK"/>
   </notification>
   
+  
+  <notification
+   icon="alert.tga"
+   name="OutfitPhotoLoadError"
+   type="alertmodal">
+    [REASON]
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
 </notifications>
