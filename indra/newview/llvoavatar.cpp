@@ -5324,16 +5324,50 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 	LLJoint* jointp = NULL;
 
 	if (iter == mJointMap.end() || iter->second == NULL)
-	{ //search for joint and cache found joint in lookup table
+	{   //search for joint and cache found joint in lookup table
 		jointp = mRoot->findJoint(name);
 		mJointMap[name] = jointp;
 	}
 	else
-	{ //return cached pointer
+	{   //return cached pointer
 		jointp = iter->second;
 	}
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+    if (jointp && jointp->getName()!="mScreen" && jointp->getName()!="mRoot")
+    {
+        llassert(getJoint(jointp->getJointNum())==jointp);
+    }
+#endif
 	return jointp;
+}
+
+LLJoint *LLVOAvatar::getJoint( S32 joint_num )
+{
+    LLJoint *pJoint = NULL;
+    S32 collision_start = mNumBones;
+    S32 attachment_start = mNumBones + mNumCollisionVolumes;
+    if (joint_num>=attachment_start)
+    {
+        // Attachment IDs start at 1
+        S32 attachment_id = joint_num - attachment_start + 1;
+        attachment_map_t::iterator iter = mAttachmentPoints.find(attachment_id);
+        if (iter != mAttachmentPoints.end())
+        {
+            pJoint = iter->second;
+        }
+    }
+    else if (joint_num>=collision_start)
+    {
+        S32 collision_id = joint_num-collision_start;
+        pJoint = &mCollisionVolumes[collision_id];
+    }
+    else if (joint_num>=0)
+    {
+        pJoint = mSkeleton[joint_num];
+    }
+	llassert(!pJoint || pJoint->getJointNum() == joint_num);
+    return pJoint;
 }
 
 //-----------------------------------------------------------------------------
@@ -5966,7 +6000,8 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         attachment->setVisibleInFirstPerson(info->mVisibleFirstPerson);
         attachment->setIsHUDAttachment(info->mIsHUDAttachment);
         // attachment can potentially be animated, needs a number.
-        attachment->setJointNum(mNextJointNum++);
+        attachment->setJointNum(mNumBones + mNumCollisionVolumes + attachmentID - 1);
+        LL_WARNS() << "Initialized attachment" << attachment->getName() << " joint_num " << attachment->getJointNum() << LL_ENDL;
 
         if (newly_created)
         {
@@ -6647,7 +6682,6 @@ LLVOAvatar* LLVOAvatar::findAvatarFromAttachment( LLViewerObject* obj )
 	return NULL;
 }
 
-// warning: order(N) not order(1)
 S32 LLVOAvatar::getAttachmentCount()
 {
 	S32 count = mAttachmentPoints.size();

@@ -203,6 +203,7 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
     
     // Apply the remap to mJointNames, mInvBindMatrix, and mAlternateBindMatrix
     std::vector<std::string> new_joint_names;
+    std::vector<S32> new_joint_nums;
     std::vector<LLMatrix4> new_inv_bind_matrix;
     std::vector<LLMatrix4> new_alternate_bind_matrix;
 
@@ -211,6 +212,7 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
         if (j_proxy[j] == j && new_joint_names.size() < max_joints)
         {
             new_joint_names.push_back(skin->mJointNames[j]);
+            new_joint_nums.push_back(-1);
             new_inv_bind_matrix.push_back(skin->mInvBindMatrix[j]);
             if (!skin->mAlternateBindMatrix.empty())
             {
@@ -245,7 +247,19 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     // Note that we are mostly passing Matrix4a's to this routine anyway, just dubiously casted.
     for (U32 j = 0; j < count; ++j)
     {
-        LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
+        LLJoint *joint = NULL;
+        if (skin->mJointNums[j] == -1)
+        {
+            joint = avatar->getJoint(skin->mJointNames[j]);
+            if (joint)
+            {
+                skin->mJointNums[j] = joint->getJointNum();
+            }
+        }
+		else
+		{
+			joint = avatar->getJoint(skin->mJointNums[j]);
+		}
         mat[j] = skin->mInvBindMatrix[j];
         if (joint)
         {

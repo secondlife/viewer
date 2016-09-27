@@ -49,6 +49,7 @@ public:
 
 	LLUUID mMeshID;
 	std::vector<std::string> mJointNames;
+    mutable std::vector<S32> mJointNums;
 	std::vector<LLMatrix4> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;
     std::vector<U32> mJointRemap;

@@ -352,6 +352,7 @@ protected:
 	// Collision volumes
 	//--------------------------------------------------------------------
 public:
+    S32			mNumBones;
   	S32			mNumCollisionVolumes;
 	LLAvatarJointCollisionVolume* mCollisionVolumes;
 protected:

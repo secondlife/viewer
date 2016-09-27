@@ -199,6 +199,7 @@ public:
 	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
+	LLJoint*		        getJoint(S32 num);
 	
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo);
 	void					resetJointsOnDetach(const LLUUID& mesh_id);

@@ -4779,11 +4779,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             if (rigged && pAvatarVO)
             {
                 pAvatarVO->addAttachmentOverridesForObject(vobj);
+#if 0
 				if (pAvatarVO->isSelf())
 				{
                     bool verbose = true;
 					pAvatarVO->showAttachmentOverrides(verbose);
 				}
+#endif
             }
 
 			//for each face

@@ -700,13 +700,23 @@ void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 // virtual
 LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 {
-	if (mScreenp)
+    LLJoint *jointp = NULL;
+    jointp = LLVOAvatar::getJoint(name);
+	if (!jointp && mScreenp)
 	{
-		LLJoint* jointp = mScreenp->findJoint(name);
-		if (jointp) return jointp;
+		jointp = mScreenp->findJoint(name);
+        if (jointp)
+        {
+            mJointMap[name] = jointp;
+        }
 	}
-	return LLVOAvatar::getJoint(name);
+    if (jointp && jointp != mScreenp && jointp != mRoot)
+    {
+        llassert(LLVOAvatar::getJoint((S32)jointp->getJointNum())==jointp);
+    }
+    return jointp;
 }
+
 // virtual
 BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight)
 {

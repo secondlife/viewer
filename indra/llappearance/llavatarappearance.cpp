@@ -187,7 +187,11 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	mHeadOffset(),
 	mRoot(NULL),
 	mWearableData(wearable_data),
-    mNextJointNum(0)
+    mNextJointNum(0),
+    mNumBones(0),
+    mNumCollisionVolumes(0),
+    mCollisionVolumes(NULL),
+    mIsBuilt(FALSE)
 {
 	llassert_always(mWearableData);
 	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
@@ -200,11 +204,6 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 		mBakedTextureDatas[i].mMaskTexName = 0;
 		mBakedTextureDatas[i].mTextureIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((LLAvatarAppearanceDefines::EBakedTextureIndex)i);
 	}
-
-	mIsBuilt = FALSE;
-
-	mNumCollisionVolumes = 0;
-	mCollisionVolumes = NULL;
 }
 
 // virtual
@@ -667,14 +666,16 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 	if (info->mIsJoint)
 	{
 		joint->setSkinOffset( info->mPivot );
+        joint->setJointNum(joint_num);
 		joint_num++;
 	}
 	else // collision volume
 	{
+        joint->setJointNum(mNumBones+volume_num);
 		volume_num++;
 	}
+    mNextJointNum++;
 
-    joint->setJointNum(mNextJointNum++);
 
 	// setup children
 	LLAvatarBoneInfo::child_list_t::const_iterator iter;
@@ -699,6 +700,7 @@ BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
     {
         clearSkeleton();
         mSkeleton = avatar_joint_list_t(num,NULL);
+        mNumBones = num;
     }
 
 	return TRUE;
