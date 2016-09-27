@@ -34,7 +34,7 @@
 class LLWinDebug:
 	public LLSingleton<LLWinDebug>
 {
-	LLSINGLETON(LLWinDebug);
+	LLSINGLETON_EMPTY_CTOR(LLWinDebug);
 public:
 	static void init();
 	static void generateMinidump(struct _EXCEPTION_POINTERS *pExceptionInfo = NULL);
