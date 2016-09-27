@@ -41,6 +41,7 @@
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloateroutfitphotopreview.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
@@ -4393,7 +4394,7 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 
 	if((inv_type == LLInventoryType::IT_TEXTURE) || (inv_type == LLInventoryType::IT_SNAPSHOT))
 	{
-		return TRUE;
+		return !move_is_into_current_outfit;
 	}
 
 	if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
@@ -4448,9 +4449,15 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 {
 	if((inv_item->getInventoryType() == LLInventoryType::IT_TEXTURE) || (inv_item->getInventoryType() == LLInventoryType::IT_SNAPSHOT))
 	{
-		LLAppearanceMgr::instance().removeOutfitPhoto(mUUID);
-		LLPointer<LLInventoryCallback> cb = NULL;
-		link_inventory_object(mUUID, LLConstPointer<LLInventoryObject>(inv_item), cb);
+		const LLUUID &my_outifts_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+		if(mUUID != my_outifts_id)
+		{
+			LLFloaterOutfitPhotoPreview* photo_preview  = LLFloaterReg::showTypedInstance<LLFloaterOutfitPhotoPreview>("outfit_photo_preview", inv_item->getUUID());
+			if(photo_preview)
+			{
+				photo_preview->setOutfitID(mUUID);
+			}
+		}
 		return;
 	}
 
