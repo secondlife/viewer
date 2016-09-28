@@ -217,7 +217,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
                 LLScopedContextString str(ostr.str());
 
-				joint->setScale(newScale);
+				joint->setScale(newScale, true);
         }
 
         for (iter = mJointOffsets.begin();

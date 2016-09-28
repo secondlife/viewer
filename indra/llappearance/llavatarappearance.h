@@ -168,7 +168,7 @@ protected:
 	void				clearSkeleton();
 	BOOL				mIsBuilt; // state of deferred character building
 	avatar_joint_list_t	mSkeleton;
-	LLPosOverrideMap	mPelvisFixups;
+	LLVector3OverrideMap	mPelvisFixups;
     joint_alias_map_t   mJointAliasMap;
 
 	//--------------------------------------------------------------------
@@ -352,6 +352,7 @@ protected:
 	// Collision volumes
 	//--------------------------------------------------------------------
 public:
+    S32			mNumBones;
   	S32			mNumCollisionVolumes;
 	LLAvatarJointCollisionVolume* mCollisionVolumes;
 protected:

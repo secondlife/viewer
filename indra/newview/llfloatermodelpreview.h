@@ -270,8 +270,8 @@ public:
 	void restoreNormals();
 	U32 calcResourceCost();
 	void rebuildUploadData();
-	void saveUploadData(bool save_skinweights, bool save_joint_poisitions);
-	void saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_poisitions);
+	void saveUploadData(bool save_skinweights, bool save_joint_positions, bool lock_scale_if_joint_position);
+	void saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_positions, bool lock_scale_if_joint_position);
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
 	void updateLodControls(S32 lod);
