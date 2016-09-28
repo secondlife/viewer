@@ -5467,9 +5467,12 @@ static std::string reason_from_transaction_type(S32 transaction_type,
 		case TRANS_CLASSIFIED_CHARGE:
 			return LLTrans::getString("to publish a classified ad");
 			
+		case TRANS_GIFT:
+			// Simulator returns "Payment" if no custom description has been entered
+			return (item_desc == "Payment" ? std::string() : item_desc);
+
 		// These have no reason to display, but are expected and should not
 		// generate warnings
-		case TRANS_GIFT:
 		case TRANS_PAY_OBJECT:
 		case TRANS_OBJECT_PAYS:
 			return std::string();
@@ -5579,6 +5582,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	LLSD payload;
 	
 	bool you_paid_someone = (source_id == gAgentID);
+	std::string gift_suffix = (transaction_type == TRANS_GIFT ? "_gift" : "");
 	if (you_paid_someone)
 	{
 		if(!gSavedSettings.getBOOL("NotifyMoneySpend"))
@@ -5592,8 +5596,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		{
 			if (dest_id.notNull())
 			{
-				message = success ? LLTrans::getString("you_paid_ldollars", args) :
-									LLTrans::getString("you_paid_failure_ldollars", args);
+				message = success ? LLTrans::getString("you_paid_ldollars" + gift_suffix, args) :
+									LLTrans::getString("you_paid_failure_ldollars" + gift_suffix, args);
 			}
 			else
 			{
@@ -5620,7 +5624,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		payload["dest_id"] = dest_id;
 		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
-	else {
+	else
+	{
 		// ...someone paid you
 		if(!gSavedSettings.getBOOL("NotifyMoneyReceived"))
 		{
@@ -5631,9 +5636,10 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		name_id = source_id;
 		if (!reason.empty())
 		{
-			message = LLTrans::getString("paid_you_ldollars", args);
+			message = LLTrans::getString("paid_you_ldollars" + gift_suffix, args);
 		}
-		else {
+		else
+		{
 			message = LLTrans::getString("paid_you_ldollars_no_reason", args);
 		}
 		final_args["MESSAGE"] = message;

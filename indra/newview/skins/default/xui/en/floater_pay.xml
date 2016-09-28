@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="186"
+ height="208"
  layout="topleft"
  name="Give Money"
  help_topic="give_money"
@@ -43,6 +43,26 @@
      width="180">
         Test Name That Is Extremely Long To Check Clipping
     </text>
+    <text
+     type="string"
+     follows="top|left"
+     height="18"
+     left="10"
+     name="payment_message_label"
+     top_pad="6"
+     width="120">
+        Description (optional):
+    </text>
+    <line_editor
+     border_style="line"
+     follows="left|top|right"
+     height="19"
+     top_delta="-2"
+     layout="topleft"
+     max_length_bytes="127"
+     name="payment_message"
+     right="-11"
+     width="109" />
     <panel
      border_thickness="0"
      height="104"
@@ -125,7 +145,7 @@
        top_pad="0"
        max_length_bytes="9"
        name="amount"
-       width="90" />
+       right="-1" />
       <button
        enabled="false"
        height="23"
