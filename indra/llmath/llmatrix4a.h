@@ -153,4 +153,27 @@ public:
     }
 };
 
+inline LLVector4a rowMul(const LLVector4a &row, const LLMatrix4a &mat)
+{
+    LLVector4a result;
+    result = _mm_mul_ps(_mm_shuffle_ps(row, row, _MM_SHUFFLE(0, 0, 0, 0)), mat.mMatrix[0]);
+    result = _mm_add_ps(result, _mm_mul_ps(_mm_shuffle_ps(row, row, _MM_SHUFFLE(1, 1, 1, 1)), mat.mMatrix[1]));
+    result = _mm_add_ps(result, _mm_mul_ps(_mm_shuffle_ps(row, row, _MM_SHUFFLE(2, 2, 2, 2)), mat.mMatrix[2]));
+    result = _mm_add_ps(result, _mm_mul_ps(_mm_shuffle_ps(row, row, _MM_SHUFFLE(3, 3, 3, 3)), mat.mMatrix[3]));
+    return result;
+}
+
+inline void matMul(const LLMatrix4a &a, const LLMatrix4a &b, LLMatrix4a &res)
+{
+    LLVector4a row0 = rowMul(a.mMatrix[0], b);
+    LLVector4a row1 = rowMul(a.mMatrix[1], b);
+    LLVector4a row2 = rowMul(a.mMatrix[2], b);
+    LLVector4a row3 = rowMul(a.mMatrix[3], b);
+
+    res.mMatrix[0] = row0;
+    res.mMatrix[1] = row1;
+    res.mMatrix[2] = row2;
+    res.mMatrix[3] = row3;
+}
+
 #endif

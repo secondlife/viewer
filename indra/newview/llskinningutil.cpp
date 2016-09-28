@@ -243,8 +243,6 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     const LLMeshSkinInfo* skin,
     LLVOAvatar *avatar)
 {
-    // BENTO - switching to use Matrix4a and SSE might speed this up.
-    // Note that we are mostly passing Matrix4a's to this routine anyway, just dubiously casted.
     for (U32 j = 0; j < count; ++j)
     {
         LLJoint *joint = NULL;
@@ -260,13 +258,23 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 		{
 			joint = avatar->getJoint(skin->mJointNums[j]);
 		}
-        mat[j] = skin->mInvBindMatrix[j];
         if (joint)
         {
+#define MAT_USE_SSE
+#ifdef MAT_USE_SSE
+            LLMatrix4a bind, world, res;
+            bind.loadu(skin->mInvBindMatrix[j]);
+            world.loadu(joint->getWorldMatrix());
+            matMul(bind,world,res);
+            memcpy(mat[j].mMatrix,res.mMatrix,16*sizeof(float));
+#else
+            mat[j] = skin->mInvBindMatrix[j];
             mat[j] *= joint->getWorldMatrix();
+#endif
         }
         else
         {
+            mat[j] = skin->mInvBindMatrix[j];
             // This  shouldn't  happen   -  in  mesh  upload,  skinned
             // rendering  should  be disabled  unless  all joints  are
             // valid.  In other  cases of  skinned  rendering, invalid

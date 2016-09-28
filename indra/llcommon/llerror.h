@@ -363,4 +363,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_INFOS_ONCE(...)	lllog(LLError::LEVEL_INFO, true, ##__VA_ARGS__)
 #define LL_WARNS_ONCE(...)	lllog(LLError::LEVEL_WARN, true, ##__VA_ARGS__)
 
+// Check at run-time whether logging is enabled, without generating output
+bool debugLoggingEnabled(const std::string& tag);
+
 #endif // LL_LLERROR_H
