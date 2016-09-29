@@ -5,8 +5,7 @@
                 follows="left|top"
                 >
   <multiselect_text font="SansSerifSmall"/>
-  <caption_text text="Multiple" 
-                halign="center" 
+  <caption_text halign="center" 
                 font="SansSerifSmall"
                 v_pad="2"/>
   <border bevel_style="in"/>
