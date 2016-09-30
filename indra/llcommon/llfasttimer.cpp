@@ -414,7 +414,6 @@ void BlockTimer::logStatsExtended()
             LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
             LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64() / (F64HertzImplicit)LLProcessorInfo().getCPUFrequency()) << LL_ENDL;
         }
-        call_count++;
 
         S32 num_stats = 0;
         F64Seconds total_time(0);
@@ -429,17 +428,25 @@ void BlockTimer::logStatsExtended()
                 num_stats++;
                 BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
                 LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
-                sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());  
-                sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
+                F32 time_val = frame_recording.getLastRecording().getSum(timer).value();  
+                static F32 negligible_time = 0.0001;
+                if (call_count == 0 || time_val > negligible_time)
+                {
+                    sd[timer.getName()]["Time"] = (LLSD::Real) time_val;
+                    sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
 
-                BlockTimerStatHandle *parent = timer.getParent();
-                if (parent)
-                {
-                    sd[timer.getName()]["Parent"] = (LLSD::String) parent->getName();;
-                }
-                else
-                {
-                    sd[timer.getName()]["Parent"] = LLSD::String();
+                    if (call_count == 0)
+                    {
+                        BlockTimerStatHandle *parent = timer.getParent();
+                        if (parent)
+                        {
+                            sd[timer.getName()]["Parent"] = (LLSD::String) parent->getName();;
+                        }
+                        else
+                        {
+                            sd[timer.getName()]["Parent"] = LLSD::String();
+                        }
+                    }
                 }
                 
                 // computing total time here because getting the root timer's getCountHistory
@@ -466,6 +473,8 @@ void BlockTimer::logStatsExtended()
             LLMutexLock lock(sLogLock);
             sLogQueue.push(sdtop);
         }
+
+        call_count++;
     }
 }
 

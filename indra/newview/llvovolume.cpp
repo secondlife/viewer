@@ -3356,7 +3356,7 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // total cost is returned value + 5 * size of the resulting set.
 // Cannot include cost of textures, as they may be re-used in linked
 // children, and cost should only be increased for unique textures  -Nyx
-U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
+U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -3415,7 +3415,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	if (has_volume)
 	{
 		volume_params = getVolume()->getParams();
+        // FIXME not used
 		path_params = volume_params.getPathParams();
+        // FIXME not used
 		profile_params = volume_params.getProfileParams();
 
 		F32 weighted_triangles = -1.0;
@@ -3432,10 +3434,21 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		num_triangles = 4;
 	}
 
+    if (sdp)
+    {
+        (*sdp)["isMesh"] = (LLSD::Boolean) isMesh();
+        (*sdp)["weighted_triangles"] = (LLSD::Integer) num_triangles;
+    }
+
 	if (isSculpted())
 	{
 		if (isMesh())
 		{
+            if (sdp)
+            {
+                (*sdp)["LOD"] = getLOD();
+            }
+
 			// base cost is dependent on mesh complexity
 			// note that 3 is the highest LOD as of the time of this coding.
 			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
@@ -3603,6 +3616,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		num_particles = num_particles > ARC_PARTICLE_MAX ? ARC_PARTICLE_MAX : num_particles;
 		F32 part_size = (llmax(part_data->mStartScale[0], part_data->mEndScale[0]) + llmax(part_data->mStartScale[1], part_data->mEndScale[1])) / 2.f;
 		shame += num_particles * part_size * ARC_PARTICLE_COST;
+
+        if (sdp)
+        {
+            (*sdp)["num_particles"] = (LLSD::Integer) num_particles;
+            (*sdp)["part_size"] = (LLSD::Real) part_size;
+        }
 	}
 
 	if (produces_light)
@@ -3620,6 +3639,23 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		mRenderComplexity_current = (S32)shame;
 	}
 
+    if (sdp)
+    {
+        (*sdp)["planar"] = (LLSD::Integer) animtex;
+        (*sdp)["animtex"] = (LLSD::Integer) animtex;
+        (*sdp)["alpha"] = (LLSD::Integer) alpha;
+        (*sdp)["invisi"] = (LLSD::Integer) invisi;
+        (*sdp)["glow"] = (LLSD::Integer) glow;
+        (*sdp)["bump"] = (LLSD::Integer) bump;
+        (*sdp)["shiny"] = (LLSD::Integer) shiny;
+        (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
+        (*sdp)["flexi"] = (LLSD::Integer) flexi;
+        (*sdp)["particles"] = (LLSD::Integer) particles;
+        (*sdp)["produces_light"] = (LLSD::Integer) produces_light;
+        (*sdp)["media_faces"] = (LLSD::Integer) media_faces;
+        (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
+    }
+    
 	return (U32)shame;
 }
 
@@ -3652,6 +3688,14 @@ void LLVOVolume::updateRenderComplexity()
 {
 	mRenderComplexity_last = mRenderComplexity_current;
 	mRenderComplexity_current = 0;
+}
+
+LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures) const
+{
+    LLSD sd;
+    sd["TriangleCount"] = (LLSD::Integer) getTriangleCount();
+    getRenderCost(textures, &sd);
+    return sd;
 }
 
 U32 LLVOVolume::getTriangleCount(S32* vcount) const

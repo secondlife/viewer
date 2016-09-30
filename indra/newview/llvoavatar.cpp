@@ -644,6 +644,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
 	mVisualComplexityStale(true),
+    mFrameDataStale(true),
 	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
 	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
 	mFirstFullyVisible(TRUE),
@@ -7001,29 +7002,22 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-        LLSD avatar_record = inst->getAvatarFrameData();
-		result.append(avatar_record);
+        if (inst->mFrameDataStale)
+        {
+            LLSD avatar_record = inst->getFrameData();
+            result.append(avatar_record);
+            inst->mFrameDataStale = false;
+        }
     }
 	return result;
 }
 
-LLSD get_volume_sd(LLVOVolume* volume,
-                   LLVOVolume::texture_cost_t& textures)
-{
-    LLSD sd;
-    sd["TriangleCount"] = (LLSD::Integer) volume->getTriangleCount();
-    sd["HighLODTriangleCount"] = (LLSD::Integer) volume->getHighLODTriangleCount();
-    // Called just to collect textures as a side-effect
-    volume->getRenderCost(textures);
-    return sd;
-}
-
-LLSD LLVOAvatar::getAvatarFrameData()
+LLSD LLVOAvatar::getFrameData() const
 {
     LLSD av_sd;
     av_sd["Name"] = (LLSD::String) getFullname();
-    av_sd["UUID"] = (LLSD::UUID) getID();
     av_sd["Self"] = (LLSD::Boolean) isSelf();
+    av_sd["UUID"] = (LLSD::UUID) getID();
 	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
     av_sd["RezStatus"] = (LLSD::String) viz_string;
     av_sd["ARCCalculated"] = (LLSD::Integer) getVisualComplexity();
@@ -7052,7 +7046,7 @@ LLSD LLVOAvatar::getAvatarFrameData()
                     const LLVOVolume* volume = drawable->getVOVolume();
                     if (volume)
                     {
-                        LLSD attachment_sd = get_volume_sd(const_cast<LLVOVolume*>(volume), textures);
+                        LLSD attachment_sd = volume->getFrameData(textures);
                         av_attachments.append(attachment_sd);
 
                         const_child_list_t children = volume->getChildren();
@@ -7064,7 +7058,7 @@ LLSD LLVOAvatar::getAvatarFrameData()
                             LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
                             if (child)
                             {
-                                LLSD attachment_sd = get_volume_sd(const_cast<LLVOVolume*>(child), textures);
+                                LLSD attachment_sd = child->getFrameData(textures);
                                 av_attachments.append(attachment_sd);
 
                                 // Second level children aren't accounted for!
@@ -9207,6 +9201,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                                       << " complexity updated was " << mVisualComplexity << " now " << cost
                                       << " reported " << mReportedVisualComplexity
                                       << LL_ENDL;
+            mFrameDataStale = true;
         }
         else
         {

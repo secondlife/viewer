@@ -263,13 +263,13 @@ public:
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	
-	U32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
-	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
+	U32				getVisualComplexity() const		{ return mVisualComplexity;	};		// Numbers calculated here by rendering AV
+	F32				getAttachmentSurfaceArea() const { return mAttachmentSurfaceArea; };		// estimated surface area of attachments
     void            addAttachmentArea(F32 delta_area);
     void            subtractAttachmentArea(F32 delta_area);
 
-	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
-	void			setReportedVisualComplexity(U32 value)			{ mReportedVisualComplexity = value;			};
+	U32				getReportedVisualComplexity() const { return mReportedVisualComplexity; };	// Numbers as reported by the SL server
+	void			setReportedVisualComplexity(U32 value) { mReportedVisualComplexity = value;	};
 	
 	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
 	const LLColor4 &  getMutedAVColor()				{ return mMutedAVColor;			};
@@ -331,7 +331,7 @@ public:
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
     static LLSD     getAllAvatarsFrameData();
-    LLSD            getAvatarFrameData();
+    LLSD            getFrameData() const;
 
     void            calcMutedAVColor();
 
@@ -433,10 +433,12 @@ public:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
-	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
-	mutable U32  mVisualComplexity;
-	mutable bool mVisualComplexityStale;
-	U32          mReportedVisualComplexity; // from other viewers through the simulator
+	U32  		mVisualComplexity;
+	bool 		mVisualComplexityStale;
+	U32         mReportedVisualComplexity; // from other viewers through the simulator
+
+    // FrameData is used for detailed logging of avatar state in performance log. Track whether stale to avoid excess overhead.
+    bool 		mFrameDataStale;
 
 	bool		mCachedInMuteList;
 	F64			mCachedMuteListUpdateTime;

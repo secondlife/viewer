@@ -32,12 +32,17 @@ import sys
 from llbase import llsd
 import re
 
+def xstr(x):
+    if x is None:
+        return ''
+    return str(x)
+
 def export_csv(filename, timer_data):
     if args.verbose:
         print timer_data
     f = open(filename,"w")
     for fd in timer_data:
-        print >>f, ",".join([str(d) for d in fd])
+        print >>f, ",".join([xstr(d) for d in fd])
     f.close()
     
 def export(filename, timers):
@@ -79,53 +84,60 @@ def get_frame_record(filename):
     f.close()
     
 def collect_timer_data(filename, timers, avatar_fields, max_records, prune=None):
-    print "collect_timer_data", timers,"avatar_fields",avatar_fields
+    #print "collect_timer_data", timers,"avatar_fields",avatar_fields
     all_timers = []
     times = {}
     frame_data = []
     frame_count = 0
-    maxval = {}
     header = []
     iter_rec = iter(get_frame_record(filename))
-    next(iter_rec) # first frame data is garbage
-    next(iter_rec) # first couple of frames tend to be junk
+    av_record = None
+    av_keys = []
     for sd in iter_rec:
-        for t in sd['Timers']:
-            if timers is None:
-                all_timers.append(t)
-            if timers is None or t in timers:
+        times = {}
+        if timers is None and frame_count==0:
+            timers = sorted(sd['Timers'].keys())
+        else:
+            timers = sorted(timers)
+        for t in timers:
+            try:
                 times[t] = sd['Timers'][t]['Time']
-                if not t in maxval:
-                    maxval[t] = 0.0
-                maxval[t] = max(times[t],maxval[t])
-        if frame_count==0:
-            if timers is None:
-                time_header = sorted([t for t in all_timers if (prune is None or maxval[t]>prune)])
-            else:
-                time_header = timers
-        times_list = [times[i] for i in time_header]
+            except KeyError:
+                times[t] = None
+        times_list = [times[i] for i in timers]
 
-        if avatar_fields:
+        av_list = []
+        if avatar_fields is not None:
             av_data = {}
-            for i, av in enumerate(sd['Extra']['Avatars']):
-                if not av['Self']:
-                    continue
-                for av_field in avatar_fields:
-                    if av_field in av:
-                        av_key = "Avatar.Self." + av_field
-                        av_data[av_key] = av[av_field]
-                    else:
-                        print "av lacks requested field!",av_field
-
-            av_list = [av_data[av_key] for av_key in sorted(av_data.keys())]
-            header = time_header + [av_key for av_key in sorted(av_data.keys())]
+            av_record = None
+            if 'Avatars' in sd['Extra']:
+                for i, av in enumerate(sd['Extra']['Avatars']):
+                    if not av['Self']:
+                        continue
+                    av_record = av
+            for av_field in sorted(avatar_fields):
+                av_key = "Avatar.Self." + av_field
+                if frame_count==0:
+                    av_keys.append(av_key)
+                if av_record is not None:
+                    av_data[av_key] = av_record.get(av_field,None)
+                else:
+                    av_data[av_key] = None
+            av_list = [av_data[av_key] for av_key in av_keys]
+            if frame_count==0:
+                header = timers + [av_key for av_key in av_keys]
             
+
+        #print "header",header
+        #print "times_list",times_list
+        #print "av_list",av_list
+        #print "av_keys",av_keys
         if frame_count==0:    
             frame_data.append(header)
         frame_data.append(times_list + av_list)
 
         frame_count += 1
-        if frame_count >= max_records:
+        if max_records is not None and frame_count >= max_records:
             break
     return frame_data
 
