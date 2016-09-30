@@ -1755,7 +1755,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	F32 system_scale_factor = mWindow->getSystemUISize();
 	if (p.first_run || gSavedSettings.getF32("LastSystemUIScaleFactor") != system_scale_factor)
 	{
-		mSystemUIScaleFactorChanged = true;
+		mSystemUIScaleFactorChanged = !p.first_run;
 		gSavedSettings.setF32("LastSystemUIScaleFactor", system_scale_factor);
 		gSavedSettings.setF32("UIScaleFactor", system_scale_factor);
 	}
