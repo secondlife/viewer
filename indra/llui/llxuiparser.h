@@ -60,7 +60,7 @@ public:
 	void writeXSD(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
 
 	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
-
+	/*virtual*/ std::string getCurrentFileName() { return LLStringUtil::null; }
 	LLXSDWriter();
 	~LLXSDWriter();
 
@@ -98,6 +98,7 @@ public:
 	typedef LLInitParam::Parser::name_stack_t name_stack_t;
 
 	/*virtual*/ std::string getCurrentElementName();
+	/*virtual*/ std::string getCurrentFileName() { return mCurFileName; }
 	/*virtual*/ void parserWarning(const std::string& message);
 	/*virtual*/ void parserError(const std::string& message);
 
@@ -200,6 +201,7 @@ public:
 	virtual ~LLSimpleXUIParser();
 
 	/*virtual*/ std::string getCurrentElementName();
+	/*virtual*/ std::string getCurrentFileName() { return mCurFileName; }
 	/*virtual*/ void parserWarning(const std::string& message);
 	/*virtual*/ void parserError(const std::string& message);
 
