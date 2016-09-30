@@ -1456,6 +1456,8 @@ void LLPluginClassMedia::setVolume(float volume)
 
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME, "set_volume");
 
+		LL_INFOS() << "@@@@@@@@@@ volume is " << volume << LL_ENDL;
+
 		message.setValueReal("volume", volume);
 
 		sendMessage(message);
