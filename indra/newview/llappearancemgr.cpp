@@ -3503,7 +3503,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
             LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
         }
 
-        LL_INFOS() << "Requesting bake for COF version " << cofVersion << LL_ENDL;
+        LL_INFOS("Avatar") << "Requesting bake for COF version " << cofVersion << LL_ENDL;
 
         LLSD postData;
         if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
