@@ -1491,7 +1491,20 @@ Delete Notecard?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
+  
+  <notification
+   icon="alertmodal.tga"
+   name="LoadPreviousReportScreenshot"
+   type="alertmodal">
+   <unique/>
+Do you want to use previous screenshot for your report?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="GestureSaveFailedTooManySteps"
