@@ -116,7 +116,7 @@ void LLPluginClassMedia::reset()
 	mMediaHeight = 0;
 	mDirtyRect = LLRect::null;
 	mAutoScaleMedia = false;
-	mRequestedVolume = 1.0f;
+	mRequestedVolume = 0.0f;
 	mPriority = PRIORITY_NORMAL;
 	mLowPrioritySizeLimit = LOW_PRIORITY_TEXTURE_SIZE_DEFAULT;
 	mAllowDownsample = false;
@@ -1455,8 +1455,6 @@ void LLPluginClassMedia::setVolume(float volume)
 		mRequestedVolume = volume;
 
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME, "set_volume");
-
-		LL_INFOS() << "@@@@@@@@@@ volume is " << volume << LL_ENDL;
 
 		message.setValueReal("volume", volume);
 
