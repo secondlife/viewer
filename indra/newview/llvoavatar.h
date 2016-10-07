@@ -422,6 +422,9 @@ public:
 	static void	destroyGL();
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
+
+    // FrameData is used for detailed logging of avatar state in performance log. Track whether stale to avoid excess overhead.
+    bool 		mFrameDataStale;
         
   private:
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
@@ -437,8 +440,6 @@ public:
 	bool 		mVisualComplexityStale;
 	U32         mReportedVisualComplexity; // from other viewers through the simulator
 
-    // FrameData is used for detailed logging of avatar state in performance log. Track whether stale to avoid excess overhead.
-    bool 		mFrameDataStale;
 
 	bool		mCachedInMuteList;
 	F64			mCachedMuteListUpdateTime;
@@ -451,7 +452,6 @@ public:
 public:
 	/*virtual*/ void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 	BOOL 		morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
-
 	
 	//--------------------------------------------------------------------
 	// Global colors

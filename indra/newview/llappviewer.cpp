@@ -1361,12 +1361,27 @@ bool LLAppViewer::mainLoop()
 
         if (LLTrace::BlockTimer::sLog)
         {
+            static bool first_frame = true;
             // Output per-frame performance data
             LL_RECORD_BLOCK_TIME(FTM_FRAME_DATA_LOGGING);
             if (LLTrace::BlockTimer::sExtendedLogging)
             {
                 if (LLStartUp::getStartupState() >= STATE_STARTED)
                 {
+                    if (first_frame)
+                    {
+                        LLSD session_sd;
+                        unsigned char unique_id[MD5HEX_STR_SIZE];
+                        if ( llHashedUniqueID(unique_id) )
+                        {
+                            session_sd["UniqueID"] = (LLSD::String) (char*) unique_id; 
+                        }
+                        session_sd["Platform"] = (LLSD::String) gPlatform;
+                        session_sd["OSVersion"] = (LLSD::String) getOSInfo().getOSVersionString();
+                        session_sd["DebugInfo"] = gDebugInfo;
+                        LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
+                        first_frame = false;
+                    }
                     LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
                     if (avatar_sd.size()>0)
                     {

@@ -1214,7 +1214,7 @@ void LLVOVolume::sculpt()
 	}
 }
 
-S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
+S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius) const
 {
 	S32	cur_detail;
 	if (LLPipeline::sDynamicLOD)
@@ -1228,6 +1228,54 @@ S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
 		cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
 	}
 	return cur_detail;
+}
+
+// ARC FIXME same math as calcLOD, which can be refactored to call this.
+S32 LLVOVolume::getLODAtDistance(F32 distance) const
+{
+	if (mDrawable.isNull())
+	{
+		return 0;
+	}
+
+	F32 radius;
+
+	if (mDrawable->isState(LLDrawable::RIGGED))
+	{
+		LLVOAvatar* avatar = getAvatar(); 
+		
+		// Not sure how this can really happen, but alas it does. Better exit here than crashing.
+		if( !avatar || !avatar->mDrawable )
+		{
+			return FALSE;
+		}
+
+		radius = avatar->getBinRadius();
+	}
+	else
+	{
+		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
+	}
+	
+	distance *= sDistanceFactor;
+
+	F32 rampDist = LLVOVolume::sLODFactor * 2;
+	
+	if (distance < rampDist)
+	{
+		// Boost LOD when you're REALLY close
+		distance *= 1.0f/rampDist;
+		distance *= distance;
+		distance *= rampDist;
+	}
+	
+	// DON'T Compensate for field of view changing on FOV zoom.
+	distance *= F_PI/3.f;
+
+	S32 cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
+                                      ll_round(radius, 0.01f));
+
+    return cur_detail;
 }
 
 BOOL LLVOVolume::calcLOD()
@@ -1262,7 +1310,7 @@ BOOL LLVOVolume::calcLOD()
 	}
 	
 	//hold onto unmodified distance for debugging
-	//F32 debug_distance = distance;
+	F32 debug_distance = distance;
 	
 	distance *= sDistanceFactor;
 
@@ -1280,15 +1328,15 @@ BOOL LLVOVolume::calcLOD()
 	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-									ll_round(radius, 0.01f));
+                                  ll_round(radius, 0.01f));
 
 
+    llassert(cur_detail == getLODAtDistance(debug_distance));
+    
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
-		//setDebugText(llformat("%.2f:%.2f, %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
-
-		setDebugText(llformat("%d", mDrawable->getFace(0)->getTextureIndex()));
+		setDebugText(llformat("%.2f:%.2f, LOD %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
 	}
 
 	if (cur_detail != mLOD)
@@ -1314,7 +1362,13 @@ BOOL LLVOVolume::updateLOD()
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		mLODChanged = TRUE;
-	}
+
+        if (mDrawable->isState(LLDrawable::RIGGED))
+        {
+            LLVOAvatar* avatar = getAvatar(); 
+            avatar->mFrameDataStale = true;
+        }
+    }
 	else
 	{
 		F32 new_radius = getBinRadius();
@@ -3415,13 +3469,13 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 	if (has_volume)
 	{
 		volume_params = getVolume()->getParams();
-        // FIXME not used
+        // ARC FIXME not used
 		path_params = volume_params.getPathParams();
-        // FIXME not used
+        // ARC FIXME not used
 		profile_params = volume_params.getProfileParams();
 
 		F32 weighted_triangles = -1.0;
-		getStreamingCost(NULL, NULL, &weighted_triangles);
+		getStreamingCost(NULL, NULL, &weighted_triangles, sdp);
 
 		if (weighted_triangles > 0.0)
 		{
@@ -3659,13 +3713,28 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 	return (U32)shame;
 }
 
-F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
+F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
 {
 	F32 radius = getScale().length()*0.5f;
 
+    if (sdp)
+    {
+        (*sdp)["lodAtDistance"] = LLSD::emptyMap();
+        F32 test_radius = 0.0;
+        S32 lod = getLODAtDistance(test_radius);
+        (*sdp)["lodAtDistance"][lod] = test_radius;
+        while (lod>0)
+        {
+            test_radius += 4;
+            lod = getLODAtDistance(test_radius);
+            (*sdp)["lodAtDistance"][lod] = test_radius;
+        }
+        (*sdp)["lodAtDistance"][lod] = test_radius;
+    }
+    
 	if (isMesh())
 	{
-		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
+		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value, sdp);
 	}
 	else
 	{
@@ -3679,7 +3748,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 		header["medium_lod"]["size"] = counts[2] * 10;
 		header["high_lod"]["size"] = counts[3] * 10;
 
-		return LLMeshRepository::getStreamingCost(header, radius, NULL, NULL, -1, unscaled_value);
+		return LLMeshRepository::getStreamingCost(header, radius, NULL, NULL, -1, unscaled_value, sdp);
 	}	
 }
 
@@ -3694,6 +3763,10 @@ LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures) const
 {
     LLSD sd;
     sd["TriangleCount"] = (LLSD::Integer) getTriangleCount();
+    sd["TriangleCount_Lowest"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+    sd["TriangleCount_Low"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_LOW);
+    sd["TriangleCount_Medium"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_MEDIUM);
+    sd["TriangleCount_HIGH"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_HIGH);
     getRenderCost(textures, &sd);
     return sd;
 }
@@ -3710,7 +3783,7 @@ U32 LLVOVolume::getTriangleCount(S32* vcount) const
 	return count;
 }
 
-U32 LLVOVolume::getHighLODTriangleCount()
+U32 LLVOVolume::getLODTriangleCount(S32 lod) const
 {
 	U32 ret = 0;
 
@@ -3718,16 +3791,16 @@ U32 LLVOVolume::getHighLODTriangleCount()
 
 	if (!isSculpted())
 	{
-		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
 		ret = ref->getNumTriangles();
 		LLPrimitive::getVolumeManager()->unrefVolume(ref);
 	}
 	else if (isMesh())
 	{
-		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
 		if (!ref->isMeshAssetLoaded() || ref->getNumVolumeFaces() == 0)
 		{
-			gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+			gMeshRepo.loadMesh(this, volume->getParams(), lod);
 		}
 		ret = ref->getNumTriangles();
 		LLPrimitive::getVolumeManager()->unrefVolume(ref);
@@ -3738,6 +3811,11 @@ U32 LLVOVolume::getHighLODTriangleCount()
 	}
 
 	return ret;
+}
+
+U32 LLVOVolume::getHighLODTriangleCount() const
+{
+    return getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
 //static

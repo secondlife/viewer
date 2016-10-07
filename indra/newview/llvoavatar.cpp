@@ -6996,16 +6996,22 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 //static
 LLSD LLVOAvatar::getAllAvatarsFrameData()
 {
-    LLSD result = LLSD::emptyArray();
-    
+    LLSD result;
+    if (gAgentAvatarp && gAgentAvatarp->mFrameDataStale)
+    {
+        result["Self"] = gAgentAvatarp->getFrameData();
+        gAgentAvatarp->mFrameDataStale = false;
+    }
+
+    result["Other"] = LLSD::emptyArray();
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-        if (inst->mFrameDataStale)
+        if (!inst->isSelf() && inst->mFrameDataStale)
         {
             LLSD avatar_record = inst->getFrameData();
-            result.append(avatar_record);
+            result["Other"].append(avatar_record);
             inst->mFrameDataStale = false;
         }
     }
@@ -7023,6 +7029,11 @@ LLSD LLVOAvatar::getFrameData() const
     av_sd["ARCCalculated"] = (LLSD::Integer) getVisualComplexity();
     av_sd["ARCReported"] = (LLSD::Integer) getReportedVisualComplexity();
     av_sd["AttachmentSurfaceArea"] = (LLSD::Real) getAttachmentSurfaceArea();
+    std::string outfit_name;
+    if (isSelf() && LLAppearanceMgr::instance().getBaseOutfitName(outfit_name))
+    {
+        av_sd["OutfitName"] = (LLSD::String) outfit_name;
+    }
     LLSD av_attachments = LLSD::emptyArray();
 
     LLVOVolume::texture_cost_t textures;

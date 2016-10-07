@@ -465,7 +465,10 @@ void BlockTimer::logStatsExtended()
         
         if (sExtraLogRecords.size() > 0)
         {
-            sdtop["Extra"] = sExtraLogRecords;
+            for (LLSD::map_const_iterator it=sExtraLogRecords.beginMap(); it != sExtraLogRecords.endMap(); ++it)
+            {
+                sdtop[it->first] = it->second;
+            }
             sExtraLogRecords.clear();
         }
         

@@ -3362,7 +3362,7 @@ S32 LLMeshRepository::update()
 	return size ;
 }
 
-S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
+S32 LLMeshRepository::loadMesh(const LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
 	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 	
@@ -4038,7 +4038,7 @@ void LLMeshRepository::uploadError(LLSD& args)
 	mUploadErrorQ.push(args);
 }
 
-F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
+F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value, LLSD *sdp)
 {
     if (mThread && mesh_id.notNull())
     {
@@ -4046,14 +4046,14 @@ F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S
         LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
         if (iter != mThread->mMeshHeader.end() && mThread->mMeshHeaderSize[mesh_id] > 0)
         {
-            return getStreamingCost(iter->second, radius, bytes, bytes_visible, lod, unscaled_value);
+            return getStreamingCost(iter->second, radius, bytes, bytes_visible, lod, unscaled_value, sdp);
         }
     }
     return 0.f;
 }
 
 //static
-F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
+F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value, LLSD *sdp)
 {
 	if (header.has("404")
 		|| !header.has("lowest_lod")
@@ -4148,6 +4148,23 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 					   triangles_mid*mid_area +
 					   triangles_low*low_area +
 					  triangles_lowest*lowest_area;
+
+    if (sdp)
+    {
+        (*sdp)["StreamingCost"]["radius"] = radius;
+        (*sdp)["StreamingCost"]["high_area"] = high_area;
+        (*sdp)["StreamingCost"]["mid_area"] = mid_area;
+        (*sdp)["StreamingCost"]["low_area"] = low_area;
+        (*sdp)["StreamingCost"]["lowest_area"] = lowest_area;
+        (*sdp)["StreamingCost"]["triangles_high"] = triangles_high;
+        (*sdp)["StreamingCost"]["triangles_mid"] = triangles_mid;
+        (*sdp)["StreamingCost"]["triangles_low"] = triangles_low;
+        (*sdp)["StreamingCost"]["triangles_lowest"] = triangles_lowest;
+        (*sdp)["StreamingCost"]["weighted_avg"] = weighted_avg;
+        (*sdp)["StreamingCost"]["dmid"] = dmid;
+        (*sdp)["StreamingCost"]["dlow"] = dlow;
+        (*sdp)["StreamingCost"]["dlowest"] = dlowest;
+    }
 
 	if (unscaled_value)
 	{

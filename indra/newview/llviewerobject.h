@@ -354,9 +354,10 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
-	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL, F32* unscaled_value = NULL) const;
+	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL, F32* unscaled_value = NULL, LLSD *sdp = NULL) const;
 	virtual U32 getTriangleCount(S32* vcount = NULL) const;
-	virtual U32 getHighLODTriangleCount();
+	virtual U32	getLODTriangleCount(S32 lod) const;
+	virtual U32 getHighLODTriangleCount() const;
 
 	void setObjectCost(F32 cost);
 	F32 getObjectCost();
