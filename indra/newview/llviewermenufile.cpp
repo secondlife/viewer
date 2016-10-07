@@ -508,8 +508,8 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::getInstance();
-		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::getInstance();
+		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
+		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::findInstance();
 		bool is_floaters_snapshot_opened = (floater_snapshot && floater_snapshot->isInVisibleChain())
 			|| (floater_outfit_snapshot && floater_outfit_snapshot->isInVisibleChain());
 		bool open_children = gFloaterView->allChildrenClosed() && !is_floaters_snapshot_opened;
@@ -523,10 +523,10 @@ class LLFileCloseAllWindows : public view_listener_t
 	{
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
-		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::getInstance();
+		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
 		if (floater_snapshot)
 			floater_snapshot->closeFloater(app_quitting);
-		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::getInstance();
+		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::findInstance();
 		if (floater_outfit_snapshot)
 			floater_outfit_snapshot->closeFloater(app_quitting);
 		if (gMenuHolder) gMenuHolder->hideMenus();
