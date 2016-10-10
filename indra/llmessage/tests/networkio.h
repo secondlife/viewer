@@ -34,6 +34,7 @@
 #include "llares.h"
 #include "llpumpio.h"
 #include "llhttpclient.h"
+#include "llexception.h"
 
 /*****************************************************************************
 *   NetworkIO
@@ -51,7 +52,7 @@ public:
         ll_init_apr();
         if (! gAPRPoolp)
         {
-            throw std::runtime_error("Can't initialize APR");
+            LLTHROW(LLException("Can't initialize APR"));
         }
 
         // Create IO Pump to use for HTTP Requests.
@@ -59,7 +60,7 @@ public:
         LLHTTPClient::setPump(*mServicePump);
         if (ll_init_ares() == NULL || !gAres->isInitialized())
         {
-            throw std::runtime_error("Can't start DNS resolver");
+            LLTHROW(LLException("Can't start DNS resolver"));
         }
 
         // You can interrupt pump() without waiting the full timeout duration

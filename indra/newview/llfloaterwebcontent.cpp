@@ -55,7 +55,8 @@ LLFloaterWebContent::_Params::_Params()
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
 	show_page_title("show_page_title", true),
-    clean_browser("clean_browser", false)
+	clean_browser("clean_browser", false),
+	dev_mode("dev_mode", false)
 {}
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
@@ -74,14 +75,16 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
     mCurrentURL(""),
-    mDisplayURL("")
+    mDisplayURL(""),
+    mDevelopMode(params.dev_mode) // if called from "Develop" Menu, set a flag and change things to be more useful for devs
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
 	mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
-	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind( &LLFloaterWebContent::onPopExternal, this ));
+	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind(&LLFloaterWebContent::onPopExternal, this));
+	mCommitCallbackRegistrar.add( "WebContent.TestURL", boost::bind(&LLFloaterWebContent::onTestURL, this, _2));
 }
 
 BOOL LLFloaterWebContent::postBuild()
@@ -195,8 +198,6 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 						width + getRect().getWidth() - browser_rect.getWidth(), 
 						height + getRect().getHeight() - browser_rect.getHeight());
 
-	LL_DEBUGS() << "geometry change: " << geom << LL_ENDL;
-	
 	LLRect new_rect;
 	getParent()->screenRectToLocal(geom, &new_rect);
 	setShape(new_rect);	
@@ -205,8 +206,6 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 // static
 void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 {
-	LL_DEBUGS() << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << LL_ENDL;
-
 	if (!p.id.isProvided())
 	{
 		p.id = LLUUID::generateNewID().asString();
@@ -224,12 +223,6 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 		// and close the least recently opened one if this will put us over the limit.
 
 		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
-		LL_DEBUGS() << "total instance count is " << instances.size() << LL_ENDL;
-
-		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
-		{
-			LL_DEBUGS() << "    " << (*iter)->getKey()["target"] << LL_ENDL;
-		}
 
 		if(instances.size() >= (size_t)browser_window_limit)
 		{
@@ -241,16 +234,19 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 
 void LLFloaterWebContent::open_media(const Params& p)
 {
-	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
-	mWebBrowser->setHomePageUrl(p.url, HTTP_CONTENT_TEXT_HTML);
+	mWebBrowser->setHomePageUrl(p.url);
 	mWebBrowser->setTarget(p.target);
-	mWebBrowser->navigateTo(p.url, HTTP_CONTENT_TEXT_HTML, p.clean_browser);
+	mWebBrowser->navigateTo(p.url);
 	
 	set_current_url(p.url);
 
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
+
+	// turn additional debug controls on but only for Develop mode (Develop menu open)
+	getChild<LLLayoutPanel>("debug_controls")->setVisible(mDevelopMode);
+
 	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
     mAllowNavigation = p.allow_back_forward_navigation;
 	getChildView("address")->setEnabled(address_entry_enabled);
@@ -499,7 +495,7 @@ void LLFloaterWebContent::onEnterAddress()
     LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
-		mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		mWebBrowser->navigateTo(url);
 	};
 }
 
@@ -508,9 +504,18 @@ void LLFloaterWebContent::onPopExternal()
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
 	std::string url = mAddressCombo->getValue().asString();
-    LLStringUtil::trim(url);
-	if ( url.length() > 0 )
+	LLStringUtil::trim(url);
+	if (url.length() > 0)
 	{
-		LLWeb::loadURLExternal( url );
+		LLWeb::loadURLExternal(url);
+	};
+}
+
+void LLFloaterWebContent::onTestURL(std::string url)
+{
+	LLStringUtil::trim(url);
+	if (url.length() > 0)
+	{
+		mWebBrowser->navigateTo(url);
 	};
 }

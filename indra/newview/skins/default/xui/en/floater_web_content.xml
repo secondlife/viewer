@@ -154,6 +154,136 @@
       </button>
     </layout_panel>
     <layout_panel
+     height="22"
+     layout="topleft"
+     left_delta="0"
+     name="debug_controls"
+     top_delta="0"
+     auto_resize="false"
+     width="585">
+      <button
+        image_overlay="Home_Off"
+            image_disabled="PushButton_Disabled"
+            image_disabled_selected="PushButton_Disabled"
+            image_selected="PushButton_Selected"
+            image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="Web tests home page"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="1"
+        name="web_test_home_page"
+        top="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestURL"
+          parameter="https://callum-linden.s3.amazonaws.com/ceftests.html"/>
+      </button>
+
+      <button
+        image_overlay="Video_URL_Off"
+            image_disabled="PushButton_Disabled"
+            image_disabled_selected="PushButton_Disabled"
+            image_selected="PushButton_Selected"
+            image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="MPEG4 Video Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="27"
+        name="VLC Plugin Test"
+        top="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestURL"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/ss.mp4"/>
+      </button>
+      <button
+        image_overlay="Video_URL_Off"
+            image_disabled="PushButton_Disabled"
+            image_disabled_selected="PushButton_Disabled"
+            image_selected="PushButton_Selected"
+            image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="MKV Video Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="51"
+        name="VLC Plugin Test"
+        top="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestURL"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/jellyfish.mkv"/>
+      </button>
+      <button
+        image_overlay="Video_URL_Off"
+            image_disabled="PushButton_Disabled"
+            image_disabled_selected="PushButton_Disabled"
+            image_selected="PushButton_Selected"
+            image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="WebM Video Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="75"
+        name="VLC Plugin Test"
+        top="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestURL"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/jumprope.webm"/>
+      </button>
+      <button
+        image_overlay="Video_URL_Off"
+            image_disabled="PushButton_Disabled"
+            image_disabled_selected="PushButton_Disabled"
+            image_selected="PushButton_Selected"
+            image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="MP3 audio Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="99"
+        name="VLC Plugin Test"
+        top="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestURL"
+          parameter="https://callum-linden.s3.amazonaws.com/alegria.mp3"/>
+      </button>
+      <button
+        image_overlay="Video_URL_Off"
+            image_disabled="PushButton_Disabled"
+            image_disabled_selected="PushButton_Disabled"
+            image_selected="PushButton_Selected"
+            image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="FLV Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="123"
+        name="VLC Plugin Test"
+        top="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestURL"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/vandal.flv"/>
+      </button>
+    </layout_panel>
+    <layout_panel
       height="40"
       layout="topleft"
       left_delta="0"

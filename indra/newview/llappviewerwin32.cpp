@@ -319,10 +319,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	}
 	
 	// Run the application main loop
-	if(!LLApp::isQuitting()) 
-	{
-		viewer_app_ptr->mainLoop();
-	}
+	while (! viewer_app_ptr->frame()) 
+	{}
 
 	if (!LLApp::isError())
 	{
@@ -332,33 +330,33 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		// app cleanup if there was a problem.
 		//
 #if WINDOWS_CRT_MEM_CHECKS
-    LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
-	if (!_CrtCheckMemory())
-	{
-		LL_WARNS() << "_CrtCheckMemory() failed at prior to cleanup!" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << " No corruption detected." << LL_ENDL;
-	}
+		LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
+		if (!_CrtCheckMemory())
+		{
+			LL_WARNS() << "_CrtCheckMemory() failed at prior to cleanup!" << LL_ENDL;
+		}
+		else
+		{
+			LL_INFOS() << " No corruption detected." << LL_ENDL;
+		}
 #endif
-	
-	gGLActive = TRUE;
 
-	viewer_app_ptr->cleanup();
-	
+		gGLActive = TRUE;
+
+		viewer_app_ptr->cleanup();
+
 #if WINDOWS_CRT_MEM_CHECKS
-    LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
-	if (!_CrtCheckMemory())
-	{
-		LL_WARNS() << "_CrtCheckMemory() failed after cleanup!" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << " No corruption detected." << LL_ENDL;
-	}
+		LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
+		if (!_CrtCheckMemory())
+		{
+			LL_WARNS() << "_CrtCheckMemory() failed after cleanup!" << LL_ENDL;
+		}
+		else
+		{
+			LL_INFOS() << " No corruption detected." << LL_ENDL;
+		}
 #endif
-	 
+
 	}
 	delete viewer_app_ptr;
 	viewer_app_ptr = NULL;

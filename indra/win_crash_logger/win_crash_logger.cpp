@@ -52,7 +52,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	}
 
 	app.processingLoop();
-	app.mainLoop();
+	app.frame();
 	app.cleanup();
 	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
 	return 0;

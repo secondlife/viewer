@@ -35,13 +35,13 @@
 
 #include <tut/tut.hpp>
 #include "llerrorcontrol.h"
+#include "llexception.h"
 #include "stringize.h"
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <list>
 #include <string>
-#include <stdexcept>
 
 // statically reference the function in test.cpp... it's short, we could
 // replicate, but better to reuse
@@ -67,9 +67,9 @@ struct WrapLLErrs
         LLError::restoreSettings(mPriorErrorSettings);
     }
 
-    struct FatalException: public std::runtime_error
+    struct FatalException: public LLException
     {
-        FatalException(const std::string& what): std::runtime_error(what) {}
+        FatalException(const std::string& what): LLException(what) {}
     };
 
     void operator()(const std::string& message)
@@ -78,7 +78,7 @@ struct WrapLLErrs
         error = message;
         // Also throw an appropriate exception since calling code is likely to
         // assume that control won't continue beyond LL_ERRS.
-        throw FatalException(message);
+        LLTHROW(FatalException(message));
     }
 
     std::string error;

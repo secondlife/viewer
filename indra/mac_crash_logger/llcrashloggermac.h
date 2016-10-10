@@ -37,7 +37,7 @@ public:
 	LLCrashLoggerMac(void);
 	~LLCrashLoggerMac(void);
 	virtual bool init();
-	virtual bool mainLoop();
+	virtual bool frame();
 	virtual bool cleanup();
 	virtual void gatherPlatformSpecificFiles();
 };
