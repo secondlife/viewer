@@ -34,13 +34,13 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <stdexcept>
 #include <iosfwd>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include "llexception.h"
 
 /*****************************************************************************
 *   Utilities
@@ -106,9 +106,9 @@ public:
     /**
      * Exception thrown by sort() if there's a cycle
      */
-    struct Cycle: public std::runtime_error
+    struct Cycle: public LLException
     {
-        Cycle(const std::string& what): std::runtime_error(what) {}
+        Cycle(const std::string& what): LLException(what) {}
     };
 
     /**
