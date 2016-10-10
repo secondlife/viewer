@@ -928,7 +928,7 @@ namespace
 
 			if (show_level && r->wantsLevel())
             {
-				message_stream << site.mLevelString;
+				message_stream << site.mLevelString << " ";
             }
 				
 			if (show_tags && r->wantsTags())
@@ -936,10 +936,11 @@ namespace
 				message_stream << site.mTagString;
 			}
 
-                        if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
-                        {
-                                message_stream << site.mLocationString << " ";
-                        }
+            if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
+            {
+                message_stream << site.mLocationString << " ";
+            }
+
 			if ((show_level && r->wantsLevel())||
                 (show_tags && r->wantsTags()))
             {
