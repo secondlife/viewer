@@ -921,11 +921,6 @@ namespace
 			
 			std::ostringstream message_stream;
 
-			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
-			{
-				message_stream << site.mLocationString << " ";
-			}
-
 			if (show_time && r->wantsTime() && s->mTimeFunction != NULL)
 			{
 				message_stream << s->mTimeFunction() << " ";
@@ -940,6 +935,11 @@ namespace
 			{
 				message_stream << site.mTagString;
 			}
+
+                        if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
+                        {
+                                message_stream << site.mLocationString << " ";
+                        }
 			if ((show_level && r->wantsLevel())||
                 (show_tags && r->wantsTags()))
             {
