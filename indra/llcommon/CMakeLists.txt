@@ -60,6 +60,7 @@ set(llcommon_SOURCE_FILES
     lleventfilter.cpp
     llevents.cpp
     lleventtimer.cpp
+    llexception.cpp
     llfasttimer.cpp
     llfile.cpp
     llfindlocale.cpp
@@ -162,6 +163,7 @@ set(llcommon_HEADER_FILES
     lleventfilter.h
     llevents.h
     lleventemitter.h
+    llexception.h
     llfasttimer.h
     llfile.h
     llfindlocale.h
@@ -322,7 +324,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llprocinfo "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")                          
+  LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltrace "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
@@ -335,6 +337,11 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpounceable "" "${test_libs}")
+
+## llexception_test.cpp isn't a regression test, and doesn't need to be run
+## every build. It's to help a developer make implementation choices about
+## throwing and catching exceptions.
+##LL_ADD_INTEGRATION_TEST(llexception "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)

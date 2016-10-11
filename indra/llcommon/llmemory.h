@@ -110,11 +110,15 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 	#if defined(LL_WINDOWS)
 		return _aligned_malloc(size, align);
 	#else
+        char* aligned = NULL;
 		void* mem = malloc( size + (align - 1) + sizeof(void*) );
-		char* aligned = ((char*)mem) + sizeof(void*);
-		aligned += align - ((uintptr_t)aligned & (align - 1));
+        if (mem)
+        {
+            aligned = ((char*)mem) + sizeof(void*);
+            aligned += align - ((uintptr_t)aligned & (align - 1));
 
-		((void**)aligned)[-1] = mem;
+            ((void**)aligned)[-1] = mem;
+        }
 		return aligned;
 	#endif
 	}
