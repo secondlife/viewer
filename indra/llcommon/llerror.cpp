@@ -941,12 +941,6 @@ namespace
                 message_stream << site.mLocationString << " ";
             }
 
-			/*if ((show_level && r->wantsLevel())||
-                (show_tags && r->wantsTags()))
-            {
-                message_stream << " ";
-            }*/
-
 			if (show_function && r->wantsFunctionName())
 			{
 				message_stream << site.mFunctionString << " ";
