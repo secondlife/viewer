@@ -58,7 +58,7 @@
 		frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self
 							  selector:@selector(oneFrame) userInfo:nil repeats:YES];
 	} else {
-		handleQuit();
+		exit(0);
 	}
 
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
