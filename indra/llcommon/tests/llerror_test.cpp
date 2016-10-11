@@ -553,7 +553,7 @@ namespace tut
 
 		ensure_equals("order is time location type function message",
 			message(0),
-			roswell() + " INFO:" + location + " " + function + ": apple");
+			roswell() + " INFO: " + location + " " + function + ": apple");
 	}
 
 	template<> template<>
