@@ -949,7 +949,7 @@ namespace
 
 			if (show_function && r->wantsFunctionName())
 			{
-				message_stream << site.mFunctionString << " ";
+				message_stream << site.mFunctionString;// << " ";
 			}
 
 			message_stream << message;
