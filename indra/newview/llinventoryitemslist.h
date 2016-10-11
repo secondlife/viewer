@@ -51,9 +51,9 @@ public:
 	/**
 	 * Let list know items need to be refreshed in next doIdle()
 	 */
-	void setNeedsRefresh(bool needs_refresh){ mNeedsRefresh = needs_refresh; }
+	void setNeedsRefresh(bool needs_refresh){ mRefreshState = needs_refresh ? REFRESH_ALL : REFRESH_COMPLETE; }
 
-	bool getNeedsRefresh(){ return mNeedsRefresh; }
+	U32 getNeedsRefresh(){ return mRefreshState; }
 
 	/**
 	 * Sets the flag indicating that the list needs to be refreshed even if it is
@@ -71,7 +71,7 @@ public:
 	 * This is needed for example to filter items of the list hidden by closed
 	 * accordion tab.
 	 */
-	void	doIdle();						// Real idle routine
+	virtual void doIdle();						// Real idle routine
 	static void idle(void* user_data);		// static glue to doIdle()
 
 protected:
@@ -94,17 +94,29 @@ protected:
 	void computeDifference(const uuid_vec_t& vnew, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
 	/**
-	 * Add an item to the list
-	 */
-	virtual void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
+	* Create panel(item) from inventory item
+	*/
+	virtual LLPanel* createNewItem(LLViewerInventoryItem* item);
+
+protected:
+    enum ERefreshStates
+    {
+        REFRESH_COMPLETE = 0,
+        REFRESH_LIST_SORT,
+        REFRESH_LIST_APPEND,
+        REFRESH_LIST_ERASE,
+        REFRESH_ALL
+    };
+
+    ERefreshStates mRefreshState;
 
 private:
 	uuid_vec_t mIDs; // IDs of items that were added in refreshList().
 					 // Will be used in refresh() to determine added and removed ids
 
 	uuid_vec_t mSelectTheseIDs; // IDs that will be selected if list is not loaded till now
-
-	bool mNeedsRefresh;
+	uuid_vec_t mAddedItems;
+	uuid_vec_t mRemovedItems;
 
 	bool mForceRefresh;
 

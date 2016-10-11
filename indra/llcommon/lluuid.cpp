@@ -83,7 +83,7 @@ unsigned int decode( char const * fiveChars ) throw( bad_input_data )
 unsigned int ret = 0;
 for( int ix = 0; ix < 5; ++ix ) {
 char * s = strchr( encodeTable, fiveChars[ ix ] );
-if( s == 0 ) throw bad_input_data();
+if( s == 0 ) LLTHROW(bad_input_data());
 ret = ret * 85 + (s-encodeTable);
 }
 return ret;

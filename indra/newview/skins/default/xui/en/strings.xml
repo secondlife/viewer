@@ -51,13 +51,14 @@ OpenGL Version: [OPENGL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF Version: [LLCEFLIB_VERSION]
+LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
 	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
 	<string name="BuildConfiguration">Build Configuration</string>
-
+	
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
 	<string name="ProgressChangingResolution">Changing resolution...</string>
@@ -499,6 +500,7 @@ Please try logging in again in a minute.</string>
 	<string name="TeleportYourAgent">Teleport you</string>
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	<string name="ForceSitAvatar">Force your avatar to sit</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
@@ -4037,6 +4039,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Places_Label">Places</string>
   <string name="Command_Preferences_Label">Preferences</string>
   <string name="Command_Profile_Label">Profile</string>
+  <string name="Command_Report_Abuse_Label">Report Abuse</string>
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
@@ -4068,6 +4071,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Places_Tooltip">Places you've saved</string>
   <string name="Command_Preferences_Tooltip">Preferences</string>
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
+  <string name="Command_Report_Abuse_Tooltip">Report Abuse</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>

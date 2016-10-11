@@ -3477,13 +3477,13 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         }
         else
         {
-            if (cofVersion < lastRcv)
+            if (cofVersion <= lastRcv)
             {
                 LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
                     << " but requesting for " << cofVersion << LL_ENDL;
                 return;
             }
-            if (lastReq > cofVersion)
+            if (lastReq >= cofVersion)
             {
                 LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
                     << " but requesting for " << cofVersion << LL_ENDL;
@@ -3503,7 +3503,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
             LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
         }
 
-        LL_INFOS() << "Requesting bake for COF version " << cofVersion << LL_ENDL;
+        LL_INFOS("Avatar") << "Requesting bake for COF version " << cofVersion << LL_ENDL;
 
         LLSD postData;
         if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))

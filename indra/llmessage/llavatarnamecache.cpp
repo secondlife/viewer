@@ -43,6 +43,8 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include "llexception.h"
+#include "stringize.h"
 
 #include <map>
 #include <set>
@@ -231,13 +233,12 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
         LLAvatarNameCache::handleAvNameCacheSuccess(results, httpResults);
 
     }
-    catch (std::exception e)
-    {
-        LL_WARNS() << "Caught exception '" << e.what() << "'" << LL_ENDL;
-    }
     catch (...)
     {
-        LL_WARNS() << "Caught unknown exception." << LL_ENDL;
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
+                                          << "('" << url << "', " << agentIds.size()
+                                          << " Agent Ids)"));
+        throw;
     }
 }
 

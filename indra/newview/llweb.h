@@ -57,7 +57,7 @@ public:
 
 	static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
 	// load content using built-in browser
-	static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
+	static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null, bool dev_mode = false);
 
 	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
 	static std::string escapeURL(const std::string& url);
