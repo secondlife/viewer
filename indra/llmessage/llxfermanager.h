@@ -140,7 +140,7 @@ class LLXferManager
 
 // file requesting routines
 // .. to file
-	virtual void requestFile(const std::string& local_filename,
+	virtual U64 requestFile(const std::string& local_filename,
 							 const std::string& remote_filename,
 							 ELLPath remote_path,
 							 const LLHost& remote_host,
@@ -202,6 +202,7 @@ class LLXferManager
 	virtual void retransmitUnackedPackets ();
 
 // error handling
+	void abortRequestById(U64 xfer_id, S32 result_code);
 	virtual void processAbort (LLMessageSystem *mesgsys, void **user_data);
 };
 
