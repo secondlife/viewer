@@ -17,12 +17,16 @@
 #include <set>
 // std headers
 // external library headers
+
+// (pacify clang)
+std::ostream& operator<<(std::ostream& out, const std::set<std::string>& strset);
 // other Linden headers
 #include "../test/lltut.h"
 
 static std::string clog;
 static std::set<std::string> dlog;
 
+// want to be able to use ensure_equals() on a set<string>
 std::ostream& operator<<(std::ostream& out, const std::set<std::string>& strset)
 {
     out << '{';
@@ -37,6 +41,7 @@ std::ostream& operator<<(std::ostream& out, const std::set<std::string>& strset)
     return out;
 }
 
+// unrelated test classes
 struct Chalk
 {
     int dummy;
