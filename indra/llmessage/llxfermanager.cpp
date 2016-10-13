@@ -441,7 +441,7 @@ void LLXferManager::requestFile(const std::string& local_filename,
 		if(delete_remote_on_completion &&
 		   (remote_filename.substr(remote_filename.length()-4) == ".tmp"))
 		{
-			LLFile::remove(local_filename);
+			LLFile::remove(local_filename, ENOENT);
 		}
 		((LLXfer_File *)xferp)->initializeRequest(
 			getNextID(),
