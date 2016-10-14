@@ -130,7 +130,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</scheme>
   <scheme name="libvlc">
