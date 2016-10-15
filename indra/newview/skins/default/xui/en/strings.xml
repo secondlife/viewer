@@ -2502,11 +2502,13 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
   <string name="av_render_anyone">You may not be rendered by anyone around you.</string>
 
   <!-- HUD complexity rendering messages, see llavatarrendernotifier. -->
-  <string name="hud_render_memory_warning">Your HUD uses a lot of texture memory</string>
-  <string name="hud_render_cost_warning">Your HUD contains a lot of expensive objects and textures</string>
-  <string name="hud_render_heavy_textures_warning">Your HUD contains a lot of large textures</string>
-  <string name="hud_render_cramped_warning">Your HUD contains too many objects</string>
-  <string name="hud_render_textures_warning">Your HUD contains too many textures</string>
+  <string name="hud_description_total">Your HUD</string>
+  <string name="hud_name_with_joint">[OBJ_NAME] (worn on [JNT_NAME])</string>
+  <string name="hud_render_memory_warning">[HUD_DETAILS] uses a lot of texture memory</string>
+  <string name="hud_render_cost_warning">[HUD_DETAILS] contains a lot of expensive objects and textures</string>
+  <string name="hud_render_heavy_textures_warning">[HUD_DETAILS] contains a lot of large textures</string>
+  <string name="hud_render_cramped_warning">[HUD_DETAILS] contains too many objects</string>
+  <string name="hud_render_textures_warning">[HUD_DETAILS] contains too many textures</string>
 
   <!-- AgeYearsA = singular,
        AgeYearsB = plural,
