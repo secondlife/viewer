@@ -1257,18 +1257,7 @@ BOOL LLVOVolume::calcLOD()
 		lod_factor *= LLVOVolume::sRiggedFactorMultiplier;
 		distance = avatar->mDrawable->mDistanceWRTCamera;
 		F32 avatar_radius = avatar->getBinRadius();
-		F32 object_radius;
-		if (mDrawable.notNull() && !mDrawable->isDead())
-		{
-			const LLVector4a* ext = mDrawable->getSpatialExtents();
-			LLVector4a diff;
-			diff.setSub(ext[1], ext[0]);
-			object_radius = diff.getLength3().getF32();
-		}
-		else
-		{
-			object_radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
-		}
+		F32 object_radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
 		radius = object_radius * LLVOVolume::sRiggedFactorMultiplier;
 		radius = llmin(radius, avatar_radius);
 	}
