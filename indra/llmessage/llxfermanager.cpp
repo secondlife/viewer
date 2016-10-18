@@ -1123,10 +1123,12 @@ void LLXferManager::abortRequestById(U64 xfer_id, S32 result_code)
 		else
 		{
 			xferp->mCallbackResult = result_code;
-			xferp->processEOF(); //should norify requestor
+			xferp->processEOF(); //should notify requester
 			removeXfer(xferp, &mReceiveList);
-			startPendingDownloads();
 		}
+		// Since already removed or marked as aborted no need
+		// to wait for processAbort() to start new download
+		startPendingDownloads();
 	}
 }
 
