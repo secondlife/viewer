@@ -10273,16 +10273,16 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>RenderRiggedFactorMultiplier</key>
+    <key>RenderRiggedLodCompensation</key>
     <map>
       <key>Comment</key>
-      <string>Affects level of detail for worn rigged meshes</string>
+      <string>Affects visibility range of worn rigged meshes to compensate for missing LODs (limited by avatars own visibility)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>7.5</real>
+      <real>6.5</real>
     </map>
     <key>RenderWater</key>
     <map>
