@@ -58,7 +58,7 @@ private:
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "profile_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "profile_size_combo"; }
 	/*virtual*/ std::string getImageSizePanelName() const	{ return "profile_image_size_lp"; }
-	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG; }
+	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
 	/*virtual*/ void updateControls(const LLSD& info);
 
 	void onSend();
@@ -96,6 +96,6 @@ void LLPanelSnapshotProfile::onSend()
 	std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
 	bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
 
-	LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location);
-	LLFloaterSnapshot::postSave();
+	LLWebProfile::uploadImage(mSnapshotFloater->getImageData(), caption, add_location);
+	mSnapshotFloater->postSave();
 }

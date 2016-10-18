@@ -72,6 +72,7 @@ public:
 									   std::string& tooltip_msg);
 	/*virtual*/ void changed(U32);
 	/*virtual*/ void draw();
+	/*virtual*/ void 	onVisibilityChange ( BOOL new_visibility );
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }
@@ -155,8 +156,8 @@ protected:
 private:
 	LLDragAndDropButton*		mTrashButton;
 	LLToggleableMenu*			mMenuGearDefault;
-	LLMenuGL*					mMenuAdd;
 	LLMenuButton*				mGearMenuButton;
+	LLHandle<LLView>			mMenuAddHandle;
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //

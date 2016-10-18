@@ -32,7 +32,7 @@ RenderAvatarCloth				1	1
 RenderAvatarLODFactor			1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors     1   16
-RenderAvatarMaxComplexity              1	80000
+RenderAvatarMaxComplexity              1	350000
 RenderAvatarVP					1	1
 RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderCubeMap				1	1

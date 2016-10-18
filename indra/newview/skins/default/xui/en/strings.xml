@@ -51,12 +51,14 @@ OpenGL Version: [OPENGL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF Version: [LLCEFLIB_VERSION]
+LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
+	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
 	<string name="BuildConfiguration">Build Configuration</string>
-
+	
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
 	<string name="ProgressChangingResolution">Changing resolution...</string>
@@ -3806,6 +3808,9 @@ Abuse Report</string>
 
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+  <string name="outfit_photo_load_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please resize or use another image</string>
+  <string name="outfit_photo_select_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please select another texture</string>
+  <string name="outfit_photo_verify_dimensions_error">Cannot verify photo dimensions. Please wait until photo size is displayed in picker</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>

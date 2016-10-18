@@ -588,6 +588,11 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 	BOOL log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
+		if (!viewp)
+		{
+			continue;
+		}
+
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		old_visibility=viewp->getVisible();
 
@@ -807,7 +812,7 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 {
 	if (!getVisible())
-		return false;
+		return NULL;
 
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{

@@ -30,6 +30,7 @@ import sys
 import os.path
 import shutil
 import errno
+import json
 import re
 import tarfile
 import time
@@ -180,9 +181,16 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
                 self.end_prefix("local_assets")
 
-            # Files in the newview/ directory
+            # File in the newview/ directory
             self.path("gpu_table.txt")
-            # The summary.json file gets left in the build directory by newview/CMakeLists.txt.
+
+            #summary.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
+            summary_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),"Channel":self.channel_with_pkg_suffix()}
+            with open(os.path.join(os.pardir,'summary.json'), 'w') as summary_handle:
+                json.dump(summary_dict,summary_handle)
+
+            #we likely no longer need the test, since we will throw an exception above, but belt and suspenders and we get the
+            #return code for free.
             if not self.path2basename(os.pardir, "summary.json"):
                 print "No summary.json file"
 
@@ -434,6 +442,11 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("media_plugin_cef.dll")
             self.end_prefix()
 
+        # Media plugins - LibVLC
+        if self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("media_plugin_libvlc.dll")
+            self.end_prefix()
+
         # winmm.dll shim
         if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
             self.path("winmm.dll")
@@ -539,6 +552,12 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
             self.end_prefix()
+
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins/")
+                self.end_prefix()
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
@@ -1078,7 +1097,17 @@ class LinuxManifest(ViewerManifest):
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
             self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
+            self.path("../media_plugins/libvlc/libmedia_plugin_libvlc.so", "libmedia_plugin_libvlc.so")
             self.end_prefix("bin/llplugin")
+
+        if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
+            self.path( "plugins.dat" )
+            self.path( "*/*.so" )
+            self.end_prefix()
+
+        if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib' ), dst="lib"):
+            self.path( "libvlc*.so*" )
+            self.end_prefix()
 
         # llcommon
         if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
@@ -1133,7 +1162,7 @@ class LinuxManifest(ViewerManifest):
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+            self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name update_install \! -name *.dat | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
 class Linux_i686_Manifest(LinuxManifest):
     def construct(self):

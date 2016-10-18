@@ -107,8 +107,10 @@ private:
 	
 	void updateZoom();
 	void setCurrentURL();
-	void onCommitSlider();
-	
+
+	void onMediaPlaySliderCtrlMouseDown();
+	void onMediaPlaySliderCtrlMouseUp();
+
 	void onCommitVolumeUp();
 	void onCommitVolumeDown();
 	void onCommitVolumeSlider();
@@ -219,6 +221,8 @@ private:
 	S32 mVolumeSliderVisible;
 
 	LLNotificationPtr mActiveNotification;
+
+	F64 mMediaPlaySliderCtrlMouseDownValue;
 };
 
 #endif // LL_PANELPRIMMEDIACONTROLS_H

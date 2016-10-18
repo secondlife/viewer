@@ -31,18 +31,13 @@
 #include "llmath.h"
 #include "llmemory.h"
 #include "llsd.h"
+#include <boost/scoped_ptr.hpp>
 
-typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
-typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
-typedef const char* (*EngineInfoLLImageJ2CFunction)();
-
-// Declare the prototype for theses functions here. Their functionality
-// will be implemented in other files which define a derived LLImageJ2CImpl
-// but only ONE static library which has the implementation for these
-// functions should ever be included.
+// Declare the prototype for this factory function here. It is implemented in
+// other files which define a LLImageJ2CImpl subclass, but only ONE static
+// library which has the implementation for this function should ever be
+// linked.
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
-void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl);
-const char* fallbackEngineInfoLLImageJ2CImpl();
 
 // Test data gathering handle
 LLImageCompressionTester* LLImageJ2C::sTesterp = NULL ;
@@ -51,17 +46,20 @@ const std::string sTesterName("ImageCompressionTester");
 //static
 std::string LLImageJ2C::getEngineInfo()
 {
-    return fallbackEngineInfoLLImageJ2CImpl();
+	// All known LLImageJ2CImpl implementation subclasses are cheap to
+	// construct.
+	boost::scoped_ptr<LLImageJ2CImpl> impl(fallbackCreateLLImageJ2CImpl());
+	return impl->getEngineInfo();
 }
 
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
 							mRate(DEFAULT_COMPRESSION_RATE),
-							mReversible(FALSE),
+							mReversible(false),
 							mAreaUsedForDataSizeCalcs(0)
 {
-	mImpl = fallbackCreateLLImageJ2CImpl();
+	mImpl.reset(fallbackCreateLLImageJ2CImpl());
 	claimMem(mImpl);
 
 	// Clear data size table
@@ -83,13 +81,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 }
 
 // virtual
-LLImageJ2C::~LLImageJ2C()
-{
-	if ( mImpl )
-	{
-        fallbackDestroyLLImageJ2CImpl(mImpl);
-	}
-}
+LLImageJ2C::~LLImageJ2C() {}
 
 // virtual
 void LLImageJ2C::resetLastError()
@@ -111,16 +103,16 @@ S8  LLImageJ2C::getRawDiscardLevel()
 	return mRawDiscardLevel;
 }
 
-BOOL LLImageJ2C::updateData()
+bool LLImageJ2C::updateData()
 {
-	BOOL res = TRUE;
+	bool res = true;
 	resetLastError();
 
 	// Check to make sure that this instance has been initialized with data
 	if (!getData() || (getDataSize() < 16))
 	{
 		setLastError("LLImageJ2C uninitialized");
-		res = FALSE;
+		res = false;
 	}
 	else 
 	{
@@ -142,29 +134,29 @@ BOOL LLImageJ2C::updateData()
 	return res;
 }
 
-BOOL LLImageJ2C::initDecode(LLImageRaw &raw_image, int discard_level, int* region)
+bool LLImageJ2C::initDecode(LLImageRaw &raw_image, int discard_level, int* region)
 {
 	setDiscardLevel(discard_level != -1 ? discard_level : 0);
 	return mImpl->initDecode(*this,raw_image,discard_level,region);
 }
 
-BOOL LLImageJ2C::initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
+bool LLImageJ2C::initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
 	return mImpl->initEncode(*this,raw_image,blocks_size,precincts_size,levels);
 }
 
-BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
+bool LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 {
 	return decodeChannels(raw_imagep, decode_time, 0, 4);
 }
 
 
-// Returns TRUE to mean done, whether successful or not.
-BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
+// Returns true to mean done, whether successful or not.
+bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
 	LLTimer elapsed;
 
-	BOOL res = TRUE;
+	bool res = true;
 	
 	resetLastError();
 
@@ -172,13 +164,13 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 	if (!getData() || (getDataSize() < 16))
 	{
 		setLastError("LLImageJ2C uninitialized");
-		res = TRUE; // done
+		res = true; // done
 	}
 	else
 	{
 		// Update the raw discard level
 		updateRawDiscardLevel();
-		mDecoding = TRUE;
+		mDecoding = true;
 		res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
 	}
 	
@@ -191,7 +183,7 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 		}
 		else
 		{
-			mDecoding = FALSE;
+			mDecoding = false;
 		}
 	}
 
@@ -210,7 +202,7 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 		tester->updateDecompressionStats(elapsed.getElapsedTimeF32()) ;
 		if (res)
 		{
-			// The whole data stream is finally decompressed when res is returned as TRUE
+			// The whole data stream is finally decompressed when res is returned as true
 			tester->updateDecompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
 		}
 	}
@@ -219,17 +211,17 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 }
 
 
-BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, F32 encode_time)
+bool LLImageJ2C::encode(const LLImageRaw *raw_imagep, F32 encode_time)
 {
 	return encode(raw_imagep, NULL, encode_time);
 }
 
 
-BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time)
+bool LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time)
 {
 	LLTimer elapsed;
 	resetLastError();
-	BOOL res = mImpl->encodeImpl(*this, *raw_imagep, comment_text, encode_time, mReversible);
+	bool res = mImpl->encodeImpl(*this, *raw_imagep, comment_text, encode_time, mReversible);
 	if (!mLastError.empty())
 	{
 		LLImage::setLastError(mLastError);
@@ -245,7 +237,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 		tester->updateCompressionStats(elapsed.getElapsedTimeF32()) ;
 		if (res)
 		{
-			// The whole data stream is finally compressed when res is returned as TRUE
+			// The whole data stream is finally compressed when res is returned as true
 			tester->updateCompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
 		}
 	}
@@ -348,15 +340,15 @@ void LLImageJ2C::setMaxBytes(S32 max_bytes)
 	mMaxBytes = max_bytes;
 }
 
-void LLImageJ2C::setReversible(const BOOL reversible)
+void LLImageJ2C::setReversible(const bool reversible)
 {
  	mReversible = reversible;
 }
 
 
-BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
+bool LLImageJ2C::loadAndValidate(const std::string &filename)
 {
-	BOOL res = TRUE;
+	bool res = true;
 	
 	resetLastError();
 
@@ -367,12 +359,12 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 	if (!apr_file)
 	{
 		setLastError("Unable to open file for reading", filename);
-		res = FALSE;
+		res = false;
 	}
 	else if (file_size == 0)
 	{
 		setLastError("File is empty",filename);
-		res = FALSE;
+		res = false;
 	}
 	else
 	{
@@ -385,7 +377,7 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 		{
 			FREE_MEM(LLImageBase::getPrivatePool(), data);
 			setLastError("Unable to read entire file");
-			res = FALSE;
+			res = false;
 		}
 		else
 		{
@@ -402,21 +394,21 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 }
 
 
-BOOL LLImageJ2C::validate(U8 *data, U32 file_size)
+bool LLImageJ2C::validate(U8 *data, U32 file_size)
 {
 
 	resetLastError();
 	
 	setData(data, file_size);
 
-	BOOL res = updateData();
+	bool res = updateData();
 	if ( res )
 	{
 		// Check to make sure that this instance has been initialized with data
 		if (!getData() || (0 == getDataSize()))
 		{
 			setLastError("LLImageJ2C uninitialized");
-			res = FALSE;
+			res = false;
 		}
 		else
 		{
@@ -433,7 +425,7 @@ BOOL LLImageJ2C::validate(U8 *data, U32 file_size)
 
 void LLImageJ2C::decodeFailed()
 {
-	mDecoding = FALSE;
+	mDecoding = false;
 }
 
 void LLImageJ2C::updateRawDiscardLevel()

@@ -173,6 +173,9 @@ public:
 	 */	
 	static void inviteToGroup(const LLUUID& id);
 	
+	static void freezeAvatar(const LLUUID& id);
+
+	static void ejectAvatar(const LLUUID& id, bool ban_enabled = false);
 	/**
 	 * Kick avatar off grid
 	 */	
@@ -242,6 +245,8 @@ private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
+	static bool handleFreezeAvatar(const LLSD& notification, const LLSD& response);
+	static bool handleEjectAvatar(const LLSD& notification, const LLSD& response);
 	static bool handleKick(const LLSD& notification, const LLSD& response);
 	static bool handleFreeze(const LLSD& notification, const LLSD& response);
 	static bool handleUnfreeze(const LLSD& notification, const LLSD& response);

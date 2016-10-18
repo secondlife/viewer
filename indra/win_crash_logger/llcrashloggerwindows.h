@@ -46,7 +46,7 @@ public:
 	static LLCrashLoggerWindows* sInstance; 
 
 	virtual bool init();
-	virtual bool mainLoop();
+	virtual bool frame();
 	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 	virtual bool cleanup();
 	virtual void gatherPlatformSpecificFiles();

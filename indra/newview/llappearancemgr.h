@@ -61,6 +61,7 @@ public:
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 	void replaceCurrentOutfit(const LLUUID& new_outfit);
 	void renameOutfit(const LLUUID& outfit_id);
+	void removeOutfitPhoto(const LLUUID& outfit_id);
 	void takeOffOutfit(const LLUUID& cat_id);
 	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
 	S32 findExcessOrDuplicateItems(const LLUUID& cat_id,
@@ -184,6 +185,9 @@ public:
 	
 	void wearBaseOutfit();
 
+	void setOutfitImage(const LLUUID& image_id) {mCOFImageID = image_id;}
+	LLUUID getOutfitImage() {return mCOFImageID;}
+
 	// Overrides the base outfit with the content from COF
 	// @return false if there is no base outfit
 	bool updateBaseOutfit();
@@ -228,11 +232,7 @@ public:
 
 
 private:
-#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
     void serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter);
-#else
-    void serverAppearanceUpdateCoro();
-#endif
 
     static void debugAppearanceUpdateCOF(const LLSD& content);
 
@@ -271,6 +271,8 @@ private:
 	S32  mInFlightCounter;
 	LLTimer mInFlightTimer;
 	static bool mActive;
+
+	LLUUID mCOFImageID;
 
 	std::auto_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 

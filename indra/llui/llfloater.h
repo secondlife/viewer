@@ -310,7 +310,7 @@ public:
 	/*virtual*/ void setVisible(BOOL visible); // do not override
 	/*virtual*/ void onVisibilityChange ( BOOL new_visibility ); // do not override
 	
-	void			setFrontmost(BOOL take_focus = TRUE);
+	void			setFrontmost(BOOL take_focus = TRUE, BOOL restore = TRUE);
      virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
 	
 	// Defaults to false.
@@ -547,7 +547,7 @@ public:
 
 	void			setCycleMode(BOOL mode) { mFocusCycleMode = mode; }
 	BOOL			getCycleMode() const { return mFocusCycleMode; }
-	void			bringToFront( LLFloater* child, BOOL give_focus = TRUE );
+	void			bringToFront( LLFloater* child, BOOL give_focus = TRUE, BOOL restore = TRUE );
 	void			highlightFocusedFloater();
 	void			unhighlightFocusedFloater();
 	void			focusFrontFloater();

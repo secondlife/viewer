@@ -349,8 +349,8 @@ void LLGLSLShader::unloadInternal()
         for (GLsizei i = 0; i < count; i++)
         {
             glDetachObjectARB(mProgramObject, obj[i]);
-            glDeleteObjectARB(obj[i]);
-        }
+                glDeleteObjectARB(obj[i]);
+            }
 
         glDeleteObjectARB(mProgramObject);
 

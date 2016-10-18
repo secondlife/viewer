@@ -57,7 +57,7 @@ public:
 	LLSD constructPostData();
 	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 	virtual bool init();
-	virtual bool mainLoop() = 0;
+	virtual bool frame() = 0;
 	virtual bool cleanup() = 0;
 	void commonCleanup();
 	void setUserText(const std::string& text) { mCrashInfo["UserNotes"] = text; }

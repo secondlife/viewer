@@ -904,7 +904,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	std::string stuff = matches[IDX_STUFF];
 	boost::match_results<std::string::const_iterator> name_and_text;
 	if (!boost::regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
-	
+
 	bool has_name = name_and_text[IDX_NAME].matched;
 	std::string name = name_and_text[IDX_NAME];
 
@@ -956,7 +956,6 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 		im[LL_IM_FROM] = name;
 	}
 	
-
 	im[LL_IM_TEXT] = name_and_text[IDX_TEXT];
 	return true;  //parsed name and message text, maybe have a timestamp too
 }

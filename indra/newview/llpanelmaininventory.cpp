@@ -106,7 +106,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	  mSavedFolderState(NULL),
 	  mFilterText(""),
 	  mMenuGearDefault(NULL),
-	  mMenuAdd(NULL),
+	  mMenuAddHandle(),
 	  mNeedUploadCost(true)
 {
 	// Menu Callbacks (non contex menus)
@@ -150,6 +150,7 @@ BOOL LLPanelMainInventory::postBuild()
 	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
 	if (recent_items_panel)
 	{
+		// assign default values until we will be sure that we have setting to restore
 		recent_items_panel->setSinceLogoff(TRUE);
 		recent_items_panel->setSortOrder(LLInventoryFilter::SO_DATE);
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
@@ -181,6 +182,7 @@ BOOL LLPanelMainInventory::postBuild()
 				LLParamSDParser parser;
 				parser.readSD(recent_items, p);
 				recent_items_panel->getFilter().fromParams(p);
+				recent_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
 			}
 		}
 
@@ -198,10 +200,15 @@ BOOL LLPanelMainInventory::postBuild()
 
 	// *TODO:Get the cost info from the server
 	const std::string upload_cost("10");
-	mMenuAdd->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", upload_cost);
-	mMenuAdd->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
-	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
-	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
+
+	LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
+	if (menu)
+	{
+		menu->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", upload_cost);
+		menu->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
+		menu->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
+		menu->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
+	}
 
 	// Trigger callback for focus received so we can deselect items in inbox/outbox
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
@@ -372,7 +379,14 @@ void LLPanelMainInventory::setSortBy(const LLSD& userdata)
 	}
 
 	getActivePanel()->setSortOrder(sort_order_mask);
-	gSavedSettings.setU32("InventorySortOrder", sort_order_mask);
+    if ("Recent Items" == getActivePanel()->getName())
+    {
+        gSavedSettings.setU32("RecentItemsSortOrder", sort_order_mask);
+    }
+    else
+    {
+        gSavedSettings.setU32("InventorySortOrder", sort_order_mask);
+    }
 }
 
 // static
@@ -974,7 +988,8 @@ void LLPanelMainInventory::initListCommandsHandlers()
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearMenuButton->setMenu(mMenuGearDefault);
-	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuAddHandle = menu->getHandle();
 
 	// Update the trash button when selected item(s) get worn or taken off.
 	LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLPanelMainInventory::updateListCommands, this));
@@ -992,11 +1007,15 @@ void LLPanelMainInventory::onAddButtonClick()
 // Gray out the "New Folder" option when the Recent tab is active as new folders will not be displayed
 // unless "Always show folders" is checked in the filter options.
 	bool recent_active = ("Recent Items" == mActivePanel->getName());
-	mMenuAdd->getChild<LLMenuItemGL>("New Folder")->setEnabled(!recent_active);
+	LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
+	if (menu)
+	{
+		menu->getChild<LLMenuItemGL>("New Folder")->setEnabled(!recent_active);
 
-	setUploadCostIfNeeded();
+		setUploadCostIfNeeded();
 
-	showActionMenu(mMenuAdd,"add_btn");
+		showActionMenu(menu,"add_btn");
+	}
 }
 
 void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -1143,6 +1162,19 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 }
 
+void LLPanelMainInventory::onVisibilityChange( BOOL new_visibility )
+{
+	if(!new_visibility)
+	{
+		LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
+		if (menu)
+		{
+			menu->setVisible(FALSE);
+		}
+		getActivePanel()->getRootFolder()->finishRenamingItem();
+	}
+}
+
 bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 {
 	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
@@ -1271,9 +1303,10 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 	// have two instances of Inventory panel at the moment(and two instances of context menu),
 	// call to gMenuHolder->childSetLabelArg() sets upload cost only for one of the instances.
 
-	if(mNeedUploadCost && mMenuAdd)
+	LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
+	if(mNeedUploadCost && menu)
 	{
-		LLMenuItemBranchGL* upload_menu = mMenuAdd->findChild<LLMenuItemBranchGL>("upload");
+		LLMenuItemBranchGL* upload_menu = menu->findChild<LLMenuItemBranchGL>("upload");
 		if(upload_menu)
 		{
 			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
