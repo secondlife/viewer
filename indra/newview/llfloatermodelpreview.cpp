@@ -3591,7 +3591,7 @@ BOOL LLModelPreview::render()
 		}
 	}
 
-	if (has_skin_weights)
+	if (has_skin_weights && lodsReady())
 	{ //model has skin weights, enable view options for skin weights and joint positions
 		if (fmp && isLegacyRigValid() )
 		{
