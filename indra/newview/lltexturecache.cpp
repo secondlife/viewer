@@ -547,10 +547,18 @@ bool LLTextureCacheRemoteWorker::doWrite()
 	// First state / stage : check that what we're trying to cache is in an OK shape
 	if (mState == INIT)
 	{
-		llassert_always(mOffset == 0);	// We currently do not support write offsets
-		llassert_always(mDataSize > 0); // Things will go badly wrong if mDataSize is nul or negative...
-		llassert_always(mImageSize >= mDataSize);
-		mState = CACHE;
+		if ((mOffset != 0) // We currently do not support write offsets
+			|| (mDataSize <= 0) // Things will go badly wrong if mDataSize is nul or negative...
+			|| (mImageSize < mDataSize))
+		{
+			LL_WARNS() << "INIT state check failed" << LL_ENDL;
+			mDataSize = -1; // failed
+			done = true;
+		}
+		else
+		{
+			mState = CACHE;
+		}
 	}
 	
 	// No LOCAL state for write(): because it doesn't make much sense to cache a local file...
@@ -559,7 +567,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 	if (!done && (mState == CACHE))
 	{
 		bool alreadyCached = false;
-		LLTextureCache::Entry entry ;
+		LLTextureCache::Entry entry;
 
 		// Checks if this image is already in the entry list
 		idx = mCache->getHeaderCacheEntry(mID, entry);
@@ -571,107 +579,132 @@ bool LLTextureCacheRemoteWorker::doWrite()
 				// (almost always) write to the fast cache.
 				if (mRawImage->getDataSize())
 				{
-				llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
+					if(!mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel))
+					{
+						LL_WARNS() << "writeToFastCache failed" << LL_ENDL;
+						mDataSize = -1; // failed
+						done = true;
+					}
+				}
 			}
-		}
 		}
 		else
 		{
 			alreadyCached = mCache->updateEntry(idx, entry, mImageSize, mDataSize); // update the existing entry.
 		}
 
-		if (idx < 0)
+		if (!done)
 		{
-			LL_WARNS() << "LLTextureCacheWorker: "  << mID
-					<< " Unable to create header entry for writing!" << LL_ENDL;
-			mDataSize = -1; // failed
-			done = true;
-		}
-		else
-		{
-			if (alreadyCached && (mDataSize <= TEXTURE_CACHE_ENTRY_SIZE))
+			if (idx < 0)
 			{
-				// Small texture already cached case: we're done with writing
+				LL_WARNS() << "LLTextureCacheWorker: " << mID
+					<< " Unable to create header entry for writing!" << LL_ENDL;
+				mDataSize = -1; // failed
 				done = true;
 			}
 			else
 			{
-				// If the texture has already been cached, we don't resave the header and go directly to the body part
-				mState = alreadyCached ? BODY : HEADER;
+				if (alreadyCached && (mDataSize <= TEXTURE_CACHE_ENTRY_SIZE))
+				{
+					// Small texture already cached case: we're done with writing
+					done = true;
+				}
+				else
+				{
+					// If the texture has already been cached, we don't resave the header and go directly to the body part
+					mState = alreadyCached ? BODY : HEADER;
+				}
 			}
 		}
 	}
 
+
 	// Third stage / state : write the header record in the header file (texture.cache)
 	if (!done && (mState == HEADER))
 	{
-		llassert_always(idx >= 0);	// we need an entry here or storing the header makes no sense
-		S32 offset = idx * TEXTURE_CACHE_ENTRY_SIZE;	// skip to the correct spot in the header file
-		S32 size = TEXTURE_CACHE_ENTRY_SIZE;			// record size is fixed for the header
-		S32 bytes_written;
-
-		if (mDataSize < TEXTURE_CACHE_ENTRY_SIZE)
+		if (idx < 0) // we need an entry here or storing the header makes no sense
 		{
-			// We need to write a full record in the header cache so, if the amount of data is smaller
-			// than a record, we need to transfer the data to a buffer padded with 0 and write that
-			U8* padBuffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), TEXTURE_CACHE_ENTRY_SIZE);
-			memset(padBuffer, 0, TEXTURE_CACHE_ENTRY_SIZE);		// Init with zeros
-			memcpy(padBuffer, mWriteData, mDataSize);			// Copy the write buffer
-			bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, padBuffer, offset, size, mCache->getLocalAPRFilePool());
-			FREE_MEM(LLImageBase::getPrivatePool(), padBuffer);
-		}
-		else
-		{
-			// Write the header record (== first TEXTURE_CACHE_ENTRY_SIZE bytes of the raw file) in the header file
-			bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, mWriteData, offset, size, mCache->getLocalAPRFilePool());
-		}
-
-		if (bytes_written <= 0)
-		{
-			LL_WARNS() << "LLTextureCacheWorker: "  << mID
-					<< " Unable to write header entry!" << LL_ENDL;
+			LL_WARNS() << "index check failed" << LL_ENDL;
 			mDataSize = -1; // failed
 			done = true;
 		}
-
-		// If we wrote everything (may be more with padding) in the header cache, 
-		// we're done so we don't have a body to store
-		if (mDataSize <= bytes_written)
-		{
-			done = true;
-		}
 		else
 		{
-			mState = BODY;
+			S32 offset = idx * TEXTURE_CACHE_ENTRY_SIZE;	// skip to the correct spot in the header file
+			S32 size = TEXTURE_CACHE_ENTRY_SIZE;			// record size is fixed for the header
+			S32 bytes_written;
+
+			if (mDataSize < TEXTURE_CACHE_ENTRY_SIZE)
+			{
+				// We need to write a full record in the header cache so, if the amount of data is smaller
+				// than a record, we need to transfer the data to a buffer padded with 0 and write that
+				U8* padBuffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), TEXTURE_CACHE_ENTRY_SIZE);
+				memset(padBuffer, 0, TEXTURE_CACHE_ENTRY_SIZE);		// Init with zeros
+				memcpy(padBuffer, mWriteData, mDataSize);			// Copy the write buffer
+				bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, padBuffer, offset, size, mCache->getLocalAPRFilePool());
+				FREE_MEM(LLImageBase::getPrivatePool(), padBuffer);
+			}
+			else
+			{
+				// Write the header record (== first TEXTURE_CACHE_ENTRY_SIZE bytes of the raw file) in the header file
+				bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, mWriteData, offset, size, mCache->getLocalAPRFilePool());
+			}
+
+			if (bytes_written <= 0)
+			{
+				LL_WARNS() << "LLTextureCacheWorker: " << mID
+					<< " Unable to write header entry!" << LL_ENDL;
+				mDataSize = -1; // failed
+				done = true;
+			}
+
+			// If we wrote everything (may be more with padding) in the header cache, 
+			// we're done so we don't have a body to store
+			if (mDataSize <= bytes_written)
+			{
+				done = true;
+			}
+			else
+			{
+				mState = BODY;
+			}
 		}
 	}
 	
 	// Fourth stage / state : write the body file, i.e. the rest of the texture in a "UUID" file name
 	if (!done && (mState == BODY))
 	{
-		llassert(mDataSize > TEXTURE_CACHE_ENTRY_SIZE);	// wouldn't make sense to be here otherwise...
-		S32 file_size = mDataSize - TEXTURE_CACHE_ENTRY_SIZE;
-		
+		if (mDataSize <= TEXTURE_CACHE_ENTRY_SIZE) // wouldn't make sense to be here otherwise...
 		{
-			// build the cache file name from the UUID
-			std::string filename = mCache->getTextureFileName(mID);			
-// 			LL_INFOS() << "Writing Body: " << filename << " Bytes: " << file_offset+file_size << LL_ENDL;
-			S32 bytes_written = LLAPRFile::writeEx(	filename, 
-													mWriteData + TEXTURE_CACHE_ENTRY_SIZE,
-													0, file_size,
-													mCache->getLocalAPRFilePool());
-			if (bytes_written <= 0)
+			LL_WARNS() << "mDataSize check failed" << LL_ENDL;
+			mDataSize = -1; // failed
+			done = true;
+		}
+		else
+		{
+			S32 file_size = mDataSize - TEXTURE_CACHE_ENTRY_SIZE;
+
 			{
-				LL_WARNS() << "LLTextureCacheWorker: "  << mID
+				// build the cache file name from the UUID
+				std::string filename = mCache->getTextureFileName(mID);
+				// 			LL_INFOS() << "Writing Body: " << filename << " Bytes: " << file_offset+file_size << LL_ENDL;
+				S32 bytes_written = LLAPRFile::writeEx(filename,
+													   mWriteData + TEXTURE_CACHE_ENTRY_SIZE,
+													   0, file_size,
+													   mCache->getLocalAPRFilePool());
+				if (bytes_written <= 0)
+				{
+					LL_WARNS() << "LLTextureCacheWorker: " << mID
 						<< " incorrect number of bytes written to body: " << bytes_written
 						<< " / " << file_size << LL_ENDL;
-				mDataSize = -1; // failed
-				done = true;
+					mDataSize = -1; // failed
+					done = true;
+				}
 			}
+
+			// Nothing else to do at that point...
+			done = true;
 		}
-		
-		// Nothing else to do at that point...
-		done = true;
 	}
 	mRawImage = NULL;
 
