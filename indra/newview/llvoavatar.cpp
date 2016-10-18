@@ -6001,7 +6001,6 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         attachment->setIsHUDAttachment(info->mIsHUDAttachment);
         // attachment can potentially be animated, needs a number.
         attachment->setJointNum(mNumBones + mNumCollisionVolumes + attachmentID - 1);
-        LL_WARNS() << "Initialized attachment" << attachment->getName() << " joint_num " << attachment->getJointNum() << LL_ENDL;
 
         if (newly_created)
         {
