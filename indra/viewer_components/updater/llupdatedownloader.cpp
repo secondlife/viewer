@@ -27,7 +27,7 @@
 
 #include "llupdatedownloader.h"
 #include "httpcommon.h"
-#include <stdexcept>
+#include "llexception.h"
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <curl/curl.h>
@@ -85,11 +85,11 @@ private:
 
 namespace {
 	class DownloadError:
-		public std::runtime_error
+		public LLException
 	{
 	public:
 		DownloadError(const char * message):
-			std::runtime_error(message)
+			LLException(message)
 		{
 			; // No op.
 		}
@@ -467,7 +467,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 
 	if(!mCurl)
 	{
-		throw DownloadError("failed to initialize curl");
+		LLTHROW(DownloadError("failed to initialize curl"));
 	}
     throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_NOSIGNAL, true));
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_FOLLOWLOCATION, true));
@@ -508,7 +508,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	mHeaderList = curl_slist_append(mHeaderList, rangeHeaderFormat.str().c_str());
 	if(mHeaderList == 0)
 	{
-		throw DownloadError("cannot add Range header");
+		LLTHROW(DownloadError("cannot add Range header"));
 	}
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HTTPHEADER, mHeaderList));
 
@@ -524,7 +524,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	mDownloadData["hash"] = hash;
 	mDownloadData["current_version"] = ll_get_version();
 	LLSD path = uri.pathArray();
-	if(path.size() == 0) throw DownloadError("no file path");
+	if(path.size() == 0) LLTHROW(DownloadError("no file path"));
 	std::string fileName = path[path.size() - 1].asString();
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
 	mDownloadData["path"] = filePath;
@@ -547,9 +547,9 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 	if(code != CURLE_OK) {
 		const char * errorString = curl_easy_strerror(code);
 		if(errorString != 0) {
-			throw DownloadError(curl_easy_strerror(code));
+			LLTHROW(DownloadError(curl_easy_strerror(code)));
 		} else {
-			throw DownloadError("unknown curl error");
+			LLTHROW(DownloadError("unknown curl error"));
 		}
 	} else {
 		; // No op.

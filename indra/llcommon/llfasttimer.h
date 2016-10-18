@@ -296,7 +296,16 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 {
 #if LL_FAST_TIMER_ON
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
-	if (!cur_timer_data) return;
+	if (!cur_timer_data)
+	{
+		// How likely is it that
+		// LLThreadLocalSingletonPointer<T>::getInstance() will return NULL?
+		// Even without researching, what we can say is that if we exit
+		// without setting mStartTime at all, gcc 4.7 produces (fatal)
+		// warnings about a possibly-uninitialized data member.
+		mStartTime = 0;
+		return;
+	}
 	TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 	accumulator.mActiveCount++;
 	// keep current parent as long as it is active when we are
