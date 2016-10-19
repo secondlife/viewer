@@ -1484,28 +1484,16 @@ from the data provided by the Mozilla NSS Project.
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d22e7794691d1f44e400369ae1eb397f</string>
+              <string>e040c5dc18a6aca9d96e8d833b67eac2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llca/rev/318103/arch/Linux/installer/llca-2016.07.26.318103-common-318103.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/368/924/llca-201610192227.500363-common-500363.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a08717aec995bac2f7b6bed2f1d6cbe3</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/363/913/llca-201610192112.500358-linux64-500358.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
         </map>
         <key>version</key>
-        <string>201610192112.500358</string>
+        <string>201610192227.500363</string>
       </map>
       <key>llceflib</key>
       <map>
