@@ -42,7 +42,7 @@ class domMesh;
 class LLMeshSkinInfo 
 {
 public:
-	LLMeshSkinInfo() { }
+	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
 	void fromLLSD(LLSD& data);
 	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
