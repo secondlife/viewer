@@ -2044,9 +2044,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2b6c8c2d645b21c4409c7db1b4a14298</string>
+              <string>e94399267eaacf7fcdd712da672afc88</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/317975/arch/Darwin/installer/slvoice-4.7.0004.23800.317975-darwin-317975.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/320840/arch/Darwin/installer/slvoice-4.7.0004.24372.320840-darwin-320840.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2056,9 +2056,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1095d2dfcffe4738a20a36a5e0f32fb8</string>
+              <string>b173aae4708d95fdc9df8d3cf88118c1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/317975/arch/Linux/installer/slvoice-3.2.0002.10426.317975-linux-317975.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/320840/arch/Linux/installer/slvoice-3.2.0002.10426.320840-linux-320840.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2068,16 +2068,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd3ea2ef3813441ab7f723e547b9fd12</string>
+              <string>26a81d066ef683edb20022ee2446b44e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/317975/arch/CYGWIN/installer/slvoice-4.7.0004.23800.317975-windows-317975.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/320840/arch/CYGWIN/installer/slvoice-4.7.0004.24372.320840-windows-320840.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.2.0002.10426.317975</string>
+        <string>4.7.0004.24372.320840</string>
       </map>
       <key>tut</key>
       <map>
