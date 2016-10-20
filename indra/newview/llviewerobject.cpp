@@ -370,7 +370,7 @@ void LLViewerObject::markDead()
 		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
 		{
 			// This case is needed for indirectly attached mesh objects.
-			av->resetJointPositionsOnDetach(mesh_id);
+			av->resetJointsOnDetach(mesh_id);
 		}
 
 		// Mark itself as dead
@@ -3479,7 +3479,7 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
+F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
 {
 	return 0.f;
 }
@@ -3489,7 +3489,12 @@ U32 LLViewerObject::getTriangleCount(S32* vcount) const
 	return 0;
 }
 
-U32 LLViewerObject::getHighLODTriangleCount()
+U32 LLViewerObject::getLODTriangleCount(S32 lod) const
+{
+    return 0;
+}
+
+U32 LLViewerObject::getHighLODTriangleCount() const
 {
 	return 0;
 }

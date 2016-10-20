@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="all"
- height="408"
+ height="438"
  label="Sounds"
  layout="topleft"
  left="102"

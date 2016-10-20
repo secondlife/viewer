@@ -68,12 +68,10 @@ class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
-struct LLVOAvatarBoneInfo;
-struct LLVOAvatarChildJoint;
-//class LLViewerJoint;
+
 struct LLAppearanceMessageContents;
-struct LLVOAvatarSkeletonInfo;
 class LLViewerJointMesh;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -201,11 +199,18 @@ public:
 	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
+	LLJoint*		        getJoint(S32 num);
 	
-	void 					addAttachmentPosOverridesForObject(LLViewerObject *vo);
-	void					resetJointPositionsOnDetach(const LLUUID& mesh_id);
-	void					resetJointPositionsOnDetach(LLViewerObject *vo);
-	void					clearAttachmentPosOverrides();
+	void 					addAttachmentOverridesForObject(LLViewerObject *vo);
+	void					resetJointsOnDetach(const LLUUID& mesh_id);
+	void					resetJointsOnDetach(LLViewerObject *vo);
+    bool					jointIsRiggedTo(const std::string& joint_name);
+    bool					jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo);
+	void					clearAttachmentOverrides();
+	void					rebuildAttachmentOverrides();
+    void                    showAttachmentOverrides(bool verbose = false) const;
+    void                    getAttachmentOverrideNames(std::set<std::string>& pos_names, 
+                                                       std::set<std::string>& scale_names) const;
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
@@ -258,13 +263,13 @@ public:
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	
-	U32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
-	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
+	U32				getVisualComplexity() const		{ return mVisualComplexity;	};		// Numbers calculated here by rendering AV
+	F32				getAttachmentSurfaceArea() const { return mAttachmentSurfaceArea; };		// estimated surface area of attachments
     void            addAttachmentArea(F32 delta_area);
     void            subtractAttachmentArea(F32 delta_area);
 
-	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
-	void			setReportedVisualComplexity(U32 value)			{ mReportedVisualComplexity = value;			};
+	U32				getReportedVisualComplexity() const { return mReportedVisualComplexity; };	// Numbers as reported by the SL server
+	void			setReportedVisualComplexity(U32 value) { mReportedVisualComplexity = value;	};
 	
 	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
 	const LLColor4 &  getMutedAVColor()				{ return mMutedAVColor;			};
@@ -325,6 +330,9 @@ public:
 	static void 	logPendingPhasesAllAvatars();
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
+    static LLSD     getAllAvatarsFrameData();
+    LLSD            getFrameData() const;
+
     void            calcMutedAVColor();
 
 protected:
@@ -364,10 +372,14 @@ protected:
 	/*virtual*/ LLAvatarJointMesh*	createAvatarJointMesh(); // Returns LLViewerJointMesh
 public:
 	void				updateHeadOffset();
+    void				debugBodySize() const;
 	void				postPelvisSetRecalc( void );
 
 	/*virtual*/ BOOL	loadSkeletonNode();
+    void                initAttachmentPoints(bool ignore_hud_joints = false);
 	/*virtual*/ void	buildCharacter();
+    void                resetVisualParams();
+    void				resetSkeleton();
 
 	LLVector3			mCurRootToHeadOffset;
 	LLVector3			mTargetRootToHeadOffset;
@@ -404,11 +416,15 @@ public:
 	F32			getLastSkinTime() { return mLastSkinTime; }
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
+	void		renderBones();
 	void		renderJoints();
 	static void	deleteCachedImages(bool clearAll=true);
 	static void	destroyGL();
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
+
+    // FrameData is used for detailed logging of avatar state in performance log. Track whether stale to avoid excess overhead.
+    bool 		mFrameDataStale;
         
   private:
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
@@ -420,10 +436,10 @@ public:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
-	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
-	mutable U32  mVisualComplexity;
-	mutable bool mVisualComplexityStale;
-	U32          mReportedVisualComplexity; // from other viewers through the simulator
+	U32  		mVisualComplexity;
+	bool 		mVisualComplexityStale;
+	U32         mReportedVisualComplexity; // from other viewers through the simulator
+
 
 	bool		mCachedInMuteList;
 	F64			mCachedMuteListUpdateTime;
@@ -436,7 +452,6 @@ public:
 public:
 	/*virtual*/ void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 	BOOL 		morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
-
 	
 	//--------------------------------------------------------------------
 	// Global colors
@@ -668,9 +683,12 @@ protected:
  **                    APPEARANCE
  **/
 
+    LLPointer<LLAppearanceMessageContents> 	mLastProcessedAppearance;
+    
 public:
 	void 			parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& msg);
 	void 			processAvatarAppearance(LLMessageSystem* mesgsys);
+    void            applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params);
 	void 			hideSkirt();
 	void			startAppearanceAnimation();
 	

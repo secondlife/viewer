@@ -182,6 +182,8 @@ public:
 	void	applyMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
 	void	addPendingMorphMask() { mNumMorphMasksPending++; }
 
+    void    applyVolumeChanges(F32 delta_weight); // SL-315 - for resetSkeleton()
+
 	void* operator new(size_t size)
 	{
 		return ll_aligned_malloc_16(size);

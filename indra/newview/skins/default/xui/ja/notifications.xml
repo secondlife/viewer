@@ -498,6 +498,9 @@ L$ が不足しているのでこのグループに参加することができ�
 	<notification name="CannotWearInfoNotComplete">
 		まだ読み込まれていないため、そのアイテムを装着できません。後でやり直してください。
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		ログインするためにパスワードを入力してください
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		注意：記入漏れの箇所があります。
 アバターのユーザー名を入力してください。
@@ -565,6 +568,9 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="ChangeConnectionPort">
 		ポートの設定は [APP_NAME] を再起動後に反映されます。
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		デバッグ設定の変更は [APP_NAME] を再起動後に反映されます。
 	</notification>
 	<notification name="ChangeSkin">
 		新しいスキンは [APP_NAME] を再起動後に表示されます。
@@ -1395,12 +1401,13 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 			<ignore name="ignore" text="衣類がダウンロードされるまで時間がかかっているとき"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		ご使用の [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 表示の複雑さ] は [AGENT_COMPLEXITY] です。
+	<notification name="AgentComplexityWithVisibility">
+		あなたの [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] は [AGENT_COMPLEXITY] です。
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="アバターの複雑度が高すぎる場合は警告する" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		ご使用の [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 表示の複雑さ] は [AGENT_COMPLEXITY] です。
+		あなたの [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] は [AGENT_COMPLEXITY] です。
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] のインストールが完了しました。
@@ -1518,6 +1525,10 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 この操作を行うと、現在の地形が上昇・下降の制限範囲の中心となり、「復元」ツールのデフォルトになります。
 操作を続行しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		使用しようとしている隆起範囲の低い値は高い値よりも大きくなっています。それでも続けますか？
+		<usetemplate canceltext="聞かないでください" name="yesnocancelbuttons" notext="取り消し" yestext="Ok"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		許可住人は [MAX_AGENTS] 人までです。
@@ -1752,14 +1763,6 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepartError">
-		グループを抜けることができません: [reason]。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		グループ [group_name] を抜けました。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2442,6 +2445,10 @@ Linden Lab
 		ごみ箱の中身をすべて削除しますか？
 		<usetemplate ignoretext="インベントリのごみ箱フォルダを空にする前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
+	<notification name="TrashIsFull">
+		ゴミ箱があふれています。これはログイン時に問題を引き起こします。
+		<usetemplate name="okcancelbuttons" notext="後でゴミ箱を空にする" yestext="今すぐゴミ箱を空にする"/>
+	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		トラベル、Web、検索の履歴をすべて削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
@@ -3032,7 +3039,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 
 [MESSAGE]
 
-送信元のオブジェクト：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;、所有者：[NAME_SLURL]
+送信元のオブジェクト：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;、所有者:[NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="ページに移動"/>
 			<button name="Cancel" text="取り消し"/>
@@ -3298,11 +3305,15 @@ M キーを押して変更します。
 	<notification name="AttachmentSaved">
 		アタッチメントが保存されました。
 	</notification>
-	<notification name="PresetNotSaved">
-		プリセット [NAME] の保存中にエラーが発生しました。
+	<notification name="AppearanceToXMLSaved">
+		外観が XML で [PATH] に保存されました
 	</notification>
-	<notification name="PresetNotDeleted">
-		プリセット [NAME] の削除中にエラーが発生しました。
+	<notification name="AppearanceToXMLFailed">
+		外観を XML に保存できませんでした。
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+プリセット [NAME] の削除エラー。
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		ヘルプトピックが見つかりませんでした。
@@ -4110,6 +4121,9 @@ M キーを押して変更します。
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		オブジェクトの着用に使用できるスクリプトリソースが足りません。
+	</notification>
+	<notification name="IllegalAttachment">
+		添付ファイルはアバターの存在しない点を要求しました。代わりに胸に添付されていました。
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		オブジェクトをここにドロップできません。フリートライアル領域をお試しください。

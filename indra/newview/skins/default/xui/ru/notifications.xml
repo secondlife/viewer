@@ -480,6 +480,9 @@
 	<notification name="CannotWearInfoNotComplete">
 		Нельзя надеть эту вещь, так как она еще не загружена. Повторите попытку через минуту.
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Введите пароль для входа в мир.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Ай-яй-яй! Что-то осталось незаполненным.
 Необходимо ввести имя пользователя для вашего аватара.
@@ -547,6 +550,9 @@
 	</notification>
 	<notification name="ChangeConnectionPort">
 		Настройки порта начнут действовать после перезапуска [APP_NAME].
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		Эта настройка отладки вступит в силу после перезапуска [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
 		Новая кожа будет видна после перезапуска [APP_NAME].
@@ -1366,12 +1372,13 @@
 			<ignore name="ignore" text="Загрузка одежды занимает значительное время"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		Ваша [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 визуальная сложность]: [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		Ваша [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 сложность аватара]: [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="Предупреждать о превышении сложности аватара" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		Ваша [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 визуальная сложность]: [AGENT_COMPLEXITY].
+		Ваша [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 сложность аватара]: [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		Установка [APP_NAME] завершена.
@@ -1485,6 +1492,10 @@
 	<notification name="ConfirmBakeTerrain">
 		Вы действительно хотите зафиксировать текущий ландшафт, сделать его высоту средней точкой для верхней и нижней точек ландшафта и принять по умолчанию для функции «Вернуть»?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		Вы собираетесь использовать минимальные значения, которые больше, чем максимальные для диапазона высот. Начать?
+		<usetemplate canceltext="Не спрашивать" name="yesnocancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		У вас может быть не более [MAX_AGENTS] допущенных жителей.
@@ -1721,14 +1732,6 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Невозможно покинуть группу. Вы не можете покинуть группу, так как вы ее последний владелец. Сначала назначьте владельцем другого участника.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepartError">
-		Невозможно покинуть группу: [reason].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		Вы покинули группу [group_name].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2399,6 +2402,10 @@ http://secondlife.com/download.
 	<notification name="ConfirmEmptyTrash">
 		Вы действительно хотите необратимо удалить содержимое корзины?
 		<usetemplate ignoretext="Подтверждать перед опорожнением корзины инвентаря" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="TrashIsFull">
+		Ваша корзина переполнена. Это может вызвать проблемы при входе.
+		<usetemplate name="okcancelbuttons" notext="Я очищу корзину позже" yestext="Очистить корзину сейчас"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Вы действительно хотите удалить журнал своих перемещений, веб-страниц и поиска?
@@ -3257,11 +3264,15 @@ http://secondlife.com/download.
 	<notification name="AttachmentSaved">
 		Присоединение сохранено.
 	</notification>
-	<notification name="PresetNotSaved">
-		Ошибка при сохранении пресета [NAME].
+	<notification name="AppearanceToXMLSaved">
+		Внешность сохранена в формате XML в [PATH]
 	</notification>
-	<notification name="PresetNotDeleted">
-		Ошибка при удалении пресета [NAME].
+	<notification name="AppearanceToXMLFailed">
+		Не удалось сохранить внешность в XML.
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+Ошибка при удалении пресета [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Невозможно найти раздел справки для этого элемента.
@@ -4074,6 +4085,9 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Недостаточно свободных ресурсов скриптинга для присоединения объекта!
+	</notification>
+	<notification name="IllegalAttachment">
+		Прикрепляемый объект потребовал несуществующей точки на аватаре. Он был прикреплен к груди.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Здесь нельзя сбрасывать объекты; перейдите в бесплатную область для гостей.

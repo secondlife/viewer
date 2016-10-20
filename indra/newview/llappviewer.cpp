@@ -99,6 +99,7 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
+#include "llskinningutil.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -639,13 +640,15 @@ public:
 	void run()
 	{
 		std::ofstream os(mFile.c_str());
-		
+
+        LLTrace::BlockTimer::writeHeader(os);
 		while (!LLAppViewer::instance()->isQuitting())
 		{
 			LLTrace::BlockTimer::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
+        LLTrace::BlockTimer::writeFooter(os);
 
 		os.close();
 	}
@@ -800,6 +803,9 @@ bool LLAppViewer::init()
 		return false;
 
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
+
+	// initialize skinning util
+	LLSkinningUtil::initClass();
 
 	//set the max heap size.
 	initMaxHeapSize() ;
@@ -1309,6 +1315,7 @@ static LLTrace::BlockTimerStatHandle FTM_PUMP_SERVICE("Service");
 static LLTrace::BlockTimerStatHandle FTM_SERVICE_CALLBACK("Callback");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_AUTOPILOT("Autopilot");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE("Update");
+static LLTrace::BlockTimerStatHandle FTM_FRAME_DATA_LOGGING("FrameDataLogging");
 
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
@@ -1328,7 +1335,45 @@ bool LLAppViewer::frame()
 	LL_RECORD_BLOCK_TIME(FTM_FRAME);
 	LLTrace::BlockTimer::processTimes();
 	LLTrace::get_frame_recording().nextPeriod();
-	LLTrace::BlockTimer::logStats();
+
+    if (LLTrace::BlockTimer::sLog)
+    {
+        static bool first_frame = true;
+        // Output per-frame performance data
+        LL_RECORD_BLOCK_TIME(FTM_FRAME_DATA_LOGGING);
+        if (LLTrace::BlockTimer::sExtendedLogging)
+        {
+            if (LLStartUp::getStartupState() >= STATE_STARTED)
+            {
+                if (first_frame)
+                {
+                    LLSD session_sd;
+                    unsigned char unique_id[MD5HEX_STR_SIZE];
+                    if ( llHashedUniqueID(unique_id) )
+                    {
+                        session_sd["UniqueID"] = (LLSD::String) (char*) unique_id; 
+                    }
+                    session_sd["Platform"] = (LLSD::String) gPlatform;
+                    session_sd["OSVersion"] = (LLSD::String) getOSInfo().getOSVersionString();
+                    session_sd["DebugInfo"] = gDebugInfo;
+                    LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
+                    first_frame = false;
+                }
+                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
+                if (avatar_sd.size()>0)
+                {
+                    LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
+                }
+                LLSD startup_sd = (LLSD::String) LLStartUp::getStartupStateString();
+                LLTrace::BlockTimer::pushLogExtraRecord("StartupState", startup_sd);
+                LLTrace::BlockTimer::logStatsExtended();
+            }
+        }
+        else
+        {
+            LLTrace::BlockTimer::logStats();
+        }
+    }
 
 	LLTrace::get_thread_recorder()->pullFromChildren();
 
@@ -1369,6 +1414,7 @@ bool LLAppViewer::frame()
 		}
 		
 #endif
+
 		//memory leaking simulation
 		LLFloaterMemLeak* mem_leak_instance =
 			LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -2596,6 +2642,10 @@ bool LLAppViewer::initConfiguration()
 	{
 		LLTrace::BlockTimer::sLog = true;
 		LLTrace::BlockTimer::sLogName = std::string("performance");		
+        if (gSavedSettings.getString("PerformanceLogFormat")=="extended")
+        {
+            LLTrace::BlockTimer::sExtendedLogging = true;
+        }
 	}
 	
 	std::string test_name(gSavedSettings.getString("LogMetrics"));
@@ -5833,7 +5883,6 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
 	}
 }
 
-
 /**
  * Attempts to start a multi-threaded metrics report to be sent back to
  * the grid for consumption.
@@ -5851,6 +5900,11 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 		{
 			std::string	caps_url = regionp->getCapability("ViewerMetrics");
 
+            if (gSavedSettings.getBOOL("QAModeMetrics"))
+            {
+                dump_sequential_xml("metric_asset_stats",gViewerAssetStats->asLLSD(true));
+            }
+            
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
 			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));

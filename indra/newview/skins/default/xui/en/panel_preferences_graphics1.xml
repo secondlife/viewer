@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="left|top|right|bottom"
- height="418"
+ height="438"
  label="Graphics"
  layout="topleft"
  left="102"

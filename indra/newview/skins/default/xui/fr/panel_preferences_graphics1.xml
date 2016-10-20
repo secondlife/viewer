@@ -24,10 +24,15 @@
 	<text name="BetterText">
 		Meilleure
 	</text>
+	<slider label="Complexité max. de l&apos;avatar :" name="IndirectMaxComplexity" tool_tip="Contrôle à quel moment un avatar complexe est représenté comme un « jelly baby »"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
 	<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
 	<check_box initial_value="true" label="Modèle d’éclairage avancé" name="UseLightShaders"/>
 	<button label="Enregistrer les paramètres comme préréglage..." name="PrefSaveButton"/>
 	<button label="Charger un préréglage..." name="PrefLoadButton"/>
+	min_val=&quot;0,125&quot;
 	<button label="Supprimer un préréglage..." name="PrefDeleteButton"/>
 	<button label="Réinitialiser les paramètres recommandés" name="Defaults"/>
 	<button label="Paramètres avancés" name="AdvancedSettings"/>

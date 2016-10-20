@@ -54,6 +54,7 @@
 #include "llspatialpartition.h"
 #include "llhudmanager.h"
 #include "llflexibleobject.h"
+#include "llskinningutil.h"
 #include "llsky.h"
 #include "lltexturefetch.h"
 #include "llvector4a.h"
@@ -80,7 +81,7 @@
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 20;
+U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
 
 BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
@@ -1213,7 +1214,7 @@ void LLVOVolume::sculpt()
 	}
 }
 
-S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
+S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius) const
 {
 	S32	cur_detail;
 	if (LLPipeline::sDynamicLOD)
@@ -1227,6 +1228,54 @@ S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
 		cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
 	}
 	return cur_detail;
+}
+
+// ARC FIXME same math as calcLOD, which can be refactored to call this.
+S32 LLVOVolume::getLODAtDistance(F32 distance) const
+{
+	if (mDrawable.isNull())
+	{
+		return 0;
+	}
+
+	F32 radius;
+
+	if (mDrawable->isState(LLDrawable::RIGGED))
+	{
+		LLVOAvatar* avatar = getAvatar(); 
+		
+		// Not sure how this can really happen, but alas it does. Better exit here than crashing.
+		if( !avatar || !avatar->mDrawable )
+		{
+			return FALSE;
+		}
+
+		radius = avatar->getBinRadius();
+	}
+	else
+	{
+		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
+	}
+	
+	distance *= sDistanceFactor;
+
+	F32 rampDist = LLVOVolume::sLODFactor * 2;
+	
+	if (distance < rampDist)
+	{
+		// Boost LOD when you're REALLY close
+		distance *= 1.0f/rampDist;
+		distance *= distance;
+		distance *= rampDist;
+	}
+	
+	// DON'T Compensate for field of view changing on FOV zoom.
+	distance *= F_PI/3.f;
+
+	S32 cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
+                                      ll_round(radius, 0.01f));
+
+    return cur_detail;
 }
 
 BOOL LLVOVolume::calcLOD()
@@ -1261,7 +1310,7 @@ BOOL LLVOVolume::calcLOD()
 	}
 	
 	//hold onto unmodified distance for debugging
-	//F32 debug_distance = distance;
+	F32 debug_distance = distance;
 	
 	distance *= sDistanceFactor;
 
@@ -1279,15 +1328,15 @@ BOOL LLVOVolume::calcLOD()
 	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-									ll_round(radius, 0.01f));
+                                  ll_round(radius, 0.01f));
 
 
+    llassert(cur_detail == getLODAtDistance(debug_distance));
+    
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
-		//setDebugText(llformat("%.2f:%.2f, %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
-
-		setDebugText(llformat("%d", mDrawable->getFace(0)->getTextureIndex()));
+		setDebugText(llformat("%.2f:%.2f, LOD %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
 	}
 
 	if (cur_detail != mLOD)
@@ -1313,7 +1362,13 @@ BOOL LLVOVolume::updateLOD()
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		mLODChanged = TRUE;
-	}
+
+        if (mDrawable->isState(LLDrawable::RIGGED))
+        {
+            LLVOAvatar* avatar = getAvatar(); 
+            avatar->mFrameDataStale = true;
+        }
+    }
 	else
 	{
 		F32 new_radius = getBinRadius();
@@ -3355,7 +3410,7 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // total cost is returned value + 5 * size of the resulting set.
 // Cannot include cost of textures, as they may be re-used in linked
 // children, and cost should only be increased for unique textures  -Nyx
-U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
+U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -3414,11 +3469,13 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	if (has_volume)
 	{
 		volume_params = getVolume()->getParams();
+        // ARC FIXME not used
 		path_params = volume_params.getPathParams();
+        // ARC FIXME not used
 		profile_params = volume_params.getProfileParams();
 
 		F32 weighted_triangles = -1.0;
-		getStreamingCost(NULL, NULL, &weighted_triangles);
+		getStreamingCost(NULL, NULL, &weighted_triangles, sdp);
 
 		if (weighted_triangles > 0.0)
 		{
@@ -3431,10 +3488,21 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		num_triangles = 4;
 	}
 
+    if (sdp)
+    {
+        (*sdp)["isMesh"] = (LLSD::Boolean) isMesh();
+        (*sdp)["weighted_triangles"] = (LLSD::Integer) num_triangles;
+    }
+
 	if (isSculpted())
 	{
 		if (isMesh())
 		{
+            if (sdp)
+            {
+                (*sdp)["LOD"] = getLOD();
+            }
+
 			// base cost is dependent on mesh complexity
 			// note that 3 is the highest LOD as of the time of this coding.
 			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
@@ -3602,6 +3670,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		num_particles = num_particles > ARC_PARTICLE_MAX ? ARC_PARTICLE_MAX : num_particles;
 		F32 part_size = (llmax(part_data->mStartScale[0], part_data->mEndScale[0]) + llmax(part_data->mStartScale[1], part_data->mEndScale[1])) / 2.f;
 		shame += num_particles * part_size * ARC_PARTICLE_COST;
+
+        if (sdp)
+        {
+            (*sdp)["num_particles"] = (LLSD::Integer) num_particles;
+            (*sdp)["part_size"] = (LLSD::Real) part_size;
+        }
 	}
 
 	if (produces_light)
@@ -3619,16 +3693,48 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		mRenderComplexity_current = (S32)shame;
 	}
 
+    if (sdp)
+    {
+        (*sdp)["planar"] = (LLSD::Integer) animtex;
+        (*sdp)["animtex"] = (LLSD::Integer) animtex;
+        (*sdp)["alpha"] = (LLSD::Integer) alpha;
+        (*sdp)["invisi"] = (LLSD::Integer) invisi;
+        (*sdp)["glow"] = (LLSD::Integer) glow;
+        (*sdp)["bump"] = (LLSD::Integer) bump;
+        (*sdp)["shiny"] = (LLSD::Integer) shiny;
+        (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
+        (*sdp)["flexi"] = (LLSD::Integer) flexi;
+        (*sdp)["particles"] = (LLSD::Integer) particles;
+        (*sdp)["produces_light"] = (LLSD::Integer) produces_light;
+        (*sdp)["media_faces"] = (LLSD::Integer) media_faces;
+        (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
+    }
+    
 	return (U32)shame;
 }
 
-F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
+F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
 {
 	F32 radius = getScale().length()*0.5f;
 
+    if (sdp)
+    {
+        (*sdp)["lodAtDistance"] = LLSD::emptyMap();
+        F32 test_radius = 0.0;
+        S32 lod = getLODAtDistance(test_radius);
+        (*sdp)["lodAtDistance"][lod] = test_radius;
+        while (lod>0)
+        {
+            test_radius += 4;
+            lod = getLODAtDistance(test_radius);
+            (*sdp)["lodAtDistance"][lod] = test_radius;
+        }
+        (*sdp)["lodAtDistance"][lod] = test_radius;
+    }
+    
 	if (isMesh())
 	{
-		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
+		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value, sdp);
 	}
 	else
 	{
@@ -3642,7 +3748,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 		header["medium_lod"]["size"] = counts[2] * 10;
 		header["high_lod"]["size"] = counts[3] * 10;
 
-		return LLMeshRepository::getStreamingCost(header, radius, NULL, NULL, -1, unscaled_value);
+		return LLMeshRepository::getStreamingCost(header, radius, NULL, NULL, -1, unscaled_value, sdp);
 	}	
 }
 
@@ -3651,6 +3757,18 @@ void LLVOVolume::updateRenderComplexity()
 {
 	mRenderComplexity_last = mRenderComplexity_current;
 	mRenderComplexity_current = 0;
+}
+
+LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures) const
+{
+    LLSD sd;
+    sd["TriangleCount"] = (LLSD::Integer) getTriangleCount();
+    sd["TriangleCount_Lowest"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+    sd["TriangleCount_Low"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_LOW);
+    sd["TriangleCount_Medium"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_MEDIUM);
+    sd["TriangleCount_HIGH"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_HIGH);
+    getRenderCost(textures, &sd);
+    return sd;
 }
 
 U32 LLVOVolume::getTriangleCount(S32* vcount) const
@@ -3665,7 +3783,7 @@ U32 LLVOVolume::getTriangleCount(S32* vcount) const
 	return count;
 }
 
-U32 LLVOVolume::getHighLODTriangleCount()
+U32 LLVOVolume::getLODTriangleCount(S32 lod) const
 {
 	U32 ret = 0;
 
@@ -3673,16 +3791,16 @@ U32 LLVOVolume::getHighLODTriangleCount()
 
 	if (!isSculpted())
 	{
-		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
 		ret = ref->getNumTriangles();
 		LLPrimitive::getVolumeManager()->unrefVolume(ref);
 	}
 	else if (isMesh())
 	{
-		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
 		if (!ref->isMeshAssetLoaded() || ref->getNumVolumeFaces() == 0)
 		{
-			gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+			gMeshRepo.loadMesh(this, volume->getParams(), lod);
 		}
 		ret = ref->getNumTriangles();
 		LLPrimitive::getVolumeManager()->unrefVolume(ref);
@@ -3693,6 +3811,11 @@ U32 LLVOVolume::getHighLODTriangleCount()
 	}
 
 	return ret;
+}
+
+U32 LLVOVolume::getHighLODTriangleCount() const
+{
+    return getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
 //static
@@ -4180,27 +4303,11 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	}
 
 	//build matrix palette
-	static const size_t kMaxJoints = 52;
+	static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
 
-	LLMatrix4a mp[kMaxJoints];
-	LLMatrix4* mat = (LLMatrix4*) mp;
-	
-	U32 maxJoints = llmin(skin->mJointNames.size(), kMaxJoints);
-	for (U32 j = 0; j < maxJoints; ++j)
-	{
-		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
-        if (!joint)
-        {
-            // Fall back to a point inside the avatar if mesh is
-            // rigged to an unknown joint.
-            joint = avatar->getJoint("mPelvis");
-        }
-		if (joint)
-		{
-			mat[j] = skin->mInvBindMatrix[j];
-			mat[j] *= joint->getWorldMatrix();
-		}
-	}
+	LLMatrix4a mat[kMaxJoints];
+	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
+    LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
 
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
@@ -4212,6 +4319,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 		if ( weight )
 		{
+            LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
 			LLMatrix4a bind_shape_matrix;
 			bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
@@ -4221,40 +4329,11 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			{
 				LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
 
+                U32 max_joints = LLSkinningUtil::getMaxJointCount();
 				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
 				{
 					LLMatrix4a final_mat;
-					final_mat.clear();
-
-					S32 idx[4];
-
-					LLVector4 wght;
-
-					F32 scale = 0.f;
-					for (U32 k = 0; k < 4; k++)
-					{
-						F32 w = weight[j][k];
-
-						idx[k] = (S32) floorf(w);
-						wght[k] = w - floorf(w);
-						scale += wght[k];
-					}
-                    // This is enforced  in unpackVolumeFaces()
-                    llassert(scale>0.f);
-                    wght *= 1.f / scale;
-
-					for (U32 k = 0; k < 4; k++)
-					{
-						F32 w = wght[k];
-
-						LLMatrix4a src;
-						// Insure ref'd bone is in our clamped array of mats
-						// clamp idx to maxJoints to avoid reading garbage off stack in release
-                        S32 index = llclamp((S32)idx[k],(S32)0,(S32)kMaxJoints-1);
-						src.setMul(mp[index], w);
-						final_mat.add(src);
-					}
-
+                    LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 				
 					LLVector4a& v = vol_face.mPositions[j];
 					LLVector4a t;
@@ -4812,12 +4891,22 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
 			bool rigged = vobj->isAttachment() && 
-						vobj->isMesh() && 
-						gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
+                          vobj->isMesh() && 
+						  gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
 
 			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
 			bool is_rigged = false;
+
+            if (rigged && pAvatarVO)
+            {
+                pAvatarVO->addAttachmentOverridesForObject(vobj);
+                if (debugLoggingEnabled("Avatar") && pAvatarVO->isSelf())
+                {
+                    bool verbose = true;
+					pAvatarVO->showAttachmentOverrides(verbose);
+				}
+            }
 
 			//for each face
 			for (S32 i = 0; i < drawablep->getNumFaces(); i++)
@@ -4835,8 +4924,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//sum up face verts and indices
 				drawablep->updateFaceSize(i);
 			
-			
-
 				if (rigged) 
 				{
 					if (!facep->isState(LLFace::RIGGED))
@@ -4850,13 +4937,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					//get drawpool of avatar with rigged face
 					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);				
 					
-					// FIXME should this be inside the face loop?
-					// doesn't seem to depend on any per-face state.
-					if ( pAvatarVO )
-					{
-						pAvatarVO->addAttachmentPosOverridesForObject(vobj);
-					}
-
 					if (pool)
 					{
 						const LLTextureEntry* te = facep->getTextureEntry();

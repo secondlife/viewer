@@ -15,7 +15,7 @@
 	<text name="AvatarText">
 		Avatar
 	</text>
-	<slider label="Complexité max. :" name="IndirectMaxComplexity" tool_tip="Contrôle à quel moment un avatar complexe est représenté comme un « jelly doll » (forme de couleur unie)"/>
+	<slider label="Complexité max. :" name="IndirectMaxComplexity" tool_tip="Contrôle à quel moment un avatar complexe est représenté comme un « jelly baby »"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

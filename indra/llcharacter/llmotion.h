@@ -181,7 +181,7 @@ protected:
 	F32 mSendStopTimestamp;		// time when simulator should be told to stop this motion
 	F32 mResidualWeight;		// blend weight at beginning of stop motion phase
 	F32 mFadeWeight;			// for fading in and out based on LOD
-	U8	mJointSignature[3][LL_CHARACTER_MAX_JOINTS];	// signature of which joints are animated at what priority
+	U8	mJointSignature[3][LL_CHARACTER_MAX_ANIMATED_JOINTS];	// signature of which joints are animated at what priority
 	void (*mDeactivateCallback)(void* data);
 	void* mDeactivateCallbackUserData;
 };
