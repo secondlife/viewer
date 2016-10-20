@@ -307,6 +307,7 @@ public:
 
 	static bool 		sIgnoreLoadedCallback;
     std::vector<S32> mLodsQuery;
+    std::vector<S32> mLodsWithParsingError;
 
 protected:
 

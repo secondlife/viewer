@@ -1184,6 +1184,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
 , mLodsQuery()
+, mLodsWithParsingError()
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
@@ -1902,7 +1903,14 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 	{
 		mLoading = false ;
 		mModelLoader = NULL;
+		mLodsWithParsingError.push_back(loaded_lod);
 		return ;
+	}
+
+	mLodsWithParsingError.erase(std::remove(mLodsWithParsingError.begin(), mLodsWithParsingError.end(), loaded_lod), mLodsWithParsingError.end());
+	if(mLodsWithParsingError.empty())
+	{
+		mFMP->childEnable( "calculate_btn" );
 	}
 
 	// Copy determinations about rig so UI will reflect them
@@ -2639,17 +2647,7 @@ void LLModelPreview::updateStatusMessages()
                 setLoadState( LLModelLoader::ERROR_MATERIALS );
                 mFMP->childDisable( "calculate_btn" );
             }
-
-            int refFaceCnt = 0;
-            int modelFaceCnt = 0;
-
-            if (!lod_model->matchMaterialOrder(model_high_lod, refFaceCnt, modelFaceCnt ) )
-			{
-                setLoadState( LLModelLoader::ERROR_MATERIALS );
-				mFMP->childDisable( "calculate_btn" );
-			}
-
-            if (lod_model)
+            else
 			{
 					//for each model in the lod
 				S32 cur_tris = 0;
