@@ -79,6 +79,7 @@
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
+#include "lltoolface.h"
 #include "llhints.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -5184,30 +5185,83 @@ class LLToolsEnableSelectNextPart : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = (gSavedSettings.getBOOL("EditLinkedParts") &&
-				 !LLSelectMgr::getInstance()->getSelection()->isEmpty());
+        bool new_value = (!LLSelectMgr::getInstance()->getSelection()->isEmpty()
+                          && (gSavedSettings.getBOOL("EditLinkedParts")
+                              || LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()));
 		return new_value;
 	}
 };
 
-// Cycle selection through linked children in selected object.
+// Cycle selection through linked children or/and faces in selected object.
 // FIXME: Order of children list is not always the same as sim's idea of link order. This may confuse
 // resis. Need link position added to sim messages to address this.
-class LLToolsSelectNextPart : public view_listener_t
+class LLToolsSelectNextPartFace : public view_listener_t
 {
-	bool handleEvent(const LLSD& userdata)
-	{
+    bool handleEvent(const LLSD& userdata)
+    {
+        bool cycle_faces = LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
+        bool cycle_linked = gSavedSettings.getBOOL("EditLinkedParts");
+
+        if (!cycle_faces && !cycle_linked)
+        {
+            // Nothing to do
+            return true;
+        }
+
+        bool fwd = (userdata.asString() == "next");
+        bool prev = (userdata.asString() == "previous");
+        bool ifwd = (userdata.asString() == "includenext");
+        bool iprev = (userdata.asString() == "includeprevious");
+
+        LLViewerObject* to_select = NULL;
+        bool restart_face_on_part = !cycle_faces;
+        S32 new_te = 0;
+
+        if (cycle_faces)
+        {
+            // Cycle through faces of current selection, if end is reached, swithc to next part (if present)
+            LLSelectNode* nodep = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+            if (!nodep) return false;
+            to_select = nodep->getObject();
+            if (!to_select) return false;
+
+            S32 te_count = to_select->getNumTEs();
+            S32 selected_te = nodep->getLastSelectedTE();
+
+            if ((fwd || ifwd) && selected_te >= 0)
+            {
+                if (selected_te + 1 < te_count)
+                {
+                    // select next face
+                    new_te = selected_te + 1;
+                }
+                else
+                {
+                    // restart from first face on next part
+                    restart_face_on_part = true;
+                }
+            }
+            else if ((prev || iprev) && selected_te < te_count)
+            {
+                if (selected_te - 1 >= 0)
+                {
+                    // select previous face
+                    new_te = selected_te - 1;
+                }
+                else
+                {
+                    // restart from last face on next part
+                    restart_face_on_part = true;
+                }
+            }
+        }
+
 		S32 object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
-		if (gSavedSettings.getBOOL("EditLinkedParts") && object_count)
+		if (cycle_linked && object_count && restart_face_on_part)
 		{
 			LLViewerObject* selected = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 			if (selected && selected->getRootEdit())
 			{
-				bool fwd = (userdata.asString() == "next");
-				bool prev = (userdata.asString() == "previous");
-				bool ifwd = (userdata.asString() == "includenext");
-				bool iprev = (userdata.asString() == "includeprevious");
-				LLViewerObject* to_select = NULL;
 				LLViewerObject::child_list_t children = selected->getRootEdit()->getChildren();
 				children.push_front(selected->getRootEdit());	// need root in the list too
 
@@ -5249,22 +5303,40 @@ class LLToolsSelectNextPart : public view_listener_t
 						}
 					}
 				}
-
-				if (to_select)
-				{
-					if (gFocusMgr.childHasKeyboardFocus(gFloaterTools))
-					{
-						gFocusMgr.setKeyboardFocus(NULL);	// force edit toolbox to commit any changes
-					}
-					if (fwd || prev)
-					{
-						LLSelectMgr::getInstance()->deselectAll();
-					}
-					LLSelectMgr::getInstance()->selectObjectOnly(to_select);
-					return true;
-				}
 			}
 		}
+
+        if (to_select)
+        {
+            if (gFocusMgr.childHasKeyboardFocus(gFloaterTools))
+            {
+                gFocusMgr.setKeyboardFocus(NULL);	// force edit toolbox to commit any changes
+            }
+            if (fwd || prev)
+            {
+                LLSelectMgr::getInstance()->deselectAll();
+            }
+            if (cycle_faces)
+            {
+                if (restart_face_on_part)
+                {
+                    if (fwd || ifwd)
+                    {
+                        new_te = 0;
+                    }
+                    else
+                    {
+                        new_te = to_select->getNumTEs() - 1;
+                    }
+                }
+                LLSelectMgr::getInstance()->addAsIndividual(to_select, new_te, FALSE);
+            }
+            else
+            {
+                LLSelectMgr::getInstance()->selectObjectOnly(to_select);
+            }
+            return true;
+        }
 		return true;
 	}
 };
@@ -8746,7 +8818,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEditLinkedParts(), "Tools.EditLinkedParts");
 	view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
 	view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
-	view_listener_t::addMenu(new LLToolsSelectNextPart(), "Tools.SelectNextPart");
+	view_listener_t::addMenu(new LLToolsSelectNextPartFace(), "Tools.SelectNextPart");
 	commit.add("Tools.Link", boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
 	commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
