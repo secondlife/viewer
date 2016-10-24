@@ -8382,6 +8382,40 @@ void dump_sequential_xml(const std::string outprefix, const LLSD& content)
 	LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
 }
 
+void LLVOAvatar::getSortedJointNames(S32 joint_type, std::vector<std::string>& result) const
+{
+    result.clear();
+    if (joint_type==0)
+    {
+        avatar_joint_list_t::const_iterator iter = mSkeleton.begin();
+        avatar_joint_list_t::const_iterator end  = mSkeleton.end();
+		for (; iter != end; ++iter)
+		{
+			LLJoint* pJoint = (*iter);
+            result.push_back(pJoint->getName());
+        }
+    }
+    else if (joint_type==1)
+    {
+        for (S32 i = 0; i < mNumCollisionVolumes; i++)
+        {
+            LLAvatarJointCollisionVolume* pJoint = &mCollisionVolumes[i];
+            result.push_back(pJoint->getName());
+        }
+    }
+    else if (joint_type==2)
+    {
+		for (LLVOAvatar::attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
+			 iter != mAttachmentPoints.end(); ++iter)
+		{
+			LLViewerJointAttachment* pJoint = iter->second;
+			if (!pJoint) continue;
+            result.push_back(pJoint->getName());
+        }
+    }
+    std::sort(result.begin(), result.end());
+}
+
 void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_wearables )
 {
 	std::string outprefix(prefix);
@@ -8468,21 +8502,29 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
                          mRoot->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
 
         // Bones
-		avatar_joint_list_t::iterator iter = mSkeleton.begin();
-		avatar_joint_list_t::iterator end  = mSkeleton.end();
-		for (; iter != end; ++iter)
-		{
-			LLJoint* pJoint = (*iter);
+        std::vector<std::string> bone_names, cv_names, attach_names, all_names;
+        getSortedJointNames(0, bone_names);
+        getSortedJointNames(1, cv_names);
+        getSortedJointNames(2, attach_names);
+        all_names.insert(all_names.end(), bone_names.begin(), bone_names.end());
+        all_names.insert(all_names.end(), cv_names.begin(), cv_names.end());
+        all_names.insert(all_names.end(), attach_names.begin(), attach_names.end());
+
+        for (std::vector<std::string>::iterator name_iter = bone_names.begin();
+             name_iter != bone_names.end(); ++name_iter)
+        {
+            LLJoint *pJoint = getJoint(*name_iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
 			apr_file_printf( file, "\t\t<bone name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
-		}
+        }
 
         // Collision volumes
-        for (S32 i = 0; i < mNumCollisionVolumes; i++)
+        for (std::vector<std::string>::iterator name_iter = cv_names.begin();
+             name_iter != cv_names.end(); ++name_iter)
         {
-            LLAvatarJointCollisionVolume* pJoint = &mCollisionVolumes[i];
+            LLJoint *pJoint = getJoint(*name_iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
 			apr_file_printf( file, "\t\t<collision_volume name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
@@ -8490,10 +8532,10 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         }
 
         // Attachment joints
-		for (LLVOAvatar::attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
-			 iter != mAttachmentPoints.end(); ++iter)
-		{
-			LLViewerJointAttachment* pJoint = iter->second;
+        for (std::vector<std::string>::iterator name_iter = attach_names.begin();
+             name_iter != attach_names.end(); ++name_iter)
+        {
+            LLJoint *pJoint = getJoint(*name_iter);
 			if (!pJoint) continue;
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
@@ -8502,28 +8544,30 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         }
         
         // Joint pos overrides
-		for (iter = mSkeleton.begin(); iter != end; ++iter)
-		{
-			LLJoint* pJoint = (*iter);
+        for (std::vector<std::string>::iterator name_iter = all_names.begin();
+             name_iter != all_names.end(); ++name_iter)
+        {
+            LLJoint *pJoint = getJoint(*name_iter);
 		
 			LLVector3 pos;
 			LLUUID mesh_id;
 
-			if (pJoint->hasAttachmentPosOverride(pos,mesh_id))
+			if (pJoint && pJoint->hasAttachmentPosOverride(pos,mesh_id))
 			{
 				apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
 								 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str());
 			}
 		}
         // Joint scale overrides
-		for (iter = mSkeleton.begin(); iter != end; ++iter)
-		{
-			LLJoint* pJoint = (*iter);
+        for (std::vector<std::string>::iterator name_iter = all_names.begin();
+             name_iter != all_names.end(); ++name_iter)
+        {
+            LLJoint *pJoint = getJoint(*name_iter);
 		
 			LLVector3 scale;
 			LLUUID mesh_id;
 
-			if (pJoint->hasAttachmentScaleOverride(scale,mesh_id))
+			if (pJoint && pJoint->hasAttachmentScaleOverride(scale,mesh_id))
 			{
 				apr_file_printf( file, "\t\t<joint_scale name=\"%s\" scale=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
 								 pJoint->getName().c_str(), scale[0], scale[1], scale[2], mesh_id.asString().c_str());
