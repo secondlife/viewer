@@ -127,12 +127,6 @@ static bool handleDebugAvatarJointsChanged(const LLSD& newvalue)
     return true;
 }
 
-static bool handleDeferredDebugSettingChanged(const LLSD& newvalue)
-{
-    LLNotificationsUtil::add("ChangeDeferredDebugSetting");
-    return true;
-}
-
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
 	// changing shader level may invalidate existing cached bump maps, as the shader type determines the format of the bump map it expects - clear and repopulate the bump cache
