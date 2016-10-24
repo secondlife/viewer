@@ -5522,6 +5522,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 	if (!av || (av != this))
 	{
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+        return;
 	}
 
     LLScopedContextString str("addAttachmentOverridesForObject " + av->getFullname());
