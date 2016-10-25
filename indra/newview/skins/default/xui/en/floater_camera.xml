@@ -43,7 +43,6 @@
      name="controls"
      width="226">
        <panel
-         color="Transparent"
          follows="all"
          height="102"
          layout="topleft"
@@ -99,10 +98,8 @@
         </panel_camera_item>
       </panel>
       <panel
-          color="Transparent"
           follows="all"
           height="68"
-          item_pad="4"
           layout="topleft"
           left="8"
           name="camera_modes_list"

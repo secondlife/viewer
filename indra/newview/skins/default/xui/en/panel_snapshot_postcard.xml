@@ -61,8 +61,7 @@
      right="-2"
      height="319"
      follows="all"
-     halign="center"
-     use_highlighting_on_hover="true">
+     halign="center">
       <panel
        follows="all"
        layout="topleft"

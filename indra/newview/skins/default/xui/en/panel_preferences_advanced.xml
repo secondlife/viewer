@@ -157,7 +157,6 @@
      enabled_control="ShowScriptErrors"
      control_name="ShowScriptErrorsLocation"
      follows="top|left"
-     draw_border="false"
      height="16"
      layout="topleft"
      left_delta="50"

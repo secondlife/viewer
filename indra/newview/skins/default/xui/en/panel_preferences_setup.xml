@@ -140,7 +140,6 @@
 
   <radio_group
    control_name="PreferredBrowserBehavior"
-   draw_border="false"
    follows="left|top"
    height="60"
    layout="topleft"
