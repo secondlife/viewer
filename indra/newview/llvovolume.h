@@ -379,7 +379,7 @@ private:
 public:
 	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
 	static F32 sLODFactor;				// LOD scale factor
-	static F32 sRiggedFactorMultiplier;	// Worn rigged LOD scale factor multiplier
+	static F32 sRiggedLODCompensation;	// HACK: worn rigged LODs often have only high lod, so we are bumping them up withing avatar's visibility
 	static F32 sDistanceFactor;			// LOD distance factor
 
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;

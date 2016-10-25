@@ -8434,6 +8434,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                 if (isSelf()
                     && attached_object
                     && attached_object->isHUDAttachment()
+                    && !attached_object->isTempAttachment()
                     && attached_object->mDrawable)
                 {
                     textures.clear();

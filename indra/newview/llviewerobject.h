@@ -720,6 +720,7 @@ private:
 	void deleteTEImages(); // correctly deletes list of images
 	
 protected:
+
 	typedef std::map<char *, LLNameValue *> name_value_map_t;
 	name_value_map_t mNameValuePairs;	// Any name-value pairs stored by script
 
@@ -756,9 +757,17 @@ protected:
 	callback_list_t mInventoryCallbacks;
 	S16 mInventorySerialNum;
 
+	enum EInventoryRequestState
+	{
+		INVENTORY_REQUEST_STOPPED,
+		INVENTORY_REQUEST_PENDING,
+		INVENTORY_XFER
+	};
+	EInventoryRequestState	mInvRequestState;
+	U64						mInvRequestXFerId;
+	BOOL					mInventoryDirty;
+
 	LLViewerRegion	*mRegionp;					// Region that this object belongs to.
-	F64				mInvRequestExpireTime;
-	BOOL			mInventoryDirty;
 	BOOL			mDead;
 	BOOL			mOrphaned;					// This is an orphaned child
 	BOOL			mUserSelected;				// Cached user select information
