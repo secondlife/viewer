@@ -56,6 +56,7 @@
 #include "llworld.h" //for particle system banning
 #include "llimview.h"
 #include "llnotifications.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
@@ -231,6 +232,16 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		return FALSE;
 	}
 	
+	S32 mute_list_limit = gSavedSettings.getS32("MuteListLimit");
+	if (getMutes().size() >= mute_list_limit)
+	{
+		LL_WARNS() << "Mute limit is reached; ignored" << LL_ENDL;
+		LLSD args;
+		args["MUTE_LIMIT"] = mute_list_limit;
+		LLNotifications::instance().add(LLNotification::Params("MuteLimitReached").substitutions(args));
+		return FALSE;
+	}
+
 	if (mute.mType == LLMute::BY_NAME)
 	{		
 		// Can't mute empty string by name
