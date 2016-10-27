@@ -68,6 +68,7 @@ public:
 	int getTextureHeight() const;
 	int getFullWidth() const { return mFullMediaWidth; };
 	int getFullHeight() const { return mFullMediaHeight; };
+	F64 getZoomFactor() const { return mZoomFactor; };
 	
 	// This may return NULL.  Callers need to check for and handle this case.
 	unsigned char* getBitsData();
@@ -83,7 +84,8 @@ public:
 
 	void setSize(int width, int height);
 	void setAutoScale(bool auto_scale);
-	
+	void setZoomFactor(F64 zoom_factor) { mZoomFactor = zoom_factor; }
+
 	void setBackgroundColor(LLColor4 color) { mBackgroundColor = color; };
 	
 	void setOwner(LLPluginClassMediaOwner *owner) { mOwner = owner; };
@@ -204,7 +206,7 @@ public:
 	bool pluginSupportsMediaBrowser(void);
 	
 	void focus(bool focused);
-	void set_page_zoom_factor( double factor );
+	void set_page_zoom_factor( F64 factor );
 	void clear_cache();
 	void clear_cookies();
 	void set_cookies(const std::string &cookies);
@@ -367,6 +369,8 @@ protected:
 	int			mTextureHeight;
 	int			mMediaWidth;
 	int			mMediaHeight;
+
+	F64			mZoomFactor;
 	
 	float		mRequestedVolume;
 	
