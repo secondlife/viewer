@@ -278,6 +278,11 @@ public:
 	void clearAttachmentScaleOverrides();
     void showAttachmentScaleOverrides(const std::string& av_info) const;
 
+    void getAllAttachmentPosOverrides(S32& num_pos_overrides,
+                                      std::set<LLVector3>& distinct_pos_overrides);
+    void getAllAttachmentScaleOverrides(S32& num_scale_overrides,
+                                        std::set<LLVector3>& distinct_scale_overrides);
+    
     // These are used in checks of whether a pos/scale override is considered significant.
     bool aboveJointPosThreshold(const LLVector3& pos) const;
     bool aboveJointScaleThreshold(const LLVector3& scale) const;

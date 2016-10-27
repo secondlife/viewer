@@ -7684,12 +7684,10 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 		wtype = vparam->getWearableType();
 	}
 	S32 u8_value = F32_to_U8(value,viewer_param->getMinWeight(),viewer_param->getMaxWeight());
-	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" group=\"%d\"/>\n",
-					viewer_param->getID(), viewer_param->getName().c_str(), value, u8_value, type_string.c_str(),
+	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" display=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" group=\"%d\"/>\n",
+					viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getDisplayName().c_str(), value, u8_value, type_string.c_str(),
 					LLWearableType::getTypeName(LLWearableType::EType(wtype)).c_str(),
-					viewer_param->getGroup()
-//					param_location_name(vparam->getParamLocation()).c_str()
-		);
+					viewer_param->getGroup());
 	}
 	
 
@@ -8554,8 +8552,12 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 			if (pJoint && pJoint->hasAttachmentPosOverride(pos,mesh_id))
 			{
-				apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
-								 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str());
+                S32 num_pos_overrides;
+                std::set<LLVector3> distinct_pos_overrides;
+                pJoint->getAllAttachmentPosOverrides(num_pos_overrides, distinct_pos_overrides);
+				apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\" count=\"%d\" distinct=\"%d\"/>\n", 
+								 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str(),
+                                 num_pos_overrides, distinct_pos_overrides.size());
 			}
 		}
         // Joint scale overrides
@@ -8569,8 +8571,12 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 			if (pJoint && pJoint->hasAttachmentScaleOverride(scale,mesh_id))
 			{
-				apr_file_printf( file, "\t\t<joint_scale name=\"%s\" scale=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
-								 pJoint->getName().c_str(), scale[0], scale[1], scale[2], mesh_id.asString().c_str());
+                S32 num_scale_overrides;
+                std::set<LLVector3> distinct_scale_overrides;
+                pJoint->getAllAttachmentPosOverrides(num_scale_overrides, distinct_scale_overrides);
+				apr_file_printf( file, "\t\t<joint_scale name=\"%s\" scale=\"%f %f %f\" mesh_id=\"%s\" count=\"%d\" distinct=\"%d\"/>\n",
+								 pJoint->getName().c_str(), scale[0], scale[1], scale[2], mesh_id.asString().c_str(),
+                                 num_scale_overrides, distinct_scale_overrides.size());
 			}
 		}
 		F32 pelvis_fixup;
