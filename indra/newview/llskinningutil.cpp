@@ -53,6 +53,10 @@ U32 LLSkinningUtil::getMeshJointCount(const LLMeshSkinInfo *skin)
 // static
 void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
 {
+    if (skin->mInvalidJointsScrubbed)
+    {
+        return;
+    }
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
     {
         // Fix invalid names to "mPelvis". Currently meshes with
@@ -63,6 +67,7 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
             skin->mJointNames[j] = "mPelvis";
         }
     }
+    skin->mInvalidJointsScrubbed = true;
 }
 
 // static

@@ -1387,13 +1387,15 @@ bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 
 LLMeshSkinInfo::LLMeshSkinInfo():
     mPelvisOffset(0.0),
-    mLockScaleIfJointPosition(false)
+    mLockScaleIfJointPosition(false),
+    mInvalidJointsScrubbed(false)
 {
 }
 
 LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin):
     mPelvisOffset(0.0),
-    mLockScaleIfJointPosition(false)
+    mLockScaleIfJointPosition(false),
+    mInvalidJointsScrubbed(false)
 {
 	fromLLSD(skin);
 }
