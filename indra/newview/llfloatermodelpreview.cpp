@@ -1756,8 +1756,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 			// this is the initial file picking. Close the whole floater
 			// if we don't have a base model to show for high LOD.
 			mFMP->closeFloater(false);
-			mLoading = false;
 		}
+		mLoading = false;
 		return;
 	}
 
@@ -4515,4 +4515,12 @@ void LLFloaterModelPreview::setPermissonsErrorStatus(S32 status, const std::stri
 	LLNotificationsUtil::add("MeshUploadPermError");
 }
 
+bool LLFloaterModelPreview::isModelLoading()
+{
+	if(mModelPreview)
+	{
+		return mModelPreview->mLoading;
+	}
+	return false;
+}
 

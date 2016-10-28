@@ -93,6 +93,12 @@ class LLFileEnableUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::findInstance("upload_model");
+		if (fmp && fmp->isModelLoading())
+		{
+			return false;
+		}
+
 		return true;
 	}
 };
@@ -359,7 +365,7 @@ class LLFileUploadModel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
-		if (fmp)
+		if (fmp && !fmp->isModelLoading())
 		{
 			fmp->loadModel(3);
 		}
