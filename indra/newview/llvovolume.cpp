@@ -1308,9 +1308,11 @@ BOOL LLVOVolume::calcLOD()
 		distance = mDrawable->mDistanceWRTCamera;
 		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
 	}
-	
+
+#if 0
 	//hold onto unmodified distance for debugging
 	F32 debug_distance = distance;
+#endif
 	
 	distance *= sDistanceFactor;
 
@@ -1331,7 +1333,9 @@ BOOL LLVOVolume::calcLOD()
                                   ll_round(radius, 0.01f));
 
 
+#if 0
     llassert(cur_detail == getLODAtDistance(debug_distance));
+#endif
     
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))

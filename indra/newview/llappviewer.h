@@ -82,6 +82,7 @@ public:
 	virtual bool frame(); // Override for application body logic
 
 	// Application control
+    void doPerFrameStatsLogging();
 	void flushVFSIO(); // waits for vfs transfers to complete
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
 	void fastQuit(S32 error_code = 0); // Shuts down the viewer immediately after sending a logout message

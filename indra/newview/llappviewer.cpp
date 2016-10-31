@@ -1320,22 +1320,8 @@ static LLTrace::BlockTimerStatHandle FTM_FRAME_DATA_LOGGING("FrameDataLogging");
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
-bool LLAppViewer::frame()
+void LLAppViewer::doPerFrameStatsLogging()
 {
-	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-	LLSD newFrame;
-
-	LLTimer frameTimer,idleTimer;
-	LLTimer debugTime;
-
-	//LLPrivateMemoryPoolTester::getInstance()->run(false) ;
-	//LLPrivateMemoryPoolTester::getInstance()->run(true) ;
-	//LLPrivateMemoryPoolTester::destroy() ;
-
-	LL_RECORD_BLOCK_TIME(FTM_FRAME);
-	LLTrace::BlockTimer::processTimes();
-	LLTrace::get_frame_recording().nextPeriod();
-
     if (LLTrace::BlockTimer::sLog)
     {
         static bool first_frame = true;
@@ -1374,7 +1360,25 @@ bool LLAppViewer::frame()
             LLTrace::BlockTimer::logStats();
         }
     }
+}
 
+bool LLAppViewer::frame()
+{
+	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+	LLSD newFrame;
+	LLTimer frameTimer,idleTimer;
+	LLTimer debugTime;
+
+	//LLPrivateMemoryPoolTester::getInstance()->run(false) ;
+	//LLPrivateMemoryPoolTester::getInstance()->run(true) ;
+	//LLPrivateMemoryPoolTester::destroy() ;
+
+	LL_RECORD_BLOCK_TIME(FTM_FRAME);
+	LLTrace::BlockTimer::processTimes();
+	LLTrace::get_frame_recording().nextPeriod();
+
+    doPerFrameStatsLogging();
+    
 	LLTrace::get_thread_recorder()->pullFromChildren();
 
 	//clear call stack records
