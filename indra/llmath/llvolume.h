@@ -953,10 +953,6 @@ public:
 	// mWeights.size() should be empty or match mVertices.size()  
 	LLVector4a* mWeights;
 
-    // Whether or not the weights have been cleaned up and remapped
-    // based on currently supported joints.
-    mutable BOOL mWeightsRemapped;
-
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 	//whether or not face has been cache optimized

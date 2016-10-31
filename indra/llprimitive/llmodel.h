@@ -42,7 +42,7 @@ class domMesh;
 class LLMeshSkinInfo 
 {
 public:
-	LLMeshSkinInfo() { }
+	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
 	void fromLLSD(LLSD& data);
 	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
@@ -52,11 +52,11 @@ public:
     mutable std::vector<S32> mJointNums;
 	std::vector<LLMatrix4> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;
-    std::vector<U32> mJointRemap;
 
 	LLMatrix4 mBindShapeMatrix;
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
+    bool mInvalidJointsScrubbed;
 };
 
 class LLModel : public LLVolume

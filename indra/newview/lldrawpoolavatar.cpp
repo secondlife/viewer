@@ -1550,19 +1550,13 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		return;
 	}
     // FIXME ugly const cast
-    LLSkinningUtil::remapSkinInfoJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
+    LLSkinningUtil::scrubInvalidJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
 
 	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
 	LLDrawable* drawable = face->getDrawable();
 
 	U32 data_mask = face->getRiggedVertexBufferDataMask();
 	
-    if (!vol_face.mWeightsRemapped)
-    {
-        LLSkinningUtil::remapSkinWeights(weight, vol_face.mNumVertices, skin); 
-        vol_face.mWeightsRemapped = TRUE;
-    }
-
 	if (buffer.isNull() || 
 		buffer->getTypeMask() != data_mask ||
 		buffer->getNumVerts() != vol_face.mNumVertices ||

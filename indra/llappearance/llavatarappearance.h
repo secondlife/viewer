@@ -140,8 +140,6 @@ public:
 	typedef std::map<std::string, LLJoint*> joint_map_t;
 	joint_map_t			mJointMap;
 
-    S32					mNextJointNum;
-
     typedef std::map<std::string, LLVector3> joint_state_map_t;
     joint_state_map_t mLastBodySizeState;
     joint_state_map_t mCurrBodySizeState;

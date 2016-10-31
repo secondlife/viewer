@@ -1366,6 +1366,7 @@ bool LLAppViewer::frame()
 {
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
+
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 
@@ -1416,7 +1417,6 @@ bool LLAppViewer::frame()
 		{
 			debugTime.reset();
 		}
-		
 #endif
 
 		//memory leaking simulation

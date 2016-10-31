@@ -1319,6 +1319,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 								name = mJointMap[name];
 							}
 							model->mSkinInfo.mJointNames.push_back(name);
+							model->mSkinInfo.mJointNums.push_back(-1);
 						}
 					}
 					else
@@ -1336,6 +1337,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 									name = mJointMap[name];
 								}
 								model->mSkinInfo.mJointNames.push_back(name);
+								model->mSkinInfo.mJointNums.push_back(-1);
 							}
 						}
 					}
