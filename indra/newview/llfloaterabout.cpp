@@ -90,7 +90,7 @@ public:
 	static LLSD getInfo();
 	void onClickCopyToClipboard();
 	void onClickUpdateCheck();
-    void setUpdateListener();
+    static void setUpdateListener();
 
 private:
 	void setSupportText(const std::string& server_release_notes_url);
@@ -138,7 +138,7 @@ BOOL LLFloaterAbout::postBuild()
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
     
     getChild<LLUICtrl>("update_btn")->setCommitCallback(
-        boost::bind(&LLFloaterAbout::setUpdateListener, this));
+        boost::bind(&LLFloaterAbout::onClickUpdateCheck, this));
 
 	static const LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 
@@ -314,6 +314,11 @@ void LLFloaterAbout::onClickCopyToClipboard()
 	support_widget->deselect();
 }
 
+void LLFloaterAbout::onClickUpdateCheck()
+{
+    setUpdateListener();
+}
+
 void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 {
 #if LL_WINDOWS
@@ -401,17 +406,17 @@ void LLFloaterAbout::setUpdateListener()
         }
     }
     
-    if ( ! downloads)
+    if ( !downloads )
     {
         LLNotificationsUtil::add("UpdateViewerUpToDate");
     }
     else
     {
-        if ( ! done )
+        if ( !done )
         {
             LLNotificationsUtil::add("UpdateDownloadInProgress");
         }
-        else if ( !next and !skip )
+        else if ( (!next) && (!skip) )
         {
             LLNotificationsUtil::add("UpdateDownloadComplete");
         }
@@ -429,6 +434,10 @@ void LLFloaterAboutUtil::registerFloater()
 {
 	LLFloaterReg::add("sl_about", "floater_about.xml",
 		&LLFloaterReg::build<LLFloaterAbout>);
+}
 
+void LLFloaterAboutUtil::checkUpdatesAndNotify()
+{
+    LLFloaterAbout::setUpdateListener();
 }
 
