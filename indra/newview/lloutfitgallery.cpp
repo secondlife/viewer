@@ -498,7 +498,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
 
     // Start observing changes in "My Outfits" category.
     mOutfitsObserver->addCategory(cat_id,
-        boost::bind(&LLOutfitGallery::refreshOutfit, this, cat_id));
+        boost::bind(&LLOutfitGallery::refreshOutfit, this, cat_id), true);
 
     outfit_category->fetch();
     refreshOutfit(cat_id);

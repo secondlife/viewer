@@ -267,14 +267,14 @@ public:
 	 * @return "true" if category was added, "false" if it could
 	 * not be found.
 	 */
-	bool addCategory(const LLUUID& cat_id, callback_t cb);
+	bool addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash = false);
 	void removeCategory(const LLUUID& cat_id);
 
 protected:
 	struct LLCategoryData
 	{
 		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
-
+		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash);
 		callback_t	mCallback;
 		S32			mVersion;
 		S32			mDescendentsCount;
