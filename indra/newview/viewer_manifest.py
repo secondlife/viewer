@@ -386,10 +386,7 @@ class Windows_i686_Manifest(ViewerManifest):
                 print "Skipping fmodex audio library(assuming other audio engine)"
 
             # For textures
-            if self.args['configuration'].lower() == 'debug':
-                self.path("openjpegd.dll")
-            else:
-                self.path("openjpeg.dll")
+            self.path("openjpeg.dll")
 
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
