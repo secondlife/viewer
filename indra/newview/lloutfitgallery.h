@@ -158,6 +158,8 @@ private:
     void moveRowPanel(LLPanel* stack, int left, int bottom);
     std::vector<LLPanel*> mRowPanels;
     std::vector<LLPanel*> mItemPanels;
+    std::vector<LLPanel*> mUnusedRowPanels;
+    std::vector<LLPanel*> mUnusedItemPanels;
     std::vector<LLOutfitGalleryItem*> mItems;
     std::vector<LLOutfitGalleryItem*> mHiddenItems;
     LLScrollContainer* mScrollPanel;
