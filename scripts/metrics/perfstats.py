@@ -32,7 +32,9 @@ import sys
 from llbase import llsd
 import re
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
+import itertools
 
 def xstr(x):
     if x is None:
@@ -138,24 +140,66 @@ def collect_pandas_frame_data(filename, fields, max_records, prune=None):
 
     return pd.DataFrame(frame_data,columns=header)
 
-def process_by_outfit(pd_data):
+def process_by_outfit(pd_data, fig_name):
     outfit_key = "Avatars.Self.OutfitName"
     arc_key = "Avatars.Self.ARCCalculated"
+    time_key = "Timers.Render.Time"
     curr_outfit = None
-    print "pd_data"
-    print pd_data
-    print "rows"
+    #print "pd_data"
+    #print pd_data
+    #print "rows"
     #for i, fd in enumerate(pd_data.values):
     #    print i, fd
     outfit_column = pd_data[outfit_key]
     outfit_key_frames = [i for i, outfit in enumerate(outfit_column) if isinstance(outfit,basestring)]
-    #print outfit_key_frames
     outfit_spans = [outfit_key_frames[i+1]-outfit_key_frames[i] for i in xrange(len(outfit_key_frames)-1)]
     outfit_spans.append(len(pd_data)-outfit_key_frames[-1])
-    #print outfit_spans
     assert(len(outfit_key_frames)==len(outfit_spans))
-    for (k,s) in zip(outfit_key_frames,outfit_spans):
-        print "START",k,"SPAN",s,"OUTFIT",outfit_column[k],"ARC",pd_data[arc_key][k]
+    #for (k,s) in zip(outfit_key_frames,outfit_spans):
+    #    print "START",k,"SPAN",s,"OUTFIT",outfit_column[k],"ARC",pd_data[arc_key][k]
+    spandict = dict(zip(outfit_key_frames, outfit_spans))
+    arcs = []
+    times = []
+    labels = []
+    stddev = []
+    timespan = []
+    timespans = []
+    for outfit, group in itertools.groupby(outfit_key_frames,key=lambda k: outfit_column[k]):
+        max_span = 0
+        max_key = 0
+        for start_frame in group:
+            span = spandict[start_frame]
+            if span > max_span:
+                max_span = span
+                max_key = start_frame
+        print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
+        timespan = pd_data[time_key][max_key:max_key+max_span]
+        print "render avg", np.average(timespan)
+        print "render std", np.std(timespan)
+        arcs.append(pd_data[arc_key][max_key])
+        times.append(np.average(timespan))
+        stddev.append(np.std(timespan))
+        labels.append(outfit)
+        timespans.append(timespan)
+    print "CORRCOEFF", np.corrcoef(arcs,times)
+    print "POLYFIT", np.polyfit(arcs,times,1)
+    #res = plt.scatter(arcs, times, yerr=stddev)
+    plt.errorbar(arcs, times, yerr=stddev, fmt='o')
+    for label, x, y in zip(labels,arcs,times):
+        plt.annotate(label, xy=(x,y))
+    plt.gca().set_xlabel(arc_key)
+    plt.gca().set_ylabel(time_key)
+    if (fig_name) is not None:
+        plt.gcf().savefig(fig_name, bbox_inches="tight")
+    plt.clf()
+    for timespan, label in zip(timespans,labels):
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.hist(timespan, 50, label=label)
+        fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
+        #plt.hist(timespan, 50, alpha=0.5, label=label)
+    #plt.gcf().savefig("timespan_histo.jpg", bbox_inches="tight")
+        
     
 if __name__ == "__main__":
 
@@ -177,6 +221,6 @@ if __name__ == "__main__":
         export(args.export, pd_data)
 
     if args.by_outfit:
-        process_by_outfit(pd_data)
+        process_by_outfit(pd_data,"arcs_vs_times.jpg")
         
     print "done"
