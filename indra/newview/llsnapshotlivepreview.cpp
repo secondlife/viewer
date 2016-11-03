@@ -465,7 +465,11 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 		LL_DEBUGS() << "window reshaped, updating thumbnail" << LL_ENDL;
 		if (mViewContainer && mViewContainer->isInVisibleChain())
 		{
-			updateSnapshot(TRUE);
+			// We usually resize only on window reshape, so give it a chance to redraw, assign delay
+			updateSnapshot(
+				TRUE, // new snapshot is needed
+				FALSE, // thumbnail will be updated either way.
+				AUTO_SNAPSHOT_TIME_DELAY); // shutter delay.
 		}
 	}
 }

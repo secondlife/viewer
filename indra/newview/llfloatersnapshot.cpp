@@ -762,7 +762,8 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			// hide old preview as the aspect ratio could be wrong
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
-			getPreviewView()->updateSnapshot(TRUE);
+			// Don't update immediately, give window chance to redraw
+			getPreviewView()->updateSnapshot(TRUE, FALSE, 1.f);
 			if(do_update)
 			{
 				LL_DEBUGS() << "Will update controls" << LL_ENDL;
