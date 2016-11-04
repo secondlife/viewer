@@ -204,6 +204,7 @@ Ansariel Hiller
 	MAINT-6744
 	MAINT-6752
 	MAINT-6773
+	MAINT-6906
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
