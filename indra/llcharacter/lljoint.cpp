@@ -510,7 +510,6 @@ void LLJoint::clearAttachmentPosOverrides()
 	{
 		m_attachmentPosOverrides.clear();
 		setPosition(m_posBeforeOverrides);
-		setId( LLUUID::null );
 	}
 }
 
@@ -700,7 +699,6 @@ void LLJoint::clearAttachmentScaleOverrides()
 	{
 		m_attachmentScaleOverrides.clear();
 		setScale(m_scaleBeforeOverrides);
-		setId( LLUUID::null );
 	}
 }
 

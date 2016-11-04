@@ -1906,7 +1906,6 @@ void LLVOAvatar::resetSkeleton()
     // Reset tweakable params to preserved state
     bool slam_params = true;
     applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
-
     updateVisualParams();
 
     // Restore attachment pos overrides
@@ -5460,32 +5459,13 @@ void LLVOAvatar::clearAttachmentOverrides()
 {
     LLScopedContextString str("clearAttachmentOverrides " + getFullname());
 
-	//Subsequent joints are relative to pelvis
-	avatar_joint_list_t::iterator iter = mSkeleton.begin();
-	avatar_joint_list_t::iterator end  = mSkeleton.end();
-
-	for (; iter != end; ++iter)
-	{
-		LLJoint* pJoint = (*iter);
-		if (pJoint)
-		{
-			pJoint->clearAttachmentPosOverrides();
-		}
-		if (pJoint)
-		{
-			pJoint->clearAttachmentScaleOverrides();
-		}
-	}
-
-    // Attachment points
-	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment *attachment_pt = (*iter).second;
-        if (attachment_pt)
+    for (S32 i=0; i<LL_CHARACTER_MAX_ANIMATED_JOINTS; i++)
+    {
+        LLJoint *pJoint = getJoint(i);
+        if (pJoint)
         {
-            attachment_pt->clearAttachmentPosOverrides();
+			pJoint->clearAttachmentPosOverrides();
+			pJoint->clearAttachmentScaleOverrides();
         }
     }
 }
@@ -5570,9 +5550,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 				{
 					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
 					LLJoint* pJoint = getJoint( lookingForJoint );
-					if ( pJoint && pJoint->getId() != currentId )
+					if (pJoint)
 					{   									
-						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
                         if (pJoint->aboveJointPosThreshold(jointPos))
                         {
@@ -5779,7 +5758,6 @@ void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
 		if ( pJoint )
 		{			
             bool dummy; // unused
-			pJoint->setId( LLUUID::null );
 			pJoint->removeAttachmentPosOverride(mesh_id, avString(),dummy);
 			pJoint->removeAttachmentScaleOverride(mesh_id, avString());
 		}		
