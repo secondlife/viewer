@@ -37,7 +37,6 @@
 #include "llpointer.h"
 #include "llmath.h"
 #include "llkdumem.h"
-#include "stringize.h"
 
 #define kdu_xxxx "kdu_block_coding.h"
 #include "include_kdu_xxxx.h"
@@ -49,6 +48,18 @@ using namespace kdu_core;
 #include <boost/exception/diagnostic_information.hpp>
 #include <sstream>
 #include <iomanip>
+
+// stream kdu_dims to std::ostream
+// Turns out this must NOT be in the anonymous namespace!
+// It must also precede #include "stringize.h".
+inline
+std::ostream& operator<<(std::ostream& out, const kdu_dims& dims)
+{
+	return out << "(" << dims.pos.x << "," << dims.pos.y << "),"
+				  "[" << dims.size.x << "x" << dims.size.y << "]";
+}
+
+#include "stringize.h"
 
 namespace {
 // Failure to load an image shouldn't crash the whole viewer.
@@ -91,15 +102,6 @@ std::string report_kdu_exception(kdu_exception mb)
     return out.str();
 }
 } // anonymous namespace
-
-// stream kdu_dims to std::ostream
-// Turns out this must NOT be in the anonymous namespace!
-inline
-std::ostream& operator<<(std::ostream& out, const kdu_dims& dims)
-{
-	return out << "(" << dims.pos.x << "," << dims.pos.y << "),"
-				  "[" << dims.size.x << "x" << dims.size.y << "]";
-}
 
 class kdc_flow_control {
 	
@@ -356,9 +358,9 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 			// This method is only called from methods that catch KDUError.
 			// We want to fail the image load, not crash the viewer.
 			LLTHROW(KDUError(STRINGIZE("Component " << idx << " dimensions "
-									 << other_dims
-									 << " do not match component 0 dimensions "
-									 << dims << "!")));
+									   << stringize(other_dims)
+									   << " do not match component 0 dimensions "
+									   << stringize(dims) << "!")));
 		}
 	}
 
@@ -570,7 +572,8 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					kdu_coords offset = tile_dims.pos - dims.pos;
 					int row_gap = channels*dims.size.x; // inter-row separation
 					kdu_byte *buf = buffer + offset.y*row_gap + offset.x*channels;
-					mDecodeState.reset(new LLKDUDecodeState(tile, buf, row_gap));
+					mDecodeState.reset(new LLKDUDecodeState(tile, buf, row_gap,
+															mCodeStreamp.get()));
 				}
 				// Do the actual processing
 				F32 remaining_time = decode_time - decode_timer.getElapsedTimeF32();

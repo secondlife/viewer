@@ -29,7 +29,13 @@
 // Class to test 
 #include "llimagej2ckdu.h"
 
+#if LL_DARWIN
+// For this source, it's true that private fields in llkdumem.h are unused.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include "llkdumem.h"
+#pragma clang diagnostic pop
+#endif
 #include "kdu_block_coding.h"
 // Tut header
 #include "lltut.h"

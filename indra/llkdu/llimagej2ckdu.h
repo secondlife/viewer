@@ -104,10 +104,12 @@ private:
 			}
 		}
 
-		kdu_codestream* operator->() { return &mCodeStream; }
+		// for those few times when you need a raw kdu_codestream*
+		kdu_core::kdu_codestream* get() { return &mCodeStream; }
+		kdu_core::kdu_codestream* operator->() { return &mCodeStream; }
 
 	private:
-		kdu_codestream mCodeStream;
+		kdu_core::kdu_codestream mCodeStream;
 	};
 
 	// Encode variable
