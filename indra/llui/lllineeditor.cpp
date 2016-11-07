@@ -335,6 +335,7 @@ void LLLineEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLLineEditor::setEnabled(BOOL enabled)
 {
+	LLUICtrl::setEnabled(enabled);
 	mReadOnly = !enabled;
 	setTabStop(!mReadOnly);
 	updateAllowingLanguageInput();
