@@ -52,9 +52,24 @@ def export(filename, timers):
     else:
         print "unknown extension for export",filename
 
-class DerivedTimers:
-    def __init__(self,sd):
+class DerivedSelfTimers:
+    def __init__(self, sd, **kwargs):
         self.sd = sd
+        self.kwargs = kwargs
+    def __getitem__(self, key):
+        value = self.sd["Timers"][key]["Time"]
+        if "children" in self.kwargs:
+            children = self.kwargs["children"]
+            if children is not None:
+                for child in children[key]:
+                    if child in self.sd["Timers"]:
+                        value -= self.sd["Timers"][child]["Time"]
+        return value
+
+class DerivedTimers:
+    def __init__(self,sd,**kwargs):
+        self.sd = sd
+        self.kwargs = kwargs
     def __getitem__(self, key):
         if key=="Count":
             return len(self.sd["Timers"])
@@ -66,18 +81,21 @@ class DerivedTimers:
             raise IndexError()
         
 class DerivedFieldGetter:
-    def __init__(self,sd):
+    def __init__(self,sd,**kwargs):
         self.sd = sd
+        self.kwargs = kwargs
 
     def __getitem__(self, key):
         if key=="Timers":
-            return DerivedTimers(self.sd)
+            return DerivedTimers(self.sd, **self.kwargs)
+        elif key=="SelfTimers":
+            return DerivedSelfTimers(self.sd, **self.kwargs)
         else:
             raise IndexError()
 
 # optimized to avoid blowing out memory when processing huge files,
 # but not especially efficient the way we parse twice.
-def get_frame_record(filename):
+def get_frame_record(filename,**kwargs):
     f = open(filename)
 
     # get an iterable
@@ -98,7 +116,7 @@ def get_frame_record(filename):
 
             xmlstr = etree.tostring(elem, encoding="utf8", method="xml")
             sd = llsd.parse_xml(xmlstr)
-            sd['Derived'] = DerivedFieldGetter(sd)
+            sd['Derived'] = DerivedFieldGetter(sd, **kwargs)
             yield sd
             
             if frame_count % 100 == 0:
@@ -115,10 +133,10 @@ def sd_extract_field(sd,key):
         for subkey in chain:
             t = t[subkey]
         return t
-    except:
+    except KeyError:
         return None
 
-def collect_pandas_frame_data(filename, fields, max_records, prune=None):
+def collect_pandas_frame_data(filename, fields, max_records, prune=None, **kwargs):
     # previously generated cvs file?
     if re.match(".*\.csv$", filename):
         return pd.DataFrame.from_csv(filename)
@@ -127,7 +145,7 @@ def collect_pandas_frame_data(filename, fields, max_records, prune=None):
     frame_data = []
     frame_count = 0
     header = sorted(fields)
-    iter_rec = iter(get_frame_record(filename))
+    iter_rec = iter(get_frame_record(filename,**kwargs))
 
     for sd in iter_rec:
         values = [sd_extract_field(sd,key) for key in header]
@@ -140,10 +158,22 @@ def collect_pandas_frame_data(filename, fields, max_records, prune=None):
 
     return pd.DataFrame(frame_data,columns=header)
 
+def get_child_info(filename):
+    child_info = {}
+    iter_rec = iter(get_frame_record(filename))
+    sd = next(iter_rec)
+    for timer in sd["Timers"]:
+        if "Parent" in sd["Timers"][timer]:
+            parent = sd["Timers"][timer]["Parent"]
+            child_info.setdefault(parent,[]).append(timer)
+    return child_info
+    
 def process_by_outfit(pd_data, fig_name):
     outfit_key = "Avatars.Self.OutfitName"
     arc_key = "Avatars.Self.ARCCalculated"
-    time_key = "Timers.Render.Time"
+    #time_key = "Timers.UI.Time"
+    #time_key = "Timers.Frame.Time"
+    time_key = "Derived.Timers.SceneRender"
     curr_outfit = None
     #print "pd_data"
     #print pd_data
@@ -203,7 +233,22 @@ def process_by_outfit(pd_data, fig_name):
     
 if __name__ == "__main__":
 
-    default_fields = [ "Timers.Frame.Time", "Timers.Render.Time", "Timers.UI.Time", "Session.UniqueID", "Avatars.Self.ARCCalculated", "Avatars.Self.OutfitName", "Derived.Timers.NonRender", "Derived.Timers.SceneRender" ]
+    default_fields = [ "Timers.Frame.Time", 
+                       "Timers.Render.Time", 
+                       "Timers.UI.Time", 
+                       "Session.UniqueID", 
+                       "Avatars.Self.ARCCalculated", 
+                       "Avatars.Self.OutfitName", 
+                       "Derived.Timers.NonRender", 
+                       "Derived.Timers.SceneRender",
+                       "Derived.SelfTimers.Render",
+    ]
+
+    child_info = get_child_info("performance.slp")
+    all_timers = sorted(["Timers." + key + ".Time" for key in child_info.keys()])
+    all_self_timers = sorted(["Derived.SelfTimers." + key for key in child_info.keys()])
+    print "all_timers",all_timers
+    print "all_self_timers",all_self_timers
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
@@ -214,9 +259,21 @@ if __name__ == "__main__":
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
+    # handle special values for fields
+    newargs = []
+    for f in args.fields:
+        if f == "all_timers":
+            newargs.extend(all_timers)
+        elif f == "all_self_timers":
+            newargs.extend(all_self_timers)
+        else:
+            newargs.append(f)
+    args.fields = newargs
+    print "fields",newargs
+    
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
-    pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001)
-
+    pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001, children=child_info)
+    
     if args.export:
         export(args.export, pd_data)
 
