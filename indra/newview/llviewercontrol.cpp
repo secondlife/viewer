@@ -207,12 +207,6 @@ static bool handleVolumeLODChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleRiggedLODChanged(const LLSD& newvalue)
-{
-    LLVOVolume::sRiggedFactorMultiplier = (F32)newvalue.asReal();
-    return true;
-}
-
 static bool handleAvatarLODChanged(const LLSD& newvalue)
 {
 	LLVOAvatar::sLODFactor = (F32) newvalue.asReal();
@@ -625,7 +619,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("WindLightUseAtmosShaders")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGammaFull")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderVolumeLODFactor")->getSignal()->connect(boost::bind(&handleVolumeLODChanged, _2));
-	gSavedSettings.getControl("RenderRiggedFactorMultiplier")->getSignal()->connect(boost::bind(&handleRiggedLODChanged, _2));
 	gSavedSettings.getControl("RenderAvatarLODFactor")->getSignal()->connect(boost::bind(&handleAvatarLODChanged, _2));
 	gSavedSettings.getControl("RenderAvatarPhysicsLODFactor")->getSignal()->connect(boost::bind(&handleAvatarPhysicsLODChanged, _2));
 	gSavedSettings.getControl("RenderTerrainLODFactor")->getSignal()->connect(boost::bind(&handleTerrainLODChanged, _2));
