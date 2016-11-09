@@ -247,11 +247,10 @@ if __name__ == "__main__":
     child_info = get_child_info("performance.slp")
     all_timers = sorted(["Timers." + key + ".Time" for key in child_info.keys()])
     all_self_timers = sorted(["Derived.SelfTimers." + key for key in child_info.keys()])
-    print "all_timers",all_timers
-    print "all_self_timers",all_self_timers
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
+    parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=default_fields)
     parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
     parser.add_argument("--export", help="export results to specified file")
@@ -269,7 +268,6 @@ if __name__ == "__main__":
         else:
             newargs.append(f)
     args.fields = newargs
-    print "fields",newargs
     
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
     pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001, children=child_info)
@@ -277,6 +275,10 @@ if __name__ == "__main__":
     if args.export:
         export(args.export, pd_data)
 
+    if args.summarize:
+        res = pd_data.describe()
+        print res
+        
     if args.by_outfit:
         process_by_outfit(pd_data,"arcs_vs_times.jpg")
         
