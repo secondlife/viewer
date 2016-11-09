@@ -3296,8 +3296,8 @@
                 </array>
                 <key>options</key>
                 <array>
-                  <string>-configuration RelWithDebInfo</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-configuration</string><string>RelWithDebInfo</string>
+                  <string>-project</string><string>SecondLife.xcodeproj</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3325,8 +3325,8 @@
                 <string>xcodebuild</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration RelWithDebInfo</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-configuration</string><string>RelWithDebInfo</string>
+                  <string>-project</string><string>SecondLife.xcodeproj</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3352,8 +3352,8 @@
                 </array>
                 <key>options</key>
                 <array>
-                  <string>-configuration Release</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-configuration</string><string>Release</string>
+                  <string>-project</string><string>SecondLife.xcodeproj</string>
                   <string>-DENABLE_SIGNING:BOOL=YES</string>
                   <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
                 </array>
@@ -3416,7 +3416,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 12</string>
+                  <string>-j</string><string>12</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3444,7 +3444,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-j</string><string>7</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3466,7 +3466,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 12</string>
+                  <string>-j</string><string>12</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3492,7 +3492,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-j</string><string>7</string>
                 </array>
               </map>
               <key>configure</key>
