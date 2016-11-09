@@ -117,6 +117,14 @@ BOOL LLScreenChannelBase::postBuild()
 
 void LLScreenChannelBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
+	if (mChannelAlignment == CA_CENTRE)
+	{
+		// Keep notifications and alerts centered
+		// WorldViewRectScaled is out of date at reshape but Window has same width
+		S32 channel_bound = gViewerWindow->getWindowRectScaled().getWidth() / 2;
+		setRect(LLRect(channel_bound, 0, channel_bound, 0));
+		updateRect(); //sets top and bottom only
+	}
 	redrawToasts();
 }
 
