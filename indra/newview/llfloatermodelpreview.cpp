@@ -2122,7 +2122,11 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 		if (!mBaseModel.empty())
 		{
 			const std::string& model_name = mBaseModel[0]->getName();
-			mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
+			LLLineEditor* description_form = mFMP->getChild<LLLineEditor>("description_form");
+			if (description_form->getText().empty())
+			{
+				description_form->setText(model_name);
+			}
 		}
 	}
 	refresh();
