@@ -115,6 +115,7 @@ public:
 	void uniform2i(const LLStaticHashedString& uniform, GLint i, GLint j);
 	void uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
+	void uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniform1i(const LLStaticHashedString& uniform, GLint i);
 	void uniform1f(const LLStaticHashedString& uniform, GLfloat v);
