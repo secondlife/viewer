@@ -262,7 +262,7 @@
     <key>LogChat</key>
         <map>
         <key>Comment</key>
-            <string>Log Chat</string>
+            <string>Obsolete - this setting is no longer used and has no effect.</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -273,7 +273,7 @@
     <key>LogChatIM</key>
         <map>
         <key>Comment</key>
-            <string>Log Incoming Instant Messages with Chat</string>
+            <string>Obsolete - this setting is no longer used and has no effect.</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -284,7 +284,7 @@
     <key>LogChatTimestamp</key>
         <map>
         <key>Comment</key>
-            <string>Log Timestamp of Chat</string>
+            <string>Obsolete - this setting is no longer used and has no effect.</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -292,6 +292,7 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
+    <!-- End of back compatibility settings -->
     <key>TranslatingEnabled</key>
         <map>
         <key>Comment</key>
@@ -347,6 +348,5 @@
         <key>Value</key>
              <integer>1</integer>
         </map>
-    <!-- End of back compatibility settings -->
     </map>
 </llsd>
