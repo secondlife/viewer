@@ -1914,7 +1914,18 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     // Animations
     if (reset_animations)
     {
-        resetAnimations();
+        if (isSelf())
+        {
+            // This is equivalent to "Stop Animating Me". Will reset
+            // all animations and propagate the changes to other
+            // viewers.
+            gAgent.stopCurrentAnimations();
+        }
+        else
+        {
+            // Local viewer-side reset for non-self avatars.
+            resetAnimations();
+        }
     }
     
     LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
