@@ -33,7 +33,6 @@
 #include "lldndbutton.h"
 #include "lleconomy.h"
 #include "llfilepicker.h"
-#include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -115,7 +114,6 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
 	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
 	mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLPanelMainInventory::doCreate, this, _2));
- 	//mCommitCallbackRegistrar.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow, this));
 	mCommitCallbackRegistrar.add("Inventory.ShowFilters", boost::bind(&LLPanelMainInventory::toggleFindOptions, this));
 	mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
