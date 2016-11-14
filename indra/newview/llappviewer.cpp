@@ -233,6 +233,7 @@
 #include "llsecapi.h"
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
+#include "llcleanup.h"
 
 #include "llcoproceduremanager.h"
 #include "llviewereventrecorder.h"
@@ -387,6 +388,7 @@ const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
  */
 class LLDeferredTaskList: public LLSingleton<LLDeferredTaskList>
 {
+	LLSINGLETON_EMPTY_CTOR(LLDeferredTaskList);
 	LOG_CLASS(LLDeferredTaskList);
 
 	friend class LLAppViewer;
@@ -737,7 +739,7 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::instance().~LLViewerEventRecorder();
+	LLViewerEventRecorder::deleteSingleton();
 
 	LLLoginInstance::instance().setUpdaterService(0);
 	
@@ -1743,7 +1745,7 @@ bool LLAppViewer::cleanup()
 	gTransferManager.cleanup();
 #endif
 
-	LLLocalBitmapMgr::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLLocalBitmapMgr);
 
 	// Note: this is where gWorldMap used to be deleted.
 
@@ -1852,11 +1854,11 @@ bool LLAppViewer::cleanup()
 	
 	LLViewerObject::cleanupVOClasses();
 
-	LLAvatarAppearance::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLAvatarAppearance);
 	
-	LLAvatarAppearance::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLAvatarAppearance);
 	
-	LLPostProcess::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLPostProcess);
 
 	LLTracker::cleanupInstance();
 	
@@ -1882,12 +1884,12 @@ bool LLAppViewer::cleanup()
 
  	//end_messaging_system();
 
-	LLFollowCamMgr::cleanupClass();
-	//LLVolumeMgr::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLFollowCamMgr);
+	//SUBSYSTEM_CLEANUP(LLVolumeMgr);
 	LLPrimitive::cleanupVolumeManager();
-	LLWorldMapView::cleanupClass();
-	LLFolderViewItem::cleanupClass();
-	LLUI::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLWorldMapView);
+	SUBSYSTEM_CLEANUP(LLFolderViewItem);
+	SUBSYSTEM_CLEANUP(LLUI);
 	
 	//
 	// Shut down the VFS's AFTER the decode manager cleans up (since it cleans up vfiles).
@@ -1896,7 +1898,7 @@ bool LLAppViewer::cleanup()
 
 	//
 	LL_INFOS() << "Cleaning up VFS" << LL_ENDL;
-	LLVFile::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLVFile);
 
 	LL_INFOS() << "Saving Data" << LL_ENDL;
 	
@@ -1999,9 +2001,9 @@ bool LLAppViewer::cleanup()
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
 
-	LLFilePickerThread::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLFilePickerThread);
 
-	//MUST happen AFTER LLCurl::cleanupClass
+	//MUST happen AFTER SUBSYSTEM_CLEANUP(LLCurl)
 	delete sTextureCache;
     sTextureCache = NULL;
 	delete sTextureFetch;
@@ -2025,22 +2027,22 @@ bool LLAppViewer::cleanup()
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}	
 
-	LLMetricPerformanceTesterBasic::cleanClass() ;
+	SUBSYSTEM_CLEANUP(LLMetricPerformanceTesterBasic) ;
 
 	LL_INFOS() << "Cleaning up Media and Textures" << LL_ENDL;
 
 	//Note:
-	//LLViewerMedia::cleanupClass() has to be put before gTextureList.shutdown()
+	//SUBSYSTEM_CLEANUP(LLViewerMedia) has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
-	LLViewerMedia::cleanupClass();
-	LLViewerParcelMedia::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLViewerMedia);
+	SUBSYSTEM_CLEANUP(LLViewerParcelMedia);
 	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 	
 	// This should eventually be done in LLAppViewer
-	LLImage::cleanupClass();
-	LLVFSThread::cleanupClass();
-	LLLFSThread::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLImage);
+	SUBSYSTEM_CLEANUP(LLVFSThread);
+	SUBSYSTEM_CLEANUP(LLLFSThread);
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_INFOS() << "Auditing VFS" << LL_ENDL;
@@ -2083,10 +2085,10 @@ bool LLAppViewer::cleanup()
 		LL_INFOS() << "File launched." << LL_ENDL;
 	}
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
-	LLProxy::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
 
-	LLWearableType::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLWearableType);
 
 	LLMainLoopRepeater::instance().stop();
 
@@ -2098,10 +2100,34 @@ bool LLAppViewer::cleanup()
 	LLError::LLCallStacks::cleanup();
 
 	removeMarkerFiles();
-	
-    LL_INFOS() << "Goodbye!" << LL_ENDL;
 
-    removeDumpDir();
+	// It's not at first obvious where, in this long sequence, generic cleanup
+	// calls OUGHT to go. So let's say this: as we migrate cleanup from
+	// explicit hand-placed calls into the generic mechanism, eventually
+	// all cleanup will get subsumed into the generic calls. So the calls you
+	// still see above are calls that MUST happen before the generic cleanup
+	// kicks in.
+    
+	// This calls every remaining LLSingleton's cleanupSingleton() method.
+	// This method should perform any cleanup that might take significant
+	// realtime, or might throw an exception.
+	LLSingletonBase::cleanupAll();
+
+	// This calls every remaining LLSingleton's deleteSingleton() method.
+	// No class destructor should perform any cleanup that might take
+	// significant realtime, or throw an exception.
+	// LLSingleton machinery includes a last-gasp implicit deleteAll() call,
+	// so this explicit call shouldn't strictly be necessary. However, by the
+	// time the runtime engages that implicit call, it may already have
+	// destroyed things like std::cerr -- so the implicit deleteAll() refrains
+	// from logging anything. Since both cleanupAll() and deleteAll() call
+	// their respective cleanup methods in computed dependency order, it's
+	// probably useful to be able to log that order.
+	LLSingletonBase::deleteAll();
+
+	LL_INFOS() << "Goodbye!" << LL_ENDL;
+
+	removeDumpDir();
 
 	// return 0;
 	return true;
@@ -5496,9 +5522,12 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	saveNameCache();
-    LLExperienceCache *expCache = LLExperienceCache::getIfExists();
-    if (expCache)
-        expCache->cleanup();
+	if (LLExperienceCache::instanceExists())
+	{
+		// TODO: LLExperienceCache::cleanup() logic should be moved to
+		// cleanupSingleton().
+		LLExperienceCache::instance().cleanup();
+	}
 
 	// close inventory interface, close all windows
 	LLFloaterInventory::cleanup();

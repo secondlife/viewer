@@ -40,6 +40,7 @@
  */
 class LLDayCycleManager : public LLSingleton<LLDayCycleManager>
 {
+	LLSINGLETON_EMPTY_CTOR(LLDayCycleManager);
 	LOG_CLASS(LLDayCycleManager);
 
 public:
@@ -66,7 +67,6 @@ public:
 	boost::signals2::connection setModifyCallback(const modify_signal_t::slot_type& cb);
 
 private:
-	friend class LLSingleton<LLDayCycleManager>;
 	/*virtual*/ void initSingleton();
 
 	void loadAllPresets();

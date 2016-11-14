@@ -41,7 +41,9 @@ class LLView;
 // lookup widget type by name
 class LLWidgetTypeRegistry
 :	public LLRegistrySingleton<std::string, const std::type_info*, LLWidgetTypeRegistry>
-{};
+{
+	LLSINGLETON_EMPTY_CTOR(LLWidgetTypeRegistry);
+};
 
 
 // global static instance for registering all widget types
@@ -51,7 +53,9 @@ typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 
 class LLChildRegistryRegistry
 : public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
-{};
+{
+	LLSINGLETON_EMPTY_CTOR(LLChildRegistryRegistry);
+};
 
 class LLXSDWriter : public LLInitParam::Parser
 {

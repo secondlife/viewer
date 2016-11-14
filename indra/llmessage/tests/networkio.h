@@ -44,7 +44,7 @@
 // init time. Use the lazy, on-demand initialization we get from LLSingleton.
 class NetworkIO: public LLSingleton<NetworkIO>
 {
-public:
+    LLSINGLETON(NetworkIO);
     NetworkIO():
         mServicePump(NULL),
         mDone(false)
@@ -69,6 +69,7 @@ public:
                                                        boost::bind(&NetworkIO::done, this, _1));
     }
 
+public:
     bool pump(F32 timeout=10)
     {
         // Reset the done flag so we don't pop out prematurely

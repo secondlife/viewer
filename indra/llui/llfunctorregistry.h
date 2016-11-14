@@ -53,14 +53,8 @@
 template <typename FUNCTOR_TYPE>
 class LLFunctorRegistry : public LLSingleton<LLFunctorRegistry<FUNCTOR_TYPE> >
 {
-	friend class LLSingleton<LLFunctorRegistry>;
+	LLSINGLETON(LLFunctorRegistry);
 	LOG_CLASS(LLFunctorRegistry);
-private:
-	LLFunctorRegistry() : LOGFUNCTOR("LogFunctor"), DONOTHING("DoNothing")
-	{
-		mMap[LOGFUNCTOR] = log_functor;
-		mMap[DONOTHING] = do_nothing;
-	}
 
 public:
 	typedef FUNCTOR_TYPE ResponseFunctor;
@@ -123,6 +117,14 @@ private:
 
 	FunctorMap mMap;
 };
+
+template <typename FUNCTOR_TYPE>
+LLFunctorRegistry<FUNCTOR_TYPE>::LLFunctorRegistry() :
+	LOGFUNCTOR("LogFunctor"), DONOTHING("DoNothing")
+{
+	mMap[LOGFUNCTOR] = log_functor;
+	mMap[DONOTHING] = do_nothing;
+}
 
 template <typename FUNCTOR_TYPE>
 class LLFunctorRegistration

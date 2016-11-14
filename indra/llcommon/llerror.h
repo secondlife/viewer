@@ -190,6 +190,7 @@ namespace LLError
 		static std::ostringstream* out();
 		static void flush(std::ostringstream* out, char* message);
 		static void flush(std::ostringstream*, const CallSite&);
+		static std::string demangle(const char* mangled);
 	};
 	
 	struct LL_COMMON_API CallSite

@@ -38,7 +38,7 @@ namespace
 	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
 }
 
-LLChicletBar::LLChicletBar(const LLSD&)
+LLChicletBar::LLChicletBar()
 :	mChicletPanel(NULL),
 	mToolbarStack(NULL)
 {

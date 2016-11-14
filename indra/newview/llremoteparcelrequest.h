@@ -74,9 +74,10 @@ protected:
 
 class LLRemoteParcelInfoProcessor : public LLSingleton<LLRemoteParcelInfoProcessor>
 {
-public:
+	LLSINGLETON_EMPTY_CTOR(LLRemoteParcelInfoProcessor);
 	virtual ~LLRemoteParcelInfoProcessor() {}
 
+public:
 	void addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer);
 	void removeObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer);
 

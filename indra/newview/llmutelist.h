@@ -71,6 +71,8 @@ public:
 
 class LLMuteList : public LLSingleton<LLMuteList>
 {
+	LLSINGLETON(LLMuteList);
+	~LLMuteList();
 public:
 	// reasons for auto-unmuting a resident
 	enum EAutoReason 
@@ -81,13 +83,6 @@ public:
 		AR_COUNT			// enum count
 	};
 
-	LLMuteList();
-	~LLMuteList();
-
-	// Implemented locally so that we can perform some delayed initialization. 
-	// Callers should be careful to call this one and not LLSingleton<LLMuteList>::getInstance()
-	// which would circumvent that mechanism. -MG
-	static LLMuteList* getInstance();
 
 	void addObserver(LLMuteListObserver* observer);
 	void removeObserver(LLMuteListObserver* observer);

@@ -43,6 +43,8 @@ class LLEventPump;
  */
 class LLFacebookConnect : public LLSingleton<LLFacebookConnect>
 {
+	LLSINGLETON(LLFacebookConnect);
+	~LLFacebookConnect() {};
 	LOG_CLASS(LLFacebookConnect);
 public:
     enum EConnectionState
@@ -86,10 +88,7 @@ public:
     void openFacebookWeb(std::string url);
 
 private:
-	friend class LLSingleton<LLFacebookConnect>;
 
-	LLFacebookConnect();
-	~LLFacebookConnect() {};
  	std::string getFacebookConnectURL(const std::string& route = "", bool include_read_from_master = false);
 
     EConnectionState mConnectionState;

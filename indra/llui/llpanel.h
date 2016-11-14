@@ -268,8 +268,9 @@ typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
 class LLRegisterPanelClass
 :	public LLSingleton< LLRegisterPanelClass >
 {
+	LLSINGLETON_EMPTY_CTOR(LLRegisterPanelClass);
 public:
-	// reigister with either the provided builder, or the generic templated builder
+	// register with either the provided builder, or the generic templated builder
 	void addPanelClass(const std::string& tag,LLPanelClassCreatorFunc func)
 	{
 		mPanelClassesNames[tag] = func;
