@@ -80,14 +80,12 @@
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-static const F32 MINIMUM_RIGGED_RADIUS = 0.05f;
 U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 20;
 
 BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
-F32 LLVOVolume::sRiggedLODCompensation = 6.5f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
@@ -1215,18 +1213,18 @@ void LLVOVolume::sculpt()
 	}
 }
 
-S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius, F32 lod_factor)
+S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
 {
 	S32	cur_detail;
 	if (LLPipeline::sDynamicLOD)
 	{
 		// We've got LOD in the profile, and in the twist.  Use radius.
-		F32 tan_angle = (lod_factor*radius) / distance;
+		F32 tan_angle = (LLVOVolume::sLODFactor*radius)/distance;
 		cur_detail = LLVolumeLODGroup::getDetailFromTan(ll_round(tan_angle, 0.01f));
 	}
 	else
 	{
-		cur_detail = llclamp((S32)(sqrtf(radius)*lod_factor*4.f), 0, 3);
+		cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
 	}
 	return cur_detail;
 }
@@ -1242,7 +1240,6 @@ BOOL LLVOVolume::calcLOD()
 	
 	F32 radius;
 	F32 distance;
-	F32 lod_factor = LLVOVolume::sLODFactor;
 
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
@@ -1254,54 +1251,22 @@ BOOL LLVOVolume::calcLOD()
 			return FALSE;
 		}
 
-		// Note: when changing, take note that a lot of rigged meshes have only one LOD.
 		distance = avatar->mDrawable->mDistanceWRTCamera;
-		F32 avatar_radius = avatar->getBinRadius();
-		F32 object_radius = 0;
-
-		LLDrawable* drawablep = mDrawable.get();
-		while (!drawablep->isRoot())
-		{
-			drawablep = drawablep->getParent();
-		}
-
-		// Mesh can consist of multiple objects that have to be treated as one item or we will
-		// get strange deformations or partially missing meshes (smallest elements will disappear)
-		LLSpatialBridge* bridge = drawablep->getSpatialBridge();
-		if (bridge)
-		{
-			const LLVector4a* ext = bridge->getSpatialExtents();
-			LLVector4a diff;
-			diff.setSub(ext[1], ext[0]);
-			object_radius = diff.getLength3().getF32();
-		}
-
-		if (object_radius <= 0)
-		{
-			// bridge missing or somehow not updated
-			const LLVector4a* ext = mDrawable->getSpatialExtents();
-			LLVector4a diff;
-			diff.setSub(ext[1], ext[0]);
-			object_radius = diff.getLength3().getF32();
-		}
-
-		// sRiggedLODCompensation is made to compensate for missing lower lods
-		radius = object_radius * LLVOVolume::sRiggedLODCompensation;
-		radius = llclamp(radius, MINIMUM_RIGGED_RADIUS, avatar_radius);
+		radius = avatar->getBinRadius();
 	}
 	else
 	{
 		distance = mDrawable->mDistanceWRTCamera;
 		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
 	}
-
+	
 	//hold onto unmodified distance for debugging
 	//F32 debug_distance = distance;
-
+	
 	distance *= sDistanceFactor;
 
-	F32 rampDist = lod_factor * 2;
-
+	F32 rampDist = LLVOVolume::sLODFactor * 2;
+	
 	if (distance < rampDist)
 	{
 		// Boost LOD when you're REALLY close
@@ -1314,8 +1279,7 @@ BOOL LLVOVolume::calcLOD()
 	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-									ll_round(radius, 0.01f),
-									lod_factor);
+									ll_round(radius, 0.01f));
 
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
@@ -1789,10 +1753,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
 		lodOrSculptChanged(drawable, compiled);
-		if (!mLODChanged)
-		{
-			genBBoxes(FALSE);
-		}
+		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
 	else

@@ -465,7 +465,7 @@ LLViewerOctreeGroup::LLViewerOctreeGroup(OctreeNode* node)
 {
 	LLVector4a tmp;
 	tmp.splat(0.f);
-	mExtents[0] = mExtents[1] = mObjectBounds[0] = mObjectBounds[1] = 
+	mExtents[0] = mExtents[1] = mObjectBounds[0] = mObjectBounds[0] = mObjectBounds[1] = 
 		mObjectExtents[0] = mObjectExtents[1] = tmp;
 	
 	mBounds[0] = node->getCenter();
