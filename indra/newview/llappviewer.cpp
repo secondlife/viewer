@@ -3352,6 +3352,26 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
 
+    // Settings
+
+    LLRect window_rect = gViewerWindow->getWindowRectRaw();
+    info["WINDOW_WIDTH"] = window_rect.getWidth();
+    info["WINDOW_HEIGHT"] = window_rect.getHeight();
+    info["FONT_SIZE_ADJUSTMENT"] = gSavedSettings.getF32("FontScreenDPI");
+    info["UI_SCALE"] = gSavedSettings.getF32("UIScaleFactor");
+    info["DRAW_DISTANCE"] = gSavedSettings.getF32("RenderFarClip");
+    info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
+    info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
+    info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
+    info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
+    info["TEXTURE_MEMORY"] = gSavedSettings.getS32("TextureMemory");
+
+    LLSD substitution;
+    substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
+    info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
+
+	// Libraries
+
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
@@ -3471,7 +3491,9 @@ std::string LLAppViewer::getViewerInfoString() const
 	{
 		support << "\n" << LLTrans::getString("AboutDriver", args);
 	}
-	support << "\n" << LLTrans::getString("AboutLibs", args);
+	support << "\n" << LLTrans::getString("AboutOGL", args);
+	support << "\n\n" << LLTrans::getString("AboutSettings", args);
+	support << "\n\n" << LLTrans::getString("AboutLibs", args);
 	if (info.has("COMPILER"))
 	{
 		support << "\n" << LLTrans::getString("AboutCompiler", args);
