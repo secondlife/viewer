@@ -79,7 +79,7 @@ if (WINDOWS)
       )
 
   # Nicky: x64 implies SSE2
-  if( ADDRESS_SIZE EQUAL 64 )
+  if( ADDRESS_SIZE EQUAL 32 )
     add_definitions( /arch:SSE2 )
   endif()
      
