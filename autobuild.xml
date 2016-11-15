@@ -3204,7 +3204,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
@@ -3225,7 +3225,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3245,7 +3245,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
@@ -3266,7 +3266,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3537,7 +3537,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"RelWithDebInfo|Win32"</string>
+                  <string>"RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3557,7 +3557,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 12"</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                 </array>
               </map>
               <key>default</key>
@@ -3578,7 +3578,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=Win32</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
@@ -3603,7 +3603,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 12"</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3625,7 +3625,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"Release|Win32"</string>
+                  <string>"Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3645,7 +3645,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 12"</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                 </array>
               </map>
               <key>name</key>
@@ -3664,7 +3664,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=Win32</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
@@ -3689,198 +3689,10 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 12"</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>ReleaseOS</string>
-            </map>
-          </map>
-          <key>name</key>
-          <string>windows</string>
-        </map>
-        <key>windows64</key>
-        <map>
-          <key>build_directory</key>
-          <string>build-vc120_x64</string>
-          <key>configurations</key>
-          <map>
-            <key>RelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>"RelWithDebInfo|x64"</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 12 Win64"</string>
-                  <string>-DLL_64BIT_BUILD=TRUE</string>
-                </array>
-              </map>
-              <key>default</key>
-              <string>True</string>
-              <key>name</key>
-              <string>RelWithDebInfo</string>
-            </map>
-            <key>RelWithDebInfoOS</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=x64</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 12 Win64"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_KDU=FALSE</string>
-                  <string>-DLL_64BIT_BUILD=TRUE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>RelWithDebInfoOS</string>
-            </map>
-            <key>Release</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>"Release|x64"</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 12 Win64"</string>
-                  <string>-DLL_64BIT_BUILD=TRUE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Release</string>
-            </map>
-            <key>ReleaseOS</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=x64</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 12 Win64"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_KDU=FALSE</string>
-                  <string>-DLL_64BIT_BUILD=TRUE</string>
                 </array>
               </map>
               <key>name</key>

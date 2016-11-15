@@ -101,7 +101,7 @@ LLCoros::LLCoros():
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
     // empirically this is 64KB on Windows and Linux. Try quadrupling.
-#if WORD_SIZE == 64
+#if ADDRESS_SIZE == 64
     mStackSize(512*1024)
 #else
     mStackSize(256*1024)
