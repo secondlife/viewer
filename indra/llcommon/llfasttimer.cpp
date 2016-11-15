@@ -58,6 +58,75 @@
 namespace LLTrace
 {
 
+// FIXME ARC - constructor and destructor temporarily un-inlined to
+// simplify development. Move back when done.
+BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
+{
+#if LL_FAST_TIMER_ON
+	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
+	if (!cur_timer_data)
+	{
+		// How likely is it that
+		// LLThreadLocalSingletonPointer<T>::getInstance() will return NULL?
+		// Even without researching, what we can say is that if we exit
+		// without setting mStartTime at all, gcc 4.7 produces (fatal)
+		// warnings about a possibly-uninitialized data member.
+		mStartTime = 0;
+		return;
+	}
+	TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
+
+    // Want to avoid double counting the same time span
+    mIsDuplicate = (accumulator.mActiveCount > 0);
+    if (!mIsDuplicate)
+    {
+        accumulator.mActiveCount++;
+
+        // keep current parent as long as it is active when we are
+        accumulator.mMoveUpTree |= (accumulator.mParent->getCurrentAccumulator().mActiveCount == 0);
+
+        // store top of stack
+        mParentTimerData = *cur_timer_data;
+        // push new information
+        cur_timer_data->mActiveTimer = this;
+        cur_timer_data->mTimeBlock = &timer;
+        cur_timer_data->mChildTime = 0;
+        
+        mStartTime = getCPUClockCount64();
+    }
+#endif
+}
+
+BlockTimer::~BlockTimer()
+{
+#if LL_FAST_TIMER_ON
+    if (!mIsDuplicate)
+    {
+        U64 total_time = getCPUClockCount64() - mStartTime;
+        BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
+        if (!cur_timer_data) return;
+        
+        TimeBlockAccumulator& accumulator = cur_timer_data->mTimeBlock->getCurrentAccumulator();
+
+        accumulator.mCalls++;
+        accumulator.mTotalTimeCounter += total_time;
+        accumulator.mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
+
+        accumulator.mActiveCount--;
+        
+        // store last caller to bootstrap tree creation
+        // do this in the destructor in case of recursion to get topmost caller
+        accumulator.mLastCaller = mParentTimerData.mTimeBlock;
+
+        // we are only tracking self time, so subtract our total time delta from parents
+        mParentTimerData.mChildTime += total_time;
+        
+        //pop stack
+        *cur_timer_data = mParentTimerData;
+    }
+#endif
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // statics
 
@@ -283,6 +352,8 @@ void BlockTimer::updateTimes()
     {
         U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
         cur_timer->mStartTime = cur_time;
+
+        llassert(!cur_timer->mIsDuplicate); // shouldn't be put on stack
 
         accumulator->mTotalTimeCounter += cumulative_time_delta;
         accumulator->mSelfTimeCounter += cumulative_time_delta - stack_record->mChildTime;

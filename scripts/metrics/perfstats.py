@@ -61,7 +61,7 @@ class DerivedSelfTimers:
         if "children" in self.kwargs:
             children = self.kwargs["children"]
             if children is not None:
-                for child in children[key]:
+                for child in children.get(key,[]):
                     if child in self.sd["Timers"]:
                         value -= self.sd["Timers"][child]["Time"]
         return value
@@ -167,6 +167,11 @@ def get_child_info(filename):
             parent = sd["Timers"][timer]["Parent"]
             child_info.setdefault(parent,[]).append(timer)
     return child_info
+
+def get_all_timer_keys(filename):
+    iter_rec = iter(get_frame_record(filename))
+    sd = next(iter_rec)
+    return [timer for timer in sd["Timers"]]
     
 def process_by_outfit(pd_data, fig_name):
     outfit_key = "Avatars.Self.OutfitName"
@@ -245,8 +250,10 @@ if __name__ == "__main__":
     ]
 
     child_info = get_child_info("performance.slp")
-    all_timers = sorted(["Timers." + key + ".Time" for key in child_info.keys()])
-    all_self_timers = sorted(["Derived.SelfTimers." + key for key in child_info.keys()])
+    all_keys = get_all_timer_keys("performance.slp")
+    all_timers = sorted(["Timers." + key + ".Time" for key in all_keys])
+    all_calls = sorted(["Timers." + key + ".Calls" for key in all_keys])
+    all_self_timers = sorted(["Derived.SelfTimers." + key for key in all_keys])
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
@@ -265,12 +272,17 @@ if __name__ == "__main__":
             newargs.extend(all_timers)
         elif f == "all_self_timers":
             newargs.extend(all_self_timers)
+        elif f == "all_calls":
+            newargs.extend(all_calls)
         else:
             newargs.append(f)
     args.fields = newargs
     
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
     pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001, children=child_info)
+    if args.verbose:
+        for key in sorted(child_info.keys()):
+            print key,child_info[key]
     
     if args.export:
         export(args.export, pd_data)

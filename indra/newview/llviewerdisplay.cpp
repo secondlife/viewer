@@ -243,9 +243,48 @@ static LLTrace::BlockTimerStatHandle FTM_DISPLAY_UPDATE_GEOM("Update Geom");
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UNBIND("Texture Unbind");
 static LLTrace::BlockTimerStatHandle FTM_TELEPORT_DISPLAY("Teleport Display");
 
+static LLTrace::BlockTimerStatHandle FTM_SANITY_PARENT("SanityParent");
+static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_A("SanityChildA");
+static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_B("SanityChildB");
+static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_C("SanityChildC");
+
+void test_timer_sub()
+{
+    LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_C);
+    ms_sleep(1);
+    LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_C);
+    ms_sleep(1);
+}
+
+void test_timers()
+{
+    LL_RECORD_BLOCK_TIME(FTM_SANITY_PARENT);
+
+    LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_A);
+    LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_A);
+
+    for (S32 i=0; i<10; i++)
+    {
+        LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_B);
+        ms_sleep(1);
+        LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_B);
+        ms_sleep(1);
+    }
+
+    for (S32 i=0; i<10; i++)
+    {
+        test_timer_sub();
+    }
+}
+
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
+    // FIXME ARC this is just for sanity checking some fixes to timer
+    // handling, should normally not be called. For one thing, it adds
+    // a bunch of sleep statements to every frame.
+    // test_timers();
+    
 	LL_RECORD_BLOCK_TIME(FTM_RENDER);
 
 	if (gWindowResized)
@@ -601,7 +640,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
-	
+
 	if (!gDisconnected)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Update");
