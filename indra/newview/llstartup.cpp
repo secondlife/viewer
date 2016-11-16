@@ -774,7 +774,11 @@ bool idle_startup()
 					LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
 				}
 			}
-
+			display_startup();
+			if (gViewerWindow->getSystemUIScaleFactorChanged())
+			{
+				LLViewerWindow::showSystemUIScaleFactorChanged();
+			}
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else

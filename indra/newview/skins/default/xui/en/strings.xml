@@ -500,6 +500,7 @@ Please try logging in again in a minute.</string>
 	<string name="TeleportYourAgent">Teleport you</string>
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	<string name="ForceSitAvatar">Force your avatar to sit</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
@@ -2516,6 +2517,15 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
   <string name="av_render_most_of">You may not be rendered by most of those around you.</string>
   <string name="av_render_anyone">You may not be rendered by anyone around you.</string>
 
+  <!-- HUD complexity rendering messages, see llavatarrendernotifier. -->
+  <string name="hud_description_total">Your HUD</string>
+  <string name="hud_name_with_joint">[OBJ_NAME] (worn on [JNT_NAME])</string>
+  <string name="hud_render_memory_warning">[HUD_DETAILS] uses a lot of texture memory</string>
+  <string name="hud_render_cost_warning">[HUD_DETAILS] contains a lot of expensive objects and textures</string>
+  <string name="hud_render_heavy_textures_warning">[HUD_DETAILS] contains a lot of large textures</string>
+  <string name="hud_render_cramped_warning">[HUD_DETAILS] contains too many objects</string>
+  <string name="hud_render_textures_warning">[HUD_DETAILS] contains too many textures</string>
+
   <!-- AgeYearsA = singular,
        AgeYearsB = plural,
        AgeYearsC = plural for non-English languages like Russian
@@ -2583,7 +2593,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="SaveComplete">Save complete.</string>
 	<string name="UploadFailed">File upload failed: </string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
-
+	<string name="ScriptWasDeleted">Script (deleted from inventory)</string>
+	
 	<!-- god tools -->
 	<string name="GodToolsObjectOwnedBy">Object [OBJECT] owned by [OWNER]</string>
 
@@ -2865,6 +2876,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<!-- media -->
 	<string name="Multiple Media">Multiple Media</string>
 	<string name="Play Media">Play/Pause Media</string>
+
+	<!-- Drivers support/update pages -->
+	<string name="IntelDriverPage">http://www.intel.com/p/en_US/support/detect/graphics</string>
+	<string name="NvidiaDriverPage">http://www.nvidia.com/Download/index.aspx?lang=en-us</string>
+	<string name="AMDDriverPage">http://support.amd.com/us/Pages/AMDSupportHub.aspx</string>
+
 
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">

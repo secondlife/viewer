@@ -276,6 +276,8 @@ LLEventPumps::~LLEventPumps()
 #pragma warning (push)
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
+const std::string LLEventPump::ANONYMOUS = std::string();
+
 
 LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
@@ -314,145 +316,162 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
                                          const NameList& after,
                                          const NameList& before)
 {
-    // Check for duplicate name before connecting listener to mSignal
-    ConnectionMap::const_iterator found = mConnections.find(name);
-    // In some cases the user might disconnect a connection explicitly -- or
-    // might use LLEventTrackable to disconnect implicitly. Either way, we can
-    // end up retaining in mConnections a zombie connection object that's
-    // already been disconnected. Such a connection object can't be
-    // reconnected -- nor, in the case of LLEventTrackable, would we want to
-    // try, since disconnection happens with the destruction of the listener
-    // object. That means it's safe to overwrite a disconnected connection
-    // object with the new one we're attempting. The case we want to prevent
-    // is only when the existing connection object is still connected.
-    if (found != mConnections.end() && found->second.connected())
+    float nodePosition = 1.0;
+
+    // if the supplied name is empty we are not interested in the ordering mechanism 
+    // and can bypass attempting to find the optimal location to insert the new 
+    // listener.  We'll just tack it on to the end.
+    if (!name.empty()) // should be the same as testing against ANONYMOUS
     {
+        // Check for duplicate name before connecting listener to mSignal
+        ConnectionMap::const_iterator found = mConnections.find(name);
+        // In some cases the user might disconnect a connection explicitly -- or
+        // might use LLEventTrackable to disconnect implicitly. Either way, we can
+        // end up retaining in mConnections a zombie connection object that's
+        // already been disconnected. Such a connection object can't be
+        // reconnected -- nor, in the case of LLEventTrackable, would we want to
+        // try, since disconnection happens with the destruction of the listener
+        // object. That means it's safe to overwrite a disconnected connection
+        // object with the new one we're attempting. The case we want to prevent
+        // is only when the existing connection object is still connected.
+        if (found != mConnections.end() && found->second.connected())
+        {
         LLTHROW(DupListenerName("Attempt to register duplicate listener name '" + name +
                                 "' on " + typeid(*this).name() + " '" + getName() + "'"));
-    }
-    // Okay, name is unique, try to reconcile its dependencies. Specify a new
-    // "node" value that we never use for an mSignal placement; we'll fix it
-    // later.
-    DependencyMap::node_type& newNode = mDeps.add(name, -1.0, after, before);
-    // What if this listener has been added, removed and re-added? In that
-    // case newNode already has a non-negative value because we never remove a
-    // listener from mDeps. But keep processing uniformly anyway in case the
-    // listener was added back with different dependencies. Then mDeps.sort()
-    // would put it in a different position, and the old newNode placement
-    // value would be wrong, so we'd have to reassign it anyway. Trust that
-    // re-adding a listener with the same dependencies is the trivial case for
-    // mDeps.sort(): it can just replay its cache.
-    DependencyMap::sorted_range sorted_range;
-    try
-    {
-        // Can we pick an order that works including this new entry?
-        sorted_range = mDeps.sort();
-    }
-    catch (const DependencyMap::Cycle& e)
-    {
-        // No: the new node's after/before dependencies have made mDeps
-        // unsortable. If we leave the new node in mDeps, it will continue
-        // to screw up all future attempts to sort()! Pull it out.
-        mDeps.remove(name);
+        }
+        // Okay, name is unique, try to reconcile its dependencies. Specify a new
+        // "node" value that we never use for an mSignal placement; we'll fix it
+        // later.
+        DependencyMap::node_type& newNode = mDeps.add(name, -1.0, after, before);
+        // What if this listener has been added, removed and re-added? In that
+        // case newNode already has a non-negative value because we never remove a
+        // listener from mDeps. But keep processing uniformly anyway in case the
+        // listener was added back with different dependencies. Then mDeps.sort()
+        // would put it in a different position, and the old newNode placement
+        // value would be wrong, so we'd have to reassign it anyway. Trust that
+        // re-adding a listener with the same dependencies is the trivial case for
+        // mDeps.sort(): it can just replay its cache.
+        DependencyMap::sorted_range sorted_range;
+        try
+        {
+            // Can we pick an order that works including this new entry?
+            sorted_range = mDeps.sort();
+        }
+        catch (const DependencyMap::Cycle& e)
+        {
+            // No: the new node's after/before dependencies have made mDeps
+            // unsortable. If we leave the new node in mDeps, it will continue
+            // to screw up all future attempts to sort()! Pull it out.
+            mDeps.remove(name);
         LLTHROW(Cycle("New listener '" + name + "' on " + typeid(*this).name() +
                       " '" + getName() + "' would cause cycle: " + e.what()));
-    }
-    // Walk the list to verify that we haven't changed the order.
-    float previous = 0.0, myprev = 0.0;
-    DependencyMap::sorted_iterator mydmi = sorted_range.end(); // need this visible after loop
-    for (DependencyMap::sorted_iterator dmi = sorted_range.begin();
-         dmi != sorted_range.end(); ++dmi)
-    {
-        // Since we've added the new entry with an invalid placement,
-        // recognize it and skip it.
-        if (dmi->first == name)
-        {
-            // Remember the iterator belonging to our new node, and which
-            // placement value was 'previous' at that point.
-            mydmi = dmi;
-            myprev = previous;
-            continue;
         }
-        // If the new node has rearranged the existing nodes, we'll find
-        // that their placement values are no longer in increasing order.
-        if (dmi->second < previous)
+        // Walk the list to verify that we haven't changed the order.
+        float previous = 0.0, myprev = 0.0;
+        DependencyMap::sorted_iterator mydmi = sorted_range.end(); // need this visible after loop
+        for (DependencyMap::sorted_iterator dmi = sorted_range.begin();
+            dmi != sorted_range.end(); ++dmi)
         {
-            // This is another scenario in which we'd better back out the
-            // newly-added node from mDeps -- but don't do it yet, we want to
-            // traverse the existing mDeps to report on it!
-            // Describe the change to the order of our listeners. Copy
-            // everything but the newest listener to a vector we can sort to
-            // obtain the old order.
-            typedef std::vector< std::pair<float, std::string> > SortNameList;
-            SortNameList sortnames;
-            for (DependencyMap::sorted_iterator cdmi(sorted_range.begin()), cdmend(sorted_range.end());
-                 cdmi != cdmend; ++cdmi)
+            // Since we've added the new entry with an invalid placement,
+            // recognize it and skip it.
+            if (dmi->first == name)
             {
-                if (cdmi->first != name)
-                {
-                    sortnames.push_back(SortNameList::value_type(cdmi->second, cdmi->first));
-                }
+                // Remember the iterator belonging to our new node, and which
+                // placement value was 'previous' at that point.
+                mydmi = dmi;
+                myprev = previous;
+                continue;
             }
-            std::sort(sortnames.begin(), sortnames.end());
-            std::ostringstream out;
-            out << "New listener '" << name << "' on " << typeid(*this).name() << " '" << getName()
-                << "' would move previous listener '" << dmi->first << "'\nwas: ";
-            SortNameList::const_iterator sni(sortnames.begin()), snend(sortnames.end());
-            if (sni != snend)
+            // If the new node has rearranged the existing nodes, we'll find
+            // that their placement values are no longer in increasing order.
+            if (dmi->second < previous)
             {
-                out << sni->second;
-                while (++sni != snend)
+                // This is another scenario in which we'd better back out the
+                // newly-added node from mDeps -- but don't do it yet, we want to
+                // traverse the existing mDeps to report on it!
+                // Describe the change to the order of our listeners. Copy
+                // everything but the newest listener to a vector we can sort to
+                // obtain the old order.
+                typedef std::vector< std::pair<float, std::string> > SortNameList;
+                SortNameList sortnames;
+                for (DependencyMap::sorted_iterator cdmi(sorted_range.begin()), cdmend(sorted_range.end());
+                    cdmi != cdmend; ++cdmi)
                 {
-                    out << ", " << sni->second;
+                    if (cdmi->first != name)
+                    {
+                        sortnames.push_back(SortNameList::value_type(cdmi->second, cdmi->first));
+                    }
                 }
-            }
-            out << "\nnow: ";
-            DependencyMap::sorted_iterator ddmi(sorted_range.begin()), ddmend(sorted_range.end());
-            if (ddmi != ddmend)
-            {
-                out << ddmi->first;
-                while (++ddmi != ddmend)
+                std::sort(sortnames.begin(), sortnames.end());
+                std::ostringstream out;
+                out << "New listener '" << name << "' on " << typeid(*this).name() << " '" << getName()
+                    << "' would move previous listener '" << dmi->first << "'\nwas: ";
+                SortNameList::const_iterator sni(sortnames.begin()), snend(sortnames.end());
+                if (sni != snend)
                 {
-                    out << ", " << ddmi->first;
+                    out << sni->second;
+                    while (++sni != snend)
+                    {
+                        out << ", " << sni->second;
+                    }
                 }
-            }
-            // NOW remove the offending listener node.
-            mDeps.remove(name);
-            // Having constructed a description of the order change, inform caller.
+                out << "\nnow: ";
+                DependencyMap::sorted_iterator ddmi(sorted_range.begin()), ddmend(sorted_range.end());
+                if (ddmi != ddmend)
+                {
+                    out << ddmi->first;
+                    while (++ddmi != ddmend)
+                    {
+                        out << ", " << ddmi->first;
+                    }
+                }
+                // NOW remove the offending listener node.
+                mDeps.remove(name);
+                // Having constructed a description of the order change, inform caller.
             LLTHROW(OrderChange(out.str()));
+            }
+            // This node becomes the previous one.
+            previous = dmi->second;
         }
-        // This node becomes the previous one.
-        previous = dmi->second;
-    }
-    // We just got done with a successful mDeps.add(name, ...) call. We'd
-    // better have found 'name' somewhere in that sorted list!
-    assert(mydmi != sorted_range.end());
-    // Four cases:
-    // 0. name is the only entry: placement 1.0
-    // 1. name is the first of several entries: placement (next placement)/2
-    // 2. name is between two other entries: placement (myprev + (next placement))/2
-    // 3. name is the last entry: placement ceil(myprev) + 1.0
-    // Since we've cleverly arranged for myprev to be 0.0 if name is the
-    // first entry, this folds down to two cases. Case 1 is subsumed by
-    // case 2, and case 0 is subsumed by case 3. So we need only handle
-    // cases 2 and 3, which means we need only detect whether name is the
-    // last entry. Increment mydmi to see if there's anything beyond.
-    if (++mydmi != sorted_range.end())
-    {
-        // The new node isn't last. Place it between the previous node and
-        // the successor.
-        newNode = (myprev + mydmi->second)/2.f;
-    }
-    else
-    {
-        // The new node is last. Bump myprev up to the next integer, add
-        // 1.0 and use that.
-        newNode = std::ceil(myprev) + 1.f;
+        // We just got done with a successful mDeps.add(name, ...) call. We'd
+        // better have found 'name' somewhere in that sorted list!
+        assert(mydmi != sorted_range.end());
+        // Four cases:
+        // 0. name is the only entry: placement 1.0
+        // 1. name is the first of several entries: placement (next placement)/2
+        // 2. name is between two other entries: placement (myprev + (next placement))/2
+        // 3. name is the last entry: placement ceil(myprev) + 1.0
+        // Since we've cleverly arranged for myprev to be 0.0 if name is the
+        // first entry, this folds down to two cases. Case 1 is subsumed by
+        // case 2, and case 0 is subsumed by case 3. So we need only handle
+        // cases 2 and 3, which means we need only detect whether name is the
+        // last entry. Increment mydmi to see if there's anything beyond.
+        if (++mydmi != sorted_range.end())
+        {
+            // The new node isn't last. Place it between the previous node and
+            // the successor.
+            newNode = (myprev + mydmi->second) / 2.f;
+        }
+        else
+        {
+            // The new node is last. Bump myprev up to the next integer, add
+            // 1.0 and use that.
+            newNode = std::ceil(myprev) + 1.f;
+        }
+
+        nodePosition = newNode;
     }
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.
-    LLBoundListener bound = mSignal->connect(newNode, listener);
-    mConnections[name] = bound;
+    LLBoundListener bound = mSignal->connect(nodePosition, listener);
+    
+    if (!name.empty())
+    {   // note that we are not tracking anonymous listeners here either.
+        // This means that it is the caller's responsibility to either assign 
+        // to a TempBoundListerer (scoped_connection) or manually disconnect 
+        // when done. 
+        mConnections[name] = bound;
+    }
     return bound;
 }
 

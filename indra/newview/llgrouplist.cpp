@@ -379,10 +379,7 @@ void LLGroupListItem::setGroupID(const LLUUID& group_id)
 
 void LLGroupListItem::setGroupIconID(const LLUUID& group_icon_id)
 {
-	if (group_icon_id.notNull())
-	{
-		mGroupIcon->setIconId(group_icon_id);
-	}
+	mGroupIcon->setIconId(group_icon_id);
 }
 
 void LLGroupListItem::setGroupIconVisible(bool visible)

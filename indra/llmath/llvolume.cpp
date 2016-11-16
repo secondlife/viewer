@@ -2143,19 +2143,22 @@ BOOL LLVolume::generate()
 	
 	F32 profile_detail = mDetail;
 	F32 path_detail = mDetail;
-	
-	U8 path_type = mParams.getPathParams().getCurveType();
-	U8 profile_type = mParams.getProfileParams().getCurveType();
-	
-	if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
-	{ //cylinders don't care about Z-Axis
-		mLODScaleBias.setVec(0.6f, 0.6f, 0.0f);
+
+	if ((mParams.getSculptType() & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
+	{
+		U8 path_type = mParams.getPathParams().getCurveType();
+		U8 profile_type = mParams.getProfileParams().getCurveType();
+		if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
+		{
+			//cylinders don't care about Z-Axis
+			mLODScaleBias.setVec(0.6f, 0.6f, 0.0f);
+		}
+		else if (path_type == LL_PCODE_PATH_CIRCLE)
+		{
+			mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
+		}
 	}
-	else if (path_type == LL_PCODE_PATH_CIRCLE) 
-	{	
-		mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
-	}
-	
+
 	BOOL regenPath = mPathp->generate(mParams.getPathParams(), path_detail, split);
 	BOOL regenProf = mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(),profile_detail, split);
 

@@ -642,7 +642,7 @@ HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) 
     mHttpRequest(request)
 {
     mBoundListener = LLEventPumps::instance().obtain("mainloop").
-        listen(LLEventPump::inventName(), boost::bind(&HttpRequestPumper::pollRequest, this, _1));
+        listen(LLEventPump::ANONYMOUS, boost::bind(&HttpRequestPumper::pollRequest, this, _1));
 }
 
 HttpRequestPumper::~HttpRequestPumper()

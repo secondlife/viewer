@@ -391,7 +391,27 @@ static void buildPathname(std::ostream& out, const LLView* view)
 	buildPathname(out, view->getParent());
 
 	// Build pathname into ostream on the way back from recursion.
-	out << '/' << view->getName();
+	out << '/';
+
+	// substitute all '/' in name with appropriate code
+	std::string name = view->getName();
+	std::size_t found = name.find('/');
+	std::size_t start = 0;
+	while (found != std::string::npos)
+	{
+		std::size_t sub_len = found - start;
+		if (sub_len > 0)
+		{
+			out << name.substr(start, sub_len);
+		}
+		out << "%2F";
+		start = found + 1;
+		found = name.find('/', start);
+	}
+	if (start < name.size())
+	{
+		out << name.substr(start, name.size() - start);
+	}
 }
 
 std::string LLView::getPathname() const

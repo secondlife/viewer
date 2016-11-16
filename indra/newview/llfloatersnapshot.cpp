@@ -1375,7 +1375,7 @@ const LLVector3d& LLFloaterSnapshotBase::getPosTakenGlobal()
 // static
 void LLFloaterSnapshot::setAgentEmail(const std::string& email)
 {
-	LLFloaterSnapshot* instance = getInstance();
+	LLFloaterSnapshot* instance = findInstance();
 	if (instance)
 	{
 		LLSideTrayPanelContainer* panel_container = instance->getChild<LLSideTrayPanelContainer>("panel_container");

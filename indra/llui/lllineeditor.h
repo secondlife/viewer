@@ -272,7 +272,7 @@ public:
 
 	void			setReplaceNewlinesWithSpaces(BOOL replace);
 
-	void			setContextMenu(LLContextMenu* new_context_menu);
+	void			resetContextMenu() { setContextMenu(NULL); };
 
 private:
 	// private helper methods
@@ -307,6 +307,8 @@ private:
 	virtual BOOL	getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
 	virtual S32		getPreeditFontSize() const;
 	virtual LLWString getPreeditString() const { return getWText(); }
+
+	void			setContextMenu(LLContextMenu* new_context_menu);
 
 protected:
 	LLUIString		mText;					// The string being edited.

@@ -773,7 +773,9 @@ void LLMarketplaceData::getMerchantStatusCoro()
     std::string url = getSLMConnectURL("/merchant");
     if (url.empty())
     {
-        LL_INFOS("Marketplace") << "No marketplace capability on Sim" << LL_ENDL;
+        LL_WARNS("Marketplace") << "No marketplace capability on Sim" << LL_ENDL;
+        setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+        return;
     }
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
