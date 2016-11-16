@@ -3309,7 +3309,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Xcode'</string>
+                  <string>Xcode</string>
                 </array>
               </map>
               <key>default</key>
@@ -3334,7 +3334,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Xcode'</string>
+                  <string>Xcode</string>
                 </array>
               </map>
               <key>name</key>
@@ -3355,7 +3355,7 @@
                   <string>-configuration</string><string>Release</string>
                   <string>-project</string><string>SecondLife.xcodeproj</string>
                   <string>-DENABLE_SIGNING:BOOL=YES</string>
-                  <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
+                  <string>-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3367,7 +3367,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Xcode'</string>
+                  <string>Xcode</string>
                 </array>
               </map>
               <key>name</key>
@@ -3384,7 +3384,7 @@
                   <string>-configuration Release</string>
                   <string>-project SecondLife.xcodeproj</string>
                   <string>-DENABLE_SIGNING:BOOL=YES</string>
-                  <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
+                  <string>-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3392,7 +3392,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Xcode'</string>
+                  <string>Xcode</string>
                 </array>
               </map>
               <key>name</key>
@@ -3428,7 +3428,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Unix Makefiles'</string>
+                  <string>Unix Makefiles</string>
                 </array>
               </map>
               <key>default</key>
@@ -3452,7 +3452,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Unix Makefiles'</string>
+                  <string>Unix Makefiles</string>
                 </array>
               </map>
               <key>name</key>
@@ -3478,7 +3478,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Unix Makefiles'</string>
+                  <string>Unix Makefiles</string>
                 </array>
               </map>
               <key>name</key>
@@ -3500,7 +3500,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>'Unix Makefiles'</string>
+                  <string>Unix Makefiles</string>
                 </array>
               </map>
               <key>name</key>
@@ -3537,7 +3537,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}"</string>
+                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3575,7 +3575,7 @@
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3609,7 +3609,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}"</string>
+                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3645,7 +3645,7 @@
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
                 </array>
               </map>
               <key>configure</key>
