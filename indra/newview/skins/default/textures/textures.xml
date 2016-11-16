@@ -777,6 +777,9 @@ with the same filename but different name
   <texture name="default_land_picture.j2c" />
   <texture name="default_profile_picture.j2c" />
   <texture name="locked_image.j2c" />
+  <texture name="badge_note.j2c" />
+  <texture name="badge_warn.j2c" />
+  <texture name="badge_ok.j2c" />
   <texture name="materials_ui_x_24.png" />
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />

@@ -186,6 +186,7 @@ const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
 const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
+const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
 enum ERenderName
 {
@@ -7391,16 +7392,13 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// No backsies zone - if we get here, the message should be valid and usable, will be processed.
     LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
 
-    if (isSelf())
-    {
-        // Note:
-        // locally the COF is maintained via LLInventoryModel::accountForUpdate
-        // which is called from various places.  This should match the simhost's 
-        // idea of what the COF version is.  AIS however maintains its own version
-        // of the COF that should be considered canonical. 
-        mLastUpdateReceivedCOFVersion = thisAppearanceVersion;
-    }
-		
+    // Note:
+    // locally the COF is maintained via LLInventoryModel::accountForUpdate
+    // which is called from various places.  This should match the simhost's 
+    // idea of what the COF version is.  AIS however maintains its own version
+    // of the COF that should be considered canonical. 
+    mLastUpdateReceivedCOFVersion = thisAppearanceVersion;
+
     if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
     {
         updateVisualComplexity();
@@ -8356,6 +8354,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	{
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
+		hud_complexity_list_t hud_complexity_list;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
@@ -8432,6 +8431,63 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 						}
 					}
 				}
+                if (isSelf()
+                    && attached_object
+                    && attached_object->isHUDAttachment()
+                    && !attached_object->isTempAttachment()
+                    && attached_object->mDrawable)
+                {
+                    textures.clear();
+
+                    const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
+                    if (volume)
+                    {
+                        LLHUDComplexity hud_object_complexity;
+                        hud_object_complexity.objectName = attached_object->getAttachmentItemName();
+                        hud_object_complexity.objectId = attached_object->getAttachmentItemID();
+                        std::string joint_name;
+                        gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
+                        hud_object_complexity.jointName = joint_name;
+                        // get cost and individual textures
+                        hud_object_complexity.objectsCost += volume->getRenderCost(textures);
+                        hud_object_complexity.objectsCount++;
+
+                        LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+                        for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+                            iter != child_list.end(); ++iter)
+                        {
+                            LLViewerObject* childp = *iter;
+                            const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
+                            if (chld_volume)
+                            {
+                                // get cost and individual textures
+                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
+                                hud_object_complexity.objectsCount++;
+                            }
+                        }
+
+                        hud_object_complexity.texturesCount += textures.size();
+
+                        for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+                            volume_texture != textures.end();
+                            ++volume_texture)
+                        {
+                            // add the cost of each individual texture (ignores duplicates)
+                            hud_object_complexity.texturesCost += volume_texture->second;
+                            LLViewerFetchedTexture *tex = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+                            if (tex)
+                            {
+                                // Note: Texture memory might be incorect since texture might be still loading.
+                                hud_object_complexity.texturesMemoryTotal += tex->getTextureMemory();
+                                if (tex->getOriginalHeight() * tex->getOriginalWidth() >= HUD_OVERSIZED_TEXTURE_DATA_SIZE)
+                                {
+                                    hud_object_complexity.largeTexturesCount++;
+                                }
+                            }
+                        }
+                        hud_complexity_list.push_back(hud_object_complexity);
+                    }
+                }
 			}
 		}
 
@@ -8493,11 +8549,15 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
         static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
 
-		if (isSelf() && show_my_complexity_changes)
-		{
-			LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-		}
-	}
+        if (isSelf() && show_my_complexity_changes)
+        {
+            // Avatar complexity
+            LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
+
+            // HUD complexity
+            LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
+        }
+    }
 }
 
 void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)

@@ -254,6 +254,8 @@ private:
 
     void sendLogoutRequest();
     void disconnectViewer();
+
+	void showReleaseNotesIfRequired();
 	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
@@ -315,6 +317,7 @@ private:
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;
 
+	bool mIsFirstRun;
 	//---------------------------------------------
 	//*NOTE: Mani - legacy updater stuff
 	// Still useable?

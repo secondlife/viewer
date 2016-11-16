@@ -401,7 +401,7 @@ U64 LLXferManager::registerXfer(const void *datap, const S32 length)
 
 ///////////////////////////////////////////////////////////
 
-void LLXferManager::requestFile(const std::string& local_filename,
+U64 LLXferManager::requestFile(const std::string& local_filename,
 								const std::string& remote_filename,
 								ELLPath remote_path,
 								const LLHost& remote_host,
@@ -424,9 +424,11 @@ void LLXferManager::requestFile(const std::string& local_filename,
 
 		{
 			// cout << "requested a xfer already in progress" << endl;
-			return;
+			return xferp->mID;
 		}
 	}
+
+	U64 xfer_id = 0;
 
 	S32 chunk_size = use_big_packets ? LL_XFER_LARGE_PAYLOAD : -1;
 	xferp = (LLXfer *) new LLXfer_File(chunk_size);
@@ -438,13 +440,15 @@ void LLXferManager::requestFile(const std::string& local_filename,
 		// around.
 		// Note: according to AaronB, this is here to deal with locks on files that were
 		// in transit during a crash,
-		if(delete_remote_on_completion &&
-		   (remote_filename.substr(remote_filename.length()-4) == ".tmp"))
+		if( delete_remote_on_completion
+			&& (remote_filename.substr(remote_filename.length()-4) == ".tmp")
+			&& gDirUtilp->fileExists(local_filename))
 		{
 			LLFile::remove(local_filename);
 		}
+		xfer_id = getNextID();
 		((LLXfer_File *)xferp)->initializeRequest(
-			getNextID(),
+			xfer_id,
 			local_filename,
 			remote_filename,
 			remote_path,
@@ -457,6 +461,7 @@ void LLXferManager::requestFile(const std::string& local_filename,
 	{
 		LL_ERRS() << "Xfer allocation error" << LL_ENDL;
 	}
+	return xfer_id;
 }
 
 void LLXferManager::requestFile(const std::string& remote_filename,
@@ -616,7 +621,7 @@ void LLXferManager::processReceiveData (LLMessageSystem *mesgsys, void ** /*user
 	if (!xferp) 
 	{
 		char U64_BUF[MAX_STRING];		/* Flawfinder : ignore */
-		LL_WARNS() << "received xfer data from " << mesgsys->getSender()
+		LL_INFOS() << "received xfer data from " << mesgsys->getSender()
 			<< " for non-existent xfer id: "
 			<< U64_to_str(id, U64_BUF, sizeof(U64_BUF)) << LL_ENDL;
 		return;
@@ -1103,6 +1108,29 @@ void LLXferManager::retransmitUnackedPackets ()
 	}
 }
 
+///////////////////////////////////////////////////////////
+
+void LLXferManager::abortRequestById(U64 xfer_id, S32 result_code)
+{
+	LLXfer * xferp = findXfer(xfer_id, mReceiveList);
+	if (xferp)
+	{
+		if (xferp->mStatus == e_LL_XFER_IN_PROGRESS)
+		{
+			// causes processAbort();
+			xferp->abort(result_code);
+		}
+		else
+		{
+			xferp->mCallbackResult = result_code;
+			xferp->processEOF(); //should notify requester
+			removeXfer(xferp, &mReceiveList);
+		}
+		// Since already removed or marked as aborted no need
+		// to wait for processAbort() to start new download
+		startPendingDownloads();
+	}
+}
 
 ///////////////////////////////////////////////////////////
 

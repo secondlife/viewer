@@ -181,7 +181,12 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 		if (gDirUtilp->fileExists(mFilename))
 		{
 			// verifying that the file has indeed been modified
+
+#ifndef LL_WINDOWS
 			const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
+#else
+			const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(utf8str_to_utf16str(mFilename)));
+#endif
 			LLSD new_last_modified = asctime(localtime(&temp_time));
 
 			if (mLastModified.asString() != new_last_modified.asString())

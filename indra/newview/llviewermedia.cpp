@@ -1490,7 +1490,7 @@ void LLViewerMedia::createSpareBrowserMediaSource()
 		// The null owner will keep the browser plugin from fully initializing
 		// (specifically, it keeps LLPluginClassMedia from negotiating a size change,
 		// which keeps MediaPluginWebkit::initBrowserWindow from doing anything until we have some necessary data, like the background color)
-		sSpareBrowserMediaSource = LLViewerMediaImpl::newSourceFromMediaType(HTTP_CONTENT_TEXT_HTML, NULL, 0, 0);
+		sSpareBrowserMediaSource = LLViewerMediaImpl::newSourceFromMediaType(HTTP_CONTENT_TEXT_HTML, NULL, 0, 0, 1.0);
 	}
 }
 
@@ -1762,7 +1762,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target, bool clean_browser)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target, bool clean_browser)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
 	LLPluginClassMedia* media_source = NULL;
@@ -1779,6 +1779,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			media_source->setOwner(owner);
 			media_source->setTarget(target);
 			media_source->setSize(default_width, default_height);
+			media_source->setZoomFactor(zoom_factor);
 
 			return media_source;
 		}
@@ -1827,6 +1828,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			media_source->setSize(default_width, default_height);
 			media_source->setUserDataPath(user_data_path_cache, user_data_path_cookies);
 			media_source->setLanguageCode(LLUI::getLanguage());
+			media_source->setZoomFactor(zoom_factor);
 
 			// collect 'cookies enabled' setting from prefs and send to embedded browser
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
@@ -1883,6 +1885,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		// Save the previous media source's last set size before destroying it.
 		mMediaWidth = mMediaSource->getSetWidth();
 		mMediaHeight = mMediaSource->getSetHeight();
+		mZoomFactor = mMediaSource->getZoomFactor();
 	}
 
 	// Always delete the old media impl first.
@@ -1905,7 +1908,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	// Save the MIME type that really caused the plugin to load
 	mCurrentMimeType = mMimeType;
 
-	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mTarget, mCleanBrowser);
+	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser);
 
 	if (media_source)
 	{

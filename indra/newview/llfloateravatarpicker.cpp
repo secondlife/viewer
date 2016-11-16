@@ -55,6 +55,8 @@
 
 //#include "llsdserialize.h"
 
+static const U32 AVATAR_PICKER_SEARCH_TIMEOUT = 180U;
+
 //put it back as a member once the legacy path is out?
 static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 
@@ -463,10 +465,13 @@ void LLFloaterAvatarPicker::findCoro(std::string url, LLUUID queryID, std::strin
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    httpOpts->setTimeout(AVATAR_PICKER_SEARCH_TIMEOUT);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

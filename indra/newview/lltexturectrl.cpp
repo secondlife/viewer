@@ -1327,7 +1327,7 @@ void LLTextureCtrl::setOnTextureSelectedCallback(texture_selected_callback cb)
 
 void	LLTextureCtrl::setImageAssetName(const std::string& name)
 {
-	LLPointer<LLUIImage> imagep = LLUI::getUIImage(name, LLGLTexture::BOOST_PREVIEW);
+	LLPointer<LLUIImage> imagep = LLUI::getUIImage(name);
 	if(imagep)
 	{
 		LLViewerFetchedTexture* pTexture = dynamic_cast<LLViewerFetchedTexture*>(imagep->getImage().get());

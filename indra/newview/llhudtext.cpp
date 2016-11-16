@@ -53,7 +53,7 @@ const F32 VERTICAL_PADDING = 12.f;
 const F32 BUFFER_SIZE = 2.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const F32 HUD_TEXT_MAX_WIDTH_NO_BUBBLE = 1000.f;
-const F32 MAX_DRAW_DISTANCE = 64.f;
+const F32 MAX_DRAW_DISTANCE = 300.f;
 
 std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;
@@ -394,7 +394,20 @@ void LLHUDText::updateVisibility()
 
 	LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
 	F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).magVec();
-	if(last_distance_center > MAX_DRAW_DISTANCE)
+	F32 max_draw_distance = gSavedSettings.getF32("PrimTextMaxDrawDistance");
+
+	if(max_draw_distance < 0)
+	{
+		max_draw_distance = 0;
+		gSavedSettings.setF32("PrimTextMaxDrawDistance", max_draw_distance);
+	}
+	else if(max_draw_distance > MAX_DRAW_DISTANCE)
+	{
+		max_draw_distance = MAX_DRAW_DISTANCE;
+		gSavedSettings.setF32("PrimTextMaxDrawDistance", MAX_DRAW_DISTANCE);
+	}
+
+	if(last_distance_center > max_draw_distance)
 	{
 		mVisible = FALSE;
 		return;

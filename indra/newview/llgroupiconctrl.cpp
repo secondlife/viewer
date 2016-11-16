@@ -74,9 +74,16 @@ LLGroupIconCtrl::~LLGroupIconCtrl()
 	LLGroupMgr::getInstance()->removeObserver(this);
 }
 
-void LLGroupIconCtrl::setIconId(const LLSD& value)
+void LLGroupIconCtrl::setIconId(const LLUUID& icon_id)
 {
-    LLIconCtrl::setValue(value);
+    if (icon_id.notNull())
+    {
+        LLIconCtrl::setValue(icon_id);
+    }
+    else
+    {
+        LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
+    }
 }
 
 void LLGroupIconCtrl::setValue(const LLSD& value)
@@ -122,14 +129,7 @@ bool LLGroupIconCtrl::updateFromCache()
 	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mGroupId);
 	if (!group_data) return false;
 
-	if (group_data->mInsigniaID.notNull())
-	{
-		LLIconCtrl::setValue(group_data->mInsigniaID);
-	}
-	else
-	{
-		LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
-	}
+	setIconId(group_data->mInsigniaID);
 
 	if (mDrawTooltip && !group_data->mName.empty())
 	{

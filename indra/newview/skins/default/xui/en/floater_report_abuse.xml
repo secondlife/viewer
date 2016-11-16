@@ -21,14 +21,6 @@
      name="screenshot"
      top="15"
      width="220" />
-    <check_box
-     height="15"
-     label="Use this screenshot"
-     layout="topleft"
-     left="8"
-     name="screen_check"
-     top_pad="-12"
-     width="116" />
     <text
      type="string"
      length="1"
@@ -39,7 +31,7 @@
      layout="topleft"
      left="10"
      name="reporter_title"
-     top_pad="0"
+     top_pad="-2"
      width="100">
         Reporter:
     </text>

@@ -97,6 +97,7 @@ pre_build()
 
     "$autobuild" configure "${autobuild_configure_verbosity:---quiet}" -c $variant -- \
      -DPACKAGE:BOOL=ON \
+     -DUNATTENDED:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \

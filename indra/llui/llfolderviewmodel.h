@@ -173,6 +173,7 @@ public:
 	virtual BOOL isItemCopyable() const = 0;
 	virtual BOOL copyToClipboard() const = 0;
 	virtual BOOL cutToClipboard() = 0;
+	virtual bool isCutToClipboard() { return false; };
 
 	virtual BOOL isClipboardPasteable() const = 0;
 	virtual void pasteFromClipboard() = 0;

@@ -397,13 +397,15 @@ void set_merchant_SLM_menu()
 	gToolBarView->enableCommand(command->id(), true);
 }
 
-void check_merchant_status()
+void check_merchant_status(bool force)
 {
     if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
     {
-        // Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
-        LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
-        
+        if (force)
+        {
+            // Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
+        }
         // Hide SLM related menu item
         gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
         
