@@ -139,7 +139,7 @@
 #pragma warning (disable : 4180)	// qualifier applied to function type has no meaning; ignored
 //#pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
 
-#ifdef _M_AMD64
+#if ADDRESS_SIZE == 64
 // That one is all over the place for x64 builds.
 #pragma warning( disable : 4267 )   // 'var' : conversion from 'size_t' to 'type', possible loss of data)
 #endif
