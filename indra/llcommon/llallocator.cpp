@@ -27,47 +27,6 @@
 #include "linden_common.h"
 #include "llallocator.h"
 
-#if (LL_USE_TCMALLOC && LL_USE_HEAP_PROFILER)
-
-#include "google/heap-profiler.h"
-#include "google/commandlineflags_public.h"
-
-DECLARE_bool(heap_profile_use_stack_trace);
-//DECLARE_double(tcmalloc_release_rate);
-
-void LLAllocator::setProfilingEnabled(bool should_enable)
-{
-    // NULL disables dumping to disk
-    static char const * const PREFIX = NULL;
-    if(should_enable)
-    {
-		HeapProfilerSetUseStackTrace(false);
-        HeapProfilerStart(PREFIX);
-    }
-    else
-    {
-        HeapProfilerStop();
-    }
-}
-
-// static
-bool LLAllocator::isProfiling()
-{
-    return IsHeapProfilerRunning();
-}
-
-std::string LLAllocator::getRawProfile()
-{
-    // *TODO - fix google-perftools to accept an buffer to avoid this
-    // malloc-copy-free cycle.
-    char * buffer = GetHeapProfile();
-    std::string ret = buffer;
-    free(buffer);
-    return ret;
-}
-
-#else // LL_USE_TCMALLOC
-
 //
 // stub implementations for when tcmalloc is disabled
 //
@@ -86,8 +45,6 @@ std::string LLAllocator::getRawProfile()
 {
     return std::string();
 }
-
-#endif // LL_USE_TCMALLOC
 
 LLAllocatorHeapProfile const & LLAllocator::getProfile()
 {

@@ -10,7 +10,6 @@ include(Boost)
 include(LLSharedLibs)
 include(JsonCpp)
 include(GoogleBreakpad)
-include(GooglePerfTools)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
@@ -335,8 +334,4 @@ if (LL_TESTS)
 ## throwing and catching exceptions.
 ##LL_ADD_INTEGRATION_TEST(llexception "" "${test_libs}")
 
-  # *TODO - reenable these once tcmalloc libs no longer break the build.
-  #ADD_BUILD_TEST(llallocator llcommon)
-  #ADD_BUILD_TEST(llallocator_heap_profile llcommon)
-  #ADD_BUILD_TEST(llmemtype llcommon)
 endif (LL_TESTS)
