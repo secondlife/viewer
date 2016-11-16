@@ -163,6 +163,9 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 {
 	llassert( mMaxLengthBytes > 0 );
 
+	LLUICtrl::setEnabled(TRUE);
+	setEnabled(p.enabled);
+
 	mScrollTimer.reset();
 	mTripleClickTimer.reset();
 	setText(p.default_text());
@@ -335,7 +338,6 @@ void LLLineEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLLineEditor::setEnabled(BOOL enabled)
 {
-	LLUICtrl::setEnabled(enabled);
 	mReadOnly = !enabled;
 	setTabStop(!mReadOnly);
 	updateAllowingLanguageInput();
