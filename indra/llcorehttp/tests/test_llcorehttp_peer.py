@@ -44,6 +44,11 @@ from SocketServer import ThreadingMixIn
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
+
+# we're in llcorehttp/tests ; testrunner.py is found in llmessage/tests
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                             "llmessage", "tests"))
+
 from testrunner import freeport, run, debug, VERBOSE
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
