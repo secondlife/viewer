@@ -1049,6 +1049,10 @@ class Darwin_i386_Manifest(ViewerManifest):
         self.package_file = finalname
         self.remove(sparsename)
 
+class Darwin_i686_Manifest(Darwin_i386_Manifest):
+    """alias in case arch is passed as i686 instead of i386"""
+    pass
+
 class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
