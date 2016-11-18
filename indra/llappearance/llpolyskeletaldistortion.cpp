@@ -192,52 +192,52 @@ static LLTrace::BlockTimerStatHandle FTM_POLYSKELETAL_DISTORTION_APPLY("Skeletal
 
 void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 {
-	LL_RECORD_BLOCK_TIME(FTM_POLYSKELETAL_DISTORTION_APPLY);
+    LL_RECORD_BLOCK_TIME(FTM_POLYSKELETAL_DISTORTION_APPLY);
 
-	F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
+    F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
 
-        LLJoint* joint;
-        joint_vec_map_t::iterator iter;
+    LLJoint* joint;
+    joint_vec_map_t::iterator iter;
 
-        for (iter = mJointScales.begin();
-             iter != mJointScales.end();
-             iter++)
-        {
-                joint = iter->first;
-                LLVector3 newScale = joint->getScale();
-                LLVector3 scaleDelta = iter->second;
-                LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
-                newScale = newScale + offset;
-				//An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
-				// needed? 
-				// joint->storeScaleForReset( newScale );				
+    for (iter = mJointScales.begin();
+         iter != mJointScales.end();
+         iter++)
+    {
+        joint = iter->first;
+        LLVector3 newScale = joint->getScale();
+        LLVector3 scaleDelta = iter->second;
+        LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
+        newScale = newScale + offset;
+        //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
+        // needed? 
+        // joint->storeScaleForReset( newScale );				
 
-                // BENTO for detailed stack tracing of params.
-                std::stringstream ostr;
-                ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
-                LLScopedContextString str(ostr.str());
+        // BENTO for detailed stack tracing of params.
+        std::stringstream ostr;
+        ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
+        LLScopedContextString str(ostr.str());
 
-				joint->setScale(newScale, true);
-        }
+        joint->setScale(newScale, true);
+    }
 
-        for (iter = mJointOffsets.begin();
-             iter != mJointOffsets.end();
-             iter++)
-        {
-                joint = iter->first;
-                LLVector3 newPosition = joint->getPosition();
-                LLVector3 positionDelta = iter->second;				
-                newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
-                // SL-315
-                bool allow_attachment_pos_overrides = true;
-                joint->setPosition(newPosition, allow_attachment_pos_overrides);
-        }
+    for (iter = mJointOffsets.begin();
+         iter != mJointOffsets.end();
+         iter++)
+    {
+        joint = iter->first;
+        LLVector3 newPosition = joint->getPosition();
+        LLVector3 positionDelta = iter->second;				
+        newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
+        // SL-315
+        bool allow_attachment_pos_overrides = true;
+        joint->setPosition(newPosition, allow_attachment_pos_overrides);
+    }
 
-        if (mLastWeight != mCurWeight && !mIsAnimating)
-        {
-                mAvatar->setSkeletonSerialNum(mAvatar->getSkeletonSerialNum() + 1);
-        }
-        mLastWeight = mCurWeight;
+    if (mLastWeight != effective_weight && !mIsAnimating)
+    {
+        mAvatar->setSkeletonSerialNum(mAvatar->getSkeletonSerialNum() + 1);
+    }
+    mLastWeight = effective_weight;
 }
 
 
