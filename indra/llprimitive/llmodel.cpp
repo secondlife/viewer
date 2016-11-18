@@ -176,7 +176,7 @@ void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remain
 
 // Shrink group of models to fit
 // on a 1x1x1 cube centered at the origin.
-void LLModel::normalizeModels(std::vector<LLPointer<LLModel>> model_list)
+void LLModel::normalizeModels(std::vector<LLPointer<LLModel > > model_list)
 {
     std::vector<LLPointer<LLModel > >::iterator iter = model_list.begin();
 
