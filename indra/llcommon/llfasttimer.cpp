@@ -37,6 +37,7 @@
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
 #include "llerrorcontrol.h"
+#include "llcoros.h"
 
 #include <boost/bind.hpp>
 #include <queue>
@@ -77,7 +78,9 @@ BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 	TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
     // Want to avoid double counting the same time span
-    mIsDuplicate = (accumulator.mActiveCount > 0);
+    bool is_nested = (accumulator.mActiveCount > 0);
+    bool is_secondary_coro = !LLCoros::instance().getName().empty();
+    mIsDuplicate = is_nested || is_secondary_coro;
     if (!mIsDuplicate)
     {
         accumulator.mActiveCount++;
@@ -256,8 +259,9 @@ U64 BlockTimer::countsPerSecond()
 }
 #endif
 
-BlockTimerStatHandle::BlockTimerStatHandle(const char* name, const char* description)
-:   StatType<TimeBlockAccumulator>(name, description)
+BlockTimerStatHandle::BlockTimerStatHandle(const char* name, const char* description):   
+    StatType<TimeBlockAccumulator>(name, description),
+    mEverReparented(false)
 {}
 
 TimeBlockTreeNode& BlockTimerStatHandle::getTreeNode() const
@@ -324,6 +328,7 @@ void BlockTimer::incrementalUpdateTimerTree()
                 LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
                     " to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
                 timerp->setParent(timerp->getParent()->getParent());
+                timerp->mEverReparented = true;
                 accumulator.mParent = timerp->getParent();
                 accumulator.mMoveUpTree = false;
 
@@ -517,6 +522,7 @@ void BlockTimer::logStatsExtended()
                         {
                             sd[timer.getName()]["Parent"] = LLSD::String();
                         }
+                        sd[timer.getName()]["EverReparented"] = (LLSD::Boolean) timer.mEverReparented;
                     }
                 }
                 

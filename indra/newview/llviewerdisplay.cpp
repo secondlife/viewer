@@ -247,13 +247,18 @@ static LLTrace::BlockTimerStatHandle FTM_SANITY_PARENT("SanityParent");
 static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_A("SanityChildA");
 static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_B("SanityChildB");
 static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_C("SanityChildC");
+static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_SHARED("SanityChildShared");
 
 void test_timer_sub()
 {
     LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_C);
     ms_sleep(1);
     LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_C);
-    ms_sleep(1);
+    {
+        // Called by CHILD_C
+        LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_SHARED);
+        ms_sleep(1);
+    }
 }
 
 void test_timers()
@@ -267,8 +272,11 @@ void test_timers()
     {
         LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_B);
         ms_sleep(1);
-        LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_B);
-        ms_sleep(1);
+        {
+            // Called by CHILD_B
+            LL_RECORD_BLOCK_TIME(FTM_SANITY_CHILD_SHARED);
+            ms_sleep(1);
+        }
     }
 
     for (S32 i=0; i<10; i++)
@@ -283,7 +291,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
     // FIXME ARC this is just for sanity checking some fixes to timer
     // handling, should normally not be called. For one thing, it adds
     // a bunch of sleep statements to every frame.
-    // test_timers();
+    test_timers();
     
 	LL_RECORD_BLOCK_TIME(FTM_RENDER);
 
