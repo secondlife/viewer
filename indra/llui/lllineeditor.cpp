@@ -221,6 +221,13 @@ LLLineEditor::~LLLineEditor()
 	gFocusMgr.releaseFocusIfNeeded( this );
 }
 
+void LLLineEditor::initFromParams(const LLLineEditor::Params& params)
+{
+	LLUICtrl::initFromParams(params);
+	LLUICtrl::setEnabled(TRUE);
+	setEnabled(params.enabled);
+}
+
 void LLLineEditor::onFocusReceived()
 {
 	gEditMenuHandler = this;
