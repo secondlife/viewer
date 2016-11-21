@@ -1251,6 +1251,18 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		LLSidepanelInventory* parent = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		return parent ? parent->canShare() : FALSE;
 	}
+	if (command_name == "empty_trash")
+	{
+		const LLUUID &trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(trash_id);
+		return children != LLInventoryModel::CHILDREN_NO;
+	}
+	if (command_name == "empty_lostnfound")
+	{
+		const LLUUID &trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(trash_id);
+		return children != LLInventoryModel::CHILDREN_NO;
+	}
 
 	return TRUE;
 }
