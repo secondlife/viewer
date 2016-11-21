@@ -208,7 +208,7 @@
 #include "llfloaterreg.h"
 #include "llfloateroutfitsnapshot.h"
 #include "llfloatersnapshot.h"
-#include "llfloaterinventory.h"
+#include "llsidepanelinventory.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -5552,7 +5552,7 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	// close inventory interface, close all windows
-	LLFloaterInventory::cleanup();
+	LLSidepanelInventory::cleanup();
 
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();

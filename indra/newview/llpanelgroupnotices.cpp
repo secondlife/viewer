@@ -37,7 +37,6 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llinventorymodel.h"
-#include "llfloaterinventory.h"
 #include "llagent.h"
 #include "llagentui.h"
 
