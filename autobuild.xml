@@ -3603,7 +3603,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc120</string>
+          <string>build-vc120-$AUTOBUILD_ADDRSIZE</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
