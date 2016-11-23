@@ -35,6 +35,8 @@
 #pragma clang diagnostic ignored "-Wunused-private-field"
 #include "llkdumem.h"
 #pragma clang diagnostic pop
+#else
+#include "llkdumem.h"
 #endif
 #include "kdu_block_coding.h"
 // Tut header
