@@ -6164,6 +6164,7 @@ Link to this from a web page to give others easy access to this location, or try
    icon="alertmodal.tga"
    name="WLSavePresetAlert"
    type="alertmodal">
+   <unique/>
 Do you wish to overwrite the saved preset?
     <tag>confirm</tag>
     <usetemplate
