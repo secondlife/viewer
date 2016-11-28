@@ -37,7 +37,7 @@
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
 #include "llerrorcontrol.h"
-#include "llcoros.h"
+//#include "llcoros.h"
 
 #include <boost/bind.hpp>
 #include <queue>
@@ -79,7 +79,7 @@ BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 
     // Want to avoid double counting the same time span
     bool is_nested = (accumulator.mActiveCount > 0);
-    bool is_secondary_coro = !LLCoros::instance().getName().empty();
+    bool is_secondary_coro = false; //!LLCoros::instance().getName().empty();
     mIsDuplicate = is_nested || is_secondary_coro;
     if (!mIsDuplicate)
     {
