@@ -34,6 +34,10 @@ Linux.distcc_version =
 Linux.gcc_version = /usr/bin/gcc-4.6
 Linux.cxx_version = /usr/bin/g++-4.6
 
+# Need viewer-build-variables as well as other shared repositories
+buildscripts_shared_more_NAMEs="build_variables"
+build_variables_repostory_url = "https://bitbucket.org/lindenlab/viewer-build-variables"
+
 ################################################################
 ####      Examples of how to set the viewer_channel         ####
 #
