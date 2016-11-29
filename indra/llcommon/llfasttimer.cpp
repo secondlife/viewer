@@ -80,7 +80,8 @@ BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 
     // Want to avoid double counting the same time span
     bool is_nested = (accumulator.mActiveCount > 0);
-    bool is_secondary_coro = false; //!LLCoros::instance().getName().empty();
+    std::string name = LLCoros::instance().getName();
+    bool is_secondary_coro = ! name.empty();
     mIsDuplicate = is_nested || is_secondary_coro;
     if (!mIsDuplicate)
     {
