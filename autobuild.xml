@@ -3362,7 +3362,7 @@
           <key>name</key>
           <string>common</string>
         </map>
-        <key>darwin</key>
+        <key>darwin64</key>
         <map>
           <key>build_directory</key>
           <string>build-darwin-i386</string>
@@ -3490,7 +3490,7 @@
             </map>
           </map>
           <key>name</key>
-          <string>darwin</string>
+          <string>darwin64</string>
         </map>
         <key>linux</key>
         <map>
