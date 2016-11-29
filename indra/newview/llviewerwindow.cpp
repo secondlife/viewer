@@ -1599,17 +1599,20 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
-void LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
+BOOL LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
 {
     if (ui_scale_factor >= MIN_UI_SCALE && ui_scale_factor <= MAX_UI_SCALE)
     {
+        gSavedSettings.setF32("LastSystemUIScaleFactor", ui_scale_factor);
         gSavedSettings.setF32("UIScaleFactor", ui_scale_factor);
         LLViewerWindow::reshape(window_width, window_height);
         mResDirty = true;
+        return TRUE;
     }
     else
     {
         LL_WARNS() << "DPI change caused UI scale to go out of bounds: " << ui_scale_factor << LL_ENDL;
+        return FALSE;
     }
 }
 
