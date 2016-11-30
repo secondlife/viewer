@@ -5227,11 +5227,15 @@ class LLToolsSelectNextPartFace : public view_listener_t
             if (!to_select) return false;
 
             S32 te_count = to_select->getNumTEs();
-            S32 selected_te = nodep->getLastSelectedTE();
+            S32 selected_te = nodep->getLastOperatedTE();
 
-            if ((fwd || ifwd) && selected_te >= 0)
+            if (fwd || ifwd)
             {
-                if (selected_te + 1 < te_count)
+                if (selected_te < 0)
+                {
+                    new_te = 0;
+                }
+                else if (selected_te + 1 < te_count)
                 {
                     // select next face
                     new_te = selected_te + 1;
@@ -5242,9 +5246,13 @@ class LLToolsSelectNextPartFace : public view_listener_t
                     restart_face_on_part = true;
                 }
             }
-            else if ((prev || iprev) && selected_te < te_count)
+            else if (prev || iprev)
             {
-                if (selected_te - 1 >= 0)
+                if (selected_te > te_count)
+                {
+                    new_te = te_count - 1;
+                }
+                else if (selected_te - 1 >= 0)
                 {
                     // select previous face
                     new_te = selected_te - 1;

@@ -170,6 +170,7 @@ public:
 	void selectTE(S32 te_index, BOOL selected);
 	BOOL isTESelected(S32 te_index);
 	S32 getLastSelectedTE();
+	S32 getLastOperatedTE();
 	S32 getTESelectMask() { return mTESelectMask; }
 	void renderOneWireframe(const LLColor4& color);
 	void renderOneSilhouette(const LLColor4 &color);
