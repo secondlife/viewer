@@ -508,7 +508,7 @@ public:
             // been explicitly added. Rely on std::map rejecting a second attempt
             // to insert the same key. Use the map's size() as the vertex number
             // to get a distinct value for each successful insertion.
-            typedef std::map<KEY, int> VertexMap;
+            typedef std::map<KEY, std::size_t> VertexMap;
             VertexMap vmap;
             // Nest each of these loops because !@#$%? MSVC warns us that its
             // former broken behavior has finally been fixed -- and our builds
