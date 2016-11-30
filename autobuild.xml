@@ -2092,11 +2092,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aa57ea2503372a4c6c19cf550e7ec231</string>
+              <string>640cd808de734d9a6ca564475d951980</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/917/2040/llceflib-1.5.3.500907-windows-500907.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1121/2604/llceflib-1.5.3.501109-windows-501109.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2106,16 +2106,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>62f08e66dd3f0a8c5b3382b7a1328639</string>
+              <string>f4b75f37ba344db3efeddfafff10f5f9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/916/2043/llceflib-1.5.3.500907-windows64-500907.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1120/2601/llceflib-1.5.3.501109-windows64-501109.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.3.500907</string>
+        <string>1.5.3.501109</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
