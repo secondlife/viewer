@@ -40,6 +40,7 @@ public:
     static void scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin);
     static void initSkinningMatrixPalette(LLMatrix4* mat, S32 count, const LLMeshSkinInfo* skin, LLVOAvatar *avatar);
     static void checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
+    static void scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
     static void getPerVertexSkinMatrix(F32* weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat, U32 max_joints);
 };
 
