@@ -429,7 +429,7 @@ extern "C" {
 		return DefDriverProc_orig( dwDriverIdentifier, hdrvr, uMsg, lParam1, lParam2);
 	}
 
-	BOOL WINAPI DriverCallback( DWORD dwCallBack, DWORD dwFlags, HDRVR hdrvr, DWORD msg, DWORD dwUser, DWORD dwParam1, DWORD dwParam2)
+	BOOL WINAPI DriverCallback( DWORD_PTR dwCallBack, DWORD dwFlags, HDRVR hdrvr, DWORD msg, DWORD_PTR dwUser, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 	{
 		ll_winmm_shim_initialize();
 		//OutputDebugString(L"DriverCallback\n");
