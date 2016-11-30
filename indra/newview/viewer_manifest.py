@@ -287,7 +287,8 @@ class ViewerManifest(LLManifest):
         random.shuffle(names)
         return ', '.join(names)
 
-class Windows_i686_Manifest(ViewerManifest):
+
+class WindowsManifest(ViewerManifest):
     def final_exe(self):
         return self.app_name_oneword()+".exe"
 
@@ -338,7 +339,7 @@ class Windows_i686_Manifest(ViewerManifest):
             print "Doesn't exist:", src
         
     def construct(self):
-        super(Windows_i686_Manifest, self).construct()
+        super(WindowsManifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -696,7 +697,17 @@ class Windows_i686_Manifest(ViewerManifest):
         self.package_file = installer_file
 
 
-class Darwin_i386_Manifest(ViewerManifest):
+class Windows_i686_Manifest(WindowsManifest):
+    # specialize when we must
+    pass
+
+
+class Windows_x86_64_Manifest(WindowsManifest):
+    # specialize when we must
+    pass
+
+
+class DarwinManifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
@@ -722,7 +733,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
-                super(Darwin_i386_Manifest, self).construct()
+                super(DarwinManifest, self).construct()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")
@@ -1049,9 +1060,19 @@ class Darwin_i386_Manifest(ViewerManifest):
         self.package_file = finalname
         self.remove(sparsename)
 
-class Darwin_i686_Manifest(Darwin_i386_Manifest):
+
+class Darwin_i386_Manifest(DarwinManifest):
+    pass
+
+
+class Darwin_i686_Manifest(DarwinManifest):
     """alias in case arch is passed as i686 instead of i386"""
     pass
+
+
+class Darwin_x86_64_Manifest(DarwinManifest):
+    pass
+
 
 class LinuxManifest(ViewerManifest):
     def construct(self):
