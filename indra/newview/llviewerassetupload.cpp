@@ -824,8 +824,15 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
     }
 
     LLSD args;
-    args["FILE"] = uploadInfo->getDisplayName();
-    args["REASON"] = reason;
+    if(label == "ErrorMessage")
+    {
+        args["ERROR_MESSAGE"] = reason;
+    }
+    else
+    {
+        args["FILE"] = uploadInfo->getDisplayName();
+        args["REASON"] = reason;
+    }
 
     LLNotificationsUtil::add(label, args);
 
