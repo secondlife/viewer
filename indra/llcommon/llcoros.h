@@ -145,6 +145,11 @@ public:
      */
     std::string getName() const;
 
+    /**
+     * Is sCurrentCoro non-null?
+     */
+    bool isInCoroutine() const;
+    
     /// for delayed initialization
     void setStackSize(S32 stacksize);
 
