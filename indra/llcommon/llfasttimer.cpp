@@ -80,7 +80,13 @@ BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 
     // Want to avoid double counting the same time span
     bool is_nested = (accumulator.mActiveCount > 0);
+#ifndef LL_LINUX
     bool is_secondary_coro = LLCoros::instance().isInCoroutine();
+#else
+    // LINUX has some kind of antipathy to coro references, may just be tests failing to link.
+    bool is_secondary_coro = false;
+#endif
+    
 
     mIsDuplicate = is_nested || is_secondary_coro;
     if (!mIsDuplicate)
