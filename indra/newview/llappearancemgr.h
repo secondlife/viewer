@@ -225,6 +225,7 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
+	static void onIdle(void *);
 	void requestServerAppearanceUpdate();
 
 	void setAppearanceServiceURL(const std::string& url) { mAppearanceServiceURL = url; }
@@ -233,7 +234,6 @@ public:
 	typedef boost::function<void ()> attachments_changed_callback_t;
 	typedef boost::signals2::signal<void ()> attachments_changed_signal_t;
 	boost::signals2::connection setAttachmentsChangedCallback(attachments_changed_callback_t cb);
-
 
 
 private:
