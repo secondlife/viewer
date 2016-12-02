@@ -58,12 +58,18 @@ class DerivedSelfTimers:
         self.kwargs = kwargs
     def __getitem__(self, key):
         value = self.sd["Timers"][key]["Time"]
+        ignore = []
+        if "ignore" in self.kwargs:
+            ignore = self.kwargs["ignore"]
         if "children" in self.kwargs:
             children = self.kwargs["children"]
             if children is not None:
                 for child in children.get(key,[]):
                     if child in self.sd["Timers"]:
-                        value -= self.sd["Timers"][child]["Time"]
+                        if child in ignore:
+                            print key,"ignore",child
+                        else:
+                            value -= self.sd["Timers"][child]["Time"]
         return value
 
 class DerivedTimers:
@@ -158,6 +164,44 @@ def collect_pandas_frame_data(filename, fields, max_records, prune=None, **kwarg
 
     return pd.DataFrame(frame_data,columns=header)
 
+def get_timer_info(filename):
+    iter_rec = iter(get_frame_record(filename))
+    sd = next(iter_rec)
+    child_info = {}
+    parent_info = {}
+    for timer in sd["Timers"]:
+        if "Parent" in sd["Timers"][timer]:
+            parent = sd["Timers"][timer]["Parent"]
+            child_info.setdefault(parent,[]).append(timer)
+            parent_info[timer] = parent
+    timer_keys = [timer for timer in sd["Timers"]]
+    reparented_timers = []
+    directly_reparented = []
+    for timer in timer_keys:
+        reparented = False
+        curr_timer_data = sd["Timers"][timer]
+        curr_timer = timer
+        while curr_timer:
+            # follow chain of parents to see if any have been reparented
+            if curr_timer == "root":
+                break
+            if "EverReparented" in curr_timer_data and curr_timer_data["EverReparented"]:
+                if curr_timer == timer:
+                    directly_reparented.append(timer)
+                reparented = True
+                break
+            if not "EverReparented" in curr_timer_data:
+                print "timer",curr_timer,"has no EverReparented"
+            if curr_timer in parent_info:
+                curr_timer = parent_info[curr_timer]
+                curr_timer_data = sd["Timers"][curr_timer]
+            else:
+                break
+        if reparented:
+            reparented_timers.append(timer)
+            
+    return (child_info, parent_info, timer_keys, reparented_timers, directly_reparented)
+    
 def get_child_info(filename):
     child_info = {}
     iter_rec = iter(get_frame_record(filename))
@@ -249,21 +293,33 @@ if __name__ == "__main__":
                        "Derived.SelfTimers.Render",
     ]
 
-    child_info = get_child_info("performance.slp")
-    all_keys = get_all_timer_keys("performance.slp")
-    all_timers = sorted(["Timers." + key + ".Time" for key in all_keys])
-    all_calls = sorted(["Timers." + key + ".Calls" for key in all_keys])
-    all_self_timers = sorted(["Derived.SelfTimers." + key for key in all_keys])
-
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=default_fields)
+    parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
     parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
+    parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
     parser.add_argument("--export", help="export results to specified file")
     parser.add_argument("--max_records", type=int, help="limit to number of frames to process") 
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
+
+    print "start get_timer_info"
+    child_info, parent_info, all_keys, reparented_timers, directly_reparented = get_timer_info("performance.slp")
+    print "done get_timer_info"
+
+    if args.no_reparented:
+        print len(reparented_timers),"are reparented, of which",len(directly_reparented),"reparented directly"
+        print ", ".join(sorted(reparented_timers))
+        print
+        print ", ".join(sorted(directly_reparented))
+        all_keys = [key for key in all_keys if key not in reparented_timers]
+
+    all_timers = sorted(["Timers." + key + ".Time" for key in all_keys])
+    all_calls = sorted(["Timers." + key + ".Calls" for key in all_keys])
+    all_self_timers = sorted(["Derived.SelfTimers." + key for key in all_keys])
+
 
     # handle special values for fields
     newargs = []
@@ -277,9 +333,20 @@ if __name__ == "__main__":
         else:
             newargs.append(f)
     args.fields = newargs
-    
+
+    for t in args.timers:
+        args.fields.append("Timers." + t + ".Time")
+        if t in child_info:
+            for c in child_info[t]:
+                if not c in reparented_timers:
+                    args.fields.append("Timers." + c + ".Time")
+    print args.fields
+        
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
-    pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001, children=child_info)
+    ignore_list = []
+    if args.no_reparented:
+        ignore_list = reparented_timers
+    pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001, children=child_info, ignore=ignore_list)
     if args.verbose:
         for key in sorted(child_info.keys()):
             print key,child_info[key]

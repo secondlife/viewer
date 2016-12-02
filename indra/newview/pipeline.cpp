@@ -230,6 +230,7 @@ LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE("Simple");
 LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN("Terrain");
 LLTrace::BlockTimerStatHandle FTM_RENDER_TREES("Trees");
 LLTrace::BlockTimerStatHandle FTM_RENDER_UI("UI");
+LLTrace::BlockTimerStatHandle FTM_RENDER_HUD_UI("HUD_UI");
 LLTrace::BlockTimerStatHandle FTM_RENDER_WATER("Water");
 LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY("Windlight Sky");
 LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA("Alpha Objects");
@@ -4032,7 +4033,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 void render_hud_elements()
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD_UI); // Break this out from FTM_RENDER_UI so the timer ancestry is stable
 	gPipeline.disableLights();		
 	
 	LLGLDisable fog(GL_FOG);
