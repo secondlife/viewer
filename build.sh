@@ -176,6 +176,8 @@ then
     exit 1
 fi
 
+initialize_build # provided by master buildscripts build.sh
+
 # Check to see if we're skipping the platform
 if ! eval '$build_'"$arch"
 then
@@ -207,6 +209,8 @@ fi
 begin_section "Environment"
 env|sort
 end_section "Environment"
+
+initialize_version # provided by buildscripts build.sh; sets version id
 
 # Now run the build
 succeeded=true
