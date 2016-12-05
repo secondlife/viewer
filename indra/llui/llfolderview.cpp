@@ -684,6 +684,13 @@ void LLFolderView::draw()
 		}
 	}
 
+	if (mRenameItem && mRenamer && mRenamer->getVisible() && !getVisibleRect().overlaps(mRenamer->getRect()))
+	{
+		// renamer is not connected to the item we are renaming in any form so manage it manually
+		// TODO: consider stopping on any scroll action instead of when out of visible area
+		finishRenamingItem();
+	}
+
 	// skip over LLFolderViewFolder::draw since we don't want the folder icon, label, 
 	// and arrow for the root folder
 	LLView::draw();

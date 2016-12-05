@@ -564,9 +564,9 @@ namespace tut
 					function;
 		writeReturningLocationAndFunction(location, function);
 
-		ensure_equals("order is location time type function message",
+		ensure_equals("order is time location type function message",
 			message(0),
-			location + roswell() + " INFO: " + function + ": apple");
+			roswell() + " INFO: " + location + function + ": apple");
 	}
 
 	template<> template<>

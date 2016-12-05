@@ -385,6 +385,8 @@ typedef boost::signals2::trackable LLEventTrackable;
 class LL_COMMON_API LLEventPump: public LLEventTrackable
 {
 public:
+    static const std::string ANONYMOUS; // constant for anonymous listeners.
+
     /**
      * Exception thrown by LLEventPump(). You are trying to instantiate an
      * LLEventPump (subclass) using the same name as some other instance, and
@@ -496,6 +498,12 @@ public:
      * instantiate your listener, then passing the same name on each listen()
      * call, allows us to optimize away the second and subsequent dependency
      * sorts.
+     * 
+     * If name is set to LLEventPump::ANONYMOUS listen will bypass the entire 
+     * dependency and ordering calculation. In this case, it is critical that 
+     * the result be assigned to a LLTempBoundListener or the listener is 
+     * manually disconnected when no longer needed since there will be no
+     * way to later find and disconnect this listener manually.
      *
      * If (as is typical) you pass a <tt>boost::bind()</tt> expression as @a
      * listener, listen() will inspect the components of that expression. If a

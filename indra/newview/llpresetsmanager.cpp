@@ -104,8 +104,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 		if (found)
 		{
 			std::string path = gDirUtilp->add(dir, file);
-			std::string name = gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true);
-
+			std::string name = LLURI::unescape(gDirUtilp->getBaseFileName(path, /*strip_exten = */ true));
             LL_DEBUGS() << "  Found preset '" << name << "'" << LL_ENDL;
 
 			if (PRESETS_DEFAULT != name)

@@ -64,6 +64,7 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
         // needed for handling of any legacy bad data.
         if (!avatar->getJoint(skin->mJointNames[j]))
         {
+            LL_DEBUGS("Avatar") << "Mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
             skin->mJointNames[j] = "mPelvis";
         }
     }
@@ -138,6 +139,24 @@ void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, con
         llassert(wsum > 0.0f);
     }
 #endif
+}
+
+void LLSkinningUtil::scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
+{
+    const S32 max_joints = skin->mJointNames.size();
+    for (U32 j=0; j<num_vertices; j++)
+    {
+        F32 *w = weights[j].getF32ptr();
+
+        for (U32 k=0; k<4; ++k)
+        {
+            S32 i = llfloor(w[k]);
+            F32 f = w[k]-i;
+            i = llclamp(i,0,max_joints-1);
+            w[k] = i + f;
+        }
+    }
+	checkSkinWeights(weights, num_vertices, skin);
 }
 
 // static

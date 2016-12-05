@@ -953,6 +953,8 @@ public:
 	// mWeights.size() should be empty or match mVertices.size()  
 	LLVector4a* mWeights;
 
+    mutable BOOL mWeightsScrubbed;
+    
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 	//whether or not face has been cache optimized

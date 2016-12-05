@@ -5,7 +5,7 @@
 	<panel.string name="time">[hour, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]</panel.string>
 	<panel.string name="timeTooltip">[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]</panel.string>
 	<panel.string name="buycurrencylabel">L$ [AMT]</panel.string>
-	<panel left="-450" name="balance_bg" width="240">
+	<panel left="-471" name="balance_bg" width="240">
 		<text name="balance" tool_tip="Щелкните для обновления вашего баланса L$" value="L$??"/>
 		<button label="Купить L$" name="buyL" tool_tip="Щелкните для покупки L$"/>
 		<button label="Торговый центр" name="goShop" tool_tip="Открыть торговый центр Second Life" width="121"/>

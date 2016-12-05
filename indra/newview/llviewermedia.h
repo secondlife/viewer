@@ -299,7 +299,7 @@ public:
 	void setTarget(const std::string& target) { mTarget = target; }
 	
 	// utility function to create a ready-to-use media instance from a desired media type.
-	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target = LLStringUtil::null, bool clean_browser = false);
+	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target = LLStringUtil::null, bool clean_browser = false);
 
 	// Internally set our desired browser user agent string, including
 	// the Second Life version and skin name.  Used because we can

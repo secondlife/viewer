@@ -188,6 +188,7 @@ const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
 const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
+const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
 enum ERenderName
 {
@@ -1848,7 +1849,7 @@ void LLVOAvatar::resetVisualParams()
 //-----------------------------------------------------------------------------
 // resetSkeleton()
 //-----------------------------------------------------------------------------
-void LLVOAvatar::resetSkeleton()
+void LLVOAvatar::resetSkeleton(bool reset_animations)
 {
     LL_DEBUGS("Avatar") << avString() << " reset starts" << LL_ENDL;
     if (!mLastProcessedAppearance)
@@ -1907,12 +1908,28 @@ void LLVOAvatar::resetSkeleton()
     // Reset tweakable params to preserved state
     bool slam_params = true;
     applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
-
     updateVisualParams();
 
     // Restore attachment pos overrides
     rebuildAttachmentOverrides();
 
+    // Animations
+    if (reset_animations)
+    {
+        if (isSelf())
+        {
+            // This is equivalent to "Stop Animating Me". Will reset
+            // all animations and propagate the changes to other
+            // viewers.
+            gAgent.stopCurrentAnimations();
+        }
+        else
+        {
+            // Local viewer-side reset for non-self avatars.
+            resetAnimations();
+        }
+    }
+    
     LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
 }
 
@@ -5461,32 +5478,13 @@ void LLVOAvatar::clearAttachmentOverrides()
 {
     LLScopedContextString str("clearAttachmentOverrides " + getFullname());
 
-	//Subsequent joints are relative to pelvis
-	avatar_joint_list_t::iterator iter = mSkeleton.begin();
-	avatar_joint_list_t::iterator end  = mSkeleton.end();
-
-	for (; iter != end; ++iter)
-	{
-		LLJoint* pJoint = (*iter);
-		if (pJoint)
-		{
-			pJoint->clearAttachmentPosOverrides();
-		}
-		if (pJoint)
-		{
-			pJoint->clearAttachmentScaleOverrides();
-		}
-	}
-
-    // Attachment points
-	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment *attachment_pt = (*iter).second;
-        if (attachment_pt)
+    for (S32 i=0; i<LL_CHARACTER_MAX_ANIMATED_JOINTS; i++)
+    {
+        LLJoint *pJoint = getJoint(i);
+        if (pJoint)
         {
-            attachment_pt->clearAttachmentPosOverrides();
+			pJoint->clearAttachmentPosOverrides();
+			pJoint->clearAttachmentScaleOverrides();
         }
     }
 }
@@ -5571,9 +5569,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 				{
 					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
 					LLJoint* pJoint = getJoint( lookingForJoint );
-					if ( pJoint && pJoint->getId() != currentId )
+					if (pJoint)
 					{   									
-						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
                         if (pJoint->aboveJointPosThreshold(jointPos))
                         {
@@ -5780,7 +5777,6 @@ void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
 		if ( pJoint )
 		{			
             bool dummy; // unused
-			pJoint->setId( LLUUID::null );
 			pJoint->removeAttachmentPosOverride(mesh_id, avString(),dummy);
 			pJoint->removeAttachmentScaleOverride(mesh_id, avString());
 		}		
@@ -9136,6 +9132,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	{
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
+		hud_complexity_list_t hud_complexity_list;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
@@ -9214,6 +9211,63 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 						}
 					}
 				}
+                if (isSelf()
+                    && attached_object
+                    && attached_object->isHUDAttachment()
+                    && !attached_object->isTempAttachment()
+                    && attached_object->mDrawable)
+                {
+                    textures.clear();
+
+                    const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
+                    if (volume)
+                    {
+                        LLHUDComplexity hud_object_complexity;
+                        hud_object_complexity.objectName = attached_object->getAttachmentItemName();
+                        hud_object_complexity.objectId = attached_object->getAttachmentItemID();
+                        std::string joint_name;
+                        gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
+                        hud_object_complexity.jointName = joint_name;
+                        // get cost and individual textures
+                        hud_object_complexity.objectsCost += volume->getRenderCost(textures);
+                        hud_object_complexity.objectsCount++;
+
+                        LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+                        for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+                            iter != child_list.end(); ++iter)
+                        {
+                            LLViewerObject* childp = *iter;
+                            const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
+                            if (chld_volume)
+                            {
+                                // get cost and individual textures
+                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
+                                hud_object_complexity.objectsCount++;
+                            }
+                        }
+
+                        hud_object_complexity.texturesCount += textures.size();
+
+                        for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+                            volume_texture != textures.end();
+                            ++volume_texture)
+                        {
+                            // add the cost of each individual texture (ignores duplicates)
+                            hud_object_complexity.texturesCost += volume_texture->second;
+                            LLViewerFetchedTexture *tex = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+                            if (tex)
+                            {
+                                // Note: Texture memory might be incorect since texture might be still loading.
+                                hud_object_complexity.texturesMemoryTotal += tex->getTextureMemory();
+                                if (tex->getOriginalHeight() * tex->getOriginalWidth() >= HUD_OVERSIZED_TEXTURE_DATA_SIZE)
+                                {
+                                    hud_object_complexity.largeTexturesCount++;
+                                }
+                            }
+                        }
+                        hud_complexity_list.push_back(hud_object_complexity);
+                    }
+                }
 			}
 		}
 
@@ -9276,11 +9330,15 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
         static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
 
-		if (isSelf() && show_my_complexity_changes)
-		{
-			LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-		}
-	}
+        if (isSelf() && show_my_complexity_changes)
+        {
+            // Avatar complexity
+            LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
+
+            // HUD complexity
+            LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
+        }
+    }
 }
 
 void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)

@@ -34,10 +34,8 @@ import sys
 from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
-mydir = os.path.dirname(__file__)       # expected to be .../indra/llmessage/tests/
-sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
-from indra.util.fastest_elementtree import parse as xml_parse
-from indra.base import llsd
+from llbase.fastest_elementtree import parse as xml_parse
+from llbase import llsd
 from testrunner import freeport, run, debug, VERBOSE
 import time
 

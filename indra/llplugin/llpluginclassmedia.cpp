@@ -73,6 +73,7 @@ bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::s
 	// Queue up the media init message -- it will be sent after all the currently queued messages.
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "init");
 	message.setValue("target", mTarget);
+	message.setValueReal("factor", mZoomFactor);
 	sendMessage(message);
 
 	mPlugin->init(launcher_filename, plugin_dir, plugin_filename, debug);
@@ -1259,7 +1260,7 @@ void LLPluginClassMedia::focus(bool focused)
 	sendMessage(message);
 }
 
-void LLPluginClassMedia::set_page_zoom_factor( double factor )
+void LLPluginClassMedia::set_page_zoom_factor( F64 factor )
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_page_zoom_factor");
 

@@ -531,6 +531,13 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		
 	case LL_PATH_PER_ACCOUNT_CHAT_LOGS:
 		prefix = getPerAccountChatLogsDir();
+		if (prefix.empty())
+		{
+			// potentially directory was not set yet
+			// intentionally return a blank string to the caller
+			LL_DEBUGS("LLDir") << "Conversation log directory is not yet set" << LL_ENDL;
+			return std::string();
+		}
 		break;
 
 	case LL_PATH_LOGS:
