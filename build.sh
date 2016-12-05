@@ -222,9 +222,6 @@ build_processes=
 last_built_variant=
 for variant in $variants
 do
-  eval '$build_'"$variant" || continue
-  eval '$build_'"$arch"_"$variant" || continue
-
   # Only the last built arch is available for upload
   last_built_variant="$variant"
 
