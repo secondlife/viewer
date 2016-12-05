@@ -669,7 +669,7 @@ class WindowsManifest(ViewerManifest):
         while (not installer_created) and (nsis_attempts > 0):
             try:
                 nsis_attempts-=1;
-                self.run_command('"' + NSIS_path + '" ' + self.dst_path_of(tempfile))
+                self.run_command('"' + NSIS_path + '" /V2 ' + self.dst_path_of(tempfile))
                 installer_created=True # if no exception was raised, the codesign worked
             except ManifestError, err:
                 if nsis_attempts:
