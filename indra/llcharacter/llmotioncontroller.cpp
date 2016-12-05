@@ -37,7 +37,8 @@
 #include "llanimationstates.h"
 #include "llstl.h"
 
-const S32 NUM_JOINT_SIGNATURE_STRIDES = LL_CHARACTER_MAX_JOINTS / 4;
+// This is why LL_CHARACTER_MAX_ANIMATED_JOINTS needs to be a multiple of 4.
+const S32 NUM_JOINT_SIGNATURE_STRIDES = LL_CHARACTER_MAX_ANIMATED_JOINTS / 4;
 const U32 MAX_MOTION_INSTANCES = 32;
 
 //-----------------------------------------------------------------------------
@@ -488,8 +489,8 @@ void LLMotionController::updateAdditiveMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::resetJointSignatures()
 {
-	memset(&mJointSignature[0][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
-	memset(&mJointSignature[1][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
+	memset(&mJointSignature[0][0], 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
+	memset(&mJointSignature[1][0], 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
 }
 
 //-----------------------------------------------------------------------------
@@ -553,9 +554,9 @@ static LLTrace::BlockTimerStatHandle FTM_MOTION_ON_UPDATE("Motion onUpdate");
 void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_type)
 {
 	BOOL update_result = TRUE;
-	U8 last_joint_signature[LL_CHARACTER_MAX_JOINTS];
+	U8 last_joint_signature[LL_CHARACTER_MAX_ANIMATED_JOINTS];
 
-	memset(&last_joint_signature, 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
+	memset(&last_joint_signature, 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
 
 	// iterate through active motions in chronological order
 	for (motion_list_t::iterator iter = mActiveMotions.begin();
@@ -576,7 +577,6 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		}
 		else
 		{
-			// NUM_JOINT_SIGNATURE_STRIDES should be multiple of 4
 			for (S32 i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
 			{
 		 		U32 *current_signature = (U32*)&(mJointSignature[0][i * 4]);

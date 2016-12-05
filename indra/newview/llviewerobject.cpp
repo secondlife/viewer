@@ -371,7 +371,7 @@ void LLViewerObject::markDead()
 		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
 		{
 			// This case is needed for indirectly attached mesh objects.
-			av->resetJointPositionsOnDetach(mesh_id);
+			av->resetJointsOnDetach(mesh_id);
 		}
 
 		// Mark itself as dead

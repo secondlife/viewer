@@ -41,6 +41,9 @@
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
+	<string name="BuildConfig">
+		建製設置 [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
 		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 第二人生URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -71,6 +74,9 @@ LLCEFLib/CEF版本：[LLCEFLIB_VERSION]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		擷取伺服器版本說明 URL 時出錯。
+	</string>
+	<string name="BuildConfiguration">
+		建製設置
 	</string>
 	<string name="ProgressRestoring">
 		回存中...
@@ -1382,6 +1388,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="BodyPartsRightLeg">
 		右腿
 	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		增強版骨架
+	</string>
 	<string name="GraphicsQualityLow">
 		低
 	</string>
@@ -1830,6 +1839,51 @@ http://secondlife.com/viewer-access-faq
 	<string name="Avatar Center">
 		化身中心
 	</string>
+	<string name="Left Ring Finger">
+		左無名指
+	</string>
+	<string name="Right Ring Finger">
+		右無名指
+	</string>
+	<string name="Tail Base">
+		尾巴基部
+	</string>
+	<string name="Tail Tip">
+		尾巴末梢
+	</string>
+	<string name="Left Wing">
+		左翼
+	</string>
+	<string name="Right Wing">
+		右翼
+	</string>
+	<string name="Jaw">
+		顎
+	</string>
+	<string name="Alt Left Ear">
+		替代左耳
+	</string>
+	<string name="Alt Right Ear">
+		替代右耳
+	</string>
+	<string name="Alt Left Eye">
+		替代左眼
+	</string>
+	<string name="Alt Right Eye">
+		替代右眼
+	</string>
+	<string name="Tongue">
+		舌頭
+	</string>
+	<string name="Groin">
+		鼠蹊
+	</string>
+	<string name="Left Hind Foot">
+		左後腳
+	</string>
+	<string name="Right Hind Foot">
+		右後腳
+	</string>
 	<string name="Invalid Attachment">
 		無效的附接點
 	</string>
@@ -2219,11 +2273,11 @@ http://secondlife.com/viewer-access-faq
 	<string name="ATTACH_BELLY">
 		腹部
 	</string>
-	<string name="ATTACH_RPEC">
-		右胸肌
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		左胸肌
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		右胸肌
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		擡頭顯示中央 2
@@ -2254,6 +2308,51 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		化身中心
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		左無名指
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		右無名指
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		尾巴基部
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		尾巴末梢
+	</string>
+	<string name="ATTACH_LWING">
+		左翼
+	</string>
+	<string name="ATTACH_RWING">
+		右翼
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		顎
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		替代左耳
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		替代右耳
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		替代左眼
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		替代右眼
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		舌頭
+	</string>
+	<string name="ATTACH_GROIN">
+		鼠蹊
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		左後腳
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		右後腳
 	</string>
 	<string name="CursorPos">
 		橫行 [LINE]，縱列 [COLUMN]
@@ -4243,6 +4342,12 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="OfflineStatus">
 		離線
+	</string>
+	<string name="not_online_msg">
+		使用者不在線上 - 訊息將留存，稍後傳遞。
+	</string>
+	<string name="not_online_inventory">
+		使用者不在線上 - 收納區已儲存。
 	</string>
 	<string name="answered_call">
 		你的通話已經接通

@@ -9,6 +9,7 @@
 	<menu_item_call label="Изменить костюм" name="Edit Outfit"/>
 	<menu_item_call label="Изменить фигуру" name="Edit My Shape"/>
 	<menu_item_call label="Высота парения" name="Hover Height"/>
+	<menu_item_call label="Сброс скелета" name="Reset Skeleton"/>
 	<menu_item_call label="Мои друзья" name="Friends..."/>
 	<menu_item_call label="Мои группы" name="Groups..."/>
 	<menu_item_call label="Мой профиль" name="Profile..."/>

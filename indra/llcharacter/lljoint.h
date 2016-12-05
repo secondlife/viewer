@@ -40,24 +40,33 @@
 #include "xform.h"
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
-const U32 LL_CHARACTER_MAX_JOINTS = 32; // must be divisible by 4!
-const U32 LL_HAND_JOINT_NUM = 31;
-const U32 LL_FACE_JOINT_NUM = 30;
+// Need to set this to count of animate-able joints,
+// currently = #bones + #collision_volumes + #attachments + 2,
+// rounded to next multiple of 4.
+const U32 LL_CHARACTER_MAX_ANIMATED_JOINTS = 216; // must be divisible by 4!
+const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 110;
+
+// These should be higher than the joint_num of any
+// other joint, to avoid conflicts in updateMotionsByType()
+const U32 LL_HAND_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
+const U32 LL_FACE_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-2);
 const S32 LL_CHARACTER_MAX_PRIORITY = 7;
 const F32 LL_MAX_PELVIS_OFFSET = 5.f;
 
-class LLPosOverrideMap
+class LLVector3OverrideMap
 {
 public:
-	LLPosOverrideMap() {}
+	LLVector3OverrideMap() {}
 	bool findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const;
-	void showJointPosOverrides(std::ostringstream& os) const;
+	void showJointVector3Overrides(std::ostringstream& os) const;
 	U32 count() const;
 	void add(const LLUUID& mesh_id, const LLVector3& pos);
 	bool remove(const LLUUID& mesh_id);
 	void clear();
-private:
+
 	typedef std::map<LLUUID,LLVector3> map_type;
+    const map_type& getMap() const { return m_map; }
+private:
 	map_type m_map;
 };
 
@@ -86,8 +95,16 @@ public:
 		POSITION_DIRTY = 0x1 << 2,
 		ALL_DIRTY = 0x7
 	};
+public:
+    enum SupportCategory
+    {
+        SUPPORT_BASE,
+        SUPPORT_EXTENDED
+    };
 protected:
 	std::string	mName;
+
+	SupportCategory mSupport;
 
 	// parent joint
 	LLJoint	*mParent;
@@ -95,14 +112,19 @@ protected:
 	// explicit transformation members
 	LLXformMatrix		mXform;
 
-	LLUUID				mId;
-
+    LLVector3       mDefaultPosition;
+    LLVector3       mDefaultScale;
+    
 public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
 
 	// describes the skin binding pose
 	LLVector3		mSkinOffset;
+
+    // Endpoint of the bone, if applicable. This is only relevant for
+    // external programs like Blender, and for diagnostic display.
+    LLVector3		mEnd;
 
 	S32				mJointNum;
 
@@ -113,15 +135,40 @@ public:
 	// debug statics
 	static S32		sNumTouches;
 	static S32		sNumUpdates;
+    typedef std::set<std::string> debug_joint_name_t;
+    static debug_joint_name_t s_debugJointNames;
+    static void setDebugJointNames(const debug_joint_name_t& names);
+    static void setDebugJointNames(const std::string& names_string);
 
-	LLPosOverrideMap m_attachmentOverrides;
+    // Position overrides
+	LLVector3OverrideMap m_attachmentPosOverrides;
 	LLVector3 m_posBeforeOverrides;
 
+    // Scale overrides
+	LLVector3OverrideMap m_attachmentScaleOverrides;
+	LLVector3 m_scaleBeforeOverrides;
+
 	void updatePos(const std::string& av_info);
+	void updateScale(const std::string& av_info);
 
 public:
 	LLJoint();
-	LLJoint(S32 joint_num);
+
+    // Note: these joint_num constructors are a bad idea because there
+    // are only a couple of places in the code where it is useful to
+    // have a joint num for a joint (for joints that are used in
+    // animations), and including them as part of the constructor then
+    // forces us to maintain an alternate path through the entire
+    // large-ish class hierarchy of joint types. The only reason they
+    // are still here now is to avoid breaking the baking service
+    // (appearanceutility) builds; these constructors are not used in
+    // the viewer.  Once the appearance utility is updated to remove
+    // these joint num references, which it shouldn't ever need, from
+    // its own classes, we can also remove all the joint_num
+    // constructors from LLJoint, LLViewerJoint, LLAvatarJoint, and
+    // createAvatarJoint.
+    LLJoint(S32 joint_num);
+    
 	// *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
 	LLJoint( const std::string &name, LLJoint *parent=NULL );
 	virtual ~LLJoint();
@@ -139,6 +186,19 @@ public:
 	const std::string& getName() const { return mName; }
 	void setName( const std::string &name ) { mName = name; }
 
+    // joint num
+	S32 getJointNum() const { return mJointNum; }
+	void setJointNum(S32 joint_num);
+
+    // get/set support
+    SupportCategory getSupport() const { return mSupport; }
+    void setSupport( const SupportCategory& support) { mSupport = support; }
+    void setSupport( const std::string& support_string);
+
+    // get/set end point
+    void setEnd( const LLVector3& end) { mEnd = end; }
+    const LLVector3& getEnd() const { return mEnd; }
+    
 	// getParent
 	LLJoint *getParent() { return mParent; }
 
@@ -155,10 +215,16 @@ public:
 
 	// get/set local position
 	const LLVector3& getPosition();
-	void setPosition( const LLVector3& pos );
-	
+	void setPosition( const LLVector3& pos, bool apply_attachment_overrides = false );
+
+    // Tracks the default position defined by the skeleton
 	void setDefaultPosition( const LLVector3& pos );
-	
+	const LLVector3& getDefaultPosition() const;
+
+    // Tracks the default scale defined by the skeleton
+	void setDefaultScale( const LLVector3& scale );
+	const LLVector3& getDefaultScale() const;
+
 	// get/set world position
 	LLVector3 getWorldPosition();
 	LLVector3 getLastWorldPosition();
@@ -175,7 +241,7 @@ public:
 
 	// get/set local scale
 	const LLVector3& getScale();
-	void setScale( const LLVector3& scale );
+	void setScale( const LLVector3& scale, bool apply_attachment_overrides = false );
 
 	// get/set world matrix
 	const LLMatrix4 &getWorldMatrix();
@@ -198,17 +264,26 @@ public:
 
 	virtual BOOL isAnimatable() const { return TRUE; }
 
-	S32 getJointNum() const { return mJointNum; }
-
-	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
-	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
+	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
+	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
 	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
 	void clearAttachmentPosOverrides();
+    void showAttachmentPosOverrides(const std::string& av_info) const;
 
-	//Accessor for the joint id
-	LLUUID getId( void ) { return mId; }
-	//Setter for the joints id
-	void setId( const LLUUID& id ) { mId = id;}
+	void addAttachmentScaleOverride( const LLVector3& scale, const LLUUID& mesh_id, const std::string& av_info );
+	void removeAttachmentScaleOverride( const LLUUID& mesh_id, const std::string& av_info );
+	bool hasAttachmentScaleOverride( LLVector3& scale, LLUUID& mesh_id ) const;
+	void clearAttachmentScaleOverrides();
+    void showAttachmentScaleOverrides(const std::string& av_info) const;
+
+    void getAllAttachmentPosOverrides(S32& num_pos_overrides,
+                                      std::set<LLVector3>& distinct_pos_overrides);
+    void getAllAttachmentScaleOverrides(S32& num_scale_overrides,
+                                        std::set<LLVector3>& distinct_scale_overrides);
+    
+    // These are used in checks of whether a pos/scale override is considered significant.
+    bool aboveJointPosThreshold(const LLVector3& pos) const;
+    bool aboveJointScaleThreshold(const LLVector3& scale) const;
 };
 #endif // LL_LLJOINT_H
 
