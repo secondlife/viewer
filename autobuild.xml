@@ -686,9 +686,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>23876d471ef04d28b73a931057758872</string>
+              <string>ad5bb66f2aaa12636b5a69a020ea9f18</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/358/899/fmodex-4.44.61.500350-windows-500350.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1191/2796/fmodex-4.44.61.501175-windows-501175.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -698,16 +698,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f87fd527e1cca5b1b64090c5afb04cdb</string>
+              <string>6722f0efc2b55542bd71514b9a09e377</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/357/896/fmodex-4.44.61.500350-windows64-500350.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1190/2791/fmodex-4.44.61.501175-windows64-501175.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.44.61.500350</string>
+        <string>4.44.61.501175</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -1358,9 +1358,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>96b6b1a0ae2c2ac9dfa44b444f71117a</string>
+              <string>dab55cc0555d7126fda925e20af851ea</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/752/1566/havok_source-2012.1-2-windows-500739.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1194/2807/havok_source-2012.1-2-windows-501181.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1370,9 +1370,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5db6f7f8a86fa2297f2c7c86d7491042</string>
+              <string>7bbc1c3512a5665b7576b4b0357a9eb7</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/751/1558/havok_source-2012.1-2-windows64-500739.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1195/2816/havok_source-2012.1-2-windows64-501181.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
