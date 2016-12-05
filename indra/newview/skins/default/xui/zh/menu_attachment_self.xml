@@ -9,6 +9,7 @@
 	<menu_item_call label="編輯我的裝扮" name="Edit Outfit"/>
 	<menu_item_call label="編輯我的體形" name="Edit My Shape"/>
 	<menu_item_call label="懸浮高度" name="Hover Height"/>
+	<menu_item_call label="重設骨架" name="Reset Skeleton"/>
 	<menu_item_call label="我的朋友" name="Friends..."/>
 	<menu_item_call label="我的群組" name="Groups..."/>
 	<menu_item_call label="我的個人檔案" name="Profile..."/>

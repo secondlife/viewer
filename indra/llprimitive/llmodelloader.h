@@ -34,10 +34,10 @@
 
 class LLJoint;
 
-typedef std::map<std::string, LLMatrix4>					JointTransformMap;
-typedef std::map<std::string, LLMatrix4>:: iterator	JointTransformMapIt;
-typedef std::map<std::string, std::string>				JointMap;
-typedef std::deque<std::string>								JointSet;
+typedef std::map<std::string, LLMatrix4>			JointTransformMap;
+typedef std::map<std::string, LLMatrix4>::iterator	JointTransformMapIt;
+typedef std::map<std::string, std::string>			JointMap;
+typedef std::deque<std::string>						JointNameSet;
 
 const S32 SLM_SUPPORTED_VERSION	= 3;
 const S32 NUM_LOD						= 4;
@@ -116,25 +116,30 @@ public:
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	JointMap			mJointMap;
 	JointTransformMap&	mJointList;	
-	JointSet&			mJointsFromNode;
+	JointNameSet&		mJointsFromNode;
+    U32					mMaxJointsPerMesh;
 
 	LLModelLoader(
-		std::string									filename,
-		S32											lod, 
+		std::string							filename,
+		S32									lod, 
 		LLModelLoader::load_callback_t		load_cb,
 		LLModelLoader::joint_lookup_func_t	joint_lookup_func,
 		LLModelLoader::texture_load_func_t	texture_load_func,
 		LLModelLoader::state_callback_t		state_cb,
-		void*											opaque_userdata,
-		JointTransformMap&						jointMap,
-		JointSet&									jointsFromNodes);
+		void*								opaque_userdata,
+		JointTransformMap&					jointTransformMap,
+		JointNameSet&						jointsFromNodes,
+        JointMap&                           legalJointNamesMap,
+        U32									maxJointsPerMesh);
 	virtual ~LLModelLoader() ;
 
 	virtual void setNoNormalize() { mNoNormalize = true; }
 	virtual void setNoOptimize() { mNoOptimize = true; }
 
 	virtual void run();
-	
+
+    static bool getSLMFilename(const std::string& model_filename, std::string& slm_filename);
+
 	// Will try SLM or derived class OpenFile as appropriate
 	//
 	virtual bool doLoadModel();
@@ -158,16 +163,12 @@ public:
 
 	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
 	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
-	void critiqueJointToNodeMappingFromScene( void  );
 
 	//Determines if a rig is a legacy from the joint list
 	bool isRigLegacy( const std::vector<std::string> &jointListFromAsset );
 
 	//Determines if a rig is suitable for upload
 	bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
-
-	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
-	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
 
 	const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
 	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
@@ -180,7 +181,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool isNodeAJoint(const char* name)
 	{
-		return mJointMap.find(name) != mJointMap.end();
+		return name != NULL && mJointMap.find(name) != mJointMap.end();
 	}
 
 protected:
@@ -189,17 +190,14 @@ protected:
 	LLModelLoader::joint_lookup_func_t	mJointLookupFunc;
 	LLModelLoader::texture_load_func_t	mTextureLoadFunc;
 	LLModelLoader::state_callback_t		mStateCallback;
-	void*											mOpaqueData;
+	void*								mOpaqueData;
 
-	bool		mRigParityWithScene;
 	bool		mRigValidJointUpload;
 	bool		mLegacyRigValid;
 
 	bool		mNoNormalize;
 	bool		mNoOptimize;
 
-	JointSet				mMasterJointList;
-	JointSet				mMasterLegacyJointList;
 	JointTransformMap	mJointTransformMap;
 
 	static std::list<LLModelLoader*> sActiveLoaderList;

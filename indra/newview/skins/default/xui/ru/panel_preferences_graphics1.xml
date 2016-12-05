@@ -24,10 +24,15 @@
 	<text name="BetterText">
 		Качественней
 	</text>
+	<slider label="Максимальная сложность аватара:" name="IndirectMaxComplexity" tool_tip="Указывает расстояние, начиная с которого визуально сложный аватар рисуется как мармеладный мишка"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
 	<check_box initial_value="true" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
 	<check_box initial_value="true" label="Расширенная модель освещения" name="UseLightShaders"/>
 	<button label="Сохранить настройки как пресет..." name="PrefSaveButton"/>
 	<button label="Загрузить пресет..." name="PrefLoadButton"/>
+	min_val=&quot;0,125&quot;
 	<button label="Удалить пресет..." name="PrefDeleteButton"/>
 	<button label="Вернуть рекомендуемые настройки" name="Defaults"/>
 	<button label="Расширенные настройки..." name="AdvancedSettings"/>

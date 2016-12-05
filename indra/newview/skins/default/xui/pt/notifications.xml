@@ -477,6 +477,9 @@ Ele ultrapassa o limite de anexos, de [MAX_ATTACHMENTS] objetos. Remova um objet
 	<notification name="CannotWearInfoNotComplete">
 		Você não pode vestir este item porque ele ainda não carregou. Tente novamente em um minuto.
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Informe sua senha para fazer o login.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Opa! Alguma coisa ficou em branco.
 Digite o nome de usuário de seu avatar.
@@ -544,6 +547,9 @@ Nota: Este procedimento limpa o cache.
 	</notification>
 	<notification name="ChangeConnectionPort">
 		Reinicie o [APP_NAME] para ativar a reconfiguração da porta.
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		Essa alteração nas configurações de depuração será aplicada depois que você reiniciar o [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
 		Reinicie o [APP_NAME] para ativar a pele nova.
@@ -1359,12 +1365,13 @@ Enquando isso, use o [SECOND_LIFE] normalmente. Seu visual será exibido correta
 			<ignore name="ignore" text="A roupa está demorando para chegar"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexidade visual] é [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] é [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="Avise-me se a complexidade do meu avatar for muito alta" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexidade visual] é [AGENT_COMPLEXITY].
+		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] é [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		A instalação do [APP_NAME] está pronta.
@@ -1477,6 +1484,10 @@ Substituir textura [TEXTURE_NUM], com uma imagem de 24-bit 512x512 ou menor e em
 	<notification name="ConfirmBakeTerrain">
 		Você realmente deseja nivelar o terreno selecionado a partir do centro elevando/reduzindo os limites e o padrão para a ferramenta ´Reverter´?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Executar"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		Você está prestes a usar valores baixos maiores que os valores altos para os intervalos de elevação. Deseja prosseguir?
+		<usetemplate canceltext="Não perguntar" name="yesnocancelbuttons" notext="Cancelar" yestext="Ok"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		Você pode ter somente [MAX_AGENTS] residentes permitidos.
@@ -1712,14 +1723,6 @@ Se você estiver muito ansioso para experimentar os novos recursos e correções
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Não foi possível deixar o grupo. Você não pode deixar o grupo pois é o último proprietário dele. Primeiramente, atribua outro membro à função de proprietário.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepartError">
-		Não foi possível deixar o grupo: [reason].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		Você deixou o grupo [group_name].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2393,6 +2396,10 @@ Deseja desativar o Não perturbe antes de concluir esta transação?
 		Tem certeza de que deseja excluir o conteúdo da Lixeira? Para sempre?
 		<usetemplate ignoretext="Confirmar antes de esvaziar a pasta Lixeira" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="TrashIsFull">
+		Sua lixeira está transbordando. Isso pode causar problemas no logon.
+		<usetemplate name="okcancelbuttons" notext="Esvaziarei a lixeira mais tarde" yestext="Esvaziar lixeira agora"/>
+	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Tem certeza de que quer apagar todo o histórico de viagens, web e buscas?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="OK"/>
@@ -2977,7 +2984,7 @@ Se permanecer aqui, você será desconectado.
 
 [MESSAGE]
 
-Do objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, de: [NAME_SLURL]
+Do objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, proprietário: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Carregar"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -3246,11 +3253,15 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	<notification name="AttachmentSaved">
 		Anexo salvo.
 	</notification>
-	<notification name="PresetNotSaved">
-		Erro ao salvar predefinição [NAME].
+	<notification name="AppearanceToXMLSaved">
+		A aparência foi salva como XML em [PATH]
 	</notification>
-	<notification name="PresetNotDeleted">
-		Erro ao excluir a predefinição [NAME].
+	<notification name="AppearanceToXMLFailed">
+		Falha ao salvar a aparência como XML.
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+Erro ao excluir a predefinição [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Nenhum tópico de ajuda foi encontrado com relação a este elemento.
@@ -4062,6 +4073,9 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Não há recursos de script disponíveis suficientes para anexar objeto!
+	</notification>
+	<notification name="IllegalAttachment">
+		O anexo solicitou um ponto não existente no avatar. Ele foi anexado ao peito.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Não é possível largar objetos aqui. Tente a área de Avaliação grátis.

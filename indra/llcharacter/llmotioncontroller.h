@@ -223,7 +223,7 @@ protected:
 	S32					mTimeStepCount;
 	F32					mLastInterp;
 
-	U8					mJointSignature[2][LL_CHARACTER_MAX_JOINTS];
+	U8					mJointSignature[2][LL_CHARACTER_MAX_ANIMATED_JOINTS];
 };
 
 //-----------------------------------------------------------------------------

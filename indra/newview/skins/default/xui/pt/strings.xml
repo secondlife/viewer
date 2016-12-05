@@ -30,7 +30,10 @@
 	</string>
 	<string name="AboutHeader">
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [Notas da versão]]
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="BuildConfig">
+		Configuração do corpo [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
 		Você está em [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -62,6 +65,9 @@ Versão do servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Erro ao obter URL de notas de versão do servidor.
+	</string>
+	<string name="BuildConfiguration">
+		Configuração do corpo
 	</string>
 	<string name="ProgressRestoring">
 		Restaurando...
@@ -1336,6 +1342,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="BodyPartsRightLeg">
 		Perna direita
 	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Esqueleto aprimorado
+	</string>
 	<string name="GraphicsQualityLow">
 		Baixo
 	</string>
@@ -1778,6 +1787,51 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="Avatar Center">
 		Centro do avatar
 	</string>
+	<string name="Left Ring Finger">
+		Anelar esquerdo
+	</string>
+	<string name="Right Ring Finger">
+		Anelar direito
+	</string>
+	<string name="Tail Base">
+		Base do rabo
+	</string>
+	<string name="Tail Tip">
+		Ponta do rabo
+	</string>
+	<string name="Left Wing">
+		Asa esquerda
+	</string>
+	<string name="Right Wing">
+		Asa direita
+	</string>
+	<string name="Jaw">
+		Maxilar
+	</string>
+	<string name="Alt Left Ear">
+		Orelha esquerda alt.
+	</string>
+	<string name="Alt Right Ear">
+		Orelha direita alt.
+	</string>
+	<string name="Alt Left Eye">
+		Olho esquerdo alt.
+	</string>
+	<string name="Alt Right Eye">
+		Olho direito alt.
+	</string>
+	<string name="Tongue">
+		Língua
+	</string>
+	<string name="Groin">
+		Virilha
+	</string>
+	<string name="Left Hind Foot">
+		Pata esq. traseira
+	</string>
+	<string name="Right Hind Foot">
+		Pata dir. traseira
+	</string>
 	<string name="Invalid Attachment">
 		Ponto de encaixe inválido
 	</string>
@@ -2167,11 +2221,11 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ATTACH_BELLY">
 		Barriga
 	</string>
-	<string name="ATTACH_RPEC">
-		Peitorais D
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		Peitorais E
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		Peitorais D
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD Central 2
@@ -2202,6 +2256,51 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Centro do avatar
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Anelar esquerdo
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Anelar direito
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Base do rabo
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Ponta do rabo
+	</string>
+	<string name="ATTACH_LWING">
+		Asa esquerda
+	</string>
+	<string name="ATTACH_RWING">
+		Asa direita
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Maxilar
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Orelha esquerda alt.
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Orelha direita alt.
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Olho esquerdo alt.
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Olho direito alt.
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Língua
+	</string>
+	<string name="ATTACH_GROIN">
+		Virilha
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Pata esq. traseira
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Pata dir. traseira
 	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
@@ -4127,6 +4226,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="OfflineStatus">
 		Desconectado
+	</string>
+	<string name="not_online_msg">
+		O usuário não está online. As mensagens serão armazenadas e enviadas mais tarde.
+	</string>
+	<string name="not_online_inventory">
+		O usuário não está online. O inventário foi salvo.
 	</string>
 	<string name="answered_call">
 		Ligação atendida

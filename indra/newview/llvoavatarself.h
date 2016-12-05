@@ -103,17 +103,6 @@ private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
 	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight);
 
-
-
-/**                    Initialization
- **                                                                            **
- *******************************************************************************/
-
-private:
-	LLUUID mInitialBakeIDs[6];
-	//bool mInitialBakesLoaded;
-
-
 /********************************************************************************
  **                                                                            **
  **                    STATE

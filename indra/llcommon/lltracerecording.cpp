@@ -257,7 +257,13 @@ F64Kilobytes Recording::getMean(const StatType<MemAccumulator>& stat)
 	
 	if (active_accumulator && active_accumulator->mSize.hasValue())
 	{
-		return F64Bytes(lerp(accumulator.mSize.getMean(), active_accumulator->mSize.getMean(), active_accumulator->mSize.getSampleCount() / (accumulator.mSize.getSampleCount() + active_accumulator->mSize.getSampleCount())));
+        F32 t = 0.0f;
+        S32 div = accumulator.mSize.getSampleCount() + active_accumulator->mSize.getSampleCount();
+        if (div > 0)
+        {
+            t = active_accumulator->mSize.getSampleCount() / div;
+        }
+		return F64Bytes(lerp(accumulator.mSize.getMean(), active_accumulator->mSize.getMean(), t));
 	}
 	else
 	{
@@ -426,7 +432,13 @@ F64 Recording::getMean( const StatType<SampleAccumulator>& stat )
 	const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
 	if (active_accumulator && active_accumulator->hasValue())
 	{
-		return lerp(accumulator.getMean(), active_accumulator->getMean(), active_accumulator->getSampleCount() / (accumulator.getSampleCount() + active_accumulator->getSampleCount()));
+        F32 t = 0.0f;
+        S32 div = accumulator.getSampleCount() + active_accumulator->getSampleCount();
+        if (div > 0)
+        {
+            t = active_accumulator->getSampleCount() / div;
+        }
+		return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
 	}
 	else
 	{
@@ -506,7 +518,13 @@ F64 Recording::getMean( const StatType<EventAccumulator>& stat )
 	const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
 	if (active_accumulator && active_accumulator->hasValue())
 	{
-		return lerp(accumulator.getMean(), active_accumulator->getMean(), active_accumulator->getSampleCount() / (accumulator.getSampleCount() + active_accumulator->getSampleCount()));
+		F32 t = 0.0f;
+        S32 div = accumulator.getSampleCount() + active_accumulator->getSampleCount();
+        if (div > 0)
+        {
+            t = active_accumulator->getSampleCount() / div;
+        }
+		return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
 	}
 	else
 	{

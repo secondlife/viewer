@@ -16,9 +16,9 @@
 		Çıktı
 	</text>
 	<text name="My volume label">
-		Ses düzeyim:
+		Mik. ses düzeyi:
 	</text>
-	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Bu kaydırıcıyı kullanarak ses düzeyini değiştirin"/>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Bu kaydırma butonunu kullanarak mikrofonun ses düzeyini değiştirin"/>
 	<text name="wait_text">
 		Lütfen bekleyin
 	</text>

@@ -26,6 +26,7 @@
 	<menu_item_call label="Modifier ma tenue" name="Edit Outfit"/>
 	<menu_item_call label="Modifier ma silhouette" name="Edit My Shape"/>
 	<menu_item_call label="Hauteur de sustentation" name="Hover Height"/>
+	<menu_item_call label="Réinitialiser le squelette" name="Reset Skeleton"/>
 	<menu_item_call label="Mes amis" name="Friends..."/>
 	<menu_item_call label="Mes groupes" name="Groups..."/>
 	<menu_item_call label="Mon profil" name="Profile..."/>

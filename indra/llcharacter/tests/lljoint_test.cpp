@@ -88,6 +88,7 @@ namespace tut
 	{
 		LLJoint lljoint;
 		LLVector3 vec3(2.3f,30.f,10.f);
+		// SL-315
 		lljoint.setPosition(vec3);
 		LLVector3 pos = lljoint.getPosition();
 		ensure("setPosition()/getPosition() failed ", (vec3 == pos));
@@ -98,6 +99,7 @@ namespace tut
 	{
 		LLJoint lljoint;
 		LLVector3 vec3(2.3f,30.f,10.f);
+		// SL-315
 		lljoint.setWorldPosition(vec3);
 		LLVector3 pos = lljoint.getWorldPosition();
 		ensure("1:setWorldPosition()/getWorldPosition() failed ", (vec3 == pos));
