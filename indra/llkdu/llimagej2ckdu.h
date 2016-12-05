@@ -37,15 +37,8 @@
 #include "kdu_messaging.h"
 #include "kdu_params.h"
 
-// don't *really* want to rebuild KDU so turn off specific warnings for this header
-#if LL_DARWIN
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include "kdu_compressed.h"
-#pragma clang diagnostic pop
-#else
-#include "kdu_compressed.h"
-#endif
+#define kdu_xxxx "kdu_compressed.h"
+#include "include_kdu_xxxx.h"
 
 #include "kdu_sample_processing.h"
 #include <boost/scoped_ptr.hpp>
@@ -111,17 +104,19 @@ private:
 			}
 		}
 
-		kdu_codestream* operator->() { return &mCodeStream; }
+		// for those few times when you need a raw kdu_codestream*
+		kdu_core::kdu_codestream* get() { return &mCodeStream; }
+		kdu_core::kdu_codestream* operator->() { return &mCodeStream; }
 
 	private:
-		kdu_codestream mCodeStream;
+		kdu_core::kdu_codestream mCodeStream;
 	};
 
 	// Encode variable
 	boost::scoped_ptr<LLKDUMemSource> mInputp;
 	CodeStreamHolder mCodeStreamp;
-	boost::scoped_ptr<kdu_coords> mTPosp; // tile position
-	boost::scoped_ptr<kdu_dims> mTileIndicesp;
+	boost::scoped_ptr<kdu_core::kdu_coords> mTPosp; // tile position
+	boost::scoped_ptr<kdu_core::kdu_dims> mTileIndicesp;
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;
