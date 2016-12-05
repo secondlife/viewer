@@ -3300,7 +3300,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DADDRESS_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
@@ -3321,7 +3321,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DADDRESS_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3341,7 +3341,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DADDRESS_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
@@ -3362,7 +3362,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DADDRESS_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3627,7 +3627,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc120-64</string>
+          <string>build-vc120-$AUTOBUILD_ADDRSIZE</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
@@ -3643,7 +3643,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>RelWithDebInfo|x64</string>
+                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3655,7 +3655,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Visual Studio 12 Win64</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                 </array>
               </map>
               <key>default</key>
@@ -3676,7 +3676,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=x64</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
@@ -3693,7 +3693,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Visual Studio 12 Win64</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3715,7 +3715,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>Release|x64</string>
+                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3727,7 +3727,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Visual Studio 12 Win64</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                 </array>
               </map>
               <key>name</key>
@@ -3746,7 +3746,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=x64</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
@@ -3763,7 +3763,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Visual Studio 12 Win64</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
