@@ -182,13 +182,6 @@ fi
 
 initialize_build # provided by master buildscripts build.sh
 
-# Check to see if we're skipping the platform
-if ! eval '$build_'"$arch"
-then
-    record_event "building on architecture $arch is disabled"
-    pass
-fi
-
 begin_section "autobuild initialize"
 # ensure AUTOBUILD is in native path form for child processes
 AUTOBUILD="$(native_path "$AUTOBUILD")"
@@ -201,7 +194,15 @@ then
 fi
 
 # load autobuild provided shell functions and variables
-eval "$("$autobuild" --quiet source_environment)"
+"$autobuild" --quiet source_environment > "$build_log_dir/source_environment"
+begin_section "dump source environment commands"
+cat "$build_log_dir/source_environment"
+end_section "dump source environment commands"
+
+begin_section "execute source environment commands"
+. "$build_log_dir/source_environment"
+end_section "execute source environment commands"
+
 end_section "autobuild initialize"
 
 # something about the additional_packages mechanism messes up buildscripts results.py on Linux
@@ -211,9 +212,7 @@ then
     export additional_packages=
 fi
 
-initialize_build
 python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}"
-initialize_version
 
 initialize_version # provided by buildscripts build.sh; sets version id
 
