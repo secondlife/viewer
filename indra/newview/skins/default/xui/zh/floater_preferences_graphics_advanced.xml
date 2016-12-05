@@ -15,7 +15,7 @@
 	<text name="AvatarText">
 		化身
 	</text>
-	<slider label="最大複雜度：" name="IndirectMaxComplexity" tool_tip="控制在何時機下讓複雜化身呈像為「單色軟糖娃娃」"/>
+	<slider label="最大複雜度：" name="IndirectMaxComplexity" tool_tip="控制在何時機下讓複雜化身呈像為 JellyDoll"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

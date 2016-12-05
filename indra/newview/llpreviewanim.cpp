@@ -37,6 +37,7 @@
 #include "lllineeditor.h"
 #include "lluictrlfactory.h"
 #include "lluictrlfactory.h"
+#include "lldatapacker.h"
 
 extern LLAgent gAgent;
 

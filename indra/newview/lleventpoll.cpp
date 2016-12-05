@@ -144,7 +144,7 @@ namespace Details
         int errorCount = 0;
         int counter = mCounter; // saved on the stack for logging. 
 
-        LL_INFOS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
+        LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
         mAdapter = httpAdapter;
 
@@ -172,7 +172,7 @@ namespace Details
             {
                 if (status == LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT))
                 {   // A standard timeout response we get this when there are no events.
-                    LL_INFOS("LLEventPollImpl") << "All is very quiet on target server. It may have gone idle?" << LL_ENDL;
+                    LL_DEBUGS("LLEventPollImpl") << "All is very quiet on target server. It may have gone idle?" << LL_ENDL;
                     errorCount = 0;
                     continue;
                 }
@@ -266,7 +266,7 @@ namespace Details
                 }
             }
         }
-        LL_INFOS("LLEventPollImpl") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
+        LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
     }
 
 }

@@ -176,6 +176,8 @@ public:
 	// it will be deactivated
 	virtual BOOL onActivate();
 
+    void adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state);
+
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
@@ -193,6 +195,8 @@ public:
 	LLJoint				*mHeadJoint;
 	LLPointer<LLJointState> mLeftEyeState;
 	LLPointer<LLJointState> mRightEyeState;
+	LLPointer<LLJointState> mAltLeftEyeState;
+	LLPointer<LLJointState> mAltRightEyeState;
 
 	LLFrameTimer		mEyeJitterTimer;
 	F32					mEyeJitterTime;

@@ -16,7 +16,7 @@
   </panel.string>
 
   <button
-      follows="left|bottom"
+      follows="left|top"
       height="23"
       label="Clear History"
       tool_tip="Clear login image, last location, teleport history, web, and texture cache"
@@ -75,7 +75,7 @@
      top_pad="10"
      width="350" />
     <button
-     follows="left|bottom"
+     follows="left|top"
      height="23"
      label="Block list"
      layout="topleft"
