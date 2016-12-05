@@ -30,17 +30,6 @@ if(WINDOWS)
     #*******************************
     # Misc shared libs 
 
-#    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
-#    set(debug_files
-#        libapr-1.dll
-#        libaprutil-1.dll
-#        libapriconv-1.dll
-#        ssleay32.dll
-#        libeay32.dll
-#        glod.dll    
-#        libhunspell.dll
-#        )
-
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjpeg.dll
@@ -54,8 +43,12 @@ if(WINDOWS)
         )
 
     if (FMODEX)
-#      set(debug_files ${debug_files} fmodexL.dll)
-      set(release_files ${release_files} fmodex.dll)
+
+        if(ADDRESS_SIZE EQUAL 32)
+            set(release_files ${release_files} fmodex.dll)
+        else(ADDRESS_SIZE EQUAL 32)
+            set(release_files ${release_files} fmodex64.dll)
+        endif(ADDRESS_SIZE EQUAL 32)
     endif (FMODEX)
 
     #*******************************
