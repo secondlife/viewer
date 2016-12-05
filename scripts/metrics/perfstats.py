@@ -66,9 +66,7 @@ class DerivedSelfTimers:
             if children is not None:
                 for child in children.get(key,[]):
                     if child in self.sd["Timers"]:
-                        if child in ignore:
-                            print key,"ignore",child
-                        else:
+                        if not child in ignore:
                             value -= self.sd["Timers"][child]["Time"]
         return value
 
@@ -142,7 +140,7 @@ def sd_extract_field(sd,key):
     except KeyError:
         return None
 
-def collect_pandas_frame_data(filename, fields, max_records, prune=None, **kwargs):
+def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated cvs file?
     if re.match(".*\.csv$", filename):
         return pd.DataFrame.from_csv(filename)
@@ -334,20 +332,24 @@ if __name__ == "__main__":
             newargs.append(f)
     args.fields = newargs
 
+    ignore_list = []
+    if args.no_reparented:
+        ignore_list = reparented_timers
+
     for t in args.timers:
         args.fields.append("Timers." + t + ".Time")
         if t in child_info:
             for c in child_info[t]:
-                if not c in reparented_timers:
+                if not c in ignore_list:
                     args.fields.append("Timers." + c + ".Time")
-    print args.fields
+
+    print "FIELDS",args.fields
         
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
-    ignore_list = []
-    if args.no_reparented:
-        ignore_list = reparented_timers
-    pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, 0.001, children=child_info, ignore=ignore_list)
+    pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, children=child_info, ignore=ignore_list)
+
     if args.verbose:
+        print "Timer Ancestry"
         for key in sorted(child_info.keys()):
             print key,child_info[key]
     
