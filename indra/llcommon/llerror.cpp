@@ -1501,3 +1501,20 @@ namespace LLError
    }
 }
 
+bool debugLoggingEnabled(const std::string& tag)
+{
+    const char* tags[] = {tag.c_str()};
+    ::size_t tag_count = 1;
+    LLError::CallSite _site(LLError::LEVEL_DEBUG, __FILE__, __LINE__, 
+                            typeid(_LL_CLASS_TO_LOG), __FUNCTION__, false, tags, tag_count);
+    if (LL_UNLIKELY(_site.shouldLog()))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+

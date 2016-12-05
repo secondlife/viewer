@@ -22,7 +22,6 @@
 			<menu_item_check label="Не беспокоить" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="Купить L$..." name="Buy and Sell L$"/>
-		<menu_item_call label="Торговые исходящие..." name="MerchantOutbox"/>
 		<menu_item_call label="Списки товаров торгового центра..." name="MarketplaceListings"/>
 		<menu_item_call label="Информационная панель аккаунта..." name="Manage My Account"/>
 		<menu_item_call label="Настройки..." name="Preferences"/>
@@ -418,6 +417,7 @@
 			<menu_item_check label="Отключить детализацию" name="Disable LOD"/>
 			<menu_item_check label="Отладка видимости персонажа" name="Debug Character Vis"/>
 			<menu_item_check label="Показать скелет" name="Show Collision Skeleton"/>
+			<menu_item_check label="Показать кости" name="Show Bones"/>
 			<menu_item_check label="Отобразить действие агента" name="Display Agent Target"/>
 			<menu_item_call label="Вывод присоединений" name="Dump Attachments"/>
 			<menu_item_call label="Отладка текстур аватара" name="Debug Avatar Textures"/>

@@ -150,6 +150,7 @@ public:
 	F32						getWeight() const		{ return mIsAnimating ? mTargetWeight : mCurWeight; }
 	F32						getCurrentWeight() const 	{ return mCurWeight; }
 	F32						getLastWeight() const	{ return mLastWeight; }
+	void					setLastWeight(F32 val) { mLastWeight = val; }
 	BOOL					isAnimating() const	{ return mIsAnimating; }
 	BOOL					isTweakable() const { return (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)  || (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT); }
 

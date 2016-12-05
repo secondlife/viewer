@@ -3,8 +3,9 @@
 	<text name="tell_me_label">
 		Avvisami:
 	</text>
-	<check_box label="Quando spendo o ottengo L$" name="notify_money_change_checkbox"/>
+	<check_box label="Quando spendo $" name="notify_money_spend_checkbox"/>
 	<check_box label="Quando i miei amici entrano o escono da Second Life" name="friends_online_notify_checkbox"/>
+	<check_box label="Quando ottengo $" name="notify_money_received_checkbox"/>
 	<text name="show_label">
 		Mostra sempre:
 	</text>

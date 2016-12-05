@@ -189,10 +189,10 @@ LLMenuGL* gDetachSubMenu = NULL;
 LLMenuGL* gTakeOffClothes = NULL;
 LLContextMenu* gAttachScreenPieMenu = NULL;
 LLContextMenu* gAttachPieMenu = NULL;
-LLContextMenu* gAttachBodyPartPieMenus[8];
+LLContextMenu* gAttachBodyPartPieMenus[9];
 LLContextMenu* gDetachPieMenu = NULL;
 LLContextMenu* gDetachScreenPieMenu = NULL;
-LLContextMenu* gDetachBodyPartPieMenus[8];
+LLContextMenu* gDetachBodyPartPieMenus[9];
 
 //
 // Local prototypes
@@ -6082,6 +6082,31 @@ class LLAvatarToggleMyProfile : public view_listener_t
 	}
 };
 
+class LLAvatarResetSkeleton: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+        {
+            avatar->resetSkeleton(false);
+        }
+        return true;
+    }
+};
+
+class LLAvatarResetSkeletonAndAnimations : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		if (avatar)
+		{
+			avatar->resetSkeleton(true);
+		}
+		return true;
+	}
+};
 
 class LLAvatarAddContact : public view_listener_t
 {
@@ -9073,6 +9098,8 @@ void initialize_menus()
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
+	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
+	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
 	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
 
 	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));

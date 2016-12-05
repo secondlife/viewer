@@ -4176,6 +4176,8 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 void LLAgent::stopCurrentAnimations()
 {
+    LL_DEBUGS("Avatar") << "Stopping current animations" << LL_ENDL;
+
 	// This function stops all current overriding animations on this
 	// avatar, propagating this change back to the server.
 	if (isAgentAvatarValid())
@@ -4193,6 +4195,7 @@ void LLAgent::stopCurrentAnimations()
 				// don't cancel a ground-sit anim, as viewers
 				// use this animation's status in
 				// determining whether we're sitting. ick.
+                LL_DEBUGS("Avatar") << "sit or do-not-disturb animation will not be stopped" << LL_ENDL;
 			}
 			else
 			{
@@ -4222,8 +4225,7 @@ void LLAgent::stopCurrentAnimations()
 
 		// re-assert at least the default standing animation, because
 		// viewers get confused by avs with no associated anims.
-		sendAnimationRequest(ANIM_AGENT_STAND,
-				     ANIM_REQUEST_START);
+		sendAnimationRequest(ANIM_AGENT_STAND, ANIM_REQUEST_START);
 	}
 }
 

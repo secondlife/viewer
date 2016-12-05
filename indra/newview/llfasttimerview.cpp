@@ -904,7 +904,8 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 			base[label]["Samples"].asInteger());			
 	}
 
-	exportCharts(baseline, target);
+	// This currently crashes, possibly due to a race condition in shutdown:
+	// exportCharts(baseline, target);
 
 	os.flush();
 	os.close();

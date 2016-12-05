@@ -42,18 +42,21 @@ class domMesh;
 class LLMeshSkinInfo 
 {
 public:
-	LLUUID mMeshID;
-	std::vector<std::string> mJointNames;
-	std::vector<LLMatrix4> mInvBindMatrix;
-	std::vector<LLMatrix4> mAlternateBindMatrix;
-	std::map<std::string, U32> mJointMap;
-
-	LLMeshSkinInfo() { }
+	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
 	void fromLLSD(LLSD& data);
-	LLSD asLLSD(bool include_joints) const;
+	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
+
+	LLUUID mMeshID;
+	std::vector<std::string> mJointNames;
+    mutable std::vector<S32> mJointNums;
+	std::vector<LLMatrix4> mInvBindMatrix;
+	std::vector<LLMatrix4> mAlternateBindMatrix;
+
 	LLMatrix4 mBindShapeMatrix;
 	float mPelvisOffset;
+    bool mLockScaleIfJointPosition;
+    bool mInvalidJointsScrubbed;
 };
 
 class LLModel : public LLVolume
@@ -138,6 +141,7 @@ public:
 		const LLModel::Decomposition& decomp,
 		BOOL upload_skin,
 		BOOL upload_joints,
+        BOOL lock_scale_if_joint_position,
 		BOOL nowrite = FALSE,
 		BOOL as_slm = FALSE,
 		int submodel_id = 0);

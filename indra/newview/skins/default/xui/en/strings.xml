@@ -2269,6 +2269,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="BodyPartsLeftLeg">Left Leg</string>
 	<string name="BodyPartsTorso">Torso</string>
 	<string name="BodyPartsRightLeg">Right Leg</string>
+    <string name="BodyPartsEnhancedSkeleton">Enhanced Skeleton</string>
 
 	<!-- slider -->
 	<string name="GraphicsQualityLow">Low</string>
@@ -2490,8 +2491,23 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
-        <string name="Neck">Neck</string>
-        <string name="Avatar Center">Avatar Center</string>
+    <string name="Neck">Neck</string>
+    <string name="Avatar Center">Avatar Center</string>
+    <string name="Left Ring Finger">Left Ring Finger</string>
+    <string name="Right Ring Finger">Right Ring Finger</string>
+    <string name="Tail Base">Tail Base</string>
+    <string name="Tail Tip">Tail Tip</string>
+    <string name="Left Wing">Left Wing</string>
+    <string name="Right Wing">Right Wing</string>
+    <string name="Jaw">Jaw</string>
+    <string name="Alt Left Ear">Alt Left Ear</string>
+    <string name="Alt Right Ear">Alt Right Ear</string>
+    <string name="Alt Left Eye">Alt Left Eye</string>
+    <string name="Alt Right Eye">Alt Right Eye</string>
+    <string name="Tongue">Tongue</string>
+    <string name="Groin">Groin</string>
+    <string name="Left Hind Foot">Left Hind Foot</string>
+    <string name="Right Hind Foot">Right Hind Foot</string>
 	<string name="Invalid Attachment">Invalid Attachment Point</string>
 	<string name="ATTACHMENT_MISSING_ITEM">Error: missing item</string>
 	<string name="ATTACHMENT_MISSING_BASE_ITEM">Error: missing base item</string>
@@ -2677,8 +2693,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="ATTACH_LULEG">Left Upper Leg</string>
 	<string name="ATTACH_LLLEG">Left Lower Leg</string>
 	<string name="ATTACH_BELLY">Belly</string>
-	<string name="ATTACH_RPEC">Right Pec</string>
-	<string name="ATTACH_LPEC">Left Pec</string>
+	<string name="ATTACH_LEFT_PEC">Left Pec</string>
+	<string name="ATTACH_RIGHT_PEC">Right Pec</string>
 	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">HUD Top Right</string>
 	<string name="ATTACH_HUD_TOP_CENTER">HUD Top Center</string>
@@ -2689,6 +2705,21 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
 	<string name="ATTACH_NECK">Neck</string>
 	<string name="ATTACH_AVATAR_CENTER">Avatar Center</string>
+    <string name="ATTACH_LHAND_RING1">Left Ring Finger</string>
+    <string name="ATTACH_RHAND_RING1">Right Ring Finger</string>
+    <string name="ATTACH_TAIL_BASE">Tail Base</string>
+    <string name="ATTACH_TAIL_TIP">Tail Tip</string>
+    <string name="ATTACH_LWING">Left Wing</string>
+    <string name="ATTACH_RWING">Right Wing</string>
+    <string name="ATTACH_FACE_JAW">Jaw</string>
+    <string name="ATTACH_FACE_LEAR">Alt Left Ear</string>
+    <string name="ATTACH_FACE_REAR">Alt Right Ear</string>
+    <string name="ATTACH_FACE_LEYE">Alt Left Eye</string>
+    <string name="ATTACH_FACE_REYE">Alt Right Eye</string>
+    <string name="ATTACH_FACE_TONGUE">Tongue</string>
+    <string name="ATTACH_GROIN">Groin</string>
+    <string name="ATTACH_HIND_LFOOT">Left Hind Foot</string>
+    <string name="ATTACH_HIND_RFOOT">Right Hind Foot</string>
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>

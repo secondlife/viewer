@@ -421,4 +421,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		LLError::CallSite& _site(_sites[which]);                        \
 		lllog_test_()
 
+// Check at run-time whether logging is enabled, without generating output
+bool debugLoggingEnabled(const std::string& tag);
+
 #endif // LL_LLERROR_H
