@@ -280,10 +280,16 @@ class Server(ThreadingMixIn, HTTPServer):
     # default behavior which *shouldn't* cause the program to return
     # a failure status.
     def handle_error(self, request, client_address):
-        print '-'*40
-        print 'Ignoring exception during processing of request from',
-        print client_address
-        print '-'*40
+        print >>sys.stderr, '-'*40
+        print >>sys.stderr, 'Ignoring exception during processing of request from', client_address
+        print >>sys.stderr, '-'*40
+
+    def shutdown_request(self, *args, **kwds):
+        try:
+            # just forward to base-class method, but wrap in try/except
+            HTTPServer.shutdown_request(*args, **kwds)
+        except Exception as err:
+            print >>sys.stderr, "Once more ignoring: %s" % err
 
 if __name__ == "__main__":
     do_valgrind = False
