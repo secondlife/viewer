@@ -13,5 +13,6 @@ add_custom_command(OUTPUT packages-info.txt
   DEPENDS ${CMAKE_SOURCE_DIR}/../scripts/packages-formatter.py
   COMMAND ${PYTHON_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/cmake/run_build_test.py -DAUTOBUILD_ADDRSIZE=${ADDRESS_SIZE}
+          ${PYTHON_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/../scripts/packages-formatter.py "${VIEWER_CHANNEL}" "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}" > packages-info.txt
   )
