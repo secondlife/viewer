@@ -40,7 +40,6 @@ try:
 except ImportError:
     from StringIO import StringIO
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from SocketServer import ThreadingMixIn
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
@@ -274,7 +273,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             # Suppress error output as well
             pass
 
-class Server(ThreadingMixIn, HTTPServer):
+class Server(HTTPServer):
     # This pernicious flag is on by default in HTTPServer. But proper
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False
@@ -284,8 +283,7 @@ class Server(ThreadingMixIn, HTTPServer):
     # to stderr which annoys some.  Disable this override to get
     # default behavior which *shouldn't* cause the program to return
     # a failure status.
-    if not VERBOSE:
-      def handle_error(self, request, client_address):
+    def handle_error(self, request, client_address):
         print '-'*40
         print 'Ignoring exception during processing of request from',
         print client_address
