@@ -284,7 +284,8 @@ class Server(ThreadingMixIn, HTTPServer):
     # to stderr which annoys some.  Disable this override to get
     # default behavior which *shouldn't* cause the program to return
     # a failure status.
-    def handle_error(self, request, client_address):
+    if not VERBOSE:
+      def handle_error(self, request, client_address):
         print '-'*40
         print 'Ignoring exception during processing of request from',
         print client_address
