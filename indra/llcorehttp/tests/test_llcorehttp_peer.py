@@ -287,7 +287,7 @@ class Server(ThreadingMixIn, HTTPServer):
     def shutdown_request(self, *args, **kwds):
         try:
             # just forward to base-class method, but wrap in try/except
-            HTTPServer.shutdown_request(*args, **kwds)
+            HTTPServer.shutdown_request(self, *args, **kwds)
         except Exception as err:
             print >>sys.stderr, "Once more ignoring: %s" % err
 
