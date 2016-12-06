@@ -1509,6 +1509,10 @@ void HttpRequestTestObjectType::test<14>()
 		ensure("Request executed in reasonable time", count < limit);
 		ensure("One handler invocation for request", mHandlerCalls == 1);
 
+#if LL_WINDOWS
+		skip("This test causes our dummy server test_llcorehttp_peer.py to fail");
+#endif
+
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
 		handle = req->requestStopThread(handlerp);
