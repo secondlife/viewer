@@ -30,18 +30,6 @@ if(WINDOWS)
     #*******************************
     # Misc shared libs 
 
-    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
-    set(debug_files
-        openjpegd.dll
-        libapr-1.dll
-        libaprutil-1.dll
-        libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
-        glod.dll    
-        libhunspell.dll
-        )
-
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjpeg.dll
@@ -54,14 +42,13 @@ if(WINDOWS)
         libhunspell.dll
         )
 
-    if(USE_TCMALLOC)
-      set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
-      set(release_files ${release_files} libtcmalloc_minimal.dll)
-    endif(USE_TCMALLOC)
-
     if (FMODEX)
-      set(debug_files ${debug_files} fmodexL.dll)
-      set(release_files ${release_files} fmodex.dll)
+
+        if(ADDRESS_SIZE EQUAL 32)
+            set(release_files ${release_files} fmodex.dll)
+        else(ADDRESS_SIZE EQUAL 32)
+            set(release_files ${release_files} fmodex64.dll)
+        endif(ADDRESS_SIZE EQUAL 32)
     endif (FMODEX)
 
     #*******************************
@@ -234,10 +221,6 @@ elseif(LINUX)
         libfontconfig.so.1
        )
 
-    if (USE_TCMALLOC)
-      set(release_files ${release_files} "libtcmalloc_minimal.so")
-    endif (USE_TCMALLOC)
-
     if (FMODEX)
       set(debug_files ${debug_files} "libfmodexL.so")
       set(release_files ${release_files} "libfmodex.so")
@@ -294,13 +277,13 @@ set(third_party_targets ${third_party_targets} ${out_targets})
 
 
 
-copy_if_different(
-    ${debug_src_dir}
-    "${SHARED_LIB_STAGING_DIR_DEBUG}"
-    out_targets
-    ${debug_files}
-    )
-set(third_party_targets ${third_party_targets} ${out_targets})
+#copy_if_different(
+#    ${debug_src_dir}
+#    "${SHARED_LIB_STAGING_DIR_DEBUG}"
+#    out_targets
+#    ${debug_files}
+#    )
+#set(third_party_targets ${third_party_targets} ${out_targets})
 
 copy_if_different(
     ${release_src_dir}

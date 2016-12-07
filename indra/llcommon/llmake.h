@@ -12,12 +12,10 @@
  * 
  *         also relevant:
  *
- *         Template parameter deduction for constructors
- *         http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0091r0.html
- *
- *         https://github.com/viboes/std-make
- *
- *         but obviously we're not there yet.
+ *         Template argument deduction for class templates
+ *         http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html
+ *         was apparently adopted in June 2016? Unclear when compilers will
+ *         portably support this, but there is hope.
  *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Copyright (c) 2015, Linden Research, Inc.

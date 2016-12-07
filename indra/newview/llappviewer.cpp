@@ -3284,6 +3284,7 @@ LLSD LLAppViewer::getViewerInfo() const
     if (build_config != "Release")
     {
         info["BUILD_CONFIG"] = build_config;
+        info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     }
 
 	// return a URL to the release notes for this viewer, such as:
