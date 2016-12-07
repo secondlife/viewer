@@ -163,5 +163,5 @@ if __name__ == "__main__":
     # command-line parsing -- and anyway, for C++ integration tests, that's
     # performed in TUT code rather than our own.
     os.environ["PORT"] = str(httpd.server_port)
-    debug("$PORT = %s", port)
+    debug("$PORT = %s", httpd.server_port)
     sys.exit(run(server_inst=httpd, *sys.argv[1:]))

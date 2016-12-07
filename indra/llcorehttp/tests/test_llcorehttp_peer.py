@@ -306,7 +306,7 @@ if __name__ == "__main__":
     # command-line parsing -- and anyway, for C++ integration tests, that's
     # performed in TUT code rather than our own.
     os.environ["LL_TEST_PORT"] = str(httpd.server_port)
-    debug("$LL_TEST_PORT = %s", port)
+    debug("$LL_TEST_PORT = %s", httpd.server_port)
     if do_valgrind:
         args = ["valgrind", "--log-file=./valgrind.log"] + args
         path_search = True
