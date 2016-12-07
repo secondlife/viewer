@@ -34,7 +34,6 @@ import sys
 import time
 import select
 import getopt
-from threading import Thread
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -48,7 +47,7 @@ from llbase import llsd
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
                              "llmessage", "tests"))
 
-from testrunner import run, debug, VERBOSE
+from testrunner import freeport, run, debug, VERBOSE
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     """This subclass of BaseHTTPRequestHandler is to receive and echo
@@ -297,9 +296,18 @@ if __name__ == "__main__":
         if option == "-V" or option == "--valgrind":
             do_valgrind = True
 
-    # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
-    # runtime.
-    httpd = Server(('127.0.0.1', 0), TestHTTPRequestHandler)
+    # function to make a server with specified port
+    make_server = lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler)
+
+    if not sys.platform.startswith("win"):
+        # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
+        # runtime.
+        httpd = make_server(0)
+    else:
+        # "Then there's Windows"
+        # Instantiate a Server(TestHTTPRequestHandler) on the first free port
+        # in the specified port range.
+        httpd, port = freeport(xrange(8000, 8020), make_server)
 
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's

@@ -31,12 +31,11 @@ $/LicenseInfo$
 
 import os
 import sys
-from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
-from testrunner import run, debug, VERBOSE
+from testrunner import freeport, run, debug, VERBOSE
 import time
 
 _storage=None
@@ -155,9 +154,19 @@ class Server(HTTPServer):
     allow_reuse_address = False
 
 if __name__ == "__main__":
-    # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
-    # runtime.
-    httpd = Server(('127.0.0.1', 0), TestHTTPRequestHandler)
+    # function to make a server with specified port
+    make_server = lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler)
+
+    if not sys.platform.startswith("win"):
+        # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
+        # runtime.
+        httpd = make_server(0)
+    else:
+        # "Then there's Windows"
+        # Instantiate a Server(TestHTTPRequestHandler) on the first free port
+        # in the specified port range.
+        httpd, port = freeport(xrange(8000, 8020), make_server)
+
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's
