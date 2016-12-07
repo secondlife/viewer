@@ -177,8 +177,14 @@ def run(*args, **kwds):
         # We're not starting a thread, so shutdown() is a no-op.
         shutdown = lambda: None
     else:
+        # Make a function that reports when serve_forever() returns.
+        def serve_forever():
+            server_inst.serve_forever()
+            print "%s.serve_forever() returned" % server_inst.__class__.__name__
+            sys.stdout.flush()
+
         # Make a Thread on which to call server_inst.serve_forever().
-        thread = Thread(name="server", target=server_inst.serve_forever)
+        thread = Thread(name="server", target=serve_forever)
 
         # Make this a "daemon" thread.
         thread.setDaemon(True)
@@ -189,10 +195,16 @@ def run(*args, **kwds):
         # sys.exit(0), apparently killing the thread causes the Python runtime
         # to force the process termination code to 1. So try to play nice.
         def shutdown():
+            print "Calling %s.shutdown()" % server_inst.__class__.__name__
+            sys.stdout.flush()
             # evidently this call blocks until shutdown is complete
             server_inst.shutdown()
+            print "%s.shutdown() returned" % server_inst.__class__.__name__
+            sys.stdout.flush()
             # which should make it straightforward to join()
             thread.join()
+            print "Thread.join() returned"
+            sys.stdout.flush()
 
     try:
         # choice of os.spawnv():
