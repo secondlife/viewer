@@ -114,18 +114,17 @@ package_llphysicsextensions_tpv()
   tpv_status=0
   if [ "$variant" = "Release" ]
   then 
-      llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv
+      tpvconfig=$(native_path "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml")
+      "$autobuild" build --quiet --config-file "$tpvconfig" -c Tpv || fatal "failed to build llphysicsextensions_tpv"
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
+      "$autobuild" package --quiet --config-file "$tpvconfig" --results-file "$(native_path $PKGTMP)" || fatal "failed to package llphysicsextensions_tpv"
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
       then
-          cat "${PKGTMP}" >> "$build_log"
-          eval $(cat "${PKGTMP}") # sets autobuild_package_{name,filename,md5}
+          . "${PKGTMP}" # sets autobuild_package_{name,filename,md5}
           autobuild_package_filename="$(shell_path "${autobuild_package_filename}")"
           echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
       fi
