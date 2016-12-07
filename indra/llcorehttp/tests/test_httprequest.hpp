@@ -1455,10 +1455,6 @@ void HttpRequestTestObjectType::test<14>()
 
 	set_test_name("HttpRequest GET timeout");
 
-#if LL_WINDOWS
-		skip("This test causes our dummy server test_llcorehttp_peer.py to fail");
-#endif
-
 	// Handler can be stack-allocated *if* there are no dangling
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
