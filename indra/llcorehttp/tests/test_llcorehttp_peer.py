@@ -40,10 +40,14 @@ try:
 except ImportError:
     from StringIO import StringIO
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from SocketServer import ThreadingMixIn
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
+
+# we're in llcorehttp/tests ; testrunner.py is found in llmessage/tests
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                             "llmessage", "tests"))
+
 from testrunner import freeport, run, debug, VERBOSE
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -269,7 +273,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             # Suppress error output as well
             pass
 
-class Server(ThreadingMixIn, HTTPServer):
+class Server(HTTPServer):
     # This pernicious flag is on by default in HTTPServer. But proper
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False
@@ -280,16 +284,10 @@ class Server(ThreadingMixIn, HTTPServer):
     # default behavior which *shouldn't* cause the program to return
     # a failure status.
     def handle_error(self, request, client_address):
-        print >>sys.stderr, '-'*40
-        print >>sys.stderr, 'Ignoring exception during processing of request from', client_address
-        print >>sys.stderr, '-'*40
-
-    def shutdown_request(self, *args, **kwds):
-        try:
-            # just forward to base-class method, but wrap in try/except
-            HTTPServer.shutdown_request(self, *args, **kwds)
-        except Exception as err:
-            print >>sys.stderr, "Once more ignoring: %s" % err
+        print '-'*40
+        print 'Ignoring exception during processing of request from',
+        print client_address
+        print '-'*40
 
 if __name__ == "__main__":
     do_valgrind = False
