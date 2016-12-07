@@ -36,7 +36,7 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
-from testrunner import freeport, run, debug, VERBOSE
+from testrunner import run, debug, VERBOSE
 import time
 
 _storage=None
@@ -155,17 +155,13 @@ class Server(HTTPServer):
     allow_reuse_address = False
 
 if __name__ == "__main__":
-    # Instantiate a Server(TestHTTPRequestHandler) on the first free port
-    # in the specified port range. Doing this inline is better than in a
-    # daemon thread: if it blows up here, we'll get a traceback. If it blew up
-    # in some other thread, the traceback would get eaten and we'd run the
-    # subject test program anyway.
-    httpd, port = freeport(xrange(8000, 8020),
-                           lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler))
+    # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
+    # runtime.
+    httpd = Server(('127.0.0.1', 0), TestHTTPRequestHandler)
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's
     # performed in TUT code rather than our own.
-    os.environ["PORT"] = str(port)
+    os.environ["PORT"] = str(httpd.server_port)
     debug("$PORT = %s", port)
-    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), *sys.argv[1:]))
+    sys.exit(run(server_inst=httpd, *sys.argv[1:]))

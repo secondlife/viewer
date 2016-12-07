@@ -27,13 +27,12 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-from __future__ import with_statement
-
 import os
 import sys
 import re
 import errno
 import socket
+from threading import Thread
 
 VERBOSE = os.environ.get("INTEGRATION_TEST_VERBOSE", "0") # default to quiet
 # Support usage such as INTEGRATION_TEST_VERBOSE=off -- distressing to user if
@@ -46,6 +45,9 @@ if VERBOSE:
         sys.stdout.flush()
 else:
     debug = lambda *args: None
+
+class Error(Exception):
+    pass
 
 def freeport(portlist, expr):
     """
@@ -141,39 +143,73 @@ def freeport(portlist, expr):
         raise
 
 def run(*args, **kwds):
-    """All positional arguments collectively form a command line, executed as
-    a synchronous child process.
-    In addition, pass server=new_thread_instance as an explicit keyword (to
-    differentiate it from an additional command-line argument).
-    new_thread_instance should be an instantiated but not yet started Thread
-    subclass instance, e.g.:
-    run("python", "-c", 'print "Hello, world!"', server=TestHTTPServer(name="httpd"))
     """
-    # If there's no server= keyword arg, don't start a server thread: simply
-    # run a child process.
+    Run a specified command as a synchronous child process, optionally
+    launching a server Thread during the run.
+
+    All positional arguments collectively form a command line. The first
+    positional argument names the program file to execute.
+
+    Returns the termination code of the child process.
+
+    In addition, you may pass keyword-only arguments:
+
+    use_path=True: allow a simple filename as command and search PATH for that
+    filename. Otherwise the command must be a full pathname.
+
+    server_inst: an instance of a subclass of SocketServer.BaseServer.
+
+    When you pass server_inst, its serve_forever() method is called on a
+    separate Thread before the child process is run. It is shutdown() when the
+    child process terminates.
+    """
+    # server= keyword arg is discontinued
     try:
         thread = kwds.pop("server")
     except KeyError:
         pass
     else:
-        # Start server thread. Note that this and all other comm server
-        # threads should be daemon threads: we'll let them run "forever,"
-        # confident that the whole process will terminate when the main thread
-        # terminates, which will be when the child process terminates.
+        raise Error("Obsolete call to testrunner.run(): pass server_inst=, not server=")
+
+    try:
+        server_inst = kwds.pop("server_inst")
+    except KeyError:
+        # We're not starting a thread, so shutdown() is a no-op.
+        shutdown = lambda: None
+    else:
+        # Make a Thread on which to call server_inst.serve_forever().
+        thread = Thread(name="server", target=server_inst.serve_forever)
+
+        # Make this a "daemon" thread.
         thread.setDaemon(True)
         thread.start()
-    # choice of os.spawnv():
-    # - [v vs. l] pass a list of args vs. individual arguments,
-    # - [no p] don't use the PATH because we specifically want to invoke the
-    #   executable passed as our first arg,
-    # - [no e] child should inherit this process's environment.
-    debug("Running %s...", " ".join(args))
-    if kwds.get("use_path", False):
-        rc = os.spawnvp(os.P_WAIT, args[0], args)
-    else:
-        rc = os.spawnv(os.P_WAIT, args[0], args)
-    debug("%s returned %s", args[0], rc)
-    return rc
+
+        # We used to simply call sys.exit() with the daemon thread still
+        # running -- but in recent versions of Python 2, even when you call
+        # sys.exit(0), apparently killing the thread causes the Python runtime
+        # to force the process termination code to 1. So try to play nice.
+        def shutdown():
+            # evidently this call blocks until shutdown is complete
+            server_inst.shutdown()
+            # which should make it straightforward to join()
+            thread.join()
+
+    try:
+        # choice of os.spawnv():
+        # - [v vs. l] pass a list of args vs. individual arguments,
+        # - [no p] don't use the PATH because we specifically want to invoke the
+        #   executable passed as our first arg,
+        # - [no e] child should inherit this process's environment.
+        debug("Running %s...", " ".join(args))
+        if kwds.get("use_path", False):
+            rc = os.spawnvp(os.P_WAIT, args[0], args)
+        else:
+            rc = os.spawnv(os.P_WAIT, args[0], args)
+        debug("%s returned %s", args[0], rc)
+        return rc
+
+    finally:
+        shutdown()
 
 # ****************************************************************************
 #   test code -- manual at this point, see SWAT-564
