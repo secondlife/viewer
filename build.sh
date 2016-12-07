@@ -159,7 +159,8 @@ build()
     fi
 
     # *TODO: Make this a build extension.
-    package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+    # HACK: remove this temporarily to unblock viewer64 builds for others
+    # package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
     end_section "extensions $variant"
 
   else
