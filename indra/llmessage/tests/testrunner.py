@@ -32,7 +32,7 @@ import sys
 import re
 import errno
 import socket
-from threading import Thread
+import subprocess
 
 VERBOSE = os.environ.get("INTEGRATION_TEST_VERBOSE", "0") # default to quiet
 # Support usage such as INTEGRATION_TEST_VERBOSE=off -- distressing to user if
@@ -155,13 +155,13 @@ def run(*args, **kwds):
     In addition, you may pass keyword-only arguments:
 
     use_path=True: allow a simple filename as command and search PATH for that
-    filename. Otherwise the command must be a full pathname.
+    filename. (This argument is retained for backwards compatibility but is
+    now the default behavior.)
 
     server_inst: an instance of a subclass of SocketServer.BaseServer.
 
-    When you pass server_inst, its serve_forever() method is called on a
-    separate Thread before the child process is run. It is shutdown() when the
-    child process terminates.
+    When you pass server_inst, run() calls its handle_request() method in a
+    loop until the child process terminates.
     """
     # server= keyword arg is discontinued
     try:
@@ -171,57 +171,47 @@ def run(*args, **kwds):
     else:
         raise Error("Obsolete call to testrunner.run(): pass server_inst=, not server=")
 
+    debug("Running %s...", " ".join(args))
+
     try:
         server_inst = kwds.pop("server_inst")
     except KeyError:
-        # We're not starting a thread, so shutdown() is a no-op.
-        shutdown = lambda: None
+        # Without server_inst, this is very simple: just run child process.
+        rc = subprocess.call(args)
     else:
-        # Make a function that reports when serve_forever() returns.
-        def serve_forever():
-            server_inst.serve_forever()
-            print "%s.serve_forever() returned" % server_inst.__class__.__name__
-            sys.stdout.flush()
+        # We're being asked to run a local server while the child process
+        # runs. We used to launch a daemon thread calling
+        # server_inst.serve_forever(), then eventually call sys.exit() with
+        # the daemon thread still running -- but in recent versions of Python
+        # 2, even when you call sys.exit(0), apparently killing the thread
+        # causes the Python runtime to force the process termination code
+        # nonzero. So now we avoid the extra thread altogether.
 
-        # Make a Thread on which to call server_inst.serve_forever().
-        thread = Thread(name="server", target=serve_forever)
+        # SocketServer.BaseServer.handle_request() honors a 'timeout'
+        # attribute, if it's set to something other than None.
+        # We pick 0.5 seconds because that's the default poll timeout for
+        # BaseServer.serve_forever(), which is what we used to use.
+        server_inst.timeout = 0.5
 
-        # Make this a "daemon" thread.
-        thread.setDaemon(True)
-        thread.start()
+        child = subprocess.Popen(args)
+        while child.poll() is None:
+            # Setting server_inst.timeout is what keeps this handle_request()
+            # call from blocking "forever." Interestingly, looping over
+            # handle_request() with a timeout is very like the implementation
+            # of serve_forever(). We just check a different flag to break out.
+            # It might be interesting if handle_request() returned an
+            # indication of whether it in fact handled a request or timed out.
+            # Oddly, it doesn't. We could discover that by overriding
+            # handle_timeout(), whose default implementation does nothing --
+            # but in fact we really don't care. All that matters is that we
+            # regularly poll both the child process and the server socket.
+            server_inst.handle_request()
+        # We don't bother to capture the rc returned by child.poll() because
+        # poll() is already defined to capture that in its returncode attr.
+        rc = child.returncode
 
-        # We used to simply call sys.exit() with the daemon thread still
-        # running -- but in recent versions of Python 2, even when you call
-        # sys.exit(0), apparently killing the thread causes the Python runtime
-        # to force the process termination code to 1. So try to play nice.
-        def shutdown():
-            print "Calling %s.shutdown()" % server_inst.__class__.__name__
-            sys.stdout.flush()
-            # evidently this call blocks until shutdown is complete
-            server_inst.shutdown()
-            print "%s.shutdown() returned" % server_inst.__class__.__name__
-            sys.stdout.flush()
-            # which should make it straightforward to join()
-            thread.join()
-            print "Thread.join() returned"
-            sys.stdout.flush()
-
-    try:
-        # choice of os.spawnv():
-        # - [v vs. l] pass a list of args vs. individual arguments,
-        # - [no p] don't use the PATH because we specifically want to invoke the
-        #   executable passed as our first arg,
-        # - [no e] child should inherit this process's environment.
-        debug("Running %s...", " ".join(args))
-        if kwds.get("use_path", False):
-            rc = os.spawnvp(os.P_WAIT, args[0], args)
-        else:
-            rc = os.spawnv(os.P_WAIT, args[0], args)
-        debug("%s returned %s", args[0], rc)
-        return rc
-
-    finally:
-        shutdown()
+    debug("%s returned %s", args[0], rc)
+    return rc
 
 # ****************************************************************************
 #   test code -- manual at this point, see SWAT-564
