@@ -3064,16 +3064,28 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04cff37070a5f65f3652b4ddcec7183f</string>
+              <string>dc37f7cc77a62891bb9ae46c9e19f95e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/317935/arch/CYGWIN/installer/vlc_bin-2.2.4.317935-windows-317935.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1219/2834/vlc_bin-2.2.4.501207-windows-501207.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>148ee599afeba9794de14ca433389504</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1218/2829/vlc_bin-2.2.4.501207-windows64-501207.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
         <key>version</key>
-        <string>2.2.4.317935</string>
+        <string>2.2.4.501207</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>

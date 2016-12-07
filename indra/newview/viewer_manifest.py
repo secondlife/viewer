@@ -379,8 +379,8 @@ class WindowsManifest(ViewerManifest):
 
             # Get fmodex dll, continue if missing
             try:
-                if self.args['configuration'].lower() == 'debug':
-                    self.path("fmodexL.dll")
+                if(self.args['arch'].lower() == 'x86_64'):
+                    self.path("fmodex64.dll")
                 else:
                     self.path("fmodex.dll")
             except:
@@ -432,11 +432,6 @@ class WindowsManifest(ViewerManifest):
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
 
-        # Media plugins - QuickTime
-        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_quicktime.dll")
-            self.end_prefix()
-
         # Media plugins - CEF
         if self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_cef.dll")
@@ -445,11 +440,6 @@ class WindowsManifest(ViewerManifest):
         # Media plugins - LibVLC
         if self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_libvlc.dll")
-            self.end_prefix()
-
-        # winmm.dll shim
-        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
-            self.path("winmm.dll")
             self.end_prefix()
 
         # CEF runtime files - debug
