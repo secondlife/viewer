@@ -34,16 +34,19 @@ import sys
 import time
 import select
 import getopt
-from threading import Thread
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from SocketServer import ThreadingMixIn
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
+
+# we're in llcorehttp/tests ; testrunner.py is found in llmessage/tests
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                             "llmessage", "tests"))
+
 from testrunner import freeport, run, debug, VERBOSE
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -269,7 +272,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             # Suppress error output as well
             pass
 
-class Server(ThreadingMixIn, HTTPServer):
+class Server(HTTPServer):
     # This pernicious flag is on by default in HTTPServer. But proper
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False
@@ -293,22 +296,26 @@ if __name__ == "__main__":
         if option == "-V" or option == "--valgrind":
             do_valgrind = True
 
-    # Instantiate a Server(TestHTTPRequestHandler) on the first free port
-    # in the specified port range. Doing this inline is better than in a
-    # daemon thread: if it blows up here, we'll get a traceback. If it blew up
-    # in some other thread, the traceback would get eaten and we'd run the
-    # subject test program anyway.
-    httpd, port = freeport(xrange(8000, 8020),
-                           lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler))
+    # function to make a server with specified port
+    make_server = lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler)
+
+    if not sys.platform.startswith("win"):
+        # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
+        # runtime.
+        httpd = make_server(0)
+    else:
+        # "Then there's Windows"
+        # Instantiate a Server(TestHTTPRequestHandler) on the first free port
+        # in the specified port range.
+        httpd, port = freeport(xrange(8000, 8020), make_server)
 
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's
     # performed in TUT code rather than our own.
-    os.environ["LL_TEST_PORT"] = str(port)
-    debug("$LL_TEST_PORT = %s", port)
+    os.environ["LL_TEST_PORT"] = str(httpd.server_port)
+    debug("$LL_TEST_PORT = %s", httpd.server_port)
     if do_valgrind:
         args = ["valgrind", "--log-file=./valgrind.log"] + args
         path_search = True
-    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), use_path=path_search, *args))
-
+    sys.exit(run(server_inst=httpd, use_path=path_search, *args))
