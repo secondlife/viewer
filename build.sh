@@ -18,7 +18,7 @@
 
 build_dir_Darwin()
 {
-  echo build-darwin-i386
+  echo build-darwin-x86_64
 }
 
 build_dir_Linux()
