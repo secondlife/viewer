@@ -31,12 +31,11 @@ $/LicenseInfo$
 
 import os
 import sys
-from threading import Thread
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 
 mydir = os.path.dirname(__file__)       # expected to be .../indra/newview/tests/
 sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "llmessage", "tests"))
-from testrunner import run, debug
+from testrunner import freeport, run, debug
 
 class TestServer(SimpleXMLRPCServer):
     # This server_bind() override is borrowed and simplified from
@@ -76,8 +75,18 @@ class TestServer(SimpleXMLRPCServer):
         pass
 
 if __name__ == "__main__":
-    # Make the runtime choose an available port.
-    xmlrpcd = TestServer(('127.0.0.1', 0))
+    # function to make a server with specified port
+    make_server = lambda port: TestServer(('127.0.0.1', port))
+
+    if not sys.platform.startswith("win"):
+        # Instantiate a TestServer on a port chosen by the runtime.
+        xmlrpcd = make_server(0)
+    else:
+        # "Then there's Windows"
+        # Instantiate a TestServer on the first free port in the specified
+        # port range.
+        xmlrpcd, port = freeport(xrange(8000, 8020), make_server)
+
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's
