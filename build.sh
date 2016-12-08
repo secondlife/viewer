@@ -126,7 +126,6 @@ package_llphysicsextensions_tpv()
       if [ -r "${PKGTMP}" ]
       then
           . "${PKGTMP}" # sets autobuild_package_{name,filename,md5}
-          autobuild_package_filename="$(shell_path "${autobuild_package_filename}")"
           echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
       fi
   else
