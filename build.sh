@@ -28,7 +28,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc120
+  echo build-vc120-${AUTOBUILD_ADDRSIZE}
 }
 
 viewer_channel_suffix()
@@ -114,6 +114,7 @@ package_llphysicsextensions_tpv()
   tpv_status=0
   if [ "$variant" = "Release" ]
   then 
+      test -r  "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml" || fatal "No llphysicsextensions_tpv autobuild configuration found"
       tpvconfig=$(native_path "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml")
       "$autobuild" build --quiet --config-file "$tpvconfig" -c Tpv || fatal "failed to build llphysicsextensions_tpv"
       
@@ -159,8 +160,7 @@ build()
     fi
 
     # *TODO: Make this a build extension.
-    # HACK: remove this temporarily to unblock viewer64 builds for others
-    # package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+    package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
     end_section "extensions $variant"
 
   else
