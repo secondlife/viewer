@@ -44,13 +44,10 @@
 
 class LLViewerEventRecorder : public LLSingleton<LLViewerEventRecorder>
 {
-
- public:
-
-  LLViewerEventRecorder(); // TODO Protect constructor better if we can (not happy in private section) - could add a factory... - we are singleton
+  LLSINGLETON(LLViewerEventRecorder);
   ~LLViewerEventRecorder();
 
-
+ public:
   void updateMouseEventInfo(S32 local_x,S32 local_y, S32 global_x, S32 global_y,  std::string mName);
   void setMouseLocalCoords(S32 x,S32 y);
   void setMouseGlobalCoords(S32 x,S32 y);

@@ -32,6 +32,7 @@
 #include "llscreenchannel.h"
 #include "llsyswellitem.h"
 #include "lltransientdockablefloater.h"
+#include "llinitdestroyclass.h"
 
 class LLAvatarName;
 class LLChiclet;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
   background_opaque="false"
-      border_visible="false"
+  border_visible="false"
   background_visible="true"
   bg_alpha_color="PanelNotificationBackground"
   bg_opaque_color="PanelNotificationBackground"
@@ -11,16 +11,16 @@
   name="notification_panel"
   chrome="true"
   top="0"
-  	height="140"
+  height="140"
   translate="false"
   width="305">
   <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel
-      border_visible="false"
- bevel_style="none"
+    border_visible="false"
+    bevel_style="none"
     background_visible="true"
-  bg_alpha_color="ToastBackground"
-  bg_opaque_color="ToastBackground"
+    bg_alpha_color="ToastBackground"
+    bg_opaque_color="ToastBackground"
     follows="left|right|top"
     height="100"
     label="info_panel"

@@ -705,18 +705,21 @@ void LLImageBase::deleteData()
 // virtual
 U8* LLImageBase::allocateData(S32 size)
 {
+	//make this function thread-safe.
+	static const U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16; //256 MB
+	mBadBufferAllocation = false;
+
 	if (size < 0)
 	{
 		size = mWidth * mHeight * mComponents;
 		if (size <= 0)
 		{
-			LL_ERRS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << LL_ENDL;
+			LL_WARNS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << LL_ENDL;
+			mBadBufferAllocation = true;
 		}
-	}
-	
-	//make this function thread-safe.
-	static const U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16 ; //256 MB
-	if (size < 1 || size > MAX_BUFFER_SIZE) 
+	}	
+
+	if (!mBadBufferAllocation && (size < 1 || size > MAX_BUFFER_SIZE))
 	{
 		LL_INFOS() << "width: " << mWidth << " height: " << mHeight << " components: " << mComponents << LL_ENDL ;
 		if(mAllowOverSize)
@@ -725,24 +728,30 @@ U8* LLImageBase::allocateData(S32 size)
 		}
 		else
 		{
-			LL_ERRS() << "LLImageBase::allocateData: bad size: " << size << LL_ENDL;
+			LL_WARNS() << "LLImageBase::allocateData: bad size: " << size << LL_ENDL;
+			mBadBufferAllocation = true;
 		}
 	}
-	if (!mData || size != mDataSize)
+
+	if (!mBadBufferAllocation && (!mData || size != mDataSize))
 	{
 		deleteData(); // virtual
-		mBadBufferAllocation = false ;
 		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
 			LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
-			size = 0 ;
-			mWidth = mHeight = 0 ;
-			mBadBufferAllocation = true ;
+			mBadBufferAllocation = true;
 		}
-		mDataSize = size;
-		claimMem(mDataSize);
 	}
+
+	if (mBadBufferAllocation)
+	{
+		size = 0;
+		mWidth = mHeight = 0;
+		mData = NULL;
+	}
+	mDataSize = size;
+	claimMem(mDataSize);
 
 	return mData;
 }
@@ -791,7 +800,7 @@ U8* LLImageBase::getData()
 	return mData; 
 }
 
-bool LLImageBase::isBufferInvalid()
+bool LLImageBase::isBufferInvalid() const
 {
 	return mBadBufferAllocation || mData == NULL ;
 }

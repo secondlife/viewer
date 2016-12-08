@@ -67,9 +67,9 @@ typedef std::list<LLHUDComplexity> hud_complexity_list_t;
 // reported that user's agent is too 'heavy' for their settings
 class LLAvatarRenderNotifier : public LLSingleton<LLAvatarRenderNotifier>
 {
-public:
-	LLAvatarRenderNotifier();
+	LLSINGLETON(LLAvatarRenderNotifier);
 
+public:
     void displayNotification(bool show_over_limit);
 	bool isNotificationVisible();
 
@@ -114,10 +114,10 @@ private:
 // Class to notify user about heavy set of HUD
 class LLHUDRenderNotifier : public LLSingleton<LLHUDRenderNotifier>
 {
-public:
-    LLHUDRenderNotifier();
+    LLSINGLETON(LLHUDRenderNotifier);
     ~LLHUDRenderNotifier();
 
+public:
     void updateNotificationHUD(hud_complexity_list_t complexity);
     bool isNotificationVisible();
 

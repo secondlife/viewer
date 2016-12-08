@@ -38,7 +38,6 @@
 #include "lltoolfocus.h"
 #include "llfocusmgr.h"
 #include "llagent.h"
-#include "llagentcamera.h"
 #include "llviewerjoystick.h"
 
 extern BOOL gDebugClicks;
@@ -85,14 +84,7 @@ BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	// by default, didn't handle it
 	// LL_INFOS() << "LLTool::handleMouseDown" << LL_ENDL;
-    if (gAgentCamera.cameraMouselook())
-    {
-        gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_DOWN);
-    }
-    else
-    {
-        gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_DOWN);
-    }
+	gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_DOWN);
 	return TRUE;
 }
 
@@ -103,15 +95,8 @@ BOOL LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
 		LL_INFOS() << "LLTool left mouse up" << LL_ENDL;
 	}
 	// by default, didn't handle it
-    // LL_INFOS() << "LLTool::handleMouseUp" << LL_ENDL;
-    if (gAgentCamera.cameraMouselook())
-    {
-        gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_UP);
-    }
-    else
-    {
-        gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_UP);
-    }
+	// LL_INFOS() << "LLTool::handleMouseUp" << LL_ENDL;
+	gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_UP);
 	return TRUE;
 }
 

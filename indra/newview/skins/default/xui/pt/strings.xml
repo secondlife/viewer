@@ -58,6 +58,7 @@ Placa gráfica: [GRAPHICS_CARD]
 Versão do J2C Decoder: [J2C_VERSION]
 Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
 Versão de LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Versão de LibVLC: [LIBVLC_VERSION]
 Versão do servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">

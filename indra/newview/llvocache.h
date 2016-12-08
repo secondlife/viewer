@@ -223,6 +223,9 @@ private:
 //
 class LLVOCache : public LLSingleton<LLVOCache>
 {
+	LLSINGLETON(LLVOCache);
+	~LLVOCache() ;
+
 private:
 	struct HeaderEntryInfo
 	{
@@ -253,13 +256,8 @@ private:
 	};
 	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
-private:
-    friend class LLSingleton<LLVOCache>;
-	LLVOCache() ;
 
 public:
-	~LLVOCache() ;
-
 	void initCache(ELLPath location, U32 size, U32 cache_version) ;
 	void removeCache(ELLPath location, bool started = false) ;
 

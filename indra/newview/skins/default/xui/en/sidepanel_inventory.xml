@@ -59,7 +59,6 @@
                  name="inbox_layout_panel"
                  visible="false"
                  min_dim="35"
-                 max_dim="235"
                  expanded_min_dim="90"
                  height="235">
                  <panel

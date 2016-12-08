@@ -448,7 +448,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 		else
 		{
 
-			GLenum array[] =
+			static const GLenum array[] =
 			{
 				GL_VERTEX_ARRAY,
 				GL_NORMAL_ARRAY,
@@ -456,7 +456,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				GL_COLOR_ARRAY,
 			};
 
-			GLenum mask[] = 
+			static const GLenum mask[] = 
 			{
 				MAP_VERTEX,
 				MAP_NORMAL,

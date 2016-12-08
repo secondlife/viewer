@@ -54,6 +54,7 @@ extern template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInst
 LL_ALIGN_PREFIX(16)
 class LLViewerCamera : public LLCamera, public LLSingleton<LLViewerCamera>
 {
+	LLSINGLETON(LLViewerCamera);
 public:
 	void* operator new(size_t size)
 	{
@@ -81,8 +82,6 @@ public:
 	} eCameraID;
 
 	static eCameraID sCurCameraID;
-
-	LLViewerCamera();
 
 	void updateCameraLocation(const LLVector3 &center,
 								const LLVector3 &up_direction,
@@ -116,6 +115,8 @@ public:
 	void setDefaultFOV(F32 fov) ;
 	F32 getDefaultFOV() { return mCameraFOVDefault; }
 
+	BOOL isDefaultFOVChanged();
+
 	BOOL cameraUnderWater() const;
 	BOOL areVertsVisible(LLViewerObject* volumep, BOOL all_verts);
 
@@ -139,6 +140,7 @@ protected:
 	mutable LLMatrix4	mProjectionMatrix;	// Cache of perspective matrix
 	mutable LLMatrix4	mModelviewMatrix;
 	F32					mCameraFOVDefault;
+	F32					mPrevCameraFOVDefault;
 	F32					mCosHalfCameraFOV;
 	LLVector3			mLastPointOfInterest;
 	F32					mPixelMeterRatio; // Divide by distance from camera to get pixels per meter at that distance.

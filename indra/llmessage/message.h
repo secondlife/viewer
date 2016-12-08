@@ -60,6 +60,7 @@
 
 #include "llstoredmessage.h"
 #include "boost/function.hpp"
+#include "llpounceable.h"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
@@ -68,10 +69,10 @@ const S32 MESSAGE_MAX_PER_FRAME = 400;
 
 class LLMessageStringTable : public LLSingleton<LLMessageStringTable>
 {
-public:
-	LLMessageStringTable();
+	LLSINGLETON(LLMessageStringTable);
 	~LLMessageStringTable();
 
+public:
 	char *getString(const char *str);
 
 	U32	 mUsed;
@@ -832,7 +833,7 @@ private:
 
 
 // external hook into messaging system
-extern LLMessageSystem	*gMessageSystem;
+extern LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 
 // Must specific overall system version, which is used to determine
 // if a patch is available in the message template checksum verification.

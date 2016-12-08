@@ -41,7 +41,9 @@ class LLView;
 // lookup widget type by name
 class LLWidgetTypeRegistry
 :	public LLRegistrySingleton<std::string, const std::type_info*, LLWidgetTypeRegistry>
-{};
+{
+	LLSINGLETON_EMPTY_CTOR(LLWidgetTypeRegistry);
+};
 
 
 // global static instance for registering all widget types
@@ -51,7 +53,9 @@ typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 
 class LLChildRegistryRegistry
 : public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
-{};
+{
+	LLSINGLETON_EMPTY_CTOR(LLChildRegistryRegistry);
+};
 
 class LLXSDWriter : public LLInitParam::Parser
 {
@@ -60,7 +64,7 @@ public:
 	void writeXSD(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
 
 	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
-
+	/*virtual*/ std::string getCurrentFileName() { return LLStringUtil::null; }
 	LLXSDWriter();
 	~LLXSDWriter();
 
@@ -98,6 +102,7 @@ public:
 	typedef LLInitParam::Parser::name_stack_t name_stack_t;
 
 	/*virtual*/ std::string getCurrentElementName();
+	/*virtual*/ std::string getCurrentFileName() { return mCurFileName; }
 	/*virtual*/ void parserWarning(const std::string& message);
 	/*virtual*/ void parserError(const std::string& message);
 
@@ -200,6 +205,7 @@ public:
 	virtual ~LLSimpleXUIParser();
 
 	/*virtual*/ std::string getCurrentElementName();
+	/*virtual*/ std::string getCurrentFileName() { return mCurFileName; }
 	/*virtual*/ void parserWarning(const std::string& message);
 	/*virtual*/ void parserError(const std::string& message);
 

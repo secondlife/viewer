@@ -67,6 +67,7 @@
 J2C 解碼器版本： [J2C_VERSION]
 音效驅動程式版本： [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF版本：[LLCEFLIB_VERSION]
+LibVLC版本: [LIBVLC_VERSION]
 語音伺服器版本： [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">

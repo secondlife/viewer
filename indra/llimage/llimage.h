@@ -141,7 +141,7 @@ public:
 
 	const U8 *getData() const	;
 	U8 *getData()				;
-	bool isBufferInvalid() ;
+	bool isBufferInvalid() const;
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
 	U8* allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 size = -1); // setSize() + allocateData()

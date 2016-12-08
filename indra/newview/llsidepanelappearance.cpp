@@ -383,11 +383,21 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 
 void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearable *wearable, BOOL disable_camera_switch)
 {
-	if (!mEditWearable || ((mEditWearable->getWearable() == wearable) && mEditWearable->getVisible() == visible))
+	if (!mEditWearable)
 	{
-		// visibility isn't changing, hence nothing to do
 		return;
 	}
+
+	if (mEditWearable->getVisible() == visible && (!visible || mEditWearable->getWearable() != wearable))
+	{
+		// visibility isn't changing and panel doesn't need an update, hence nothing to do
+		return;
+	}
+
+	// If we're just switching between outfit and wearable editing or updating item,
+	// don't end customization and don't switch camera
+	// Don't end customization and don't switch camera without visibility change
+	BOOL change_state = !disable_camera_switch && mEditWearable->getVisible() != visible;
 
 	if (!wearable)
 	{
@@ -403,8 +413,8 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 
 	if (visible)
 	{
-		LLVOAvatarSelf::onCustomizeStart(disable_camera_switch);
-		mEditWearable->setWearable(wearable, disable_camera_switch);
+		LLVOAvatarSelf::onCustomizeStart(!change_state);
+		mEditWearable->setWearable(wearable, !change_state);
 		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 	}
 	else
@@ -412,9 +422,9 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 		// Save changes if closing.
 		mEditWearable->saveChanges();
 		LLAppearanceMgr::getInstance()->updateIsDirty();
-		if (!disable_camera_switch)   // if we're just switching between outfit and wearable editing, don't end customization.
+		if (change_state)
 		{
-			LLVOAvatarSelf::onCustomizeEnd(disable_camera_switch);
+			LLVOAvatarSelf::onCustomizeEnd(!change_state);
 		}
 	}
 }

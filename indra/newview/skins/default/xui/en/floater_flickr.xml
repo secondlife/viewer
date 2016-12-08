@@ -29,8 +29,7 @@
      top="7"
      height="555"
      follows="all"
-     halign="center"
-     use_highlighting_on_hover="true">
+     halign="center">
      <panel
        filename="panel_flickr_photo.xml"
        class="llflickrphotopanel"

@@ -162,13 +162,12 @@ public:
  */
 class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
 {
+	LLSINGLETON(LLEnvManagerNew);
 	LOG_CLASS(LLEnvManagerNew);
 public:
 	typedef boost::signals2::signal<void()> prefs_change_signal_t;
 	typedef boost::signals2::signal<void()> region_settings_change_signal_t;
 	typedef boost::signals2::signal<void(bool)> region_settings_applied_signal_t;
-
-	LLEnvManagerNew();
 
 	// getters to access user env. preferences
 	bool getUseRegionSettings() const;
@@ -231,7 +230,6 @@ public:
 	void onRegionSettingsApplyResponse(bool ok);
 
 private:
-	friend class LLSingleton<LLEnvManagerNew>;
 	/*virtual*/ void initSingleton();
 
 	void loadUserPrefs();

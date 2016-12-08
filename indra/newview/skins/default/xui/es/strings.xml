@@ -58,7 +58,8 @@ Tarjeta gráfica: [GRAPHICS_CARD]
 Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
 Versión de LLCEFLib/CEF: [LLCEFLIB_VERSION]
-Versión de Voice Server: [VOICE_VERSION]
+Versión de LibVLC: [LIBVLC_VERSION]
+Versión del servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)

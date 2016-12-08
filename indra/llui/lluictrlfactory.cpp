@@ -92,15 +92,27 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 {
 	std::string filename = gDirUtilp->add("widgets", widget_tag + ".xml");
 	LLXMLNodePtr root_node;
+	std::vector<std::string> search_paths =
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, filename);
 
-	// Here we're looking for the "en" version, the default-language version
-	// of the file, rather than the localized version.
-	std::string full_filename = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, filename);
-	if (!full_filename.empty())
+	if (search_paths.empty())
 	{
-		LLUICtrlFactory::instance().pushFileName(full_filename);
-		LLSimpleXUIParser parser;
-		parser.readXUI(full_filename, block);
+		return;
+	}
+
+	// "en" version, the default-language version of the file.
+	std::string base_filename = search_paths.front();
+	if (!base_filename.empty())
+	{
+		LLUICtrlFactory::instance().pushFileName(base_filename);
+
+		if (!LLXMLNode::getLayeredXMLNode(root_node, search_paths))
+		{
+			LL_WARNS() << "Couldn't parse widget from: " << base_filename << LL_ENDL;
+			return;
+		}
+		LLXUIParser parser;
+		parser.readXUI(root_node, block, base_filename);
 		LLUICtrlFactory::instance().popFileName();
 	}
 }

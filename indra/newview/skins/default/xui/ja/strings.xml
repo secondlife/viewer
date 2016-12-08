@@ -67,7 +67,8 @@ OS バージョン：[OS_VERSION]
 J2C デコーダバージョン：[J2C_VERSION]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF バージョン: [LLCEFLIB_VERSION]
-ボイスサーバーバージョン:[VOICE_VERSION]
+LibVLC バージョン: [LIBVLC_VERSION]
+ボイスサーバーバージョン： [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		パケットロス：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）

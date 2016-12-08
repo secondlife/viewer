@@ -44,11 +44,11 @@ class LLViewerObject;
 
 class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 {
- public:
-	LOG_CLASS(LLViewerStatsRecorder);	 
-	LLViewerStatsRecorder();
+	LLSINGLETON(LLViewerStatsRecorder);
+	LOG_CLASS(LLViewerStatsRecorder);
 	~LLViewerStatsRecorder();
 
+ public:
 	void objectUpdateFailure(U32 local_id, const EObjectUpdateType update_type, S32 msg_size)
 	{
 #if LL_RECORD_VIEWER_STATS

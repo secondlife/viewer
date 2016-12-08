@@ -609,10 +609,15 @@ bool LLEnvManagerNew::useRegionSky()
 		return true;
 	}
 
-	// *TODO: Support fixed sky from region.
-
-	// Otherwise apply region day cycle.
+	// Otherwise apply region day cycle/skies.
 	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+
+	// *TODO: Support fixed sky from region. Just do sky reset for now.
+	if (region_settings.getSkyMap().size() == 1)
+	{
+		// Region is set to fixed sky. Reset.
+		useSkyParams(region_settings.getSkyMap().beginMap()->second);
+	}
 	return useDayCycleParams(
 		region_settings.getWLDayCycle(),
 		LLEnvKey::SCOPE_REGION,
