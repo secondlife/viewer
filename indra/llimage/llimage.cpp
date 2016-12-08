@@ -800,7 +800,7 @@ U8* LLImageBase::getData()
 	return mData; 
 }
 
-bool LLImageBase::isBufferInvalid()
+bool LLImageBase::isBufferInvalid() const
 {
 	return mBadBufferAllocation || mData == NULL ;
 }
