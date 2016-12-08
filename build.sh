@@ -370,7 +370,7 @@ then
       succeeded=$build_coverity
     else
       # Upload base package.
-      python_cmd "$helpers/codeticket.py" addoutput Installer --output "$package" 
+      python_cmd "$helpers/codeticket.py" addoutput Installer "$package" 
 
       # Upload additional packages.
       for package_id in $additional_packages
