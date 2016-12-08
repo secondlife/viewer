@@ -96,12 +96,7 @@ target_link_libraries(
   )
 
 # tests
-##==========================================================================
-## DANGER WILL ROBINSON! WARNING!
-## Leaving these tests commented out is extremely hazardous, since llcorehttp
-## is so central to viewer processing.
-##==========================================================================
-if (0) ## LL_TESTS)
+if (LL_TESTS)
   SET(llcorehttp_TEST_SOURCE_FILES
       tests/test_allocator.cpp
       )
@@ -226,4 +221,5 @@ endif (DARWIN)
 
   target_link_libraries(http_texture_load ${example_libs})
 
-endif ()
+endif (LL_TESTS)
+
