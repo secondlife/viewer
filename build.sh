@@ -247,7 +247,8 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml
+                  python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml \
+                      || fatal "Upload of autobuild metadata failed"
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
@@ -268,7 +269,8 @@ do
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2"
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
+                      || fatal "Upload of doxygen tarball failed"
               fi
               ;;
             *)
@@ -330,11 +332,13 @@ then
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
         deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
-        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" $deb_file
+        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" $deb_file \
+            || fatal "Upload of debian $deb_pkg failed"
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
         deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
-        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" "$deb_file" --private
+        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" "$deb_file" --private \
+            || fatal "Upload of debian $deb_pkg failed"
       done
 
       create_deb_repo
@@ -370,7 +374,8 @@ then
       succeeded=$build_coverity
     else
       # Upload base package.
-      python_cmd "$helpers/codeticket.py" addoutput Installer "$package" 
+      python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
+          || fatal "Upload of installer failed"
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -378,7 +383,8 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package"
+          python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
+              || fatal "Upload of installer $package_id failed"
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
@@ -389,7 +395,9 @@ then
         # Upload crash reporter files
         for symbolfile in $symbolfiles
         do
-          python_cmd "$helpers/codeticket.py" addoutput "Symbolfile $(basename "$build_dir/$symbolfile")" "$build_dir/$symbolfile"
+          symfile=$(basename "$build_dir/$symbolfile")
+          python_cmd "$helpers/codeticket.py" addoutput "Symbolfile $symfile" "$build_dir/$symbolfile" \
+              || fatal "Upload of symbolfile $symfile failed"
         done
 
         # Upload the llphysicsextensions_tpv package, if one was produced
@@ -397,7 +405,8 @@ then
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private
+            python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
+                || fatal "Upload of physics extensions package failed"
         fi
         ;;
       *)
