@@ -291,7 +291,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
     // FIXME ARC this is just for sanity checking some fixes to timer
     // handling, should normally not be called. For one thing, it adds
     // a bunch of sleep statements to every frame.
-    test_timers();
+    // test_timers();
     
 	LL_RECORD_BLOCK_TIME(FTM_RENDER);
 
