@@ -389,28 +389,33 @@ then
         fi
       done
 
-      case "$last_built_variant" in
-      Release)
-        # Upload crash reporter files
-        for symbolfile in $symbolfiles
-        do
-          symfile=$(basename "$build_dir/$symbolfile")
-          python_cmd "$helpers/codeticket.py" addoutput "Symbolfile $symfile" "$build_dir/$symbolfile" \
-              || fatal "Upload of symbolfile $symfile failed"
-        done
+      if [ "$last_built_variant" = "Release" ]
+      then
+          # Upload crash reporter file
+          # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt
+          case "$arch" in
+              CYGWIN)
+                  symbolfile="$build_dir/newview/Release/secondlife-symbols-windows-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                  ;;
+              Darwin)
+                  symbolfile="$build_dir/newview/Release/secondlife-symbols-darwin-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                  ;;
+              Linux)
+                  symbolfile="$build_dir/newview/Release/secondlife-symbols-linux-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                  ;;
+          esac
+          python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbolfile" \
+              || fatal "Upload of symbolfile failed"
 
-        # Upload the llphysicsextensions_tpv package, if one was produced
-        # *TODO: Make this an upload-extension
-        if [ -r "$build_dir/llphysicsextensions_package" ]
-        then
-            llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
-                || fatal "Upload of physics extensions package failed"
-        fi
-        ;;
-      *)
-        ;;
-      esac
+          # Upload the llphysicsextensions_tpv package, if one was produced
+          # *TODO: Make this an upload-extension
+          if [ -r "$build_dir/llphysicsextensions_package" ]
+          then
+              llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
+              python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
+                  || fatal "Upload of physics extensions package failed"
+          fi
+      fi
 
       # Run upload extensions
       if [ -d ${build_dir}/packages/upload-extensions ]; then
