@@ -3280,11 +3280,11 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["CHANNEL"] = LLVersionInfo::getChannel();
+    info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")
     {
         info["BUILD_CONFIG"] = build_config;
-        info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     }
 
 	// return a URL to the release notes for this viewer, such as:
