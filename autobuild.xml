@@ -2148,9 +2148,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8d66b068425d2cbc65949c83d7f37d23</string>
+              <string>7ddbd5e4042c8cd4b92f4ec4f008c2de</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/486/1031/llphysicsextensions_source-1.0.500392-darwin64-500392.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1429/3171/llphysicsextensions_source-1.0.501416-darwin64-501416.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2172,9 +2172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>20279e8be7f8971c59f0b8f6aa513098</string>
+              <string>e106565f44656db9824a6b7d0f316131</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/463/980/llphysicsextensions_source-1.0.500392-linux64-500392.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1427/3161/llphysicsextensions_source-1.0.501416-linux64-501416.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2184,9 +2184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0ac91b8fadeebb767d8c7a4ab5272319</string>
+              <string>a5330ca28e7a18df3f54213e6dbb1ea6</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/508/1090/llphysicsextensions_source-1.0.500392-windows-500392.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1433/3191/llphysicsextensions_source-1.0.501416-windows-501416.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2196,16 +2196,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec95c627af598b6db5be99cff5559699</string>
+              <string>159bc42e08f1797a613d914d1921cb46</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/507/1087/llphysicsextensions_source-1.0.500392-windows64-500392.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1432/3186/llphysicsextensions_source-1.0.501416-windows64-501416.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.500392</string>
+        <string>1.0.501416</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2238,9 +2238,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c7676595a2b49e41aa3e32bf99e5cf2f</string>
+              <string>b405d183061dec751ee9e3d8ece141ee</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1081/2505/llphysicsextensions_stub-1.0.501069-darwin64-501069.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1428/3166/llphysicsextensions_stub-1.0.501415-darwin64-501415.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2262,9 +2262,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>430a1c16c2a0f999742411389e6bb50f</string>
+              <string>4581b01a352a66ba6ad62a536b12b8cb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1080/2500/llphysicsextensions_stub-1.0.501069-linux64-501069.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1426/3156/llphysicsextensions_stub-1.0.501415-linux64-501415.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2274,9 +2274,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>72b163adfc692d4930fa391043329c88</string>
+              <string>0b0a911847d4784b49ea548ac4fe53d5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1083/2511/llphysicsextensions_stub-1.0.501069-windows-501069.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1431/3181/llphysicsextensions_stub-1.0.501415-windows-501415.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2286,16 +2286,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b0a066c3fcee095843d9077ccbc8a75b</string>
+              <string>546c9e9554a6204bb0c3f0c79b7a34cb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1082/2508/llphysicsextensions_stub-1.0.501069-windows64-501069.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1430/3176/llphysicsextensions_stub-1.0.501415-windows64-501415.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501069</string>
+        <string>1.0.501415</string>
       </map>
       <key>mesa</key>
       <map>
@@ -3300,7 +3300,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
@@ -3321,7 +3321,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3341,7 +3341,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
@@ -3362,7 +3362,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3627,7 +3627,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc120-$AUTOBUILD_ADDRSIZE</string>
+          <string>build-vc120-64</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
@@ -3643,7 +3643,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>RelWithDebInfo|NOTWIN</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3655,7 +3655,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>NOTWIN</string>
                 </array>
               </map>
               <key>default</key>
@@ -3676,7 +3676,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>/p:Platform=NOTWIN</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
@@ -3693,7 +3693,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>NOTWIN</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3715,7 +3715,7 @@
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>Release|NOTWIN</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3727,7 +3727,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>NOTWIN</string>
                 </array>
               </map>
               <key>name</key>
@@ -3746,7 +3746,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>/p:Platform=NOTWIN</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
@@ -3763,7 +3763,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>NOTWIN</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
