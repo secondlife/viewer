@@ -1430,7 +1430,7 @@ if (WINDOWS)
         set(ICON_PATH "project")
         set(VIEWER_MACOSX_PHASE "a")
     endif()
-    message("Copying icons for ${ICON_PATH}")
+    message(STATUS "Copying icons for ${ICON_PATH}")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife.ico"
