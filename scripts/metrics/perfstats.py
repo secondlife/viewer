@@ -214,41 +214,47 @@ def get_all_timer_keys(filename):
     iter_rec = iter(get_frame_record(filename))
     sd = next(iter_rec)
     return [timer for timer in sd["Timers"]]
-    
-def process_by_outfit(pd_data, fig_name):
+
+def get_outfit_spans(pd_data):
+    results = []
     outfit_key = "Avatars.Self.OutfitName"
     arc_key = "Avatars.Self.ARCCalculated"
-    #time_key = "Timers.UI.Time"
-    #time_key = "Timers.Frame.Time"
-    time_key = "Derived.Timers.SceneRender"
     curr_outfit = None
-    #print "pd_data"
-    #print pd_data
-    #print "rows"
-    #for i, fd in enumerate(pd_data.values):
-    #    print i, fd
     outfit_column = pd_data[outfit_key]
     outfit_key_frames = [i for i, outfit in enumerate(outfit_column) if isinstance(outfit,basestring)]
     outfit_spans = [outfit_key_frames[i+1]-outfit_key_frames[i] for i in xrange(len(outfit_key_frames)-1)]
     outfit_spans.append(len(pd_data)-outfit_key_frames[-1])
     assert(len(outfit_key_frames)==len(outfit_spans))
-    #for (k,s) in zip(outfit_key_frames,outfit_spans):
-    #    print "START",k,"SPAN",s,"OUTFIT",outfit_column[k],"ARC",pd_data[arc_key][k]
     spandict = dict(zip(outfit_key_frames, outfit_spans))
+    for outfit, group in itertools.groupby(outfit_key_frames,key=lambda k: outfit_column[k]):
+        max_span = 0
+        max_key = 0
+        # TODO allow multiple spans for same outfit, if sufficiently long
+        for start_frame in group:
+            span = spandict[start_frame]
+            if span > max_span:
+                max_span = span
+                max_key = start_frame
+        print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
+        outfit_rec = {"outfit":outfit, "arc": pd_data[arc_key][max_key], "start_frame": max_key, "span": max_span} 
+        results.append(outfit_rec)
+    return results
+    
+def process_by_outfit(pd_data, fig_name):
+    arc_key = "Avatars.Self.ARCCalculated"
+    time_key = "Timers.Frame.Time"
+
     arcs = []
     times = []
     labels = []
     stddev = []
     timespan = []
     timespans = []
-    for outfit, group in itertools.groupby(outfit_key_frames,key=lambda k: outfit_column[k]):
-        max_span = 0
-        max_key = 0
-        for start_frame in group:
-            span = spandict[start_frame]
-            if span > max_span:
-                max_span = span
-                max_key = start_frame
+    outfit_spans = get_outfit_spans(pd_data) 
+    for outfit_span in outfit_spans:
+        max_key = outfit_span["start_frame"]
+        max_span = outfit_span["span"]
+        outfit = outfit_span["outfit"]
         print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
         timespan = pd_data[time_key][max_key:max_key+max_span]
         print "render avg", np.average(timespan)
@@ -277,6 +283,13 @@ def process_by_outfit(pd_data, fig_name):
         #plt.hist(timespan, 50, alpha=0.5, label=label)
     #plt.gcf().savefig("timespan_histo.jpg", bbox_inches="tight")
         
+def plot_time_series(pd_data,fields):
+    print "plot_time_series",fields
+    for f in fields:
+        ax = pd_data.plot(y=f)
+        ax.set_ylim([0,1])
+        fig = ax.get_figure()
+        fig.savefig('time_series.jpg')
     
 if __name__ == "__main__":
 
@@ -296,10 +309,12 @@ if __name__ == "__main__":
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=default_fields)
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
-    parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
+    parser.add_argument("--child_timers", help="include children of specified timer keys in fields", nargs="+", default=[])
     parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
     parser.add_argument("--export", help="export results to specified file")
     parser.add_argument("--max_records", type=int, help="limit to number of frames to process") 
+    parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
+    parser.add_argument("--plot_time_series", nargs="+", default=[], help="show timers by frame")
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
@@ -338,6 +353,9 @@ if __name__ == "__main__":
 
     for t in args.timers:
         args.fields.append("Timers." + t + ".Time")
+
+    for t in args.child_timers:
+        args.fields.append("Timers." + t + ".Time")
         if t in child_info:
             for c in child_info[t]:
                 if not c in ignore_list:
@@ -362,5 +380,8 @@ if __name__ == "__main__":
         
     if args.by_outfit:
         process_by_outfit(pd_data,"arcs_vs_times.jpg")
-        
+
+    if args.plot_time_series:
+        plot_time_series(pd_data, args.plot_time_series)
+
     print "done"
