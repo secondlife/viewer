@@ -84,6 +84,7 @@ private:
 
 	float mCurTime;
 	float mDuration;
+	EStatus mVlcStatus;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,6 +112,7 @@ MediaPluginBase(host_send_func, host_user_data)
 
 	mURL = std::string();
 
+	mVlcStatus = STATUS_NONE;
 	setStatus(STATUS_NONE);
 }
 
@@ -209,28 +211,28 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 	switch (event->type)
 	{
 	case libvlc_MediaPlayerOpening:
-		parent->setStatus(STATUS_LOADING);
+		parent->mVlcStatus = STATUS_LOADING;
 		break;
 
 	case libvlc_MediaPlayerPlaying:
 		parent->mDuration = (float)(libvlc_media_get_duration(parent->mLibVLCMedia)) / 1000.0f;
-		parent->setStatus(STATUS_PLAYING);
+		parent->mVlcStatus = STATUS_PLAYING;
 		break;
 
 	case libvlc_MediaPlayerPaused:
-		parent->setStatus(STATUS_PAUSED);
+		parent->mVlcStatus = STATUS_PAUSED;
 		break;
 
 	case libvlc_MediaPlayerStopped:
-		parent->setStatus(STATUS_DONE);
+		parent->mVlcStatus = STATUS_DONE;
 		break;
 
 	case libvlc_MediaPlayerEndReached:
-		parent->setStatus(STATUS_DONE);
+		parent->mVlcStatus = STATUS_DONE;
 		break;
 
 	case libvlc_MediaPlayerEncounteredError:
-		parent->setStatus(STATUS_ERROR);
+		parent->mVlcStatus = STATUS_ERROR;
 		break;
 
 	case libvlc_MediaPlayerTimeChanged:
@@ -446,6 +448,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "idle")
 			{
+				setStatus(mVlcStatus);
 			}
 			else if (message_name == "cleanup")
 			{
@@ -567,7 +570,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 				{
 					if (mLibVLCMediaPlayer)
 					{
-						libvlc_media_player_pause(mLibVLCMediaPlayer);
+						libvlc_media_player_set_pause(mLibVLCMediaPlayer, 1);
 					}
 				}
 				else if (message_name == "seek")

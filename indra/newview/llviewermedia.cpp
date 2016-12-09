@@ -810,7 +810,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				sAnyMediaShowing = true;
 			}
 
-			if (!pimpl->getUsedInUI() && pimpl->hasMedia() && (!pimpl->isMediaPaused() || !pimpl->isMediaTimeBased()))
+			if (!pimpl->getUsedInUI() && pimpl->hasMedia() && pimpl->isMediaPlaying())
 			{
 				sAnyMediaPlaying = true;
 			}
@@ -949,7 +949,6 @@ void LLViewerMedia::setAllMediaPaused(bool val)
                 if (pimpl->isMediaTimeBased() && pimpl->isMediaPaused())
                 {
                     pimpl->play();
-                    return;
                 }
             }
             else if (pimpl->isMediaTimeBased() && pimpl->mMediaSource)
