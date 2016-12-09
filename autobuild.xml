@@ -3377,7 +3377,7 @@
         <key>darwin64</key>
         <map>
           <key>build_directory</key>
-          <string>build-darwin-i386</string>
+          <string>build-darwin-x86_64</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
