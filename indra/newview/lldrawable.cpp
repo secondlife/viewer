@@ -979,9 +979,7 @@ void LLDrawable::updateSpatialExtents()
 	if (mVObjp)
 	{
 		const LLVector4a* exts = getSpatialExtents();
-		LLVector4a extents[2];
-		extents[0] = exts[0];
-		extents[1] = exts[1];
+		LLVector4a extents[2] = { exts[0], exts[1] };
 
 		mVObjp->updateSpatialExtents(extents[0], extents[1]);
 		setSpatialExtents(extents[0], extents[1]);
