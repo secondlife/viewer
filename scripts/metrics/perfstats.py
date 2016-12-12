@@ -216,6 +216,7 @@ def get_all_timer_keys(filename):
     return [timer for timer in sd["Timers"]]
 
 def get_outfit_spans(pd_data):
+    time_key = "Timers.Frame.Time"
     results = []
     outfit_key = "Avatars.Self.OutfitName"
     arc_key = "Avatars.Self.ARCCalculated"
@@ -235,8 +236,11 @@ def get_outfit_spans(pd_data):
             if span > max_span:
                 max_span = span
                 max_key = start_frame
+        timespan = pd_data[time_key][max_key:max_key+max_span]
+        low, high = np.percentile(timespan,5.0), np.percentile(timespan,95.0)
         print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
-        outfit_rec = {"outfit":outfit, "arc": pd_data[arc_key][max_key], "start_frame": max_key, "span": max_span} 
+        outfit_rec = {"outfit":outfit, "arc": pd_data[arc_key][max_key], "start_frame": max_key, "span": max_span,
+                      "avg": np.average(timespan.clip(low,high)), "std": np.std(timespan) } 
         results.append(outfit_rec)
     return results
     
@@ -245,11 +249,12 @@ def process_by_outfit(pd_data, fig_name):
     time_key = "Timers.Frame.Time"
 
     arcs = []
-    times = []
+    avg = []
     labels = []
     stddev = []
     timespan = []
     timespans = []
+    xspans = []
     outfit_spans = get_outfit_spans(pd_data) 
     for outfit_span in outfit_spans:
         max_key = outfit_span["start_frame"]
@@ -259,37 +264,58 @@ def process_by_outfit(pd_data, fig_name):
         timespan = pd_data[time_key][max_key:max_key+max_span]
         print "render avg", np.average(timespan)
         print "render std", np.std(timespan)
-        arcs.append(pd_data[arc_key][max_key])
-        times.append(np.average(timespan))
-        stddev.append(np.std(timespan))
+        arcs.append(outfit_span["arc"])
+        avg.append(outfit_span["avg"])
+        stddev.append(outfit_span["std"])
         labels.append(outfit)
         timespans.append(timespan)
-    print "CORRCOEFF", np.corrcoef(arcs,times)
-    print "POLYFIT", np.polyfit(arcs,times,1)
-    #res = plt.scatter(arcs, times, yerr=stddev)
-    plt.errorbar(arcs, times, yerr=stddev, fmt='o')
-    for label, x, y in zip(labels,arcs,times):
+    print "CORRCOEFF", np.corrcoef(arcs,avg)
+    print "POLYFIT", np.polyfit(arcs,avg,1)
+    #res = plt.scatter(arcs, avg, yerr=stddev)
+    plt.errorbar(arcs, avg, yerr=stddev, fmt='o')
+    for label, x, y in zip(labels,arcs,avg):
         plt.annotate(label, xy=(x,y))
+    for xspan, y in zip(xspans,avg):
+        plt.plot((xspan[0],y),(xspan[1],y),'k-')
     plt.gca().set_xlabel(arc_key)
     plt.gca().set_ylabel(time_key)
     if (fig_name) is not None:
         plt.gcf().savefig(fig_name, bbox_inches="tight")
     plt.clf()
-    for timespan, label in zip(timespans,labels):
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
-        ax.hist(timespan, 50, label=label)
-        fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
-        #plt.hist(timespan, 50, alpha=0.5, label=label)
-    #plt.gcf().savefig("timespan_histo.jpg", bbox_inches="tight")
+    nrows = len(timespans)
+    all_times = [t for timespan in timespans for t in timespan]
+    all_low, all_high = np.percentile(all_times,0), np.percentile(all_times,98.0)
+    sorted_lists = sorted(itertools.izip(timespans, labels, avg), key=lambda x: x[2])
+    timespans, labels, avg = [[x[i] for x in sorted_lists] for i in range(3)]
+    fig = plt.figure(figsize=(6, 2*nrows))
+    fig.subplots_adjust(wspace=1.0)
+    for i, (timespan, label, avg_val) in enumerate(zip(timespans,labels, avg)):
+        #fig = plt.figure()
+        ax = fig.add_subplot(nrows,1,i+1)
+        low, high = np.percentile(timespan,2.0), np.percentile(timespan,98.0)
+        #clipped_timespan = timespan.clip(low,high)
+        ax.hist(timespan, 100, label=label, range=(all_low,all_high), alpha=0.3)
+        plt.title(label)
+        plt.vlines(avg_val,0,100)
+        #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
+    plt.tight_layout()
+    fig.savefig("times_histo_outfits.jpg")
         
 def plot_time_series(pd_data,fields):
+    time_key = "Timers.Frame.Time"
     print "plot_time_series",fields
+    outfit_spans = get_outfit_spans(pd_data)
     for f in fields:
-        ax = pd_data.plot(y=f)
-        ax.set_ylim([0,1])
+        #pd_data[f] = pd_data[f].clip(0,0.05)
+        ax = pd_data.plot(y=f, alpha=0.3)
+        for outfit_span in outfit_spans:
+            x0,x1 = outfit_span["start_frame"], outfit_span["start_frame"] + outfit_span["span"]
+            y = outfit_span["avg"]
+            print "annotate",(x0,x1),y
+            plt.plot((x0,x1),(y,y),"b-")
+        ax.set_ylim([0,.1])
         fig = ax.get_figure()
-        fig.savefig('time_series.jpg')
+        fig.savefig("time_series_" + f + ".jpg")
     
 if __name__ == "__main__":
 
