@@ -244,7 +244,7 @@ def get_outfit_spans(pd_data):
         results.append(outfit_rec)
     return results
     
-def process_by_outfit(pd_data, fig_name):
+def process_by_outfit(pd_data):
     arc_key = "Avatars.Self.ARCCalculated"
     time_key = "Timers.Frame.Time"
 
@@ -255,6 +255,8 @@ def process_by_outfit(pd_data, fig_name):
     timespan = []
     timespans = []
     xspans = []
+    errorbars_low = []
+    errorbars_high = []
     outfit_spans = get_outfit_spans(pd_data) 
     for outfit_span in outfit_spans:
         max_key = outfit_span["start_frame"]
@@ -267,20 +269,21 @@ def process_by_outfit(pd_data, fig_name):
         arcs.append(outfit_span["arc"])
         avg.append(outfit_span["avg"])
         stddev.append(outfit_span["std"])
+        errorbars_low.append(outfit_span["avg"]-np.percentile(timespan,25.0))
+        errorbars_high.append(np.percentile(timespan,75.0)-outfit_span["avg"])
         labels.append(outfit)
         timespans.append(timespan)
     print "CORRCOEFF", np.corrcoef(arcs,avg)
     print "POLYFIT", np.polyfit(arcs,avg,1)
     #res = plt.scatter(arcs, avg, yerr=stddev)
-    plt.errorbar(arcs, avg, yerr=stddev, fmt='o')
+    plt.errorbar(arcs, avg, yerr=(errorbars_low, errorbars_high), fmt='o')
     for label, x, y in zip(labels,arcs,avg):
         plt.annotate(label, xy=(x,y))
     for xspan, y in zip(xspans,avg):
         plt.plot((xspan[0],y),(xspan[1],y),'k-')
     plt.gca().set_xlabel(arc_key)
     plt.gca().set_ylabel(time_key)
-    if (fig_name) is not None:
-        plt.gcf().savefig(fig_name, bbox_inches="tight")
+    plt.gcf().savefig("arcs_vs_times.jpg", bbox_inches="tight")
     plt.clf()
     nrows = len(timespans)
     all_times = [t for timespan in timespans for t in timespan]
@@ -296,7 +299,7 @@ def process_by_outfit(pd_data, fig_name):
         #clipped_timespan = timespan.clip(low,high)
         ax.hist(timespan, 100, label=label, range=(all_low,all_high), alpha=0.3)
         plt.title(label)
-        plt.vlines(avg_val,0,100)
+        plt.axvline(x=avg_val)
         #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
     plt.tight_layout()
     fig.savefig("times_histo_outfits.jpg")
@@ -405,7 +408,7 @@ if __name__ == "__main__":
         print res
         
     if args.by_outfit:
-        process_by_outfit(pd_data,"arcs_vs_times.jpg")
+        process_by_outfit(pd_data)
 
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
