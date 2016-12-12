@@ -10118,7 +10118,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	}
 	LLPipeline::sShadowRender = true;
 	
-	U32 types[] = { 
+	static const U32 types[] = { 
 		LLRenderPass::PASS_SIMPLE, 
 		LLRenderPass::PASS_FULLBRIGHT, 
 		LLRenderPass::PASS_SHINY, 

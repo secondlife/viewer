@@ -1485,7 +1485,6 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		res &= face->genVolumeBBoxes(*volume, i,
 										mRelativeXform, 
 										(mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
-		
 		if (rebuild)
 		{
 			if (i == 0)
@@ -1761,6 +1760,11 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
 		lodOrSculptChanged(drawable, compiled);
+		
+		if(drawable->isState(LLDrawable::REBUILD_RIGGED | LLDrawable::RIGGED)) 
+		{
+			updateRiggedVolume(false);
+		}
 		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
@@ -4210,7 +4214,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 			LLVector4a* pos = dst_face.mPositions;
 
-			if( pos && weight && dst_face.mExtents )
+			if (pos && dst_face.mExtents)
 			{
 				LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
 
