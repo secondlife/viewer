@@ -138,10 +138,11 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
-  
-  # now we only support Xcode 7.0 using 10.11 (El Capitan), minimum OS 10.7 (Lion)
+
+  # The following must agree with
+  # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
   set(XCODE_VERSION 7.0)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
   set(CMAKE_OSX_SYSROOT macosx10.11)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
