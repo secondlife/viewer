@@ -1502,9 +1502,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ba30bc3d67ef22700b534b15505bf976</string>
+              <string>3564da2ab285a8652d2ee157d1f167e2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/606/1275/jsoncpp-0.5.0.500597-darwin64-500597.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1478/3283/jsoncpp-0.5.0.501464-darwin64-501464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1526,9 +1526,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a88378cb3019a47f3249243384d3c5da</string>
+              <string>9a658ae561c75e60bd9c0cee56731d21</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/605/1270/jsoncpp-0.5.0.500597-linux64-500597.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1475/3274/jsoncpp-0.5.0.501464-linux64-501464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1538,9 +1538,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>483ba51ff4060d02900adf8b7ca12e32</string>
+              <string>ed25115f3e53e59d4d26e0953c273648</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/608/1281/jsoncpp-0.5.0.500597-windows-500597.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1476/3277/jsoncpp-0.5.0.501464-windows-501464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1550,16 +1550,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>25694d8f71efba5479e0475cd1bf3c2f</string>
+              <string>b328db840fd28532be39556d130c9439</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/607/1278/jsoncpp-0.5.0.500597-windows64-500597.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1477/3284/jsoncpp-0.5.0.501464-windows64-501464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.5.0.500597</string>
+        <string>0.5.0.501464</string>
       </map>
       <key>kdu</key>
       <map>
