@@ -458,6 +458,11 @@ void LLConversationViewSession::refresh()
 			}
 		}
 	}
+    
+    if (mSpeakingIndicator)
+    {
+        mSpeakingIndicator->setShowParticipantsSpeaking(mIsInActiveVoiceChannel);
+    }
 	requestArrange();
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
