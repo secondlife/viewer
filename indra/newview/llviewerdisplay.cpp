@@ -243,6 +243,7 @@ static LLTrace::BlockTimerStatHandle FTM_DISPLAY_UPDATE_GEOM("Update Geom");
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UNBIND("Texture Unbind");
 static LLTrace::BlockTimerStatHandle FTM_TELEPORT_DISPLAY("Teleport Display");
 
+#if 0
 static LLTrace::BlockTimerStatHandle FTM_SANITY_PARENT("SanityParent");
 static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_A("SanityChildA");
 static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_B("SanityChildB");
@@ -284,6 +285,7 @@ void test_timers()
         test_timer_sub();
     }
 }
+#endif
 
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)

@@ -45,12 +45,28 @@ def export_csv(filename, pd_data):
     if args.verbose:
         print pd_data
     pd_data.to_csv(filename)
+
+def get_default_export_name(pd_data):
+    res = None
+    unique_id = pd_data["Session.UniqueID"][0]
+    timestamp = pd_data["Summary.Timestamp"][0]
+    name = "performance_" + str(unique_id)[0:6] + "_" + str(timestamp) + ".csv"
+
+    res = name.replace(":",".").replace("Z","").replace("T","-")
+        #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
+    print "unique_id",unique_id,"timestamp",timestamp,"name",res
+    return res
     
 def export(filename, timers):
-    if re.match(".*\.csv$", filename):
-        export_csv(filename, timers)
-    else:
-        print "unknown extension for export",filename
+    print "export",filename
+    if filename=="auto":
+        filename = get_default_export_name(timers)
+        print "saving to",filename
+    if filename:
+        if re.match(".*\.csv$", filename):
+            export_csv(filename, timers)
+        else:
+            print "unknown extension for export",filename
 
 class DerivedSelfTimers:
     def __init__(self, sd, **kwargs):
@@ -239,17 +255,25 @@ def get_outfit_spans(pd_data):
         timespan = pd_data[time_key][max_key:max_key+max_span]
         low, high = np.percentile(timespan,5.0), np.percentile(timespan,95.0)
         print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
-        outfit_rec = {"outfit":outfit, "arc": pd_data[arc_key][max_key], "start_frame": max_key, "span": max_span,
-                      "avg": np.average(timespan.clip(low,high)), "std": np.std(timespan) } 
+        outfit_rec = {"outfit":outfit, 
+                      "arc": pd_data[arc_key][max_key], 
+                      "start_frame": max_key, 
+                      "span": max_span,
+                      "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
+                      "std": np.std(timespan), 
+                      "timespan": timespan } 
         results.append(outfit_rec)
-    return results
+    print "describing outfit pd"
+    outfit_df = pd.DataFrame(results)
+    print outfit_df.describe()
+    return outfit_df
     
 def process_by_outfit(pd_data):
     arc_key = "Avatars.Self.ARCCalculated"
     time_key = "Timers.Frame.Time"
 
     arcs = []
-    avg = []
+    avgs = []
     labels = []
     stddev = []
     timespan = []
@@ -258,29 +282,30 @@ def process_by_outfit(pd_data):
     errorbars_low = []
     errorbars_high = []
     outfit_spans = get_outfit_spans(pd_data) 
-    for outfit_span in outfit_spans:
-        max_key = outfit_span["start_frame"]
-        max_span = outfit_span["span"]
+    outfit_spans = outfit_spans.sort_values("avg")
+    for index, outfit_span in outfit_spans.iterrows():
+        start_frame = outfit_span["start_frame"]
+        span_length = outfit_span["span"]
+        xspans.append((start_frame, start_frame + span_length))
         outfit = outfit_span["outfit"]
-        print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
-        timespan = pd_data[time_key][max_key:max_key+max_span]
-        print "render avg", np.average(timespan)
-        print "render std", np.std(timespan)
-        arcs.append(outfit_span["arc"])
-        avg.append(outfit_span["avg"])
+        arc = outfit_span["arc"]
+        avg = outfit_span["avg"]
+        print "OUTFIT",outfit, "ARC", arc, "START_FRAME", start_frame, "SPAN", span_length 
+        timespan = pd_data[time_key][start_frame:start_frame+span_length]
+        arcs.append(arc)
+        avgs.append(avg)
         stddev.append(outfit_span["std"])
         errorbars_low.append(outfit_span["avg"]-np.percentile(timespan,25.0))
         errorbars_high.append(np.percentile(timespan,75.0)-outfit_span["avg"])
         labels.append(outfit)
         timespans.append(timespan)
-    print "CORRCOEFF", np.corrcoef(arcs,avg)
-    print "POLYFIT", np.polyfit(arcs,avg,1)
+    if len(arcs)>1:
+        print "CORRCOEFF", np.corrcoef(arcs,avgs)
+        print "POLYFIT", np.polyfit(arcs,avgs,1)
     #res = plt.scatter(arcs, avg, yerr=stddev)
-    plt.errorbar(arcs, avg, yerr=(errorbars_low, errorbars_high), fmt='o')
-    for label, x, y in zip(labels,arcs,avg):
+    plt.errorbar(arcs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
+    for label, x, y in zip(labels,arcs,avgs):
         plt.annotate(label, xy=(x,y))
-    for xspan, y in zip(xspans,avg):
-        plt.plot((xspan[0],y),(xspan[1],y),'k-')
     plt.gca().set_xlabel(arc_key)
     plt.gca().set_ylabel(time_key)
     plt.gcf().savefig("arcs_vs_times.jpg", bbox_inches="tight")
@@ -288,11 +313,9 @@ def process_by_outfit(pd_data):
     nrows = len(timespans)
     all_times = [t for timespan in timespans for t in timespan]
     all_low, all_high = np.percentile(all_times,0), np.percentile(all_times,98.0)
-    sorted_lists = sorted(itertools.izip(timespans, labels, avg), key=lambda x: x[2])
-    timespans, labels, avg = [[x[i] for x in sorted_lists] for i in range(3)]
     fig = plt.figure(figsize=(6, 2*nrows))
     fig.subplots_adjust(wspace=1.0)
-    for i, (timespan, label, avg_val) in enumerate(zip(timespans,labels, avg)):
+    for i, (timespan, label, avg_val) in enumerate(zip(timespans,labels, avgs)):
         #fig = plt.figure()
         ax = fig.add_subplot(nrows,1,i+1)
         low, high = np.percentile(timespan,2.0), np.percentile(timespan,98.0)
@@ -311,11 +334,13 @@ def plot_time_series(pd_data,fields):
     for f in fields:
         #pd_data[f] = pd_data[f].clip(0,0.05)
         ax = pd_data.plot(y=f, alpha=0.3)
-        for outfit_span in outfit_spans:
+        for index, outfit_span in outfit_spans.iterrows():
             x0,x1 = outfit_span["start_frame"], outfit_span["start_frame"] + outfit_span["span"]
             y = outfit_span["avg"]
+            outfit = outfit_span["outfit"]
             print "annotate",(x0,x1),y
             plt.plot((x0,x1),(y,y),"b-")
+            plt.text((x0+x1)/2, y, outfit, ha='center', va='bottom', rotation='vertical')
         ax.set_ylim([0,.1])
         fig = ax.get_figure()
         fig.savefig("time_series_" + f + ".jpg")
@@ -326,6 +351,7 @@ if __name__ == "__main__":
                        "Timers.Render.Time", 
                        "Timers.UI.Time", 
                        "Session.UniqueID", 
+                       "Summary.Timestamp", 
                        "Avatars.Self.ARCCalculated", 
                        "Avatars.Self.OutfitName", 
                        "Derived.Timers.NonRender", 
@@ -336,7 +362,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
-    parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=default_fields)
+    parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
     parser.add_argument("--child_timers", help="include children of specified timer keys in fields", nargs="+", default=[])
     parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
@@ -374,7 +400,9 @@ if __name__ == "__main__":
             newargs.extend(all_calls)
         else:
             newargs.append(f)
-    args.fields = newargs
+    args.fields.extend(newargs)
+    if "no_default" not in args.fields:
+        args.fields.extend(default_fields)
 
     ignore_list = []
     if args.no_reparented:
@@ -390,22 +418,39 @@ if __name__ == "__main__":
                 if not c in ignore_list:
                     args.fields.append("Timers." + c + ".Time")
 
+    args.fields = list(set(args.fields))
     print "FIELDS",args.fields
         
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
+    print "infilename",args.infilename
     pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, children=child_info, ignore=ignore_list)
 
     if args.verbose:
         print "Timer Ancestry"
         for key in sorted(child_info.keys()):
             print key,child_info[key]
-    
+
+    print "args.export",args.export
     if args.export:
+        print "Calling export",args.export
         export(args.export, pd_data)
 
     if args.summarize:
-        res = pd_data.describe()
+        pd_data = pd_data.fillna(0.0)
+        pd.set_option('max_rows', 500)
+        pd.set_option('max_columns', 500)
+        res = pd_data.describe(include='all')
         print res
+        medians = {} 
+        #print "columns are",pd_data.columns.values
+        for f in pd_data.columns.values:
+            if pd_data[f].dtype in ["float64"]:
+                print f,pd_data[f].dtype
+                medians[f] = pd_data[f].quantile(0.5)
+                print "median", f, medians[f]
+        medl = sorted(medians.keys(), key=lambda x: medians[x])
+        for f in medl:
+            print "median", f, medians[f]
         
     if args.by_outfit:
         process_by_outfit(pd_data)
