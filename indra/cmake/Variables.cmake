@@ -141,17 +141,42 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
   # The following must agree with
   # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
+  # Reading $LL_BUILD is an attempt to directly use those switches.
+  if ("$ENV{LL_BUILD}" STREQUAL "")
+    message(FATAL_ERROR "Environment variable LL_BUILD must be set")
+  endif ()
+
+  string(REGEX MATCH "-mmacosx-version-min=([^ ]+)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = '${CMAKE_OSX_DEPLOYMENT_TARGET}'")
+
+  string(REGEX MATCH "-stdlib=([^ ]+)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY = '${CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY}'")
+
+  string(REGEX MATCH " -g([^ ]*)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT = '${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}'")
+
+  string(REGEX MATCH "-O([^ ]*)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL = '${CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL}'")
+
+  string(REGEX MATCHALL "[^ ]+" LL_BUILD_LIST "$ENV{LL_BUILD}")
+  list(FIND LL_BUILD_LIST "-iwithsysroot" sysroot_idx)
+  if ("${sysroot_idx}" LESS 0)
+    message(FATAL_ERROR "Environment variable LL_BUILD must contain '-iwithsysroot'")
+  endif ()
+  math(EXPR sysroot_idx "${sysroot_idx} + 1")
+  list(GET LL_BUILD_LIST "${sysroot_idx}" CMAKE_OSX_SYSROOT)
+  message(STATUS "CMAKE_OSX_SYSROOT = '${CMAKE_OSX_SYSROOT}'")
+
   set(XCODE_VERSION 7.0)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
-  set(CMAKE_OSX_SYSROOT macosx10.11)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL 3)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS ssse3)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
 
   set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
   string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
