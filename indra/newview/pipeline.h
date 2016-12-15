@@ -254,7 +254,7 @@ public:
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
-	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
+	void stateSort(LLSpatialBridge* bridge, LLCamera& camera);
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));

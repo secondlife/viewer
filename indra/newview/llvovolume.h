@@ -327,7 +327,7 @@ public:
 	void clearRiggedVolume();
 
 protected:
-	S32	computeLODDetail(F32	distance, F32 radius, F32 lod_factor);
+	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
 	void updateTEData();
