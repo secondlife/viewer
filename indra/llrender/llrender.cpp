@@ -2156,9 +2156,12 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLCol
 		}
 	}
 
-	mVerticesp[mCount] = mVerticesp[mCount-1];
-	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
-	mColorsp[mCount] = mColorsp[mCount-1];
+	if (mCount > 0)
+	{
+		mVerticesp[mCount] = mVerticesp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+		mColorsp[mCount] = mColorsp[mCount - 1];
+	}
 }
 
 void LLRender::vertex2i(const GLint& x, const GLint& y)

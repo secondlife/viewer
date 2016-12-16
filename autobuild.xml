@@ -650,9 +650,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5fe125f2341501bc64848645d31b58ef</string>
+              <string>93257fce19120c01751362775a01b925</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/356/893/fmodex-4.44.61.500350-darwin64-500350.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1545/3481/fmodex-4.44.64.501533-darwin64-501533.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -674,9 +674,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>270c3eddbe2960d5edb8d316db063d07</string>
+              <string>89a75d8719f7b2cbe1e54cd8407bb992</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/355/888/fmodex-4.44.61.500350-linux64-500350.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1544/3476/fmodex-4.44.64.501533-linux64-501533.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -686,9 +686,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad5bb66f2aaa12636b5a69a020ea9f18</string>
+              <string>601c2fc41a18812a45678ef9a87ef772</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1191/2796/fmodex-4.44.61.501175-windows-501175.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1546/3486/fmodex-4.44.64.501533-windows-501533.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -698,16 +698,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6722f0efc2b55542bd71514b9a09e377</string>
+              <string>e5cde35ae26ebfa256cfe670986e152e</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1190/2791/fmodex-4.44.61.501175-windows64-501175.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1547/3487/fmodex-4.44.64.501533-windows64-501533.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.44.61.501175</string>
+        <string>4.44.64.501533</string>
       </map>
       <key>fontconfig</key>
       <map>
