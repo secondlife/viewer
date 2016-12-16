@@ -46,11 +46,11 @@ def export_csv(filename, pd_data):
         print pd_data
     pd_data.to_csv(filename)
 
-def get_default_export_name(pd_data):
+def get_default_export_name(pd_data,prefix="performance"):
     res = None
     unique_id = pd_data["Session.UniqueID"][0]
     timestamp = pd_data["Summary.Timestamp"][0]
-    name = "performance_" + str(unique_id)[0:6] + "_" + str(timestamp) + ".csv"
+    name = prefix + "_" + str(unique_id)[0:6] + "_" + str(timestamp) + ".csv"
 
     res = name.replace(":",".").replace("Z","").replace("T","-")
         #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
@@ -86,6 +86,37 @@ class DerivedSelfTimers:
                             value -= self.sd["Timers"][child]["Time"]
         return value
 
+class MeshAttachmentsDerivedField:
+    def __init__(self,sd,**kwargs):
+        self.sd = sd
+        self.kwargs = kwargs
+    def __getitem__(self, key):
+        attachments = sd_extract_field(self.sd,"Avatars.Self.Attachments") 
+        if attachments:
+            mesh_attachments = [att for att in attachments if att["isMesh"]]
+            if key=="Count":
+                return len(mesh_attachments)
+            elif key in ["triangles_lowest", "triangles_low", "triangles_mid", "triangles_high"]:
+                total = sum([sd_extract_field(att,"StreamingCost." + key) for att in mesh_attachments])
+                return total
+            else:
+                raise IndexError()
+
+class DerivedAvatarField:
+    def __init__(self,sd,**kwargs):
+        self.sd = sd
+        self.kwargs = kwargs
+    def __getitem__(self, key):
+        if key=="AttachmentCount":
+            attachments = sd_extract_field(self.sd,"Avatars.Self.Attachments") 
+            if attachments:
+                return len(attachments)
+            return None
+        if key=="MeshAttachments":
+            return MeshAttachmentsDerivedField(self.sd,**self.kwargs)
+        else:
+            raise IndexError()
+
 class DerivedTimers:
     def __init__(self,sd,**kwargs):
         self.sd = sd
@@ -110,6 +141,8 @@ class DerivedFieldGetter:
             return DerivedTimers(self.sd, **self.kwargs)
         elif key=="SelfTimers":
             return DerivedSelfTimers(self.sd, **self.kwargs)
+        elif key=="Avatar":
+            return DerivedAvatarField(self.sd, **self.kwargs)
         else:
             raise IndexError()
 
@@ -261,7 +294,13 @@ def get_outfit_spans(pd_data):
                       "span": max_span,
                       "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
                       "std": np.std(timespan), 
-                      "timespan": timespan } 
+                      "timespan": timespan,
+                      "mesh_attachments.count": pd_data["Derived.Avatar.MeshAttachments.Count"][max_key],
+                      "mesh_attachments.triangles_high": pd_data["Derived.Avatar.MeshAttachments.triangles_high"][max_key],
+                      "mesh_attachments.triangles_mid": pd_data["Derived.Avatar.MeshAttachments.triangles_mid"][max_key],
+                      "mesh_attachments.triangles_low": pd_data["Derived.Avatar.MeshAttachments.triangles_low"][max_key],
+                      "mesh_attachments.triangles_lowest": pd_data["Derived.Avatar.MeshAttachments.triangles_lowest"][max_key],
+                      } 
         results.append(outfit_rec)
     print "describing outfit pd"
     outfit_df = pd.DataFrame(results)
@@ -283,6 +322,8 @@ def process_by_outfit(pd_data):
     errorbars_high = []
     outfit_spans = get_outfit_spans(pd_data) 
     outfit_spans = outfit_spans.sort_values("avg")
+    outfit_csv_name = get_default_export_name(pd_data,"outfits")
+    export_csv(outfit_csv_name, outfit_spans)
     for index, outfit_span in outfit_spans.iterrows():
         start_frame = outfit_span["start_frame"]
         span_length = outfit_span["span"]
@@ -354,8 +395,15 @@ if __name__ == "__main__":
                        "Summary.Timestamp", 
                        "Avatars.Self.ARCCalculated", 
                        "Avatars.Self.OutfitName", 
+                       "Avatars.Self.AttachmentSurfaceArea",
                        "Derived.Timers.NonRender", 
                        "Derived.Timers.SceneRender",
+                       "Derived.Avatar.AttachmentCount",
+                       "Derived.Avatar.MeshAttachments.Count",
+                       "Derived.Avatar.MeshAttachments.triangles_high",
+                       "Derived.Avatar.MeshAttachments.triangles_mid",
+                       "Derived.Avatar.MeshAttachments.triangles_low",
+                       "Derived.Avatar.MeshAttachments.triangles_lowest",
                        "Derived.SelfTimers.Render",
     ]
 
@@ -374,7 +422,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print "start get_timer_info"
-    child_info, parent_info, all_keys, reparented_timers, directly_reparented = get_timer_info("performance.slp")
+    child_info, parent_info, all_keys, reparented_timers, directly_reparented = get_timer_info(args.infilename)
     print "done get_timer_info"
 
     if args.no_reparented:
