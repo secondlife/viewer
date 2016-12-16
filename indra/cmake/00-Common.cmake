@@ -202,7 +202,7 @@ endif (LINUX)
 
 if (DARWIN)
   add_definitions(-DLL_DARWIN=1)
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
+  set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
   set(DARWIN_extra_cstar_flags "-g -Wno-unused-local-typedef -Wno-deprecated-declarations")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")

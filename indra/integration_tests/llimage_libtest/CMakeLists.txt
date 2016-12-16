@@ -115,10 +115,12 @@ if (DARWIN)
     COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
     DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib
   )
-  add_custom_command(TARGET llimage_libtest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libexpat.1.5.2.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
-    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libexpat.1.5.2.dylib
-  )
+  foreach(expat ${EXPAT_COPY})
+    add_custom_command(TARGET llimage_libtest POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat} ${LLIMAGE_LIBTEST_DESTINATION_DIR}
+      DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat}
+    )
+  endforeach(expat)
 endif (DARWIN)
 
 if (WINDOWS)

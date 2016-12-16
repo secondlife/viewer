@@ -162,10 +162,8 @@ elseif(DARWIN)
         libaprutil-1.0.dylib
         libaprutil-1.dylib
         libexception_handler.dylib
-        libexpat.1.5.2.dylib
-        libexpat.dylib
+        ${EXPAT_COPY}
         libGLOD.dylib
-        libhunspell-1.3.0.dylib
         libndofdev.dylib
        )
 
@@ -205,8 +203,7 @@ elseif(LINUX)
         libaprutil-1.so.0
         libatk-1.0.so
         libdb-5.1.so
-        libexpat.so
-        libexpat.so.1
+        ${EXPAT_COPY}
         libfreetype.so.6.6.2
         libfreetype.so.6
         libGLOD.so
