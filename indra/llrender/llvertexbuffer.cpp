@@ -1441,13 +1441,24 @@ void LLVertexBuffer::setupVertexArray()
 				//glVertexattribIPointer requires GLSL 1.30 or later
 				if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 				{
-					glVertexAttribIPointer(i, attrib_size[i], attrib_type[i], sTypeSize[i], (void*) mOffsets[i]); 
+					glVertexAttribIPointer(i, attrib_size[i], attrib_type[i], sTypeSize[i], (const GLvoid*) mOffsets[i]); 
 				}
 #endif
 			}
 			else
 			{
-				glVertexAttribPointerARB(i, attrib_size[i], attrib_type[i], attrib_normalized[i], sTypeSize[i], (void*) mOffsets[i]); 
+				// nat 2016-12-16: With 64-bit clang compile, the compiler
+				// produces an error if we simply cast mOffsets[i] -- an S32
+				// -- to (GLvoid *), the type of the parameter. It correctly
+				// points out that there's no way an S32 could fit a real
+				// pointer value. Since I do not know what we're trying to
+				// achieve here, I'm going to grit my teeth and try to
+				// persuade the compiler we know what we're doing, until
+				// someone who actually does know fixes it better.
+				uintptr_t fake_offset(mOffsets[i]);
+				glVertexAttribPointerARB(i, attrib_size[i], attrib_type[i],
+										 attrib_normalized[i], sTypeSize[i],
+										 reinterpret_cast<GLvoid*>(fake_offset)); 
 			}
 		}
 		else
