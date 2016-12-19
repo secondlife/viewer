@@ -344,6 +344,7 @@ protected:
 	BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
 
 	void modifyOutfit(BOOL append);
+	void copyOutfitToClipboard();
 	void determineFolderType();
 
 	void dropToFavorites(LLInventoryItem* inv_item);
