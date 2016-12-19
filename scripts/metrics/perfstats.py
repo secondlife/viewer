@@ -97,7 +97,7 @@ class MeshAttachmentsDerivedField:
             if key=="Count":
                 return len(mesh_attachments)
             elif key in ["triangles_lowest", "triangles_low", "triangles_mid", "triangles_high"]:
-                total = sum([sd_extract_field(att,"StreamingCost." + key) for att in mesh_attachments])
+                total = sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in mesh_attachments])
                 return total
             else:
                 raise IndexError()
@@ -179,7 +179,7 @@ def get_frame_record(filename,**kwargs):
     print "Read",frame_count,"frame records"
     f.close()
 
-def sd_extract_field(sd,key):
+def sd_extract_field(sd,key,default_val=None):
     chain = key.split(".")
     t = sd
     try:
@@ -187,7 +187,7 @@ def sd_extract_field(sd,key):
             t = t[subkey]
         return t
     except KeyError:
-        return None
+        return default_val
 
 def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated cvs file?
@@ -307,8 +307,7 @@ def get_outfit_spans(pd_data):
     print outfit_df.describe()
     return outfit_df
     
-def process_by_outfit(pd_data):
-    arc_key = "Avatars.Self.ARCCalculated"
+def process_by_outfit(pd_data, arc_key="arc"):
     time_key = "Timers.Frame.Time"
 
     arcs = []
@@ -329,7 +328,7 @@ def process_by_outfit(pd_data):
         span_length = outfit_span["span"]
         xspans.append((start_frame, start_frame + span_length))
         outfit = outfit_span["outfit"]
-        arc = outfit_span["arc"]
+        arc = outfit_span[arc_key]
         avg = outfit_span["avg"]
         print "OUTFIT",outfit, "ARC", arc, "START_FRAME", start_frame, "SPAN", span_length 
         timespan = pd_data[time_key][start_frame:start_frame+span_length]
@@ -501,7 +500,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data)
+        process_by_outfit(pd_data,"mesh_attachments.triangles_high")
 
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
