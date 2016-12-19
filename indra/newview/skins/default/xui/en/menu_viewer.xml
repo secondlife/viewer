@@ -448,7 +448,7 @@
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_check
-        label="Search"
+        label="Search..."
         name="Search"
         shortcut="control|F">
             <menu_item_check.on_check
