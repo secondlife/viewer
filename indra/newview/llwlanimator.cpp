@@ -155,17 +155,28 @@ F64 LLWLAnimator::getDayTime()
 
 		// we're not solving the non-linear equation that determines sun phase
 		// we're just linearly interpolating between the major points
-		if (phase <= 5.0 / 4.0) {
+
+		if (phase <= 5.0 / 4.0)
+		{
+			// mDayTime from 0.33 to 0.75 (6:00 to 21:00)
 			mDayTime = (1.0 / 3.0) * phase + (1.0 / 3.0);
+		}
+		else if (phase > 7.0 / 4.0)
+		{
+			// maximum value for phase is 2
+			// mDayTime from 0.25 to 0.33 (3:00 to 6:00)
+			mDayTime = (1.0 / 3.0) - (1.0 / 3.0) * (2 - phase);
 		}
 		else
 		{
+			// phase == 3/2 is where day restarts (24:00)
+			// mDayTime from 0.75 to 0.999 and 0 to 0.25 (21:00 to 03:00)
 			mDayTime = phase - (1.0 / 2.0);
-		}
 
-		if(mDayTime > 1)
-		{
-			mDayTime--;
+			if(mDayTime > 1)
+			{
+				mDayTime--;
+			}
 		}
 
 		return mDayTime;
