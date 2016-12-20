@@ -35,7 +35,6 @@ INCLUDE(GoogleMock)
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     llcommon
-    llcorehttp
     )
   IF(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
