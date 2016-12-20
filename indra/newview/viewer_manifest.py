@@ -788,7 +788,7 @@ class DarwinManifest(ViewerManifest):
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
                                 "libcollada14dom.dylib",
-                                "libexpat.1.5.2.dylib",
+                                "libexpat.1.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
                                 ):
