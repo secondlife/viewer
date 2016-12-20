@@ -35,6 +35,22 @@
 #include "llwaterparammanager.h"
 #include "llwlhandlers.h"
 #include "llwlparammanager.h"
+#include "lltrans.h"
+
+std::string LLWLParamKey::toString() const
+{
+	switch (scope)
+	{
+	case SCOPE_LOCAL:
+		return name + std::string(" (") + LLTrans::getString("Local") + std::string(")");
+		break;
+	case SCOPE_REGION:
+		return name + std::string(" (") + LLTrans::getString("Region") + std::string(")");
+		break;
+	default:
+		return name + " (?)";
+	}
+}
 
 std::string LLEnvPrefs::getWaterPresetName() const
 {

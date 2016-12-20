@@ -28,11 +28,10 @@
 #define LL_WL_ANIMATOR_H
 
 #include "llwlparamset.h"
+#include "llenvmanager.h"
 #include "llwaterparamset.h"
 #include <string>
 #include <map>
-
-struct LLWLParamKey;
 
 class LLWLAnimator {
 public:
