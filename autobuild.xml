@@ -2092,9 +2092,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9fb85eff4118913543acde89bcb9a9c1</string>
+              <string>3af1210d90aeb9f4d5deea6020ee0d55</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1512/3413/llceflib-1.6.0.501501-darwin64-501501.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1611/3591/llceflib-1.6.0.501600-darwin64-501600.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2127,7 +2127,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.6.0.501501</string>
+        <string>1.6.0.501600</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
