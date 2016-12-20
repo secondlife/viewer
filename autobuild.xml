@@ -968,9 +968,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>047ce52d5fe3e9ac70763de0098cf530</string>
+              <string>017ef34ddf14293099a90c6eaa3615ca</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/719/1462/glod-1.0pre3.500710-darwin64-500710.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1626/3627/glod-1.0pre3.501614-darwin64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -994,9 +994,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8cb665230ec24048aa3b733f2b1c3b00</string>
+              <string>9aef5cd576ace19568da01d9bc3db29c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-glod/rev/314201/arch/Linux/installer/glod-1.0pre4.314201-linux64-314201.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1625/3628/glod-1.0pre3.501614-linux64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1006,11 +1006,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>511d066e35bbc14dd512c831b53a2fad</string>
+              <string>573e68f46f825a1c040daa4994ee2a61</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/720/1465/glod-1.0pre3.500710-windows-500710.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1627/3633/glod-1.0pre3.501614-windows-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1020,16 +1020,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7fa6f187fc5e4175a13d3e0d4b6658a4</string>
+              <string>f8362e1a2f4d03d99c6231101d3d472e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/721/1468/glod-1.0pre3.500710-windows64-500710.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1628/3638/glod-1.0pre3.501614-windows64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0pre3.500710</string>
+        <string>1.0pre3.501614</string>
       </map>
       <key>google_breakpad</key>
       <map>
