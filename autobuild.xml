@@ -3420,6 +3420,7 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
+                  <string>-DHAVOK:BOOL=FALSE</string>
                 </array>
               </map>
               <key>default</key>
@@ -3482,6 +3483,7 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
+                  <string>-DHAVOK:BOOL=FALSE</string>
                 </array>
               </map>
               <key>name</key>
