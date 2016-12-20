@@ -846,6 +846,14 @@ class DarwinManifest(ViewerManifest):
                         self.path2basename(relpkgdir, helperappfile)
 
                     pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
+                    # Putting a Frameworks directory under Contents/MacOS
+                    # isn't canonical, but the path baked into LLCefLib
+                    # Helper.app/Contents/MacOS/LLCefLib Helper is:
+                    # @executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework
+                    # (notice, not @executable_path/../Frameworks/etc.)
+                    # So we'll create a symlink (below) from there back to the
+                    # Frameworks directory nested under SLPlugin.app.
+                    helperframeworkpath = self.dst_path_of('LLCefLib Helper.app/Contents/MacOS/Frameworks')
 
                     self.end_prefix()
 
@@ -879,11 +887,21 @@ class DarwinManifest(ViewerManifest):
                 # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
                 #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
-                frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
+                frameworkdir  = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks")
+                frameworkpath = os.path.join(frameworkdir, "Chromium Embedded Framework.framework")
                 try:
-                    symlinkf(frameworkpath, pluginframeworkpath)
+                    # from SLPlugin.app/Contents/Frameworks/Chromium Embedded
+                    # Framework.framework back to Second
+                    # Life.app/Contents/Frameworks/Chromium Embedded Framework.framework
+                    origin, target = pluginframeworkpath, frameworkpath
+                    symlinkf(target, origin)
+                    # from SLPlugin.app/Contents/Frameworks/LLCefLib
+                    # Helper.app/Contents/MacOS/Frameworks back to
+                    # SLPlugin.app/Contents/Frameworks
+                    origin, target = helperframeworkpath, frameworkdir
+                    symlinkf(target, origin)
                 except OSError as err:
-                    print "Can't symlink %s -> %s: %s" % (frameworkpath, pluginframeworkpath, err)
+                    print "Can't symlink %s -> %s: %s" % (origin, target, err)
                     raise
 
             self.end_prefix("Contents")
