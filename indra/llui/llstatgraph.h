@@ -126,7 +126,7 @@ private:
 
 		F32 mValue;
 		LLUIColor mColor;
-		bool operator <(const Threshold& other)
+		bool operator <(const Threshold& other) const
 		{
 			return mValue < other.mValue;
 		}
