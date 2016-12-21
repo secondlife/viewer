@@ -853,7 +853,9 @@ class DarwinManifest(ViewerManifest):
                     # (notice, not @executable_path/../Frameworks/etc.)
                     # So we'll create a symlink (below) from there back to the
                     # Frameworks directory nested under SLPlugin.app.
-                    helperframeworkpath = self.dst_path_of('LLCefLib Helper.app/Contents/MacOS/Frameworks')
+                    helperframeworkpath = \
+                        self.dst_path_of('LLCefLib Helper.app/Contents/MacOS/'
+                                         'Frameworks/Chromium Embedded Framework.framework')
 
                     self.end_prefix()
 
@@ -882,13 +884,20 @@ class DarwinManifest(ViewerManifest):
                 # this symlink, Second Life web media can't possibly work.
                 # Real Framework folder:
                 #   Second Life.app/Contents/Frameworks/Chromium Embedded Framework.framework/
-                # Location of symlink and why it'ds relative 
+                # Location of symlink and why it's relative 
                 #   Second Life.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
                 #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
-                frameworkdir  = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks")
-                frameworkpath = os.path.join(frameworkdir, "Chromium Embedded Framework.framework")
+                # It might seem simpler just to create a symlink Frameworks to
+                # the parent of Chromimum Embedded Framework.framework. But
+                # that would create a symlink cycle, which breaks our
+                # packaging step. So make a symlink from Chromium Embedded
+                # Framework.framework to the directory of the same name, which
+                # is NOT an ancestor of the symlink.
+                frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir,
+                                             os.pardir, "Frameworks",
+                                             "Chromium Embedded Framework.framework")
                 try:
                     # from SLPlugin.app/Contents/Frameworks/Chromium Embedded
                     # Framework.framework back to Second
@@ -896,9 +905,12 @@ class DarwinManifest(ViewerManifest):
                     origin, target = pluginframeworkpath, frameworkpath
                     symlinkf(target, origin)
                     # from SLPlugin.app/Contents/Frameworks/LLCefLib
-                    # Helper.app/Contents/MacOS/Frameworks back to
-                    # SLPlugin.app/Contents/Frameworks
-                    origin, target = helperframeworkpath, frameworkdir
+                    # Helper.app/Contents/MacOS/Frameworks/Chromium Embedded
+                    # Framework.framework back to
+                    # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework
+                    self.cmakedirs(os.path.dirname(helperframeworkpath))
+                    origin = helperframeworkpath
+                    target = os.path.join(os.pardir, frameworkpath)
                     symlinkf(target, origin)
                 except OSError as err:
                     print "Can't symlink %s -> %s: %s" % (origin, target, err)
