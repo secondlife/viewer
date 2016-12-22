@@ -47,8 +47,8 @@ viewer_channel_suffix()
 installer_Darwin()
 {
   local package_name="$1"
-  local package_dir="$(build_dir_Darwin ${last_built_variant:-Release})/newview/"
-  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i386\\.dmg\$"
+  local package_dir="newview/$(build_dir_Darwin ${last_built_variant:-Release})/"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_x86_64\\.dmg\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
   # even if someone makes a qualified name that duplicates the last word of the base name
@@ -59,7 +59,7 @@ installer_Darwin()
 installer_Linux()
 {
   local package_name="$1"
-  local package_dir="$(build_dir_Linux ${last_built_variant:-Release})/newview/"
+  local package_dir="newview/$(build_dir_Linux ${last_built_variant:-Release})/"
   local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
@@ -381,7 +381,7 @@ then
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
-      record_event "??? mystery event $package // $build_coverity"
+      fatal "No installer found at '$package'"
       succeeded=$build_coverity
     else
       # Upload base package.
