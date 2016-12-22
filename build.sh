@@ -405,21 +405,25 @@ then
 
       if [ "$last_built_variant" = "Release" ]
       then
-          # Upload crash reporter file
-          # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt
-          case "$arch" in
-              CYGWIN)
-                  symbolfile="$build_dir/newview/Release/secondlife-symbols-windows-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                  ;;
-              Darwin)
-                  symbolfile="$build_dir/newview/Release/secondlife-symbols-darwin-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                  ;;
-              Linux)
-                  symbolfile="$build_dir/newview/Release/secondlife-symbols-linux-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                  ;;
-          esac
-          python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbolfile" \
-              || fatal "Upload of symbolfile failed"
+          # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
+          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
+          then
+              # Upload crash reporter file
+              # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt
+              case "$arch" in
+                  CYGWIN)
+                      symbolfile="$build_dir/newview/Release/secondlife-symbols-windows-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                      ;;
+                  Darwin)
+                      symbolfile="$build_dir/newview/Release/secondlife-symbols-darwin-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                      ;;
+                  Linux)
+                      symbolfile="$build_dir/newview/Release/secondlife-symbols-linux-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                      ;;
+              esac
+              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbolfile" \
+                  || fatal "Upload of symbolfile failed"
+          fi
 
           # Upload the llphysicsextensions_tpv package, if one was produced
           # *TODO: Make this an upload-extension
