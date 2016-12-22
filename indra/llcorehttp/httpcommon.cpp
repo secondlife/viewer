@@ -50,11 +50,12 @@ HttpStatus::type_enum_t EXT_CURL_EASY;
 HttpStatus::type_enum_t EXT_CURL_MULTI;
 HttpStatus::type_enum_t LLCORE;
 
-HttpStatus::operator unsigned long() const
+HttpStatus::operator U32() const
 {
-	static const int shift(sizeof(unsigned long) * 4);
+	// Effectively, concatenate mType (high) with mStatus (low).
+	static const int shift(sizeof(mDetails->mStatus) * 8);
 
-	unsigned long result(((unsigned long)mDetails->mType) << shift | (unsigned long)(int)mDetails->mStatus);
+	U32 result(U32(mDetails->mType) << shift | U32((int)mDetails->mStatus));
 	return result;
 }
 
@@ -64,7 +65,7 @@ std::string HttpStatus::toHex() const
 	std::ostringstream result;
 	result.width(8);
 	result.fill('0');
-	result << std::hex << operator unsigned long();
+	result << std::hex << operator U32();
 	return result.str();
 }
 

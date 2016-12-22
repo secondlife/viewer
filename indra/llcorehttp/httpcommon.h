@@ -382,10 +382,10 @@ struct HttpStatus
 	/// creates an ambiguous second path to integer conversion
 	/// which tends to find programming errors such as formatting
 	/// the status to a stream (operator<<).
-	operator unsigned long() const;
-	unsigned long toULong() const
+	operator U32() const;
+	U32 toULong() const
 	{
-		return operator unsigned long();
+		return operator U32();
 	}
 
 	/// And to convert to a hex string.

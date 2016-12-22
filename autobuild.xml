@@ -968,9 +968,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>047ce52d5fe3e9ac70763de0098cf530</string>
+              <string>017ef34ddf14293099a90c6eaa3615ca</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/719/1462/glod-1.0pre3.500710-darwin64-500710.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1626/3627/glod-1.0pre3.501614-darwin64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -994,9 +994,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8cb665230ec24048aa3b733f2b1c3b00</string>
+              <string>9aef5cd576ace19568da01d9bc3db29c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-glod/rev/314201/arch/Linux/installer/glod-1.0pre4.314201-linux64-314201.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1625/3628/glod-1.0pre3.501614-linux64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1006,11 +1006,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>511d066e35bbc14dd512c831b53a2fad</string>
+              <string>573e68f46f825a1c040daa4994ee2a61</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/720/1465/glod-1.0pre3.500710-windows-500710.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1627/3633/glod-1.0pre3.501614-windows-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1020,16 +1020,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7fa6f187fc5e4175a13d3e0d4b6658a4</string>
+              <string>f8362e1a2f4d03d99c6231101d3d472e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/721/1468/glod-1.0pre3.500710-windows64-500710.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1628/3638/glod-1.0pre3.501614-windows64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0pre3.500710</string>
+        <string>1.0pre3.501614</string>
       </map>
       <key>google_breakpad</key>
       <map>
@@ -2092,9 +2092,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9fb85eff4118913543acde89bcb9a9c1</string>
+              <string>3af1210d90aeb9f4d5deea6020ee0d55</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1512/3413/llceflib-1.6.0.501501-darwin64-501501.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1611/3591/llceflib-1.6.0.501600-darwin64-501600.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2127,7 +2127,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.6.0.501501</string>
+        <string>1.6.0.501600</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2146,9 +2146,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b82d09b4104eabd67e2df859e6d605d</string>
+              <string>e2b519ee7538b25877e34ede6864a250</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1447/3223/llphysicsextensions_source-1.0.501434-darwin64-501434.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1691/3748/llphysicsextensions_source-1.0.501678-darwin64-501678.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2158,9 +2158,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>be50e58459c3e334715b108646b8712b</string>
+              <string>9b2c1f53f7f1add01af1e7cfa737e20e</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1445/3211/llphysicsextensions_source-1.0.501434-linux64-501434.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1689/3734/llphysicsextensions_source-1.0.501678-linux64-501678.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2170,16 +2170,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>83a0328f6ab88b0960ea5d905bd2e7a2</string>
+              <string>5e8cb92ae79c9435b98e444322ec5798</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1448/3226/llphysicsextensions_source-1.0.501434-windows-501434.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1696/3763/llphysicsextensions_source-1.0.501678-windows-501678.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501434</string>
+        <string>1.0.501678</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2198,9 +2198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bc5989dee9d9be95d63178ce2f735385</string>
+              <string>32309a20161f54f42d08f7bc1e7fcf01</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1446/3218/llphysicsextensions_stub-1.0.501433-darwin64-501433.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1692/3749/llphysicsextensions_stub-1.0.501679-darwin64-501679.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2210,9 +2210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>352e71a8fcfc854e6c2fd477fa08ac14</string>
+              <string>58af530891721f3690a4dce9a8c73190</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1444/3210/llphysicsextensions_stub-1.0.501433-linux64-501433.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1690/3739/llphysicsextensions_stub-1.0.501679-linux64-501679.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2222,16 +2222,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5a7e4793ffa0cc9b73ae962fb697a49</string>
+              <string>c59cb5d1dd96ab51f87cd0cf202304dd</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1449/3227/llphysicsextensions_stub-1.0.501433-windows-501433.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1695/3757/llphysicsextensions_stub-1.0.501679-windows-501679.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501433</string>
+        <string>1.0.501679</string>
       </map>
       <key>mesa</key>
       <map>

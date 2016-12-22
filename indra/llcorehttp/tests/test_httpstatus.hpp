@@ -244,11 +244,7 @@ void HttpStatusTestObjectType::test<7>()
 	HttpStatus status(404);
 	std::string msg = status.toHex();
 	// std::cout << "Result:  " << msg << std::endl;
-#if ADDRESS_SIZE == 32
 	ensure_equals(msg, "01940001");
-#else
-	ensure_equals(msg, "19400000001");
-#endif
 }
 
 
