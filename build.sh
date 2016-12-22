@@ -95,10 +95,17 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
+    # nat 2016-12-21: disable generate_breakpad_symbols.py on Mac until we
+    # figure out why it's breaking.
+    if [ "$arch" == "Darwin" ]
+    then RELEASE_CRASH_REPORTING=OFF
+    else RELEASE_CRASH_REPORTING=ON
+    fi
+
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DUNATTENDED:BOOL=ON \
-     -DRELEASE_CRASH_REPORTING:BOOL=ON \
+     -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
