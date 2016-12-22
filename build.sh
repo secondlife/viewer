@@ -95,16 +95,20 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
+    # nat 2016-12-20: disable HAVOK on Mac until we get a 64-bit Mac build.
     # nat 2016-12-21: disable generate_breakpad_symbols.py on Mac until we
     # figure out why it's breaking.
     if [ "$arch" == "Darwin" ]
-    then RELEASE_CRASH_REPORTING=OFF
-    else RELEASE_CRASH_REPORTING=ON
+    then HAVOK=OFF
+         RELEASE_CRASH_REPORTING=OFF
+    else HAVOK=ON
+         RELEASE_CRASH_REPORTING=ON
     fi
 
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DUNATTENDED:BOOL=ON \
+     -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
@@ -119,7 +123,8 @@ package_llphysicsextensions_tpv()
 {
   begin_section "PhysicsExtensions_TPV"
   tpv_status=0
-  if [ "$variant" = "Release" ]
+  # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
+  if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
   then 
       test -r  "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml" || fatal "No llphysicsextensions_tpv autobuild configuration found"
       tpvconfig=$(native_path "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml")
