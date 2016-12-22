@@ -47,7 +47,8 @@ viewer_channel_suffix()
 installer_Darwin()
 {
   local package_name="$1"
-  local package_dir="newview/$(build_dir_Darwin ${last_built_variant:-Release})/"
+  local variant=${last_built_variant:-Release}
+  local package_dir="$(build_dir_Darwin)/newview/${variant}/"
   local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_x86_64\\.dmg\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
@@ -59,7 +60,8 @@ installer_Darwin()
 installer_Linux()
 {
   local package_name="$1"
-  local package_dir="newview/$(build_dir_Linux ${last_built_variant:-Release})/"
+  local variant=${last_built_variant:-Release}
+  local package_dir="$(build_dir_Linux)/newview/${variant}/"
   local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
