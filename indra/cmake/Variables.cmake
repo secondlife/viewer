@@ -9,6 +9,12 @@
 #   LINUX   - Linux
 #   WINDOWS - Windows
 
+# Switches set here and in 00-Common.cmake must agree with
+# https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
+# Reading $LL_BUILD is an attempt to directly use those switches.
+if ("$ENV{LL_BUILD}" STREQUAL "")
+  message(FATAL_ERROR "Environment variable LL_BUILD must be set")
+endif ()
 
 # Relative and absolute paths to subtrees.
 
@@ -138,13 +144,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
-
-  # The following must agree with
-  # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
-  # Reading $LL_BUILD is an attempt to directly use those switches.
-  if ("$ENV{LL_BUILD}" STREQUAL "")
-    message(FATAL_ERROR "Environment variable LL_BUILD must be set")
-  endif ()
 
   string(REGEX MATCH "-mmacosx-version-min=([^ ]+)" scratch "$ENV{LL_BUILD}")
   set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}")
