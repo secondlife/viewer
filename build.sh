@@ -47,8 +47,7 @@ viewer_channel_suffix()
 installer_Darwin()
 {
   local package_name="$1"
-  local variant=${last_built_variant:-Release}
-  local package_dir="$(build_dir_Darwin)/newview/${variant}/"
+  local package_dir="$(build_dir_Darwin)/newview/"
   local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_x86_64\\.dmg\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
@@ -60,8 +59,7 @@ installer_Darwin()
 installer_Linux()
 {
   local package_name="$1"
-  local variant=${last_built_variant:-Release}
-  local package_dir="$(build_dir_Linux)/newview/${variant}/"
+  local package_dir="$(build_dir_Linux)/newview/"
   local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
@@ -112,7 +110,7 @@ pre_build()
      -DUNATTENDED:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
-     -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
+     -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
@@ -383,7 +381,7 @@ then
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
-      fatal "No installer found at '$package'"
+      fatal "No installer found from `pwd`"
       succeeded=$build_coverity
     else
       # Upload base package.
