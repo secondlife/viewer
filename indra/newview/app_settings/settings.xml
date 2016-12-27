@@ -1608,18 +1608,6 @@
     <real>60.0</real>
   </map>
 
-  <key>CameraAspectRatio</key>
-  <map>
-    <key>Comment</key>
-    <string>Camera aspect ratio for DoF effect</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.5</real>
-  </map>
-
   <key>CertStore</key>
     <map>
       <key>Comment</key>
