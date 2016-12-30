@@ -1006,7 +1006,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 			 mPlaceInfoType == LANDMARK_TAB_INFO_TYPE)
 	{
 		mLandmarkInfo->setVisible(visible);
-
+		mPlaceProfile->setVisible(FALSE);
 		if (visible)
 		{
 			mLandmarkInfo->resetLocation();
@@ -1014,8 +1014,6 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 			LLRect rect = getRect();
 			LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
 			mLandmarkInfo->reshape(new_rect.getWidth(), new_rect.getHeight());
-
-			mPlaceProfile->setVisible(FALSE);
 		}
 		else
 		{
