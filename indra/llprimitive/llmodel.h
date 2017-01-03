@@ -176,7 +176,6 @@ public:
 	void addFace(const LLVolumeFace& face);
 
 	void sortVolumeFacesByMaterialName();
-	static void normalizeModels(std::vector<LLPointer<LLModel > > model_list);
 	void normalizeVolumeFaces();
 	void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
 	void optimizeVolumeFaces();
