@@ -98,9 +98,14 @@ pre_build()
     # nat 2016-12-20: disable HAVOK on Mac until we get a 64-bit Mac build.
     # nat 2016-12-21: disable generate_breakpad_symbols.py on Mac until we
     # figure out why it's breaking.
+    SIGNING=()
     if [ "$arch" == "Darwin" ]
     then HAVOK=OFF
          RELEASE_CRASH_REPORTING=OFF
+         if [ "$variant" == "Release" ]
+         then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
+                       "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+         fi
     else HAVOK=ON
          RELEASE_CRASH_REPORTING=ON
     fi
@@ -114,7 +119,7 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
-     $autobuild_configure_parameters \
+     "${SIGNING[@]}"
     || fatal "$variant configuration failed"
 
   end_section "Configure $variant"
