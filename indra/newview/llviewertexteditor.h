@@ -105,7 +105,6 @@ private:
 	void			openEmbeddedTexture( LLInventoryItem* item, llwchar wc );
 	void			openEmbeddedSound( LLInventoryItem* item, llwchar wc );
 	void			openEmbeddedLandmark( LLPointer<LLInventoryItem> item_ptr, llwchar wc );
-	void			openEmbeddedNotecard( LLInventoryItem* item, llwchar wc);
 	void			openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc);
 	void			showCopyToInvDialog( LLInventoryItem* item, llwchar wc );
 	void			showUnsavedAlertDialog( LLInventoryItem* item );
