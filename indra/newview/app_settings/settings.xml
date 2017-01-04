@@ -5376,7 +5376,7 @@
     <key>LeftClickShowMenu</key>
     <map>
       <key>Comment</key>
-      <string>Left click opens pie menu (FALSE = left click touches or grabs object)</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
