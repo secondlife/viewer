@@ -191,7 +191,7 @@ public:
 		return false;
 	}
 
-	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
+	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
 	{
 		// always draw at beginning of line
 		if (line_offset == 0)

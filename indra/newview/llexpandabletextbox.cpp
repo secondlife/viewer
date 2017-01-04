@@ -63,10 +63,10 @@ public:
 	{ 
 		return start_offset;
 	}
-	/*virtual*/ S32		getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
+	/*virtual*/ S32		getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
 	{ 
 		// require full line to ourselves
-		if (line_offset == 0) 
+		if (line_offset == 0)
 		{
 			// print all our text
 			return getEnd() - getStart(); 
