@@ -114,6 +114,7 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     $autobuild_configure_parameters \
     || fatal "$variant configuration failed"
 
   end_section "Configure $variant"
