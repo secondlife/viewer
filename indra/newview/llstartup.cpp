@@ -683,9 +683,16 @@ bool idle_startup()
 		}
 		else if (gSavedSettings.getBOOL("AutoLogin"))  
 		{
+			// Log into last account
 			gRememberPassword = TRUE;
 			gSavedSettings.setBOOL("RememberPassword", TRUE);                                                      
 			show_connect_box = false;    			
+		}
+		else if (gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
+		{
+			// Console provided login&password
+			gRememberPassword = gSavedSettings.getBOOL("RememberPassword");
+			show_connect_box = false;
 		}
 		else 
 		{
