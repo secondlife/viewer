@@ -304,7 +304,11 @@ BOOL LLPanelPlaces::postBuild()
 	enable_registrar.add("Places.OverflowMenu.Enable",  boost::bind(&LLPanelPlaces::onOverflowMenuItemEnable, this, _2));
 
 	mPlaceMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_place.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if (!mPlaceMenu)
+	if (mPlaceMenu)
+	{
+		mPlaceMenu->setAlwaysShowMenu(TRUE);
+	}
+	else
 	{
 		LL_WARNS() << "Error loading Place menu" << LL_ENDL;
 	}
