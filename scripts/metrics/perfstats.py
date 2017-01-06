@@ -340,9 +340,12 @@ def process_by_outfit(pd_data, arc_key="arc"):
         labels.append(outfit)
         timespans.append(timespan)
     if len(arcs)>1:
-        print "CORRCOEFF", np.corrcoef(arcs,avgs)
-        print "POLYFIT", np.polyfit(arcs,avgs,1)
-    #res = plt.scatter(arcs, avg, yerr=stddev)
+        try:
+            print "CORRCOEFF", np.corrcoef(arcs,avgs)
+            print "POLYFIT", np.polyfit(arcs,avgs,1)
+        except:
+            print "CORCOEFF/POLYFIT failed"
+
     plt.errorbar(arcs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
     for label, x, y in zip(labels,arcs,avgs):
         plt.annotate(label, xy=(x,y))
@@ -384,6 +387,15 @@ def plot_time_series(pd_data,fields):
         ax.set_ylim([0,.1])
         fig = ax.get_figure()
         fig.savefig("time_series_" + f + ".jpg")
+
+def extract_percent(df, key="Timers.Frame.Time", low=0.0, high=100.0, filename="extract_percent.csv"):
+    df.to_csv("percent_input.csv")
+    result = df
+    result["Avatars.Self.OutfitName"] = df["Avatars.Self.OutfitName"].fillna(method='ffill')
+    result["Avatars.Self.ARCCalculated"] = df["Avatars.Self.ARCCalculated"].fillna(method='ffill')
+    result = result[result[key] > result[key].quantile(low/100.0)]
+    result = result[result[key] < result[key].quantile(high/100.0)]
+    result.to_csv(filename)
     
 if __name__ == "__main__":
 
@@ -417,11 +429,12 @@ if __name__ == "__main__":
     parser.add_argument("--max_records", type=int, help="limit to number of frames to process") 
     parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
     parser.add_argument("--plot_time_series", nargs="+", default=[], help="show timers by frame")
+    parser.add_argument("--extract_percent", nargs="+", metavar="blah", help="extract subset based on frame time")
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
     print "start get_timer_info"
-    child_info, parent_info, all_keys, reparented_timers, directly_reparented = get_timer_info(args.infilename)
+    child_info, parent_info, all_keys, reparented_timers, directly_reparented = get_timer_info("performance.slp")
     print "done get_timer_info"
 
     if args.no_reparented:
@@ -482,6 +495,14 @@ if __name__ == "__main__":
         print "Calling export",args.export
         export(args.export, pd_data)
 
+    if args.extract_percent:
+        print "extract percent",args.extract_percent
+        (low_pct,high_pct,filename) = args.extract_percent
+        low_pct = float(low_pct)
+        high_pct = float(high_pct)
+        print "extract percent",low_pct,high_pct,filename
+        extract_percent(pd_data,"Timers.Frame.Time",low_pct,high_pct,filename)
+            
     if args.summarize:
         pd_data = pd_data.fillna(0.0)
         pd.set_option('max_rows', 500)
