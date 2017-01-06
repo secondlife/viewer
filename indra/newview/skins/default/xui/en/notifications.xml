@@ -4031,7 +4031,7 @@ An update was downloaded. It will be installed during restart.
  icon="alertmodal.tga"
  name="UpdateCheckError"
  type="alertmodal">
-An error occured while checking for update.
+An error occurred while checking for update.
 Please try again later.
     <tag>confirm</tag>
     <usetemplate
