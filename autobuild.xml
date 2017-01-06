@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d6e7100e6b70fb964e8edd92721853a9</string>
+              <string>2d43c6a149cd9c89ba19e884579b1e25</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1487/3312/google_breakpad-1413.501475-darwin64-501475.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1836/4096/google_breakpad-1413.501824-darwin64-501824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1086,9 +1086,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>438d220b9572ec037edfc157f5f5424b</string>
+              <string>6bddcc1ac470dd5eab459220102df9e9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1486/3327/google_breakpad-1413.501475-linux64-501475.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1835/4114/google_breakpad-1413.501824-linux64-501824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1098,9 +1098,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>45da93800bec583e828453bbe52bd650</string>
+              <string>6a7929c7280a5c9b528fdd334da5c2d1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1489/3320/google_breakpad-1413.501475-windows-501475.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1838/4108/google_breakpad-1413.501824-windows-501824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1110,16 +1110,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bd6d5227b776e0a323098d3c157fd03a</string>
+              <string>4fb761717f3ce6ccabdaeb009272b7ca</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1488/3319/google_breakpad-1413.501475-windows64-501475.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1837/4103/google_breakpad-1413.501824-windows64-501824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1413.501475</string>
+        <string>1413.501824</string>
       </map>
       <key>googlemock</key>
       <map>
@@ -3417,8 +3417,10 @@
                 <string>xcodebuild</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string><string>Release</string>
-                  <string>-project</string><string>SecondLife.xcodeproj</string>
+                  <string>-configuration</string>
+                  <string>Release</string>
+                  <string>-project</string>
+                  <string>SecondLife.xcodeproj</string>
                 </array>
               </map>
               <key>configure</key>
