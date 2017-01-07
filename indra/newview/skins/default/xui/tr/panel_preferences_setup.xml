@@ -30,6 +30,7 @@
 		<combo_box.item label="Güncellemeleri manuel olarak indirip yükleyeceğim" name="Install_manual"/>
 	</combo_box>
 	<check_box label="Sürüm adaylarına güncelleme yapmaya gönüllü" name="update_willing_to_test"/>
+	<check_box label="Güncellemeden sonra Sürüm Notlarını göster" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
 		Proxy Ayarları:
 	</text>

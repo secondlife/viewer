@@ -5,4 +5,5 @@
 	<menu_item_check label="距離で並べ替え" name="sort_distance"/>
 	<menu_item_check label="人のアイコン表示" name="view_icons"/>
 	<menu_item_check label="地図を表示" name="view_map"/>
+	<menu_item_check label="ユーザー名を非表示" name="view_usernames"/>
 </toggleable_menu>

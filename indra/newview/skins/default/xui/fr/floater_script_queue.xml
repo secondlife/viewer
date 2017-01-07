@@ -15,5 +15,11 @@
 	<floater.string name="NotRunning">
 		Arrêt
 	</floater.string>
+	<floater.string name="Timeout">
+		Délai : [OBJECT_NAME]
+	</floater.string>
+	<floater.string name="LoadingObjInv">
+		Chargement de l’inventaire pour : [OBJECT_NAME]
+	</floater.string>
 	<button label="Fermer" label_selected="Fermer" name="close"/>
 </floater>

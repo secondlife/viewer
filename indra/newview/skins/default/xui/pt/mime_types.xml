@@ -22,14 +22,6 @@
 			Iniciar filme
 		</playtip>
 	</widgetset>
-	<widgetset name="none">
-		<label name="none_label">
-			Sem conteúdo
-		</label>
-		<tooltip name="none_tooltip">
-			Sem mídia aqui
-		</tooltip>
-	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
 			Imagem
@@ -52,9 +44,22 @@
 			Iniciar áudio disponível neste local
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Sem conteúdo
+		</label>
+		<tooltip name="none_tooltip">
+			Sem mídia aqui
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Transmissão em tempo real
+		</label>
+	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			Mídia com suporte a LibVLC
 		</label>
 	</scheme>
 	<mimetype name="blank">
@@ -125,11 +130,6 @@
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
 			Macromedia Director
-		</label>
-	</mimetype>
-	<mimetype name="application/x-shockwave-flash">
-		<label name="application/x-shockwave-flash_label">
-			Flash
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -205,6 +205,11 @@
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
 			Filme (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="application/octet-stream">
+		<label name="video/octet-stream">
+			Filme
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">

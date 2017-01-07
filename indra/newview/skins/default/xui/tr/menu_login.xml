@@ -20,13 +20,12 @@
 	<menu_item_check label="Hata Ayıklama Menüsünü Göster" name="Show Debug Menu"/>
 	<menu label="Hata ayıkla" name="Debug">
 		<menu_item_call label="Hata Ayıklama Ayarlarını Göster" name="Debug Settings"/>
-		<menu_item_call label="KA/Renk Ayarları" name="UI/Color Settings"/>
 		<menu_item_call label="XKA Önizleme Aracı" name="UI Preview Tool"/>
 		<menu label="KA Testleri" name="UI Tests"/>
 		<menu_item_call label="Pencere Büyüklüğünü Ayarla..." name="Set Window Size..."/>
 		<menu_item_call label="Hizmet Şartlarını Göster" name="TOS"/>
 		<menu_item_call label="Kritik İletiyi Göster" name="Critical"/>
-		<menu_item_call label="Web İçeriği Gezdiricisi Hata Ayıklama Testi" name="Web Content Floater Debug Test"/>
+		<menu_item_call label="Ortam Tarayıcı" name="Media Browser"/>
 		<menu label="Günlük Tutma Seviyesini Seç" name="Set Logging Level">
 			<menu_item_check label="Hata ayıkla" name="Debug"/>
 			<menu_item_check label="Bilgi" name="Info"/>

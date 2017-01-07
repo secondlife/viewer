@@ -57,6 +57,11 @@
 			Поток RealTime
 		</label>
 	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			Медиа с поддержкой LibVLC
+		</label>
+	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
 			- Ничего -
@@ -200,6 +205,11 @@
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
 			Видео (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="application/octet-stream">
+		<label name="video/octet-stream">
+			Видео
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">

@@ -24,7 +24,7 @@
 	<text name="BetterText">
 		最佳
 	</text>
-	<slider label="化身最大複雜度：" name="IndirectMaxComplexity" tool_tip="控制在何時機下讓複雜化身呈像為 JellyDoll"/>
+	<slider label="化身最大複雜度：" name="IndirectMaxComplexity" tool_tip="控制在何時機下讓複雜化身呈像為「JellyDoll」"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

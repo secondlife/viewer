@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="Outfits">
 	<panel.string name="wear_outfit_tooltip">
 		選択したアウトフィットを着用する
@@ -7,6 +7,7 @@
 		選択したアイテムを着用
 	</panel.string>
 	<tab_container name="appearance_tabs">
+		<panel label="アウトフィットギャラリー" name="outfit_gallery_tab"/>
 		<panel label="マイ アウトフィット" name="outfitslist_tab"/>
 		<panel label="着用中" name="cof_tab"/>
 	</tab_container>

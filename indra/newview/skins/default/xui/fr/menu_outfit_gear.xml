@@ -3,6 +3,10 @@
 	<menu_item_call label="Porter - Remplacer la tenue actuelle" name="wear"/>
 	<menu_item_call label="Porter - Ajouter à la tenue actuelle" name="wear_add"/>
 	<menu_item_call label="Enlever - Supprimer de la tenue actuelle" name="take_off"/>
+	<menu_item_call label="Charger la photo (10 L$)" name="upload_photo"/>
+	<menu_item_call label="Sélectionner une photo" name="select_photo"/>
+	<menu_item_call label="Prendre une photo" name="take_snapshot"/>
+	<menu_item_call label="Supprimer la photo" name="remove_photo"/>
 	<menu label="Nouveaux habits" name="New Clothes">
 		<menu_item_call label="Nouvelle chemise" name="New Shirt"/>
 		<menu_item_call label="Nouveau pantalon" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="Réduire tous les dossiers" name="collapse"/>
 	<menu_item_call label="Renommer la tenue" name="rename"/>
 	<menu_item_call label="Supprimer la tenue" name="delete_outfit"/>
+	<menu_item_check label="Toujours trier les dossiers par nom" name="sort_folders_by_name"/>
 </toggleable_menu>

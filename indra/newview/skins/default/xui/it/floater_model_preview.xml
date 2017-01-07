@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="Includi peso pelle" name="upload_skin"/>
 				<check_box label="Includi posizioni giunti" name="upload_joints"/>
+				<check_box label="Blocca scala se è definita la posizione dei giunti" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Spostamento Z (sposta l&apos;avatar in alto o in basso):
 				</text>

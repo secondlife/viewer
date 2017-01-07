@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
+	<panel.string name="no_attachments">
+		未穿著任何附件。
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="可穿裝扮"/>
+		<accordion_tab name="tab_temp_attachments" title="暫時附件"/>
+	</accordion>
 	<panel name="bottom_panel">
 		<menu_button name="options_gear_btn" tool_tip="顯示額外選項"/>
 	</panel>

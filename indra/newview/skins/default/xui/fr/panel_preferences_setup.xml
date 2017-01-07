@@ -30,6 +30,7 @@
 		<combo_box.item label="Je téléchargerai et installerai les mises à jour manuellement" name="Install_manual"/>
 	</combo_box>
 	<check_box label="Accepte de passer aux versions avant sortie officielle" name="update_willing_to_test"/>
+	<check_box label="Afficher les notes de version après la mise à jour" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
 		Paramètres de proxy :
 	</text>

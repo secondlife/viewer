@@ -326,6 +326,9 @@ Si no quieres que este rol siga teniendo dichas capacidades, deshabilítalas inm
 		Te dispones a expulsar a [COUNT] miembros del grupo.
 		<usetemplate ignoretext="Confirma la expulsión de varios miembros del grupo" name="okcancelignore" notext="Cancelar" yestext="Prohibir el acceso"/>
 	</notification>
+	<notification name="GroupBanUserOnBanlist">
+		No se ha enviado una invitación a algunos residentes porque están expulsados del grupo.
+	</notification>
 	<notification name="AttachmentDrop">
 		Vas a soltar tu anexado.
     ¿Estás seguro de que quieres continuar?
@@ -454,6 +457,12 @@ debes estar dentro de ella.
 	<notification name="ErrorEncodingSnapshot">
 		Error al codificar la foto.
 	</notification>
+	<notification name="ErrorPhotoCannotAfford">
+		Necesitas [COST] L$ para guardar una foto en el inventario. Puedes comprar L$ o bien guardar la foto en tu equipo.
+	</notification>
+	<notification name="ErrorTextureCannotAfford">
+		Necesitas [COST] L$ para guardar una textura en el inventario. Puedes comprar L$ o bien guardar la foto en tu equipo.
+	</notification>
 	<notification name="ErrorUploadingPostcard">
 		Hubo un problema al enviar la foto por la siguiente razón: [REASON]
 	</notification>
@@ -570,6 +579,10 @@ o hacer una puja?
 		¿Deseas borrar la nota?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="LoadPreviousReportScreenshot">
+		¿Deseas incluir la foto anterior en la denuncia?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
+	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Fallo al guardar el gesto.
 Este gesto tiene demasiados pasos.
@@ -630,30 +643,12 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 		</url>
 		<usetemplate ignoretext="El hardware de mi ordenador no está admitido" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
-	<notification name="IntelOldDriver">
-		Probablemente ya existe un controlador más reciente para tu procesador de gráficos. La actualización del controlador de gráficos puede mejorar sustancialmente el rendimiento.
-
-    ¿Deseas visitar [_URL] para comprobar si hay controladores actualizados?
-		<url name="url">
-			http://www.intel.com/p/es_XL/support/detect/graphics
-		</url>
-		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
-	</notification>
-	<notification name="AMDOldDriver">
-		Probablemente ya existe un controlador más reciente para tu procesador de gráficos. La actualización del controlador de gráficos puede mejorar sustancialmente el rendimiento.
-
-    ¿Deseas visitar [_URL] para comprobar si hay controladores actualizados?
-		<url name="url">
-			http://support.amd.com/us/Pages/AMDSupportHub.aspx
-		</url>
-		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
-	</notification>
-	<notification name="NVIDIAOldDriver">
+	<notification name="OldGPUDriver">
 		Probablemente ya existe un controlador más reciente para tu procesador de gráficos.  La actualización del controlador de gráficos puede mejorar sustancialmente el rendimiento.
 
-    ¿Deseas visitar [_URL] para comprobar si hay controladores actualizados?
+    ¿Deseas visitar [URL] para buscar controladores actualizados?
 		<url name="url">
-			http://www.nvidia.com/Download/index.aspx?lang=es
+			[URL]
 		</url>
 		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
@@ -745,6 +740,9 @@ misma región.
 			http://secondlife.com/app/currency/?lang=es-ES
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="MuteLimitReached">
+		No se puede añadir una entrada nueva a la lista de bloqueados porque has alcanzado el límite de [MUTE_LIMIT] entradas.
 	</notification>
 	<notification name="UnableToLinkObjects">
 		No se pudo enlazar estos [COUNT] objetos.
@@ -1383,6 +1381,11 @@ Puedes usar [SECOND_LIFE] de forma normal; los demás residentes te verán corre
 	</notification>
 	<notification name="AgentComplexity">
 		La [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complejidad de tu avatar] es [AGENT_COMPLEXITY].
+		<usetemplate ignoretext="Advertirme cuando cambie la complejidad de mi avatar" name="notifyignore"/>
+	</notification>
+	<notification name="HUDComplexityWarning">
+		[HUD_REASON], es probable que afecte negativamente al rendimiento.
+		<usetemplate ignoretext="Avisarme si la complejidad de mi HUD es excesiva" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">
 		Se ha completado la instalación de [SECOND_LIFE].
@@ -1475,6 +1478,10 @@ Por favor, selecciona sólo uno y vuelve a intentarlo.
 		¿Teleportar a tu base a todos los residentes en esta región?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="ChangeObjectBonusFactor">
+		Si disminuyes el plus de objetos cuando ya se han establecido construcciones en una región, algunos objetos se podrían eliminar o devolver. ¿Estás seguro de que quieres cambiar el plus de objetos?
+		<usetemplate ignoretext="Confirmar el cambio del factor de plus del objeto" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
+	</notification>
 	<notification name="EstateObjectReturn">
 		¿Estás seguro de que quieres devolver los objetos propiedad de
 [USER_NAME] ?
@@ -1522,6 +1529,9 @@ Se superan en [NUM_EXCESS] los [MAX_AGENTS] permitidos en [LIST_TYPE].
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
 		No se puede añadir a la lista de residentes no admitidos al propietario del estado.
+	</notification>
+	<notification name="ProblemAddingEstateManagerBanned">
+		No se puede añadir un residente expulsado a la lista de administradores de estado.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		No puedes cambiar la apariencia hasta que no se carguen la ropa y la forma.
@@ -1697,6 +1707,10 @@ Si estás impaciente por probar las nuevas funciones y correcciones, lee la pág
 		¿Quieres abrir tu navegador para ver este contenido?
 		<usetemplate ignoretext="Abrir mi navegador para ver una página web" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="SystemUIScaleFactorChanged">
+		El factor de tamaño de IU del sistema ha cambiado desde la última ejecución. ¿Deseas abrir la página de ajustes de tamaño de la IU?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
+	</notification>
 	<notification name="WebLaunchJoinNow">
 		¿Ir al [http://secondlife.com/account/ Panel de Control] para administrar tu cuenta?
 		<usetemplate ignoretext="Abrir mi navegador para administrar mi cuenta" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -1736,9 +1750,16 @@ Si estás impaciente por probar las nuevas funciones y correcciones, lee la pág
 ¿Deseas abandonar el grupo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepart">
+		Has abandonado el grupo &apos;[group_name]&apos;.
+	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		No es posible abandonar el grupo. No puedes abandonarlo porque eres su último propietario. Antes tienes que asignar el papel de propietario a otro miembro.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepartError">
+		No se puede abandonar el grupo.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	<notification name="ConfirmKick">
 		¿Quieres realmente expulsar a todos los residentes de la cuadrícula?
@@ -2140,6 +2161,10 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		Hay demasiados prims seleccionados.  Por favor, selecciona [MAX_PRIM_COUNT] o menos y vuelve a intentarlo
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="TooManyScriptsSelected">
+		Los objetos seleccionados tienen demasiados scripts.  Selecciona menos objetos y repite la operación
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
 	<notification name="ProblemImportingEstateCovenant">
 		Hay problemas al importar el contrato del estado.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2308,6 +2333,10 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		Error en el pago: no se encuentra el objeto.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="PaymentBlockedButtonMismatch">
+		Pago suspendido:  el precio pagado no coincide con ninguno de los botones de pago asociados a este objeto.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		En este objeto, no hay ítems que estés autorizado a copiar.
 	</notification>
@@ -2342,6 +2371,12 @@ Esta acción no se puede deshacer.
 	<notification name="ConfirmUnlink">
 		La selección es grande y contiene linksets. Si la desenlazas, quizás no puedas volver establecer los vínculos. Puede ser conveniente guardar copias de los linksets como medida de precaución.
 		<usetemplate ignoretext="Confirmar que desenlazas un linkset" name="okcancelignore" notext="Cancelar" yestext="Desenlazar"/>
+	</notification>
+	<notification name="HelpReportAbuseConfirm">
+		Gracias por informarnos de este asunto. 
+Comprobaremos si tu denuncia contiene posibles transgresiones
+y tomaremos las medidas oportunas.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Por favor, elige una categoría para esta denuncia de infracción.
@@ -2769,6 +2804,10 @@ Aquí no puedes volar.
 	</notification>
 	<notification name="PathfindingDirty">
 		La región contiene cambios de pathfinding pendientes.  Si tienes derechos de construcción, puedes recargarla pulsando el botón “Recargar región”.
+	</notification>
+	<notification name="PathfindingDirtyRebake">
+		La región contiene cambios de pathfinding pendientes.  Si tienes derechos de construcción, puedes recargarla pulsando el botón “Recargar región”.
+		<usetemplate name="okbutton" yestext="Recargar la región"/>
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		Esta región no tiene activado el pathfinding dinámico. Los objetos programados que utilicen llamadas LSL de pathfinding pueden tener un comportamiento inesperado en ella.
@@ -3269,11 +3308,13 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 		El aspecto se ha guardado como XML en [PATH]
 	</notification>
 	<notification name="AppearanceToXMLFailed">
-		Error al guardar el aspecto como XML.
-    icon=&quot;notifytip.tga&quot;
-	name=&quot;PresetNotDeleted&quot;
-    type=&quot;notifytip&quot;&gt;
-Error al eliminar el valor predefinido [NAME].
+		Error al guardar el aspecto en XML.
+	</notification>
+	<notification name="PresetNotSaved">
+		Error al guardar el valor predefinido [NAME].
+	</notification>
+	<notification name="PresetNotDeleted">
+		Error al eliminar el valor predefinido [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		No se ha podido encontrar un tema de ayuda para este elemento.
@@ -3479,13 +3520,6 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 	</notification>
 	<notification name="ForceQuitDueToLowMemory">
 		SL saldrá en 30 segundos porque no hay memoria suficiente.
-	</notification>
-	<notification name="PopupAttempt">
-		Se ha impedido que se abriera una ventana emergente.
-		<form name="form">
-			<ignore name="ignore" text="Permitir todas las ventanas emergentes"/>
-			<button name="open" text="Abrir ventana emergente"/>
-		</form>
 	</notification>
 	<notification name="SOCKS_NOT_PERMITTED">
 		El proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; ha rechazado la conexión, no está permitida por el juego de reglas.
@@ -3861,6 +3895,9 @@ Prueba otra vez dentro de un minuto.
 		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
 [OBJ_POSITION] de la región [REGION_NAME] porque no hay suficientes recursos para este objeto en esta parcela.
 	</notification>
+	<notification name="NoParcelPermsNoObject">
+		Error al copiar: no tienes acceso a esa parcela.
+	</notification>
 	<notification name="CantMoveObjectRegionVersion">
 		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
 [OBJ_POSITION] de la región [REGION_NAME] porque la otra región ejecuta una versión más antigua que no admite la recepción de este objeto atravesando regiones.
@@ -3875,6 +3912,10 @@ Prueba otra vez dentro de un minuto.
 	</notification>
 	<notification name="NoPermModifyObject">
 		No tienes permiso para modificar ese objeto
+	</notification>
+	<notification name="TooMuchObjectInventorySelected">
+		Están seleccionados demasiados objetos con un inventario grande. Selecciona menos objetos y repite la operación.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	<notification name="CantEnablePhysObjContributesToNav">
 		No se puede habilitar la física para un objeto que contribuye al navmesh.
@@ -3911,6 +3952,12 @@ Prueba otra vez dentro de un minuto.
 	</notification>
 	<notification name="CantSaveModifyAttachment">
 		No se puede guardar en el contenido del objeto: se modificarían los permisos de anexo.
+	</notification>
+	<notification name="AttachmentHasTooMuchInventory">
+		El inventario de tus anexos ya es excesivo, por lo que no se puede añadir más.
+	</notification>
+	<notification name="IllegalAttachment">
+		El anexo ha solicitado un punto que no existe en el avatar. Por tanto, se ha anexado al pecho.
 	</notification>
 	<notification name="TooManyScripts">
 		Demasiados scripts.
@@ -4004,6 +4051,12 @@ Prueba otra vez dentro de un minuto.
 	<notification name="TeleportedByObjectUnknownUser">
 		Has sido teleportado por el objeto &apos;[OBJECT_NAME]&apos; cuyo propietario es un usuario desconocido.
 	</notification>
+	<notification name="StandDeniedByObject">
+		&apos;[OBJECT_NAME]&apos; no te permite ponerte de pie en este momento.
+	</notification>
+	<notification name="ResitDeniedByObject">
+		&apos;[OBJECT_NAME]&apos; no te permite cambiar de asiento en este momento.
+	</notification>
 	<notification name="CantCreateObjectRegionFull">
 		No se puede crear el objeto solicitado. La región está llena.
 	</notification>
@@ -4084,9 +4137,6 @@ Prueba otra vez dentro de un minuto.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		No hay suficientes recursos de script disponibles para anexar el objeto
-	</notification>
-	<notification name="IllegalAttachment">
-		El anexo ha solicitado un punto que no existe en el avatar. Por tanto, se ha anexado al pecho.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		No se pueden soltar objetos aquí; inténtalo en la zona de prueba gratuita.
@@ -4303,6 +4353,9 @@ Prueba a seleccionar un terreno más pequeño.
 	<notification name="CantTransfterMoneyRegionDisabled">
 		En esta región actualmente no están activadas las transferencias de dinero a los objetos.
 	</notification>
+	<notification name="DroppedMoneyTransferRequest">
+		No se puede efectuar el pago por sobrecarga del sistema.
+	</notification>
 	<notification name="CantPayNoAgent">
 		No se ha averiguado a quién se debe pagar.
 	</notification>
@@ -4337,5 +4390,9 @@ Prueba a seleccionar un terreno más pequeño.
 	<notification name="ChatHistoryIsBusyAlert">
 		El archivo de historial de chat todavía está realizando la operación anterior. Repite la operación dentro de unos minutos o inicia un chat con otra persona.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutfitPhotoLoadError">
+		[REASON]
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 </notifications>

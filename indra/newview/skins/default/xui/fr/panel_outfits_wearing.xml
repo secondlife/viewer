@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
+	<panel.string name="no_attachments">
+		Aucun élément attaché porté.
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="Articles à porter"/>
+		<accordion_tab name="tab_temp_attachments" title="Éléments attachés temporaires"/>
+	</accordion>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Afficher d&apos;autres options"/>
+		<menu_button name="options_gear_btn" tool_tip="Afficher d&apos;autres options"/>
 	</panel>
 </panel>
