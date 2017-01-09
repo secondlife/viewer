@@ -264,7 +264,61 @@ def get_all_timer_keys(filename):
     sd = next(iter_rec)
     return [timer for timer in sd["Timers"]]
 
+def fill_blanks(df):
+    print "fill_blanks"
+    for col in df:
+        if col.startswith("Timers."):
+            df[col].fillna(0.0, inplace=True)
+        else:
+            # Intermittently recorded, can just fill in
+            df[col].fillna(method="ffill", inplace=True)
+
+# Shorten 33,412 to 33K, etc., for simplified display.
+# Input: float
+# Output: string
+def abbrev_number(f):
+    if f <= 0.0:
+        return "0"
+    if f <= 1000:
+        return str(int(f))
+    if f <= 1000000:
+        return str(int(f/1000))+"K"
+    if f <= 1000000000:
+        return str(int(f/1000000))+"M"
+
 def get_outfit_spans(pd_data):
+    results = []
+    print "get_outfit_span_groups"
+    time_key = "Timers.Frame.Time"
+    results = []
+    outfit_key = "Avatars.Self.OutfitName"
+    arc_key = "Avatars.Self.ARCCalculated"
+    grouped = pd_data.groupby([outfit_key,arc_key])
+    print "Grouped has",len(grouped),"groups"
+    for name, group in grouped:
+        print name, len(group) 
+        if len(group)>100:
+            timespan = group[time_key]
+            low, high = np.percentile(timespan,5.0), np.percentile(timespan,95.0)
+            outfit_rec = {"outfit": name[0], 
+                          "arc": name[1],
+                          "group": group,
+                          "start_frame": group.index[0], 
+                          "span": len(group),
+                          "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
+                          "std": np.std(timespan), 
+                          "timespan": timespan,
+                          "mesh_attachments.count": group.iloc[0]["Derived.Avatar.MeshAttachments.Count"],
+                          "mesh_attachments.triangles_high": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_high"],
+                          "mesh_attachments.triangles_mid": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_mid"],
+                          "mesh_attachments.triangles_low": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_low"],
+                          "mesh_attachments.triangles_lowest": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_lowest"],
+                          } 
+            #print outfit_rec
+            results.append(outfit_rec)
+    return pd.DataFrame(results)
+
+def old_get_outfit_spans(pd_data):
     time_key = "Timers.Frame.Time"
     results = []
     outfit_key = "Avatars.Self.OutfitName"
@@ -328,7 +382,7 @@ def process_by_outfit(pd_data, arc_key="arc"):
         span_length = outfit_span["span"]
         xspans.append((start_frame, start_frame + span_length))
         outfit = outfit_span["outfit"]
-        arc = outfit_span[arc_key]
+        arc = outfit_span["arc"]
         avg = outfit_span["avg"]
         print "OUTFIT",outfit, "ARC", arc, "START_FRAME", start_frame, "SPAN", span_length 
         timespan = pd_data[time_key][start_frame:start_frame+span_length]
@@ -337,7 +391,10 @@ def process_by_outfit(pd_data, arc_key="arc"):
         stddev.append(outfit_span["std"])
         errorbars_low.append(outfit_span["avg"]-np.percentile(timespan,25.0))
         errorbars_high.append(np.percentile(timespan,75.0)-outfit_span["avg"])
-        labels.append(outfit)
+        label = outfit + " arc " + abbrev_number(arc) + " frames " + str(span_length)
+        labels.append(label)
+        outfit_csv_filename = label.replace(" ","_").replace("*","") + ".csv"
+        outfit_span["group"].to_csv(outfit_csv_filename)
         timespans.append(timespan)
     if len(arcs)>1:
         try:
@@ -420,6 +477,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
+    parser.add_argument("--fill_blanks", action="store_true", help="use default fillna handling to fill all fields")
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
@@ -490,6 +548,9 @@ if __name__ == "__main__":
         for key in sorted(child_info.keys()):
             print key,child_info[key]
 
+    if args.fill_blanks:
+        fill_blanks(pd_data)
+        
     print "args.export",args.export
     if args.export:
         print "Calling export",args.export
