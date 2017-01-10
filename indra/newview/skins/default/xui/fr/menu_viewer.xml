@@ -113,11 +113,11 @@
 		<menu_item_call label="Lien" name="Link"/>
 		<menu_item_call label="Annuler le lien" name="Unlink"/>
 		<menu_item_check label="Modifier les parties liées" name="Edit Linked Parts"/>
-		<menu label="Sélectionner les parties liées" name="Select Linked Parts">
-			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
-			<menu_item_call label="Sélectionner la partie précédente" name="Select Previous Part"/>
-			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
-			<menu_item_call label="Inclure la partie précédente" name="Include Previous Part"/>
+		<menu label="Sélectionner des éléments" name="Select Elements">
+			<menu_item_call label="Sélectionner la partie suivante ou le visage" name="Select Next Part or Face"/>
+			<menu_item_call label="Sélectionner la partie précédente ou le visage" name="Select Previous Part or Face"/>
+			<menu_item_call label="Inclure la partie suivante ou le visage" name="Include Next Part or Face"/>
+			<menu_item_call label="Inclure la partie précédente ou le visage" name="Include Previous Part or Face"/>
 		</menu>
 		<menu_item_call label="Groupes de liens..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
@@ -368,8 +368,7 @@
 			<menu_item_call label="Vidage de cache d&apos;objet de la région" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interface" name="UI">
-			<menu_item_call label="Test du navigateur de médias" name="Web Browser Test"/>
-			<menu_item_call label="Navigateur du contenu Web" name="Web Content Browser"/>
+			<menu_item_call label="Navigateur de médias" name="Media Browser"/>
 			<menu_item_call label="Dump SelectMgr" name="Dump SelectMgr"/>
 			<menu_item_call label="Dump inventaire" name="Dump Inventory"/>
 			<menu_item_call label="Dump Timers" name="Dump Timers"/>

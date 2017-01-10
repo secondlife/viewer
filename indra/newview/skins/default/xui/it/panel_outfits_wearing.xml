@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
+	<panel.string name="no_attachments">
+		Nessun allegato indossato.
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="Indossabili"/>
+		<accordion_tab name="tab_temp_attachments" title="Allegati temporanei"/>
+	</accordion>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Mostra ulteriori opzioni"/>
+		<menu_button name="options_gear_btn" tool_tip="Mostra ulteriori opzioni"/>
 	</panel>
 </panel>

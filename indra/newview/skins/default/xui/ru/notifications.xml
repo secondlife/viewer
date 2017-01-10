@@ -330,6 +330,9 @@
 		Вы собираетесь запретить [COUNT] участникам доступ в группу.
 		<usetemplate ignoretext="Подтвердите запрет доступа участникам в группу" name="okcancelignore" notext="Отмена" yestext="Бан"/>
 	</notification>
+	<notification name="GroupBanUserOnBanlist">
+		Некоторым резидентам не отправлено приглашение, так как они исключены из группы.
+	</notification>
 	<notification name="AttachmentDrop">
 		Вы собираетесь сбросить свое присоединение.
     Продолжить?
@@ -457,6 +460,12 @@
 	<notification name="ErrorEncodingSnapshot">
 		Ошибка при кодировке снимка.
 	</notification>
+	<notification name="ErrorPhotoCannotAfford">
+		Требуется L$[COST] для сохранения фото в вашем инвентаре. Купите L$ или сохраните фото на компьютере.
+	</notification>
+	<notification name="ErrorTextureCannotAfford">
+		Требуется L$[COST] для сохранения текстуры в вашем инвентаре. Купите L$ или сохраните фото на компьютере.
+	</notification>
 	<notification name="ErrorUploadingPostcard">
 		Ошибка при отправке снимка по следующей причине: [REASON]
 	</notification>
@@ -575,6 +584,10 @@
 		Удалить заметку?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
+	<notification name="LoadPreviousReportScreenshot">
+		Использовать для вашего отчета предыдущий снимок экрана?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Не удалось сохранить жест.
 Жест содержит слишком много этапов.
@@ -635,30 +648,12 @@
 		</url>
 		<usetemplate ignoretext="Оборудование моего компьютера не поддерживается" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
-	<notification name="IntelOldDriver">
+	<notification name="OldGPUDriver">
 		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
 
-    Проверить наличие обновления для драйвера по адресу [_URL]?
+    Проверить наличие обновления для драйвера по адресу [URL]?
 		<url name="url">
-			http://www.intel.com/p/ru_RU/support/detect/graphics
-		</url>
-		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
-	</notification>
-	<notification name="AMDOldDriver">
-		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
-
-    Проверить наличие обновления для драйвера по адресу [_URL]?
-		<url name="url">
-			http://support.amd.com/us/Pages/AMDSupportHub.aspx
-		</url>
-		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
-	</notification>
-	<notification name="NVIDIAOldDriver">
-		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
-
-    Проверить наличие обновления для драйвера по адресу [_URL]?
-		<url name="url">
-			http://www.nvidia.com/Download/index.aspx?lang=ru-ru
+			[URL]
 		</url>
 		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
@@ -748,6 +743,9 @@
 			http://secondlife.com/app/currency/
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="MuteLimitReached">
+		Невозможно добавить новый пункт в список заблокированных: достигнуто предельное число пунктов [MUTE_LIMIT].
 	</notification>
 	<notification name="UnableToLinkObjects">
 		Невозможно объединить эти [COUNT] объектов.
@@ -1379,6 +1377,11 @@
 	</notification>
 	<notification name="AgentComplexity">
 		Ваша [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 сложность аватара]: [AGENT_COMPLEXITY].
+		<usetemplate ignoretext="Предупреждать меня об изменении сложности аватара" name="notifyignore"/>
+	</notification>
+	<notification name="HUDComplexityWarning">
+		[HUD_REASON], возможно, отрицательно влияет на быстродействие.
+		<usetemplate ignoretext="Предупреждать о чрезмерной сложности данных в игре" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">
 		Установка [APP_NAME] завершена.
@@ -1470,6 +1473,10 @@
 		Телепортировать всех жителей в этом регионе домой?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
+	<notification name="ChangeObjectBonusFactor">
+		Снижение бонуса за объекты после сооружения построек в регионе может вызвать возврат или удаление объектов. Действительно изменить бонус за объекты?
+		<usetemplate ignoretext="Подтвердите изменение бонусного множителя для объектов" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="EstateObjectReturn">
 		Вы действительно хотите вернуть объекты, принадлежащие [USER_NAME]?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -1516,6 +1523,9 @@
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
 		Нельзя добавить землевладельца в список забаненных жителей его же земли.
+	</notification>
+	<notification name="ProblemAddingEstateManagerBanned">
+		Невозможно добавить заблокированного жителя в список менеджеров землевладения.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Нельзя изменять внешность, пока загружаются одежда и фигура.
@@ -1691,6 +1701,10 @@ http://secondlife.com/download.
 		Открыть браузер для просмотра этого контента?
 		<usetemplate ignoretext="Запустить браузер для просмотра веб-страницы" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
+	<notification name="SystemUIScaleFactorChanged">
+		Со времени последнего запуска изменился системный коэффициент размера интерфейса. Открыть страницу настроек размера интерфейса?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="WebLaunchJoinNow">
 		Перейти на [http://secondlife.com/account/ информационную панель] для управления вашим аккаунтом?
 		<usetemplate ignoretext="Запустить браузер для управления аккаунтом" name="okcancelignore" notext="Отмена" yestext="OK"/>
@@ -1730,8 +1744,15 @@ http://secondlife.com/download.
 Хотите покинуть группу?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepart">
+		Вы покинули группу «[group_name]».
+	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Невозможно покинуть группу. Вы не можете покинуть группу, так как вы ее последний владелец. Сначала назначьте владельцем другого участника.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepartError">
+		Невозможно покинуть группу.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2131,6 +2152,10 @@ http://secondlife.com/download.
 		Выбрано слишком много примитивов.  Выберите [MAX_PRIM_COUNT] или меньше примитивов и повторите попытку.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="TooManyScriptsSelected">
+		В выбранных объектах слишком много скриптов.  Выберите меньше объектов и повторите попытку.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ProblemImportingEstateCovenant">
 		Проблема при импорте соглашения о землевладении.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2298,6 +2323,10 @@ http://secondlife.com/download.
 		Не удалось выполнить оплату: объект не найден.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="PaymentBlockedButtonMismatch">
+		Платеж остановлен: уплаченная сумма не соответствует ни одной из кнопок оплаты, заданных для этого объекта.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		В этом объекте нет вещей, которые вам разрешено копировать.
 	</notification>
@@ -2332,6 +2361,12 @@ http://secondlife.com/download.
 	<notification name="ConfirmUnlink">
 		Это большое выделение с наборами связей. Если разъединить его, повторное соединение может отказаться невозможным. В качестве меры предосторожности попробуйте скопировать наборы связей в инвентарь.
 		<usetemplate ignoretext="Подтверждать при разъединении набора связей" name="okcancelignore" notext="Отмена" yestext="Разъединить"/>
+	</notification>
+	<notification name="HelpReportAbuseConfirm">
+		Спасибо за информирование об этой проблеме. 
+Мы проверим возможные нарушения согласно вашему отчету и примем
+соответствующие меры.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Выберите категорию для этого уведомления о нарушении.
@@ -2761,6 +2796,10 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="PathfindingDirty">
 		В регионе есть незавершенные изменения поиска пути.  Если у вас есть права на строительство, восстановите регион, нажав кнопку «Восстановить регион».
+	</notification>
+	<notification name="PathfindingDirtyRebake">
+		В регионе есть незавершенные изменения поиска пути.  Если у вас есть права на строительство, восстановите регион, нажав кнопку «Восстановить регион».
+		<usetemplate name="okbutton" yestext="Восстановить регион"/>
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		В этом регионе не разрешен динамический поиск пути.  Возможны нарушения работы скриптовых объектов с использованием вызовов LSL поиска пути.
@@ -3269,10 +3308,12 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="AppearanceToXMLFailed">
 		Не удалось сохранить внешность в XML.
-    icon=&quot;notifytip.tga&quot;
-	name=&quot;PresetNotDeleted&quot;
-    type=&quot;notifytip&quot;&gt;
-Ошибка при удалении пресета [NAME].
+	</notification>
+	<notification name="PresetNotSaved">
+		Ошибка при сохранении пресета [NAME].
+	</notification>
+	<notification name="PresetNotDeleted">
+		Ошибка при удалении пресета [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Невозможно найти раздел справки для этого элемента.
@@ -3481,13 +3522,6 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="ForceQuitDueToLowMemory">
 		Через 30 секунд Second Life завершит работу: нехватка памяти.
-	</notification>
-	<notification name="PopupAttempt">
-		Всплывающее окно нельзя открыть.
-		<form name="form">
-			<ignore name="ignore" text="Разрешить все всплывающие окна"/>
-			<button name="open" text="Открыть всплывающее окно"/>
-		</form>
 	</notification>
 	<notification name="SOCKS_NOT_PERMITTED">
 		Прокси SOCKS 5 &quot;[HOST]:[PORT]&quot; отклонил попытку подключения; не разрешено набором правил.
@@ -3862,6 +3896,9 @@ http://secondlife.com/download.
 		Нельзя переместить объект «[OBJECT_NAME]» в позицию
 «[OBJ_POSITION]» региона [REGION_NAME]: на этом участке недостаточно ресурсов для данного объекта.
 	</notification>
+	<notification name="NoParcelPermsNoObject">
+		Не удалось скопировать: у вас нет доступа к этому участку.
+	</notification>
 	<notification name="CantMoveObjectRegionVersion">
 		Нельзя переместить объект «[OBJECT_NAME]» в позицию
 [OBJ_POSITION] региона [REGION_NAME]: в другом регионе работает старая версия симулятора, которая не поддерживает прием этого объекта через границу регионов.
@@ -3876,6 +3913,10 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="NoPermModifyObject">
 		У вас нет прав на изменение этого объекта
+	</notification>
+	<notification name="TooMuchObjectInventorySelected">
+		Выбрано слишком много объектов с большим инвентарем. Выберите меньше объектов и повторите попытку.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CantEnablePhysObjContributesToNav">
 		Нельзя включить физику для объекта, который относится к навигационной сетке.
@@ -3912,6 +3953,12 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="CantSaveModifyAttachment">
 		Нельзя сохранить в содержимом объекта: это приведет к изменению разрешений прикрепленного объекта.
+	</notification>
+	<notification name="AttachmentHasTooMuchInventory">
+		Прикрепленные объекты содержат слишком много инвентаря. Добавление невозможно.
+	</notification>
+	<notification name="IllegalAttachment">
+		Прикрепляемый объект потребовал несуществующей точки на аватаре. Он был прикреплен к груди.
 	</notification>
 	<notification name="TooManyScripts">
 		Слишком много скриптов.
@@ -4005,6 +4052,12 @@ http://secondlife.com/download.
 	<notification name="TeleportedByObjectUnknownUser">
 		Вы были телепортированы объектом «[OBJECT_NAME]», владелец неизвестен.
 	</notification>
+	<notification name="StandDeniedByObject">
+		«[OBJECT_NAME]» не позволит вам стоять в это время.
+	</notification>
+	<notification name="ResitDeniedByObject">
+		«[OBJECT_NAME]» не позволит вам сейчас сменить место.
+	</notification>
 	<notification name="CantCreateObjectRegionFull">
 		Невозможно создать запрошенный объект. Регион уже заполнен.
 	</notification>
@@ -4085,9 +4138,6 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Недостаточно свободных ресурсов скриптинга для присоединения объекта!
-	</notification>
-	<notification name="IllegalAttachment">
-		Прикрепляемый объект потребовал несуществующей точки на аватаре. Он был прикреплен к груди.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Здесь нельзя сбрасывать объекты; перейдите в бесплатную область для гостей.
@@ -4304,6 +4354,9 @@ http://secondlife.com/download.
 	<notification name="CantTransfterMoneyRegionDisabled">
 		Сейчас в этом регионе запрещен перевод денег на объекты.
 	</notification>
+	<notification name="DroppedMoneyTransferRequest">
+		Невозможно произвести платеж из-за нагрузки на систему.
+	</notification>
 	<notification name="CantPayNoAgent">
 		Непонятно, кому платить.
 	</notification>
@@ -4337,6 +4390,10 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		Файл журнала чата занят предыдущей операцией. Повторите попытку через несколько минут или выберите чат с другим лицом.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutfitPhotoLoadError">
+		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

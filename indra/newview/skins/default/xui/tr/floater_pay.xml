@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money">
-	<string name="payee_group">Gruba Öde</string>
-	<string name="payee_resident">Sakine Öde</string>
-	<text name="paying_text">Ödeyeceğiniz miktar:</text>
-	<text name="payee_name">Kırpmayı Kontrol İçin Test Adı Çok Uzun</text>
+	<string name="payee_group">
+		Gruba Öde
+	</string>
+	<string name="payee_resident">
+		Sakine Öde
+	</string>
+	<text name="paying_text">
+		Ödeyeceğiniz miktar:
+	</text>
+	<text name="payee_name">
+		Kırpmayı Kontrol İçin Test Adı Çok Uzun
+	</text>
+	<text name="payment_message_label">
+		Açıklama (isteğe bağlı):
+	</text>
 	<panel label="Ara" name="PatternsPanel">
 		<button label="1 L$ Öde" label_selected="1 L$ Öde" name="fastpay 1"/>
 		<button label="5 L$ Öde" label_selected="5 L$ Öde" name="fastpay 5"/>
@@ -11,7 +22,9 @@
 		<button label="20 L$ Öde" label_selected="20 L$ Öde" name="fastpay 20"/>
 	</panel>
 	<panel label="Ara" name="InputPanel">
-		<text name="amount text">Diğer bir tutar:</text>
+		<text name="amount text">
+			Diğer bir tutar:
+		</text>
 		<button label="Öde" label_selected="Öde" name="pay btn"/>
 		<button label="İptal" label_selected="İptal" name="cancel btn"/>
 	</panel>

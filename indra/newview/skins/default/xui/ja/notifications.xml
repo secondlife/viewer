@@ -337,6 +337,9 @@
 		[COUNT] 名のメンバーをグループから追放しようとしています。
 		<usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="取り消し" yestext="禁止"/>
 	</notification>
+	<notification name="GroupBanUserOnBanlist">
+		一部の住人がグループから追放されたため、招待状が送られませんでした。
+	</notification>
 	<notification name="AttachmentDrop">
 		アタッチメントを下に置こうとしています。
 続けますか？
@@ -475,6 +478,12 @@ L$ が不足しているのでこのグループに参加することができ�
 	<notification name="ErrorEncodingSnapshot">
 		スナップショットのエンコード化でエラーが出ました！
 	</notification>
+	<notification name="ErrorPhotoCannotAfford">
+		インベントリに写真を保存するには L$[COST] が必要です。L$ を購入するか、代わりに写真をっコンピュータに保存できます。
+	</notification>
+	<notification name="ErrorTextureCannotAfford">
+		インベントリにテクスチャを保存するには L$[COST] が必要です。L$ を購入するか、代わりに写真をコンピュータに保存できます。
+	</notification>
 	<notification name="ErrorUploadingPostcard">
 		次の理由で、スナップショットの送信時に問題が起こりました： [REASON]
 	</notification>
@@ -593,6 +602,10 @@ L$ が不足しているのでこのグループに参加することができ�
 		ノートカードを削除しますか?
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
+	<notification name="LoadPreviousReportScreenshot">
+		以前のスクリーンショットをレポートに使用しますか?
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		ジェスチャーの保存に失敗しました。
 ステップが多すぎます。
@@ -653,32 +666,14 @@ L$ が不足しているのでこのグループに参加することができ�
 		</url>
 		<usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
-	<notification name="IntelOldDriver">
-		おそらくお使いのグラフィックチップ用の新しいドライバが入手可能です。グラフィックドライバを更新することにより、パフォーマンスが大幅に向上する場合があります。
+	<notification name="OldGPUDriver">
+		グラフィックスチップに最新のドライバがある可能性があります。グラフィックドライバを更新することにより、大幅にパフォーマンスが向上します。
 
-[_URL] にアクセスして更新版のドライバがあるかどうかを確認しますか？
+    ドライバの更新を確認するために [URL] にアクセスしますか?
 		<url name="url">
-			http://www.intel.com/p/ja_JP/support/detect/graphics
+			[URL]
 		</url>
-		<usetemplate ignoretext="使用しているグラフィックドライバが古い場合" name="okcancelignore" notext="いいえ" yestext="はい"/>
-	</notification>
-	<notification name="AMDOldDriver">
-		お使いのグラフィックチップには最新のドライバが存在するようです。グラフィックドライバを更新すると、パフォーマンスが大幅に改善されます。
-
-[_URL] へアクセスして、ドライバーを更新しますか。
-		<url name="url">
-			http://support.amd.com/us/Pages/AMDSupportHub.aspx
-		</url>
-		<usetemplate ignoretext="自分のグラフィックドライバが旧くなりました。" name="okcancelignore" notext="いいえ" yestext="はい"/>
-	</notification>
-	<notification name="NVIDIAOldDriver">
-		お使いのグラフィックチップには最新のドライバが存在するようです。グラフィックドライバを更新すると、パフォーマンスが大幅に改善されます。
-
-[_URL] へアクセスして、ドライバーを更新しますか。
-		<url name="url">
-			http://www.nvidia.com/Download/index.aspx?lang=en-us
-		</url>
-		<usetemplate ignoretext="自分のグラフィックドライバが旧くなりました。" name="okcancelignore" notext="いいえ" yestext="はい"/>
+		<usetemplate ignoretext="使用中のグラフィックドライバが古くなっています" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="UnknownGPU">
 		お使いのシステムには、[APP_NAME] が認識できないグラフィックカードが搭載されています。
@@ -766,6 +761,9 @@ L$ が不足しているのでこのグループに参加することができ�
 			http://secondlife.com/app/currency/?lang=ja-JP
 		</url>
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="MuteLimitReached">
+		[MUTE_LIMIT] エントリの制限に達したため、ブロックリストに新しいエントリを追加できません。
 	</notification>
 	<notification name="UnableToLinkObjects">
 		[COUNT] 個のオブジェクトをリンクできません。
@@ -1408,6 +1406,11 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 	</notification>
 	<notification name="AgentComplexity">
 		あなたの [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] は [AGENT_COMPLEXITY] です。
+		<usetemplate ignoretext="アバターの複雑さの変更について警告する" name="notifyignore"/>
+	</notification>
+	<notification name="HUDComplexityWarning">
+		[HUD_REASON]、パフォーマンスに悪影響を与える恐れがあります。
+		<usetemplate ignoretext="HUD が複雑すぎる場合はお知らせください" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] のインストールが完了しました。
@@ -1501,6 +1504,10 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 		このリージョンにいる全ての住人をホームにテレポートしますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
+	<notification name="ChangeObjectBonusFactor">
+		地域（リージョン）内でビルドが確立された後にオブジェクトボーナスを下げると、オブジェクトが返されたり、削除されたりします。本当にオブジェクトボーナスを変更しますか?
+		<usetemplate ignoretext="オブジェクトボーナス係数の変更を確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="EstateObjectReturn">
 		[USER_NAME] が所有しているオブジェクトを返却しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
@@ -1548,6 +1555,9 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
 		不動産オーナーを不動産の「禁止住人」リストに追加できません。
+	</notification>
+	<notification name="ProblemAddingEstateManagerBanned">
+		追放された住人を不動産管理者リストに追加できません。
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		衣類およびシェイプが読み込まれるまでは、容姿の変更はできません。
@@ -1720,6 +1730,10 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		Web ブラウザを開いてこのコンテンツを表示しますか？
 		<usetemplate ignoretext="ブラウザを起動して Web ページを見るとき" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
+	<notification name="SystemUIScaleFactorChanged">
+		前回実行時からシステム UI サイズ係数が変更されています。UI サイズ調整設定ページを開きますか?
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="WebLaunchJoinNow">
 		[http://jp.secondlife.com/account/ マイアカウント] ページに移動してアカウントを管理しますか？
 		<usetemplate ignoretext="ブラウザを起動してアカウントを管理するとき" name="okcancelignore" notext="取り消し" yestext="OK"/>
@@ -1761,8 +1775,15 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 グループから脱退しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepart">
+		グループ &apos;[group_name]&apos; を抜けました。
+	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepartError">
+		グループを抜けることができません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2165,6 +2186,10 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		選択したプリムが多すぎます。  [MAX_PRIM_COUNT] 個選択するか、プリム数を減らしてもう一度お試しください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="TooManyScriptsSelected">
+		スクリプト内で選択されたオブジェクトが多すぎます。選択するオブジェクトを減らして、もう一度やり直してください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ProblemImportingEstateCovenant">
 		不動産約款のインポート時に問題が発生しました。
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2337,6 +2362,10 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		支払いが失敗しました： オブジェクトが見つかりませんでした。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="PaymentBlockedButtonMismatch">
+		支払いが停止されました： 支払われた価格がこのオブジェクトに設定された支払いボタンのどれとも一致しません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		このオブジェクトには、あなたがコピーできるアイテムはありません。
 	</notification>
@@ -2371,6 +2400,12 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 	<notification name="ConfirmUnlink">
 		これは、リンクセットによる広範囲の選択です。リンクを解除すると、もう一度リンクできなくなる可能性があります。そのような場合に備えて、リンクセットを自分の持ち物にコピーできます。
 		<usetemplate ignoretext="リンクセットのリンクを解除するときに確認する" name="okcancelignore" notext="取り消し" yestext="リンクを外す"/>
+	</notification>
+	<notification name="HelpReportAbuseConfirm">
+		この問題のご報告にお時間を割いていただきありがとうございます。 
+お知らせいただいた内容について違反がないか確認し、適切に
+対処いたします。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		嫌がらせ報告のカテゴリを選択してください。
@@ -2805,6 +2840,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="PathfindingDirty">
 		この値域（リージョン）には、保留中のパスファインディングの変更があります。制作権がある場合は、「地域の再構築」ボタンをクリックして、地域（リージョン）を再構築できます。
+	</notification>
+	<notification name="PathfindingDirtyRebake">
+		この値域（リージョン）には、保留中のパスファインディングの変更があります。制作権がある場合は、「地域の再構築」ボタンをクリックして、地域（リージョン）を再構築できます。
+		<usetemplate name="okbutton" yestext="地域の再構築"/>
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		この地域（リージョン）でダイナミックパスファインディングが有効になっていません。パスファインディング LSL 呼び出しを使用するスクリプト化されたオブジェクトがこの地域（リージョン）では動作できません。
@@ -3310,10 +3349,12 @@ M キーを押して変更します。
 	</notification>
 	<notification name="AppearanceToXMLFailed">
 		外観を XML に保存できませんでした。
-    icon=&quot;notifytip.tga&quot;
-	name=&quot;PresetNotDeleted&quot;
-    type=&quot;notifytip&quot;&gt;
-プリセット [NAME] の削除エラー。
+	</notification>
+	<notification name="PresetNotSaved">
+		プリセット [NAME] の保存エラー。
+	</notification>
+	<notification name="PresetNotDeleted">
+		プリセット [NAME] の削除エラー。
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		ヘルプトピックが見つかりませんでした。
@@ -3522,13 +3563,6 @@ M キーを押して変更します。
 	</notification>
 	<notification name="ForceQuitDueToLowMemory">
 		メモリ不足のため 30 秒以内に SL は終了します。
-	</notification>
-	<notification name="PopupAttempt">
-		ポップアップがブロックされました。
-		<form name="form">
-			<ignore name="ignore" text="全てのポップアップを有効にする"/>
-			<button name="open" text="ポップアップウィンドウを開く"/>
-		</form>
 	</notification>
 	<notification name="SOCKS_NOT_PERMITTED">
 		ルールセットによって許可されていないため、SOCKS 5 プロキシ &quot;[HOST]:[PORT]&quot; が接続を拒絶しました。
@@ -3900,6 +3934,9 @@ M キーを押して変更します。
 	<notification name="CantMoveObjectParcelResources">
 		この区画でこのオブジェクトのリソースが不足しているため、オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
 	</notification>
+	<notification name="NoParcelPermsNoObject">
+		その区画へのアクセス権がないため、コピーが失敗しました。
+	</notification>
 	<notification name="CantMoveObjectRegionVersion">
 		オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動することはできません。他のリージョンでは、リージョンの境界をまたいだこのオブジェクトを受信することができない古いバージョンを実行しているためです。
 	</notification>
@@ -3912,6 +3949,10 @@ M キーを押して変更します。
 	</notification>
 	<notification name="NoPermModifyObject">
 		そのオブジェクトを変更する権限がありません
+	</notification>
+	<notification name="TooMuchObjectInventorySelected">
+		大きなインベントリを持つオブジェクトの選択が多すぎます。選択するオブジェクトを減らして、もう一度やり直してください。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CantEnablePhysObjContributesToNav">
 		ナビメッシュに貢献するオブジェクトに対して物理を有効にできません。
@@ -3948,6 +3989,12 @@ M キーを押して変更します。
 	</notification>
 	<notification name="CantSaveModifyAttachment">
 		オブジェクトのコンテンツに保存できません。このため、アタッチメントの権限が変更されます。
+	</notification>
+	<notification name="AttachmentHasTooMuchInventory">
+		ご使用のアタッチメントに含まれるインベントリが多すぎるため、インベントリを追加できません。
+	</notification>
+	<notification name="IllegalAttachment">
+		添付ファイルはアバターの存在しない点を要求しました。代わりに胸に添付されていました。
 	</notification>
 	<notification name="TooManyScripts">
 		スクリプトが多すぎます。
@@ -4041,6 +4088,12 @@ M キーを押して変更します。
 	<notification name="TeleportedByObjectUnknownUser">
 		不明なユーザーが所有しているオブジェクト &apos;[OBJECT_NAME]&apos; によって、あなたはテレポートされています。
 	</notification>
+	<notification name="StandDeniedByObject">
+		&apos;[OBJECT_NAME]&apos; はこの時点であなたが立つことを許可しません。
+	</notification>
+	<notification name="ResitDeniedByObject">
+		&apos;[OBJECT_NAME]&apos; はこの時点であなたが席を変更することを許可しません。
+	</notification>
 	<notification name="CantCreateObjectRegionFull">
 		リクエストされたオブジェクトを作成できません。リージョンが埋まっています。
 	</notification>
@@ -4121,9 +4174,6 @@ M キーを押して変更します。
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		オブジェクトの着用に使用できるスクリプトリソースが足りません。
-	</notification>
-	<notification name="IllegalAttachment">
-		添付ファイルはアバターの存在しない点を要求しました。代わりに胸に添付されていました。
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		オブジェクトをここにドロップできません。フリートライアル領域をお試しください。
@@ -4340,6 +4390,9 @@ M キーを押して変更します。
 	<notification name="CantTransfterMoneyRegionDisabled">
 		オブジェクトへの送金は、このリージョンでは現在無効にされています。
 	</notification>
+	<notification name="DroppedMoneyTransferRequest">
+		システムロードにより、支払いを実行できません。
+	</notification>
 	<notification name="CantPayNoAgent">
 		支払いの相手を把握できませんでした。
 	</notification>
@@ -4373,6 +4426,10 @@ M キーを押して変更します。
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		チャット履歴ファイルが前の操作でビジーです。2、3 分経ってからもう一度試すか、別の人とのチャットを選択してください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutfitPhotoLoadError">
+		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

@@ -15,5 +15,11 @@
 	<floater.string name="NotRunning">
 		Не запущен
 	</floater.string>
+	<floater.string name="Timeout">
+		Задержка: [OBJECT_NAME]
+	</floater.string>
+	<floater.string name="LoadingObjInv">
+		Загрузка инвентаря для: [OBJECT_NAME]
+	</floater.string>
 	<button label="Закрыть" label_selected="Закрыть" name="close"/>
 </floater>

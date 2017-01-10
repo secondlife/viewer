@@ -15,5 +15,11 @@
 	<floater.string name="NotRunning">
 		実行されていません
 	</floater.string>
+	<floater.string name="Timeout">
+		タイムアウト： [OBJECT_NAME]
+	</floater.string>
+	<floater.string name="LoadingObjInv">
+		次のインベントリをロード中： [OBJECT_NAME]
+	</floater.string>
 	<button label="閉じる" label_selected="閉じる" name="close"/>
 </floater>

@@ -15,5 +15,11 @@
 	<floater.string name="NotRunning">
 		非執行中
 	</floater.string>
+	<floater.string name="Timeout">
+		逾時：[OBJECT_NAME]
+	</floater.string>
+	<floater.string name="LoadingObjInv">
+		正載入以下物項的收納區：[OBJECT_NAME]
+	</floater.string>
 	<button label="關閉" label_selected="關閉" name="close"/>
 </floater>

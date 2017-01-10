@@ -13,4 +13,6 @@
 	<menu_item_call label="Freigeben" name="share"/>
 	<menu_item_call label="Bezahlen" name="pay"/>
 	<menu_item_check label="Ignorieren/Nicht mehr ignorieren" name="block_unblock"/>
+	<menu_item_call label="Einfrieren" name="freeze"/>
+	<menu_item_call label="Hinauswerfen" name="eject"/>
 </context_menu>

@@ -13,4 +13,6 @@
 	<menu_item_call label="Partager" name="share"/>
 	<menu_item_call label="Payer" name="pay"/>
 	<menu_item_check label="Ignorer/Ne plus ignorer" name="block_unblock"/>
+	<menu_item_call label="Figer" name="freeze"/>
+	<menu_item_call label="Expulser" name="eject"/>
 </context_menu>

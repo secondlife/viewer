@@ -5,4 +5,5 @@
 	<menu_item_check label="Trier par distance" name="sort_distance"/>
 	<menu_item_check label="Afficher les icônes des résidents" name="view_icons"/>
 	<menu_item_check label="Afficher la carte" name="view_map"/>
+	<menu_item_check label="Masquer les noms d’utilisateur" name="view_usernames"/>
 </toggleable_menu>

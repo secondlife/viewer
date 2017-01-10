@@ -2,6 +2,7 @@
 <menu name="Object Icon Menu">
 	<menu_item_call label="Profil de l&apos;objet..." name="Object Profile"/>
 	<menu_item_call label="Ignorer..." name="Block"/>
+	<menu_item_call label="Ne plus ignorer" name="Unblock"/>
 	<menu_item_call label="Voir sur la carte" name="show_on_map"/>
 	<menu_item_call label="Me téléporter à l’emplacement de l&apos;objet" name="teleport_to_object"/>
 </menu>

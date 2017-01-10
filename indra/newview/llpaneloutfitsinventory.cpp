@@ -92,9 +92,6 @@ BOOL LLPanelOutfitsInventory::postBuild()
 	
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this, true));
 
-	if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
-		mAppearanceTabs->selectFirstTab();
-
 	return TRUE;
 }
 
@@ -110,6 +107,10 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 			panel_appearance->fetchInventory();
 			panel_appearance->refreshCurrentOutfitName();
 		}
+
+		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
+			mAppearanceTabs->selectFirstTab();
+
 		mInitialized = true;
 	}
 
