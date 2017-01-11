@@ -86,19 +86,32 @@ class DerivedSelfTimers:
                             value -= self.sd["Timers"][child]["Time"]
         return value
 
+# for these, we will compute the fraction of triangles affected by the setting
+bool_graphic_properties = ["alpha","animtex","bump","flexi","glow","invisi","particles","planar","produces_light","shiny","weighted_mesh"]
+
+# for these, we will sum all counts found in all attachments
+sum_graphic_properties = ["media_faces"]
+
 class MeshAttachmentsDerivedField:
     def __init__(self,sd,**kwargs):
         self.sd = sd
         self.kwargs = kwargs
     def __getitem__(self, key):
         attachments = sd_extract_field(self.sd,"Avatars.Self.Attachments") 
+        triangle_keys = ["triangles_lowest", "triangles_low", "triangles_mid", "triangles_high"]
         if attachments:
             mesh_attachments = [att for att in attachments if att["isMesh"]]
             if key=="Count":
                 return len(mesh_attachments)
-            elif key in ["triangles_lowest", "triangles_low", "triangles_mid", "triangles_high"]:
+            elif key in triangle_keys:
                 total = sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in mesh_attachments])
                 return total
+            elif key in bool_graphic_properties:
+                tris_with_property = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in mesh_attachments if sd_extract_field(att,key)])
+                tris_grand_total = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in mesh_attachments])
+                return tris_with_property/tris_grand_total if tris_grand_total > 0.0 else 0.0
+            elif key in sum_graphic_properties:
+                return sum([sd_extract_field(att,"StreamingCost." + key,0.0)])
             else:
                 raise IndexError()
 
@@ -192,7 +205,10 @@ def sd_extract_field(sd,key,default_val=None):
 def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated cvs file?
     if re.match(".*\.csv$", filename):
-        return pd.DataFrame.from_csv(filename)
+        if args.filter_csv:
+            return pd.DataFrame.from_csv(filename)[fields]
+        else:
+            return pd.DataFrame.from_csv(filename)
 
     # otherwise assume we're processing a .slp file
     frame_data = []
@@ -279,12 +295,16 @@ def fill_blanks(df):
 def abbrev_number(f):
     if f <= 0.0:
         return "0"
-    if f <= 1000:
+    if f <= 1e3:
         return str(int(f))
-    if f <= 1000000:
-        return str(int(f/1000))+"K"
-    if f <= 1000000000:
-        return str(int(f/1000000))+"M"
+    if f <= 1e6:
+        return str(int(f/1e3))+"K"
+    if f <= 1e9:
+        return str(int(f/1e6))+"M"
+    if f <= 1e12:
+        return str(int(f/1e9))+"G"
+    else:
+        return str(int(f/1e12))+"T"
 
 def get_outfit_spans(pd_data):
     results = []
@@ -445,6 +465,29 @@ def plot_time_series(pd_data,fields):
         fig = ax.get_figure()
         fig.savefig("time_series_" + f + ".jpg")
 
+def compare_frames(a,b):
+    fill_blanks(a)
+    fill_blanks(b)
+    print "Comparing two data frames"
+    a_numeric = [col for col in a.columns.values if a[col].dtype=="float64"]
+    b_numeric = [col for col in b.columns.values if b[col].dtype=="float64"]
+    shared_columns = sorted(set(a_numeric).intersection(set(b_numeric)))
+    print "compare_frames found",len(shared_columns),"shared columns"
+    names = [col for col in shared_columns]
+    mean_a = [a[col].mean() for col in shared_columns]
+    mean_b = [b[col].mean() for col in shared_columns]
+    abs_diff_mean = [abs(a[col].mean()-b[col].mean()) for col in shared_columns]
+    diff_mean_pct = [(100.0*(b[col].mean()-a[col].mean())/a[col].mean() if a[col].mean()!=0.0 else 0.0) for col in shared_columns]
+    compare_df = pd.DataFrame({"names": names, 
+                               "mean_a": mean_a, 
+                               "mean_b": mean_b, 
+                               "abs_diff_mean": abs_diff_mean,
+                               "diff_mean_pct": diff_mean_pct,
+    })
+    print compare_df.describe()
+    compare_df.to_csv("compare.csv")
+    return compare_df
+
 def extract_percent(df, key="Timers.Frame.Time", low=0.0, high=100.0, filename="extract_percent.csv"):
     df.to_csv("percent_input.csv")
     result = df
@@ -474,6 +517,8 @@ if __name__ == "__main__":
                        "Derived.Avatar.MeshAttachments.triangles_lowest",
                        "Derived.SelfTimers.Render",
     ]
+    default_fields.extend(["Derived.Avatar.MeshAttachments." + key for key in bool_graphic_properties])
+    default_fields.extend(["Derived.Avatar.MeshAttachments." + key for key in sum_graphic_properties])
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
@@ -481,6 +526,7 @@ if __name__ == "__main__":
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
+    parser.add_argument("--filter_csv", action="store_true", help="restrict to requested fields/timers when reading csv files too")
     parser.add_argument("--child_timers", help="include children of specified timer keys in fields", nargs="+", default=[])
     parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
     parser.add_argument("--export", help="export results to specified file")
@@ -488,6 +534,7 @@ if __name__ == "__main__":
     parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
     parser.add_argument("--plot_time_series", nargs="+", default=[], help="show timers by frame")
     parser.add_argument("--extract_percent", nargs="+", metavar="blah", help="extract subset based on frame time")
+    parser.add_argument("--compare", help="compare infilename to specified file")
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
@@ -521,6 +568,8 @@ if __name__ == "__main__":
     args.fields.extend(newargs)
     if "no_default" not in args.fields:
         args.fields.extend(default_fields)
+    while "no_default" in args.fields:
+        args.fields.remove("no_default")
 
     ignore_list = []
     if args.no_reparented:
@@ -542,6 +591,11 @@ if __name__ == "__main__":
     #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
     print "infilename",args.infilename
     pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, children=child_info, ignore=ignore_list)
+
+    if args.compare:
+        compare_data = collect_pandas_frame_data(args.compare, args.fields, args.max_records, children=child_info, ignore=ignore_list)
+
+        compare_frames(pd_data, compare_data)
 
     if args.verbose:
         print "Timer Ancestry"
@@ -574,9 +628,8 @@ if __name__ == "__main__":
         #print "columns are",pd_data.columns.values
         for f in pd_data.columns.values:
             if pd_data[f].dtype in ["float64"]:
-                print f,pd_data[f].dtype
                 medians[f] = pd_data[f].quantile(0.5)
-                print "median", f, medians[f]
+                print f, "median", medians[f]
         medl = sorted(medians.keys(), key=lambda x: medians[x])
         for f in medl:
             print "median", f, medians[f]

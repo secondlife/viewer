@@ -3699,18 +3699,17 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 
     if (sdp)
     {
-        (*sdp)["planar"] = (LLSD::Integer) animtex;
-        (*sdp)["animtex"] = (LLSD::Integer) animtex;
         (*sdp)["alpha"] = (LLSD::Integer) alpha;
-        (*sdp)["invisi"] = (LLSD::Integer) invisi;
-        (*sdp)["glow"] = (LLSD::Integer) glow;
+        (*sdp)["animtex"] = (LLSD::Integer) animtex;
         (*sdp)["bump"] = (LLSD::Integer) bump;
-        (*sdp)["shiny"] = (LLSD::Integer) shiny;
-        (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
         (*sdp)["flexi"] = (LLSD::Integer) flexi;
-        (*sdp)["particles"] = (LLSD::Integer) particles;
-        (*sdp)["produces_light"] = (LLSD::Integer) produces_light;
+        (*sdp)["glow"] = (LLSD::Integer) glow;
+        (*sdp)["invisi"] = (LLSD::Integer) invisi;
         (*sdp)["media_faces"] = (LLSD::Integer) media_faces;
+        (*sdp)["particles"] = (LLSD::Integer) particles;
+        (*sdp)["planar"] = (LLSD::Integer) animtex;
+        (*sdp)["produces_light"] = (LLSD::Integer) produces_light;
+        (*sdp)["shiny"] = (LLSD::Integer) shiny;
         (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
     }
     
