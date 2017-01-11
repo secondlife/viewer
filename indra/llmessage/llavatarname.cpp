@@ -166,10 +166,10 @@ void LLAvatarName::setExpires(F64 expires)
 	mExpires = LLFrameTimer::getTotalSeconds() + expires;
 }
 
-std::string LLAvatarName::getCompleteName(bool use_parentheses) const
+std::string LLAvatarName::getCompleteName(bool use_parentheses, bool force_use_display_name) const
 {
 	std::string name;
-	if (sUseDisplayNames)
+	if (sUseDisplayNames || force_use_display_name)
 	{
 		if (mUsername.empty() || mIsDisplayNameDefault)
 		{
@@ -215,9 +215,9 @@ std::string LLAvatarName::getLegacyName() const
 	return name;
 }
 
-std::string LLAvatarName::getDisplayName() const
+std::string LLAvatarName::getDisplayName(bool force_use_display_name) const
 {
-	if (sUseDisplayNames)
+	if (sUseDisplayNames || force_use_display_name)
 	{
 		return mDisplayName;
 	}
