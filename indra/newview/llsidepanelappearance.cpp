@@ -394,11 +394,6 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 		return;
 	}
 
-	if(!visible)
-	{
-		mEditWearable->setWearable(NULL);
-	}
-
 	// If we're just switching between outfit and wearable editing or updating item,
 	// don't end customization and don't switch camera
 	// Don't end customization and don't switch camera without visibility change
@@ -426,6 +421,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 	{
 		// Save changes if closing.
 		mEditWearable->saveChanges();
+		mEditWearable->setWearable(NULL);
 		LLAppearanceMgr::getInstance()->updateIsDirty();
 		if (change_state)
 		{
