@@ -34,6 +34,7 @@
 #include "llrect.h"
 #include "llerror.h"
 #include "llstring.h"
+#include "llvoavatarself.h"
 #include "message.h"
 
 // project include
@@ -105,7 +106,14 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 	if (objectp)
 	{
-		objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		if(objectp->isHUDAttachment())
+		{
+			((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		}
+		else
+		{
+			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		}
 		floater_label = llformat("%s(%.0f, %.0f, %.0f)",
 						user_name.c_str(),
 						objectp->getPositionRegion().mV[VX],
