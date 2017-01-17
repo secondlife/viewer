@@ -1344,10 +1344,15 @@ void LLAppViewer::doPerFrameStatsLogging()
                 {
                     LLSD session_sd;
                     unsigned char unique_id[MD5HEX_STR_SIZE];
-                    if ( llHashedUniqueID(unique_id) )
+                    if (!llHashedUniqueID(unique_id) )
                     {
-                        session_sd["UniqueID"] = (LLSD::String) (char*) unique_id; 
+                        LL_WARNS_ONCE() << "Failed to get a unique host id; cannot uniquely identify this machine." << LL_ENDL;
                     }
+                    // Even if llHashedUniqueID fails, it zeroes the id string, so we have something.
+                    session_sd["UniqueHostID"] = (LLSD::String) (char*) unique_id; 
+                    LLUUID unique_session_id;
+                    unique_session_id.generate();
+                    session_sd["UniqueSessionUUID"] = (LLSD::String) unique_session_id.asString(); 
                     session_sd["Platform"] = (LLSD::String) gPlatform;
                     session_sd["OSVersion"] = (LLSD::String) getOSInfo().getOSVersionString();
                     session_sd["DebugInfo"] = gDebugInfo;
