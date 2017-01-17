@@ -14732,6 +14732,7 @@
 	      <string>snapshot</string>
 	      <string>postcard</string>
 	      <string>mini_map</string>
+	      <string>beacons</string>
       </array>
     </map>
     <key>LandmarksSortedByDate</key>
