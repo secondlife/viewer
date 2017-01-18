@@ -92,7 +92,7 @@ bool_graphic_properties = ["alpha","animtex","bump","flexi","glow","invisi","par
 # for these, we will sum all counts found in all attachments
 sum_graphic_properties = ["media_faces"]
 
-class MeshAttachmentsDerivedField:
+class AttachmentsDerivedField:
     def __init__(self,sd,**kwargs):
         self.sd = sd
         self.kwargs = kwargs
@@ -100,15 +100,16 @@ class MeshAttachmentsDerivedField:
         attachments = sd_extract_field(self.sd,"Avatars.Self.Attachments") 
         triangle_keys = ["triangles_lowest", "triangles_low", "triangles_mid", "triangles_high"]
         if attachments:
-            mesh_attachments = [att for att in attachments if att["isMesh"]]
             if key=="Count":
-                return len(mesh_attachments)
+                return len(attachments)
+            if key=="MeshCount":
+                return len([att for att in attachments if att["isMesh"]])
             elif key in triangle_keys:
-                total = sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in mesh_attachments])
+                total = sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in attachments])
                 return total
             elif key in bool_graphic_properties:
-                tris_with_property = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in mesh_attachments if sd_extract_field(att,key)])
-                tris_grand_total = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in mesh_attachments])
+                tris_with_property = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in attachments if sd_extract_field(att,key)])
+                tris_grand_total = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in attachments])
                 return tris_with_property/tris_grand_total if tris_grand_total > 0.0 else 0.0
             elif key in sum_graphic_properties:
                 return sum([sd_extract_field(att,"StreamingCost." + key,0.0)])
@@ -125,8 +126,8 @@ class DerivedAvatarField:
             if attachments:
                 return len(attachments)
             return None
-        if key=="MeshAttachments":
-            return MeshAttachmentsDerivedField(self.sd,**self.kwargs)
+        if key=="Attachments":
+            return AttachmentsDerivedField(self.sd,**self.kwargs)
         else:
             raise IndexError()
 
@@ -175,19 +176,22 @@ def get_frame_record(filename,**kwargs):
 
     frame_count = 0
     my_total = 0.0
-    for event, elem in context:
-        if event == "end" and elem.tag == "llsd":
-            # process frame record here
-            frame_count += 1
+    try:
+        for event, elem in context:
+            if event == "end" and elem.tag == "llsd":
+                # process frame record here
+                frame_count += 1
 
-            xmlstr = etree.tostring(elem, encoding="utf8", method="xml")
-            sd = llsd.parse_xml(xmlstr)
-            sd['Derived'] = DerivedFieldGetter(sd, **kwargs)
-            yield sd
-            
-            if frame_count % 100 == 0:
-                # avoid accumulating lots of junk under root
-                root.clear()
+                xmlstr = etree.tostring(elem, encoding="utf8", method="xml")
+                sd = llsd.parse_xml(xmlstr)
+                sd['Derived'] = DerivedFieldGetter(sd, **kwargs)
+                yield sd
+
+                if frame_count % 100 == 0:
+                    # avoid accumulating lots of junk under root
+                    root.clear()
+    except etree.XMLSyntaxError:
+        print "Fell off end of document"
 
     print "Read",frame_count,"frame records"
     f.close()
@@ -328,11 +332,11 @@ def get_outfit_spans(pd_data):
                           "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
                           "std": np.std(timespan), 
                           "timespan": timespan,
-                          "mesh_attachments.count": group.iloc[0]["Derived.Avatar.MeshAttachments.Count"],
-                          "mesh_attachments.triangles_high": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_high"],
-                          "mesh_attachments.triangles_mid": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_mid"],
-                          "mesh_attachments.triangles_low": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_low"],
-                          "mesh_attachments.triangles_lowest": group.iloc[0]["Derived.Avatar.MeshAttachments.triangles_lowest"],
+                          "attachments.count": group.iloc[0]["Derived.Avatar.Attachments.Count"],
+                          "attachments.triangles_high": group.iloc[0]["Derived.Avatar.Attachments.triangles_high"],
+                          "attachments.triangles_mid": group.iloc[0]["Derived.Avatar.Attachments.triangles_mid"],
+                          "attachments.triangles_low": group.iloc[0]["Derived.Avatar.Attachments.triangles_low"],
+                          "attachments.triangles_lowest": group.iloc[0]["Derived.Avatar.Attachments.triangles_lowest"],
                           } 
             #print outfit_rec
             results.append(outfit_rec)
@@ -369,11 +373,11 @@ def old_get_outfit_spans(pd_data):
                       "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
                       "std": np.std(timespan), 
                       "timespan": timespan,
-                      "mesh_attachments.count": pd_data["Derived.Avatar.MeshAttachments.Count"][max_key],
-                      "mesh_attachments.triangles_high": pd_data["Derived.Avatar.MeshAttachments.triangles_high"][max_key],
-                      "mesh_attachments.triangles_mid": pd_data["Derived.Avatar.MeshAttachments.triangles_mid"][max_key],
-                      "mesh_attachments.triangles_low": pd_data["Derived.Avatar.MeshAttachments.triangles_low"][max_key],
-                      "mesh_attachments.triangles_lowest": pd_data["Derived.Avatar.MeshAttachments.triangles_lowest"][max_key],
+                      "attachments.count": pd_data["Derived.Avatar.Attachments.Count"][max_key],
+                      "attachments.triangles_high": pd_data["Derived.Avatar.Attachments.triangles_high"][max_key],
+                      "attachments.triangles_mid": pd_data["Derived.Avatar.Attachments.triangles_mid"][max_key],
+                      "attachments.triangles_low": pd_data["Derived.Avatar.Attachments.triangles_low"][max_key],
+                      "attachments.triangles_lowest": pd_data["Derived.Avatar.Attachments.triangles_lowest"][max_key],
                       } 
         results.append(outfit_rec)
     print "describing outfit pd"
@@ -510,16 +514,16 @@ if __name__ == "__main__":
                        "Avatars.Self.AttachmentSurfaceArea",
                        "Derived.Timers.NonRender", 
                        "Derived.Timers.SceneRender",
-                       "Derived.Avatar.AttachmentCount",
-                       "Derived.Avatar.MeshAttachments.Count",
-                       "Derived.Avatar.MeshAttachments.triangles_high",
-                       "Derived.Avatar.MeshAttachments.triangles_mid",
-                       "Derived.Avatar.MeshAttachments.triangles_low",
-                       "Derived.Avatar.MeshAttachments.triangles_lowest",
+                       "Derived.Avatar.Attachments.Count",
+                       "Derived.Avatar.Attachments.MeshCount",
+                       "Derived.Avatar.Attachments.triangles_high",
+                       "Derived.Avatar.Attachments.triangles_mid",
+                       "Derived.Avatar.Attachments.triangles_low",
+                       "Derived.Avatar.Attachments.triangles_lowest",
                        "Derived.SelfTimers.Render",
     ]
-    default_fields.extend(["Derived.Avatar.MeshAttachments." + key for key in bool_graphic_properties])
-    default_fields.extend(["Derived.Avatar.MeshAttachments." + key for key in sum_graphic_properties])
+    default_fields.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
+    default_fields.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
@@ -636,7 +640,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data,"mesh_attachments.triangles_high")
+        process_by_outfit(pd_data,"attachments.triangles_high")
 
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)

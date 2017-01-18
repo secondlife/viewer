@@ -500,6 +500,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	// ...and clean up any media impls
 	cleanUpMediaImpls();
 
+    if (getAvatar())
+    {
+        // ARCTAN
+        getAvatar()->updateVisualComplexity();
+    }
 	return retval;
 }
 
