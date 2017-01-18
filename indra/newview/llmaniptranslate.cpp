@@ -1857,6 +1857,9 @@ void LLManipTranslate::renderTranslationHandles()
 			mArrowLengthMeters = 1.0f;
 		}
 	}
+	//Assume that UI scale factor is equivalent for X and Y axis
+	F32 ui_scale_factor = LLUI::getScaleFactor().mV[VX];
+	mArrowLengthMeters *= ui_scale_factor;
 
 	mPlaneManipOffsetMeters = mArrowLengthMeters * 1.8f;
 	mGridSizeMeters = gSavedSettings.getF32("GridDrawSize");
