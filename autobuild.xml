@@ -2045,9 +2045,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e94399267eaacf7fcdd712da672afc88</string>
+              <string>1a25495ff260fff05b444d5e07460b72</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/320840/arch/Darwin/installer/slvoice-4.7.0004.24372.320840-darwin-320840.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1994/4474/slvoice-4.7.0005.25479.501981-darwin-501981.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2057,9 +2057,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b173aae4708d95fdc9df8d3cf88118c1</string>
+              <string>012c6f60b322ff435403bb99c8daabcf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/320840/arch/Linux/installer/slvoice-3.2.0002.10426.320840-linux-320840.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1992/4462/slvoice-3.2.0002.10426.501981-linux-501981.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2069,16 +2069,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>26a81d066ef683edb20022ee2446b44e</string>
+              <string>31c6a102def0eb76e3b52c0ae3ba30e0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/320840/arch/CYGWIN/installer/slvoice-4.7.0004.24372.320840-windows-320840.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1997/4485/slvoice-4.7.0005.25479.501981-windows-501981.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.7.0004.24372.320840</string>
+        <string>4.7.0005.25479.501981</string>
       </map>
       <key>tut</key>
       <map>
