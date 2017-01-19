@@ -2045,9 +2045,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1a25495ff260fff05b444d5e07460b72</string>
+              <string>211d3d60625b09043f6a3af4f0e8cb72</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1994/4474/slvoice-4.7.0005.25479.501981-darwin-501981.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2006/4534/slvoice-4.7.0005.25479.501993-darwin-501993.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2057,9 +2057,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>012c6f60b322ff435403bb99c8daabcf</string>
+              <string>2de8c34006c48f2993bbbb5a2fca8e63</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1992/4462/slvoice-3.2.0002.10426.501981-linux-501981.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2005/4525/slvoice-3.2.0002.10426.501993-linux-501993.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2069,16 +2069,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31c6a102def0eb76e3b52c0ae3ba30e0</string>
+              <string>0e030d44fa911eb7023cf0781a39fbdb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1997/4485/slvoice-4.7.0005.25479.501981-windows-501981.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2008/4545/slvoice-4.7.0005.25479.501993-windows-501993.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.7.0005.25479.501981</string>
+        <string>4.7.0005.25479.501993</string>
       </map>
       <key>tut</key>
       <map>
