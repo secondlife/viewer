@@ -510,50 +510,59 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 		LL_WARNS() << "Unknown LLViewerReporter type : " << report_type << LL_ENDL;
 		return;
 	}
-	
-	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter", LLSD());
-	if (f)
+	LLFloaterReporter* reporter_floater = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
+	if(reporter_floater && reporter_floater->isInVisibleChain())
 	{
-		f->setReportType(report_type);
+		gSavedPerAccountSettings.setBOOL("PreviousScreenshotForReport", FALSE);
+	}
+	reporter_floater = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter", LLSD());
+	if (reporter_floater)
+	{
+		reporter_floater->setReportType(report_type);
 	}
 }
 
 // static
 void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_name, const LLUUID& experience_id)
 {
-	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
-
+	LLFloaterReporter* reporter_floater = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
+	if(reporter_floater && reporter_floater->isInVisibleChain())
+	{
+		gSavedPerAccountSettings.setBOOL("PreviousScreenshotForReport", FALSE);
+	}
+	reporter_floater = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
 	if (avatar_name.empty())
 	{
 		// Request info for this object
-		f->getObjectInfo(object_id);
+		reporter_floater->getObjectInfo(object_id);
 	}
 	else
 	{
-		f->setFromAvatarID(object_id);
+		reporter_floater->setFromAvatarID(object_id);
 	}
 	if(experience_id.notNull())
 	{
-		f->getExperienceInfo(experience_id);
+		reporter_floater->getExperienceInfo(experience_id);
 	}
 
 	// Need to deselect on close
-	f->mDeselectOnClose = TRUE;
-
-	f->openFloater();
+	reporter_floater->mDeselectOnClose = TRUE;
 }
 
 
 
 void LLFloaterReporter::showFromExperience( const LLUUID& experience_id )
 {
-	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
-	f->getExperienceInfo(experience_id);
+	LLFloaterReporter* reporter_floater = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
+	if(reporter_floater && reporter_floater->isInVisibleChain())
+	{
+		gSavedPerAccountSettings.setBOOL("PreviousScreenshotForReport", FALSE);
+	}
+	reporter_floater = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
+	reporter_floater->getExperienceInfo(experience_id);
 
 	// Need to deselect on close
-	f->mDeselectOnClose = TRUE;
-
-	f->openFloater();
+	reporter_floater->mDeselectOnClose = TRUE;
 }
 
 
