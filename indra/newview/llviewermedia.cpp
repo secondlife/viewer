@@ -810,8 +810,9 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				sAnyMediaShowing = true;
 			}
 
-			if (!pimpl->getUsedInUI() && pimpl->hasMedia() && pimpl->isMediaPlaying())
+			if (!pimpl->getUsedInUI() && pimpl->hasMedia() && (pimpl->isMediaPlaying() || !pimpl->isMediaTimeBased()))
 			{
+				// consider visible non-timebased media as playing
 				sAnyMediaPlaying = true;
 			}
 

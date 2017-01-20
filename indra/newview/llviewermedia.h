@@ -105,10 +105,11 @@ public:
 	
 	// Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
 	static bool isAnyMediaShowing();
+	// Shows if any media is playing, counts visible non time based media as playing. Does not include media in the UI.
 	static bool isAnyMediaPlaying();
 	// Set all media enabled or disabled, depending on val.   Does not include media in the UI.
 	static void setAllMediaEnabled(bool val);
-	// Set all media paused or playing, depending on val.   Does not include media in the UI.
+	// Set all media paused(stopped for non time based) or playing, depending on val.   Does not include media in the UI.
 	static void setAllMediaPaused(bool val);
 
 	static void updateMedia(void* dummy_arg = NULL);
