@@ -49,3 +49,7 @@ default
         llSleep(pause_time);
     }
 }
+
+// Local Variables:
+// shadow-file-name: "$SW_HOME/arctan/scripts/metrics/lsl/drive_graphics_state.lsl"
+// End:

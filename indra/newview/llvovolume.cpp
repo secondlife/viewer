@@ -3471,6 +3471,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 	U32 weighted_mesh = 0;
 	U32 produces_light = 0;
 	U32 media_faces = 0;
+    U32 materials = 0;
+    U32 specmap = 0;
+    U32 normalmap = 0;
 
 	const LLDrawable* drawablep = mDrawable;
 	U32 num_faces = drawablep->getNumFaces();
@@ -3566,6 +3569,20 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 		if (!face) continue;
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
+
+        LLMaterial* mat = te->getMaterialParams();
+        if (mat)
+        {
+            materials = 1;
+            if (mat->getNormalID().notNull())
+            {
+                normalmap = 1;
+            }
+            if (mat->getSpecularID().notNull())
+            {
+                specmap = 1;
+            }
+        }
 
 		if (img)
 		{
@@ -3715,6 +3732,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
         (*sdp)["planar"] = (LLSD::Integer) animtex;
         (*sdp)["produces_light"] = (LLSD::Integer) produces_light;
         (*sdp)["shiny"] = (LLSD::Integer) shiny;
+        (*sdp)["materials"] = (LLSD::Integer) materials;
+        (*sdp)["specmap"] = (LLSD::Integer) specmap;
+        (*sdp)["normalmap"] = (LLSD::Integer) normalmap;
         (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
     }
     

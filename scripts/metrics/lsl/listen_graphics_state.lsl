@@ -210,3 +210,7 @@ default
         llOwnerSay( "Touched.");
     }
 }
+
+// Local Variables:
+// shadow-file-name: "$SW_HOME/arctan/scripts/metrics/lsl/listen_graphics_state.lsl"
+// End:

@@ -112,7 +112,7 @@ class AttachmentsDerivedField:
                 tris_grand_total = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in attachments])
                 return tris_with_property/tris_grand_total if tris_grand_total > 0.0 else 0.0
             elif key in sum_graphic_properties:
-                return sum([sd_extract_field(att,"StreamingCost." + key,0.0)])
+                return sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in attachments])
             else:
                 raise IndexError()
 
