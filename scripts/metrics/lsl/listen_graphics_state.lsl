@@ -45,6 +45,32 @@ integer save_gstate(string gstate)
             llOwnerSay("save_gstate " + (string) link + " point_light " + (string) state_list);
             saved_gstate += state_list;
         }
+        else if (gstate=="normalmap")
+        {
+            list state_list =  llGetLinkPrimitiveParams(link, [PRIM_NORMAL, ALL_SIDES]);
+            llOwnerSay("save_gstate " + (string) link + " normalmap " + (string) state_list);
+            saved_gstate += state_list;
+        }
+        else if (gstate=="specmap")
+        {
+            list state_list =  llGetLinkPrimitiveParams(link, [PRIM_SPECULAR, ALL_SIDES]);
+            llOwnerSay("save_gstate " + (string) link + " specmap " + (string) state_list);
+            saved_gstate += state_list;
+        }
+        else if (gstate=="materials")
+        {
+            list state_list = llGetLinkPrimitiveParams(link, [PRIM_TEXTURE, ALL_SIDES]);
+            llOwnerSay("save_gstate " + (string) link + " 1 - texture " + (string) state_list);
+            saved_gstate += state_list;
+
+            state_list =  llGetLinkPrimitiveParams(link, [PRIM_NORMAL, ALL_SIDES]);
+            llOwnerSay("save_gstate " + (string) link + " 2 - normalmap " + (string) state_list);
+            saved_gstate += state_list;
+
+            state_list =  llGetLinkPrimitiveParams(link, [PRIM_SPECULAR, ALL_SIDES]);
+            llOwnerSay("save_gstate " + (string) link + " 3- specmap " + (string) state_list);
+            saved_gstate += state_list;
+        }
         else
         {
             llOwnerSay("unknown gstate " + gstate);
@@ -111,6 +137,50 @@ integer restore_gstate(string gstate)
                     llSetLinkPrimitiveParamsFast(link, args);
                 }
             }
+            else if (gstate=="normalmap")
+            {
+                list vals = llList2List(restore_list,0,3); 
+                restore_list = llDeleteSubList(restore_list, 0, 3);
+                llOwnerSay("restore normalmap " + (string) vals);
+                list args = [PRIM_NORMAL] + [face] + vals;
+                llOwnerSay("args are " + (string) args);
+                llSetLinkPrimitiveParamsFast(link, args);
+            }
+            else if (gstate=="specmap")
+            {
+                list vals = llList2List(restore_list,0,6); 
+                restore_list = llDeleteSubList(restore_list, 0, 6);
+                llOwnerSay("restore specmap " + (string) vals);
+                list args = [PRIM_SPECULAR] + [face] + vals;
+                llOwnerSay("args are " + (string) args);
+                llSetLinkPrimitiveParamsFast(link, args);
+            }
+            else if (gstate=="materials")
+            {
+                // Texture
+                list vals = llList2List(restore_list,0,3);
+                restore_list = llDeleteSubList(restore_list, 0, 3);
+                llOwnerSay("restore 1 - texture " + (string) vals);
+                list args = [PRIM_TEXTURE] + [face] + vals;
+                llOwnerSay("restore args are " + (string) args);
+                llSetLinkPrimitiveParamsFast(link, args);
+
+                // Normal map
+                vals = llList2List(restore_list,0,3); 
+                restore_list = llDeleteSubList(restore_list, 0, 3);
+                llOwnerSay("restore 2 - normalmap " + (string) vals);
+                args = [PRIM_NORMAL] + [face] + vals;
+                llOwnerSay("restore args are " + (string) args);
+                llSetLinkPrimitiveParamsFast(link, args);
+
+                // Spec map
+                vals = llList2List(restore_list,0,6); 
+                restore_list = llDeleteSubList(restore_list, 0, 6);
+                llOwnerSay("restore 3 - specmap " + (string) vals);
+                args = [PRIM_SPECULAR] + [face] + vals;
+                llOwnerSay("restore args are " + (string) args);
+                llSetLinkPrimitiveParamsFast(link, args);
+            }
             else
             {
                 llOwnerSay("unknown gstate " + gstate);
@@ -168,6 +238,32 @@ integer change_gstate(string gstate)
                     llOwnerSay("alter link " + (string) link + " face " + (string) face + " point_light on");
                     llSetLinkPrimitiveParamsFast(link, [PRIM_POINT_LIGHT, 1, <0,1,0>, 1.0, 10.0, 0.5]);
                 }
+            }
+            else if (gstate=="normalmap")
+            {
+                string map_string = "8ae04f05-9e8a-e685-2bff-dc061efe6b34";
+                llOwnerSay("alter link " + (string) link + " face " + (string) face + " normalmap " + map_string);
+                llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
+            }
+            else if (gstate=="specmap")
+            {
+                string map_string = "5be7fc03-fb6f-2eba-0417-814b3a6289b3";
+                llOwnerSay("alter link " + (string) link + " face " + (string) face + " specmap " + map_string);
+                llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
+            }
+            else if (gstate=="materials")
+            {
+                string map_string = "7cc4fdec-0ff5-933d-6977-2adb13298466";
+                llOwnerSay("alter link " + (string) link + " face " + (string) face + " texture " + map_string);
+                llSetLinkPrimitiveParamsFast(link, [PRIM_TEXTURE, face, map_string, <1,1,0>, <0,0,0>, 0]);
+
+                map_string = "8ae04f05-9e8a-e685-2bff-dc061efe6b34";
+                llOwnerSay("alter link " + (string) link + " face " + (string) face + " normalmap " + map_string);
+                llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
+
+                map_string = "5be7fc03-fb6f-2eba-0417-814b3a6289b3";
+                llOwnerSay("alter link " + (string) link + " face " + (string) face + " specmap " + map_string);
+                llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
             }
             else
             {

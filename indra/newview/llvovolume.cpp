@@ -3457,6 +3457,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
+    // FIXME ARCTAN these are placeholder values based on NO TESTING WHATSOEVER.
+    // Must be updated with test values once we have them.
+    static const F32 ARC_SPECMAP_MULT = 1.1f;
+    static const F32 ARC_NORMALMAP_MULT = 1.1f;
+    
 	F32 shame = 0;
 
 	U32 invisi = 0;
@@ -3713,6 +3718,17 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
 	{
 		shame += media_faces * ARC_MEDIA_FACE_COST;
 	}
+
+    if (specmap)
+    {
+		shame *= specmap * ARC_SPECMAP_MULT;
+    }
+
+    if (normalmap)
+    {
+		shame *= normalmap * ARC_NORMALMAP_MULT;
+    }
+    
 
 	if (shame > mRenderComplexity_current)
 	{
