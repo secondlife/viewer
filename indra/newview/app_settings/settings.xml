@@ -11812,6 +11812,17 @@
       <key>Value</key>
       <integer>75</integer>
     </map>
+    <key>AbuseReportScreenshotDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Time delay before taking screenshot to avoid UI artifacts.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.3</real>
+    </map>
     <key>SpeedTest</key>
     <map>
       <key>Comment</key>
