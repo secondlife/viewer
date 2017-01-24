@@ -1088,7 +1088,7 @@ public:
 	F32 mSurfaceArea; //unscaled surface area
 	BOOL mIsMeshAssetLoaded;
 	
-	LLVolumeParams mParams;
+	const LLVolumeParams mParams;
 	LLPath *mPathp;
 	LLProfile *mProfilep;
 	LLAlignedArray<LLVector4a,64> mMesh;

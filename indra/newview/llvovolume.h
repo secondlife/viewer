@@ -35,6 +35,12 @@
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
+#include <set>
+//boost
+#include "boost/multi_index_container.hpp"
+#include "boost/multi_index/ordered_index.hpp"
+#include "boost/multi_index/mem_fun.hpp"
+
 
 class LLViewerTextureAnim;
 class LLDrawPool;
@@ -125,7 +131,8 @@ public:
 
 				void	generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);
 	/*virtual*/	BOOL	setParent(LLViewerObject* parent);
-				S32		getLOD() const							{ return mLOD; }
+				S32		getLOD() const						{ return mLOD; }
+				void	setNoLOD()							{ mLOD = NO_LOD; mLODChanged = TRUE; }
 	const LLVector3		getPivotPositionAgent() const;
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
@@ -160,6 +167,7 @@ public:
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
+				void	markForUnload()							{ LLViewerObject::markForUnload(TRUE); mVolumeChanged = TRUE; }
 				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
@@ -408,6 +416,88 @@ private:
 	typedef std::multimap<LLUUID, material_info> mmap_UUID_MAP_t;
 	mmap_UUID_MAP_t	mWaitingTextureInfo;
 
+};
+
+//...........
+
+class LLSculptIDSize
+{
+public:
+	struct SizeInfo
+	{
+		SizeInfo(int size) : m_size(size) {}
+		unsigned int m_size;
+	};
+
+	struct Info
+	{
+		typedef boost::shared_ptr<SizeInfo> PtrSizeInfo;
+
+		Info(const LLDrawable *pdrawable, int size, PtrSizeInfo psize_info, LLUUID sculpt_id)
+			: m_p_drawable(pdrawable)
+			, m_size(size)
+			, m_p_size_info(psize_info)
+			, m_sculpt_id(sculpt_id)
+		{}
+
+		const LLDrawable *m_p_drawable;
+		unsigned int m_size;
+		PtrSizeInfo	m_p_size_info;
+		LLUUID m_sculpt_id;
+
+		inline const LLDrawable*	getPtrLLDrawable() const { return m_p_drawable; }
+		inline unsigned int			getSize() const { return m_size; }
+		inline unsigned int			getTotalSize() const { return m_p_size_info->m_size; }
+		inline LLUUID				getSculptId() const { return m_sculpt_id; }
+		PtrSizeInfo					getSizeInfo() { return m_p_size_info; }
+	};
+
+public:
+	//tags
+	struct tag_BY_DRAWABLE {};
+	struct tag_BY_SCULPT_ID {};
+	struct tag_BY_SIZE {};
+
+	//container
+	typedef boost::multi_index_container <
+		Info,
+		boost::multi_index::indexed_by <
+			boost::multi_index::ordered_unique< boost::multi_index::tag<tag_BY_DRAWABLE>
+				, boost::multi_index::const_mem_fun<Info, const LLDrawable*, &Info::getPtrLLDrawable>
+			>
+			, boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag_BY_SCULPT_ID>
+				, boost::multi_index::const_mem_fun<Info, LLUUID, &Info::getSculptId>
+			>
+			, boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag_BY_SIZE>
+				, boost::multi_index::const_mem_fun<Info, unsigned int, &Info::getTotalSize>
+			>
+		>
+	> container;
+
+	//views
+	typedef container::template index<tag_BY_DRAWABLE>::type			container_BY_DRAWABLE_view;
+	typedef container::template index<tag_BY_SCULPT_ID>::type			container_BY_SCULPT_ID_view;
+	typedef container::template index<tag_BY_SIZE>::type				container_BY_SIZE_view;
+
+private:
+	LLSculptIDSize()
+	{}
+
+public:
+	static LLSculptIDSize & instance() {
+		static LLSculptIDSize inst;
+		return inst;
+	}
+
+public:
+	void inc(const LLDrawable *pdrawable, int sz);
+	void dec(const LLDrawable *pdrawable);
+	void rem(LLUUID sculptId);
+
+	const container & getSizeInfo() const { return m_size_info; }
+
+private:
+	container m_size_info;
 };
 
 #endif // LL_LLVOVOLUME_H

@@ -249,6 +249,8 @@ void LLVOVolume::markDead()
 {
 	if (!mDead)
 	{
+		LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
+
 		if(getMDCImplCount() > 0)
 		{
 			LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
@@ -951,13 +953,14 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 		// if it's a mesh
 		if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 		{ //meshes might not have all LODs, get the force detail to best existing LOD
-			LLUUID mesh_id = volume_params.getSculptID();
-
-			lod = gMeshRepo.getActualMeshLOD(volume_params, lod);
-			if (lod == -1)
+			if (NO_LOD != lod)
 			{
-				is404 = TRUE;
-				lod = 0;
+				lod = gMeshRepo.getActualMeshLOD(volume_params, lod);
+				if (lod == -1)
+				{
+					is404 = TRUE;
+					lod = 0;
+				}
 			}
 		}
 	}
@@ -4652,10 +4655,79 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 	return NULL;
 }
 
+void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value)
+{
+	static LLCachedControl<U32> render_auto_mute_byte_limit(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
+
+	if (0 != render_auto_mute_byte_limit)
+	{
+		//for unload
+		LLSculptIDSize::container_BY_SIZE_view::iterator
+			itL = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().lower_bound(render_auto_mute_byte_limit),
+			itU = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().end();
+
+		for (; itL != itU; ++itL)
+		{
+			const LLSculptIDSize::Info &nfo = *itL;
+			LLVOVolume *pVVol = nfo.getPtrLLDrawable()->getVOVolume();
+			if (pVVol
+				&& !pVVol->isDead()
+				&& pVVol->isAttachment()
+				&& !pVVol->getAvatar()->isSelf()
+				&& LLVOVolume::NO_LOD != pVVol->getLOD()
+				)
+			{
+				//postponed
+				pVVol->markForUnload();
+			}
+		}
+
+		//for load if it was unload
+		itL = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().begin();
+		itU = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().upper_bound(render_auto_mute_byte_limit);
+
+		for (; itL != itU; ++itL)
+		{
+			const LLSculptIDSize::Info &nfo = *itL;
+			LLVOVolume *pVVol = nfo.getPtrLLDrawable()->getVOVolume();
+			if (pVVol
+				&& !pVVol->isDead()
+				&& pVVol->isAttachment()
+				&& !pVVol->getAvatar()->isSelf()
+				&& LLVOVolume::NO_LOD == pVVol->getLOD()
+				)
+			{
+				pVVol->updateLOD();
+				pVVol->markForUpdate(TRUE);
+			}
+		}
+	}
+	else
+	{
+		LLSculptIDSize::container_BY_SIZE_view::iterator
+			itL = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().begin(),
+			itU = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().end();
+
+		for (; itL != itU; ++itL)
+		{
+			const LLSculptIDSize::Info &nfo = *itL;
+			LLVOVolume *pVVol = nfo.getPtrLLDrawable()->getVOVolume();
+			if (pVVol
+				&& !pVVol->isDead()
+				&& pVVol->isAttachment()
+				&& !pVVol->getAvatar()->isSelf()
+				&& LLVOVolume::NO_LOD == pVVol->getLOD()
+				) 
+			{
+				pVVol->updateLOD();
+				pVVol->markForUpdate(TRUE);
+			}
+		}
+	}
+}
+
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
-	
-
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -5216,13 +5288,19 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
 	}
 
-	genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sSimpleFaces, simple_count, FALSE, batch_textures, FALSE);
-	genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sFullbrightFaces, fullbright_count, FALSE, batch_textures);
-	genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sAlphaFaces, alpha_count, TRUE, batch_textures);
-	genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sBumpFaces, bump_count, FALSE, FALSE);
-	genDrawInfo(group, norm_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sNormFaces, norm_count, FALSE, FALSE);
-	genDrawInfo(group, spec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sSpecFaces, spec_count, FALSE, FALSE);
-	genDrawInfo(group, normspec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sNormSpecFaces, normspec_count, FALSE, FALSE);
+	group->mGeometryBytes = 0;
+
+	U32 geometryBytes = 0;
+
+	geometryBytes += genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sSimpleFaces, simple_count, FALSE, batch_textures, FALSE);
+	geometryBytes += genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sFullbrightFaces, fullbright_count, FALSE, batch_textures);
+	geometryBytes += genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sAlphaFaces, alpha_count, TRUE, batch_textures);
+	geometryBytes += genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sBumpFaces, bump_count, FALSE, FALSE);
+	geometryBytes += genDrawInfo(group, norm_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sNormFaces, norm_count, FALSE, FALSE);
+	geometryBytes += genDrawInfo(group, spec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sSpecFaces, spec_count, FALSE, FALSE);
+	geometryBytes += genDrawInfo(group, normspec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, sNormSpecFaces, normspec_count, FALSE, FALSE);
+
+	group->mGeometryBytes = geometryBytes;
 
 	if (!LLPipeline::sDelayVBUpdate)
 	{
@@ -5412,10 +5490,11 @@ static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_RESIZE_VB("Resize VB");
 
 
 
-void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort, BOOL batch_textures, BOOL no_materials)
+U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort, BOOL batch_textures, BOOL no_materials)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_GEN_DRAW_INFO);
 
+	U32 geometryBytes = 0;
 	U32 buffer_usage = group->mBufferUsage;
 	
 	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
@@ -5665,7 +5744,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 		if (buffer)
 		{
-			group->mGeometryBytes += buffer->getSize() + buffer->getIndicesSize();
+			geometryBytes += buffer->getSize() + buffer->getIndicesSize();
 			buffer_map[mask][*face_iter].push_back(buffer);
 		}
 
@@ -6021,6 +6100,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 	{
 		group->mBufferMap[mask][i->first] = i->second;
 	}
+
+	return geometryBytes;
 }
 
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)
@@ -6088,3 +6169,103 @@ void LLHUDPartition::shift(const LLVector4a &offset)
 	//HUD objects don't shift with region crossing.  That would be silly.
 }
 
+
+//...........
+
+void _nothing_to_do_func(int) { /*nothing todo here because of the size it's a shared member*/  }
+
+void LLSculptIDSize::inc(const LLDrawable *pdrawable, int sz)
+{
+	llassert(sz >= 0);
+
+	if (!pdrawable) return;
+	LLVOVolume* vvol = pdrawable->getVOVolume();
+	if (!vvol) return;
+	if (!vvol->isAttachment()) return;
+	if (!vvol->getAvatar()) return;
+	if (vvol->getAvatar()->isSelf()) return;
+	LLVolume *vol = vvol->getVolume();
+	if (!vol) return;
+
+	const LLUUID &sculptId = vol->getParams().getSculptID();
+
+	unsigned int total_size = 0;
+
+	typedef std::pair<container_BY_SCULPT_ID_view::iterator, container_BY_SCULPT_ID_view::iterator> pair_iter_iter_t;
+
+	pair_iter_iter_t itLU = m_size_info.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
+	if (itLU.first == itLU.second)
+	{ //register
+		llassert(m_size_info.get<tag_BY_DRAWABLE>().end() == m_size_info.get<tag_BY_DRAWABLE>().find(pdrawable));
+		m_size_info.get<tag_BY_DRAWABLE>().insert(Info( pdrawable, sz, boost::make_shared<SizeInfo>(sz), sculptId ));
+		total_size = sz;
+	}
+	else
+	{ //update + register
+		Info &nfo = const_cast<Info &>(*itLU.first);
+		//calc new size
+		total_size = nfo.getTotalSize() + sz;
+		nfo.m_p_size_info->m_size = total_size;
+		nfo.m_size = sz;
+		//update size for all LLDrwable in range of sculptId
+		for (pair_iter_iter_t::first_type it = itLU.first; it != itLU.second; ++it)
+		{
+			m_size_info.get<tag_BY_SIZE>().modify_key(m_size_info.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
+		}
+
+		//trying insert the LLDrawable
+		m_size_info.get<tag_BY_DRAWABLE>().insert(Info(pdrawable, sz, nfo.m_p_size_info, sculptId));
+	}
+
+	static LLCachedControl<U32> render_auto_mute_byte_limit(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
+
+	if (0 != render_auto_mute_byte_limit && total_size > render_auto_mute_byte_limit)
+	{
+		pair_iter_iter_t it_eqr = m_size_info.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
+		for (; it_eqr.first != it_eqr.second; ++it_eqr.first)
+		{
+			const Info &i = *it_eqr.first;
+			LLVOVolume *pVVol = i.m_p_drawable->getVOVolume();
+			if (pVVol
+				&& !pVVol->isDead()
+				&& pVVol->isAttachment()
+				&& !pVVol->getAvatar()->isSelf()
+				&& LLVOVolume::NO_LOD != pVVol->getLOD()
+				)
+			{
+				//immediately
+				const_cast<LLDrawable*>(i.m_p_drawable)->unload();
+			}
+		}
+	}
+}
+
+void LLSculptIDSize::dec(const LLDrawable *pdrawable)
+{
+	container_BY_DRAWABLE_view::iterator it = m_size_info.get<tag_BY_DRAWABLE>().find(pdrawable);
+	if (m_size_info.get<tag_BY_DRAWABLE>().end() == it) return;
+
+	unsigned int size = it->getTotalSize() - it->getSize();
+
+	if (0 == size)
+	{
+		m_size_info.get<tag_BY_SCULPT_ID>().erase(it->getSculptId());
+	}
+	else
+	{
+		Info &nfo = const_cast<Info &>(*it);
+		nfo.m_size = 0;
+		typedef std::pair<container_BY_SCULPT_ID_view::iterator, container_BY_SCULPT_ID_view::iterator> pair_iter_iter_t;
+		pair_iter_iter_t itLU = m_size_info.get<tag_BY_SCULPT_ID>().equal_range(it->getSculptId());
+		it->m_p_size_info->m_size = size;
+		for (pair_iter_iter_t::first_type it = itLU.first; it != itLU.second; ++it)
+		{
+			m_size_info.get<tag_BY_SIZE>().modify_key(m_size_info.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
+		}
+	}
+}
+
+void LLSculptIDSize::rem(LLUUID sculptId)
+{
+	m_size_info.get<tag_BY_SCULPT_ID>().erase(sculptId);
+}

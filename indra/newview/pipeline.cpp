@@ -3031,6 +3031,12 @@ void LLPipeline::updateGeom(F32 max_dtime)
 				}
 			}
 
+			if (drawablep->isUnload())
+			{
+				drawablep->unload();
+				drawablep->clearState(LLDrawable::FOR_UNLOAD);
+			}
+
 			if (updateDrawableGeom(drawablep, TRUE))
 			{
 				drawablep->clearState(LLDrawable::IN_REBUILD_Q1);
