@@ -12,8 +12,7 @@ default
 
         float test_time = 2.0;
         float pause_time = 2.0;
-        //list properties = ["materials", "specmap", "normalmap", "point_light", "bump", "alpha", "glow", "shiny"];
-        list properties = ["materials"];
+        list properties = ["materials", "specmap", "normalmap", "point_light", "bump", "alpha", "glow", "shiny"];
         integer length = llGetListLength(properties);
         integer index = 0;
         while (index < length)
