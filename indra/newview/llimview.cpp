@@ -3011,14 +3011,20 @@ void LLIMMgr::inviteToSession(
 	payload["question_type"] = question_type;
 
 	//ignore invites from muted residents
-	if (LLMuteList::getInstance()->isMuted(caller_id) && !is_linden)
+	if (!is_linden)
 	{
-		if (voice_invite && "VoiceInviteQuestionDefault" == question_type)
+		if (LLMuteList::getInstance()->isMuted(caller_id, LLMute::flagVoiceChat)
+			&& voice_invite && "VoiceInviteQuestionDefault" == question_type)
 		{
 			LL_INFOS() << "Rejecting voice call from initiating muted resident " << caller_name << LL_ENDL;
 			LLIncomingCallDialog::processCallResponse(1, payload);
+			return;
 		}
-		return;
+		else if (LLMuteList::getInstance()->isMuted(caller_id, LLMute::flagAll & ~LLMute::flagVoiceChat))
+		{
+			LL_INFOS() << "Rejecting session invite from initiating muted resident " << caller_name << LL_ENDL;
+			return;
+		}
 	}
 
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);
