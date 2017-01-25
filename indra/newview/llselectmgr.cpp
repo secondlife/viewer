@@ -7101,7 +7101,7 @@ F32 LLObjectSelection::getSelectedLinksetCost()
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
 		
-		if (object)
+		if (object && !object->isAttachment())
 		{
 			LLViewerObject* root = static_cast<LLViewerObject*>(object->getRoot());
 			if (root)
