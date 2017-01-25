@@ -349,8 +349,8 @@ void LLGLSLShader::unloadInternal()
         for (GLsizei i = 0; i < count; i++)
         {
             glDetachObjectARB(mProgramObject, obj[i]);
-            glDeleteObjectARB(obj[i]);
-        }
+                glDeleteObjectARB(obj[i]);
+            }
 
         glDeleteObjectARB(mProgramObject);
 
@@ -1255,6 +1255,23 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
             glUniformMatrix3fvARB(mUniform[index], count, transpose, v);
         }
     }
+}
+
+void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)
+{
+	if (mProgramObject > 0)
+	{	
+		if (mUniform.size() <= index)
+		{
+			UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
+			return;
+		}
+
+		if (mUniform[index] >= 0)
+		{
+			glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
+		}
+	}
 }
 
 void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)

@@ -95,12 +95,32 @@ struct LLStopWhenHandled
     result_type operator()(InputIterator first, InputIterator last) const
     {
         for (InputIterator si = first; si != last; ++si)
-		{
-            if (*si)
-			{
-                return true;
-			}
-		}
+        {
+            try
+            {
+                if (*si)
+                {
+                    return true;
+                }
+            }
+            catch (const LLContinueError&)
+            {
+                // We catch LLContinueError here because an LLContinueError-
+                // based exception means the viewer as a whole should carry on
+                // to the best of our ability. Therefore subsequent listeners
+                // on the same LLEventPump should still receive this event.
+
+                // The iterator passed to a boost::signals2 Combiner is very
+                // clever, but provides no contextual information. We would
+                // very much like to be able to log the name of the LLEventPump
+                // plus the name of this particular listener, but alas.
+                LOG_UNHANDLED_EXCEPTION("LLEventPump");
+            }
+            // We do NOT catch (...) here because we might as well let it
+            // propagate out to the generic handler. If we were able to log
+            // context information here, that would be great, but we can't, so
+            // there's no point.
+        }
         return false;
     }
 };
@@ -365,6 +385,8 @@ typedef boost::signals2::trackable LLEventTrackable;
 class LL_COMMON_API LLEventPump: public LLEventTrackable
 {
 public:
+    static const std::string ANONYMOUS; // constant for anonymous listeners.
+
     /**
      * Exception thrown by LLEventPump(). You are trying to instantiate an
      * LLEventPump (subclass) using the same name as some other instance, and
@@ -476,6 +498,12 @@ public:
      * instantiate your listener, then passing the same name on each listen()
      * call, allows us to optimize away the second and subsequent dependency
      * sorts.
+     * 
+     * If name is set to LLEventPump::ANONYMOUS listen will bypass the entire 
+     * dependency and ordering calculation. In this case, it is critical that 
+     * the result be assigned to a LLTempBoundListener or the listener is 
+     * manually disconnected when no longer needed since there will be no
+     * way to later find and disconnect this listener manually.
      *
      * If (as is typical) you pass a <tt>boost::bind()</tt> expression as @a
      * listener, listen() will inspect the components of that expression. If a

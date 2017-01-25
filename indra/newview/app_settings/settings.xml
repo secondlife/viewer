@@ -2205,6 +2205,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>DebugAvatarJoints</key>
+    <map>
+      <key>Comment</key>
+      <string>List of joints to emit additional debugging info about.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
 	<key>DebugAvatarRezTime</key>
 	<map>
 		<key>Comment</key>
@@ -3525,6 +3536,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>IncludeEnhancedSkeleton</key>
+    <map>
+      <key>Comment</key>
+      <string>Include extended skeleton joints when rendering skinned meshes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>MinObjectsForUnlinkConfirm</key>
     <map>
       <key>Comment</key>
@@ -4515,28 +4537,6 @@
       <key>Value</key>
       <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
-    <key>WebProfileURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Web Profiles</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://my.secondlife.com/[AGENT_NAME]</string>
-    </map>
-	<key>WebProfileNonProductionURL</key>
-	<map>
-		<key>Comment</key>
-		<string>URL for Web Profiles on Non-Production grids</string>
-		<key>Persist</key>
-		<integer>0</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string>https://my-demo.secondlife.com/[AGENT_NAME]</string>
-	</map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4881,7 +4881,7 @@
     <key>InventoryTrashMaxCapacity</key>
     <map>
         <key>Comment</key>
-        <string>Maximum capacity of the Trash folder. User will ve offered to clean it up when exceeded.</string>
+        <string>Maximum capacity of the Trash folder. User will be offered to clean it up when exceeded.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -6429,7 +6429,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>MeshUploadLogXML</key>
   <map>
@@ -7950,6 +7950,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>100000</integer>
+    </map>
+    <key>PrimTextMaxDrawDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum draw distance beyond which PRIM_TEXT won't be rendered</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>64.0</real>
     </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
@@ -10103,6 +10114,17 @@
     <key>Value</key>
     <integer>10</integer>
   </map>
+  <key>ComplexityChangesPopUpDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay before viewer will show avatar complexity notice again</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>300</integer>
+  </map>
   <key>RenderAvatarMaxComplexity</key>
   <map>
     <key>Comment</key>
@@ -10114,6 +10136,50 @@
     <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>RenderHUDObjectsWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many objects if objects count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1000</integer>
+  </map>
+  <key>RenderHUDTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many textures if texture count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>200</integer>
+  </map>
+  <key>RenderHUDOversizedTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>How many textures with size 1024 * 1024 or bigger HUD can contain before notifying user</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
+  <key>RenderHUDTexturesMemoryWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD textures using memory above this value (in bytes)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>32000000</integer>
   </map>
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
@@ -12803,6 +12869,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>LastSystemUIScaleFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of system UI during last run. On Windows 100% (96 DPI) system setting is 1.0 UI size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>UIScrollbarSize</key>
     <map>
       <key>Comment</key>
@@ -13297,6 +13374,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <string>1</string>
+    </map>
+    <key>UpdaterShowReleaseNotes</key>
+    <map>
+        <key>Comment</key>
+        <string>Enables displaying of the Release notes in a web floater after update.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>UploadBakedTexOld</key>
     <map>
@@ -14479,6 +14567,17 @@
     <map>
       <key>Comment</key>
       <string>Beacon / Highlight sound generators</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LogWearableAssetSave</key>
+    <map>
+      <key>Comment</key>
+      <string>Save copy of saved wearables to log dir</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

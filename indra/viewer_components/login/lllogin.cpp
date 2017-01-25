@@ -42,6 +42,8 @@
 #include "llevents.h"
 #include "lleventfilter.h"
 #include "lleventcoro.h"
+#include "llexception.h"
+#include "stringize.h"
 
 //*********************
 // LLLogin
@@ -128,20 +130,16 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
 
 void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
 {
-	try
-	{
-	LLSD printable_params = login_params;
-	//if(printable_params.has("params") 
-	//	&& printable_params["params"].has("passwd")) 
-	//{
-	//	printable_params["params"]["passwd"] = "*******";
-	//}
-	LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName()
+    LLSD printable_params = login_params;
+    if (printable_params.has("params") 
+        && printable_params["params"].has("passwd")) 
+    {
+        printable_params["params"]["passwd"] = "*******";
+    }
+    try
+    {
+    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName()
                         << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
-
-	// Arriving in SRVRequest state
-    LLEventStream replyPump("SRVreply", true);
-    // Should be an array of one or more uri strings.
 
     LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));
     // EXT-4193: use a DIFFERENT reply pump than for the SRV request. We used
@@ -149,9 +147,6 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
     // SRV response to arrive just as we were expecting the XMLRPC response.
     LLEventStream loginReplyPump("loginreply", true);
 
-    // Loop through the rewrittenURIs, counting attempts along the way.
-    // Because of possible redirect responses, we may make more than one
-    // attempt per rewrittenURIs entry.
     LLSD::Integer attempts = 0;
 
     LLSD request(login_params);
@@ -167,11 +162,11 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
         LLSD progress_data;
         progress_data["attempt"] = attempts;
         progress_data["request"] = request;
-		if(progress_data["request"].has("params")
-			&& progress_data["request"]["params"].has("passwd"))
-		{
-			progress_data["request"]["params"]["passwd"] = "*******";
-		}
+        if (progress_data["request"].has("params")
+            && progress_data["request"]["params"].has("passwd"))
+        {
+            progress_data["request"]["params"]["passwd"] = "*******";
+        }
         sendProgressEvent("offline", "authenticating", progress_data);
 
         // We expect zero or more "Downloading" status events, followed by
@@ -189,8 +184,8 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
             // Still Downloading -- send progress update.
             sendProgressEvent("offline", "downloading");
         }
-	
-		LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
+
+        LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
         status = mAuthResponse["status"].asString();
 
         // Okay, we've received our final status event for this
@@ -202,7 +197,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
             break;
         }
 
-		sendProgressEvent("offline", "indeterminate", mAuthResponse["responses"]);
+        sendProgressEvent("offline", "indeterminate", mAuthResponse["responses"]);
 
         // Here the login service at the current URI is redirecting us
         // to some other URI ("indeterminate" -- why not "redirect"?).
@@ -212,8 +207,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
         request["method"] = mAuthResponse["responses"]["next_method"].asString();
     } // loop back to try the redirected URI
 
-    // Here we're done with redirects for the current rewrittenURIs
-    // entry.
+    // Here we're done with redirects.
     if (status == "Complete")
     {
         // StatusComplete does not imply auth success. Check the
@@ -230,14 +224,14 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
         return;             // Done!
     }
 
-// 	/* Sometimes we end with "Started" here. Slightly slow server?
-// 		* Seems to be ok to just skip it. Otherwise we'd error out and crash in the if below.
-// 		*/
-// 	if( status == "Started")
-// 	{
-// 		LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
-// 		continue;
-// 	}
+//  /* Sometimes we end with "Started" here. Slightly slow server?
+//   * Seems to be ok to just skip it. Otherwise we'd error out and crash in the if below.
+//   */
+//  if( status == "Started")
+//  {
+//      LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
+//      continue;
+//  }
 
     // If we don't recognize status at all, trouble
     if (! (status == "CURLError"
@@ -250,27 +244,25 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
     }
 
     // Here status IS one of the errors tested above.
+    // Tell caller this didn't work out so well.
 
-    // Here we got through all the rewrittenURIs without succeeding. Tell
-    // caller this didn't work out so well. Of course, the only failure data
-    // we can reasonably show are from the last of the rewrittenURIs.
-
-	// *NOTE: The response from LLXMLRPCListener's Poller::poll method returns an
-	// llsd with no "responses" node. To make the output from an incomplete login symmetrical 
-	// to success, add a data/message and data/reason fields.
-	LLSD error_response;
-	error_response["reason"] = mAuthResponse["status"];
-	error_response["errorcode"] = mAuthResponse["errorcode"];
-	error_response["message"] = mAuthResponse["error"];
-	if(mAuthResponse.has("certificate"))
-	{
-		error_response["certificate"] = mAuthResponse["certificate"];
-	}
-	sendProgressEvent("offline", "fail.login", error_response);
-	}
-	catch (...) {
-		LL_ERRS() << "login exception caught" << LL_ENDL; 
-	}
+    // *NOTE: The response from LLXMLRPCListener's Poller::poll method returns an
+    // llsd with no "responses" node. To make the output from an incomplete login symmetrical 
+    // to success, add a data/message and data/reason fields.
+    LLSD error_response;
+    error_response["reason"] = mAuthResponse["status"];
+    error_response["errorcode"] = mAuthResponse["errorcode"];
+    error_response["message"] = mAuthResponse["error"];
+    if(mAuthResponse.has("certificate"))
+    {
+        error_response["certificate"] = mAuthResponse["certificate"];
+    }
+    sendProgressEvent("offline", "fail.login", error_response);
+    }
+    catch (...) {
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
+                                               << "('" << uri << "', " << printable_params << ")"));
+    }
 }
 
 void LLLogin::Impl::disconnect()

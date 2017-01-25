@@ -204,7 +204,10 @@ void LLPathfindingLinksetList::parseLinksetListData(const LLSD& pLinksetListData
 	{
 		const std::string& uuid(linksetDataIter->first);
 		const LLSD& linksetData = linksetDataIter->second;
-		LLPathfindingObjectPtr linksetPtr(new LLPathfindingLinkset(uuid, linksetData));
-		objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, linksetPtr));
+		if(linksetData.size() != 0)
+		{
+			LLPathfindingObjectPtr linksetPtr(new LLPathfindingLinkset(uuid, linksetData));
+			objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, linksetPtr));
+		}
 	}
 }

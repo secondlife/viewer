@@ -999,7 +999,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
         }
     }
     
-    if (mGalleryCreated)
+    if (mGalleryCreated && !LLApp::isQuitting())
     {
         reArrangeRows();
     }

@@ -1753,6 +1753,11 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 
 bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
+	if (data == NULL || data_size == 0)
+	{
+		return false;
+	}
+
 	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
 	std::string mesh_string((char*) data, data_size);
 	std::istringstream stream(mesh_string);
@@ -1896,7 +1901,8 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 }
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
-									   bool upload_skin, bool upload_joints, const std::string & upload_url, bool do_upload,
+									   bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
+                                       const std::string & upload_url, bool do_upload,
 									   LLHandle<LLWholeModelFeeObserver> fee_observer,
 									   LLHandle<LLWholeModelUploadObserver> upload_observer)
   : LLThread("mesh upload"),
@@ -1911,6 +1917,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadTextures = upload_textures;
 	mUploadSkin = upload_skin;
 	mUploadJoints = upload_joints;
+    mLockScaleIfJointPosition = lock_scale_if_joint_position;
 	mMutex = new LLMutex(NULL);
 	mPendingUploads = 0;
 	mFinished = false;
@@ -2097,6 +2104,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				decomp,
 				mUploadSkin,
 				mUploadJoints,
+                mLockScaleIfJointPosition,
 				FALSE,
 				FALSE,
 				data.mBaseModel->mSubmodelID);
@@ -2255,6 +2263,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				decomp,
 				mUploadSkin,
 				mUploadJoints,
+                mLockScaleIfJointPosition,
 				FALSE,
 				FALSE,
 				data.mBaseModel->mSubmodelID);
@@ -3010,12 +3019,23 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 	}
 	else if (data && data_size > 0)
 	{
-		// header was successfully retrieved from sim, cache in vfs
-		LLSD header = gMeshRepo.mThread->mMeshHeader[mesh_id];
+		// header was successfully retrieved from sim and parsed, cache in vfs
+		S32 header_bytes = 0;
+		LLSD header;
 
-		S32 version = header["version"].asInteger();
+		gMeshRepo.mThread->mHeaderMutex->lock();
+		LLMeshRepoThread::mesh_header_map::iterator iter = gMeshRepo.mThread->mMeshHeader.find(mesh_id);
+		if (iter != gMeshRepo.mThread->mMeshHeader.end())
+		{
+			header_bytes = (S32)gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
+			header = iter->second;
+		}
+		gMeshRepo.mThread->mHeaderMutex->unlock();
 
-		if (version <= MAX_MESH_VERSION)
+		if (header_bytes > 0
+			&& !header.has("404")
+			&& header.has("version")
+			&& header["version"].asInteger() <= MAX_MESH_VERSION)
 		{
 			std::stringstream str;
 
@@ -3062,6 +3082,17 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 				{
 					file.write(block, remaining);
 				}
+			}
+		}
+		else
+		{
+			LL_WARNS(LOG_MESH) << "Trying to cache nonexistent mesh, mesh id: " << mesh_id << LL_ENDL;
+
+			// headerReceived() parsed header, but header's data is invalid so none of the LODs will be available
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			for (int i(0); i < 4; ++i)
+			{
+				gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, i));
 			}
 		}
 	}
@@ -3946,11 +3977,13 @@ LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 
 
 void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-								   bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload,
+								   bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
+                                   std::string upload_url, bool do_upload,
 								   LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
 {
-	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints, upload_url, 
-														do_upload, fee_observer, upload_observer);
+	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures,
+                                                        upload_skin, upload_joints, lock_scale_if_joint_position, 
+                                                        upload_url, do_upload, fee_observer, upload_observer);
 	mUploadWaitList.push_back(thread);
 }
 
@@ -4115,7 +4148,7 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 		}
 	}
 
-	F32 max_area = 102932.f; //area of circle that encompasses region
+	F32 max_area = 102944.f; //area of circle that encompasses region (see MAINT-6559)
 	F32 min_area = 1.f;
 
 	F32 high_area = llmin(F_PI*dmid*dmid, max_area);

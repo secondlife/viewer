@@ -2143,19 +2143,22 @@ BOOL LLVolume::generate()
 	
 	F32 profile_detail = mDetail;
 	F32 path_detail = mDetail;
-	
-	U8 path_type = mParams.getPathParams().getCurveType();
-	U8 profile_type = mParams.getProfileParams().getCurveType();
-	
-	if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
-	{ //cylinders don't care about Z-Axis
-		mLODScaleBias.setVec(0.6f, 0.6f, 0.0f);
+
+	if ((mParams.getSculptType() & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
+	{
+		U8 path_type = mParams.getPathParams().getCurveType();
+		U8 profile_type = mParams.getProfileParams().getCurveType();
+		if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
+		{
+			//cylinders don't care about Z-Axis
+			mLODScaleBias.setVec(0.6f, 0.6f, 0.0f);
+		}
+		else if (path_type == LL_PCODE_PATH_CIRCLE)
+		{
+			mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
+		}
 	}
-	else if (path_type == LL_PCODE_PATH_CIRCLE) 
-	{	
-		mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
-	}
-	
+
 	BOOL regenPath = mPathp->generate(mParams.getPathParams(), path_detail, split);
 	BOOL regenProf = mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(),profile_detail, split);
 
@@ -2544,7 +2547,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 						U16 influence = weights[idx++];
 						influence |= ((U16) weights[idx++] << 8);
 
-						F32 w = llclamp((F32) influence / 65535.f, 0.f, 0.99999f);
+						F32 w = llclamp((F32) influence / 65535.f, 0.001f, 0.999f);
 						wght.mV[cur_influence] = w;
 						joints[cur_influence] = joint;
 						cur_influence++;
@@ -2561,11 +2564,15 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
                     F32 wsum = wght.mV[VX] + wght.mV[VY] + wght.mV[VZ] + wght.mV[VW];
                     if (wsum <= 0.f)
                     {
-                        wght = LLVector4(0.99999f,0.f,0.f,0.f);
+                        wght = LLVector4(0.999f,0.f,0.f,0.f);
                     }
                     for (U32 k=0; k<4; k++)
                     {
-                        joints_with_weights[k] = (F32) joints[k] + wght[k];
+                        F32 f_combined = (F32) joints[k] + wght[k];
+                        joints_with_weights[k] = f_combined;
+                        // Any weights we added above should wind up non-zero and applied to a specific bone.
+                        // A failure here would indicate a floating point precision error in the math.
+                        llassert((k >= cur_influence) || (f_combined - S32(f_combined) > 0.0f));
                     }
 					face.mWeights[cur_vertex].loadua(joints_with_weights.mV);
 
@@ -4568,6 +4575,7 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+    mWeightsScrubbed(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
 {
@@ -4593,6 +4601,7 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+    mWeightsScrubbed(FALSE),
 	mOctree(NULL)
 { 
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
@@ -4664,6 +4673,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 			ll_aligned_free_16(mWeights);
 			mWeights = NULL;
 		}
+        mWeightsScrubbed = src.mWeightsScrubbed;
 	}
 
 	if (mNumIndices)

@@ -39,8 +39,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/exception.hpp>
-#include <boost/throw_exception.hpp>
 // other Linden headers
+#include "llexception.h"
 
 LLDependenciesBase::VertexList LLDependenciesBase::topo_sort(int vertices, const EdgeList& edges) const
 {
@@ -77,7 +77,7 @@ LLDependenciesBase::VertexList LLDependenciesBase::topo_sort(int vertices, const
         // Omit independent nodes: display only those that might contribute to
         // the cycle.
         describe(out, false);
-        BOOST_THROW_EXCEPTION(Cycle(out.str()));
+        LLTHROW(Cycle(out.str()));
     }
     // A peculiarity of boost::topological_sort() is that it emits results in
     // REVERSE topological order: to get the result you want, you must

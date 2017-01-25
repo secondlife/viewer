@@ -1484,11 +1484,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>29a1f64df46094eda0d681821a98d17e</string>
+              <string>2845033912eb947a1401847ece1469ce</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/311349/arch/Darwin/installer/llceflib-1.5.3.311349-darwin-311349.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/321153/arch/Darwin/installer/llceflib-1.5.3.321153-darwin-321153.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1498,18 +1498,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>827b7c339a2cd401d9d23f9ee02cb83f</string>
+              <string>1156121b4ccbb4aa29bc01f15c589f98</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/311349/arch/CYGWIN/installer/llceflib-1.5.3.311349-windows-311349.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/321153/arch/CYGWIN/installer/llceflib-1.5.3.321153-windows-321153.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.3.311349</string>
+        <string>1.5.3.317959</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2135,6 +2135,46 @@
         <key>version</key>
         <string>0.8.0.1</string>
       </map>
+      <key>vlc-bin</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
+        <key>license</key>
+        <string>GPL2</string>
+        <key>license_file</key>
+        <string>LICENSES/vlc.txt</string>
+        <key>name</key>
+        <string>vlc-bin</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2f410640df3f9812d1abff02a414cfa8</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/315283/arch/Linux/vlc_bin-2.2.3-linux-201606011750-r10.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>04cff37070a5f65f3652b4ddcec7183f</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/317935/arch/CYGWIN/installer/vlc_bin-2.2.4.317935-windows-317935.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2.2.4.317935</string>
+      </map>
       <key>xmlrpc-epi</key>
       <map>
         <key>copyright</key>
@@ -2617,14 +2657,6 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -2663,20 +2695,11 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 12"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -2705,14 +2728,6 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -2749,20 +2764,11 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 12"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>

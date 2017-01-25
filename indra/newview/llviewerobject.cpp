@@ -244,9 +244,10 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mPixelArea(1024.f),
 	mInventory(NULL),
 	mInventorySerialNum(0),
-	mRegionp( regionp ),
-	mInventoryPending(FALSE),
+	mInvRequestState(INVENTORY_REQUEST_STOPPED),
+	mInvRequestXFerId(0),
 	mInventoryDirty(FALSE),
+	mRegionp(regionp),
 	mDead(FALSE),
 	mOrphaned(FALSE),
 	mUserSelected(FALSE),
@@ -370,7 +371,7 @@ void LLViewerObject::markDead()
 		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
 		{
 			// This case is needed for indirectly attached mesh objects.
-			av->resetJointPositionsOnDetach(mesh_id);
+			av->resetJointsOnDetach(mesh_id);
 		}
 
 		// Mark itself as dead
@@ -1434,10 +1435,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					setChanged(MOVED | SILHOUETTE);
 				}
-				else if (mText.notNull())
+				else
 				{
-					mText->markDead();
-					mText = NULL;
+					if (mText.notNull())
+					{
+						mText->markDead();
+						mText = NULL;
+					}
+					mHudText.clear();
 				}
 
 				std::string media_url;
@@ -1812,10 +1817,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					setChanged(TEXTURE);
 				}
-				else if(mText.notNull())
+				else
 				{
-					mText->markDead();
-					mText = NULL;
+					if (mText.notNull())
+					{
+						mText->markDead();
+						mText = NULL;
+					}
+					mHudText.clear();
 				}
 
                 std::string media_url;
@@ -2832,6 +2841,11 @@ void LLViewerObject::removeInventoryListener(LLVOInventoryListener* listener)
 	}
 }
 
+BOOL LLViewerObject::isInventoryPending()
+{
+    return mInvRequestState != INVENTORY_REQUEST_STOPPED;
+}
+
 void LLViewerObject::clearInventoryListeners()
 {
 	for_each(mInventoryCallbacks.begin(), mInventoryCallbacks.end(), DeletePointer());
@@ -2870,7 +2884,7 @@ void LLViewerObject::requestInventory()
 
 void LLViewerObject::fetchInventoryFromServer()
 {
-	if (!mInventoryPending)
+	if (!isInventoryPending())
 	{
 		delete mInventory;
 		LLMessageSystem* msg = gMessageSystem;
@@ -2883,7 +2897,7 @@ void LLViewerObject::fetchInventoryFromServer()
 		msg->sendReliable(mRegionp->getHost());
 
 		// this will get reset by dirtyInventory or doInventoryCallback
-		mInventoryPending = TRUE;
+		mInvRequestState = INVENTORY_REQUEST_PENDING;
 	}
 }
 
@@ -2944,7 +2958,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	std::string unclean_filename;
 	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
 	ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
-	
+
 	if(ft->mFilename.empty())
 	{
 		LL_DEBUGS() << "Task has no inventory" << LL_ENDL;
@@ -2966,13 +2980,27 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		delete ft;
 		return;
 	}
-	gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename), 
+	U64 new_id = gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename), 
 								ft->mFilename, LL_PATH_CACHE,
 								object->mRegionp->getHost(),
 								TRUE,
 								&LLViewerObject::processTaskInvFile,
 								(void**)ft,
 								LLXferManager::HIGH_PRIORITY);
+	if (object->mInvRequestState == INVENTORY_XFER)
+	{
+		if (new_id > 0 && new_id != object->mInvRequestXFerId)
+		{
+			// we started new download.
+			gXferManager->abortRequestById(object->mInvRequestXFerId, -1);
+			object->mInvRequestXFerId = new_id;
+		}
+	}
+	else
+	{
+		object->mInvRequestState = INVENTORY_XFER;
+		object->mInvRequestXFerId = new_id;
+	}
 }
 
 void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status)
@@ -3099,7 +3127,10 @@ void LLViewerObject::doInventoryCallback()
 			mInventoryCallbacks.erase(curiter);
 		}
 	}
-	mInventoryPending = FALSE;
+
+	// release inventory loading state
+	mInvRequestXFerId = 0;
+	mInvRequestState = INVENTORY_REQUEST_STOPPED;
 }
 
 void LLViewerObject::removeInventory(const LLUUID& item_id)
@@ -4990,8 +5021,26 @@ void LLViewerObject::initHudText()
 
 void LLViewerObject::restoreHudText()
 {
-    if(mText)
+    if (mHudText.empty())
     {
+        if (mText)
+        {
+            mText->markDead();
+            mText = NULL;
+        }
+    }
+    else
+    {
+        if (!mText)
+        {
+            initHudText();
+        }
+        else
+        {
+            // Restore default values
+            mText->setZCompare(TRUE);
+            mText->setDoFade(TRUE);
+        }
         mText->setColor(mHudTextColor);
         mText->setString(mHudText);
     }
@@ -6271,7 +6320,7 @@ const LLUUID &LLViewerObject::extractAttachmentItemID()
 	return getAttachmentItemID();
 }
 
-const std::string& LLViewerObject::getAttachmentItemName()
+const std::string& LLViewerObject::getAttachmentItemName() const
 {
 	static std::string empty;
 	LLInventoryItem *item = gInventory.getItem(getAttachmentItemID());

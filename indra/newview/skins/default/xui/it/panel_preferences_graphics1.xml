@@ -24,10 +24,15 @@
 	<text name="BetterText">
 		Migliore
 	</text>
+	<slider label="Massima conplessità dell&apos;avatar:" name="IndirectMaxComplexity" tool_tip="Definisce il punto in cui un avatar dall&apos;aspetto complesso viene visualizzato come JellyDoll"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
 	<check_box initial_value="true" label="Shader atmosfera..." name="WindLightUseAtmosShaders"/>
 	<check_box initial_value="true" label="Modello illuminazione avanzato" name="UseLightShaders"/>
 	<button label="Salva impostazioni come valori predefiniti..." name="PrefSaveButton"/>
 	<button label="Carica valore predefinito..." name="PrefLoadButton"/>
+	min_val=&quot;0.125&quot;
 	<button label="Elimina valore predefinito..." name="PrefDeleteButton"/>
 	<button label="Ripristina impostazioni consigliate" name="Defaults"/>
 	<button label="Impostazioni avanzate..." name="AdvancedSettings"/>

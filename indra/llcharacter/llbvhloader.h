@@ -102,6 +102,7 @@ struct Joint
 		mNumRotKeys = 0;
 		mChildTreeMaxDepth = 0;
 		mPriority = 0;
+		mNumChannels = 3;
 	}
 
 	// Include aligned members first
@@ -123,6 +124,7 @@ struct Joint
 	S32				mNumRotKeys;
 	S32				mChildTreeMaxDepth;
 	S32				mPriority;
+	S32				mNumChannels;
 };
 
 
@@ -225,8 +227,7 @@ class LLBVHLoader
 	friend class LLKeyframeMotion;
 public:
 	// Constructor
-//	LLBVHLoader(const char* buffer);
-	LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine);
+    LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map );
 	~LLBVHLoader();
 
 /*	
@@ -265,12 +266,21 @@ public:
 	static const char *ST_NO_XLT_EMOTE;
 	static const char *ST_BAD_ROOT;
 */
+
 	// Loads the specified translation table.
 	ELoadStatus loadTranslationTable(const char *fileName);
+
+    //Create a new joint alias
+    void makeTranslation(std::string key, std::string value);
+    
+    // Loads joint aliases from XML file.
+    ELoadStatus loadAliases(const char * filename);
 
 	// Load the specified BVH file.
 	// Returns status code.
 	ELoadStatus loadBVHFile(const char *buffer, char *error_text, S32 &error_line);
+
+	void dumpBVHInfo();
 
 	// Applies translations to BVH data loaded.
 	void applyTranslations();

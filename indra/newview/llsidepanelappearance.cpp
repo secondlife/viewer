@@ -383,7 +383,7 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 
 void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearable *wearable, BOOL disable_camera_switch)
 {
-	if (!mEditWearable || mEditWearable->getVisible() == visible)
+	if (!mEditWearable || ((mEditWearable->getWearable() == wearable) && mEditWearable->getVisible() == visible))
 	{
 		// visibility isn't changing, hence nothing to do
 		return;

@@ -33,28 +33,48 @@
 
 #include "llavatarjointmesh.h"
 #include "llavatarappearance.h"
-//#include "llapr.h"
-//#include "llbox.h"
-//#include "lldrawable.h"
-//#include "lldrawpoolavatar.h"
-//#include "lldrawpoolbump.h"
-//#include "lldynamictexture.h"
-//#include "llface.h"
-//#include "llgldbg.h"
-//#include "llglheaders.h"
 #include "lltexlayer.h"
-//#include "llviewercamera.h"
-//#include "llviewercontrol.h"
-//#include "llviewertexturelist.h"
-//#include "llsky.h"
-//#include "pipeline.h"
-//#include "llviewershadermgr.h"
 #include "llmath.h"
 #include "v4math.h"
 #include "m3math.h"
 #include "m4math.h"
 #include "llmatrix4a.h"
 
+
+// Utility functions added with Bento to simplify handling of extra
+// spine joints, or other new joints internal to the original
+// skeleton, and unknown to the system avatar.
+
+//-----------------------------------------------------------------------------
+// getBaseSkeletonAncestor()
+//-----------------------------------------------------------------------------
+LLAvatarJoint *getBaseSkeletonAncestor(LLAvatarJoint* joint)
+{
+    LLJoint *ancestor = joint->getParent();
+    while (ancestor->getParent() && (ancestor->getSupport() != LLJoint::SUPPORT_BASE))
+    {
+        LL_DEBUGS("Avatar") << "skipping non-base ancestor " << ancestor->getName() << LL_ENDL;
+        ancestor = ancestor->getParent();
+    }
+    return (LLAvatarJoint*) ancestor;
+}
+
+//-----------------------------------------------------------------------------
+// totalSkinOffset()
+//-----------------------------------------------------------------------------
+LLVector3 totalSkinOffset(LLAvatarJoint *joint)
+{
+    LLVector3 totalOffset;
+    while (joint)
+    {
+		if (joint->getSupport() == LLJoint::SUPPORT_BASE)
+		{
+			totalOffset += joint->getSkinOffset();
+		}
+		joint = (LLAvatarJoint*)joint->getParent();
+    }
+    return totalOffset;
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -92,18 +112,12 @@ BOOL LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 	}
 
 	// compute the inverse root skin matrix
-	mRootToJointSkinOffset.clearVec();
+	mRootToJointSkinOffset = totalSkinOffset(joint);
+    mRootToJointSkinOffset = -mRootToJointSkinOffset;
 
-	LLVector3 rootSkinOffset;
-	while (joint)
-	{
-		rootSkinOffset += joint->getSkinOffset();
-		joint = (LLAvatarJoint*)joint->getParent();
-	}
-
-	mRootToJointSkinOffset = -rootSkinOffset;
-	mRootToParentJointSkinOffset = mRootToJointSkinOffset;
-	mRootToParentJointSkinOffset += mJoint->getSkinOffset();
+	//mRootToParentJointSkinOffset = totalSkinOffset((LLAvatarJoint*)joint->getParent());
+	mRootToParentJointSkinOffset = totalSkinOffset(getBaseSkeletonAncestor(joint));
+	mRootToParentJointSkinOffset = -mRootToParentJointSkinOffset;
 
 	return TRUE;
 }
@@ -289,6 +303,7 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 	}
 
 	// acquire the transform from the mesh object
+    // SL-315
 	setPosition( mMesh->getPosition() );
 	setRotation( mMesh->getRotation() );
 	setScale( mMesh->getScale() );
@@ -314,9 +329,9 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 	if (!mMesh->isLOD())
 	{
 		setupJoint((LLAvatarJoint*)getRoot());
+        LL_DEBUGS("Avatar") << getName() << " joint render entries: " << mMesh->mJointRenderData.size() << LL_ENDL;
 	}
 
-	LL_DEBUGS() << "joint render entries: " << mMesh->mJointRenderData.size() << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------
@@ -324,9 +339,6 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 //-----------------------------------------------------------------------------
 void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 {
-	LL_DEBUGS() << "Mesh: " << getName() << LL_ENDL;
-
-	S32 joint_count = 0;
 	U32 sj;
 
 	for (sj=0; sj<mNumSkinJoints; sj++)
@@ -339,22 +351,30 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 		}
 
 		// we've found a skinjoint for this joint..
+        LL_DEBUGS("Avatar") << "Mesh: " << getName() << " joint " << current_joint->getName() << " matches skinjoint " << sj << LL_ENDL;
 
 		// is the last joint in the array our parent?
-		if(mMesh->mJointRenderData.size() && mMesh->mJointRenderData[mMesh->mJointRenderData.size() - 1]->mWorldMatrix == &current_joint->getParent()->getWorldMatrix())
+
+        std::vector<LLJointRenderData*>	&jrd = mMesh->mJointRenderData;
+
+        // SL-287 - need to update this so the results are the same if
+        // additional extended-skeleton joints lie between this joint
+        // and the original parent.
+        LLJoint *ancestor = getBaseSkeletonAncestor(current_joint);
+		if(jrd.size() && jrd.back()->mWorldMatrix == &ancestor->getWorldMatrix())
 		{
 			// ...then just add ourselves
 			LLAvatarJoint* jointp = js.mJoint;
-			mMesh->mJointRenderData.push_back(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
-			LL_DEBUGS() << "joint " << joint_count++ << js.mJoint->getName() << LL_ENDL;
+			jrd.push_back(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
+			LL_DEBUGS("Avatar") << "add joint[" << (jrd.size()-1) << "] = " << js.mJoint->getName() << LL_ENDL;
 		}
-		// otherwise add our parent and ourselves
+		// otherwise add our ancestor and ourselves
 		else
 		{
-			mMesh->mJointRenderData.push_back(new LLJointRenderData(&current_joint->getParent()->getWorldMatrix(), NULL));
-			LL_DEBUGS() << "joint " << joint_count++ << current_joint->getParent()->getName() << LL_ENDL;
-			mMesh->mJointRenderData.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
-			LL_DEBUGS() << "joint " << joint_count++ << current_joint->getName() << LL_ENDL;
+			jrd.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), NULL));
+			LL_DEBUGS("Avatar") << "add2 ancestor joint[" << (jrd.size()-1) << "] = " << ancestor->getName() << LL_ENDL;
+			jrd.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
+            LL_DEBUGS("Avatar") << "add2 joint[" << (jrd.size()-1) << "] = " << current_joint->getName() << LL_ENDL;
 		}
 	}
 

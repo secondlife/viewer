@@ -3895,11 +3895,17 @@ void LLAgent::handleTeleportFinished()
 		mIsMaturityRatingChangingDuringTeleport = false;
 	}
     
-    // Init SLM Marketplace connection so we know which UI should be used for the user as a merchant
-    // Note: Eventually, all merchant will be migrated to the new SLM system and there will be no reason to show the old UI at all.
-    // Note: Some regions will not support the SLM cap for a while so we need to do that check for each teleport.
-    // *TODO : Suppress that line from here once the whole grid migrated to SLM and move it to idle_startup() (llstartup.cpp)
-    check_merchant_status();
+    if (mRegionp)
+    {
+        if (mRegionp->capabilitiesReceived())
+        {
+            onCapabilitiesReceivedAfterTeleport();
+        }
+        else
+        {
+            mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
+        }
+    }
 }
 
 void LLAgent::handleTeleportFailed()
@@ -3930,6 +3936,14 @@ void LLAgent::handleTeleportFailed()
 		mIsMaturityRatingChangingDuringTeleport = false;
 	}
 }
+
+/*static*/
+void LLAgent::onCapabilitiesReceivedAfterTeleport()
+{
+
+    check_merchant_status();
+}
+
 
 void LLAgent::teleportRequest(
 	const U64& region_handle,
@@ -4176,6 +4190,8 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 void LLAgent::stopCurrentAnimations()
 {
+    LL_DEBUGS("Avatar") << "Stopping current animations" << LL_ENDL;
+
 	// This function stops all current overriding animations on this
 	// avatar, propagating this change back to the server.
 	if (isAgentAvatarValid())
@@ -4193,6 +4209,7 @@ void LLAgent::stopCurrentAnimations()
 				// don't cancel a ground-sit anim, as viewers
 				// use this animation's status in
 				// determining whether we're sitting. ick.
+                LL_DEBUGS("Avatar") << "sit or do-not-disturb animation will not be stopped" << LL_ENDL;
 			}
 			else
 			{
@@ -4222,8 +4239,7 @@ void LLAgent::stopCurrentAnimations()
 
 		// re-assert at least the default standing animation, because
 		// viewers get confused by avs with no associated anims.
-		sendAnimationRequest(ANIM_AGENT_STAND,
-				     ANIM_REQUEST_START);
+		sendAnimationRequest(ANIM_AGENT_STAND, ANIM_REQUEST_START);
 	}
 }
 

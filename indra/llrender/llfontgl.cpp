@@ -364,12 +364,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	if (right_x)
 	{
-        F32 cr_x = (cur_x - origin.mV[VX]) / sScaleX;
-        if (*right_x < cr_x)
-        {
-            // rightmost edge of previously drawn text, don't draw over previous text
-            *right_x = cr_x;
-        }
+		*right_x = (cur_x - origin.mV[VX]) / sScaleX;
 	}
 
 	//FIXME: add underline as glyph?

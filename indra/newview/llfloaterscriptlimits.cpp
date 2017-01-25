@@ -660,6 +660,8 @@ BOOL LLPanelScriptLimitsRegionMemory::postBuild()
 	{
 		return FALSE;
 	}
+	list->setCommitCallback(boost::bind(&LLPanelScriptLimitsRegionMemory::checkButtonsEnabled, this));
+	checkButtonsEnabled();
 
 	//set all columns to resizable mode even if some columns will be empty
 	for(S32 column = 0; column < list->getNumColumns(); column++)
@@ -750,6 +752,14 @@ void LLPanelScriptLimitsRegionMemory::clearList()
 	getChild<LLUICtrl>("parcels_listed")->setValue(LLSD(msg_empty_string));
 
 	mObjectListItems.clear();
+	checkButtonsEnabled();
+}
+
+void LLPanelScriptLimitsRegionMemory::checkButtonsEnabled()
+{
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("scripts_list");
+	getChild<LLButton>("highlight_btn")->setEnabled(list->getNumSelected() > 0);
+	getChild<LLButton>("return_btn")->setEnabled(list->getNumSelected() > 0);
 }
 
 // static

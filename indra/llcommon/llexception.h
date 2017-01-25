@@ -14,22 +14,24 @@
 
 #include <stdexcept>
 #include <boost/exception/exception.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/current_function.hpp>
+
+// "Found someone who can comfort me
+//  But there are always exceptions..."
+//  - Empty Pages, Traffic, from John Barleycorn (1970)
+//    https://www.youtube.com/watch?v=dRH0CGVK7ic
 
 /**
  * LLException is intended as the common base class from which all
- * viewer-specific exceptions are derived. It is itself a subclass of
- * boost::exception; use catch (const boost::exception& e) clause to log the
- * string from boost::diagnostic_information(e).
+ * viewer-specific exceptions are derived. Rationale for why it's derived from
+ * both std::exception and boost::exception is explained in
+ * tests/llexception_test.cpp.
  *
- * Since it is also derived from std::exception, a generic catch (const
- * std::exception&) should also work, though what() is unlikely to be as
- * informative as boost::diagnostic_information().
- *
- * Please use BOOST_THROW_EXCEPTION()
- * http://www.boost.org/doc/libs/release/libs/exception/doc/BOOST_THROW_EXCEPTION.html
- * to throw viewer exceptions whenever possible. This enriches the exception's
- * diagnostic_information() with the source file, line and containing function
- * of the BOOST_THROW_EXCEPTION() macro.
+ * boost::current_exception_diagnostic_information() is quite wonderful: if
+ * all we need to do with an exception is log it, in most places we should
+ * catch (...) and log boost::current_exception_diagnostic_information().
+ * See CRASH_ON_UNHANDLED_EXCEPTION() and LOG_UNHANDLED_EXCEPTION() below.
  *
  * There may be circumstances in which it would be valuable to distinguish an
  * exception explicitly thrown by viewer code from an exception thrown by
@@ -59,5 +61,25 @@ struct LLContinueError: public LLException
         LLException(what)
     {}
 };
+
+/**
+ * Please use LLTHROW() to throw viewer exceptions whenever possible. This
+ * enriches the exception's diagnostic_information() with the source file,
+ * line and containing function of the LLTHROW() macro.
+ */
+// Currently we implement that using BOOST_THROW_EXCEPTION(). Wrap it in
+// LLTHROW() in case we ever want to revisit that implementation decision.
+#define LLTHROW(x) BOOST_THROW_EXCEPTION(x)
+
+/// Call this macro from a catch (...) clause
+#define CRASH_ON_UNHANDLED_EXCEPTION(CONTEXT) \
+     crash_on_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
+void crash_on_unhandled_exception_(const char*, int, const char*, const std::string&);
+
+/// Call this from a catch (const LLContinueError&) clause, or from a catch
+/// (...) clause in which you do NOT want the viewer to crash.
+#define LOG_UNHANDLED_EXCEPTION(CONTEXT) \
+     log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
+void log_unhandled_exception_(const char*, int, const char*, const std::string&);
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */

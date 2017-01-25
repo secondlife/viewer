@@ -58,7 +58,8 @@ public:
                                 allow_back_forward_navigation,
 								trusted_content,
 								show_page_title,
-                                clean_browser;
+								clean_browser,
+								dev_mode;
 		Optional<LLRect>		preferred_media_size;
 
 		_Params();
@@ -92,6 +93,7 @@ protected:
 	void onClickStop();
 	void onEnterAddress();
 	void onPopExternal();
+	void onTestURL(std::string url);
 
 	static void preCreate(Params& p);
 	void open_media(const Params& );
@@ -113,6 +115,7 @@ protected:
 	std::string		mUUID;
 	bool			mShowPageTitle;
     bool            mAllowNavigation;
+	bool			mDevelopMode;
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H

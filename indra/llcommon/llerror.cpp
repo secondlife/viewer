@@ -921,11 +921,6 @@ namespace
 			
 			std::ostringstream message_stream;
 
-			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
-			{
-				message_stream << site.mLocationString << " ";
-			}
-
 			if (show_time && r->wantsTime() && s->mTimeFunction != NULL)
 			{
 				message_stream << s->mTimeFunction() << " ";
@@ -933,17 +928,17 @@ namespace
 
 			if (show_level && r->wantsLevel())
             {
-				message_stream << site.mLevelString;
+				message_stream << site.mLevelString << " ";
             }
 				
 			if (show_tags && r->wantsTags())
 			{
 				message_stream << site.mTagString;
 			}
-			if ((show_level && r->wantsLevel())||
-                (show_tags && r->wantsTags()))
+
+            if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
             {
-                message_stream << " ";
+                message_stream << site.mLocationString << " ";
             }
 
 			if (show_function && r->wantsFunctionName())
@@ -1492,4 +1487,21 @@ namespace LLError
 	   freeStackBuffer();
    }
 }
+
+bool debugLoggingEnabled(const std::string& tag)
+{
+    const char* tags[] = {tag.c_str()};
+    ::size_t tag_count = 1;
+    LLError::CallSite _site(LLError::LEVEL_DEBUG, __FILE__, __LINE__, 
+                            typeid(_LL_CLASS_TO_LOG), __FUNCTION__, false, tags, tag_count);
+    if (LL_UNLIKELY(_site.shouldLog()))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 

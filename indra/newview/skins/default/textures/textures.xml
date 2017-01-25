@@ -676,7 +676,10 @@ with the same filename but different name
   <texture name="Unread_Chiclet" file_name="bottomtray/Unread_Chiclet.png" preload="false" />
 
   <texture name="UpArrow_Off" file_name="icons/UpArrow_Off.png" preload="false" />
-	<texture name="Vertical Drag Handle" file_name="widgets/vertical_drag_handle.png" scale.left="2" scale.right="7" scale.bottom="8" scale.top="120"  scale_type="scale_outer"/>
+
+  <texture name="Video_URL_Off" file_name="icons/Video_URL_Off.png" preload="true" />
+  
+  <texture name="Vertical Drag Handle" file_name="widgets/vertical_drag_handle.png" scale.left="2" scale.right="7" scale.bottom="8" scale.top="120"  scale_type="scale_outer"/>
 
     <texture name="Volume_Background" file_name="windows/Volume_Background.png" preload="false"
            scale.left="6" scale.top="33" scale.right="63" scale.bottom="10" />
@@ -774,6 +777,9 @@ with the same filename but different name
   <texture name="default_land_picture.j2c" />
   <texture name="default_profile_picture.j2c" />
   <texture name="locked_image.j2c" />
+  <texture name="badge_note.j2c" />
+  <texture name="badge_warn.j2c" />
+  <texture name="badge_ok.j2c" />
   <texture name="materials_ui_x_24.png" />
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />

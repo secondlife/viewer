@@ -10,7 +10,6 @@
   left="0"
   name="notification_panel"
   chrome="true"
-  show_title="false"
   top="0"
   	height="140"
   translate="false"

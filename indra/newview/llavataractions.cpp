@@ -950,15 +950,22 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 	const std::set<LLFolderViewItem*> inventory_selected = root_folder->getSelectionList();
 	if (inventory_selected.empty()) return false; // nothing selected
 
+	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	bool can_share = true;
 	std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin();
 	const std::set<LLFolderViewItem*>::const_iterator it_end = inventory_selected.end();
 	for (; it != it_end; ++it)
 	{
-		LLViewerInventoryCategory* inv_cat = gInventory.getCategory(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
-		// any category can be offered.
+		LLUUID cat_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
+		LLViewerInventoryCategory* inv_cat = gInventory.getCategory(cat_id);
+		// any category can be offered if it's not in trash.
 		if (inv_cat)
 		{
+			if ((cat_id == trash_id) || gInventory.isObjectDescendentOf(cat_id, trash_id))
+			{
+				can_share = false;
+				break;
+			}
 			continue;
 		}
 

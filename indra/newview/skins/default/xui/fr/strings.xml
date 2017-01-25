@@ -41,6 +41,9 @@
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
 	</string>
+	<string name="BuildConfig">
+		Configuration de la construction [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
 		Vous êtes à [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] dans [REGION], se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL : &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -71,6 +74,9 @@ Version serveur vocal : [VOICE_VERSION]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Erreur lors de la récupération de l&apos;URL des notes de version du serveur.
+	</string>
+	<string name="BuildConfiguration">
+		Configuration de la construction
 	</string>
 	<string name="ProgressRestoring">
 		Restauration...
@@ -1390,6 +1396,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="BodyPartsRightLeg">
 		Jambe droite
 	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Squelette amélioré
+	</string>
 	<string name="GraphicsQualityLow">
 		Faible
 	</string>
@@ -1838,6 +1847,51 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="Avatar Center">
 		Centre de l&apos;avatar
 	</string>
+	<string name="Left Ring Finger">
+		Annulaire gauche
+	</string>
+	<string name="Right Ring Finger">
+		Annulaire droit
+	</string>
+	<string name="Tail Base">
+		Base de la queue
+	</string>
+	<string name="Tail Tip">
+		Bout de la queue
+	</string>
+	<string name="Left Wing">
+		Aile gauche
+	</string>
+	<string name="Right Wing">
+		Aile droite
+	</string>
+	<string name="Jaw">
+		Mâchoire
+	</string>
+	<string name="Alt Left Ear">
+		Oreille gauche différente
+	</string>
+	<string name="Alt Right Ear">
+		Oreille droite différente
+	</string>
+	<string name="Alt Left Eye">
+		Œil gauche différent
+	</string>
+	<string name="Alt Right Eye">
+		Œil droit différent
+	</string>
+	<string name="Tongue">
+		Langue
+	</string>
+	<string name="Groin">
+		Aine
+	</string>
+	<string name="Left Hind Foot">
+		Pied arrière gauche
+	</string>
+	<string name="Right Hind Foot">
+		Pied arrière droit
+	</string>
 	<string name="Invalid Attachment">
 		Point d&apos;attache non valide
 	</string>
@@ -2227,11 +2281,11 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="ATTACH_BELLY">
 		Ventre
 	</string>
-	<string name="ATTACH_RPEC">
-		Pectoral droit
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		Pectoral gauche
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		Pectoral droit
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD centre 2
@@ -2262,6 +2316,51 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Centre de l&apos;avatar
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Annulaire gauche
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Annulaire droit
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Base de la queue
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Bout de la queue
+	</string>
+	<string name="ATTACH_LWING">
+		Aile gauche
+	</string>
+	<string name="ATTACH_RWING">
+		Aile droite
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Mâchoire
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Oreille gauche différente
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Oreille droite différente
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Œil gauche différent
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Œil droit différent
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Langue
+	</string>
+	<string name="ATTACH_GROIN">
+		Aine
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Pied arrière gauche
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Pied arrière droit
 	</string>
 	<string name="CursorPos">
 		Ligne [LINE], colonne [COLUMN]
@@ -4251,6 +4350,12 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="OfflineStatus">
 		Hors ligne
+	</string>
+	<string name="not_online_msg">
+		Utilisateur non connecté -  le message sera enregistré et livré plus tard.
+	</string>
+	<string name="not_online_inventory">
+		Utilisateur non connecté - l&apos;inventaire a été enregistré
 	</string>
 	<string name="answered_call">
 		Votre appel a fait l&apos;objet d&apos;une réponse

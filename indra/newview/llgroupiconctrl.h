@@ -66,7 +66,13 @@ public:
 	 */
 	virtual void setValue(const LLSD& value);
 
-	void setIconId(const LLSD& value);
+	/**
+	 * Sets icon_id as icon value directly. Avoids LLGroupMgr cache checks for group id
+	 * Uses default icon in case id is null.
+	 *
+	 * @params icon_id - it is processed as icon id, default image will be used in case id is null.
+	 */
+	void setIconId(const LLUUID& icon_id);
 
 	// LLGroupMgrObserver observer trigger
 	virtual void changed(LLGroupChange gc);

@@ -24,10 +24,15 @@
 	<text name="BetterText">
 		最佳
 	</text>
+	<slider label="化身最大複雜度：" name="IndirectMaxComplexity" tool_tip="控制在何時機下讓複雜化身呈像為 JellyDoll"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
 	<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
 	<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
 	<button label="將設定存為預設值 …" name="PrefSaveButton"/>
 	<button label="載入預設..." name="PrefLoadButton"/>
+	min_val=&quot;0.125&quot;
 	<button label="刪除自訂配置…" name="PrefDeleteButton"/>
 	<button label="重設為我們建議的設定" name="Defaults"/>
 	<button label="進階設定…" name="AdvancedSettings"/>

@@ -832,6 +832,13 @@ If you no longer wish to have these abilities granted to this role, disable them
   </notification>
 
   <notification
+    icon="notify.tga"
+    name="GroupBanUserOnBanlist"
+    type="notify">
+Some residents have not been sent an invite due to being banned from the group.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="AttachmentDrop"
    type="alertmodal">
@@ -1432,6 +1439,13 @@ Port settings take effect after you restart [APP_NAME].
 
   <notification
    icon="alertmodal.tga"
+   name="ChangeDeferredDebugSetting"
+   type="alertmodal">
+This debug setting change will take effect after you restart [APP_NAME].
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ChangeSkin"
    type="alertmodal">
 The new skin will appear after you restart [APP_NAME].
@@ -1476,6 +1490,7 @@ Save Changes?
    icon="alertmodal.tga"
    name="DeleteNotecard"
    type="alertmodal">
+   <unique/>
 Delete Notecard?
     <tag>confirm</tag>
     <usetemplate
@@ -1631,14 +1646,14 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
-   name="IntelOldDriver"
+   name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
 
-    Visit [_URL] to check for driver updates?
+    Visit [URL] to check for driver updates?
     <tag>confirm</tag>
     <url option="0" name="url">
-      http://www.intel.com/p/en_US/support/detect/graphics
+    [URL]
     </url>
     <usetemplate
      ignoretext="My graphics driver is out of date"
@@ -1647,45 +1662,6 @@ Visit [_URL] for more information?
      yestext="Yes"/>
     <tag>fail</tag>
   </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="AMDOldDriver"
-   type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://support.amd.com/us/Pages/AMDSupportHub.aspx
-    </url>
-    <usetemplate
-     ignoretext="My graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="NVIDIAOldDriver"
- type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://www.nvidia.com/Download/index.aspx?lang=en-us
-    </url>
-    <usetemplate
-     ignoretext="My graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
 
   <notification
    icon="alertmodal.tga"
@@ -3349,6 +3325,23 @@ Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Renderin
      <context>AgentComplexityNotice</context>
    </unique>
 Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+    <usetemplate
+     ignoretext="Warn me about my avatar complexity changes"
+     name="notifyignore"/>
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "HUDComplexityWarning"
+   type = "notifytip"
+   log_to_chat = "false">
+    <unique combine = "cancel_old">
+      <context>HUDComplexityWarning</context>
+    </unique>
+    [HUD_REASON], it is likely to negatively affect your performance.
+    <usetemplate
+     ignoretext="Warn me when my HUD complexity is too high"
+     name="notifyignore"/>
   </notification>
 
   <notification
@@ -3661,6 +3654,13 @@ You can only have [MAX_MANAGER] Estate Managers.
    name="OwnerCanNotBeDenied"
    type="alertmodal">
 Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ProblemAddingEstateManagerBanned"
+   type="alertmodal">
+Unable to add banned resident to estate manager list.
   </notification>
 
   <notification
@@ -4059,6 +4059,18 @@ Do you want to open your Web browser to view this content?
 
   <notification
    icon="alertmodal.tga"
+   name="SystemUIScaleFactorChanged"
+   type="alertmodal">
+System UI size factor has changed since last run. Do you want to open UI size adjustment settings page?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="WebLaunchJoinNow"
    type="alertmodal">
 Go to your [http://secondlife.com/account/ Dashboard] to manage your account?
@@ -4178,10 +4190,29 @@ Leave Group?
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="GroupDepart"
+   type="notify">
+You have left the group &apos;[group_name]&apos;.
+    <tag>group</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="OwnerCannotLeaveGroup"
    type="alertmodal">
     Unable to leave group. You cannot leave the group because you are the last owner of the group. Please assign another member to the owner role first.
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GroupDepartError"
+   type="alertmodal">
+    Unable to leave group.
     <tag>group</tag>
     <usetemplate
      name="okbutton"
@@ -5310,6 +5341,17 @@ There are too many prims selected.  Please select [MAX_PRIM_COUNT] or fewer prim
 	</notification>
 
 	<notification
+	  icon="alertmodal.tga"
+	  name="TooManyScriptsSelected"
+	  type="alertmodal">
+Too many scripts in the objects selected.  Please select fewer objects and try again
+  <tag>fail</tag>
+		<usetemplate
+		 name="okbutton"
+		 yestext="OK"/>
+	</notification>
+
+	<notification
    icon="alertmodal.tga"
    name="ProblemImportingEstateCovenant"
    type="alertmodal">
@@ -5728,6 +5770,17 @@ Warning: The &apos;Pay object&apos; click action has been set, but it will only 
 
   <notification
    icon="alertmodal.tga"
+   name="PaymentBlockedButtonMismatch"
+   type="alertmodal">
+    Payment stopped:  the price paid does not match any of the pay buttons set for this object.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OpenObjectCannotCopy"
    type="alertmodal">
 There are no items in this object that you are allowed to copy.
@@ -5830,7 +5883,20 @@ You cannot undo this action.
      notext="Cancel"
      yestext="Unlink"/>
   </notification>
-
+  
+  <notification
+   icon="alertmodal.tga"
+   name="HelpReportAbuseConfirm"
+   type="alertmodal">
+   <unique/>
+Thank you for taking the time to inform us of this issue. 
+We will review your report for possible violations and take
+the appropriate action.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseSelectCategory"
@@ -7339,7 +7405,8 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="TeleportOffered_MaturityExceeded"
    log_to_im="true"
    log_to_chat="false"
-   type="offer">
+   type="offer"
+   sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
 “[MESSAGE]”
@@ -7364,7 +7431,8 @@ This region contains [REGION_CONTENT_MATURITY] content, but your current prefere
    name="TeleportOffered_MaturityBlocked"
    log_to_im="true"
    log_to_chat="false"
-   type="notifytip">
+   type="notifytip"
+   sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
 “[MESSAGE]”
@@ -8804,23 +8872,6 @@ Click and drag anywhere on the world to rotate your view
   </notification>
 
   <notification
-  name="PopupAttempt"
-  icon="Popup_Caution"
-  type="browser">
-    A pop-up was prevented from opening.
-    <form name="form">
-      <ignore name="ignore"
-              control="MediaEnablePopups"
-              invert_control="true"
-              text="Enable all pop-ups"/>
-      <button default="true"
-              index="0"
-              name="open"
-              text="Open pop-up window"/>
-    </form>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="SOCKS_NOT_PERMITTED"
    type="alertmodal">
@@ -9802,6 +9853,14 @@ Can't move object '[OBJECT_NAME]' to
 
   <notification
    icon="alertmodal.tga"
+   name="NoParcelPermsNoObject"
+   type="notify">
+   <tag>fail</tag>
+Copy failed because you lack access to that parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantMoveObjectRegionVersion"
    type="notify">
    <tag>fail</tag>
@@ -9833,6 +9892,17 @@ Can't move object '[OBJECT_NAME]' to
    type="notify">
    <tag>fail</tag>
 You don't have permission to modify that object
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TooMuchObjectInventorySelected"
+   type="alertmodal">
+    <tag>fail</tag>
+    Too many objects with large inventory are selected. Please select fewer objects and try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -9930,6 +10000,22 @@ Cannot save to object contents: Item with that name already exists in inventory
    type="notify">
    <tag>fail</tag>
 Cannot save to object contents: This would modify the attachment permissions.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AttachmentHasTooMuchInventory"
+   type="notify">
+   <tag>fail</tag>
+Your attachments contain too much inventory to add more.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="IllegalAttachment"
+   type="notify">
+   <tag>fail</tag>
+The attachment has requested a nonexistent point on the avatar. It has been attached to the chest instead.
   </notification>
 
   <notification
@@ -10183,6 +10269,22 @@ You have been teleported by the object '[OBJECT_NAME]' owned by an unknown user.
 
   <notification
    icon="alertmodal.tga"
+   name="StandDeniedByObject"
+   type="notify">
+    <tag>fail</tag>
+'[OBJECT_NAME]' will not allow you to stand at this time.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ResitDeniedByObject"
+   type="notify">
+    <tag>fail</tag>
+'[OBJECT_NAME]' will not allow you to change your seat at this time.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantCreateObjectRegionFull"
    type="notify">
    <tag>fail</tag>
@@ -10403,6 +10505,14 @@ Not enough script resources available to attach object!
    type="notify">
     <tag>fail</tag>
     Cannot attach object because it is already being removed.
+  </notification>
+
+  <notification
+  icon="alertmodal.tga"
+  name="IllegalAttachment"
+  type="notify">
+   <tag>fail</tag>
+   The attachment has requested a nonexistent point on the avatar. It has been attached to the chest instead.
   </notification>
 
   <notification
@@ -10968,6 +11078,14 @@ Unable to find object.
    type="notify">
    <tag>fail</tag>
 Money transfers to objects are currently disabled in this region.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DroppedMoneyTransferRequest"
+   type="notify">
+   <tag>fail</tag>
+Unable to make payment due to system load.
   </notification>
 
   <notification

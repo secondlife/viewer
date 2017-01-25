@@ -38,6 +38,7 @@
 #include "llevents.h"
 #include "llerror.h"
 #include "stringize.h"
+#include "llexception.h"
 
 // do nothing, when we need nothing done
 void LLCoros::no_cleanup(CoroData*) {}
@@ -131,9 +132,9 @@ bool LLCoros::cleanup(const LLSD&)
             if ((previousCount < 5) || !(previousCount % 50))
             {
                 if (previousCount < 5)
-                    LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
                 else
-                    LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << "("<< previousCount << ")" << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << "("<< previousCount << ")" << LL_ENDL;
 
             }
             // The erase() call will invalidate its passed iterator value --
@@ -185,9 +186,9 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
             if ((previousCount < 5) || !(previousCount % 50))
             {
                 if (previousCount < 5)
-                    LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
                 else
-                    LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << "(" << previousCount << ")" << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: launching coroutine " << name << "(" << previousCount << ")" << LL_ENDL;
 
             }
 
@@ -223,7 +224,7 @@ std::string LLCoros::getName() const
 
 void LLCoros::setStackSize(S32 stacksize)
 {
-    LL_INFOS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
+    LL_DEBUGS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
     mStackSize = stacksize;
 }
 
@@ -235,7 +236,23 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     // capture the 'self' param in CoroData
     data->mSelf = &self;
     // run the code the caller actually wants in the coroutine
-    callable();
+    try
+    {
+        callable();
+    }
+    catch (const LLContinueError&)
+    {
+        // Any uncaught exception derived from LLContinueError will be caught
+        // here and logged. This coroutine will terminate but the rest of the
+        // viewer will carry on.
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+    }
+    catch (...)
+    {
+        // Any OTHER kind of uncaught exception will cause the viewer to
+        // crash, hopefully informatively.
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+    }
     // This cleanup isn't perfectly symmetrical with the way we initially set
     // data->mPrev, but this is our last chance to reset mCurrentCoro.
     sCurrentCoro.reset(data->mPrev);

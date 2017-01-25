@@ -33,6 +33,36 @@
 
 class LLViewerRegion;
 
+struct LLHUDComplexity
+{
+    LLHUDComplexity()
+    {
+        reset();
+    }
+    void reset()
+    {
+        objectId = LLUUID::null;
+        objectName = "";
+        objectsCost = 0;
+        objectsCount = 0;
+        texturesCost = 0;
+        texturesCount = 0;
+        largeTexturesCount = 0;
+        texturesMemoryTotal = (F64Bytes)0;
+    }
+    LLUUID objectId;
+    std::string objectName;
+    std::string jointName;
+    U32 objectsCost;
+    U32 objectsCount;
+    U32 texturesCost;
+    U32 texturesCount;
+    U32 largeTexturesCount;
+    F64Bytes texturesMemoryTotal;
+};
+
+typedef std::list<LLHUDComplexity> hud_complexity_list_t;
+
 // Class to notify user about drastic changes in agent's render weights or if other agents
 // reported that user's agent is too 'heavy' for their settings
 class LLAvatarRenderNotifier : public LLSingleton<LLAvatarRenderNotifier>
@@ -79,6 +109,38 @@ private:
     // Used to detect changes in voavatar's rezzed status.
     // If value decreases - there were changes in outfit.
     S32 mLastOutfitRezStatus;
+};
+
+// Class to notify user about heavy set of HUD
+class LLHUDRenderNotifier : public LLSingleton<LLHUDRenderNotifier>
+{
+public:
+    LLHUDRenderNotifier();
+    ~LLHUDRenderNotifier();
+
+    void updateNotificationHUD(hud_complexity_list_t complexity);
+    bool isNotificationVisible();
+
+private:
+    enum EWarnLevel
+    {
+        WARN_NONE = -1,
+        WARN_TEXTURES = 0, // least important
+        WARN_CRAMPED,
+        WARN_HEAVY,
+        WARN_COST,
+        WARN_MEMORY, //most important
+    };
+
+    LLNotificationPtr mHUDNotificationPtr;
+
+    static EWarnLevel getWarningType(LLHUDComplexity object_complexity, LLHUDComplexity cmp_complexity);
+    void displayHUDNotification(EWarnLevel warn_type, LLUUID obj_id = LLUUID::null,  std::string object_name = "", std::string joint_name = "");
+
+    LLHUDComplexity mReportedHUDComplexity;
+    EWarnLevel mReportedHUDWarning;
+    LLHUDComplexity mLatestHUDComplexity;
+    LLFrameTimer mHUDPopUpDelayTimer;
 };
 
 #endif /* ! defined(LL_llavatarrendernotifier_H) */

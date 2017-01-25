@@ -386,6 +386,7 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 	}
 
 	// apply transforms
+    // SL-315
 	target_joint->setPosition(blended_pos + added_pos);
 	target_joint->setScale(blended_scale + added_scale);
 	target_joint->setRotation(added_rot * blended_rot);
@@ -417,6 +418,7 @@ void LLJointStateBlender::interpolate(F32 u)
 		return;
 	}
 
+    // SL-315
 	target_joint->setPosition(lerp(target_joint->getPosition(), mJointCache.getPosition(), u));
 	target_joint->setScale(lerp(target_joint->getScale(), mJointCache.getScale(), u));
 	target_joint->setRotation(nlerp(u, target_joint->getRotation(), mJointCache.getRotation()));
@@ -444,6 +446,7 @@ void LLJointStateBlender::resetCachedJoint()
 		return;
 	}
 	LLJoint* source_joint = mJointStates[0]->getJoint();
+    // SL-315
 	mJointCache.setPosition(source_joint->getPosition());
 	mJointCache.setScale(source_joint->getScale());
 	mJointCache.setRotation(source_joint->getRotation());

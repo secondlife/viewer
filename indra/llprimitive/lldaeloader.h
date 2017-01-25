@@ -47,17 +47,19 @@ public:
 	dae_model_map	mModelsMap;
 
 	LLDAELoader(
-		std::string									filename,
-		S32											lod, 
+		std::string							filename,
+		S32									lod, 
 		LLModelLoader::load_callback_t		load_cb,
 		LLModelLoader::joint_lookup_func_t	joint_lookup_func,
 		LLModelLoader::texture_load_func_t	texture_load_func,
 		LLModelLoader::state_callback_t		state_cb,
-		void*											opaque_userdata,
-		JointTransformMap&						jointMap,
-		JointSet&									jointsFromNodes,
+		void*								opaque_userdata,
+		JointTransformMap&					jointTransformMap,
+		JointNameSet&						jointsFromNodes,
+        std::map<std::string, std::string>& jointAliasMap,
+        U32									maxJointsPerMesh,
 		U32									modelLimit,
-		bool									preprocess);
+        bool								preprocess);
 	virtual ~LLDAELoader() ;
 
 	virtual bool OpenFile(const std::string& filename);

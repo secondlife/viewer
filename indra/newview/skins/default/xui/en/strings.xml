@@ -51,13 +51,14 @@ OpenGL Version: [OPENGL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF Version: [LLCEFLIB_VERSION]
+LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
 	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
 	<string name="BuildConfiguration">Build Configuration</string>
-
+	
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
 	<string name="ProgressChangingResolution">Changing resolution...</string>
@@ -499,6 +500,7 @@ Please try logging in again in a minute.</string>
 	<string name="TeleportYourAgent">Teleport you</string>
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	<string name="ForceSitAvatar">Force your avatar to sit</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
@@ -2256,6 +2258,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="BodyPartsLeftLeg">Left Leg</string>
 	<string name="BodyPartsTorso">Torso</string>
 	<string name="BodyPartsRightLeg">Right Leg</string>
+    <string name="BodyPartsEnhancedSkeleton">Enhanced Skeleton</string>
 
 	<!-- slider -->
 	<string name="GraphicsQualityLow">Low</string>
@@ -2477,8 +2480,23 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
-        <string name="Neck">Neck</string>
-        <string name="Avatar Center">Avatar Center</string>
+    <string name="Neck">Neck</string>
+    <string name="Avatar Center">Avatar Center</string>
+    <string name="Left Ring Finger">Left Ring Finger</string>
+    <string name="Right Ring Finger">Right Ring Finger</string>
+    <string name="Tail Base">Tail Base</string>
+    <string name="Tail Tip">Tail Tip</string>
+    <string name="Left Wing">Left Wing</string>
+    <string name="Right Wing">Right Wing</string>
+    <string name="Jaw">Jaw</string>
+    <string name="Alt Left Ear">Alt Left Ear</string>
+    <string name="Alt Right Ear">Alt Right Ear</string>
+    <string name="Alt Left Eye">Alt Left Eye</string>
+    <string name="Alt Right Eye">Alt Right Eye</string>
+    <string name="Tongue">Tongue</string>
+    <string name="Groin">Groin</string>
+    <string name="Left Hind Foot">Left Hind Foot</string>
+    <string name="Right Hind Foot">Right Hind Foot</string>
 	<string name="Invalid Attachment">Invalid Attachment Point</string>
 	<string name="ATTACHMENT_MISSING_ITEM">Error: missing item</string>
 	<string name="ATTACHMENT_MISSING_BASE_ITEM">Error: missing base item</string>
@@ -2498,6 +2516,15 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
   <string name="av_render_over_half">You may not be rendered by over half of those around you.</string>
   <string name="av_render_most_of">You may not be rendered by most of those around you.</string>
   <string name="av_render_anyone">You may not be rendered by anyone around you.</string>
+
+  <!-- HUD complexity rendering messages, see llavatarrendernotifier. -->
+  <string name="hud_description_total">Your HUD</string>
+  <string name="hud_name_with_joint">[OBJ_NAME] (worn on [JNT_NAME])</string>
+  <string name="hud_render_memory_warning">[HUD_DETAILS] uses a lot of texture memory</string>
+  <string name="hud_render_cost_warning">[HUD_DETAILS] contains a lot of expensive objects and textures</string>
+  <string name="hud_render_heavy_textures_warning">[HUD_DETAILS] contains a lot of large textures</string>
+  <string name="hud_render_cramped_warning">[HUD_DETAILS] contains too many objects</string>
+  <string name="hud_render_textures_warning">[HUD_DETAILS] contains too many textures</string>
 
   <!-- AgeYearsA = singular,
        AgeYearsB = plural,
@@ -2566,7 +2593,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="SaveComplete">Save complete.</string>
 	<string name="UploadFailed">File upload failed: </string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
-
+	<string name="ScriptWasDeleted">Script (deleted from inventory)</string>
+	
 	<!-- god tools -->
 	<string name="GodToolsObjectOwnedBy">Object [OBJECT] owned by [OWNER]</string>
 
@@ -2654,8 +2682,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="ATTACH_LULEG">Left Upper Leg</string>
 	<string name="ATTACH_LLLEG">Left Lower Leg</string>
 	<string name="ATTACH_BELLY">Belly</string>
-	<string name="ATTACH_RPEC">Right Pec</string>
-	<string name="ATTACH_LPEC">Left Pec</string>
+	<string name="ATTACH_LEFT_PEC">Left Pec</string>
+	<string name="ATTACH_RIGHT_PEC">Right Pec</string>
 	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">HUD Top Right</string>
 	<string name="ATTACH_HUD_TOP_CENTER">HUD Top Center</string>
@@ -2666,6 +2694,21 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
 	<string name="ATTACH_NECK">Neck</string>
 	<string name="ATTACH_AVATAR_CENTER">Avatar Center</string>
+    <string name="ATTACH_LHAND_RING1">Left Ring Finger</string>
+    <string name="ATTACH_RHAND_RING1">Right Ring Finger</string>
+    <string name="ATTACH_TAIL_BASE">Tail Base</string>
+    <string name="ATTACH_TAIL_TIP">Tail Tip</string>
+    <string name="ATTACH_LWING">Left Wing</string>
+    <string name="ATTACH_RWING">Right Wing</string>
+    <string name="ATTACH_FACE_JAW">Jaw</string>
+    <string name="ATTACH_FACE_LEAR">Alt Left Ear</string>
+    <string name="ATTACH_FACE_REAR">Alt Right Ear</string>
+    <string name="ATTACH_FACE_LEYE">Alt Left Eye</string>
+    <string name="ATTACH_FACE_REYE">Alt Right Eye</string>
+    <string name="ATTACH_FACE_TONGUE">Tongue</string>
+    <string name="ATTACH_GROIN">Groin</string>
+    <string name="ATTACH_HIND_LFOOT">Left Hind Foot</string>
+    <string name="ATTACH_HIND_RFOOT">Right Hind Foot</string>
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
@@ -2833,6 +2876,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<!-- media -->
 	<string name="Multiple Media">Multiple Media</string>
 	<string name="Play Media">Play/Pause Media</string>
+
+	<!-- Drivers support/update pages -->
+	<string name="IntelDriverPage">http://www.intel.com/p/en_US/support/detect/graphics</string>
+	<string name="NvidiaDriverPage">http://www.nvidia.com/Download/index.aspx?lang=en-us</string>
+	<string name="AMDDriverPage">http://support.amd.com/us/Pages/AMDSupportHub.aspx</string>
+
 
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">

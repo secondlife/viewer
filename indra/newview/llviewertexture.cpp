@@ -1200,7 +1200,7 @@ void LLViewerFetchedTexture::loadFromFastCache()
             {
                 S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
                 S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
-                if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                 {
                     // scale oversized icon, no need to give more work to gl
                     mRawImage->scale(expected_width, expected_height);
@@ -1981,7 +1981,7 @@ bool LLViewerFetchedTexture::updateFetch()
                 {
                     S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
                     S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
-                    if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+                    if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                     {
                         // scale oversized icon, no need to give more work to gl
                         mRawImage->scale(expected_width, expected_height);

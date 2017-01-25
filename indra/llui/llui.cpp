@@ -522,7 +522,7 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
 		else
 		{
 			std::string part(ti->begin(), ti->end());
-			context = context->findChildView(part, recurse);
+			context = context->findChildView(LLURI::unescape(part), recurse);
 			recurse = false;
 		}
 	}

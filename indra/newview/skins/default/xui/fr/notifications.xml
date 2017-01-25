@@ -479,6 +479,9 @@ La limite de [MAX_ATTACHMENTS] objets joints a été dépassée. Veuillez commen
 	<notification name="CannotWearInfoNotComplete">
 		Vous ne pouvez pas porter cet article car il n&apos;a pas encore été chargé. Veuillez réessayer dans une minute.
 	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Veuillez saisir votre mot de passe pour vous connecter.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Zut ! Vous avez oublié de fournir certaines informations.
 Vous devez saisir le nom d&apos;utilisateur de votre avatar.
@@ -546,6 +549,9 @@ Remarque : cela videra le cache.
 	</notification>
 	<notification name="ChangeConnectionPort">
 		Les paramètres du port prendront effet après le redémarrage de [APP_NAME].
+	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		Le changement de paramètre de débogage sera effectué au redémarrage de [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
 		Le nouveau thème apparaîtra après le redémarrage de [APP_NAME].
@@ -1361,12 +1367,13 @@ Vous pouvez utiliser [SECOND_LIFE] normalement, les autres résidents vous voien
 			<ignore name="ignore" text="Vos habits prennent du temps à télécharger"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		Votre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexité visuelle] est [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		Votre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexité de l&apos;avatar] est [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="M&apos;avertir si la complexité de l&apos;avatar est trop élevée" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		Votre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexité visuelle] est [AGENT_COMPLEXITY].
+		Votre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexité de l&apos;avatar] est [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		L&apos;installation de [APP_NAME] est terminée.
@@ -1482,6 +1489,10 @@ suivant votre vitesse de connexion.
 	<notification name="ConfirmBakeTerrain">
 		Etes-vous sûr(e) de vouloir figer le relief actuel, en faire le point central des limites d&apos;élévation/abaissement de relief et la valeur par défaut du bouton Annuler modification ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmTextureHeights">
+		Vous vous apprêtez à utiliser des valeurs plus élevées que les limites d&apos;élévation supérieures. Continuer ?
+		<usetemplate canceltext="Ne pas demander" name="yesnocancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		Vous ne pouvez pas autoriser plus de [MAX_AGENTS] résidents.
@@ -1718,14 +1729,6 @@ Quitter le groupe ?
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Impossible de quitter le groupe. Vous ne pouvez pas quitter le groupe car vous en êtes le dernier propriétaire. Vous devez d&apos;abord affecter le rôle de propriétaire à un autre membre.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepartError">
-		Impossible de quitter le groupe : [reason].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		Vous avez quitté le groupe [group_name].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2400,6 +2403,10 @@ Voulez-vous désactiver Ne pas déranger avant de terminer cette transaction ?
 		Êtes-vous certain de vouloir supprimer le contenu de votre corbeille de manière permanente ?
 		<usetemplate ignoretext="Confirmer avant de vider la corbeille" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
+	<notification name="TrashIsFull">
+		Votre corbeille déborde. Cela risque de provoquer des problèmes lors de la connexion.
+		<usetemplate name="okcancelbuttons" notext="Je viderai la corbeille plus tard" yestext="Vider la corbeille"/>
+	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Êtes-vous certain de vouloir supprimer l&apos;historique de vos visites et recherches ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -2984,11 +2991,11 @@ Si vous restez dans cette région, vous serez déconnecté(e).
 Si vous restez dans cette région, vous serez déconnecté(e).
 	</notification>
 	<notification name="LoadWebPage">
-		Charger la page Web [URL] ?
+		Charger la page Web [URL] ?
 
 [MESSAGE]
 
-Venant de l&apos;objet : &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propriétaire : [NAME_SLURL]
+Venant de l&apos;objet : &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propriétaire : [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Charger"/>
 			<button name="Cancel" text="Annuler"/>
@@ -3257,11 +3264,15 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.
 	</notification>
-	<notification name="PresetNotSaved">
-		Erreur d’enregistrement du préréglage [NAME].
+	<notification name="AppearanceToXMLSaved">
+		L&apos;apparence a été enregistrée en XML vers [PATH]
 	</notification>
-	<notification name="PresetNotDeleted">
-		Erreur de suppression du préréglage [NAME].
+	<notification name="AppearanceToXMLFailed">
+		Échec d&apos;enregistrement de l&apos;apparence en XML.
+    icon=&quot;notifytip.tga&quot;
+	name=&quot;PresetNotDeleted&quot;
+    type=&quot;notifytip&quot;&gt;
+Erreur de suppression du préréglage [NAME].
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Impossible de trouver l&apos;aide.
@@ -4074,6 +4085,9 @@ Veuillez réessayer dans une minute.
 	</notification>
 	<notification name="CantAttachNotEnoughScriptResources">
 		Ressources de script insuffisantes pour attacher cet objet.
+	</notification>
+	<notification name="IllegalAttachment">
+		La pièce jointe a demandé un point non existant sur l&apos;avatar. Il a été fixé sur la poitrine.
 	</notification>
 	<notification name="CantDropItemTrialUser">
 		Vous ne pouvez pas déposer d&apos;objets ici. Essayez la zone de période d&apos;essai gratuite.

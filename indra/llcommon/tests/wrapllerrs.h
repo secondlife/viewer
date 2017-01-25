@@ -40,7 +40,6 @@
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/throw_exception.hpp>
 #include <list>
 #include <string>
 
@@ -79,7 +78,7 @@ struct WrapLLErrs
         error = message;
         // Also throw an appropriate exception since calling code is likely to
         // assume that control won't continue beyond LL_ERRS.
-        BOOST_THROW_EXCEPTION(FatalException(message));
+        LLTHROW(FatalException(message));
     }
 
     std::string error;

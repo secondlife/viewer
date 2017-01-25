@@ -1639,7 +1639,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			
 			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
 			discard_agent_offer->startFetch();
-			if (catp || (itemp && itemp->isFinished()))
+			if ((catp && gInventory.isCategoryComplete(mObjectID)) || (itemp && itemp->isFinished()))
 			{
 				discard_agent_offer->done();
 			}
@@ -4719,7 +4719,9 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 {
 	if (!gAudiop)
 	{
+#if !LL_LINUX
 		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
+#endif
 		return;
 	}
 
@@ -4781,7 +4783,9 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 {
 	if (!gAudiop)
 	{
+#if !LL_LINUX
 		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
+#endif
 		return;
 	}
 
@@ -6600,6 +6604,11 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 
 				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;
+
+                if (script_perm.question == "JoinAnExperience")
+                { // Some experience only permissions do not have an explicit permission bit.  Add them here.
+                    script_question += "    " + LLTrans::getString("ForceSitAvatar") + "\n";
+                }
 
 				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
 			}

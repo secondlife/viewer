@@ -448,7 +448,12 @@ bool LLConversationLog::moveLog(const std::string &originDirectory, const std::s
 std::string LLConversationLog::getFileName()
 {
 	std::string filename = "conversation";
-	return gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, filename) + ".log";
+	std::string log_address = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, filename);
+	if (!log_address.empty())
+	{
+		log_address += ".log";
+	}
+	return log_address;
 }
 
 bool LLConversationLog::saveToFile(const std::string& filename)

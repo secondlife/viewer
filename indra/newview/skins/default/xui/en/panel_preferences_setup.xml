@@ -273,6 +273,18 @@
     name="update_willing_to_test"
     width="400"           
     top_pad="5"/>
+  <check_box
+    top_delta="4"
+    enabled="true"
+    follows="left|top"
+    height="14"
+    control_name="UpdaterShowReleaseNotes"
+    label="Show Release Notes after update"
+    left_delta="0"
+    mouse_opaque="true"
+    name="update_show_release_notes"
+    width="400"
+    top_pad="5"/>
   <text
      type="string"
      length="1"

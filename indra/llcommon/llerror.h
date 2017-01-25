@@ -174,7 +174,8 @@ namespace LLError
 			// not really a level
 			// used to indicate that no messages should be logged
 	};
-	
+	// If you change ELevel, please update llvlog() macro below.
+
 	/*	Macro support
 		The classes CallSite and Log are used by the logging macros below.
 		They are not intended for general use.
@@ -305,23 +306,37 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 /////////////////////////////////
 // Error Logging Macros
-// See top of file for common usage.	
+// See top of file for common usage.
 /////////////////////////////////
 
-// this macro uses a one-shot do statement to avoid parsing errors when writing control flow statements
-// without braces:
-// if (condition) LL_INFOS() << "True" << LL_ENDL; else LL_INFOS()() << "False" << LL_ENDL
+// Instead of using LL_DEBUGS(), LL_INFOS() et al., it may be tempting to
+// directly code the lllog() macro so you can pass in the LLError::ELevel as a
+// variable. DON'T DO IT! The reason is that the first time control passes
+// through lllog(), it initializes a local static LLError::CallSite with that
+// *first* ELevel value. All subsequent visits will decide whether or not to
+// emit output based on the *first* ELevel value bound into that static
+// CallSite instance. Use LL_VLOGS() instead. lllog() assumes its ELevel
+// argument never varies.
 
-#define lllog(level, once, ...)																	          \
-	do {                                                                                                  \
-		const char* tags[] = {"", ##__VA_ARGS__};													      \
-		::size_t tag_count = LL_ARRAY_SIZE(tags) - 1;													  \
-		static LLError::CallSite _site(                                                                   \
-		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, &tags[1], tag_count);\
-		if (LL_UNLIKELY(_site.shouldLog()))			                                                      \
-		{                                                                                                 \
-			std::ostringstream* _out = LLError::Log::out();                                               \
+// this macro uses a one-shot do statement to avoid parsing errors when
+// writing control flow statements without braces:
+// if (condition) LL_INFOS() << "True" << LL_ENDL; else LL_INFOS()() << "False" << LL_ENDL;
+
+#define lllog(level, once, ...)                                         \
+	do {                                                                \
+		const char* tags[] = {"", ##__VA_ARGS__};                       \
+		static LLError::CallSite _site(lllog_site_args_(level, once, tags)); \
+		lllog_test_()
+
+#define lllog_test_()                                       \
+		if (LL_UNLIKELY(_site.shouldLog()))                 \
+		{                                                   \
+			std::ostringstream* _out = LLError::Log::out(); \
 			(*_out)
+
+#define lllog_site_args_(level, once, tags)                 \
+	level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG),    \
+	__FUNCTION__, once, &tags[1], LL_ARRAY_SIZE(tags)-1
 
 //Use this construct if you need to do computation in the middle of a
 //message:
@@ -362,5 +377,50 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_DEBUGS_ONCE(...)	lllog(LLError::LEVEL_DEBUG, true, ##__VA_ARGS__)
 #define LL_INFOS_ONCE(...)	lllog(LLError::LEVEL_INFO, true, ##__VA_ARGS__)
 #define LL_WARNS_ONCE(...)	lllog(LLError::LEVEL_WARN, true, ##__VA_ARGS__)
+
+// Use this if you need to pass LLError::ELevel as a variable.
+#define LL_VLOGS(level, ...)      llvlog(level, false, ##__VA_ARGS__)
+#define LL_VLOGS_ONCE(level, ...) llvlog(level, true,  ##__VA_ARGS__)
+
+// The problem with using lllog() with a variable level is that the first time
+// through, it initializes a static CallSite instance with whatever level you
+// pass. That first level is bound into the CallSite; the level parameter is
+// never again examined. One approach to variable level would be to
+// dynamically construct a CallSite instance every call -- which could get
+// expensive, depending on context. So instead, initialize a static CallSite
+// for each level value we support, then dynamically select the CallSite
+// instance for the passed level value.
+// Compare implementation to lllog() above.
+#define llvlog(level, once, ...)                                        \
+	do {                                                                \
+		const char* tags[] = {"", ##__VA_ARGS__};                       \
+		/* Need a static CallSite instance per expected ELevel value. */ \
+		/* Since we intend to index this array with the ELevel, */      \
+		/* _sites[0] should be ELevel(0), and so on -- avoid using */   \
+		/* ELevel symbolic names when initializing -- except for */     \
+		/* the last entry, which handles anything beyond the end. */    \
+		/* (Commented ELevel value names are from 2016-09-01.) */       \
+		/* Passing an ELevel past the end of this array is itself */    \
+		/* a fatal error, so ensure the last is LEVEL_ERROR. */         \
+		static LLError::CallSite _sites[] =                             \
+		{                                                               \
+			/* LEVEL_DEBUG */                                           \
+			LLError::CallSite(lllog_site_args_(LLError::ELevel(0), once, tags)), \
+			/* LEVEL_INFO */                                            \
+			LLError::CallSite(lllog_site_args_(LLError::ELevel(1), once, tags)), \
+			/* LEVEL_WARN */                                            \
+			LLError::CallSite(lllog_site_args_(LLError::ELevel(2), once, tags)), \
+			/* LEVEL_ERROR */                                           \
+			LLError::CallSite(lllog_site_args_(LLError::LEVEL_ERROR, once, tags)) \
+		};                                                              \
+		/* Clamp the passed 'level' to at most last entry */            \
+		std::size_t which((std::size_t(level) >= LL_ARRAY_SIZE(_sites)) ? \
+						  (LL_ARRAY_SIZE(_sites) - 1) : std::size_t(level)); \
+		/* selected CallSite *must* be named _site for LL_ENDL */       \
+		LLError::CallSite& _site(_sites[which]);                        \
+		lllog_test_()
+
+// Check at run-time whether logging is enabled, without generating output
+bool debugLoggingEnabled(const std::string& tag);
 
 #endif // LL_LLERROR_H

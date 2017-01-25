@@ -205,9 +205,9 @@ void LLUriParser::glue(std::string& uri) const
 	uri = first_part + second_part;
 }
 
-void LLUriParser::glueFirst(std::string& uri) const
+void LLUriParser::glueFirst(std::string& uri, bool use_scheme) const
 {
-	if (mScheme.size())
+	if (use_scheme && mScheme.size())
 	{
 		uri = mScheme;
 		uri += "://";

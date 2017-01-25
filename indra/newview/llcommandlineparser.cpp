@@ -43,7 +43,6 @@
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/throw_exception.hpp>
 
 #if _MSC_VER
 #   pragma warning(pop)
@@ -52,6 +51,7 @@
 #include "llsdserialize.h"
 #include "llerror.h"
 #include "stringize.h"
+#include "llexception.h"
 #include <string>
 #include <set>
 #include <iostream>
@@ -204,17 +204,17 @@ protected:
     {
         if(gPastLastOption)
         {
-            BOOST_THROW_EXCEPTION(LLCLPLastOption("Don't parse no more!"));
+            LLTHROW(LLCLPLastOption("Don't parse no more!"));
         }
 
         // Error checks. Needed?
         if (!value_store.empty() && !is_composing()) 
         {
-            BOOST_THROW_EXCEPTION(LLCLPError("Non composing value with multiple occurences."));
+            LLTHROW(LLCLPError("Non composing value with multiple occurences."));
         }
         if (new_tokens.size() < min_tokens() || new_tokens.size() > max_tokens())
         {
-            BOOST_THROW_EXCEPTION(LLCLPError("Illegal number of tokens specified."));
+            LLTHROW(LLCLPError("Illegal number of tokens specified."));
         }
         
         if(value_store.empty())
@@ -468,7 +468,7 @@ onevalue(const std::string& option,
     {
         // What does it mean when the user specifies a command-line switch
         // that requires a value, but omits the value? Complain.
-        BOOST_THROW_EXCEPTION(LLCLPError(STRINGIZE("No value specified for --" << option << "!")));
+        LLTHROW(LLCLPError(STRINGIZE("No value specified for --" << option << "!")));
     }
     else if (value.size() > 1)
     {
@@ -486,10 +486,9 @@ void badvalue(const std::string& option,
     // If the user passes an unusable value for a command-line switch, it
     // seems like a really bad idea to just ignore it, even with a log
     // warning.
-    BOOST_THROW_EXCEPTION(
-        LLCLPError(STRINGIZE("Invalid value specified by command-line switch '" << option
-                             << "' for variable '" << varname << "' of type " << type
-                             << ": '" << value << "'")));
+    LLTHROW(LLCLPError(STRINGIZE("Invalid value specified by command-line switch '" << option
+                                 << "' for variable '" << varname << "' of type " << type
+                                 << ": '" << value << "'")));
 }
 
 template <typename T>

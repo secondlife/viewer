@@ -3,8 +3,9 @@
 	<text name="tell_me_label">
 		知らせる：
 	</text>
-	<check_box label="リンデンドルを使用・受け取るとき" name="notify_money_change_checkbox"/>
+	<check_box label="L$ を使用する場合" name="notify_money_spend_checkbox"/>
 	<check_box label="フレンドがログイン・ログアウトするとき" name="friends_online_notify_checkbox"/>
+	<check_box label="L$ を手に入れる場合" name="notify_money_received_checkbox"/>
 	<text name="show_label" width="300">
 		常に表示するメッセージ：
 	</text>

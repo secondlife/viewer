@@ -32,10 +32,10 @@
 #include "lltimer.h"
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
+#include "llexception.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-#include <boost/throw_exception.hpp>
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llfile.h"
@@ -191,9 +191,8 @@ void LLUpdaterServiceImpl::initialize(const std::string&  channel,
 {
 	if(mIsChecking || mIsDownloading)
 	{
-		BOOST_THROW_EXCEPTION(
-			LLUpdaterService::UsageError("LLUpdaterService::initialize call "
-										 "while updater is running."));
+		LLTHROW(LLUpdaterService::UsageError("LLUpdaterService::initialize call "
+											  "while updater is running."));
 	}
 		
 	mChannel = channel;
@@ -224,9 +223,8 @@ void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
 {
 	if(mChannel.empty() || mVersion.empty())
 	{
-		BOOST_THROW_EXCEPTION(
-			LLUpdaterService::UsageError("Set params before call to "
-										 "LLUpdaterService::startCheck()."));
+		LLTHROW(LLUpdaterService::UsageError("Set params before call to "
+											 "LLUpdaterService::startCheck()."));
 	}
 
 	mIsChecking = true;

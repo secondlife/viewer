@@ -70,7 +70,7 @@ private:
 };
 
 // Private local functions
-static std::string asset_id_to_filename(const LLUUID &asset_id);
+static std::string asset_id_to_filename(const LLUUID &asset_id, const ELLPath dir_spec);
 
 LLViewerWearable::LLViewerWearable(const LLTransactionID& transaction_id) :
 	LLWearable(),
@@ -451,7 +451,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 
 	// Probably reduntant, but ensure that the newly created wearable is not dirty by setting current value of params in new wearable
 	// to be the same as the saved values (which were loaded from src at param->cloneParam(this))
-	revertValues();
+	revertValuesWithoutUpdate();
 }
 
 void LLViewerWearable::setItemID(const LLUUID& item_id)
@@ -469,6 +469,11 @@ void LLViewerWearable::revertValues()
 	{
 		panel->updateScrollingPanelList();
 	}
+}
+
+void LLViewerWearable::revertValuesWithoutUpdate()
+{
+	LLWearable::revertValues();
 }
 
 void LLViewerWearable::saveValues()
@@ -508,7 +513,7 @@ void LLViewerWearable::saveNewAsset() const
 //	LL_INFOS() << "LLViewerWearable::saveNewAsset() type: " << getTypeName() << LL_ENDL;
 	//LL_INFOS() << *this << LL_ENDL;
 
-	const std::string filename = asset_id_to_filename(mAssetID);
+	const std::string filename = asset_id_to_filename(mAssetID, LL_PATH_CACHE);
 	if(! exportFile(filename))
 	{
 		std::string buffer = llformat("Unable to save '%s' to wearable file.", mName.c_str());
@@ -519,6 +524,12 @@ void LLViewerWearable::saveNewAsset() const
 		LLNotificationsUtil::add("CannotSaveWearableOutOfSpace", args);
 		return;
 	}
+
+    if (gSavedSettings.getBOOL("LogWearableAssetSave"))
+    {
+        const std::string log_filename = asset_id_to_filename(mAssetID, LL_PATH_LOGS);
+        exportFile(log_filename);
+    }
 
 	// save it out to database
 	if( gAssetStorage )
@@ -568,7 +579,7 @@ void LLViewerWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* 
 	}
 
 	// Delete temp file
-	const std::string src_filename = asset_id_to_filename(new_asset_id);
+	const std::string src_filename = asset_id_to_filename(new_asset_id, LL_PATH_CACHE);
 	LLFile::remove(src_filename);
 
 	// delete the context data
@@ -605,10 +616,10 @@ std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w)
 	return s;
 }
 
-std::string asset_id_to_filename(const LLUUID &asset_id)
+std::string asset_id_to_filename(const LLUUID &asset_id, const ELLPath dir_spec)
 {
 	std::string asset_id_string;
 	asset_id.toString(asset_id_string);
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id_string) + ".wbl";	
+	std::string filename = gDirUtilp->getExpandedFilename(dir_spec,asset_id_string) + ".wbl";	
 	return filename;
 }

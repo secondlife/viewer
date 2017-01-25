@@ -38,7 +38,6 @@
 #include <map>
 #include <string>
 #include <boost/lexical_cast.hpp>
-#include <boost/throw_exception.hpp>
 
 struct CommtestError: public LLException
 {
@@ -69,7 +68,7 @@ static int query_port(const std::string& var)
     const char* cport = getenv(var.c_str());
     if (! cport)
     {
-        BOOST_THROW_EXCEPTION(CommtestError(STRINGIZE("missing environment variable" << var)));
+        LLTHROW(CommtestError(STRINGIZE("missing environment variable" << var)));
     }
     // This will throw, too, if the value of PORT isn't numeric.
     int port(boost::lexical_cast<int>(cport));

@@ -30,6 +30,8 @@
 
 #include "llappviewer.h"
 #include "llviewercontrol.h"
+#include "llexception.h"
+#include "stringize.h"
 
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
@@ -551,6 +553,7 @@ LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url,
 	}
 	catch (...)
 	{
+		LOG_UNHANDLED_EXCEPTION(STRINGIZE("('" << url << "')"));
 		// any other odd error, we just handle as a connect error.
 		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_CONNECT_ERROR);
 	}

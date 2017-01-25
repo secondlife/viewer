@@ -3141,30 +3141,13 @@
          label="UI"
          name="UI"
          tear_off="true">
-         <!--   <menu_item_check
-             label="New Bottom Bar"
-             name="New Bottom Bar">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="BottomPanelNew" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="BottomPanelNew" />
-            </menu_item_check>-->
-            <menu_item_call
-             label="Media Browser Test"
-             name="Web Browser Test">
-                <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
-                 parameter="http://secondlife.com/app/search/slurls.html"/>
-            </menu_item_call>
           <menu_item_call
-           label="Web Content Browser"
-           name="Web Content Browser"
-           shortcut="control|shift|Z">
+           label="Media Browser"
+           name="Media Browser"
+           shortcut="control|alt|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="https://callum-linden.s3.amazonaws.com/ceftests.html"/>
+             parameter="http://google.com"/>
           </menu_item_call>
           <menu_item_call
            label="FB Connect Test"
@@ -3526,6 +3509,16 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleInfoDisplay"
                  parameter="collision skeleton" />
+            </menu_item_check>
+            <menu_item_check
+             label="Show Bones"
+             name="Show Bones">
+                <menu_item_check.on_check
+                 function="Advanced.CheckInfoDisplay"
+                 parameter="joints" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleInfoDisplay"
+                 parameter="joints" />
             </menu_item_check>
             <menu_item_check
              label="Display Agent Target"
