@@ -65,6 +65,7 @@ private:
 	ELLPath			mFilePath;
 	LLUUID			mSyntaxId;
 	LLSD			mKeywordsXml;
+	bool 			mInitialized;
 	
 public:
 	void initialize();
