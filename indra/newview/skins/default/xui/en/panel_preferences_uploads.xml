@@ -30,21 +30,19 @@
    layout="topleft"
    left="37"
    name="title_models"
-   top_pad="20"
+   top_pad="17"
    width="100">
     Images
   </text>
-  <line_editor
-   border_style="line"
-   border_thickness="1"
+  <text
+   type="string"
+   use_ellipses="true"
    follows="left|top"
-   font="SansSerif"
    height="23"
    layout="topleft"
-   left="40"
-   max_length="4096"
+   font.style="BOLD"
+   left="37"
    name="upload_textures"
-   enabled="false"
    top_pad="5"
    width="350" />
   
@@ -56,21 +54,19 @@
    layout="topleft"
    left="37"
    name="title_sounds"
-   top_pad="10"
+   top_pad="7"
    width="100">
     Sounds
   </text>
-  <line_editor
-   border_style="line"
-   border_thickness="1"
+  <text
+   type="string"
+   use_ellipses="true"
    follows="left|top"
-   font="SansSerif"
    height="23"
    layout="topleft"
-   left="40"
-   max_length="4096"
+   font.style="BOLD"
+   left="37"
    name="upload_sounds"
-   enabled="false"
    top_pad="5"
    width="350" />
   
@@ -82,21 +78,19 @@
    layout="topleft"
    left="37"
    name="title_animation"
-   top_pad="10"
+   top_pad="7"
    width="100">
     Animations
   </text>
-  <line_editor
-   border_style="line"
-   border_thickness="1"
+  <text
+   type="string"
+   use_ellipses="true"
    follows="left|top"
-   font="SansSerif"
    height="23"
    layout="topleft"
-   left="40"
-   max_length="4096"
+   font.style="BOLD"
+   left="37"
    name="upload_animation"
-   enabled="false"
    top_pad="5"
    width="350" />
 
@@ -108,21 +102,19 @@
    layout="topleft"
    left="37"
    name="title_animation"
-   top_pad="10"
+   top_pad="7"
    width="100">
     Models
   </text>
-  <line_editor
-   border_style="line"
-   border_thickness="1"
+  <text
+   type="string"
+   use_ellipses="true"
    follows="left|top"
-   font="SansSerif"
    height="23"
    layout="topleft"
-   left="40"
-   max_length="4096"
+   font.style="BOLD"
+   left="37"
    name="upload_models"
-   enabled="false"
    top_pad="5"
    width="350" />
 
@@ -132,9 +124,10 @@
    follows="left|top"
    height="30"
    layout="topleft"
+   font.style="ITALIC"
    left="33"
    name="upload_help"
-   top_pad="10"
+   top_pad="6"
    width="387">
     To change a destination folder, right click on it in inventory and choose
  "Use as default for"

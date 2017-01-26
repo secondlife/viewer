@@ -2013,7 +2013,7 @@ void LLFloaterPreference::onChangeModelFolder()
 {
     if (gInventory.isInventoryUsable())
     {
-        getChild<LLLineEditor>("upload_models")->setText(get_category_path(LLFolderType::FT_OBJECT));
+        getChild<LLTextBox>("upload_models")->setText(get_category_path(LLFolderType::FT_OBJECT));
     }
 }
 
@@ -2021,7 +2021,7 @@ void LLFloaterPreference::onChangeTextureFolder()
 {
     if (gInventory.isInventoryUsable())
     {
-        getChild<LLLineEditor>("upload_textures")->setText(get_category_path(LLFolderType::FT_TEXTURE));
+        getChild<LLTextBox>("upload_textures")->setText(get_category_path(LLFolderType::FT_TEXTURE));
     }
 }
 
@@ -2029,7 +2029,7 @@ void LLFloaterPreference::onChangeSoundFolder()
 {
     if (gInventory.isInventoryUsable())
     {
-        getChild<LLLineEditor>("upload_sounds")->setText(get_category_path(LLFolderType::FT_SOUND));
+        getChild<LLTextBox>("upload_sounds")->setText(get_category_path(LLFolderType::FT_SOUND));
     }
 }
 
@@ -2037,7 +2037,7 @@ void LLFloaterPreference::onChangeAnimationFolder()
 {
     if (gInventory.isInventoryUsable())
     {
-        getChild<LLLineEditor>("upload_animation")->setText(get_category_path(LLFolderType::FT_ANIMATION));
+        getChild<LLTextBox>("upload_animation")->setText(get_category_path(LLFolderType::FT_ANIMATION));
     }
 }
 
