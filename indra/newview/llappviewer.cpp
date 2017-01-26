@@ -1487,7 +1487,7 @@ bool LLAppViewer::frame()
 				ms_sleep(500);
 			}
 
-			const F64Milliseconds max_idle_time = llmin(.005f*10.f*(F32Milliseconds)gFrameTimeSeconds, F32Milliseconds(5)); // 5 ms a second
+			//const F64Milliseconds max_idle_time = llmin(.005f*10.f*(F32Milliseconds)gFrameTimeSeconds, F32Milliseconds(5)); // 5 ms a second
 			idleTimer.reset();
 			S32 total_work_pending = 0;
 			S32 total_io_pending = 0;	
