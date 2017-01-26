@@ -2263,7 +2263,7 @@ void login_callback(S32 option, void *userdata)
 void show_release_notes_if_required()
 {
     if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
-        && LLVersionInfo::getChannel() != "Second Life Test" // don't show Release Notes for the test builds
+        && LLVersionInfo::getChannel().find("Test") == std::string::npos // don't show Release Notes for the test builds
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
         && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {
