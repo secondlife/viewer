@@ -475,9 +475,9 @@ public:
 	> container;
 
 	//views
-	typedef container::template index<tag_BY_DRAWABLE>::type			container_BY_DRAWABLE_view;
-	typedef container::template index<tag_BY_SCULPT_ID>::type			container_BY_SCULPT_ID_view;
-	typedef container::template index<tag_BY_SIZE>::type				container_BY_SIZE_view;
+	typedef container::index<tag_BY_DRAWABLE>::type			container_BY_DRAWABLE_view;
+	typedef container::index<tag_BY_SCULPT_ID>::type		container_BY_SCULPT_ID_view;
+	typedef container::index<tag_BY_SIZE>::type				container_BY_SIZE_view;
 
 private:
 	LLSculptIDSize()
