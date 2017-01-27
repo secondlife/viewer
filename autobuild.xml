@@ -2983,6 +2983,18 @@
         <string>vlc-bin</string>
         <key>platforms</key>
         <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c5e6d9440e3a4a12102dd2bbb703963e</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2225/4736/vlc_bin-2.2.4.502214-darwin64-502214.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
@@ -3021,7 +3033,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>2.2.4.501207</string>
+        <string>2.2.4.502214</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
