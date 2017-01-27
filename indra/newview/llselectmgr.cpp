@@ -4416,6 +4416,9 @@ void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 			SEND_ONLY_ROOTS );
 		if (!build_mode)
 		{
+			// After "ObjectAttach" server will unsubscribe us from properties updates
+			// so either deselect objects or resend selection after attach packet reaches server
+			// In case of build_mode LLPanelObjectInventory::refresh() will deal with selection
 			deselectAll();
 		}
 	}
