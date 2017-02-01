@@ -1025,6 +1025,16 @@
            label="Scripts"
            name="Scripts"
            tear_off="true">
+          <menu_item_check
+             label="Script warnings/errors..."
+             name="Script debug">
+            <menu_item_check.on_check
+             function="Floater.IsOpen"
+             parameter="script_debug" />
+            <menu_item_check.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="script_debug" />
+          </menu_item_check>
           <menu_item_call
              label="Recompile Scripts (Mono)"
              name="Mono">
