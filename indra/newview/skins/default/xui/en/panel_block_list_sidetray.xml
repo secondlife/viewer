@@ -105,7 +105,7 @@
       </text>
     <block_list
      follows="all"
-     height="273"
+     height="255"
      layout="topleft"
      left="3"
      name="blocked"
