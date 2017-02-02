@@ -47,6 +47,7 @@
 #include "pipeline.h"
 
 #include <boost/tokenizer.hpp>
+#include <boost/bind.hpp>
 
 #include "lldispatcher.h"
 #include "llxfermanager.h"
@@ -56,6 +57,7 @@
 #include "llworld.h" //for particle system banning
 #include "llimview.h"
 #include "llnotifications.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
@@ -146,22 +148,6 @@ std::string LLMute::getDisplayType() const
 	}
 }
 
-
-/* static */
-LLMuteList* LLMuteList::getInstance()
-{
-	// Register callbacks at the first time that we find that the message system has been created.
-	static BOOL registered = FALSE;
-	if( !registered && gMessageSystem != NULL)
-	{
-		registered = TRUE;
-		// Register our various callbacks
-		gMessageSystem->setHandlerFuncFast(_PREHASH_MuteListUpdate, processMuteListUpdate);
-		gMessageSystem->setHandlerFuncFast(_PREHASH_UseCachedMuteList, processUseCachedMuteList);
-	}
-	return LLSingleton<LLMuteList>::getInstance(); // Call the "base" implementation.
-}
-
 //-----------------------------------------------------------------------------
 // LLMuteList()
 //-----------------------------------------------------------------------------
@@ -169,6 +155,18 @@ LLMuteList::LLMuteList() :
 	mIsLoaded(FALSE)
 {
 	gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
+
+	// Register our callbacks. We may be constructed before gMessageSystem, so
+	// use callWhenReady() to register them as soon as gMessageSystem becomes
+	// available.
+	// When using bind(), must be explicit about default arguments such as
+	// that last NULL.
+	gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
+											 _PREHASH_MuteListUpdate, processMuteListUpdate,
+											 static_cast<void**>(NULL)));
+	gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
+											 _PREHASH_UseCachedMuteList, processUseCachedMuteList,
+											 static_cast<void**>(NULL)));
 }
 
 //-----------------------------------------------------------------------------
@@ -231,6 +229,16 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		return FALSE;
 	}
 	
+	S32 mute_list_limit = gSavedSettings.getS32("MuteListLimit");
+	if (getMutes().size() >= mute_list_limit)
+	{
+		LL_WARNS() << "Mute limit is reached; ignored" << LL_ENDL;
+		LLSD args;
+		args["MUTE_LIMIT"] = mute_list_limit;
+		LLNotifications::instance().add(LLNotification::Params("MuteLimitReached").substitutions(args));
+		return FALSE;
+	}
+
 	if (mute.mType == LLMute::BY_NAME)
 	{		
 		// Can't mute empty string by name

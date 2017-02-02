@@ -22,14 +22,6 @@
 			Jouer le film
 		</playtip>
 	</widgetset>
-	<widgetset name="none">
-		<label name="none_label">
-			Aucun contenu
-		</label>
-		<tooltip name="none_tooltip">
-			Aucun média ici
-		</tooltip>
-	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
 			Image
@@ -52,9 +44,22 @@
 			Jouer le contenu audio qui se trouve ici
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Aucun contenu
+		</label>
+		<tooltip name="none_tooltip">
+			Aucun média ici
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Flux en temps réel
+		</label>
+	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			Médias pris en charge par LibVLC
 		</label>
 	</scheme>
 	<mimetype name="blank">
@@ -125,11 +130,6 @@
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
 			Macromedia Director
-		</label>
-	</mimetype>
-	<mimetype name="application/x-shockwave-flash">
-		<label name="application/x-shockwave-flash_label">
-			Flash
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -205,6 +205,11 @@
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
 			Film (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="application/octet-stream">
+		<label name="video/octet-stream">
+			Film
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">

@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="Incluir el peso de la piel" name="upload_skin"/>
 				<check_box label="Incluir posturas de las articulaciones" name="upload_joints"/>
+				<check_box label="Bloquear la escala si está definida la posición de la articulación" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Desplazamiento Z (subir o bajar el avatar):
 				</text>

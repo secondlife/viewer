@@ -86,11 +86,10 @@ namespace MarketplaceFetchCodes
 class LLMarketplaceInventoryImporter
 	: public LLSingleton<LLMarketplaceInventoryImporter>
 {
+	LLSINGLETON(LLMarketplaceInventoryImporter);
 public:
 	static void update();
-	
-	LLMarketplaceInventoryImporter();
-	
+
 	typedef boost::signals2::signal<void (bool)> status_changed_signal_t;
 	typedef boost::signals2::signal<void (U32, const LLSD&)> status_report_signal_t;
 
@@ -181,10 +180,11 @@ class LLSLMDeleteListingsResponder;
 class LLMarketplaceData
     : public LLSingleton<LLMarketplaceData>
 {
-    friend class LLSingleton < LLMarketplaceData > ;
+    LLSINGLETON(LLMarketplaceData);
+    virtual ~LLMarketplaceData();
 
 public:
-	friend class LLSLMGetMerchantResponder;
+    friend class LLSLMGetMerchantResponder;
     friend class LLSLMGetListingsResponder;
     friend class LLSLMCreateListingsResponder;
     friend class LLSLMGetListingResponder;
@@ -242,9 +242,6 @@ public:
     void decrementValidationWaiting(const LLUUID& folder_id, S32 count = 1);
 
 private:
-    LLMarketplaceData();
-    virtual ~LLMarketplaceData();
-
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     // Used internally only by SLM Responders when data are received from the SLM Server
     bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, const std::string& edit_url, S32 count);

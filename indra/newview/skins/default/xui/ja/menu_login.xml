@@ -20,13 +20,12 @@
 	<menu_item_check label="デバッグメニューを表示する" name="Show Debug Menu"/>
 	<menu label="デバッグ" name="Debug">
 		<menu_item_call label="デバッグ設定を表示" name="Debug Settings"/>
-		<menu_item_call label="UI/色の設定" name="UI/Color Settings"/>
 		<menu_item_call label="XUI プレビューツール" name="UI Preview Tool"/>
 		<menu label="UI テスト" name="UI Tests"/>
 		<menu_item_call label="ウィンドウのサイズを設定..." name="Set Window Size..."/>
 		<menu_item_call label="利用規約を表示" name="TOS"/>
 		<menu_item_call label="クリティカルメッセージを表示" name="Critical"/>
-		<menu_item_call label="Web コンテンツフローターのデバッグテスト" name="Web Content Floater Debug Test"/>
+		<menu_item_call label="メディアブラウザ" name="Media Browser"/>
 		<menu label="ログレベルを設定" name="Set Logging Level">
 			<menu_item_check label="デバッグ" name="Debug"/>
 			<menu_item_check label="情報" name="Info"/>

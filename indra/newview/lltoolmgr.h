@@ -42,9 +42,9 @@ const MASK MASK_COPY			= MASK_SHIFT;
 
 class LLToolMgr : public LLSingleton<LLToolMgr>
 {
-public:
-	LLToolMgr();
+	LLSINGLETON(LLToolMgr);
 	~LLToolMgr();
+public:
 
 	// Must be called after gSavedSettings set up.
 	void			initTools();

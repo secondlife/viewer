@@ -41,6 +41,7 @@ class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
 	// *TODO
 	// LLScriptFloaterManager and LLScriptFloater will need some refactoring after we 
 	// know how script notifications should look like.
+	LLSINGLETON_EMPTY_CTOR(LLScriptFloaterManager);
 public:
 
 	typedef enum e_object_type

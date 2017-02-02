@@ -80,6 +80,7 @@ void LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro(std::string url
     if (!observer)
     { 
         LL_WARNS("MeshUploadFlag") << "Unable to get observer after call to '" << url << "' aborting." << LL_ENDL;
+        return;
     }
 
     if (!status)

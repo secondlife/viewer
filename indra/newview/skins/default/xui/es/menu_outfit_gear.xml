@@ -3,6 +3,10 @@
 	<menu_item_call label="Ponerme - Reemplazar el vestuario actual" name="wear"/>
 	<menu_item_call label="Ponerme - Añadir al vestuario actual" name="wear_add"/>
 	<menu_item_call label="Quitarme - Quitar del vestuario actual" name="take_off"/>
+	<menu_item_call label="Subir una foto (10 L$)" name="upload_photo"/>
+	<menu_item_call label="Seleccionar foto" name="select_photo"/>
+	<menu_item_call label="Hacer una foto" name="take_snapshot"/>
+	<menu_item_call label="Quitar foto" name="remove_photo"/>
 	<menu label="Ropas nuevas" name="New Clothes">
 		<menu_item_call label="Camisa nueva" name="New Shirt"/>
 		<menu_item_call label="Pantalón nuevo" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="Cerrar todas las carpetas" name="collapse"/>
 	<menu_item_call label="Renombrar el vestuario" name="rename"/>
 	<menu_item_call label="Borrar el vestuario" name="delete_outfit"/>
+	<menu_item_check label="Ordenar las carpetas siempre alfabéticamente" name="sort_folders_by_name"/>
 </toggleable_menu>

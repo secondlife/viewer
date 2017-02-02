@@ -3410,9 +3410,21 @@ LLSD LLAppearanceMgr::dumpCOF() const
 	return result;
 }
 
+// static
+void LLAppearanceMgr::onIdle(void *)
+{
+    LLAppearanceMgr* mgr = LLAppearanceMgr::getInstance();
+    if (mgr->mRerequestAppearanceBake)
+    {
+        mgr->requestServerAppearanceUpdate();
+    }
+}
+
 void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
-    if (!mOutstandingAppearanceBakeRequest)
+    // Workaround: we shouldn't request update from server prior to uploading all attachments, but it is
+    // complicated to check for pending attachment uploads, so we are just waiting for uploads to complete
+    if (!mOutstandingAppearanceBakeRequest && gAssetStorage->getNumPendingUploads() == 0)
     {
         mRerequestAppearanceBake = false;
         LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
@@ -3420,13 +3432,14 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
     }
     else
     {
+        // Shedule update
         mRerequestAppearanceBake = true;
     }
 }
 
 void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter)
 {
-    mRerequestAppearanceBake = false;
+    BoolSetter outstanding(mOutstandingAppearanceBakeRequest);
     if (!gAgent.getRegion())
     {
         LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
@@ -3458,8 +3471,6 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
     bool bRetry;
     do
     {
-        BoolSetter outstanding(mOutstandingAppearanceBakeRequest);
-        
         // If we have already received an update for this or higher cof version, 
         // put a warning in the log and cancel the request.
         S32 cofVersion = getCOFVersion();
@@ -3571,12 +3582,6 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         }
 
     } while (bRetry);
-
-    if (mRerequestAppearanceBake)
-    {   // A bake request came in while this one was still outstanding.  
-        // Requeue ourself for a later request.
-        requestServerAppearanceUpdate();
-    }
 }
 
 /*static*/
@@ -3942,7 +3947,6 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
 	mOutfitIsDirty(false),
 	mOutfitLocked(false),
-	mInFlightCounter(0),
 	mInFlightTimer(),
 	mIsInUpdateAppearanceFromCOF(false),
     mOutstandingAppearanceBakeRequest(false),
@@ -3957,6 +3961,7 @@ LLAppearanceMgr::LLAppearanceMgr():
 			"OutfitOperationsTimeout")));
 
 	gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
+	gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, NULL); //sheduling appearance update requests
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()

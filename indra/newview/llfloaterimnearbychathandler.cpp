@@ -285,6 +285,14 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 	if(mStopProcessing)
 		return;
 
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+	}
+	LLRect channel_rect;
+	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &channel_rect, gFloaterView);
+	chat["available_height"] = channel_rect.getHeight() - channel_rect.mBottom - gSavedSettings.getS32("ToastGap") - 110;;
+
 	/*
     find last toast and check ID
 	*/
@@ -380,7 +388,7 @@ void LLFloaterIMNearbyChatScreenChannel::arrangeToasts()
 		setFollows(FOLLOWS_ALL);
 	}
 
-	LLRect	toast_rect;	
+	LLRect	toast_rect;
 	updateRect();
 
 	LLRect channel_rect;

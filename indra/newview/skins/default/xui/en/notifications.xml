@@ -1498,7 +1498,20 @@ Delete Notecard?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
+  
+  <notification
+   icon="alertmodal.tga"
+   name="LoadPreviousReportScreenshot"
+   type="alertmodal">
+   <unique/>
+Do you want to use previous screenshot for your report?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="GestureSaveFailedTooManySteps"
@@ -1880,7 +1893,16 @@ Go to [_URL] for information on purchasing L$?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
+  
+  <notification
+   icon="alertmodal.tga"
+   name="MuteLimitReached"
+   persist="false"
+   type="notify">
+Unable to add new entry to block list because you reached the limit of [MUTE_LIMIT] entries.
+  <tag>fail</tag>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="UnableToLinkObjects"
@@ -6149,6 +6171,7 @@ Link to this from a web page to give others easy access to this location, or try
    icon="alertmodal.tga"
    name="WLSavePresetAlert"
    type="alertmodal">
+   <unique/>
 Do you wish to overwrite the saved preset?
     <tag>confirm</tag>
     <usetemplate

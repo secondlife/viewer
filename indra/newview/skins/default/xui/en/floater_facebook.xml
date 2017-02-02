@@ -22,8 +22,7 @@
      top="7"
      height="437"
      follows="all"
-     halign="center"
-     use_highlighting_on_hover="true">
+     halign="center">
      <panel
        filename="panel_facebook_status.xml"
        class="llfacebookstatuspanel"

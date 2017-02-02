@@ -4,5 +4,6 @@
 	<menu_item_check label="Trier par statut" name="sort_status"/>
 	<menu_item_check label="Afficher les icônes des résidents" name="view_icons"/>
 	<menu_item_check label="Afficher les droits octroyés" name="view_permissions"/>
+	<menu_item_check label="Masquer les noms d’utilisateur" name="view_usernames"/>
 	<menu_item_check label="Afficher le journal des conversations..." name="view_conversation"/>
 </toggleable_menu>

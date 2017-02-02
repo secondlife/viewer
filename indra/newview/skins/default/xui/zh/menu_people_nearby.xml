@@ -13,4 +13,6 @@
 	<menu_item_call label="分享" name="share"/>
 	<menu_item_call label="支付" name="pay"/>
 	<menu_item_check label="封鎖/不再封鎖" name="block_unblock"/>
+	<menu_item_call label="凍結" name="freeze"/>
+	<menu_item_call label="踢出" name="eject"/>
 </context_menu>

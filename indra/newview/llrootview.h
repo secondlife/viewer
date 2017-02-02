@@ -32,7 +32,9 @@
 #include "lltooltip.h"
 
 class LLRootViewRegistry : public LLChildRegistry<LLRootViewRegistry>
-{};
+{
+	LLSINGLETON(LLRootViewRegistry);
+};
 
 class LLRootView : public LLView
 {

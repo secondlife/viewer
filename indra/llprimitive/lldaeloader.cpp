@@ -855,6 +855,8 @@ struct ModelSort
 
 bool LLDAELoader::OpenFile(const std::string& filename)
 {
+	setLoadState( READING_FILE );
+
 	//no suitable slm exists, load from the .dae file
 	DAE dae;
 	domCOLLADA* dom;

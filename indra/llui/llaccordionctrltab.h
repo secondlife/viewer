@@ -195,6 +195,8 @@ public:
 	void setFitPanel( bool fit ) { mFitPanel = true; }
 	bool getFitParent() const { return mFitPanel; }
 
+	void setIgnoreResizeNotification(bool ignore) { mSkipChangesOnNotifyParent = ignore;}
+
 protected:
 	void adjustContainerPanel	(const LLRect& child_rect);
 	void adjustContainerPanel	();
@@ -235,6 +237,7 @@ private:
 
 	bool mStoredOpenCloseState;
 	bool mWasStateStored;
+	bool mSkipChangesOnNotifyParent;
 
 	bool mSelectionEnabled;
 

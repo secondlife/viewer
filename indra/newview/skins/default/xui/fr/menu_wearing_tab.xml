@@ -3,4 +3,6 @@
 	<menu_item_call label="Enlever" name="take_off"/>
 	<menu_item_call label="Détacher" name="detach"/>
 	<menu_item_call label="Modifier la tenue" name="edit"/>
+	<menu_item_call label="Modifier" name="edit_item"/>
+	<menu_item_call label="Afficher l’original" name="show_original"/>
 </context_menu>

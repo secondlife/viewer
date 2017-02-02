@@ -163,6 +163,9 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 {
 	llassert( mMaxLengthBytes > 0 );
 
+	LLUICtrl::setEnabled(TRUE);
+	setEnabled(p.enabled);
+
 	mScrollTimer.reset();
 	mTripleClickTimer.reset();
 	setText(p.default_text());
@@ -216,6 +219,13 @@ LLLineEditor::~LLLineEditor()
 
 	// calls onCommit() while LLLineEditor still valid
 	gFocusMgr.releaseFocusIfNeeded( this );
+}
+
+void LLLineEditor::initFromParams(const LLLineEditor::Params& params)
+{
+	LLUICtrl::initFromParams(params);
+	LLUICtrl::setEnabled(TRUE);
+	setEnabled(params.enabled);
 }
 
 void LLLineEditor::onFocusReceived()

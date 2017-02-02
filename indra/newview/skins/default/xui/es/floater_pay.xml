@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<string name="payee_group">Pagar al grupo</string>
-	<string name="payee_resident">Pagar al residente</string>
-	<text name="paying_text">Vas a pagar:</text>
-	<text left="115" name="payee_name">Nombre de prueba demasiado largo para comprobar la función de recorte</text>
+	<string name="payee_group">
+		Pagar al grupo
+	</string>
+	<string name="payee_resident">
+		Pagar al residente
+	</string>
+	<text name="paying_text">
+		Vas a pagar:
+	</text>
+	<text left="115" name="payee_name">
+		Nombre de prueba demasiado largo para comprobar la función de recorte
+	</text>
+	<text name="payment_message_label">
+		Descripción (opcional):
+	</text>
 	<panel label="Buscar" name="PatternsPanel">
 		<button label="Pagar 1 L$" label_selected="Pagar 1 L$" name="fastpay 1"/>
 		<button label="Pagar 5 L$" label_selected="Pagar 5 L$" name="fastpay 5"/>
@@ -11,7 +22,9 @@
 		<button label="Pagar 20 L$" label_selected="Pagar 20 L$" name="fastpay 20"/>
 	</panel>
 	<panel label="Buscar" name="InputPanel">
-		<text name="amount text">Otra cantidad:</text>
+		<text name="amount text">
+			Otra cantidad:
+		</text>
 		<button label="Pagar" label_selected="Pagar" name="pay btn"/>
 		<button label="Cancelar" label_selected="Cancelar" name="cancel btn"/>
 	</panel>

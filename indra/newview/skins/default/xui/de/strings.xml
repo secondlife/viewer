@@ -61,16 +61,33 @@ Grafikkarte: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Windows-Grafiktreiberversion: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		OpenGL-Version: [OPENGL_VERSION]
-
-J2C-Decoderversion: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Fenstergröße: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Schriftgrößenanpassung [FONT_SIZE_ADJUSTMENT] Pt
+UI-Skalierung: [UI_SCALE]
+Sichtweite: [DRAW_DISTANCE] m
+Bandbreite: [NET_BANDWITH] kbit/s
+LOD-Faktor: [LOD_FACTOR]
+Darstellungsqualität: [RENDER_QUALITY] / 7
+Erweitertes Beleuchtungsmodell: [GPU_SHADERS]
+Texturspeicher: [TEXTURE_MEMORY] MB
+Erstellungszeit VFS (Cache): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		J2C-Decoderversion: [J2C_VERSION]
 Audiotreiberversion: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF-Version: [LLCEFLIB_VERSION]
+LibVLC-Version: [LIBVLC_VERSION]
 Voice-Server-Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paketverlust: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1] %)
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Fehler beim Abrufen der URL für die Server-Versionshinweise.
@@ -1089,6 +1106,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="TeleportYourAgent">
 		Sie teleportieren
 	</string>
+	<string name="ForceSitAvatar">
+		Ihren Avatar zwingen, sich zu setzen
+	</string>
 	<string name="NotConnected">
 		Nicht verbunden
 	</string>
@@ -1937,6 +1957,27 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="av_render_anyone">
 		Sie sind u. U. für niemanden in Ihrer Nähe sichtbar.
 	</string>
+	<string name="hud_description_total">
+		Ihr HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (getragen von [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] beansprucht viel Texturspeicher
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] enthält zu viele ressourcenintensive Objekte und Texturen
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] enthält viele große Texturen
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] enthält zu viele Objekte
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] enthält zu viele Texturen
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] Jahr
 	</string>
@@ -2095,6 +2136,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="ObjectOutOfRange">
 		Skript (Objekt außerhalb des Bereichs)
+	</string>
+	<string name="ScriptWasDeleted">
+		Skript (aus Inventar gelöscht)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Objekt [OBJECT], Besitzer [OWNER]
@@ -2707,6 +2751,15 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 	</string>
 	<string name="Play Media">
 		Medien Abspielen/Pausieren
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=de-de
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/de/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Beim Parsen der Befehlszeile wurde ein Fehler festgestellt.
@@ -4483,11 +4536,17 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [REASON] [AMOUNT] L$ bezahlt.
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] hat Ihnen [AMOUNT] L$ bezahlt: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars">
 		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Sie haben [NAME] [AMOUNT] L$ bezahlt: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Sie haben [AMOUNT] L$ bezahlt.
@@ -4500,6 +4559,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Sie haben [NAME] [AMOUNT] L$ [REASON] nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Sie haben [NAME] [AMOUNT] L$ nicht bezahlt: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Sie haben [AMOUNT] L$ nicht bezahlt.
@@ -4826,6 +4888,15 @@ Missbrauchsbericht
 	</string>
 	<string name="texture_load_dimensions_error">
 		Bilder, die größer sind als [WIDTH]*[HEIGHT] können nicht geladen werden
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Max. Fotogröße für Outfit ist [WIDTH]*[HEIGHT]. Bitte verkleinern Sie das Bild oder verwenden Sie ein anderes.
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Max. Fotogröße für Outfit ist [WIDTH]*[HEIGHT]. Bitte wählen Sie eine andere Textur aus.
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Fotoabmessungen können nicht bestätigt werden. Bitte warten Sie, bis die Fotogröße im Auswahlfenster angezeigt wird.
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5331,6 +5402,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Profile_Label">
 		Profil
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Missbrauch melden
+	</string>
 	<string name="Command_Search_Label">
 		Suchen
 	</string>
@@ -5420,6 +5494,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Ihr Profil bearbeiten oder anzeigen
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Missbrauch melden
 	</string>
 	<string name="Command_Search_Tooltip">
 		Orte, Veranstaltungen, Leute finden

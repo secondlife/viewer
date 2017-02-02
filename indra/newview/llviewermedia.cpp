@@ -167,6 +167,7 @@ static bool sForceUpdate = false;
 static LLUUID sOnlyAudibleTextureID = LLUUID::null;
 static F64 sLowestLoadableImplInterest = 0.0f;
 static bool sAnyMediaShowing = false;
+static bool sAnyMediaPlaying = false;
 static boost::signals2::connection sTeleportFinishConnection;
 static std::string sUpdatedCookies;
 static const char *PLUGIN_COOKIE_FILE_NAME = "plugin_cookies.txt";
@@ -606,6 +607,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	createSpareBrowserMediaSource();
 
 	sAnyMediaShowing = false;
+	sAnyMediaPlaying = false;
 	sUpdatedCookies = getCookieStore()->getChangedCookies();
 	if(!sUpdatedCookies.empty())
 	{
@@ -808,6 +810,12 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				sAnyMediaShowing = true;
 			}
 
+			if (!pimpl->getUsedInUI() && pimpl->hasMedia() && (pimpl->isMediaPlaying() || !pimpl->isMediaTimeBased()))
+			{
+				// consider visible non-timebased media as playing
+				sAnyMediaPlaying = true;
+			}
+
 		}
 	}
 
@@ -854,6 +862,13 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 bool LLViewerMedia::isAnyMediaShowing()
 {
 	return sAnyMediaShowing;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isAnyMediaPlaying()
+{
+    return sAnyMediaPlaying;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -909,6 +924,77 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 		}
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::setAllMediaPaused(bool val)
+{
+    // Set "tentative" autoplay first.  We need to do this here or else
+    // re-enabling won't start up the media below.
+    gSavedSettings.setBOOL("MediaTentativeAutoPlay", !val);
+
+    // Then
+    impl_list::iterator iter = sViewerMediaImplList.begin();
+    impl_list::iterator end = sViewerMediaImplList.end();
+
+    for (; iter != end; iter++)
+    {
+        LLViewerMediaImpl* pimpl = *iter;
+        if (!pimpl->getUsedInUI())
+        {
+            // upause/pause time based media, enable/disable any other
+            if (!val)
+            {
+                pimpl->setDisabled(val);
+                if (pimpl->isMediaTimeBased() && pimpl->isMediaPaused())
+                {
+                    pimpl->play();
+                }
+            }
+            else if (pimpl->isMediaTimeBased() && pimpl->mMediaSource && (pimpl->isMediaPlaying() || pimpl->isMediaPaused()))
+            {
+                pimpl->pause();
+            }
+            else
+            {
+                pimpl->setDisabled(val);
+            }
+        }
+    }
+
+    // Also do Parcel Media and Parcel Audio
+    if (!val)
+    {
+        if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
+        {
+            LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+        }
+
+        if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+            !LLViewerMedia::isParcelAudioPlaying() &&
+            gAudiop &&
+            LLViewerMedia::hasParcelAudio())
+        {
+            if (LLAudioEngine::AUDIO_PAUSED == gAudiop->isInternetStreamPlaying())
+            {
+                // 'false' means unpause
+                gAudiop->pauseInternetStream(false);
+            }
+            else
+            {
+                LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
+            }
+        }
+    }
+    else {
+        // This actually unloads the impl, as opposed to "stop"ping the media
+        LLViewerParcelMedia::stop();
+        if (gAudiop)
+        {
+            LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1820,7 +1906,9 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		}
 		else if(LLFile::stat(plugin_name, &s))
 		{
+#if !LL_LINUX
 			LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
+#endif
 		}
 		else
 		{
@@ -1862,8 +1950,10 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			}
 		}
 	}
-
+#if !LL_LINUX
 	LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
+#endif
+
 	if(gAgent.isInitialized())
 	{
 	    if (std::find(sMimeTypesFailed.begin(), sMimeTypesFailed.end(), media_type) == sMimeTypesFailed.end())

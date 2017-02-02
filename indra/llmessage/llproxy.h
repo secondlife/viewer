@@ -218,14 +218,14 @@ enum LLSocks5AuthType
  */
 class LLProxy: public LLSingleton<LLProxy>
 {
-	LOG_CLASS(LLProxy);
-public:
 	/*###########################################################################################
 	METHODS THAT DO NOT LOCK mProxyMutex!
 	###########################################################################################*/
 	// Constructor, cannot have parameters due to LLSingleton parent class. Call from main thread only.
-	LLProxy();
+	LLSINGLETON(LLProxy);
+	LOG_CLASS(LLProxy);
 
+public:
 	// Static check for enabled status for UDP packets. Call from main thread only.
 	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
 
@@ -239,9 +239,11 @@ public:
 	/*###########################################################################################
 	METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
 	###########################################################################################*/
+private:
 	// Destructor, closes open connections. Do not call directly, use cleanupClass().
 	~LLProxy();
 
+public:
 	// Delete LLProxy singleton. Allows the apr_socket used in the SOCKS 5 control channel to be
 	// destroyed before the call to apr_terminate. Call from main thread only.
 	static void cleanupClass();

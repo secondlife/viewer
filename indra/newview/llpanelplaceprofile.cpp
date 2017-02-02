@@ -502,10 +502,6 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 			if(!parcel->getGroupID().isNull())
 			{
-				// FIXME: Using parcel group as region group.
-				gCacheName->getGroup(parcel->getGroupID(),
-								boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionGroupText, _2));
-
 				std::string owner =
 					LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
 				mParcelOwner->setText(owner);
@@ -524,11 +520,19 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 				LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
 			mParcelOwner->setText(parcel_owner);
 			LLAvatarNameCache::get(region->getOwner(), boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mRegionOwnerText));
+			mRegionGroupText->setText( getString("none_text"));
 		}
 
 		if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
 		{
 			mRegionOwnerText->setText(mRegionOwnerText->getText() + getString("sale_pending_text"));
+		}
+
+		if(!parcel->getGroupID().isNull())
+		{
+			// FIXME: Using parcel group as region group.
+			gCacheName->getGroup(parcel->getGroupID(),
+							boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionGroupText, _2));
 		}
 	}
 

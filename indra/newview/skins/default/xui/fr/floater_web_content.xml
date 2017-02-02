@@ -10,5 +10,9 @@
 			<icon name="media_secure_lock_flag" tool_tip="Navigation sécurisée"/>
 			<button name="popexternal" tool_tip="Ouvrir l&apos;URL actuelle dans votre navigateur de bureau"/>
 		</layout_panel>
+		<layout_panel name="debug_controls">
+			<button name="web_test_home_page" tool_tip="Tests Web de la page d’accueil"/>
+			<button name="VLC Plugin Test" tool_tip="Test vidéo MPEG4"/>
+		</layout_panel>
 	</layout_stack>
 </floater>

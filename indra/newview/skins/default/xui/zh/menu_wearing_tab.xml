@@ -3,4 +3,6 @@
 	<menu_item_call label="脫下" name="take_off"/>
 	<menu_item_call label="卸下" name="detach"/>
 	<menu_item_call label="編輯裝扮" name="edit"/>
+	<menu_item_call label="編輯" name="edit_item"/>
+	<menu_item_call label="顯示原件" name="show_original"/>
 </context_menu>

@@ -51,7 +51,7 @@
      left_delta="50"
      name="version_channel_text"
      top_delta="0"
-     width="200">
+     width="225">
         unknown
     </text>
     <text
@@ -73,7 +73,7 @@
      left_delta="50"
      name="region_type"
      top_delta="0"
-     width="200">
+     width="225">
         unknown
     </text>
     <check_box

@@ -465,7 +465,11 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 		LL_DEBUGS() << "window reshaped, updating thumbnail" << LL_ENDL;
 		if (mViewContainer && mViewContainer->isInVisibleChain())
 		{
-			updateSnapshot(TRUE);
+			// We usually resize only on window reshape, so give it a chance to redraw, assign delay
+			updateSnapshot(
+				TRUE, // new snapshot is needed
+				FALSE, // thumbnail will be updated either way.
+				AUTO_SNAPSHOT_TIME_DELAY); // shutter delay.
 		}
 	}
 }
@@ -1032,7 +1036,7 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
-		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
         std::string res_name = outfit_snapshot ? name : "Snapshot : " + pos_string;
         std::string res_desc = outfit_snapshot ? "" : "Taken by " + who_took_it + " at " + pos_string;
         LLFolderType::EType folder_type = outfit_snapshot ? LLFolderType::FT_NONE : LLFolderType::FT_SNAPSHOT_CATEGORY;

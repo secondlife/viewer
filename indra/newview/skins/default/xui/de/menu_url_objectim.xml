@@ -2,6 +2,7 @@
 <context_menu name="Url Popup">
 	<menu_item_call label="Objektprofil..." name="show_object"/>
 	<menu_item_call label="Blockieren..." name="block_object"/>
+	<menu_item_call label="Freischalten" name="unblock_object"/>
 	<menu_item_call label="Auf Karte zeigen" name="show_on_map"/>
 	<menu_item_call label="Zu Objekt-Position teleportieren" name="teleport_to_object"/>
 	<menu_item_call label="Objektname in Zwischenablage kopieren" name="url_copy_label"/>

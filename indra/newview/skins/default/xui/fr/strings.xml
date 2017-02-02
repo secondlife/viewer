@@ -61,16 +61,33 @@ Carte graphique : [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Version Windows Graphics Driver : [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		Version OpenGL : [OPENGL_VERSION]
-
-Version J2C Decoder : [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Taille de la fenêtre : [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Ajustement de la taille de la police : [FONT_SIZE_ADJUSTMENT] pts
+Échelle de l’interface : [UI_SCALE]
+Limite d’affichage : [DRAW_DISTANCE] m
+Bande passante : [NET_BANDWITH] kbit/s
+Facteur LOD (niveau de détail) : [LOD_FACTOR]
+Qualité de rendu : [RENDER_QUALITY] / 7
+Modèle d’éclairage avancé : [GPU_SHADERS]
+Mémoire textures : [TEXTURE_MEMORY] Mo
+Durée de création VFS (cache) : [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		Version J2C Decoder : [J2C_VERSION]
 Version Audio Driver : [AUDIO_DRIVER_VERSION]
 Version LLCEFLib/CEF : [LLCEFLIB_VERSION]
+Version LibVLC : [LIBVLC_VERSION]
 Version serveur vocal : [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquets perdus : [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Erreur lors de la récupération de l&apos;URL des notes de version du serveur.
@@ -1089,6 +1106,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="TeleportYourAgent">
 		Vous téléporter
 	</string>
+	<string name="ForceSitAvatar">
+		Forcez votre avatar à s’asseoir
+	</string>
 	<string name="NotConnected">
 		Pas connecté(e)
 	</string>
@@ -1937,6 +1957,27 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="av_render_anyone">
 		Vous risquez de n’être rendu par aucune des personnes qui vous entourent.
 	</string>
+	<string name="hud_description_total">
+		Votre HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (porté sur [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] utilise beaucoup de mémoire textures
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] contient beaucoup de textures et d’objets volumineux
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] contient beaucoup de textures volumineuses
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] contient trop d’objets
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] contient trop de textures
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] an
 	</string>
@@ -2095,6 +2136,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="ObjectOutOfRange">
 		Script (objet hors de portée)
+	</string>
+	<string name="ScriptWasDeleted">
+		Script (supprimé de l’inventaire)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Objet [OBJECT] appartenant à [OWNER]
@@ -2707,6 +2751,15 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Play Media">
 		Lire/pauser le média
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/fr_FR/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=fr
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Une erreur est survenue lors de la lecture de la ligne de commande.
@@ -4483,11 +4536,17 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="paid_you_ldollars">
 		[NAME] vous a payé [AMOUNT] L$ [REASON].
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] vous a payé [AMOUNT] L$ : [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] vous a payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Vous avez payé à [NAME] [AMOUNT] L$ : [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Vous avez payé [AMOUNT] L$.
@@ -4500,6 +4559,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Votre paiement de [AMOUNT] L$ à [NAME] [REASON] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Votre paiement de [AMOUNT] L$ à [NAME] a échoué : [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Votre paiement de [AMOUNT] L$ a échoué.
@@ -4826,6 +4888,15 @@ du rapport d&apos;infraction
 	</string>
 	<string name="texture_load_dimensions_error">
 		Impossible de charger des images de taille supérieure à [WIDTH]*[HEIGHT]
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Taille max. de la photo de la tenue : [WIDTH]*[HEIGHT]. Redimensionnez l’image ou utilisez-en une autre.
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Taille max. de la photo de la tenue : [WIDTH]*[HEIGHT]. Sélectionnez une autre texture.
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Impossible de vérifier les dimensions de la photo. Attendez que la taille de la photo s’affiche dans le sélecteur.
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5331,6 +5402,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Command_Profile_Label">
 		Profil
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Signaler une infraction
+	</string>
 	<string name="Command_Search_Label">
 		Recherche
 	</string>
@@ -5420,6 +5494,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Modifier ou afficher votre profil
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Signaler une infraction
 	</string>
 	<string name="Command_Search_Tooltip">
 		Trouver des lieux, personnes, événements

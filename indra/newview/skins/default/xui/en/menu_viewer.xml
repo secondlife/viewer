@@ -448,7 +448,7 @@
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_check
-        label="Search"
+        label="Search..."
         name="Search"
         shortcut="control|F">
             <menu_item_check.on_check
@@ -885,12 +885,12 @@
             </menu_item_check>
         <menu
          create_jump_keys="true"
-         label="Select Linked Parts"
-         name="Select Linked Parts"
+         label="Select Elements"
+         name="Select Elements"
          tear_off="true">
             <menu_item_call
-             label="Select Next Part"
-             name="Select Next Part"
+             label="Select Next Part or Face"
+             name="Select Next Part or Face"
 	     shortcut="control|.">
                 <menu_item_call.on_click
                  function="Tools.SelectNextPart"
@@ -899,8 +899,8 @@
                  function="Tools.EnableSelectNextPart" />
             </menu_item_call>
             <menu_item_call
-             label="Select Previous Part"
-             name="Select Previous Part"
+             label="Select Previous Part or Face"
+             name="Select Previous Part or Face"
 	     shortcut="control|,">
                 <menu_item_call.on_click
                  function="Tools.SelectNextPart"
@@ -909,8 +909,8 @@
                  function="Tools.EnableSelectNextPart" />
             </menu_item_call>
             <menu_item_call
-             label="Include Next Part"
-             name="Include Next Part"
+             label="Include Next Part or Face"
+             name="Include Next Part or Face"
 	     shortcut="control|shift|.">
                 <menu_item_call.on_click
                  function="Tools.SelectNextPart"
@@ -919,8 +919,8 @@
                  function="Tools.EnableSelectNextPart" />
             </menu_item_call>
             <menu_item_call
-             label="Include Previous Part"
-             name="Include Previous Part"
+             label="Include Previous Part or Face"
+             name="Include Previous Part or Face"
 	     shortcut="control|shift|,">
                 <menu_item_call.on_click
                  function="Tools.SelectNextPart"

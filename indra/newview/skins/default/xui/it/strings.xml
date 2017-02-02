@@ -58,16 +58,33 @@ Scheda grafica: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Versione driver Windows per grafica: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		Versione OpenGL: [OPENGL_VERSION]
-
-Versione J2C Decoder: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Dimensione finestra: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
+Regolazione dimensioni carattere: [FONT_SIZE_ADJUSTMENT] punti
+Scala UI: [UI_SCALE]
+Distanza visualizzazione: [DRAW_DISTANCE] m
+Larghezza banda: [NET_BANDWITH] kbit/s
+Fattore livello di dettaglio: [LOD_FACTOR]
+Qualità di rendering: [RENDER_QUALITY] / 7
+Modello illuminazione avanzato: [GPU_SHADERS]
+Memoria texture: [TEXTURE_MEMORY] MB
+Data/ora creazione VFS (cache): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		Versione J2C Decoder: [J2C_VERSION]
 Versione Driver audio: [AUDIO_DRIVER_VERSION]
 Versione LLCEFLib/CEF: [LLCEFLIB_VERSION]
-Versione server voce: [VOICE_VERSION]
+Versione LibVLC: [LIBVLC_VERSION]
+Versione Server voice: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="AboutTime">
+		[day, datetime, slt] [month, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Errore nel recupero URL note rilascio versione
@@ -1083,6 +1100,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="TeleportYourAgent">
 		Teleportarti
 	</string>
+	<string name="ForceSitAvatar">
+		Forza l&apos;avatar a sedersi
+	</string>
 	<string name="AgentNameSubst">
 		(Tu)
 	</string>
@@ -1922,6 +1942,27 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="av_render_anyone">
 		Tutte le persone vicine a te potrebbero non eseguire il tuo rendering.
 	</string>
+	<string name="hud_description_total">
+		Il tuo HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (indossato su [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] fa uso di molta memoria texture
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] contiene molti oggetti e texture che occupano una grande quantità di risorse
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] contiene molte texture di grandi dimensioni
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] contiene troppi oggetti
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] contiene troppe texture
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] anno
 	</string>
@@ -2080,6 +2121,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ObjectOutOfRange">
 		Script (oggetto fuori portata)
+	</string>
+	<string name="ScriptWasDeleted">
+		Script (eliminato da inventario)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Oggetto [OBJECT] di proprietà di [OWNER]
@@ -2650,6 +2694,15 @@ Tipi conosciuti .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="Play Media">
 		Riproduci/Pausa supporto
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=en-us
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Un errore è stato riscontrato analizzando la linea di comando.
@@ -4396,11 +4449,17 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="paid_you_ldollars">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT] [REASON].
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] ti ha inviato un pagamento di L$ [AMOUNT]: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Hai inviato un pagamento di L$[AMOUNT] a [NAME] [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Hai inviato un pagamento di L$ [AMOUNT] a [NAME]: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Hai pagato L$ [AMOUNT].
@@ -4413,6 +4472,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Non hai pagato [NAME] L$[AMOUNT] [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Non hai inviato un pagamento di L$ [AMOUNT] a [NAME]: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Non hai pagato L$ [AMOUNT].
@@ -4739,6 +4801,15 @@ Segnala abuso
 	</string>
 	<string name="texture_load_dimensions_error">
 		Impossibile caricare immagini di dimensioni superiori a [WIDTH]*[HEIGHT]
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Le dimensioni massime delle foto di vestiario sono [WIDTH]*[HEIGHT]. Ridimensiona l&apos;immagine o usane un&apos;altra
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Le dimensioni massime delle foto di vestiario sono [WIDTH]*[HEIGHT]. Seleziona un&apos;altra texture
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Impossibile verificare le dimensioni della foto. Attendi che le dimensioni siano visualizzate nel selettore.
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5244,6 +5315,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Profile_Label">
 		Profilo
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Segnala abuso
+	</string>
 	<string name="Command_Search_Label">
 		Ricerca
 	</string>
@@ -5333,6 +5407,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Modifica o visualizza il tuo profilo
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Segnala abuso
 	</string>
 	<string name="Command_Search_Tooltip">
 		Trova luoghi, eventi, persone

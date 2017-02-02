@@ -111,11 +111,11 @@
 		<menu_item_call label="Объединить" name="Link"/>
 		<menu_item_call label="Разъединить" name="Unlink"/>
 		<menu_item_check label="Редактировать объединенные части" name="Edit Linked Parts"/>
-		<menu label="Выбрать объединенные части" name="Select Linked Parts">
-			<menu_item_call label="Выбрать следующую" name="Select Next Part"/>
-			<menu_item_call label="Выбрать предыдущую" name="Select Previous Part"/>
-			<menu_item_call label="Включить следующую" name="Include Next Part"/>
-			<menu_item_call label="Включить предыдущую" name="Include Previous Part"/>
+		<menu label="Выберите элементы" name="Select Elements">
+			<menu_item_call label="Выбрать следующую часть или лицо" name="Select Next Part or Face"/>
+			<menu_item_call label="Выбрать предыдущую часть или лицо" name="Select Previous Part or Face"/>
+			<menu_item_call label="Включить следующую часть или лицо" name="Include Next Part or Face"/>
+			<menu_item_call label="Включить предыдущую часть или лицо" name="Include Previous Part or Face"/>
 		</menu>
 		<menu_item_call label="Наборы связей..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Фокус на выбранном" name="Focus on Selection"/>
@@ -365,8 +365,7 @@
 			<menu_item_call label="Вывод кэша региональных объектов" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Интерфейс пользователя" name="UI">
-			<menu_item_call label="Проверка медиабраузера" name="Web Browser Test"/>
-			<menu_item_call label="Браузер для просмотра веб-контента" name="Web Content Browser"/>
+			<menu_item_call label="Браузер для просмотра медиа" name="Media Browser"/>
 			<menu_item_call label="Вывод SelectMgr" name="Dump SelectMgr"/>
 			<menu_item_call label="Вывод инвентаря" name="Dump Inventory"/>
 			<menu_item_call label="Вывод таймеров" name="Dump Timers"/>

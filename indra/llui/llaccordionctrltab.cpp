@@ -361,6 +361,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 {
 	mStoredOpenCloseState = false;
 	mWasStateStored = false;
+	mSkipChangesOnNotifyParent = false;
 	
 	mDropdownBGColor = LLColor4::white;
 	LLAccordionCtrlTabHeader::Params headerParams;
@@ -691,7 +692,7 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 			
 			mExpandedHeight = height;
 			
-			if(isExpanded())
+			if(isExpanded() && !mSkipChangesOnNotifyParent)
 			{
 				LLRect panel_rect = getRect();
 				panel_rect.setLeftTopAndSize( panel_rect.mLeft, panel_rect.mTop, panel_rect.getWidth(), height);

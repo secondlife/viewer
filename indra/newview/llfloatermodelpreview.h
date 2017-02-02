@@ -115,6 +115,8 @@ public:
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
 
+	bool isModelLoading();
+
 	// shows warning message if agent has no permissions to upload model
 	/*virtual*/ void onPermissionsReceived(const LLSD& result);
 
@@ -304,6 +306,7 @@ public:
 	
 	static bool 		sIgnoreLoadedCallback;
     std::vector<S32> mLodsQuery;
+    std::vector<S32> mLodsWithParsingError;
 
 protected:
 

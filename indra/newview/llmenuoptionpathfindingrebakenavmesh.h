@@ -37,6 +37,8 @@ class LLPathfindingNavMeshStatus;
 
 class LLMenuOptionPathfindingRebakeNavmesh : public LLSingleton<LLMenuOptionPathfindingRebakeNavmesh>
 {
+	LLSINGLETON(LLMenuOptionPathfindingRebakeNavmesh);
+	virtual ~LLMenuOptionPathfindingRebakeNavmesh();
 	LOG_CLASS(LLMenuOptionPathfindingRebakeNavmesh);
 
 public:
@@ -49,8 +51,6 @@ public:
 		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
 	} ERebakeNavMeshMode;
 
-	LLMenuOptionPathfindingRebakeNavmesh();
-	virtual ~LLMenuOptionPathfindingRebakeNavmesh();
 
 	void               initialize();
 	void               quit();

@@ -10,6 +10,7 @@
 	<menu_item_call label="Şeklimi Düzenle" name="Edit My Shape"/>
 	<menu_item_call label="Konum Yüksekliği" name="Hover Height"/>
 	<menu_item_call label="İskeleti Sıfırla" name="Reset Skeleton"/>
+	<menu_item_call label="İskeleti ve Animasyonları Sıfırla" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Arkadaşlarım" name="Friends..."/>
 	<menu_item_call label="Gruplarım" name="Groups..."/>
 	<menu_item_call label="Profilim" name="Profile..."/>

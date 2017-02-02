@@ -211,7 +211,7 @@ public:
 	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
 	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
-	/*virtual*/ void handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
+	/*virtual*/ BOOL handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
 
 	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
 	/*virtual*/ void handlePauseWatchdog(LLWindow *window);

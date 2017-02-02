@@ -30,6 +30,7 @@
 		<combo_box.item label="讓我自己手動下載並安裝" name="Install_manual"/>
 	</combo_box>
 	<check_box label="願意在更新時搶先試用釋出候選版" name="update_willing_to_test"/>
+	<check_box label="更新後顯示發行記事" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
 		代理伺服器設定：
 	</text>

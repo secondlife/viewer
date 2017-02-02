@@ -24,7 +24,7 @@
 	<text name="BetterText">
 		Meilleure
 	</text>
-	<slider label="Complexité max. de l&apos;avatar :" name="IndirectMaxComplexity" tool_tip="Contrôle à quel moment un avatar complexe est représenté comme un « jelly baby »"/>
+	<slider label="Complexité max. de l&apos;avatar :" name="IndirectMaxComplexity" tool_tip="Contrôle à quel moment un avatar complexe est représenté comme un « JellyDoll »"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

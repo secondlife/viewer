@@ -127,8 +127,7 @@ class LLAvatarAppearanceDictionary : public LLSingleton<LLAvatarAppearanceDictio
 	//--------------------------------------------------------------------
 	// Constructors and Destructors
 	//--------------------------------------------------------------------
-public:
-	LLAvatarAppearanceDictionary();
+	LLSINGLETON(LLAvatarAppearanceDictionary);
 	virtual ~LLAvatarAppearanceDictionary();
 private:
 	void createAssociations();

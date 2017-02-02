@@ -77,12 +77,12 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
 	mCommitCallbackRegistrar.add("Snapshot.SendToTwitter",		boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
 	mCommitCallbackRegistrar.add("Snapshot.SendToFlickr",		boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
-	LLGlobalEconomy::Singleton::getInstance()->addObserver(this);
+	LLGlobalEconomy::getInstance()->addObserver(this);
 }
 
 LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
 {
-	LLGlobalEconomy::Singleton::getInstance()->removeObserver(this);
+	LLGlobalEconomy::getInstance()->removeObserver(this);
 }
 
 // virtual
@@ -100,7 +100,7 @@ void LLPanelSnapshotOptions::onOpen(const LLSD& key)
 
 void LLPanelSnapshotOptions::updateUploadCost()
 {
-	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	S32 upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 	getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d", upload_cost));
 }
 

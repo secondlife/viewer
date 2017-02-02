@@ -3,6 +3,10 @@
 	<menu_item_call label="着る - 着用中のアウトフィットを入れ替える" name="wear"/>
 	<menu_item_call label="着る - 着用中のアウトフィットに追加する" name="wear_add"/>
 	<menu_item_call label="取り外す - 着用中のアウトフィットから取り除く" name="take_off"/>
+	<menu_item_call label="写真をアップロード（L$10）" name="upload_photo"/>
+	<menu_item_call label="写真を選択" name="select_photo"/>
+	<menu_item_call label="スナップショットを撮る" name="take_snapshot"/>
+	<menu_item_call label="写真を削除" name="remove_photo"/>
 	<menu label="衣類" name="New Clothes">
 		<menu_item_call label="シャツ" name="New Shirt"/>
 		<menu_item_call label="パンツ" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="フォルダをすべて閉じる" name="collapse"/>
 	<menu_item_call label="アウトフィットの名前を変更する" name="rename"/>
 	<menu_item_call label="アウトフィットを削除する" name="delete_outfit"/>
+	<menu_item_check label="フォルダを常に名前順に並べる" name="sort_folders_by_name"/>
 </toggleable_menu>

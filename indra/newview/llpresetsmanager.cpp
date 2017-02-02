@@ -55,6 +55,10 @@ void LLPresetsManager::triggerChangeSignal()
 
 void LLPresetsManager::createMissingDefault()
 {
+	if(gDirUtilp->getLindenUserDir().empty())
+	{
+		return;
+	}
 	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, PRESETS_GRAPHIC, PRESETS_DEFAULT + ".xml");
 	if (!gDirUtilp->fileExists(default_file))
 	{

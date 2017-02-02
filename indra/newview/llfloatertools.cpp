@@ -1177,7 +1177,12 @@ void LLFloaterTools::updateLandImpacts()
 
 	S32 rezzed_prims = parcel->getSimWidePrimCount();
 	S32 total_capacity = parcel->getSimWideMaxPrimCapacity();
-
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+	if (region)
+	{
+		S32 max_tasks_per_region = (S32)region->getMaxTasks();
+		total_capacity = llmin(total_capacity, max_tasks_per_region);
+	}
 	std::string remaining_capacity_str = "";
 
 	bool show_mesh_cost = gMeshRepo.meshRezEnabled();

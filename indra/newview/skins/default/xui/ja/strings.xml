@@ -61,16 +61,33 @@ OS バージョン：[OS_VERSION]
 	<string name="AboutDriver">
 		Windows グラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		OpenGL バージョン：[OPENGL_VERSION]
-
-J2C デコーダバージョン：[J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		ウィンドウサイズ： [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+フォントサイズの調整： [FONT_SIZE_ADJUSTMENT]pt
+UI スケーリング： [UI_SCALE]
+描画距離：[DRAW_DISTANCE]m
+帯域幅：[NET_BANDWITH]kbit/s
+LOD 係数： [LOD_FACTOR]
+表示品質： [RENDER_QUALITY] / 7
+高度なライティングモデル： [GPU_SHADERS]
+テクスチャメモリ： [TEXTURE_MEMORY]MB
+VFS（キャッシュ）作成時間： [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		J2C デコーダバージョン：[J2C_VERSION]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
-LLCEFLib/CEF バージョン: [LLCEFLIB_VERSION]
-ボイスサーバーバージョン:[VOICE_VERSION]
+LLCEFLib/CEF バージョン： [LLCEFLIB_VERSION]
+LibVLC バージョン： [LIBVLC_VERSION]
+ボイスサーバーバージョン：[VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		パケットロス：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		サーバーのリリースノートの URL を取得中にエラーが発生しました。
@@ -1089,6 +1106,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="TeleportYourAgent">
 		あなたをテレポート
 	</string>
+	<string name="ForceSitAvatar">
+		アバターを強制的に座らせる
+	</string>
 	<string name="NotConnected">
 		接続されていません
 	</string>
@@ -1937,6 +1957,27 @@ support@secondlife.com にお問い合わせください。
 	<string name="av_render_anyone">
 		あなたのまわりの誰にもあなたが見えない可能性があります。
 	</string>
+	<string name="hud_description_total">
+		ご利用の HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME]（[JNT_NAME] に装着中）
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] はたくさんのテクスチャメモリを使用します
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] には高価なオブジェクトやテクスチャがたくさん含まれています
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] は大きなテクスチャがたくさん含まれています
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] に含まれるオブジェクトが多すぎます
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] に含まれるテクスチャが多すぎます
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] 年
 	</string>
@@ -2095,6 +2136,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="ObjectOutOfRange">
 		スクリプト（オブジェクトが範囲外にあります）
+	</string>
+	<string name="ScriptWasDeleted">
+		スクリプト（インベントリから削除済み）
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		[OWNER] 所有のオブジェクト「[OBJECT]」
@@ -2707,6 +2751,15 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Play Media">
 		メディアを再生/一時停止
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=en-us
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		コマンドラインにエラーが見つかりました。
@@ -4483,10 +4536,16 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="paid_you_ldollars">
 		[NAME] は [REASON] のために L$[AMOUNT] を支払いました。
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] は L$[AMOUNT] 支払いました：[REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] は L$[AMOUNT] を支払いました。
 	</string>
 	<string name="you_paid_ldollars">
+		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
+	</string>
+	<string name="you_paid_ldollars_gift">
 		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
@@ -4500,6 +4559,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="you_paid_failure_ldollars">
 		[NAME] に [REASON] の代金 L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		[NAME] に L$ [AMOUNT] を支払えませんでした：[REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		L$ [AMOUNT] を支払えませんでした。
@@ -4826,6 +4888,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="texture_load_dimensions_error">
 		[WIDTH]*[HEIGHT] 以上の画像は読み込めません
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		最大アウトフィット写真サイズは [WIDTH]*[HEIGHT] です。画像のサイズを調整するか、別の画像を使用してください
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		最大アウトフィット写真サイズは [WIDTH]*[HEIGHT] です。別のテクスチャを選択してください
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		写真の寸法を確認できません。写真サイズがピッカーに表示されるまでお待ちください
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5331,6 +5402,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Profile_Label">
 		プロフィール
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		嫌がらせの報告
+	</string>
 	<string name="Command_Search_Label">
 		検索
 	</string>
@@ -5420,6 +5494,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Profile_Tooltip">
 		プロフィールを編集・表示
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		嫌がらせの報告
 	</string>
 	<string name="Command_Search_Tooltip">
 		場所、イベント、人を検索

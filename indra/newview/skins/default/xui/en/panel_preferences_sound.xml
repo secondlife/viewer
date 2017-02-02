@@ -394,7 +394,6 @@
    <radio_group
      enabled_control="EnableVoiceChat"
      control_name="VoiceEarLocation"
-     draw_border="false"
      follows="left|top"
      layout="topleft"
      left_delta="-168"

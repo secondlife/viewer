@@ -10,6 +10,7 @@
 	<menu_item_call label="Meine Form bearbeiten" name="Edit My Shape"/>
 	<menu_item_call label="Schwebehöhe" name="Hover Height"/>
 	<menu_item_call label="Skelett zurücksetzen" name="Reset Skeleton"/>
+	<menu_item_call label="Skelett und Animationen zurücksetzen" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Meine Freunde" name="Friends..."/>
 	<menu_item_call label="Meine Gruppen" name="Groups..."/>
 	<menu_item_call label="Mein Profil" name="Profile..."/>

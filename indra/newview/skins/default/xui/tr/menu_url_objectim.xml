@@ -2,6 +2,7 @@
 <context_menu name="Url Popup">
 	<menu_item_call label="Nesne Profili..." name="show_object"/>
 	<menu_item_call label="Engelle..." name="block_object"/>
+	<menu_item_call label="Engellemeyi Kaldır" name="unblock_object"/>
 	<menu_item_call label="Haritada Göster" name="show_on_map"/>
 	<menu_item_call label="Nesne Konumuna Işınla" name="teleport_to_object"/>
 	<menu_item_call label="Nesne Adını panoya kopyala" name="url_copy_label"/>

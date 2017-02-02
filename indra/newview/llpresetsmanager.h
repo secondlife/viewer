@@ -46,6 +46,9 @@ enum EDefaultOptions
 
 class LLPresetsManager : public LLSingleton<LLPresetsManager>
 {
+	LLSINGLETON(LLPresetsManager);
+	~LLPresetsManager();
+
 public:
 
 	typedef std::list<std::string> preset_name_list_t;
@@ -66,9 +69,6 @@ public:
 	// Emitted when a preset gets loaded or saved.
 
 	preset_name_list_t mPresetNames;
-
-	LLPresetsManager();
-	~LLPresetsManager();
 
 	preset_list_signal_t mPresetListChangeSignal;
 
