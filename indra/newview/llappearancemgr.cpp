@@ -1246,31 +1246,32 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 				data.mWearable = wearable;
 				use_count++;
 			}
-			else if (wearable->getPermissions().allowModifyBy(gAgent.getID()))
-			{
-				// We can't edit and do some other interactions with same asset twice, copy it
-				LLViewerWearable* new_wearable = LLWearableList::instance().createCopy(wearable, wearable->getName());
-				data.mWearable = new_wearable;
-				data.mAssetID = new_wearable->getAssetID();
-
-				LLViewerInventoryItem* item = gInventory.getItem(data.mItemID);
-				if (item)
-				{
-					// Update existing inventory item
-					item->setAssetUUID(new_wearable->getAssetID());
-					item->setTransactionID(new_wearable->getTransactionID());
-					gInventory.updateItem(item, LLInventoryObserver::INTERNAL);
-					item->updateServer(FALSE);
-				}
-				use_count++;
-			}
 			else
 			{
-				// Note: technically a bug, LLViewerWearable can identify only one item id at a time,
-				// yet we are tying it to multiple items here.
-				// LLViewerWearable need to support more then one item.
-				LL_WARNS() << "Same LLViewerWearable is used by multiple items! " << wearable->getAssetID() << LL_ENDL;
-				data.mWearable = wearable;
+				LLViewerInventoryItem* wearable_item = gInventory.getItem(data.mItemID);
+				if (wearable_item && wearable_item->getPermissions().allowModifyBy(gAgentID))
+				{
+					// We can't edit and do some other interactions with same asset twice, copy it
+					LLViewerWearable* new_wearable = LLWearableList::instance().createCopy(wearable, wearable->getName());
+					data.mWearable = new_wearable;
+					data.mAssetID = new_wearable->getAssetID();
+
+					// Update existing inventory item
+					wearable_item->setAssetUUID(new_wearable->getAssetID());
+					wearable_item->setTransactionID(new_wearable->getTransactionID());
+					gInventory.updateItem(wearable_item, LLInventoryObserver::INTERNAL);
+					wearable_item->updateServer(FALSE);
+
+					use_count++;
+				}
+				else
+				{
+					// Note: technically a bug, LLViewerWearable can identify only one item id at a time,
+					// yet we are tying it to multiple items here.
+					// LLViewerWearable need to support more then one item.
+					LL_WARNS() << "Same LLViewerWearable is used by multiple items! " << wearable->getAssetID() << LL_ENDL;
+					data.mWearable = wearable;
+				}
 			}
 		}
 	}
