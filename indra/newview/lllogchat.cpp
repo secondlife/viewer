@@ -930,7 +930,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//possibly a case of complex object names consisting of 3+ words
 	if (!has_name)
 	{
-		U32 divider_pos = stuff.find(NAME_TEXT_DIVIDER);
+		std::string::size_type divider_pos = stuff.find(NAME_TEXT_DIVIDER);
 		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
 		{
 			im[LL_IM_FROM] = stuff.substr(0, divider_pos);

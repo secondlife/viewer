@@ -29,6 +29,12 @@ import sys
 import errno
 import re
 import subprocess
+import argparse
+
+parser = argparse.ArgumentParser(description='Format dependency version and copyright information for the viewer About box content')
+parser.add_argument('channel', help='viewer channel name')
+parser.add_argument('version', help='viewer version number')
+args = parser.parse_args()
 
 _autobuild=os.getenv('AUTOBUILD', 'autobuild')
 
@@ -50,9 +56,8 @@ def autobuild(*args):
             # Don't attempt to interpret anything but ENOENT
             raise
         # Here it's ENOENT: subprocess can't find the autobuild executable.
-        print >>sys.stderr, "packages-formatter on %s: can't run autobuild:\n%s\n%s" % \
-              (sys.platform, ' '.join(command), err)
-        sys.exit(1)
+        sys.exit("packages-formatter on %s: can't run autobuild:\n%s\n%s" % \
+                 (sys.platform, ' '.join(command), err))
 
     # no exceptions yet, let caller read stdout
     return child.stdout
@@ -84,6 +89,7 @@ for line in copyrights:
     else:
         sys.exit("Unrecognized --copyrights output: %s" % line)
 
+print "%s %s" % (args.channel, args.version)
 print viewer_copyright
 for pkg in sorted(version):
     print ': '.join([pkg, version[pkg]])

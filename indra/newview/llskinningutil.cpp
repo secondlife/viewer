@@ -122,7 +122,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 // static
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#ifdef SHOW_ASSERT                  // same condition that controls llassert()
 	const S32 max_joints = skin->mJointNames.size();
     for (U32 j=0; j<num_vertices; j++)
     {

@@ -22,7 +22,7 @@
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
-[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit)
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
     <string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>

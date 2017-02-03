@@ -398,7 +398,7 @@ static F64 calculate_cpu_frequency(U32 measure_msecs)
 	HANDLE hThread = GetCurrentThread();
 	unsigned long dwCurPriorityClass = GetPriorityClass(hProcess);
 	int iCurThreadPriority = GetThreadPriority(hThread);
-	unsigned long dwProcessMask, dwSystemMask, dwNewMask = 1;
+	DWORD_PTR dwProcessMask, dwSystemMask, dwNewMask = 1;
 	GetProcessAffinityMask(hProcess, &dwProcessMask, &dwSystemMask);
 
 	SetPriorityClass(hProcess, REALTIME_PRIORITY_CLASS);
