@@ -61,9 +61,6 @@ extern bool gShiftFrame;
 static U32 sZombieGroups = 0;
 U32 LLSpatialGroup::sNodeCount = 0;
 
-U32 gOctreeMaxCapacity;
-F32 gOctreeMinSize;
-
 BOOL LLSpatialGroup::sNoDelete = FALSE;
 
 static F32 sLastMaxTexPriority = 1.f;
