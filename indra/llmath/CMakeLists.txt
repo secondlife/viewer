@@ -4,6 +4,7 @@ project(llmath)
 
 include(00-Common)
 include(LLCommon)
+include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -118,6 +119,11 @@ if (LL_TESTS)
     v4color.cpp
     v4coloru.cpp
     )
+  set_source_files_properties(
+    ${llmath_TEST_SOURCE_FILES}
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_THREAD_LIBRARY}"
+  )
   LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
   # INTEGRATION TESTS
