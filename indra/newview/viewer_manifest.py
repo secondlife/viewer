@@ -861,10 +861,24 @@ class DarwinManifest(ViewerManifest):
 
                 # SLPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
-                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
-                                       "media_plugin_quicktime.dylib")
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],
                                        "media_plugin_cef.dylib")
+
+                    # copy LibVLC plugin itself
+                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
+                                       "media_plugin_libvlc.dylib")
+
+                    # copy LibVLC dynamic libraries
+                    if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release' ), dst="lib"):
+                        self.path( "libvlc*.dylib*" )
+                        self.end_prefix()
+
+                    # copy LibVLC plugins folder
+                    if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release', 'plugins' ), dst="plugins"):
+                        self.path( "lib*_plugin.dylib" )
+                        self.path( "plugins.dat" )
+                        self.end_prefix()
+
                     self.end_prefix("llplugin")
 
                 self.end_prefix("Resources")
