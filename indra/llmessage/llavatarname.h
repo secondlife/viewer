@@ -65,7 +65,7 @@ public:
 	
 	// For normal names, returns "James Linden (james.linden)"
 	// When display names are disabled returns just "James Linden"
-	std::string getCompleteName(bool use_parentheses = true, bool force_use_display_name = false) const;
+	std::string getCompleteName(bool use_parentheses = true, bool force_use_complete_name = false) const;
 	
 	// Returns "James Linden" or "bobsmith123 Resident" for backwards
 	// compatibility with systems like voice and muting
