@@ -1742,7 +1742,6 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
       SLPlugin
-      media_plugin_quicktime
       media_plugin_cef
       media_plugin_libvlc
       winmm_shim
@@ -2067,7 +2066,7 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_libvlc media_plugin_cef mac-crash-logger)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef mac-crash-logger)
   add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
 
   if (ENABLE_SIGNING)
@@ -2124,7 +2123,6 @@ if (PACKAGE)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-darwin-$ENV{AUTOBUILD_ADDRSIZE}.tar.bz2")
     set(VIEWER_EXE_GLOBS "'Second Life' SLPlugin mac-crash-logger")
     set(VIEWER_EXE_GLOBS "'Second Life' mac-crash-logger")

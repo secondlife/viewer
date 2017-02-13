@@ -39,7 +39,7 @@
 #include "boost/function.hpp"
 #include "boost/bind.hpp"
 #include "llCEFLib.h"
-#include "volume_catcher.h"
+//#include "volume_catcher.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -98,8 +98,6 @@ private:
 	std::string mCookiePath;
 	std::string mPickedFile;
 	LLCEFLib* mLLCEFLib;
-
-    VolumeCatcher mVolumeCatcher;
 
 	U8 *mPopupBuffer;
 	U32 mPopupW;
@@ -432,7 +430,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				mLLCEFLib->update();
 
-                mVolumeCatcher.pump();
 				// this seems bad but unless the state changes (it won't until we figure out
 				// how to get CEF to tell us if copy/cut/paste is available) then this function
 				// will return immediately
@@ -926,7 +923,6 @@ void MediaPluginCEF::checkEditState()
 
 void MediaPluginCEF::setVolume(F32 vol)
 {
-    mVolumeCatcher.setVolume(vol);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
