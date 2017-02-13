@@ -33,6 +33,9 @@
 #include "message.h"
 
 #include "llagent.h"
+
+// FIXME asset-http: We are the only customer for gTransferManager - the
+// whole class can be yanked once everything is http-ified.
 #include "lltransfersourceasset.h"
 #include "lltransfertargetvfile.h"
 #include "llviewerassetstats.h"
@@ -51,38 +54,38 @@
 class LLViewerAssetRequest : public LLAssetRequest
 {
 public:
-	LLViewerAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
-		: LLAssetRequest(uuid, type),
-		  mMetricsStartTime(0)
-		{
-		}
-	
-	LLViewerAssetRequest & operator=(const LLViewerAssetRequest &);	// Not defined
-	// Default assignment operator valid
-	
-	// virtual
-	~LLViewerAssetRequest()
-		{
-			recordMetrics();
-		}
+    LLViewerAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
+        : LLAssetRequest(uuid, type),
+          mMetricsStartTime(0)
+    {
+    }
+    
+    LLViewerAssetRequest & operator=(const LLViewerAssetRequest &); // Not defined
+    // Default assignment operator valid
+    
+    // virtual
+    ~LLViewerAssetRequest()
+    {
+        recordMetrics();
+    }
 
 protected:
-	void recordMetrics()
-		{
-			if (mMetricsStartTime.value())
-			{
-				// Okay, it appears this request was used for useful things.  Record
-				// the expected dequeue and duration of request processing.
-				LLViewerAssetStatsFF::record_dequeue(mType, false, false);
-				LLViewerAssetStatsFF::record_response(mType, false, false,
-														   (LLViewerAssetStatsFF::get_timestamp()
-															- mMetricsStartTime));
-				mMetricsStartTime = (U32Seconds)0;
-			}
-		}
-	
+    void recordMetrics()
+    {
+        if (mMetricsStartTime.value())
+        {
+            // Okay, it appears this request was used for useful things.  Record
+            // the expected dequeue and duration of request processing.
+            LLViewerAssetStatsFF::record_dequeue(mType, false, false);
+            LLViewerAssetStatsFF::record_response(mType, false, false,
+                                                  (LLViewerAssetStatsFF::get_timestamp()
+                                                   - mMetricsStartTime));
+            mMetricsStartTime = (U32Seconds)0;
+        }
+    }
+    
 public:
-	LLViewerAssetStats::duration_t		mMetricsStartTime;
+    LLViewerAssetStats::duration_t      mMetricsStartTime;
 };
 
 ///----------------------------------------------------------------------------
@@ -90,228 +93,228 @@ public:
 ///----------------------------------------------------------------------------
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-										   LLVFS *vfs, LLVFS *static_vfs, 
-										   const LLHost &upstream_host)
-		: LLAssetStorage(msg, xfer, vfs, static_vfs, upstream_host)
+                                           LLVFS *vfs, LLVFS *static_vfs, 
+                                           const LLHost &upstream_host)
+    : LLAssetStorage(msg, xfer, vfs, static_vfs, upstream_host)
 {
 }
 
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-										   LLVFS *vfs, LLVFS *static_vfs)
-		: LLAssetStorage(msg, xfer, vfs, static_vfs)
+                                           LLVFS *vfs, LLVFS *static_vfs)
+    : LLAssetStorage(msg, xfer, vfs, static_vfs)
 {
 }
 
 // virtual 
 void LLViewerAssetStorage::storeAssetData(
-	const LLTransactionID& tid,
-	LLAssetType::EType asset_type,
-	LLStoreAssetCallback callback,
-	void* user_data,
-	bool temp_file,
-	bool is_priority,
-	bool store_local,
-	bool user_waiting,
-	F64Seconds timeout)
+    const LLTransactionID& tid,
+    LLAssetType::EType asset_type,
+    LLStoreAssetCallback callback,
+    void* user_data,
+    bool temp_file,
+    bool is_priority,
+    bool store_local,
+    bool user_waiting,
+    F64Seconds timeout)
 {
-	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
-			<< " ASSET_ID: " << asset_id << LL_ENDL;
-	
-	if (mUpstreamHost.isOk())
-	{
-		if (mVFS->getExists(asset_id, asset_type))
-		{
-			// Pack data into this packet if we can fit it.
-			U8 buffer[MTUBYTES];
-			buffer[0] = 0;
+    LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+    LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
+                              << " ASSET_ID: " << asset_id << LL_ENDL;
+    
+    if (mUpstreamHost.isOk())
+    {
+        if (mVFS->getExists(asset_id, asset_type))
+        {
+            // Pack data into this packet if we can fit it.
+            U8 buffer[MTUBYTES];
+            buffer[0] = 0;
 
-			LLVFile vfile(mVFS, asset_id, asset_type, LLVFile::READ);
-			S32 asset_size = vfile.getSize();
+            LLVFile vfile(mVFS, asset_id, asset_type, LLVFile::READ);
+            S32 asset_size = vfile.getSize();
 
-			LLAssetRequest *req = new LLAssetRequest(asset_id, asset_type);
-			req->mUpCallback = callback;
-			req->mUserData = user_data;
+            LLAssetRequest *req = new LLAssetRequest(asset_id, asset_type);
+            req->mUpCallback = callback;
+            req->mUserData = user_data;
 
-			if (asset_size < 1)
-			{
-				// This can happen if there's a bug in our code or if the VFS has been corrupted.
-				LL_WARNS() << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << LL_ENDL;
-				// LLAssetStorage metric: Zero size VFS
-				reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+            if (asset_size < 1)
+            {
+                // This can happen if there's a bug in our code or if the VFS has been corrupted.
+                LL_WARNS() << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << LL_ENDL;
+                // LLAssetStorage metric: Zero size VFS
+                reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 
-				delete req;
-				if (callback)
-				{
-					callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LL_EXSTAT_VFS_CORRUPT);
-				}
-				return;
-			}
-			else
-			{
-				// LLAssetStorage metric: Successful Request
-				S32 size = mVFS->getSize(asset_id, asset_type);
-				const char *message = "Added to upload queue";
-				reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
+                delete req;
+                if (callback)
+                {
+                    callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LL_EXSTAT_VFS_CORRUPT);
+                }
+                return;
+            }
+            else
+            {
+                // LLAssetStorage metric: Successful Request
+                S32 size = mVFS->getSize(asset_id, asset_type);
+                const char *message = "Added to upload queue";
+                reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
 
-				if(is_priority)
-				{
-					mPendingUploads.push_front(req);
-				}
-				else
-				{
-					mPendingUploads.push_back(req);
-				}
-			}
+                if(is_priority)
+                {
+                    mPendingUploads.push_front(req);
+                }
+                else
+                {
+                    mPendingUploads.push_back(req);
+                }
+            }
 
-			// Read the data from the VFS if it'll fit in this packet.
-			if (asset_size + 100 < MTUBYTES)
-			{
-				BOOL res = vfile.read(buffer, asset_size);		/* Flawfinder: ignore */
-				S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
-				
-				if( bytes_read == asset_size )
-				{
-					req->mDataSentInFirstPacket = TRUE;
-					//LL_INFOS() << "LLViewerAssetStorage::createAsset sending data in first packet" << LL_ENDL;
-				}
-				else
-				{
-					LL_WARNS() << "Probable corruption in VFS file, aborting store asset data" << LL_ENDL;
+            // Read the data from the VFS if it'll fit in this packet.
+            if (asset_size + 100 < MTUBYTES)
+            {
+                BOOL res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
+                S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
+                
+                if( bytes_read == asset_size )
+                {
+                    req->mDataSentInFirstPacket = TRUE;
+                    //LL_INFOS() << "LLViewerAssetStorage::createAsset sending data in first packet" << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS() << "Probable corruption in VFS file, aborting store asset data" << LL_ENDL;
 
-					// LLAssetStorage metric: VFS corrupt - bogus size
-					reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
+                    // LLAssetStorage metric: VFS corrupt - bogus size
+                    reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
 
-					if (callback)
-					{
-						callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_VFS_CORRUPT);
-					}
-					return;
-				}
-			}
-			else
-			{
-				// Too big, do an xfer
-				buffer[0] = 0;
-				asset_size = 0;
-			}
-			mMessageSys->newMessageFast(_PREHASH_AssetUploadRequest);
-			mMessageSys->nextBlockFast(_PREHASH_AssetBlock);
-			mMessageSys->addUUIDFast(_PREHASH_TransactionID, tid);
-			mMessageSys->addS8Fast(_PREHASH_Type, (S8)asset_type);
-			mMessageSys->addBOOLFast(_PREHASH_Tempfile, temp_file);
-			mMessageSys->addBOOLFast(_PREHASH_StoreLocal, store_local);
-			mMessageSys->addBinaryDataFast( _PREHASH_AssetData, buffer, asset_size );
-			mMessageSys->sendReliable(mUpstreamHost);
-		}
-		else
-		{
-			LL_WARNS() << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
-			// LLAssetStorage metric: Zero size VFS
-			reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
-			if (callback)
-			{
-				callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
-			}
-		}
-	}
-	else
-	{
-		LL_WARNS() << "Attempt to move asset store request upstream w/o valid upstream provider" << LL_ENDL;
-		// LLAssetStorage metric: Upstream provider dead
-		reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
-		if (callback)
-		{
-			callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
-		}
-	}
+                    if (callback)
+                    {
+                        callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_VFS_CORRUPT);
+                    }
+                    return;
+                }
+            }
+            else
+            {
+                // Too big, do an xfer
+                buffer[0] = 0;
+                asset_size = 0;
+            }
+            mMessageSys->newMessageFast(_PREHASH_AssetUploadRequest);
+            mMessageSys->nextBlockFast(_PREHASH_AssetBlock);
+            mMessageSys->addUUIDFast(_PREHASH_TransactionID, tid);
+            mMessageSys->addS8Fast(_PREHASH_Type, (S8)asset_type);
+            mMessageSys->addBOOLFast(_PREHASH_Tempfile, temp_file);
+            mMessageSys->addBOOLFast(_PREHASH_StoreLocal, store_local);
+            mMessageSys->addBinaryDataFast( _PREHASH_AssetData, buffer, asset_size );
+            mMessageSys->sendReliable(mUpstreamHost);
+        }
+        else
+        {
+            LL_WARNS() << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
+            // LLAssetStorage metric: Zero size VFS
+            reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+            if (callback)
+            {
+                callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
+            }
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Attempt to move asset store request upstream w/o valid upstream provider" << LL_ENDL;
+        // LLAssetStorage metric: Upstream provider dead
+        reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
+        if (callback)
+        {
+            callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+        }
+    }
 }
 
 void LLViewerAssetStorage::storeAssetData(
-	const std::string& filename,
-	const LLTransactionID& tid,
-	LLAssetType::EType asset_type,
-	LLStoreAssetCallback callback,
-	void* user_data,
-	bool temp_file,
-	bool is_priority,
-	bool user_waiting,
-	F64Seconds timeout)
+    const std::string& filename,
+    const LLTransactionID& tid,
+    LLAssetType::EType asset_type,
+    LLStoreAssetCallback callback,
+    void* user_data,
+    bool temp_file,
+    bool is_priority,
+    bool user_waiting,
+    F64Seconds timeout)
 {
-	if(filename.empty())
-	{
-		// LLAssetStorage metric: no filename
-		reportMetric( LLUUID::null, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
-		LL_ERRS() << "No filename specified" << LL_ENDL;
-		return;
-	}
-	
-	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
+    if(filename.empty())
+    {
+        // LLAssetStorage metric: no filename
+        reportMetric( LLUUID::null, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
+        LL_ERRS() << "No filename specified" << LL_ENDL;
+        return;
+    }
+    
+    LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+    LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
 
-	LL_DEBUGS("AssetStorage") << "ASSET_ID: " << asset_id << LL_ENDL;
+    LL_DEBUGS("AssetStorage") << "ASSET_ID: " << asset_id << LL_ENDL;
 
-	S32 size = 0;
-	LLFILE* fp = LLFile::fopen(filename, "rb");
-	if (fp)
-	{
-		fseek(fp, 0, SEEK_END);
-		size = ftell(fp);
-		fseek(fp, 0, SEEK_SET);
-	}
-	if( size )
-	{
-		LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
-		
-		legacy->mUpCallback = callback;
-		legacy->mUserData = user_data;
+    S32 size = 0;
+    LLFILE* fp = LLFile::fopen(filename, "rb");
+    if (fp)
+    {
+        fseek(fp, 0, SEEK_END);
+        size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+    }
+    if( size )
+    {
+        LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
+        
+        legacy->mUpCallback = callback;
+        legacy->mUserData = user_data;
 
-		LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
+        LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
 
-		file.setMaxSize(size);
+        file.setMaxSize(size);
 
-		const S32 buf_size = 65536;
-		U8 copy_buf[buf_size];
-		while ((size = (S32)fread(copy_buf, 1, buf_size, fp)))
-		{
-			file.write(copy_buf, size);
-		}
-		fclose(fp);
+        const S32 buf_size = 65536;
+        U8 copy_buf[buf_size];
+        while ((size = (S32)fread(copy_buf, 1, buf_size, fp)))
+        {
+            file.write(copy_buf, size);
+        }
+        fclose(fp);
 
-		// if this upload fails, the caller needs to setup a new tempfile for us
-		if (temp_file)
-		{
-			LLFile::remove(filename);
-		}
+        // if this upload fails, the caller needs to setup a new tempfile for us
+        if (temp_file)
+        {
+            LLFile::remove(filename);
+        }
 
-		// LLAssetStorage metric: Success not needed; handled in the overloaded method here:
+        // LLAssetStorage metric: Success not needed; handled in the overloaded method here:
 
-		LLViewerAssetStorage::storeAssetData(
-			tid,
-			asset_type,
-			legacyStoreDataCallback,
-			(void**)legacy,
-			temp_file,
-			is_priority);
-	}
-	else // size == 0 (but previous block changes size)
-	{
-		if( fp )
-		{
-			// LLAssetStorage metric: Zero size
-			reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file was zero length" );
-		}
-		else
-		{
-			// LLAssetStorage metric: Missing File
-			reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_FILE_NONEXIST, __FILE__, __LINE__, "The file didn't exist" );
-		}
-		if (callback)
-		{
-			callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
-		}
-	}
+        LLViewerAssetStorage::storeAssetData(
+            tid,
+            asset_type,
+            legacyStoreDataCallback,
+            (void**)legacy,
+            temp_file,
+            is_priority);
+    }
+    else // size == 0 (but previous block changes size)
+    {
+        if( fp )
+        {
+            // LLAssetStorage metric: Zero size
+            reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file was zero length" );
+        }
+        else
+        {
+            // LLAssetStorage metric: Missing File
+            reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_FILE_NONEXIST, __FILE__, __LINE__, "The file didn't exist" );
+        }
+        if (callback)
+        {
+            callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
+        }
+    }
 }
 
 
@@ -334,56 +337,56 @@ void LLViewerAssetStorage::storeAssetData(
 
 // virtual
 void LLViewerAssetStorage::_queueDataRequest(
-	const LLUUID& uuid,
-	LLAssetType::EType atype,
-	LLGetAssetCallback callback,
-	void *user_data,
-	BOOL duplicate,
-	BOOL is_priority)
+    const LLUUID& uuid,
+    LLAssetType::EType atype,
+    LLGetAssetCallback callback,
+    void *user_data,
+    BOOL duplicate,
+    BOOL is_priority)
 {
-	if (mUpstreamHost.isOk())
-	{
-		// stash the callback info so we can find it after we get the response message
-		LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype);
-		req->mDownCallback = callback;
-		req->mUserData = user_data;
-		req->mIsPriority = is_priority;
-		if (!duplicate)
-		{
-			// Only collect metrics for non-duplicate requests.  Others 
-			// are piggy-backing and will artificially lower averages.
-			req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
-		}
-		
-		mPendingDownloads.push_back(req);
-	
-		if (!duplicate)
-		{
-			// send request message to our upstream data provider
-			// Create a new asset transfer.
-			LLTransferSourceParamsAsset spa;
-			spa.setAsset(uuid, atype);
+    if (mUpstreamHost.isOk())
+    {
+        // stash the callback info so we can find it after we get the response message
+        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype);
+        req->mDownCallback = callback;
+        req->mUserData = user_data;
+        req->mIsPriority = is_priority;
+        if (!duplicate)
+        {
+            // Only collect metrics for non-duplicate requests.  Others 
+            // are piggy-backing and will artificially lower averages.
+            req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+        }
+        
+        mPendingDownloads.push_back(req);
+    
+        if (!duplicate)
+        {
+            // send request message to our upstream data provider
+            // Create a new asset transfer.
+            LLTransferSourceParamsAsset spa;
+            spa.setAsset(uuid, atype);
 
-			// Set our destination file, and the completion callback.
-			LLTransferTargetParamsVFile tpvf;
-			tpvf.setAsset(uuid, atype);
-			tpvf.setCallback(downloadCompleteCallback, *req);
+            // Set our destination file, and the completion callback.
+            LLTransferTargetParamsVFile tpvf;
+            tpvf.setAsset(uuid, atype);
+            tpvf.setCallback(downloadCompleteCallback, *req);
 
-			LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << LL_ENDL;
-			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
-			ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
+            LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << LL_ENDL;
+            LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
+            ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 
-			LLViewerAssetStatsFF::record_enqueue(atype, false, false);
-		}
-	}
-	else
-	{
-		// uh-oh, we shouldn't have gotten here
-		LL_WARNS() << "Attempt to move asset data request upstream w/o valid upstream provider" << LL_ENDL;
-		if (callback)
-		{
-			callback(mVFS, uuid, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
-		}
-	}
+            LLViewerAssetStatsFF::record_enqueue(atype, false, false);
+        }
+    }
+    else
+    {
+        // uh-oh, we shouldn't have gotten here
+        LL_WARNS() << "Attempt to move asset data request upstream w/o valid upstream provider" << LL_ENDL;
+        if (callback)
+        {
+            callback(mVFS, uuid, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+        }
+    }
 }
 
