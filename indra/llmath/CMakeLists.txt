@@ -20,6 +20,7 @@ set(llmath_SOURCE_FILES
     llline.cpp
     llmatrix3a.cpp
     llmodularmath.cpp
+    lloctree.cpp
     llperlin.cpp
     llquaternion.cpp
     llrect.cpp
