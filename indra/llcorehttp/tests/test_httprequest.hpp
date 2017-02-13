@@ -3089,7 +3089,7 @@ void HttpRequestTestObjectType::test<23>()
 
 	set_test_name("HttpRequest GET 503s with 'Retry-After'");
 
-#if LL_WINDOWS && ADDRESS_SIZE == 64:
+#if LL_WINDOWS && ADDRESS_SIZE == 64
 	skip("llcorehttp 503-with-retry test hangs on Windows 64");
 #endif
 
