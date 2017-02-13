@@ -81,8 +81,6 @@
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-const F32 MIN_RENDER_COMPLEXITY = 0.f;
-const F32 MAX_RENDER_COMPLEXITY = 1.0e6f;
 U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
 
 BOOL gAnimateTextures = TRUE;
@@ -3616,8 +3614,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	{
 		shame += media_faces * ARC_MEDIA_FACE_COST;
 	}
-
-	shame = llclamp(shame, MIN_RENDER_COMPLEXITY, MAX_RENDER_COMPLEXITY);
 
 	if (shame > mRenderComplexity_current)
 	{
