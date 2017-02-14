@@ -46,10 +46,25 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 
+	static bool checkGridStatusRSS();
+	static void getGridStatusRSSCoro();
+
+	void startGridStatusTimer();
+	BOOL isFirstUpdate() { return mIsFirstUpdate; }
+	void setFirstUpdate(BOOL first_update) { mIsFirstUpdate = first_update; }
+
+	static LLFloaterGridStatus* getInstance();
+
+
 private:
 	/*virtual*/ BOOL postBuild();
 
 	void applyPreferredRect();
+
+	static std::map<std::string, std::string> sItemsMap;
+
+    LLFrameTimer    mGridStatusTimer;
+    BOOL            mIsFirstUpdate;
 };
 
 #endif  // LL_LLFLOATERGRIDSTATUS_H

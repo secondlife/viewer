@@ -294,6 +294,7 @@
            />
   <command name="gridstatus"
            available_in_toybox="true"
+           is_flashing_allowed="true"
            icon="Command_Grid_Status_Icon"
            label_ref="Command_Grid_Status_Label"
            tooltip_ref="Command_Grid_Status_Tooltip"
