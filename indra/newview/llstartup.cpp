@@ -311,6 +311,16 @@ void set_flags_and_update_appearance()
 // true when all initialization done.
 bool idle_startup()
 {
+    // FIXME asset-http - this configuration stuff is temporary
+    // construction; once it is always on for certain types
+    // and we can remove the setting.
+    static bool va_types_initialized = false;
+    if (!va_types_initialized)
+    {
+        va_types_initialized = true;
+        LLAssetType::setFetchWithVACapConfigString(gSavedSettings.getString("ViewerAssetHttpTypes"));
+    }
+
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
 

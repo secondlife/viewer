@@ -15808,6 +15808,18 @@
       <integer>0</integer>
     </map>
 
+    <key>ViewerAssetHttpTypes</key>
+    <map>
+      <key>Comment</key>
+      <string>Use the ViewerAsset cap and HTTP pipeline for fetching assets of the listed type names. "none" and "all" are recognized as a special values.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+
   <key>SimulateFBOFailure</key>
   <map>
     <key>Comment</key>

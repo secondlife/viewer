@@ -152,6 +152,11 @@ public:
 
 	static bool 				lookupIsAssetFetchByIDAllowed(EType asset_type); // the asset allows direct download
 	static bool 				lookupIsAssetIDKnowable(EType asset_type); // asset data can be known by the viewer
+
+	static bool 				lookupFetchWithVACap(EType asset_type); // asset data is fetched via http using ViewerAsset cap.
+
+    static void					setFetchWithVACapTypeString(const std::string& type_string);
+    static void					setFetchWithVACapConfigString(const std::string& config_string);
 	
 	static const std::string&	badLookup(); // error string when a lookup fails
 

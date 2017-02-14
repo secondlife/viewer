@@ -31,6 +31,9 @@
 #include "llmemory.h"
 #include "llsingleton.h"
 
+#include <set>
+#include <boost/algorithm/string.hpp>
+
 ///----------------------------------------------------------------------------
 /// Class LLAssetType
 ///----------------------------------------------------------------------------
@@ -48,7 +51,8 @@ struct AssetEntry : public LLDictionaryEntry
 		mHumanName(human_name),
 		mCanLink(can_link),
 		mCanFetch(can_fetch),
-		mCanKnow(can_know)
+		mCanKnow(can_know),
+        mFetchWithVACap(false)
 	{
 		llassert(strlen(mTypeName) <= 8);
 	}
@@ -58,6 +62,7 @@ struct AssetEntry : public LLDictionaryEntry
 	bool mCanLink;
 	bool mCanFetch;
 	bool mCanKnow;
+    bool mFetchWithVACap;
 };
 
 class LLAssetDictionary : public LLSingleton<LLAssetDictionary>,
@@ -250,4 +255,90 @@ bool LLAssetType::lookupIsAssetIDKnowable(EType asset_type)
 		return entry->mCanKnow;
 	}
 	return false;
+}
+
+// static
+bool LLAssetType::lookupFetchWithVACap(EType asset_type)
+{
+	LLAssetDictionary *dict = LLAssetDictionary::getInstance();
+	const AssetEntry *entry = dict->lookup(asset_type);
+	if (entry)
+	{
+		return entry->mFetchWithVACap;
+	}
+	return false;
+}
+
+// FIXME asset-http yank all this after asset-http becomes universal
+void LLAssetType::setFetchWithVACapTypeString(const std::string& type_string)
+{
+	LLAssetDictionary *dict = LLAssetDictionary::getInstance();
+    if (type_string=="none")
+    {
+        for (LLAssetDictionary::iterator iter = dict->begin();
+             iter != dict->end();
+             iter++)
+        {
+            AssetEntry *entry = iter->second;
+            entry->mFetchWithVACap = false;
+        } 
+    }
+    else if (type_string=="all")
+    {
+        for (LLAssetDictionary::iterator iter = dict->begin();
+             iter != dict->end();
+             iter++)
+        {
+            AssetEntry *entry = iter->second;
+            entry->mFetchWithVACap = true;
+        } 
+    }
+    else
+    {
+        for (LLAssetDictionary::iterator iter = dict->begin();
+             iter != dict->end();
+             iter++)
+        {
+            AssetEntry *entry = iter->second;
+            if (entry->mTypeName==type_string)
+            {
+                entry->mFetchWithVACap = true;
+            }
+        } 
+    }
+}
+
+// FIXME asset-http yank all this after asset-http becomes universal
+void LLAssetType::setFetchWithVACapConfigString(const std::string& config_string)
+{
+    // Clear any currently enabled types
+    LLAssetType::setFetchWithVACapTypeString("none");
+
+    // Enable all types specified in the config string.
+    std::set<std::string> type_names_for_va_cap;
+    boost::split(type_names_for_va_cap, config_string, boost::is_any_of(" :,"));
+    for (std::set<std::string>::const_iterator it = type_names_for_va_cap.begin();
+         it != type_names_for_va_cap.end(); ++it)
+    {
+        const std::string& type_string = *it;
+        LLAssetType::setFetchWithVACapTypeString(type_string);
+    }
+
+	LLAssetDictionary *dict = LLAssetDictionary::getInstance();
+	bool any_found = false;
+    for (LLAssetDictionary::iterator iter = dict->begin();
+         iter != dict->end();
+         iter++)
+    {
+        AssetEntry *entry = iter->second;
+        if (entry->mFetchWithVACap)
+        {
+            any_found = true;
+            LL_WARNS() << "Fetch with ViewerAsset cap enabled for " << entry->mTypeName << LL_ENDL;
+        }
+    } 
+	if (!any_found)
+	{
+		LL_WARNS() << "Fetch with ViewerAsset cap disabled for all types" << LL_ENDL;
+	}
 }
