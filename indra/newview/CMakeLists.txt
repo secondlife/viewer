@@ -1741,6 +1741,7 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_RELEASE}/ssleay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
+      ${viewer_APPSETTINGS_FILES}
       SLPlugin
       media_plugin_cef
       media_plugin_libvlc
