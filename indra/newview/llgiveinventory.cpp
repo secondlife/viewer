@@ -36,6 +36,7 @@
 #include "llagentdata.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
+#include "llavatarnamecache.h"
 #include "llfloatertools.h" // for gFloaterTool
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -327,12 +328,12 @@ void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im
 	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
 	else
 	{
-		std::string full_name;
-		if (gCacheName->getFullName(to_agent, full_name))
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(to_agent, &av_name))
 		{
 			// Build a new format username or firstname_lastname for legacy names
 			// to use it for a history log filename.
-			full_name = LLCacheName::buildUsername(full_name);
+			std::string full_name = LLCacheName::buildUsername(av_name.getUserName());
 			LLUIString message = LLTrans::getString(message_name + "-im");
 			message.setArgs(args);
 			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, message.getString());

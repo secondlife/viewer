@@ -34,6 +34,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llavatarnamecache.h"
 #include "llclipboard.h"
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
@@ -1022,19 +1023,19 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		{
 			// Valid UUID; set the item UUID and rename it
 			new_item->setCreator(id);
-			std::string avatar_name;
+			LLAvatarName av_name;
 
-			if (gCacheName->getFullName(id, avatar_name))
+			if (LLAvatarNameCache::get(id, &av_name))
 			{
-				new_item->rename(avatar_name);
+				new_item->rename(av_name.getUserName());
 				mask |= LLInventoryObserver::LABEL;
 			}
 			else
 			{
 				// Fetch the current name
-				gCacheName->get(id, FALSE,
+				LLAvatarNameCache::get(id,
 					boost::bind(&LLViewerInventoryItem::onCallingCardNameLookup, new_item.get(),
-					_1, _2, _3));
+					_1, _2));
 			}
 
 		}

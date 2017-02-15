@@ -883,7 +883,7 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 		}
 		else if (hover_parcel->getIsGroupOwned())
 		{
-			if (gCacheName->getGroupName(owner, name))
+			if (gCacheName->getFullName(owner, name)) //group?
 			{
 				line.append(name);
 				line.append(LLTrans::getString("TooltipIsGroup"));
@@ -893,14 +893,19 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 				line.append(LLTrans::getString("RetrievingData"));
 			}
 		}
-		else if(gCacheName->getFullName(owner, name))
-		{
-			line.append(name);
-		}
-		else
-		{
-			line.append(LLTrans::getString("RetrievingData"));
-		}
+        else
+        {
+            LLAvatarName av_name;
+            if (LLAvatarNameCache::get(owner, &av_name))
+            {
+                name = av_name.getUserName();
+                line.append(name);
+            }
+            else
+            {
+                line.append(LLTrans::getString("RetrievingData"));
+            }
+        }
 	}
 	else
 	{

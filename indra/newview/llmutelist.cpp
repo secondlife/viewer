@@ -53,6 +53,7 @@
 #include "llxfermanager.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
 #include "llworld.h" //for particle system banning
 #include "llimview.h"
@@ -456,7 +457,7 @@ void LLMuteList::updateRemove(const LLMute& mute)
 	gAgent.sendReliableMessage();
 }
 
-void notify_automute_callback(const LLUUID& agent_id, const std::string& full_name, bool is_group, LLMuteList::EAutoReason reason)
+void notify_automute_callback(const LLUUID& agent_id, const LLAvatarName& full_name, LLMuteList::EAutoReason reason)
 {
 	std::string notif_name;
 	switch (reason)
@@ -474,7 +475,7 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& full_na
 	}
 
 	LLSD args;
-	args["NAME"] = full_name;
+	args["NAME"] = full_name.getUserName();
     
 	LLNotificationPtr notif_ptr = LLNotifications::instance().add(notif_name, args, LLSD());
 	if (notif_ptr)
@@ -499,17 +500,17 @@ BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason)
 		removed = TRUE;
 		remove(automute);
 
-		std::string full_name;
-		if (gCacheName->getFullName(agent_id, full_name))
-			{
-				// name in cache, call callback directly
-			notify_automute_callback(agent_id, full_name, false, reason);
-			}
-			else
-			{
-				// not in cache, lookup name from cache
-			gCacheName->get(agent_id, false,
-				boost::bind(&notify_automute_callback, _1, _2, _3, reason));
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(agent_id, &av_name))
+		{
+			// name in cache, call callback directly
+			notify_automute_callback(agent_id, av_name, reason);
+		}
+		else
+		{
+			// not in cache, lookup name from cache
+			LLAvatarNameCache::get(agent_id,
+				boost::bind(&notify_automute_callback, _1, _2, reason));
 		}
 	}
 

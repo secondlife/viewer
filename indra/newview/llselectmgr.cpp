@@ -33,6 +33,7 @@
 
 // library includes
 #include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llgl.h"
@@ -5385,9 +5386,9 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 		LLFloaterReporter *reporterp = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
 		if (reporterp)
 		{
-			std::string fullname;
-			gCacheName->getFullName(owner_id, fullname);
-			reporterp->setPickedObjectProperties(name, fullname, owner_id);
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(owner_id, &av_name);
+			reporterp->setPickedObjectProperties(name, av_name.getUserName(), owner_id);
 		}
 	}
 	else if (request_flags & OBJECT_PAY_REQUEST)

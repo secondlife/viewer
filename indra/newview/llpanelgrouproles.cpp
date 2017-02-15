@@ -1168,9 +1168,9 @@ void LLPanelGroupMembersSubTab::confirmEjectMembers()
 	if (selection_count == 1)
 	{
 		LLSD args;
-		std::string fullname;
-		gCacheName->getFullName(mMembersList->getValue(), fullname);
-		args["AVATAR_NAME"] = fullname;
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(mMembersList->getValue(), &av_name);
+		args["AVATAR_NAME"] = av_name.getUserName();
 		LLSD payload;
 		LLNotificationsUtil::add("EjectGroupMemberWarning",
 				 	 	 	 	 args,
@@ -1862,9 +1862,9 @@ void LLPanelGroupMembersSubTab::confirmBanMembers()
 	if (selection_count == 1)
 	{
 		LLSD args;
-		std::string fullname;
-		gCacheName->getFullName(mMembersList->getValue(), fullname);
-		args["AVATAR_NAME"] = fullname;
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(mMembersList->getValue(), &av_name);
+		args["AVATAR_NAME"] = av_name.getUserName();
 		LLSD payload;
 		LLNotificationsUtil::add("BanGroupMemberWarning",
 				 	 	 	 	 args,

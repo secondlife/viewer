@@ -6560,10 +6560,10 @@ class LLMuteParticle : public view_listener_t
 		
 		if (id.notNull())
 		{
-			std::string name;
-			gCacheName->getFullName(id, name);
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(id, &av_name);
 
-			LLMute mute(id, name, LLMute::AGENT);
+			LLMute mute(id, av_name.getUserName(), LLMute::AGENT);
 			if (LLMuteList::getInstance()->isMuted(mute.mID))
 			{
 				LLMuteList::getInstance()->remove(mute);
