@@ -52,10 +52,11 @@ import re
 import signal
 import subprocess
 
-def main(command, libpath=[], vars={}):
+def main(command, arguments=[], libpath=[], vars={}):
     """Pass:
-    command is a sequence (e.g. a list) of strings. The first item in the list
-    must be the command name, the rest are its arguments.
+    command is the command to be executed
+
+    argument is a sequence (e.g. a list) of strings to be passed to command
 
     libpath is a sequence of directory pathnames. These will be appended to
     the platform-specific dynamic library search path environment variable.
@@ -112,11 +113,13 @@ def main(command, libpath=[], vars={}):
              print "%s=%s" % (key, value)
     os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
     # Run the child process.
-    print "Running: %s" % " ".join(command)
+    command_list = [command]
+    command_list.extend(arguments)
+    print "Running: %s" % " ".join(command_list)
     # Make sure we see all relevant output *before* child-process output.
     sys.stdout.flush()
     try:
-        return subprocess.call(command)
+        return subprocess.call(command_list)
     except OSError as err:
         # If the caller is trying to execute a test program that doesn't
         # exist, we want to produce a reasonable error message rather than a
@@ -304,21 +307,18 @@ def get_windows_table():
     return _windows_table
 
 if __name__ == "__main__":
-    from optparse import OptionParser
-    parser = OptionParser(usage="usage: %prog [options] command args...")
-    # We want optparse support for the options we ourselves handle -- but we
-    # DO NOT want it looking at options for the executable we intend to run,
-    # rejecting them as invalid because we don't define them. So configure the
-    # parser to stop looking for options as soon as it sees the first
-    # positional argument (traditional Unix syntax).
-    parser.disable_interspersed_args()
-    parser.add_option("-D", "--define", dest="vars", default=[], action="append",
-                      metavar="VAR=value",
-                      help="Add VAR=value to the env variables defined")
-    parser.add_option("-l", "--libpath", dest="libpath", default=[], action="append",
-                      metavar="DIR",
-                      help="Add DIR to the platform-dependent DLL search path")
-    opts, args = parser.parse_args()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-D", "--define", dest="vars", default=[], action="append",
+                        metavar="VAR=value",
+                        help="Add VAR=value to the env variables defined")
+    parser.add_argument("-l", "--libpath", dest="libpath", default=[], action="append",
+                        metavar="DIR",
+                        help="Add DIR to the platform-dependent DLL search path")
+    parser.add_argument("command")
+    parser.add_argument('args', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+
     # What we have in opts.vars is a list of strings of the form "VAR=value"
     # or possibly just "VAR". What we want is a dict. We can build that dict by
     # constructing a list of ["VAR", "value"] pairs -- so split each
@@ -326,8 +326,8 @@ if __name__ == "__main__":
     # "VAR=some=user=string"). To handle the case of just "VAR", append "" to
     # the list returned by split(), then slice off anything after the pair we
     # want.
-    rc = main(command=args, libpath=opts.libpath,
-              vars=dict([(pair.split('=', 1) + [""])[:2] for pair in opts.vars]))
+    rc = main(command=args.command, arguments=args.args, libpath=args.libpath,
+              vars=dict([(pair.split('=', 1) + [""])[:2] for pair in args.vars]))
     if rc not in (None, 0):
         print >>sys.stderr, "Failure running: %s" % " ".join(args)
         print >>sys.stderr, "Error %s: %s" % (rc, translate_rc(rc))
