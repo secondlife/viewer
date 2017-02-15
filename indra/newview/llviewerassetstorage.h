@@ -28,7 +28,6 @@
 #define LLVIEWERASSETSTORAGE_H
 
 #include "llassetstorage.h"
-//#include "curl/curl.h"
 
 class LLVFile;
 
@@ -64,8 +63,6 @@ public:
 		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 protected:
-	using LLAssetStorage::_queueDataRequest;
-
 	// virtual
 	void _queueDataRequest(const LLUUID& uuid,
 						   LLAssetType::EType type,
@@ -73,6 +70,30 @@ protected:
 						   void *user_data,
 						   BOOL duplicate,
 						   BOOL is_priority);
+
+    void queueRequestUDP(const LLUUID& uuid,
+                         LLAssetType::EType type,
+                         void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                         void *user_data,
+                         BOOL duplicate,
+                         BOOL is_priority);
+
+    void queueRequestHttp(const LLUUID& uuid,
+                          LLAssetType::EType type,
+                          void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                          void *user_data,
+                          BOOL duplicate,
+                          BOOL is_priority);
+
+    void assetRequestCoro(const LLUUID& uuid,
+                          LLAssetType::EType type,
+                          void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                          void *user_data,
+                          BOOL duplicate,
+                          BOOL is_priority);
+
+    std::string getAssetURL(const LLUUID& uuid, LLAssetType::EType atype);
+
 };
 
 #endif
