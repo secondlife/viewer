@@ -51,6 +51,7 @@ import HTMLParser
 import re
 import signal
 import subprocess
+import logging
 
 def main(command, arguments=[], libpath=[], vars={}):
     """Pass:
@@ -86,7 +87,7 @@ def main(command, arguments=[], libpath=[], vars={}):
         # might not exist; instead of KeyError, just use an empty string.
         dirs = os.environ.get(var, "").split(os.pathsep)
         # Append the sequence in libpath
-        print "%s += %r" % (var, libpath)
+        log.info("%s += %r" % (var, libpath))
         for dir in libpath:
             # append system paths at the end
             if dir in ('/lib', '/usr/lib'):
@@ -104,18 +105,16 @@ def main(command, arguments=[], libpath=[], vars={}):
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(clean_dirs)
-        print "%s = %r" % (var, os.environ[var])
+        log.info("%s = %r" % (var, os.environ[var]))
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
     if vars:
-         print "Setting:"
-         for key, value in vars.iteritems():
-             print "%s=%s" % (key, value)
+         log.info("Setting: %s" % ("\n".join(["%s=%s" % (key, value) for key, value in vars.iteritems()])))
     os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
     # Run the child process.
     command_list = [command]
     command_list.extend(arguments)
-    print "Running: %s" % " ".join(command_list)
+    log.info("Running: %s" % " ".join(command_list))
     # Make sure we see all relevant output *before* child-process output.
     sys.stdout.flush()
     try:
@@ -129,9 +128,9 @@ def main(command, arguments=[], libpath=[], vars={}):
         if err.errno != errno.ENOENT:
             raise
         # In practice, the pathnames into CMake's build tree are so long as to
-        # obscure the name of the test program. Just print its basename.
-        print "No such program %s; check for preceding build errors" % \
-              os.path.basename(command[0])
+        # obscure the name of the test program. Just log its basename.
+        log.warn("No such program %s; check for preceding build errors" % \
+                 os.path.basename(command[0]))
         # What rc should we simulate for missing executable? Windows produces
         # 9009.
         return 9009
@@ -175,10 +174,10 @@ def translate_rc(rc):
             table = get_windows_table()
             symbol, desc = table[hexrc]
         except Exception, err:
-            print >>sys.stderr, "(%s -- carrying on)" % err
-            return "terminated with rc %s (%s)" % (rc, hexrc)
+            log.error("(%s -- carrying on)" % err)
+            log.error("terminated with rc %s (%s)" % (rc, hexrc))
         else:
-            return "terminated with rc %s: %s: %s" % (hexrc, symbol, desc)
+            log.info("terminated with rc %s: %s: %s" % (hexrc, symbol, desc))
 
     else:
         # On Posix, negative rc means the child was terminated by signal -rc.
@@ -306,9 +305,14 @@ def get_windows_table():
 
     return _windows_table
 
+log=logging.getLogger(__name__)
+logging.basicConfig()
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", dest="loglevel", action="store_const",
+                        const=logging.DEBUG, default=logging.WARNING)
     parser.add_argument("-D", "--define", dest="vars", default=[], action="append",
                         metavar="VAR=value",
                         help="Add VAR=value to the env variables defined")
@@ -318,6 +322,8 @@ if __name__ == "__main__":
     parser.add_argument("command")
     parser.add_argument('args', nargs=argparse.REMAINDER)
     args = parser.parse_args()
+
+    log.setLevel(args.loglevel)
 
     # What we have in opts.vars is a list of strings of the form "VAR=value"
     # or possibly just "VAR". What we want is a dict. We can build that dict by
@@ -329,6 +335,6 @@ if __name__ == "__main__":
     rc = main(command=args.command, arguments=args.args, libpath=args.libpath,
               vars=dict([(pair.split('=', 1) + [""])[:2] for pair in args.vars]))
     if rc not in (None, 0):
-        print >>sys.stderr, "Failure running: %s" % " ".join(args)
-        print >>sys.stderr, "Error %s: %s" % (rc, translate_rc(rc))
+        log.error("Failure running: %s" % " ".join([args.command] + args.args))
+        log.error("Error %s: %s" % (rc, translate_rc(rc)))
     sys.exit((rc < 0) and 255 or rc)
