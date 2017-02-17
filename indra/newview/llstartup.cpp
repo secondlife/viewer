@@ -313,7 +313,7 @@ bool idle_startup()
 {
     // FIXME asset-http - this configuration stuff is temporary
     // construction; once it is always on for certain types
-    // and we can remove the setting.
+    // we can remove the setting.
     static bool va_types_initialized = false;
     if (!va_types_initialized)
     {

@@ -86,11 +86,9 @@ protected:
                           BOOL is_priority);
 
     void assetRequestCoro(const LLUUID& uuid,
-                          LLAssetType::EType type,
+                          LLAssetType::EType atype,
                           void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
-                          void *user_data,
-                          BOOL duplicate,
-                          BOOL is_priority);
+                          void *user_data);
 
     std::string getAssetURL(const LLUUID& uuid, LLAssetType::EType atype);
 

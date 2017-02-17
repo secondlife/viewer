@@ -35,8 +35,6 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
-// FIXME asset-http: We are the only customer for gTransferManager - the
-// whole class can be yanked once everything is http-ified.
 #include "lltransfersourceasset.h"
 #include "lltransfertargetvfile.h"
 #include "llviewerassetstats.h"
@@ -427,7 +425,7 @@ void LLViewerAssetStorage::queueRequestHttp(
     if (cap_url.empty())
     {
         LL_WARNS() << "No ViewerAsset cap found, fetch fails" << LL_ENDL;
-        // TODO: handle waiting for caps? Other failure mechanism?
+        // TODO asset-http: handle waiting for caps? Other failure mechanism?
         return;
     }
     else
@@ -446,13 +444,13 @@ void LLViewerAssetStorage::queueRequestHttp(
         }
         mPendingDownloads.push_back(req);
 
-        // TODO AssetStatsFF stuff from UDP too?
-        
         // This is the same as the current UDP logic - don't re-request a duplicate.
         if (!duplicate)
         {
+            LLViewerAssetStatsFF::record_enqueue(atype, false, false);
+
             LLCoros::instance().launch("LLViewerAssetStorage::assetRequestCoro",
-                                       boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, uuid, atype, callback, user_data, duplicate, is_priority));
+                                       boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, uuid, atype, callback, user_data));
         }
     }
 }
@@ -461,14 +459,10 @@ void LLViewerAssetStorage::assetRequestCoro(
     const LLUUID& uuid,
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
-    void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    void *user_data)
 {
     std::string url = getAssetURL(uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
-    
-    // TODO: what about duplicates?
     
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -476,13 +470,13 @@ void LLViewerAssetStorage::assetRequestCoro(
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        // TODO: handle failures
+        // TODO asset-http: handle failures
         LL_DEBUGS("ViewerAsset") << "request failed, status " << status.toTerseString() << ", now what?" << LL_ENDL;
     }
     else
@@ -491,13 +485,36 @@ void LLViewerAssetStorage::assetRequestCoro(
 
         LL_DEBUGS("ViewerAsset") << "result: " << ll_pretty_print_sd(httpResults) << LL_ENDL;
 
-        // TODO: Use asset data to create the asset
+        const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+
+        S32 size = raw.size();
+        if (size > 0)
+        {
+			// This create-then-rename flow is modeled on LLTransferTargetVFile, which is what's used in the UDP case.
+            LLUUID temp_id;
+            temp_id.generate();
+            LLVFile vf(gAssetStorage->mVFS, temp_id, atype, LLVFile::WRITE);
+            vf.setMaxSize(size);
+            if (!vf.write(raw.data(),size))
+            {
+                // TODO asset-http: handle error
+                LL_ERRS() << "Failure in vf.write()" << LL_ENDL;
+            }
+            if (!vf.rename(uuid, atype))
+            {
+                LL_ERRS() << "rename failed" << LL_ENDL;
+            }
+        }
+        else
+        {
+            // TODO asset-http: handle invalid size case
+        }
 
         // Clean up pending downloads and trigger callbacks
-        // TODO: what are result_code and ext_status?
+        // TODO asset-http: what are the result_code and ext_status?
         S32 result_code = LL_ERR_NOERR;
         LLExtStat ext_status = LL_EXSTAT_NONE;
-        removeAndCallbackPendingDownloads(result_code, uuid, atype, uuid, atype, ext_status);
+        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
     }
 }
 

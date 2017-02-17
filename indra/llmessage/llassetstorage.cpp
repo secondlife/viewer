@@ -546,13 +546,12 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         
         _queueDataRequest(uuid, type, callback, user_data, duplicate, is_priority);     
     }
-
 }
 
 // static
-void LLAssetStorage::removeAndCallbackPendingDownloads(S32 result, const LLUUID& file_id, LLAssetType::EType file_type,
+void LLAssetStorage::removeAndCallbackPendingDownloads(const LLUUID& file_id, LLAssetType::EType file_type,
                                                        const LLUUID& callback_id, LLAssetType::EType callback_type,
-                                                       LLExtStat ext_status)
+                                                       S32 result_code, LLExtStat ext_status)
 {
     // find and callback ALL pending requests for this UUID
     // SJB: We process the callbacks in reverse order, I do not know if this is important,
@@ -576,11 +575,11 @@ void LLAssetStorage::removeAndCallbackPendingDownloads(S32 result, const LLUUID&
         LLAssetRequest* tmp = *curiter;
         if (tmp->mDownCallback)
         {
-            if (result != LL_ERR_NOERR)
+            if (result_code!= LL_ERR_NOERR)
             {
                 add(sFailedDownloadCount, 1);
             }
-            tmp->mDownCallback(gAssetStorage->mVFS, callback_id, callback_type, tmp->mUserData, result, ext_status);
+            tmp->mDownCallback(gAssetStorage->mVFS, callback_id, callback_type, tmp->mUserData, result_code, ext_status);
         }
         delete tmp;
     }
@@ -644,7 +643,7 @@ void LLAssetStorage::downloadCompleteCallback(
         }
     }
 
-    removeAndCallbackPendingDownloads(result, file_id, file_type, callback_id, callback_type, ext_status);
+    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, ext_status, result);
 }
 
 void LLAssetStorage::getEstateAsset(
@@ -806,19 +805,6 @@ void LLAssetStorage::getInvItemAsset(
 {
     LL_DEBUGS() << "LLAssetStorage::getInvItemAsset() - " << asset_id << "," << LLAssetType::lookup(atype) << LL_ENDL;
 
-    //
-    // Probably will get rid of this early out?
-    //
-    //if (asset_id.isNull())
-    //{
-    //  // Special case early out for NULL uuid
-    //  if (callback)
-    //  {
-    //      callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE);
-    //  }
-    //  return;
-    //}
-
     bool exists = false; 
     U32 size = 0;
 
@@ -879,6 +865,8 @@ void LLAssetStorage::getInvItemAsset(
             spi.setInvItem(owner_id, task_id, item_id);
             spi.setAsset(asset_id, atype);
 
+            LL_DEBUGS("ViewerAsset") << "requesting inv item id " << item_id << " asset_id " << asset_id << " type " << LLAssetType::lookup(atype) << LL_ENDL;
+            
             // Set our destination file, and the completion callback.
             LLTransferTargetParamsVFile tpvf;
             tpvf.setAsset(asset_id, atype);

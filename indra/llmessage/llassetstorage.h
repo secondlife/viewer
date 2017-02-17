@@ -319,9 +319,9 @@ public:
                               const LLUUID& asset_id);
 
 
-    static void removeAndCallbackPendingDownloads(S32 result, const LLUUID& file_id, LLAssetType::EType file_type,
+    static void removeAndCallbackPendingDownloads(const LLUUID& file_id, LLAssetType::EType file_type,
                                                   const LLUUID& callback_id, LLAssetType::EType callback_type,
-                                                  LLExtStat ext_status);
+                                                  S32 result_code, LLExtStat ext_status);
     
 	// download process callbacks
 	static void downloadCompleteCallback(
