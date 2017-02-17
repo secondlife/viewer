@@ -87,7 +87,7 @@ class DerivedSelfTimers:
         return value
 
 # for these, we will compute the fraction of triangles affected by the setting
-bool_graphic_properties = ["alpha","animtex","bump","flexi","glow","invisi","particles","planar","produces_light","shiny","weighted_mesh"]
+bool_graphic_properties = ["alpha","animtex","bump","flexi","glow","invisi","particles","planar","produces_light","shiny","weighted_mesh","specmap","normalmap","materials"]
 
 # for these, we will sum all counts found in all attachments
 sum_graphic_properties = ["media_faces"]

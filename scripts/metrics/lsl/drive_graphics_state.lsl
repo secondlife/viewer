@@ -10,8 +10,8 @@ default
     {
         llOwnerSay("Touched, starting tests");
 
-        float test_time = 2.0;
-        float pause_time = 2.0;
+        float test_time = 20.0;
+        float pause_time = 20.0;
         list properties = ["materials", "specmap", "normalmap", "point_light", "bump", "alpha", "glow", "shiny"];
         integer length = llGetListLength(properties);
         integer index = 0;
