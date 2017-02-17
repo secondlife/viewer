@@ -50,24 +50,23 @@ unset(HK_RELEASE_LIBRARIES)
 unset(HK_RELWITHDEBINFO_LIBRARIES)
 
 if (DEBUG_PREBUILT)
-  # DEBUG_EXEC() reports each execute_process() before invoking
-  function(DEBUG_EXEC)
-    message(STATUS ARGN)
-    execute_process(ARGN)
-  endfunction(DEBUG_EXEC)
   # DEBUG_MESSAGE() displays debugging message
   function(DEBUG_MESSAGE)
-    message(STATUS ARGN)
+    # prints message args separated by semicolons rather than spaces,
+    # but making it pretty is a lot more work
+    message(STATUS "${ARGN}")
   endfunction(DEBUG_MESSAGE)
 else (DEBUG_PREBUILT)
-  # without DEBUG_PREBUILT, DEBUG_EXEC() is just execute_process()
-  function(DEBUG_EXEC)
-    execute_process(ARGN)
-  endfunction(DEBUG_EXEC)
   # without DEBUG_PREBUILT, DEBUG_MESSAGE() is a no-op
   function(DEBUG_MESSAGE)
   endfunction(DEBUG_MESSAGE)
 endif (DEBUG_PREBUILT)
+
+# DEBUG_EXEC() reports each execute_process() before invoking
+function(DEBUG_EXEC)
+  DEBUG_MESSAGE(${ARGN})
+  execute_process(COMMAND ${ARGN})
+endfunction(DEBUG_EXEC)
 
 # *TODO: Figure out why we need to extract like this...
 foreach(HAVOK_LIB ${HAVOK_LIBS})
@@ -89,10 +88,10 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
     if(${PREBUILD_TRACKING_DIR}/havok_source_installed IS_NEWER_THAN ${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
       DEBUG_MESSAGE("Extracting ${HAVOK_LIB}...")
 
-      foreach(lib debug_dir release_dir relwithdebinfo_dir)
-        DEBUG_EXEC("mkdir" lib)
+      foreach(lib ${debug_dir} ${release_dir} ${relwithdebinfo_dir})
+        DEBUG_EXEC("mkdir" ${lib})
         DEBUG_EXEC("ar" "-xv" "../lib${HAVOK_LIB}.a"
-          WORKING_DIRECTORY lib)
+          WORKING_DIRECTORY ${lib})
       endforeach(lib)
 
       # Just assume success for now.
