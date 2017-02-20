@@ -3628,7 +3628,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Conference with [AGENT_NAME]
   </string>
   <string name="inventory_item_offered-im">
-    Inventory item offered
+    Inventory item '[ITEM_NAME]' offered
+  </string>
+  <string name="inventory_folder_offered-im">
+    Inventory folder '[ITEM_NAME]' offered
   </string>
   <string name="share_alert">
     Drag items from inventory here
