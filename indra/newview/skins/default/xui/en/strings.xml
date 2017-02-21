@@ -3739,7 +3739,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
   <string name="Home position set.">Home position set.</string>
 
-  <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
+  <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
+  <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
 
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>

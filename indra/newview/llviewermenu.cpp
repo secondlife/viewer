@@ -8618,7 +8618,12 @@ public:
 
 void handle_voice_morphing_subscribe()
 {
-	LLWeb::loadURLExternal(LLTrans::getString("voice_morphing_url"));
+	LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
+}
+
+void handle_premium_voice_morphing_subscribe()
+{
+	LLWeb::loadURL(LLTrans::getString("premium_voice_morphing_url"));
 }
 
 class LLToggleUIHints : public view_listener_t
@@ -8814,6 +8819,8 @@ void initialize_menus()
 
 	// Communicate > Voice morphing > Subscribe...
 	commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
+	// Communicate > Voice morphing > Premium perk...
+	commit.add("Communicate.VoiceMorphing.PremiumPerk", boost::bind(&handle_premium_voice_morphing_subscribe));
 	LLVivoxVoiceClient * voice_clientp = LLVivoxVoiceClient::getInstance();
 	enable.add("Communicate.VoiceMorphing.NoVoiceMorphing.Check"
 		, boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, voice_clientp, "NoVoiceMorphing"));
