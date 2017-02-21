@@ -507,6 +507,60 @@
         <key>version</key>
         <string>1.500564</string>
       </map>
+      <key>dullahan</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2017, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>A headless browser SDK that uses the Chromium Embedded Framework (CEF). It is designed to make it easier to write applications that render modern web content directly to a memory buffer, inject synthesized mouse and keyboard events as well as interact with web based features like JavaScript or cookies.</string>
+        <key>license</key>
+        <string>MPL</string>
+        <key>license_file</key>
+        <string>LICENSES/LICENSE.txt</string>
+        <key>name</key>
+        <string>dullahan</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>cee1a8a803a083cd26f72d1120e59bee</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2820/6482/dullahan-1.1.601_3.2704-darwin64-502809.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0a7831886570ed6485a462db33d30ca5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2822/6489/dullahan-1.1.601_3.2704-windows-502809.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>a9a42672f14d9cbb42ffc50677ad2d42</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2821/6492/dullahan-1.1.601_3.2704-windows64-502809.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.1.601_3.2704</string>
+      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
