@@ -8,6 +8,11 @@ use_prebuilt_binary(havok-source)
 set(Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Source)
 list(APPEND Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Demo)
 
+# HK_DISABLE_IMPLICIT_VVECTOR3_CONVERSION suppresses an intended conversion
+# function which Xcode scolds us will unconditionally enter infinite
+# recursion if called. This hides that function.
+add_definitions("-DHK_DISABLE_IMPLICIT_VVECTOR3_CONVERSION")
+
 set(HAVOK_DEBUG_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug/havok-fulldebug)
 set(HAVOK_RELEASE_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/release/havok)
 
