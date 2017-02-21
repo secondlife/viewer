@@ -79,7 +79,7 @@ VFS（キャッシュ）作成時間： [VFS_TIME]
 	<string name="AboutLibs">
 		J2C デコーダバージョン：[J2C_VERSION]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
-LLCEFLib/CEF バージョン： [LLCEFLIB_VERSION]
+CEF バージョン： [LIBCEF_VERSION]
 LibVLC バージョン： [LIBVLC_VERSION]
 ボイスサーバーバージョン：[VOICE_VERSION]
 	</string>

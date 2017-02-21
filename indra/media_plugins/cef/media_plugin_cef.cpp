@@ -36,10 +36,11 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
-#include "boost/function.hpp"
-#include "boost/bind.hpp"
-#include "llCEFLib.h"
+#include <functional>
+
+#include "dullahan.h"
 //#include "volume_catcher.h"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -56,7 +57,7 @@ public:
 private:
 	bool init();
 
-	void onPageChangedCallback(unsigned char* pixels, int x, int y, int width, int height, bool is_popup);
+	void onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height, bool is_popup);
 	void onCustomSchemeURLCallback(std::string url);
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
@@ -67,17 +68,17 @@ private:
 	void onAddressChangeCallback(std::string url);
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
-	void onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle);
+	void onCursorChangedCallback(dullahan::ECursorType type, unsigned int handle);
 	void onFileDownloadCallback(std::string filename);
 	const std::string onFileDialogCallback();
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
 
-	LLCEFLib::EKeyboardModifier decodeModifiers(std::string &modifiers);
+	dullahan::EKeyboardModifier decodeModifiers(std::string &modifiers);
 	void deserializeKeyboardData(LLSD native_key_data, uint32_t& native_scan_code, uint32_t& native_virtual_key, uint32_t& native_modifiers);
-	void keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data);
-	void unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data);
+	void keyEvent(dullahan::EKeyEvent key_event, int key, dullahan::EKeyboardModifier modifiers, LLSD native_key_data);
+	void unicodeInput(const std::string &utf8str, dullahan::EKeyboardModifier modifiers, LLSD native_key_data);
 
 	void checkEditState();
     void setVolume(F32 vol);
@@ -97,7 +98,7 @@ private:
 	std::string mCachePath;
 	std::string mCookiePath;
 	std::string mPickedFile;
-	LLCEFLib* mLLCEFLib;
+	dullahan* mCEFLib;
 
 	U8 *mPopupBuffer;
 	U32 mPopupW;
@@ -130,7 +131,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCachePath = "";
 	mCookiePath = "";
 	mPickedFile = "";
-	mLLCEFLib = new LLCEFLib();
+	mCEFLib = new dullahan();
 
 	mPopupBuffer = NULL;
 	mPopupW = 0;
@@ -164,8 +165,11 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int x, int y, int width, int height, bool is_popup)
+void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height, bool is_popup)
 {
+
+	OutputDebugStringA("@");
+
 	if( is_popup )
 	{
 		delete mPopupBuffer;
@@ -252,8 +256,8 @@ void MediaPluginCEF::onLoadStartCallback()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_begin");
 	//message.setValue("uri", event.getEventUri());  // not easily available here in CEF - needed?
-	message.setValueBoolean("history_back_available", mLLCEFLib->canGoBack());
-	message.setValueBoolean("history_forward_available", mLLCEFLib->canGoForward());
+	message.setValueBoolean("history_back_available", mCEFLib->canGoBack());
+	message.setValueBoolean("history_forward_available", mCEFLib->canGoForward());
 	sendMessage(message);
 }
 
@@ -261,7 +265,7 @@ void MediaPluginCEF::onLoadStartCallback()
 //
 void MediaPluginCEF::onRequestExitCallback()
 {
-	mLLCEFLib->shutdown();
+	mCEFLib->shutdown();
 
 	LLPluginMessage message("base", "goodbye");
 	sendMessage(message);
@@ -274,8 +278,8 @@ void MediaPluginCEF::onLoadEndCallback(int httpStatusCode)
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
 	//message.setValue("uri", event.getEventUri());  // not easily available here in CEF - needed?
 	message.setValueS32("result_code", httpStatusCode);
-	message.setValueBoolean("history_back_available", mLLCEFLib->canGoBack());
-	message.setValueBoolean("history_forward_available", mLLCEFLib->canGoForward());
+	message.setValueBoolean("history_back_available", mCEFLib->canGoBack());
+	message.setValueBoolean("history_forward_available", mCEFLib->canGoForward());
 	sendMessage(message);
 }
 
@@ -358,25 +362,25 @@ const std::string MediaPluginCEF::onFileDialogCallback()
 	return mPickedFile;
 }
 
-void MediaPluginCEF::onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle)
+void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type, unsigned int handle)
 {
 	std::string name = "";
 
 	switch (type)
 	{
-		case LLCEFLib::CT_POINTER:
+		case dullahan::CT_POINTER:
 			name = "arrow";
 			break;
-		case LLCEFLib::CT_IBEAM:
+		case dullahan::CT_IBEAM:
 			name = "ibeam";
 			break;
-		case LLCEFLib::CT_NORTHSOUTHRESIZE:
+		case dullahan::CT_NORTHSOUTHRESIZE:
 			name = "splitv";
 			break;
-		case LLCEFLib::CT_EASTWESTRESIZE:
+		case dullahan::CT_EASTWESTRESIZE:
 			name = "splith";
 			break;
-		case LLCEFLib::CT_HAND:
+		case dullahan::CT_HAND:
 			name = "hand";
 			break;
 
@@ -428,7 +432,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "idle")
 			{
-				mLLCEFLib->update();
+				mCEFLib->update();
 
 				// this seems bad but unless the state changes (it won't until we figure out
 				// how to get CEF to tell us if copy/cut/paste is available) then this function
@@ -437,7 +441,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "cleanup")
 			{
-				mLLCEFLib->requestExit();
+				mCEFLib->requestExit();
 			}
 			else if (message_name == "shm_added")
 			{
@@ -479,47 +483,48 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 		{
 			if (message_name == "init")
 			{
-				// event callbacks from LLCefLib
-				mLLCEFLib->setOnPageChangedCallback(boost::bind(&MediaPluginCEF::onPageChangedCallback, this, _1, _2, _3, _4, _5, _6));
-				mLLCEFLib->setOnCustomSchemeURLCallback(boost::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, _1));
-				mLLCEFLib->setOnConsoleMessageCallback(boost::bind(&MediaPluginCEF::onConsoleMessageCallback, this, _1, _2, _3));
-				mLLCEFLib->setOnStatusMessageCallback(boost::bind(&MediaPluginCEF::onStatusMessageCallback, this, _1));
-				mLLCEFLib->setOnTitleChangeCallback(boost::bind(&MediaPluginCEF::onTitleChangeCallback, this, _1));
-				mLLCEFLib->setOnLoadStartCallback(boost::bind(&MediaPluginCEF::onLoadStartCallback, this));
-				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
-				mLLCEFLib->setOnAddressChangeCallback(boost::bind(&MediaPluginCEF::onAddressChangeCallback, this, _1));
-				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
-				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
-				mLLCEFLib->setOnFileDownloadCallback(boost::bind(&MediaPluginCEF::onFileDownloadCallback, this, _1));
-				mLLCEFLib->setOnFileDialogCallback(boost::bind(&MediaPluginCEF::onFileDialogCallback, this));
-				mLLCEFLib->setOnCursorChangedCallback(boost::bind(&MediaPluginCEF::onCursorChangedCallback, this, _1, _2));
-				mLLCEFLib->setOnRequestExitCallback(boost::bind(&MediaPluginCEF::onRequestExitCallback, this));
+				// event callbacks from Dullahan
+				mCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+				mCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1));
+				mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+				mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
+				mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
+				mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
+				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
+				mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
+				mCEFLib->setOnNavigateURLCallback(std::bind(&MediaPluginCEF::onNavigateURLCallback, this, std::placeholders::_1, std::placeholders::_2));
+				mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+				mCEFLib->setOnFileDownloadCallback(std::bind(&MediaPluginCEF::onFileDownloadCallback, this, std::placeholders::_1));
+				mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialogCallback, this));
+				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1, std::placeholders::_2));
+				mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
-				LLCEFLib::LLCEFLibSettings settings;
-				settings.initial_width = 1024;
-				settings.initial_height = 1024;
-				// The LLCEFLibSettings struct in the Windows 32-bit
-				// llceflib's build 500907 does not have a page_zoom_factor
-				// member. Set below.
-				//settings.page_zoom_factor = message_in.getValueReal("factor");
-				settings.plugins_enabled = mPluginsEnabled;
-				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granualrity/query UI
-				settings.javascript_enabled = mJavascriptEnabled;
-				settings.cookies_enabled = mCookiesEnabled;
-				settings.cookie_store_path = mCookiePath;
+				dullahan::dullahan_settings settings;
+				settings.accept_language_list = mHostLanguage;
+				settings.background_color = 0xffffff;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
-				settings.accept_language_list = mHostLanguage;
-				settings.user_agent_substring = mLLCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
+				settings.cookie_store_path = mCookiePath;
+				settings.cookies_enabled = mCookiesEnabled;
+				settings.flash_enabled = mPluginsEnabled;
+				settings.frame_rate = 60;
+				settings.initial_height = 1024;
+				settings.initial_width = 1024;
+				settings.java_enabled = false;
+				settings.javascript_enabled = mJavascriptEnabled;
+				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granualrity/query UI
+				settings.plugins_enabled = mPluginsEnabled;
+				settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
+				settings.webgl_enabled = true;
 
-				bool result = mLLCEFLib->init(settings);
+				bool result = mCEFLib->init(settings);
 				if (!result)
 				{
 					// if this fails, the media system in viewer will put up a message
 				}
 
 				// now we can set page zoom factor
-				mLLCEFLib->setPageZoom(message_in.getValueReal("factor"));
+				mCEFLib->setPageZoom(message_in.getValueReal("factor"));
 
 				// Plugin gets to decide the texture parameters to use.
 				mDepth = 4;
@@ -530,7 +535,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				message.setValueU32("internalformat", GL_RGB);
 				message.setValueU32("format", GL_BGRA);
 				message.setValueU32("type", GL_UNSIGNED_BYTE);
-				message.setValueBoolean("coords_opengl", true);
+				message.setValueBoolean("coords_opengl", false);
 				sendMessage(message);
 			}
 			else if (message_name == "set_user_data_path")
@@ -563,7 +568,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 					};
 				};
 
-				mLLCEFLib->setSize(mWidth, mHeight);
+				mCEFLib->setSize(mWidth, mHeight);
 
 				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "size_change_response");
 				message.setValue("name", name);
@@ -581,7 +586,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "load_uri")
 			{
 				std::string uri = message_in.getValue("uri");
-				mLLCEFLib->navigate(uri);
+				mCEFLib->navigate(uri);
 			}
 			else if (message_name == "set_cookie")
 			{
@@ -592,7 +597,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				std::string path = message_in.getValue("path");
 				bool httponly = message_in.getValueBoolean("httponly");
 				bool secure = message_in.getValueBoolean("secure");
-				mLLCEFLib->setCookie(uri, name, value, domain, path, httponly, secure);
+				mCEFLib->setCookie(uri, name, value, domain, path, httponly, secure);
 			}
 			else if (message_name == "mouse_event")
 			{
@@ -603,16 +608,16 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 				y = mHeight - y;
 
-				// only even send left mouse button events to LLCEFLib
+				// only even send left mouse button events to the CEF library
 				// (partially prompted by crash in OS X CEF when sending right button events)
 				// we catch the right click in viewer and display our own context menu anyway
 				S32 button = message_in.getValueS32("button");
-				LLCEFLib::EMouseButton btn = LLCEFLib::MB_MOUSE_BUTTON_LEFT;
+				dullahan::EMouseButton btn = dullahan::MB_MOUSE_BUTTON_LEFT;
 
 				if (event == "down" && button == 0)
 				{
-					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_DOWN, x, y);
-					mLLCEFLib->setFocus(true);
+					mCEFLib->mouseButton(btn, dullahan::ME_MOUSE_DOWN, x, y);
+					mCEFLib->setFocus();
 
 					std::stringstream str;
 					str << "Mouse down at = " << x << ", " << y;
@@ -620,7 +625,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 				else if (event == "up" && button == 0)
 				{
-					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_UP, x, y);
+					mCEFLib->mouseButton(btn, dullahan::ME_MOUSE_UP, x, y);
 
 					std::stringstream str;
 					str << "Mouse up at = " << x << ", " << y;
@@ -628,11 +633,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 				else if (event == "double_click")
 				{
-					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_DOUBLE_CLICK, x, y);
+					mCEFLib->mouseButton(btn, dullahan::ME_MOUSE_DOUBLE_CLICK, x, y);
 				}
 				else
 				{
-					mLLCEFLib->mouseMove(x, y);
+					mCEFLib->mouseMove(x, y);
 				}
 			}
 			else if (message_name == "scroll_event")
@@ -642,7 +647,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				const int scaling_factor = 40;
 				y *= -scaling_factor;
 
-				mLLCEFLib->mouseWheel(x, y);
+				mCEFLib->mouseWheel(x, y);
 			}
 			else if (message_name == "text_event")
 			{
@@ -662,28 +667,28 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 #if 0
 				if (event == "down")
 				{
-					//mLLCEFLib->keyPress(key, true);
-					mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_DOWN, (uint32_t)key, 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
+					//mCEFLib->keyPress(key, true);
+					mCEFLib->keyboardEvent(dullahan::KE_KEY_DOWN, (uint32_t)key, 0, dullahan::KM_MODIFIER_NONE, 0, 0, 0);
 
 				}
 				else if (event == "up")
 				{
-					//mLLCEFLib->keyPress(key, false);
-					mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_UP, (uint32_t)key, 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
+					//mCEFLib->keyPress(key, false);
+					mCEFLib->keyboardEvent(dullahan::KE_KEY_UP, (uint32_t)key, 0, dullahan::KM_MODIFIER_NONE, 0, 0, 0);
 				}
 #else
                 // Treat unknown events as key-up for safety.
-                LLCEFLib::EKeyEvent key_event = LLCEFLib::KE_KEY_UP;
+                dullahan::EKeyEvent key_event = dullahan::KE_KEY_UP;
                 if (event == "down")
                 {
-                    key_event = LLCEFLib::KE_KEY_DOWN;
+                    key_event = dullahan::KE_KEY_DOWN;
                 }
                 else if (event == "repeat")
                 {
-                    key_event = LLCEFLib::KE_KEY_REPEAT;
+                    key_event = dullahan::KE_KEY_REPEAT;
                 }
 
-                keyEvent(key_event, key, LLCEFLib::KM_MODIFIER_NONE, native_key_data);
+                keyEvent(key_event, key, dullahan::KM_MODIFIER_NONE, native_key_data);
 
 #endif
 #elif LL_WINDOWS
@@ -693,14 +698,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
 
 				// Treat unknown events as key-up for safety.
-				LLCEFLib::EKeyEvent key_event = LLCEFLib::KE_KEY_UP;
+				dullahan::EKeyEvent key_event = dullahan::KE_KEY_UP;
 				if (event == "down")
 				{
-					key_event = LLCEFLib::KE_KEY_DOWN;
+					key_event = dullahan::KE_KEY_DOWN;
 				}
 				else if (event == "repeat")
 				{
-					key_event = LLCEFLib::KE_KEY_REPEAT;
+					key_event = dullahan::KE_KEY_REPEAT;
 				}
 
 				keyEvent(key_event, key, decodeModifiers(modifiers), native_key_data);
@@ -720,15 +725,15 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			if (message_name == "edit_cut")
 			{
-				mLLCEFLib->editCut();
+				//$1 mCEFLib->editCut();
 			}
 			if (message_name == "edit_copy")
 			{
-				mLLCEFLib->editCopy();
+				//$1 mCEFLib->editCopy();
 			}
 			if (message_name == "edit_paste")
 			{
-				mLLCEFLib->editPaste();
+				//$1 mCEFLib->editPaste();
 			}
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
@@ -736,24 +741,24 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "set_page_zoom_factor")
 			{
 				F32 factor = (F32)message_in.getValueReal("factor");
-				mLLCEFLib->setPageZoom(factor);
+				mCEFLib->setPageZoom(factor);
 			}
 			if (message_name == "browse_stop")
 			{
-				mLLCEFLib->stop();
+				mCEFLib->stop();
 			}
 			else if (message_name == "browse_reload")
 			{
 				bool ignore_cache = true;
-				mLLCEFLib->reload(ignore_cache);
+				mCEFLib->reload(ignore_cache);
 			}
 			else if (message_name == "browse_forward")
 			{
-				mLLCEFLib->goForward();
+				mCEFLib->goForward();
 			}
 			else if (message_name == "browse_back")
 			{
-				mLLCEFLib->goBack();
+				mCEFLib->goBack();
 			}
 			else if (message_name == "cookies_enabled")
 			{
@@ -765,7 +770,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "show_web_inspector")
 			{
-				mLLCEFLib->showDevTools(true);
+				mCEFLib->showDevTools();
 			}
 			else if (message_name == "plugins_enabled")
 			{
@@ -790,23 +795,23 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 	}
 }
 
-LLCEFLib::EKeyboardModifier MediaPluginCEF::decodeModifiers(std::string &modifiers)
+dullahan::EKeyboardModifier MediaPluginCEF::decodeModifiers(std::string &modifiers)
 {
 	int result = 0;
 
 	if (modifiers.find("shift") != std::string::npos)
-		result |= LLCEFLib::KM_MODIFIER_SHIFT;
+		result |= dullahan::KM_MODIFIER_SHIFT;
 
 	if (modifiers.find("alt") != std::string::npos)
-		result |= LLCEFLib::KM_MODIFIER_ALT;
+		result |= dullahan::KM_MODIFIER_ALT;
 
 	if (modifiers.find("control") != std::string::npos)
-		result |= LLCEFLib::KM_MODIFIER_CONTROL;
+		result |= dullahan::KM_MODIFIER_CONTROL;
 
 	if (modifiers.find("meta") != std::string::npos)
-		result |= LLCEFLib::KM_MODIFIER_META;
+		result |= dullahan::KM_MODIFIER_META;
 
-	return (LLCEFLib::EKeyboardModifier)result;
+	return (dullahan::EKeyboardModifier)result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -833,7 +838,7 @@ void MediaPluginCEF::deserializeKeyboardData(LLSD native_key_data, uint32_t& nat
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::EKeyboardModifier modifiers_x, LLSD native_key_data = LLSD::emptyMap())
+void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, int key, dullahan::EKeyboardModifier modifiers_x, LLSD native_key_data = LLSD::emptyMap())
 {
 #if LL_DARWIN
 
@@ -852,7 +857,7 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
     char eventUChars = static_cast<char>(native_key_data["event_umodchars"].isUndefined() ? 0 : native_key_data["event_umodchars"].asInteger());
     bool eventIsRepeat = native_key_data["event_isrepeat"].asBoolean();
 
-    mLLCEFLib->keyboardEventOSX(eventType, eventModifiers, (eventChars) ? &eventChars : NULL,
+    mCEFLib->keyboardEventOSX(eventType, eventModifiers, (eventChars) ? &eventChars : NULL,
                                 (eventUChars) ? &eventUChars : NULL, eventIsRepeat, eventKeycode);
 
 #elif LL_WINDOWS
@@ -860,15 +865,15 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
 
-	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
+	mCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };
 
-void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
+void MediaPluginCEF::unicodeInput(const std::string &utf8str, dullahan::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 {
 #if LL_DARWIN
-	//mLLCEFLib->keyPress(utf8str[0], true);
-	//mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
+	//mCEFLib->keyPress(utf8str[0], true);
+	//mCEFLib->keyboardEvent(dullahan::KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, dullahan::KM_MODIFIER_NONE, 0, 0, 0);
     if (!native_key_data.has("event_chars") || !native_key_data.has("event_umodchars") ||
             !native_key_data.has("event_keycode") || !native_key_data.has("event_modifiers"))
         return;
@@ -877,13 +882,13 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboar
     uint32_t keyCode = native_key_data["event_keycode"].asInteger();
     uint32_t rawmodifiers = native_key_data["event_modifiers"].asInteger();
 
-    mLLCEFLib->injectUnicodeText(unicodeChar, unmodifiedChar, keyCode, rawmodifiers);
+    mCEFLib->injectUnicodeText(unicodeChar, unmodifiedChar, keyCode, rawmodifiers);
 
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
-	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
+	mCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };
 
@@ -891,9 +896,12 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboar
 //
 void MediaPluginCEF::checkEditState()
 {
-	bool can_cut = mLLCEFLib->editCanCut();
-	bool can_copy = mLLCEFLib->editCanCopy();
-	bool can_paste = mLLCEFLib->editCanPaste();
+	//$1 bool can_cut = mCEFLib->editCanCut();
+	//$1 bool can_copy = mCEFLib->editCanCopy();
+	//$1 bool can_paste = mCEFLib->editCanPaste();
+	bool can_cut = false;
+	bool can_copy = false;
+	bool can_paste = false;
 
 	if ((can_cut != mCanCut) || (can_copy != mCanCopy) || (can_paste != mCanPaste))
 	{

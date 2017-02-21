@@ -447,7 +447,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
@@ -461,7 +461,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
@@ -839,22 +839,21 @@ class DarwinManifest(ViewerManifest):
                         except OSError as err:
                             print "Can't symlink %s -> %s: %s" % (src, dst, err)
 
-                # LLCefLib helper apps go inside SLPlugin.app
+                # Dullahan helper apps go inside SLPlugin.app
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
-                    for helperappfile in ('LLCefLib Helper.app',
-                                          'LLCefLib Helper EH.app'):
+                    for helperappfile in ('DullahanHelper.app'):
                         self.path2basename(relpkgdir, helperappfile)
 
                     pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
                     # Putting a Frameworks directory under Contents/MacOS
-                    # isn't canonical, but the path baked into LLCefLib
-                    # Helper.app/Contents/MacOS/LLCefLib Helper is:
+                    # isn't canonical, but the path baked into Dullahan
+                    # Helper.app/Contents/MacOS/DullahanHelper is:
                     # @executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework
                     # (notice, not @executable_path/../Frameworks/etc.)
                     # So we'll create a symlink (below) from there back to the
                     # Frameworks directory nested under SLPlugin.app.
                     helperframeworkpath = \
-                        self.dst_path_of('LLCefLib Helper.app/Contents/MacOS/'
+                        self.dst_path_of('DullahanHelper.app/Contents/MacOS/'
                                          'Frameworks/Chromium Embedded Framework.framework')
 
                     self.end_prefix()
@@ -918,7 +917,7 @@ class DarwinManifest(ViewerManifest):
                     # Life.app/Contents/Frameworks/Chromium Embedded Framework.framework
                     origin, target = pluginframeworkpath, frameworkpath
                     symlinkf(target, origin)
-                    # from SLPlugin.app/Contents/Frameworks/LLCefLib
+                    # from SLPlugin.app/Contents/Frameworks/Dullahan
                     # Helper.app/Contents/MacOS/Frameworks/Chromium Embedded
                     # Framework.framework back to
                     # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework

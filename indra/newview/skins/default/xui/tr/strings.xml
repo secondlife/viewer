@@ -79,7 +79,7 @@ VFS (önbellek) oluşturma zamanı: [VFS_TIME]
 	<string name="AboutLibs">
 		J2C Kod Çözücü Sürümü: [J2C_VERSION]
 Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
-LLCEFLib/CEF Sürümü: [LLCEFLIB_VERSION]
+CEF Sürümü: [LIBCEF_VERSION]
 LibVLC Sürümü: [LIBVLC_VERSION]
 Ses Sunucusu Sürümü: [VOICE_VERSION]
 	</string>

@@ -79,7 +79,7 @@ VFS（快取）建立時間：[VFS_TIME]
 	<string name="AboutLibs">
 		J2C 解碼器版本： [J2C_VERSION]
 音效驅動程式版本： [AUDIO_DRIVER_VERSION]
-LLCEFLib/CEF版本：[LLCEFLIB_VERSION]
+CEF版本：[LIBCEF_VERSION]
 LibVLC版本：[LIBVLC_VERSION]N]
 語音伺服器版本： [VOICE_VERSION]
 	</string>

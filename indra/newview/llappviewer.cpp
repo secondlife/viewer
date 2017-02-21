@@ -125,7 +125,7 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/llceflib.h"
+#include "cef/dullahan.h"
 #if LL_WINDOWS
 #include "vlc/libvlc_version.h"
 #endif // LL_WINDOWS
@@ -3393,13 +3393,15 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+	// TODO this is terrible, but how else to accurately get back entire version from
+	// both CEF and Dullahan when there is no #define anymore?
+	info["LIBCEF_VERSION"] = "Calculating...";
 #else
-	info["LLCEFLIB_VERSION"] = "Undefined";
+	info["LIBCEF_VERSION"] = "Undefined";
 
 #endif
 
-#if LL_WINDOWS
+#if !LL_LINUX
 	std::ostringstream ver_codec;
 	ver_codec << LIBVLC_VERSION_MAJOR;
 	ver_codec << ".";
