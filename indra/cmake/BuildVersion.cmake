@@ -14,6 +14,10 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
            set(VIEWER_VERSION_REVISION $ENV{revision})
            message(STATUS "Revision (from environment): ${VIEWER_VERSION_REVISION}")
 
+        elif (DEFINED ENV{AUTOBUILD_BUILD_ID})
+           set(VIEWER_VERSION_REVISION $ENV{AUTOBUILD_BUILD_ID})
+           message(STATUS "Revision (from autobuild environment): ${VIEWER_VERSION_REVISION}")
+
         else (DEFINED ENV{revision})
           find_program(MERCURIAL
                        NAMES hg
