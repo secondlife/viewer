@@ -41,20 +41,15 @@ def xstr(x):
         return ''
     return str(x)
 
-def export_csv(filename, pd_data):
-    if args.verbose:
-        print pd_data
-    pd_data.to_csv(filename)
-
 def get_default_export_name(pd_data,prefix="performance"):
     res = None
-    unique_id = pd_data["Session.UniqueID"][0]
-    timestamp = pd_data["Summary.Timestamp"][0]
-    name = prefix + "_" + str(unique_id)[0:6] + "_" + str(timestamp) + ".csv"
+    unique_id = pd_data["Session.UniqueHostID"][0]
+    session_id = pd_data["Session.UniqueSessionUUID"][0]
+    name = prefix + "_" + str(unique_id)[0:6] + "_" + str(session_id) + ".csv"
 
     res = name.replace(":",".").replace("Z","").replace("T","-")
         #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
-    print "unique_id",unique_id,"timestamp",timestamp,"name",res
+    print "unique_id",unique_id,"session_id",session_id,"name",res
     return res
     
 def export(filename, timers):
@@ -64,9 +59,11 @@ def export(filename, timers):
         print "saving to",filename
     if filename:
         if re.match(".*\.csv$", filename):
-            export_csv(filename, timers)
+            timers.to_csv(filename)
+            return filename
         else:
             print "unknown extension for export",filename
+    return None
 
 class DerivedSelfTimers:
     def __init__(self, sd, **kwargs):
@@ -310,144 +307,104 @@ def abbrev_number(f):
     else:
         return str(int(f/1e12))+"T"
 
-def get_outfit_spans(pd_data):
+def get_outfit_spans(pd_data): 
     results = []
-    print "get_outfit_span_groups"
-    time_key = "Timers.Frame.Time"
+    print "get_outfit_spans"
     results = []
     outfit_key = "Avatars.Self.OutfitName"
-    arc_key = "Avatars.Self.ARCCalculated"
+    arc_key="Avatars.Self.ARCCalculated"
+    time_key="Timers.Frame.Time" 
+    print "grouping by arc_key",arc_key
     grouped = pd_data.groupby([outfit_key,arc_key])
-    print "Grouped has",len(grouped),"groups"
+    if args.verbose:
+        print "Grouped has",len(grouped),"groups"
     for name, group in grouped:
         print name, len(group) 
-        if len(group)>100:
-            timespan = group[time_key]
-            low, high = np.percentile(timespan,5.0), np.percentile(timespan,95.0)
+        #print "group:", group
+        num_frames = len(group)
+        times = group[time_key]
+        duration = sum(times)
+        if (num_frames) > 200 and (duration > 10.0):
+            low, high = np.percentile(times,5.0), np.percentile(times,95.0)
             outfit_rec = {"outfit": name[0], 
                           "arc": name[1],
+                          "duration": duration,
+                          "num_frames": num_frames,
                           "group": group,
-                          "start_frame": group.index[0], 
-                          "span": len(group),
-                          "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
-                          "std": np.std(timespan), 
-                          "timespan": timespan,
-                          "attachments.count": group.iloc[0]["Derived.Avatar.Attachments.Count"],
-                          "attachments.triangles_high": group.iloc[0]["Derived.Avatar.Attachments.triangles_high"],
-                          "attachments.triangles_mid": group.iloc[0]["Derived.Avatar.Attachments.triangles_mid"],
-                          "attachments.triangles_low": group.iloc[0]["Derived.Avatar.Attachments.triangles_low"],
-                          "attachments.triangles_lowest": group.iloc[0]["Derived.Avatar.Attachments.triangles_lowest"],
-                          } 
+                          "start_frame": min(group.index),
+                          "avg": np.percentile(times, 50.0), #np.average(timespan.clip(low,high)), 
+                          "std": np.std(times), 
+                          "times": times}
+            for f in ["Derived.Avatar.Attachments.Count",
+                      "Derived.Avatar.Attachments.triangles_high",
+                      "Derived.Avatar.Attachments.triangles_mid",
+                      "Derived.Avatar.Attachments.triangles_low",
+                      "Derived.Avatar.Attachments.triangles_lowest"]:
+                outfit_rec[f] = group.iloc[0][f]
             #print outfit_rec
             results.append(outfit_rec)
-    return pd.DataFrame(results)
+    if args.verbose:
+        print len(results),"groups found of sufficient duration and frame count"
+    df =  pd.DataFrame(results)
+    return df
 
-def old_get_outfit_spans(pd_data):
+def process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated"):
     time_key = "Timers.Frame.Time"
-    results = []
-    outfit_key = "Avatars.Self.OutfitName"
-    arc_key = "Avatars.Self.ARCCalculated"
-    curr_outfit = None
-    outfit_column = pd_data[outfit_key]
-    outfit_key_frames = [i for i, outfit in enumerate(outfit_column) if isinstance(outfit,basestring)]
-    outfit_spans = [outfit_key_frames[i+1]-outfit_key_frames[i] for i in xrange(len(outfit_key_frames)-1)]
-    outfit_spans.append(len(pd_data)-outfit_key_frames[-1])
-    assert(len(outfit_key_frames)==len(outfit_spans))
-    spandict = dict(zip(outfit_key_frames, outfit_spans))
-    for outfit, group in itertools.groupby(outfit_key_frames,key=lambda k: outfit_column[k]):
-        max_span = 0
-        max_key = 0
-        # TODO allow multiple spans for same outfit, if sufficiently long
-        for start_frame in group:
-            span = spandict[start_frame]
-            if span > max_span:
-                max_span = span
-                max_key = start_frame
-        timespan = pd_data[time_key][max_key:max_key+max_span]
-        low, high = np.percentile(timespan,5.0), np.percentile(timespan,95.0)
-        print "OUTFIT",outfit, "ARC", pd_data[arc_key][max_key], "START_FRAME", max_key, "SPAN", max_span 
-        outfit_rec = {"outfit":outfit, 
-                      "arc": pd_data[arc_key][max_key], 
-                      "start_frame": max_key, 
-                      "span": max_span,
-                      "avg": np.percentile(timespan, 50.0), #np.average(timespan.clip(low,high)), 
-                      "std": np.std(timespan), 
-                      "timespan": timespan,
-                      "attachments.count": pd_data["Derived.Avatar.Attachments.Count"][max_key],
-                      "attachments.triangles_high": pd_data["Derived.Avatar.Attachments.triangles_high"][max_key],
-                      "attachments.triangles_mid": pd_data["Derived.Avatar.Attachments.triangles_mid"][max_key],
-                      "attachments.triangles_low": pd_data["Derived.Avatar.Attachments.triangles_low"][max_key],
-                      "attachments.triangles_lowest": pd_data["Derived.Avatar.Attachments.triangles_lowest"][max_key],
-                      } 
-        results.append(outfit_rec)
-    print "describing outfit pd"
-    outfit_df = pd.DataFrame(results)
-    print outfit_df.describe()
-    return outfit_df
-    
-def process_by_outfit(pd_data, arc_key="arc"):
-    time_key = "Timers.Frame.Time"
+    outfit_spans = get_outfit_spans(pd_data)
+    outfit_spans = outfit_spans.sort_values("avg")
+    outfits_csv_filename = get_default_export_name(pd_data,"outfits")
+    outfit_spans.to_csv(outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
 
-    arcs = []
-    avgs = []
-    labels = []
-    stddev = []
-    timespan = []
-    timespans = []
-    xspans = []
+    all_times = []
+    num_rows = outfit_spans.shape[0]
     errorbars_low = []
     errorbars_high = []
-    outfit_spans = get_outfit_spans(pd_data) 
-    outfit_spans = outfit_spans.sort_values("avg")
-    outfit_csv_name = get_default_export_name(pd_data,"outfits")
-    export_csv(outfit_csv_name, outfit_spans)
-    for index, outfit_span in outfit_spans.iterrows():
-        start_frame = outfit_span["start_frame"]
-        span_length = outfit_span["span"]
-        xspans.append((start_frame, start_frame + span_length))
-        outfit = outfit_span["outfit"]
-        arc = outfit_span["arc"]
-        avg = outfit_span["avg"]
-        print "OUTFIT",outfit, "ARC", arc, "START_FRAME", start_frame, "SPAN", span_length 
-        timespan = pd_data[time_key][start_frame:start_frame+span_length]
-        arcs.append(arc)
-        avgs.append(avg)
-        stddev.append(outfit_span["std"])
-        errorbars_low.append(outfit_span["avg"]-np.percentile(timespan,25.0))
-        errorbars_high.append(np.percentile(timespan,75.0)-outfit_span["avg"])
-        label = outfit + " arc " + abbrev_number(arc) + " frames " + str(span_length)
-        labels.append(label)
-        outfit_csv_filename = label.replace(" ","_").replace("*","") + ".csv"
-        outfit_span["group"].to_csv(outfit_csv_filename)
-        timespans.append(timespan)
-    if len(arcs)>1:
-        try:
-            print "CORRCOEFF", np.corrcoef(arcs,avgs)
-            print "POLYFIT", np.polyfit(arcs,avgs,1)
-        except:
-            print "CORCOEFF/POLYFIT failed"
+    labels = []
+    timeses = []
 
-    plt.errorbar(arcs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
-    for label, x, y in zip(labels,arcs,avgs):
+    for index, outfit_span in outfit_spans.iterrows():
+        outfit = outfit_span["outfit"]
+        avg = outfit_span["avg"]
+        arc = outfit_span["arc"]
+        times = outfit_span["times"]
+        num_frames = outfit_span["num_frames"]
+        timeses.append(times)
+        all_times.extend(times)
+        errorbar_low = (avg-np.percentile(times,25.0))
+        errorbar_high = (np.percentile(times,75.0)-avg)
+        errorbars_low.append(errorbar_low)
+        errorbars_high.append(errorbar_high)
+        label = outfit + " arc " + abbrev_number(arc) + " frames " + str(num_frames)
+        labels.append(label)
+        per_outfit_csv_filename = label.replace(" ","_").replace("*","") + ".csv"
+        outfit_span["group"].to_csv(per_outfit_csv_filename)
+
+    avgs = outfit_spans["avg"]
+    costs = outfit_spans[cost_key]
+    if num_rows>1:
+        try:
+            corr = np.corrcoef(costs,avgs)
+            print "CORRELATION between",cost_key,"and",time_key,"is:",corr[1]
+        except:
+            print "CORCOEFF failed"
+
+    plt.errorbar(costs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
+    for label, x, y in zip(labels,costs,avgs):
         plt.annotate(label, xy=(x,y))
-    plt.gca().set_xlabel(arc_key)
+    plt.gca().set_xlabel(cost_key)
     plt.gca().set_ylabel(time_key)
-    plt.gcf().savefig("arcs_vs_times.jpg", bbox_inches="tight")
+    plt.gcf().savefig("costs_vs_times.jpg", bbox_inches="tight")
     plt.clf()
-    nrows = len(timespans)
-    all_times = [t for timespan in timespans for t in timespan]
     all_low, all_high = np.percentile(all_times,0), np.percentile(all_times,98.0)
-    fig = plt.figure(figsize=(6, 2*nrows))
+    fig = plt.figure(figsize=(6, 2*num_rows))
     fig.subplots_adjust(wspace=1.0)
-    for i, (timespan, label, avg_val) in enumerate(zip(timespans,labels, avgs)):
+    for i, (times, label, avg_val) in enumerate(zip(timeses,labels, avgs)):
         #fig = plt.figure()
-        ax = fig.add_subplot(nrows,1,i+1)
-        low, high = np.percentile(timespan,2.0), np.percentile(timespan,98.0)
-        #clipped_timespan = timespan.clip(low,high)
-        ax.hist(timespan, 100, label=label, range=(all_low,all_high), alpha=0.3)
+        ax = fig.add_subplot(num_rows,1,i+1)
+        low, high = np.percentile(times,2.0), np.percentile(times,98.0)
+        ax.hist(times, 100, label=label, range=(all_low,all_high), alpha=0.3)
         plt.title(label)
         plt.axvline(x=avg_val)
-        #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
     plt.tight_layout()
     fig.savefig("times_histo_outfits.jpg")
         
@@ -459,12 +416,16 @@ def plot_time_series(pd_data,fields):
         #pd_data[f] = pd_data[f].clip(0,0.05)
         ax = pd_data.plot(y=f, alpha=0.3)
         for index, outfit_span in outfit_spans.iterrows():
-            x0,x1 = outfit_span["start_frame"], outfit_span["start_frame"] + outfit_span["span"]
+            index = outfit_span["group"].index
+            #print "times count",len(times),times
+            x0 = min(index)
+            x1 = max(index)
             y = outfit_span["avg"]
+            arc = outfit_span["arc"]
             outfit = outfit_span["outfit"]
-            print "annotate",(x0,x1),y
+            print "annotate",outfit,(x0,x1),y
             plt.plot((x0,x1),(y,y),"b-")
-            plt.text((x0+x1)/2, y, outfit, ha='center', va='bottom', rotation='vertical')
+            plt.text((x0+x1)/2, y, outfit + " arc " + abbrev_number(arc) , ha='center', va='bottom', rotation='vertical')
         ax.set_ylim([0,.1])
         fig = ax.get_figure()
         fig.savefig("time_series_" + f + ".jpg")
@@ -613,7 +574,13 @@ if __name__ == "__main__":
     print "args.export",args.export
     if args.export:
         print "Calling export",args.export
-        export(args.export, pd_data)
+        export_file = export(args.export, pd_data)
+        if export_file is not None:
+            print "reloading data from exported file",export_file
+            pd_data = collect_pandas_frame_data(export_file, args.fields, args.max_records, children=child_info, ignore=ignore_list)
+        else:
+            raise Error() 
+            
 
     if args.extract_percent:
         print "extract percent",args.extract_percent
@@ -640,7 +607,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data,"attachments.triangles_high")
+        process_by_outfit(pd_data,cost_key="Derived.Avatar.Attachments.triangles_high")
 
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
