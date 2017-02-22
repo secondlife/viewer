@@ -883,7 +883,7 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 		}
 		else if (hover_parcel->getIsGroupOwned())
 		{
-			if (gCacheName->getFullName(owner, name)) //group?
+			if (gCacheName->getGroupName(owner, name))
 			{
 				line.append(name);
 				line.append(LLTrans::getString("TooltipIsGroup"));
