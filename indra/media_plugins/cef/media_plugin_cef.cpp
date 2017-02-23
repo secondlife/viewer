@@ -68,7 +68,7 @@ private:
 	void onAddressChangeCallback(std::string url);
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
-	void onCursorChangedCallback(dullahan::ECursorType type, unsigned int handle);
+	void onCursorChangedCallback(dullahan::ECursorType type);
 	void onFileDownloadCallback(std::string filename);
 	const std::string onFileDialogCallback();
 
@@ -362,7 +362,7 @@ const std::string MediaPluginCEF::onFileDialogCallback()
 	return mPickedFile;
 }
 
-void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type, unsigned int handle)
+void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 {
 	std::string name = "";
 
@@ -496,7 +496,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 				mCEFLib->setOnFileDownloadCallback(std::bind(&MediaPluginCEF::onFileDownloadCallback, this, std::placeholders::_1));
 				mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialogCallback, this));
-				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1, std::placeholders::_2));
+				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
 				mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
 				dullahan::dullahan_settings settings;
