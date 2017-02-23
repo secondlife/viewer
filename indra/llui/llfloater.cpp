@@ -1839,7 +1839,7 @@ void LLFloater::onClickCloseBtn(bool app_quitting)
 // virtual
 void LLFloater::draw()
 {
-	const F32 alpha = getCurrentTransparency();
+	F32 alpha = getCurrentTransparency();
 
 	// draw background
 	if( isBackgroundVisible() )
@@ -1854,6 +1854,16 @@ void LLFloater::draw()
 		LLUIImage* image = NULL;
 		LLColor4 color;
 		LLColor4 overlay_color;
+		std::string help_topic;
+		if (this->findHelpTopic(help_topic))
+		{
+			if("camera_floater" == help_topic)
+			{
+				alpha = llmin(LLCachedControl<F32>(gSavedSettings, "CameraOpacity"),
+                              LLCachedControl<F32>(gSavedSettings, "ActiveFloaterTransparency"));
+			}
+		}
+
 		if (isBackgroundOpaque())
 		{
 			// NOTE: image may not be set

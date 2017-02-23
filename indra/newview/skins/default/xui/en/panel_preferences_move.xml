@@ -2,13 +2,14 @@
 <panel
  border="true"
  follows="left|top|right|bottom"
- height="408"
+ height="418"
  label="Move"
  layout="topleft"
  left="102"
  name="move_panel"
  top="1"
  width="517">
+
   <icon
      follows="left|top"
      height="18"
@@ -19,19 +20,41 @@
      visible="true"
      width="18"
      left="30"
-     top="10"/>
+     top="4"/>
+
+  <text
+    follows="top|left|right"
+    height="16"
+    layout="topleft"
+    left="80"
+    top_delta="0"
+    width="100">
+      Preset in use:
+  </text>
+
+  <text
+    follows="top|left|right"
+    height="16"
+    layout="topleft"
+    left_delta="100"
+    name="preset_camera_text"
+    width="120">
+      (None)
+  </text>
+
   <slider
    can_edit_text="true"
    control_name="CameraAngle"
    decimal_digits="2"
    follows="left|top"
    height="16"
+   top_pad="5"
    increment="0.025"
    initial_value="1.57"
    layout="topleft"
    label_width="100"
    label="View angle"
-   left_pad="30"
+   left="80"
    max_val="2.97"
    min_val="0.17"
    name="camera_fov"
@@ -62,21 +85,38 @@
   height="10"
   left="80"
   name="heading2"
-  width="270"
+  width="200"
   top_pad="5">
     Automatic position for:
   </text>
+
+  <spinner
+   control_name="CameraOpacity"
+   decimal_digits="1"
+   follows="top|left|right"
+   height="24"
+   max_val="1.0"
+   min_val="0.0"
+   increment="0.1"
+   initial_value="1.0"
+   label="Camera controls opacity:"
+   label_width="180"
+   layout="topleft"
+   top_pad="-10"
+   left_pad="10"
+   width="220" />
+
   <check_box
      control_name="EditCameraMovement"
      height="20"
      follows="left|top"
      label="Build/Edit"
      layout="topleft"
-     left_delta="30"
+     left="100"
      name="edit_camera_movement"
      tool_tip="Use automatic camera positioning when entering and exiting edit mode"
      width="280"
-     top_pad="5" />
+     top_pad="-10" />
   <check_box
    control_name="AppearanceCameraMovement"
    follows="left|top"
@@ -86,16 +126,68 @@
    name="appearance_camera_movement"
    tool_tip="Use automatic camera positioning while in edit mode"
    width="242" />
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Save settings as a preset..."
+    layout="topleft"
+    left="30"
+    name="PrefCameraSaveButton"
+    top_pad="10"
+    width="200">
+    <button.commit_callback
+      function="Pref.PrefSave"
+      parameter="camera" />
+  </button>
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Load preset..."
+    layout="topleft"
+    left_pad="10"
+    name="PrefCameraLoadButton"
+    top_delta="0"
+    width="115">
+    <button.commit_callback
+      function="Pref.PrefLoad"
+	  parameter="camera"/>
+  </button>
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Delete preset..."
+    layout="topleft"
+    left_pad="10"
+    name="PrefCameraDeleteButton"
+    top_delta="0"
+    width="115">
+    <button.commit_callback
+      function="Pref.PrefDelete"
+	  parameter="camera"/>
+  </button>
+
+  <view_border
+    bevel_style="in"
+    follows="left|top|right"
+    height="0"
+    layout="topleft"
+    left="10"
+    top_pad="5"
+    width="500"/>
+
   <icon
-	 follows="left|top"
-	 height="18"
-	 image_name="Move_Walk_Off"
+   follows="left|top"
+   height="18"
+   image_name="Move_Walk_Off"
    layout="topleft"
-	 name="avatar_icon"
-	 mouse_opaque="false"
-	 visible="true"
-	 width="18"
-   top_pad="10"
+   name="avatar_icon"
+   mouse_opaque="false"
+   visible="true"
+   width="18"
+   top_pad="4"
    left="30" />
   <text
    follows="left|top"
@@ -264,10 +356,11 @@
    label="Other Devices"
    left="30"
    name="joystick_setup_button"
-   top="30"
+   top_pad="5"
    width="155">
     <button.commit_callback
      function="Floater.Show"
      parameter="pref_joystick" />
   </button>
+
 </panel>

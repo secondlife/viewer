@@ -174,6 +174,7 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	void selectPanel(const LLSD& name);
+	void saveCameraPreset(std::string& preset);
 	void saveGraphicsPreset(std::string& preset);
 
 private:
@@ -196,6 +197,7 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
+	std::string mSavedCameraPreset;
 	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
 };
@@ -244,6 +246,18 @@ private:
 	LOG_CLASS(LLPanelPreference);
 };
 
+class LLPanelPreferenceView : public LLPanelPreference
+{
+public:
+	BOOL postBuild();
+	void draw();
+	void setPresetText();
+
+private:
+	void onPresetsListChangeCamera();
+	LOG_CLASS(LLPanelPreferenceView);
+};
+
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
@@ -261,7 +275,6 @@ protected:
 	bool hasDirtyChilds();
 
 private:
-
 	void onPresetsListChange();
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };

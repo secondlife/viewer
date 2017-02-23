@@ -15975,6 +15975,58 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CameraOpacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Opacity of the Camera Controls floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>PresetCameraActive</key>
+    <map>
+      <key>Comment</key>
+      <string>Name of currently selected preference</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>CameraOffsetCustom0</key>
+    <map>
+      <key>Comment</key>
+      <string>Customized camera offset from avatar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-3.0</real>
+        <real>0.0</real>
+        <real>0.75</real>
+      </array>
+    </map>
+    <key>FocusOffsetCustom0</key>
+    <map>
+      <key>Comment</key>
+      <string>Custom focus point offset relative to avatar (x-axis is forward)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
 </map>
 </llsd>
 

@@ -79,7 +79,7 @@
          help_topic="preferences_chat_tab"
          name="chat" />
         <panel
-		 class="panel_preference"
+		 class="panel_preference_view"
          filename="panel_preferences_move.xml"
          label="Move &amp; View"
          layout="topleft"

@@ -91,6 +91,8 @@ private:
 
 	/*virtual*/ BOOL postBuild();
 
+	void onViewButtonClick(const LLSD& user_data);
+
 	ECameraControlMode determineMode();
 
 	/* resets to the previous mode */

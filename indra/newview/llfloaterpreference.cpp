@@ -768,7 +768,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	saveSettings();
 
 	// Make sure there is a default preference file
-	LLPresetsManager::getInstance()->createMissingDefault();
+	LLPresetsManager::getInstance()->createMissingDefault(PRESETS_CAMERA);
+	LLPresetsManager::getInstance()->createMissingDefault(PRESETS_GRAPHIC);
 
 	bool started = (LLStartUp::getStartupState() == STATE_STARTED);
 
@@ -776,9 +777,23 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLButton* save_btn = findChild<LLButton>("PrefSaveButton");
 	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");
 
-	load_btn->setEnabled(started);
-	save_btn->setEnabled(started);
-	delete_btn->setEnabled(started);
+	if (load_btn && save_btn && delete_btn)
+	{
+		load_btn->setEnabled(started);
+		save_btn->setEnabled(started);
+		delete_btn->setEnabled(started);
+	}
+
+	LLButton* load_camera_btn = findChild<LLButton>("PrefCameraLoadButton");
+	LLButton* save_camera_btn = findChild<LLButton>("PrefCameraSaveButton");
+	LLButton* delete_camera_btn = findChild<LLButton>("PrefCameraDeleteButton");
+
+	if (load_camera_btn && save_camera_btn && delete_camera_btn)
+	{
+		load_camera_btn->setEnabled(started);
+		save_camera_btn->setEnabled(started);
+		delete_camera_btn->setEnabled(started);
+	}
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -2128,6 +2143,11 @@ void LLFloaterPreference::changed()
 
 }
 
+void LLFloaterPreference::saveCameraPreset(std::string& preset)
+{
+	mSavedCameraPreset = preset;
+}
+
 void LLFloaterPreference::saveGraphicsPreset(std::string& preset)
 {
 	mSavedGraphicsPreset = preset;
@@ -2474,6 +2494,86 @@ private:
 
 static LLPanelInjector<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
 static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
+static LLPanelInjector<LLPanelPreferenceView> t_pref_view("panel_preference_view");
+
+BOOL LLPanelPreferenceView::postBuild()
+{
+	setPresetText();
+
+	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
+	if (presetsMgr)
+	{
+		presetsMgr->setPresetListChangeCameraCallback(boost::bind(&LLPanelPreferenceView::onPresetsListChangeCamera, this));
+		presetsMgr->createMissingDefault(PRESETS_CAMERA); // a no-op after the first time, but that's ok
+	}
+
+	return LLPanelPreference::postBuild();
+}
+
+void LLPanelPreferenceView::onPresetsListChangeCamera()
+{
+	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
+	if (presetsMgr)
+	{
+		presetsMgr->setCameraDirty(false);
+	}
+
+	setPresetText();
+
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance && !gSavedSettings.getString("PresetCameraActive").empty())
+	{
+		instance->saveSettings(); //make cancel work correctly after changing the preset
+	}
+}
+
+void LLPanelPreferenceView::draw()
+{
+	setPresetText();
+	LLPanelPreference::draw();
+}
+
+void LLPanelPreferenceView::setPresetText()
+{
+	LLTextBox* preset_text = getChild<LLTextBox>("preset_camera_text");
+
+	std::string preset_camera_active = gSavedSettings.getString("PresetCameraActive");
+
+	if (!preset_camera_active.empty() && preset_camera_active != preset_text->getText())
+	{
+		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+		if (instance)
+		{
+			instance->saveCameraPreset(preset_camera_active);
+		}
+	}
+
+	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
+	if (presetsMgr)
+	{
+		if (presetsMgr->isCameraDirty() && !preset_camera_active.empty())
+		{
+			gSavedSettings.setString("PresetCameraActive", "");
+			preset_camera_active.clear();
+			// This doesn't seem to cause an infinite recursion.  This trigger is needed to cause the pulldown
+			// panel to update.
+			LLPresetsManager::getInstance()->triggerChangeCameraSignal();
+		}
+	}
+
+	if (!preset_camera_active.empty())
+	{
+		if (preset_camera_active == PRESETS_DEFAULT)
+		{
+			preset_camera_active = LLTrans::getString(PRESETS_DEFAULT);
+		}
+		preset_text->setText(preset_camera_active);
+	}
+	else
+	{
+		preset_text->setText(LLTrans::getString("none_paren_cap"));
+	}
+}
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {
@@ -2497,7 +2597,7 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
-    presetsMgr->createMissingDefault(); // a no-op after the first time, but that's ok
+    presetsMgr->createMissingDefault(PRESETS_GRAPHIC); // a no-op after the first time, but that's ok
     
 	return LLPanelPreference::postBuild();
 }
