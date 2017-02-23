@@ -120,7 +120,7 @@ public:
 	static BOOL parseColor4U(const std::string& buf, LLColor4U* value);
 
 	// conversion
-	operator const LLColor4() const
+	operator LLColor4() const
 	{
 		return LLColor4(*this);
 	}
