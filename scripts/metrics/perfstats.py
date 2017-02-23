@@ -309,17 +309,16 @@ def abbrev_number(f):
 
 def get_outfit_spans(pd_data): 
     results = []
-    print "get_outfit_spans"
     results = []
     outfit_key = "Avatars.Self.OutfitName"
     arc_key="Avatars.Self.ARCCalculated"
     time_key="Timers.Frame.Time" 
-    print "grouping by arc_key",arc_key
-    grouped = pd_data.groupby([outfit_key,arc_key])
+    pd_data['span_num'] = (pd_data[arc_key].shift(1) != pd_data[arc_key]).astype(int).cumsum()
+    grouped = pd_data.groupby([outfit_key,arc_key,'span_num'])
     if args.verbose:
         print "Grouped has",len(grouped),"groups"
     for name, group in grouped:
-        print name, len(group) 
+        #print name, len(group) 
         #print "group:", group
         num_frames = len(group)
         times = group[time_key]
@@ -335,11 +334,15 @@ def get_outfit_spans(pd_data):
                           "avg": np.percentile(times, 50.0), #np.average(timespan.clip(low,high)), 
                           "std": np.std(times), 
                           "times": times}
-            for f in ["Derived.Avatar.Attachments.Count",
-                      "Derived.Avatar.Attachments.triangles_high",
-                      "Derived.Avatar.Attachments.triangles_mid",
-                      "Derived.Avatar.Attachments.triangles_low",
-                      "Derived.Avatar.Attachments.triangles_lowest"]:
+            std_props = ["Avatars.Self.ARCCalculated",
+                         "Derived.Avatar.Attachments.Count",
+                         "Derived.Avatar.Attachments.triangles_high",
+                         "Derived.Avatar.Attachments.triangles_mid",
+                         "Derived.Avatar.Attachments.triangles_low",
+                         "Derived.Avatar.Attachments.triangles_lowest"]
+            std_props.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
+            std_props.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
+            for f in std_props:
                 outfit_rec[f] = group.iloc[0][f]
             #print outfit_rec
             results.append(outfit_rec)
@@ -381,12 +384,22 @@ def process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated"):
 
     avgs = outfit_spans["avg"]
     costs = outfit_spans[cost_key]
+    arcs = outfit_spans["arc"]
     if num_rows>1:
         try:
-            corr = np.corrcoef(costs,avgs)
-            print "CORRELATION between",cost_key,"and",time_key,"is:",corr[1]
+            corr = np.corrcoef([costs,avgs,arcs])
+            print corr
+            print "CORRELATION between",cost_key,"and",time_key,"is:",corr[0][1]
+            columns = outfit_spans.columns.difference(['group','times','outfit'])
+            subspans = outfit_spans[columns].T
+            #print subspans.describe()
+            print subspans.values
+            allcorr = np.corrcoef(subspans.values)
+            print "columns",len(columns),columns
+            print allcorr
         except:
             print "CORCOEFF failed"
+            raise
 
     plt.errorbar(costs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
     for label, x, y in zip(labels,costs,avgs):
@@ -574,6 +587,7 @@ if __name__ == "__main__":
     print "args.export",args.export
     if args.export:
         print "Calling export",args.export
+        arc_key="Avatars.Self.ARCCalculated"
         export_file = export(args.export, pd_data)
         if export_file is not None:
             print "reloading data from exported file",export_file
@@ -607,7 +621,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data,cost_key="Derived.Avatar.Attachments.triangles_high")
+        process_by_outfit(pd_data)#,cost_key="Derived.Avatar.Attachments.triangles_high")
 
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
