@@ -538,9 +538,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0a7831886570ed6485a462db33d30ca5</string>
+              <string>a220602c9a691553f2f7f1fad3777802</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2822/6489/dullahan-1.1.601_3.2704-windows-502809.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2893/6744/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows-502882.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -550,16 +550,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a9a42672f14d9cbb42ffc50677ad2d42</string>
+              <string>55aa333945e17ae54851b621e53a0381</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2821/6492/dullahan-1.1.601_3.2704-windows64-502809.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2894/6749/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows64-502882.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.601_3.2704</string>
+        <string>1.0.620_3.2704.1434.gec3e9ed</string>
       </map>
       <key>elfio</key>
       <map>
