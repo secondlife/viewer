@@ -507,6 +507,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.cookie_store_path = mCookiePath;
 				settings.cookies_enabled = mCookiesEnabled;
 				settings.flash_enabled = mPluginsEnabled;
+				settings.flip_mouse_y = false;
+				settings.flip_pixels_y = true;
 				settings.frame_rate = 60;
 				settings.initial_height = 1024;
 				settings.initial_width = 1024;
@@ -535,7 +537,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				message.setValueU32("internalformat", GL_RGB);
 				message.setValueU32("format", GL_BGRA);
 				message.setValueU32("type", GL_UNSIGNED_BYTE);
-				message.setValueBoolean("coords_opengl", false);
+				message.setValueBoolean("coords_opengl", true);
 				sendMessage(message);
 			}
 			else if (message_name == "set_user_data_path")
@@ -605,8 +607,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
-
-				y = mHeight - y;
 
 				// only even send left mouse button events to the CEF library
 				// (partially prompted by crash in OS X CEF when sending right button events)
@@ -725,15 +725,15 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			if (message_name == "edit_cut")
 			{
-				//$1 mCEFLib->editCut();
+				mCEFLib->editCut();
 			}
 			if (message_name == "edit_copy")
 			{
-				//$1 mCEFLib->editCopy();
+				mCEFLib->editCopy();
 			}
 			if (message_name == "edit_paste")
 			{
-				//$1 mCEFLib->editPaste();
+				mCEFLib->editPaste();
 			}
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
@@ -896,12 +896,9 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, dullahan::EKeyboar
 //
 void MediaPluginCEF::checkEditState()
 {
-	//$1 bool can_cut = mCEFLib->editCanCut();
-	//$1 bool can_copy = mCEFLib->editCanCopy();
-	//$1 bool can_paste = mCEFLib->editCanPaste();
-	bool can_cut = false;
-	bool can_copy = false;
-	bool can_paste = false;
+	bool can_cut = mCEFLib->editCanCut();
+	bool can_copy = mCEFLib->editCanCopy();
+	bool can_paste = mCEFLib->editCanPaste();
 
 	if ((can_cut != mCanCut) || (can_copy != mCanCopy) || (can_paste != mCanPaste))
 	{
