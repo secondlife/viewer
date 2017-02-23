@@ -167,9 +167,6 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 //
 void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height, bool is_popup)
 {
-
-	OutputDebugStringA("@");
-
 	if( is_popup )
 	{
 		delete mPopupBuffer;
