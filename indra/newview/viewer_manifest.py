@@ -858,6 +858,13 @@ class DarwinManifest(ViewerManifest):
 
                     self.end_prefix()
 
+                    # the helper app needs to have it's @executable_path modified to point to the 
+                    # same location we drop the CEF framework shortcut
+                    helperexecutablepath = self.dst_path_of('SLPlugin.app/Contents/Frameworks/DullahanHelper.app/Contents/MacOS/DullahanHelper')
+                    self.run_command('install_name_tool -change '
+                                     '"@executable_path/Chromium Embedded Framework" '
+                                     '"@executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % helperexecutablepath)
+
                 # SLPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],

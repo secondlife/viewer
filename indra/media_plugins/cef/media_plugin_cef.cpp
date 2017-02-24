@@ -41,7 +41,6 @@
 #include "dullahan.h"
 //#include "volume_catcher.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 class MediaPluginCEF :
@@ -839,23 +838,23 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, int key, dullahan::
 {
 #if LL_DARWIN
 
-    if (!native_key_data.has("event_type") ||
-            !native_key_data.has("event_modifiers") ||
-            !native_key_data.has("event_keycode") ||
-            !native_key_data.has("event_isrepeat"))
-        return;
+    // if (!native_key_data.has("event_type") ||
+    //         !native_key_data.has("event_modifiers") ||
+    //         !native_key_data.has("event_keycode") ||
+    //         !native_key_data.has("event_isrepeat"))
+    //     return;
 
-    uint32_t eventType = native_key_data["event_type"].asInteger();
-    if (!eventType)
-        return;
-    uint32_t eventModifiers = native_key_data["event_modifiers"].asInteger();
-    uint32_t eventKeycode = native_key_data["event_keycode"].asInteger();
-    char eventChars = static_cast<char>(native_key_data["event_chars"].isUndefined() ? 0 : native_key_data["event_chars"].asInteger());
-    char eventUChars = static_cast<char>(native_key_data["event_umodchars"].isUndefined() ? 0 : native_key_data["event_umodchars"].asInteger());
-    bool eventIsRepeat = native_key_data["event_isrepeat"].asBoolean();
+    // uint32_t eventType = native_key_data["event_type"].asInteger();
+    // if (!eventType)
+    //     return;
+    // uint32_t eventModifiers = native_key_data["event_modifiers"].asInteger();
+    // uint32_t eventKeycode = native_key_data["event_keycode"].asInteger();
+    // char eventChars = static_cast<char>(native_key_data["event_chars"].isUndefined() ? 0 : native_key_data["event_chars"].asInteger());
+    // char eventUChars = static_cast<char>(native_key_data["event_umodchars"].isUndefined() ? 0 : native_key_data["event_umodchars"].asInteger());
+    // bool eventIsRepeat = native_key_data["event_isrepeat"].asBoolean();
 
-    mCEFLib->keyboardEventOSX(eventType, eventModifiers, (eventChars) ? &eventChars : NULL,
-                                (eventUChars) ? &eventUChars : NULL, eventIsRepeat, eventKeycode);
+    // mCEFLib->keyboardEventOSX(eventType, eventModifiers, (eventChars) ? &eventChars : NULL,
+    //                             (eventUChars) ? &eventUChars : NULL, eventIsRepeat, eventKeycode);
 
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
@@ -871,15 +870,15 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, dullahan::EKeyboar
 #if LL_DARWIN
 	//mCEFLib->keyPress(utf8str[0], true);
 	//mCEFLib->keyboardEvent(dullahan::KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, dullahan::KM_MODIFIER_NONE, 0, 0, 0);
-    if (!native_key_data.has("event_chars") || !native_key_data.has("event_umodchars") ||
-            !native_key_data.has("event_keycode") || !native_key_data.has("event_modifiers"))
-        return;
-    uint32_t unicodeChar = native_key_data["event_chars"].asInteger();
-    uint32_t unmodifiedChar = native_key_data["event_umodchars"].asInteger();
-    uint32_t keyCode = native_key_data["event_keycode"].asInteger();
-    uint32_t rawmodifiers = native_key_data["event_modifiers"].asInteger();
+    // if (!native_key_data.has("event_chars") || !native_key_data.has("event_umodchars") ||
+    //         !native_key_data.has("event_keycode") || !native_key_data.has("event_modifiers"))
+    //     return;
+    // uint32_t unicodeChar = native_key_data["event_chars"].asInteger();
+    // uint32_t unmodifiedChar = native_key_data["event_umodchars"].asInteger();
+    // uint32_t keyCode = native_key_data["event_keycode"].asInteger();
+    // uint32_t rawmodifiers = native_key_data["event_modifiers"].asInteger();
 
-    mCEFLib->injectUnicodeText(unicodeChar, unmodifiedChar, keyCode, rawmodifiers);
+    // CP removed to build mCEFLib->injectUnicodeText(unicodeChar, unmodifiedChar, keyCode, rawmodifiers);
 
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
