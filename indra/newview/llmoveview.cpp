@@ -730,9 +730,16 @@ void LLPanelStandStopFlying::updatePosition()
 		panel_ssf_container->setOrigin(0, y_pos);
 	}
 
-	S32 x_pos = bottom_tb_center-getRect().getWidth()/2 - left_tb_width;
-
-	setOrigin( x_pos, 0);
+	if (gToolBarView != NULL && gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT)->hasButtons())
+	{
+		S32 x_pos = bottom_tb_center - getRect().getWidth() / 2 - left_tb_width;
+		setOrigin( x_pos, 0);
+	}
+	else 
+	{
+		S32 x_pos = bottom_tb_center - getRect().getWidth() / 2;
+		setOrigin( x_pos, 0);
+	}
 }
 
 // EOF
