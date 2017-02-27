@@ -56,9 +56,10 @@
 class LLViewerAssetRequest : public LLAssetRequest
 {
 public:
-    LLViewerAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
+    LLViewerAssetRequest(const LLUUID &uuid, const LLAssetType::EType type, bool with_http)
         : LLAssetRequest(uuid, type),
-          mMetricsStartTime(0)
+          mMetricsStartTime(0),
+          mWithHTTP(with_http)
     {
     }
     
@@ -78,8 +79,8 @@ protected:
         {
             // Okay, it appears this request was used for useful things.  Record
             // the expected dequeue and duration of request processing.
-            LLViewerAssetStatsFF::record_dequeue(mType, false, false);
-            LLViewerAssetStatsFF::record_response(mType, false, false,
+            LLViewerAssetStatsFF::record_dequeue(mType, mWithHTTP, false);
+            LLViewerAssetStatsFF::record_response(mType, mWithHTTP, false,
                                                   (LLViewerAssetStatsFF::get_timestamp()
                                                    - mMetricsStartTime));
             mMetricsStartTime = (U32Seconds)0;
@@ -88,6 +89,7 @@ protected:
     
 public:
     LLViewerAssetStats::duration_t      mMetricsStartTime;
+    bool mWithHTTP;
 };
 
 ///----------------------------------------------------------------------------
@@ -369,7 +371,8 @@ void LLViewerAssetStorage::queueRequestUDP(
     if (mUpstreamHost.isOk())
     {
         // stash the callback info so we can find it after we get the response message
-        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype);
+		bool with_http = false;
+        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype, with_http);
         req->mDownCallback = callback;
         req->mUserData = user_data;
         req->mIsPriority = is_priority;
@@ -398,7 +401,9 @@ void LLViewerAssetStorage::queueRequestUDP(
             LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
             ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 
-            LLViewerAssetStatsFF::record_enqueue(atype, false, false);
+            bool with_http = false;
+            bool is_temp = false;
+            LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
         }
     }
     else
@@ -432,7 +437,8 @@ void LLViewerAssetStorage::queueRequestHttp(
     {
         LL_DEBUGS("ViewerAsset") << "Will fetch via ViewerAsset cap " << cap_url << LL_ENDL;
 
-        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype);
+        bool with_http = true;
+        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype, with_http);
         req->mDownCallback = callback;
         req->mUserData = user_data;
         req->mIsPriority = is_priority;
@@ -447,7 +453,9 @@ void LLViewerAssetStorage::queueRequestHttp(
         // This is the same as the current UDP logic - don't re-request a duplicate.
         if (!duplicate)
         {
-            LLViewerAssetStatsFF::record_enqueue(atype, false, false);
+            bool with_http = true;
+            bool is_temp = false;
+            LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
             LLCoros::instance().launch("LLViewerAssetStorage::assetRequestCoro",
                                        boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, uuid, atype, callback, user_data));
@@ -481,9 +489,9 @@ void LLViewerAssetStorage::assetRequestCoro(
     }
     else
     {
-        LL_DEBUGS("ViewerAsset") << "request succeeded" << LL_ENDL;
+        LL_DEBUGS("ViewerAsset") << "request succeeded, url " << url << LL_ENDL;
 
-        LL_DEBUGS("ViewerAsset") << "result: " << ll_pretty_print_sd(httpResults) << LL_ENDL;
+        // LL_DEBUGS("ViewerAsset") << "result: " << ll_pretty_print_sd(httpResults) << LL_ENDL;
 
         const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
 
@@ -508,6 +516,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         else
         {
             // TODO asset-http: handle invalid size case
+			LL_ERRS() << "bad size" << LL_ENDL;
         }
 
         // Clean up pending downloads and trigger callbacks

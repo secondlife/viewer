@@ -104,7 +104,7 @@ public:
 	};
 
 	struct FPSStats : public LLInitParam::Block<FPSStats>
-			{
+    {
 		Mandatory<S32>	count;
 		Mandatory<F64>	min,
 						max,
@@ -113,13 +113,16 @@ public:
 	};
 
 	struct RegionStats : public LLInitParam::Block<RegionStats>
-				{
+    {
 		Optional<AssetRequestType>	get_texture_temp_http,
 									get_texture_temp_udp,
 									get_texture_non_temp_http,
 									get_texture_non_temp_udp,
+									get_wearable_http,
 									get_wearable_udp,
+									get_sound_http,
 									get_sound_udp,
+									get_gesture_http,
 									get_gesture_udp,
 									get_other;
 		Optional<FPSStats>			fps;
@@ -211,9 +214,12 @@ namespace LLViewerAssetStatsFF
 		EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP
 		EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
 		EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP
-		EVACWearableUDPGet,				//< Wearable GETs
-		EVACSoundUDPGet,				//< Sound GETs
-		EVACGestureUDPGet,				//< Gesture GETs
+		EVACWearableHTTPGet,			//< Wearable GETs HTTP
+		EVACWearableUDPGet,				//< Wearable GETs UDP
+		EVACSoundHTTPGet,				//< Sound GETs HTTP
+		EVACSoundUDPGet,				//< Sound GETs UDP
+		EVACGestureHTTPGet,				//< Gesture GETs HTTP
+		EVACGestureUDPGet,				//< Gesture GETs UDP
 		EVACOtherGet,					//< Other GETs
 
 		EVACCount						// Must be last

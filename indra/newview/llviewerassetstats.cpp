@@ -90,90 +90,32 @@ namespace LLViewerAssetStatsFF
 		//  - wearables (clothing, bodyparts) which directly affect
 		//    user experiences when they log in
 		//  - sounds
-		//  - gestures
+		//  - gestures, including animations
 		//  - everything else.
 		//
-		llassert_always(50 == LLViewerAssetType::AT_COUNT);
 
-		// Multiple asset definitions are floating around so this requires some
-		// maintenance and attention.
-		static const EViewerAssetCategories asset_to_bin_map[LLViewerAssetType::AT_COUNT] =
-		{
-			EVACTextureTempHTTPGet,			// (0) AT_TEXTURE
-			EVACSoundUDPGet,				// AT_SOUND
-			EVACOtherGet,					// AT_CALLINGCARD
-			EVACOtherGet,					// AT_LANDMARK
-			EVACOtherGet,					// AT_SCRIPT
-			EVACWearableUDPGet,				// AT_CLOTHING
-			EVACOtherGet,					// AT_OBJECT
-			EVACOtherGet,					// AT_NOTECARD
-			EVACOtherGet,					// AT_CATEGORY
-			EVACOtherGet,					// AT_ROOT_CATEGORY
-			EVACOtherGet,					// (10) AT_LSL_TEXT
-			EVACOtherGet,					// AT_LSL_BYTECODE
-			EVACOtherGet,					// AT_TEXTURE_TGA
-			EVACWearableUDPGet,				// AT_BODYPART
-			EVACOtherGet,					// AT_TRASH
-			EVACOtherGet,					// AT_SNAPSHOT_CATEGORY
-			EVACOtherGet,					// AT_LOST_AND_FOUND
-			EVACSoundUDPGet,				// AT_SOUND_WAV
-			EVACOtherGet,					// AT_IMAGE_TGA
-			EVACOtherGet,					// AT_IMAGE_JPEG
-			EVACGestureUDPGet,				// (20) AT_ANIMATION
-			EVACGestureUDPGet,				// AT_GESTURE
-			EVACOtherGet,					// AT_SIMSTATE
-			EVACOtherGet,					// AT_FAVORITE
-			EVACOtherGet,					// AT_LINK
-			EVACOtherGet,					// AT_LINK_FOLDER
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// (30)
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// (40)
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					//
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// AT_MESH
-			// (50)
-		};
-
-		if (at < 0 || at >= LLViewerAssetType::AT_COUNT)
-		{
-			return EVACOtherGet;
-		}
-		EViewerAssetCategories ret(asset_to_bin_map[at]);
-		if (EVACTextureTempHTTPGet == ret)
-		{
-			// Indexed with [is_temp][with_http]
-			static const EViewerAssetCategories texture_bin_map[2][2] =
-			{
-				{
-					EVACTextureNonTempUDPGet,
-					EVACTextureNonTempHTTPGet,
-				},
-				{
-					EVACTextureTempUDPGet,
-					EVACTextureTempHTTPGet,
-				}
-			};
-	
-			ret = texture_bin_map[is_temp][with_http];
-		}
+        EViewerAssetCategories ret(EVACOtherGet);
+        switch (at)
+        {
+            case LLAssetType::AT_TEXTURE:
+                if (is_temp)
+                    ret = with_http ? EVACTextureTempHTTPGet : EVACTextureTempUDPGet;
+                else
+                    ret = with_http ? EVACTextureNonTempHTTPGet : EVACTextureNonTempUDPGet;
+                break;
+            case LLAssetType::AT_SOUND:
+            case LLAssetType::AT_SOUND_WAV:
+                ret = with_http ? EVACSoundHTTPGet : EVACSoundUDPGet;
+                break;
+            case LLAssetType::AT_CLOTHING:
+            case LLAssetType::AT_BODYPART:
+                ret = with_http ? EVACWearableHTTPGet : EVACWearableUDPGet;
+                break;
+            case LLAssetType::AT_ANIMATION:
+            case LLAssetType::AT_GESTURE:
+                ret = with_http ? EVACGestureHTTPGet : EVACGestureUDPGet;
+                break;
+        }
 		return ret;
 	}
 
@@ -185,12 +127,18 @@ namespace LLViewerAssetStatsFF
 																	"Number of texture asset http requests enqueued"),
 							sEnqueueAssetRequestsNonTempTextureUDP ("enqueuedassetrequestsnontemptextureudp", 
 																	"Number of texture asset udp requests enqueued"),
+							sEnqueuedAssetRequestsWearableHTTP      ("enqueuedassetrequestswearablehttp", 
+																	"Number of wearable asset http requests enqueued"),
 							sEnqueuedAssetRequestsWearableUdp      ("enqueuedassetrequestswearableudp", 
-																	"Number of wearable asset requests enqueued"),
+																	"Number of wearable asset udp requests enqueued"),
+							sEnqueuedAssetRequestsSoundHTTP         ("enqueuedassetrequestssoundhttp", 
+																	"Number of sound asset http requests enqueued"),
 							sEnqueuedAssetRequestsSoundUdp         ("enqueuedassetrequestssoundudp", 
-																	"Number of sound asset requests enqueued"),
+																	"Number of sound asset udp requests enqueued"),
+							sEnqueuedAssetRequestsGestureHTTP       ("enqueuedassetrequestsgesturehttp", 
+																	"Number of gesture asset http requests enqueued"),
 							sEnqueuedAssetRequestsGestureUdp       ("enqueuedassetrequestsgestureudp", 
-																	"Number of gesture asset requests enqueued"),
+																	"Number of gesture asset udp requests enqueued"),
 							sEnqueuedAssetRequestsOther            ("enqueuedassetrequestsother", 
 																	"Number of other asset requests enqueued");
 
@@ -199,8 +147,11 @@ namespace LLViewerAssetStatsFF
 		&sEnqueueAssetRequestsTempTextureUDP,  
 		&sEnqueueAssetRequestsNonTempTextureHTTP,
 		&sEnqueueAssetRequestsNonTempTextureUDP,
+		&sEnqueuedAssetRequestsWearableHTTP,
 		&sEnqueuedAssetRequestsWearableUdp,
+		&sEnqueuedAssetRequestsSoundHTTP,
 		&sEnqueuedAssetRequestsSoundUdp,
+		&sEnqueuedAssetRequestsGestureHTTP,
 		&sEnqueuedAssetRequestsGestureUdp,
 		&sEnqueuedAssetRequestsOther            
 	};
@@ -213,12 +164,18 @@ namespace LLViewerAssetStatsFF
 																	"Number of texture asset http requests dequeued"),
 							sDequeueAssetRequestsNonTempTextureUDP ("dequeuedassetrequestsnontemptextureudp", 
 																	"Number of texture asset udp requests dequeued"),
+							sDequeuedAssetRequestsWearableHTTP      ("dequeuedassetrequestswearablehttp", 
+																	"Number of wearable asset http requests dequeued"),
 							sDequeuedAssetRequestsWearableUdp      ("dequeuedassetrequestswearableudp", 
-																	"Number of wearable asset requests dequeued"),
+																	"Number of wearable asset udp requests dequeued"),
+							sDequeuedAssetRequestsSoundHTTP         ("dequeuedassetrequestssoundhttp", 
+																	"Number of sound asset http requests dequeued"),
 							sDequeuedAssetRequestsSoundUdp         ("dequeuedassetrequestssoundudp", 
-																	"Number of sound asset requests dequeued"),
+																	"Number of sound asset udp requests dequeued"),
+							sDequeuedAssetRequestsGestureHTTP       ("dequeuedassetrequestsgesturehttp", 
+																	"Number of gesture asset http requests dequeued"),
 							sDequeuedAssetRequestsGestureUdp       ("dequeuedassetrequestsgestureudp", 
-																	"Number of gesture asset requests dequeued"),
+																	"Number of gesture asset udp requests dequeued"),
 							sDequeuedAssetRequestsOther            ("dequeuedassetrequestsother", 
 																	"Number of other asset requests dequeued");
 
@@ -227,8 +184,11 @@ namespace LLViewerAssetStatsFF
 		&sDequeueAssetRequestsTempTextureUDP,  
 		&sDequeueAssetRequestsNonTempTextureHTTP,
 		&sDequeueAssetRequestsNonTempTextureUDP,
+		&sDequeuedAssetRequestsWearableHTTP,
 		&sDequeuedAssetRequestsWearableUdp,
+		&sDequeuedAssetRequestsSoundHTTP,
 		&sDequeuedAssetRequestsSoundUdp,
+		&sDequeuedAssetRequestsGestureHTTP,
 		&sDequeuedAssetRequestsGestureUdp,
 		&sDequeuedAssetRequestsOther            
 	};
@@ -241,12 +201,18 @@ namespace LLViewerAssetStatsFF
 																							"Time spent responding to texture asset http requests"),
 													sResponseAssetRequestsNonTempTextureUDP ("assetresponsetimesnontemptextureudp", 
 																							"Time spent responding to texture asset udp requests"),
+													sResponsedAssetRequestsWearableHTTP      ("assetresponsetimeswearablehttp", 
+																							"Time spent responding to wearable asset http requests"),
 													sResponsedAssetRequestsWearableUdp      ("assetresponsetimeswearableudp", 
-																							"Time spent responding to wearable asset requests"),
+																							"Time spent responding to wearable asset udp requests"),
+													sResponsedAssetRequestsSoundHTTP         ("assetresponsetimessounduhttp", 
+																							"Time spent responding to sound asset http requests"),
 													sResponsedAssetRequestsSoundUdp         ("assetresponsetimessoundudp", 
-																							"Time spent responding to sound asset requests"),
+																							"Time spent responding to sound asset udp requests"),
+													sResponsedAssetRequestsGestureHTTP       ("assetresponsetimesgesturehttp", 
+																							"Time spent responding to gesture asset http requests"),
 													sResponsedAssetRequestsGestureUdp       ("assetresponsetimesgestureudp", 
-																							"Time spent responding to gesture asset requests"),
+																							"Time spent responding to gesture asset udp requests"),
 													sResponsedAssetRequestsOther            ("assetresponsetimesother", 
 																							"Time spent responding to other asset requests");
 
@@ -255,8 +221,11 @@ namespace LLViewerAssetStatsFF
 		&sResponseAssetRequestsTempTextureUDP,  
 		&sResponseAssetRequestsNonTempTextureHTTP,
 		&sResponseAssetRequestsNonTempTextureUDP,
+		&sResponsedAssetRequestsWearableHTTP,
 		&sResponsedAssetRequestsWearableUdp,
+		&sResponsedAssetRequestsSoundHTTP,
 		&sResponsedAssetRequestsSoundUdp,
+		&sResponsedAssetRequestsGestureHTTP,
 		&sResponsedAssetRequestsGestureUdp,
 		&sResponsedAssetRequestsOther            
 	};
@@ -416,6 +385,19 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 		}
 
 		if (!compact_output
+			|| rec.getSum(*sEnqueued[EVACWearableHTTPGet]) 
+			|| rec.getSum(*sDequeued[EVACWearableHTTPGet])
+			|| rec.getSum(*sResponse[EVACWearableHTTPGet]).value())
+		{
+			r.get_wearable_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACWearableHTTPGet]))
+								.dequeued((S32)rec.getSum(*sDequeued[EVACWearableHTTPGet]))
+								.resp_count((S32)rec.getSum(*sResponse[EVACWearableHTTPGet]).value())
+								.resp_min(rec.getMin(*sResponse[EVACWearableHTTPGet]).value())
+								.resp_max(rec.getMax(*sResponse[EVACWearableHTTPGet]).value())
+								.resp_mean(rec.getMean(*sResponse[EVACWearableHTTPGet]).value());
+		}
+
+		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACWearableUDPGet]) 
 			|| rec.getSum(*sDequeued[EVACWearableUDPGet])
 			|| rec.getSum(*sResponse[EVACWearableUDPGet]).value())
@@ -426,6 +408,19 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 								.resp_min(rec.getMin(*sResponse[EVACWearableUDPGet]).value())
 								.resp_max(rec.getMax(*sResponse[EVACWearableUDPGet]).value())
 								.resp_mean(rec.getMean(*sResponse[EVACWearableUDPGet]).value());
+		}
+
+		if (!compact_output
+			|| rec.getSum(*sEnqueued[EVACSoundHTTPGet]) 
+			|| rec.getSum(*sDequeued[EVACSoundHTTPGet])
+			|| rec.getSum(*sResponse[EVACSoundHTTPGet]).value())
+		{
+			r.get_sound_http.enqueued((S32)rec.getSum(*sEnqueued[EVACSoundHTTPGet]))
+							.dequeued((S32)rec.getSum(*sDequeued[EVACSoundHTTPGet]))
+							.resp_count((S32)rec.getSum(*sResponse[EVACSoundHTTPGet]).value())
+							.resp_min(rec.getMin(*sResponse[EVACSoundHTTPGet]).value())
+							.resp_max(rec.getMax(*sResponse[EVACSoundHTTPGet]).value())
+							.resp_mean(rec.getMean(*sResponse[EVACSoundHTTPGet]).value());
 		}
 
 		if (!compact_output
@@ -441,6 +436,19 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 							.resp_mean(rec.getMean(*sResponse[EVACSoundUDPGet]).value());
 		}
 
+		if (!compact_output
+			|| rec.getSum(*sEnqueued[EVACGestureHTTPGet]) 
+			|| rec.getSum(*sDequeued[EVACGestureHTTPGet])
+			|| rec.getSum(*sResponse[EVACGestureHTTPGet]).value())
+		{
+			r.get_gesture_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACGestureHTTPGet]))
+								.dequeued((S32)rec.getSum(*sDequeued[EVACGestureHTTPGet]))
+								.resp_count((S32)rec.getSum(*sResponse[EVACGestureHTTPGet]).value())
+								.resp_min(rec.getMin(*sResponse[EVACGestureHTTPGet]).value())
+								.resp_max(rec.getMax(*sResponse[EVACGestureHTTPGet]).value())
+								.resp_mean(rec.getMean(*sResponse[EVACGestureHTTPGet]).value());
+		}
+			
 		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACGestureUDPGet]) 
 			|| rec.getSum(*sDequeued[EVACGestureUDPGet])
@@ -576,8 +584,11 @@ LLViewerAssetStats::RegionStats::RegionStats()
 	get_texture_temp_udp("get_texture_temp_udp"),
 	get_texture_non_temp_http("get_texture_non_temp_http"),
 	get_texture_non_temp_udp("get_texture_non_temp_udp"),
+	get_wearable_http("get_wearable_http"),
 	get_wearable_udp("get_wearable_udp"),
+	get_sound_http("get_sound_http"),
 	get_sound_udp("get_sound_udp"),
+	get_gesture_http("get_gesture_http"),
 	get_gesture_udp("get_gesture_udp"),
 	get_other("get_other"),
 	fps("fps"),

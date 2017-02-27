@@ -76,8 +76,11 @@ static const char * all_keys[] =
 	"get_texture_temp_udp",
 	"get_texture_non_temp_http",
 	"get_texture_non_temp_udp",
+	"get_wearable_http",
 	"get_wearable_udp",
+	"get_sound_http",
 	"get_sound_udp",
+	"get_gesture_http",
 	"get_gesture_udp"
 };
 
@@ -88,8 +91,11 @@ static const char * resp_keys[] =
 	"get_texture_temp_udp",
 	"get_texture_non_temp_http",
 	"get_texture_non_temp_udp",
+	"get_wearable_http",
 	"get_wearable_udp",
+	"get_sound_http",
 	"get_sound_udp",
+	"get_gesture_http",
 	"get_gesture_udp"
 };
 
@@ -540,8 +546,11 @@ namespace tut
 		ensure("sd[get_gesture_udp][enqueued] is 0", (0 == sd["get_gesture_udp"]["enqueued"].asInteger()));
 		ensure("sd[get_gesture_udp][dequeued] is 0", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
 
-		ensure("sd[get_wearable_udp][enqueued] is 4", (4 == sd["get_wearable_udp"]["enqueued"].asInteger()));
-		ensure("sd[get_wearable_udp][dequeued] is 4", (4 == sd["get_wearable_udp"]["dequeued"].asInteger()));
+		ensure("sd[get_wearable_http][enqueued] is 2", (2 == sd["get_wearable_http"]["enqueued"].asInteger()));
+		ensure("sd[get_wearable_http][dequeued] is 2", (2 == sd["get_wearable_http"]["dequeued"].asInteger()));
+
+		ensure("sd[get_wearable_udp][enqueued] is 2", (2 == sd["get_wearable_udp"]["enqueued"].asInteger()));
+		ensure("sd[get_wearable_udp][dequeued] is 2", (2 == sd["get_wearable_udp"]["dequeued"].asInteger()));
 
 		ensure("sd[get_other][enqueued] is 4", (4 == sd["get_other"]["enqueued"].asInteger()));
 		ensure("sd[get_other][dequeued] is 0", (0 == sd["get_other"]["dequeued"].asInteger()));
