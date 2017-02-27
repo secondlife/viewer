@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 
 	// Set up llerror logging
 	{
-		LLError::initForApplication(".");
+		LLError::initForApplication(".",".");
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 //		LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
 //		LLError::logToFile("slplugin.log");
