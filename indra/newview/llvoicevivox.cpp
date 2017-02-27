@@ -93,9 +93,9 @@ namespace {
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.5f;
 
-    const F32 LOGIN_ATTEMPT_TIMEOUT = 5.0f;
-    const int LOGIN_RETRY_MAX = 5;
-    const F32 LOGIN_RETRY_TIMEOUT = 4.0f;
+    const F32 LOGIN_ATTEMPT_TIMEOUT = 30.0f;
+    const int LOGIN_RETRY_MAX = 3;
+    const F32 LOGIN_RETRY_BACKOFF = 10.0f;
 
     const int PROVISION_RETRY_MAX = 5;
     const F32 PROVISION_RETRY_TIMEOUT = 2.0;
@@ -1061,14 +1061,10 @@ bool LLVivoxVoiceClient::loginToVivox()
 
             if ((loginresp == "retry") || (loginresp == "timeout"))
             {
-                if ((!loginRetryCount) && (loginresp != "timeout"))
-                {   // on first retry notify user
-                    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGIN_RETRY);
-                }
-
-                if ((++loginRetryCount > LOGIN_RETRY_MAX) || (loginresp == "timeout"))
+                if (++loginRetryCount > LOGIN_RETRY_MAX)
                 {
-                    LL_WARNS("Voice") << "too many login retries or timeout connecting, giving up." << LL_ENDL;
+                    // We've run out of retries - tell the user
+                    LL_WARNS("Voice") << "too many login retries (" << loginRetryCount << "); giving up." << LL_ENDL;
                     LLSD args;
                     args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
                     mTerminateDaemon = true;
@@ -1082,7 +1078,7 @@ bool LLVivoxVoiceClient::loginToVivox()
                 account_login = false;
                 send_login = true;
 
-                F32 timeout = pow(LOGIN_RETRY_TIMEOUT, static_cast<float>(loginRetryCount)) - 1.0f;
+                F32 timeout = pow(LOGIN_RETRY_BACKOFF, static_cast<float>(loginRetryCount)) - 1.0f;
 
                 LL_INFOS("Voice") << "will retry login in " << timeout << " seconds." << LL_ENDL;
                 llcoro::suspendUntilTimeout(timeout);

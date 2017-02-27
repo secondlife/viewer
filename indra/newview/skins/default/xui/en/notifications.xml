@@ -8235,17 +8235,6 @@ Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now
   </notification>
 
   <notification
-   duration="10"
-   icon="notifytip.tga"
-   name="VoiceLoginRetry"
-   type="notifytip">
-    <unique/>    
-We are creating a voice channel for you. This may take up to one minute.
-  <tag>status</tag>
-  <tag>voice</tag>
-  </notification>
-
-  <notification
    icon="notify.tga"
    name="VoiceEffectsExpired"
    sound="UISndAlert"
@@ -8690,10 +8679,14 @@ We're having trouble connecting to your voice server:
 
 [HOSTID]
 
-:UDP: 3478, 3479, 5060, 5062, 12000-17000
+Ports that must be allowed for voice are:
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Please check your network and firewall setup.
+Disable any SIP ALG feature in your router.
 
 Voice communications will not be available.
-Please check your network and firewall setup.
     <tag>voice</tag>
   <tag>fail</tag>
     <usetemplate
