@@ -3,6 +3,10 @@
 	<menu_item_call label="Giysi - Mevcut Dış Görünümü Değiştir" name="wear"/>
 	<menu_item_call label="Giysi - Mevcut Dış Görünüme Ekle" name="wear_add"/>
 	<menu_item_call label="Çıkar - Mevcut Dış Görünümden Kaldır" name="take_off"/>
+	<menu_item_call label="Karşıya Fotoğraf Yükleyin (10 L$)" name="upload_photo"/>
+	<menu_item_call label="Fotoğraf Seçin" name="select_photo"/>
+	<menu_item_call label="Anlık Görüntü Al" name="take_snapshot"/>
+	<menu_item_call label="Fotoğrafı Kaldır" name="remove_photo"/>
 	<menu label="Yeni Giysiler" name="New Clothes">
 		<menu_item_call label="Yeni Gömlek" name="New Shirt"/>
 		<menu_item_call label="Yeni Pantolon" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="Tüm klasörleri daralt" name="collapse"/>
 	<menu_item_call label="Dış Görünümü Yeniden Adlandır" name="rename"/>
 	<menu_item_call label="Dış Görünümü Sil" name="delete_outfit"/>
+	<menu_item_check label="Klasörleri Her Zaman Ada Göre Sırala" name="sort_folders_by_name"/>
 </toggleable_menu>

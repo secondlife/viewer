@@ -46,7 +46,6 @@
 
 LLPathfindingPathTool::LLPathfindingPathTool()
 	: LLTool(PATH_TOOL_NAME),
-	LLSingleton<LLPathfindingPathTool>(),
 	mFinalPathData(),
 	mTempPathData(),
 	mPathResult(LLPathingLib::LLPL_NO_PATH),

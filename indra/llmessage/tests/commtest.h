@@ -33,15 +33,15 @@
 #include "llevents.h"
 #include "llsd.h"
 #include "llhost.h"
+#include "llexception.h"
 #include "stringize.h"
 #include <map>
 #include <string>
-#include <stdexcept>
 #include <boost/lexical_cast.hpp>
 
-struct CommtestError: public std::runtime_error
+struct CommtestError: public LLException
 {
-    CommtestError(const std::string& what): std::runtime_error(what) {}
+    CommtestError(const std::string& what): LLException(what) {}
 };
 
 static bool query_verbose()
@@ -68,7 +68,7 @@ static int query_port(const std::string& var)
     const char* cport = getenv(var.c_str());
     if (! cport)
     {
-        throw CommtestError(STRINGIZE("missing environment variable" << var));
+        LLTHROW(CommtestError(STRINGIZE("missing environment variable" << var)));
     }
     // This will throw, too, if the value of PORT isn't numeric.
     int port(boost::lexical_cast<int>(cport));

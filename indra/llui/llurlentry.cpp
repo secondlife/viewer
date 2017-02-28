@@ -183,8 +183,9 @@ bool LLUrlEntryBase::isLinkDisabled() const
 
 bool LLUrlEntryBase::isWikiLinkCorrect(std::string url)
 {
-	std::string label = getLabelFromWikiLink(url);
-	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
+	LLWString label = utf8str_to_wstring(getLabelFromWikiLink(url));
+	label.erase(std::remove(label.begin(), label.end(), L'\u200B'), label.end());
+	return (LLUrlRegistry::instance().hasUrl(wstring_to_utf8str(label))) ? false : true;
 }
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
@@ -205,9 +206,15 @@ std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
 
 	std::string label;
 	up.extractParts();
-	up.glueFirst(label);
-	std::string query = url.substr(label.size());
-	return query;
+	up.glueFirst(label, false);
+
+	size_t pos = url.find(label);
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+	pos += label.size();
+	return url.substr(pos);
 }
 
 
@@ -1370,7 +1377,7 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 LLUrlEntryEmail::LLUrlEntryEmail()
 	: LLUrlEntryBase()
 {
-	mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,6}",
+	mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,63}",
 							boost::regex::perl | boost::regex::icase);
 	mMenuName = "menu_url_email.xml";
 	mTooltip = LLTrans::getString("TooltipEmail");

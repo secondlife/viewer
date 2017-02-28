@@ -51,11 +51,13 @@ import HTMLParser
 import re
 import signal
 import subprocess
+import logging
 
-def main(command, libpath=[], vars={}):
+def main(command, arguments=[], libpath=[], vars={}):
     """Pass:
-    command is a sequence (e.g. a list) of strings. The first item in the list
-    must be the command name, the rest are its arguments.
+    command is the command to be executed
+
+    argument is a sequence (e.g. a list) of strings to be passed to command
 
     libpath is a sequence of directory pathnames. These will be appended to
     the platform-specific dynamic library search path environment variable.
@@ -85,7 +87,7 @@ def main(command, libpath=[], vars={}):
         # might not exist; instead of KeyError, just use an empty string.
         dirs = os.environ.get(var, "").split(os.pathsep)
         # Append the sequence in libpath
-        print "%s += %r" % (var, libpath)
+        log.info("%s += %r" % (var, libpath))
         for dir in libpath:
             # append system paths at the end
             if dir in ('/lib', '/usr/lib'):
@@ -103,20 +105,20 @@ def main(command, libpath=[], vars={}):
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(clean_dirs)
-        print "%s = %r" % (var, os.environ[var])
+        log.info("%s = %r" % (var, os.environ[var]))
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
     if vars:
-         print "Setting:"
-         for key, value in vars.iteritems():
-             print "%s=%s" % (key, value)
+         log.info("Setting: %s" % ("\n".join(["%s=%s" % (key, value) for key, value in vars.iteritems()])))
     os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
     # Run the child process.
-    print "Running: %s" % " ".join(command)
+    command_list = [command]
+    command_list.extend(arguments)
+    log.info("Running: %s" % " ".join(command_list))
     # Make sure we see all relevant output *before* child-process output.
     sys.stdout.flush()
     try:
-        return subprocess.call(command)
+        return subprocess.call(command_list)
     except OSError as err:
         # If the caller is trying to execute a test program that doesn't
         # exist, we want to produce a reasonable error message rather than a
@@ -126,9 +128,9 @@ def main(command, libpath=[], vars={}):
         if err.errno != errno.ENOENT:
             raise
         # In practice, the pathnames into CMake's build tree are so long as to
-        # obscure the name of the test program. Just print its basename.
-        print "No such program %s; check for preceding build errors" % \
-              os.path.basename(command[0])
+        # obscure the name of the test program. Just log its basename.
+        log.warn("No such program %s; check for preceding build errors" % \
+                 os.path.basename(command[0]))
         # What rc should we simulate for missing executable? Windows produces
         # 9009.
         return 9009
@@ -172,10 +174,10 @@ def translate_rc(rc):
             table = get_windows_table()
             symbol, desc = table[hexrc]
         except Exception, err:
-            print >>sys.stderr, "(%s -- carrying on)" % err
-            return "terminated with rc %s (%s)" % (rc, hexrc)
+            log.error("(%s -- carrying on)" % err)
+            log.error("terminated with rc %s (%s)" % (rc, hexrc))
         else:
-            return "terminated with rc %s: %s: %s" % (hexrc, symbol, desc)
+            log.info("terminated with rc %s: %s: %s" % (hexrc, symbol, desc))
 
     else:
         # On Posix, negative rc means the child was terminated by signal -rc.
@@ -303,22 +305,26 @@ def get_windows_table():
 
     return _windows_table
 
+log=logging.getLogger(__name__)
+logging.basicConfig()
+
 if __name__ == "__main__":
-    from optparse import OptionParser
-    parser = OptionParser(usage="usage: %prog [options] command args...")
-    # We want optparse support for the options we ourselves handle -- but we
-    # DO NOT want it looking at options for the executable we intend to run,
-    # rejecting them as invalid because we don't define them. So configure the
-    # parser to stop looking for options as soon as it sees the first
-    # positional argument (traditional Unix syntax).
-    parser.disable_interspersed_args()
-    parser.add_option("-D", "--define", dest="vars", default=[], action="append",
-                      metavar="VAR=value",
-                      help="Add VAR=value to the env variables defined")
-    parser.add_option("-l", "--libpath", dest="libpath", default=[], action="append",
-                      metavar="DIR",
-                      help="Add DIR to the platform-dependent DLL search path")
-    opts, args = parser.parse_args()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", dest="loglevel", action="store_const",
+                        const=logging.DEBUG, default=logging.WARNING)
+    parser.add_argument("-D", "--define", dest="vars", default=[], action="append",
+                        metavar="VAR=value",
+                        help="Add VAR=value to the env variables defined")
+    parser.add_argument("-l", "--libpath", dest="libpath", default=[], action="append",
+                        metavar="DIR",
+                        help="Add DIR to the platform-dependent DLL search path")
+    parser.add_argument("command")
+    parser.add_argument('args', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+
+    log.setLevel(args.loglevel)
+
     # What we have in opts.vars is a list of strings of the form "VAR=value"
     # or possibly just "VAR". What we want is a dict. We can build that dict by
     # constructing a list of ["VAR", "value"] pairs -- so split each
@@ -326,9 +332,9 @@ if __name__ == "__main__":
     # "VAR=some=user=string"). To handle the case of just "VAR", append "" to
     # the list returned by split(), then slice off anything after the pair we
     # want.
-    rc = main(command=args, libpath=opts.libpath,
-              vars=dict([(pair.split('=', 1) + [""])[:2] for pair in opts.vars]))
+    rc = main(command=args.command, arguments=args.args, libpath=args.libpath,
+              vars=dict([(pair.split('=', 1) + [""])[:2] for pair in args.vars]))
     if rc not in (None, 0):
-        print >>sys.stderr, "Failure running: %s" % " ".join(args)
-        print >>sys.stderr, "Error %s: %s" % (rc, translate_rc(rc))
+        log.error("Failure running: %s" % " ".join([args.command] + args.args))
+        log.error("Error %s: %s" % (rc, translate_rc(rc)))
     sys.exit((rc < 0) and 255 or rc)

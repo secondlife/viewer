@@ -60,23 +60,49 @@
 #include <dinput.h>
 #include <Dbt.h.>
 
-// culled from winuser.h
-#ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
-const S32	WM_MOUSEWHEEL = 0x020A;
-#endif
-#ifndef WHEEL_DELTA /* Added to be compatible with later SDK's */
-const S32	WHEEL_DELTA = 120;     /* Value for rolling one detent */
-#endif
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
 const F32	ICON_FLASH_TIME = 0.5f;
+
+#ifndef WM_DPICHANGED
+#define WM_DPICHANGED 0x02E0
+#endif
 
 extern BOOL gDebugWindowProc;
 
 LPWSTR gIconResource = IDI_APPLICATION;
 
 LLW32MsgCallback gAsyncMsgCallback = NULL;
+
+#ifndef DPI_ENUMS_DECLARED
+
+typedef enum PROCESS_DPI_AWARENESS {
+	PROCESS_DPI_UNAWARE = 0,
+	PROCESS_SYSTEM_DPI_AWARE = 1,
+	PROCESS_PER_MONITOR_DPI_AWARE = 2
+} PROCESS_DPI_AWARENESS;
+
+typedef enum MONITOR_DPI_TYPE {
+	MDT_EFFECTIVE_DPI = 0,
+	MDT_ANGULAR_DPI = 1,
+	MDT_RAW_DPI = 2,
+	MDT_DEFAULT = MDT_EFFECTIVE_DPI
+} MONITOR_DPI_TYPE;
+
+#endif
+
+typedef HRESULT(STDAPICALLTYPE *SetProcessDpiAwarenessType)(_In_ PROCESS_DPI_AWARENESS value);
+
+typedef HRESULT(STDAPICALLTYPE *GetProcessDpiAwarenessType)(
+	_In_ HANDLE hprocess,
+	_Out_ PROCESS_DPI_AWARENESS *value);
+
+typedef HRESULT(STDAPICALLTYPE *GetDpiForMonitorType)(
+	_In_ HMONITOR hmonitor,
+	_In_ MONITOR_DPI_TYPE dpiType,
+	_Out_ UINT *dpiX,
+	_Out_ UINT *dpiY);
 
 //
 // LLWindowWin32
@@ -759,7 +785,7 @@ void LLWindowWin32::close()
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
 	
 	// Don't process events in our mainWindowProc any longer.
-	SetWindowLong(mWindowHandle, GWL_USERDATA, NULL);
+	SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, NULL);
 
 	// Make sure we don't leave a blank toolbar button.
 	ShowWindow(mWindowHandle, SW_HIDE);
@@ -1538,7 +1564,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		LL_DEBUGS("Window") << "Keeping vertical sync" << LL_ENDL;
 	}
 
-	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
+	SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, (LONG_PTR)this);
 
 	// register this window as handling drag/drop events from the OS
 	DragAcceptFiles( mWindowHandle, TRUE );
@@ -1850,7 +1876,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 	// This is to avoid triggering double click teleport after returning focus (see MAINT-3786).
 	static bool sHandleDoubleClick = true;
 
-	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(h_wnd, GWL_USERDATA);
+	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( h_wnd, GWLP_USERDATA );
 
 
 	if (NULL != window_imp)
@@ -2591,6 +2617,26 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 				window_imp->mLastSizeWParam = w_param;
 
+				return 0;
+			}
+        
+		case WM_DPICHANGED:
+			{
+				LPRECT lprc_new_scale;
+				F32 new_scale = F32(LOWORD(w_param)) / F32(USER_DEFAULT_SCREEN_DPI);
+				lprc_new_scale = (LPRECT)l_param;
+				S32 new_width = lprc_new_scale->right - lprc_new_scale->left;
+				S32 new_height = lprc_new_scale->bottom - lprc_new_scale->top;
+				if (window_imp->mCallbacks->handleDPIChanged(window_imp, new_scale, new_width, new_height))
+				{
+					SetWindowPos(h_wnd,
+						HWND_TOP,
+						lprc_new_scale->left,
+						lprc_new_scale->top,
+						new_width,
+						new_height,
+						SWP_NOZORDER | SWP_NOACTIVATE);
+				}
 				return 0;
 			}
 
@@ -3876,6 +3922,92 @@ BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
 	}
 
 	return FALSE;
+}
+
+//static
+void LLWindowWin32::setDPIAwareness()
+{
+	HMODULE hShcore = LoadLibrary(L"shcore.dll");
+	if (hShcore != NULL)
+	{
+		SetProcessDpiAwarenessType pSPDA;
+		pSPDA = (SetProcessDpiAwarenessType)GetProcAddress(hShcore, "SetProcessDpiAwareness");
+		if (pSPDA)
+		{
+			
+			HRESULT hr = pSPDA(PROCESS_PER_MONITOR_DPI_AWARE);
+			if (hr != S_OK)
+			{
+				LL_WARNS() << "SetProcessDpiAwareness() function returned an error. Will use legacy DPI awareness API of Win XP/7" << LL_ENDL;
+			}
+		}
+		FreeLibrary(hShcore);	
+	}
+	else
+	{
+		LL_WARNS() << "Could not load shcore.dll library (included by <ShellScalingAPI.h> from Win 8.1 SDK. Will use legacy DPI awareness API of Win XP/7" << LL_ENDL;
+	}
+}
+
+F32 LLWindowWin32::getSystemUISize()
+{
+	float scale_value = 0;
+	HWND hWnd = (HWND)getPlatformWindow();
+	HDC hdc = GetDC(hWnd);
+	HMONITOR hMonitor;
+	HANDLE hProcess = GetCurrentProcess();
+	PROCESS_DPI_AWARENESS dpi_awareness;
+
+	HMODULE hShcore = LoadLibrary(L"shcore.dll");
+
+	if (hShcore != NULL)
+	{
+		GetProcessDpiAwarenessType pGPDA;
+		pGPDA = (GetProcessDpiAwarenessType)GetProcAddress(hShcore, "GetProcessDpiAwareness");
+		GetDpiForMonitorType pGDFM;
+		pGDFM = (GetDpiForMonitorType)GetProcAddress(hShcore, "GetDpiForMonitor");
+		if (pGPDA != NULL && pGDFM != NULL)
+		{
+			pGPDA(hProcess, &dpi_awareness);
+			if (dpi_awareness == PROCESS_PER_MONITOR_DPI_AWARE)
+			{
+				POINT    pt;
+				UINT     dpix = 0, dpiy = 0;
+				HRESULT  hr = E_FAIL;
+				RECT     rect;
+
+				GetWindowRect(hWnd, &rect);
+				// Get the DPI for the monitor, on which the center of window is displayed and set the scaling factor
+				pt.x = (rect.left + rect.right) / 2;
+				pt.y = (rect.top + rect.bottom) / 2;
+				hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+				hr = pGDFM(hMonitor, MDT_EFFECTIVE_DPI, &dpix, &dpiy);
+				if (hr == S_OK)
+				{
+					scale_value = F32(dpix) / F32(USER_DEFAULT_SCREEN_DPI);
+				}
+				else
+				{
+					LL_WARNS() << "Could not determine DPI for monitor. Setting scale to default 100 %" << LL_ENDL;
+					scale_value = 1.0f;
+				}
+			}
+			else
+			{
+				LL_WARNS() << "Process is not per-monitor DPI-aware. Setting scale to default 100 %" << LL_ENDL;
+				scale_value = 1.0f;
+			}
+		}
+		FreeLibrary(hShcore);
+	}
+	else
+	{
+		LL_WARNS() << "Could not load shcore.dll library (included by <ShellScalingAPI.h> from Win 8.1 SDK). Using legacy DPI awareness API of Win XP/7" << LL_ENDL;
+		scale_value = F32(GetDeviceCaps(hdc, LOGPIXELSX)) / F32(USER_DEFAULT_SCREEN_DPI);
+	}
+
+	ReleaseDC(hWnd, hdc);
+	return scale_value;
 }
 
 //static

@@ -4,5 +4,6 @@
 	<menu_item_check label="Сортировать по статусу" name="sort_status"/>
 	<menu_item_check label="Показывать значки людей" name="view_icons"/>
 	<menu_item_check label="Показывать разрешенные действия" name="view_permissions"/>
+	<menu_item_check label="Скрывать имена пользователей" name="view_usernames"/>
 	<menu_item_check label="Посмотреть журнал разговора..." name="view_conversation"/>
 </toggleable_menu>

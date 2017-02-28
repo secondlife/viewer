@@ -105,6 +105,81 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
 	return true;
 }
 
+bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= true*/)
+{
+    if (!mItemComparator)
+    {
+        LL_WARNS_ONCE() << "No comparator specified for inserting FlatListView items." << LL_ENDL;
+        return false;
+    }
+    if (panel_list.size() == 0)
+    {
+        return false;
+    }
+
+    // presort list so that it will be easier to sort elements into mItemPairs
+    panel_list.sort(ComparatorAdaptor(*mItemComparator));
+
+    pairs_const_iterator_t new_pair_it = panel_list.begin();
+    item_pair_t* new_pair = *new_pair_it;
+    pairs_iterator_t pair_it = mItemPairs.begin();
+    item_pair_t* item_pair = *pair_it;
+
+    // sort panel_list into mItemPars
+    while (new_pair_it != panel_list.end() && pair_it != mItemPairs.end())
+    {
+        if (!new_pair->first || new_pair->first->getParent() == mItemsPanel)
+        {
+            // iterator already used or we are reusing existing panel
+            new_pair_it++;
+            new_pair = *new_pair_it;
+        }
+        else if (mItemComparator->compare(new_pair->first, item_pair->first))
+        {
+            LLPanel* panel = new_pair->first;
+
+            mItemPairs.insert(pair_it, new_pair);
+            mItemsPanel->addChild(panel);
+
+            //_4 is for MASK
+            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
+            panel->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
+            // Children don't accept the focus
+            panel->setTabStop(false);
+        }
+        else
+        {
+            pair_it++;
+            item_pair = *pair_it;
+        }
+    }
+
+    // Add what is left of panel_list into the end of mItemPairs.
+    for (; new_pair_it != panel_list.end(); ++new_pair_it)
+    {
+        item_pair_t* item_pair = *new_pair_it;
+        LLPanel *panel = item_pair->first;
+        if (panel && panel->getParent() != mItemsPanel)
+        {
+            mItemPairs.push_back(item_pair);
+            mItemsPanel->addChild(panel);
+
+            //_4 is for MASK
+            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, item_pair, _4));
+            panel->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, item_pair, _4));
+            // Children don't accept the focus
+            panel->setTabStop(false);
+        }
+    }
+
+    if (rearrange)
+    {
+        rearrangeItems();
+        notifyParentItemsRectChanged();
+    }
+    return true;
+}
+
 
 bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, const LLSD& value /*= LLUUID::null*/)
 {
@@ -1289,6 +1364,28 @@ void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
 	}
 }
 
+void LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
+{
+	if (!item) return;
+
+	// 0 signifies that filter is matched,
+	// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
+	if (0 == item->notify(action))
+	{
+		mHasMatchedItems = true;
+		item->setVisible(true);
+	}
+	else
+	{
+		// TODO: implement (re)storing of current selection.
+		if (!mForceShowingUnmatchedItems)
+		{
+			selectItem(item, false);
+		}
+		item->setVisible(mForceShowingUnmatchedItems);
+	}
+}
+
 void LLFlatListViewEx::filterItems()
 {
 	typedef std::vector <LLPanel*> item_panel_list_t;
@@ -1309,22 +1406,7 @@ void LLFlatListViewEx::filterItems()
 		 iter != iter_end; ++iter)
 	{
 		LLPanel* pItem = (*iter);
-		// 0 signifies that filter is matched,
-		// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
-		if (0 == pItem->notify(action))
-		{
-			mHasMatchedItems = true;
-			pItem->setVisible(true);
-		}
-		else
-		{
-			// TODO: implement (re)storing of current selection.
-			if(!mForceShowingUnmatchedItems)
-			{
-				selectItem(pItem, false);
-			}
-			pItem->setVisible(mForceShowingUnmatchedItems);
-		}
+		updateItemVisibility(pItem, action);
 	}
 
 	sort();

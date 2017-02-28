@@ -174,7 +174,7 @@ S32 LLResourceUploadInfo::getEconomyUploadCost()
         getAssetType() == LLAssetType::AT_ANIMATION ||
         getAssetType() == LLAssetType::AT_MESH)
     {
-        return LLGlobalEconomy::Singleton::instance().getPriceUpload();
+        return LLGlobalEconomy::instance().getPriceUpload();
     }
 
     return 0;
@@ -779,11 +779,16 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
     if (uploadInfo->showUploadDialog())
         LLUploadDialog::modalUploadFinished();
 
-    // Let the Snapshot floater know we have finished uploading a snapshot to inventory.
+    // Let the Snapshot floater know we have finished uploading a snapshot to inventory
     LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
-    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot)
+    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot && floater_snapshot->isShown())
     {
         floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+    }
+    LLFloater* floater_outfit_snapshot = LLFloaterReg::findInstance("outfit_snapshot");
+    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_outfit_snapshot && floater_outfit_snapshot->isShown())
+    {
+        floater_outfit_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
     }
 }
 
@@ -819,8 +824,15 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
     }
 
     LLSD args;
-    args["FILE"] = uploadInfo->getDisplayName();
-    args["REASON"] = reason;
+    if(label == "ErrorMessage")
+    {
+        args["ERROR_MESSAGE"] = reason;
+    }
+    else
+    {
+        args["FILE"] = uploadInfo->getDisplayName();
+        args["REASON"] = reason;
+    }
 
     LLNotificationsUtil::add(label, args);
 
@@ -839,10 +851,14 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
 
     // Let the Snapshot floater know we have failed uploading.
     LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
-    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot)
+    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot && floater_snapshot->isShown())
     {
         floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
     }
-
+    LLFloater* floater_outfit_snapshot = LLFloaterReg::findInstance("outfit_snapshot");
+    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_outfit_snapshot && floater_outfit_snapshot->isShown())
+    {
+        floater_outfit_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
+    }
 }
 

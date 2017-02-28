@@ -573,6 +573,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 				LLRiggedVolume* rigged = volume->getRiggedVolume();
 				if (rigged)
 				{
+                    // called when selecting a face during edit of a mesh object
 					LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
 					glPolygonOffset(-1.f, -1.f);
 					gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
@@ -2132,7 +2133,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a src;
 
 			U32 vec[4];
-			vec[0] = vec[1] = vec[2] = vec[3] = color.mAll;
+			vec[0] = vec[1] = vec[2] = vec[3] = color.asRGBA();
 		
 			src.loadua((F32*) vec);
 
@@ -2168,7 +2169,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			LLColor4U glow4u = LLColor4U(0,0,0,glow);
 
-			U32 glow32 = glow4u.mAll;
+			U32 glow32 = glow4u.asRGBA();
 
 			U32 vec[4];
 			vec[0] = vec[1] = vec[2] = vec[3] = glow32;

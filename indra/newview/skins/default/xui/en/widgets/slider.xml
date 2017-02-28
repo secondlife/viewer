@@ -8,7 +8,6 @@
         text_color="LabelTextColor" 
         text_disabled_color="LabelDisabledColor">
   <slider.value_editor name="slider editor" 
-                       max_length="10" 
                        follows="left|bottom"/>
   <slider.value_text name="slider text" 
                      follows="left|bottom"/>

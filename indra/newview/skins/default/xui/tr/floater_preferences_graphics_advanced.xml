@@ -15,7 +15,7 @@
 	<text name="AvatarText">
 		Avatar
 	</text>
-	<slider label="Maksimum karmaşıklık:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık yapıdaki bir avatarın hangi noktada jelibon gibi tek renkli olarak çizileceğini kontrol eder"/>
+	<slider label="Maksimum karmaşıklık:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık bir avatarın ne zaman JellyDoll olarak çizileceğini belirler"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

@@ -110,6 +110,14 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 
 	out << std::endl;
 
+	// FIXME - this mDriverParam backlink makes no sense, because the
+	// LLDriverParamInfos are static objects - there's only one copy
+	// for each param type, so the backlink will just reference the
+	// corresponding param in the most recently created
+	// avatar. Apparently these toStream() methods are not currently
+	// used anywhere, so it's not an urgent problem.
+    LL_WARNS_ONCE() << "Invalid usage of mDriverParam." << LL_ENDL;
+    
 	if(mDriverParam && mDriverParam->getAvatarAppearance()->isSelf() &&
 		mDriverParam->getAvatarAppearance()->isValid())
 	{

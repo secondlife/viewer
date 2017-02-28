@@ -582,7 +582,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	// Add the category to the internal representation
 	LLPointer<LLViewerInventoryCategory> cat =
 		new LLViewerInventoryCategory(id, parent_id, preferred_type, name, gAgent.getID());
-	cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL);
+	cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
 	cat->setDescendentCount(0);
 	LLCategoryUpdate update(cat->getParentUUID(), 1);
 	accountForUpdate(update);
@@ -640,7 +640,7 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
         result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
         result["name"].asString(), gAgent.getID());
 
-    cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL);
+    cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
     cat->setDescendentCount(0);
     LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
     
@@ -914,8 +914,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, category_id);
 			if( item_array )
 			{
+				LLInventoryModel::LLCategoryUpdate update(category_id, 1);
+				gInventory.accountForUpdate(update);
+
 				// *FIX: bit of a hack to call update server from here...
-				new_item->updateServer(TRUE);
+				new_item->updateParentOnServer(FALSE);
 				item_array->push_back(new_item);
 			}
 			else
@@ -956,9 +959,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 				item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
 				if(item_array)
 				{
+					LLInventoryModel::LLCategoryUpdate update(parent_id, 1);
+					gInventory.accountForUpdate(update);
 					// *FIX: bit of a hack to call update server from
 					// here...
-					new_item->updateServer(TRUE);
+					new_item->updateParentOnServer(FALSE);
 					item_array->push_back(new_item);
 				}
 				else
@@ -1045,7 +1050,6 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 	if(old_cat)
 	{
 		// We already have an old category, modify its values
-		U32 mask = LLInventoryObserver::NONE;
 		LLUUID old_parent_id = old_cat->getParentUUID();
 		LLUUID new_parent_id = cat->getParentUUID();
 		if(old_parent_id != new_parent_id)
@@ -1100,7 +1104,8 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 		item_array_t* itemsp = new item_array_t;
 		mParentChildCategoryTree[new_cat->getUUID()] = catsp;
 		mParentChildItemTree[new_cat->getUUID()] = itemsp;
-		addChangedMask(LLInventoryObserver::ADD, cat->getUUID());
+		mask |= LLInventoryObserver::ADD;
+		addChangedMask(mask, cat->getUUID());
 	}
 }
 
@@ -1390,7 +1395,11 @@ void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool f
 		}
 
 		// From purgeObject()
-		LLPreview::hide(object_id);
+		LLViewerInventoryItem *item = getItem(object_id);
+		if (item && (item->getType() != LLAssetType::AT_LSL_TEXT))
+		{
+			LLPreview::hide(object_id, TRUE);
+		}
 		deleteObject(object_id, fix_broken_links, do_notify_observers);
 	}
 }
@@ -2726,24 +2735,13 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryObjects,
 							processRemoveInventoryObjects,
 							NULL);	
-	//msg->setHandlerFuncFast(_PREHASH_ExchangeCallingCard,
-	//						processExchangeCallingcard,
-	//						NULL);
-	//msg->setHandlerFuncFast(_PREHASH_AddCallingCard,
-	//					processAddCallingcard,
-	//					NULL);
-	//msg->setHandlerFuncFast(_PREHASH_DeclineCallingCard,
-	//					processDeclineCallingcard,
-	//					NULL);
 	msg->setHandlerFuncFast(_PREHASH_SaveAssetIntoInventory,
 						processSaveAssetIntoInventory,
 						NULL);
 	msg->setHandlerFuncFast(_PREHASH_BulkUpdateInventory,
 							processBulkUpdateInventory,
 							NULL);
-	msg->setHandlerFunc("InventoryDescendents", processInventoryDescendents);
 	msg->setHandlerFunc("MoveInventoryItem", processMoveInventoryItem);
-	msg->setHandlerFunc("FetchInventoryReply", processFetchInventoryReply);
 }
 
 
@@ -2762,14 +2760,6 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 	}
 
 }
-
-// static
-void LLInventoryModel::processFetchInventoryReply(LLMessageSystem* msg, void**)
-{
-	// no accounting
-	gInventory.messageUpdateCore(msg, false);
-}
-
 
 bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32 mask)
 {
@@ -3213,85 +3203,6 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		InventoryCallbackInfo cbinfo = (*inv_it);
 		gInventoryCallbacks.fire(cbinfo.mCallback, cbinfo.mInvID);
 	}
-
-	//gInventory.validate();
-
-	// Don't show the inventory.  We used to call showAgentInventory here.
-	//LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-	//if(view)
-	//{
-	//	const BOOL take_keyboard_focus = FALSE;
-	//	view->setSelection(category.getUUID(), take_keyboard_focus );
-	//	LLView* focus_view = gFocusMgr.getKeyboardFocus();
-	//	LLFocusMgr::FocusLostCallback callback = gFocusMgr.getFocusCallback();
-	//	// HACK to open inventory offers that are accepted.  This information
-	//	// really needs to flow through the instant messages and inventory
-	//	// transfer/update messages.
-	//	if (LLFloaterInventory::sOpenNextNewItem)
-	//	{
-	//		view->openSelected();
-	//		LLFloaterInventory::sOpenNextNewItem = FALSE;
-	//	}
-	//
-	//	// restore keyboard focus
-	//	gFocusMgr.setKeyboardFocus(focus_view);
-	//}
-}
-
-// static
-void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
-{
-	LLUUID agent_id;
-	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
-	if(agent_id != gAgent.getID())
-	{
-		LL_WARNS() << "Got a UpdateInventoryItem for the wrong agent." << LL_ENDL;
-		return;
-	}
-	LLUUID parent_id;
-	msg->getUUID("AgentData", "FolderID", parent_id);
-	LLUUID owner_id;
-	msg->getUUID("AgentData", "OwnerID", owner_id);
-	S32 version;
-	msg->getS32("AgentData", "Version", version);
-	S32 descendents;
-	msg->getS32("AgentData", "Descendents", descendents);
-
-	S32 i;
-	S32 count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
-	LLPointer<LLViewerInventoryCategory> tcategory = new LLViewerInventoryCategory(owner_id);
-	for(i = 0; i < count; ++i)
-	{
-		tcategory->unpackMessage(msg, _PREHASH_FolderData, i);
-		gInventory.updateCategory(tcategory);
-	}
-
-	count = msg->getNumberOfBlocksFast(_PREHASH_ItemData);
-	LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
-	for(i = 0; i < count; ++i)
-	{
-		titem->unpackMessage(msg, _PREHASH_ItemData, i);
-		// If the item has already been added (e.g. from link prefetch), then it doesn't need to be re-added.
-		if (gInventory.getItem(titem->getUUID()))
-		{
-			LL_DEBUGS("Inventory") << "Skipping prefetched item [ Name: " << titem->getName()
-								   << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << LL_ENDL;
-			continue;
-		}
-		gInventory.updateItem(titem);
-	}
-
-	// set version and descendentcount according to message.
-	LLViewerInventoryCategory* cat = gInventory.getCategory(parent_id);
-	if(cat)
-	{
-		cat->setVersion(version);
-		cat->setDescendentCount(descendents);
-		// Get this UUID on the changed list so that whatever's listening for it
-		// will get triggered.
-		gInventory.addChangedMask(LLInventoryObserver::INTERNAL, cat->getUUID());
-	}
-	gInventory.notifyObservers();
 }
 
 // static
@@ -3578,30 +3489,6 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 	}
 }
 
-//* @param[in] items vector of items in order to be saved.
-/*
-void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& items)
-{
-	int sortField = 0;
-
-	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
-	for (item_array_t::const_iterator i = items.begin(); i != items.end(); ++i)
-	{
-		LLViewerInventoryItem* item = *i;
-
-		item->setSortField(++sortField);
-		item->setComplete(TRUE);
-		item->updateServer(FALSE);
-
-		updateItem(item);
-
-		// Tell the parent folder to refresh its sort order.
-		addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
-	}
-
-	notifyObservers();
-}
-*/
 // See also LLInventorySort where landmarks in the Favorites folder are sorted.
 class LLViewerInventoryItemSort
 {
@@ -3612,37 +3499,6 @@ public:
 	}
 };
 
-/**
- * Sorts passed items by LLViewerInventoryItem sort field.
- *
- * @param[in, out] items - array of items, not sorted.
- */
-//static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-//{
-//	static LLViewerInventoryItemSort sort_functor;
-//	std::sort(items.begin(), items.end(), sort_functor);
-//}
-
-// * @param source_item_id - LLUUID of the source item to be moved into new position
-// * @param target_item_id - LLUUID of the target item before which source item should be placed.
-/*
-void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id)
-{
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLIsType is_type(LLAssetType::AT_LANDMARK);
-	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
-
-	// ensure items are sorted properly before changing order. EXT-3498
-	rearrange_item_order_by_sort_field(items);
-
-	// update order
-	updateItemsOrder(items, source_item_id, target_item_id);
-
-	saveItemsOrder(items);
-}
-*/
 //----------------------------------------------------------------------------
 
 // *NOTE: DEBUG functionality

@@ -5,4 +5,5 @@
 	<menu_item_check label="依距離排序" name="sort_distance"/>
 	<menu_item_check label="察看人群圖示" name="view_icons"/>
 	<menu_item_check label="察看地圖" name="view_map"/>
+	<menu_item_check label="隱藏使用者名稱" name="view_usernames"/>
 </toggleable_menu>

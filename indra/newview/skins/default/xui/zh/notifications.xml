@@ -330,6 +330,9 @@
 		你即將禁止[COUNT]個人留在群組。
 		<usetemplate ignoretext="確定要禁止多名成員續留此群組" name="okcancelignore" notext="取消" yestext="禁止"/>
 	</notification>
+	<notification name="GroupBanUserOnBanlist">
+		有些居民因為被封鎖所以沒有收到邀請。
+	</notification>
 	<notification name="AttachmentDrop">
 		你即將卸除你的附件。
     你確定你要繼續？
@@ -457,6 +460,12 @@
 	<notification name="ErrorEncodingSnapshot">
 		為快照編碼時出錯。
 	</notification>
+	<notification name="ErrorPhotoCannotAfford">
+		你需要L$[COST]才能把照片存入你的收納區。 你可以購買L$，或者不存入收納區，而把相片存到你的電腦。
+	</notification>
+	<notification name="ErrorTextureCannotAfford">
+		你需要L$[COST]才能把材質存入你的收納區。 你可以購買L$，或者不存入收納區，而把相片存到你的電腦。
+	</notification>
 	<notification name="ErrorUploadingPostcard">
 		發送快照時出問題，原因：[REASON]
 	</notification>
@@ -479,6 +488,9 @@
 	</notification>
 	<notification name="CannotWearInfoNotComplete">
 		無法穿戴該物件，它尚未完成載入。 請稍候再試。
+	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		請輸入密碼以便登入。
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		糟糕！ 發現有內容留白。
@@ -548,6 +560,9 @@
 	<notification name="ChangeConnectionPort">
 		重新啟動 [APP_NAME] 後將啟用新的埠設定。
 	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		這個除錯設定將在重新啟動 [APP_NAME] 後啟用。
+	</notification>
 	<notification name="ChangeSkin">
 		重新啟動 [APP_NAME] 後將顯現新的皮膚。
 	</notification>
@@ -567,6 +582,10 @@
 	</notification>
 	<notification name="DeleteNotecard">
 		刪除記事卡？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="LoadPreviousReportScreenshot">
+		你要使用之前的螢幕截圖來舉報嗎？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
@@ -629,32 +648,14 @@
 		</url>
 		<usetemplate ignoretext="我的電腦硬體並不支援" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
-	<notification name="IntelOldDriver">
+	<notification name="OldGPUDriver">
 		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
 
-    前往 [_URL] 察看是否有新版驅動程式？
+    前往[URL]察看是否有新版驅動程式？
 		<url name="url">
-			http://www.intel.com/p/en_US/support/detect/graphics
+			[URL]
 		</url>
-		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
-	</notification>
-	<notification name="AMDOldDriver">
-		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
-
-    前往 [_URL] 察看是否有新版驅動程式？
-		<url name="url">
-			http://support.amd.com/us/Pages/AMDSupportHub.aspx
-		</url>
-		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
-	</notification>
-	<notification name="NVIDIAOldDriver">
-		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
-
-    前往 [_URL] 察看是否有新版驅動程式？
-		<url name="url">
-			http://www.nvidia.com/Download/index.aspx?lang=tw
-		</url>
-		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
+		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="取消" yestext="是"/>
 	</notification>
 	<notification name="UnknownGPU">
 		你的系統含有一個 [APP_NAME] 無法辨認的顯像卡。
@@ -742,6 +743,9 @@
 			http://secondlife.com/app/currency/
 		</url>
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="MuteLimitReached">
+		封鎖清單名額無法增加，因為你已達[MUTE_LIMIT]名的上限。
 	</notification>
 	<notification name="UnableToLinkObjects">
 		無法聯結這 [COUNT] 個物件。
@@ -1359,12 +1363,18 @@
 			<ignore name="ignore" text="服裝花太多時間下載"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 視覺複雜度]是[AGENT_COMPLEXITY]。
+	<notification name="AgentComplexityWithVisibility">
+		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 化身複雜度]是[AGENT_COMPLEXITY]。
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="警告我化身的複雜度是否可能過高" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 視覺複雜度]是[AGENT_COMPLEXITY]。
+		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 化身複雜度]是[AGENT_COMPLEXITY]。
+		<usetemplate ignoretext="發出警告，告知我化身複雜度有了改變" name="notifyignore"/>
+	</notification>
+	<notification name="HUDComplexityWarning">
+		[HUD_REASON]，可能負面影響你的性能。
+		<usetemplate ignoretext="警告我HUD的複雜度是否可能過高" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] 安裝完成。
@@ -1456,6 +1466,10 @@ SHA1 指紋：[MD5_DIGEST]
 		確定要強制瞬間傳送這地區所有居民回家？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="ChangeObjectBonusFactor">
+		在地區內完成建製後再降低物件負荷倍數，可能導致物件被送返或刪除。 繼續要變更物件負荷倍數？
+		<usetemplate ignoretext="確定變更物件負荷倍數" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="EstateObjectReturn">
 		你確定要送返 [USER_NAME] 所擁有的物件？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
@@ -1479,6 +1493,10 @@ SHA1 指紋：[MD5_DIGEST]
 		你真的要確定產出目前地形，使其成為地形升/降極限的中間值，並設為「復原」工具的預設值？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="ConfirmTextureHeights">
+		你設的海拔範圍值，低值大於高值。　 繼續？
+		<usetemplate canceltext="不要問" name="yesnocancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		你最多只能有 [MAX_AGENTS] 位允許居民。
 	</notification>
@@ -1498,6 +1516,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
 		無法添加領地所有人到領地的 &apos;被封鎖的居民&apos; 名單中。
+	</notification>
+	<notification name="ProblemAddingEstateManagerBanned">
+		無法把被封鎖的居民加入領地的管理人名單。
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		無法變更外觀，直到服裝與體形下載完畢。
@@ -1670,6 +1691,10 @@ SHA1 指紋：[MD5_DIGEST]
 		你確定要開啟網頁瀏覽器去察看這個內容？
 		<usetemplate ignoretext="啟動我的網頁瀏覽器去察看網頁" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="SystemUIScaleFactorChanged">
+		系統使用者介面的尺寸倍數自從上次執行後已經改變。 你想要開啟使用者介面尺寸調整的設定頁嗎？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="WebLaunchJoinNow">
 		前往你的[http://secondlife.com/account/ 塗鴉牆]以進行管理你的帳戶？
 		<usetemplate ignoretext="啟動我的瀏覽器以管理我的帳戶" name="okcancelignore" notext="取消" yestext="確定"/>
@@ -1709,16 +1734,15 @@ SHA1 指紋：[MD5_DIGEST]
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="GroupDepart">
+		你已經離開「[group_name]」群組。
+	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		無法離開群組。 你是此群組僅存的所有人，不得離開群組。 請先把所有人職銜指派給另一人。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="GroupDepartError">
-		無法離開群組：[reason]。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="GroupDepart">
-		你已經離開[group_name]群組。
+		無法離開群組。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2118,6 +2142,10 @@ SHA1 指紋：[MD5_DIGEST]
 		選擇了太多項的幾何元件。  請至多選擇 [MAX_PRIM_COUNT] 項幾何元件，再試一次。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="TooManyScriptsSelected">
+		選取的物件腳本太多。  請減少選取的物件數，再試一次。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="ProblemImportingEstateCovenant">
 		匯入領地契約時出問題。
 		<usetemplate name="okbutton" yestext="確定"/>
@@ -2285,6 +2313,10 @@ SHA1 指紋：[MD5_DIGEST]
 		付款失敗：找不到物件。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="PaymentBlockedButtonMismatch">
+		付款中止：所付價格與此物件設定的任何付款按鈕皆不相符。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		這物件中沒有任何准許你複製的物項。
 	</notification>
@@ -2319,6 +2351,12 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ConfirmUnlink">
 		這是一組包含聯結集的巨大選取項。 一旦你取消它的聯結，很可能不能再重新聯結。 為防萬一，建議你把聯結集複製到收納區。
 		<usetemplate ignoretext="取消聯結集聯結時，跟我確認" name="okcancelignore" notext="取消" yestext="取消聯結"/>
+	</notification>
+	<notification name="HelpReportAbuseConfirm">
+		謝謝你撥冗提報問題。 
+我們會查核你的舉報內容決定有無違規情事，並
+採取適當行動。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		請選擇適合這次違規舉報的類別。
@@ -2389,6 +2427,10 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ConfirmEmptyTrash">
 		你確定你要對你垃圾筒中的內容進行刪除？
 		<usetemplate ignoretext="在我清空收納區垃圾筒資料夾前確認" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="TrashIsFull">
+		你的垃圾桶快滿了。 這可能會造成登入的問題。
+		<usetemplate name="okcancelbuttons" notext="我稍後再清空垃圾桶" yestext="現在清空垃圾桶"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		你確定要刪除你的旅行、網頁及搜尋歷史紀錄嗎？
@@ -2744,6 +2786,10 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="PathfindingDirty">
 		這地區的尋徑功能有所變更，待儲存。  如果你有建製權，你可以點按「重新產出地區」按鈕重新產出地區。
 	</notification>
+	<notification name="PathfindingDirtyRebake">
+		這地區的尋徑功能有所變更，待儲存。  如果你有建製權，你可以點按「重新產出地區」按鈕重新產出地區。
+		<usetemplate name="okbutton" yestext="重新產出地區"/>
+	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		這地區並未啟用動態尋徑。  使用尋徑 LSL 呼叫的帶腳本物件，在此地區可能無法正常運作。
 	</notification>
@@ -2973,11 +3019,11 @@ SHA1 指紋：[MD5_DIGEST]
 如果你繼續留在這地區，你將會被登出。
 	</notification>
 	<notification name="LoadWebPage">
-		載入網頁 [URL]?
+		載入網頁 [URL]？
 
 [MESSAGE]
 
-來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人：[NAME_SLURL]）
+來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人是[NAME_SLURL]）
 		<form name="form">
 			<button name="Gotopage" text="前往頁面"/>
 			<button name="Cancel" text="取消"/>
@@ -3246,6 +3292,12 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="AttachmentSaved">
 		附件已儲存。
 	</notification>
+	<notification name="AppearanceToXMLSaved">
+		外觀已經存成位於[PATH]的XML
+	</notification>
+	<notification name="AppearanceToXMLFailed">
+		將外觀存為XML失敗。
+	</notification>
 	<notification name="PresetNotSaved">
 		儲存預設名稱[NAME]時出錯。
 	</notification>
@@ -3459,13 +3511,6 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="ForceQuitDueToLowMemory">
 		記憶體不足，第二人生將於 30 秒後關閉離開。
-	</notification>
-	<notification name="PopupAttempt">
-		一個突顯式視窗開啟時被阻擋。
-		<form name="form">
-			<ignore name="ignore" text="啟用全部的突顯式視窗"/>
-			<button name="open" text="開啟突顯式視窗"/>
-		</form>
 	</notification>
 	<notification name="SOCKS_NOT_PERMITTED">
 		SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot; 拒絕連通，規則集不允許。
@@ -3841,6 +3886,9 @@ SHA1 指紋：[MD5_DIGEST]
 		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
  [REGION_NAME] 地區的 [OBJ_POSITION]，因為此地段資源不足容納此物件。
 	</notification>
+	<notification name="NoParcelPermsNoObject">
+		複製失敗，因爲你無權出入該地段。
+	</notification>
 	<notification name="CantMoveObjectRegionVersion">
 		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
  [REGION_NAME] 地區的 [OBJ_POSITION]，因為該地區所執行的軟體版本過舊，不支援跨地區接受這個物件。
@@ -3855,6 +3903,10 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="NoPermModifyObject">
 		你無權變更該物件
+	</notification>
+	<notification name="TooMuchObjectInventorySelected">
+		選取的物件包含太多大的收納區。 請減少選取的物件數，再試一次。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="CantEnablePhysObjContributesToNav">
 		對導航網面有貢獻的物件，無法啟用物理。
@@ -3891,6 +3943,12 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="CantSaveModifyAttachment">
 		無法儲存到物件內容：這麼做將修改附件的權限。
+	</notification>
+	<notification name="AttachmentHasTooMuchInventory">
+		你的附件已經包含太多收納區內容，不能再增加。
+	</notification>
+	<notification name="IllegalAttachment">
+		這個附件要求了化身上不存在的點。 因此已將該附件附著到胸部。
 	</notification>
 	<notification name="TooManyScripts">
 		腳本太多。
@@ -3983,6 +4041,12 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="TeleportedByObjectUnknownUser">
 		你已成功被某未知用戶擁有的物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送。
+	</notification>
+	<notification name="StandDeniedByObject">
+		「[OBJECT_NAME]」將使你無法在此時站立。
+	</notification>
+	<notification name="ResitDeniedByObject">
+		「[OBJECT_NAME]」此時無法允許你改變座位。
 	</notification>
 	<notification name="CantCreateObjectRegionFull">
 		無法建立要求的物件。 地區已滿載。
@@ -4280,6 +4344,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="CantTransfterMoneyRegionDisabled">
 		此地區目前未啟用轉移金錢給物件的功能。
 	</notification>
+	<notification name="DroppedMoneyTransferRequest">
+		系統負荷太重，無法進行付款。
+	</notification>
 	<notification name="CantPayNoAgent">
 		無法決定付款給誰。
 	</notification>
@@ -4313,6 +4380,10 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		聊天紀錄檔案還在處理前一個動作。 請稍候再試，或請換一個聊天對象。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OutfitPhotoLoadError">
+		[REASON]
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 </notifications>

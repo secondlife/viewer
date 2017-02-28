@@ -201,7 +201,7 @@ bool LLImageDimensionsInfo::getImageDimensionsJpeg()
 	cinfo.out_color_space = JCS_RGB;
 	jpeg_start_decompress	(&cinfo);
 
-	mHeight = cinfo.output_width;
+	mWidth = cinfo.output_width;
 	mHeight = cinfo.output_height;
 
 	jpeg_destroy_decompress(&cinfo);

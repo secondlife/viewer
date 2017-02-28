@@ -105,9 +105,13 @@ public:
 	
 	// Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
 	static bool isAnyMediaShowing();
+	// Shows if any media is playing, counts visible non time based media as playing. Does not include media in the UI.
+	static bool isAnyMediaPlaying();
 	// Set all media enabled or disabled, depending on val.   Does not include media in the UI.
 	static void setAllMediaEnabled(bool val);
-	
+	// Set all media paused(stopped for non time based) or playing, depending on val.   Does not include media in the UI.
+	static void setAllMediaPaused(bool val);
+
 	static void updateMedia(void* dummy_arg = NULL);
 	
 	static void initClass();
@@ -299,7 +303,7 @@ public:
 	void setTarget(const std::string& target) { mTarget = target; }
 	
 	// utility function to create a ready-to-use media instance from a desired media type.
-	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target = LLStringUtil::null, bool clean_browser = false);
+	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target = LLStringUtil::null, bool clean_browser = false);
 
 	// Internally set our desired browser user agent string, including
 	// the Second Life version and skin name.  Used because we can

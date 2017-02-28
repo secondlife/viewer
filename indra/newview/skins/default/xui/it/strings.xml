@@ -38,6 +38,9 @@
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
+	<string name="BuildConfig">
+		Configurazione struttura [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
 		Tu sei a [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] che si trova a &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -55,19 +58,39 @@ Scheda grafica: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Versione driver Windows per grafica: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		Versione OpenGL: [OPENGL_VERSION]
-
-Versione J2C Decoder: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Dimensione finestra: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
+Regolazione dimensioni carattere: [FONT_SIZE_ADJUSTMENT] punti
+Scala UI: [UI_SCALE]
+Distanza visualizzazione: [DRAW_DISTANCE] m
+Larghezza banda: [NET_BANDWITH] kbit/s
+Fattore livello di dettaglio: [LOD_FACTOR]
+Qualità di rendering: [RENDER_QUALITY] / 7
+Modello illuminazione avanzato: [GPU_SHADERS]
+Memoria texture: [TEXTURE_MEMORY] MB
+Data/ora creazione VFS (cache): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		Versione J2C Decoder: [J2C_VERSION]
 Versione Driver audio: [AUDIO_DRIVER_VERSION]
 Versione LLCEFLib/CEF: [LLCEFLIB_VERSION]
-Versione server voce: [VOICE_VERSION]
+Versione LibVLC: [LIBVLC_VERSION]
+Versione Server voice: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</string>
+	<string name="AboutTime">
+		[day, datetime, slt] [month, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
+	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Errore nel recupero URL note rilascio versione
+	</string>
+	<string name="BuildConfiguration">
+		Costruisci configurazione
 	</string>
 	<string name="ProgressRestoring">
 		Ripristino in corso...
@@ -1077,6 +1100,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="TeleportYourAgent">
 		Teleportarti
 	</string>
+	<string name="ForceSitAvatar">
+		Forza l&apos;avatar a sedersi
+	</string>
 	<string name="AgentNameSubst">
 		(Tu)
 	</string>
@@ -1380,6 +1406,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="BodyPartsRightLeg">
 		Gamba destra
+	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Scheletro avanzato
 	</string>
 	<string name="GraphicsQualityLow">
 		Basso
@@ -1823,6 +1852,51 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="Avatar Center">
 		Centro avatar
 	</string>
+	<string name="Left Ring Finger">
+		Anulare sinistro
+	</string>
+	<string name="Right Ring Finger">
+		Anulare destro
+	</string>
+	<string name="Tail Base">
+		Base della coda
+	</string>
+	<string name="Tail Tip">
+		Punta della coda
+	</string>
+	<string name="Left Wing">
+		Ala sinistra
+	</string>
+	<string name="Right Wing">
+		Ala destra
+	</string>
+	<string name="Jaw">
+		Mandibola
+	</string>
+	<string name="Alt Left Ear">
+		Altro orecchio sinistro
+	</string>
+	<string name="Alt Right Ear">
+		Altro orecchio destro
+	</string>
+	<string name="Alt Left Eye">
+		Altro occhio sinistro
+	</string>
+	<string name="Alt Right Eye">
+		Altro occhio destro
+	</string>
+	<string name="Tongue">
+		Lingua
+	</string>
+	<string name="Groin">
+		Inguine
+	</string>
+	<string name="Left Hind Foot">
+		Piede posteriore sinistro
+	</string>
+	<string name="Right Hind Foot">
+		Piede posteriore destro
+	</string>
 	<string name="Invalid Attachment">
 		Punto di collegamento non valido
 	</string>
@@ -1867,6 +1941,27 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="av_render_anyone">
 		Tutte le persone vicine a te potrebbero non eseguire il tuo rendering.
+	</string>
+	<string name="hud_description_total">
+		Il tuo HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (indossato su [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] fa uso di molta memoria texture
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] contiene molti oggetti e texture che occupano una grande quantità di risorse
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] contiene molte texture di grandi dimensioni
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] contiene troppi oggetti
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] contiene troppe texture
 	</string>
 	<string name="AgeYearsA">
 		[COUNT] anno
@@ -2026,6 +2121,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ObjectOutOfRange">
 		Script (oggetto fuori portata)
+	</string>
+	<string name="ScriptWasDeleted">
+		Script (eliminato da inventario)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Oggetto [OBJECT] di proprietà di [OWNER]
@@ -2212,11 +2310,11 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="ATTACH_BELLY">
 		Addome
 	</string>
-	<string name="ATTACH_RPEC">
-		Petto destro
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		Petto sinistro
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		Petto destro
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD in centro 2
@@ -2247,6 +2345,51 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Centro avatar
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Anulare sinistro
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Anulare destro
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Base della coda
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Punta della coda
+	</string>
+	<string name="ATTACH_LWING">
+		Ala sinistra
+	</string>
+	<string name="ATTACH_RWING">
+		Ala destra
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Mandibola
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Altro orecchio sinistro
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Altro orecchio destro
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Altro occhio sinistro
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Altro occhio destro
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Lingua
+	</string>
+	<string name="ATTACH_GROIN">
+		Inguine
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Piede posteriore sinistro
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Piede posteriore destro
 	</string>
 	<string name="CursorPos">
 		Riga [LINE], Colonna [COLUMN]
@@ -2551,6 +2694,15 @@ Tipi conosciuti .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="Play Media">
 		Riproduci/Pausa supporto
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=en-us
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Un errore è stato riscontrato analizzando la linea di comando.
@@ -4174,6 +4326,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="OfflineStatus">
 		Offline
 	</string>
+	<string name="not_online_msg">
+		Utente non online - il messaggio verrà memorizzato e inviato più tardi.
+	</string>
+	<string name="not_online_inventory">
+		Utente non online - l&apos;inventario è stato salvato
+	</string>
 	<string name="answered_call">
 		Risposto alla chiamata
 	</string>
@@ -4291,11 +4449,17 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="paid_you_ldollars">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT] [REASON].
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] ti ha inviato un pagamento di L$ [AMOUNT]: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Hai inviato un pagamento di L$[AMOUNT] a [NAME] [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Hai inviato un pagamento di L$ [AMOUNT] a [NAME]: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Hai pagato L$ [AMOUNT].
@@ -4308,6 +4472,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Non hai pagato [NAME] L$[AMOUNT] [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Non hai inviato un pagamento di L$ [AMOUNT] a [NAME]: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Non hai pagato L$ [AMOUNT].
@@ -4634,6 +4801,15 @@ Segnala abuso
 	</string>
 	<string name="texture_load_dimensions_error">
 		Impossibile caricare immagini di dimensioni superiori a [WIDTH]*[HEIGHT]
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Le dimensioni massime delle foto di vestiario sono [WIDTH]*[HEIGHT]. Ridimensiona l&apos;immagine o usane un&apos;altra
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Le dimensioni massime delle foto di vestiario sono [WIDTH]*[HEIGHT]. Seleziona un&apos;altra texture
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Impossibile verificare le dimensioni della foto. Attendi che le dimensioni siano visualizzate nel selettore.
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5139,6 +5315,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Profile_Label">
 		Profilo
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Segnala abuso
+	</string>
 	<string name="Command_Search_Label">
 		Ricerca
 	</string>
@@ -5228,6 +5407,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Modifica o visualizza il tuo profilo
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Segnala abuso
 	</string>
 	<string name="Command_Search_Tooltip">
 		Trova luoghi, eventi, persone

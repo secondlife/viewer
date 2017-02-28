@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="Skingewicht einschließen" name="upload_skin"/>
 				<check_box label="Gelenkpositionen einschließen" name="upload_joints"/>
+				<check_box label="Skala sperren, wenn Gelenkposition definiert ist" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Z-Offset (Avatar anheben oder senken):
 				</text>

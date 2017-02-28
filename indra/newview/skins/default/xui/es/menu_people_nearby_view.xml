@@ -5,4 +5,5 @@
 	<menu_item_check label="Ordenar según distancia" name="sort_distance"/>
 	<menu_item_check label="Ver los iconos de la gente" name="view_icons"/>
 	<menu_item_check label="Ver mapa" name="view_map"/>
+	<menu_item_check label="Ocultar nombres de usuario" name="view_usernames"/>
 </toggleable_menu>

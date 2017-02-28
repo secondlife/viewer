@@ -38,6 +38,7 @@ class LLMessageSystem;
  */
 class LLEstateInfoModel : public LLSingleton<LLEstateInfoModel>
 {
+	LLSINGLETON(LLEstateInfoModel);
 	LOG_CLASS(LLEstateInfoModel);
 
 public:
@@ -73,10 +74,7 @@ public:
 protected:
 	typedef std::vector<std::string> strings_t;
 
-	friend class LLSingleton<LLEstateInfoModel>;
 	friend class LLDispatchEstateUpdateInfo;
-
-	LLEstateInfoModel();
 
 	/// refresh model with data from the incoming server message
 	void update(const strings_t& strings);

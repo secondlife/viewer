@@ -29,16 +29,15 @@
 
 #include "llsingleton.h"
 #include "llui.h"
+#include "llinitdestroyclass.h"
 #include <boost/signals2.hpp>
 
 class Hunspell;
 
 class LLSpellChecker : public LLSingleton<LLSpellChecker>, public LLInitClass<LLSpellChecker>
 {
-	friend class LLSingleton<LLSpellChecker>;
+	LLSINGLETON(LLSpellChecker);
 	friend class LLInitClass<LLSpellChecker>;
-protected:
-	LLSpellChecker();
 	~LLSpellChecker();
 
 public:

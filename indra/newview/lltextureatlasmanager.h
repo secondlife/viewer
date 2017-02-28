@@ -85,12 +85,11 @@ private:
 
 class LLTextureAtlasManager : public LLSingleton<LLTextureAtlasManager>
 {
-private:
+	LLSINGLETON(LLTextureAtlasManager);
+	~LLTextureAtlasManager();
 	typedef std::list<LLPointer<LLTextureAtlas> > ll_texture_atlas_list_t ;
 
 public:
-	LLTextureAtlasManager();
-	~LLTextureAtlasManager();
 
 	LLPointer<LLTextureAtlasSlot> reserveAtlasSlot(S32 sub_texture_size, S8 ncomponents, 
 		LLSpatialGroup* groupp, LLViewerTexture* imagep) ;

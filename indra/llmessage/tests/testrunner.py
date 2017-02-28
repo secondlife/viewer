@@ -27,13 +27,12 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-from __future__ import with_statement
-
 import os
 import sys
 import re
 import errno
 import socket
+import subprocess
 
 VERBOSE = os.environ.get("INTEGRATION_TEST_VERBOSE", "0") # default to quiet
 # Support usage such as INTEGRATION_TEST_VERBOSE=off -- distressing to user if
@@ -46,6 +45,9 @@ if VERBOSE:
         sys.stdout.flush()
 else:
     debug = lambda *args: None
+
+class Error(Exception):
+    pass
 
 def freeport(portlist, expr):
     """
@@ -141,34 +143,73 @@ def freeport(portlist, expr):
         raise
 
 def run(*args, **kwds):
-    """All positional arguments collectively form a command line, executed as
-    a synchronous child process.
-    In addition, pass server=new_thread_instance as an explicit keyword (to
-    differentiate it from an additional command-line argument).
-    new_thread_instance should be an instantiated but not yet started Thread
-    subclass instance, e.g.:
-    run("python", "-c", 'print "Hello, world!"', server=TestHTTPServer(name="httpd"))
     """
-    # If there's no server= keyword arg, don't start a server thread: simply
-    # run a child process.
+    Run a specified command as a synchronous child process, optionally
+    launching a server Thread during the run.
+
+    All positional arguments collectively form a command line. The first
+    positional argument names the program file to execute.
+
+    Returns the termination code of the child process.
+
+    In addition, you may pass keyword-only arguments:
+
+    use_path=True: allow a simple filename as command and search PATH for that
+    filename. (This argument is retained for backwards compatibility but is
+    now the default behavior.)
+
+    server_inst: an instance of a subclass of SocketServer.BaseServer.
+
+    When you pass server_inst, run() calls its handle_request() method in a
+    loop until the child process terminates.
+    """
+    # server= keyword arg is discontinued
     try:
         thread = kwds.pop("server")
     except KeyError:
         pass
     else:
-        # Start server thread. Note that this and all other comm server
-        # threads should be daemon threads: we'll let them run "forever,"
-        # confident that the whole process will terminate when the main thread
-        # terminates, which will be when the child process terminates.
-        thread.setDaemon(True)
-        thread.start()
-    # choice of os.spawnv():
-    # - [v vs. l] pass a list of args vs. individual arguments,
-    # - [no p] don't use the PATH because we specifically want to invoke the
-    #   executable passed as our first arg,
-    # - [no e] child should inherit this process's environment.
+        raise Error("Obsolete call to testrunner.run(): pass server_inst=, not server=")
+
     debug("Running %s...", " ".join(args))
-    rc = os.spawnv(os.P_WAIT, args[0], args)
+
+    try:
+        server_inst = kwds.pop("server_inst")
+    except KeyError:
+        # Without server_inst, this is very simple: just run child process.
+        rc = subprocess.call(args)
+    else:
+        # We're being asked to run a local server while the child process
+        # runs. We used to launch a daemon thread calling
+        # server_inst.serve_forever(), then eventually call sys.exit() with
+        # the daemon thread still running -- but in recent versions of Python
+        # 2, even when you call sys.exit(0), apparently killing the thread
+        # causes the Python runtime to force the process termination code
+        # nonzero. So now we avoid the extra thread altogether.
+
+        # SocketServer.BaseServer.handle_request() honors a 'timeout'
+        # attribute, if it's set to something other than None.
+        # We pick 0.5 seconds because that's the default poll timeout for
+        # BaseServer.serve_forever(), which is what we used to use.
+        server_inst.timeout = 0.5
+
+        child = subprocess.Popen(args)
+        while child.poll() is None:
+            # Setting server_inst.timeout is what keeps this handle_request()
+            # call from blocking "forever." Interestingly, looping over
+            # handle_request() with a timeout is very like the implementation
+            # of serve_forever(). We just check a different flag to break out.
+            # It might be interesting if handle_request() returned an
+            # indication of whether it in fact handled a request or timed out.
+            # Oddly, it doesn't. We could discover that by overriding
+            # handle_timeout(), whose default implementation does nothing --
+            # but in fact we really don't care. All that matters is that we
+            # regularly poll both the child process and the server socket.
+            server_inst.handle_request()
+        # We don't bother to capture the rc returned by child.poll() because
+        # poll() is already defined to capture that in its returncode attr.
+        rc = child.returncode
+
     debug("%s returned %s", args[0], rc)
     return rc
 

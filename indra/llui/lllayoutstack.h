@@ -40,7 +40,9 @@ class LLLayoutStack : public LLView, public LLInstanceTracker<LLLayoutStack>
 public:
 
 	struct LayoutStackRegistry : public LLChildRegistry<LayoutStackRegistry>
-	{};
+	{
+		LLSINGLETON_EMPTY_CTOR(LayoutStackRegistry);
+	};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{

@@ -35,8 +35,10 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
+#include <boost/noncopyable.hpp>
 #include <string>
 #include <stdexcept>
+#include "llcoro_get_id.h"          // for friend declaration
 
 // forward-declare helper class
 namespace llcoro
@@ -83,6 +85,7 @@ class Suspending;
  */
 class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 {
+    LLSINGLETON(LLCoros);
 public:
     /// Canonical boost::dcoroutines::coroutine signature we use
     typedef boost::dcoroutines::coroutine<void()> coro;
@@ -173,9 +176,8 @@ public:
     class Future;
 
 private:
-    LLCoros();
-    friend class LLSingleton<LLCoros>;
     friend class llcoro::Suspending;
+    friend llcoro::id llcoro::get_id();
     std::string generateDistinctName(const std::string& prefix) const;
     bool cleanup(const LLSD&);
     struct CoroData;
@@ -222,8 +224,22 @@ private:
     typedef boost::ptr_map<std::string, CoroData> CoroMap;
     CoroMap mCoros;
 
-    // identify the current coroutine's CoroData
-    static boost::thread_specific_ptr<LLCoros::CoroData> sCurrentCoro;
+    // Identify the current coroutine's CoroData. Use a little helper class so
+    // a caller can either use a temporary instance, or instantiate a named
+    // variable and access it multiple times.
+    class Current
+    {
+    public:
+        Current();
+
+        operator LLCoros::CoroData*() { return get(); }
+        LLCoros::CoroData* operator->() { return get(); }
+        LLCoros::CoroData* get() { return mCurrent->get(); }
+        void reset(LLCoros::CoroData* ptr) { mCurrent->reset(ptr); }
+
+    private:
+        boost::thread_specific_ptr<LLCoros::CoroData>* mCurrent;
+    };
 };
 
 namespace llcoro
@@ -231,7 +247,7 @@ namespace llcoro
 
 /// Instantiate one of these in a block surrounding any leaf point when
 /// control literally switches away from this coroutine.
-class Suspending
+class Suspending: boost::noncopyable
 {
 public:
     Suspending();

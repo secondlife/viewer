@@ -1,4 +1,4 @@
-/** 
+﻿/** 
  * @file llmanip.h
  * @brief LLManip class definition
  *
@@ -37,7 +37,7 @@ class LLToolComposite;
 class LLVector3;
 class LLObjectSelection;
 
-const S32 MIN_DIVISION_PIXEL_WIDTH = 9;
+const S32 MIN_DIVISION_PIXEL_WIDTH = 3;
 
 class LLManip : public LLTool
 {

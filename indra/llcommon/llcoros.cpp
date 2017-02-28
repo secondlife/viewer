@@ -38,33 +38,81 @@
 #include "llevents.h"
 #include "llerror.h"
 #include "stringize.h"
+#include "llexception.h"
 
-// do nothing, when we need nothing done
+namespace {
+void no_op() {}
+} // anonymous namespace
+
+// Do nothing, when we need nothing done. This is a static member of LLCoros
+// because CoroData is a private nested class.
 void LLCoros::no_cleanup(CoroData*) {}
 
 // CoroData for the currently-running coroutine. Use a thread_specific_ptr
 // because each thread potentially has its own distinct pool of coroutines.
-// This thread_specific_ptr does NOT own the CoroData object! That's owned by
-// LLCoros::mCoros. It merely identifies it. For this reason we instantiate
-// it with a no-op cleanup function.
-boost::thread_specific_ptr<LLCoros::CoroData>
-LLCoros::sCurrentCoro(LLCoros::no_cleanup);
+LLCoros::Current::Current()
+{
+    // Use a function-static instance so this thread_specific_ptr is
+    // instantiated on demand. Since we happen to know it's consumed by
+    // LLSingleton, this is likely to happen before the runtime has finished
+    // initializing module-static data. For the same reason, we can't package
+    // this pointer in an LLSingleton.
+
+    // This thread_specific_ptr does NOT own the CoroData object! That's owned
+    // by LLCoros::mCoros. It merely identifies it. For this reason we
+    // instantiate it with a no-op cleanup function.
+    static boost::thread_specific_ptr<LLCoros::CoroData> sCurrent(LLCoros::no_cleanup);
+
+    // If this is the first time we're accessing sCurrent for the running
+    // thread, its get() will be NULL. This could be a problem, in that
+    // llcoro::get_id() would return the same (NULL) token value for the "main
+    // coroutine" in every thread, whereas what we really want is a distinct
+    // value for every distinct stack in the process. So if get() is NULL,
+    // give it a heap CoroData: this ensures that llcoro::get_id() will return
+    // distinct values.
+    // This tactic is "leaky": sCurrent explicitly does not destroy any
+    // CoroData to which it points, and we do NOT enter these "main coroutine"
+    // CoroData instances in the LLCoros::mCoros map. They are dummy entries,
+    // and they will leak at process shutdown: one CoroData per thread.
+    if (! sCurrent.get())
+    {
+        // It's tempting to provide a distinct name for each thread's "main
+        // coroutine." But as getName() has always returned the empty string
+        // to mean "not in a coroutine," empty string should suffice here --
+        // and truthfully the additional (thread-safe!) machinery to ensure
+        // uniqueness just doesn't feel worth the trouble.
+        // We use a no-op callable and a minimal stack size because, although
+        // CoroData's constructor in fact initializes its mCoro with a
+        // coroutine with that stack size, no one ever actually enters it by
+        // calling mCoro().
+        sCurrent.reset(new CoroData(0,  // no prev
+                                    "", // not a named coroutine
+                                    no_op,  // no-op callable
+                                    1024)); // stacksize moot
+    }
+
+    mCurrent = &sCurrent;
+}
 
 //static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
-    CoroData* current = sCurrentCoro.get();
-    if (! current)
-    {
-        LL_ERRS("LLCoros") << "Calling " << caller << " from non-coroutine context!" << LL_ENDL;
-    }
+    CoroData* current = Current();
+    // With the dummy CoroData set in LLCoros::Current::Current(), this
+    // pointer should never be NULL.
+    llassert_always(current);
     return *current;
 }
 
 //static
 LLCoros::coro::self& LLCoros::get_self()
 {
-    return *get_CoroData("get_self()").mSelf;
+    CoroData& current = get_CoroData("get_self()");
+    if (! current.mSelf)
+    {
+        LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
+    }
+    return *current.mSelf;
 }
 
 //static
@@ -79,20 +127,23 @@ bool LLCoros::get_consuming()
     return get_CoroData("get_consuming()").mConsuming;
 }
 
-llcoro::Suspending::Suspending():
-    mSuspended(LLCoros::sCurrentCoro.get())
+llcoro::Suspending::Suspending()
 {
-    // Revert mCurrentCoro to the value it had at the moment we last switched
+    LLCoros::Current current;
+    // Remember currently-running coroutine: we're about to suspend it.
+    mSuspended = current;
+    // Revert Current to the value it had at the moment we last switched
     // into this coroutine.
-    LLCoros::sCurrentCoro.reset(mSuspended->mPrev);
+    current.reset(mSuspended->mPrev);
 }
 
 llcoro::Suspending::~Suspending()
 {
+    LLCoros::Current current;
     // Okay, we're back, update our mPrev
-    mSuspended->mPrev = LLCoros::sCurrentCoro.get();
-    // and reinstate our sCurrentCoro.
-    LLCoros::sCurrentCoro.reset(mSuspended);
+    mSuspended->mPrev = current;
+    // and reinstate our Current.
+    current.reset(mSuspended);
 }
 
 LLCoros::LLCoros():
@@ -100,7 +151,11 @@ LLCoros::LLCoros():
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
     // empirically this is 64KB on Windows and Linux. Try quadrupling.
+#if ADDRESS_SIZE == 64
+    mStackSize(512*1024)
+#else
     mStackSize(256*1024)
+#endif
 {
     // Register our cleanup() method for "mainloop" ticks
     LLEventPumps::instance().obtain("mainloop").listen(
@@ -131,9 +186,9 @@ bool LLCoros::cleanup(const LLSD&)
             if ((previousCount < 5) || !(previousCount % 50))
             {
                 if (previousCount < 5)
-                    LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
                 else
-                    LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << "("<< previousCount << ")" << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << "("<< previousCount << ")" << LL_ENDL;
 
             }
             // The erase() call will invalidate its passed iterator value --
@@ -185,9 +240,9 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
             if ((previousCount < 5) || !(previousCount % 50))
             {
                 if (previousCount < 5)
-                    LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
                 else
-                    LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << "(" << previousCount << ")" << LL_ENDL;
+                    LL_DEBUGS("LLCoros") << "LLCoros: launching coroutine " << name << "(" << previousCount << ")" << LL_ENDL;
 
             }
 
@@ -212,33 +267,43 @@ bool LLCoros::kill(const std::string& name)
 
 std::string LLCoros::getName() const
 {
-    CoroData* current = sCurrentCoro.get();
-    if (! current)
-    {
-        // not in a coroutine
-        return "";
-    }
-    return current->mName;
+    return Current()->mName;
 }
 
 void LLCoros::setStackSize(S32 stacksize)
 {
-    LL_INFOS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
+    LL_DEBUGS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
     mStackSize = stacksize;
 }
 
 // Top-level wrapper around caller's coroutine callable. This function accepts
-// the coroutine library's implicit coro::self& parameter and sets sCurrentSelf
-// but does not pass it down to the caller's callable.
+// the coroutine library's implicit coro::self& parameter and saves it, but
+// does not pass it down to the caller's callable.
 void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& callable)
 {
     // capture the 'self' param in CoroData
     data->mSelf = &self;
     // run the code the caller actually wants in the coroutine
-    callable();
+    try
+    {
+        callable();
+    }
+    catch (const LLContinueError&)
+    {
+        // Any uncaught exception derived from LLContinueError will be caught
+        // here and logged. This coroutine will terminate but the rest of the
+        // viewer will carry on.
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+    }
+    catch (...)
+    {
+        // Any OTHER kind of uncaught exception will cause the viewer to
+        // crash, hopefully informatively.
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+    }
     // This cleanup isn't perfectly symmetrical with the way we initially set
-    // data->mPrev, but this is our last chance to reset mCurrentCoro.
-    sCurrentCoro.reset(data->mPrev);
+    // data->mPrev, but this is our last chance to reset Current.
+    Current().reset(data->mPrev);
 }
 
 /*****************************************************************************
@@ -261,7 +326,7 @@ LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
     mPrev(prev),
     mName(name),
     // Wrap the caller's callable in our toplevel() function so we can manage
-    // sCurrentCoro appropriately at startup and shutdown of each coroutine.
+    // Current appropriately at startup and shutdown of each coroutine.
     mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
     // don't consume events unless specifically directed
     mConsuming(false),
@@ -272,13 +337,13 @@ LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
 std::string LLCoros::launch(const std::string& prefix, const callable_t& callable)
 {
     std::string name(generateDistinctName(prefix));
-    // pass the current value of sCurrentCoro as previous context
-    CoroData* newCoro = new CoroData(sCurrentCoro.get(), name,
-                                     callable, mStackSize);
+    Current current;
+    // pass the current value of Current as previous context
+    CoroData* newCoro = new CoroData(current, name, callable, mStackSize);
     // Store it in our pointer map
     mCoros.insert(name, newCoro);
     // also set it as current
-    sCurrentCoro.reset(newCoro);
+    current.reset(newCoro);
     /* Run the coroutine until its first wait, then return here */
     (newCoro->mCoro)(std::nothrow);
     return name;

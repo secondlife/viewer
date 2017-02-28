@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="left|top|right|bottom"
- height="418"
+ height="438"
  label="Graphics"
  layout="topleft"
  left="102"
@@ -233,7 +233,7 @@
 
   <slider
     control_name="IndirectMaxComplexity"
-    tool_tip="Controls at what point a visually complex avatar is drawn as a jelly doll"
+    tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"
     follows="left|top"
     height="16"
     initial_value="101"

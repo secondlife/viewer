@@ -238,7 +238,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 		{
 			return TRUE;
 		}
-		else if (mHoverBarIndex == -1)
+		else if (mHoverBarIndex < 0)
 		{
 			mHoverBarIndex = 0;
 		}
@@ -260,7 +260,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			{
 				hover_bar = &bar;
 				if (bar.mTimeBlock->getTreeNode().mCollapsed)
-		{
+				{
 					// stop on first collapsed BlockTimerStatHandle, since we can't select any children
 					break;
 				}
@@ -904,7 +904,8 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 			base[label]["Samples"].asInteger());			
 	}
 
-	exportCharts(baseline, target);
+	// This currently crashes, possibly due to a race condition in shutdown:
+	// exportCharts(baseline, target);
 
 	os.flush();
 	os.close();

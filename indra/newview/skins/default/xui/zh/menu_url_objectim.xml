@@ -2,6 +2,7 @@
 <context_menu name="Url Popup">
 	<menu_item_call label="物件檔案..." name="show_object"/>
 	<menu_item_call label="封鎖…" name="block_object"/>
+	<menu_item_call label="解除封鎖" name="unblock_object"/>
 	<menu_item_call label="顯示在地圖上" name="show_on_map"/>
 	<menu_item_call label="瞬間傳送到物件位置" name="teleport_to_object"/>
 	<menu_item_call label="覆製物件名稱到剪貼簿" name="url_copy_label"/>

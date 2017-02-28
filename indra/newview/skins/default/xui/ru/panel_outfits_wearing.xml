@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
+	<panel.string name="no_attachments">
+		Нет прикрепленных объектов.
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="Носимые вещи"/>
+		<accordion_tab name="tab_temp_attachments" title="Временные прикрепленные объекты"/>
+	</accordion>
 	<panel name="bottom_panel">
 		<menu_button name="options_gear_btn" tool_tip="Показать дополнительные параметры"/>
 	</panel>

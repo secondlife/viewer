@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="Inclure pondération de la peau :" name="upload_skin"/>
 				<check_box label="Inclure position des articulations :" name="upload_joints"/>
+				<check_box label="Verrouiller l’échelle si la position des articulations est définie" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Décalage Z (élever/abaisser l&apos;avatar) :
 				</text>

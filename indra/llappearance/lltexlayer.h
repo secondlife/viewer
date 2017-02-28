@@ -293,9 +293,9 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerStaticImageList : public LLSingleton<LLTexLayerStaticImageList>
 {
-public:
-	LLTexLayerStaticImageList();
+	LLSINGLETON(LLTexLayerStaticImageList);
 	~LLTexLayerStaticImageList();
+public:
 	LLGLTexture*		getTexture(const std::string& file_name, BOOL is_mask);
 	LLImageTGA*			getImageTGA(const std::string& file_name);
 	void				deleteCachedImages();

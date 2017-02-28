@@ -283,7 +283,7 @@ void LLSkyTex::create(const F32 brightness)
 			S32 offset = basic_offset * sComponents;
 			U32* pix = (U32*)(data + offset);
 			LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
-			*pix = temp.mAll;
+			*pix = temp.asRGBA();
 		}
 	}
 	createGLImage(sCurrent);

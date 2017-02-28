@@ -35,6 +35,22 @@
 #include "llwaterparammanager.h"
 #include "llwlhandlers.h"
 #include "llwlparammanager.h"
+#include "lltrans.h"
+
+std::string LLWLParamKey::toString() const
+{
+	switch (scope)
+	{
+	case SCOPE_LOCAL:
+		return name + std::string(" (") + LLTrans::getString("Local") + std::string(")");
+		break;
+	case SCOPE_REGION:
+		return name + std::string(" (") + LLTrans::getString("Region") + std::string(")");
+		break;
+	default:
+		return name + " (?)";
+	}
+}
 
 std::string LLEnvPrefs::getWaterPresetName() const
 {
@@ -609,10 +625,15 @@ bool LLEnvManagerNew::useRegionSky()
 		return true;
 	}
 
-	// *TODO: Support fixed sky from region.
-
-	// Otherwise apply region day cycle.
+	// Otherwise apply region day cycle/skies.
 	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+
+	// *TODO: Support fixed sky from region. Just do sky reset for now.
+	if (region_settings.getSkyMap().size() == 1)
+	{
+		// Region is set to fixed sky. Reset.
+		useSkyParams(region_settings.getSkyMap().beginMap()->second);
+	}
 	return useDayCycleParams(
 		region_settings.getWLDayCycle(),
 		LLEnvKey::SCOPE_REGION,

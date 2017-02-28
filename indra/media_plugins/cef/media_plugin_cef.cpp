@@ -39,7 +39,7 @@
 #include "boost/function.hpp"
 #include "boost/bind.hpp"
 #include "llCEFLib.h"
-#include "volume_catcher.h"
+//#include "volume_catcher.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -99,7 +99,11 @@ private:
 	std::string mPickedFile;
 	LLCEFLib* mLLCEFLib;
 
-    VolumeCatcher mVolumeCatcher;
+	U8 *mPopupBuffer;
+	U32 mPopupW;
+	U32 mPopupH;
+	U32 mPopupX;
+	U32 mPopupY;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,12 +131,19 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCookiePath = "";
 	mPickedFile = "";
 	mLLCEFLib = new LLCEFLib();
+
+	mPopupBuffer = NULL;
+	mPopupW = 0;
+	mPopupH = 0;
+	mPopupX = 0;
+	mPopupY = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 MediaPluginCEF::~MediaPluginCEF()
 {
+	delete[] mPopupBuffer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,20 +166,28 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 //
 void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int x, int y, int width, int height, bool is_popup)
 {
-	if (mPixels && pixels)
+	if( is_popup )
+	{
+		delete mPopupBuffer;
+		mPopupBuffer = NULL;
+		mPopupH = 0;
+		mPopupW = 0;
+		mPopupX = 0;
+		mPopupY = 0;
+	}
+
+	if( mPixels && pixels )
 	{
 		if (is_popup)
 		{
-			for (int line = 0; line < height; ++line)
+			if( width > 0 && height> 0 )
 			{
-				int inverted_y = mHeight - y - height;
-				int src = line * width * mDepth;
-				int dst = (inverted_y + line) * mWidth * mDepth + x * mDepth;
-
-				if (dst + width * mDepth < mWidth * mHeight * mDepth)
-				{
-					memcpy(mPixels + dst, pixels + src, width * mDepth);
-				}
+				mPopupBuffer = new U8[ width * height * mDepth ];
+				memcpy( mPopupBuffer, pixels, width * height * mDepth );
+				mPopupH = height;
+				mPopupW = width;
+				mPopupX = x;
+				mPopupY = mHeight - y - height;
 			}
 		}
 		else
@@ -176,6 +195,23 @@ void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int x, int y, 
 			if (mWidth == width && mHeight == height)
 			{
 				memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
+			}
+			if( mPopupBuffer && mPopupH && mPopupW )
+			{
+				U32 bufferSize = mWidth * mHeight * mDepth;
+				U32 popupStride = mPopupW * mDepth;
+				U32 bufferStride = mWidth * mDepth;
+				int dstY = mPopupY;
+
+				int src = 0;
+				int dst = dstY  * mWidth * mDepth + mPopupX * mDepth;
+
+				for( int line = 0; dst + popupStride < bufferSize && line < mPopupH; ++line )
+				{
+					memcpy( mPixels + dst, mPopupBuffer + src, popupStride );
+					src += popupStride;
+					dst += bufferStride;
+				}
 			}
 
 		}
@@ -394,7 +430,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				mLLCEFLib->update();
 
-                mVolumeCatcher.pump();
 				// this seems bad but unless the state changes (it won't until we figure out
 				// how to get CEF to tell us if copy/cut/paste is available) then this function
 				// will return immediately
@@ -463,6 +498,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				LLCEFLib::LLCEFLibSettings settings;
 				settings.initial_width = 1024;
 				settings.initial_height = 1024;
+				// The LLCEFLibSettings struct in the Windows 32-bit
+				// llceflib's build 500907 does not have a page_zoom_factor
+				// member. Set below.
+				//settings.page_zoom_factor = message_in.getValueReal("factor");
 				settings.plugins_enabled = mPluginsEnabled;
 				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granualrity/query UI
 				settings.javascript_enabled = mJavascriptEnabled;
@@ -478,6 +517,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				{
 					// if this fails, the media system in viewer will put up a message
 				}
+
+				// now we can set page zoom factor
+				mLLCEFLib->setPageZoom(message_in.getValueReal("factor"));
 
 				// Plugin gets to decide the texture parameters to use.
 				mDepth = 4;
@@ -558,6 +600,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
+
+				y = mHeight - y;
 
 				// only even send left mouse button events to LLCEFLib
 				// (partially prompted by crash in OS X CEF when sending right button events)
@@ -879,7 +923,6 @@ void MediaPluginCEF::checkEditState()
 
 void MediaPluginCEF::setVolume(F32 vol)
 {
-    mVolumeCatcher.setVolume(vol);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1518,10 +1518,7 @@ namespace tut
             // scanner.
             import_llsd("import os.path\n"
                         "import sys\n"
-                        "sys.path.insert(0,\n"
-                        "    os.path.join(os.path.dirname(r'" __FILE__ "'),\n"
-                        "                 os.pardir, os.pardir, 'lib', 'python'))\n"
-                        "from indra.base import llsd\n")
+                        "from llbase import llsd\n")
         {}
         ~TestPythonCompatible() {}
 

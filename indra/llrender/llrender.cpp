@@ -267,7 +267,14 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 		}
 		else
 		{
-			LL_WARNS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
+			if (texture)
+			{
+				LL_DEBUGS() << "NULL LLTexUnit::bind GL image" << LL_ENDL;
+			}
+			else
+			{
+				LL_DEBUGS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
+			}
 			return false;
 		}
 	}
@@ -286,7 +293,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 
 	if(!texture)
 	{
-		LL_WARNS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
+		LL_DEBUGS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
 		return false;
 	}
 
@@ -2039,7 +2046,8 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
 		}
 	}
 
-	mVerticesp[mCount] = mVerticesp[mCount-1];
+	if( mCount > 0 ) // ND: Guard against crashes if mCount is zero, yes it can happen
+		mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count)
@@ -2155,9 +2163,12 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLCol
 		}
 	}
 
-	mVerticesp[mCount] = mVerticesp[mCount-1];
-	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
-	mColorsp[mCount] = mColorsp[mCount-1];
+	if (mCount > 0)
+	{
+		mVerticesp[mCount] = mVerticesp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+		mColorsp[mCount] = mColorsp[mCount - 1];
+	}
 }
 
 void LLRender::vertex2i(const GLint& x, const GLint& y)

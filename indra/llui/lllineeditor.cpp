@@ -163,6 +163,9 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 {
 	llassert( mMaxLengthBytes > 0 );
 
+	LLUICtrl::setEnabled(TRUE);
+	setEnabled(p.enabled);
+
 	mScrollTimer.reset();
 	mTripleClickTimer.reset();
 	setText(p.default_text());
@@ -216,6 +219,13 @@ LLLineEditor::~LLLineEditor()
 
 	// calls onCommit() while LLLineEditor still valid
 	gFocusMgr.releaseFocusIfNeeded( this );
+}
+
+void LLLineEditor::initFromParams(const LLLineEditor::Params& params)
+{
+	LLUICtrl::initFromParams(params);
+	LLUICtrl::setEnabled(TRUE);
+	setEnabled(params.enabled);
 }
 
 void LLLineEditor::onFocusReceived()
@@ -400,12 +410,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 
 	if (mMaxLengthChars)
 	{
-		LLWString truncated_wstring = utf8str_to_wstring(truncated_utf8);
-		if (truncated_wstring.size() > (U32)mMaxLengthChars)
-		{
-			truncated_wstring = truncated_wstring.substr(0, mMaxLengthChars);
-		}
-		mText.assign(wstring_to_utf8str(truncated_wstring));
+		mText.assign(utf8str_symbol_truncate(truncated_utf8, mMaxLengthChars));
 	}
 
 	if (all_selected)
@@ -2641,10 +2646,17 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 
 void LLLineEditor::setContextMenu(LLContextMenu* new_context_menu)
 {
-	if (new_context_menu)
-		mContextMenuHandle = new_context_menu->getHandle();
-	else
-		mContextMenuHandle.markDead();
+    LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+    if (menu)
+    {
+        menu->die();
+        mContextMenuHandle.markDead();
+    }
+
+    if (new_context_menu)
+    {
+        mContextMenuHandle = new_context_menu->getHandle();
+    }
 }
 
 void LLLineEditor::setFont(const LLFontGL* font)

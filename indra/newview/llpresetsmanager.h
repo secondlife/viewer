@@ -46,6 +46,9 @@ enum EDefaultOptions
 
 class LLPresetsManager : public LLSingleton<LLPresetsManager>
 {
+	LLSINGLETON(LLPresetsManager);
+	~LLPresetsManager();
+
 public:
 
 	typedef std::list<std::string> preset_name_list_t;
@@ -56,7 +59,7 @@ public:
 	static std::string getPresetsDir(const std::string& subdirectory);
 	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
 	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option);
-	bool savePreset(const std::string& subdirectory, std::string name);
+	bool savePreset(const std::string& subdirectory, std::string name, bool createDefault = false);
 	void loadPreset(const std::string& subdirectory, std::string name);
 	bool deletePreset(const std::string& subdirectory, std::string name);
 
@@ -66,9 +69,6 @@ public:
 	// Emitted when a preset gets loaded or saved.
 
 	preset_name_list_t mPresetNames;
-
-	LLPresetsManager();
-	~LLPresetsManager();
 
 	preset_list_signal_t mPresetListChangeSignal;
 

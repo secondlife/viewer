@@ -27,12 +27,6 @@
 #ifndef LL_LLEVENTPOLL_H
 #define LL_LLEVENTPOLL_H
 
-#include "boost/move/unique_ptr.hpp"
-
-namespace boost
-{
-    using ::boost::movelib::unique_ptr; // move unique_ptr into the boost namespace.
-}
 
 class LLHost;
 
@@ -57,7 +51,7 @@ public:
 
 
 private:
-    boost::unique_ptr<LLEventPolling::Details::LLEventPollImpl>    mImpl;
+    boost::shared_ptr<LLEventPolling::Details::LLEventPollImpl>  mImpl;
 };
 
 

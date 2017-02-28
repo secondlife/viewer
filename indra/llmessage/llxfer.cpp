@@ -294,7 +294,7 @@ S32 LLXfer::processEOF()
 	}
 	else
 	{
-		LL_INFOS() << "xfer from " << mRemoteHost << " failed, code "
+		LL_INFOS() << "xfer from " << mRemoteHost << " failed or aborted, code "
 				<< mCallbackResult << ": " << getFileName() << LL_ENDL;
 	}
 

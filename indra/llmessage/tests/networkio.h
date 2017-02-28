@@ -34,6 +34,7 @@
 #include "llares.h"
 #include "llpumpio.h"
 #include "llhttpclient.h"
+#include "llexception.h"
 
 /*****************************************************************************
 *   NetworkIO
@@ -43,7 +44,7 @@
 // init time. Use the lazy, on-demand initialization we get from LLSingleton.
 class NetworkIO: public LLSingleton<NetworkIO>
 {
-public:
+    LLSINGLETON(NetworkIO);
     NetworkIO():
         mServicePump(NULL),
         mDone(false)
@@ -51,7 +52,7 @@ public:
         ll_init_apr();
         if (! gAPRPoolp)
         {
-            throw std::runtime_error("Can't initialize APR");
+            LLTHROW(LLException("Can't initialize APR"));
         }
 
         // Create IO Pump to use for HTTP Requests.
@@ -59,7 +60,7 @@ public:
         LLHTTPClient::setPump(*mServicePump);
         if (ll_init_ares() == NULL || !gAres->isInitialized())
         {
-            throw std::runtime_error("Can't start DNS resolver");
+            LLTHROW(LLException("Can't start DNS resolver"));
         }
 
         // You can interrupt pump() without waiting the full timeout duration
@@ -68,6 +69,7 @@ public:
                                                        boost::bind(&NetworkIO::done, this, _1));
     }
 
+public:
     bool pump(F32 timeout=10)
     {
         // Reset the done flag so we don't pop out prematurely

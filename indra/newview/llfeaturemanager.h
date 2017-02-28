@@ -97,20 +97,10 @@ protected:
 
 class LLFeatureManager : public LLFeatureList, public LLSingleton<LLFeatureManager>
 {
-public:
-	LLFeatureManager()
-	:	LLFeatureList("default"),
-
-		mInited(FALSE),
-		mTableVersion(0),
-		mSafe(FALSE),
-		mGPUClass(GPU_CLASS_UNKNOWN),
-		mExpectedGLVersion(0.f),
-		mGPUSupported(FALSE)		
-	{
-	}
+	LLSINGLETON(LLFeatureManager);
 	~LLFeatureManager() {cleanupFeatureTables();}
 
+public:
 	// initialize this by loading feature table and gpu table
 	void init();
 
@@ -157,7 +147,9 @@ public:
 
 	// load the dynamic GPU/feature table from a website
 	void fetchHTTPTables();
-	
+
+	LLSD getRecommendedSettingsMap();
+
 protected:
 	bool loadGPUClass();
 
@@ -179,5 +171,17 @@ protected:
 	BOOL		mGPUSupported;
 };
 
+inline
+LLFeatureManager::LLFeatureManager()
+:	LLFeatureList("default"),
+
+	mInited(FALSE),
+	mTableVersion(0),
+	mSafe(FALSE),
+	mGPUClass(GPU_CLASS_UNKNOWN),
+	mExpectedGLVersion(0.f),
+	mGPUSupported(FALSE)
+{
+}
 
 #endif // LL_LLFEATUREMANAGER_H

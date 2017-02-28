@@ -37,6 +37,8 @@ class LLAvatarName;
 
 class LLAvatarIconIDCache: public LLSingleton<LLAvatarIconIDCache>
 {
+	LLSINGLETON(LLAvatarIconIDCache);
+
 public:
 	struct LLAvatarIconIDCacheItem
 	{
@@ -45,10 +47,6 @@ public:
 
 		bool expired();
 	};
-
-	LLAvatarIconIDCache()
-	:	mFilename("avatar_icons_cache.txt")
-	{}
 
 	void				load	();
 	void				save	();
@@ -63,6 +61,11 @@ protected:
 	std::string	mFilename;
 	std::map<LLUUID,LLAvatarIconIDCacheItem> mCache;//we cache only LLUID and time
 };
+
+inline
+LLAvatarIconIDCache::LLAvatarIconIDCache()
+	:	mFilename("avatar_icons_cache.txt")
+{}
 
 namespace LLAvatarIconCtrlEnums
 {

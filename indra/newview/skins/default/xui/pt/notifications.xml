@@ -329,6 +329,9 @@ Se você não quiser que essas funções sejam concedidas a esse cargo, desative
 		Você está prestes a banir [COUNT] membros do grupo.
 		<usetemplate ignoretext="Confirmar banimento de diversos membros do grupo" name="okcancelignore" notext="Cancelar" yestext="Banir"/>
 	</notification>
+	<notification name="GroupBanUserOnBanlist">
+		Alguns residentes não receberam convite porque foram banidos do grupo.
+	</notification>
 	<notification name="AttachmentDrop">
 		Você está prestes a largar seu anexo. 
     Tem certeza de que quer prosseguir?
@@ -455,6 +458,12 @@ Para colocar a mídia em só uma face, selecione Selecionar face e clique na fac
 	<notification name="ErrorEncodingSnapshot">
 		Erro ao codificar a foto.
 	</notification>
+	<notification name="ErrorPhotoCannotAfford">
+		Você precisa de L$ [COST] para salvar uma foto em seu inventário. Você pode comprar L$ ou salvar a foto em seu computador.
+	</notification>
+	<notification name="ErrorTextureCannotAfford">
+		Você precisa de L$ [COST] para salvar uma textura em seu inventário. Você pode comprar L$ ou salvar a foto em seu computador.
+	</notification>
 	<notification name="ErrorUploadingPostcard">
 		Houve um problema ao enviar a foto devido à seguinte razão: [REASON]
 	</notification>
@@ -476,6 +485,9 @@ Ele ultrapassa o limite de anexos, de [MAX_ATTACHMENTS] objetos. Remova um objet
 	</notification>
 	<notification name="CannotWearInfoNotComplete">
 		Você não pode vestir este item porque ele ainda não carregou. Tente novamente em um minuto.
+	</notification>
+	<notification name="MustEnterPasswordToLogIn">
+		Informe sua senha para fazer o login.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Opa! Alguma coisa ficou em branco.
@@ -545,6 +557,9 @@ Nota: Este procedimento limpa o cache.
 	<notification name="ChangeConnectionPort">
 		Reinicie o [APP_NAME] para ativar a reconfiguração da porta.
 	</notification>
+	<notification name="ChangeDeferredDebugSetting">
+		Essa alteração nas configurações de depuração será aplicada depois que você reiniciar o [APP_NAME].
+	</notification>
 	<notification name="ChangeSkin">
 		Reinicie o [APP_NAME] para ativar a pele nova.
 	</notification>
@@ -561,6 +576,10 @@ Nota: Este procedimento limpa o cache.
 	</notification>
 	<notification name="DeleteNotecard">
 		Excluir nota?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="LoadPreviousReportScreenshot">
+		Você deseja usar a captura de tela anterior em seu relatório?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
@@ -623,30 +642,12 @@ Consultar [_URL] para mais informações?
 		</url>
 		<usetemplate ignoretext="O hardware do meu computador não é suportado" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
-	<notification name="IntelOldDriver">
+	<notification name="OldGPUDriver">
 		Provavelmente, há um driver mais recente para o seu chip gráfico.  A atualização dos drivers gráficos pode melhorar significativamente o desempenho.
 
-    Visitar [_URL] para verificar se há atualizações do driver?
+    Visitar [URL] para verificar se há atualizações do driver?
 		<url name="url">
-			http://www.intel.com/p/pt_BR/support/detect/graphics
-		</url>
-		<usetemplate ignoretext="Meu driver gráfico está desatualizado" name="okcancelignore" notext="Não" yestext="Sim"/>
-	</notification>
-	<notification name="AMDOldDriver">
-		Provavelmente, há um driver mais recente para o seu chip gráfico.  A atualização dos drivers gráficos pode melhorar significativamente o desempenho.
-
-    Visitar [_URL] para verificar se há atualizações do driver?
-		<url name="url">
-			http://support.amd.com/us/Pages/AMDSupportHub.aspx
-		</url>
-		<usetemplate ignoretext="Meu driver gráfico está desatualizado" name="okcancelignore" notext="Não" yestext="Sim"/>
-	</notification>
-	<notification name="NVIDIAOldDriver">
-		Provavelmente, há um driver mais recente para o seu chip gráfico.  A atualização dos drivers gráficos pode melhorar significativamente o desempenho.
-
-    Visitar [_URL] para verificar se há atualizações do driver?
-		<url name="url">
-			http://www.nvidia.com.br/Download/index.aspx?lang=br
+			[URL]
 		</url>
 		<usetemplate ignoretext="Meu driver gráfico está desatualizado" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
@@ -736,6 +737,9 @@ Para mais informações sobre como comprar L$, consulte [_URL].
 			http://secondlife.com/app/currency/?lang=pt-BR
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir até a página"/>
+	</notification>
+	<notification name="MuteLimitReached">
+		Não foi possível adicionar uma nova entrada à lista de bloqueados porque você atingiu o limite de [MUTE_LIMIT] entradas.
 	</notification>
 	<notification name="UnableToLinkObjects">
 		Não é possível unir estes [COUNT] objetos.
@@ -1359,12 +1363,18 @@ Enquando isso, use o [SECOND_LIFE] normalmente. Seu visual será exibido correta
 			<ignore name="ignore" text="A roupa está demorando para chegar"/>
 		</form>
 	</notification>
-	<notification name="RegionAndAgentComplexity">
-		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexidade visual] é [AGENT_COMPLEXITY].
+	<notification name="AgentComplexityWithVisibility">
+		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] é [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
+		<usetemplate ignoretext="Avise-me se a complexidade do meu avatar for muito alta" name="notifyignore"/>
 	</notification>
 	<notification name="AgentComplexity">
-		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexidade visual] é [AGENT_COMPLEXITY].
+		Sua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] é [AGENT_COMPLEXITY].
+		<usetemplate ignoretext="Avise-me se a complexidade do meu avatar for alterada" name="notifyignore"/>
+	</notification>
+	<notification name="HUDComplexityWarning">
+		[HUD_REASON], provavelmente afetará negativamente seu desempenho.
+		<usetemplate ignoretext="Avise-me quando a complexidade do meu HUD estiver muito alta" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">
 		A instalação do [APP_NAME] está pronta.
@@ -1455,6 +1465,10 @@ Isso é realmente útil apenas para depuração.
 		Teletransportar para o início todos os residentes nesta região?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="ChangeObjectBonusFactor">
+		Reduzir o bônus do objeto depois que as construções tiverem sido estabelecidas em uma região pode fazer com que os objetos sejam devolvidos ou excluídos. Tem certeza de que deseja alterar o bônus do objeto?
+		<usetemplate ignoretext="Confirmar alteração do fator de bônus de objeto" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="EstateObjectReturn">
 		Você tem certeza que deseja retornar os objetos pertencentes a [USER_NAME] ?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -1478,6 +1492,10 @@ Substituir textura [TEXTURE_NUM], com uma imagem de 24-bit 512x512 ou menor e em
 		Você realmente deseja nivelar o terreno selecionado a partir do centro elevando/reduzindo os limites e o padrão para a ferramenta ´Reverter´?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Executar"/>
 	</notification>
+	<notification name="ConfirmTextureHeights">
+		Você está prestes a usar valores baixos maiores que os valores altos para os intervalos de elevação. Deseja prosseguir?
+		<usetemplate canceltext="Não perguntar" name="yesnocancelbuttons" notext="Cancelar" yestext="Ok"/>
+	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
 		Você pode ter somente [MAX_AGENTS] residentes permitidos.
 	</notification>
@@ -1497,6 +1515,9 @@ Ultrapassa o limite de [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
 		Não é possível adicionar o dono da propriedade na lista de residentes banidos.
+	</notification>
+	<notification name="ProblemAddingEstateManagerBanned">
+		Não foi possível adicionar residentes banidos à lista de gerentes de propriedades.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Não é possível alterar a aparência até que as roupas e formas estejam carregadas.
@@ -1672,6 +1693,10 @@ Se você estiver muito ansioso para experimentar os novos recursos e correções
 		Abrir uma janela do navegador para ver essas informações?
 		<usetemplate ignoretext="Abrir o navegador para acessar uma página na web" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="SystemUIScaleFactorChanged">
+		O fator de tamanho da interface do sistema foi alterado desde a última execução. Deseja abrir a página de configurações de ajuste de tamanho da interface?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="WebLaunchJoinNow">
 		Deseja abrir o [http://secondlife.com/account/ Painel] para gerenciar sua conta?
 		<usetemplate ignoretext="Abrir o navegador para acessar minha conta" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -1710,16 +1735,15 @@ Se você estiver muito ansioso para experimentar os novos recursos e correções
 		Você é atualmente um membro do grupo
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
+	<notification name="GroupDepart">
+		Você deixou o grupo &apos;[group_name]&apos;.
+	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Não foi possível deixar o grupo. Você não pode deixar o grupo pois é o último proprietário dele. Primeiramente, atribua outro membro à função de proprietário.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupDepartError">
-		Não foi possível deixar o grupo: [reason].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GroupDepart">
-		Você deixou o grupo [group_name].
+		Não foi possível deixar o grupo.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2120,6 +2144,10 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 		Muitos prims foram selecionados.   Selecione [MAX_PRIM_COUNT] ou menos prims, e tente de novo
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="TooManyScriptsSelected">
+		Muitos scripts nos objetos selecionados.  Selecione menos objetos e tente novamente.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ProblemImportingEstateCovenant">
 		Problemas encontrados ao importar o Corretor da propriedade.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2288,6 +2316,10 @@ Mover para o inventário o(s) item(s)?
 		Falha no pagamento: objeto não encontrado.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="PaymentBlockedButtonMismatch">
+		Pagamento interrompido:  o valor pago não corresponde aos botões de pagamento definidos para esse objeto.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Não há itens neste objeto que você está autorizado a copiar.
 	</notification>
@@ -2322,6 +2354,12 @@ Não é possível desfazer essa ação.
 	<notification name="ConfirmUnlink">
 		Essa é uma seleção ampla com linksets. Se você desvinculá-la, pode não ser possível vinculá-la novamente. Como precaução, pode ser interessante fazer cópias dos linksets no seu inventário.
 		<usetemplate ignoretext="Confirmar quando desvincular um linkset" name="okcancelignore" notext="Cancelar" yestext="Desvincular"/>
+	</notification>
+	<notification name="HelpReportAbuseConfirm">
+		Obrigado por nos informar sobre esse problema. 
+Nós analisaremos seu relatório em busca de possíveis violações e
+tomaremos as medidas cabíveis.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Por favor, selecione uma categoria para a reportagem deste abuso.
@@ -2392,6 +2430,10 @@ Deseja desativar o Não perturbe antes de concluir esta transação?
 	<notification name="ConfirmEmptyTrash">
 		Tem certeza de que deseja excluir o conteúdo da Lixeira? Para sempre?
 		<usetemplate ignoretext="Confirmar antes de esvaziar a pasta Lixeira" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="TrashIsFull">
+		Sua lixeira está transbordando. Isso pode causar problemas no logon.
+		<usetemplate name="okcancelbuttons" notext="Esvaziarei a lixeira mais tarde" yestext="Esvaziar lixeira agora"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Tem certeza de que quer apagar todo o histórico de viagens, web e buscas?
@@ -2744,6 +2786,10 @@ Logo, não é possível voar aqui.
 	<notification name="PathfindingDirty">
 		A região possui alterações de pathfinding pendentes.  Se você possui direitos de construção, poderá recarregar a região clicando no botão “Recarregar região”.
 	</notification>
+	<notification name="PathfindingDirtyRebake">
+		A região possui alterações de pathfinding pendentes.  Se você possui direitos de construção, poderá recarregar a região clicando no botão “Recarregar região”.
+		<usetemplate name="okbutton" yestext="Recarregar região"/>
+	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		O pathfinding dinâmico não está habilitado nesta região.  Os objetos com script usando chamadas LSL de pathfinding podem não operar como o esperado na região.
 	</notification>
@@ -2977,7 +3023,7 @@ Se permanecer aqui, você será desconectado.
 
 [MESSAGE]
 
-Do objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, de: [NAME_SLURL]
+Do objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, proprietário: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Carregar"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -3246,6 +3292,12 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	<notification name="AttachmentSaved">
 		Anexo salvo.
 	</notification>
+	<notification name="AppearanceToXMLSaved">
+		A aparência foi salva como XML em [PATH]
+	</notification>
+	<notification name="AppearanceToXMLFailed">
+		Falha ao salvar a aparência como XML.
+	</notification>
 	<notification name="PresetNotSaved">
 		Erro ao salvar predefinição [NAME].
 	</notification>
@@ -3457,13 +3509,6 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 	</notification>
 	<notification name="ForceQuitDueToLowMemory">
 		O SL será encerrado em 30 segundos devido falta de memória.
-	</notification>
-	<notification name="PopupAttempt">
-		Um pop-up foi bloqueado.
-		<form name="form">
-			<ignore name="ignore" text="Ativar todos os pop-ups"/>
-			<button name="open" text="Abrir pop-up"/>
-		</form>
 	</notification>
 	<notification name="SOCKS_NOT_PERMITTED">
 		O proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; recusou a conexão, não permitida pelo conjunto de regras.
@@ -3839,6 +3884,9 @@ Tente novamente em instantes.
 		Não é possível mover &apos;[OBJECT_NAME]&apos; para
 [OBJ_POSITION] na região [REGION_NAME] porque não há recursos suficientes para este objeto neste lote.
 	</notification>
+	<notification name="NoParcelPermsNoObject">
+		A cópia falhou porque você não tem acesso a esse lote.
+	</notification>
 	<notification name="CantMoveObjectRegionVersion">
 		Não é possível mover &apos;[OBJECT_NAME]&apos; para
 [OBJ_POSITION] na região [REGION_NAME] porque outra região está executando uma versão mais antiga, que não dá suporte o recebimento deste objeto por meio de passagem de regiões.
@@ -3853,6 +3901,10 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="NoPermModifyObject">
 		Você não está autorizado a modificar este objeto
+	</notification>
+	<notification name="TooMuchObjectInventorySelected">
+		Há muitos objetos com inventário grande selecionados. Selecione menos objetos e tente novamente.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CantEnablePhysObjContributesToNav">
 		Não é possível ativar propriedades físicas para um objeto que contribui para o navmesh.
@@ -3889,6 +3941,12 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="CantSaveModifyAttachment">
 		Não é possível salvar no conteúdo do objeto: isso modificaria as permissões de anexo.
+	</notification>
+	<notification name="AttachmentHasTooMuchInventory">
+		Seus anexos têm muitos itens de inventário. Não é possível adicionar mais itens.
+	</notification>
+	<notification name="IllegalAttachment">
+		O anexo solicitou um ponto não existente no avatar. Ele foi anexado ao peito.
 	</notification>
 	<notification name="TooManyScripts">
 		Muitos scripts.
@@ -3981,6 +4039,12 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="TeleportedByObjectUnknownUser">
 		Você foi teletransportado pelo objeto &apos;[OBJECT_NAME]&apos; de propriedade de um usuário desconhecido.
+	</notification>
+	<notification name="StandDeniedByObject">
+		&apos;[OBJECT_NAME]&apos; não permite que você fique de pé no momento.
+	</notification>
+	<notification name="ResitDeniedByObject">
+		&apos;[OBJECT_NAME]&apos; não permite que você altere seu assento no momento.
 	</notification>
 	<notification name="CantCreateObjectRegionFull">
 		Não foi possível criar o objeto solicitado. A região está cheia.
@@ -4278,6 +4342,9 @@ Tente selecionar uma quantidade menor de terreno.
 	<notification name="CantTransfterMoneyRegionDisabled">
 		Transferências de dinheiro para objetos estão desativadas para esta região no momento.
 	</notification>
+	<notification name="DroppedMoneyTransferRequest">
+		Não foi possível fazer o pagamento devido a uma sobrecarga do sistema.
+	</notification>
 	<notification name="CantPayNoAgent">
 		Não foi possível descobrir a quem pagar.
 	</notification>
@@ -4311,6 +4378,10 @@ Tente selecionar uma quantidade menor de terreno.
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		O arquivo de histórico de bate-papo está ocupado com uma operação anterior. Tente novamente em alguns minutos ou selecione outra pessoa para bater papo.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutfitPhotoLoadError">
+		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

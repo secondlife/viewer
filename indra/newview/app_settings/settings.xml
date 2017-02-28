@@ -137,6 +137,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AdvanceOutfitSnapshot</key>
+    <map>
+      <key>Comment</key>
+      <string>Display advanced parameter settings in outfit snaphot interface</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AgentPause</key>
     <map>
       <key>Comment</key>
@@ -2034,11 +2045,11 @@
       <key>Comment</key>
       <string>Size (in bytes) for each coroutine stack</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>262144</integer>
+      <integer>524288</integer>
     </map>
     <key>CrashOnStartup</key>
     <map>
@@ -2187,6 +2198,17 @@
     <map>
       <key>Comment</key>
       <string>URL to use for baked texture requests; overrides value returned by login server.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>DebugAvatarJoints</key>
+    <map>
+      <key>Comment</key>
+      <string>List of joints to emit additional debugging info about.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3514,6 +3536,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>IncludeEnhancedSkeleton</key>
+    <map>
+      <key>Comment</key>
+      <string>Include extended skeleton joints when rendering skinned meshes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>MinObjectsForUnlinkConfirm</key>
     <map>
       <key>Comment</key>
@@ -3700,6 +3733,17 @@
         <string>S32</string>
         <key>Value</key>
         <integer>1</integer>
+    </map>
+    <key>QueueInventoryFetchTimeout</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time llcompilequeue will wait for inventory fetch to complete (in seconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>300.0</real>
     </map>
     <key>FindLandArea</key>
     <map>
@@ -4493,28 +4537,6 @@
       <key>Value</key>
       <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
-    <key>WebProfileURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Web Profiles</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://my.secondlife.com/[AGENT_NAME]</string>
-    </map>
-	<key>WebProfileNonProductionURL</key>
-	<map>
-		<key>Comment</key>
-		<string>URL for Web Profiles on Non-Production grids</string>
-		<key>Persist</key>
-		<integer>0</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string>https://my-demo.secondlife.com/[AGENT_NAME]</string>
-	</map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4859,7 +4881,7 @@
     <key>InventoryTrashMaxCapacity</key>
     <map>
         <key>Comment</key>
-        <string>Maximum capacity of the Trash folder. User will ve offered to clean it up when exceeded.</string>
+        <string>Maximum capacity of the Trash folder. User will be offered to clean it up when exceeded.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -5234,6 +5256,17 @@
     <map>
       <key>Comment</key>
       <string>Last selected tab in preferences window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LastAppearanceTab</key>
+    <map>
+      <key>Comment</key>
+      <string>Last selected tab in appearance floater</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6332,17 +6365,6 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
-    <key>MemProfiling</key>
-    <map>
-      <key>Comment</key>
-      <string>You want to use tcmalloc's memory profiling options.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
@@ -6407,7 +6429,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>MeshUploadLogXML</key>
   <map>
@@ -6606,6 +6628,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>MuteListLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of entries in the mute list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1000</integer>
     </map>
 	<key>MyOutfitsAutofill</key>
 	<map>
@@ -7928,6 +7961,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>100000</integer>
+    </map>
+    <key>PrimTextMaxDrawDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum draw distance beyond which PRIM_TEXT won't be rendered</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>64.0</real>
     </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
@@ -10013,28 +10057,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderUseFarClip</key>
-  <map>
-    <key>Comment</key>
-    <string>If false, frustum culling will ignore far clip plane.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>RenderUseImpostors</key>
-  <map>
-    <key>Comment</key>
+    <key>RenderUseFarClip</key>
+    <map>
+      <key>Comment</key>
+      <string>If false, frustum culling will ignore far clip plane.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RenderUseImpostors</key>
+    <map>
+      <key>Comment</key>
     <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors and RenderAvatarMaxComplexity.</string>
-    <key>Persist</key>
+      <key>Persist</key>
     <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
     <integer>0</integer>
-  </map>
+    </map>
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
@@ -10081,6 +10125,17 @@
     <key>Value</key>
     <integer>10</integer>
   </map>
+  <key>ComplexityChangesPopUpDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay before viewer will show avatar complexity notice again</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>300</integer>
+  </map>
   <key>RenderAvatarMaxComplexity</key>
   <map>
     <key>Comment</key>
@@ -10092,6 +10147,50 @@
     <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>RenderHUDObjectsWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many objects if objects count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1000</integer>
+  </map>
+  <key>RenderHUDTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD containing to many textures if texture count is above this value</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>200</integer>
+  </map>
+  <key>RenderHUDOversizedTexturesWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>How many textures with size 1024 * 1024 or bigger HUD can contain before notifying user</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
+  <key>RenderHUDTexturesMemoryWarning</key>
+  <map>
+    <key>Comment</key>
+    <string>Viewer will warn user about HUD textures using memory above this value (in bytes)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>32000000</integer>
   </map>
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
@@ -12781,6 +12880,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>LastSystemUIScaleFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of system UI during last run. On Windows 100% (96 DPI) system setting is 1.0 UI size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>UIScrollbarSize</key>
     <map>
       <key>Comment</key>
@@ -13275,6 +13385,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <string>1</string>
+    </map>
+    <key>UpdaterShowReleaseNotes</key>
+    <map>
+        <key>Comment</key>
+        <string>Enables displaying of the Release notes in a web floater after update.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>UploadBakedTexOld</key>
     <map>
@@ -14464,6 +14585,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LogWearableAssetSave</key>
+    <map>
+      <key>Comment</key>
+      <string>Save copy of saved wearables to log dir</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LogTextureDownloadsToViewerLog</key>
     <map>
       <key>Comment</key>
@@ -14613,6 +14745,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>OutfitGallerySortByName</key>
+    <map>
+      <key>Comment</key>
+      <string>Always sort outfits by name in Outfit Gallery</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>OutfitOperationsTimeout</key>
     <map>

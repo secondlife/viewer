@@ -9,6 +9,26 @@
  name="Wearing"
  top="0"
  width="312">
+<panel.string
+    name="no_attachments">
+    No attachments worn.
+   </panel.string>
+     <accordion
+     fit_parent="true"
+     follows="all"
+     height="400"
+     layout="topleft"
+     left="0"
+     single_expansion="true"
+     top="0"
+     name="wearables_accordion"
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     width="309">
+     <accordion_tab
+     layout="topleft"
+     name="tab_wearables"
+     title="Wearables">
     <wearable_items_list
      follows="all"
      height="400"
@@ -20,6 +40,27 @@
      top="0"
      width="309"
      worn_indication_enabled="false" />
+     </accordion_tab>
+     <accordion_tab
+     layout="topleft"
+     name="tab_temp_attachments"
+     title="Temporary attachments">
+    <scroll_list
+     draw_heading="false"
+     left="3"
+     width="309"
+     height="400"
+     follows="all"
+     name="temp_attachments_list">
+        <scroll_list.columns
+         name="icon"
+         width="15" />
+        <scroll_list.columns
+         name="text"
+         width="210" />
+  </scroll_list>
+     </accordion_tab>
+     </accordion>
     <panel
      background_visible="true"
      follows="bottom|left|right"

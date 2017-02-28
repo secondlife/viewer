@@ -48,16 +48,19 @@
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
 {
 	frameTimer = nil;
-	
+
 	[self languageUpdated];
-	
+
 	if (initViewer())
 	{
-		frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(mainLoop) userInfo:nil repeats:YES];
+		// Set up recurring calls to oneFrame (repeating timer with timeout 0)
+		// until applicationShouldTerminate.
+		frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self
+							  selector:@selector(oneFrame) userInfo:nil repeats:YES];
 	} else {
-		handleQuit();
+		exit(0);
 	}
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
 
  //   [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
@@ -96,22 +99,29 @@
 
 - (NSApplicationDelegateReply) applicationShouldTerminate:(NSApplication *)sender
 {
-	if (!runMainLoop())
+	// run one frame to assess state
+	if (!pumpMainLoop())
 	{
+		// pumpMainLoop() returns true when done, false if it wants to be
+		// called again. Since it returned false, do not yet cancel
+		// frameTimer.
 		handleQuit();
 		return NSTerminateCancel;
 	} else {
+		// pumpMainLoop() returned true: it's done. Okay, done with frameTimer.
 		[frameTimer release];
 		cleanupViewer();
 		return NSTerminateNow;
 	}
 }
 
-- (void) mainLoop
+- (void) oneFrame
 {
-	bool appExiting = runMainLoop();
+	bool appExiting = pumpMainLoop();
 	if (appExiting)
 	{
+		// Once pumpMainLoop() reports that we're done, cancel frameTimer:
+		// stop the repetitive calls.
 		[frameTimer release];
 		[[NSApplication sharedApplication] terminate:self];
 	}

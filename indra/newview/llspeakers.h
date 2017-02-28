@@ -341,20 +341,18 @@ protected:
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>
 {
+	LLSINGLETON(LLActiveSpeakerMgr);
 	LOG_CLASS(LLActiveSpeakerMgr);
 
-public:
-	LLActiveSpeakerMgr();
 protected:
 	virtual void updateSpeakerList();
 };
 
 class LLLocalSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLLocalSpeakerMgr>
 {
-	LOG_CLASS(LLLocalSpeakerMgr);
-public:
-	LLLocalSpeakerMgr();
+	LLSINGLETON(LLLocalSpeakerMgr);
 	~LLLocalSpeakerMgr ();
+	LOG_CLASS(LLLocalSpeakerMgr);
 protected:
 	virtual void updateSpeakerList();
 };

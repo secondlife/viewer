@@ -391,7 +391,27 @@ static void buildPathname(std::ostream& out, const LLView* view)
 	buildPathname(out, view->getParent());
 
 	// Build pathname into ostream on the way back from recursion.
-	out << '/' << view->getName();
+	out << '/';
+
+	// substitute all '/' in name with appropriate code
+	std::string name = view->getName();
+	std::size_t found = name.find('/');
+	std::size_t start = 0;
+	while (found != std::string::npos)
+	{
+		std::size_t sub_len = found - start;
+		if (sub_len > 0)
+		{
+			out << name.substr(start, sub_len);
+		}
+		out << "%2F";
+		start = found + 1;
+		found = name.find('/', start);
+	}
+	if (start < name.size())
+	{
+		out << name.substr(start, name.size() - start);
+	}
 }
 
 std::string LLView::getPathname() const
@@ -588,6 +608,11 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 	BOOL log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
+		if (!viewp)
+		{
+			continue;
+		}
+
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		old_visibility=viewp->getVisible();
 
@@ -807,7 +832,7 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 {
 	if (!getVisible())
-		return false;
+		return NULL;
 
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
@@ -1887,6 +1912,7 @@ private:
 
 class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
 {
+	LLSINGLETON_EMPTY_CTOR(SortByTabOrder);
 	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const 
 	{
 		children.sort(CompareByTabOrder(parent->getTabOrder(), parent->getDefaultTabGroup()));
@@ -1910,6 +1936,7 @@ const LLViewQuery & LLView::getTabOrderQuery()
 // This class is only used internally by getFocusRootsQuery below. 
 class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRootsFilter>
 {
+	LLSINGLETON_EMPTY_CTOR(LLFocusRootsFilter);
 	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
 	{
 		return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());

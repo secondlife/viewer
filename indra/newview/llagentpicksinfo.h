@@ -36,14 +36,12 @@ struct LLAvatarPicks;
  */
 class LLAgentPicksInfo : public LLSingleton<LLAgentPicksInfo>
 {
+	LLSINGLETON(LLAgentPicksInfo);
+	virtual ~LLAgentPicksInfo();
+
 	class LLAgentPicksObserver;
 
 public:
-
-	LLAgentPicksInfo();
-	
-	virtual ~LLAgentPicksInfo();
-
 	/**
 	 * Requests number of picks from server. 
 	 * 

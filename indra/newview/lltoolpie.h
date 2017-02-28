@@ -37,9 +37,9 @@ class LLObjectSelection;
 
 class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 {
+	LLSINGLETON(LLToolPie);
 	LOG_CLASS(LLToolPie);
 public:
-	LLToolPie( );
 
 	// Virtual functions inherited from LLMouseHandler
 	virtual BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);

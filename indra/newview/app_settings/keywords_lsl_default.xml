@@ -528,7 +528,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>27</integer>
+            <integer>26</integer>
             <key>tooltip</key>
             <string>Attach to the avatar's lower upper leg.</string>
          </map>
@@ -678,6 +678,141 @@
             <key>tooltip</key>
             <string>Attach to the avatar's right upper leg.</string>
          </map>
+         <key>ATTACH_LHAND_RING1</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>41</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's left ring finger.</string>
+         </map>
+         <key>ATTACH_RHAND_RING1</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>42</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's right ring finger.</string>
+         </map>
+         <key>ATTACH_TAIL_BASE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>43</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's tail base.</string>
+         </map>
+         <key>ATTACH_TAIL_TIP</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>44</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's tail tip.</string>
+         </map>
+         <key>ATTACH_LWING</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>45</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's left wing.</string>
+         </map>
+         <key>ATTACH_RWING</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>46</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's right wing.</string>
+         </map>
+         <key>ATTACH_FACE_JAW</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>47</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's jaw.</string>
+         </map>
+         <key>ATTACH_FACE_LEAR</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>48</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's left ear (extended).</string>
+         </map>
+         <key>ATTACH_FACE_REAR</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>49</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's right ear (extended).</string>
+         </map>
+         <key>ATTACH_FACE_LEYE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>50</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's left eye (extended).</string>
+         </map>
+         <key>ATTACH_FACE_REYE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>51</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's right eye (extended).</string>
+         </map>
+         <key>ATTACH_FACE_TONGUE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>52</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's tongue.</string>
+         </map>
+         <key>ATTACH_GROIN</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>53</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's groin.</string>
+         </map>
+         <key>ATTACH_HIND_LFOOT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>54</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's left hind foot.</string>
+         </map>
+         <key>ATTACH_HIND_RFOOT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>55</integer>
+            <key>tooltip</key>
+            <string>Attach to the avatar's right hind foot.</string>
+         </map>
          <key>AVOID_CHARACTERS</key>
          <map>
             <key>type</key>
@@ -809,7 +944,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>6</integer>
+            <integer>5</integer>
             <key>tooltip</key>
             <string/>
          </map>
@@ -818,7 +953,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>22</integer>
+            <integer>21</integer>
             <key>tooltip</key>
             <string/>
          </map>
@@ -872,7 +1007,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>2048</integer>
+            <string>0x800</string>
             <key>tooltip</key>
             <string/>
          </map>
@@ -1463,9 +1598,9 @@
             <key>type</key>
             <string>float</string>
             <key>value</key>
-            <real>0.01745329</real>
+            <real>0.017453293</real>
             <key>tooltip</key>
-            <string>0.01745329 - Number of radians per degree.
+            <string>0.017453293 - Number of radians per degree.
 			You can use this to convert degrees to radians by multiplying the degrees by this number.</string>
          </map>
          <key>DENSITY</key>
@@ -1482,7 +1617,7 @@
             <key>type</key>
             <string>string</string>
             <key>value</key>
-            <string>0x0A0x0A0x0A</string>
+            <string>\\n\\n\\n</string>
             <key>tooltip</key>
             <string>Indicates the last line of a notecard was read.</string>
          </map>
@@ -2299,7 +2434,7 @@
          <key>NULL_KEY</key>
          <map>
             <key>type</key>
-            <string>key</string>
+            <string>string</string>
             <key>value</key>
             <uuid>00000000-0000-0000-0000-000000000000</uuid>
             <key>tooltip</key>
@@ -2395,6 +2530,15 @@
             <key>tooltip</key>
             <string>Gets the object's name.</string>
          </map>
+         <key>OBJECT_OMEGA</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>29</integer>
+            <key>tooltip</key>
+            <string>Gets an object's angular velocity.</string>
+         </map>
          <key>OBJECT_OWNER</key>
          <map>
             <key>type</key>
@@ -2403,6 +2547,15 @@
             <integer>6</integer>
             <key>tooltip</key>
             <string>Gets an object's owner's key. If id is group owned, a NULL_KEY is returned.</string>
+         </map>
+         <key>OBJECT_PRIM_COUNT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>30</integer>
+            <key>tooltip</key>
+            <string>Gets the prim count of the object.  The script and target object  must be owned by the same owner</string>
          </map>
          <key>OBJECT_PATHFINDING_TYPE</key>
          <map>
@@ -2494,6 +2647,15 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>OBJECT_REZZER_KEY</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>32</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>OBJECT_ROOT</key>
          <map>
             <key>type</key>
@@ -2565,6 +2727,15 @@
             <integer>23</integer>
             <key>tooltip</key>
             <string>Returns boolean, detailing if temporary is enabled or disabled on the object.</string>
+         </map>
+         <key>OBJECT_TOTAL_INVENTORY_COUNT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>31</integer>
+            <key>tooltip</key>
+            <string>Gets the total inventory count of the object.  The script and target object must be owned by the same owner</string>
          </map>
          <key>OBJECT_TOTAL_SCRIPT_COUNT</key>
          <map>
@@ -3051,6 +3222,33 @@
             <integer>5</integer>
             <key>tooltip</key>
             <string/>
+         </map>
+         <key>PASS_ALWAYS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <string>1</string>
+            <key>tooltip</key>
+            <string>Always pass the event.</string>
+         </map>
+         <key>PASS_NEVER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <string>2</string>
+            <key>tooltip</key>
+            <string>Always pass the event.</string>
+         </map>
+         <key>PASS_IF_NOT_HANDLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <string>0</string>
+            <key>tooltip</key>
+            <string>Pass the event if there is no script handling the event in the prim.</string>
          </map>
          <key>PASSIVE</key>
          <map>
@@ -4387,6 +4585,24 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>5</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>9</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>PSYS_PART_BF_SOURCE_ALPHA</key>
          <map>
             <key>type</key>
@@ -4536,7 +4752,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>19</integer>
+            <integer>7</integer>
             <key>tooltip</key>
             <string>Age in seconds of a particle at which it dies.</string>
          </map>
@@ -5061,7 +5277,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>2</integer>
+            <integer>0</integer>
             <key>tooltip</key>
             <string/>
          </map>
@@ -5295,7 +5511,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>64</integer>
+            <string>0x40</string>
             <key>tooltip</key>
             <string>Controls whether the object can be grabbed.\nA grab is the default action when in third person, and is available as the hand tool in build mode. This is useful for physical objects that you don't want other people to be able to trivially disturb. The default is FALSE</string>
          </map>
@@ -5304,7 +5520,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>1024</integer>
+            <string>0x400</string>
             <key>tooltip</key>
             <string>Prevent click-and-drag movement on all prims in the object.</string>
          </map>
@@ -5500,7 +5716,7 @@
          <key>TEXTURE_BLANK</key>
          <map>
             <key>type</key>
-            <string>key</string>
+            <string>string</string>
             <key>value</key>
             <uuid>5748decc-f629-461c-9a36-a35a221fe21f</uuid>
             <key>tooltip</key>
@@ -5509,7 +5725,7 @@
          <key>TEXTURE_DEFAULT</key>
          <map>
             <key>type</key>
-            <string>key</string>
+            <string>string</string>
             <key>value</key>
             <uuid>89556747-24cb-43ed-920b-47caed15465f</uuid>
             <key>tooltip</key>
@@ -5518,7 +5734,7 @@
          <key>TEXTURE_MEDIA</key>
          <map>
             <key>type</key>
-            <string>key</string>
+            <string>string</string>
             <key>value</key>
             <uuid>8b5fec65-8d8d-9dc5-cda8-8fdf2716e361</uuid>
             <key>tooltip</key>
@@ -5527,7 +5743,7 @@
          <key>TEXTURE_PLYWOOD</key>
          <map>
             <key>type</key>
-            <string>key</string>
+            <string>string</string>
             <key>value</key>
             <uuid>89556747-24cb-43ed-920b-47caed15465f</uuid>
             <key>tooltip</key>
@@ -5536,7 +5752,7 @@
          <key>TEXTURE_TRANSPARENT</key>
          <map>
             <key>type</key>
-            <string>key</string>
+            <string>string</string>
             <key>value</key>
             <uuid>8dcd4a48-2d37-4909-9f78-f7a9eb4ef903</uuid>
             <key>tooltip</key>
@@ -5956,7 +6172,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>35</integer>
+            <integer>31</integer>
             <key>tooltip</key>
             <string>The timescale for exponential decay of the linear motors magnitude.</string>
          </map>
@@ -6203,15 +6419,6 @@
             <integer>11</integer>
             <key>tooltip</key>
             <string>An attempted write data to the key-value store failed due to the data quota being met.</string>
-         </map>
-         <key>LSL_XP_ERROR_REQUEST_PERM_TIMEOUT</key>
-         <map>
-            <key>type</key>
-            <string>integer</string>
-            <key>value</key>
-            <integer>18</integer>
-            <key>tooltip</key>
-            <string>The request for experience permissions was ignored and timed out.</string>
          </map>
          <key>XP_ERROR_RETRY_UPDATE</key>
          <map>
@@ -6562,30 +6769,43 @@
          <key>experience_permissions</key>
          <map>
             <key>arguments</key>
-            <map>
-               <key>agent_id</key>
-               <map>
+            <array>
+              <map>
+                <key>agent_id</key>
+                <map>
                   <key>type</key>
                   <string>key</string>
                   <key>tooltip</key>
                   <string>ID of the agent approving permission for the Experience.</string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
          </map>
          <key>experience_permissions_denied</key>
          <map>
             <key>arguments</key>
-            <map>
-               <key>agent_id</key>
-               <map>
+            <array>
+              <map>
+                <key>agent_id</key>
+                <map>
                   <key>type</key>
                   <string>key</string>
                   <key>tooltip</key>
                   <string>ID of the agent denying permission for the Experience.</string>
-               </map>
-            </map>
+                </map>
+              </map>
+              <map>
+                <key>Reason</key>
+                <map>
+                  <key>type</key>
+                  <string>integer</string>
+                  <key>tooltip</key>
+                  <string>One of the XP_ERROR_... constants describing the reason why the Experience permissions were denied for the agent.</string>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
-            <string>One of the XP_ERROR_... constants describing the reason why the Experience permissions were denied for the agent.</string>
+            <string>Describes why the Experience permissions were denied for the agent.</string>
          </map>
          <key>http_request</key>
          <map>
@@ -7281,15 +7501,17 @@
             <key>return</key>
             <string>integer</string>
             <key>arguments</key>
-            <map>
-               <key>AgentID</key>
-               <map>
+            <array>
+              <map>
+                <key>AgentID</key>
+                <map>
                   <key>type</key>
                   <string>key</string>
                   <key>tooltip</key>
                   <string></string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Returns TRUE if the agent is in the Experience and the Experience can run in the current location.
@@ -8035,7 +8257,8 @@
             <key>return</key>
             <string>key</string>
             <key>arguments</key>
-            <map>
+            <array>
+              <map>
                <key>Key</key>
                <map>
                   <key>type</key>
@@ -8043,6 +8266,8 @@
                   <key>tooltip</key>
                   <string></string>
                </map>
+              </map>
+              <map>
                <key>Value</key>
                <map>
                   <key>type</key>
@@ -8050,7 +8275,8 @@
                   <key>tooltip</key>
                   <string></string>
                </map>
-            </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Starts an asychronous transaction to create a key-value pair. Will fail with XP_ERROR_STORAGE_EXCEPTION if the key already exists. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value passed to the function.
@@ -8148,15 +8374,17 @@
             <key>return</key>
             <string>key</string>
             <key>arguments</key>
-            <map>
-               <key>Key</key>
-               <map>
+            <array>
+              <map>
+                <key>Key</key>
+                <map>
                   <key>type</key>
                   <string>string</string>
                   <key>tooltip</key>
                   <string></string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Starts an asychronous transaction to delete a key-value pair. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key.
@@ -9549,15 +9777,17 @@
             <key>return</key>
             <string>list</string>
             <key>arguments</key>
-            <map>
-               <key>ExperienceID</key>
-               <map>
+            <array>
+              <map>
+                <key>ExperienceID</key>
+                <map>
                   <key>type</key>
                   <string>key</string>
                   <key>tooltip</key>
                   <string>May be NULL_KEY to retrieve the details for the script's Experience</string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Returns a list with the following Experience properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State Message]. State is an integer corresponding to one of the constants XP_ERROR_... and State Message is the string returned by llGetExperienceErrorMessage for that integer.
@@ -9572,15 +9802,17 @@
             <key>return</key>
             <string>string</string>
             <key>arguments</key>
-            <map>
-               <key>Error</key>
-               <map>
+            <array>
+              <map>
+                <key>Error</key>
+                <map>
                   <key>type</key>
                   <string>integer</string>
                   <key>tooltip</key>
                   <string>An Experience error code to translate.</string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code.
@@ -9930,7 +10162,7 @@
                   <key>Parameters</key>
                   <map>
                      <key>type</key>
-                     <string>integer</string>
+                     <string>list</string>
                      <key>tooltip</key>
                      <string>A list of PRIM_* property constants to return values of.</string>
                   </map>
@@ -10021,7 +10253,7 @@
                   <key>Parameters</key>
                   <map>
                      <key>type</key>
-                     <string>integer</string>
+                     <string>list</string>
                      <key>tooltip</key>
                      <string>PRIM_* flags.</string>
                   </map>
@@ -10782,7 +11014,7 @@
             <key>sleep</key>
             <real>0.0</real>
             <key>return</key>
-            <string>void</string>
+            <string>float</string>
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
@@ -11390,7 +11622,7 @@
             <key>sleep</key>
             <real>0.0</real>
             <key>return</key>
-            <string>void</string>
+            <string>integer</string>
             <key>arguments</key>
             <array>
                <map>
@@ -11937,22 +12169,26 @@
             <key>return</key>
             <string>key</string>
             <key>arguments</key>
-            <map>
-               <key>First</key>
-               <map>
+            <array>
+              <map>
+                <key>First</key>
+                <map>
                   <key>type</key>
-                  <string>string</string>
+                  <string>integer</string>
                   <key>tooltip</key>
                   <string>Index of the first key to return.</string>
-               </map>
-               <key>Count</key>
-               <map>
+                </map>
+              </map>
+              <map>
+                <key>Count</key>
+                <map>
                   <key>type</key>
-                  <string>string</string>
+                  <string>integer</string>
                   <key>tooltip</key>
                   <string>The number of keys to return.</string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used.
@@ -11981,7 +12217,7 @@
                   <key>Rules</key>
                   <map>
                      <key>type</key>
-                     <string>integer</string>
+                     <string>list</string>
                      <key>tooltip</key>
                      <string>Particle system rules list in the format [ rule1, data1, rule2, data2 . . . ruleN, dataN ]</string>
                   </map>
@@ -13142,6 +13378,15 @@
                   </map>
                </map>
                <map>
+                  <key>Bounce</key>
+                  <map>
+                     <key>type</key>
+                     <string>integer</string>
+                     <key>tooltip</key>
+                     <string/>
+                  </map>
+               </map>
+               <map>
                   <key>Texture</key>
                   <map>
                      <key>type</key>
@@ -13155,6 +13400,15 @@
                   <map>
                      <key>type</key>
                      <string>vector</string>
+                     <key>tooltip</key>
+                     <string/>
+                  </map>
+               </map>
+               <map>
+                  <key>Bounce_Offset</key>
+                  <map>
+                     <key>type</key>
+                     <string>float</string>
                      <key>tooltip</key>
                      <string/>
                   </map>
@@ -13959,7 +14213,7 @@
             <key>sleep</key>
             <real>0.0</real>
             <key>return</key>
-            <string>void</string>
+            <string>float</string>
             <key>arguments</key>
             <array>
                <map>
@@ -14098,7 +14352,8 @@
             <key>return</key>
             <string>key</string>
             <key>arguments</key>
-            <map>
+            <array>
+              <map>
                <key>Key</key>
                <map>
                   <key>type</key>
@@ -14106,7 +14361,8 @@
                   <key>tooltip</key>
                   <string></string>
                </map>
-            </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key.
@@ -14148,7 +14404,7 @@
                   <key>Text</key>
                   <map>
                      <key>type</key>
-                     <string>integer</string>
+                     <string>string</string>
                      <key>tooltip</key>
                      <string>Message to be transmitted.</string>
                   </map>
@@ -14541,22 +14797,26 @@
             <key>return</key>
             <string>void</string>
             <key>arguments</key>
-            <map>
-               <key>AvatarID</key>
-               <map>
+            <array>
+              <map>
+                <key>AgentID</key>
+                <map>
                   <key>type</key>
                   <string>key</string>
                   <key>tooltip</key>
                   <string/>
-               </map>
-               <key>unused</key>
-               <map>
+                </map>
+              </map>
+              <map>
+                <key>unused</key>
+                <map>
                   <key>type</key>
                   <string>string</string>
                   <key>tooltip</key>
                   <string>Not used, should be &quot;&quot;</string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Ask the agent for permission to participate in an experience. This request is similar to llRequestPermissions with the following permissions: PERMISSION_TAKE_CONTROLS, PERMISSION_TRIGGER_ANIMATION, PERMISSION_ATTACH, PERMISSION_TRACK_CAMERA, PERMISSION_CONTROL_CAMERA and PERMISSION_TELEPORT. However, unlike llRequestPermissions the decision to allow or block the request is persistent and applies to all scripts using the experience grid wide. Subsequent calls to llRequestExperiencePermissions from scripts in the experience will receive the same response automatically with no user interaction. One of experience_permissions or experience_permissions_denied will be generated in response to this call. Outstanding permission requests will be lost if the script is derezzed, moved to another region or reset.
@@ -17363,7 +17623,7 @@
                   <key>ParameterValue</key>
                   <map>
                      <key>type</key>
-                     <string>float</string>
+                     <string>rotation</string>
                      <key>tooltip</key>
                      <string/>
                   </map>
@@ -17418,7 +17678,7 @@
                   <key>ParameterValue</key>
                   <map>
                      <key>type</key>
-                     <string>float</string>
+                     <string>vector</string>
                      <key>tooltip</key>
                      <string/>
                   </map>
@@ -18487,36 +18747,44 @@
             <key>return</key>
             <string>key</string>
             <key>arguments</key>
-            <map>
-               <key>Key</key>
-               <map>
+            <array>
+              <map>
+                <key>Key</key>
+                <map>
                   <key>type</key>
                   <string>string</string>
                   <key>tooltip</key>
                   <string></string>
-               </map>
-               <key>Value</key>
-               <map>
+                </map>
+              </map>
+              <map>
+                <key>Value</key>
+                <map>
                   <key>type</key>
                   <string>string</string>
                   <key>tooltip</key>
                   <string></string>
-               </map>
-               <key>Checked</key>
-               <map>
+                </map>
+              </map>
+              <map>
+                <key>Checked</key>
+                <map>
                   <key>type</key>
                   <string>integer</string>
                   <key>tooltip</key>
                   <string></string>
-               </map>
-               <key>OriginalValue</key>
-               <map>
+                </map>
+              </map>
+              <map>
+                <key>OriginalValue</key>
+                <map>
                   <key>type</key>
                   <string>string</string>
                   <key>tooltip</key>
                   <string></string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Starts an asychronous transaction to update the value associated with the key given. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. If Checked is 1 the existing value in the data store must match the OriginalValue passed or XP_ERROR_RETRY_UPDATE will be returned. If Checked is 0 the key will be created if necessary.
@@ -18868,31 +19136,8 @@
             <key>tooltip</key>
             <string>Returns the largest multiplicative uniform scale factor that can be successfully applied (via llScaleByFactor()) to the object without violating prim size or linkability rules.</string>
          </map>
-         <key>llScaleByFactor</key>
-         <map>
-            <key>energy</key>
-            <real>10.0</real>
-            <key>sleep</key>
-            <real>0.0</real>
-            <key>return</key>
-            <string>float</string>
-            <key>arguments</key>
-            <array>
-               <map>
-                  <key>Factor</key>
-                  <map>
-                     <key>type</key>
-                     <string>float</string>
-                     <key>tooltip</key>
-                     <string/>
-                  </map>
-               </map>
-            </array>
-            <key>tooltip</key>
-            <string>Tries to uniformly scale the object by a multiplicative factor.  Returns TRUE on success or FALSE on failure.</string>
-         </map>
       </map>
       <key>llsd-lsl-syntax-version</key>
-      <integer>2</integer>
+      <integer>2</integer><!-- increment only when the file format changes, not just the content -->
    </map>
 </llsd>

@@ -66,13 +66,13 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl)
 	std::string name = check->getName();
 	if(name == "touch_only")
 	{
-		LLPipeline::toggleRenderScriptedTouchBeacons(NULL);
+		LLPipeline::toggleRenderScriptedTouchBeacons();
 		// Don't allow both to be ON at the same time. Toggle the other one off if both now on.
 		if (
-			LLPipeline::getRenderScriptedTouchBeacons(NULL) &&
-			LLPipeline::getRenderScriptedBeacons(NULL) )
+			LLPipeline::getRenderScriptedTouchBeacons() &&
+			LLPipeline::getRenderScriptedBeacons() )
 		{
-			LLPipeline::setRenderScriptedBeacons(FALSE);
+			LLPipeline::setRenderScriptedBeacons(false);
 			getChild<LLCheckBoxCtrl>("scripted")->setControlValue(LLSD(FALSE));
 			getChild<LLCheckBoxCtrl>("scripted")->setValue(FALSE);
 			getChild<LLCheckBoxCtrl>("touch_only")->setControlValue(LLSD(TRUE)); // just to be sure it's in sync with llpipeline
@@ -81,13 +81,13 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl)
 	}
 	else if(name == "scripted")
 	{
-		LLPipeline::toggleRenderScriptedBeacons(NULL);
+		LLPipeline::toggleRenderScriptedBeacons();
 		// Don't allow both to be ON at the same time. Toggle the other one off if both now on.
 		if (
-			LLPipeline::getRenderScriptedTouchBeacons(NULL) &&
-			LLPipeline::getRenderScriptedBeacons(NULL) )
+			LLPipeline::getRenderScriptedTouchBeacons() &&
+			LLPipeline::getRenderScriptedBeacons() )
 		{
-			LLPipeline::setRenderScriptedTouchBeacons(FALSE);
+			LLPipeline::setRenderScriptedTouchBeacons(false);
 			getChild<LLCheckBoxCtrl>("touch_only")->setControlValue(LLSD(FALSE));
 			getChild<LLCheckBoxCtrl>("touch_only")->setValue(FALSE);
 			getChild<LLCheckBoxCtrl>("scripted")->setControlValue(LLSD(TRUE)); // just to be sure it's in sync with llpipeline
@@ -100,13 +100,13 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl)
 	else if(name == "moapbeacon")     LLPipeline::setRenderMOAPBeacons(check->get());
 	else if(name == "highlights")
 	{
-		LLPipeline::toggleRenderHighlights(NULL);
+		LLPipeline::toggleRenderHighlights();
 		// Don't allow both to be OFF at the same time. Toggle the other one on if both now off.
 		if (
-			!LLPipeline::getRenderBeacons(NULL) &&
-			!LLPipeline::getRenderHighlights(NULL) )
+			!LLPipeline::getRenderBeacons() &&
+			!LLPipeline::getRenderHighlights() )
 		{
-			LLPipeline::setRenderBeacons(TRUE);
+			LLPipeline::setRenderBeacons(true);
 			getChild<LLCheckBoxCtrl>("beacons")->setControlValue(LLSD(TRUE));
 			getChild<LLCheckBoxCtrl>("beacons")->setValue(TRUE);
 			getChild<LLCheckBoxCtrl>("highlights")->setControlValue(LLSD(FALSE)); // just to be sure it's in sync with llpipeline
@@ -115,13 +115,13 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl)
 	}
 	else if(name == "beacons")
 	{
-		LLPipeline::toggleRenderBeacons(NULL);
+		LLPipeline::toggleRenderBeacons();
 		// Don't allow both to be OFF at the same time. Toggle the other one on if both now off.
 		if (
-			!LLPipeline::getRenderBeacons(NULL) &&
-			!LLPipeline::getRenderHighlights(NULL) )
+			!LLPipeline::getRenderBeacons() &&
+			!LLPipeline::getRenderHighlights() )
 		{
-			LLPipeline::setRenderHighlights(TRUE);
+			LLPipeline::setRenderHighlights(true);
 			getChild<LLCheckBoxCtrl>("highlights")->setControlValue(LLSD(TRUE));
 			getChild<LLCheckBoxCtrl>("highlights")->setValue(TRUE);
 			getChild<LLCheckBoxCtrl>("beacons")->setControlValue(LLSD(FALSE)); // just to be sure it's in sync with llpipeline

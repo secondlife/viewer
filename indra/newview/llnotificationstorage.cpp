@@ -45,9 +45,10 @@ typedef boost::function<LLNotificationResponderInterface * (const LLSD& pParams)
 
 class LLResponderRegistry : public LLRegistrySingleton<std::string, responder_constructor_t, LLResponderRegistry>
 {
-    public:
-        template<typename RESPONDER_TYPE> static LLNotificationResponderInterface * create(const LLSD& pParams);
-        LLNotificationResponderInterface * createResponder(const std::string& pNotificationName, const LLSD& pParams);
+    LLSINGLETON_EMPTY_CTOR(LLResponderRegistry);
+public:
+    template<typename RESPONDER_TYPE> static LLNotificationResponderInterface * create(const LLSD& pParams);
+    LLNotificationResponderInterface * createResponder(const std::string& pNotificationName, const LLSD& pParams);
 };
 
 template<typename RESPONDER_TYPE> LLNotificationResponderInterface * LLResponderRegistry::create(const LLSD& pParams)

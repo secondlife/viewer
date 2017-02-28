@@ -2354,7 +2354,13 @@ void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
 void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
 	LLCallDialog::onOpen(key);
-	make_ui_sound("UISndStartIM");
+
+	if (gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall"))
+	{
+		// play a sound for incoming voice call if respective property is set
+		make_ui_sound("UISndStartIM");
+	}
+
 	LLStringUtil::format_map_t args;
 	LLGroupData data;
 	// if it's a group call, retrieve group name to use it in question

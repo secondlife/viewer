@@ -61,9 +61,6 @@ extern bool gShiftFrame;
 static U32 sZombieGroups = 0;
 U32 LLSpatialGroup::sNodeCount = 0;
 
-U32 gOctreeMaxCapacity;
-F32 gOctreeMinSize;
-
 BOOL LLSpatialGroup::sNoDelete = FALSE;
 
 static F32 sLastMaxTexPriority = 1.f;
@@ -3213,6 +3210,11 @@ void renderAvatarCollisionVolumes(LLVOAvatar* avatar)
 	avatar->renderCollisionVolumes();
 }
 
+void renderAvatarBones(LLVOAvatar* avatar)
+{
+	avatar->renderBones();
+}
+
 void renderAgentTarget(LLVOAvatar* avatar)
 {
 	// render these for self only (why, i don't know)
@@ -3369,6 +3371,11 @@ public:
 			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_VOLUME))
 			{
 				renderAvatarCollisionVolumes(avatar);
+			}
+
+			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_JOINTS))
+			{
+				renderAvatarBones(avatar);
 			}
 
 			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AGENT_TARGET))
@@ -3661,6 +3668,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
+									  LLPipeline::RENDER_DEBUG_AVATAR_JOINTS |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
 									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |

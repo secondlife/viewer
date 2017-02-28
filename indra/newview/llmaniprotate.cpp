@@ -1157,6 +1157,9 @@ BOOL LLManipRotate::updateVisiblity()
 
 	BOOL visible = FALSE;
 
+	//Assume that UI scale factor is equivalent for X and Y axis
+	F32 ui_scale_factor = LLUI::getScaleFactor().mV[VX];
+
 	LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
@@ -1166,6 +1169,7 @@ BOOL LLManipRotate::updateVisiblity()
 
 		mRadiusMeters = RADIUS_PIXELS / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 		mRadiusMeters /= gAgentCamera.mHUDCurZoom;
+		mRadiusMeters *= ui_scale_factor;
 
 		mCenterToProfilePlaneMag = mRadiusMeters * mRadiusMeters / mCenterToCamMag;
 		mCenterToProfilePlane = -mCenterToProfilePlaneMag * mCenterToCamNorm;
@@ -1205,6 +1209,7 @@ BOOL LLManipRotate::updateVisiblity()
 				F32 fraction_of_fov = RADIUS_PIXELS / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 				F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
 				mRadiusMeters = z_dist * tan(apparent_angle);
+				mRadiusMeters *= ui_scale_factor;
 
 				mCenterToProfilePlaneMag = mRadiusMeters * mRadiusMeters / mCenterToCamMag;
 				mCenterToProfilePlane = -mCenterToProfilePlaneMag * mCenterToCamNorm;

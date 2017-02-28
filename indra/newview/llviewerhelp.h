@@ -39,7 +39,7 @@ class LLUICtrl;
 
 class LLViewerHelp : public LLHelp, public LLSingleton<LLViewerHelp>
 {
-	friend class LLSingleton<LLViewerHelp>;
+	LLSINGLETON_EMPTY_CTOR(LLViewerHelp);
 
  public:
 	/// display the specified help topic in the help viewer

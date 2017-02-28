@@ -145,6 +145,14 @@ void LLFloaterObjectWeights::updateLandImpacts(const LLParcel* parcel)
 	{
 		S32 rezzed_prims = parcel->getSimWidePrimCount();
 		S32 total_capacity = parcel->getSimWideMaxPrimCapacity();
+		// Can't have more than region max tasks, regardless of parcel
+		// object bonus factor.
+		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+		if (region)
+		{
+			S32 max_tasks_per_region = (S32)region->getMaxTasks();
+			total_capacity = llmin(total_capacity, max_tasks_per_region);
+		}
 
 		mRezzedOnLand->setText(llformat("%d", rezzed_prims));
 		mRemainingCapacity->setText(llformat("%d", total_capacity - rezzed_prims));

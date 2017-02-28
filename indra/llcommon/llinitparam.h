@@ -551,6 +551,7 @@ namespace LLInitParam
 		}
 
 		virtual std::string getCurrentElementName() = 0;
+		virtual std::string getCurrentFileName() = 0;
 		virtual void parserWarning(const std::string& message);
 		virtual void parserError(const std::string& message);
 		void setParseSilently(bool silent) { mParseSilently = silent; }

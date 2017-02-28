@@ -138,6 +138,12 @@
 #pragma warning( 3      :  4266 )	// 'function' : no override available for virtual member function from base 'type'; function is hidden
 #pragma warning (disable : 4180)	// qualifier applied to function type has no meaning; ignored
 //#pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
+
+#if ADDRESS_SIZE == 64
+// That one is all over the place for x64 builds.
+#pragma warning( disable : 4267 )   // 'var' : conversion from 'size_t' to 'type', possible loss of data)
+#endif
+
 #pragma warning( disable : 4503 )	// 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning( disable : 4996 )	// warning: deprecated

@@ -45,7 +45,7 @@ LLInventoryItemsList::Params::Params()
 
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
 :	LLFlatListViewEx(p)
-,	mNeedsRefresh(false)
+,	mRefreshState(REFRESH_COMPLETE)
 ,	mForceRefresh(false)
 {
 	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
@@ -66,13 +66,13 @@ LLInventoryItemsList::~LLInventoryItemsList()
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
 {
-	getIDs().clear();
+    getIDs().clear();
 	LLInventoryModel::item_array_t::const_iterator it = item_array.begin();
 	for( ; item_array.end() != it; ++it)
 	{
 		getIDs().push_back((*it)->getUUID());
 	}
-	mNeedsRefresh = true;
+    mRefreshState = REFRESH_ALL;
 }
 
 boost::signals2::connection LLInventoryItemsList::setRefreshCompleteCallback(const commit_signal_t::slot_type& cb)
@@ -113,9 +113,9 @@ void LLInventoryItemsList::updateSelection()
 
 void LLInventoryItemsList::doIdle()
 {
-	if (!mNeedsRefresh) return;
+	if (mRefreshState == REFRESH_COMPLETE) return;
 
-	if (isInVisibleChain() || mForceRefresh)
+	if (isInVisibleChain() || mForceRefresh )
 	{
 		refresh();
 
@@ -137,54 +137,130 @@ LLTrace::BlockTimerStatHandle FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refres
 
 void LLInventoryItemsList::refresh()
 {
-	LL_RECORD_BLOCK_TIME(FTM_INVENTORY_ITEMS_REFRESH);
-	static const unsigned ADD_LIMIT = 20;
+    LL_RECORD_BLOCK_TIME(FTM_INVENTORY_ITEMS_REFRESH);
 
-	uuid_vec_t added_items;
-	uuid_vec_t removed_items;
+    switch (mRefreshState)
+    {
+    case REFRESH_ALL:
+        {
+            mAddedItems.clear();
+            mRemovedItems.clear();
+            computeDifference(getIDs(), mAddedItems, mRemovedItems);
+            if (mRemovedItems.size() > 0)
+            {
+                mRefreshState = REFRESH_LIST_ERASE;
+            }
+            else if (mAddedItems.size() > 0)
+            {
+                mRefreshState = REFRESH_LIST_APPEND;
+            }
+            else
+            {
+                mRefreshState = REFRESH_LIST_SORT;
+            }
 
-	computeDifference(getIDs(), added_items, removed_items);
+            rearrangeItems();
+            notifyParentItemsRectChanged();
+            break;
+        }
+    case REFRESH_LIST_ERASE:
+        {
+            uuid_vec_t::const_iterator it = mRemovedItems.begin();
+            for (; mRemovedItems.end() != it; ++it)
+            {
+                // don't filter items right away
+                removeItemByUUID(*it, false);
+            }
+            mRemovedItems.clear();
+            mRefreshState = REFRESH_LIST_SORT; // fix visibility and arrange
+            break;
+        }
+    case REFRESH_LIST_APPEND:
+        {
+            static const unsigned ADD_LIMIT = 25; // Note: affects perfomance
 
-	bool add_limit_exceeded = false;
-	unsigned int nadded = 0;
+            unsigned int nadded = 0;
 
-	uuid_vec_t::const_iterator it = added_items.begin();
-	for( ; added_items.end() != it; ++it)
-	{
-		if(nadded >= ADD_LIMIT)
-		{
-			add_limit_exceeded = true;
-			break;
-		}
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		// Do not rearrange items on each adding, let's do that on filter call
-		llassert(item);
-		if (item)
-		{
-			addNewItem(item, false);
-			++nadded;
-		}
-	}
+            // form a list to add
+            uuid_vec_t::iterator it = mAddedItems.begin();
+            pairs_list_t panel_list;
+            while(mAddedItems.size() > 0 && nadded < ADD_LIMIT)
+            {
+                LLViewerInventoryItem* item = gInventory.getItem(*it);
+                llassert(item);
+                if (item)
+                {
+                    LLPanel *list_item = createNewItem(item);
+                    if (list_item)
+                    {
+                        item_pair_t* new_pair = new item_pair_t(list_item, item->getUUID());
+                        panel_list.push_back(new_pair);
+                        ++nadded;
+                    }
+                }
 
-	it = removed_items.begin();
-	for( ; removed_items.end() != it; ++it)
-	{
-		// don't filter items right away
-		removeItemByUUID(*it, false);
-	}
+                it = mAddedItems.erase(it);
+            }
 
-	// Filter, rearrange and notify parent about shape changes
-	filterItems();
+            // add the list
+            // Note: usually item pairs are sorted with std::sort, but we are calling
+            // this function on idle and pairs' list can take a lot of time to sort
+            // through, so we are sorting items into list while adding them
+            addItemPairs(panel_list, false);
 
-	bool needs_refresh = add_limit_exceeded;
-	setNeedsRefresh(needs_refresh);
-	setForceRefresh(needs_refresh);
+            // update visibility of items in the list
+            std::string cur_filter = getFilterSubString();
+            LLStringUtil::toUpper(cur_filter);
+            LLSD action;
+            action.with("match_filter", cur_filter);
 
-	// After list building completed, select items that had been requested to select before list was build
-	if(!needs_refresh)
-	{
-		updateSelection();
-	}
+            pairs_const_iterator_t pair_it = panel_list.begin();
+            for (; pair_it != panel_list.end(); ++pair_it)
+            {
+                item_pair_t* item_pair = *pair_it;
+                if (item_pair->first->getParent() != NULL)
+                {
+                    updateItemVisibility(item_pair->first, action);
+                }
+            }
+
+            rearrangeItems();
+            notifyParentItemsRectChanged();
+
+            if (mAddedItems.size() > 0)
+            {
+                mRefreshState = REFRESH_LIST_APPEND;
+            }
+            else
+            {
+                // Note: while we do sort and check visibility at REFRESH_LIST_APPEND, update
+                // could have changed something  about existing items so redo checks for all items.
+                mRefreshState = REFRESH_LIST_SORT;
+            }
+            break;
+        }
+    case REFRESH_LIST_SORT:
+        {
+            // Filter, sort, rearrange and notify parent about shape changes
+            filterItems();
+
+            if (mAddedItems.size() == 0)
+            {
+                // After list building completed, select items that had been requested to select before list was build
+                updateSelection();
+                mRefreshState = REFRESH_COMPLETE;
+            }
+            else
+            {
+                mRefreshState = REFRESH_LIST_APPEND;
+            }
+            break;
+        }
+    default:
+        break;
+    }
+
+    setForceRefresh(mRefreshState != REFRESH_COMPLETE);
 }
 
 void LLInventoryItemsList::computeDifference(
@@ -204,24 +280,15 @@ void LLInventoryItemsList::computeDifference(
 	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }
 
-void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange /*= true*/)
+LLPanel* LLInventoryItemsList::createNewItem(LLViewerInventoryItem* item)
 {
-	if (!item)
-	{
-		LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
-		llassert(item != NULL);
-	}
-
-	LLPanelInventoryListItemBase *list_item = LLPanelInventoryListItemBase::create(item);
-	if (!list_item)
-		return;
-
-	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
-	if (!is_item_added)
-	{
-		LL_WARNS() << "Couldn't add flat list item." << LL_ENDL;
-		llassert(is_item_added);
-	}
+    if (!item)
+    {
+        LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
+        llassert(item != NULL);
+        return NULL;
+    }
+    return LLPanelInventoryListItemBase::create(item);
 }
 
 // EOF

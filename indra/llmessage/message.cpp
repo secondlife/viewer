@@ -76,6 +76,7 @@
 #include "v4math.h"
 #include "lltransfertargetvfile.h"
 #include "llcorehttputil.h"
+#include "llpounceable.h"
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
@@ -1724,7 +1725,9 @@ std::ostream& operator<<(std::ostream& s, LLMessageSystem &msg)
 	return s;
 }
 
-LLMessageSystem	*gMessageSystem = NULL;
+// LLPounceable supports callWhenReady(), to permit clients to queue up (e.g.)
+// callback registrations for when gMessageSystem is first assigned
+LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 
 // update appropriate ping info
 void	process_complete_ping_check(LLMessageSystem *msgsystem, void** /*user_data*/)
@@ -2641,7 +2644,7 @@ void end_messaging_system(bool print_summary)
 			LL_INFOS("Messaging") << str.str().c_str() << LL_ENDL;
 		}
 
-		delete gMessageSystem;
+		delete static_cast<LLMessageSystem*>(gMessageSystem);
 		gMessageSystem = NULL;
 	}
 }
@@ -4007,7 +4010,7 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("untrustedSimulatorMessage", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 

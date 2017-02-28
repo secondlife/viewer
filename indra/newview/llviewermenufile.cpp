@@ -37,6 +37,7 @@
 #include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
+#include "llfloateroutfitsnapshot.h"
 #include "llimage.h"
 #include "llimagebmp.h"
 #include "llimagepng.h"
@@ -83,7 +84,7 @@ class LLFileEnableUpload : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         return true;
-// 		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+// 		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
 // 		return new_value;
 	}
 };
@@ -92,6 +93,12 @@ class LLFileEnableUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::findInstance("upload_model");
+		if (fmp && fmp->isModelLoading())
+		{
+			return false;
+		}
+
 		return true;
 	}
 };
@@ -358,7 +365,7 @@ class LLFileUploadModel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
-		if (fmp)
+		if (fmp && !fmp->isModelLoading())
 		{
 			fmp->loadModel(3);
 		}
@@ -422,7 +429,7 @@ class LLFileUploadBulk : public view_listener_t
 		if (picker.getMultipleOpenFiles())
 		{
             std::string filename = picker.getFirstFile();
-            S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+            S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 
             while (!filename.empty())
             {
@@ -508,8 +515,10 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
-		bool is_floater_snapshot_opened = floater_snapshot && floater_snapshot->isInVisibleChain();
-		bool open_children = gFloaterView->allChildrenClosed() && !is_floater_snapshot_opened;
+		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::findInstance();
+		bool is_floaters_snapshot_opened = (floater_snapshot && floater_snapshot->isInVisibleChain())
+			|| (floater_outfit_snapshot && floater_outfit_snapshot->isInVisibleChain());
+		bool open_children = gFloaterView->allChildrenClosed() && !is_floaters_snapshot_opened;
 		return !open_children;
 	}
 };
@@ -520,7 +529,12 @@ class LLFileCloseAllWindows : public view_listener_t
 	{
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
-		LLFloaterSnapshot::getInstance()->closeFloater(app_quitting);
+		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
+		if (floater_snapshot)
+			floater_snapshot->closeFloater(app_quitting);
+		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::findInstance();
+		if (floater_outfit_snapshot)
+			floater_outfit_snapshot->closeFloater(app_quitting);
 		if (gMenuHolder) gMenuHolder->hideMenus();
 		return true;
 	}
@@ -551,18 +565,18 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
 			LLPointer<LLImageFormatted> formatted;
-			LLFloaterSnapshot::ESnapshotFormat fmt = (LLFloaterSnapshot::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+            LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
 			switch (fmt)
 			{
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
 				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
 				break;
 			default:
 				LL_WARNS() << "Unknown local snapshot format: " << fmt << LL_ENDL;
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
 				formatted = new LLImagePNG;
 				break;
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
 				formatted = new LLImageBMP;
 				break;
 			}

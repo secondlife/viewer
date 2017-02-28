@@ -231,6 +231,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	DWORD heap_enable_lfh_error[MAX_HEAPS];
 	S32 num_heaps = 0;
 	
+	LLWindowWin32::setDPIAwareness();
+
 #if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
 #elif 0
@@ -317,10 +319,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	}
 	
 	// Run the application main loop
-	if(!LLApp::isQuitting()) 
-	{
-		viewer_app_ptr->mainLoop();
-	}
+	while (! viewer_app_ptr->frame()) 
+	{}
 
 	if (!LLApp::isError())
 	{
@@ -330,33 +330,33 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		// app cleanup if there was a problem.
 		//
 #if WINDOWS_CRT_MEM_CHECKS
-    LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
-	if (!_CrtCheckMemory())
-	{
-		LL_WARNS() << "_CrtCheckMemory() failed at prior to cleanup!" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << " No corruption detected." << LL_ENDL;
-	}
+		LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
+		if (!_CrtCheckMemory())
+		{
+			LL_WARNS() << "_CrtCheckMemory() failed at prior to cleanup!" << LL_ENDL;
+		}
+		else
+		{
+			LL_INFOS() << " No corruption detected." << LL_ENDL;
+		}
 #endif
-	
-	gGLActive = TRUE;
 
-	viewer_app_ptr->cleanup();
-	
+		gGLActive = TRUE;
+
+		viewer_app_ptr->cleanup();
+
 #if WINDOWS_CRT_MEM_CHECKS
-    LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
-	if (!_CrtCheckMemory())
-	{
-		LL_WARNS() << "_CrtCheckMemory() failed after cleanup!" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << " No corruption detected." << LL_ENDL;
-	}
+		LL_INFOS() << "CRT Checking memory:" << LL_ENDL;
+		if (!_CrtCheckMemory())
+		{
+			LL_WARNS() << "_CrtCheckMemory() failed after cleanup!" << LL_ENDL;
+		}
+		else
+		{
+			LL_INFOS() << " No corruption detected." << LL_ENDL;
+		}
 #endif
-	 
+
 	}
 	delete viewer_app_ptr;
 	viewer_app_ptr = NULL;
@@ -558,7 +558,7 @@ bool LLAppViewerWin32::initHardwareTest()
 	// Do driver verification and initialization based on DirectX
 	// hardware polling and driver versions
 	//
-	if (FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
+	if (TRUE == gSavedSettings.getBOOL("ProbeHardwareOnStartup") && FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
 		// per DEV-11631 - disable hardware probing for everything
 		// but vram.

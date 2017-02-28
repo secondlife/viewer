@@ -58,16 +58,15 @@ protected:
  **/
 class LLGridManager : public LLSingleton<LLGridManager>
 {
+	/// Instantiate the grid manager, load default grids, selects the default grid
+	LLSINGLETON(LLGridManager);
+	~LLGridManager();
+
   public:
 	/* ================================================================
 	 * @name Initialization and Configuration
 	 * @{
 	 */
-	/// Instantiate the grid manager, load default grids, selects the default grid
-	LLGridManager(const std::string& grid_file);
-	LLGridManager();
-	~LLGridManager();
-	
 	/// add grids from an external grids file
 	void initialize(const std::string& grid_file);
 	
@@ -166,6 +165,13 @@ class LLGridManager : public LLSingleton<LLGridManager>
 	/// Return the application URL prefix for the selected grid
 	std::string getAppSLURLBase() { return getAppSLURLBase(mGrid); }	
 
+	/// Return the url of the resident profile web site for the given grid
+	std::string getWebProfileURL(const std::string& grid);
+
+	/// Return the url of the resident profile web site for the selected grid
+	std::string getWebProfileURL() { return getWebProfileURL(mGrid); }
+
+
 	//@}
 
 	/* ================================================================
@@ -216,6 +222,7 @@ class LLGridManager : public LLSingleton<LLGridManager>
 					   const std::string& helper,
 					   const std::string& login_page,
 					   const std::string& update_url_base,
+					   const std::string& web_profile_url,
 					   const std::string& login_id = "");	
 	
 	

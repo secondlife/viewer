@@ -63,6 +63,7 @@
 #include "roles_constants.h"
 #include "llgroupactions.h"
 #include "lltrans.h"
+#include "llinventorymodel.h"
 
 
 U8 string_value_to_click_action(std::string p_value);
@@ -1016,13 +1017,26 @@ void LLPanelPermissions::onCommitNextOwnerTransfer(LLUICtrl* ctrl, void* data)
 // static
 void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
 {
-	//LL_INFOS() << "LLPanelPermissions::onCommitName()" << LL_ENDL;
 	LLPanelPermissions* self = (LLPanelPermissions*)data;
 	LLLineEditor*	tb = self->getChild<LLLineEditor>("Object Name");
-	if(tb)
+	if (!tb)
 	{
-		LLSelectMgr::getInstance()->selectionSetObjectName(tb->getText());
-//		LLSelectMgr::getInstance()->selectionSetObjectName(self->mLabelObjectName->getText());
+		return;
+	}
+	LLSelectMgr::getInstance()->selectionSetObjectName(tb->getText());
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	if (selection->isAttachment() && (selection->getNumNodes() == 1) && !tb->getText().empty())
+	{
+		LLUUID object_id = selection->getFirstObject()->getAttachmentItemID();
+		LLViewerInventoryItem* item = findItem(object_id);
+		if (item)
+		{
+			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+			new_item->rename(tb->getText());
+			new_item->updateServer(FALSE);
+			gInventory.updateItem(new_item);
+			gInventory.notifyObservers();
+		}
 	}
 }
 
@@ -1030,12 +1044,26 @@ void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
 // static
 void LLPanelPermissions::onCommitDesc(LLUICtrl*, void* data)
 {
-	//LL_INFOS() << "LLPanelPermissions::onCommitDesc()" << LL_ENDL;
 	LLPanelPermissions* self = (LLPanelPermissions*)data;
 	LLLineEditor*	le = self->getChild<LLLineEditor>("Object Description");
-	if(le)
+	if (!le)
 	{
-		LLSelectMgr::getInstance()->selectionSetObjectDescription(le->getText());
+		return;
+	}
+	LLSelectMgr::getInstance()->selectionSetObjectDescription(le->getText());
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	if (selection->isAttachment() && (selection->getNumNodes() == 1))
+	{
+		LLUUID object_id = selection->getFirstObject()->getAttachmentItemID();
+		LLViewerInventoryItem* item = findItem(object_id);
+		if (item)
+		{
+			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+			new_item->setDescription(le->getText());
+			new_item->updateServer(FALSE);
+			gInventory.updateItem(new_item);
+			gInventory.notifyObservers();
+		}
 	}
 }
 
@@ -1159,3 +1187,12 @@ void LLPanelPermissions::onCommitIncludeInSearch(LLUICtrl* ctrl, void*)
 	LLSelectMgr::getInstance()->selectionSetIncludeInSearch(box->get());
 }
 
+
+LLViewerInventoryItem* LLPanelPermissions::findItem(LLUUID &object_id)
+{
+	if (!object_id.isNull())
+	{
+		return gInventory.getItem(object_id);
+	}
+	return NULL;
+}

@@ -448,7 +448,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 		else
 		{
 
-			GLenum array[] =
+			static const GLenum array[] =
 			{
 				GL_VERTEX_ARRAY,
 				GL_NORMAL_ARRAY,
@@ -456,7 +456,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				GL_COLOR_ARRAY,
 			};
 
-			GLenum mask[] = 
+			static const GLenum mask[] = 
 			{
 				MAP_VERTEX,
 				MAP_NORMAL,
@@ -1436,13 +1436,22 @@ void LLVertexBuffer::setupVertexArray()
 				//glVertexattribIPointer requires GLSL 1.30 or later
 				if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 				{
-					glVertexAttribIPointer(i, attrib_size[i], attrib_type[i], sTypeSize[i], (void*) mOffsets[i]); 
+					glVertexAttribIPointer(i, attrib_size[i], attrib_type[i], sTypeSize[i], (const GLvoid*) mOffsets[i]); 
 				}
 #endif
 			}
 			else
 			{
-				glVertexAttribPointerARB(i, attrib_size[i], attrib_type[i], attrib_normalized[i], sTypeSize[i], (void*) mOffsets[i]); 
+				// nat 2016-12-16: With 64-bit clang compile, the compiler
+				// produces an error if we simply cast mOffsets[i] -- an S32
+				// -- to (GLvoid *), the type of the parameter. It correctly
+				// points out that there's no way an S32 could fit a real
+				// pointer value. Ruslan asserts that in this case the last
+				// param is interpreted as an array data offset within the VBO
+				// rather than as an actual pointer, so it's okay.
+				glVertexAttribPointerARB(i, attrib_size[i], attrib_type[i],
+										 attrib_normalized[i], sTypeSize[i],
+										 reinterpret_cast<GLvoid*>(mOffsets[i])); 
 			}
 		}
 		else

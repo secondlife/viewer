@@ -520,7 +520,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 		if (!filename.empty())
 		{
             LL_CONT << "From " << filename << ":\n";
-        }
+		}
         LL_CONT << log << LL_ENDL;
 	}
  }

@@ -34,13 +34,13 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <stdexcept>
 #include <iosfwd>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include "llexception.h"
 
 /*****************************************************************************
 *   Utilities
@@ -106,9 +106,9 @@ public:
     /**
      * Exception thrown by sort() if there's a cycle
      */
-    struct Cycle: public std::runtime_error
+    struct Cycle: public LLException
     {
-        Cycle(const std::string& what): std::runtime_error(what) {}
+        Cycle(const std::string& what): LLException(what) {}
     };
 
     /**
@@ -124,8 +124,8 @@ public:
     virtual std::string describe(bool full=true) const;
 
 protected:
-    typedef std::vector< std::pair<int, int> > EdgeList;
-    typedef std::vector<int> VertexList;
+    typedef std::vector< std::pair<std::size_t, std::size_t> > EdgeList;
+    typedef std::vector<std::size_t> VertexList;
     VertexList topo_sort(int vertices, const EdgeList& edges) const;
 
     /**
@@ -508,7 +508,7 @@ public:
             // been explicitly added. Rely on std::map rejecting a second attempt
             // to insert the same key. Use the map's size() as the vertex number
             // to get a distinct value for each successful insertion.
-            typedef std::map<KEY, int> VertexMap;
+            typedef std::map<KEY, std::size_t> VertexMap;
             VertexMap vmap;
             // Nest each of these loops because !@#$%? MSVC warns us that its
             // former broken behavior has finally been fixed -- and our builds

@@ -62,23 +62,37 @@ using namespace LLAvatarAppearanceDefines;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void set_default_permissions(LLViewerInventoryItem* item)
+{
+	llassert(item);
+	LLPermissions perm = item->getPermissions();
+	if (perm.getMaskNextOwner() != LLFloaterPerms::getNextOwnerPerms("Wearables")
+		|| perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Wearables")
+		|| perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Wearables"))
+	{
+		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+
+		item->setPermissions(perm);
+
+		item->updateServer(FALSE);
+	}
+}
+
 // Callback to wear and start editing an item that has just been created.
 void wear_and_edit_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull()) return;
 	
-		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-		if (!item) return;
+	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+	if (!item) return;
 
-		LLPermissions perm = item->getPermissions();
-		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-		item->setPermissions(perm);
+	set_default_permissions(item);
 
-		item->updateServer(FALSE);
-		gInventory.updateItem(item);
-		gInventory.notifyObservers();
+	// item was just created, update even if permissions did not changed
+	gInventory.updateItem(item);
+	gInventory.notifyObservers();
 
 	// Request editing the item after it gets worn.
 	gAgentWearables.requestEditingWearable(inv_item);
@@ -94,13 +108,8 @@ void wear_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-			item->setPermissions(perm);
+			set_default_permissions(item);
 
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}
@@ -253,6 +262,7 @@ void LLAgentWearables::AddWearableToAgentInventoryCallback::fire(const LLUUID& i
 	{
 		LLAppearanceMgr::instance().addCOFItemLink(inv_item, 
 			new LLUpdateAppearanceAndEditWearableOnDestroy(inv_item), mDescription);
+		editWearable(inv_item);
 	}
 }
 
@@ -423,7 +433,7 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 	// old_wearable may still be referred to by other inventory items. Revert
 	// unsaved changes so other inventory items aren't affected by the changes
 	// that were just saved.
-	old_wearable->revertValues();
+	old_wearable->revertValuesWithoutUpdate();
 }
 
 void LLAgentWearables::revertWearable(const LLWearableType::EType type, const U32 index)
@@ -1362,6 +1372,30 @@ void LLAgentWearables::findAttachmentsAddRemoveInfo(LLInventoryModel::item_array
 	// S32 remove_count = objects_to_remove.size();
 	// S32 add_count = items_to_add.size();
 	// LL_INFOS() << "remove " << remove_count << " add " << add_count << LL_ENDL;
+}
+
+std::vector<LLViewerObject*> LLAgentWearables::getTempAttachments()
+{
+	llvo_vec_t temp_attachs;
+	if (isAgentAvatarValid())
+	{
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); iter != gAgentAvatarp->mAttachmentPoints.end();)
+		{
+			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
+			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+				attachment_iter != attachment->mAttachedObjects.end();
+				++attachment_iter)
+			{
+				LLViewerObject *objectp = (*attachment_iter);
+				if (objectp && objectp->isTempAttachment())
+				{
+					temp_attachs.push_back(objectp);
+				}
+			}
+		}
+	}
+	return temp_attachs;
 }
 
 void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remove)

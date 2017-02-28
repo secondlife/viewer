@@ -568,7 +568,17 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
-		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+		if (LLProxy::instanceExists())
+		{
+			// Make sure proxy won't be initialized from here,
+			// it might conflict with LLStartUp::startLLProxy()
+			LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+		}
+		else
+		{
+			LL_WARNS() << "Proxy is not initialized!" << LL_ENDL;
+		}
+
 	}
 	else if (gpolicy.mHttpProxy.size())
 	{

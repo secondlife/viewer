@@ -400,6 +400,7 @@ public:
 	bool			mUploadTextures;
 	bool			mUploadSkin;
 	bool			mUploadJoints;
+    bool			mLockScaleIfJointPosition;
 	volatile bool	mDiscarded;
 
 	LLHost			mHost;
@@ -407,7 +408,8 @@ public:
 	std::string		mWholeModelUploadURL;
 
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
-					   bool upload_skin, bool upload_joints, const std::string & upload_url, bool do_upload = true,
+					   bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
+                       const std::string & upload_url, bool do_upload = true,
 					   LLHandle<LLWholeModelFeeObserver> fee_observer = (LLHandle<LLWholeModelFeeObserver>()),
 					   LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 	~LLMeshUploadThread();
@@ -475,6 +477,7 @@ public:
 	
 	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
 
+	F32 getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
 	LLMeshRepository();
@@ -509,8 +512,10 @@ public:
 	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
-					 LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
+                     bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
+                     std::string upload_url, bool do_upload = true,
+					 LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), 
+                     LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 

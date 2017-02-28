@@ -41,6 +41,9 @@
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
+	<string name="BuildConfig">
+		Build-Konfiguration [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
 		Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -58,19 +61,39 @@ Grafikkarte: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Windows-Grafiktreiberversion: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		OpenGL-Version: [OPENGL_VERSION]
-
-J2C-Decoderversion: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Fenstergröße: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Schriftgrößenanpassung [FONT_SIZE_ADJUSTMENT] Pt
+UI-Skalierung: [UI_SCALE]
+Sichtweite: [DRAW_DISTANCE] m
+Bandbreite: [NET_BANDWITH] kbit/s
+LOD-Faktor: [LOD_FACTOR]
+Darstellungsqualität: [RENDER_QUALITY] / 7
+Erweitertes Beleuchtungsmodell: [GPU_SHADERS]
+Texturspeicher: [TEXTURE_MEMORY] MB
+Erstellungszeit VFS (Cache): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		J2C-Decoderversion: [J2C_VERSION]
 Audiotreiberversion: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF-Version: [LLCEFLIB_VERSION]
+LibVLC-Version: [LIBVLC_VERSION]
 Voice-Server-Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paketverlust: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1] %)
 	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
+	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Fehler beim Abrufen der URL für die Server-Versionshinweise.
+	</string>
+	<string name="BuildConfiguration">
+		Build-Konfiguration
 	</string>
 	<string name="ProgressRestoring">
 		Wird wiederhergestellt...
@@ -1083,6 +1106,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="TeleportYourAgent">
 		Sie teleportieren
 	</string>
+	<string name="ForceSitAvatar">
+		Ihren Avatar zwingen, sich zu setzen
+	</string>
 	<string name="NotConnected">
 		Nicht verbunden
 	</string>
@@ -1389,6 +1415,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="BodyPartsRightLeg">
 		Rechtes Bein
+	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Erweitertes Skelett
 	</string>
 	<string name="GraphicsQualityLow">
 		Niedrig
@@ -1838,6 +1867,51 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="Avatar Center">
 		Avatar-Mitte
 	</string>
+	<string name="Left Ring Finger">
+		Linker Ringfinger
+	</string>
+	<string name="Right Ring Finger">
+		Rechter Ringfinger
+	</string>
+	<string name="Tail Base">
+		Schwanzansatz
+	</string>
+	<string name="Tail Tip">
+		Schwanzspitze
+	</string>
+	<string name="Left Wing">
+		Linker Flügel
+	</string>
+	<string name="Right Wing">
+		Rechter Flügel
+	</string>
+	<string name="Jaw">
+		Kiefer
+	</string>
+	<string name="Alt Left Ear">
+		Alt. linkes Ohr
+	</string>
+	<string name="Alt Right Ear">
+		Alt. rechtes Ohr
+	</string>
+	<string name="Alt Left Eye">
+		Alt. linkes Auge
+	</string>
+	<string name="Alt Right Eye">
+		Alt. rechtes Auge
+	</string>
+	<string name="Tongue">
+		Zunge
+	</string>
+	<string name="Groin">
+		Leiste
+	</string>
+	<string name="Left Hind Foot">
+		Linker hinterer Fuß
+	</string>
+	<string name="Right Hind Foot">
+		Rechter hinterer Fuß
+	</string>
 	<string name="Invalid Attachment">
 		Ungültige Stelle für Anhang
 	</string>
@@ -1882,6 +1956,27 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="av_render_anyone">
 		Sie sind u. U. für niemanden in Ihrer Nähe sichtbar.
+	</string>
+	<string name="hud_description_total">
+		Ihr HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (getragen von [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] beansprucht viel Texturspeicher
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] enthält zu viele ressourcenintensive Objekte und Texturen
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] enthält viele große Texturen
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] enthält zu viele Objekte
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] enthält zu viele Texturen
 	</string>
 	<string name="AgeYearsA">
 		[COUNT] Jahr
@@ -2041,6 +2136,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="ObjectOutOfRange">
 		Skript (Objekt außerhalb des Bereichs)
+	</string>
+	<string name="ScriptWasDeleted">
+		Skript (aus Inventar gelöscht)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Objekt [OBJECT], Besitzer [OWNER]
@@ -2227,11 +2325,11 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="ATTACH_BELLY">
 		Bauch
 	</string>
-	<string name="ATTACH_RPEC">
-		Rechts
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		Linke Brust
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		Rechte Brust
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD Mitte 2
@@ -2262,6 +2360,51 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Avatar-Mitte
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Linker Ringfinger
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Rechter Ringfinger
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Schwanzansatz
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Schwanzspitze
+	</string>
+	<string name="ATTACH_LWING">
+		Linker Flügel
+	</string>
+	<string name="ATTACH_RWING">
+		Rechter Flügel
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Kiefer
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Alt. linkes Ohr
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Alt. rechtes Ohr
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Alt. linkes Auge
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Alt. rechtes Auge
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Zunge
+	</string>
+	<string name="ATTACH_GROIN">
+		Leiste
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Linker hinterer Fuß
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Rechter hinterer Fuß
 	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
@@ -2608,6 +2751,15 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 	</string>
 	<string name="Play Media">
 		Medien Abspielen/Pausieren
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=de-de
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/de/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Beim Parsen der Befehlszeile wurde ein Fehler festgestellt.
@@ -4252,6 +4404,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="OfflineStatus">
 		Offline
 	</string>
+	<string name="not_online_msg">
+		Benutzer nicht online – Nachricht wird gespeichert und später zugestellt.
+	</string>
+	<string name="not_online_inventory">
+		Benutzer nicht online – Inventar gespeichert.
+	</string>
 	<string name="answered_call">
 		Ihr Anruf wurde entgegengenommen
 	</string>
@@ -4378,11 +4536,17 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [REASON] [AMOUNT] L$ bezahlt.
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] hat Ihnen [AMOUNT] L$ bezahlt: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars">
 		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Sie haben [NAME] [AMOUNT] L$ bezahlt: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Sie haben [AMOUNT] L$ bezahlt.
@@ -4395,6 +4559,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Sie haben [NAME] [AMOUNT] L$ [REASON] nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Sie haben [NAME] [AMOUNT] L$ nicht bezahlt: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Sie haben [AMOUNT] L$ nicht bezahlt.
@@ -4721,6 +4888,15 @@ Missbrauchsbericht
 	</string>
 	<string name="texture_load_dimensions_error">
 		Bilder, die größer sind als [WIDTH]*[HEIGHT] können nicht geladen werden
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Max. Fotogröße für Outfit ist [WIDTH]*[HEIGHT]. Bitte verkleinern Sie das Bild oder verwenden Sie ein anderes.
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Max. Fotogröße für Outfit ist [WIDTH]*[HEIGHT]. Bitte wählen Sie eine andere Textur aus.
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Fotoabmessungen können nicht bestätigt werden. Bitte warten Sie, bis die Fotogröße im Auswahlfenster angezeigt wird.
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5226,6 +5402,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Profile_Label">
 		Profil
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Missbrauch melden
+	</string>
 	<string name="Command_Search_Label">
 		Suchen
 	</string>
@@ -5315,6 +5494,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Ihr Profil bearbeiten oder anzeigen
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Missbrauch melden
 	</string>
 	<string name="Command_Search_Tooltip">
 		Orte, Veranstaltungen, Leute finden

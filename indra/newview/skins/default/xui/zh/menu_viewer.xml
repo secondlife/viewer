@@ -22,7 +22,6 @@
 			<menu_item_check label="請勿打擾" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="購買 L$…" name="Buy and Sell L$"/>
-		<menu_item_call label="商家發件匣…" name="MerchantOutbox"/>
 		<menu_item_call label="Marketplace 刊登…" name="MarketplaceListings"/>
 		<menu_item_call label="帳戶主控臺…" name="Manage My Account"/>
 		<menu_item_call label="偏好設定…" name="Preferences"/>
@@ -112,11 +111,11 @@
 		<menu_item_call label="聯結" name="Link"/>
 		<menu_item_call label="取消聯結" name="Unlink"/>
 		<menu_item_check label="編輯聯結部位" name="Edit Linked Parts"/>
-		<menu label="選擇聯結部位" name="Select Linked Parts">
-			<menu_item_call label="選擇下一部位" name="Select Next Part"/>
-			<menu_item_call label="選擇上一部位" name="Select Previous Part"/>
-			<menu_item_call label="包括下一部位" name="Include Next Part"/>
-			<menu_item_call label="包括上一部位" name="Include Previous Part"/>
+		<menu label="選擇元素" name="Select Elements">
+			<menu_item_call label="選擇下一部位或臉" name="Select Next Part or Face"/>
+			<menu_item_call label="選擇上一部位或臉" name="Select Previous Part or Face"/>
+			<menu_item_call label="包括下一部位或臉" name="Include Next Part or Face"/>
+			<menu_item_call label="包括上一部位或臉" name="Include Previous Part or Face"/>
 		</menu>
 		<menu_item_call label="聯結集…" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="聚焦於所選部位" name="Focus on Selection"/>
@@ -367,8 +366,7 @@
 			<menu_item_call label="傾印地區物件快取" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="使用者界面" name="UI">
-			<menu_item_call label="媒體瀏覽器測試" name="Web Browser Test"/>
-			<menu_item_call label="網頁內容瀏覽器" name="Web Content Browser"/>
+			<menu_item_call label="媒體瀏覽器" name="Media Browser"/>
 			<menu_item_call label="傾印 SelectMgr" name="Dump SelectMgr"/>
 			<menu_item_call label="傾印收納區" name="Dump Inventory"/>
 			<menu_item_call label="傾印碼錶" name="Dump Timers"/>
@@ -419,6 +417,7 @@
 			<menu_item_check label="停用細節層次" name="Disable LOD"/>
 			<menu_item_check label="除錯字元可見性" name="Debug Character Vis"/>
 			<menu_item_check label="顯示碰撞骨架" name="Show Collision Skeleton"/>
+			<menu_item_check label="顯示骨頭" name="Show Bones"/>
 			<menu_item_check label="顯示用戶目標" name="Display Agent Target"/>
 			<menu_item_call label="傾印附件" name="Dump Attachments"/>
 			<menu_item_call label="除錯化身材質" name="Debug Avatar Textures"/>

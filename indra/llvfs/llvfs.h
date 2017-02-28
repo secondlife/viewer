@@ -127,6 +127,7 @@ public:
 	void dumpStatistics();
 	void listFiles();
 	void dumpFiles();
+	time_t creationTime();
 
 protected:
 	void removeFileBlock(LLVFSFileBlock *fileblock);

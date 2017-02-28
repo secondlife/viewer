@@ -22,7 +22,6 @@
 			<menu_item_check label="Non disturbare" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="Acquista L$..." name="Buy and Sell L$"/>
-		<menu_item_call label="Casella venditore in uscita..." name="MerchantOutbox"/>
 		<menu_item_call label="Annunci Marketplace..." name="MarketplaceListings"/>
 		<menu_item_call label="Dashboard dell&apos;account..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=it"/>
@@ -114,11 +113,11 @@
 		<menu_item_call label="Collegamento" name="Link"/>
 		<menu_item_call label="Scollega" name="Unlink"/>
 		<menu_item_check label="Modifica le parti collegate" name="Edit Linked Parts"/>
-		<menu label="Seleziona parti collegate" name="Select Linked Parts">
-			<menu_item_call label="Seleziona parte successiva" name="Select Next Part"/>
-			<menu_item_call label="Seleziona parte precedente" name="Select Previous Part"/>
-			<menu_item_call label="Includi parte successiva" name="Include Next Part"/>
-			<menu_item_call label="Includi parte precedente" name="Include Previous Part"/>
+		<menu label="Seleziona elementi" name="Select Elements">
+			<menu_item_call label="Seleziona parte o faccia successiva" name="Select Next Part or Face"/>
+			<menu_item_call label="Seleziona parte o faccia precedente" name="Select Previous Part or Face"/>
+			<menu_item_call label="Includi parte o faccia successiva" name="Include Next Part or Face"/>
+			<menu_item_call label="Includi parte o faccia precedente" name="Include Previous Part or Face"/>
 		</menu>
 		<menu_item_call label="Set collegati..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Ingrandisci selezione" name="Focus on Selection"/>
@@ -333,8 +332,7 @@
 			<menu_item_call label="Dump della cache oggetti regione" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interfaccia utente" name="UI">
-			<menu_item_call label="Test browser multimedia" name="Web Browser Test"/>
-			<menu_item_call label="Browser contenuto Web" name="Web Content Browser"/>
+			<menu_item_call label="Browser multimedia" name="Media Browser"/>
 			<menu_item_call label="Stampa informazioni oggetto selezionato" name="Print Selected Object Info"/>
 			<menu_item_check label="Debug clic" name="Debug Clicks"/>
 			<menu_item_check label="Debug eventi mouse" name="Debug Mouse Events"/>
@@ -368,6 +366,7 @@
 			<menu_item_check label="Informazioni sull&apos;animazione" name="Animation Info"/>
 			<menu_item_check label="Disabilita livello di dettaglio" name="Disable LOD"/>
 			<menu_item_check label="Mostra schemi collisione" name="Show Collision Skeleton"/>
+			<menu_item_check label="Mostra ossa" name="Show Bones"/>
 			<menu_item_check label="Mostra bersaglio" name="Display Agent Target"/>
 			<menu_item_call label="Debug texture dell&apos;avatar" name="Debug Avatar Textures"/>
 		</menu>

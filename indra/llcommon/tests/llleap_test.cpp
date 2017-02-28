@@ -110,10 +110,7 @@ namespace tut
                    // finding indra/lib/python. Use our __FILE__, with
                    // raw-string syntax to deal with Windows pathnames.
                    "mydir = os.path.dirname(r'" << __FILE__ << "')\n"
-                   // We expect mydir to be .../indra/llcommon/tests.
-                   "sys.path.insert(0,\n"
-                   "    os.path.join(mydir, os.pardir, os.pardir, 'lib', 'python'))\n"
-                   "from indra.base import llsd\n"
+                   "from llbase import llsd\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
                    "    def __init__(self, msg, data):\n"

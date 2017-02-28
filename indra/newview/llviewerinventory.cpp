@@ -49,7 +49,6 @@
 
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
 #include "lllandmarkactions.h"
 
 #include "llviewerassettype.h"
@@ -94,106 +93,9 @@ void doInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 ///----------------------------------------------------------------------------
 class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
 {
+	LLSINGLETON(LLLocalizedInventoryItemsDictionary);
 public:
 	std::map<std::string, std::string> mInventoryItemsDict;
-
-	LLLocalizedInventoryItemsDictionary()
-	{
-		mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
-		mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
-		mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
-		mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
-		mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
-		mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
-		mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
-		mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
-		mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
-		mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
-		mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
-		mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
-		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
-		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
-		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
-		mInventoryItemsDict["New Physics"]		= LLTrans::getString("New Physics");
-		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
-
-		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
-		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
-		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
-		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
-		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
-
-		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
-		mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
-		mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
-		mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
-		mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
-		mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
-
-		//predefined gestures
-
-		//male
-		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
-		mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
-		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
-		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
-		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
-		mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
-		mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
-		mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
-		mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
-		mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
-		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
-
-		//female
-		mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
-		mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
-		mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
-		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
-		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
-		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
-		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
-		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
-		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
-		mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
-		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
-		mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
-		mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
-		mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
-		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
-		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
-		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
-		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
-
-		//common
-		mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
-		mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
-		mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
-		mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
-		mInventoryItemsDict["/kmb"]						= LLTrans::getString("/kmb");
-		mInventoryItemsDict["/muscle"]					= LLTrans::getString("/muscle");
-		mInventoryItemsDict["/no"]						= LLTrans::getString("/no");
-		mInventoryItemsDict["/no!"]						= LLTrans::getString("/no!");
-		mInventoryItemsDict["/paper"]					= LLTrans::getString("/paper");
-		mInventoryItemsDict["/pointme"]					= LLTrans::getString("/pointme");
-		mInventoryItemsDict["/pointyou"]				= LLTrans::getString("/pointyou");
-		mInventoryItemsDict["/rock"]					= LLTrans::getString("/rock");
-		mInventoryItemsDict["/scissor"]					= LLTrans::getString("/scissor");
-		mInventoryItemsDict["/smoke"]					= LLTrans::getString("/smoke");
-		mInventoryItemsDict["/stretch"]					= LLTrans::getString("/stretch");
-		mInventoryItemsDict["/whistle"]					= LLTrans::getString("/whistle");
-		mInventoryItemsDict["/yes"]						= LLTrans::getString("/yes");
-		mInventoryItemsDict["/yes!"]					= LLTrans::getString("/yes!");
-		mInventoryItemsDict["afk"]						= LLTrans::getString("afk");
-		mInventoryItemsDict["dance1"]					= LLTrans::getString("dance1");
-		mInventoryItemsDict["dance2"]					= LLTrans::getString("dance2");
-		mInventoryItemsDict["dance3"]					= LLTrans::getString("dance3");
-		mInventoryItemsDict["dance4"]					= LLTrans::getString("dance4");
-		mInventoryItemsDict["dance5"]					= LLTrans::getString("dance5");
-		mInventoryItemsDict["dance6"]					= LLTrans::getString("dance6");
-		mInventoryItemsDict["dance7"]					= LLTrans::getString("dance7");
-		mInventoryItemsDict["dance8"]					= LLTrans::getString("dance8");
-	}
 
 	/**
 	 * Finds passed name in dictionary and replaces it with found localized value.
@@ -217,6 +119,103 @@ public:
 	}
 };
 
+LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
+{
+	mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
+	mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
+	mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
+	mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
+	mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
+	mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
+	mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
+	mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
+	mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
+	mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
+	mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
+	mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
+	mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
+	mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
+	mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
+	mInventoryItemsDict["New Physics"]		= LLTrans::getString("New Physics");
+	mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
+
+	mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
+	mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
+	mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+	mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
+	mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
+
+	mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
+	mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
+	mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
+	mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
+	mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
+	mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
+
+	//predefined gestures
+
+	//male
+	mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
+	mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
+	mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
+	mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
+	mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
+	mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
+	mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
+	mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
+	mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
+	mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
+	mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
+
+	//female
+	mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
+	mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
+	mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
+	mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
+	mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
+	mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
+	mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
+	mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
+	mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
+	mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
+	mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
+	mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
+	mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
+	mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
+	mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
+	mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
+	mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
+	mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
+
+	//common
+	mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
+	mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
+	mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
+	mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
+	mInventoryItemsDict["/kmb"]						= LLTrans::getString("/kmb");
+	mInventoryItemsDict["/muscle"]					= LLTrans::getString("/muscle");
+	mInventoryItemsDict["/no"]						= LLTrans::getString("/no");
+	mInventoryItemsDict["/no!"]						= LLTrans::getString("/no!");
+	mInventoryItemsDict["/paper"]					= LLTrans::getString("/paper");
+	mInventoryItemsDict["/pointme"]					= LLTrans::getString("/pointme");
+	mInventoryItemsDict["/pointyou"]				= LLTrans::getString("/pointyou");
+	mInventoryItemsDict["/rock"]					= LLTrans::getString("/rock");
+	mInventoryItemsDict["/scissor"]					= LLTrans::getString("/scissor");
+	mInventoryItemsDict["/smoke"]					= LLTrans::getString("/smoke");
+	mInventoryItemsDict["/stretch"]					= LLTrans::getString("/stretch");
+	mInventoryItemsDict["/whistle"]					= LLTrans::getString("/whistle");
+	mInventoryItemsDict["/yes"]						= LLTrans::getString("/yes");
+	mInventoryItemsDict["/yes!"]					= LLTrans::getString("/yes!");
+	mInventoryItemsDict["afk"]						= LLTrans::getString("afk");
+	mInventoryItemsDict["dance1"]					= LLTrans::getString("dance1");
+	mInventoryItemsDict["dance2"]					= LLTrans::getString("dance2");
+	mInventoryItemsDict["dance3"]					= LLTrans::getString("dance3");
+	mInventoryItemsDict["dance4"]					= LLTrans::getString("dance4");
+	mInventoryItemsDict["dance5"]					= LLTrans::getString("dance5");
+	mInventoryItemsDict["dance6"]					= LLTrans::getString("dance6");
+	mInventoryItemsDict["dance7"]					= LLTrans::getString("dance7");
+	mInventoryItemsDict["dance8"]					= LLTrans::getString("dance8");
+}
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -384,16 +383,26 @@ void LLViewerInventoryItem::updateServer(BOOL is_new) const
 	LLInventoryModel::LLCategoryUpdate up(mParentUUID, is_new ? 1 : 0);
 	gInventory.accountForUpdate(up);
 
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_UpdateInventoryItem);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_TransactionID, mTransactionID);
-	msg->nextBlockFast(_PREHASH_InventoryData);
-	msg->addU32Fast(_PREHASH_CallbackID, 0);
-	packMessage(msg);
-	gAgent.sendReliableMessage();
+    LLSD updates = asLLSD();
+    // Replace asset_id and/or shadow_id with transaction_id (hash_id)
+    if (updates.has("asset_id"))
+    {
+        updates.erase("asset_id");
+        if(getTransactionID().notNull())
+        {
+            updates["hash_id"] = getTransactionID();
+        }
+    }
+    if (updates.has("shadow_id"))
+    {
+        updates.erase("shadow_id");
+        if(getTransactionID().notNull())
+        {
+            updates["hash_id"] = getTransactionID();
+        }
+    }
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
+    AISAPI::UpdateItem(getUUID(), updates, cr);
 }
 
 void LLViewerInventoryItem::fetchFromServer(void) const
@@ -636,17 +645,9 @@ void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 		return;
 	}
 
-	LLInventoryModel::LLCategoryUpdate up(mParentUUID, is_new ? 1 : 0);
-	gInventory.accountForUpdate(up);
-
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_FolderData);
-	packMessage(msg);
-	gAgent.sendReliableMessage();
+    LLSD new_llsd = asLLSD();
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
+    AISAPI::UpdateCategory(getUUID(), new_llsd, cr);
 }
 
 S32 LLViewerInventoryCategory::getVersion() const
@@ -669,18 +670,6 @@ bool LLViewerInventoryCategory::fetch()
 		mDescendentsRequested.reset();
 		mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
-		// bitfield
-		// 1 = by date
-		// 2 = folders by date
-		// Need to mask off anything but the first bit.
-		// This comes from LLInventoryFilter from llfolderview.h
-		U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER) & 0x1;
-
-		// *NOTE: For bug EXT-2879, originally commented out
-		// gAgent.getRegion()->getCapability in order to use the old
-		// message-based system.  This has been uncommented now that
-		// AIS folks are aware of the issue and have a fix in process.
-		// see ticket for details.
 
 		std::string url;
 		if (gAgent.getRegion())
@@ -694,24 +683,6 @@ bool LLViewerInventoryCategory::fetch()
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
 			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
-		}
-		else
-		{	//Deprecated, but if we don't have a capability, use the old system.
-			LL_INFOS(LOG_INV) << "FetchInventoryDescendents2 capability not found.  Using deprecated UDP message." << LL_ENDL;
-			
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessage("FetchInventoryDescendents");
-			msg->nextBlock("AgentData");
-			msg->addUUID("AgentID", gAgent.getID());
-			msg->addUUID("SessionID", gAgent.getSessionID());
-			msg->nextBlock("InventoryData");
-			msg->addUUID("FolderID", mUUID);
-			msg->addUUID("OwnerID", mOwnerID);
-
-			msg->addS32("SortOrder", sort_order);
-			msg->addBOOL("FetchFolders", FALSE);
-			msg->addBOOL("FetchItems", TRUE);
-			gAgent.sendReliableMessage();
 		}
 		return true;
 	}
@@ -905,17 +876,16 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 	const LLUUID &parent_id = getParentUUID();
 	const std::string &name = getName();
 		
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_FolderData);
-	msg->addUUIDFast(_PREHASH_FolderID, folder_id);
-	msg->addUUIDFast(_PREHASH_ParentID, parent_id);
-	msg->addS8Fast(_PREHASH_Type, new_folder_type);
-	msg->addStringFast(_PREHASH_Name, name);
-	gAgent.sendReliableMessage();
+    LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(folder_id,
+                                                                                 parent_id,
+                                                                                 new_folder_type,
+                                                                                 name,
+                                                                                 gAgent.getID());
+        
+        
+    LLSD new_llsd = new_cat->asLLSD();
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>) NULL, _1);
+    AISAPI::UpdateCategory(folder_id, new_llsd, cr);
 
 	setPreferredType(new_folder_type);
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
@@ -1036,6 +1006,22 @@ void activate_gesture_cb(const LLUUID& inv_item)
 	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
+void set_default_permissions(LLViewerInventoryItem* item, std::string perm_type)
+{
+	llassert(item);
+	LLPermissions perm = item->getPermissions();
+	if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms(perm_type)
+		|| perm.getMaskGroup() != LLFloaterPerms::getGroupPerms(perm_type))
+	{
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms(perm_type));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms(perm_type));
+
+		item->setPermissions(perm);
+
+		item->updateServer(FALSE);
+	}
+}
+
 void create_script_cb(const LLUUID& inv_item)
 {
 	if (!inv_item.isNull())
@@ -1043,13 +1029,9 @@ void create_script_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
+			set_default_permissions(item, "Scripts");
 
-			item->setPermissions(perm);
-
-			item->updateServer(FALSE);
+			// item was just created, update even if permissions did not changed
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}
@@ -1065,13 +1047,8 @@ void create_gesture_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
+			set_default_permissions(item, "Gestures");
 
-			item->setPermissions(perm);
-
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 
@@ -1090,13 +1067,8 @@ void create_notecard_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Notecards"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
+			set_default_permissions(item, "Notecards");
 
-			item->setPermissions(perm);
-
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}
@@ -1289,40 +1261,10 @@ void link_inventory_array(const LLUUID& category,
 						   << " UUID:" << category << " ] " << LL_ENDL;
 #endif
 	}
-
-    if (AISAPI::isAvailable())
-	{
-		LLSD new_inventory = LLSD::emptyMap();
-		new_inventory["links"] = links;
-        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-        AISAPI::CreateInventory(category, new_inventory, cr);
-	}
-    else
-	{
-		LLMessageSystem* msg = gMessageSystem;
-		for (LLSD::array_iterator iter = links.beginArray(); iter != links.endArray(); ++iter )
-		{
-			msg->newMessageFast(_PREHASH_LinkInventoryItem);
-			msg->nextBlock(_PREHASH_AgentData);
-			{
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			}
-			msg->nextBlock(_PREHASH_InventoryBlock);
-			{
-				LLSD link = (*iter);
-				msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
-				msg->addUUIDFast(_PREHASH_FolderID, category);
-				msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null);
-				msg->addUUIDFast(_PREHASH_OldItemID, link["linked_id"].asUUID());
-				msg->addS8Fast(_PREHASH_Type, link["type"].asInteger());
-				msg->addS8Fast(_PREHASH_InvType, link["inv_type"].asInteger());
-				msg->addStringFast(_PREHASH_Name, link["name"].asString());
-				msg->addStringFast(_PREHASH_Description, link["desc"].asString());
-			}
-			gAgent.sendReliableMessage();
-		}
-	}
+    LLSD new_inventory = LLSD::emptyMap();
+    new_inventory["links"] = links;
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::CreateInventory(category, new_inventory, cr);
 }
 
 void move_inventory_item(
@@ -1354,49 +1296,27 @@ void update_inventory_item(
 	LLPointer<LLInventoryCallback> cb)
 {
 	const LLUUID& item_id = update_item->getUUID();
-    if (AISAPI::isAvailable())
-	{
-		LLSD updates = update_item->asLLSD();
-		// Replace asset_id and/or shadow_id with transaction_id (hash_id)
-		if (updates.has("asset_id"))
-		{
-			updates.erase("asset_id");
-			updates["hash_id"] = update_item->getTransactionID();
-		}
-		if (updates.has("shadow_id"))
-		{
-			updates.erase("shadow_id");
-			updates["hash_id"] = update_item->getTransactionID();
-		}
-        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-        AISAPI::UpdateItem(item_id, updates, cr);
-	}
-    else
-	{
-		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << (update_item ? update_item->getName() : "(NOT FOUND)") << LL_ENDL;
-		if(obj)
-		{
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_UpdateInventoryItem);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->addUUIDFast(_PREHASH_TransactionID, update_item->getTransactionID());
-			msg->nextBlockFast(_PREHASH_InventoryData);
-			msg->addU32Fast(_PREHASH_CallbackID, 0);
-			update_item->packMessage(msg);
-			gAgent.sendReliableMessage();
-
-			LLInventoryModel::LLCategoryUpdate up(update_item->getParentUUID(), 0);
-			gInventory.accountForUpdate(up);
-			gInventory.updateItem(update_item);
-			if (cb)
-			{
-				cb->fire(item_id);
-			}
-		}
-	}
+  
+    LLSD updates = update_item->asLLSD();
+    // Replace asset_id and/or shadow_id with transaction_id (hash_id)
+    if (updates.has("asset_id"))
+    {
+        updates.erase("asset_id");
+        if (update_item->getTransactionID().notNull())
+        {
+            updates["hash_id"] = update_item->getTransactionID();
+        }
+    }
+    if (updates.has("shadow_id"))
+    {
+        updates.erase("shadow_id");
+        if (update_item->getTransactionID().notNull())
+        {
+            updates["hash_id"] = update_item->getTransactionID();
+        }
+    }
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::UpdateItem(item_id, updates, cr);
 }
 
 // Note this only supports updating an existing item. Goes through AISv3
@@ -1407,41 +1327,8 @@ void update_inventory_item(
 	const LLSD& updates,
 	LLPointer<LLInventoryCallback> cb)
 {
-    if (AISAPI::isAvailable())
-	{
-        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-        AISAPI::UpdateItem(item_id, updates, cr);
-	}
-    else
-	{
-		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << LL_ENDL;
-		if(obj)
-		{
-			LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
-			new_item->copyViewerItem(obj);
-			new_item->fromLLSD(updates,false);
-
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_UpdateInventoryItem);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->addUUIDFast(_PREHASH_TransactionID, new_item->getTransactionID());
-			msg->nextBlockFast(_PREHASH_InventoryData);
-			msg->addU32Fast(_PREHASH_CallbackID, 0);
-			new_item->packMessage(msg);
-			gAgent.sendReliableMessage();
-
-			LLInventoryModel::LLCategoryUpdate up(new_item->getParentUUID(), 0);
-			gInventory.accountForUpdate(up);
-			gInventory.updateItem(new_item);
-			if (cb)
-			{
-				cb->fire(item_id);
-			}
-		}
-	}
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::UpdateItem(item_id, updates, cr);
 }
 
 void update_inventory_category(
@@ -1461,32 +1348,9 @@ void update_inventory_category(
 
 		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(obj);
 		new_cat->fromLLSD(updates);
-		// FIXME - restore this once the back-end work has been done.
-        if (AISAPI::isAvailable())
-		{
-			LLSD new_llsd = new_cat->asLLSD();
-            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-            AISAPI::UpdateCategory(cat_id, new_llsd, cr);
-		}
-		else // no cap
-		{
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_FolderData);
-			new_cat->packMessage(msg);
-			gAgent.sendReliableMessage();
-
-			LLInventoryModel::LLCategoryUpdate up(new_cat->getParentUUID(), 0);
-			gInventory.accountForUpdate(up);
-			gInventory.updateCategory(new_cat);
-			if (cb)
-			{
-				cb->fire(cat_id);
-			}
-		}
+        LLSD new_llsd = new_cat->asLLSD();
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::UpdateCategory(cat_id, new_llsd, cr);
 	}
 }
 
@@ -1604,41 +1468,8 @@ void remove_inventory_category(
 			LLNotificationsUtil::add("CannotRemoveProtectedCategories");
 			return;
 		}
-        if (AISAPI::isAvailable())
-		{
-            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-            AISAPI::RemoveCategory(cat_id, cr);
-		}
-		else // no cap
-		{
-			// RemoveInventoryFolder does not remove children, so must
-			// clear descendents first.
-			LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(cat_id);
-			if(children != LLInventoryModel::CHILDREN_NO)
-			{
-				LL_DEBUGS(LOG_INV) << "Will purge descendents first before deleting category " << cat_id << LL_ENDL;
-				LLPointer<LLInventoryCallback> wrap_cb = new LLRemoveCategoryOnDestroy(cat_id, cb); 
-				purge_descendents_of(cat_id, wrap_cb);
-				return;
-			}
-
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_RemoveInventoryFolder);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_FolderData);
-			msg->addUUIDFast(_PREHASH_FolderID, cat_id);
-			gAgent.sendReliableMessage();
-
-			// Update inventory and call callback immediately since
-			// message-based system has no callback mechanism (!)
-			gInventory.onObjectDeletedFromServer(cat_id);
-			if (cb)
-			{
-				cb->fire(cat_id);
-			}
-		}
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::RemoveCategory(cat_id, cr);
 	}
 	else
 	{
@@ -1857,29 +1688,11 @@ void slam_inventory_folder(const LLUUID& folder_id,
 						   const LLSD& contents,
 						   LLPointer<LLInventoryCallback> cb)
 {
-    if (AISAPI::isAvailable())
-	{
-		LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
-						   << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
+    LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
+                       << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
 
-        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-        AISAPI::SlamFolder(folder_id, contents, cr);
-	}
-	else // no cap
-	{
-		LL_DEBUGS(LOG_INV) << "using item-by-item calls to slam folder, id " << folder_id
-						   << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
-		for (LLSD::array_const_iterator it = contents.beginArray();
-			 it != contents.endArray();
-			 ++it)
-		{
-			const LLSD& item_contents = *it;
-			LLViewerInventoryItem *item = new LLViewerInventoryItem;
-			item->fromLLSD(item_contents);
-			link_inventory_object(folder_id, item, cb);
-		}
-		remove_folder_contents(folder_id,false,cb);
-	}
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::SlamFolder(folder_id, contents, cr);
 }
 
 void remove_folder_contents(const LLUUID& category, bool keep_outfit_links,

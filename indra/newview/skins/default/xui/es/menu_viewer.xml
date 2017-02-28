@@ -113,11 +113,11 @@
 		<menu_item_call label="Enlazar" name="Link"/>
 		<menu_item_call label="Desenlazar" name="Unlink"/>
 		<menu_item_check label="Editar las partes enlazadas" name="Edit Linked Parts"/>
-		<menu label="Seleccionar las partes enlazadas" name="Select Linked Parts">
-			<menu_item_call label="Seleccionar la parte siguiente" name="Select Next Part"/>
-			<menu_item_call label="Seleccionar la parte previa" name="Select Previous Part"/>
-			<menu_item_call label="Incluir la parte siguiente" name="Include Next Part"/>
-			<menu_item_call label="Incluir la parte previa" name="Include Previous Part"/>
+		<menu label="Seleccionar elementos" name="Select Elements">
+			<menu_item_call label="Seleccionar la parte o cara siguiente" name="Select Next Part or Face"/>
+			<menu_item_call label="Seleccionar la parte o cara anterior" name="Select Previous Part or Face"/>
+			<menu_item_call label="Incluir la parte o cara siguiente" name="Include Next Part or Face"/>
+			<menu_item_call label="Incluir la parte o cara anterior" name="Include Previous Part or Face"/>
 		</menu>
 		<menu_item_call label="Linksets..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Visión en lo seleccionado" name="Focus on Selection"/>
@@ -332,8 +332,7 @@
 			<menu_item_call label="Volcar la caché de objetos de la región" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
-			<menu_item_call label="Prueba de navegadores de medios" name="Web Browser Test"/>
-			<menu_item_call label="Navegador de contenido web" name="Web Content Browser"/>
+			<menu_item_call label="Navegador de medios" name="Media Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
@@ -367,6 +366,7 @@
 			<menu_item_check label="Animation Info" name="Animation Info"/>
 			<menu_item_check label="Disable Level Of Detail" name="Disable LOD"/>
 			<menu_item_check label="Show Collision Skeleton" name="Show Collision Skeleton"/>
+			<menu_item_check label="Mostrar los huesos" name="Show Bones"/>
 			<menu_item_check label="Display Agent Target" name="Display Agent Target"/>
 			<menu_item_call label="Debug Avatar Textures" name="Debug Avatar Textures"/>
 		</menu>

@@ -488,7 +488,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 
 	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
 
-	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(5); //MB
+	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20); //MB Changed to 20 MB per MAINT-6882
 	const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
 
 	bool low_mem = false;
@@ -511,18 +511,17 @@ bool LLViewerTexture::isMemoryForTextureLow()
 			}
 		}
 	}
-#if 0  //ignore nVidia cards
+	//Enabled this branch per MAINT-6882
 	else if (gGLManager.mHasNVXMemInfo)
 	{
 		S32 free_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
 		
-		if(free_memory / 1024 < MIN_FREE_TEXTURE_MEMORY)
+		if ((S32Megabytes)(free_memory / 1024) < MIN_FREE_TEXTURE_MEMORY)
 		{
 			low_mem = true;
 		}
 	}
-#endif	
 
 	return low_mem;
 }
@@ -1200,7 +1199,7 @@ void LLViewerFetchedTexture::loadFromFastCache()
             {
                 S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
                 S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
-                if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                 {
                     // scale oversized icon, no need to give more work to gl
                     mRawImage->scale(expected_width, expected_height);
@@ -1419,10 +1418,16 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		destroyRawImage();
 		return FALSE;
 	}
-	mNeedsCreateTexture	= FALSE;
+	mNeedsCreateTexture = FALSE;
 	if (mRawImage.isNull())
 	{
 		LL_ERRS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
+	}
+	if (mRawImage->isBufferInvalid())
+	{
+		LL_WARNS() << "Can't create a texture: invalid image data" << LL_ENDL;
+		destroyRawImage();
+		return FALSE;
 	}
 // 	LL_INFOS() << llformat("IMAGE Creating (%d) [%d x %d] Bytes: %d ",
 // 						mRawDiscardLevel, 
@@ -1981,7 +1986,7 @@ bool LLViewerFetchedTexture::updateFetch()
                 {
                     S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
                     S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
-                    if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+                    if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                     {
                         // scale oversized icon, no need to give more work to gl
                         mRawImage->scale(expected_width, expected_height);

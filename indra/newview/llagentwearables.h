@@ -38,6 +38,7 @@
 #include "llviewerinventory.h"
 #include "llavatarappearancedefines.h"
 #include "llwearabledata.h"
+#include "llinitdestroyclass.h"
 
 class LLInventoryItem;
 class LLVOAvatarSelf;
@@ -184,6 +185,8 @@ public:
 												 LLInventoryModel::item_array_t& items_to_add);
 	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
+
+	static llvo_vec_t getTempAttachments();
 
 	//--------------------------------------------------------------------
 	// Signals

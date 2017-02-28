@@ -28,8 +28,11 @@
 #define LLHANDLE_H
 
 #include "llpointer.h"
+#include "llexception.h"
+#include <stdexcept>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/throw_exception.hpp>
 
 /**
  * Helper object for LLHandle. Don't instantiate these directly, used
@@ -211,6 +214,84 @@ protected:
 
 private:
 	mutable LLRootHandle<T> mHandle;
+};
+
+
+
+class LLCheckedHandleBase
+{
+public:
+    class Stale : public LLException
+    {
+    public:
+        Stale() :
+            LLException("Attempt to access stale handle.")
+        {}
+    };
+
+protected:
+    LLCheckedHandleBase() { }
+
+};
+
+/**
+ * This is a simple wrapper for Handles, allowing direct calls to the underlying 
+ * pointer. The checked handle will throw a Stale if an attempt 
+ * is made to access the object referenced by the handle and that object has 
+ * been destroyed.
+ **/
+template <typename T> 
+class LLCheckedHandle: public LLCheckedHandleBase
+{
+public:
+
+    LLCheckedHandle(LLHandle<T> handle):
+        mHandle(handle)
+    { }
+
+    /**
+     * Test the underlying handle.  If it is no longer valid, throw a Stale exception.
+     */
+    void check() const
+    {
+        T* ptr = mHandle.get();
+        if (!ptr)
+            BOOST_THROW_EXCEPTION(Stale());
+    }
+
+    /**
+     * Cast back to an appropriate handle
+     */
+    operator LLHandle<T>() const
+    {
+        return mHandle;
+    }
+
+    /**
+     * Converts the LLCheckedHandle to a bool. Allows for if (chkdHandle) {} 
+     * Does not throw.
+     */
+    /*explicit*/ operator bool() const // explicit conversion operator not available with Linux compiler
+    {
+        return (mHandle.get() != NULL);
+    }
+
+    /**
+     * Attempt to call a method or access a member in the structure referenced 
+     * by the handle.  If the handle no longer points to a valid structure 
+     * throw a Stale.
+     */
+    T* operator ->() const
+    {
+        T* ptr = mHandle.get();
+        if (!ptr)
+            BOOST_THROW_EXCEPTION(Stale());
+        return ptr;
+    }
+
+private:
+
+    LLHandle<T> mHandle;
 };
 
 #endif

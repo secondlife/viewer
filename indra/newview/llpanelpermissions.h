@@ -37,6 +37,7 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLNameBox;
+class LLViewerInventoryItem;
 
 class LLPanelPermissions : public LLPanel
 {
@@ -76,6 +77,8 @@ protected:
 
 	static void	onCommitClickAction(LLUICtrl* ctrl, void*);
 	static void onCommitIncludeInSearch(LLUICtrl* ctrl, void*);
+
+	static LLViewerInventoryItem* findItem(LLUUID &object_id);
 
 protected:
 	void disableAll();

@@ -104,21 +104,23 @@ add_custom_command(TARGET llimage_libtest POST_BUILD
 if (DARWIN)
   # Copy the required libraries to the package app
   add_custom_command(TARGET llimage_libtest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libapr-1.0.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libapr-1.0.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libapr-1.0.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
+    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libapr-1.0.dylib
   )
   add_custom_command(TARGET llimage_libtest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libaprutil-1.0.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libaprutil-1.0.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libaprutil-1.0.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
+    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libaprutil-1.0.dylib
   )
   add_custom_command(TARGET llimage_libtest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexception_handler.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexception_handler.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
+    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib
   )
-  add_custom_command(TARGET llimage_libtest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexpat.1.5.2.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexpat.1.5.2.dylib
-  )
+  foreach(expat ${EXPAT_COPY})
+    add_custom_command(TARGET llimage_libtest POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat} ${LLIMAGE_LIBTEST_DESTINATION_DIR}
+      DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat}
+    )
+  endforeach(expat)
 endif (DARWIN)
 
 if (WINDOWS)

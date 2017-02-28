@@ -1,4 +1,4 @@
-/** 
+﻿/** 
  * @file llmaniptranslate.cpp
  * @brief LLManipTranslate class implementation
  *
@@ -548,12 +548,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 		if (off_axis_magnitude > mSnapOffsetMeters)
 		{
 			mInSnapRegime = TRUE;
-			LLVector3 mouse_down_offset(mDragCursorStartGlobal - mDragSelectionStartGlobal);
 			LLVector3 cursor_snap_agent = gAgent.getPosAgentFromGlobal(cursor_point_snap_line);
-			if (!gSavedSettings.getBOOL("SnapToMouseCursor"))
-			{
-				cursor_snap_agent -= mouse_down_offset;
-			}
 
 			F32 cursor_grid_dist = (cursor_snap_agent - mGridOrigin) * axis_f;
 			
@@ -1862,6 +1857,9 @@ void LLManipTranslate::renderTranslationHandles()
 			mArrowLengthMeters = 1.0f;
 		}
 	}
+	//Assume that UI scale factor is equivalent for X and Y axis
+	F32 ui_scale_factor = LLUI::getScaleFactor().mV[VX];
+	mArrowLengthMeters *= ui_scale_factor;
 
 	mPlaneManipOffsetMeters = mArrowLengthMeters * 1.8f;
 	mGridSizeMeters = gSavedSettings.getF32("GridDrawSize");

@@ -241,33 +241,11 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 			gInventory.requestPost(true, url, body[i], handler, (i ? "Library Item" : "Inventory Item"));
 			continue;
 		}
+        else
+        {
+            LL_WARNS("INVENTORY") << "Failed to get capability." << LL_ENDL;
+        }
 
-		LLMessageSystem* msg = gMessageSystem;
-		BOOL start_new_message = TRUE;
-		for (S32 j=0; j<body[i]["items"].size(); j++)
-		{
-			LLSD item_entry = body[i]["items"][j];
-			if (start_new_message)
-			{
-				start_new_message = FALSE;
-				msg->newMessageFast(_PREHASH_FetchInventory);
-				msg->nextBlockFast(_PREHASH_AgentData);
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			}
-			msg->nextBlockFast(_PREHASH_InventoryData);
-			msg->addUUIDFast(_PREHASH_OwnerID, item_entry["owner_id"].asUUID());
-			msg->addUUIDFast(_PREHASH_ItemID, item_entry["item_id"].asUUID());
-			if (msg->isSendFull(NULL))
-			{
-				start_new_message = TRUE;
-				gAgent.sendReliableMessage();
-			}
-		}
-		if (!start_new_message)
-		{
-			gAgent.sendReliableMessage();
-		}
 	}
 }
 
@@ -678,7 +656,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
     }
 }
 
-bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)
+bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash)
 {
 	S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
 	S32 current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
@@ -716,8 +694,15 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 
 	if (can_be_added)
 	{
-		mCategoryMap.insert(category_map_value_t(
-								cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
+		if(init_name_hash)
+		{
+			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
+			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents,item_name_hash)));
+		}
+		else
+		{
+			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
+		}
 	}
 
 	return can_be_added;
@@ -738,6 +723,18 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	, mIsNameHashInitialized(false)
 {
 	mItemNameHash.finalize();
+}
+
+LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
+	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash)
+
+	: mCatID(cat_id)
+	, mCallback(cb)
+	, mVersion(version)
+	, mDescendentsCount(num_descendents)
+	, mIsNameHashInitialized(true)
+	, mItemNameHash(name_hash)
+{
 }
 
 void LLScrollOnRenameObserver::changed(U32 mask)

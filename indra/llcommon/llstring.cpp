@@ -576,6 +576,33 @@ std::string utf8str_truncate(const std::string& utf8str, const S32 max_len)
 	}
 }
 
+std::string utf8str_symbol_truncate(const std::string& utf8str, const S32 symbol_len)
+{
+    if (0 == symbol_len)
+    {
+        return std::string();
+    }
+    if ((S32)utf8str.length() <= symbol_len)
+    {
+        return utf8str;
+    }
+    else
+    {
+        int len = 0, byteIndex = 0;
+        const char* aStr = utf8str.c_str();
+        size_t origSize = utf8str.size();
+
+        for (byteIndex = 0; len < symbol_len && byteIndex < origSize; byteIndex++)
+        {
+            if ((aStr[byteIndex] & 0xc0) != 0x80)
+            {
+                len += 1;
+            }
+        }
+        return utf8str.substr(0, byteIndex);
+    }
+}
+
 std::string utf8str_substChar(
 	const std::string& utf8str,
 	const llwchar target_char,

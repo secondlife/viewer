@@ -132,15 +132,9 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 
 class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
 {
-public:
-	LLLogChatTimeScanner()
-	{
-		// Note, date/time facets will be destroyed by string streams
-		mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
-		mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_facet(TIME_FORMAT)));
-		mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_input_facet(DATE_FORMAT)));
-	}
+	LLSINGLETON(LLLogChatTimeScanner);
 
+public:
 	date getTodayPacificDate()
 	{
 		typedef	boost::date_time::local_adjustor<ptime, -8, no_dst> pst;
@@ -205,6 +199,15 @@ private:
 	std::stringstream mTimeStream;
 };
 
+inline
+LLLogChatTimeScanner::LLLogChatTimeScanner()
+{
+	// Note, date/time facets will be destroyed by string streams
+	mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
+	mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_facet(TIME_FORMAT)));
+	mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_input_facet(DATE_FORMAT)));
+}
+
 LLLogChat::save_history_signal_t * LLLogChat::sSaveHistorySignal = NULL;
 
 std::map<LLUUID,LLLoadHistoryThread *> LLLogChat::sLoadHistoryThreads;
@@ -244,7 +247,10 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, filename);
-	filename += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+	if (!filename.empty())
+	{
+		filename += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+	}
 
 	return filename;
 }
@@ -924,7 +930,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//possibly a case of complex object names consisting of 3+ words
 	if (!has_name)
 	{
-		U32 divider_pos = stuff.find(NAME_TEXT_DIVIDER);
+		std::string::size_type divider_pos = stuff.find(NAME_TEXT_DIVIDER);
 		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
 		{
 			im[LL_IM_FROM] = stuff.substr(0, divider_pos);

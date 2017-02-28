@@ -175,6 +175,11 @@ BOOL LLWindowCallbacks::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
+BOOL LLWindowCallbacks::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
+{
+	return FALSE;
+}
+
 void LLWindowCallbacks::handlePingWatchdog(LLWindow *window, const char * msg)
 {
 

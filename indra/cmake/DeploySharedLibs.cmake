@@ -12,7 +12,7 @@
 get_filename_component(current_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
 include(${current_dir}/GetPrerequisites_2_8.cmake)
 
-message("Getting recursive dependencies for file: ${BIN_NAME}")
+message(STATUS "Getting recursive dependencies for file: ${BIN_NAME}")
 
 set(EXCLUDE_SYSTEM 1)
 set(RECURSE 1)
@@ -21,7 +21,7 @@ get_filename_component(EXE_PATH ${BIN_NAME} PATH)
 get_prerequisites( ${BIN_NAME} RESULTS ${EXCLUDE_SYSTEM} ${RECURSE} "${EXE_PATH}" "${SEARCH_DIRS}" )
 
 foreach(DEP ${RESULTS})
-  Message("Processing dependency: ${DEP}")
+  Message(STATUS "Processing dependency: ${DEP}")
   get_filename_component(DEP_FILE ${DEP} NAME)
   set(DEP_FILES ${DEP_FILES} ${DEP_FILE})
 endforeach(DEP)
@@ -64,10 +64,10 @@ if(FOUND_FILES)
   foreach(FILE ${FOUND_FILES})
     get_filename_component(DST_FILE ${FILE} NAME)
     set(DST_FILE "${DST_PATH}/${DST_FILE}")
-    message("Copying ${FILE} to ${DST_FILE}")
+    message(STATUS "Copying ${FILE} to ${DST_FILE}")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE} ${DST_FILE}
       )
   endforeach(FILE ${FOUND_FILES})
 endif(FOUND_FILES)
-message("Success!")
+

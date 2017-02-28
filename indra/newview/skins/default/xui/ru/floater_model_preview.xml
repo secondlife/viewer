@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="Включить вес кожи" name="upload_skin"/>
 				<check_box label="Включить положения суставов" name="upload_joints"/>
+				<check_box label="Фиксировать масштаб, если определено положение сустава" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Смещение по Z (поднять или опустить аватар):
 				</text>

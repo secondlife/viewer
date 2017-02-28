@@ -30,7 +30,6 @@
 
 #include "llplacesinventorybridge.h"
 
-#include "llfloaterinventory.h" // for LLInventoryPanel
 #include "llfolderview.h" // for FIRST_SELECTED_ITEM
 #include "llinventorypanel.h"
 

@@ -31,13 +31,10 @@ $/LicenseInfo$
 
 import os
 import sys
-from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
-mydir = os.path.dirname(__file__)       # expected to be .../indra/llmessage/tests/
-sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
-from indra.util.fastest_elementtree import parse as xml_parse
-from indra.base import llsd
+from llbase.fastest_elementtree import parse as xml_parse
+from llbase import llsd
 from testrunner import freeport, run, debug, VERBOSE
 import time
 
@@ -157,17 +154,23 @@ class Server(HTTPServer):
     allow_reuse_address = False
 
 if __name__ == "__main__":
-    # Instantiate a Server(TestHTTPRequestHandler) on the first free port
-    # in the specified port range. Doing this inline is better than in a
-    # daemon thread: if it blows up here, we'll get a traceback. If it blew up
-    # in some other thread, the traceback would get eaten and we'd run the
-    # subject test program anyway.
-    httpd, port = freeport(xrange(8000, 8020),
-                           lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler))
+    # function to make a server with specified port
+    make_server = lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler)
+
+    if not sys.platform.startswith("win"):
+        # Instantiate a Server(TestHTTPRequestHandler) on a port chosen by the
+        # runtime.
+        httpd = make_server(0)
+    else:
+        # "Then there's Windows"
+        # Instantiate a Server(TestHTTPRequestHandler) on the first free port
+        # in the specified port range.
+        httpd, port = freeport(xrange(8000, 8020), make_server)
+
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's
     # performed in TUT code rather than our own.
-    os.environ["PORT"] = str(port)
-    debug("$PORT = %s", port)
-    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), *sys.argv[1:]))
+    os.environ["PORT"] = str(httpd.server_port)
+    debug("$PORT = %s", httpd.server_port)
+    sys.exit(run(server_inst=httpd, *sys.argv[1:]))
