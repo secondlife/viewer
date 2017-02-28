@@ -8402,6 +8402,15 @@ class LLToolsSelectTool : public view_listener_t
 		{
 			LLToolMgr::getInstance()->getCurrentToolset()->selectToolByIndex(5);
 		}
+
+		// Note: if floater is not visible LLViewerWindow::updateLayout() will
+		// attempt to open it, but it won't bring it to front or de-minimize.
+		if (gFloaterTools && (gFloaterTools->isMinimized() || !gFloaterTools->isShown() || !gFloaterTools->isFrontmost()))
+		{
+			gFloaterTools->setMinimized(FALSE);
+			gFloaterTools->openFloater();
+			gFloaterTools->setVisibleAndFrontmost(TRUE);
+		}
 		return true;
 	}
 };
