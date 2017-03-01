@@ -1038,5 +1038,37 @@ class LLVivoxSecurity :	public LLSingleton<LLVivoxSecurity>
     std::string     mAccountHandle;
 };
 
+class LLVoiceVivoxStats : public LLSingleton<LLVoiceVivoxStats>
+{
+    LLSINGLETON(LLVoiceVivoxStats);
+    LOG_CLASS(LLVoiceVivoxStats);
+    virtual ~LLVoiceVivoxStats();
+    
+  private:
+    F64SecondsImplicit mStartTime;
+
+    U32 mConnectCycles;
+
+    F64 mConnectTime;
+    U32 mConnectAttempts;
+    
+    F64 mProvisionTime;
+    U32 mProvisionAttempts;
+
+    F64 mEstablishTime;
+    U32 mEstablishAttempts;
+
+  public:
+
+    void reset();
+    void connectionAttemptStart();
+    void connectionAttemptEnd(bool success);
+    void provisionAttemptStart();
+    void provisionAttemptEnd(bool success);
+    void establishAttemptStart();
+    void establishAttemptEnd(bool success);
+    LLSD read();
+};
+
 #endif //LL_VIVOX_VOICE_CLIENT_H
 
