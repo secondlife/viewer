@@ -1249,9 +1249,11 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 			else
 			{
 				LLViewerInventoryItem* wearable_item = gInventory.getItem(data.mItemID);
-				if (wearable_item && wearable_item->getPermissions().allowModifyBy(gAgentID))
+				if (wearable_item && wearable_item->isFinished() && wearable_item->getPermissions().allowModifyBy(gAgentID))
 				{
 					// We can't edit and do some other interactions with same asset twice, copy it
+					// Note: can't update incomplete items. Usually attached from previous viewer build, but
+					// consider adding fetch and completion callback
 					LLViewerWearable* new_wearable = LLWearableList::instance().createCopy(wearable, wearable->getName());
 					data.mWearable = new_wearable;
 					data.mAssetID = new_wearable->getAssetID();
