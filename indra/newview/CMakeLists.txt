@@ -1758,56 +1758,6 @@ if (WINDOWS)
     endif (FMODEX)
 
     get_filename_component(PYTHON_DIRECTORY ${PYTHON_EXECUTABLE} DIRECTORY)
-
-    # http://pythonhosted.org/PyInstaller/#options
-    add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/SL_Launcher.exe
-    COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
-    ARGS
-       --onefile 
-       --log-level WARN
-       --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
-            ${CMAKE_SOURCE_DIR}/viewer_components/manager/SL_Launcher
-    COMMENT "Performing pyinstaller compile of SL_Launcher"
-)
-
-    add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/apply_update.exe
-    COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
-    ARGS
-       --onefile 
-       --log-level WARN
-       --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
-            ${CMAKE_SOURCE_DIR}/viewer_components/manager/apply_update.py
-    COMMENT "Performing pyinstaller compile of updater"
-)
-
-    add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/download_update.exe
-    COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
-    ARGS
-       --onefile 
-       --log-level WARN
-       --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
-            ${CMAKE_SOURCE_DIR}/viewer_components/manager/download_update.py
-    COMMENT "Performing pyinstaller compile of update downloader"
-)
-
-    add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/update_manager.exe
-    COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
-    ARGS
-       --onefile 
-       --log-level WARN
-       --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
-            ${CMAKE_SOURCE_DIR}/viewer_components/manager/update_manager.py
-    COMMENT "Performing pyinstaller compile of update manager"
-)
-
-add_custom_target(compile_w_viewer_launcher ALL DEPENDS ${CMAKE_CFG_INTDIR}/SL_Launcher.exe)
-add_custom_target(compile_w_viewer_updater ALL DEPENDS ${CMAKE_CFG_INTDIR}/apply_update.exe)
-add_custom_target(compile_w_viewer_downloader ALL DEPENDS ${CMAKE_CFG_INTDIR}/download_update.exe)
-add_custom_target(compile_w_viewer_update_manager ALL DEPENDS ${CMAKE_CFG_INTDIR}/update_manager.exe)
     
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
