@@ -31,6 +31,9 @@
 #include "../llviewernetwork.h"
 #include "../lllogininstance.h"
 
+ // Needed for Auth Test
+ #include "../llhasheduniqueid.h"
+
 // STL headers
 // std headers
 // external library headers
