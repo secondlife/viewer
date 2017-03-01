@@ -115,47 +115,65 @@ namespace LLViewerAssetStatsFF
             case LLAssetType::AT_GESTURE:
                 ret = with_http ? EVACGestureHTTPGet : EVACGestureUDPGet;
                 break;
+            default:
+                ret = EVACOtherGet;
+                break;
         }
 		return ret;
 	}
 
-	static LLTrace::CountStatHandle<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
-																	"Number of temporary texture asset http requests enqueued"),
-							sEnqueueAssetRequestsTempTextureUDP    ("enqueuedassetrequeststemptextureudp", 
-																	"Number of temporary texture asset udp requests enqueued"),
-							sEnqueueAssetRequestsNonTempTextureHTTP("enqueuedassetrequestsnontemptexturehttp", 
-																	"Number of texture asset http requests enqueued"),
-							sEnqueueAssetRequestsNonTempTextureUDP ("enqueuedassetrequestsnontemptextureudp", 
-																	"Number of texture asset udp requests enqueued"),
-							sEnqueuedAssetRequestsWearableHTTP      ("enqueuedassetrequestswearablehttp", 
-																	"Number of wearable asset http requests enqueued"),
-							sEnqueuedAssetRequestsWearableUdp      ("enqueuedassetrequestswearableudp", 
-																	"Number of wearable asset udp requests enqueued"),
-							sEnqueuedAssetRequestsSoundHTTP         ("enqueuedassetrequestssoundhttp", 
-																	"Number of sound asset http requests enqueued"),
-							sEnqueuedAssetRequestsSoundUdp         ("enqueuedassetrequestssoundudp", 
-																	"Number of sound asset udp requests enqueued"),
-							sEnqueuedAssetRequestsGestureHTTP       ("enqueuedassetrequestsgesturehttp", 
-																	"Number of gesture asset http requests enqueued"),
-							sEnqueuedAssetRequestsGestureUdp       ("enqueuedassetrequestsgestureudp", 
-																	"Number of gesture asset udp requests enqueued"),
-							sEnqueuedAssetRequestsOther            ("enqueuedassetrequestsother", 
-																	"Number of other asset requests enqueued");
+/* Note that this is very verbose, in a way that's actually somewhat
+ * risky - when adding or removing a bucket, all these arrays have to
+ * be updated in parallel (although the risk is somewhat illusory,
+ * because none of the names actually affect the final XML output, so
+ * you just have to have the right number of distinct names). Why
+ * can't we just have an array of stat objects indexed by the bucket
+ * index?  Because CountStatHandle doesn't have a default constructor,
+ * and is built on a big pile of template code that assumes the name
+ * parameter in the constructor is useful and needed and mandatory. We
+ * could replace these stat handles with something more accommodating
+ * like the LLViewerAssetStats::StatsAccumulator class, but it's hard
+ * to justify given how rarely this code gets changed. For now, caveat
+ * developer. */
 
-	static LLTrace::CountStatHandle<>* sEnqueued[EVACCount] = {		
-		&sEnqueueAssetRequestsTempTextureHTTP,   
-		&sEnqueueAssetRequestsTempTextureUDP,  
-		&sEnqueueAssetRequestsNonTempTextureHTTP,
-		&sEnqueueAssetRequestsNonTempTextureUDP,
-		&sEnqueuedAssetRequestsWearableHTTP,
-		&sEnqueuedAssetRequestsWearableUdp,
-		&sEnqueuedAssetRequestsSoundHTTP,
-		&sEnqueuedAssetRequestsSoundUdp,
-		&sEnqueuedAssetRequestsGestureHTTP,
-		&sEnqueuedAssetRequestsGestureUdp,
-		&sEnqueuedAssetRequestsOther            
-	};
-	
+    static LLTrace::CountStatHandle<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
+                                                                              "Number of temporary texture asset http requests enqueued"),
+                                      sEnqueueAssetRequestsTempTextureUDP    ("enqueuedassetrequeststemptextureudp", 
+                                                                              "Number of temporary texture asset udp requests enqueued"),
+                                      sEnqueueAssetRequestsNonTempTextureHTTP("enqueuedassetrequestsnontemptexturehttp", 
+                                                                              "Number of texture asset http requests enqueued"),
+                                      sEnqueueAssetRequestsNonTempTextureUDP ("enqueuedassetrequestsnontemptextureudp", 
+                                                                              "Number of texture asset udp requests enqueued"),
+                                      sEnqueuedAssetRequestsWearableHTTP      ("enqueuedassetrequestswearablehttp", 
+                                                                               "Number of wearable asset http requests enqueued"),
+                                      sEnqueuedAssetRequestsWearableUdp      ("enqueuedassetrequestswearableudp", 
+                                                                              "Number of wearable asset udp requests enqueued"),
+                                      sEnqueuedAssetRequestsSoundHTTP         ("enqueuedassetrequestssoundhttp", 
+                                                                               "Number of sound asset http requests enqueued"),
+                                      sEnqueuedAssetRequestsSoundUdp         ("enqueuedassetrequestssoundudp", 
+                                                                              "Number of sosund asset udp requests enqueued"),
+                                      sEnqueuedAssetRequestsGestureHTTP       ("enqueuedassetrequestsgesturehttp", 
+                                                                               "Number of gesture asset http requests enqueued"),
+                                      sEnqueuedAssetRequestsGestureUdp       ("enqueuedassetrequestsgestureudp", 
+                                                                              "Number of gesture asset udp requests enqueued"),
+                                      sEnqueuedAssetRequestsOther            ("enqueuedassetrequestsother", 
+                                                                              "Number of other asset requests enqueued");
+
+//static LLTrace::CountStatHandle<> sJunkEnqueued[EVACCount];
+    static LLTrace::CountStatHandle<>* sEnqueued[EVACCount] = {
+ 		&sEnqueueAssetRequestsTempTextureHTTP,   
+ 		&sEnqueueAssetRequestsTempTextureUDP,  
+ 		&sEnqueueAssetRequestsNonTempTextureHTTP,
+ 		&sEnqueueAssetRequestsNonTempTextureUDP,
+ 		&sEnqueuedAssetRequestsWearableHTTP,
+ 		&sEnqueuedAssetRequestsWearableUdp,
+ 		&sEnqueuedAssetRequestsSoundHTTP,
+ 		&sEnqueuedAssetRequestsSoundUdp,
+ 		&sEnqueuedAssetRequestsGestureHTTP,
+ 		&sEnqueuedAssetRequestsGestureUdp,
+ 		&sEnqueuedAssetRequestsOther            
+ 	};
+
 	static LLTrace::CountStatHandle<> sDequeueAssetRequestsTempTextureHTTP   ("dequeuedassetrequeststemptexturehttp", 
 																	"Number of temporary texture asset http requests dequeued"),
 							sDequeueAssetRequestsTempTextureUDP    ("dequeuedassetrequeststemptextureudp", 
@@ -322,6 +340,25 @@ void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 	mRegionHandle = region_handle;
 }
 
+template <typename T>
+void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output)
+{
+	using namespace LLViewerAssetStatsFF;
+
+    if (!compact_output
+        || rec.getSampleCount(*sEnqueued[cat]) 
+        || rec.getSampleCount(*sDequeued[cat])
+        || rec.getSampleCount(*sResponse[cat]))
+    {
+        req	.enqueued(rec.getSampleCount(*sEnqueued[cat]))
+            .dequeued(rec.getSampleCount(*sDequeued[cat]))
+            .resp_count(rec.getSampleCount(*sResponse[cat]))
+            .resp_min(rec.getMin(*sResponse[cat]).value())
+            .resp_max(rec.getMax(*sResponse[cat]).value())
+            .resp_mean(rec.getMean(*sResponse[cat]).value());
+    }
+}
+
 void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 {
 	using namespace LLViewerAssetStatsFF;
@@ -334,147 +371,19 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 	{
 		RegionStats& r = stats.regions.add();
 		LLTrace::Recording& rec = it->second;
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureTempHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureTempHTTPGet])
-			|| rec.getSum(*sResponse[EVACTextureTempHTTPGet]).value())
-		{
-			r.get_texture_temp_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureTempHTTPGet]))
-									.dequeued((S32)rec.getSum(*sDequeued[EVACTextureTempHTTPGet]))
-									.resp_count((S32)rec.getSum(*sResponse[EVACTextureTempHTTPGet]).value())
-									.resp_min(rec.getMin(*sResponse[EVACTextureTempHTTPGet]).value())
-									.resp_max(rec.getMax(*sResponse[EVACTextureTempHTTPGet]).value())
-									.resp_mean(rec.getMean(*sResponse[EVACTextureTempHTTPGet]).value());
-		}
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureTempUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureTempUDPGet])
-			|| rec.getSum(*sResponse[EVACTextureTempUDPGet]).value())
-		{
-			r.get_texture_temp_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureTempUDPGet]))
-									.dequeued((S32)rec.getSum(*sDequeued[EVACTextureTempUDPGet]))
-									.resp_count((S32)rec.getSum(*sResponse[EVACTextureTempUDPGet]).value())
-									.resp_min(rec.getMin(*sResponse[EVACTextureTempUDPGet]).value())
-									.resp_max(rec.getMax(*sResponse[EVACTextureTempUDPGet]).value())
-									.resp_mean(rec.getMean(*sResponse[EVACTextureTempUDPGet]).value());
-		}
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureNonTempHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureNonTempHTTPGet])
-			|| rec.getSum(*sResponse[EVACTextureNonTempHTTPGet]).value())
-		{
-			r.get_texture_non_temp_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureNonTempHTTPGet]))
-										.dequeued((S32)rec.getSum(*sDequeued[EVACTextureNonTempHTTPGet]))
-										.resp_count((S32)rec.getSum(*sResponse[EVACTextureNonTempHTTPGet]).value())
-										.resp_min(rec.getMin(*sResponse[EVACTextureNonTempHTTPGet]).value())
-										.resp_max(rec.getMax(*sResponse[EVACTextureNonTempHTTPGet]).value())
-										.resp_mean(rec.getMean(*sResponse[EVACTextureNonTempHTTPGet]).value());
-		}
 
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureNonTempUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureNonTempUDPGet])
-			|| rec.getSum(*sResponse[EVACTextureNonTempUDPGet]).value())
-		{
-			r.get_texture_non_temp_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureNonTempUDPGet]))
-										.dequeued((S32)rec.getSum(*sDequeued[EVACTextureNonTempUDPGet]))
-										.resp_count((S32)rec.getSum(*sResponse[EVACTextureNonTempUDPGet]).value())
-										.resp_min(rec.getMin(*sResponse[EVACTextureNonTempUDPGet]).value())
-										.resp_max(rec.getMax(*sResponse[EVACTextureNonTempUDPGet]).value())
-										.resp_mean(rec.getMean(*sResponse[EVACTextureNonTempUDPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACWearableHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACWearableHTTPGet])
-			|| rec.getSum(*sResponse[EVACWearableHTTPGet]).value())
-		{
-			r.get_wearable_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACWearableHTTPGet]))
-								.dequeued((S32)rec.getSum(*sDequeued[EVACWearableHTTPGet]))
-								.resp_count((S32)rec.getSum(*sResponse[EVACWearableHTTPGet]).value())
-								.resp_min(rec.getMin(*sResponse[EVACWearableHTTPGet]).value())
-								.resp_max(rec.getMax(*sResponse[EVACWearableHTTPGet]).value())
-								.resp_mean(rec.getMean(*sResponse[EVACWearableHTTPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACWearableUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACWearableUDPGet])
-			|| rec.getSum(*sResponse[EVACWearableUDPGet]).value())
-		{
-			r.get_wearable_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACWearableUDPGet]))
-								.dequeued((S32)rec.getSum(*sDequeued[EVACWearableUDPGet]))
-								.resp_count((S32)rec.getSum(*sResponse[EVACWearableUDPGet]).value())
-								.resp_min(rec.getMin(*sResponse[EVACWearableUDPGet]).value())
-								.resp_max(rec.getMax(*sResponse[EVACWearableUDPGet]).value())
-								.resp_mean(rec.getMean(*sResponse[EVACWearableUDPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACSoundHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACSoundHTTPGet])
-			|| rec.getSum(*sResponse[EVACSoundHTTPGet]).value())
-		{
-			r.get_sound_http.enqueued((S32)rec.getSum(*sEnqueued[EVACSoundHTTPGet]))
-							.dequeued((S32)rec.getSum(*sDequeued[EVACSoundHTTPGet]))
-							.resp_count((S32)rec.getSum(*sResponse[EVACSoundHTTPGet]).value())
-							.resp_min(rec.getMin(*sResponse[EVACSoundHTTPGet]).value())
-							.resp_max(rec.getMax(*sResponse[EVACSoundHTTPGet]).value())
-							.resp_mean(rec.getMean(*sResponse[EVACSoundHTTPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACSoundUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACSoundUDPGet])
-			|| rec.getSum(*sResponse[EVACSoundUDPGet]).value())
-		{
-			r.get_sound_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACSoundUDPGet]))
-							.dequeued((S32)rec.getSum(*sDequeued[EVACSoundUDPGet]))
-							.resp_count((S32)rec.getSum(*sResponse[EVACSoundUDPGet]).value())
-							.resp_min(rec.getMin(*sResponse[EVACSoundUDPGet]).value())
-							.resp_max(rec.getMax(*sResponse[EVACSoundUDPGet]).value())
-							.resp_mean(rec.getMean(*sResponse[EVACSoundUDPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACGestureHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACGestureHTTPGet])
-			|| rec.getSum(*sResponse[EVACGestureHTTPGet]).value())
-		{
-			r.get_gesture_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACGestureHTTPGet]))
-								.dequeued((S32)rec.getSum(*sDequeued[EVACGestureHTTPGet]))
-								.resp_count((S32)rec.getSum(*sResponse[EVACGestureHTTPGet]).value())
-								.resp_min(rec.getMin(*sResponse[EVACGestureHTTPGet]).value())
-								.resp_max(rec.getMax(*sResponse[EVACGestureHTTPGet]).value())
-								.resp_mean(rec.getMean(*sResponse[EVACGestureHTTPGet]).value());
-		}
-			
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACGestureUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACGestureUDPGet])
-			|| rec.getSum(*sResponse[EVACGestureUDPGet]).value())
-		{
-			r.get_gesture_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACGestureUDPGet]))
-								.dequeued((S32)rec.getSum(*sDequeued[EVACGestureUDPGet]))
-								.resp_count((S32)rec.getSum(*sResponse[EVACGestureUDPGet]).value())
-								.resp_min(rec.getMin(*sResponse[EVACGestureUDPGet]).value())
-								.resp_max(rec.getMax(*sResponse[EVACGestureUDPGet]).value())
-								.resp_mean(rec.getMean(*sResponse[EVACGestureUDPGet]).value());
-		}
-			
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACOtherGet]) 
-			|| rec.getSum(*sDequeued[EVACOtherGet])
-			|| rec.getSum(*sResponse[EVACOtherGet]).value())
-			{
-			r.get_other	.enqueued((S32)rec.getSum(*sEnqueued[EVACOtherGet]))
-						.dequeued((S32)rec.getSum(*sDequeued[EVACOtherGet]))
-						.resp_count((S32)rec.getSum(*sResponse[EVACOtherGet]).value())
-						.resp_min(rec.getMin(*sResponse[EVACOtherGet]).value())
-						.resp_max(rec.getMax(*sResponse[EVACOtherGet]).value())
-						.resp_mean(rec.getMean(*sResponse[EVACOtherGet]).value());
-		}
-
+        getStat(rec, r.get_texture_temp_http, EVACTextureTempHTTPGet, compact_output);
+        getStat(rec, r.get_texture_temp_udp, EVACTextureTempUDPGet, compact_output);
+        getStat(rec, r.get_texture_non_temp_http, EVACTextureNonTempHTTPGet, compact_output);
+        getStat(rec, r.get_texture_non_temp_udp, EVACTextureNonTempUDPGet, compact_output);
+        getStat(rec, r.get_wearable_http, EVACWearableHTTPGet, compact_output);
+        getStat(rec, r.get_wearable_udp, EVACWearableUDPGet, compact_output);
+        getStat(rec, r.get_sound_http, EVACSoundHTTPGet, compact_output);
+        getStat(rec, r.get_sound_udp, EVACSoundUDPGet, compact_output);
+        getStat(rec, r.get_gesture_http, EVACGestureHTTPGet, compact_output);
+        getStat(rec, r.get_gesture_udp, EVACGestureUDPGet, compact_output);
+        getStat(rec, r.get_other, EVACOtherGet, compact_output);
+        
 		S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
 		if (!compact_output || fps != 0)
 		{

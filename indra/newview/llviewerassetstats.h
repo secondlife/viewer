@@ -39,6 +39,26 @@
 #include "lltrace.h"
 #include "llinitparam.h"
 
+namespace LLViewerAssetStatsFF
+{
+	enum EViewerAssetCategories
+	{
+		EVACTextureTempHTTPGet,			//< Texture GETs - temp/baked, HTTP
+		EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP
+		EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
+		EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP
+		EVACWearableHTTPGet,			//< Wearable GETs HTTP
+		EVACWearableUDPGet,				//< Wearable GETs UDP
+		EVACSoundHTTPGet,				//< Sound GETs HTTP
+		EVACSoundUDPGet,				//< Sound GETs UDP
+		EVACGestureHTTPGet,				//< Gesture GETs HTTP
+		EVACGestureUDPGet,				//< Gesture GETs UDP
+		EVACOtherGet,					//< Other GETs
+
+		EVACCount						// Must be last
+	};
+}
+
 /**
  * @class LLViewerAssetStats
  * @brief Records performance aspects of asset access operations.
@@ -74,6 +94,7 @@
  * LLViewerAssetStatsFF is provided for conditional test-and-call
  * operations.
  */
+
 class LLViewerAssetStats : public LLStopWatchControlsMixin<LLViewerAssetStats>
 {
 public:
@@ -94,8 +115,8 @@ public:
 	struct AssetRequestType : public LLInitParam::Block<AssetRequestType>
 	{
 		Mandatory<S32>	enqueued,
-						dequeued,
-						resp_count;
+			dequeued,
+			resp_count;
 		Mandatory<F64>	resp_min,
 						resp_max,
 						resp_mean;
@@ -168,6 +189,11 @@ public:
 	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Uses AssetStats structure seen above
 	void getStats(AssetStats& stats, bool compact_output);
+
+    // Retrieve a single asset request type (taken from a single region)
+    template <typename T>
+    void getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output);
+
 	LLSD asLLSD(bool compact_output);
 
 protected:
@@ -208,22 +234,6 @@ extern LLViewerAssetStats * gViewerAssetStats;
 
 namespace LLViewerAssetStatsFF
 {
-	enum EViewerAssetCategories
-	{
-		EVACTextureTempHTTPGet,			//< Texture GETs - temp/baked, HTTP
-		EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP
-		EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
-		EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP
-		EVACWearableHTTPGet,			//< Wearable GETs HTTP
-		EVACWearableUDPGet,				//< Wearable GETs UDP
-		EVACSoundHTTPGet,				//< Sound GETs HTTP
-		EVACSoundUDPGet,				//< Sound GETs UDP
-		EVACGestureHTTPGet,				//< Gesture GETs HTTP
-		EVACGestureUDPGet,				//< Gesture GETs UDP
-		EVACOtherGet,					//< Other GETs
-
-		EVACCount						// Must be last
-	};
 
 /**
  * @brief Allocation and deallocation of globals.
