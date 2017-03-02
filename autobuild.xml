@@ -526,9 +526,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>075774167b429018808c9c055c554734</string>
+              <string>2c0917457de94e21b9afe3b38a8dda72</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2899/6761/dullahan-1.0.620_3.2704.1434.gec3e9ed-darwin64-502888.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3025/7008/dullahan-1.0.620_3.2704.1434.gec3e9ed-darwin64-503014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -538,9 +538,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d53c641f81d4dcd27c6725120c70ab4a</string>
+              <string>e1c08b93444a621b886bd6efa285cc92</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2900/6768/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows-502888.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3026/7014/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows-503014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -550,9 +550,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3e755e4ab5ab16f3a05b9f5f519c802f</string>
+              <string>3b5a9949a150ebb77f6c065d90d648e0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2901/6773/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows64-502888.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3027/7020/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows64-503014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
