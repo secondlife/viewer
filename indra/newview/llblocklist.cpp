@@ -55,7 +55,9 @@ LLBlockList::LLBlockList(const Params& p)
 
 	registrar.add		("Block.Action",	boost::bind(&LLBlockList::onCustomAction,	this, _2));
 	enable_registrar.add("Block.Enable",	boost::bind(&LLBlockList::isActionEnabled,	this, _2));
-
+	enable_registrar.add("Block.Check",     boost::bind(&LLBlockList::isMenuItemChecked, this, _2));
+	enable_registrar.add("Block.Visible",   boost::bind(&LLBlockList::isMenuItemVisible, this, _2));
+	
 	LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 									"menu_people_blocked_gear.xml",
 									gMenuHolder,
@@ -272,7 +274,11 @@ bool LLBlockList::isActionEnabled(const LLSD& userdata)
 
 	const std::string command_name = userdata.asString();
 
-	if ("profile_item" == command_name)
+	if ("profile_item" == command_name 
+		|| "block_voice" == command_name
+		|| "block_text" == command_name
+		|| "block_particles" == command_name
+		|| "block_obj_sounds" == command_name)
 	{
 		LLBlockedListItem* item = getBlockedItem();
 		action_enabled = item && (LLMute::AGENT == item->getType());
@@ -313,6 +319,78 @@ void LLBlockList::onCustomAction(const LLSD& userdata)
 		default:
 			break;
 		}
+	}
+	else if ("block_voice" == command_name)
+	{
+		toggleMute(LLMute::flagVoiceChat);
+	}
+	else if ("block_text" == command_name)
+	{
+		toggleMute(LLMute::flagTextChat);
+	}
+	else if ("block_particles" == command_name)
+	{
+		toggleMute(LLMute::flagParticles);
+	}
+	else if ("block_obj_sounds" == command_name)
+	{
+		toggleMute(LLMute::flagObjectSounds);
+	}
+}
+
+bool LLBlockList::isMenuItemChecked(const LLSD& userdata)
+{
+	LLBlockedListItem* item = getBlockedItem();
+	const std::string command_name = userdata.asString();
+
+	if ("block_voice" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagVoiceChat);
+	}
+	else if ("block_text" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagTextChat);
+	}
+	else if ("block_particles" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagParticles);
+	}
+	else if ("block_obj_sounds" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagObjectSounds);
+	}
+
+	return false;
+}
+
+bool LLBlockList::isMenuItemVisible(const LLSD& userdata)
+{
+	LLBlockedListItem* item = getBlockedItem();
+	const std::string command_name = userdata.asString();
+
+	if ("block_voice" == command_name
+		|| "block_text" == command_name
+		|| "block_particles" == command_name
+		|| "block_obj_sounds" == command_name)
+	{
+		return item && (LLMute::AGENT == item->getType());
+	}
+
+	return false;
+}
+
+void LLBlockList::toggleMute(U32 flags)
+{
+	LLBlockedListItem* item = getBlockedItem();
+	LLMute mute(item->getUUID(), item->getName(), item->getType());
+
+	if (!LLMuteList::getInstance()->isMuted(item->getUUID(), flags))
+	{
+		LLMuteList::getInstance()->add(mute, flags);
+	}
+	else
+	{
+		LLMuteList::getInstance()->remove(mute, flags);
 	}
 }
 
