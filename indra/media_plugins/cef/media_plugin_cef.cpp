@@ -861,7 +861,7 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, int key, dullahan::
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
 
-	mCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
+	mCEFLib->nativeKeyboardEventWin(msg, wparam, lparam);
 #endif
 };
 
@@ -884,7 +884,7 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, dullahan::EKeyboar
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
-	mCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
+	mCEFLib->nativeKeyboardEventWin(msg, wparam, lparam);
 #endif
 };
 
