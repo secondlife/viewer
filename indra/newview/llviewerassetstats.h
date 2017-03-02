@@ -53,7 +53,10 @@ namespace LLViewerAssetStatsFF
 		EVACSoundUDPGet,				//< Sound GETs UDP
 		EVACGestureHTTPGet,				//< Gesture GETs HTTP
 		EVACGestureUDPGet,				//< Gesture GETs UDP
-		EVACOtherGet,					//< Other GETs
+		EVACLandmarkHTTPGet,			//< Landmark GETs HTTP
+		EVACLandmarkUDPGet,				//< Landmark GETs UDP
+		EVACOtherHTTPGet,				//< Other GETs HTTP
+		EVACOtherUDPGet,				//< Other GETs UDP
 
 		EVACCount						// Must be last
 	};
@@ -145,7 +148,10 @@ public:
 									get_sound_udp,
 									get_gesture_http,
 									get_gesture_udp,
-									get_other;
+									get_landmark_http,
+									get_landmark_udp,
+									get_other_http,
+									get_other_udp;
 		Optional<FPSStats>			fps;
 		Optional<S32>				grid_x,
 									grid_y;

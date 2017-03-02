@@ -80,6 +80,47 @@
  *
  */
 
+namespace LLTrace
+{
+// This little bit of shimmery is to allow the creation of
+// default-constructed stat and event handles so we can make arrays of
+// the things.
+
+// The only sensible way to use this function is to immediately make a
+// copy of the contents, since it always returns the same pointer.
+const char *makeNewAutoName()
+{
+    static char name[64];
+    static S32 auto_namer_number = 0;
+    snprintf(name,64,"auto_name_%d",auto_namer_number);
+    auto_namer_number++;
+    return name;
+}
+
+template <typename T = F64>
+class DCCountStatHandle:
+        public CountStatHandle<T>
+{
+public:
+    DCCountStatHandle(const char *name = makeNewAutoName(), const char *description=NULL):
+        CountStatHandle<T>(name,description)
+    {
+    }
+};
+
+template <typename T = F64>
+class DCEventStatHandle:
+        public EventStatHandle<T>
+{
+public:
+    DCEventStatHandle(const char *name = makeNewAutoName(), const char *description=NULL):
+        EventStatHandle<T>(name,description)
+    {
+    }
+};
+
+}
+
 namespace LLViewerAssetStatsFF
 {
 	static EViewerAssetCategories asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp)
@@ -94,7 +135,7 @@ namespace LLViewerAssetStatsFF
 		//  - everything else.
 		//
 
-        EViewerAssetCategories ret(EVACOtherGet);
+        EViewerAssetCategories ret;
         switch (at)
         {
             case LLAssetType::AT_TEXTURE:
@@ -115,138 +156,19 @@ namespace LLViewerAssetStatsFF
             case LLAssetType::AT_GESTURE:
                 ret = with_http ? EVACGestureHTTPGet : EVACGestureUDPGet;
                 break;
+            case LLAssetType::AT_LANDMARK:
+                ret = with_http ? EVACLandmarkHTTPGet : EVACLandmarkUDPGet;
+                break;
             default:
-                ret = EVACOtherGet;
+                ret = with_http ? EVACOtherHTTPGet : EVACOtherUDPGet;
                 break;
         }
 		return ret;
 	}
 
-/* Note that this is very verbose, in a way that's actually somewhat
- * risky - when adding or removing a bucket, all these arrays have to
- * be updated in parallel (although the risk is somewhat illusory,
- * because none of the names actually affect the final XML output, so
- * you just have to have the right number of distinct names). Why
- * can't we just have an array of stat objects indexed by the bucket
- * index?  Because CountStatHandle doesn't have a default constructor,
- * and is built on a big pile of template code that assumes the name
- * parameter in the constructor is useful and needed and mandatory. We
- * could replace these stat handles with something more accommodating
- * like the LLViewerAssetStats::StatsAccumulator class, but it's hard
- * to justify given how rarely this code gets changed. For now, caveat
- * developer. */
-
-    static LLTrace::CountStatHandle<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
-                                                                              "Number of temporary texture asset http requests enqueued"),
-                                      sEnqueueAssetRequestsTempTextureUDP    ("enqueuedassetrequeststemptextureudp", 
-                                                                              "Number of temporary texture asset udp requests enqueued"),
-                                      sEnqueueAssetRequestsNonTempTextureHTTP("enqueuedassetrequestsnontemptexturehttp", 
-                                                                              "Number of texture asset http requests enqueued"),
-                                      sEnqueueAssetRequestsNonTempTextureUDP ("enqueuedassetrequestsnontemptextureudp", 
-                                                                              "Number of texture asset udp requests enqueued"),
-                                      sEnqueuedAssetRequestsWearableHTTP      ("enqueuedassetrequestswearablehttp", 
-                                                                               "Number of wearable asset http requests enqueued"),
-                                      sEnqueuedAssetRequestsWearableUdp      ("enqueuedassetrequestswearableudp", 
-                                                                              "Number of wearable asset udp requests enqueued"),
-                                      sEnqueuedAssetRequestsSoundHTTP         ("enqueuedassetrequestssoundhttp", 
-                                                                               "Number of sound asset http requests enqueued"),
-                                      sEnqueuedAssetRequestsSoundUdp         ("enqueuedassetrequestssoundudp", 
-                                                                              "Number of sosund asset udp requests enqueued"),
-                                      sEnqueuedAssetRequestsGestureHTTP       ("enqueuedassetrequestsgesturehttp", 
-                                                                               "Number of gesture asset http requests enqueued"),
-                                      sEnqueuedAssetRequestsGestureUdp       ("enqueuedassetrequestsgestureudp", 
-                                                                              "Number of gesture asset udp requests enqueued"),
-                                      sEnqueuedAssetRequestsOther            ("enqueuedassetrequestsother", 
-                                                                              "Number of other asset requests enqueued");
-
-//static LLTrace::CountStatHandle<> sJunkEnqueued[EVACCount];
-    static LLTrace::CountStatHandle<>* sEnqueued[EVACCount] = {
- 		&sEnqueueAssetRequestsTempTextureHTTP,   
- 		&sEnqueueAssetRequestsTempTextureUDP,  
- 		&sEnqueueAssetRequestsNonTempTextureHTTP,
- 		&sEnqueueAssetRequestsNonTempTextureUDP,
- 		&sEnqueuedAssetRequestsWearableHTTP,
- 		&sEnqueuedAssetRequestsWearableUdp,
- 		&sEnqueuedAssetRequestsSoundHTTP,
- 		&sEnqueuedAssetRequestsSoundUdp,
- 		&sEnqueuedAssetRequestsGestureHTTP,
- 		&sEnqueuedAssetRequestsGestureUdp,
- 		&sEnqueuedAssetRequestsOther            
- 	};
-
-	static LLTrace::CountStatHandle<> sDequeueAssetRequestsTempTextureHTTP   ("dequeuedassetrequeststemptexturehttp", 
-																	"Number of temporary texture asset http requests dequeued"),
-							sDequeueAssetRequestsTempTextureUDP    ("dequeuedassetrequeststemptextureudp", 
-																	"Number of temporary texture asset udp requests dequeued"),
-							sDequeueAssetRequestsNonTempTextureHTTP("dequeuedassetrequestsnontemptexturehttp", 
-																	"Number of texture asset http requests dequeued"),
-							sDequeueAssetRequestsNonTempTextureUDP ("dequeuedassetrequestsnontemptextureudp", 
-																	"Number of texture asset udp requests dequeued"),
-							sDequeuedAssetRequestsWearableHTTP      ("dequeuedassetrequestswearablehttp", 
-																	"Number of wearable asset http requests dequeued"),
-							sDequeuedAssetRequestsWearableUdp      ("dequeuedassetrequestswearableudp", 
-																	"Number of wearable asset udp requests dequeued"),
-							sDequeuedAssetRequestsSoundHTTP         ("dequeuedassetrequestssoundhttp", 
-																	"Number of sound asset http requests dequeued"),
-							sDequeuedAssetRequestsSoundUdp         ("dequeuedassetrequestssoundudp", 
-																	"Number of sound asset udp requests dequeued"),
-							sDequeuedAssetRequestsGestureHTTP       ("dequeuedassetrequestsgesturehttp", 
-																	"Number of gesture asset http requests dequeued"),
-							sDequeuedAssetRequestsGestureUdp       ("dequeuedassetrequestsgestureudp", 
-																	"Number of gesture asset udp requests dequeued"),
-							sDequeuedAssetRequestsOther            ("dequeuedassetrequestsother", 
-																	"Number of other asset requests dequeued");
-
-	static LLTrace::CountStatHandle<>* sDequeued[EVACCount] = {
-		&sDequeueAssetRequestsTempTextureHTTP,   
-		&sDequeueAssetRequestsTempTextureUDP,  
-		&sDequeueAssetRequestsNonTempTextureHTTP,
-		&sDequeueAssetRequestsNonTempTextureUDP,
-		&sDequeuedAssetRequestsWearableHTTP,
-		&sDequeuedAssetRequestsWearableUdp,
-		&sDequeuedAssetRequestsSoundHTTP,
-		&sDequeuedAssetRequestsSoundUdp,
-		&sDequeuedAssetRequestsGestureHTTP,
-		&sDequeuedAssetRequestsGestureUdp,
-		&sDequeuedAssetRequestsOther            
-	};
-
-	static LLTrace::EventStatHandle<F64Seconds >	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp",
-																							"Time spent responding to temporary texture asset http requests"),
-													sResponseAssetRequestsTempTextureUDP    ("assetresponsetimestemptextureudp", 
-																							"Time spent responding to temporary texture asset udp requests"),
-													sResponseAssetRequestsNonTempTextureHTTP("assetresponsetimesnontemptexturehttp", 
-																							"Time spent responding to texture asset http requests"),
-													sResponseAssetRequestsNonTempTextureUDP ("assetresponsetimesnontemptextureudp", 
-																							"Time spent responding to texture asset udp requests"),
-													sResponsedAssetRequestsWearableHTTP      ("assetresponsetimeswearablehttp", 
-																							"Time spent responding to wearable asset http requests"),
-													sResponsedAssetRequestsWearableUdp      ("assetresponsetimeswearableudp", 
-																							"Time spent responding to wearable asset udp requests"),
-													sResponsedAssetRequestsSoundHTTP         ("assetresponsetimessounduhttp", 
-																							"Time spent responding to sound asset http requests"),
-													sResponsedAssetRequestsSoundUdp         ("assetresponsetimessoundudp", 
-																							"Time spent responding to sound asset udp requests"),
-													sResponsedAssetRequestsGestureHTTP       ("assetresponsetimesgesturehttp", 
-																							"Time spent responding to gesture asset http requests"),
-													sResponsedAssetRequestsGestureUdp       ("assetresponsetimesgestureudp", 
-																							"Time spent responding to gesture asset udp requests"),
-													sResponsedAssetRequestsOther            ("assetresponsetimesother", 
-																							"Time spent responding to other asset requests");
-
-	static LLTrace::EventStatHandle<F64Seconds >* sResponse[EVACCount] = {
-		&sResponseAssetRequestsTempTextureHTTP,   
-		&sResponseAssetRequestsTempTextureUDP,  
-		&sResponseAssetRequestsNonTempTextureHTTP,
-		&sResponseAssetRequestsNonTempTextureUDP,
-		&sResponsedAssetRequestsWearableHTTP,
-		&sResponsedAssetRequestsWearableUdp,
-		&sResponsedAssetRequestsSoundHTTP,
-		&sResponsedAssetRequestsSoundUdp,
-		&sResponsedAssetRequestsGestureHTTP,
-		&sResponsedAssetRequestsGestureUdp,
-		&sResponsedAssetRequestsOther            
-	};
+	static LLTrace::DCCountStatHandle<> sEnqueued[EVACCount];
+	static LLTrace::DCCountStatHandle<> sDequeued[EVACCount];
+	static LLTrace::DCEventStatHandle<F64Seconds > sResponse[EVACCount];
 }
 
 // ------------------------------------------------------
@@ -346,16 +268,16 @@ void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetS
 	using namespace LLViewerAssetStatsFF;
 
     if (!compact_output
-        || rec.getSampleCount(*sEnqueued[cat]) 
-        || rec.getSampleCount(*sDequeued[cat])
-        || rec.getSampleCount(*sResponse[cat]))
+        || rec.getSampleCount(sEnqueued[cat]) 
+        || rec.getSampleCount(sDequeued[cat])
+        || rec.getSampleCount(sResponse[cat]))
     {
-        req	.enqueued(rec.getSampleCount(*sEnqueued[cat]))
-            .dequeued(rec.getSampleCount(*sDequeued[cat]))
-            .resp_count(rec.getSampleCount(*sResponse[cat]))
-            .resp_min(rec.getMin(*sResponse[cat]).value())
-            .resp_max(rec.getMax(*sResponse[cat]).value())
-            .resp_mean(rec.getMean(*sResponse[cat]).value());
+        req	.enqueued(rec.getSampleCount(sEnqueued[cat]))
+            .dequeued(rec.getSampleCount(sDequeued[cat]))
+            .resp_count(rec.getSampleCount(sResponse[cat]))
+            .resp_min(rec.getMin(sResponse[cat]).value())
+            .resp_max(rec.getMax(sResponse[cat]).value())
+            .resp_mean(rec.getMean(sResponse[cat]).value());
     }
 }
 
@@ -382,7 +304,10 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
         getStat(rec, r.get_sound_udp, EVACSoundUDPGet, compact_output);
         getStat(rec, r.get_gesture_http, EVACGestureHTTPGet, compact_output);
         getStat(rec, r.get_gesture_udp, EVACGestureUDPGet, compact_output);
-        getStat(rec, r.get_other, EVACOtherGet, compact_output);
+        getStat(rec, r.get_landmark_http, EVACLandmarkHTTPGet, compact_output);
+        getStat(rec, r.get_landmark_udp, EVACLandmarkUDPGet, compact_output);
+        getStat(rec, r.get_other_http, EVACOtherHTTPGet, compact_output);
+        getStat(rec, r.get_other_udp, EVACOtherUDPGet, compact_output);
         
 		S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
 		if (!compact_output || fps != 0)
@@ -435,21 +360,21 @@ void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	add(*sEnqueued[int(eac)], 1);
+	add(sEnqueued[int(eac)], 1);
 }
 
 void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	add(*sDequeued[int(eac)], 1);
+	add(sDequeued[int(eac)], 1);
 }
 
 void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	record(*sResponse[int(eac)], F64Microseconds(duration));
+	record(sResponse[int(eac)], F64Microseconds(duration));
 }
 
 void init()
@@ -499,7 +424,10 @@ LLViewerAssetStats::RegionStats::RegionStats()
 	get_sound_udp("get_sound_udp"),
 	get_gesture_http("get_gesture_http"),
 	get_gesture_udp("get_gesture_udp"),
-	get_other("get_other"),
+	get_landmark_http("get_landmark_http"),
+	get_landmark_udp("get_landmark_udp"),
+	get_other_http("get_other_http"),
+	get_other_udp("get_other_udp"),
 	fps("fps"),
 	grid_x("grid_x"),
 	grid_y("grid_y"),

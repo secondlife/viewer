@@ -471,7 +471,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 {
     std::string url = getAssetURL(uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
-    
+
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("assetRequestCoro", httpPolicy));
@@ -480,18 +480,21 @@ void LLViewerAssetStorage::assetRequestCoro(
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
 
+    S32 result_code = LL_ERR_NOERR;
+    LLExtStat ext_status = LL_EXSTAT_NONE;
+    
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
         // TODO asset-http: handle failures
         LL_DEBUGS("ViewerAsset") << "request failed, status " << status.toTerseString() << ", now what?" << LL_ENDL;
+        result_code = LL_ERR_ASSET_REQUEST_FAILED;
+        ext_status = LL_EXSTAT_NONE;
     }
     else
     {
         LL_DEBUGS("ViewerAsset") << "request succeeded, url " << url << LL_ENDL;
-
-        // LL_DEBUGS("ViewerAsset") << "result: " << ll_pretty_print_sd(httpResults) << LL_ENDL;
 
         const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
 
@@ -506,25 +509,28 @@ void LLViewerAssetStorage::assetRequestCoro(
             if (!vf.write(raw.data(),size))
             {
                 // TODO asset-http: handle error
-                LL_ERRS() << "Failure in vf.write()" << LL_ENDL;
+                LL_WARNS() << "Failure in vf.write()" << LL_ENDL;
+                result_code = LL_ERR_ASSET_REQUEST_FAILED;
+                ext_status = LL_EXSTAT_VFS_CORRUPT;
             }
             if (!vf.rename(uuid, atype))
             {
-                LL_ERRS() << "rename failed" << LL_ENDL;
+                LL_WARNS() << "rename failed" << LL_ENDL;
+                result_code = LL_ERR_ASSET_REQUEST_FAILED;
+                ext_status = LL_EXSTAT_VFS_CORRUPT;
             }
         }
         else
         {
             // TODO asset-http: handle invalid size case
-			LL_ERRS() << "bad size" << LL_ENDL;
+			LL_WARNS() << "bad size" << LL_ENDL;
+            result_code = LL_ERR_ASSET_REQUEST_FAILED;
+            ext_status = LL_EXSTAT_NONE;
         }
-
-        // Clean up pending downloads and trigger callbacks
-        // TODO asset-http: what are the result_code and ext_status?
-        S32 result_code = LL_ERR_NOERR;
-        LLExtStat ext_status = LL_EXSTAT_NONE;
-        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
     }
+
+    // Clean up pending downloads and trigger callbacks
+    removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
 }
 
 std::string LLViewerAssetStorage::getAssetURL(const LLUUID& uuid, LLAssetType::EType atype)
