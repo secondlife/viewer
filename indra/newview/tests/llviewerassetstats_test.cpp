@@ -71,7 +71,8 @@ static const char * all_keys[] =
 {
 	"duration",
 	"fps",
-	"get_other",
+	"get_other_http",
+	"get_other_udp",
 	"get_texture_temp_http",
 	"get_texture_temp_udp",
 	"get_texture_non_temp_http",
@@ -86,7 +87,8 @@ static const char * all_keys[] =
 
 static const char * resp_keys[] = 
 {
-	"get_other",
+	"get_other_http",
+	"get_other_udp",
 	"get_texture_temp_http",
 	"get_texture_temp_udp",
 	"get_texture_non_temp_http",
@@ -552,8 +554,11 @@ namespace tut
 		ensure("sd[get_wearable_udp][enqueued] is 2", (2 == sd["get_wearable_udp"]["enqueued"].asInteger()));
 		ensure("sd[get_wearable_udp][dequeued] is 2", (2 == sd["get_wearable_udp"]["dequeued"].asInteger()));
 
-		ensure("sd[get_other][enqueued] is 4", (4 == sd["get_other"]["enqueued"].asInteger()));
-		ensure("sd[get_other][dequeued] is 0", (0 == sd["get_other"]["dequeued"].asInteger()));
+		ensure("sd[get_other_http][enqueued] is 2", (2 == sd["get_other_http"]["enqueued"].asInteger()));
+		ensure("sd[get_other_http][dequeued] is 0", (0 == sd["get_other_http"]["dequeued"].asInteger()));
+
+		ensure("sd[get_other_udp][enqueued] is 2", (2 == sd["get_other_udp"]["enqueued"].asInteger()));
+		ensure("sd[get_other_udp][dequeued] is 0", (0 == sd["get_other_udp"]["dequeued"].asInteger()));
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
