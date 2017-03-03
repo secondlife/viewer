@@ -78,6 +78,7 @@
 #include "llvoavatar.h"
 #include "llvocache.h"
 #include "llmaterialmgr.h"
+#include "llsculptidsize.h"
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -1057,12 +1058,13 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				LLFace::cacheFaceInVRAM(face);
 			}
 		}
-		
 
 		return TRUE;
 	}
-
-
+	else if (NO_LOD == lod) 
+	{
+		LLSculptIDSize::instance().resetSizeSum(volume_params.getSculptID());
+	}
 
 	return FALSE;
 }
@@ -1304,7 +1306,8 @@ BOOL LLVOVolume::calcLOD()
 	if (cur_detail != mLOD)
 	{
 		mAppAngle = ll_round((F32) atan2( mDrawable->getRadius(), mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
-		mLOD = cur_detail;		
+		mLOD = cur_detail;
+
 		return TRUE;
 	}
 
@@ -1318,7 +1321,16 @@ BOOL LLVOVolume::updateLOD()
 		return FALSE;
 	}
 	
-	BOOL lod_changed = calcLOD();
+	BOOL lod_changed = FALSE;
+
+	if (!LLSculptIDSize::instance().isUnloaded(getVolume()->getParams().getSculptID())) 
+	{
+		lod_changed = calcLOD();
+	}
+	else
+	{
+		return FALSE;
+	}
 
 	if (lod_changed)
 	{
@@ -4679,6 +4691,7 @@ void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value)
 			{
 				//postponed
 				pVVol->markForUnload();
+				LLSculptIDSize::instance().addToUnloaded(nfo.getSculptId());
 			}
 		}
 
@@ -4697,6 +4710,7 @@ void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value)
 				&& LLVOVolume::NO_LOD == pVVol->getLOD()
 				)
 			{
+				LLSculptIDSize::instance().remFromUnloaded(nfo.getSculptId());
 				pVVol->updateLOD();
 				pVVol->markForUpdate(TRUE);
 			}
@@ -4704,6 +4718,8 @@ void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value)
 	}
 	else
 	{
+		LLSculptIDSize::instance().clearUnloaded();
+
 		LLSculptIDSize::container_BY_SIZE_view::iterator
 			itL = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().begin(),
 			itU = LLSculptIDSize::instance().getSizeInfo().get<LLSculptIDSize::tag_BY_SIZE>().end();
@@ -6167,105 +6183,4 @@ LLHUDPartition::LLHUDPartition(LLViewerRegion* regionp) : LLBridgePartition(regi
 void LLHUDPartition::shift(const LLVector4a &offset)
 {
 	//HUD objects don't shift with region crossing.  That would be silly.
-}
-
-
-//...........
-
-void _nothing_to_do_func(int) { /*nothing todo here because of the size it's a shared member*/  }
-
-void LLSculptIDSize::inc(const LLDrawable *pdrawable, int sz)
-{
-	llassert(sz >= 0);
-
-	if (!pdrawable) return;
-	LLVOVolume* vvol = pdrawable->getVOVolume();
-	if (!vvol) return;
-	if (!vvol->isAttachment()) return;
-	if (!vvol->getAvatar()) return;
-	if (vvol->getAvatar()->isSelf()) return;
-	LLVolume *vol = vvol->getVolume();
-	if (!vol) return;
-
-	const LLUUID &sculptId = vol->getParams().getSculptID();
-
-	unsigned int total_size = 0;
-
-	typedef std::pair<container_BY_SCULPT_ID_view::iterator, container_BY_SCULPT_ID_view::iterator> pair_iter_iter_t;
-
-	pair_iter_iter_t itLU = m_size_info.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
-	if (itLU.first == itLU.second)
-	{ //register
-		llassert(m_size_info.get<tag_BY_DRAWABLE>().end() == m_size_info.get<tag_BY_DRAWABLE>().find(pdrawable));
-		m_size_info.get<tag_BY_DRAWABLE>().insert(Info( pdrawable, sz, boost::make_shared<SizeInfo>(sz), sculptId ));
-		total_size = sz;
-	}
-	else
-	{ //update + register
-		Info &nfo = const_cast<Info &>(*itLU.first);
-		//calc new size
-		total_size = nfo.getTotalSize() + sz;
-		nfo.m_p_size_info->m_size = total_size;
-		nfo.m_size = sz;
-		//update size for all LLDrwable in range of sculptId
-		for (pair_iter_iter_t::first_type it = itLU.first; it != itLU.second; ++it)
-		{
-			m_size_info.get<tag_BY_SIZE>().modify_key(m_size_info.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
-		}
-
-		//trying insert the LLDrawable
-		m_size_info.get<tag_BY_DRAWABLE>().insert(Info(pdrawable, sz, nfo.m_p_size_info, sculptId));
-	}
-
-	static LLCachedControl<U32> render_auto_mute_byte_limit(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
-
-	if (0 != render_auto_mute_byte_limit && total_size > render_auto_mute_byte_limit)
-	{
-		pair_iter_iter_t it_eqr = m_size_info.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
-		for (; it_eqr.first != it_eqr.second; ++it_eqr.first)
-		{
-			const Info &i = *it_eqr.first;
-			LLVOVolume *pVVol = i.m_p_drawable->getVOVolume();
-			if (pVVol
-				&& !pVVol->isDead()
-				&& pVVol->isAttachment()
-				&& !pVVol->getAvatar()->isSelf()
-				&& LLVOVolume::NO_LOD != pVVol->getLOD()
-				)
-			{
-				//immediately
-				const_cast<LLDrawable*>(i.m_p_drawable)->unload();
-			}
-		}
-	}
-}
-
-void LLSculptIDSize::dec(const LLDrawable *pdrawable)
-{
-	container_BY_DRAWABLE_view::iterator it = m_size_info.get<tag_BY_DRAWABLE>().find(pdrawable);
-	if (m_size_info.get<tag_BY_DRAWABLE>().end() == it) return;
-
-	unsigned int size = it->getTotalSize() - it->getSize();
-
-	if (0 == size)
-	{
-		m_size_info.get<tag_BY_SCULPT_ID>().erase(it->getSculptId());
-	}
-	else
-	{
-		Info &nfo = const_cast<Info &>(*it);
-		nfo.m_size = 0;
-		typedef std::pair<container_BY_SCULPT_ID_view::iterator, container_BY_SCULPT_ID_view::iterator> pair_iter_iter_t;
-		pair_iter_iter_t itLU = m_size_info.get<tag_BY_SCULPT_ID>().equal_range(it->getSculptId());
-		it->m_p_size_info->m_size = size;
-		for (pair_iter_iter_t::first_type it = itLU.first; it != itLU.second; ++it)
-		{
-			m_size_info.get<tag_BY_SIZE>().modify_key(m_size_info.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
-		}
-	}
-}
-
-void LLSculptIDSize::rem(LLUUID sculptId)
-{
-	m_size_info.get<tag_BY_SCULPT_ID>().erase(sculptId);
 }

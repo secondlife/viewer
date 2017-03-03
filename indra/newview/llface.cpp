@@ -53,6 +53,7 @@
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
 #include "llvoavatar.h"
+#include "llsculptidsize.h"
 
 #if LL_LINUX
 // Work-around spurious used before init warning on Vector4a
