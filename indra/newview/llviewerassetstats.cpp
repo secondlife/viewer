@@ -168,6 +168,7 @@ namespace LLViewerAssetStatsFF
 
 	static LLTrace::DCCountStatHandle<> sEnqueued[EVACCount];
 	static LLTrace::DCCountStatHandle<> sDequeued[EVACCount];
+	static LLTrace::DCEventStatHandle<> sBytesFetched[EVACCount];
 	static LLTrace::DCEventStatHandle<F64Seconds > sResponse[EVACCount];
 }
 
@@ -277,7 +278,8 @@ void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetS
             .resp_count(rec.getSampleCount(sResponse[cat]))
             .resp_min(rec.getMin(sResponse[cat]).value())
             .resp_max(rec.getMax(sResponse[cat]).value())
-            .resp_mean(rec.getMean(sResponse[cat]).value());
+            .resp_mean(rec.getMean(sResponse[cat]).value())
+            .resp_mean_bytes(rec.getMean(sBytesFetched[cat]));
     }
 }
 
@@ -370,11 +372,12 @@ void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 	add(sDequeued[int(eac)], 1);
 }
 
-void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration)
+void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
 	record(sResponse[int(eac)], F64Microseconds(duration));
+	record(sBytesFetched[int(eac)], bytes);
 }
 
 void init()
@@ -403,7 +406,8 @@ LLViewerAssetStats::AssetRequestType::AssetRequestType()
 	resp_count("resp_count"),
 	resp_min("resp_min"),
 	resp_max("resp_max"),
-	resp_mean("resp_mean")
+	resp_mean("resp_mean"),
+    resp_mean_bytes("resp_mean_bytes")
 {}
 	
 LLViewerAssetStats::FPSStats::FPSStats() 

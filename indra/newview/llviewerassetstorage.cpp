@@ -82,7 +82,8 @@ protected:
             LLViewerAssetStatsFF::record_dequeue(mType, mWithHTTP, false);
             LLViewerAssetStatsFF::record_response(mType, mWithHTTP, false,
                                                   (LLViewerAssetStatsFF::get_timestamp()
-                                                   - mMetricsStartTime));
+                                                   - mMetricsStartTime),
+                                                  mBytesFetched);
             mMetricsStartTime = (U32Seconds)0;
         }
     }
@@ -458,12 +459,13 @@ void LLViewerAssetStorage::queueRequestHttp(
             LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
             LLCoros::instance().launch("LLViewerAssetStorage::assetRequestCoro",
-                                       boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, uuid, atype, callback, user_data));
+                                       boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
         }
     }
 }
 
 void LLViewerAssetStorage::assetRequestCoro(
+    LLViewerAssetRequest *req,
     const LLUUID& uuid,
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
@@ -506,6 +508,7 @@ void LLViewerAssetStorage::assetRequestCoro(
             temp_id.generate();
             LLVFile vf(gAssetStorage->mVFS, temp_id, atype, LLVFile::WRITE);
             vf.setMaxSize(size);
+            req->mBytesFetched = size;
             if (!vf.write(raw.data(),size))
             {
                 // TODO asset-http: handle error

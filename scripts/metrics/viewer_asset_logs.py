@@ -72,6 +72,7 @@ def update_stats(stats,rec):
                 #print "field",field,"count",type_stats["count"]
                 if (newcount>0):
                     type_stats["sum"] = type_stats.get("sum",0) + val["resp_count"] * val["resp_mean"]
+                    type_stats["sum_bytes"] = type_stats.get("sum_bytes",0) + val["resp_count"] * val.get("resp_mean_bytes",0)
                 type_stats["enqueued"] = type_stats.get("enqueued",0) + val["enqueued"]
                 type_stats["dequeued"] = type_stats.get("dequeued",0) + val["dequeued"]
                 
@@ -92,7 +93,10 @@ if __name__ == "__main__":
 
         update_stats(stats,rec)
 
-    for key, val in stats.iteritems():
+    for key in sorted(stats.keys()):
+        val = stats[key]
         if val["count"] > 0:
-            print "key",key,"count",val["count"],"mean",val["sum"]/val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
+            print key,"count",val["count"],"mean_time",val["sum"]/val["count"],"mean_bytes",val["sum_bytes"]/val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
+        else:
+            print key,"count",val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
 

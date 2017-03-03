@@ -138,6 +138,7 @@ public:
 	BOOL	mIsUserWaiting;		// We don't want to try forever if a user is waiting for a result.
 	F64Seconds		mTimeout;			// Amount of time before timing out.
 	LLUUID	mRequestingAgentID;	// Only valid for uploads from an agent
+    F64	mBytesFetched;
 
 	virtual LLSD getTerseDetails() const;
 	virtual LLSD getFullDetails() const;

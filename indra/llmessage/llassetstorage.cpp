@@ -195,7 +195,8 @@ LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type
         mInfoCallback( NULL ),
         mIsLocal(FALSE),
         mIsUserWaiting(FALSE),
-        mTimeout(LL_ASSET_STORAGE_TIMEOUT)
+        mTimeout(LL_ASSET_STORAGE_TIMEOUT),
+        mBytesFetched(0)
 {
 }
 
@@ -640,6 +641,20 @@ void LLAssetStorage::downloadCompleteCallback(
             
             result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
             vfile.remove();
+        }
+        else
+        {
+#if 1
+            for (request_list_t::iterator iter = gAssetStorage->mPendingDownloads.begin();
+                 iter != gAssetStorage->mPendingDownloads.end(); ++iter  )
+            {
+                LLAssetRequest* dlreq = *iter;
+                if ((dlreq->getUUID() == file_id) && (dlreq->getType()== file_type))
+                {
+                    dlreq->mBytesFetched = vfile.getSize();
+                }
+            }
+#endif
         }
     }
 

@@ -118,11 +118,12 @@ public:
 	struct AssetRequestType : public LLInitParam::Block<AssetRequestType>
 	{
 		Mandatory<S32>	enqueued,
-			dequeued,
-			resp_count;
+						dequeued,
+						resp_count;
 		Mandatory<F64>	resp_min,
 						resp_max,
-						resp_mean;
+						resp_mean,
+						resp_mean_bytes;
 	
 		AssetRequestType();
 	};
@@ -272,7 +273,7 @@ void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
 void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp,
-						  LLViewerAssetStats::duration_t duration);
+                     LLViewerAssetStats::duration_t duration, F64 bytes=0);
 
 void record_avatar_stats();
 

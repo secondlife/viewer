@@ -31,6 +31,8 @@
 
 class LLVFile;
 
+class LLViewerAssetRequest;
+
 class LLViewerAssetStorage : public LLAssetStorage
 {
 public:
@@ -85,7 +87,8 @@ protected:
                           BOOL duplicate,
                           BOOL is_priority);
 
-    void assetRequestCoro(const LLUUID& uuid,
+    void assetRequestCoro(LLViewerAssetRequest *req,
+                          const LLUUID& uuid,
                           LLAssetType::EType atype,
                           void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
                           void *user_data);
