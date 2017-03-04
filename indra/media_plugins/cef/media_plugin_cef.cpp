@@ -29,9 +29,6 @@
 #include "linden_common.h"
 #include "indra_constants.h" // for indra keyboard codes
 
-#include <Carbon/Carbon.h>
-#include <CoreServices/CoreServices.h>
-
 #include "llgl.h"
 #include "llsdutil.h"
 #include "llplugininstance.h"
@@ -670,8 +667,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 #elif LL_WINDOWS
 				std::string event = message_in.getValue("event");
-				S32 key = message_in.getValueS32("key");
-				std::string modifiers = message_in.getValue("modifiers");
 				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
 
 				// Treat unknown events as key-up for safety.
