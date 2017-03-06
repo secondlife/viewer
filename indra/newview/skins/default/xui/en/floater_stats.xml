@@ -8,6 +8,7 @@
          save_rect="true"
          save_visibility="true"
          title="STATISTICS"
+         min_width="250"
          width="270">
   <scroll_container follows="all"
                     height="380"

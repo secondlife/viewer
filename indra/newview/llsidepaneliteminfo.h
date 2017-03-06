@@ -89,6 +89,7 @@ protected:
 	void 						onCommitSaleInfo();
 	void 						onCommitSaleType();
 	void 						updateSaleInfo();
+	void 						onCommitChanges(LLPointer<LLViewerInventoryItem> item);
 };
 
 #endif // LL_LLSIDEPANELITEMINFO_H

@@ -34,6 +34,7 @@
 #include "llrect.h"
 #include "llerror.h"
 #include "llstring.h"
+#include "llvoavatarself.h"
 #include "message.h"
 
 // project include
@@ -80,6 +81,36 @@ BOOL LLFloaterScriptDebug::postBuild()
 	return FALSE;
 }
 
+void LLFloaterScriptDebug::setVisible(BOOL visible)
+{
+	if(visible)
+	{
+		LLFloaterScriptDebugOutput* floater_output = LLFloaterReg::findTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+		if (floater_output == NULL)
+		{
+			floater_output = dynamic_cast<LLFloaterScriptDebugOutput*>(LLFloaterReg::showInstance("script_debug_output", LLUUID::null, FALSE));
+			if (floater_output)
+			{
+				addFloater(floater_output, false);
+			}
+		}
+
+	}
+	LLMultiFloater::setVisible(visible);
+}
+
+void LLFloaterScriptDebug::closeFloater(bool app_quitting/* = false*/)
+{
+	if(app_quitting)
+	{
+		LLMultiFloater::closeFloater(app_quitting);
+	}
+	else
+	{
+		setVisible(false);
+	}
+}
+
 LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 {
 	LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
@@ -105,7 +136,14 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 	if (objectp)
 	{
-		objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		if(objectp->isHUDAttachment())
+		{
+			((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		}
+		else
+		{
+			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		}
 		floater_label = llformat("%s(%.0f, %.0f, %.0f)",
 						user_name.c_str(),
 						objectp->getPositionRegion().mV[VX],
@@ -117,7 +155,6 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 		floater_label = user_name;
 	}
 
-	addOutputWindow(LLUUID::null);
 	addOutputWindow(source_id);
 
 	// add to "All" floater

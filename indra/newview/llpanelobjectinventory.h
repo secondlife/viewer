@@ -105,6 +105,7 @@ private:
 	LLFolderView* mFolders;
 	
 	LLUUID mTaskUUID;
+	LLUUID mAttachmentUUID;
 	BOOL mHaveInventory;
 	BOOL mIsInventoryEmpty;
 	BOOL mInventoryNeedsUpdate;

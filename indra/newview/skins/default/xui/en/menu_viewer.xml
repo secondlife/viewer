@@ -447,6 +447,13 @@
              function="Floater.Toggle"
              parameter="mini_map" />
         </menu_item_check>
+        <menu_item_call
+             label="Events"
+             name="Events">
+            <menu_item_call.on_click
+             function="Advanced.ShowURL"
+             parameter="http://events.secondlife.com"/>
+        </menu_item_call>
         <menu_item_check
         label="Search..."
         name="Search"
@@ -1018,6 +1025,16 @@
            label="Scripts"
            name="Scripts"
            tear_off="true">
+          <menu_item_check
+             label="Script warnings/errors..."
+             name="Script debug">
+            <menu_item_check.on_check
+             function="Floater.IsOpen"
+             parameter="script_debug" />
+            <menu_item_check.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="script_debug" />
+          </menu_item_check>
           <menu_item_call
              label="Recompile Scripts (Mono)"
              name="Mono">

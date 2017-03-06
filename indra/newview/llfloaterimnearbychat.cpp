@@ -304,6 +304,13 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
 	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
 	LLFloaterIMSessionTab::restoreFloater();
+	if (app_quitting)
+	{
+		// We are starting and closing floater in "expanded" state
+		// Update expanded (restored) rect and position for use in next session
+		forceReshape();
+		storeRectControl();
+	}
 }
 
 // virtual

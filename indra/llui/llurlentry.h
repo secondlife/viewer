@@ -269,6 +269,14 @@ private:
 	/*virtual*/ std::string getName(const LLAvatarName& avatar_name);
 };
 
+class LLUrlEntryAgentLegacyName : public LLUrlEntryAgentName
+{
+public:
+	LLUrlEntryAgentLegacyName();
+private:
+	/*virtual*/ std::string getName(const LLAvatarName& avatar_name);
+};
+
 ///
 /// LLUrlEntryAgentDisplayName Describes a Second Life agent display name Url, e.g.,
 /// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname

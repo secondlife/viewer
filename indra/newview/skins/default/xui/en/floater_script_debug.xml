@@ -7,6 +7,7 @@
  help_topic="script_debug_floater"
  save_rect="true"
  title="Script Warning/Error"
+ reuse_instance="true"
  width="450">
     <tab_container
      follows="left|top|right|bottom"

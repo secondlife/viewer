@@ -515,6 +515,42 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 	return findCategoryUUIDForTypeInRoot(preferred_type, create_folder, gInventory.getRootFolderID());
 }
 
+const LLUUID LLInventoryModel::findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type)
+{
+    LLUUID cat_id;
+    switch (preferred_type)
+    {
+    case LLFolderType::FT_OBJECT:
+    {
+        cat_id = LLUUID(gSavedPerAccountSettings.getString("ModelUploadFolder"));
+        break;
+    }
+    case LLFolderType::FT_TEXTURE:
+    {
+        cat_id = LLUUID(gSavedPerAccountSettings.getString("TextureUploadFolder"));
+        break;
+    }
+    case LLFolderType::FT_SOUND:
+    {
+        cat_id = LLUUID(gSavedPerAccountSettings.getString("SoundUploadFolder"));
+        break;
+    }
+    case LLFolderType::FT_ANIMATION:
+    {
+        cat_id = LLUUID(gSavedPerAccountSettings.getString("AnimationUploadFolder"));
+        break;
+    }
+    default:
+        break;
+    }
+    
+    if (cat_id.isNull() || !getCategory(cat_id))
+    {
+        cat_id = findCategoryUUIDForTypeInRoot(preferred_type, true, getRootFolderID());
+    }
+    return cat_id;
+}
+
 const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
 {
 	return findCategoryUUIDForTypeInRoot(preferred_type, create_folder, gInventory.getLibraryRootFolderID());
