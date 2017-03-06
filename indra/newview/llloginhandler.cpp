@@ -168,7 +168,6 @@ LLPointer<LLCredential> LLLoginHandler::loadSavedUserLoginInfo()
 		authenticator["algorithm"] = "md5";
 		authenticator["secret"] = md5pass;
 		// yuck, we'll fix this with mani's changes.
-		gSavedSettings.setBOOL("AutoLogin", TRUE);
 		return gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), 
 													   identifier, authenticator);
 	}

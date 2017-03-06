@@ -161,6 +161,7 @@ void LLSpellChecker::refreshDictionaryMap()
 	}
 
 	// Load user installed dictionary information
+	user_filename = user_path + DICT_FILE_USER;
 	llifstream custom_file(user_filename.c_str(), std::ios::binary);
 	if (custom_file.is_open())
 	{

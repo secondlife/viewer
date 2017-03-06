@@ -1227,11 +1227,12 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 		return;
 	}
 
+	U32 use_count = 0;
 	for (LLWearableHoldingPattern::found_list_t::iterator iter = getFoundList().begin();
-		 iter != getFoundList().end(); ++iter)
+		iter != getFoundList().end(); ++iter)
 	{
 		LLFoundData& data = *iter;
-		if(wearable->getAssetID() == data.mAssetID)
+		if (wearable->getAssetID() == data.mAssetID)
 		{
 			// Failing this means inventory or asset server are corrupted in a way we don't handle.
 			if ((data.mWearableType >= LLWearableType::WT_COUNT) || (wearable->getType() != data.mWearableType))
@@ -1240,8 +1241,47 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 				break;
 			}
 
-			data.mWearable = wearable;
+			if (use_count == 0)
+			{
+				data.mWearable = wearable;
+				use_count++;
+			}
+			else
+			{
+				LLViewerInventoryItem* wearable_item = gInventory.getItem(data.mItemID);
+				if (wearable_item && wearable_item->isFinished() && wearable_item->getPermissions().allowModifyBy(gAgentID))
+				{
+					// We can't edit and do some other interactions with same asset twice, copy it
+					// Note: can't update incomplete items. Usually attached from previous viewer build, but
+					// consider adding fetch and completion callback
+					LLViewerWearable* new_wearable = LLWearableList::instance().createCopy(wearable, wearable->getName());
+					data.mWearable = new_wearable;
+					data.mAssetID = new_wearable->getAssetID();
+
+					// Update existing inventory item
+					wearable_item->setAssetUUID(new_wearable->getAssetID());
+					wearable_item->setTransactionID(new_wearable->getTransactionID());
+					gInventory.updateItem(wearable_item, LLInventoryObserver::INTERNAL);
+					wearable_item->updateServer(FALSE);
+
+					use_count++;
+				}
+				else
+				{
+					// Note: technically a bug, LLViewerWearable can identify only one item id at a time,
+					// yet we are tying it to multiple items here.
+					// LLViewerWearable need to support more then one item.
+					LL_WARNS() << "Same LLViewerWearable is used by multiple items! " << wearable->getAssetID() << LL_ENDL;
+					data.mWearable = wearable;
+				}
+			}
 		}
+	}
+
+	if (use_count > 1)
+	{
+		LL_WARNS() << "Copying wearable, multiple asset id uses! " << wearable->getAssetID() << LL_ENDL;
+		gInventory.notifyObservers();
 	}
 }
 

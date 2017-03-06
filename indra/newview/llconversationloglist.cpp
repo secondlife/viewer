@@ -369,8 +369,13 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 
 	bool is_p2p   = LLIMModel::LLIMSession::P2P_SESSION == stype;
 	bool is_group = LLIMModel::LLIMSession::GROUP_SESSION == stype;
+	bool is_group_member = is_group && gAgent.isInGroup(selected_id, TRUE);
 
-	if ("can_im" == command_name || "can_view_profile" == command_name)
+	if ("can_im" == command_name)
+	{
+		return is_p2p || is_group_member;
+	}
+	else if ("can_view_profile" == command_name)
 	{
 		return is_p2p || is_group;
 	}
@@ -380,7 +385,7 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 	}
 	else if ("can_call"	== command_name)
 	{
-		return (is_p2p || is_group) && LLAvatarActions::canCall();
+		return (is_p2p || is_group_member) && LLAvatarActions::canCall();
 	}
 	else if ("add_rem_friend"		== command_name ||
 			 "can_invite_to_group"	== command_name ||

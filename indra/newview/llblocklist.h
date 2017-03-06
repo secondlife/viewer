@@ -67,6 +67,8 @@ public:
 	void sortByType();
 	void refresh();
 
+	U32 getMuteListSize() { return mMuteListSize; }
+
 private:
 
 	void addNewItem(const LLMute* mute);
