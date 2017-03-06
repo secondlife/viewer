@@ -64,6 +64,7 @@ S32 LLVersionInfo::getPatch()
 //static
 S32 LLVersionInfo::getBuild()
 {
+    std::cout << "What we have IN llversioninfo: " << LL_VIEWER_VERSION_BUILD << std::endl;
 	return LL_VIEWER_VERSION_BUILD;
 }
 

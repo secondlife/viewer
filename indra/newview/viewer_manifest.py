@@ -223,7 +223,7 @@ class ViewerManifest(LLManifest):
         return channel_type
 
     def channel_variant_app_suffix(self):
-        # get any part of the compiled channel name after the CHANNEL_VENDOR_BASE
+        # get any part of the channel name after the CHANNEL_VENDOR_BASE
         suffix=self.channel_variant()
         # by ancient convention, we don't use Release in the app name
         if self.channel_type() == 'release':
@@ -346,15 +346,12 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-            # include the compiled launcher script so that it gets included in the file_list
-            self.path(src='%s/SL_Launcher.exe' % self.args['configuration'], dst="SL_Launcher.exe")
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
         
-        #note, launcher and friends do not need viewer_manifest in Windows as the scripts are compiled into executables
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
@@ -709,28 +706,29 @@ class DarwinManifest(ViewerManifest):
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
-        llbasedir = os.path.join(pkgdir, os.pardir)
+        vmpdir = os.path.join(pkgdir, "VMP")
+        llbasedir = os.path.join(pkgdir, "VMP")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
             self.path("Info.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path(os.path.join(relpkgdir, "libndofdev.dylib"), dst="Resources/libndofdev.dylib")
-            self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")
+            self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")   
 
             if self.prefix(dst="MacOS"):
-                self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
                 #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-                self.path2basename("../viewer_components/manager","SL_Launcher")
-                self.path2basename("../viewer_components/manager","*.py")
+                self.path2basename(vmpdir,"SL_Launcher")
+                self.path2basename(vmpdir,"*.py")
                 llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
                 if not os.path.exists(llbase_path):
                     os.makedirs(llbase_path)
+                #before, we only needed llbase at build time.  With VMP, we need it at run time.
                 if self.prefix(dst="llbase"):
-                    self.path2basename("../packages/llbase","*.py")
-                    self.path2basename("../packages/llbase","_cllsd.so")
+                    self.path2basename(llbasedir,"*.py")
+                    self.path2basename(llbasedir,"_cllsd.so")
                     self.end_prefix()
-                self.end_prefix()         
+                self.end_prefix()  
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -748,6 +746,12 @@ class DarwinManifest(ViewerManifest):
                 if self.prefix(src=icon_path, dst="") :
                     self.path("secondlife.icns")
                     self.end_prefix(icon_path)
+
+                #VMP Tkinter icons
+                if self.prefix("vmp_icons"):
+                    self.path("*.png")
+                    self.path("*.gif")
+                    self.end_prefix("vmp_icons")
 
                 self.path("SecondLife.nib")
                 
@@ -772,12 +776,6 @@ class DarwinManifest(ViewerManifest):
                 self.path("tr.lproj")
                 self.path("uk.lproj")
                 self.path("zh-Hans.lproj")
-
-                #VMP icons
-                if self.prefix("vmp_icons"):
-                    self.path("*.png")
-                    self.path("*.gif")
-                    self.end_prefix("vmp_icons")
 
                 def path_optional(src, dst):
                     """
@@ -1145,17 +1143,7 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin")
-            #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-            self.path2basename("../viewer_components/manager","SL_Launcher")
-            self.path2basename("../viewer_components/manager","*.py")
-            llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
-            if not os.path.exists(llbase_path):
-                os.makedirs(llbase_path)
-            if self.prefix(dst="llbase"):
-                self.path2basename("../packages/llbase","*.py")
-                self.path2basename("../packages/llbase","_cllsd.so")
-                self.end_prefix()            
+            self.path2basename("../llplugin/slplugin", "SLPlugin")          
             self.end_prefix("bin")
 
         if self.prefix("res-sdl"):
