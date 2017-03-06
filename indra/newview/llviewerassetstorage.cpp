@@ -538,7 +538,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
 std::string LLViewerAssetStorage::getAssetURL(const LLUUID& uuid, LLAssetType::EType atype)
 {
-    std::string cap_url = gAgent.getRegion()->getCapability("ViewerAsset");
+	std::string cap_url = gAgent.getRegion()->getViewerAssetUrl();
     std::string type_name = LLAssetType::lookup(atype);
     std::string url = cap_url + "/?" + type_name + "_id=" + uuid.asString();
     return url;
