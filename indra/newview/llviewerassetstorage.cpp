@@ -33,6 +33,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llappcorehttp.h"
 #include "llviewerregion.h"
 
 #include "lltransfersourceasset.h"
@@ -474,7 +475,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     std::string url = getAssetURL(uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
 
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCore::HttpRequest::policy_t httpPolicy(LLAppCoreHttp::AP_TEXTURE);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("assetRequestCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
