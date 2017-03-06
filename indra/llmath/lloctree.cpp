@@ -1,8 +1,7 @@
 /** 
- * @file llallocator.cpp
- * @brief Implementation of the LLAllocator class.
+ * @file lloctree.cpp
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -23,36 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#include "stdtypes.h"
 
-#include "linden_common.h"
-#include "llallocator.h"
+U32 gOctreeMaxCapacity;
+F32 gOctreeMinSize;
 
-//
-// stub implementations for when tcmalloc is disabled
-//
-
-void LLAllocator::setProfilingEnabled(bool should_enable)
-{
-}
-
-// static
-bool LLAllocator::isProfiling()
-{
-    return false;
-}
-
-std::string LLAllocator::getRawProfile()
-{
-    return std::string();
-}
-
-LLAllocatorHeapProfile const & LLAllocator::getProfile()
-{
-    mProf.mLines.clear();
-
-    // *TODO - avoid making all these extra copies of things...
-    std::string prof_text = getRawProfile();
-    //std::cout << prof_text << std::endl;
-    mProf.parse(prof_text);
-    return mProf;
-}

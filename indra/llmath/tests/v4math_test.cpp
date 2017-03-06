@@ -355,7 +355,8 @@ namespace tut
 		val3 = z1 + (z2 - z1)* val;
 		val4 = w1 + (w2 - w1)* val;
 		LLVector4 vec4b = lerp(vec4,vec4a,val);
-		ensure("lerp failed", ((val1 ==vec4b.mV[VX])&& (val2 ==vec4b.mV[VY]) && (val3 ==vec4b.mV[VZ])&& (val4 ==vec4b.mV[VW])));	
+		LLVector4 check(val1, val2, val3, val4);
+		ensure_equals("lerp failed", check, vec4b);
 	}
 
 	template<> template<>

@@ -102,7 +102,6 @@ target_link_libraries(lltest
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_SYSTEM_LIBRARY}
     ${DL_LIBRARY}
-    ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
 if (WINDOWS)

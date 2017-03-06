@@ -125,10 +125,8 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/llceflib.h"
-#if LL_WINDOWS
+#include "cef/dullahan.h"
 #include "vlc/libvlc_version.h"
-#endif // LL_WINDOWS
 #endif // LL_LINUX
 
 // Third party library includes
@@ -334,10 +332,10 @@ BOOL				gDisconnected = FALSE;
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
-BOOL			gUseWireframe = FALSE;
+bool			gUseWireframe = FALSE;
 
 //use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
+bool			gInitialDeferredModeForWireframe = FALSE;
 
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
@@ -3301,6 +3299,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["CHANNEL"] = LLVersionInfo::getChannel();
+    info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")
     {
@@ -3387,20 +3386,28 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+	std::ostringstream cef_ver_codec;
+	cef_ver_codec << "Dullahan: ";
+	cef_ver_codec << DULLAHAN_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_BUILD;
+	cef_ver_codec << " - CEF: ";
+	cef_ver_codec << CEF_VERSION;
+	info["LIBCEF_VERSION"] = cef_ver_codec.str();
 #else
-	info["LLCEFLIB_VERSION"] = "Undefined";
-
+	info["LIBCEF_VERSION"] = "Undefined";
 #endif
 
-#if LL_WINDOWS
-	std::ostringstream ver_codec;
-	ver_codec << LIBVLC_VERSION_MAJOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_MINOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_REVISION;
-	info["LIBVLC_VERSION"] = ver_codec.str();
+#if !LL_LINUX
+	std::ostringstream vlc_ver_codec;
+	vlc_ver_codec << LIBVLC_VERSION_MAJOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_MINOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 #else
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif
