@@ -268,7 +268,7 @@ std::string LLCoros::getName() const
 
 bool LLCoros::isInCoroutine() const
 {
-    CoroData* current = sCurrent.get();
+    CoroData* current = Current();
     return current;
 }
 
