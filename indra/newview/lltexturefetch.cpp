@@ -485,7 +485,7 @@ private:
 	void recordTextureStart(bool is_http);
 
 	// Threads:  Ttf
-	void recordTextureDone(bool is_http);
+	void recordTextureDone(bool is_http, F64 byte_count);
 
 	void lockWorkMutex() { mWorkMutex.lock(); }
 	void unlockWorkMutex() { mWorkMutex.unlock(); }
@@ -1426,6 +1426,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		if (processSimulatorPackets())
 		{
+            // Capture some measure of total size for metrics
+            F64 byte_count = 0;
+            for (S32 i=mFirstPacket; i<=mLastPacket; i++)
+            {
+                byte_count += mPackets[i]->mSize;
+            }
+
 			LL_DEBUGS(LOG_TXT) << mID << ": Loaded from Sim. Bytes: " << mFormattedImage->getDataSize() << LL_ENDL;
 			mFetcher->removeFromNetworkQueue(this, false);
 			if (mFormattedImage.isNull() || !mFormattedImage->getDataSize())
@@ -1443,7 +1450,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			setState(DECODE_IMAGE);
 			mWriteToCacheState = SHOULD_WRITE;
-			recordTextureDone(false);
+
+			recordTextureDone(false, byte_count);
 		}
 		else
 		{
@@ -2093,7 +2101,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 
 	mFetcher->removeFromHTTPQueue(mID, data_size);
 	
-	recordTextureDone(true);
+	recordTextureDone(true, data_size);
 }																		// -Mw
 
 
@@ -2493,14 +2501,15 @@ void LLTextureFetchWorker::recordTextureStart(bool is_http)
 
 
 // Threads:  Ttf
-void LLTextureFetchWorker::recordTextureDone(bool is_http)
+void LLTextureFetchWorker::recordTextureDone(bool is_http, F64 byte_count)
 {
 	if (mMetricsStartTime.value())
 	{
 		LLViewerAssetStatsFF::record_response(LLViewerAssetType::AT_TEXTURE,
-													  is_http,
-													  LLImageBase::TYPE_AVATAR_BAKE == mType,
-													  LLViewerAssetStatsFF::get_timestamp() - mMetricsStartTime);
+                                              is_http,
+                                              LLImageBase::TYPE_AVATAR_BAKE == mType,
+                                              LLViewerAssetStatsFF::get_timestamp() - mMetricsStartTime,
+                                              byte_count);
 		mMetricsStartTime = (U32Seconds)0;
 	}
 	LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE,

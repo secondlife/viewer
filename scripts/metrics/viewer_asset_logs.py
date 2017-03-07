@@ -96,7 +96,7 @@ if __name__ == "__main__":
     for key in sorted(stats.keys()):
         val = stats[key]
         if val["count"] > 0:
-            print key,"count",val["count"],"mean_time",val["sum"]/val["count"],"mean_bytes",val["sum_bytes"]/val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
+            print key,"count",val["count"],"mean_time",val["sum"]/val["count"],"mean_bytes",val["sum_bytes"]/val["count"],"net bytes/sec",val["sum_bytes"]/val["sum"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
         else:
             print key,"count",val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
 
