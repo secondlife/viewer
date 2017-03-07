@@ -149,7 +149,7 @@ public:
     std::string getName() const;
 
     /**
-     * Is sCurrentCoro non-null?
+     * Is sCurrent non-null?
      */
     bool isInCoroutine() const;
     
