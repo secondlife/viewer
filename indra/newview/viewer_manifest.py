@@ -346,6 +346,13 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+            # include the compiled launcher scripts so that it gets included in the file_list
+            self.path(src='%s/apply_update.exe' % self.args['configuration'], dst="apply_update.exe")
+            self.path(src='%s/download_update.exe' % self.args['configuration'], dst="download_update.exe")
+            self.path(src='%s/SL_Launcher.exe' % self.args['configuration'], dst="SL_Launcher.exe")
+            self.path(src='%s/update_manager.exe' % self.args['configuration'], dst="update_manager.exe")
+            #IUM is not normally executed directly, just imported.  No exe needed.
+            self.path2basename("../viewer_components/manager","InstallerUserMessage.py")
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -677,7 +684,17 @@ class WindowsManifest(ViewerManifest):
         if not python or python == "${PYTHON}":
             python = 'python'
         if os.path.exists(sign_py):
+            print "about to run signing of: ", self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')
             self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
+            #Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
+            print "about to run signing of: ", self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')))
+            print "about to run signing of: ", self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')))
+            print "about to run signing of: ", self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')))
+            print "about to run signing of: ", self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\')))
         else:
             print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
@@ -1143,7 +1160,16 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin")          
+            self.path2basename("../llplugin/slplugin", "SLPlugin") 
+            #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
+            self.path2basename("../viewer_components/manager","SL_Launcher")
+            self.path2basename("../viewer_components/manager","*.py")
+            llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
+            if not os.path.exists(llbase_path):
+                os.makedirs(llbase_path)
+            if self.prefix(dst="llbase"):
+                self.path2basename("../packages/llbase","*.py")
+                self.path2basename("../packages/llbase","_cllsd.so")         
             self.end_prefix("bin")
 
         if self.prefix("res-sdl"):
