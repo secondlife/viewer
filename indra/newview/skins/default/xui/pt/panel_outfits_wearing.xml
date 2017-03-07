@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
+	<panel.string name="no_attachments">
+		Nenhum anexo vestido.
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="Itens de vestuário"/>
+		<accordion_tab name="tab_temp_attachments" title="Anexos temporários"/>
+	</accordion>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
+		<menu_button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
 	</panel>
 </panel>

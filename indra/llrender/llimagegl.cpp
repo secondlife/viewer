@@ -1267,6 +1267,12 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	llassert(gGLManager.mInited);
 	stop_glerror();
 
+	if (!imageraw || imageraw->isBufferInvalid())
+	{
+		LL_WARNS() << "Trying to create a texture from invalid image data" << LL_ENDL;
+		return FALSE;
+	}
+
 	if (discard_level < 0)
 	{
 		llassert(mCurrentDiscardLevel >= 0);

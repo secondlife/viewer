@@ -2050,7 +2050,10 @@ void LLAgent::endAnimationUpdateUI()
 			{
 				skip_list.insert(LLFloaterReg::findInstance("mini_map"));
 			}
-
+			if (LLFloaterReg::findInstance("beacons"))
+			{
+				skip_list.insert(LLFloaterReg::findInstance("beacons"));
+			}
 			LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 			LLFloaterIMContainer::floater_list_t conversations;
 			im_box->getDetachedConversationFloaters(conversations);
@@ -2172,6 +2175,7 @@ void LLAgent::endAnimationUpdateUI()
 #else // Use this for now
 		LLFloaterView::skip_list_t skip_list;
 		skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+		skip_list.insert(LLFloaterReg::findInstance("beacons"));
 		gFloaterView->pushVisibleAll(FALSE, skip_list);
 #endif
 
@@ -3191,19 +3195,12 @@ void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
 }
 
 BOOL LLAgent::leftButtonGrabbed() const	
-{
+{ 
 	const BOOL camera_mouse_look = gAgentCamera.cameraMouselook();
 	return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0) 
 		|| (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)
 		|| (!camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
 		|| (camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
-}
-
-BOOL LLAgent::leftButtonBlocked() const
-{
-    const BOOL camera_mouse_look = gAgentCamera.cameraMouselook();
-    return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
-        || (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
 }
 
 BOOL LLAgent::rotateGrabbed() const		
@@ -3663,14 +3660,7 @@ BOOL LLAgent::anyControlGrabbed() const
 
 BOOL LLAgent::isControlGrabbed(S32 control_index) const
 {
-    if (gAgent.mControlsTakenCount[control_index] > 0)
-        return TRUE;
-    return gAgent.mControlsTakenPassedOnCount[control_index] > 0;
-}
-
-BOOL LLAgent::isControlBlocked(S32 control_index) const
-{
-    return mControlsTakenCount[control_index] > 0;
+	return mControlsTakenCount[control_index] > 0;
 }
 
 void LLAgent::forceReleaseControls()

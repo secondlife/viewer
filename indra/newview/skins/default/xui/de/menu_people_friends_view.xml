@@ -4,5 +4,6 @@
 	<menu_item_check label="Nach Status sortieren" name="sort_status"/>
 	<menu_item_check label="Symbole für Personen anzeigen" name="view_icons"/>
 	<menu_item_check label="Erteilte Genehmigungen anzeigen" name="view_permissions"/>
+	<menu_item_check label="Benutzernamen ausblenden" name="view_usernames"/>
 	<menu_item_check label="Unterhaltungsprotokoll anzeigen..." name="view_conversation"/>
 </toggleable_menu>

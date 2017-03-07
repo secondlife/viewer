@@ -37,9 +37,10 @@ class LLFriendCardsManager
 	: public LLSingleton<LLFriendCardsManager>
 	, public LLFriendObserver
 {
+	LLSINGLETON(LLFriendCardsManager);
+	~LLFriendCardsManager();
 	LOG_CLASS(LLFriendCardsManager);
 
-	friend class LLSingleton<LLFriendCardsManager>;
 	friend class CreateFriendCardCallback;
 
 public:
@@ -97,8 +98,6 @@ public:
 private:
 	typedef boost::function<void()> callback_t;
 
-	LLFriendCardsManager();
-	~LLFriendCardsManager();
 
 
 	/**

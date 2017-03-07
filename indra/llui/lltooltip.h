@@ -129,9 +129,10 @@ public:
 
 class LLToolTipMgr : public LLSingleton<LLToolTipMgr>
 {
+	LLSINGLETON(LLToolTipMgr);
 	LOG_CLASS(LLToolTipMgr);
+
 public:
-	LLToolTipMgr();
 	void show(const LLToolTip::Params& params);
 	void show(const std::string& message);
 

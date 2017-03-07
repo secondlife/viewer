@@ -444,7 +444,7 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
 			&& (remote_filename.substr(remote_filename.length()-4) == ".tmp")
 			&& gDirUtilp->fileExists(local_filename))
 		{
-			LLFile::remove(local_filename);
+			LLFile::remove(local_filename, ENOENT);
 		}
 		xfer_id = getNextID();
 		((LLXfer_File *)xferp)->initializeRequest(

@@ -22,14 +22,6 @@
 			Riproduci video
 		</playtip>
 	</widgetset>
-	<widgetset name="none">
-		<label name="none_label">
-			Nessun contenuto
-		</label>
-		<tooltip name="none_tooltip">
-			Nessun contenuto multimediale qui
-		</tooltip>
-	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
 			Immagine
@@ -52,9 +44,22 @@
 			Riproduci l&apos;audio di questo posto
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Nessun contenuto
+		</label>
+		<tooltip name="none_tooltip">
+			Nessun contenuto multimediale qui
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Streaming in tempo reale
+		</label>
+	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			Media supportati da LibVLC
 		</label>
 	</scheme>
 	<mimetype name="blank">
@@ -125,11 +130,6 @@
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
 			Macromedia Director
-		</label>
-	</mimetype>
-	<mimetype name="application/x-shockwave-flash">
-		<label name="application/x-shockwave-flash_label">
-			Flash
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -205,6 +205,11 @@
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
 			Video (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="application/octet-stream">
+		<label name="video/octet-stream">
+			Filmato
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">

@@ -90,13 +90,26 @@
           top_delta="0"
           width="31"/>
      </panel>
+     <text
+          type="string"
+          length="1"
+          follows="left|top|right"
+          height="14"
+          layout="topleft"
+          right="-10"
+          top_pad="4"
+          left="3"
+          use_ellipses="true"
+          name="block_limit">
+          [COUNT] entries in your block list, and the limit is [LIMIT].
+      </text>
     <block_list
      follows="all"
-     height="273"
+     height="255"
      layout="topleft"
      left="3"
      name="blocked"
      tool_tip="List of currently blocked Residents"
-     top="31"
+     top_pad="4"
   	 right="-1"/>
 </panel>

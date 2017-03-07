@@ -239,6 +239,14 @@ namespace
 {
 	std::string className(const std::type_info& type)
 	{
+		return LLError::Log::demangle(type.name());
+	}
+} // anonymous
+
+namespace LLError
+{
+	std::string Log::demangle(const char* mangled)
+	{
 #ifdef __GNUC__
 		// GCC: type_info::name() returns a mangled class name,st demangle
 
@@ -252,31 +260,34 @@ namespace
 			// but gcc 3.3 libstc++'s implementation of demangling is broken
 			// and fails without.
 			
-		char* name = abi::__cxa_demangle(type.name(),
+		char* name = abi::__cxa_demangle(mangled,
 										abi_name_buf, &abi_name_len, &status);
 			// this call can realloc the abi_name_buf pointer (!)
 
-		return name ? name : type.name();
+		return name ? name : mangled;
 
 #elif LL_WINDOWS
 		// DevStudio: type_info::name() includes the text "class " at the start
 
 		static const std::string class_prefix = "class ";
-
-		std::string name = type.name();
-		std::string::size_type p = name.find(class_prefix);
-		if (p == std::string::npos)
+		std::string name = mangled;
+		if (0 != name.compare(0, class_prefix.length(), class_prefix))
 		{
+			LL_DEBUGS() << "Did not see '" << class_prefix << "' prefix on '"
+					   << name << "'" << LL_ENDL;
 			return name;
 		}
 
-		return name.substr(p + class_prefix.size());
+		return name.substr(class_prefix.length());
 
-#else		
-		return type.name();
+#else
+		return mangled;
 #endif
 	}
+} // LLError
 
+namespace
+{
 	std::string functionName(const std::string& preprocessor_name)
 	{
 #if LL_WINDOWS
@@ -363,9 +374,8 @@ namespace
 
 	class Globals : public LLSingleton<Globals>
 	{
+		LLSINGLETON(Globals);
 	public:
-		Globals();
-
 		std::ostringstream messageStream;
 		bool messageStreamInUse;
 
@@ -438,11 +448,10 @@ namespace LLError
 
 	class Settings : public LLSingleton<Settings>
 	{
+		LLSINGLETON(Settings);
 	public:
-		Settings();
-
 		SettingsConfigPtr getSettingsConfig();
-	
+
 		void reset();
 		SettingsStoragePtr saveAndReset();
 		void restore(SettingsStoragePtr pSettingsStorage);
@@ -450,7 +459,7 @@ namespace LLError
 	private:
 		SettingsConfigPtr mSettingsConfig;
 	};
-	
+
 	SettingsConfig::SettingsConfig()
 		: LLRefCount(),
 		mPrintLocation(false),
@@ -475,8 +484,7 @@ namespace LLError
 		mRecorders.clear();
 	}
 
-	Settings::Settings()
-		: LLSingleton<Settings>(),
+	Settings::Settings():
 		mSettingsConfig(new SettingsConfig())
 	{
 	}
@@ -485,25 +493,30 @@ namespace LLError
 	{
 		return mSettingsConfig;
 	}
-	
+
 	void Settings::reset()
 	{
 		Globals::getInstance()->invalidateCallSites();
 		mSettingsConfig = new SettingsConfig();
 	}
-	
+
 	SettingsStoragePtr Settings::saveAndReset()
 	{
 		SettingsStoragePtr oldSettingsConfig(mSettingsConfig.get());
 		reset();
 		return oldSettingsConfig;
 	}
-	
+
 	void Settings::restore(SettingsStoragePtr pSettingsStorage)
 	{
 		Globals::getInstance()->invalidateCallSites();
 		SettingsConfigPtr newSettingsConfig(dynamic_cast<SettingsConfig *>(pSettingsStorage.get()));
 		mSettingsConfig = newSettingsConfig;
+	}
+
+	bool is_available()
+	{
+		return Settings::instanceExists() && Globals::instanceExists();
 	}
 }
 

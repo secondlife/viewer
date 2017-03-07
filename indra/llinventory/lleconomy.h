@@ -42,18 +42,11 @@ public:
 	virtual void onEconomyDataChange() = 0;
 };
 
-class LLGlobalEconomy
+class LLBaseEconomy
 {
 public:
-	LLGlobalEconomy();
-	virtual ~LLGlobalEconomy();
-
-	// This class defines its singleton internally as a typedef instead of inheriting from
-	// LLSingleton like most others because the LLRegionEconomy sub-class might also
-	// become a singleton and this pattern will more easily disambiguate them.
-	typedef LLSingleton<LLGlobalEconomy> Singleton;
-
-	void initSingleton() { }
+	LLBaseEconomy();
+	virtual ~LLBaseEconomy();
 
 	virtual void print();
 
@@ -61,7 +54,7 @@ public:
 	void	removeObserver(LLEconomyObserver* observer);
 	void	notifyObservers();
 
-	static void processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data);
+	static void processEconomyData(LLMessageSystem *msg, LLBaseEconomy* econ_data);
 
 	S32		calculateTeleportCost(F32 distance) const;
 	S32		calculateLightRent(const LLVector3& object_size) const;
@@ -108,8 +101,12 @@ private:
 	std::list<LLEconomyObserver*> mObservers;
 };
 
+class LLGlobalEconomy: public LLSingleton<LLGlobalEconomy>, public LLBaseEconomy
+{
+	LLSINGLETON_EMPTY_CTOR(LLGlobalEconomy);
+};
 
-class LLRegionEconomy : public LLGlobalEconomy
+class LLRegionEconomy : public LLBaseEconomy
 {
 public:
 	LLRegionEconomy();

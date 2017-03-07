@@ -3,6 +3,10 @@
 	<menu_item_call label="Vestir - Substituir look atual" name="wear"/>
 	<menu_item_call label="Vestir - Adicionar ao look atual" name="wear_add"/>
 	<menu_item_call label="Tirar - Tirar do look atual" name="take_off"/>
+	<menu_item_call label="Carregar foto (L$ 10)" name="upload_photo"/>
+	<menu_item_call label="Selecionar foto" name="select_photo"/>
+	<menu_item_call label="Tirar uma foto" name="take_snapshot"/>
+	<menu_item_call label="Remover foto" name="remove_photo"/>
 	<menu label="Roupas novas" name="New Clothes">
 		<menu_item_call label="Nova camisa" name="New Shirt"/>
 		<menu_item_call label="Novas calças" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="Recolher todas as pastas" name="collapse"/>
 	<menu_item_call label="Renomear look" name="rename"/>
 	<menu_item_call label="Excluir visual" name="delete_outfit"/>
+	<menu_item_check label="Sempre ordenar pastas por nome" name="sort_folders_by_name"/>
 </toggleable_menu>

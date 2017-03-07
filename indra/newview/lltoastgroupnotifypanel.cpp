@@ -47,7 +47,6 @@
 #include "llglheaders.h"
 #include "llagent.h"
 #include "llavatariconctrl.h"
-#include "llfloaterinventory.h"
 #include "llinventorytype.h"
 
 const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 7;

@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money">
-	<string name="payee_group">Заплатить группе</string>
-	<string name="payee_resident">Заплатить жителю</string>
-	<text name="paying_text">Вы платите:</text>
-	<text name="payee_name">Слишком длинное тестовое имя для проверки обрезания</text>
+	<string name="payee_group">
+		Заплатить группе
+	</string>
+	<string name="payee_resident">
+		Заплатить жителю
+	</string>
+	<text name="paying_text">
+		Вы платите:
+	</text>
+	<text name="payee_name">
+		Слишком длинное тестовое имя для проверки обрезания
+	</text>
+	<text name="payment_message_label">
+		Описание (не обязательно):
+	</text>
 	<panel label="Поиск" name="PatternsPanel">
 		<button label="Оплатить L$ 1" label_selected="Оплатить L$ 1" name="fastpay 1"/>
 		<button label="Оплатить L$ 5" label_selected="Оплатить L$ 5" name="fastpay 5"/>
@@ -11,7 +22,9 @@
 		<button label="Оплатить L$ 20" label_selected="Оплатить L$ 20" name="fastpay 20"/>
 	</panel>
 	<panel label="Поиск" name="InputPanel">
-		<text name="amount text">Другая сумма:</text>
+		<text name="amount text">
+			Другая сумма:
+		</text>
 		<button label="Оплатить" label_selected="Оплатить" name="pay btn"/>
 		<button label="Отмена" label_selected="Отмена" name="cancel btn"/>
 	</panel>

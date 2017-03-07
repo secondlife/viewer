@@ -174,7 +174,7 @@ S32 LLResourceUploadInfo::getEconomyUploadCost()
         getAssetType() == LLAssetType::AT_ANIMATION ||
         getAssetType() == LLAssetType::AT_MESH)
     {
-        return LLGlobalEconomy::Singleton::instance().getPriceUpload();
+        return LLGlobalEconomy::instance().getPriceUpload();
     }
 
     return 0;
@@ -307,10 +307,9 @@ void LLResourceUploadInfo::assignDefaults()
         mDescription = "(No Description)";
     }
 
-    mFolderId = gInventory.findCategoryUUIDForType(
+    mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
         (mDestinationFolderType == LLFolderType::FT_NONE) ?
         (LLFolderType::EType)mAssetType : mDestinationFolderType);
-
 }
 
 std::string LLResourceUploadInfo::getDisplayName() const
@@ -824,8 +823,15 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
     }
 
     LLSD args;
-    args["FILE"] = uploadInfo->getDisplayName();
-    args["REASON"] = reason;
+    if(label == "ErrorMessage")
+    {
+        args["ERROR_MESSAGE"] = reason;
+    }
+    else
+    {
+        args["FILE"] = uploadInfo->getDisplayName();
+        args["REASON"] = reason;
+    }
 
     LLNotificationsUtil::add(label, args);
 

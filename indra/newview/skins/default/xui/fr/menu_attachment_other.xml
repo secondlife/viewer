@@ -7,6 +7,7 @@
 	<menu_item_call label="Appeler" name="Call"/>
 	<menu_item_call label="Inviter dans le groupe" name="Invite..."/>
 	<menu_item_call label="Réinitialiser le squelette" name="Reset Skeleton"/>
+	<menu_item_call label="Réinitialiser le squelette et les animations" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Ignorer" name="Avatar Mute"/>
 	<menu_item_call label="Signaler" name="abuse"/>
 	<menu_item_call label="Figer" name="Freeze..."/>

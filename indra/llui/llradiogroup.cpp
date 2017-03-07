@@ -54,6 +54,7 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 	LLSD getPayload() { return mPayload; }
 
@@ -224,6 +225,22 @@ BOOL LLRadioGroup::setSelectedIndex(S32 index, BOOL from_event)
 	return TRUE;
 }
 
+void LLRadioGroup::focusSelectedRadioBtn()
+{
+    if (mSelectedIndex >= 0)
+    {
+        LLRadioCtrl* radio_item = mRadioButtons[mSelectedIndex];
+        if (radio_item->hasTabStop() && radio_item->getEnabled())
+        {
+            radio_item->focusFirstItem(FALSE, FALSE);
+        }
+    }
+    else if (mRadioButtons[0]->hasTabStop() || hasTabStop())
+    {
+        focusFirstItem(FALSE, FALSE);
+    }
+}
+
 BOOL LLRadioGroup::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -282,19 +299,6 @@ BOOL LLRadioGroup::handleKeyHere(KEY key, MASK mask)
 	}
 	return handled;
 }
-
-BOOL LLRadioGroup::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-	// grab focus preemptively, before child button takes mousecapture
-	// 
-	if (hasTabStop())
-	{
-		focusFirstItem(FALSE, FALSE);
-	}
-
-	return LLUICtrl::handleMouseDown(x, y, mask);
-}
-
 
 // Handle one button being clicked.  All child buttons must have this
 // function as their callback function.
@@ -464,6 +468,29 @@ BOOL LLRadioCtrl::postBuild()
 		setLabel(value);
 	}
 	return TRUE;
+}
+
+BOOL LLRadioCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+    // Grab focus preemptively, before button takes mousecapture
+    if (hasTabStop() && getEnabled())
+    {
+        focusFirstItem(FALSE, FALSE);
+    }
+    else
+    {
+        // Only currently selected item in group has tab stop as result it is
+        // unclear how focus should behave on click, just let the group handle
+        // focus and LLRadioGroup::onClickButton() will set correct state later
+        // if needed
+        LLRadioGroup* parent = (LLRadioGroup*)getParent();
+        if (parent)
+        {
+            parent->focusSelectedRadioBtn();
+        }
+    }
+
+    return LLCheckBoxCtrl::handleMouseDown(x, y, mask);
 }
 
 LLRadioCtrl::~LLRadioCtrl()

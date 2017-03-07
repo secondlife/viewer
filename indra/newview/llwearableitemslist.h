@@ -411,8 +411,8 @@ public:
 	 */
 	class ContextMenu : public LLListContextMenu, public LLSingleton<ContextMenu>
 	{
+		LLSINGLETON(ContextMenu);
 	public:
-		ContextMenu();
 		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
 
 	protected:
@@ -453,7 +453,7 @@ public:
 
 	virtual ~LLWearableItemsList();
 
-	/*virtual*/ void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
+	/*virtual*/ LLPanel* createNewItem(LLViewerInventoryItem* item);
 
 	void updateList(const LLUUID& category_id);
 

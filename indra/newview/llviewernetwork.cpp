@@ -95,13 +95,6 @@ LLGridManager::LLGridManager()
 }
 
 
-LLGridManager::LLGridManager(const std::string& grid_file)
-{
-	// initialize with an explicity grid file for testing.
-	LL_DEBUGS("GridManager")<<LL_ENDL;
-	initialize(grid_file);
-}
-
 //
 // LLGridManager - class for managing the list of known grids, and the current
 // selection

@@ -38,13 +38,13 @@ class LLViewerRegion;
 // that is sent to or fetched from regions.
 class LLAvatarRenderInfoAccountant : public LLSingleton<LLAvatarRenderInfoAccountant>
 {
+	LLSINGLETON(LLAvatarRenderInfoAccountant);
+	~LLAvatarRenderInfoAccountant();
+
   private:
 	LOG_CLASS(LLAvatarRenderInfoAccountant);
 
   public:
-	LLAvatarRenderInfoAccountant();
-	~LLAvatarRenderInfoAccountant();
-
 	void sendRenderInfoToRegion(LLViewerRegion * regionp);
 	void getRenderInfoFromRegion(LLViewerRegion * regionp);
 

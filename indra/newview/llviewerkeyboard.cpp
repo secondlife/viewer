@@ -57,6 +57,7 @@ const F32 ORBIT_NUDGE_RATE = 0.05f;  // fraction of normal speed
 struct LLKeyboardActionRegistry 
 :	public LLRegistrySingleton<std::string, boost::function<void (EKeystate keystate)>, LLKeyboardActionRegistry>
 {
+	LLSINGLETON_EMPTY_CTOR(LLKeyboardActionRegistry);
 };
 
 LLViewerKeyboard gViewerKeyboard;

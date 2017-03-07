@@ -98,12 +98,12 @@ void LLXfer_File::cleanup ()
 		mFp = NULL;
 	}
 
-	LLFile::remove(mTempFilename);
+	LLFile::remove(mTempFilename, ENOENT);
 
 	if (mDeleteLocalOnCompletion)
 	{
 		LL_DEBUGS() << "Removing file: " << mLocalFilename << LL_ENDL;
-		LLFile::remove(mLocalFilename);
+		LLFile::remove(mLocalFilename, ENOENT);
 	}
 	else
 	{
@@ -321,7 +321,7 @@ S32 LLXfer_File::processEOF()
 		mCallbackResult = flushval;
 	}
 
-	LLFile::remove(mLocalFilename);
+	LLFile::remove(mLocalFilename, ENOENT);
 
 	if (!mCallbackResult)
 	{

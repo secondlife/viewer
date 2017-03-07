@@ -61,16 +61,33 @@ Grafik Kartı: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Windows Grafik Sürücüsü Sürümü: [GRAPHICS_DRIVER_VERSION]
 	</string>
+	<string name="AboutOGL">
+		OpenGL Sürümü: [OPENGL_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Pencere büyüklüğü: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Font Büyüklüğü Ayarı: [FONT_SIZE_ADJUSTMENT] pt
+Kullanıcı Arayüzü Ölçekleme: [UI_SCALE]
+Çizme mesafesi: [DRAW_DISTANCE] m
+Bant genişliği: [NET_BANDWITH] kbit/sn
+Ayrıntı seviyesi faktörü: [LOD_FACTOR]
+İşleme kalitesi: [RENDER_QUALITY] / 7
+Gelişmiş Aydınlatma Modeli: [GPU_SHADERS]
+Doku belleği: [TEXTURE_MEMORY]MB
+VFS (önbellek) oluşturma zamanı: [VFS_TIME]
+	</string>
 	<string name="AboutLibs">
-		OpenGL Sürümü [OPENGL_VERSION]
-
-J2C Kod Çözücü Sürümü: [J2C_VERSION]
+		J2C Kod Çözücü Sürümü: [J2C_VERSION]
 Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF Sürümü: [LLCEFLIB_VERSION]
-Ses Sunucu Sürümü: [VOICE_VERSION]
+LibVLC Sürümü: [LIBVLC_VERSION]
+Ses Sunucusu Sürümü: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Kaybolan Paketler: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Sunucu sürümü notları URL&apos;si alınırken hata oluştu.
@@ -1086,6 +1103,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="TeleportYourAgent">
 		Sizi ışınlama
 	</string>
+	<string name="ForceSitAvatar">
+		Avatarınızı oturmaya zorlayın
+	</string>
 	<string name="NotConnected">
 		Bağlı Değil
 	</string>
@@ -1934,6 +1954,27 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="av_render_anyone">
 		Çevrenizdeki kimse sizi işleyemeyebilir.
 	</string>
+	<string name="hud_description_total">
+		BÜG&apos;niz
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] ([JNT_NAME] üzerinde)
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] yüksek miktarda doku belleği kullanıyor
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] çok sayıda pahalı nesne ve doku içeriyor
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] çok sayıda büyük doku içeriyor
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] çok fazla nesne içeriyor
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] çok fazla doku içeriyor
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] yıl
 	</string>
@@ -2092,6 +2133,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="ObjectOutOfRange">
 		Komut dosyası (nesne kapsam dışı)
+	</string>
+	<string name="ScriptWasDeleted">
+		Komut Dosyası (envanterden silindi)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		[OWNER] mülkiyetindeki [OBJECT] nesnesi
@@ -2704,6 +2748,15 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="Play Media">
 		Ortamı Oynat/Durdur
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=en-us
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Komut satırı ayrıştırılırken bir hata oluştu.
@@ -4480,11 +4533,17 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="paid_you_ldollars">
 		[NAME] size [REASON] L$[AMOUNT] ödedi.
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] size [AMOUNT] L$ ödedi: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] size L$[AMOUNT] ödedi.
 	</string>
 	<string name="you_paid_ldollars">
 		[NAME]&apos;e [REASON] L$[AMOUNT]  ödediniz.
+	</string>
+	<string name="you_paid_ldollars_gift">
+		[NAME] adlı kullanıcıya [AMOUNT] L$ ödediniz. [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		L$[AMOUNT] ödediniz.
@@ -4497,6 +4556,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="you_paid_failure_ldollars">
 		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		[NAME] adlı kullanıcıya [AMOUNT] L$ ödeyemediniz. [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		L$[AMOUNT] ödeyemediniz.
@@ -4821,6 +4883,15 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="texture_load_dimensions_error">
 		[WIDTH]*[HEIGHT] çözünürlüğünden büyük görüntüler yüklenemez
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Maksimum dış görünüm fotoğrafı büyüklüğü: [WIDTH]*[HEIGHT]. Lütfen büyüklüğü değiştirin veya başka bir görüntü kullanın
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Maksimum dış görünüm fotoğrafı büyüklüğü: [WIDTH]*[HEIGHT]. Lütfen başka bir doku seçin
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Fotoğraf boyutları doğrulanamıyor. Fotoğraf boyutu seçicide görüntülenene kadar lütfen bekleyin
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5338,6 +5409,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Profile_Label">
 		Profil
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Kötüye Kullanımı Bildir
+	</string>
 	<string name="Command_Search_Label">
 		Ara
 	</string>
@@ -5427,6 +5501,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Profilinizi düzenleyin veya görüntüleyin
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Kötüye Kullanımı Bildir
 	</string>
 	<string name="Command_Search_Tooltip">
 		Yerler, etkinlikler ve kişiler bulmak

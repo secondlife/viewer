@@ -144,8 +144,7 @@ typedef boost::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
 // LLPathfindingManager
 //---------------------------------------------------------------------------
 
-LLPathfindingManager::LLPathfindingManager()
-	: LLSingleton<LLPathfindingManager>(),
+LLPathfindingManager::LLPathfindingManager():
 	mNavMeshMap(),
 	mAgentStateSignal()
 {

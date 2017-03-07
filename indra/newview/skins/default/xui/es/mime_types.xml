@@ -22,14 +22,6 @@
 			Ver la película
 		</playtip>
 	</widgetset>
-	<widgetset name="none">
-		<label name="none_label">
-			No hay contenido
-		</label>
-		<tooltip name="none_tooltip">
-			Aquí no hay contenido multimedia
-		</tooltip>
-	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
 			Imagen
@@ -52,9 +44,22 @@
 			Escuchar el audio de esta localización
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			No hay contenido
+		</label>
+		<tooltip name="none_tooltip">
+			Aquí no hay contenido multimedia
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Real Time Streaming
+		</label>
+	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			Medios compatibles con LibVLC
 		</label>
 	</scheme>
 	<mimetype name="blank">
@@ -125,11 +130,6 @@
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
 			Macromedia Director
-		</label>
-	</mimetype>
-	<mimetype name="application/x-shockwave-flash">
-		<label name="application/x-shockwave-flash_label">
-			Flash
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -205,6 +205,11 @@
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
 			Película (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="application/octet-stream">
+		<label name="video/octet-stream">
+			Película
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">

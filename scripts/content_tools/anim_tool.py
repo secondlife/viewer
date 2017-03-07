@@ -406,8 +406,13 @@ class Anim(object):
     def delete_joint(self, name):
         j = self.find_joint(name)
         if j:
+            if args.verbose:
+                print "removing joint", name
             anim.joints.remove(j)
             anim.num_joints = len(self.joints)
+        else:
+            if args.verbose:
+                print "joint not found to remove", name
 
     def summary(self):
         nj = len(self.joints)
@@ -500,9 +505,9 @@ def resolve_joints(names, skel_tree, lad_tree):
         for elt in all_elts:
             if elt.get("name") is None:
                 continue
-            print elt.get("name"),"hud",elt.get("hud")
+            #print elt.get("name"),"hud",elt.get("hud")
             if args.no_hud and elt.get("hud"):
-                print "skipping hud joint", elt.get("name")
+                #print "skipping hud joint", elt.get("name")
                 continue
             if elt.get("name") in names or elt.tag in names:
                 matches.append(elt.get("name"))
@@ -532,6 +537,8 @@ if __name__ == "__main__":
     parser.add_argument("--lad", help="name of the avatar_lad file", default= os.path.join(path_to_skel,"avatar_lad.xml"))
     parser.add_argument("--set_version", nargs=2, type=int, help="set version and sub-version to specified values")
     parser.add_argument("--no_hud", help="omit hud joints from list of attachments", action="store_true")
+    parser.add_argument("--base_priority", help="set base priority", type=int)
+    parser.add_argument("--joint_priority", help="set joint priority for all joints", type=int)
     parser.add_argument("infilename", help="name of a .anim file to input")
     parser.add_argument("outfilename", nargs="?", help="name of a .anim file to output")
     args = parser.parse_args()
@@ -591,6 +598,13 @@ if __name__ == "__main__":
         if args.set_version:
             anim.version = args.set_version[0]
             anim.sub_version = args.set_version[1]
+        if args.base_priority is not None:
+            print "set base priority",args.base_priority
+            anim.base_priority = args.base_priority
+        if args.joint_priority is not None:
+            print "set joint priority",args.joint_priority
+            for joint in anim.joints:
+                joint.joint_priority = args.joint_priority
         if args.dump:
             anim.dump(args.dump)
         if args.summary:

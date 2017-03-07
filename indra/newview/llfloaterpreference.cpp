@@ -467,6 +467,11 @@ BOOL LLFloaterPreference::postBuild()
 
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 
+	gSavedPerAccountSettings.getControl("ModelUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeModelFolder, this));
+	gSavedPerAccountSettings.getControl("TextureUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeTextureFolder, this));
+	gSavedPerAccountSettings.getControl("SoundUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeSoundFolder, this));
+	gSavedPerAccountSettings.getControl("AnimationUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeAnimationFolder, this));
+
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
@@ -500,6 +505,7 @@ BOOL LLFloaterPreference::postBuild()
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+
 
 	return TRUE;
 }
@@ -742,7 +748,12 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
 	// Display selected maturity icons.
 	onChangeMaturity();
-	
+
+	onChangeModelFolder();
+	onChangeTextureFolder();
+	onChangeSoundFolder();
+	onChangeAnimationFolder();
+
 	// Load (double-)click to walk/teleport settings.
 	updateClickActionControls();
 	
@@ -1977,6 +1988,63 @@ void LLFloaterPreference::onChangeMaturity()
 															|| sim_access == SIM_ACCESS_ADULT);
 
 	getChild<LLIconCtrl>("rating_icon_adult")->setVisible(sim_access == SIM_ACCESS_ADULT);
+}
+
+std::string get_category_path(LLUUID cat_id)
+{
+    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+    std::string localized_cat_name;
+    if (!LLTrans::findString(localized_cat_name, "InvFolder " + cat->getName()))
+    {
+        localized_cat_name = cat->getName();
+    }
+
+    if (cat->getParentUUID().notNull())
+    {
+        return get_category_path(cat->getParentUUID()) + " > " + localized_cat_name;
+    }
+    else
+    {
+        return localized_cat_name;
+    }
+}
+
+std::string get_category_path(LLFolderType::EType cat_type)
+{
+    LLUUID cat_id = gInventory.findUserDefinedCategoryUUIDForType(cat_type);
+    return get_category_path(cat_id);
+}
+
+void LLFloaterPreference::onChangeModelFolder()
+{
+    if (gInventory.isInventoryUsable())
+    {
+        getChild<LLTextBox>("upload_models")->setText(get_category_path(LLFolderType::FT_OBJECT));
+    }
+}
+
+void LLFloaterPreference::onChangeTextureFolder()
+{
+    if (gInventory.isInventoryUsable())
+    {
+        getChild<LLTextBox>("upload_textures")->setText(get_category_path(LLFolderType::FT_TEXTURE));
+    }
+}
+
+void LLFloaterPreference::onChangeSoundFolder()
+{
+    if (gInventory.isInventoryUsable())
+    {
+        getChild<LLTextBox>("upload_sounds")->setText(get_category_path(LLFolderType::FT_SOUND));
+    }
+}
+
+void LLFloaterPreference::onChangeAnimationFolder()
+{
+    if (gInventory.isInventoryUsable())
+    {
+        getChild<LLTextBox>("upload_animation")->setText(get_category_path(LLFolderType::FT_ANIMATION));
+    }
 }
 
 // FIXME: this will stop you from spawning the sidetray from preferences dialog on login screen

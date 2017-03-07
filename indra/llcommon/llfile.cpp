@@ -239,7 +239,7 @@ int	LLFile::close(LLFILE * file)
 }
 
 
-int	LLFile::remove(const std::string& filename)
+int	LLFile::remove(const std::string& filename, int supress_error)
 {
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
@@ -248,7 +248,7 @@ int	LLFile::remove(const std::string& filename)
 #else
 	int rc = ::remove(filename.c_str());
 #endif
-	return warnif("remove", filename, rc);
+	return warnif("remove", filename, rc, supress_error);
 }
 
 int	LLFile::rename(const std::string& filename, const std::string& newname)

@@ -246,13 +246,11 @@ extern LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT
 
 class LLViewerStats : public LLSingleton<LLViewerStats>
 {
+	LLSINGLETON(LLViewerStats);
+	~LLViewerStats();
+
 public:
 	void resetStats();
-
-public:
-
-	LLViewerStats();
-	~LLViewerStats();
 
 	void updateFrameStats(const F64Seconds time_diff);
 	

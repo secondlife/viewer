@@ -13,4 +13,6 @@
 	<menu_item_call label="Condividi" name="share"/>
 	<menu_item_call label="Paga" name="pay"/>
 	<menu_item_check label="Blocca/Sblocca" name="block_unblock"/>
+	<menu_item_call label="Congela" name="freeze"/>
+	<menu_item_call label="Espelli" name="eject"/>
 </context_menu>

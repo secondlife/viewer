@@ -26,10 +26,11 @@
      layout="topleft"
      left="5"
      name="appearance_tabs"
-     tab_min_width="150"
+     tab_min_width="100"
      tab_height="30"
      tab_position="top"
      halign="center"
+     hide_scroll_arrows="true"
      top="8"
      width="315">
          <panel

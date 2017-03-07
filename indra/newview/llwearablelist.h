@@ -41,9 +41,9 @@
 */
 class LLWearableList : public LLSingleton<LLWearableList>
 {
-public:
-	LLWearableList()	{}
+	LLSINGLETON_EMPTY_CTOR(LLWearableList);
 	~LLWearableList();
+public:
 	void cleanup() ;
 
 	S32					getLength() const { return mList.size(); }

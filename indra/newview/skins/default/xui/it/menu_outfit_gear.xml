@@ -3,6 +3,10 @@
 	<menu_item_call label="Indossa - Sostituisci vestiario attuale" name="wear"/>
 	<menu_item_call label="Indossa - Aggiungi al vestiario attuale" name="wear_add"/>
 	<menu_item_call label="Togli - Rimuovi dal vestiario attuale" name="take_off"/>
+	<menu_item_call label="Carica foto (L$ 10)" name="upload_photo"/>
+	<menu_item_call label="Seleziona foto" name="select_photo"/>
+	<menu_item_call label="Scatta un&apos;istantanea" name="take_snapshot"/>
+	<menu_item_call label="Rimuovi foto" name="remove_photo"/>
 	<menu label="Nuovi abiti" name="New Clothes">
 		<menu_item_call label="Nuova camicia" name="New Shirt"/>
 		<menu_item_call label="Nuovi pantaloni" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="Chiudi tutte le cartelle" name="collapse"/>
 	<menu_item_call label="Cambia nome del vestiario" name="rename"/>
 	<menu_item_call label="Elimina vestito" name="delete_outfit"/>
+	<menu_item_check label="Ordina le cartelle sempre in base al nome" name="sort_folders_by_name"/>
 </toggleable_menu>

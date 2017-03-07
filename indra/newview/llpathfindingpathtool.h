@@ -36,6 +36,9 @@
 
 class LLPathfindingPathTool : public LLTool, public LLSingleton<LLPathfindingPathTool>
 {
+	LLSINGLETON(LLPathfindingPathTool);
+	virtual ~LLPathfindingPathTool();
+
 public:
 	typedef enum
 	{
@@ -58,9 +61,6 @@ public:
 		kCharacterTypeC,
 		kCharacterTypeD
 	} ECharacterType;
-
-	LLPathfindingPathTool();
-	virtual ~LLPathfindingPathTool();
 
 	typedef boost::function<void (void)>         path_event_callback_t;
 	typedef boost::signals2::signal<void (void)> path_event_signal_t;

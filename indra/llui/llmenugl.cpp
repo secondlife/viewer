@@ -1736,6 +1736,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mJumpKey(p.jump_key),
 	mCreateJumpKeys(p.create_jump_keys),
 	mNeedsArrange(FALSE),
+	mAlwaysShowMenu(FALSE),
 	mResetScrollPositionOnShow(true),
 	mShortcutPad(p.shortcut_pad)
 {
@@ -3223,20 +3224,23 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 
 	menu->setVisible( TRUE );
 
-	//Do not show menu if all menu items are disabled
-	BOOL item_enabled = false;
-	for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
-			 itor != menu->getChildList()->end();
-			 ++itor)
+	if(!menu->getAlwaysShowMenu())
 	{
-		LLView *menu_item = (*itor);
-		item_enabled = item_enabled || menu_item->getEnabled();
-	}
+		//Do not show menu if all menu items are disabled
+		BOOL item_enabled = false;
+		for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
+				itor != menu->getChildList()->end();
+				++itor)
+		{
+			LLView *menu_item = (*itor);
+			item_enabled = item_enabled || menu_item->getEnabled();
+		}
 
-	if(!item_enabled)
-	{
-		menu->setVisible( FALSE );
-		return;
+		if(!item_enabled)
+		{
+			menu->setVisible( FALSE );
+			return;
+		}
 	}
 
 	// Save click point for detecting cursor moves before mouse-up.

@@ -48,7 +48,6 @@
 #include "llavataractions.h"
 #include "llclipboard.h"
 #include "lldonotdisturbnotificationstorage.h"
-#include "llfloaterinventory.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
@@ -752,36 +751,13 @@ void show_item_original(const LLUUID& item_uuid)
 
 void reset_inventory_filter()
 {
-	//inventory floater
-	bool floater_inventory_visible = false;
-
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	if (sidepanel_inventory)
 	{
-		LLFloaterInventory* floater_inventory = dynamic_cast<LLFloaterInventory*>(*iter);
-		if (floater_inventory)
+		LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+		if (main_inventory)
 		{
-			LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
-
 			main_inventory->onFilterEdit("");
-
-			if(floater_inventory->getVisible())
-			{
-				floater_inventory_visible = true;
-			}
-		}
-	}
-
-	if(!floater_inventory_visible)
-	{
-		LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
-		if (sidepanel_inventory)
-		{
-			LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
-			if (main_inventory)
-			{
-				main_inventory->onFilterEdit("");
-			}
 		}
 	}
 }

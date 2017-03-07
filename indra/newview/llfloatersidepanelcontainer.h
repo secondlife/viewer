@@ -53,6 +53,8 @@ public:
 
 	/*virtual*/ void closeFloater(bool app_quitting = false);
 
+	void cleanup() { destroy(); }
+
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 
 	static void showPanel(const std::string& floater_name, const LLSD& key);

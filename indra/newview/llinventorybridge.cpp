@@ -41,6 +41,7 @@
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloateroutfitphotopreview.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
@@ -3092,6 +3093,10 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLAppearanceMgr::instance().takeOffOutfit( cat->getLinkedUUID() );
 		return;
 	}
+	else if ("copyoutfittoclipboard" == action)
+	{
+		copyOutfitToClipboard();
+	}
 	else if ("purge" == action)
 	{
 		purgeItem(model, mUUID);
@@ -3247,6 +3252,39 @@ void LLFolderBridge::gatherMessage(std::string& message, S32 depth, LLError::ELe
         // Append the message
         mMessage += message.substr(start, message.length() - start);
     }
+}
+
+void LLFolderBridge::copyOutfitToClipboard()
+{
+	std::string text;
+
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+
+	S32 item_count(0);
+	if( item_array )
+	{			
+		item_count = item_array->size();
+	}
+
+	if (item_count)
+	{
+		for (S32 i = 0; i < item_count;)
+		{
+			LLSD uuid =item_array->at(i)->getUUID();
+			LLViewerInventoryItem* item = gInventory.getItem(uuid);
+
+			i++;
+			if (item != NULL)
+			{
+				// Append a newline to all but the last line
+				text += i != item_count ? item->getName() + "\n" : item->getName();
+			}
+		}
+	}
+
+	LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text),0,text.size());
 }
 
 void LLFolderBridge::openItem()
@@ -3736,12 +3774,22 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		// This is the lost+found folder.
 		items.push_back(std::string("Empty Lost And Found"));
 
+		LLInventoryModel::cat_array_t* cat_array;
+		LLInventoryModel::item_array_t* item_array;
+		gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+		// Enable Empty menu item only when there is something to act upon.
+		if (0 == cat_array->size() && 0 == item_array->size())
+		{
+			disabled_items.push_back(std::string("Empty Lost And Found"));
+		}
+
 		disabled_items.push_back(std::string("New Folder"));
 		disabled_items.push_back(std::string("New Script"));
 		disabled_items.push_back(std::string("New Note"));
 		disabled_items.push_back(std::string("New Gesture"));
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
+		disabled_items.push_back(std::string("upload_def"));
 	}
 	if (favorites == mUUID)
 	{
@@ -3768,6 +3816,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Gesture"));
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
+		disabled_items.push_back(std::string("upload_def"));
     }
     if (marketplace_listings_id == mUUID)
     {
@@ -3780,6 +3829,15 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	{
 		// This is the trash.
 		items.push_back(std::string("Empty Trash"));
+
+		LLInventoryModel::cat_array_t* cat_array;
+		LLInventoryModel::item_array_t* item_array;
+		gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+		// Enable Empty menu item only when there is something to act upon.
+		if (0 == cat_array->size() && 0 == item_array->size())
+		{
+			disabled_items.push_back(std::string("Empty Trash"));
+		}
 	}
 	else if(isItemInTrash())
 	{
@@ -3808,6 +3866,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Gesture"));
                     items.push_back(std::string("New Clothes"));
                     items.push_back(std::string("New Body Parts"));
+                    items.push_back(std::string("upload_def"));
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
@@ -3827,6 +3886,11 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 					disabled_items.push_back(std::string("Delete"));
 				}
 			}
+		}
+
+		if (model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) == mUUID)
+		{
+			items.push_back(std::string("Copy outfit list to clipboard"));
 		}
 
 		//Added by aura to force inventory pull on right-click to display folder options correctly. 07-17-06
@@ -4393,7 +4457,7 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 
 	if((inv_type == LLInventoryType::IT_TEXTURE) || (inv_type == LLInventoryType::IT_SNAPSHOT))
 	{
-		return TRUE;
+		return !move_is_into_current_outfit;
 	}
 
 	if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
@@ -4448,9 +4512,15 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 {
 	if((inv_item->getInventoryType() == LLInventoryType::IT_TEXTURE) || (inv_item->getInventoryType() == LLInventoryType::IT_SNAPSHOT))
 	{
-		LLAppearanceMgr::instance().removeOutfitPhoto(mUUID);
-		LLPointer<LLInventoryCallback> cb = NULL;
-		link_inventory_object(mUUID, LLConstPointer<LLInventoryObject>(inv_item), cb);
+		const LLUUID &my_outifts_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+		if(mUUID != my_outifts_id)
+		{
+			LLFloaterOutfitPhotoPreview* photo_preview  = LLFloaterReg::showTypedInstance<LLFloaterOutfitPhotoPreview>("outfit_photo_preview", inv_item->getUUID());
+			if(photo_preview)
+			{
+				photo_preview->setOutfitID(mUUID);
+			}
+		}
 		return;
 	}
 

@@ -2354,7 +2354,13 @@ void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
 void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
 	LLCallDialog::onOpen(key);
-	make_ui_sound("UISndStartIM");
+
+	if (gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall"))
+	{
+		// play a sound for incoming voice call if respective property is set
+		make_ui_sound("UISndStartIM");
+	}
+
 	LLStringUtil::format_map_t args;
 	LLGroupData data;
 	// if it's a group call, retrieve group name to use it in question
@@ -2697,7 +2703,7 @@ void LLIMMgr::addMessage(
 
 		// Logically it would make more sense to reject the session sooner, in another area of the
 		// code, but the session has to be established inside the server before it can be left.
-		if (LLMuteList::getInstance()->isMuted(other_participant_id) && !from_linden)
+		if (LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
 		{
 			LL_WARNS() << "Leaving IM session from initiating muted resident " << from << LL_ENDL;
 			if(!gIMMgr->leaveSession(new_session_id))
@@ -3005,14 +3011,20 @@ void LLIMMgr::inviteToSession(
 	payload["question_type"] = question_type;
 
 	//ignore invites from muted residents
-	if (LLMuteList::getInstance()->isMuted(caller_id) && !is_linden)
+	if (!is_linden)
 	{
-		if (voice_invite && "VoiceInviteQuestionDefault" == question_type)
+		if (LLMuteList::getInstance()->isMuted(caller_id, LLMute::flagVoiceChat)
+			&& voice_invite && "VoiceInviteQuestionDefault" == question_type)
 		{
 			LL_INFOS() << "Rejecting voice call from initiating muted resident " << caller_name << LL_ENDL;
 			LLIncomingCallDialog::processCallResponse(1, payload);
+			return;
 		}
-		return;
+		else if (LLMuteList::getInstance()->isMuted(caller_id, LLMute::flagAll & ~LLMute::flagVoiceChat))
+		{
+			LL_INFOS() << "Rejecting session invite from initiating muted resident " << caller_name << LL_ENDL;
+			return;
+		}
 	}
 
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);

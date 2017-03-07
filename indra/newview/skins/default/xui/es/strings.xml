@@ -52,16 +52,33 @@ Tarjeta gráfica: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Versión de Windows Graphics Driver: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		Versión de OpenGL: [OPENGL_VERSION]
-
-Versión de J2C Decoder: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Tamaño de la ventana: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Ajuste de tamaño de fuente: [FONT_SIZE_ADJUSTMENT]pt
+Ajuste de escala de IU: [UI_SCALE]
+Distancia de dibujo: [DRAW_DISTANCE]m
+Ancho de banda: [NET_BANDWITH]kbit/s
+Factor de LOD: [LOD_FACTOR]
+Calidad de renderizado: [RENDER_QUALITY] / 7
+Modelo de iluminación avanzado: [GPU_SHADERS]
+Memoria de textura: [TEXTURE_MEMORY]MB
+Tiempo de creación de VFS (caché): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
 Versión de LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Versión de LibVLC: [LLCEFLIB_VERSION]
 Versión de Voice Server: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="AboutTime">
+		[mes, fecha_hora, slt] [día, fecha_hora, slt] [año, fecha_hora, slt] [hora, fecha_hora, slt]:[min, fecha_hora, slt]:[segundo,fecha_hora,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Error al obtener la URL de las notas de la versión del servidor.
@@ -1074,6 +1091,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="TeleportYourAgent">
 		Teleportarte
 	</string>
+	<string name="ForceSitAvatar">
+		Forzar que el avatar se siente
+	</string>
 	<string name="AgentNameSubst">
 		(Tú)
 	</string>
@@ -1913,6 +1933,27 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="av_render_anyone">
 		Es posible que ninguno de los que están próximos pueda renderizarte.
 	</string>
+	<string name="hud_description_total">
+		Tu HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (lo llevas en [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] usa mucha memoria de textura
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] contiene muchas texturas y objetos complicados
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] contiene muchas texturas grandes
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] contiene demasiados objetos
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] contiene demasiadas texturas
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] año
 	</string>
@@ -2071,6 +2112,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="ObjectOutOfRange">
 		Script (objeto fuera de rango)
+	</string>
+	<string name="ScriptWasDeleted">
+		Script (eliminado del inventario)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		El objeto [OBJECT] es propiedad de [OWNER]
@@ -2641,6 +2685,15 @@ Se esperaba .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	</string>
 	<string name="Play Media">
 		Play/Pausa los media
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=es
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Ha habido un error analizando la línea de comando.
@@ -4393,11 +4446,17 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="paid_you_ldollars">
 		[NAME] te ha pagado [AMOUNT] L$ [REASON].
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] te ha pagado [AMOUNT] L$: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] te ha pagado [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Has pagado [AMOUNT] L$ a [NAME] por [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Has pagado [AMOUNT] L$ a [NAME]: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Has pagado[AMOUNT] L$
@@ -4410,6 +4469,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_failure_ldollars">
 		No has pagado a [NAME] [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		No has pagado a [NAME] [AMOUNT] L$: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		No has pagado [AMOUNT] L$.
@@ -4736,6 +4798,15 @@ Denuncia de infracción
 	</string>
 	<string name="texture_load_dimensions_error">
 		No se puede subir imágenes mayores de [WIDTH]*[HEIGHT]
+	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		La foto del vestuario puede tener como máx. un tamaño de [WIDTH]*[HEIGHT]. Cambia el tamaño o utiliza otra imagen
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		La foto del vestuario puede tener como máx. un tamaño de [WIDTH]*[HEIGHT]. Selecciona otra textura
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		No se pueden verificar las dimensiones de la foto. Espera hasta que aparezca el tamaño de la foto en el selector
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -5241,6 +5312,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Profile_Label">
 		Perfil
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Denunciar una infracción
+	</string>
 	<string name="Command_Search_Label">
 		Buscar
 	</string>
@@ -5330,6 +5404,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Consulta o edita tu perfil
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Denunciar una infracción
 	</string>
 	<string name="Command_Search_Tooltip">
 		Buscar lugares, eventos y personas

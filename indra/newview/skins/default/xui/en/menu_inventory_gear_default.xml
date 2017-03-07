@@ -95,6 +95,9 @@
         <on_click
          function="Inventory.GearDefault.Custom.Action"
          parameter="empty_lostnfound" />
+        <on_enable
+         function="Inventory.GearDefault.Enable"
+         parameter="empty_lostnfound" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
@@ -151,6 +154,9 @@
      name="empty_trash">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
+         parameter="empty_trash" />
+        <on_enable
+         function="Inventory.GearDefault.Enable"
          parameter="empty_trash" />
     </menu_item_call>
 </toggleable_menu>

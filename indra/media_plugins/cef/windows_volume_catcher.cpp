@@ -31,17 +31,16 @@
 #include "llsingleton.h"
 class VolumeCatcherImpl : public LLSingleton<VolumeCatcherImpl>
 {
-friend LLSingleton<VolumeCatcherImpl>;
+	LLSINGLETON(VolumeCatcherImpl);
+	// This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
+	~VolumeCatcherImpl();
+
 public:
 
 	void setVolume(F32 volume);
 	void setPan(F32 pan);
 	
 private:
-	// This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
-	VolumeCatcherImpl();
-	~VolumeCatcherImpl();
-
 	typedef void (WINAPI *set_volume_func_t)(F32);
 	typedef void (WINAPI *set_mute_func_t)(bool);
 

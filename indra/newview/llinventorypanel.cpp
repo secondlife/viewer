@@ -34,7 +34,6 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llclipboard.h"
-#include "llfloaterinventory.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
@@ -168,7 +167,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&LLInventoryPanel::attachObject, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
-
+	mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -1189,6 +1188,27 @@ bool LLInventoryPanel::beginIMSession()
 	}
 		
 	return true;
+}
+
+void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
+{
+    const std::string param = userdata.asString();
+    if (param == "model")
+    {
+        gSavedPerAccountSettings.setString("ModelUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
+    }
+    else if (param == "texture")
+    {
+        gSavedPerAccountSettings.setString("TextureUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
+    }
+    else if (param == "sound")
+    {
+        gSavedPerAccountSettings.setString("SoundUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
+    }
+    else if (param == "animation")
+    {
+        gSavedPerAccountSettings.setString("AnimationUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
+    }
 }
 
 bool LLInventoryPanel::attachObject(const LLSD& userdata)

@@ -1200,6 +1200,7 @@ bool LLSDBinaryParser::parseString(
 	read(istr, (char*)&value_nbo, sizeof(U32));		 /*Flawfinder: ignore*/
 	S32 size = (S32)ntohl(value_nbo);
 	if(mCheckLimits && (size > mMaxBytesLeft)) return false;
+	if(size < 0) return false;
 	std::vector<char> buf;
 	if(size)
 	{

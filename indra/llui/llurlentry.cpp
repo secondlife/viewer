@@ -764,7 +764,23 @@ LLUrlEntryAgentCompleteName::LLUrlEntryAgentCompleteName()
 
 std::string LLUrlEntryAgentCompleteName::getName(const LLAvatarName& avatar_name)
 {
-	return avatar_name.getCompleteName();
+	return avatar_name.getCompleteName(true, true);
+}
+
+//
+// LLUrlEntryAgentLegacyName describes a Second Life agent legacy name Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/legacyname
+// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/legacyname
+//
+LLUrlEntryAgentLegacyName::LLUrlEntryAgentLegacyName()
+{
+	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/legacyname",
+							boost::regex::perl|boost::regex::icase);
+}
+
+std::string LLUrlEntryAgentLegacyName::getName(const LLAvatarName& avatar_name)
+{
+	return avatar_name.getLegacyName();
 }
 
 //
@@ -780,7 +796,7 @@ LLUrlEntryAgentDisplayName::LLUrlEntryAgentDisplayName()
 
 std::string LLUrlEntryAgentDisplayName::getName(const LLAvatarName& avatar_name)
 {
-	return avatar_name.getDisplayName();
+	return avatar_name.getDisplayName(true);
 }
 
 //
@@ -1377,7 +1393,7 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 LLUrlEntryEmail::LLUrlEntryEmail()
 	: LLUrlEntryBase()
 {
-	mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,6}",
+	mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,63}",
 							boost::regex::perl | boost::regex::icase);
 	mMenuName = "menu_url_email.xml";
 	mTooltip = LLTrans::getString("TooltipEmail");

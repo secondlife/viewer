@@ -322,6 +322,43 @@
         </menu_item_call>
     </menu>
     <menu
+     label="Use as default for"
+     layout="topleft"
+     name="upload_def">
+      <menu_item_call
+       label="Image uploads"
+       layout="topleft"
+       name="Image uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="texture" />
+      </menu_item_call>
+      <menu_item_call
+       label="Sound uploads"
+       layout="topleft"
+       name="Sound uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="sound" />
+      </menu_item_call>
+      <menu_item_call
+       label="Animation uploads"
+       layout="topleft"
+       name="Animation uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="animation" />
+      </menu_item_call>
+      <menu_item_call
+       label="Model uploads"
+       layout="topleft"
+       name="Model uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="model" />
+      </menu_item_call>
+    </menu>
+    <menu
      label="Change Type"
      layout="topleft"
      name="Change Type">
@@ -456,6 +493,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="removefromoutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy outfit list to clipboard"
+     layout="topleft"
+     name="Copy outfit list to clipboard">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="copyoutfittoclipboard" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft"

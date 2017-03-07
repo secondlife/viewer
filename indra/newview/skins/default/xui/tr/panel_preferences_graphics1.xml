@@ -24,7 +24,7 @@
 	<text name="BetterText">
 		Daha iyi
 	</text>
-	<slider label="Avatarın Maksimum Karmaşıklığı:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık bir avatarın hangi noktadan itibaren JellyDolll olarak çizileceğini kontrol eder"/>
+	<slider label="Avatarın Maksimum Karmaşıklığı:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık bir avatarın ne zaman JellyDoll olarak çizileceğini belirler"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>

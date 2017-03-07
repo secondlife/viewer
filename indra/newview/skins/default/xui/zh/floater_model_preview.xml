@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="包含表皮重量" name="upload_skin"/>
 				<check_box label="包含接點位置" name="upload_joints"/>
+				<check_box label="若接點位置已定義，就鎖住比例" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Z 偏距（升高或降低化身）：
 				</text>

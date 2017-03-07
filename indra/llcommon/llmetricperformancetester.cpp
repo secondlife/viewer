@@ -40,7 +40,7 @@
 LLMetricPerformanceTesterBasic::name_tester_map_t LLMetricPerformanceTesterBasic::sTesterMap ;
 
 /*static*/ 
-void LLMetricPerformanceTesterBasic::cleanClass() 
+void LLMetricPerformanceTesterBasic::cleanupClass() 
 {
 	for (name_tester_map_t::iterator iter = sTesterMap.begin() ; iter != sTesterMap.end() ; ++iter)
 	{

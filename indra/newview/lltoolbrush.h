@@ -43,10 +43,10 @@ class LLViewerRegion;
 
 class LLToolBrushLand : public LLTool, public LLEditMenuHandler, public LLSingleton<LLToolBrushLand>
 {
+	LLSINGLETON(LLToolBrushLand);
 	typedef std::set<LLViewerRegion*> region_list_t;
 
 public:
-	LLToolBrushLand();
 	
 	// x,y in window coords, 0,0 = left,bot
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );

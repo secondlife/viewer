@@ -35,7 +35,9 @@
 class LLScrollContainer;
 
 struct ContainerViewRegistry : public LLChildRegistry<ContainerViewRegistry>
-{};
+{
+	LLSINGLETON_EMPTY_CTOR(ContainerViewRegistry);
+};
 
 class LLContainerView : public LLView
 {

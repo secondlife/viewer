@@ -68,6 +68,8 @@ public:
  */
 class LLTeleportHistoryStorage: public LLSingleton<LLTeleportHistoryStorage>
 {
+	LLSINGLETON(LLTeleportHistoryStorage);
+	~LLTeleportHistoryStorage();
 	LOG_CLASS(LLTeleportHistoryStorage);
 
 public:
@@ -77,9 +79,6 @@ public:
 	// removed_index is index of removed item, which replaced by more recent
 	typedef boost::function<void(S32 removed_index)>		history_callback_t;
 	typedef boost::signals2::signal<void(S32 removed_index)>	history_signal_t;
-
-	LLTeleportHistoryStorage();
-	~LLTeleportHistoryStorage();
 
 	/**
 	 * @return history items.

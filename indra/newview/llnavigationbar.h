@@ -30,6 +30,7 @@
 #include "llpanel.h"
 #include "llbutton.h"
 #include "lllayoutstack.h"
+#include "llinitdestroyclass.h"
 
 class LLLocationInputCtrl;
 class LLMenuGL;
@@ -84,12 +85,12 @@ protected:
 class LLNavigationBar
 	:	public LLPanel, public LLSingleton<LLNavigationBar>, private LLDestroyClass<LLNavigationBar>
 {
+	LLSINGLETON(LLNavigationBar);
+	virtual ~LLNavigationBar();
 	LOG_CLASS(LLNavigationBar);
 	friend class LLDestroyClass<LLNavigationBar>;
-	
+
 public:
-	LLNavigationBar();
-	virtual ~LLNavigationBar();
 	
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);

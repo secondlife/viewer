@@ -38,9 +38,7 @@ class LLViewerRegion;
 
 class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
 {
-	friend class LLSingleton<LLMaterialMgr>;
-protected:
-	LLMaterialMgr();
+	LLSINGLETON(LLMaterialMgr);
 	virtual ~LLMaterialMgr();
 
 public:

@@ -2030,8 +2030,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	LLSD result;
 
 	LLSD res;
-	result["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
-	result["texture_folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+	result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
+	result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
 	result["asset_type"] = "mesh";
 	result["inventory_type"] = "object";
 	result["description"] = "(No Description)";
@@ -3536,11 +3536,11 @@ void LLMeshRepository::notifyLoadedMeshes()
 			// Handle addition of texture, if any.
 			if ( data.mResponse.has("new_texture_folder_id") )
 			{
-				const LLUUID& folder_id = data.mResponse["new_texture_folder_id"].asUUID();
+				const LLUUID& new_folder_id = data.mResponse["new_texture_folder_id"].asUUID();
 
-				if ( folder_id.notNull() )
+				if ( new_folder_id.notNull() )
 				{
-					LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+					LLUUID parent_id = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
 
 					std::string name;
 					// Check if the server built a different name for the texture folder
@@ -3555,7 +3555,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 
 					// Add the category to the internal representation
 					LLPointer<LLViewerInventoryCategory> cat = 
-						new LLViewerInventoryCategory(folder_id, parent_id, 
+						new LLViewerInventoryCategory(new_folder_id, parent_id, 
 							LLFolderType::FT_NONE, name, gAgent.getID());
 					cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
 

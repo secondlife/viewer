@@ -7,6 +7,7 @@
 		穿上所選擇的物件
 	</panel.string>
 	<tab_container name="appearance_tabs">
+		<panel label="裝扮陳列" name="outfit_gallery_tab"/>
 		<panel label="我的裝扮" name="outfitslist_tab"/>
 		<panel label="目前穿著" name="cof_tab"/>
 	</tab_container>

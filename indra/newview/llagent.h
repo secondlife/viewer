@@ -444,8 +444,7 @@ private:
 	// Grab
 	//--------------------------------------------------------------------
 public:
-    BOOL 			leftButtonGrabbed() const;
-    BOOL 			leftButtonBlocked() const;
+	BOOL 			leftButtonGrabbed() const;
 	BOOL 			rotateGrabbed() const;
 	BOOL 			forwardGrabbed() const;
 	BOOL 			backwardGrabbed() const;
@@ -462,9 +461,8 @@ public:
 	BOOL			controlFlagsDirty() const;
 	void			enableControlFlagReset();
 	void 			resetControlFlags();
-	BOOL			anyControlGrabbed() const; 		// True if a script has taken over any control
-    BOOL			isControlGrabbed(S32 control_index) const; // True if a script has taken over a control
-    BOOL			isControlBlocked(S32 control_index) const; // Control should be ignored or won't be passed
+	BOOL			anyControlGrabbed() const; 		// True iff a script has taken over a control
+	BOOL			isControlGrabbed(S32 control_index) const;
 	// Send message to simulator to force grabbed controls to be
 	// released, in case of a poorly written script.
 	void			forceReleaseControls();

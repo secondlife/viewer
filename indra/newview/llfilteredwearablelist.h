@@ -56,6 +56,11 @@ public:
 	 */
 	void populateList();
 
+	/**
+	 * Drop operation
+	 */
+	void holdProgress();
+
 private:
 	LLInventoryItemsList* mWearableList;
 	LLInventoryCollectFunctor* mCollector;

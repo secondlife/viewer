@@ -7,6 +7,7 @@
 		Ponerme ítems seleccionados
 	</panel.string>
 	<tab_container name="appearance_tabs">
+		<panel label="GALERÍA DE VESTUARIO" name="outfit_gallery_tab"/>
 		<panel label="MIS VESTUARIOS" name="outfitslist_tab"/>
 		<panel label="PUESTO" name="cof_tab"/>
 	</tab_container>
