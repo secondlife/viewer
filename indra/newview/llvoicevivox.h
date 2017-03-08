@@ -952,7 +952,6 @@ protected:
 	int				ignoreDepth;
 	
 	// Members for processing responses. The values are transient and only valid within a call to processResponse().
-	bool			squelchDebugOutput;
 	int				returnCode;
 	int				statusCode;
 	std::string		statusString;

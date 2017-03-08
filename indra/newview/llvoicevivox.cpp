@@ -1037,6 +1037,9 @@ bool LLVivoxVoiceClient::loginToVivox()
 
             if ((loginresp == "retry") || (loginresp == "timeout"))
             {
+                LL_WARNS("Voice") << "login failed with status '" << loginresp << "' "
+                                  << " count " << loginRetryCount << "/" << LOGIN_RETRY_MAX
+                                  << LL_ENDL;
                 if (++loginRetryCount > LOGIN_RETRY_MAX)
                 {
                     // We've run out of retries - tell the user
@@ -1330,36 +1333,45 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
                 if (result["handle"] != mAudioSession->mHandle)
                 {
                     LL_WARNS("Voice") << "Message for session handle \"" << result["handle"] << "\" while waiting for \"" << mAudioSession->mHandle << "\"." << LL_ENDL;
-                    continue;
                 }
             }
+            else
+            {
+                std::string message = result["session"].asString();
 
-            std::string message = result["session"].asString();
-
-            if ((message == "added") || (message == "created"))
-                added = true;
-            else if (message == "joined")
-                joined = true;
-            else if ((message == "failed") || (message == "removed") || (message == "timeout"))
-            {   // we will get a removed message if a voice call is declined.
-                
-                if (message == "failed") 
+                if ((message == "added") || (message == "created"))
                 {
-                    int reason = result["reason"].asInteger();
-                    LL_WARNS("Voice") << "Add and join failed for reason " << reason << LL_ENDL;
-                    
-                    if ((reason == ERROR_VIVOX_NOT_LOGGED_IN) ||
-                            (reason == ERROR_VIVOX_OBJECT_NOT_FOUND))
+                    added = true;
+                }
+                else if (message == "joined")
+                {
+                    joined = true;
+                }
+                else if ((message == "failed") || (message == "removed") || (message == "timeout"))
+                {   // we will get a removed message if a voice call is declined.
+                
+                    if (message == "failed") 
                     {
-                        LL_DEBUGS("Voice") << "Requesting reprovision and login." << LL_ENDL;
-                        requestRelog();
+                        int reason = result["reason"].asInteger();
+                        LL_WARNS("Voice") << "Add and join failed for reason " << reason << LL_ENDL;
+                    
+                        if (   (reason == ERROR_VIVOX_NOT_LOGGED_IN)
+                            || (reason == ERROR_VIVOX_OBJECT_NOT_FOUND))
+                        {
+                            LL_DEBUGS("Voice") << "Requesting reprovision and login." << LL_ENDL;
+                            requestRelog();
+                        }                    
+                    }
+                    else
+                    {
+                        LL_WARNS("Voice") << "session '" << message << "' "
+                                          << LL_ENDL;
                     }
                     
+                    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+                    mIsJoiningSession = false;
+                    return false;
                 }
-                
-                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
-                mIsJoiningSession = false;
-                return false;
             }
         }
     } while (!added || !joined);
@@ -1540,6 +1552,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             }
             else if (sessionNeedsRelog(mNextAudioSession))
             {
+                LL_DEBUGS("Voice") << "Session requesting reprovision and login." << LL_ENDL;
                 requestRelog();
                 break;
             }
@@ -1552,7 +1565,9 @@ bool LLVivoxVoiceClient::waitForChannel()
             }
 
             if (!mNextAudioSession)
+            {
                 llcoro::suspendUntilTimeout(1.0);
+            }
         } while (mVoiceEnabled && !mRelogRequested);
 
         mIsProcessingChannels = false;
@@ -6592,7 +6607,6 @@ void LLVivoxProtocolParser::reset()
 	isModeratorMuted = false;
 	isSpeaking = false;
 	participantType = 0;
-	squelchDebugOutput = false;
 	returnCode = -1;
 	state = 0;
 	statusCode = 0;
@@ -6645,12 +6659,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 		XML_SetUserData(parser, this);	
 		XML_Parse(parser, mInput.data() + start, delim - start, false);
 		
-		// If this message isn't set to be squelched, output the raw XML received.
-		if(!squelchDebugOutput)
-		{
-			LL_DEBUGS("Voice") << "parsing: " << mInput.substr(start, delim - start) << LL_ENDL;
-		}
-		
+        LL_DEBUGS("VivoxProtocolParser") << "parsing: " << mInput.substr(start, delim - start) << LL_ENDL;
 		start = delim + 3;
 	}
 	
@@ -7033,7 +7042,6 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		if (!stricmp(eventTypeCstr, "ParticipantUpdatedEvent"))
 		{
 			// These happen so often that logging them is pretty useless.
-			squelchDebugOutput = true;
             LL_DEBUGS("LOW Voice") << "Updated Params: " << sessionHandle << ", " << sessionGroupHandle << ", " << uriString << ", " << alias << ", " << isModeratorMuted << ", " << isSpeaking << ", " << volume << ", " << energy << LL_ENDL;
             LLVivoxVoiceClient::getInstance()->participantUpdatedEvent(sessionHandle, sessionGroupHandle, uriString, alias, isModeratorMuted, isSpeaking, volume, energy);
 		}
@@ -7123,7 +7131,6 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		else if (!stricmp(eventTypeCstr, "AuxAudioPropertiesEvent"))
 		{
 			// These are really spammy in tuning mode
-			squelchDebugOutput = true;
 			LLVivoxVoiceClient::getInstance()->auxAudioPropertiesEvent(energy);
 		}
 		else if (!stricmp(eventTypeCstr, "MessageEvent"))  
@@ -7188,8 +7195,7 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 
 		if (!stricmp(actionCstr, "Session.Set3DPosition.1"))
 		{
-			// We don't need to process these, but they're so spammy we don't want to log them.
-			squelchDebugOutput = true;
+			// We don't need to process these
 		}
 		else if (!stricmp(actionCstr, "Connector.Create.1"))
 		{
