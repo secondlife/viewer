@@ -451,7 +451,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
         else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
@@ -465,7 +464,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
 
         # MSVC DLLs needed for CEF and have to be in same directory as plugin
