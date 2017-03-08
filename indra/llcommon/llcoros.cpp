@@ -268,8 +268,7 @@ std::string LLCoros::getName() const
 
 bool LLCoros::isInCoroutine() const
 {
-    CoroData* current = Current();
-    return current;
+    return !Current()->mName.empty();
 }
 
 void LLCoros::setStackSize(S32 stacksize)
