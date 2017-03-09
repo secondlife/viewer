@@ -88,16 +88,21 @@ namespace {
     static const std::string VOICE_SERVER_TYPE = "Vivox";
 
     // Don't retry connecting to the daemon more frequently than this:
-    const F32 CONNECT_THROTTLE_SECONDS = 1.0f;
+    const F32 DAEMON_CONNECT_THROTTLE_SECONDS = 1.0f;
 
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.5f;
 
+    // Timeout for connection to Vivox 
+    const F32 CONNECT_ATTEMPT_TIMEOUT = 300.0f;
+    const F32 CONNECT_DNS_TIMEOUT = 5.0f;
+    const int CONNECT_RETRY_MAX = 3;
+
     const F32 LOGIN_ATTEMPT_TIMEOUT = 30.0f;
     const int LOGIN_RETRY_MAX = 3;
 
-    const int PROVISION_RETRY_MAX = 5;
     const F32 PROVISION_RETRY_TIMEOUT = 2.0;
+    const int PROVISION_RETRY_MAX = 5;
 
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
@@ -821,7 +826,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
         LLVoiceVivoxStats::getInstance()->connectionAttemptEnd(mConnected);
         if (!mConnected)
         {
-            llcoro::suspendUntilTimeout(CONNECT_THROTTLE_SECONDS);
+            llcoro::suspendUntilTimeout(DAEMON_CONNECT_THROTTLE_SECONDS);
         }
     }
     
@@ -945,29 +950,59 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     if (!mVoiceEnabled && mIsInitialized)
         return false;
 
+    LLSD result;
+    bool connected(false);
+    bool giving_up(false);
+    int retries = 0;
     LLVoiceVivoxStats::getInstance()->establishAttemptStart();
     connectorCreate();
-
-    LLSD result;
     do
     {
         result = llcoro::suspendUntilEventOn(voiceConnectPump);
         LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
-    } 
-    while (!result.has("connector"));
 
-    bool connected = result["connector"];
-    LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
+        if (result.has("connector"))
+        {
+            LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
+            bool connected = result["connector"];
+            if (!connected)
+            {
+                if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX)
+                {
+                    F32 timeout = result["retry"];
+                    timeout *= retries;
+                    LL_INFOS("Voice") << "Retry Connection.Create in " << timeout << " seconds" << LL_ENDL;
+                    llcoro::suspendUntilTimeout(timeout);
+
+                    if (mVoiceEnabled && mIsInitialized)
+                    {
+                        // try again
+                        LLVoiceVivoxStats::getInstance()->establishAttemptStart();
+                        connectorCreate();
+                    }
+                    else
+                    {
+                        giving_up = true;
+                    }
+                }
+                else
+                {
+                    giving_up=true;
+                }
+            }
+        }
+    } while (!connected && !giving_up);
+
+    if (giving_up)
+    {
+        LLSD args;
+        args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
+        LLNotificationsUtil::add("NoVoiceConnect", args);
+    }
 
     if (!mVoiceEnabled && mIsInitialized)
     {
         connected = false;
-    }
-    else if (!connected)
-    {
-        LLSD args;
-        args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
-        LLNotificationsUtil::add("NoVoiceConnectFinal", args);	
     }
 
     return connected;
@@ -1050,7 +1085,7 @@ bool LLVivoxVoiceClient::loginToVivox()
                     LLSD args;
                     args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
                     mTerminateDaemon = true;
-                    LLNotificationsUtil::add("NoVoiceConnectFinal", args);
+                    LLNotificationsUtil::add("NoVoiceConnect", args);
 
                     mIsLoggingIn = false;
                     return false;
@@ -1064,11 +1099,6 @@ bool LLVivoxVoiceClient::loginToVivox()
 
                 // tell the user there is a problem
                 LL_WARNS("Voice") << "login " << loginresp << " will retry login in " << timeout << " seconds." << LL_ENDL;
-
-                LLSD args;
-                args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
-                args["RETRY"] = int(timeout);
-                LLNotificationsUtil::add("NoVoiceConnectTrying", args);
                     
                 llcoro::suspendUntilTimeout(timeout);
             }
@@ -2944,16 +2974,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 {	
     LLSD result = LLSD::emptyMap();
 
-	if(statusCode != 0)
-	{
-		LL_WARNS("Voice") << "Connector.Create response failure ("<< statusCode << "): " << statusString << LL_ENDL;
-		LLSD args;
-		args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
-		mTerminateDaemon = true;
-
-        result["connector"] = LLSD::Boolean(false);
-	}
-	else
+	if(statusCode == 0)
 	{
 		// Connector created, move forward.
         if (connectorHandle == LLVivoxSecurity::getInstance()->connectorHandle())
@@ -2967,13 +2988,38 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
         }
         else
         {
+            // This shouldn't happen - we are somehow out of sync with SLVoice
+            // or possibly there are two things trying to run SLVoice at once
+            // or someone is trying to hack into it.
             LL_WARNS("Voice") << "Connector.Create returned wrong handle "
                               << "(" << connectorHandle << ")"
                               << " expected (" << LLVivoxSecurity::getInstance()->connectorHandle() << ")"
                               << LL_ENDL;
             result["connector"] = LLSD::Boolean(false);
+            // Give up.
+            mTerminateDaemon = true;
         }
 	}
+    else if (statusCode == 10028) // web request timeout prior to login
+    {
+        // this is usually fatal, but a long timeout might work
+        result["retry"] = LLSD::Real(CONNECT_ATTEMPT_TIMEOUT);
+        
+        LL_WARNS("Voice") << "Connector.Create failed" << LL_ENDL;
+    }
+    else if (statusCode == 10006) // name resolution failure - a shorter retry may work
+    {
+        // some networks have slower DNS, but a short timeout might let it catch up
+        result["retry"] = LLSD::Real(CONNECT_DNS_TIMEOUT);
+        
+        LL_WARNS("Voice") << "Connector.Create lookup failed" << LL_ENDL;
+    }
+    else // unknown failure - give up
+    {
+        LL_WARNS("Voice") << "Connector.Create response failure ("<< statusCode << "): " << statusString << LL_ENDL;
+        mTerminateDaemon = true;
+        result["connector"] = LLSD::Boolean(false);
+    }
 
     LLEventPumps::instance().post("vivoxClientPump", result);
 }
