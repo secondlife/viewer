@@ -1466,9 +1466,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2a33d85c5afa07612e8c4f314ab29545</string>
+              <string>4e7fef9c6ae9b7ccf19b7fdb96912b9c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/478/1016/jpeglib-8c.500387-darwin64-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3152/7571/jpeglib-8c.503140-darwin64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1490,9 +1490,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d699142394f54a334b4fd203b4c9eea</string>
+              <string>ba9c62863ec338a049de83c24639f57c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/457/970/jpeglib-8c.500387-linux64-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3151/7568/jpeglib-8c.503140-linux64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1502,9 +1502,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>543e25c3819399f37e0453db5eea558a</string>
+              <string>00523662f6a7388377166e9415e113e9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/497/1062/jpeglib-8c.500387-windows-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3153/7557/jpeglib-8c.503140-windows-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1514,16 +1514,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dbc2baf28f83d1646d7e2f66ead2a1a4</string>
+              <string>70ed49ed2317b6dba9af1f186956ac79</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/494/1049/jpeglib-8c.500387-windows64-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3154/7558/jpeglib-8c.503140-windows64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>8c.500387</string>
+        <string>8c.503140</string>
       </map>
       <key>jsoncpp</key>
       <map>
