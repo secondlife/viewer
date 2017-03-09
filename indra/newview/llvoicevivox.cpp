@@ -969,7 +969,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
             {
                 if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX)
                 {
-                    F32 timeout = result["retry"];
+                    F32 timeout = LLSD::Real(result["retry"]);
                     timeout *= retries;
                     LL_INFOS("Voice") << "Retry Connection.Create in " << timeout << " seconds" << LL_ENDL;
                     llcoro::suspendUntilTimeout(timeout);
