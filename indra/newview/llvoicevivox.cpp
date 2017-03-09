@@ -490,8 +490,11 @@ void LLVivoxVoiceClient::connectorCreate()
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	
 	// Transition to stateConnectorStarted when the connector handle comes back.
-	std::string vivoxLogLevel = gSavedSettings.getString("VivoxDebugLevel", "0");
-		
+	std::string vivoxLogLevel = gSavedSettings.getString("VivoxDebugLevel");
+    if ( vivoxLogLevel.empty() )
+    {
+        vivoxLogLevel = "0";
+    }
     LL_DEBUGS("Voice") << "creating connector with log level " << vivoxLogLevel << LL_ENDL;
 	
 	stream 
@@ -734,8 +737,11 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             LLProcess::Params params;
             params.executable = exe_path;
 
-            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel", "0");
-
+            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
+            if (loglevel.empty())
+            {
+                loglevel = "0";
+            }
             params.args.add("-ll");
             params.args.add(loglevel);
 
@@ -959,6 +965,8 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     }
     else if (!connected)
     {
+        LLSD args;
+        args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
         LLNotificationsUtil::add("NoVoiceConnectFinal", args);	
     }
 
