@@ -196,10 +196,7 @@ char* ll_pretty_print_sd(const LLSD& sd)
 std::string ll_stream_notation_sd(const LLSD& sd)
 {
 	std::ostringstream stream;
-	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);
 	stream << LLSDOStreamer<LLSDNotationFormatter>(sd);
-	stream << std::ends;
-
     return stream.str();
 }
 
