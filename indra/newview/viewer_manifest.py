@@ -343,22 +343,35 @@ class WindowsManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
+        llbasedir = os.path.join(pkgdir, "VMP")
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+
             # include the compiled launcher scripts so that it gets included in the file_list
             self.path(src='%s/apply_update.exe' % vmpdir, dst="apply_update.exe")
             self.path(src='%s/download_update.exe' % vmpdir, dst="download_update.exe")
             self.path(src='%s/SL_Launcher.exe' % vmpdir, dst="SL_Launcher.exe")
             self.path(src='%s/update_manager.exe' % vmpdir, dst="update_manager.exe")
+
             #IUM is not normally executed directly, just imported.  No exe needed.
             self.path2basename(vmpdir,"InstallerUserMessage.py")
+
             #VMP  Tkinter icons
             if self.prefix("vmp_icons"):
                 self.path("*.png")
                 self.path("*.gif")
                 self.end_prefix("vmp_icons")
+
+            #before, we only needed llbase at build time.  With VMP, we need it at run time.
+            llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
+            if not os.path.exists(llbase_path):
+                os.makedirs(llbase_path)
+            if self.prefix(dst="llbase"):
+                self.path2basename(llbasedir,"*.py")
+                self.path2basename(llbasedir,"_cllsd.so")
+                self.end_prefix()
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
