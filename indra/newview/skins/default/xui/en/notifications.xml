@@ -8686,6 +8686,29 @@ Ports that must be allowed for voice are:
 Please check your network and firewall setup.
 Disable any SIP ALG feature in your router.
 
+We will keep trying...
+    <tag>voice</tag>
+  <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoVoiceConnectFinal"
+   type="alertmodal">
+We are unable to connect to the voice server:
+
+[HOSTID]
+
+Ports that must be allowed for voice are:
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Please check your network and firewall setup.
+Disable any SIP ALG feature in your router.
+
 Voice communications will not be available.
     <tag>voice</tag>
   <tag>fail</tag>
