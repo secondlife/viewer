@@ -95,7 +95,6 @@ namespace {
 
     const F32 LOGIN_ATTEMPT_TIMEOUT = 30.0f;
     const int LOGIN_RETRY_MAX = 3;
-    const F32 LOGIN_RETRY_BACKOFF = 10.0f;
 
     const int PROVISION_RETRY_MAX = 5;
     const F32 PROVISION_RETRY_TIMEOUT = 2.0;
@@ -488,16 +487,12 @@ bool LLVivoxVoiceClient::writeString(const std::string &str)
 void LLVivoxVoiceClient::connectorCreate()
 {
 	std::ostringstream stream;
-	std::string logpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-	std::string loglevel = "0";
+	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	
 	// Transition to stateConnectorStarted when the connector handle comes back.
-	std::string savedLogLevel = gSavedSettings.getString("VivoxDebugLevel");
+	std::string vivoxLogLevel = gSavedSettings.getString("VivoxDebugLevel", "0");
 		
-	if(savedLogLevel != "0")
-	{
-		LL_DEBUGS("Voice") << "creating connector with logging enabled" << LL_ENDL;
-	}
+    LL_DEBUGS("Voice") << "creating connector with log level " << vivoxLogLevel << LL_ENDL;
 	
 	stream 
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.Create.1\">"
@@ -506,10 +501,10 @@ void LLVivoxVoiceClient::connectorCreate()
 		<< "<Mode>Normal</Mode>"
         << "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 		<< "<Logging>"
-		<< "<Folder>" << logpath << "</Folder>"
+		<< "<Folder>" << logdir << "</Folder>"
 		<< "<FileNamePrefix>Connector</FileNamePrefix>"
 		<< "<FileNameSuffix>.log</FileNameSuffix>"
-		<< "<LogLevel>" << loglevel << "</LogLevel>"
+		<< "<LogLevel>" << vivoxLogLevel << "</LogLevel>"
 		<< "</Logging>"
 		<< "<Application>" << LLVersionInfo::getChannel().c_str() << " " << LLVersionInfo::getVersion().c_str() << "</Application>"
 		//<< "<Application></Application>"  //Name can cause problems per vivox.
@@ -739,12 +734,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             LLProcess::Params params;
             params.executable = exe_path;
 
-            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
-            std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
-            if (loglevel.empty())
-            {
-                loglevel = "-1";	// turn logging off completely, was 0 for error level logging.
-            }
+            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel", "0");
 
             params.args.add("-ll");
             params.args.add(loglevel);
@@ -759,6 +749,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             params.args.add("-lf");
             params.args.add(log_folder);
 
+            std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
             if (!shutdown_timeout.empty())
             {
                 params.args.add("-st");
@@ -966,6 +957,10 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     {
         connected = false;
     }
+    else if (!connected)
+    {
+        LLNotificationsUtil::add("NoVoiceConnectFinal", args);	
+    }
 
     return connected;
 }
@@ -1047,19 +1042,26 @@ bool LLVivoxVoiceClient::loginToVivox()
                     LLSD args;
                     args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
                     mTerminateDaemon = true;
-                    LLNotificationsUtil::add("NoVoiceConnect", args);
+                    LLNotificationsUtil::add("NoVoiceConnectFinal", args);
 
                     mIsLoggingIn = false;
                     return false;
                 }
-
                 response_ok = false;
                 account_login = false;
                 send_login = true;
 
-                F32 timeout = pow(LOGIN_RETRY_BACKOFF, static_cast<float>(loginRetryCount)) - 1.0f;
+                // an exponential backoff gets too long too quickly; stretch it out, but not too much
+                F32 timeout = loginRetryCount * LOGIN_ATTEMPT_TIMEOUT;
 
-                LL_INFOS("Voice") << "will retry login in " << timeout << " seconds." << LL_ENDL;
+                // tell the user there is a problem
+                LL_WARNS("Voice") << "login " << loginresp << " will retry login in " << timeout << " seconds." << LL_ENDL;
+
+                LLSD args;
+                args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
+                args["RETRY"] = int(timeout);
+                LLNotificationsUtil::add("NoVoiceConnectTrying", args);
+                    
                 llcoro::suspendUntilTimeout(timeout);
             }
             else if (loginresp == "failed")
@@ -1951,7 +1953,8 @@ void LLVivoxVoiceClient::loginSendMessage()
 		<< "<ParticipantPropertyFrequency>5</ParticipantPropertyFrequency>"
 		<< (autoPostCrashDumps?"<AutopostCrashDumps>true</AutopostCrashDumps>":"")
 	<< "</Request>\n\n\n";
-	
+
+    LL_DEBUGS("Voice") << "sending login request" << LL_ENDL;
 	writeString(stream.str());
 }
 
@@ -2939,7 +2942,6 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		LLSD args;
 		args["HOSTID"] = LLURI(mVoiceAccountServerURI).authority();
 		mTerminateDaemon = true;
-        LLNotificationsUtil::add("NoVoiceConnect", args);	
 
         result["connector"] = LLSD::Boolean(false);
 	}
