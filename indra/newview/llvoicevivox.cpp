@@ -2986,7 +2986,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		// Connector created, move forward.
         if (connectorHandle == LLVivoxSecurity::getInstance()->connectorHandle())
         {
-            LL_INFOS("Voice") << "Connector.Create succeeded, Vivox SDK version is " << versionID << " connector handle " << connectorHandle << LL_ENDL;
+            LL_INFOS("Voice") << "Voice connector succeeded, Vivox SDK version is " << versionID << " connector handle " << connectorHandle << LL_ENDL;
             mVoiceVersion.serverVersion = versionID;
             mConnectorEstablished = true;
             mTerminateDaemon = false;
@@ -2998,7 +2998,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
             // This shouldn't happen - we are somehow out of sync with SLVoice
             // or possibly there are two things trying to run SLVoice at once
             // or someone is trying to hack into it.
-            LL_WARNS("Voice") << "Connector.Create returned wrong handle "
+            LL_WARNS("Voice") << "Connector returned wrong handle "
                               << "(" << connectorHandle << ")"
                               << " expected (" << LLVivoxSecurity::getInstance()->connectorHandle() << ")"
                               << LL_ENDL;
@@ -3013,7 +3013,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
         result["connector"] = LLSD::Boolean(false);
         result["retry"] = LLSD::Real(CONNECT_ATTEMPT_TIMEOUT);
         
-        LL_WARNS("Voice") << "Connector.Create failed" << LL_ENDL;
+        LL_WARNS("Voice") << "Voice connection failed" << LL_ENDL;
     }
     else if (statusCode == 10006) // name resolution failure - a shorter retry may work
     {
@@ -3021,11 +3021,11 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
         result["connector"] = LLSD::Boolean(false);
         result["retry"] = LLSD::Real(CONNECT_DNS_TIMEOUT);
         
-        LL_WARNS("Voice") << "Connector.Create lookup failed" << LL_ENDL;
+        LL_WARNS("Voice") << "Voice connection DNS lookup failed" << LL_ENDL;
     }
     else // unknown failure - give up
     {
-        LL_WARNS("Voice") << "Connector.Create response failure ("<< statusCode << "): " << statusString << LL_ENDL;
+        LL_WARNS("Voice") << "Voice connection failure ("<< statusCode << "): " << statusString << LL_ENDL;
         mTerminateDaemon = true;
         result["connector"] = LLSD::Boolean(false);
     }
