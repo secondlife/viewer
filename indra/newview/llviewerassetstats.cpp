@@ -323,10 +323,10 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 		grid_from_region_handle(it->first, &grid_x, &grid_y);
 		r	.grid_x(grid_x)
 			.grid_y(grid_y)
-			.duration(F64Microseconds(rec.getDuration()).value());
+			.duration(F64Seconds(rec.getDuration()).value());
 	}
 
-	stats.duration(mCurRecording ? F64Microseconds(mCurRecording->getDuration()).value() : 0.0);
+	stats.duration(mCurRecording ? F64Seconds(mCurRecording->getDuration()).value() : 0.0);
 }
 
 LLSD LLViewerAssetStats::asLLSD(bool compact_output)
@@ -376,7 +376,7 @@ void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	record(sResponse[int(eac)], F64Microseconds(duration));
+	record(sResponse[int(eac)], F64Seconds(duration));
 	record(sBytesFetched[int(eac)], bytes);
 }
 
