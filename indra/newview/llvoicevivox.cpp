@@ -643,18 +643,19 @@ void LLVivoxVoiceClient::voiceControlCoro()
     do
     {
         
-        startAndConnectSession();
-
-        if (mTuningMode)
+        if (startAndConnectSession())
         {
-            performMicTuning();
-        }
-        else if (mVoiceEnabled)
-        {
-            waitForChannel();
-        }
+            if (mTuningMode)
+            {
+                performMicTuning();
+            }
+            else if (mVoiceEnabled)
+            {
+                waitForChannel();
+            }
     
-        endAndDisconnectSession();
+            endAndDisconnectSession();
+        }
         
         // if we hit this and mRelogRequested is true, that indicates
         // that we attempted to relog into Vivox and were rejected.
@@ -954,6 +955,8 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     bool connected(false);
     bool giving_up(false);
     int retries = 0;
+    LL_INFOS("Voice") << "Requestiong connection to voice service" << LL_ENDL;
+
     LLVoiceVivoxStats::getInstance()->establishAttemptStart();
     connectorCreate();
     do
@@ -971,10 +974,10 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
                 {
                     F32 timeout = LLSD::Real(result["retry"]);
                     timeout *= retries;
-                    LL_INFOS("Voice") << "Retry Connection.Create in " << timeout << " seconds" << LL_ENDL;
+                    LL_INFOS("Voice") << "Retry connection to voice service in " << timeout << " seconds" << LL_ENDL;
                     llcoro::suspendUntilTimeout(timeout);
 
-                    if (mVoiceEnabled && mIsInitialized)
+                    if (mVoiceEnabled) // user may have switched it off
                     {
                         // try again
                         LLVoiceVivoxStats::getInstance()->establishAttemptStart();
@@ -982,6 +985,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
                     }
                     else
                     {
+                        // stop if they've turned off voice
                         giving_up = true;
                     }
                 }
@@ -1059,11 +1063,12 @@ bool LLVivoxVoiceClient::loginToVivox()
 
     do 
     {
-
         mIsLoggingIn = true;
         if (send_login)
+        {
             loginSendMessage();
-
+        }
+        
         send_login = false;
 
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
@@ -1992,7 +1997,7 @@ void LLVivoxVoiceClient::loginSendMessage()
 		<< (autoPostCrashDumps?"<AutopostCrashDumps>true</AutopostCrashDumps>":"")
 	<< "</Request>\n\n\n";
 
-    LL_DEBUGS("Voice") << "sending login request" << LL_ENDL;
+    LL_INFOS("Voice") << "Attempting voice login" << LL_ENDL;
 	writeString(stream.str());
 }
 
@@ -2009,6 +2014,7 @@ void LLVivoxVoiceClient::logoutSendMessage()
 {
 	if(mAccountLoggedIn)
 	{
+        LL_INFOS("Voice") << "Attempting voice logout" << LL_ENDL;
 		std::ostringstream stream;
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.Logout.1\">"
