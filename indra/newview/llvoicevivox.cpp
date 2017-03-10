@@ -1004,10 +1004,10 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
         LLNotificationsUtil::add("NoVoiceConnect", args);
     }
 
-    if (!mVoiceEnabled && mIsInitialized)
-    {
-        connected = false;
-    }
+//    if (!mVoiceEnabled && mIsInitialized)
+//    {
+//        connected = false;
+//    }
 
     return connected;
 }
