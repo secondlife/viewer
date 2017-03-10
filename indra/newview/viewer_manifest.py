@@ -631,6 +631,11 @@ class WindowsManifest(ViewerManifest):
             Caption "%(caption)s"
             """
 
+        if(self.args['arch'].lower() == 'x86_64'):
+            program_files="$PROGRAMFILES64"
+        else:
+            program_files="$PROGRAMFILES32"
+
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
@@ -639,6 +644,7 @@ class WindowsManifest(ViewerManifest):
                 "%%SOURCE%%":self.get_src_prefix(),
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
+                "%%$PROGRAMFILES%%":program_files,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
         # We use the Unicode version of NSIS, available from
