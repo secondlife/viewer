@@ -2510,6 +2510,7 @@ void LLVivoxVoiceClient::daemonDied()
 void LLVivoxVoiceClient::giveUp()
 {
 	// All has failed.  Clean up and stop trying.
+    LL_WARNS("Voice") << "Terminating Voice Service" << LL_ENDL;
 	closeSocket();
 	cleanUp();
 }
@@ -3003,6 +3004,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
     else if (statusCode == 10028) // web request timeout prior to login
     {
         // this is usually fatal, but a long timeout might work
+        result["connector"] = LLSD::Boolean(false);
         result["retry"] = LLSD::Real(CONNECT_ATTEMPT_TIMEOUT);
         
         LL_WARNS("Voice") << "Connector.Create failed" << LL_ENDL;
@@ -3010,6 +3012,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
     else if (statusCode == 10006) // name resolution failure - a shorter retry may work
     {
         // some networks have slower DNS, but a short timeout might let it catch up
+        result["connector"] = LLSD::Boolean(false);
         result["retry"] = LLSD::Real(CONNECT_DNS_TIMEOUT);
         
         LL_WARNS("Voice") << "Connector.Create lookup failed" << LL_ENDL;
