@@ -55,6 +55,7 @@ public:
 	bool				getDenyAnonymous()			const;
 	bool				getDenyAgeUnverified()		const;
 	bool				getAllowVoiceChat()			const;
+    bool                getAllowAccessOverride()    const;
 
 	const std::string&	getName()					const { return mName; }
 	const LLUUID&		getOwnerID()				const { return mOwnerID; }
@@ -68,6 +69,7 @@ public:
 	void setDenyAnonymous(bool val);
 	void setDenyAgeUnverified(bool val);
 	void setAllowVoiceChat(bool val);
+    void setAllowAccessOverride(bool val);
 
 	void setSunHour(F32 sun_hour) { mSunHour = sun_hour; }
 
@@ -82,8 +84,6 @@ protected:
 	void notifyCommit();
 
 private:
-	bool commitEstateInfoCaps();
-	void commitEstateInfoDataserver();
 	inline bool getFlag(U64 flag) const;
 	inline void setFlag(U64 flag, bool val);
 	U64  getFlags() const { return mFlags; }

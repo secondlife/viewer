@@ -98,20 +98,28 @@
      width="200" />
 
     <check_box
-     height="20"
-     label="Allow Voice Chat"
+     height="18"
+     label="Allow Parcel Access Override"
      layout="topleft"
      left="280"
-     name="voice_chat_check"
+     name="parcel_access_override"
      top_delta="0"
      width="200" />
     <check_box
-     height="20"
+     height="18"
+     label="Allow Voice Chat"
+     layout="topleft"
+     left_delta ="0"
+     name="voice_chat_check"
+     top_pad="4"
+     width="200" />
+    <check_box
+     height="18"
      label="Allow Direct Teleport"
      layout="topleft"
      left_delta="0"
      name="allow_direct_teleport"
-     top_pad="4"
+     top_pad="2"
      width="80" />
     <button
      enabled="false"
@@ -120,7 +128,7 @@
      label="Apply"
      layout="topleft"
      name="apply_btn"
-     top_pad="15"
+     top_pad="7"
      left_delta="0"
      width="97" />
 

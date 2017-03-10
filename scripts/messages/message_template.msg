@@ -4499,6 +4499,10 @@ version 2.0
 		AgeVerificationBlock Single
 		{   RegionDenyAgeUnverified BOOL    }
 	}
+    {
+        RegionAllowAccessBlock Single
+        {   RegionAllowAccessOverride BOOL  }  
+    }
 }
 
 // ParcelPropertiesUpdate
