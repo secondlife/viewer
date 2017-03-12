@@ -91,7 +91,6 @@ SetOverwrite on							# Overwrite files by default
 AutoCloseWindow true					# After all files install, close window
 
 InstallDir "%%$PROGRAMFILES%%\${INSTNAME}"
-%%REGISTRY%%
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
 UninstallText $(UninstallTextMsg)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
@@ -137,6 +136,7 @@ FunctionEnd
 ;; entry to the language ID selector below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInit
+%%ENGAGEREGISTRY%%
 Call CheckCPUFlags							# Make sure we have SSE2 support
 Call CheckWindowsVersion					# Don't install On unsupported systems
     Push $0
