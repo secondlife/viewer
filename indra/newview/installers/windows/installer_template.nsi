@@ -195,6 +195,7 @@ FunctionEnd
 ;; Prep Uninstaller Section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.onInit
+%%ENGAGEREGISTRY%%
 # Read language from registry and set for uninstaller. Key will be removed on successful uninstall
 	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
     IfErrors lbl_end
