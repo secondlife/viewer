@@ -651,10 +651,8 @@ void LLVivoxVoiceClient::voiceControlCoro()
             {
                 performMicTuning();
             }
-            else if (mVoiceEnabled)
-            {
-                waitForChannel();
-            }
+
+            waitForChannel(); // this doesn't normally return unless relog is needed or shutting down
     
             endAndDisconnectSession();
         }
@@ -971,7 +969,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
         if (result.has("connector"))
         {
             LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
-            bool connected = result["connector"];
+            bool connected = LLSD::Boolean(result["connector"]);
             if (!connected)
             {
                 if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX)
@@ -4967,6 +4965,9 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 
 bool LLVivoxVoiceClient::voiceEnabled()
 {
+    LL_DEBUGS("Voice") << "EnableVoiceChat" << (gSavedSettings.getBOOL("EnableVoiceChat") ? "on" : "off") << " ,"
+                       << "CmdLineDisableVoice" << (gSavedSettings.getBOOL("CmdLineDisableVoice") ? "on" : "off")
+                       << LL_ENDL;
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
