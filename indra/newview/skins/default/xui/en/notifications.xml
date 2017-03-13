@@ -1940,6 +1940,14 @@ Please make sure none are locked, and that you own all of them.
 
   <notification
    icon="alertmodal.tga"
+   name="CannotLinkAcrossRegions"
+   type="alertmodal">
+Objects cannot be linked across region boundaries.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CannotLinkDifferentOwners"
    type="alertmodal">
 Unable to link because not all of the objects have the same owner.
