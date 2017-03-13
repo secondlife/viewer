@@ -244,7 +244,7 @@ void HttpStatusTestObjectType::test<7>()
 	HttpStatus status(404);
 	std::string msg = status.toHex();
 	// std::cout << "Result:  " << msg << std::endl;
-	ensure(msg == "01940001");
+	ensure_equals(msg, "01940001");
 }
 
 

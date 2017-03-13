@@ -116,26 +116,26 @@ void LLSearchHistory::addEntry(const std::string& search_query)
 	mSearchHistory.push_front(item);
 }
 
-bool LLSearchHistory::LLSearchHistoryItem::operator < (const LLSearchHistory::LLSearchHistoryItem& right)
+bool LLSearchHistory::LLSearchHistoryItem::operator < (const LLSearchHistory::LLSearchHistoryItem& right) const
 {
 	S32 result = LLStringUtil::compareInsensitive(search_query, right.search_query);
 
 	return result < 0;
 }
 
-bool LLSearchHistory::LLSearchHistoryItem::operator > (const LLSearchHistory::LLSearchHistoryItem& right)
+bool LLSearchHistory::LLSearchHistoryItem::operator > (const LLSearchHistory::LLSearchHistoryItem& right) const
 {
 	S32 result = LLStringUtil::compareInsensitive(search_query, right.search_query);
 
 	return result > 0;
 }
 
-bool LLSearchHistory::LLSearchHistoryItem::operator==(const LLSearchHistory::LLSearchHistoryItem& right)
+bool LLSearchHistory::LLSearchHistoryItem::operator==(const LLSearchHistory::LLSearchHistoryItem& right) const
 {
 	return 0 == LLStringUtil::compareInsensitive(search_query, right.search_query);
 }
 
-bool LLSearchHistory::LLSearchHistoryItem::operator==(const std::string& right)
+bool LLSearchHistory::LLSearchHistoryItem::operator==(const std::string& right) const
 {
 	return 0 == LLStringUtil::compareInsensitive(search_query, right);
 }

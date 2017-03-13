@@ -41,8 +41,12 @@ LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
 
 std::string LLImageJ2COJ::getEngineInfo() const
 {
+#ifdef OPENJPEG_VERSION
 	return std::string("OpenJPEG: " OPENJPEG_VERSION ", Runtime: ")
 		+ opj_version();
+#else
+	return std::string("OpenJPEG runtime: ") + opj_version();
+#endif
 }
 
 // Return string from message, eliminating final \n if present
