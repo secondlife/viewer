@@ -311,7 +311,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mMicVolume(0),
 	mMicVolumeDirty(true),
 
-	mVoiceEnabled(voiceEnabled()),
+	mVoiceEnabled(false),
 	mWriteInProgress(false),
 
 	mLipSyncEnabled(false),
@@ -409,6 +409,8 @@ void LLVivoxVoiceClient::terminate()
 
 void LLVivoxVoiceClient::cleanUp()
 {
+    LL_DEBUGS("Voice") << LL_ENDL;
+    
 	deleteAllSessions();
 	deleteAllVoiceFonts();
 	deleteVoiceFontTemplates();
@@ -997,6 +999,9 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
                 }
             }
         }
+        LL_DEBUGS("Voice") << (connected ? "" : "not ") << "connected, "
+                           << (giving_up ? "" : "not ") << "giving up"
+                           << LL_ENDL;
     } while (!connected && !giving_up);
 
     if (giving_up)
@@ -1011,6 +1016,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
 
 bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
 {
+    LL_DEBUGS("Voice") << LL_ENDL;
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
     bool retval(true);
 
