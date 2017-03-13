@@ -519,7 +519,10 @@ bool LLVoiceClient::voiceEnabled()
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
 {
-	if (mVoiceModule) mVoiceModule->setVoiceEnabled(enabled);
+	if (mVoiceModule)
+    {
+        mVoiceModule->setVoiceEnabled(enabled);
+    }
 }
 
 void LLVoiceClient::updateMicMuteLogic()

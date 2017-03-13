@@ -311,7 +311,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mMicVolume(0),
 	mMicVolumeDirty(true),
 
-	mVoiceEnabled(false),
+	mVoiceEnabled(voiceEnabled()),
 	mWriteInProgress(false),
 
 	mLipSyncEnabled(false),
@@ -425,7 +425,7 @@ const LLVoiceVersionInfo& LLVivoxVoiceClient::getVersion()
 
 void LLVivoxVoiceClient::updateSettings()
 {
-	setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
+    setVoiceEnabled(voiceEnabled());
 	setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
 
 	std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
@@ -677,6 +677,8 @@ void LLVivoxVoiceClient::voiceControlCoro()
 bool LLVivoxVoiceClient::startAndConnectSession()
 {
     bool ok = false;
+    LL_DEBUGS("Voice") << LL_ENDL;
+
     LLVoiceVivoxStats::getInstance()->reset();
 
     if (startAndLaunchDaemon())
@@ -1004,11 +1006,6 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
         LLNotificationsUtil::add("NoVoiceConnect", args);
     }
 
-//    if (!mVoiceEnabled && mIsInitialized)
-//    {
-//        connected = false;
-//    }
-
     return connected;
 }
 
@@ -1067,10 +1064,9 @@ bool LLVivoxVoiceClient::loginToVivox()
         if (send_login)
         {
             loginSendMessage();
+            send_login = false;
         }
         
-        send_login = false;
-
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
         LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
 
@@ -1593,7 +1589,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             }
             else if (sessionNeedsRelog(mNextAudioSession))
             {
-                LL_DEBUGS("Voice") << "Session requesting reprovision and login." << LL_ENDL;
+                LL_INFOS("Voice") << "Session requesting reprovision and login." << LL_ENDL;
                 requestRelog();
                 break;
             }
@@ -3160,7 +3156,7 @@ void LLVivoxVoiceClient::sessionConnectResponse(std::string &requestId, int stat
 	// set the session info to reflect that the user is already connected.
 	if (statusCode == 1026)
 	{
-		session->mVoiceEnabled = true;
+		session->mVoiceActive = true;
 		session->mMediaConnectInProgress = false;
 		session->mMediaStreamState = streamStateConnected;
 		//session->mTextStreamState = streamStateConnected;
@@ -3585,13 +3581,13 @@ void LLVivoxVoiceClient::mediaStreamUpdatedEvent(
 		case streamStateDisconnecting:
 		case streamStateIdle:
 				// Standard "left audio session", Vivox state 'disconnected'
-				session->mVoiceEnabled = false;
+				session->mVoiceActive = false;
 				session->mMediaConnectInProgress = false;
 				leftAudioSession(session);
 			break;
 
 			case streamStateConnected:
-				session->mVoiceEnabled = true;
+				session->mVoiceActive = true;
 				session->mMediaConnectInProgress = false;
 				joinedAudioSession(session);
 			case streamStateConnecting: // do nothing, but prevents a warning getting into the logs.  
@@ -4942,7 +4938,6 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 		mVoiceEnabled = enabled;
 		LLVoiceClientStatusObserver::EStatusType status;
 		
-		
 		if (enabled)
 		{
 			LLVoiceChannel::getCurrentVoiceChannel()->activate();
@@ -5309,7 +5304,7 @@ LLVivoxVoiceClient::sessionState::sessionState() :
     mIsSpatial(false),
     mIsP2P(false),
     mIncoming(false),
-    mVoiceEnabled(false),
+    mVoiceActive(false),
     mReconnect(false),
     mVolumeDirty(false),
     mMuteDirty(false),

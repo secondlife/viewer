@@ -351,7 +351,7 @@ protected:
 		bool		mIsSpatial;	// True for spatial channels
 		bool		mIsP2P;
 		bool		mIncoming;
-		bool		mVoiceEnabled;
+		bool		mVoiceActive;
 		bool		mReconnect;	// Whether we should try to reconnect to this session if it's dropped
 
 		// Set to true when the volume/mute state of someone in the participant list changes.
