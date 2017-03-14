@@ -4965,9 +4965,7 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 
 bool LLVivoxVoiceClient::voiceEnabled()
 {
-    static LLUICachedControl<bool> enable_voice("EnableVoiceChat", true);
-    static LLUICachedControl<bool> override_disable_voice("CmdLineDisableVoice", false);
-    return enable_voice && ! override_disable_voice;
+	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
 void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)
