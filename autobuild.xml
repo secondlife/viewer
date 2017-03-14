@@ -1376,9 +1376,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cbaa7619050123c3fd2a88959f88bd47</string>
+              <string>bd749bc181e8d75718267bc0ecf4c5bf</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/749/1553/havok_source-2012.1-2-darwin64-500739.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2750/6262/havok_source-2012.1-2-darwin64-502736.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1412,9 +1412,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dab55cc0555d7126fda925e20af851ea</string>
+              <string>03be19251601027841c767f723dae1d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1194/2807/havok_source-2012.1-2-windows-501181.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2756/6286/havok_source-2012.1-2-windows-502736.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1424,9 +1424,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7bbc1c3512a5665b7576b4b0357a9eb7</string>
+              <string>de3884eeed32297845add77d5ecc7e6b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1195/2816/havok_source-2012.1-2-windows64-501181.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2755/6280/havok_source-2012.1-2-windows64-502736.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3341,7 +3341,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>default</key>
@@ -3370,7 +3369,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>name</key>
@@ -3405,7 +3403,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>name</key>
@@ -3432,7 +3429,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>name</key>
