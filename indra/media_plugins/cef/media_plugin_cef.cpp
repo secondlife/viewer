@@ -512,6 +512,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
 				settings.webgl_enabled = true;
 
+				std::vector<std::string> custom_schemes(1, "secondlife");
+				mCEFLib->setCustomSchemes(custom_schemes);
+
 				bool result = mCEFLib->init(settings);
 				if (!result)
 				{
