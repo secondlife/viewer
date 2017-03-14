@@ -200,7 +200,10 @@ void LLVoiceClient::updateSettings()
 
 	updateMicMuteLogic();
 
-	if (mVoiceModule) mVoiceModule->updateSettings();
+	if (mVoiceModule)
+    {
+        mVoiceModule->updateSettings();
+    }
 }
 
 //--------------------------------------------------
