@@ -341,6 +341,11 @@ void LLBlockList::onCustomAction(const LLSD& userdata)
 bool LLBlockList::isMenuItemChecked(const LLSD& userdata)
 {
 	LLBlockedListItem* item = getBlockedItem();
+	if (!item)
+	{
+		return false;
+	}
+
 	const std::string command_name = userdata.asString();
 
 	if ("block_voice" == command_name)
