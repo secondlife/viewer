@@ -713,13 +713,13 @@ bool LLVivoxVoiceClient::endAndDisconnectSession()
 bool LLVivoxVoiceClient::startAndLaunchDaemon()
 {
     //---------------------------------------------------------------------
-    if (gSavedSettings.getBOOL("CmdLineDisableVoice"))
+    if (!voiceEnabled())
     {
         // Voice is locked out, we must not launch the vivox daemon.
         return false;
     }
 
-    if (!isGatewayRunning() && gSavedSettings.getBOOL("EnableVoiceChat"))
+    if (!isGatewayRunning())
     {
 #ifndef VIVOXDAEMON_REMOTEHOST
         // Launch the voice daemon
@@ -969,7 +969,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
         if (result.has("connector"))
         {
             LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
-            bool connected = LLSD::Boolean(result["connector"]);
+            connected = LLSD::Boolean(result["connector"]);
             if (!connected)
             {
                 if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX)
@@ -4965,10 +4965,9 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 
 bool LLVivoxVoiceClient::voiceEnabled()
 {
-    LL_DEBUGS("Voice") << "EnableVoiceChat" << (gSavedSettings.getBOOL("EnableVoiceChat") ? "on" : "off") << " ,"
-                       << "CmdLineDisableVoice" << (gSavedSettings.getBOOL("CmdLineDisableVoice") ? "on" : "off")
-                       << LL_ENDL;
-	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
+    static LLUICachedControl<bool> enable_voice("EnableVoiceChat");
+    static LLUICachedControl<bool> override_disable_voice("CmdLineDisableVoice");
+    return enable_voice && ! override_disable_voice;
 }
 
 void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)
