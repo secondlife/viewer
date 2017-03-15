@@ -3042,9 +3042,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e0375687eb78f0b3b4d30194583a871a</string>
+              <string>1fd8b5e57be0677d28383b95ea559223</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3422/8654/viewer_manager-1.0-darwin64-503410.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3429/8692/viewer_manager-1.0-darwin64-503417.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3054,9 +3054,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8795127b83ead8bc99168df4a42830da</string>
+              <string>8c7f32f85850248809ae811ba8e47d81</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3421/8648/viewer_manager-1.0-linux-503410.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3428/8686/viewer_manager-1.0-linux-503417.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -3066,9 +3066,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>28f00eea2162c1094408d284a4c35efa</string>
+              <string>692da90cb43d1fdc21c534facc017b81</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3423/8660/viewer_manager-1.0-windows-503410.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3430/8698/viewer_manager-1.0-windows-503417.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
