@@ -130,10 +130,13 @@
    </menu_item_call>
 
    <menu_item_separator />
-    
+      <context_menu
+       label="Render Avatar"
+       layout="topleft"
+        name="Render Avatar">
       <menu_item_check
         name="RenderNormally"
-        label="Render Normally">
+        label="Default">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
           parameter="0" />
@@ -142,18 +145,8 @@
 	      parameter="0" />
       </menu_item_check>
       <menu_item_check
-        name="DoNotRender"
-        label="Do Not Render">
-        <menu_item_check.on_check
-          function="Avatar.CheckImpostorMode"
-          parameter="1" />
-	    <menu_item_check.on_click
-	      function="Avatar.SetImpostorMode"
-	      parameter="1" />
-      </menu_item_check>
-      <menu_item_check
         name="AlwaysRenderFully"
-        label="Render Fully">
+        label="Always">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
           parameter="2" />
@@ -161,7 +154,17 @@
 	      function="Avatar.SetImpostorMode"
 	      parameter="2" />
       </menu_item_check>
-
+      <menu_item_check
+        name="DoNotRender"
+        label="Never">
+        <menu_item_check.on_check
+          function="Avatar.CheckImpostorMode"
+          parameter="1" />
+	    <menu_item_check.on_click
+	      function="Avatar.SetImpostorMode"
+	      parameter="1" />
+      </menu_item_check>
+      </context_menu>
   <menu_item_separator
        layout="topleft" name="Impostor seperator"/>
 

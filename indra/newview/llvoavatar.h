@@ -407,7 +407,6 @@ public:
 	};
 	void		setVisualMuteSettings(VisualMuteSettings set);
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
-	VisualMuteSettings  getSavedVisualMuteSettings();
 
 	U32 		renderRigid();
 	U32 		renderSkinned();
@@ -441,7 +440,6 @@ public:
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
-	static std::map<LLUUID, VisualMuteSettings> sVisuallyMuteSettingsMap;
 	//--------------------------------------------------------------------
 	// Morph masks
 	//--------------------------------------------------------------------
