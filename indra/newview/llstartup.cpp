@@ -967,6 +967,8 @@ bool idle_startup()
 		// Load media plugin cookies
 		LLViewerMedia::loadCookieFile();
 
+		LLRenderMuteList::getInstance()->loadFromFile();
+
 		//-------------------------------------------------
 		// Handle startup progress screen
 		//-------------------------------------------------

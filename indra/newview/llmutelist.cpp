@@ -812,3 +812,99 @@ void LLMuteList::notifyObserversDetailed(const LLMute& mute)
 		it = mObservers.upper_bound(observer);
 	}
 }
+
+LLRenderMuteList::LLRenderMuteList()
+{}
+
+bool LLRenderMuteList::saveToFile()
+{
+    std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
+    LLFILE* fp = LLFile::fopen(filename, "wb");
+    if (!fp)
+    {
+        LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;
+        return false;
+    }
+    for (std::map<LLUUID, S32>::iterator it = sVisuallyMuteSettingsMap.begin(); it != sVisuallyMuteSettingsMap.end(); ++it)
+    {
+        if (it->second != 0)
+        {
+            std::string id_string;
+            it->first.toString(id_string);
+            fprintf(fp, "%d %s\n", (S32)it->second, id_string.c_str());
+        }
+    }
+    fclose(fp);
+    return true;
+}
+
+bool LLRenderMuteList::loadFromFile()
+{
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
+	LLFILE* fp = LLFile::fopen(filename, "rb");
+	if (!fp)
+	{
+		LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;
+		return false;
+	}
+
+	char id_buffer[MAX_STRING];
+	char buffer[MAX_STRING];
+	while (!feof(fp) && fgets(buffer, MAX_STRING, fp))
+	{
+		id_buffer[0] = '\0';
+		S32 setting = 0;
+		sscanf(buffer, " %d %254s\n", &setting, id_buffer);
+		sVisuallyMuteSettingsMap[LLUUID(id_buffer)] = setting;
+	}
+	fclose(fp);
+    return true;
+}
+
+void LLRenderMuteList::saveVisualMuteSetting(const LLUUID& agent_id, S32 setting)
+{
+    if(setting == 0)
+    {
+        sVisuallyMuteSettingsMap.erase(agent_id);
+    }
+    else
+    {
+        sVisuallyMuteSettingsMap[agent_id] = setting;
+    }
+    saveToFile();
+    notifyObservers();
+}
+
+S32 LLRenderMuteList::getSavedVisualMuteSetting(const LLUUID& agent_id)
+{
+    std::map<LLUUID, S32>::iterator iter = sVisuallyMuteSettingsMap.find(agent_id);
+    if (iter != sVisuallyMuteSettingsMap.end())
+    {
+        return iter->second;
+    }
+
+    return 0;
+}
+
+void LLRenderMuteList::addObserver(LLMuteListObserver* observer)
+{
+    mObservers.insert(observer);
+}
+
+void LLRenderMuteList::removeObserver(LLMuteListObserver* observer)
+{
+    mObservers.erase(observer);
+}
+
+void LLRenderMuteList::notifyObservers()
+{
+    for (observer_set_t::iterator it = mObservers.begin();
+        it != mObservers.end();
+        )
+    {
+        LLMuteListObserver* observer = *it;
+        observer->onChange();
+        // In case onChange() deleted an entry.
+        it = mObservers.upper_bound(observer);
+    }
+}
