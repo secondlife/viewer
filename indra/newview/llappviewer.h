@@ -311,6 +311,8 @@ private:
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;
 
+        bool mIsFirstRun;
+
 };
 
 // consts from viewer.h

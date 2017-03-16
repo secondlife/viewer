@@ -31,6 +31,9 @@
 #include "../llviewernetwork.h"
 #include "../lllogininstance.h"
 
+ // Needed for Auth Test
+ #include "../llhasheduniqueid.h"
+
 // STL headers
 // std headers
 // external library headers
@@ -187,7 +190,6 @@ void LLUIColorTable::saveUserSettings(void)const {}
 #include "../llversioninfo.h"
 const std::string &LLVersionInfo::getVersion() { return VIEWERLOGIN_VERSION; }
 const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
-const int MD5HEX_STR_SIZE = 33;  // char hex[MD5HEX_STR_SIZE]; with null
 
 bool llHashedUniqueID(unsigned char* id) 
 {
