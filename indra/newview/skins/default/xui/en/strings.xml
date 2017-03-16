@@ -61,7 +61,7 @@ VFS (cache) creation time: [VFS_TIME]
 	<string name="AboutLibs">
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
-CEF Version: [LIBCEF_VERSION]
+[LIBCEF_VERSION]
 LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>

@@ -442,6 +442,7 @@ class WindowsManifest(ViewerManifest):
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
@@ -455,6 +456,7 @@ class WindowsManifest(ViewerManifest):
         else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
@@ -865,11 +867,9 @@ class DarwinManifest(ViewerManifest):
 
                     self.end_prefix()
 
-                    # the helper app needs to have it's @executable_path modified to point to the 
-                    # same location we drop the CEF framework shortcut
                     helperexecutablepath = self.dst_path_of('SLPlugin.app/Contents/Frameworks/DullahanHelper.app/Contents/MacOS/DullahanHelper')
                     self.run_command('install_name_tool -change '
-                                     '"@executable_path/Chromium Embedded Framework" '
+                                     '"@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" '
                                      '"@executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % helperexecutablepath)
 
                 # SLPlugin plugins
@@ -893,6 +893,12 @@ class DarwinManifest(ViewerManifest):
                         self.end_prefix()
 
                     self.end_prefix("llplugin")
+
+                    # do this install_name_tool *after* media plugin is copied over
+                    dylibexecutablepath = self.dst_path_of('llplugin/media_plugin_cef.dylib')
+                    self.run_command('install_name_tool -change '
+                                     '"@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" '
+                                     '"@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % dylibexecutablepath)
 
                 self.end_prefix("Resources")
 
