@@ -1537,6 +1537,11 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
 	}
 	else if (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
+		LLVector3 focus_target = isAgentAvatarValid()
+			? gAgentAvatarp->mHeadp->getWorldPosition()
+			: gAgent.getPositionAgent();
+		LLVector3d focus_target_global = gAgent.getPosGlobalFromAgent(focus_target);
+		mFocusTargetGlobal = focus_target_global;
 		return mFocusTargetGlobal;
 	}
 	else if (!mFocusOnAvatar)
