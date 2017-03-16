@@ -90,7 +90,7 @@ InstProgressFlags smooth colored		# New colored smooth look
 SetOverwrite on							# Overwrite files by default
 AutoCloseWindow true					# After all files install, close window
 
-InstallDir "$PROGRAMFILES\${INSTNAME}"
+InstallDir "%%$PROGRAMFILES%%\${INSTNAME}"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
 UninstallText $(UninstallTextMsg)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
@@ -136,6 +136,7 @@ FunctionEnd
 ;; entry to the language ID selector below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInit
+%%ENGAGEREGISTRY%%
 Call CheckCPUFlags							# Make sure we have SSE2 support
 Call CheckWindowsVersion					# Don't install On unsupported systems
     Push $0
@@ -194,6 +195,7 @@ FunctionEnd
 ;; Prep Uninstaller Section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.onInit
+%%ENGAGEREGISTRY%%
 # Read language from registry and set for uninstaller. Key will be removed on successful uninstall
 	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
     IfErrors lbl_end

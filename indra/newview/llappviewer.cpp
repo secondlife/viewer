@@ -124,10 +124,8 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/llceflib.h"
-#if LL_WINDOWS
+#include "cef/dullahan.h"
 #include "vlc/libvlc_version.h"
-#endif // LL_WINDOWS
 #endif // LL_LINUX
 
 // Third party library includes
@@ -330,10 +328,10 @@ BOOL				gDisconnected = FALSE;
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
-BOOL			gUseWireframe = FALSE;
+bool			gUseWireframe = FALSE;
 
 //use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
+bool			gInitialDeferredModeForWireframe = FALSE;
 
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
@@ -732,8 +730,7 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::deleteSingleton();
-	
+
 	destroyMainloopTimeout();
     
 	// If we got to this destructor somehow, the app didn't hang.
@@ -1217,7 +1214,8 @@ bool LLAppViewer::init()
         boost::bind(&LLControlGroup::getU32, boost::ref(gSavedSettings), _1),
         boost::bind(&LLControlGroup::declareU32, boost::ref(gSavedSettings), _1, _2, _3, LLControlVariable::PERSIST_ALWAYS));
 
-	showReleaseNotesIfRequired();
+	// TODO: consider moving proxy initialization here or LLCopocedureManager after proxy initialization, may be implement
+	// some other protection to make sure we don't use network before initializng proxy
 
 	/*----------------------------------------------------------------------*/
 	// nat 2016-06-29 moved the following here from the former mainLoop().
@@ -1471,11 +1469,9 @@ bool LLAppViewer::frame()
 				ms_sleep(500);
 			}
 
-			const F64Milliseconds max_idle_time = llmin(.005f*10.f*(F32Milliseconds)gFrameTimeSeconds, F32Milliseconds(5)); // 5 ms a second
 			idleTimer.reset();
 			S32 total_work_pending = 0;
 			S32 total_io_pending = 0;	
-			while(1)
 			{
 				S32 work_pending = 0;
 				S32 io_pending = 0;
@@ -1499,11 +1495,7 @@ bool LLAppViewer::frame()
 
 				total_work_pending += work_pending ;
 				total_io_pending += io_pending ;
-				
-				if (!work_pending || idleTimer.getElapsedTimeF64() >= max_idle_time)
-				{
-					break;
-				}
+
 			}
 			gMeshRepo.update() ;
 			
@@ -2099,6 +2091,10 @@ bool LLAppViewer::cleanup()
 	// realtime, or might throw an exception.
 	LLSingletonBase::cleanupAll();
 
+	// The logging subsystem depends on an LLSingleton. Any logging after
+	// LLSingletonBase::deleteAll() won't be recorded.
+	LL_INFOS() << "Goodbye!" << LL_ENDL;
+
 	// This calls every remaining LLSingleton's deleteSingleton() method.
 	// No class destructor should perform any cleanup that might take
 	// significant realtime, or throw an exception.
@@ -2110,8 +2106,6 @@ bool LLAppViewer::cleanup()
 	// their respective cleanup methods in computed dependency order, it's
 	// probably useful to be able to log that order.
 	LLSingletonBase::deleteAll();
-
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
@@ -3157,20 +3151,28 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+	std::ostringstream cef_ver_codec;
+	cef_ver_codec << "Dullahan: ";
+	cef_ver_codec << DULLAHAN_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_BUILD;
+	cef_ver_codec << " - CEF: ";
+	cef_ver_codec << CEF_VERSION;
+	info["LIBCEF_VERSION"] = cef_ver_codec.str();
 #else
-	info["LLCEFLIB_VERSION"] = "Undefined";
-
+	info["LIBCEF_VERSION"] = "Undefined";
 #endif
 
-#if LL_WINDOWS
-	std::ostringstream ver_codec;
-	ver_codec << LIBVLC_VERSION_MAJOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_MINOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_REVISION;
-	info["LIBVLC_VERSION"] = ver_codec.str();
+#if !LL_LINUX
+	std::ostringstream vlc_ver_codec;
+	vlc_ver_codec << LIBVLC_VERSION_MAJOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_MINOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 #else
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif

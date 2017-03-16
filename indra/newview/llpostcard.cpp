@@ -40,11 +40,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LLPostcardUploadInfo::LLPostcardUploadInfo(std::string emailFrom, std::string nameFrom, std::string emailTo,
+LLPostcardUploadInfo::LLPostcardUploadInfo(std::string nameFrom, std::string emailTo,
         std::string subject, std::string message, LLVector3d globalPosition,
         LLPointer<LLImageFormatted> image, invnUploadFinish_f finish) :
     LLBufferedAssetUploadInfo(LLUUID::null, image, finish),
-    mEmailFrom(emailFrom),
     mNameFrom(nameFrom),
     mEmailTo(emailTo),
     mSubject(subject),
@@ -58,7 +57,6 @@ LLSD LLPostcardUploadInfo::generatePostBody()
     LLSD postcard = LLSD::emptyMap();
     postcard["pos-global"] = mGlobalPosition.getValue();
     postcard["to"] = mEmailTo;
-    postcard["from"] = mEmailFrom;
     postcard["name"] = mNameFrom;
     postcard["subject"] = mSubject;
     postcard["msg"] = mMessage;

@@ -779,23 +779,7 @@ void LLSidepanelItemInfo::onCommitName()
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->rename(labelItemName->getText());
-		if(mObjectID.isNull())
-		{
-			new_item->updateServer(FALSE);
-			gInventory.updateItem(new_item);
-			gInventory.notifyObservers();
-		}
-		else
-		{
-			LLViewerObject* object = gObjectList.findObject(mObjectID);
-			if(object)
-			{
-				object->updateInventory(
-					new_item,
-					TASK_INVENTORY_ITEM_KEY,
-					false);
-			}
-		}
+		onCommitChanges(new_item);
 	}
 }
 
@@ -816,23 +800,7 @@ void LLSidepanelItemInfo::onCommitDescription()
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 
 		new_item->setDescription(labelItemDesc->getText());
-		if(mObjectID.isNull())
-		{
-			new_item->updateServer(FALSE);
-			gInventory.updateItem(new_item);
-			gInventory.notifyObservers();
-		}
-		else
-		{
-			LLViewerObject* object = gObjectList.findObject(mObjectID);
-			if(object)
-			{
-				object->updateInventory(
-					new_item,
-					TASK_INVENTORY_ITEM_KEY,
-					false);
-			}
-		}
+		onCommitChanges(new_item);
 	}
 }
 
@@ -908,23 +876,7 @@ void LLSidepanelItemInfo::onCommitPermissions()
 			flags |= LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		new_item->setFlags(flags);
-		if(mObjectID.isNull())
-		{
-			new_item->updateServer(FALSE);
-			gInventory.updateItem(new_item);
-			gInventory.notifyObservers();
-		}
-		else
-		{
-			LLViewerObject* object = gObjectList.findObject(mObjectID);
-			if(object)
-			{
-				object->updateInventory(
-					new_item,
-					TASK_INVENTORY_ITEM_KEY,
-					false);
-			}
-		}
+		onCommitChanges(new_item);
 	}
 	else
 	{
@@ -1008,31 +960,52 @@ void LLSidepanelItemInfo::updateSaleInfo()
 		}
 
 		new_item->setSaleInfo(sale_info);
-		if(mObjectID.isNull())
-		{
-			// This is in the agent's inventory.
-			new_item->updateServer(FALSE);
-			gInventory.updateItem(new_item);
-			gInventory.notifyObservers();
-		}
-		else
-		{
-			// This is in an object's contents.
-			LLViewerObject* object = gObjectList.findObject(mObjectID);
-			if(object)
-			{
-				object->updateInventory(
-					new_item,
-					TASK_INVENTORY_ITEM_KEY,
-					false);
-			}
-		}
+		onCommitChanges(new_item);
 	}
 	else
 	{
 		// need to make sure we don't just follow the click
 		refresh();
 	}
+}
+
+void LLSidepanelItemInfo::onCommitChanges(LLPointer<LLViewerInventoryItem> item)
+{
+    if (item.isNull())
+    {
+        return;
+    }
+
+    if (mObjectID.isNull())
+    {
+        // This is in the agent's inventory.
+        item->updateServer(FALSE);
+        gInventory.updateItem(item);
+        gInventory.notifyObservers();
+    }
+    else
+    {
+        // This is in an object's contents.
+        LLViewerObject* object = gObjectList.findObject(mObjectID);
+        if (object)
+        {
+            object->updateInventory(
+                item,
+                TASK_INVENTORY_ITEM_KEY,
+                false);
+
+            if (object->isSelected())
+            {
+                // Since object is selected (build floater is open) object will
+                // receive properties update, detect serial mismatch, dirty and
+                // reload inventory, meanwhile some other updates will refresh it.
+                // So mark dirty early, this will prevent unnecessary changes
+                // and download will be triggered by LLPanelObjectInventory - it
+                // prevents flashing in content tab and some duplicated request.
+                object->dirtyInventory();
+            }
+        }
+    }
 }
 
 LLViewerInventoryItem* LLSidepanelItemInfo::findItem() const

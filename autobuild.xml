@@ -507,6 +507,60 @@
         <key>version</key>
         <string>1.500564</string>
       </map>
+      <key>dullahan</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2017, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>A headless browser SDK that uses the Chromium Embedded Framework (CEF). It is designed to make it easier to write applications that render modern web content directly to a memory buffer, inject synthesized mouse and keyboard events as well as interact with web based features like JavaScript or cookies.</string>
+        <key>license</key>
+        <string>MPL</string>
+        <key>license_file</key>
+        <string>LICENSES/LICENSE.txt</string>
+        <key>name</key>
+        <string>dullahan</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>66ba275f79d3dfcb6943a9cbe5dd6d94</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3188/7675/dullahan-1.0.620_3.2704.1434.gec3e9ed-darwin64-503177.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>fe07cd0dc8d706975850be45e3c1e752</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3190/7682/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows-503177.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2385864496065bac20ee35d0afddb84f</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3191/7687/dullahan-1.0.620_3.2704.1434.gec3e9ed-windows64-503177.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.620_3.2704.1434.gec3e9ed</string>
+      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
@@ -1412,9 +1466,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2a33d85c5afa07612e8c4f314ab29545</string>
+              <string>4e7fef9c6ae9b7ccf19b7fdb96912b9c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/478/1016/jpeglib-8c.500387-darwin64-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3152/7571/jpeglib-8c.503140-darwin64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1436,9 +1490,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d699142394f54a334b4fd203b4c9eea</string>
+              <string>ba9c62863ec338a049de83c24639f57c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/457/970/jpeglib-8c.500387-linux64-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3151/7568/jpeglib-8c.503140-linux64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1448,9 +1502,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>543e25c3819399f37e0453db5eea558a</string>
+              <string>00523662f6a7388377166e9415e113e9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/497/1062/jpeglib-8c.500387-windows-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3153/7557/jpeglib-8c.503140-windows-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1460,16 +1514,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dbc2baf28f83d1646d7e2f66ead2a1a4</string>
+              <string>70ed49ed2317b6dba9af1f186956ac79</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/494/1049/jpeglib-8c.500387-windows64-500387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3154/7558/jpeglib-8c.503140-windows64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>8c.500387</string>
+        <string>8c.503140</string>
       </map>
       <key>jsoncpp</key>
       <map>
@@ -2110,76 +2164,6 @@
         </map>
         <key>version</key>
         <string>0.8.6.318106</string>
-      </map>
-      <key>llceflib</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2014, Linden Research, Inc.</string>
-        <key>description</key>
-        <string>LLCefLib implements a headless web browser, rendering modern web content to a memory buffer and providing an API for injecting mouse and keyboard events. It uses the Chromium Embedded Framework (https://bitbucket.org/chromiumembedded/cef)</string>
-        <key>license</key>
-        <string>LGPL</string>
-        <key>license_file</key>
-        <string>LICENSES/LICENSE-source.txt</string>
-        <key>name</key>
-        <string>llceflib</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2845033912eb947a1401847ece1469ce</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/321153/arch/Darwin/installer/llceflib-1.5.3.321153-darwin-321153.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3af1210d90aeb9f4d5deea6020ee0d55</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1611/3591/llceflib-1.6.0.501600-darwin64-501600.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>9d19271829a372e028dd3c75605ded9c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1518/3437/llceflib-1.6.0.501501-windows-501501.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>da1835b11be4442f22fef36820ad46ac</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1517/3434/llceflib-1.6.0.501501-windows64-501501.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.6.0.501600</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>

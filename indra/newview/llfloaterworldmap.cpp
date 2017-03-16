@@ -546,7 +546,7 @@ void LLFloaterWorldMap::trackAvatar( const LLUUID& avatar_id, const std::string&
 		// convenience.
 		if(gAgent.isGodlike())
 		{
-			getChild<LLUICtrl>("spin z")->setValue(LLSD(200.f));
+			getChild<LLUICtrl>("teleport_coordinate_z")->setValue(LLSD(200.f));
 		}
 		// Don't re-request info if we already have it or we won't have it in time to teleport
 		if (mTrackedStatus != LLTracker::TRACKING_AVATAR || name != mTrackedAvatarName)
@@ -1375,7 +1375,7 @@ void LLFloaterWorldMap::teleport()
 		&& av_tracker.haveTrackingInfo() )
 	{
 		pos_global = av_tracker.getGlobalPos();
-		pos_global.mdV[VZ] = getChild<LLUICtrl>("spin z")->getValue();
+		pos_global.mdV[VZ] = getChild<LLUICtrl>("teleport_coordinate_z")->getValue();
 	}
 	else if ( LLTracker::TRACKING_LANDMARK == tracking_status)
 	{

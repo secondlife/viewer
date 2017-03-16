@@ -566,11 +566,16 @@ void LLPanelPrimMediaControls::updateShape()
 			}
 		}
 		
-		// MAINT-1392 If this is a HUD always set it visible, but hide each control if user has no perms.
-		// When setting it invisible it won't receive any mouse messages anymore
+		// Web plugins and HUD may have media controls invisible for user, but still need scroll mouse events.
+		// LLView checks for visibleEnabledAndContains() and won't pass events to invisible panel, so instead
+		// of hiding whole panel hide each control instead (if user has no perms).
+		// Note: It might be beneficial to keep panel visible for all plugins to make behavior consistent, but 
+		// for now limiting change to cases that need events.
 
-		if( !is_hud )
+		if (!is_hud && (!media_plugin || media_plugin->pluginSupportsMediaTime()))
+		{
 			setVisible(enabled);
+		}
 		else
 		{
 			if( !hasPermsControl )

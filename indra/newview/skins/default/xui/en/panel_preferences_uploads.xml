@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<panel
+ border="true"
+ follows="all"
+ height="408"
+ label="Uploads"
+ layout="topleft"
+ left="102"
+ name="uploads"
+ top="1"
+ width="517">
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="33"
+   name="title"
+   top_pad="10"
+   width="250">
+    Current destination folders for uploads
+  </text>
+
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="37"
+   name="title_models"
+   top_pad="17"
+   width="100">
+    Images
+  </text>
+  <text
+   type="string"
+   use_ellipses="true"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   font.style="BOLD"
+   left="37"
+   name="upload_textures"
+   top_pad="5"
+   width="350" />
+  
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="37"
+   name="title_sounds"
+   top_pad="7"
+   width="100">
+    Sounds
+  </text>
+  <text
+   type="string"
+   use_ellipses="true"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   font.style="BOLD"
+   left="37"
+   name="upload_sounds"
+   top_pad="5"
+   width="350" />
+  
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="37"
+   name="title_animation"
+   top_pad="7"
+   width="100">
+    Animations
+  </text>
+  <text
+   type="string"
+   use_ellipses="true"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   font.style="BOLD"
+   left="37"
+   name="upload_animation"
+   top_pad="5"
+   width="350" />
+
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="37"
+   name="title_animation"
+   top_pad="7"
+   width="100">
+    Models
+  </text>
+  <text
+   type="string"
+   use_ellipses="true"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   font.style="BOLD"
+   left="37"
+   name="upload_models"
+   top_pad="5"
+   width="350" />
+
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="30"
+   layout="topleft"
+   font.style="ITALIC"
+   left="33"
+   name="upload_help"
+   top_pad="6"
+   width="387">
+    To change a destination folder, right click on it in inventory and choose
+ "Use as default for"
+  </text>
+</panel>

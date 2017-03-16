@@ -62,6 +62,7 @@
 #include "lldependencies.h"
 #include "llstl.h"
 #include "llexception.h"
+#include "llhandle.h"
 
 /*==========================================================================*|
 // override this to allow binding free functions with more parameters
@@ -227,7 +228,15 @@ class LLEventPump;
  * LLEventPumps is a Singleton manager through which one typically accesses
  * this subsystem.
  */
-class LL_COMMON_API LLEventPumps: public LLSingleton<LLEventPumps>
+// LLEventPumps isa LLHandleProvider only for (hopefully rare) long-lived
+// class objects that must refer to this class late in their lifespan, say in
+// the destructor. Specifically, the case that matters is a possible reference
+// after LLEventPumps::deleteSingleton(). (Lingering LLEventPump instances are
+// capable of this.) In that case, instead of calling LLEventPumps::instance()
+// again -- resurrecting the deleted LLSingleton -- store an
+// LLHandle<LLEventPumps> and test it before use.
+class LL_COMMON_API LLEventPumps: public LLSingleton<LLEventPumps>,
+                                  public LLHandleProvider<LLEventPumps>
 {
     LLSINGLETON(LLEventPumps);
 public:
@@ -590,6 +599,9 @@ private:
         return this->listen_impl(name, listener, after, before);
     }
 
+    // must precede mName; see LLEventPump::LLEventPump()
+    LLHandle<LLEventPumps> mRegistry;
+
     std::string mName;
 
 protected:
@@ -817,14 +829,14 @@ public:
         mConnection(new LLBoundListener)
     {
     }
-	
+
     /// Copy constructor. Copy shared_ptrs to original instance data.
     LLListenerWrapperBase(const LLListenerWrapperBase& that):
         mName(that.mName),
         mConnection(that.mConnection)
     {
     }
-	virtual ~LLListenerWrapperBase() {}
+    virtual ~LLListenerWrapperBase() {}
 
     /// Ask LLEventPump::listen() for the listener name
     virtual void accept_name(const std::string& name) const

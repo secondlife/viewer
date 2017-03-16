@@ -80,7 +80,7 @@ protected:
 	void                               handleNewObjectList(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pRequestStatus, LLPathfindingObjectListPtr pObjectList);
 	void                               handleUpdateObjectList(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pRequestStatus, LLPathfindingObjectListPtr pObjectList);
 
-	void                               rebuildObjectsScrollList();
+	void                               rebuildObjectsScrollList(bool update_if_needed = false);
 	virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
 	void                               addObjectToScrollList(const LLPathfindingObjectPtr pObjectPr, const LLSD &pScrollListItemData);
 

@@ -38,7 +38,10 @@ public:
 	LLFloaterScriptDebug(const LLSD& key);
 	virtual ~LLFloaterScriptDebug();
 	virtual BOOL postBuild();
+	virtual void setVisible(BOOL visible);
     static void show(const LLUUID& object_id);
+
+    /*virtual*/ void closeFloater(bool app_quitting = false);
 	static void addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id);
 
 protected:

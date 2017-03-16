@@ -38,7 +38,7 @@
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
 	</string>
 	<string name="BuildConfig">
@@ -79,7 +79,7 @@ Durée de création VFS (cache) : [VFS_TIME]
 	<string name="AboutLibs">
 		Version J2C Decoder : [J2C_VERSION]
 Version Audio Driver : [AUDIO_DRIVER_VERSION]
-Version LLCEFLib/CEF : [LLCEFLIB_VERSION]
+Version CEF : [LIBCEF_VERSION]
 Version LibVLC : [LIBVLC_VERSION]
 Version serveur vocal : [VOICE_VERSION]
 	</string>
