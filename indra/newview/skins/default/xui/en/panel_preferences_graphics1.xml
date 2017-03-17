@@ -303,8 +303,6 @@
     name="AlwaysRenderFriends"
     top_delta="24"
     width="256">
-    <check_box.commit_callback
-      function="Pref.RenderFriends" />
   </check_box>
   <button
     height="23"

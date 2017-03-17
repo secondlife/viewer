@@ -50,15 +50,19 @@ public:
     void onFilterEdit(const std::string& search_string);
     void onCustomAction (const LLSD& userdata, const LLUUID& av_id);
     bool isActionChecked(const LLSD& userdata, const LLUUID& av_id);
+    void onClickAdd(const LLSD& userdata);
 
     static void setNeedsUpdate();
 
 private:
     bool isHiddenRow(const std::string& av_name);
+    void callbackAvatarPicked(const uuid_vec_t& ids, S32 visual_setting);
+    void removePicker();
 
     bool mNeedsUpdate;
     LLListContextMenu* mContextMenu;
     LLNameListCtrl* mAvatarSettingsList;
+    LLHandle<LLFloater> mPicker;
 
     std::string mNameFilter;
 };
