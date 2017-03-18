@@ -84,6 +84,8 @@ protected:
 	void notifyCommit();
 
 private:
+	bool commitEstateInfoCaps();
+	void commitEstateInfoDataserver();
 	inline bool getFlag(U64 flag) const;
 	inline void setFlag(U64 flag, bool val);
 	U64  getFlags() const { return mFlags; }

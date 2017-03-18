@@ -58,18 +58,12 @@ boost::signals2::connection LLEstateInfoModel::setCommitCallback(const update_si
 
 void LLEstateInfoModel::sendEstateInfo()
 {
-    std::string url = gAgent.getRegion()->getCapability("EstateChangeInfo");
-
-    if (url.empty())
-    {
-        LL_WARNS("EstateInfo") << "Unable to get URL for cap: EstateChangeInfo!!!" << LL_ENDL;
-        // whoops, couldn't find the cap, so bail out
-        return;
-    }
-
-    LLCoros::instance().launch("LLEstateInfoModel::commitEstateInfoCapsCoro",
-        boost::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, url));
-
+	if (!commitEstateInfoCaps())
+	{
+		// the caps method failed, try the old way
+		LLFloaterRegionInfo::nextInvoice();
+		commitEstateInfoDataserver();
+	}
 }
 
 bool LLEstateInfoModel::getUseFixedSun()			const {	return getFlag(REGION_FLAGS_SUN_FIXED);				}
@@ -119,6 +113,23 @@ void LLEstateInfoModel::notifyCommit()
 
 //== PRIVATE STUFF ============================================================
 
+// tries to send estate info using a cap; returns true if it succeeded
+bool LLEstateInfoModel::commitEstateInfoCaps()
+{
+	std::string url = gAgent.getRegion()->getCapability("EstateChangeInfo");
+
+	if (url.empty())
+	{
+		// whoops, couldn't find the cap, so bail out
+		return false;
+	}
+
+    LLCoros::instance().launch("LLEstateInfoModel::commitEstateInfoCapsCoro",
+        boost::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, url));
+
+    return true;
+}
+
 void LLEstateInfoModel::commitEstateInfoCapsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -159,6 +170,43 @@ void LLEstateInfoModel::commitEstateInfoCapsCoro(std::string url)
     {
         LL_WARNS() << "Failed to commit estate info " << LL_ENDL;
     }
+}
+
+/* This is the old way of doing things, is deprecated, and should be
+   deleted when the dataserver model can be removed */
+// key = "estatechangeinfo"
+// strings[0] = str(estate_id) (added by simulator before relay - not here)
+// strings[1] = estate_name
+// strings[2] = str(estate_flags)
+// strings[3] = str((S32)(sun_hour * 1024.f))
+void LLEstateInfoModel::commitEstateInfoDataserver()
+{
+	LL_DEBUGS("Windlight Sync") << "Sending estate info: "
+		<< "is_sun_fixed = " << getUseFixedSun()
+		<< ", sun_hour = " << getSunHour() << LL_ENDL;
+	LL_DEBUGS() << getInfoDump() << LL_ENDL;
+
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessage("EstateOwnerMessage");
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
+
+	msg->nextBlock("MethodData");
+	msg->addString("Method", "estatechangeinfo");
+	msg->addUUID("Invoice", LLFloaterRegionInfo::getLastInvoice());
+
+	msg->nextBlock("ParamList");
+	msg->addString("Parameter", getName());
+
+	msg->nextBlock("ParamList");
+	msg->addString("Parameter", llformat("%u", getFlags()));
+
+	msg->nextBlock("ParamList");
+	msg->addString("Parameter", llformat("%d", (S32) (getSunHour() * 1024.0f)));
+
+	gAgent.sendMessage();
 }
 
 std::string LLEstateInfoModel::getInfoDump()
