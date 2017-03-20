@@ -428,6 +428,11 @@ void LLViewerAssetStorage::queueRequestHttp(
     BOOL is_priority)
 {
     LL_DEBUGS("ViewerAsset") << "Request asset via HTTP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
+    if (!gAgent.getRegion())
+    {
+        LL_WARNS() << "No region, fetch fails" << LL_ENDL;
+		return;
+    }
     std::string cap_url = gAgent.getRegion()->getCapability("ViewerAsset");
     if (cap_url.empty())
     {
