@@ -341,8 +341,7 @@ Initialization with the Marketplace failed because of a system or network error.
         type="alertmodal">
         The transaction with the Marketplace failed with the following error :
         
-        Reason : &apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
         
         <usetemplate
         name="okbutton"
