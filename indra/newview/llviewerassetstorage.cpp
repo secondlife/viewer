@@ -42,6 +42,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llsdutil.h"
+#include "llworld.h"
 
 ///----------------------------------------------------------------------------
 /// LLViewerAssetRequest
@@ -350,73 +351,7 @@ void LLViewerAssetStorage::_queueDataRequest(
     BOOL duplicate,
     BOOL is_priority)
 {
-    if (LLAssetType::lookupFetchWithVACap(atype))
-    {
-        queueRequestHttp(uuid, atype, callback, user_data, duplicate, is_priority);
-    }
-    else
-    {
-        queueRequestUDP(uuid, atype, callback, user_data, duplicate, is_priority);
-    }
-}
-
-void LLViewerAssetStorage::queueRequestUDP(
-    const LLUUID& uuid,
-    LLAssetType::EType atype,
-    LLGetAssetCallback callback,
-    void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
-{
-    LL_DEBUGS("ViewerAsset") << "Request asset via UDP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
-
-    if (mUpstreamHost.isOk())
-    {
-        // stash the callback info so we can find it after we get the response message
-		bool with_http = false;
-        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype, with_http);
-        req->mDownCallback = callback;
-        req->mUserData = user_data;
-        req->mIsPriority = is_priority;
-        if (!duplicate)
-        {
-            // Only collect metrics for non-duplicate requests.  Others 
-            // are piggy-backing and will artificially lower averages.
-            req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
-        }
-        
-        mPendingDownloads.push_back(req);
-    
-        if (!duplicate)
-        {
-            // send request message to our upstream data provider
-            // Create a new asset transfer.
-            LLTransferSourceParamsAsset spa;
-            spa.setAsset(uuid, atype);
-
-            // Set our destination file, and the completion callback.
-            LLTransferTargetParamsVFile tpvf;
-            tpvf.setAsset(uuid, atype);
-            tpvf.setCallback(downloadCompleteCallback, *req);
-
-            LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << LL_ENDL;
-            LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
-            ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
-
-            bool with_http = false;
-            bool is_temp = false;
-            LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
-        }
-    }
-    else
-    {
-        // uh-oh, we shouldn't have gotten here
-        LL_WARNS() << "Attempt to move asset data request upstream w/o valid upstream provider" << LL_ENDL;
-        if (callback)
-        {
-            callback(mVFS, uuid, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
-        }
-    }
+    queueRequestHttp(uuid, atype, callback, user_data, duplicate, is_priority);
 }
 
 void LLViewerAssetStorage::queueRequestHttp(
@@ -428,46 +363,38 @@ void LLViewerAssetStorage::queueRequestHttp(
     BOOL is_priority)
 {
     LL_DEBUGS("ViewerAsset") << "Request asset via HTTP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
-    if (!gAgent.getRegion())
-    {
-        LL_WARNS() << "No region, fetch fails" << LL_ENDL;
-		return;
-    }
-    std::string cap_url = gAgent.getRegion()->getCapability("ViewerAsset");
-    if (cap_url.empty())
-    {
-        LL_WARNS() << "No ViewerAsset cap found, fetch fails" << LL_ENDL;
-        // TODO asset-http: handle waiting for caps? Other failure mechanism?
-        return;
-    }
-    else
-    {
-        LL_DEBUGS("ViewerAsset") << "Will fetch via ViewerAsset cap " << cap_url << LL_ENDL;
 
+    bool with_http = true;
+    LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype, with_http);
+    req->mDownCallback = callback;
+    req->mUserData = user_data;
+    req->mIsPriority = is_priority;
+    if (!duplicate)
+    {
+        // Only collect metrics for non-duplicate requests.  Others 
+        // are piggy-backing and will artificially lower averages.
+        req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+    }
+    mPendingDownloads.push_back(req);
+
+    // This is the same as the current UDP logic - don't re-request a duplicate.
+    if (!duplicate)
+    {
         bool with_http = true;
-        LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype, with_http);
-        req->mDownCallback = callback;
-        req->mUserData = user_data;
-        req->mIsPriority = is_priority;
-        if (!duplicate)
-        {
-            // Only collect metrics for non-duplicate requests.  Others 
-            // are piggy-backing and will artificially lower averages.
-            req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
-        }
-        mPendingDownloads.push_back(req);
+        bool is_temp = false;
+        LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
-        // This is the same as the current UDP logic - don't re-request a duplicate.
-        if (!duplicate)
-        {
-            bool with_http = true;
-            bool is_temp = false;
-            LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
-
-            LLCoros::instance().launch("LLViewerAssetStorage::assetRequestCoro",
-                                       boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
-        }
+        LLCoros::instance().launch("LLViewerAssetStorage::assetRequestCoro",
+                                   boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
     }
+}
+
+void LLViewerAssetStorage::capsRecvForRegion(const LLUUID& region_id, std::string pumpname)
+{
+    LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(region_id);
+    mViewerAssetUrl = regionp->getViewerAssetUrl();
+
+    LLEventPumps::instance().obtain(pumpname).post(LLSD());
 }
 
 void LLViewerAssetStorage::assetRequestCoro(
@@ -477,7 +404,42 @@ void LLViewerAssetStorage::assetRequestCoro(
     LLGetAssetCallback callback,
     void *user_data)
 {
-    std::string url = getAssetURL(uuid,atype);
+    S32 result_code = LL_ERR_NOERR;
+    LLExtStat ext_status = LL_EXSTAT_NONE;
+
+    if (!gAgent.getRegion())
+    {
+        LL_WARNS_ONCE() << "Asset request fails: no region set" << LL_ENDL;
+        result_code = LL_ERR_ASSET_REQUEST_FAILED;
+        ext_status = LL_EXSTAT_NONE;
+        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+		return;
+    }
+    else if (!gAgent.getRegion()->capabilitiesReceived())
+    {
+        LLEventStream capsRecv("waitForCaps", true);
+
+        gAgent.getRegion()->setCapabilitiesReceivedCallback(
+            boost::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
+        
+        llcoro::suspendUntilEventOn(capsRecv);
+    }
+    else
+    {
+        if (mViewerAssetUrl.empty())
+        {
+            mViewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
+        }
+    }
+    if (mViewerAssetUrl.empty())
+    {
+        LL_WARNS_ONCE() << "asset request fails: caps received but no viewer asset cap found" << LL_ENDL;
+        result_code = LL_ERR_ASSET_REQUEST_FAILED;
+        ext_status = LL_EXSTAT_NONE;
+        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+		return;
+    }
+    std::string url = getAssetURL(mViewerAssetUrl, uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
 
     LLCore::HttpRequest::policy_t httpPolicy(LLAppCoreHttp::AP_TEXTURE);
@@ -488,9 +450,6 @@ void LLViewerAssetStorage::assetRequestCoro(
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
 
-    S32 result_code = LL_ERR_NOERR;
-    LLExtStat ext_status = LL_EXSTAT_NONE;
-    
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
@@ -542,9 +501,8 @@ void LLViewerAssetStorage::assetRequestCoro(
     removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
 }
 
-std::string LLViewerAssetStorage::getAssetURL(const LLUUID& uuid, LLAssetType::EType atype)
+std::string LLViewerAssetStorage::getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype)
 {
-	std::string cap_url = gAgent.getRegion()->getViewerAssetUrl();
     std::string type_name = LLAssetType::lookup(atype);
     std::string url = cap_url + "/?" + type_name + "_id=" + uuid.asString();
     return url;
