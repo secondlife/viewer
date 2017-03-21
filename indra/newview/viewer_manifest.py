@@ -121,6 +121,24 @@ class ViewerManifest(LLManifest):
                     settings_install['CmdLineGridChoice']['Value'] = self.grid()
                     print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
+                #do not need to test for existence.  If no platform is passed, llmanifest computes a default in get_default_platform
+                #the choice of value names (lnx, mac, win32, win) is dictated by the VMM API
+                summary_json_platform = ""
+                if 'linux' in self.args['platform']:
+                    summary_json_platform = 'lnx'
+                elif 'darwin' in self.args['platform']:
+                    summary_json_platform = 'mac'
+                elif 'windows' in self.args['platform']:
+                    #default case
+                    summary_json_platform = 'win'
+                    if 'arch' in self.args and self.args['arch']:
+                        if 'i686' in  self.args['arch']:
+                            summary_json_platform = 'win32'
+                #we really shouldn't be here, something is very wrong at this point
+                else:
+                    summary_json_platform = 'None'
+
+
                 # put_in_file(src=) need not be an actual pathname; it
                 # only needs to be non-empty
                 self.put_in_file(llsd.format_pretty_xml(settings_install),
@@ -184,7 +202,10 @@ class ViewerManifest(LLManifest):
             self.path("gpu_table.txt")
 
             #summary.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
-            summary_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),"Channel":self.channel_with_pkg_suffix()}
+            #platform is computed above with other arg parsing
+            summary_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
+                            "Channel":self.channel_with_pkg_suffix(),
+                            "Platform":summary_json_platform}
             with open(os.path.join(os.pardir,'summary.json'), 'w') as summary_handle:
                 json.dump(summary_dict,summary_handle)
 
