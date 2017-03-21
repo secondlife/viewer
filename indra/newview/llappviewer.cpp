@@ -844,12 +844,6 @@ bool LLAppViewer::init()
     LLMachineID::init();
 	
 	{
-		// Viewer metrics initialization
-		//static LLCachedControl<bool> metrics_submode(gSavedSettings,
-		//											 "QAModeMetrics",
-		//											 false,
-		//											 "Enables QA features (logging, faster cycling) for metrics collector");
-
 		if (gSavedSettings.getBOOL("QAModeMetrics"))
 		{
 			app_metrics_qa_mode = true;
@@ -5913,11 +5907,7 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 			std::string	caps_url = regionp->getCapability("ViewerMetrics");
 
             LLSD sd = gViewerAssetStats->asLLSD(true);
-            if (gSavedSettings.getBOOL("QAModeMetrics"))
-            {
-                dump_sequential_xml("metric_asset_stats",sd);
-            }
-            
+
 			// Send a report request into 'thread1' to get the rest of the data
 			// and provide some additional parameters while here.
 			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
