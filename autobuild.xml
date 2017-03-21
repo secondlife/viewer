@@ -3324,7 +3324,6 @@
                 </array>
                 <key>options</key>
                 <array>
-                  <string>-quiet</string>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
                   <string>-project</string>
@@ -3357,7 +3356,6 @@
                 <string>xcodebuild</string>
                 <key>options</key>
                 <array>
-                  <string>-quiet</string>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
                   <string>-project</string>
@@ -3388,7 +3386,6 @@
                 </array>
                 <key>options</key>
                 <array>
-                  <string>-quiet</string>
                   <string>-configuration</string>
                   <string>Release</string>
                   <string>-project</string>
@@ -3419,7 +3416,6 @@
                 <string>xcodebuild</string>
                 <key>options</key>
                 <array>
-                  <string>-quiet</string>
                   <string>-configuration</string>
                   <string>Release</string>
                   <string>-project</string>
