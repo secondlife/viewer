@@ -1522,7 +1522,7 @@ void LLTextBase::reflow()
 		}
 
 		S32 line_height = 0;
-		S32 seg_line_offset = line_count;
+		S32 seg_line_offset = line_count + 1;
 
 		while(seg_iter != mSegments.end())
 		{
