@@ -130,7 +130,14 @@ BOOL LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLBlockList::removeListItem(const LLMute* mute)
 {
-	removeItemByUUID(mute->mID);
+	if (mute->mID.notNull())
+	{
+		removeItemByUUID(mute->mID);
+	}
+	else
+	{
+		removeItemByValue(mute->mName);
+	}
 }
 
 void LLBlockList::hideListItem(LLBlockedListItem* item, bool show)
@@ -178,7 +185,14 @@ void LLBlockList::addNewItem(const LLMute* mute)
 	{
 		item->highlightName(mNameFilter);
 	}
-	addItem(item, item->getUUID(), ADD_BOTTOM);
+	if (item->getUUID().notNull())
+	{
+		addItem(item, item->getUUID(), ADD_BOTTOM);
+	}
+	else
+	{
+		addItem(item, item->getName(), ADD_BOTTOM);
+	}
 }
 
 void LLBlockList::refresh()
@@ -186,7 +200,8 @@ void LLBlockList::refresh()
 	bool have_filter = !mNameFilter.empty();
 
 	// save selection to restore it after list rebuilt
-	LLUUID selected = getSelectedUUID(), next_selected;
+	LLSD selected = getSelectedValue();
+	LLSD next_selected;
 
 	if(mShouldAddAll)	// creating list of blockers
 	{
@@ -204,14 +219,15 @@ void LLBlockList::refresh()
 		}
 		else if(mActionType == REMOVE)
 		{
-			if(selected == mute.mID)
+			if ((mute.mID.notNull() && selected.isUUID() && selected.asUUID() == mute.mID)
+				|| mute.mID.isNull() && selected.isString() && selected.asString() == mute.mName)
 			{
 				// we are going to remove currently selected item, so select next item and save the selection to restore it
-	if (!selectNextItemPair(false, true))
-	{
-		selectNextItemPair(true, true);
-	}
-				next_selected = getSelectedUUID();
+				if (!selectNextItemPair(false, true))
+				{
+					selectNextItemPair(true, true);
+				}
+				next_selected = getSelectedValue();
 			}
 			removeListItem(&mute);
 		}
@@ -237,15 +253,18 @@ void LLBlockList::refresh()
 	}
 	mPrevNameFilter = mNameFilter;
 
-	if (getItemPair(selected))
+	if (selected.isDefined())
 	{
-		// restore previously selected item
-		selectItemPair(getItemPair(selected), true);
-	}
-	else if (getItemPair(next_selected))
-	{
-		// previously selected item was removed, so select next item
-		selectItemPair(getItemPair(next_selected), true);
+		if (getItemPair(selected))
+		{
+			// restore previously selected item
+			selectItemPair(getItemPair(selected), true);
+		}
+		else if (next_selected.isDefined() && getItemPair(next_selected))
+		{
+			// previously selected item was removed, so select next item
+			selectItemPair(getItemPair(next_selected), true);
+		}
 	}
 	mMuteListSize = LLMuteList::getInstance()->getMutes().size();
 
