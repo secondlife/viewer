@@ -220,7 +220,7 @@ void LLBlockList::refresh()
 		else if(mActionType == REMOVE)
 		{
 			if ((mute.mID.notNull() && selected.isUUID() && selected.asUUID() == mute.mID)
-				|| mute.mID.isNull() && selected.isString() && selected.asString() == mute.mName)
+				|| (mute.mID.isNull() && selected.isString() && selected.asString() == mute.mName))
 			{
 				// we are going to remove currently selected item, so select next item and save the selection to restore it
 				if (!selectNextItemPair(false, true))
