@@ -198,6 +198,16 @@ bool LLEventBatch::post(const LLSD& event)
     return false;
 }
 
+void LLEventBatch::setSize(std::size_t size)
+{
+    mBatchSize = size;
+    // changing the size might mean that we have to flush NOW
+    if (mBatch.size() >= mBatchSize)
+    {
+        flush();
+    }
+}
+
 LLEventThrottle::LLEventThrottle(F32 interval):
     LLEventFilter("throttle"),
     mInterval(interval),
@@ -262,6 +272,45 @@ bool LLEventThrottle::post(const LLSD& event)
             // mInterval seconds since the last flush() call. At that time,
             // flush() deferred events.
             mAlarm.actionAfter(timeRemaining, boost::bind(&LLEventThrottle::flush, this));
+        }
+    }
+    return false;
+}
+
+void LLEventThrottle::setInterval(F32 interval)
+{
+    F32 oldInterval = mInterval;
+    mInterval = interval;
+    // If we are not now within oldInterval of the last flush(), we're done:
+    // this will only affect behavior starting with the next flush().
+    F32 timeRemaining = mTimer.getRemainingTimeF32();
+    if (timeRemaining)
+    {
+        // We are currently within oldInterval of the last flush(). Figure out
+        // how much time remains until (the new) mInterval of the last
+        // flush(). Bt we don't actually store a timestamp for the last
+        // flush(); it's implicit. There are timeRemaining seconds until what
+        // used to be the end of the interval. Move that endpoint by the
+        // difference between the new interval and the old.
+        timeRemaining += (mInterval - oldInterval);
+        // If we're called with a larger interval, the difference is positive
+        // and timeRemaining increases.
+        // If we're called with a smaller interval, the difference is negative
+        // and timeRemaining decreases. The interesting case is when it goes
+        // nonpositive: when the new interval means we can flush immediately.
+        if (timeRemaining <= 0.0f)
+        {
+            flush();
+        }
+        else
+        {
+            // immediately reset mTimer
+            mTimer.setTimerExpirySec(timeRemaining);
+            // and if mAlarm is running, reset that too
+            if (mAlarm.running())
+            {
+                mAlarm.actionAfter(timeRemaining, boost::bind(&LLEventThrottle::flush, this));
+            }
         }
     }
 }

@@ -237,6 +237,10 @@ public:
     // accumulate an event and flush() when big enough
     virtual bool post(const LLSD& event);
 
+    // query or reset batch size
+    std::size_t getSize() const { return mBatchSize; }
+    void setSize(std::size_t size);
+
 private:
     LLSD mBatch;
     std::size_t mBatchSize;
@@ -288,6 +292,16 @@ public:
 
     // register an event, may be either passed through or deferred
     virtual bool post(const LLSD& event);
+
+    // query or reset interval
+    F32 getInterval() const { return mInterval; }
+    void setInterval(F32 interval);
+
+    // deferred posts
+    std::size_t getPostCount() const { return mPosts; }
+
+    // time until next event would be passed through, 0.0 if now
+    F32 getDelay() const { return mTimer.getRemainingTimeF32(); }
 
 private:
     // remember throttle interval
