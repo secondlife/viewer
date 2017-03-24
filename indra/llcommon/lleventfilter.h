@@ -177,6 +177,9 @@ public:
     /// Cancel timer without event
     void cancel();
 
+    /// Is this timer currently running?
+    bool running() const;
+
 protected:
     virtual void setCountdown(F32 seconds) = 0;
     virtual bool countdownElapsed() const = 0;
@@ -213,6 +216,107 @@ protected:
 
 private:
     LLTimer mTimer;
+};
+
+/**
+ * LLEventBatch: accumulate post() events (LLSD blobs) into an LLSD Array
+ * until the array reaches a certain size, then call listeners with the Array
+ * and clear it back to empty.
+ */
+class LL_COMMON_API LLEventBatch: public LLEventFilter
+{
+public:
+    // pass batch size
+    LLEventBatch(std::size_t size);
+    // construct and connect
+    LLEventBatch(LLEventPump& source, std::size_t size);
+
+    // force out the pending batch
+    void flush();
+
+    // accumulate an event and flush() when big enough
+    virtual bool post(const LLSD& event);
+
+private:
+    LLSD mBatch;
+    std::size_t mBatchSize;
+};
+
+/**
+ * LLEventThrottle: construct with a time interval. Regardless of how
+ * frequently you call post(), LLEventThrottle will pass on an event to
+ * its listeners no more often than once per specified interval.
+ *
+ * A new event after more than the specified interval will immediately be
+ * passed along to listeners. But subsequent events will be delayed until at
+ * least one time interval since listeners were last called. Consider the
+ * sequence below. Suppose we have an LLEventThrottle constructed with an
+ * interval of 3 seconds. The numbers on the left are timestamps in seconds
+ * relative to an arbitrary reference point.
+ *
+ *  1: post(): event immediately passed to listeners, next no sooner than 4
+ *  2: post(): deferred: waiting for 3 seconds to elapse
+ *  3: post(): deferred
+ *  4: no post() call, but event delivered to listeners; next no sooner than 7
+ *  6: post(): deferred
+ *  7: no post() call, but event delivered; next no sooner than 10
+ * 12: post(): immediately passed to listeners, next no sooner than 15
+ * 17: post(): immediately passed to listeners, next no sooner than 20
+ *
+ * For a deferred event, the LLSD blob delivered to listeners is from the most
+ * recent deferred post() call. However, you may obtain the previous event
+ * blob by calling pending(), modify it however you want and post() the new
+ * value. Each time an event is delivered to listeners, the pending() value is
+ * reset to isUndefined().
+ *
+ * You may also call flush() to immediately pass along any deferred events to
+ * all listeners.
+ */
+class LL_COMMON_API LLEventThrottle: public LLEventFilter
+{
+public:
+    // pass time interval
+    LLEventThrottle(F32 interval);
+    // construct and connect
+    LLEventThrottle(LLEventPump& source, F32 interval);
+
+    // force out any deferred events
+    void flush();
+
+    // retrieve (aggregate) deferred event since last event sent to listeners
+    LLSD pending() const;
+
+    // register an event, may be either passed through or deferred
+    virtual bool post(const LLSD& event);
+
+private:
+    // remember throttle interval
+    F32 mInterval;
+    // count post() calls since last flush()
+    std::size_t mPosts;
+    // pending event data from most recent deferred event
+    LLSD mPending;
+    // use this to arrange a deferred flush() call
+    LLEventTimeout mAlarm;
+    // use this to track whether we're within mInterval of last flush()
+    LLTimer mTimer;
+};
+
+/**
+ * LLEventBatchThrottle: like LLEventThrottle, it refuses to pass events to
+ * listeners more often than once per specified time interval.
+ * Like LLEventBatch, it accumulates pending events into an LLSD Array.
+ */
+class LLEventBatchThrottle: public LLEventThrottle
+{
+public:
+    // pass time interval
+    LLEventBatchThrottle(F32 interval);
+    // construct and connect
+    LLEventBatchThrottle(LLEventPump& source, F32 interval);
+
+    // append a new event to current batch
+    virtual bool post(const LLSD& event);
 };
 
 #endif /* ! defined(LL_LLEVENTFILTER_H) */

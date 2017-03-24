@@ -148,6 +148,11 @@ bool LLEventTimeoutBase::tick(const LLSD&)
     return false;                   // show event to other listeners
 }
 
+bool LLEventTimeoutBase::running() const
+{
+    return mMainloop.connected();
+}
+
 LLEventTimeout::LLEventTimeout() {}
 
 LLEventTimeout::LLEventTimeout(LLEventPump& source):
@@ -163,4 +168,114 @@ void LLEventTimeout::setCountdown(F32 seconds)
 bool LLEventTimeout::countdownElapsed() const
 {
     return mTimer.hasExpired();
+}
+
+LLEventBatch::LLEventBatch(std::size_t size):
+    LLEventFilter("batch"),
+    mBatchSize(size)
+{}
+
+LLEventBatch::LLEventBatch(LLEventPump& source, std::size_t size):
+    LLEventFilter(source, "batch"),
+    mBatchSize(size)
+{}
+
+void LLEventBatch::flush()
+{
+    // copy and clear mBatch BEFORE posting to avoid weird circularity effects
+    LLSD batch(mBatch);
+    mBatch.clear();
+    LLEventStream::post(batch);
+}
+
+bool LLEventBatch::post(const LLSD& event)
+{
+    mBatch.append(event);
+    if (mBatch.size() >= mBatchSize)
+    {
+        flush();
+    }
+    return false;
+}
+
+LLEventThrottle::LLEventThrottle(F32 interval):
+    LLEventFilter("throttle"),
+    mInterval(interval),
+    mPosts(0)
+{}
+
+LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
+    LLEventFilter(source, "throttle"),
+    mInterval(interval),
+    mPosts(0)
+{}
+
+void LLEventThrottle::flush()
+{
+    // flush() is a no-op unless there's something pending.
+    // Don't test mPending because there's no requirement that the consumer
+    // post() anything but an isUndefined(). This is what mPosts is for.
+    if (mPosts)
+    {
+        mPosts = 0;
+        mAlarm.cancel();
+        // This is not to set our alarm; we are not yet requesting
+        // any notification. This is just to track whether subsequent post()
+        // calls fall within this mInterval or not.
+        mTimer.setTimerExpirySec(mInterval);
+        // copy and clear mPending BEFORE posting to avoid weird circularity
+        // effects
+        LLSD pending = mPending;
+        mPending.clear();
+        LLEventStream::post(pending);
+    }
+}
+
+LLSD LLEventThrottle::pending() const
+{
+    return mPending;
+}
+
+bool LLEventThrottle::post(const LLSD& event)
+{
+    // Always capture most recent post() event data. If caller wants to
+    // aggregate multiple events, let them retrieve pending() and modify
+    // before calling post().
+    mPending = event;
+    // Always increment mPosts. Unless we count this call, flush() does
+    // nothing.
+    ++mPosts;
+    // We reset mTimer on every flush() call to let us know if we're still
+    // within the same mInterval. So -- are we?
+    F32 timeRemaining = mTimer.getRemainingTimeF32();
+    if (! timeRemaining)
+    {
+        // more than enough time has elapsed, immediately flush()
+        flush();
+    }
+    else
+    {
+        // still within mInterval of the last flush() call: have to defer
+        if (! mAlarm.running())
+        {
+            // timeRemaining tells us how much longer it will be until
+            // mInterval seconds since the last flush() call. At that time,
+            // flush() deferred events.
+            mAlarm.actionAfter(timeRemaining, boost::bind(&LLEventThrottle::flush, this));
+        }
+    }
+}
+
+LLEventBatchThrottle::LLEventBatchThrottle(F32 interval):
+    LLEventThrottle(interval)
+{}
+
+LLEventBatchThrottle::LLEventBatchThrottle(LLEventPump& source, F32 interval):
+    LLEventThrottle(source, interval)
+{}
+
+bool LLEventBatchThrottle::post(const LLSD& event)
+{
+    // simply retrieve pending value and append the new event to it
+    return LLEventThrottle::post(pending().append(event));
 }
