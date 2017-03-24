@@ -4177,27 +4177,6 @@ class LLViewToggleUI : public view_listener_t
 	}
 };
 
-class LLEditDuplicate : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if(LLEditMenuHandler::gEditMenuHandler)
-		{
-			LLEditMenuHandler::gEditMenuHandler->duplicate();
-		}
-		return true;
-	}
-};
-
-class LLEditEnableDuplicate : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canDuplicate();
-		return new_value;
-	}
-};
-
 void handle_duplicate_in_place(void*)
 {
 	LL_INFOS() << "handle_duplicate_in_place" << LL_ENDL;
@@ -8710,7 +8689,6 @@ void initialize_edit_menu()
 	view_listener_t::addMenu(new LLEditDelete(), "Edit.Delete");
 	view_listener_t::addMenu(new LLEditSelectAll(), "Edit.SelectAll");
 	view_listener_t::addMenu(new LLEditDeselect(), "Edit.Deselect");
-	view_listener_t::addMenu(new LLEditDuplicate(), "Edit.Duplicate");
 	view_listener_t::addMenu(new LLEditTakeOff(), "Edit.TakeOff");
 	view_listener_t::addMenu(new LLEditEnableUndo(), "Edit.EnableUndo");
 	view_listener_t::addMenu(new LLEditEnableRedo(), "Edit.EnableRedo");
@@ -8720,7 +8698,6 @@ void initialize_edit_menu()
 	view_listener_t::addMenu(new LLEditEnableDelete(), "Edit.EnableDelete");
 	view_listener_t::addMenu(new LLEditEnableSelectAll(), "Edit.EnableSelectAll");
 	view_listener_t::addMenu(new LLEditEnableDeselect(), "Edit.EnableDeselect");
-	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
 
 }
 
@@ -9131,6 +9108,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(true), "Object.AttachToAvatar");
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(false), "Object.AttachAddToAvatar");
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
+	commit.add("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
@@ -9152,6 +9130,7 @@ void initialize_menus()
 	enable.add("Object.EnableSit", boost::bind(&enable_object_sit, _1));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
+	enable.add("Object.EnableDuplicate", boost::bind(&LLSelectMgr::canDuplicate, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
