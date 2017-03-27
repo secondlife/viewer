@@ -148,7 +148,7 @@ protected:
 	U32		fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
 	void	handleStartCompositionMessage();
 	void	handleCompositionMessage(U32 indexes);
-	BOOL	handleImeRequests(U32 request, U32 param, LRESULT *result);
+	BOOL	handleImeRequests(U32 request, LONG_PTR param, LRESULT *result);
 
 protected:
 	//

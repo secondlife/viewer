@@ -2201,7 +2201,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
 				LRESULT result = 0;
-				if (window_imp->handleImeRequests(w_param, l_param, &result))
+				if (window_imp->handleImeRequests(w_param, (LONG_PTR)l_param, &result))
 				{
 					return result;
 				}
@@ -3800,7 +3800,7 @@ LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( cons
 // When it handled the message, the value to be returned from
 // the Window Procedure is set to *result.
 
-BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
+BOOL LLWindowWin32::handleImeRequests(U32 request, LONG_PTR param, LRESULT *result)
 {
 	if ( mPreeditor )
 	{
