@@ -102,12 +102,17 @@ if(WINDOWS)
             unset(debug_msvc_redist_path CACHE)
         endif()
 
+        if(ADDRESS_SIZE EQUAL 32)
+            # this folder contains the 32bit DLLs.. (yes really!)
+            set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64")
+        else(ADDRESS_SIZE EQUAL 32)
+            # this folder contains the 64bit DLLs.. (yes really!)
+            set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
+        endif(ADDRESS_SIZE EQUAL 32)
+
         FIND_PATH(release_msvc_redist_path NAME msvcr${MSVC_VER}.dll
             PATHS            
-            [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\${MSVC_VERDOT}\\Setup\\VC;ProductDir]/redist/x86/Microsoft.VC${MSVC_VER}.CRT
-            [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64
-            [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32
-            ${MSVC_REDIST_PATH}
+            ${registry_find_path}
             NO_DEFAULT_PATH
             )
 
