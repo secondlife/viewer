@@ -62,6 +62,7 @@
 #include "llsdutil_math.h"
 #include "lleventapi.h"
 #include "llcorehttputil.h"
+#include "lldir.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -89,6 +90,7 @@ public:
 	static LLSD getInfo();
 	void onClickCopyToClipboard();
 	void onClickUpdateCheck();
+    void setUpdateListener();
 
 private:
 	void setSupportText(const std::string& server_release_notes_url);
@@ -98,6 +100,9 @@ private:
 
 	// callback method for manual checks
 	static bool callbackCheckUpdate(LLSD const & event);
+    
+    // listener name for update checks
+    static const std::string sCheckUpdateListenerName;
 	
     static void startFetchServerReleaseNotes();
     static void fetchServerReleaseNotesCoro(const std::string& cap_url);
@@ -131,6 +136,9 @@ BOOL LLFloaterAbout::postBuild()
 
 	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
+    
+    getChild<LLUICtrl>("update_btn")->setCommitCallback(
+        boost::bind(&LLFloaterAbout::setUpdateListener, this));
 
 	static const LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 
@@ -324,6 +332,94 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 	support_widget->clear();
 	support_widget->appendText(LLAppViewer::instance()->getViewerInfoString(),
 							   FALSE, LLStyle::Params() .color(about_color));
+}
+
+//This is bound as a callback in postBuild()
+void LLFloaterAbout::setUpdateListener()
+{
+    typedef std::vector<std::string> vec;
+    
+    //There are four possibilities:
+    //no downloads directory or version directory in "getOSUserAppDir()/downloads"
+    //   => no update
+    //version directory exists and .done file is not present
+    //   => download in progress
+    //version directory exists and .done file exists
+    //   => update ready for install
+    //version directory, .done file and either .skip or .next file exists
+    //   => update deferred
+    BOOL downloads = false;
+    std::string downloadDir = "";
+    BOOL done = false;
+    BOOL next = false;
+    BOOL skip = false;
+    
+    LLSD info(LLFloaterAbout::getInfo());
+    std::string version = info["VIEWER_VERSION_STR"].asString();
+    std::string appDir = gDirUtilp->getOSUserAppDir();
+    
+    //drop down two directory levels so we aren't searching for markers among the log files and crash dumps
+    //or among other possible viewer upgrade directories if the resident is running multiple viewer versions
+    //we should end up with a path like ../downloads/1.2.3.456789
+    vec file_vec = gDirUtilp->getFilesInDir(appDir);
+    
+    for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
+    {
+        if ( (iter->rfind("downloads") ) )
+        {
+            vec dir_vec = gDirUtilp->getFilesInDir(*iter);
+            for(vec::const_iterator dir_iter=dir_vec.begin(); dir_iter!=dir_vec.end(); ++dir_iter)
+            {
+                if ( (dir_iter->rfind(version)))
+                {
+                    downloads = true;
+                    downloadDir = *dir_iter;
+                }
+            }
+        }
+    }
+    
+    if ( downloads )
+    {
+        for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
+        {
+            if ( (iter->rfind(version)))
+            {
+                if ( (iter->rfind(".done") ) )
+                {
+                    done = true;
+                }
+                else if ( (iter->rfind(".next") ) )
+                {
+                    next = true;
+                }
+                else if ( (iter->rfind(".skip") ) )
+                {
+                    skip = true;
+                }
+            }
+        }
+    }
+    
+    if ( ! downloads)
+    {
+        LLNotificationsUtil::add("UpdateViewerUpToDate");
+    }
+    else
+    {
+        if ( ! done )
+        {
+            LLNotificationsUtil::add("UpdateDownloadInProgress");
+        }
+        else if ( !next and !skip )
+        {
+            LLNotificationsUtil::add("UpdateDownloadComplete");
+        }
+        else //done and there is a next or skip
+        {
+            LLNotificationsUtil::add("UpdateDeferred");
+        }
+    }
 }
 
 ///----------------------------------------------------------------------------
