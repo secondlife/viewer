@@ -276,7 +276,7 @@ do
               if [ -r "$build_dir/newview/viewer_version.txt" ]
               then
                   begin_section "Viewer Version"
-                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$build_dir/newview/viewer_version.txt" --mimetype inline-text \
+                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$(<"$build_dir/newview/viewer_version.txt")" --mimetype inline-text \
                       || fatal "Upload of viewer version failed"
                   end_section "Viewer Version"
               fi
