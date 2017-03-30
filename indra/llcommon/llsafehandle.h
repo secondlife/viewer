@@ -112,10 +112,6 @@ public:
 		return *this; 
 	}
 
-public:
-	typedef Type* (*NullFunc)();
-	static const NullFunc sNullFunc;
-
 protected:
 	void ref()                             
 	{ 
@@ -153,6 +149,12 @@ protected:
 	static Type* nonNull(Type* ptr)
 	{
 		return ptr == NULL ? sNullFunc() : ptr;
+	}
+
+	static Type* sNullFunc()
+	{
+		static Type sInstance;
+		return &sInstance;
 	}
 
 protected:
