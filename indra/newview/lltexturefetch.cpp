@@ -30,8 +30,6 @@
 #include <map>
 #include <algorithm>
 
-#include "llstl.h"
-
 #include "lltexturefetch.h"
 
 #include "lldir.h"
@@ -4030,8 +4028,6 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	mStatsSD["initial"] = initial_report;
 	mStatsSD["version"] = metrics_data_version;
 	mStatsSD["break"] = static_cast<bool>(LLTextureFetch::svMetricsDataBreak);
-
-    LL_INFOS(LOG_TXT) << "ViewerAssetMetrics after fields added\n" << ll_pretty_print_sd(mStatsSD) << LL_ENDL;
 		
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
