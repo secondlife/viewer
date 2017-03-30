@@ -10734,6 +10734,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ScriptDialogLimitations</key>
+    <map>
+      <key>Comment</key>
+      <string>Limits amount of dialogs per script (0 - per object, 1 - per channel, 2 - per channel for attachments, 3 - per channel for HUDs, 4 -unconstrained for HUDs)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>SecondLifeEnterprise</key>
     <map>
       <key>Comment</key>
