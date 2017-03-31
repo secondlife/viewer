@@ -699,6 +699,29 @@ class WindowsManifest(ViewerManifest):
                 "%%ENGAGEREGISTRY%%":engage_registry,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
+        # If we're on a build machine, sign the code using our Authenticode certificate. JC
+        # note that the enclosing setup exe is signed later, after the makensis makes it.
+        sign_py = os.path.expandvars("${SIGN}")
+        if not sign_py or sign_py == "${SIGN}":
+            sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
+        else:
+            sign_py = sign_py.replace('\\', '\\\\\\\\')
+        python = os.path.expandvars("${PYTHON}")
+        if not python or python == "${PYTHON}":
+            python = 'python'
+        if os.path.exists(sign_py):
+            #Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
+            print "about to run signing of: ", self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')))
+            print "about to run signing of: ", self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')))
+            print "about to run signing of: ", self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')))
+            print "about to run signing of: ", self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\')
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\'))) 
+        else:
+            print "Skipping code signing of vmp executables,", sign_py, "does not exist"        
+            
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
@@ -722,30 +745,12 @@ class WindowsManifest(ViewerManifest):
                 else:
                     print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
                     raise
-        # self.remove(self.dst_path_of(tempfile))
-        # If we're on a build machine, sign the code using our Authenticode certificate. JC
-        sign_py = os.path.expandvars("${SIGN}")
-        if not sign_py or sign_py == "${SIGN}":
-            sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
-        else:
-            sign_py = sign_py.replace('\\', '\\\\\\\\')
-        python = os.path.expandvars("${PYTHON}")
-        if not python or python == "${PYTHON}":
-            python = 'python'
+        
         if os.path.exists(sign_py):
             print "about to run signing of: ", self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')
             self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
-            #Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
-            print "about to run signing of: ", self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')))
-            print "about to run signing of: ", self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')))
-            print "about to run signing of: ", self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')))
-            print "about to run signing of: ", self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\')))
         else:
-            print "Skipping code signing,", sign_py, "does not exist"
+            print "Skipping code signing of setup executable,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
 
