@@ -365,8 +365,6 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 
 		// initialize the new instance
 		LLMotion::LLMotionInitStatus stat = motion->onInitialize(mCharacter);
-        // Only use this in one case, declaring here to stop compiler from whining.
-        LLKeyframeMotion *keymotion = NULL;
 		switch(stat)
 		{
 		case LLMotion::STATUS_FAILURE:
@@ -380,12 +378,6 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 		case LLMotion::STATUS_SUCCESS:
 		    // add motion to our list
 		    mLoadedMotions.insert(motion);
-            keymotion = dynamic_cast<LLKeyframeMotion*>(motion);
-            if (keymotion)
-            {
-                std::string noname;
-                keymotion->dumpToFile(noname);
-            }
 			break;
 		default:
 			LL_ERRS() << "Invalid initialization status" << LL_ENDL;
