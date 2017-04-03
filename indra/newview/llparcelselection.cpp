@@ -31,13 +31,6 @@
 #include "llparcel.h"
 
 
-// static
-LLPointer<LLParcelSelection> LLParcelSelection::sNullSelection;
-
-template<>
-	const LLSafeHandle<LLParcelSelection>::NullFunc
-		LLSafeHandle<LLParcelSelection>::sNullFunc = LLParcelSelection::getNullParcelSelection;
-
 //
 // LLParcelSelection
 //
@@ -86,15 +79,4 @@ S32 LLParcelSelection::getClaimableArea() const
 bool LLParcelSelection::hasOthersSelected() const
 {
 	return mSelectedOtherCount != 0;
-}
-
-// static
-LLParcelSelection* LLParcelSelection::getNullParcelSelection()
-{
-	if (sNullSelection.isNull())
-	{
-		sNullSelection = new LLParcelSelection;
-	}
-
-	return sNullSelection;
 }
