@@ -387,7 +387,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 		// Process completed background HTTP requests
 		gInventory.handleResponses(false);
 		// Just processed a bunch of items.
-		// Note: do we really need it?
+		// Note: do we really need notifyObservers() here?
 		// OnIdle it will be called anyway due to Add flag for processed item.
 		// It seems like in some cases we are updaiting on fail (no flag),
 		// but is there anything to update?

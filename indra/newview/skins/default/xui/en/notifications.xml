@@ -8508,11 +8508,21 @@ Select residents to share with.
   </notification>
 
   <notification
-    name="MeshUploadError"
+    name="MeshUploadErrorDetails"
     icon="alert.tga"
     type="alert">
       [LABEL] failed to upload: [MESSAGE] [IDENTIFIER]
 [DETAILS]See SecondLife.log for details
+  </notification>
+
+  <notification
+    name="MeshUploadError"
+    icon="alert.tga"
+    type="alert">
+      [LABEL] failed to upload: [MESSAGE]
+[IDENTIFIER]
+
+See SecondLife.log for details
   </notification>
    
   <notification

@@ -3626,7 +3626,15 @@ void LLMeshRepository::notifyLoadedMeshes()
 		//popup queued error messages from background threads
 		while (!mUploadErrorQ.empty())
 		{
-			LLNotificationsUtil::add("MeshUploadError", mUploadErrorQ.front());
+			LLSD substitutions(mUploadErrorQ.front());
+			if (substitutions.has("DETAILS"))
+			{
+				LLNotificationsUtil::add("MeshUploadErrorDetails", substitutions);
+			}
+			else
+			{
+				LLNotificationsUtil::add("MeshUploadError", substitutions);
+			}
 			mUploadErrorQ.pop();
 		}
 
