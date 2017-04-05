@@ -2917,11 +2917,32 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 	removeItemsFromAvatar(ids_to_remove);
 }
 
-void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb)
+class LLUpdateOnCOFLinkRemove : public LLInventoryCallback
 {
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+public:
+	LLUpdateOnCOFLinkRemove(const LLUUID& remove_item_id, LLPointer<LLInventoryCallback> cb = NULL):
+		mItemID(remove_item_id),
+		mCB(cb)
+	{
+	}
 
-	LLInventoryModel::cat_array_t cat_array;
+	/* virtual */ void fire(const LLUUID& item_id)
+	{
+		// just removed cof link, "(wear)" suffix depends on presence of link, so update label
+		gInventory.addChangedMask(LLInventoryObserver::LABEL, mItemID);
+		if (mCB.notNull())
+		{
+			mCB->fire(item_id);
+		}
+	}
+
+private:
+	LLUUID mItemID;
+	LLPointer<LLInventoryCallback> mCB;
+};
+
+void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb)
+{	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(LLAppearanceMgr::getCOF(),
 								  cat_array,
@@ -2932,12 +2953,20 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInve
 		const LLInventoryItem* item = item_array.at(i).get();
 		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
-			bool immediate_delete = false;
 			if (item->getType() == LLAssetType::AT_OBJECT)
 			{
-				immediate_delete = true;
+				// Immediate delete
+				remove_inventory_item(item->getUUID(), cb, true);
+				gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			}
-			remove_inventory_item(item->getUUID(), cb, immediate_delete);
+			else
+			{
+				// Delayed delete
+				// Pointless to update item_id label here since link still exists and first notifyObservers
+				// call will restore (wear) suffix, mark for update after deletion
+				LLPointer<LLUpdateOnCOFLinkRemove> cb_label = new LLUpdateOnCOFLinkRemove(item_id, cb);
+				remove_inventory_item(item->getUUID(), cb_label, false);
+			}
 		}
 	}
 }
