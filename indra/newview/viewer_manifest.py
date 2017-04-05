@@ -436,15 +436,15 @@ class WindowsManifest(ViewerManifest):
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             if self.args['configuration'].lower() == 'debug':
-                 self.path("msvcr120d.dll")
-                 self.path("msvcp120d.dll")
-                 self.path("msvcr100d.dll")
-                 self.path("msvcp100d.dll")
+                self.path("msvcr120d.dll")
+                self.path("msvcp120d.dll")
+                self.path("msvcr100d.dll")
+                self.path("msvcp100d.dll")
             else:
-                 self.path("msvcr120.dll")
-                 self.path("msvcp120.dll")
-                 self.path("msvcr100.dll")
-                 self.path("msvcp100.dll")
+                self.path("msvcr120.dll")
+                self.path("msvcp120.dll")
+                self.path("msvcr100.dll")
+                self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -778,7 +778,9 @@ class DarwinManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
+        vmp266dir = os.path.join(vmpdir, "2.6")
         llbasedir = os.path.join(pkgdir, "llbase")
+        requestsdir = os.path.join(pkgdir, "requests")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
             self.path("Info.plist", dst="Info.plist")
@@ -799,6 +801,14 @@ class DarwinManifest(ViewerManifest):
                     self.path2basename(llbasedir,"*.py")
                     self.path2basename(llbasedir,"_cllsd.so")
                     self.end_prefix()
+                #requests module needed by llbase/llrest.py
+                #this is only needed on POSIX, because in Windows we compile it into the EXE
+                requests_path = os.path.join(self.get_dst_prefix(),'requests')
+                if not os.path.exists(requests_path):
+                    os.makedirs(requests_path)
+                if self.prefix(dst="requests"):
+                    self.path2basename(requestsdir,"*")
+                    self.end_prefix()                
                 self.end_prefix()  
 
             # most everything goes in the Resources directory
