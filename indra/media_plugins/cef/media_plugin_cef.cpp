@@ -55,7 +55,7 @@ public:
 private:
 	bool init();
 
-	void onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height, bool is_popup);
+	void onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height);
 	void onCustomSchemeURLCallback(std::string url);
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
@@ -84,6 +84,7 @@ private:
 	bool mCookiesEnabled;
 	bool mPluginsEnabled;
 	bool mJavascriptEnabled;
+	bool mDisableGPU;
 	std::string mUserAgentSubtring;
 	std::string mAuthUsername;
 	std::string mAuthPassword;
@@ -117,6 +118,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCookiesEnabled = true;
 	mPluginsEnabled = false;
 	mJavascriptEnabled = true;
+	mDisableGPU = true;
 	mUserAgentSubtring = "";
 	mAuthUsername = "";
 	mAuthPassword = "";
@@ -161,56 +163,13 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height, bool is_popup)
+void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height)
 {
-	if( is_popup )
-	{
-		delete mPopupBuffer;
-		mPopupBuffer = NULL;
-		mPopupH = 0;
-		mPopupW = 0;
-		mPopupX = 0;
-		mPopupY = 0;
-	}
-
 	if( mPixels && pixels )
 	{
-		if (is_popup)
+		if (mWidth == width && mHeight == height)
 		{
-			if( width > 0 && height> 0 )
-			{
-				mPopupBuffer = new U8[ width * height * mDepth ];
-				memcpy( mPopupBuffer, pixels, width * height * mDepth );
-				mPopupH = height;
-				mPopupW = width;
-				mPopupX = x;
-				mPopupY = mHeight - y - height;
-			}
-		}
-		else
-		{
-			if (mWidth == width && mHeight == height)
-			{
-				memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
-			}
-			if( mPopupBuffer && mPopupH && mPopupW )
-			{
-				U32 bufferSize = mWidth * mHeight * mDepth;
-				U32 popupStride = mPopupW * mDepth;
-				U32 bufferStride = mWidth * mDepth;
-				int dstY = mPopupY;
-
-				int src = 0;
-				int dst = dstY  * mWidth * mDepth + mPopupX * mDepth;
-
-				for( int line = 0; dst + popupStride < bufferSize && line < mPopupH; ++line )
-				{
-					memcpy( mPixels + dst, mPopupBuffer + src, popupStride );
-					src += popupStride;
-					dst += bufferStride;
-				}
-			}
-
+			memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
 		}
 		setDirty(0, 0, mWidth, mHeight);
 	}
@@ -477,7 +436,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "init")
 			{
 				// event callbacks from Dullahan
-				mCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+				mCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 				mCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1));
 				mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 				mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
@@ -499,6 +458,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.cache_path = mCachePath;
 				settings.cookie_store_path = mCookiePath;
 				settings.cookies_enabled = mCookiesEnabled;
+				settings.disable_gpu = mDisableGPU;
 				settings.flash_enabled = mPluginsEnabled;
 				settings.flip_mouse_y = false;
 				settings.flip_pixels_y = true;
@@ -754,6 +714,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "javascript_enabled")
 			{
 				mJavascriptEnabled = message_in.getValueBoolean("enable");
+			}
+			else if (message_name == "gpu_disabled")
+			{
+				mDisableGPU = message_in.getValueBoolean("disable");
 			}
 		}
         else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME)
