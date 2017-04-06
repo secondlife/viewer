@@ -6392,13 +6392,6 @@ Cancelled
 
   <notification
    icon="notifytip.tga"
-   name="CancelledSit"
-   type="notifytip">
-Cancelled Sit
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
    name="CancelledAttach"
    type="notifytip">
 Cancelled Attach
