@@ -7259,7 +7259,7 @@ void send_places_query(const LLUUID& query_id,
 	gAgent.sendReliableMessage();
 }
 
-
+// Deprecated in favor of cap "UserInfo"
 void process_user_info_reply(LLMessageSystem* msg, void**)
 {
 	LLUUID agent_id;
