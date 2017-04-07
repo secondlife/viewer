@@ -2806,7 +2806,7 @@
         <key>license</key>
         <string>Apache</string>
         <key>license_file</key>
-        <string>LICENSE</string>
+        <string>requests.txt</string>
         <key>name</key>
         <string>requests</string>
         <key>platforms</key>
@@ -2816,9 +2816,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>14a3c749f78e8489c7291c35fe997f2e</string>
+              <string>20a84252b40223d5c08a6c1575b3333b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4022/11166/requests-1.0-darwin64-504010.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4106/11536/requests-1.0-darwin64-504094.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2828,9 +2828,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b7f5985cad7917451f9482d0727b380</string>
+              <string>a92f2235991871c3d601a73cfef9b2af</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4021/11161/requests-1.0-linux64-504010.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4105/11530/requests-1.0-linux64-504094.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
