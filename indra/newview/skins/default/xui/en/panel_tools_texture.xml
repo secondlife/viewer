@@ -586,7 +586,7 @@
 			 label_width="205"
              left="10"
              max_val="100"
-             min_val="0.1"
+             min_val="-100"
              name="rptctrl"
              width="265" />
            <spinner
