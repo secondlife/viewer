@@ -1634,9 +1634,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fec7c114b6fa3737217e6ca4ec4735e4</string>
+              <string>7b769c4284bdbd5fce536395d1eab695</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2449/5335/kdu-7.9.502436-darwin-502436.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4054/11304/kdu-7.9.1.504041-darwin-504041.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1646,9 +1646,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8178c2d9bde90c21f094d39eaf0125d9</string>
+              <string>a48db5cf79a4631090bfc968572d9953</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2448/5334/kdu-7.9.502436-darwin64-502436.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4052/11292/kdu-7.9.1.504041-darwin64-504041.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1670,9 +1670,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>739e6e5e63a0f3b474904f5dd502516a</string>
+              <string>99b0b22f87cebdd02c4cc954a7b3b465</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2447/5325/kdu-7.9.502436-linux64-502436.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4053/11298/kdu-7.9.1.504041-linux64-504041.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1682,9 +1682,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>82beab4467d5bb5b972061c3674b7593</string>
+              <string>f3ff5982b3b5f02738044432dd77a2c1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2450/5344/kdu-7.9.502436-windows-502436.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4055/11310/kdu-7.9.1.504041-windows-504041.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1694,16 +1694,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8458af680eed4be44ea1246e4088e11b</string>
+              <string>3010fa35f412b36296342b07de06f1ca</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/2451/5349/kdu-7.9.502436-windows64-502436.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4056/11316/kdu-7.9.1.504041-windows64-504041.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.9.502436</string>
+        <string>7.9.1.504041</string>
       </map>
       <key>libhunspell</key>
       <map>
