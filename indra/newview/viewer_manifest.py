@@ -790,7 +790,7 @@ class DarwinManifest(ViewerManifest):
             self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")   
 
             if self.prefix(dst="MacOS"):
-                #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
+                #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322, SL-323 and MAINT-6928
                 self.path2basename(vmpdir,"SL_Launcher")
                 self.path2basename(vmpdir,"*.py")
                 llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
@@ -808,6 +808,14 @@ class DarwinManifest(ViewerManifest):
                     os.makedirs(requests_path)
                 if self.prefix(dst="requests"):
                     self.path2basename(requestsdir,"*")
+                    self.end_prefix()   
+                #these supplemental files are in case the user still has 2.6 as their default python
+                #https://jira.secondlife.com/browse/MAINT-6928
+                p266_path = os.path.join(self.get_dst_prefix(),'2.6')
+                if not os.path.exists(p266_path):
+                    os.makedirs(p266_path) 
+                if self.prefix(dst="2.6"):
+                    self.path2basename(vmp266dir,"*.py")
                     self.end_prefix()                
                 self.end_prefix()  
 
@@ -903,7 +911,7 @@ class DarwinManifest(ViewerManifest):
                                 'ca-bundle.crt',
                                 'SLVoice',
                                 ):
-                     self.path2basename(relpkgdir, libfile)
+                    self.path2basename(relpkgdir, libfile)
 
                 # dylibs that vary based on configuration
                 if self.args['configuration'].lower() == 'debug':
