@@ -823,7 +823,8 @@ class DarwinManifest(ViewerManifest):
                 if os.path.exists(p266_path):
                     try:
                         print "renaming python 2.6 directory %s to %s " % (p266_path, vmp266nodotdir)
-                        shutil.move(p266_path, vmp266nodotdir)
+                        if not os.path.exists(vmp266nodotdir):
+                            shutil.move(p266_path, vmp266nodotdir)
                     except Exception, e:
                         print "Failed to rename python 2.6 supplemental directory with error %s" % repr(e)
                         raise
