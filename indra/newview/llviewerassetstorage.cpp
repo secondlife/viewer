@@ -455,7 +455,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     if (!status)
     {
         // TODO asset-http: handle failures
-        LL_DEBUGS("ViewerAsset") << "request failed, status " << status.toTerseString() << ", now what?" << LL_ENDL;
+        LL_DEBUGS("ViewerAsset") << "request failed, status " << status.toTerseString() << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LL_EXSTAT_NONE;
     }
@@ -468,7 +468,9 @@ void LLViewerAssetStorage::assetRequestCoro(
         S32 size = raw.size();
         if (size > 0)
         {
-			// This create-then-rename flow is modeled on LLTransferTargetVFile, which is what's used in the UDP case.
+			// This create-then-rename flow is modeled on
+			// LLTransferTargetVFile, which is what was used in the UDP
+			// case.
             LLUUID temp_id;
             temp_id.generate();
             LLVFile vf(gAssetStorage->mVFS, temp_id, atype, LLVFile::WRITE);
