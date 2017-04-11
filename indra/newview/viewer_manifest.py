@@ -779,6 +779,8 @@ class DarwinManifest(ViewerManifest):
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
         vmp266dir = os.path.join(vmpdir, "2.6")
+        #apparently the codesign tool has a problem with dir names with dots in them
+        vmp266nodotdir = os.path.join(vmpdir, "python26")
         llbasedir = os.path.join(pkgdir, "llbase")
         requestsdir = os.path.join(pkgdir, "requests")
 
@@ -818,6 +820,12 @@ class DarwinManifest(ViewerManifest):
                     self.path2basename(vmp266dir,"*.py")
                     self.end_prefix()                
                 self.end_prefix()  
+                if os.path.exists(vmp266dir):
+                    try:
+                        os.rename(vmp266dir, vmp266nodotdir)
+                    except Exception, e:
+                        print "Failed to rename python 2.6 supplemental directory with error %s" % repr(e)
+                        raise
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -948,8 +956,8 @@ class DarwinManifest(ViewerManifest):
 
                 # Dullahan helper apps go inside SLPlugin.app
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
-                    for helperappfile in ('DullahanHelper.app'):
-                        self.path2basename(relpkgdir, helperappfile)
+                    helperappfile = 'DullahanHelper.app'
+                    self.path2basename(relpkgdir, helperappfile)
 
                     pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
                     # Putting a Frameworks directory under Contents/MacOS
