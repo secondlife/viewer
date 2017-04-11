@@ -779,8 +779,6 @@ class DarwinManifest(ViewerManifest):
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
         vmp266dir = os.path.join(vmpdir, "2.6")
-        #apparently the codesign tool has a problem with dir names with dots in them
-        vmp266nodotdir = os.path.join(vmpdir, "python26")
         llbasedir = os.path.join(pkgdir, "llbase")
         requestsdir = os.path.join(pkgdir, "requests")
 
@@ -792,6 +790,8 @@ class DarwinManifest(ViewerManifest):
             self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")   
 
             if self.prefix(dst="MacOS"):
+                #apparently the codesign tool has a problem with dir names with dots in them
+                vmp266nodotdir = os.path.join(self.get_dst_prefix(), "python26")                 
                 #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322, SL-323 and MAINT-6928
                 self.path2basename(vmpdir,"SL_Launcher")
                 self.path2basename(vmpdir,"*.py")
@@ -819,10 +819,11 @@ class DarwinManifest(ViewerManifest):
                 if self.prefix(dst="2.6"):
                     self.path2basename(vmp266dir,"*.py")
                     self.end_prefix()                
-                self.end_prefix()  
-                if os.path.exists(vmp266dir):
+                self.end_prefix()                 
+                if os.path.exists(p266_path):
                     try:
-                        os.rename(vmp266dir, vmp266nodotdir)
+                        print "renaming python 2.6 directory %s to %s " % (p266_path, vmp266nodotdir)
+                        shutil.move(p266_path, vmp266nodotdir)
                     except Exception, e:
                         print "Failed to rename python 2.6 supplemental directory with error %s" % repr(e)
                         raise
