@@ -2011,7 +2011,8 @@ void renderComplexityDisplay(LLDrawable* drawablep)
 	}
 
 	LLVOVolume::texture_cost_t textures;
-	F32 cost = (F32) voVol->getRenderCost(textures);
+	LLVOVolume::texture_cost_t material_textures;
+	F32 cost = (F32) voVol->getRenderCost(textures, material_textures);
 
 	// add any child volumes
 	LLViewerObject::const_child_list_t children = voVol->getChildren();
@@ -2021,7 +2022,7 @@ void renderComplexityDisplay(LLDrawable* drawablep)
 		const LLVOVolume *child_volume = dynamic_cast<const LLVOVolume*>(child);
 		if (child_volume)
 		{
-			cost += child_volume->getRenderCost(textures);
+			cost += child_volume->getRenderCost(textures, material_textures);
 		}
 	}
 

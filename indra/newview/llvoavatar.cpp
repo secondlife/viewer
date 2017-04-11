@@ -7036,6 +7036,7 @@ LLSD LLVOAvatar::getFrameData() const
     LLSD av_attachments = LLSD::emptyArray();
 
     LLVOVolume::texture_cost_t textures;
+    LLVOVolume::texture_cost_t material_textures;
 
     // For each attached volume (top level or child), generate an LLSD record 
     for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
@@ -7056,7 +7057,7 @@ LLSD LLVOAvatar::getFrameData() const
                     const LLVOVolume* volume = drawable->getVOVolume();
                     if (volume)
                     {
-                        LLSD attachment_sd = volume->getFrameData(textures);
+                        LLSD attachment_sd = volume->getFrameData(textures, material_textures);
                         av_attachments.append(attachment_sd);
 
                         const_child_list_t children = volume->getChildren();
@@ -7068,7 +7069,7 @@ LLSD LLVOAvatar::getFrameData() const
                             LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
                             if (child)
                             {
-                                LLSD attachment_sd = child->getFrameData(textures);
+                                LLSD attachment_sd = child->getFrameData(textures, material_textures);
                                 av_attachments.append(attachment_sd);
 
                                 // Second level children aren't accounted for!
@@ -9135,6 +9136,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	{
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
+		LLVOVolume::texture_cost_t material_textures;
 		hud_complexity_list_t hud_complexity_list;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
@@ -9166,6 +9168,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 				if (attached_object && !attached_object->isHUDAttachment())
 				{
 					textures.clear();
+					material_textures.clear();
 					const LLDrawable* drawable = attached_object->mDrawable;
 					if (drawable)
 					{
@@ -9177,7 +9180,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                             F32 attachment_texture_cost = 0;
                             F32 attachment_children_cost = 0;
 
-							attachment_volume_cost += volume->getRenderCost(textures);
+							attachment_volume_cost += volume->getRenderCost(textures, material_textures);
 
 							const_child_list_t children = volume->getChildren();
 							for (const_child_list_t::const_iterator child_iter = children.begin();
@@ -9188,7 +9191,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 								LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 								if (child)
 								{
-									attachment_children_cost += child->getRenderCost(textures);
+									attachment_children_cost += child->getRenderCost(textures, material_textures);
 								}
 							}
 
@@ -9221,6 +9224,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                     && attached_object->mDrawable)
                 {
                     textures.clear();
+                    material_textures.clear();
 
                     const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
                     if (volume)
@@ -9232,7 +9236,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                         gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
                         hud_object_complexity.jointName = joint_name;
                         // get cost and individual textures
-                        hud_object_complexity.objectsCost += volume->getRenderCost(textures);
+                        hud_object_complexity.objectsCost += volume->getRenderCost(textures, material_textures);
                         hud_object_complexity.objectsCount++;
 
                         LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
@@ -9244,7 +9248,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                             if (chld_volume)
                             {
                                 // get cost and individual textures
-                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
+                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures, material_textures);
                                 hud_object_complexity.objectsCount++;
                             }
                         }

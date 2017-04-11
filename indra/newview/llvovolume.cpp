@@ -3419,7 +3419,7 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // total cost is returned value + 5 * size of the resulting set.
 // Cannot include cost of textures, as they may be re-used in linked
 // children, and cost should only be increased for unique textures  -Nyx
-U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
+U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp) const
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -3582,10 +3582,30 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, LLSD *sdp) const
             if (mat->getNormalID().notNull())
             {
                 normalmap = 1;
+                LLUUID normal_id = mat->getNormalID();
+                if (material_textures.find(normal_id) == material_textures.end())
+                {
+                    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(normal_id);
+                    if (texture)
+                    {
+                        S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+                        material_textures.insert(texture_cost_t::value_type(normal_id, texture_cost));
+                    }
+                }
             }
             if (mat->getSpecularID().notNull())
             {
                 specmap = 1;
+                LLUUID spec_id = mat->getNormalID();
+                if (material_textures.find(spec_id) == material_textures.end())
+                {
+                    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(spec_id);
+                    if (texture)
+                    {
+                        S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+                        material_textures.insert(texture_cost_t::value_type(spec_id, texture_cost));
+                    }
+                }
             }
         }
 
@@ -3803,7 +3823,7 @@ void LLVOVolume::updateRenderComplexity()
 	mRenderComplexity_current = 0;
 }
 
-LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures) const
+LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures, LLVOVolume::texture_cost_t& material_textures) const
 {
     LLSD sd;
     sd["TriangleCount"] = (LLSD::Integer) getTriangleCount();
@@ -3811,7 +3831,7 @@ LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures) const
     sd["TriangleCount_Low"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_LOW);
     sd["TriangleCount_Medium"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_MEDIUM);
     sd["TriangleCount_HIGH"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_HIGH);
-    getRenderCost(textures, &sd);
+    getRenderCost(textures, material_textures, &sd);
     return sd;
 }
 

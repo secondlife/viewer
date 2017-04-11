@@ -7221,6 +7221,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 {
        S32 cost = 0;
        LLVOVolume::texture_cost_t textures;
+       LLVOVolume::texture_cost_t material_textures;
        typedef std::set<LLUUID> uuid_list_t;
        uuid_list_t computed_objects;
 
@@ -7236,7 +7237,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 
                if (object && object->isRootEdit())
                {
-				   cost += object->getRenderCost(textures);
+				   cost += object->getRenderCost(textures, material_textures);
 				   computed_objects.insert(object->getID());
 
 				   const_child_list_t children = object->getChildren();
@@ -7248,7 +7249,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 					   LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 					   if (child)
 					   {
-						   cost += child->getRenderCost(textures);
+						   cost += child->getRenderCost(textures, material_textures);
 						   computed_objects.insert(child->getID());
 					   }
 				   }
@@ -7260,6 +7261,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 				   }
 
 				   textures.clear();
+				   material_textures.clear();
                }
        }
 	
@@ -7271,8 +7273,8 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 
 			if (object && computed_objects.find(object->getID()) == computed_objects.end()  )
 			{
-					cost += object->getRenderCost(textures);
-					computed_objects.insert(object->getID());
+                cost += object->getRenderCost(textures, material_textures);
+                computed_objects.insert(object->getID());
 			}
 
 			for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
@@ -7282,6 +7284,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 			}
 
 			textures.clear();
+            material_textures.clear();
 		}
 
        return cost;
