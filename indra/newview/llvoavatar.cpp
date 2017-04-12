@@ -7090,17 +7090,55 @@ LLSD LLVOAvatar::getFrameData() const
     }
     av_sd["Attachments"] = av_attachments;
 
-	LLSD av_attachment_textures = LLSD::emptyArray();
+    S32 texture_missing = 0;
+    S32 texture_count = 0;
+    F32 texture_mpixels = 0;
+    S32 material_texture_missing = 0;
+    S32 material_texture_count = 0;
+    F32 material_texture_mpixels = 0;
+
     for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
          volume_texture != textures.end();
          ++volume_texture)
     {
-        LLSD tex_sd;
-        tex_sd["UUID"] = volume_texture->first;
-        tex_sd["Cost"] = volume_texture->second;
-        av_attachment_textures.append(tex_sd);
+        LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+        if (texture)
+        {
+            texture_count++;
+            texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
+        }
+        else
+        {
+            texture_missing++;
+        }
     }
-    av_sd["AttachmentTextures"] = av_attachment_textures;
+    for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
+         volume_texture != material_textures.end();
+         ++volume_texture)
+    {
+        // Only count textures not already accounted for above
+        if (textures.find(volume_texture->first) == textures.end())
+        {
+            LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+            if (texture)
+            {
+                material_texture_count++;
+                material_texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
+            }
+            else
+            {
+                material_texture_missing++;
+            }
+        }
+    }
+
+	LLSD av_attachment_textures;
+    av_sd["AttachmentTextures"]["texture_count"] = texture_count;
+    av_sd["AttachmentTextures"]["texture_mpixels"] = texture_mpixels;
+    av_sd["AttachmentTextures"]["texture_missing"] = texture_missing;
+    av_sd["AttachmentTextures"]["material_texture_count"] = material_texture_count;
+    av_sd["AttachmentTextures"]["material_texture_mpixels"] = material_texture_mpixels;
+    av_sd["AttachmentTextures"]["material_texture_missing"] = material_texture_missing;
 
     return av_sd;
 }
@@ -9197,12 +9235,25 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
                             // FIXME should we be doing this after the loop over attachments,
                             // so textures used by multiple attachments don't get charged multiple times?
+                            // If so we would also remove the texture clear calls above.
 							for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
 								 volume_texture != textures.end();
 								 ++volume_texture)
 							{
 								// add the cost of each individual texture in the linkset
 								attachment_texture_cost += volume_texture->second;
+							}
+							for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
+								 volume_texture != material_textures.end();
+								 ++volume_texture)
+							{
+                                if (textures.find(volume_texture->first)==textures.end())
+                                {
+                                    // FIXME ARCTAN: Token increase in the cost
+                                    // just to force logged ARC to change.  Should replace
+                                    // with real assessed cost of materials textures.
+                                    attachment_texture_cost += 1;
+                                }
 							}
                             attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
                             LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
