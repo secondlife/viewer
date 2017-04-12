@@ -424,12 +424,9 @@ void LLViewerAssetStorage::assetRequestCoro(
         
         llcoro::suspendUntilEventOn(capsRecv);
     }
-    else
+    if (mViewerAssetUrl.empty())
     {
-        if (mViewerAssetUrl.empty())
-        {
-            mViewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
-        }
+        mViewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
     }
     if (mViewerAssetUrl.empty())
     {
@@ -454,7 +451,6 @@ void LLViewerAssetStorage::assetRequestCoro(
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        // TODO asset-http: handle failures
         LL_DEBUGS("ViewerAsset") << "request failed, status " << status.toTerseString() << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LL_EXSTAT_NONE;
