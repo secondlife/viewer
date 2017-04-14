@@ -908,10 +908,10 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupInaccessible"
- type="alertmodal">
-    This group is not accessible to you.
+   icon="alertmodal.tga"
+   name="JoinGroupInaccessible"
+   type="alertmodal">
+This group is not accessible to you.
     <tag>group_id</tag>
     <tag>success</tag>
     <usetemplate
@@ -920,10 +920,10 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupError"
- type="alertmodal">
-    Error processing your group membership request.
+   icon="alertmodal.tga"
+   name="JoinGroupError"
+   type="alertmodal">
+Error processing your group membership request.
     <tag>group_id</tag>
     <tag>success</tag>
     <usetemplate
@@ -932,10 +932,10 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupError"
- type="alertmodal">
-    Unable to join group: [reason]
+   icon="alertmodal.tga"
+   name="JoinGroupError"
+   type="alertmodal">
+Unable to join group: [reason]
     <tag>group_id</tag>
     <tag>success</tag>
     <tag>reason</tag>
@@ -945,10 +945,10 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupTrialUser"
- type="alertmodal">
-    Sorry, trial users can't join groups.
+   icon="alertmodal.tga"
+   name="JoinGroupTrialUser"
+   type="alertmodal">
+Sorry, trial users can't join groups.
     <tag>group_id</tag>
     <tag>success</tag>
     <usetemplate
@@ -957,11 +957,11 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupMaxGroups"
- type="alertmodal">
-    You cannot join '[group_name]' :
-    You are already a member of [group_count] groups, the maximum number allowed is [max_groups]
+   icon="alertmodal.tga"
+   name="JoinGroupMaxGroups"
+   type="alertmodal">
+You cannot join '[group_name]':
+You are already a member of [group_count] groups, the maximum number allowed is [max_groups]
     <tag>success</tag>
     <tag>group_id</tag>
     <tag>group_name</tag>
@@ -973,11 +973,11 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupClosedEnrollment"
- type="alertmodal">
-    You cannot join '[group_name]' :
-    The group no longer has open enrollment.
+   icon="alertmodal.tga"
+   name="JoinGroupClosedEnrollment"
+   type="alertmodal">
+You cannot join '[group_name]':
+The group no longer has open enrollment.
     <tag>group_id</tag>
     <tag>success</tag>
     <usetemplate
@@ -986,10 +986,10 @@ Please invite members within 48 hours.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="JoinGroupSuccess"
- type="alertmodal">
-    You have been added to the group
+   icon="alertmodal.tga"
+   name="JoinGroupSuccess"
+   type="alertmodal">
+You have been added to the group
     <tag>group_id</tag>
     <tag>success</tag>
     <usetemplate
@@ -998,10 +998,10 @@ Please invite members within 48 hours.
   </notification>
   
   <notification
- icon="alertmodal.tga"
- name="JoinGroupInsufficientFunds"
- type="alertmodal">
-    Unable to transfer the required L$ [membership_fee] membership fee.
+   icon="alertmodal.tga"
+   name="JoinGroupInsufficientFunds"
+   type="alertmodal">
+Unable to transfer the required L$ [membership_fee] membership fee.
     <tag>group_id</tag>
     <tag>success</tag>
     <usetemplate
