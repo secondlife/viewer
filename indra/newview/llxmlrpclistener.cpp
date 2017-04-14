@@ -379,14 +379,9 @@ public:
 		{
 			case CURLE_SSL_PEER_CERTIFICATE:
 			case CURLE_SSL_CACERT:
-			{
-				LLPointer<LLCertificate> error_cert(mTransaction->getErrorCert());
-				if(error_cert)
-				{
-					data["certificate"] = error_cert->getPem();
-				}
+                data["certificate"] = mTransaction->getErrorCertData();
 				break;
-			}
+
 			default:
 				break;
 		}

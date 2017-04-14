@@ -111,7 +111,7 @@ public:
 	EStatus status(int* curlCode);
 		// return status, and extended CURL code, if code isn't null
 	
-	LLPointer<LLCertificate> getErrorCert();
+	LLSD getErrorCertData();
 	std::string statusMessage();
 		// return a message string, suitable for showing the user
 	std::string statusURI();
