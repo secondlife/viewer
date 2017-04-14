@@ -710,7 +710,7 @@ namespace tut
 		expectedKeyUsage.append(LLSD((std::string)"digitalSignature"));
 		expectedKeyUsage.append(LLSD((std::string)"keyEncipherment"));
 		ensure("key usage", valueCompareLLSD(llsd_cert["keyUsage"], expectedKeyUsage));
-		ensure_equals("basic constraints", (bool)llsd_cert["basicConstraints"]["CA"].asInteger(), 0);
+		ensure_equals("basic constraints", llsd_cert["basicConstraints"]["CA"].asInteger(), 0);
 		
 		ensure("x509 is equal", !X509_cmp(mX509ChildCert, test_cert->getOpenSSLX509()));
 	}
