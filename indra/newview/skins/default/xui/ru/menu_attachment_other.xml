@@ -17,8 +17,10 @@
 	<menu_item_call label="Приблизить" name="Zoom In"/>
 	<menu_item_call label="Заплатить" name="Pay..."/>
 	<menu_item_call label="Профиль объекта" name="Object Inspect"/>
-	<menu_item_check label="Обычная прорисовка" name="RenderNormally"/>
-	<menu_item_check label="Не рисовать" name="DoNotRender"/>
-	<menu_item_check label="Полная прорисовка" name="AlwaysRenderFully"/>
+	<context_menu label="Рисовать аватар" name="Render Avatar">
+		<menu_item_check label="По умолчанию" name="RenderNormally"/>
+		<menu_item_check label="Всегда" name="AlwaysRenderFully"/>
+		<menu_item_check label="Никогда" name="DoNotRender"/>
+	</context_menu>
 	<menu_item_call label="Блокировать владельца участка" name="Mute Particle"/>
 </context_menu>

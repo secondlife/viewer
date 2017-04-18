@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_gesture_gear">
-	<menu_item_call label="Ajouter/Supprimer des favoris" name="activate"/>
+	<menu_item_call label="Activer/désactiver le geste sélectionné" name="activate"/>
 	<menu_item_call label="Copier" name="copy_gesture"/>
 	<menu_item_call label="Coller" name="paste"/>
 	<menu_item_call label="Copier l&apos;UUID" name="copy_uuid"/>

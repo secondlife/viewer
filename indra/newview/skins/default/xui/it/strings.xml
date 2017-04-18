@@ -1482,7 +1482,8 @@ Prova ad accedere nuovamente tra un minuto.
 		Il [[MARKETPLACE_CREATE_STORE_URL] negozio nel Marketplace] ha riportato errori.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Questa funzione è al momento in versione beta. Per partecipare, aggiungi il tuo nome a questo [http://goo.gl/forms/FCQ7UXkakz modulo Google].
+		Errore nell&apos;apertura degli annunci di Marketplace.
+Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life su http://support.secondlife.com.
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		La cartella degli annunci di Marketplace è vuota.
@@ -4362,6 +4363,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="conference-title-incoming">
 		Chiamata in conferenza con [AGENT_NAME]
 	</string>
+	<string name="inventory_item_offered-im">
+		Offerto oggetto di inventario &quot;[ITEM_NAME]&quot;
+	</string>
+	<string name="inventory_folder_offered-im">
+		Offerta cartella di inventario &quot;[ITEM_NAME]&quot;
+	</string>
 	<string name="flickr_post_success">
 		Hai pubblicato su Flickr.
 	</string>
@@ -4444,7 +4451,10 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 		Posizione di base impostata.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT] [REASON].
@@ -4815,8 +4825,8 @@ Segnala abuso
 	<string name="server_is_down">
 		Nonostante i nostri tentativi, si è verificato un errore imprevisto.
 
-	Consulta la pagina status.secondlifegrid.net per determinare se si sia verificato un problema noto con il servizio.
-        Se il problema continua, ti consigliamo di controllare le tue impostazioni di rete e della firewall.
+Consulta la pagina http://status.secondlifegrid.net per determinare se il problema del servizio è già stato riscontrato.
+        Se il problema continua, ti consigliamo di controllare le tue impostazioni di rete e del firewall.
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		lunedì:martedì:mercoledì:giovedì:venerdì:sabato:domenica
@@ -5276,6 +5286,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Gestures_Label">
 		Gesture
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Stato della griglia
+	</string>
 	<string name="Command_HowTo_Label">
 		Istruzioni
 	</string>
@@ -5368,6 +5381,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gesti per il tuo avatar
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Mostra stato griglia corrente
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Come eseguire le attività più comuni
@@ -5590,6 +5606,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="loading_chat_logs">
 		Caricamento in corso...
+	</string>
+	<string name="na">
+		n/d
 	</string>
 	<string name="preset_combo_label">
 		-Lista vuota-

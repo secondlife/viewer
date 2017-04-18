@@ -30,6 +30,6 @@ Utiliser &quot;&quot; pour les balises contenant plusieurs mots
 		<combo_box.item label="Catégorie de contenu Flickr modéré" name="ModerateRating"/>
 		<combo_box.item label="Catégorie de contenu Flickr réservé aux adultes" name="RestrictedRating"/>
 	</combo_box>
-	<button label="Charger" name="post_photo_btn"/>
+	<button label="Partager" name="post_photo_btn"/>
 	<button label="Annuler" name="cancel_photo_btn"/>
 </panel>

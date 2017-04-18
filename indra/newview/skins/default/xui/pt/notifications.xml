@@ -141,10 +141,9 @@ Ocorreu uma falha na inicialização do Marketplace devido a um erro do sistema 
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantTransactionFailed">
-		Ocorreu uma falha na transação com o Marketplace com o seguinte erro:
+		Falha na transação com o Marketplace com o seguinte erro:
         
-        Motivo: &apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -754,6 +753,9 @@ Você pode unir um máximo de [MAX] objetos.
 Por favor, certifique-se de que nenhum deles está travado e que você é dono de todos eles.
 	</notification>
 	<notification name="CannotLinkPermanent">
+		Os objetos não podem ser vinculados através de demarcações de região.
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
 		Os objetos não podem ser vinculados através de demarcações de região.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
@@ -1774,10 +1776,9 @@ Se você estiver muito ansioso para experimentar os novos recursos e correções
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DoNotDisturbModeSet">
-		Não perturbe está ativado.  Você não será notificado de comunicações recebidas.
+		“Não perturbe” está ativado.  Você não será notificado de comunicações recebidas.
 
 - Outros residentes receberão a sua resposta de Não perturbe (definida em Preferências &gt; Geral).
-- As ofertas de teletransporte serão recusadas.
 - Chamadas de voz serão recusadas.
 		<usetemplate ignoretext="Altero meu status para o modo Não perturbe" name="okignore" yestext="OK"/>
 	</notification>
@@ -2546,9 +2547,6 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 	</notification>
 	<notification name="Cancelled">
 		Cancelado
-	</notification>
-	<notification name="CancelledSit">
-		Cancelada a ação de sentar
 	</notification>
 	<notification name="CancelledAttach">
 		Cancelado Anexar
@@ -3872,32 +3870,32 @@ Tente novamente em instantes.
 	<notification name="AvatarEjectFailed">
 		A expulsão falhou porque você não tem permissão de administrador para esse lote.
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		Não é possível mover &apos;[OBJECT_NAME]&apos; para
-[OBJ_POSITION] na região [REGION_NAME] porque o lote está cheio.
+	<notification name="CMOParcelFull">
+		Não foi possível mover o objeto &apos;[O]&apos; para
+[P] na região [R] porque o lote está cheio.
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		Não é possível mover &apos;[OBJECT_NAME]&apos; para
-[OBJ_POSITION] na região [REGION_NAME] porque seus objetos não são permitidos neste lote.
+	<notification name="CMOParcelPerms">
+		Não foi possível mover o objeto &apos;[O]&apos; para
+[P] na região [R] porque seus objetos não são permitidos neste lote.
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		Não é possível mover &apos;[OBJECT_NAME]&apos; para
-[OBJ_POSITION] na região [REGION_NAME] porque não há recursos suficientes para este objeto neste lote.
+	<notification name="CMOParcelResources">
+		Não foi possível mover o objeto &apos;[O]&apos; para
+[P] na região [R] porque não há recursos suficientes para este objeto neste lote.
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		A cópia falhou porque você não tem acesso a esse lote.
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		Não é possível mover &apos;[OBJECT_NAME]&apos; para
-[OBJ_POSITION] na região [REGION_NAME] porque outra região está executando uma versão mais antiga, que não dá suporte o recebimento deste objeto por meio de passagem de regiões.
+	<notification name="CMORegionVersion">
+		Não foi possível mover o objeto &apos;[O]&apos; para
+[P] na região [R] porque outra região está executando uma versão mais antiga, que não dá suporte ao recebimento deste objeto por meio de passagem de regiões.
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		Não é possível mover &apos;[OBJECT_NAME]&apos; para
-[OBJ_POSITION] na região [REGION_NAME] porque você não está autorizado a modificar o navmesh além dos limites da região.
+	<notification name="CMONavMesh">
+		Não foi possível mover o objeto &apos;[O]&apos; para
+[P] na região [R] porque você não pode modificar o navmesh pelas demarcações da região.
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		Não é possível mover &apos;[OBJECT_NAME]&apos; para
-[OBJ_POSITION] na região [REGION_NAME] por uma razão desconhecida. ([FAILURE_TYPE])
+	<notification name="CMOWTF">
+		Não foi possível mover o objeto &apos;[O]&apos; para
+[P] na região [R] por motivos desconhecido. ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		Você não está autorizado a modificar este objeto

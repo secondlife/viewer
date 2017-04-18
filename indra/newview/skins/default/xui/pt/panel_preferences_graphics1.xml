@@ -25,12 +25,14 @@ rápido
 	<text name="BetterText">
 		Melhor
 	</text>
+	<check_box initial_value="true" label="Tonalidades atmosféricas" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="Modelo avançado de luzes" name="UseLightShaders"/>
 	<slider label="Complexidade máxima do avatar:" name="IndirectMaxComplexity" tool_tip="Controla o ponto no qual um avatar visualmente complexo é desenhado como uma JellyDoll"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
-	<check_box initial_value="true" label="Tonalidades atmosféricas" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="Modelo avançado de luzes" name="UseLightShaders"/>
+	<check_box initial_value="true" label="Sempre renderizar amigos" name="AlwaysRenderFriends"/>
+	<button label="Exceções..." name="RenderExceptionsButton"/>
 	<button label="Salvar configurações como predefinição..." name="PrefSaveButton"/>
 	<button label="Carregar predefinição..." name="PrefLoadButton"/>
 	min_val=&quot;0.125&quot;

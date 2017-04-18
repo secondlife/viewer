@@ -30,6 +30,6 @@
 		<combo_box.item label="適中級 Flickr 內容" name="ModerateRating"/>
 		<combo_box.item label="限制級 Flickr 內容" name="RestrictedRating"/>
 	</combo_box>
-	<button label="上傳" name="post_photo_btn"/>
+	<button label="分享" name="post_photo_btn"/>
 	<button label="取消" name="cancel_photo_btn"/>
 </panel>

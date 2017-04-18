@@ -1491,7 +1491,8 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Der [[MARKETPLACE_CREATE_STORE_URL] Marktplatz-Laden] gibt Fehler zurück.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Diese Funktion befindet sich in der Betaphase. Wenn Sie teilnehmen möchten, tragen Sie sich in dieses [http://goo.gl/forms/FCQ7UXkakz Google-Formular] ein.
+		Beim Öffnen der Marktplatz-Auflistungen ist ein Fehler aufgetreten.
+Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://support.secondlife.com an den Support von Second Life.
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Ihr Ordner mit Marktplatz-Auflistungen ist leer.
@@ -4444,7 +4445,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Konferenz mit [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Inventarobjekt angeboten
+		Inventarobjekt „[ITEM_NAME]“ angeboten
+	</string>
+	<string name="inventory_folder_offered-im">
+		Inventarordner „[ITEM_NAME]“ angeboten
 	</string>
 	<string name="share_alert">
 		Objekte aus dem Inventar hier her ziehen
@@ -4531,7 +4535,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Position für Zuhause festgelegt.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [REASON] [AMOUNT] L$ bezahlt.
@@ -4902,8 +4909,8 @@ Missbrauchsbericht
 	<string name="server_is_down">
 		Trotz all unserer Bemühungen ist ein unerwarteter Fehler aufgetreten.
 
-	Bitte überprüfen Sie status.secondlifegrid.net, um herauszufinden, ob ein Problem besteht.
- Falls Sie weiterhin Problem haben, überprüfen Sie bitte Ihre Netzwerk- und Firewalleinstellungen.
+Bitte überprüfen Sie http://status.secondlifegrid.net, um herauszufinden, ob ein Problem mit dem Service vorliegt.
+        Falls Sie weiterhin Problem haben, überprüfen Sie bitte Ihre Netzwerk- und Firewalleinstellungen.
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		Sonntag:Montag:Dienstag:Mittwoch:Donnerstag:Freitag:Samstag
@@ -5363,6 +5370,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Gestures_Label">
 		Gesten
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Grid-Status
+	</string>
 	<string name="Command_HowTo_Label">
 		Infos
 	</string>
@@ -5455,6 +5465,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gesten für Ihren Avatar
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Aktuellen Grid-Status anzeigen
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Wie führe ich gängige Aufgaben aus?
@@ -5677,6 +5690,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="loading_chat_logs">
 		Laden...
+	</string>
+	<string name="na">
+		Nicht zutreffend
 	</string>
 	<string name="preset_combo_label">
 		-Leere Liste-

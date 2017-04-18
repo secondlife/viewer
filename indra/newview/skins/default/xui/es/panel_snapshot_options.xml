@@ -2,9 +2,9 @@
 <panel name="panel_snapshot_options">
 	<button label="Guardar en disco" name="save_to_computer_btn"/>
 	<button label="Guardar en inventario (L$[AMOUNT])" name="save_to_inventory_btn"/>
-	<button label="Subir al perfil" name="save_to_profile_btn"/>
-	<button label="Subir a Facebook" name="send_to_facebook_btn"/>
-	<button label="Subir a Twitter" name="send_to_twitter_btn"/>
-	<button label="Subir a Flickr" name="send_to_flickr_btn"/>
+	<button label="Compartir en los comentarios de Mi perfil" name="save_to_profile_btn"/>
+	<button label="Compartir en Facebook" name="send_to_facebook_btn"/>
+	<button label="Compartir en Twitter" name="send_to_twitter_btn"/>
+	<button label="Compartir en Flickr" name="send_to_flickr_btn"/>
 	<button label="Enviar por correo electrónico" name="save_to_email_btn"/>
 </panel>

@@ -16,8 +16,10 @@
 	<menu_item_call label="傾印 XML" name="Dump XML"/>
 	<menu_item_call label="放大" name="Zoom In"/>
 	<menu_item_call label="支付" name="Pay..."/>
-	<menu_item_check label="正常呈像" name="RenderNormally"/>
-	<menu_item_check label="不要呈像" name="DoNotRender"/>
-	<menu_item_check label="完全呈像" name="AlwaysRenderFully"/>
+	<context_menu label="呈現化身" name="Render Avatar">
+		<menu_item_check label="預設" name="RenderNormally"/>
+		<menu_item_check label="永遠" name="AlwaysRenderFully"/>
+		<menu_item_check label="絕不" name="DoNotRender"/>
+	</context_menu>
 	<menu_item_call label="封鎖粒子所有人" name="Mute Particle"/>
 </context_menu>

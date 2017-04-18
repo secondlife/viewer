@@ -449,7 +449,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<spinner label="Online-Zeit:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Immer erlauben" name="AllowedText">
-					Zulässige Einwohner ([COUNT])
+					Zulässige Einwohner ([COUNT], max. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] aufgeführt, [MAX] max)"/>
 				<button label="Hinzufügen" name="add_allowed"/>
@@ -457,7 +457,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Verbannen" name="BanCheck">
-					Verbannte Einwohner ([COUNT])
+					Verbannte Einwohner ([COUNT], max. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] aufgeführt, [MAX] max)"/>
 				<button label="Hinzufügen" name="add_banned"/>
