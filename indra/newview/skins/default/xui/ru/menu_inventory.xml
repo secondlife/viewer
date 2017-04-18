@@ -42,6 +42,12 @@
 		<menu_item_call label="Новые волосы" name="New Hair"/>
 		<menu_item_call label="Новые глаза" name="New Eyes"/>
 	</menu>
+	<menu label="Использовать по умолчанию для" name="upload_def">
+		<menu_item_call label="Переданные изображения" name="Image uploads"/>
+		<menu_item_call label="Переданные звуки" name="Sound uploads"/>
+		<menu_item_call label="Переданные анимации" name="Animation uploads"/>
+		<menu_item_call label="Переданные модели" name="Model uploads"/>
+	</menu>
 	<menu label="Сменить тип" name="Change Type">
 		<menu_item_call label="По умолчанию" name="Default"/>
 		<menu_item_call label="Перчатки" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Сменить текущий костюм" name="Replace Outfit"/>
 	<menu_item_call label="Добавить к текущему костюму" name="Add To Outfit"/>
 	<menu_item_call label="Убрать из текущего костюма" name="Remove From Outfit"/>
+	<menu_item_call label="Копировать список костюмов в буфер обмена" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Найти оригинал" name="Find Original"/>
 	<menu_item_call label="Удалить навсегда" name="Purge Item"/>
 	<menu_item_call label="Восстановить вещь" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="Копировать" name="Copy"/>
 	<menu_item_call label="Вставить" name="Paste"/>
 	<menu_item_call label="Вставить как ссылку" name="Paste As Link"/>
-	<menu_item_call label="Удалить" name="Remove Link"/>
 	<menu_item_call label="Удалить" name="Delete"/>
 	<menu_item_call label="Удалить системную папку" name="Delete System Folder"/>
 	<menu_item_call label="Начать конференцию" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="Изменить" name="Wearable Edit"/>
 	<menu_item_call label="Добавить" name="Wearable Add"/>
 	<menu_item_call label="Снять" name="Take Off"/>
-	<menu_item_call label="Копировать в «Торговые исходящие»" name="Merchant Copy"/>
 	<menu_item_call label="Копировать в списки товаров торгового центра" name="Marketplace Copy"/>
 	<menu_item_call label="Переместить в списки товаров торгового центра" name="Marketplace Move"/>
 	<menu_item_call label="- нет действий -" name="--no options--"/>

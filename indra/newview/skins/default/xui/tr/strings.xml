@@ -1488,7 +1488,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		[[MARKETPLACE_CREATE_STORE_URL] Mağazası] hata döndürüyor.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Bu özellik şu anda Beta aşamasında. Katılmak istiyorsanız lütfen adınızı bu [http://goo.gl/forms/FCQ7UXkakz Google formuna] ekleyin.
+		Pazaryeri İlanları açılırken bir hata meydana geldi.
+Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresinden Second Life destek ekibine başvurun.
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Pazaryeri İlanları klasörünüz boş.
@@ -4441,7 +4442,10 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		[AGENT_NAME] ile konferans
 	</string>
 	<string name="inventory_item_offered-im">
-		Teklif edilen envanter öğesi:
+		&quot;[ITEM_NAME]&quot; envanter öğesi sunuldu
+	</string>
+	<string name="inventory_folder_offered-im">
+		&quot;[ITEM_NAME]&quot; envanter klasörü sunuldu
 	</string>
 	<string name="share_alert">
 		Envanterinizden buraya öğeler sürükleyin
@@ -4528,7 +4532,10 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Ana konum ayarlandı.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] size [REASON] L$[AMOUNT] ödedi.
@@ -4897,7 +4904,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="server_is_down">
 		Tüm çabalarımıza rağmen beklenmeyen bir hata meydana geldi.
 
-	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.
+Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen http://status.secondlifegrid.net adresine bakın.
         Sorun yaşamaya devam ederseniz lütfen ağınızın ve güvenlik duvarınızın ayarlarına bakın.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5370,6 +5377,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Gestures_Label">
 		Mimikler
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Ağ durumu
+	</string>
 	<string name="Command_HowTo_Label">
 		Nasıl yapılır
 	</string>
@@ -5462,6 +5472,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Avatarınız için mimikler
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Ağın mevcut durumunu göster
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Genel görevleri nasıl yapacağınız
@@ -5684,6 +5697,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="loading_chat_logs">
 		Yükleniyor...
+	</string>
+	<string name="na">
+		yok
 	</string>
 	<string name="preset_combo_label">
 		-Boş liste-

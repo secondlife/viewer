@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_blocked_gear">
 	<menu_item_call label="Engellemeyi Kaldır" name="unblock"/>
+	<menu_item_check label="Sesi Engelle" name="BlockVoice"/>
+	<menu_item_check label="Metni Engelle" name="MuteText"/>
+	<menu_item_check label="Nesne Seslerini Engelle" name="BlockObjectSounds"/>
 	<menu_item_call label="Profil..." name="profile"/>
 </toggleable_menu>

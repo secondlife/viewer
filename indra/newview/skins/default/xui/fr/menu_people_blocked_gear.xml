@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_blocked_gear">
 	<menu_item_call label="Ne plus ignorer" name="unblock"/>
+	<menu_item_check label="Bloquer le chat vocal" name="BlockVoice"/>
+	<menu_item_check label="Ignorer le texte" name="MuteText"/>
+	<menu_item_check label="Bloquer les sons des objets" name="BlockObjectSounds"/>
 	<menu_item_call label="Profil..." name="profile"/>
 </toggleable_menu>

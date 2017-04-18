@@ -30,6 +30,6 @@ Usa &quot;&quot; per tag con più di una parola
 		<combo_box.item label="Categoria Flickr Moderato" name="ModerateRating"/>
 		<combo_box.item label="Categoria Flickr Censurato" name="RestrictedRating"/>
 	</combo_box>
-	<button label="Carica" name="post_photo_btn"/>
+	<button label="Condividi" name="post_photo_btn"/>
 	<button label="Annulla" name="cancel_photo_btn"/>
 </panel>

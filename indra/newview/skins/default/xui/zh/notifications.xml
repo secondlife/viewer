@@ -142,10 +142,9 @@
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="MerchantTransactionFailed">
-		和 Marketplace 進行的交易發生如下錯誤：
+		和Marketplace進行交易發生如下錯誤：
         
-        原因：&apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -760,6 +759,9 @@
 請確定沒有物件被鎖住，並確定你擁有所有物件。
 	</notification>
 	<notification name="CannotLinkPermanent">
+		物件無法跨越地區界限進行聯結。
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
 		物件無法跨越地區界限進行聯結。
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
@@ -1776,7 +1778,6 @@ SHA1 指紋：[MD5_DIGEST]
 		「請勿打擾」模式目前是開啟狀態。  你將不會收到任何發給你的訊息通知。
 
 - 其他居民將收到你的「請勿打擾」回應（回應內容設於「偏好設定 &gt; 一般設定」）。
-- 所有瞬間傳送的邀請都將被婉拒。
 - 所有語音來電都將拒絕接聽。
 		<usetemplate ignoretext="我變更我的狀態為「請勿打擾」模式" name="okignore" yestext="確定"/>
 	</notification>
@@ -2543,9 +2544,6 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="Cancelled">
 		已取消
-	</notification>
-	<notification name="CancelledSit">
-		取消坐下
 	</notification>
 	<notification name="CancelledAttach">
 		取消貼上
@@ -3874,32 +3872,26 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="AvatarEjectFailed">
 		踢出失敗，因為你在該地段沒有管理員權限。
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
-地區 [REGION_NAME] 的 [OBJ_POSITION]，因為該目標地段已滿載。
+	<notification name="CMOParcelFull">
+		無法在[R]區域將&apos;[O]&apos;物件移到[P]，因為此地段容量已滿。
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
-地區 [REGION_NAME] 的 [OBJ_POSITION]，因為此地段不允許你的物件。
+	<notification name="CMOParcelPerms">
+		無法在[R]區域將&apos;[O]&apos;物件移到[P]，因為此地段裡不允許有你的物件。
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
- [REGION_NAME] 地區的 [OBJ_POSITION]，因為此地段資源不足容納此物件。
+	<notification name="CMOParcelResources">
+		無法在[R]區域將&apos;[O]&apos;物件移到[P]，因為此地段裡這一物件的資源不足。
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		複製失敗，因爲你無權出入該地段。
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
- [REGION_NAME] 地區的 [OBJ_POSITION]，因為該地區所執行的軟體版本過舊，不支援跨地區接受這個物件。
+	<notification name="CMORegionVersion">
+		無法在[R]區域將&apos;[O]&apos;物件移到[P]，因為該地區所執行的軟體版本過舊，不支援跨地區接受這個物件。
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
-地區 [REGION_NAME] 的 [OBJ_POSITION]，因為你不得修改跨越地區界限的導航網面。
+	<notification name="CMONavMesh">
+		無法在[R]區域將&apos;[O]&apos;物件移到[P]，因為你不得修改位在不同區域範圍的導航網面。
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
-地區 [REGION_NAME] 的 [OBJ_POSITION]，原因不明。 （[FAILURE_TYPE]）
+	<notification name="CMOWTF">
+		無法在[R]區域將&apos;[O]&apos;物件移到[P]，問題原因不明。 ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		你無權變更該物件

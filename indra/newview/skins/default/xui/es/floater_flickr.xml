@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_flickr" title="SUBIR A FLICKR">
+<floater name="floater_flickr" title="COMPARTIR EN FLICKR">
 	<panel name="background">
 		<tab_container name="tabs">
 			<panel label="FOTO" name="panel_flickr_photo"/>

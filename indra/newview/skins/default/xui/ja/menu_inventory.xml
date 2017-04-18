@@ -42,6 +42,12 @@
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい眼" name="New Eyes"/>
 	</menu>
+	<menu label="次のデフォルトとして使用" name="upload_def">
+		<menu_item_call label="画像のアップロード" name="Image uploads"/>
+		<menu_item_call label="サウンドのアップロード" name="Sound uploads"/>
+		<menu_item_call label="アニメーションのアップロード" name="Animation uploads"/>
+		<menu_item_call label="モデルのアップロード" name="Model uploads"/>
+	</menu>
 	<menu label="種類を変更" name="Change Type">
 		<menu_item_call label="デフォルト" name="Default"/>
 		<menu_item_call label="手袋" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="着用中のアウトフィットを入れ替える" name="Replace Outfit"/>
 	<menu_item_call label="着用中のアウトフィットに追加する" name="Add To Outfit"/>
 	<menu_item_call label="着用中のアウトフィットから取り除く" name="Remove From Outfit"/>
+	<menu_item_call label="アウトフィットのリストをクリップボードにコピー" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="オリジナルを探す" name="Find Original"/>
 	<menu_item_call label="アイテムを除外する" name="Purge Item"/>
 	<menu_item_call label="アイテムを復元する" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="貼り付け" name="Paste"/>
 	<menu_item_call label="リンクを貼り付ける" name="Paste As Link"/>
-	<menu_item_call label="削除" name="Remove Link"/>
 	<menu_item_call label="削除" name="Delete"/>
 	<menu_item_call label="システムフォルダを削除する" name="Delete System Folder"/>
 	<menu_item_call label="コンファレンスチャットを開始する" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="編集" name="Wearable Edit"/>
 	<menu_item_call label="追加" name="Wearable Add"/>
 	<menu_item_call label="取り外す" name="Take Off"/>
-	<menu_item_call label="マーチャントのアウトボックスにコピー" name="Merchant Copy"/>
 	<menu_item_call label="マーケットプレイスのリストにコピー" name="Marketplace Copy"/>
 	<menu_item_call label="マーケットプレイスのリストに移動" name="Marketplace Move"/>
 	<menu_item_call label="－－オプションなし－－" name="--no options--"/>

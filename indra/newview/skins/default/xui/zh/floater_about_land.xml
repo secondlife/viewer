@@ -446,7 +446,7 @@
 			<spinner label="出入時間：" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="永遠允許" name="AllowedText">
-					允許的居民 ([COUNT])
+					允許的居民（[COUNT]，最多[MAX]）
 				</text>
 				<name_list name="AccessList" tool_tip="（已列入 [LISTED]，最多可列 [MAX]）"/>
 				<button label="添加" name="add_allowed"/>
@@ -454,7 +454,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="禁止" name="BanCheck">
-					被封鎖的居民 ([COUNT])
+					封鎖的居民（[COUNT]，最多[MAX]）
 				</text>
 				<name_list name="BannedList" tool_tip="（已列入 [LISTED]，最多可列 [MAX]）"/>
 				<button label="添加" name="add_banned"/>
