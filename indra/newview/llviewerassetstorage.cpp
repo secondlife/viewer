@@ -392,7 +392,14 @@ void LLViewerAssetStorage::queueRequestHttp(
 void LLViewerAssetStorage::capsRecvForRegion(const LLUUID& region_id, std::string pumpname)
 {
     LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(region_id);
-    mViewerAssetUrl = regionp->getViewerAssetUrl();
+    if (!regionp)
+    {
+        LL_WARNS() << "region not found for region_id " << region_id << LL_ENDL;
+    }
+    else
+    {
+        mViewerAssetUrl = regionp->getViewerAssetUrl();
+    }
 
     LLEventPumps::instance().obtain(pumpname).post(LLSD());
 }
@@ -417,14 +424,18 @@ void LLViewerAssetStorage::assetRequestCoro(
     }
     else if (!gAgent.getRegion()->capabilitiesReceived())
     {
+        LL_WARNS_ONCE() << "Waiting for capabilities" << LL_ENDL;
+
         LLEventStream capsRecv("waitForCaps", true);
 
         gAgent.getRegion()->setCapabilitiesReceivedCallback(
             boost::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
         
         llcoro::suspendUntilEventOn(capsRecv);
+        LL_WARNS_ONCE() << "capsRecv got event" << LL_ENDL;
+        LL_WARNS_ONCE() << "region " << gAgent.getRegion() << " mViewerAssetUrl " << mViewerAssetUrl << LL_ENDL;
     }
-    if (mViewerAssetUrl.empty())
+    if (mViewerAssetUrl.empty() && gAgent.getRegion())
     {
         mViewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
     }
