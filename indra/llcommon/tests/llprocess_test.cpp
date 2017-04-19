@@ -789,6 +789,69 @@ namespace tut
     template<> template<>
     void object::test<10>()
     {
+        set_test_name("attached=false");
+        // almost just like autokill=false, except set autokill=true with
+        // attached=false.
+        NamedTempFile from("from", "not started");
+        NamedTempFile to("to", "");
+        LLProcess::handle phandle(0);
+        {
+            PythonProcessLauncher py(get_test_name(),
+                                     "from __future__ import with_statement\n"
+                                     "import sys, time\n"
+                                     "with open(sys.argv[1], 'w') as f:\n"
+                                     "    f.write('ok')\n"
+                                     "# wait for 'go' from test program\n"
+                                     "for i in xrange(60):\n"
+                                     "    time.sleep(1)\n"
+                                     "    with open(sys.argv[2]) as f:\n"
+                                     "        go = f.read()\n"
+                                     "    if go == 'go':\n"
+                                     "        break\n"
+                                     "else:\n"
+                                     "    with open(sys.argv[1], 'w') as f:\n"
+                                     "        f.write('never saw go')\n"
+                                     "    sys.exit(1)\n"
+                                     "# okay, saw 'go', write 'ack'\n"
+                                     "with open(sys.argv[1], 'w') as f:\n"
+                                     "    f.write('ack')\n");
+            py.mParams.args.add(from.getName());
+            py.mParams.args.add(to.getName());
+            py.mParams.autokill = true;
+            py.mParams.attached = false;
+            py.launch();
+            // Capture handle for later
+            phandle = py.mPy->getProcessHandle();
+            // Wait for the script to wake up and do its first write
+            int i = 0, timeout = 60;
+            for ( ; i < timeout; ++i)
+            {
+                yield();
+                if (readfile(from.getName(), "from autokill script") == "ok")
+                    break;
+            }
+            // If we broke this loop because of the counter, something's wrong
+            ensure("script never started", i < timeout);
+            // Now destroy the LLProcess, which should NOT kill the child!
+        }
+        // If the destructor killed the child anyway, give it time to die
+        yield(2);
+        // How do we know it's not terminated? By making it respond to
+        // a specific stimulus in a specific way.
+        {
+            std::ofstream outf(to.getName().c_str());
+            outf << "go";
+        } // flush and close.
+        // now wait for the script to terminate... one way or another.
+        waitfor(phandle, "autokill script");
+        // If the LLProcess destructor implicitly called kill(), the
+        // script could not have written 'ack' as we expect.
+        ensure_equals(get_test_name() + " script output", readfile(from.getName()), "ack");
+    }
+
+    template<> template<>
+    void object::test<11>()
+    {
         set_test_name("'bogus' test");
         CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
@@ -801,7 +864,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<11>()
+    void object::test<12>()
     {
         set_test_name("'file' test");
         // Replace this test with one or more real 'file' tests when we
@@ -815,7 +878,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<12>()
+    void object::test<13>()
     {
         set_test_name("'tpipe' test");
         // Replace this test with one or more real 'tpipe' tests when we
@@ -832,7 +895,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<13>()
+    void object::test<14>()
     {
         set_test_name("'npipe' test");
         // Replace this test with one or more real 'npipe' tests when we
@@ -850,7 +913,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<14>()
+    void object::test<15>()
     {
         set_test_name("internal pipe name warning");
         CaptureLog recorder;
@@ -914,7 +977,7 @@ namespace tut
     } while (0)
 
     template<> template<>
-    void object::test<15>()
+    void object::test<16>()
     {
         set_test_name("get*Pipe() validation");
         PythonProcessLauncher py(get_test_name(),
@@ -934,7 +997,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<16>()
+    void object::test<17>()
     {
         set_test_name("talk to stdin/stdout");
         PythonProcessLauncher py(get_test_name(),
@@ -992,7 +1055,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<17>()
+    void object::test<18>()
     {
         set_test_name("listen for ReadPipe events");
         PythonProcessLauncher py(get_test_name(),
@@ -1052,7 +1115,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<18>()
+    void object::test<19>()
     {
         set_test_name("ReadPipe \"eof\" event");
         PythonProcessLauncher py(get_test_name(),
@@ -1078,7 +1141,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<19>()
+    void object::test<20>()
     {
         set_test_name("setLimit()");
         PythonProcessLauncher py(get_test_name(),
@@ -1107,7 +1170,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<20>()
+    void object::test<21>()
     {
         set_test_name("peek() ReadPipe data");
         PythonProcessLauncher py(get_test_name(),
@@ -1160,7 +1223,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<21>()
+    void object::test<22>()
     {
         set_test_name("bad postend");
         std::string pumpname("postend");
@@ -1185,7 +1248,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<22>()
+    void object::test<23>()
     {
         set_test_name("good postend");
         PythonProcessLauncher py(get_test_name(),
@@ -1241,7 +1304,7 @@ namespace tut
     };
 
     template<> template<>
-    void object::test<23>()
+    void object::test<24>()
     {
         set_test_name("all data visible at postend");
         PythonProcessLauncher py(get_test_name(),
