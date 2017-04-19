@@ -210,7 +210,6 @@ void MediaPluginCEF::onRequestExitCallback()
 	sendMessage(message);
 
 	mDeleteMe = true;
-	//mCEFLib->shutdown();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

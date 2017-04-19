@@ -1745,6 +1745,7 @@ if (WINDOWS)
       SLPlugin
       media_plugin_cef
       media_plugin_libvlc
+      media_plugin_example
       winmm_shim
       windows-crash-logger
       )
