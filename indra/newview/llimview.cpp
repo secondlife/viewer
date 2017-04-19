@@ -646,6 +646,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 	std::string you_joined_call = LLTrans::getString("you_joined_call");
 	std::string you_started_call = LLTrans::getString("you_started_call");
 	std::string other_avatar_name = "";
+	LLAvatarName av_name;
 
 	std::string message;
 
@@ -655,7 +656,8 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 		// no text notifications
 		break;
 	case P2P_SESSION:
-		gCacheName->getFullName(mOtherParticipantID, other_avatar_name); // voice
+		LLAvatarNameCache::get(mOtherParticipantID, &av_name);
+		other_avatar_name = av_name.getUserName();
 
 		if(direction == LLVoiceChannel::INCOMING_CALL)
 		{
@@ -806,7 +808,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		{
 			// convert it to a legacy name if we have a complete name
 			std::string legacy_name = gCacheName->buildLegacyName(from);
- 			gCacheName->getUUID(legacy_name, from_id);
+			from_id = LLAvatarNameCache::findIdByName(legacy_name);
 		}
 
 		std::string timestamp = msg[LL_IM_TIME];
@@ -2765,10 +2767,10 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		else
 		{
-			std::string session_name;
+			LLAvatarName av_name;
 			// since we select user to share item with - his name is already in cache
-			gCacheName->getFullName(args["user_id"], session_name);
-			session_name = LLCacheName::buildUsername(session_name);
+			LLAvatarNameCache::get(args["user_id"], &av_name);
+			std::string session_name = LLCacheName::buildUsername(av_name.getUserName());
 			LLIMModel::instance().logToFile(session_name, SYSTEM_FROM, LLUUID::null, message.getString());
 		}
 	}
@@ -3075,8 +3077,8 @@ void LLIMMgr::inviteToSession(
 	{
 		if (caller_name.empty())
 		{
-			gCacheName->get(caller_id, false,  // voice
-				boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2, _3));
+			LLAvatarNameCache::get(caller_id, 
+				boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2));
 		}
 		else
 		{
@@ -3095,9 +3097,9 @@ void LLIMMgr::inviteToSession(
 	}
 }
 
-void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group)
+void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& av_name)
 {
-	payload["caller_name"] = name;
+	payload["caller_name"] = av_name.getUserName();
 	payload["session_name"] = payload["caller_name"].asString();
 
 	std::string notify_box_type = payload["notify_box_type"].asString();

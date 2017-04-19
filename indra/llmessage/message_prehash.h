@@ -618,6 +618,7 @@ extern char const* const _PREHASH_GroupAccountSummaryRequest;
 extern char const* const _PREHASH_GroupVoteHistoryRequest;
 extern char const* const _PREHASH_ParamValue;
 extern char const* const _PREHASH_MaxAgents;
+extern char const* const _PREHASH_HardMaxAgents;
 extern char const* const _PREHASH_CreateNewOutfitAttachments;
 extern char const* const _PREHASH_RegionHandle;
 extern char const* const _PREHASH_TeleportProgress;

@@ -432,17 +432,15 @@
         top_pad="6"
         name="inventory_offer"
         width="150" />
-
+    <view_border
+        bevel_style="none"
+        height="0"
+        layout="topleft"
+        left="0"
+        name="cost_text_border"
+        top_pad="7"
+        width="492"/>
   </panel>
-
-  <view_border
-      bevel_style="none"
-      height="0"
-      layout="topleft"
-      left="13"
-      name="cost_text_border"
-      top_pad="5"
-      width="495"/>
 
   <panel
       height="50"

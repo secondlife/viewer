@@ -624,6 +624,9 @@ public:
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
 
+	// returns TRUE if all objects are in same region
+	BOOL selectGetSameRegion();
+
 	// returns TRUE if is all objects are non-permanent-enforced
 	BOOL selectGetRootsNonPermanentEnforced();
 	BOOL selectGetNonPermanentEnforced();

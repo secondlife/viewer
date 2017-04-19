@@ -357,6 +357,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	std::string sim_type = LLTrans::getString("land_type_unknown");
 	U64 region_flags;
 	U8 agent_limit;
+	S32 hard_agent_limit;
 	F32 object_bonus_factor;
 	U8 sim_access;
 	F32 water_height;
@@ -366,6 +367,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	F32 sun_hour;
 	msg->getString("RegionInfo", "SimName", sim_name);
 	msg->getU8("RegionInfo", "MaxAgents", agent_limit);
+	msg->getS32("RegionInfo2", "HardMaxAgents", hard_agent_limit);
 	msg->getF32("RegionInfo", "ObjectBonusFactor", object_bonus_factor);
 	msg->getU8("RegionInfo", "SimAccess", sim_access);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_WaterHeight, water_height);
@@ -411,6 +413,8 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->getChild<LLUICtrl>("agent_limit_spin")->setValue(LLSD((F32)agent_limit) );
 	panel->getChild<LLUICtrl>("object_bonus_spin")->setValue(LLSD(object_bonus_factor) );
 	panel->getChild<LLUICtrl>("access_combo")->setValue(LLSD(sim_access) );
+
+	panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue(hard_agent_limit);
 
 	LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
 	if (panel)

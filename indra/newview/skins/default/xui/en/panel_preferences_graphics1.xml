@@ -231,41 +231,6 @@
      m
   </text>
 
-  <slider
-    control_name="IndirectMaxComplexity"
-    tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"
-    follows="left|top"
-    height="16"
-    initial_value="101"
-    increment="1"
-    label="Avatar Maximum Complexity:"
-    label_width="165"
-    layout="topleft"
-    left="30"
-    min_val="1"
-    max_val="101"
-    name="IndirectMaxComplexity"
-    show_text="false"
-    top_delta="24"
-    width="300">
-    <slider.commit_callback
-      function="Pref.UpdateIndirectMaxComplexity"
-      parameter="IndirectMaxComlexityText" />
-  </slider>
-  <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="16"
-    layout="topleft"
-    top_delta="0"
-    left_delta="304"
-    text_readonly_color="LabelDisabledColor"
-    name="IndirectMaxComplexityText"
-    width="65">
-       0
-  </text>
-
   <check_box
     control_name="WindLightUseAtmosShaders"
     height="16"
@@ -293,6 +258,63 @@
     <check_box.commit_callback
       function="Pref.VertexShaderEnable" />
   </check_box>
+  
+  <slider
+    control_name="IndirectMaxComplexity"
+    tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"
+    follows="left|top"
+    height="16"
+    initial_value="101"
+    increment="1"
+    label="Avatar Maximum Complexity:"
+    label_width="165"
+    layout="topleft"
+    left="30"
+    min_val="1"
+    max_val="101"
+    name="IndirectMaxComplexity"
+    show_text="false"
+    top_delta="60"
+    width="300">
+    <slider.commit_callback
+      function="Pref.UpdateIndirectMaxComplexity"
+      parameter="IndirectMaxComlexityText" />
+  </slider>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    top_delta="0"
+    left_delta="304"
+    text_readonly_color="LabelDisabledColor"
+    name="IndirectMaxComplexityText"
+    width="65">
+       0
+  </text>
+  <check_box
+    control_name="AlwaysRenderFriends"
+    height="16"
+    initial_value="true"
+    label="Always Render Friends"
+    layout="topleft"
+    left="30"
+    name="AlwaysRenderFriends"
+    top_delta="24"
+    width="256">
+  </check_box>
+  <button
+    height="23"
+    label="Exceptions..."
+    layout="topleft"
+    left="48"
+    name="RenderExceptionsButton"
+    top_delta="24"
+    width="100">
+    <button.commit_callback
+      function="Pref.RenderExceptions"/>
+  </button>
 
 <!-- End of Basic Settings block -->
 

@@ -29,6 +29,7 @@
 #include "llspeakers.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llappviewer.h"
 #include "llimview.h"
 #include "llgroupmgr.h"
@@ -75,13 +76,13 @@ void LLSpeaker::lookupName()
 {
 	if (mDisplayName.empty())
 	{
-		gCacheName->get(mID, false, boost::bind(&LLSpeaker::onNameCache, this, _1, _2, _3));
+		LLAvatarNameCache::get(mID, boost::bind(&LLSpeaker::onNameCache, this, _1, _2)); // todo: can be group???
 	}
 }
 
-void LLSpeaker::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLSpeaker::onNameCache(const LLUUID& id, const LLAvatarName& av_name)
 {
-	mDisplayName = full_name;
+	mDisplayName = av_name.getUserName();
 }
 
 bool LLSpeaker::isInVoiceChannel()

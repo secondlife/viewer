@@ -1459,6 +1459,10 @@ void LLTextEditor::pasteHelper(bool is_primary)
 // Clean up string (replace tabs and remove characters that our fonts don't support).
 void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
 {
+	std::string clean_string_utf = wstring_to_utf8str(clean_string);
+	std::replace( clean_string_utf.begin(), clean_string_utf.end(), '\r', '\n');
+	clean_string = utf8str_to_wstring(clean_string_utf);
+
 	LLWStringUtil::replaceTabsWithSpaces(clean_string, SPACES_PER_TAB);
 	if( mAllowEmbeddedItems )
 	{

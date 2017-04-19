@@ -9,6 +9,7 @@
     <menu_item_call
      label="New Inventory Window"
      layout="topleft"
+     shortcut="control|shift|I"
      name="new_window">
         <on_click
          function="Inventory.GearDefault.Custom.Action"

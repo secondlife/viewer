@@ -36,6 +36,7 @@
 #include "llagentdata.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
+#include "llavatarnamecache.h"
 #include "llfloatertools.h" // for gFloaterTool
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -306,32 +307,36 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 //////////////////////////////////////////////////////////////////////////
 
 //static
-void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im_session_id)
+void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im_session_id, const std::string& item_name, bool is_folder)
 {
 	// compute id of possible IM session with agent that has "to_agent" id
 	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, to_agent);
 	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
 	LLSD args;
 	args["user_id"] = to_agent;
+	args["ITEM_NAME"] = item_name;
+	std::string message_name = is_folder ? "inventory_folder_offered" : "inventory_item_offered";
 	if (im_session_id.notNull())
 	{
-		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
+		gIMMgr->addSystemMessage(im_session_id, message_name, args);
 	}
 	// If this item was given by drag-and-drop on avatar while IM panel was open, log this action in the IM panel chat.
 	else if (LLIMModel::getInstance()->findIMSession(session_id))
 	{
-		gIMMgr->addSystemMessage(session_id, "inventory_item_offered", args);
+		gIMMgr->addSystemMessage(session_id, message_name, args);
 	}
 	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
 	else
 	{
-		std::string full_name;
-		if (gCacheName->getFullName(to_agent, full_name))
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(to_agent, &av_name))
 		{
 			// Build a new format username or firstname_lastname for legacy names
 			// to use it for a history log filename.
-			full_name = LLCacheName::buildUsername(full_name);
-			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, LLTrans::getString("inventory_item_offered-im"));
+			std::string full_name = LLCacheName::buildUsername(av_name.getUserName());
+			LLUIString message = LLTrans::getString(message_name + "-im");
+			message.setArgs(args);
+			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, message.getString());
 		}
 	}
 }
@@ -385,6 +390,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 {
 	if (!item) return;
 	std::string name;
+	std::string item_name = item->getName();
 	LLAgentUI::buildFullname(name);
 	LLUUID transaction_id;
 	transaction_id.generate();
@@ -399,7 +405,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 		gAgentSessionID,
 		to_agent,
 		name,
-		item->getName(),
+		item_name,
 		IM_ONLINE,
 		IM_INVENTORY_OFFERED,
 		transaction_id,
@@ -421,7 +427,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 
 	LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-	logInventoryOffer(to_agent, im_session_id);
+	logInventoryOffer(to_agent, im_session_id, item_name);
 
 	// add buddy to recent people list
 	LLRecentPeople::instance().add(to_agent);
@@ -501,7 +507,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		giveable);
-
+	std::string cat_name = cat->getName();
 	bool give_successful = true;
 	// MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
 	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
@@ -556,7 +562,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 			gAgent.getSessionID(),
 			to_agent,
 			name,
-			cat->getName(),
+			cat_name,
 			IM_ONLINE,
 			IM_INVENTORY_OFFERED,
 			transaction_id,
@@ -579,7 +585,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 
 		LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-		logInventoryOffer(to_agent, im_session_id);
+		logInventoryOffer(to_agent, im_session_id, cat_name, true);
 	}
 
 	return give_successful;

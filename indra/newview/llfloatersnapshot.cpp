@@ -653,10 +653,6 @@ void LLFloaterSnapshot::Impl::setFinished(bool finished, bool ok, const std::str
 		LLUICtrl* finished_lbl = mFloater->getChild<LLUICtrl>(ok ? "succeeded_lbl" : "failed_lbl");
 		std::string result_text = mFloater->getString(msg + "_" + (ok ? "succeeded_str" : "failed_str"));
 		finished_lbl->setValue(result_text);
-
-		LLSideTrayPanelContainer* panel_container = mFloater->getChild<LLSideTrayPanelContainer>("panel_container");
-		panel_container->openPreviousPanel();
-		panel_container->getCurrentPanel()->onOpen(LLSD());
 	}
 }
 

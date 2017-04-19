@@ -2099,9 +2099,10 @@ void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
 void LLFloaterIMContainer::toggleMute(const LLUUID& participant_id, U32 flags)
 {
         BOOL is_muted = LLMuteList::getInstance()->isMuted(participant_id, flags);
-        std::string name;
-        gCacheName->getFullName(participant_id, name);
-        LLMute mute(participant_id, name, LLMute::AGENT);
+
+        LLAvatarName av_name;
+        LLAvatarNameCache::get(participant_id, &av_name);
+        LLMute mute(participant_id, av_name.getUserName(), LLMute::AGENT);
 
         if (!is_muted)
         {
