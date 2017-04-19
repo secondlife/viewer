@@ -33,6 +33,7 @@
 
 // library includes
 #include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llgl.h"
@@ -610,6 +611,12 @@ bool LLSelectMgr::linkObjects()
 		// the most likely to be stumped by this one, so offer the
 		// easiest and most likely solution.
 		LLNotificationsUtil::add("CannotLinkDifferentOwners");
+		return true;
+	}
+
+	if (!LLSelectMgr::getInstance()->selectGetSameRegion())
+	{
+		LLNotificationsUtil::add("CannotLinkAcrossRegions");
 		return true;
 	}
 
@@ -2777,6 +2784,35 @@ BOOL LLSelectMgr::selectGetRootsModify()
 	return TRUE;
 }
 
+//-----------------------------------------------------------------------------
+// selectGetSameRegion() - return TRUE if all objects are in same region
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetSameRegion()
+{
+    if (getSelection()->isEmpty())
+    {
+        return TRUE;
+    }
+    LLViewerObject* object = getSelection()->getFirstObject();
+    if (!object)
+    {
+        return FALSE;
+    }
+    LLViewerRegion* current_region = object->getRegion();
+
+    for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+        iter != getSelection()->root_end(); iter++)
+    {
+        LLSelectNode* node = *iter;
+        object = node->getObject();
+        if (!node->mValid || !object || current_region != object->getRegion())
+        {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
 
 //-----------------------------------------------------------------------------
 // selectGetNonPermanentEnforced() - return TRUE if all objects are not
@@ -5385,9 +5421,9 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 		LLFloaterReporter *reporterp = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
 		if (reporterp)
 		{
-			std::string fullname;
-			gCacheName->getFullName(owner_id, fullname);
-			reporterp->setPickedObjectProperties(name, fullname, owner_id);
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(owner_id, &av_name);
+			reporterp->setPickedObjectProperties(name, av_name.getUserName(), owner_id);
 		}
 	}
 	else if (request_flags & OBJECT_PAY_REQUEST)
@@ -6618,7 +6654,7 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
+		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid() && object->getParent() != NULL)
 		{
 			mPauseRequest = gAgentAvatarp->requestPause();
 		}

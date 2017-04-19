@@ -62,15 +62,6 @@
     <menu_item_call.on_enable
      function="Edit.EnableDelete" />
   </menu_item_call>
-  <menu_item_call
-   label="Duplicate"
-   name="Duplicate"
-   shortcut="control|D">
-    <menu_item_call.on_click
-     function="Edit.Duplicate" />
-    <menu_item_call.on_enable
-     function="Edit.EnableDuplicate" />
-  </menu_item_call>
   <menu_item_separator/>
   <menu_item_call
    label="Select All"

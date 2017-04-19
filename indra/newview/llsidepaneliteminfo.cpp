@@ -46,6 +46,7 @@
 #include "llviewerobjectlist.h"
 #include "llexperiencecache.h"
 #include "lltrans.h"
+#include "llviewerregion.h"
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -327,9 +328,13 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
         LLTextBox* tb = getChild<LLTextBox>("LabelItemExperience");
         tb->setText(getString("loading_experience"));
         tb->setVisible(TRUE);
-
-        LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), 
-            boost::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
+        std::string url = std::string();
+        if(object && object->getRegion())
+        {
+            url = object->getRegion()->getCapability("GetMetadata");
+        }
+        LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), url,
+                boost::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
     }
     
 	//////////////////////

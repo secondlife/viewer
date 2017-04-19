@@ -78,7 +78,9 @@ private:
 	 * logs "Inventory item offered" to IM
 	 */
 	static void logInventoryOffer(const LLUUID& to_agent,
-									const LLUUID &im_session_id = LLUUID::null);
+									const LLUUID &im_session_id = LLUUID::null,
+									const std::string& item_name = std::string(),
+									bool is_folder = false);
 
 	static void commitGiveInventoryItem(const LLUUID& to_agent,
 									const LLInventoryItem* item,

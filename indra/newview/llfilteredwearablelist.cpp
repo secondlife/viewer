@@ -37,6 +37,7 @@
 LLFilteredWearableListManager::LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector)
 : mWearableList(list)
 , mCollector(collector)
+, mListStale(true)
 {
 	llassert(mWearableList);
 	gInventory.addObserver(this);
@@ -64,7 +65,16 @@ void LLFilteredWearableListManager::changed(U32 mask)
 		return;
 	}
 
-	populateList();
+	if (mWearableList->isInVisibleChain() || mWearableList->getForceRefresh())
+	{
+		// Todo: current populateList() is time consuming and changed() is time-sensitive,
+		// either move from here or optimize
+		populateList();
+	}
+	else
+	{
+		mListStale = true;
+	}
 }
 
 void LLFilteredWearableListManager::setFilterCollector(LLInventoryCollectFunctor* collector)
@@ -73,13 +83,31 @@ void LLFilteredWearableListManager::setFilterCollector(LLInventoryCollectFunctor
 	populateList();
 }
 
+void LLFilteredWearableListManager::populateIfNeeded()
+{
+	if (mListStale)
+	{
+		populateList();
+	}
+}
+
+LLTrace::BlockTimerStatHandle FTM_MANAGER_LIST_POPULATION("Manager List Population");
+
 void LLFilteredWearableListManager::populateList()
 {
+	LL_RECORD_BLOCK_TIME(FTM_MANAGER_LIST_POPULATION);
+
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 
 	if(mCollector)
 	{
+		// Too slow with large inventory!
+		// Consider refactoring into "request once, append ids on changed()", since
+		// Inventory observer provides ids of changed items this should be possible,
+		// but will likely require modifying LLInventoryItemsList to avoid code-repeats.
+		// Or make something like "gather everything and filter manually on idle"
+		mListStale = false;
 		gInventory.collectDescendentsIf(
 				gInventory.getRootFolderID(),
 				cat_array,

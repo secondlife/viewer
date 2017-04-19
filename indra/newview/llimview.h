@@ -473,7 +473,7 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& name);
 
 	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg);
     //Triggers when a session has already been added

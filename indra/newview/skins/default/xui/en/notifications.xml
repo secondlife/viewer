@@ -341,8 +341,7 @@ Initialization with the Marketplace failed because of a system or network error.
         type="alertmodal">
         The transaction with the Marketplace failed with the following error :
         
-        Reason : &apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
         
         <usetemplate
         name="okbutton"
@@ -1935,6 +1934,14 @@ Please make sure none are locked, and that you own all of them.
    name="CannotLinkPermanent"
    type="alertmodal">
     Objects cannot be linked across region boundaries.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotLinkAcrossRegions"
+   type="alertmodal">
+Objects cannot be linked across region boundaries.
     <tag>fail</tag>
   </notification>
 
@@ -4326,7 +4333,6 @@ Cannot offer friendship at this time. Please try again in a moment.
 Do Not Disturb is on.  You will not be notified of incoming communications.
 
 - Other residents will receive your Do Not Disturb response (set in Preferences &gt; General).
-- Teleportation offers will be declined.
 - Voice calls will be rejected.
     <usetemplate
      ignoretext="I change my status to Do Not Disturb mode"

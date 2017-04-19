@@ -1584,12 +1584,12 @@ static void show_object_sharing_confirmation(const std::string name,
 }
 
 static void get_name_cb(const LLUUID& id,
-						const std::string& full_name,
+						const LLAvatarName& av_name,
 						LLInventoryObject* inv_obj,
 						const LLSD& dest,
 						const LLUUID& dest_agent)
 {
-	show_object_sharing_confirmation(full_name,
+	show_object_sharing_confirmation(av_name.getUserName(),
 								     inv_obj,
 								     dest,
 						  		     id,
@@ -1634,17 +1634,17 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 				// If no IM session found get the destination agent's name by id.
 				if (NULL == session)
 				{
-					std::string fullname;
+					LLAvatarName av_name;
 
 					// If destination agent's name is found in cash proceed to showing the confirmation dialog.
 					// Otherwise set up a callback to show the dialog when the name arrives.
-					if (gCacheName->getFullName(dest_agent, fullname))
+					if (LLAvatarNameCache::get(dest_agent, &av_name))
 					{
-						show_object_sharing_confirmation(fullname, inv_obj, dest, dest_agent, LLUUID::null);
+						show_object_sharing_confirmation(av_name.getUserName(), inv_obj, dest, dest_agent, LLUUID::null);
 					}
 					else
 					{
-						gCacheName->get(dest_agent, false, boost::bind(&get_name_cb, _1, _2, inv_obj, dest, dest_agent));
+						LLAvatarNameCache::get(dest_agent, boost::bind(&get_name_cb, _1, _2, inv_obj, dest, dest_agent));
 					}
 
 					return true;

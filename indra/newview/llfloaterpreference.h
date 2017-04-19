@@ -171,6 +171,7 @@ public:
 	void onClickPermsDefault();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
+	void onClickRenderExceptions();
 	void onClickAdvanced();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);

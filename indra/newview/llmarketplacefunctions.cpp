@@ -121,7 +121,6 @@ namespace {
         {
             // Prompt the user with the warning (so they know why things are failing)
             LLSD subs;
-            subs["[ERROR_REASON]"] = reason;
             // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
             std::string description;
             if (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT))
@@ -144,6 +143,16 @@ namespace {
             else
             {
                 description = result.asString();
+            }
+            std::string reason_lc = reason;
+            LLStringUtil::toLower(reason_lc);
+            if (!description.empty() && reason_lc.find("unknown") != std::string::npos)
+            {
+                subs["[ERROR_REASON]"] = "";
+            }
+            else
+            {
+                subs["[ERROR_REASON]"] = "'" + reason +"'\n";
             }
             subs["[ERROR_DESCRIPTION]"] = description;
             LLNotificationsUtil::add("MerchantTransactionFailed", subs);
