@@ -1,30 +1,30 @@
-/** 
- * @file llpluginprocesschild.cpp
- * @brief LLPluginProcessChild handles the child side of the external-process plugin API. 
- *
- * @cond
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- * @endcond
- */
+/**
+* @file llpluginprocesschild.cpp
+* @brief LLPluginProcessChild handles the child side of the external-process plugin API.
+*
+* @cond
+* $LicenseInfo:firstyear=2008&license=viewerlgpl$
+* Second Life Viewer Source Code
+* Copyright (C) 2010, Linden Research, Inc.
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation;
+* version 2.1 of the License only.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*
+* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* $/LicenseInfo$
+* @endcond
+*/
 
 #include "linden_common.h"
 
@@ -50,7 +50,7 @@ LLPluginProcessChild::LLPluginProcessChild()
 
 LLPluginProcessChild::~LLPluginProcessChild()
 {
-	if(mInstance != NULL)
+	if (mInstance != NULL)
 	{
 		sendMessageToPlugin(LLPluginMessage("base", "cleanup"));
 
@@ -58,7 +58,7 @@ LLPluginProcessChild::~LLPluginProcessChild()
 		// appears to fail and lock up which means that a given instance of the slplugin process never exits. 
 		// This is bad, especially when users try to update their version of SL - it fails because the slplugin 
 		// process as well as a bunch of plugin specific files are locked and cannot be overwritten.
-		exit( 0 );
+		exit(0);
 		//delete mInstance;
 		//mInstance = NULL;
 	}
@@ -81,166 +81,173 @@ void LLPluginProcessChild::idle(void)
 	bool idle_again;
 	do
 	{
-		if(APR_STATUS_IS_EOF(mSocketError))
-		{
-			// Plugin socket was closed.  This covers both normal plugin termination and host crashes.
-			setState(STATE_ERROR);
-		}
-		else if(mSocketError != APR_SUCCESS)
-		{
-			LL_INFOS("Plugin") << "message pipe is in error state (" << mSocketError << "), moving to STATE_ERROR"<< LL_ENDL;
-			setState(STATE_ERROR);
-		}	
+		if (mState < STATE_SHUTDOWNREQ)
+		{   // Once we have hit the shutdown request state checking for errors might put us in a spurious 
+			// error state... don't do that.
 
-		if((mState > STATE_INITIALIZED) && (mMessagePipe == NULL))
-		{
-			// The pipe has been closed -- we're done.
-			// TODO: This could be slightly more subtle, but I'm not sure it needs to be.
-			LL_INFOS("Plugin") << "message pipe went away, moving to STATE_ERROR"<< LL_ENDL;
-			setState(STATE_ERROR);
+			if (APR_STATUS_IS_EOF(mSocketError))
+			{
+				// Plugin socket was closed.  This covers both normal plugin termination and host crashes.
+				setState(STATE_ERROR);
+			}
+			else if (mSocketError != APR_SUCCESS)
+			{
+				LL_INFOS("Plugin") << "message pipe is in error state (" << mSocketError << "), moving to STATE_ERROR" << LL_ENDL;
+				setState(STATE_ERROR);
+			}
+
+			if ((mState > STATE_INITIALIZED) && (mMessagePipe == NULL))
+			{
+				// The pipe has been closed -- we're done.
+				// TODO: This could be slightly more subtle, but I'm not sure it needs to be.
+				LL_INFOS("Plugin") << "message pipe went away, moving to STATE_ERROR" << LL_ENDL;
+				setState(STATE_ERROR);
+			}
 		}
-	
+
 		// If a state needs to go directly to another state (as a performance enhancement), it can set idle_again to true after calling setState().
 		// USE THIS CAREFULLY, since it can starve other code.  Specifically make sure there's no way to get into a closed cycle and never return.
 		// When in doubt, don't do it.
 		idle_again = false;
-		
-		if(mInstance != NULL)
+
+		if (mInstance != NULL)
 		{
 			// Provide some time to the plugin
 			mInstance->idle();
 		}
-		
-		switch(mState)
+
+		switch (mState)
 		{
-			case STATE_UNINITIALIZED:
+		case STATE_UNINITIALIZED:
 			break;
 
-			case STATE_INITIALIZED:
-				if(mSocket->blockingConnect(mLauncherHost))
+		case STATE_INITIALIZED:
+			if (mSocket->blockingConnect(mLauncherHost))
+			{
+				// This automatically sets mMessagePipe
+				new LLPluginMessagePipe(this, mSocket);
+
+				setState(STATE_CONNECTED);
+			}
+			else
+			{
+				// connect failed
+				setState(STATE_ERROR);
+			}
+			break;
+
+		case STATE_CONNECTED:
+			sendMessageToParent(LLPluginMessage(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "hello"));
+			setState(STATE_PLUGIN_LOADING);
+			break;
+
+		case STATE_PLUGIN_LOADING:
+			if (!mPluginFile.empty())
+			{
+				mInstance = new LLPluginInstance(this);
+				if (mInstance->load(mPluginDir, mPluginFile) == 0)
 				{
-					// This automatically sets mMessagePipe
-					new LLPluginMessagePipe(this, mSocket);
-					
-					setState(STATE_CONNECTED);
+					mHeartbeat.start();
+					mHeartbeat.setTimerExpirySec(HEARTBEAT_SECONDS);
+					mCPUElapsed = 0.0f;
+					setState(STATE_PLUGIN_LOADED);
 				}
 				else
 				{
-					// connect failed
 					setState(STATE_ERROR);
 				}
+			}
 			break;
-			
-			case STATE_CONNECTED:
-				sendMessageToParent(LLPluginMessage(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "hello"));
-				setState(STATE_PLUGIN_LOADING);
-			break;
-						
-			case STATE_PLUGIN_LOADING:
-				if(!mPluginFile.empty())
-				{
-					mInstance = new LLPluginInstance(this);
-					if(mInstance->load(mPluginDir, mPluginFile) == 0)
-					{
-						mHeartbeat.start();
-						mHeartbeat.setTimerExpirySec(HEARTBEAT_SECONDS);
-						mCPUElapsed = 0.0f;
-						setState(STATE_PLUGIN_LOADED);
-					}
-					else
-					{
-						setState(STATE_ERROR);
-					}
-				}
-			break;
-			
-			case STATE_PLUGIN_LOADED:
-				{
-					setState(STATE_PLUGIN_INITIALIZING);
-					LLPluginMessage message("base", "init");
-					sendMessageToPlugin(message);
-				}
-			break;
-			
-			case STATE_PLUGIN_INITIALIZING:
-				// waiting for init_response...
-			break;
-			
-			case STATE_RUNNING:
-				if(mInstance != NULL)
-				{
-					// Provide some time to the plugin
-					LLPluginMessage message("base", "idle");
-					message.setValueReal("time", PLUGIN_IDLE_SECONDS);
-					sendMessageToPlugin(message);
-					
-					mInstance->idle();
-					
-					if(mHeartbeat.hasExpired())
-					{
-						
-						// This just proves that we're not stuck down inside the plugin code.
-						LLPluginMessage heartbeat(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "heartbeat");
-						
-						// Calculate the approximage CPU usage fraction (floating point value between 0 and 1) used by the plugin this heartbeat cycle.
-						// Note that this will not take into account any threads or additional processes the plugin spawns, but it's a first approximation.
-						// If we could write OS-specific functions to query the actual CPU usage of this process, that would be a better approximation.
-						heartbeat.setValueReal("cpu_usage", mCPUElapsed / mHeartbeat.getElapsedTimeF64());
-						
-						sendMessageToParent(heartbeat);
 
-						mHeartbeat.reset();
-						mHeartbeat.setTimerExpirySec(HEARTBEAT_SECONDS);
-						mCPUElapsed = 0.0f;
-					}
-				}
-				// receivePluginMessage will transition to STATE_UNLOADING
-			    break;
-
-            case STATE_SHUTDOWNREQ:
-                if (mInstance != NULL)
-                {
-                    sendMessageToPlugin(LLPluginMessage("base", "cleanup"));
-                    delete mInstance;
-                    mInstance = NULL;
-                }
-                setState(STATE_UNLOADING);
-                mWaitGoodbye.setTimerExpirySec(GOODBYE_SECONDS);
-                break;
-
-			case STATE_UNLOADING:
-                // waiting for goodbye from plugin.
-                if (mWaitGoodbye.hasExpired())
-                {
-                    LL_WARNS() << "Wait for goodbye expired.  Advancing to UNLOADED" << LL_ENDL;
-                    setState(STATE_UNLOADED);
-                }
-			    break;
-			
-			case STATE_UNLOADED:
-				killSockets();
-				setState(STATE_DONE);
-			    break;
-
-			case STATE_ERROR:
-				// Close the socket to the launcher
-				killSockets();				
-				// TODO: Where do we go from here?  Just exit()?
-				setState(STATE_DONE);
-			    break;
-			
-			case STATE_DONE:
-				// just sit here.
-			    break;
+		case STATE_PLUGIN_LOADED:
+		{
+			setState(STATE_PLUGIN_INITIALIZING);
+			LLPluginMessage message("base", "init");
+			sendMessageToPlugin(message);
 		}
-	
+		break;
+
+		case STATE_PLUGIN_INITIALIZING:
+			// waiting for init_response...
+			break;
+
+		case STATE_RUNNING:
+			if (mInstance != NULL)
+			{
+				// Provide some time to the plugin
+				LLPluginMessage message("base", "idle");
+				message.setValueReal("time", PLUGIN_IDLE_SECONDS);
+				sendMessageToPlugin(message);
+
+				mInstance->idle();
+
+				if (mHeartbeat.hasExpired())
+				{
+
+					// This just proves that we're not stuck down inside the plugin code.
+					LLPluginMessage heartbeat(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "heartbeat");
+
+					// Calculate the approximage CPU usage fraction (floating point value between 0 and 1) used by the plugin this heartbeat cycle.
+					// Note that this will not take into account any threads or additional processes the plugin spawns, but it's a first approximation.
+					// If we could write OS-specific functions to query the actual CPU usage of this process, that would be a better approximation.
+					heartbeat.setValueReal("cpu_usage", mCPUElapsed / mHeartbeat.getElapsedTimeF64());
+
+					sendMessageToParent(heartbeat);
+
+					mHeartbeat.reset();
+					mHeartbeat.setTimerExpirySec(HEARTBEAT_SECONDS);
+					mCPUElapsed = 0.0f;
+				}
+			}
+			// receivePluginMessage will transition to STATE_UNLOADING
+			break;
+
+		case STATE_SHUTDOWNREQ:
+			// set next state first thing in case "cleanup" message advances state.
+			setState(STATE_UNLOADING);
+			mWaitGoodbye.setTimerExpirySec(GOODBYE_SECONDS);
+
+			if (mInstance != NULL)
+			{
+				sendMessageToPlugin(LLPluginMessage("base", "cleanup"));
+			}
+			break;
+
+		case STATE_UNLOADING:
+			// waiting for goodbye from plugin.
+			if (mWaitGoodbye.hasExpired())
+			{
+				LL_WARNS() << "Wait for goodbye expired.  Advancing to UNLOADED" << LL_ENDL;
+				setState(STATE_UNLOADED);
+			}
+			break;
+
+		case STATE_UNLOADED:
+			killSockets();
+			delete mInstance;
+			mInstance = NULL;
+			setState(STATE_DONE);
+			break;
+
+		case STATE_ERROR:
+			// Close the socket to the launcher
+			killSockets();
+			// TODO: Where do we go from here?  Just exit()?
+			setState(STATE_DONE);
+			break;
+
+		case STATE_DONE:
+			// just sit here.
+			break;
+		}
+
 	} while (idle_again);
 }
 
 void LLPluginProcessChild::sleep(F64 seconds)
 {
 	deliverQueuedMessages();
-	if(mMessagePipe)
+	if (mMessagePipe)
 	{
 		mMessagePipe->pump(seconds);
 	}
@@ -253,7 +260,7 @@ void LLPluginProcessChild::sleep(F64 seconds)
 void LLPluginProcessChild::pump(void)
 {
 	deliverQueuedMessages();
-	if(mMessagePipe)
+	if (mMessagePipe)
 	{
 		mMessagePipe->pump(0.0f);
 	}
@@ -267,26 +274,26 @@ void LLPluginProcessChild::pump(void)
 bool LLPluginProcessChild::isRunning(void)
 {
 	bool result = false;
-	
-	if(mState == STATE_RUNNING)
+
+	if (mState == STATE_RUNNING)
 		result = true;
-		
+
 	return result;
 }
 
 bool LLPluginProcessChild::isDone(void)
 {
 	bool result = false;
-	
-	switch(mState)
+
+	switch (mState)
 	{
-		case STATE_DONE:
+	case STATE_DONE:
 		result = true;
 		break;
-		default:
+	default:
 		break;
 	}
-		
+
 	return result;
 }
 
@@ -295,12 +302,12 @@ void LLPluginProcessChild::sendMessageToPlugin(const LLPluginMessage &message)
 	if (mInstance)
 	{
 		std::string buffer = message.generate();
-		
+
 		LL_DEBUGS("Plugin") << "Sending to plugin: " << buffer << LL_ENDL;
 		LLTimer elapsed;
-		
+
 		mInstance->sendMessage(buffer);
-		
+
 		mCPUElapsed += elapsed.getElapsedTimeF64();
 	}
 	else
@@ -328,11 +335,11 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 	LLPluginMessage parsed;
 	parsed.parse(message);
 
-	if(mBlockingRequest)
+	if (mBlockingRequest)
 	{
 		// We're blocking the plugin waiting for a response.
 
-		if(parsed.hasValue("blocking_response"))
+		if (parsed.hasValue("blocking_response"))
 		{
 			// This is the message we've been waiting for -- fall through and send it immediately. 
 			mBlockingResponseReceived = true;
@@ -344,34 +351,34 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 			return;
 		}
 	}
-	
+
 	bool passMessage = true;
-	
+
 	// FIXME: how should we handle queueing here?
-	
+
 	{
 		std::string message_class = parsed.getClass();
-		if(message_class == LLPLUGIN_MESSAGE_CLASS_INTERNAL)
+		if (message_class == LLPLUGIN_MESSAGE_CLASS_INTERNAL)
 		{
 			passMessage = false;
-			
+
 			std::string message_name = parsed.getName();
-			if(message_name == "load_plugin")
+			if (message_name == "load_plugin")
 			{
 				mPluginFile = parsed.getValue("file");
 				mPluginDir = parsed.getValue("dir");
 			}
-            else if (message_name == "shutdown_plugin")
-            {
-                setState(STATE_SHUTDOWNREQ);
-            }
-			else if(message_name == "shm_add")
+			else if (message_name == "shutdown_plugin")
+			{
+				setState(STATE_SHUTDOWNREQ);
+			}
+			else if (message_name == "shm_add")
 			{
 				std::string name = parsed.getValue("name");
 				size_t size = (size_t)parsed.getValueS32("size");
-				
+
 				sharedMemoryRegionsType::iterator iter = mSharedMemoryRegions.find(name);
-				if(iter != mSharedMemoryRegions.end())
+				if (iter != mSharedMemoryRegions.end())
 				{
 					// Need to remove the old region first
 					LL_WARNS("Plugin") << "Adding a duplicate shared memory segment!" << LL_ENDL;
@@ -380,20 +387,20 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 				{
 					// This is a new region
 					LLPluginSharedMemory *region = new LLPluginSharedMemory;
-					if(region->attach(name, size))
+					if (region->attach(name, size))
 					{
 						mSharedMemoryRegions.insert(sharedMemoryRegionsType::value_type(name, region));
-						
+
 						std::stringstream addr;
 						addr << region->getMappedAddress();
-						
+
 						// Send the add notification to the plugin
 						LLPluginMessage message("base", "shm_added");
 						message.setValue("name", name);
 						message.setValueS32("size", (S32)size);
 						message.setValuePointer("address", region->getMappedAddress());
 						sendMessageToPlugin(message);
-						
+
 						// and send the response to the parent
 						message.setMessage(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "shm_add_response");
 						message.setValue("name", name);
@@ -405,13 +412,13 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 						delete region;
 					}
 				}
-				
+
 			}
-			else if(message_name == "shm_remove")
+			else if (message_name == "shm_remove")
 			{
 				std::string name = parsed.getValue("name");
 				sharedMemoryRegionsType::iterator iter = mSharedMemoryRegions.find(name);
-				if(iter != mSharedMemoryRegions.end())
+				if (iter != mSharedMemoryRegions.end())
 				{
 					// forward the remove request to the plugin -- its response will trigger us to detach the segment.
 					LLPluginMessage message("base", "shm_remove");
@@ -423,20 +430,20 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 					LL_WARNS("Plugin") << "shm_remove for unknown memory segment!" << LL_ENDL;
 				}
 			}
-			else if(message_name == "sleep_time")
+			else if (message_name == "sleep_time")
 			{
 				mSleepTime = llmax(parsed.getValueReal("time"), 1.0 / 100.0); // clamp to maximum of 100Hz
 			}
-			else if(message_name == "crash")
+			else if (message_name == "crash")
 			{
 				// Crash the plugin
 				LL_ERRS("Plugin") << "Plugin crash requested." << LL_ENDL;
 			}
-			else if(message_name == "hang")
+			else if (message_name == "hang")
 			{
 				// Hang the plugin
 				LL_WARNS("Plugin") << "Plugin hang requested." << LL_ENDL;
-				while(1)
+				while (1)
 				{
 					// wheeeeeeeee......
 				}
@@ -447,8 +454,8 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 			}
 		}
 	}
-	
-	if(passMessage && mInstance != NULL)
+
+	if (passMessage && mInstance != NULL)
 	{
 		LLTimer elapsed;
 
@@ -458,50 +465,50 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 	}
 }
 
-/* virtual */ 
+/* virtual */
 void LLPluginProcessChild::receivePluginMessage(const std::string &message)
 {
 	LL_DEBUGS("Plugin") << "Received from plugin: " << message << LL_ENDL;
-	
-	if(mBlockingRequest)
+
+	if (mBlockingRequest)
 	{
 		// 
 		LL_ERRS("Plugin") << "Can't send a message while already waiting on a blocking request -- aborting!" << LL_ENDL;
 	}
-	
+
 	// Incoming message from the plugin instance
 	bool passMessage = true;
 
 	// FIXME: how should we handle queueing here?
-	
+
 	// Intercept certain base messages (responses to ones sent by this class)
 	{
 		// Decode this message
 		LLPluginMessage parsed;
 		parsed.parse(message);
-		
-		if(parsed.hasValue("blocking_request"))
+
+		if (parsed.hasValue("blocking_request"))
 		{
 			mBlockingRequest = true;
 		}
 
 		std::string message_class = parsed.getClass();
-		if(message_class == "base")
+		if (message_class == "base")
 		{
 			std::string message_name = parsed.getName();
-			if(message_name == "init_response")
+			if (message_name == "init_response")
 			{
 				// The plugin has finished initializing.
 				setState(STATE_RUNNING);
 
 				// Don't pass this message up to the parent
 				passMessage = false;
-				
+
 				LLPluginMessage new_message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "load_plugin_response");
 				LLSD versions = parsed.getValueLLSD("versions");
 				new_message.setValueLLSD("versions", versions);
-				
-				if(parsed.hasValue("plugin_version"))
+
+				if (parsed.hasValue("plugin_version"))
 				{
 					std::string plugin_version = parsed.getValue("plugin_version");
 					new_message.setValueLLSD("plugin_version", plugin_version);
@@ -510,25 +517,25 @@ void LLPluginProcessChild::receivePluginMessage(const std::string &message)
 				// Let the parent know it's loaded and initialized.
 				sendMessageToParent(new_message);
 			}
-            else if (message_name == "goodbye")
-            {
-                setState(STATE_UNLOADED);
-            }
-			else if(message_name == "shm_remove_response")
+			else if (message_name == "goodbye")
+			{
+				setState(STATE_UNLOADED);
+			}
+			else if (message_name == "shm_remove_response")
 			{
 				// Don't pass this message up to the parent
 				passMessage = false;
 
 				std::string name = parsed.getValue("name");
-				sharedMemoryRegionsType::iterator iter = mSharedMemoryRegions.find(name);				
-				if(iter != mSharedMemoryRegions.end())
+				sharedMemoryRegionsType::iterator iter = mSharedMemoryRegions.find(name);
+				if (iter != mSharedMemoryRegions.end())
 				{
 					// detach the shared memory region
 					iter->second->detach();
-					
+
 					// and remove it from our map
 					mSharedMemoryRegions.erase(iter);
-					
+
 					// Finally, send the response to the parent.
 					LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "shm_remove_response");
 					message.setValue("name", name);
@@ -541,19 +548,19 @@ void LLPluginProcessChild::receivePluginMessage(const std::string &message)
 			}
 		}
 	}
-	
-	if(passMessage)
+
+	if (passMessage)
 	{
 		LL_DEBUGS("Plugin") << "Passing through to parent: " << message << LL_ENDL;
 		writeMessageRaw(message);
 	}
-	
-	while(mBlockingRequest)
+
+	while (mBlockingRequest)
 	{
 		// The plugin wants to block and wait for a response to this message.
 		sleep(mSleepTime);	// this will pump the message pipe and process messages
 
-		if(mBlockingResponseReceived || mSocketError != APR_SUCCESS || (mMessagePipe == NULL))
+		if (mBlockingResponseReceived || mSocketError != APR_SUCCESS || (mMessagePipe == NULL))
 		{
 			// Response has been received, or we've hit an error state.  Stop waiting.
 			mBlockingRequest = false;
@@ -566,14 +573,14 @@ void LLPluginProcessChild::receivePluginMessage(const std::string &message)
 void LLPluginProcessChild::setState(EState state)
 {
 	LL_DEBUGS("Plugin") << "setting state to " << state << LL_ENDL;
-	mState = state; 
+	mState = state;
 };
 
 void LLPluginProcessChild::deliverQueuedMessages()
 {
-	if(!mBlockingRequest)
+	if (!mBlockingRequest)
 	{
-		while(!mMessageQueue.empty())
+		while (!mMessageQueue.empty())
 		{
 			receiveMessageRaw(mMessageQueue.front());
 			mMessageQueue.pop();

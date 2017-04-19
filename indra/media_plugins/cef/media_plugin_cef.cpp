@@ -96,12 +96,6 @@ private:
 	std::string mCookiePath;
 	std::string mPickedFile;
 	dullahan* mCEFLib;
-
-	U8 *mPopupBuffer;
-	U32 mPopupW;
-	U32 mPopupH;
-	U32 mPopupX;
-	U32 mPopupY;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,18 +125,13 @@ MediaPluginBase(host_send_func, host_user_data)
 	mPickedFile = "";
 	mCEFLib = new dullahan();
 
-	mPopupBuffer = NULL;
-	mPopupW = 0;
-	mPopupH = 0;
-	mPopupX = 0;
-	mPopupY = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 MediaPluginCEF::~MediaPluginCEF()
 {
-	delete[] mPopupBuffer;
+	mCEFLib->shutdown();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,10 +206,11 @@ void MediaPluginCEF::onLoadStartCallback()
 //
 void MediaPluginCEF::onRequestExitCallback()
 {
-	mCEFLib->shutdown();
-
 	LLPluginMessage message("base", "goodbye");
 	sendMessage(message);
+
+	mDeleteMe = true;
+	//mCEFLib->shutdown();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
