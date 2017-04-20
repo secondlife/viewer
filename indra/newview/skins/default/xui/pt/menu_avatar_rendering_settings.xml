@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Settings">
+	<menu_item_check label="Padrão" name="default"/>
+	<menu_item_check label="Sempre renderizar" name="always_render"/>
+	<menu_item_check label="Nunca renderizar" name="never_render"/>
+</context_menu>

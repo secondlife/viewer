@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Envios" name="uploads">
+	<text name="title">
+		Pastas de destino atuais para envios
+	</text>
+	<text name="title_models">
+		Imagens
+	</text>
+	<text name="title_sounds">
+		Sons
+	</text>
+	<text name="title_animation">
+		Animações
+	</text>
+	<text name="upload_help">
+		Para alterar a pasta de destino, clique com o botão direito nela no inventário e selecione
+&quot;Usar como padrão para&quot;
+	</text>
+</panel>

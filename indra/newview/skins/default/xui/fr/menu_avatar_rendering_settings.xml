@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Settings">
+	<menu_item_check label="Valeur par défaut" name="default"/>
+	<menu_item_check label="Toujours effectuer le rendu" name="always_render"/>
+	<menu_item_check label="Ne jamais effectuer le rendu" name="never_render"/>
+</context_menu>

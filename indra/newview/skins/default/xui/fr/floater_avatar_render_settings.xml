@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_avatar_render_settings" title="PARAMÈTRES DE RENDU DE L’AVATAR">
+	<string name="av_never_render" value="Jamais"/>
+	<string name="av_always_render" value="Toujours"/>
+	<filter_editor label="Filtrer les personnes" name="people_filter_input"/>
+	<menu_button name="plus_btn" tool_tip="Actions sur la personne sélectionnée"/>
+	<name_list name="render_settings_list">
+		<name_list.columns label="Nom" name="name"/>
+		<name_list.columns label="Paramètre de rendu" name="setting"/>
+	</name_list>
+</floater>
