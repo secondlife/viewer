@@ -34,6 +34,7 @@
 #include "llcommonutils.h"
 #include "llvfile.h"
 
+#include "llaccordionctrltab.h"
 #include "llappearancemgr.h"
 #include "lleconomy.h"
 #include "llerror.h"
@@ -46,6 +47,8 @@
 #include "llinventorymodel.h"
 #include "lllocalbitmaps.h"
 #include "llnotificationsutil.h"
+#include "llpaneloutfitsinventory.h"
+#include "lltabcontainer.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -740,6 +743,33 @@ BOOL LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
     return LLUICtrl::handleRightMouseDown(x, y, mask);
+}
+
+BOOL LLOutfitGallery::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+    LLTabContainer* appearence_tabs = LLPanelOutfitsInventory::findInstance()->getChild<LLTabContainer>("appearance_tabs");
+    LLPanel* panel = NULL;
+    LLAccordionCtrl* accordion = NULL;
+    if (appearence_tabs != NULL)
+    {
+        appearence_tabs->selectTabByName("outfitslist_tab");
+        panel = appearence_tabs->getCurrentPanel();
+        if (panel != NULL)
+        {
+            accordion = panel->getChild<LLAccordionCtrl>("outfits_accordion");
+            LLOutfitsList* outfit_list = dynamic_cast<LLOutfitsList*>(panel);
+            if (accordion != NULL && outfit_list != NULL)
+            {
+                LLUUID item_id = getSelectedOutfitUUID();
+                outfit_list->setSelectedOutfitByUUID(item_id);
+                LLAccordionCtrlTab* tab = accordion->getSelectedTab();
+                tab->showAndFocusHeader();
+                return TRUE;
+            }
+        }
+    }
+
+	return LLUICtrl::handleDoubleClick(x, y, mask);
 }
 
 void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)

@@ -114,6 +114,9 @@ public:
     void onTexturePickerUpdateImageStats(LLPointer<LLViewerTexture> texture);
     void onBeforeOutfitSnapshotSave();
     void onAfterOutfitSnapshotSave();
+
+    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
     /*virtual*/ void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid);
