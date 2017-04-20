@@ -933,7 +933,7 @@ Error processing your group membership request.
 
   <notification
    icon="alertmodal.tga"
-   name="JoinGroupError"
+   name="JoinGroupErrorReason"
    type="alertmodal">
 Unable to join group: [reason]
     <tag>group_id</tag>
