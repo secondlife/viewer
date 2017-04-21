@@ -389,3 +389,4 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func,
 
 	return 0;
 }
+
