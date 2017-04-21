@@ -77,7 +77,7 @@ private:
     // not always equal &typeid(A) in some other part. Use special comparator.
     struct type_info_ptr_comp
     {
-        bool operator()(const std::type_info* lhs, const std::type_info* rhs)
+        bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
         {
             return lhs->before(*rhs);
         }

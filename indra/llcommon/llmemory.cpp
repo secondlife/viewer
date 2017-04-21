@@ -591,7 +591,7 @@ char* LLPrivateMemoryPool::LLMemoryBlock::allocate()
 void  LLPrivateMemoryPool::LLMemoryBlock::freeMem(void* addr) 
 {
 	//bit index
-	U32 idx = ((U32)addr - (U32)mBuffer - mDummySize) / mSlotSize ;
+	uintptr_t idx = ((uintptr_t)addr - (uintptr_t)mBuffer - mDummySize) / mSlotSize ;
 
 	U32* bits = &mUsageBits ;
 	if(idx >= 32)
@@ -773,7 +773,7 @@ char* LLPrivateMemoryPool::LLMemoryChunk::allocate(U32 size)
 
 void LLPrivateMemoryPool::LLMemoryChunk::freeMem(void* addr)
 {	
-	U32 blk_idx = getPageIndex((U32)addr) ;
+	U32 blk_idx = getPageIndex((uintptr_t)addr) ;
 	LLMemoryBlock* blk = (LLMemoryBlock*)(mMetaBuffer + blk_idx * sizeof(LLMemoryBlock)) ;
 	blk = blk->mSelf ;
 
@@ -798,7 +798,7 @@ bool LLPrivateMemoryPool::LLMemoryChunk::empty()
 
 bool LLPrivateMemoryPool::LLMemoryChunk::containsAddress(const char* addr) const
 {
-	return (U32)mBuffer <= (U32)addr && (U32)mBuffer + mBufferSize > (U32)addr ;
+	return (uintptr_t)mBuffer <= (uintptr_t)addr && (uintptr_t)mBuffer + mBufferSize > (uintptr_t)addr ;
 }
 
 //debug use
@@ -831,13 +831,13 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 	for(U32 i = 1 ; i < blk_list.size(); i++)
 	{
 		total_size += blk_list[i]->getBufferSize() ;
-		if((U32)blk_list[i]->getBuffer() < (U32)blk_list[i-1]->getBuffer() + blk_list[i-1]->getBufferSize())
+		if((uintptr_t)blk_list[i]->getBuffer() < (uintptr_t)blk_list[i-1]->getBuffer() + blk_list[i-1]->getBufferSize())
 		{
 			LL_ERRS() << "buffer corrupted." << LL_ENDL ;
 		}
 	}
 
-	llassert_always(total_size + mMinBlockSize >= mBufferSize - ((U32)mDataBuffer - (U32)mBuffer)) ;
+	llassert_always(total_size + mMinBlockSize >= mBufferSize - ((uintptr_t)mDataBuffer - (uintptr_t)mBuffer)) ;
 
 	U32 blk_num = (mBufferSize - (mDataBuffer - mBuffer)) / mMinBlockSize ;
 	for(U32 i = 0 ; i < blk_num ; )
@@ -860,7 +860,7 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 #endif
 #if 0
 	LL_INFOS() << "---------------------------" << LL_ENDL ;
-	LL_INFOS() << "Chunk buffer: " << (U32)getBuffer() << " size: " << getBufferSize() << LL_ENDL ;
+	LL_INFOS() << "Chunk buffer: " << (uintptr_t)getBuffer() << " size: " << getBufferSize() << LL_ENDL ;
 
 	LL_INFOS() << "available blocks ... " << LL_ENDL ;
 	for(S32 i = 0 ; i < mBlockLevels ; i++)
@@ -868,7 +868,7 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 		LLMemoryBlock* blk = mAvailBlockList[i] ;
 		while(blk)
 		{
-			LL_INFOS() << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << LL_ENDL ;
+			LL_INFOS() << "blk buffer " << (uintptr_t)blk->getBuffer() << " size: " << blk->getBufferSize() << LL_ENDL ;
 			blk = blk->mNext ;
 		}
 	}
@@ -879,7 +879,7 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 		LLMemoryBlock* blk = mFreeSpaceList[i] ;
 		while(blk)
 		{
-			LL_INFOS() << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << LL_ENDL ;
+			LL_INFOS() << "blk buffer " << (uintptr_t)blk->getBuffer() << " size: " << blk->getBufferSize() << LL_ENDL ;
 			blk = blk->mNext ;
 		}
 	}
@@ -1155,9 +1155,9 @@ void LLPrivateMemoryPool::LLMemoryChunk::addToAvailBlockList(LLMemoryBlock* blk)
 	return ;
 }
 
-U32 LLPrivateMemoryPool::LLMemoryChunk::getPageIndex(U32 addr)
+U32 LLPrivateMemoryPool::LLMemoryChunk::getPageIndex(uintptr_t addr)
 {
-	return (addr - (U32)mDataBuffer) / mMinBlockSize ;
+	return (addr - (uintptr_t)mDataBuffer) / mMinBlockSize ;
 }
 
 //for mAvailBlockList
@@ -1495,7 +1495,7 @@ void LLPrivateMemoryPool::removeChunk(LLMemoryChunk* chunk)
 
 U16 LLPrivateMemoryPool::findHashKey(const char* addr)
 {
-	return (((U32)addr) / CHUNK_SIZE) % mHashFactor ;
+	return (((uintptr_t)addr) / CHUNK_SIZE) % mHashFactor ;
 }
 
 LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::findChunk(const char* addr)
@@ -1720,7 +1720,7 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 		S32 k = 0 ;
 		for(mem_allocation_info_t::iterator iter = sMemAllocationTracker.begin() ; iter != sMemAllocationTracker.end() ; ++iter)
 		{
-			LL_INFOS() << k++ << ", " << (U32)iter->first << " : " << iter->second << LL_ENDL ;
+			LL_INFOS() << k++ << ", " << (uintptr_t)iter->first << " : " << iter->second << LL_ENDL ;
 		}
 		sMemAllocationTracker.clear() ;
 	}

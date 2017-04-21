@@ -389,8 +389,8 @@ extern BOOL		gDisconnected;
 
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
-extern BOOL		gUseWireframe;
-extern BOOL		gInitialDeferredModeForWireframe;
+extern bool		gUseWireframe;
+extern bool		gInitialDeferredModeForWireframe;
 
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer

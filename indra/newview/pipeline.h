@@ -57,10 +57,10 @@ typedef enum e_avatar_skinning_method
 	SKIN_METHOD_VERTEX_PROGRAM
 } EAvatarSkinningMethod;
 
-BOOL compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn't be defined here!
+bool compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn't be defined here!
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
-BOOL setup_hud_matrices(); // use whole screen to render hud
-BOOL setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
+bool setup_hud_matrices(); // use whole screen to render hud
+bool setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
 glh::matrix4f glh_copy_matrix(F32* src);
 glh::matrix4f glh_get_current_modelview();
 void glh_set_current_modelview(const glh::matrix4f& mat);
@@ -133,11 +133,11 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
-	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
+	void renderBloom(bool for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
 	void cleanup();
-	BOOL isInit() { return mInitialized; };
+	bool isInit() { return mInitialized; };
 
 	/// @brief Get a draw pool from pool type (POOL_SIMPLE, POOL_MEDIA) and texture.
 	/// @return Draw pool, or NULL if not found.
@@ -171,19 +171,19 @@ public:
 	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
-	void        markMoved(LLDrawable *drawablep, BOOL damped_motion = FALSE);
+	void        markMoved(LLDrawable *drawablep, bool damped_motion = false);
 	void        markShift(LLDrawable *drawablep);
 	void        markTextured(LLDrawable *drawablep);
 	void		markGLRebuild(LLGLUpdate* glu);
-	void		markRebuild(LLSpatialGroup* group, BOOL priority = FALSE);
-	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, BOOL priority = FALSE);
+	void		markRebuild(LLSpatialGroup* group, bool priority = false);
+	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, bool priority = false);
 	void		markPartitionMove(LLDrawable* drawablep);
 	void		markMeshDirty(LLSpatialGroup* group);
 
 	//get the object between start and end that's closest to start.
 	LLViewerObject* lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
-												BOOL pick_transparent,
-												BOOL pick_rigged,
+												bool pick_transparent,
+												bool pick_rigged,
 												S32* face_hit,                          // return the face hit
 												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -197,7 +197,7 @@ public:
 
 
 	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
-											  BOOL pick_transparent,
+											  bool pick_transparent,
 											  S32* face_hit,                          // return the face hit
 											  LLVector4a* intersection = NULL,         // return the intersection point
 											  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -212,20 +212,20 @@ public:
 
 	U32         addObject(LLViewerObject *obj);
 
-	void		enableShadows(const BOOL enable_shadows);
+	void		enableShadows(const bool enable_shadows);
 
-// 	void		setLocalLighting(const BOOL local_lighting);
-// 	BOOL		isLocalLightingEnabled() const;
+// 	void		setLocalLighting(const bool local_lighting);
+// 	bool		isLocalLightingEnabled() const;
 	S32			setLightingDetail(S32 level);
 	S32			getLightingDetail() const { return mLightingDetail; }
 	S32			getMaxLightingDetail() const;
 		
-	void		setUseVertexShaders(BOOL use_shaders);
-	BOOL		getUseVertexShaders() const { return mVertexShadersEnabled; }
-	BOOL		canUseVertexShaders();
-	BOOL		canUseWindLightShaders() const;
-	BOOL		canUseWindLightShadersOnObjects() const;
-	BOOL		canUseAntiAliasing() const;
+	void		setUseVertexShaders(bool use_shaders);
+	bool		getUseVertexShaders() const { return mVertexShadersEnabled; }
+	bool		canUseVertexShaders();
+	bool		canUseWindLightShaders() const;
+	bool		canUseWindLightShadersOnObjects() const;
+	bool		canUseAntiAliasing() const;
 
 	// phases
 	void resetFrameStats();
@@ -234,9 +234,9 @@ public:
 	void updateMoveNormalAsync(LLDrawable* drawablep);
 	void updateMovedList(LLDrawable::drawable_vector_t& move_list);
 	void updateMove();
-	BOOL visibleObjectsInFrustum(LLCamera& camera);
-	BOOL getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
-	BOOL getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
+	bool visibleObjectsInFrustum(LLCamera& camera);
+	bool getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
+	bool getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
 	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
@@ -259,10 +259,10 @@ public:
 	void postSort(LLCamera& camera);
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
-	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
-	void renderMaskedObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
+	void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
+	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
 
-	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
+	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
 
 	void grabReferences(LLCullResult& result);
 	void clearReferences();
@@ -274,7 +274,7 @@ public:
 	void checkReferences(LLSpatialGroup* group);
 
 
-	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
+	void renderGeom(LLCamera& camera, bool forceVBOUpdate = false);
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(LLCamera& camera);
@@ -292,7 +292,7 @@ public:
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
 
 
-	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader, BOOL use_occlusion, U32 target_width);
+	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool use_shader, bool use_occlusion, U32 target_width);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -300,13 +300,13 @@ public:
 	void rebuildPools(); // Rebuild pools
 
 	void findReferences(LLDrawable *drawablep);	// Find the lists which have references to this object
-	BOOL verify();						// Verify that all data in the pipeline is "correct"
+	bool verify();						// Verify that all data in the pipeline is "correct"
 
 	S32  getLightCount() const { return mLights.size(); }
 
 	void calcNearbyLights(LLCamera& camera);
 	void setupHWLights(LLDrawPool* pool);
-	void setupAvatarLights(BOOL for_edit = FALSE);
+	void setupAvatarLights(bool for_edit = false);
 	void enableLights(U32 mask);
 	void enableLightsStatic();
 	void enableLightsDynamic();
@@ -318,9 +318,9 @@ public:
 
 	void shiftObjects(const LLVector3 &offset);
 
-	void setLight(LLDrawable *drawablep, BOOL is_light);
+	void setLight(LLDrawable *drawablep, bool is_light);
 	
-	BOOL hasRenderBatches(const U32 type) const;
+	bool hasRenderBatches(const U32 type) const;
 	LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
 	LLCullResult::drawinfo_iterator endRenderMap(U32 type);
 	LLCullResult::sg_iterator beginAlphaGroups();
@@ -329,15 +329,15 @@ public:
 
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
 
-	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
-	BOOL hasRenderDebugMask(const U32 mask) const			{ return (mRenderDebugMask & mask) ? TRUE : FALSE; }
+	bool hasRenderDebugFeatureMask(const U32 mask) const	{ return bool(mRenderDebugFeatureMask & mask); }
+	bool hasRenderDebugMask(const U32 mask) const			{ return bool(mRenderDebugMask & mask); }
 	void setAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0xffffffff; }
 	void clearAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0x0; }
 	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffff; }
 	void clearAllRenderDebugDisplays() { mRenderDebugMask = 0x0; }
 
-	BOOL hasRenderType(const U32 type) const;
-	BOOL hasAnyRenderType(const U32 type, ...) const;
+	bool hasRenderType(const U32 type) const;
+	bool hasAnyRenderType(const U32 type, ...) const;
 
 	void setRenderTypeMask(U32 type, ...);
 	// This is equivalent to 'setRenderTypeMask'
@@ -356,53 +356,53 @@ public:
 	static void toggleRenderType(U32 type);
 
 	// For UI control of render features
-	static BOOL hasRenderTypeControl(void* data);
-	static void toggleRenderDebug(void* data);
-	static void toggleRenderDebugFeature(void* data);
-	static void toggleRenderTypeControl(void* data);
-	static BOOL toggleRenderTypeControlNegated(void* data);
-	static BOOL toggleRenderDebugControl(void* data);
-	static BOOL toggleRenderDebugFeatureControl(void* data);
+	static bool hasRenderTypeControl(U32 data);
+	static void toggleRenderDebug(U32 data);
+	static void toggleRenderDebugFeature(U32 data);
+	static void toggleRenderTypeControl(U32 data);
+	static bool toggleRenderTypeControlNegated(S32 data);
+	static bool toggleRenderDebugControl(U32 data);
+	static bool toggleRenderDebugFeatureControl(U32 data);
 	static void setRenderDebugFeatureControl(U32 bit, bool value);
 
-	static void setRenderParticleBeacons(BOOL val);
-	static void toggleRenderParticleBeacons(void* data);
-	static BOOL getRenderParticleBeacons(void* data);
+	static void setRenderParticleBeacons(bool val);
+	static void toggleRenderParticleBeacons();
+	static bool getRenderParticleBeacons();
 
-	static void setRenderSoundBeacons(BOOL val);
-	static void toggleRenderSoundBeacons(void* data);
-	static BOOL getRenderSoundBeacons(void* data);
+	static void setRenderSoundBeacons(bool val);
+	static void toggleRenderSoundBeacons();
+	static bool getRenderSoundBeacons();
 
-	static void setRenderMOAPBeacons(BOOL val);
-	static void toggleRenderMOAPBeacons(void * data);
-	static BOOL getRenderMOAPBeacons(void * data);
+	static void setRenderMOAPBeacons(bool val);
+	static void toggleRenderMOAPBeacons();
+	static bool getRenderMOAPBeacons();
 
-	static void setRenderPhysicalBeacons(BOOL val);
-	static void toggleRenderPhysicalBeacons(void* data);
-	static BOOL getRenderPhysicalBeacons(void* data);
+	static void setRenderPhysicalBeacons(bool val);
+	static void toggleRenderPhysicalBeacons();
+	static bool getRenderPhysicalBeacons();
 
-	static void setRenderScriptedBeacons(BOOL val);
-	static void toggleRenderScriptedBeacons(void* data);
-	static BOOL getRenderScriptedBeacons(void* data);
+	static void setRenderScriptedBeacons(bool val);
+	static void toggleRenderScriptedBeacons();
+	static bool getRenderScriptedBeacons();
 
-	static void setRenderScriptedTouchBeacons(BOOL val);
-	static void toggleRenderScriptedTouchBeacons(void* data);
-	static BOOL getRenderScriptedTouchBeacons(void* data);
+	static void setRenderScriptedTouchBeacons(bool val);
+	static void toggleRenderScriptedTouchBeacons();
+	static bool getRenderScriptedTouchBeacons();
 
-	static void setRenderBeacons(BOOL val);
-	static void toggleRenderBeacons(void* data);
-	static BOOL getRenderBeacons(void* data);
+	static void setRenderBeacons(bool val);
+	static void toggleRenderBeacons();
+	static bool getRenderBeacons();
 
-	static void setRenderHighlights(BOOL val);
-	static void toggleRenderHighlights(void* data);
-	static BOOL getRenderHighlights(void* data);
+	static void setRenderHighlights(bool val);
+	static void toggleRenderHighlights();
+	static bool getRenderHighlights();
 	static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
 	static void updateRenderBump();
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
-	static void throttleNewMemoryAllocation(BOOL disable);
+	static void throttleNewMemoryAllocation(bool disable);
 
 	
 
@@ -410,7 +410,7 @@ public:
 
 	void hidePermanentObjects( std::vector<U32>& restoreList );
 	void restorePermanentObjects( const std::vector<U32>& restoreList );
-	void skipRenderingOfTerrain( BOOL flag );
+	void skipRenderingOfTerrain( bool flag );
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
 
@@ -418,7 +418,7 @@ private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
 	void removeFromQuickLookup( LLDrawPool* poolp );
-	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
+	bool updateDrawableGeom(LLDrawable* drawable, bool priority);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
 	void connectRefreshCachedSettingsSafe(const std::string name);
@@ -539,12 +539,12 @@ public:
 	
 	LLSpatialPartition* getSpatialPartition(LLViewerObject* vobj);
 
-	void updateCamera(BOOL reset = FALSE);
+	void updateCamera(bool reset = false);
 	
 	LLVector3				mFlyCamPosition;
 	LLQuaternion			mFlyCamRotation;
 
-	BOOL					 mBackfaceCull;
+	bool					 mBackfaceCull;
 	S32						 mMatrixOpCount;
 	S32						 mTextureMatrixOps;
 	S32						 mNumVisibleNodes;
@@ -557,36 +557,36 @@ public:
 
 	static S32				sCompiles;
 
-	static BOOL				sShowHUDAttachments;
-	static BOOL				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
+	static bool				sShowHUDAttachments;
+	static bool				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
-	static BOOL				sDelayVBUpdate;
-	static BOOL				sAutoMaskAlphaDeferred;
-	static BOOL				sAutoMaskAlphaNonDeferred;
-	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
-	static BOOL				sRenderBump;
-	static BOOL				sBakeSunlight;
-	static BOOL				sNoAlpha;
-	static BOOL				sUseTriStrips;
-	static BOOL				sUseFarClip;
-	static BOOL				sShadowRender;
-	static BOOL				sWaterReflections;
-	static BOOL				sDynamicLOD;
-	static BOOL				sPickAvatar;
-	static BOOL				sReflectionRender;
-	static BOOL				sImpostorRender;
-	static BOOL				sImpostorRenderAlphaDepthPass;
-	static BOOL				sUnderWaterRender;
-	static BOOL				sRenderGlow;
-	static BOOL				sTextureBindTest;
-	static BOOL				sRenderFrameTest;
-	static BOOL				sRenderAttachedLights;
-	static BOOL				sRenderAttachedParticles;
-	static BOOL				sRenderDeferred;
-	static BOOL             sMemAllocationThrottled;
+	static bool				sDelayVBUpdate;
+	static bool				sAutoMaskAlphaDeferred;
+	static bool				sAutoMaskAlphaNonDeferred;
+	static bool				sDisableShaders; // if true, rendering will be done without shaders
+	static bool				sRenderBump;
+	static bool				sBakeSunlight;
+	static bool				sNoAlpha;
+	static bool				sUseTriStrips;
+	static bool				sUseFarClip;
+	static bool				sShadowRender;
+	static bool				sWaterReflections;
+	static bool				sDynamicLOD;
+	static bool				sPickAvatar;
+	static bool				sReflectionRender;
+	static bool				sImpostorRender;
+	static bool				sImpostorRenderAlphaDepthPass;
+	static bool				sUnderWaterRender;
+	static bool				sRenderGlow;
+	static bool				sTextureBindTest;
+	static bool				sRenderFrameTest;
+	static bool				sRenderAttachedLights;
+	static bool				sRenderAttachedParticles;
+	static bool				sRenderDeferred;
+	static bool             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
-	static BOOL				sRenderingHUDs;
+	static bool				sRenderingHUDs;
 
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
@@ -659,13 +659,13 @@ public:
 	LLVector3				mSunDir;
 	LLVector3				mTransformedSunDir;
 
-	BOOL					mInitialized;
-	BOOL					mVertexShadersEnabled;
+	bool					mInitialized;
+	bool					mVertexShadersEnabled;
 	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
 
 	U32						mTransformFeedbackPrimitives; //number of primitives expected to be generated by transform feedback
 protected:
-	BOOL					mRenderTypeEnabled[NUM_RENDER_TYPES];
+	bool					mRenderTypeEnabled[NUM_RENDER_TYPES];
 	std::stack<std::string> mRenderTypeEnableStack;
 
 	U32						mRenderDebugFeatureMask;
@@ -843,15 +843,15 @@ protected:
 	U32						mLightMovingMask;
 	S32						mLightingDetail;
 		
-	static BOOL				sRenderPhysicalBeacons;
-	static BOOL				sRenderMOAPBeacons;
-	static BOOL				sRenderScriptedTouchBeacons;
-	static BOOL				sRenderScriptedBeacons;
-	static BOOL				sRenderParticleBeacons;
-	static BOOL				sRenderSoundBeacons;
+	static bool				sRenderPhysicalBeacons;
+	static bool				sRenderMOAPBeacons;
+	static bool				sRenderScriptedTouchBeacons;
+	static bool				sRenderScriptedBeacons;
+	static bool				sRenderParticleBeacons;
+	static bool				sRenderSoundBeacons;
 public:
-	static BOOL				sRenderBeacons;
-	static BOOL				sRenderHighlight;
+	static bool				sRenderBeacons;
+	static bool				sRenderHighlight;
 
 	// Determines which set of UVs to use in highlight display
 	//
@@ -861,26 +861,26 @@ public:
 	static U32              sCurRenderPoolType ;
 
 	//cached settings
-	static BOOL WindLightUseAtmosShaders;
-	static BOOL VertexShaderEnable;
-	static BOOL RenderAvatarVP;
-	static BOOL RenderDeferred;
+	static bool WindLightUseAtmosShaders;
+	static bool VertexShaderEnable;
+	static bool RenderAvatarVP;
+	static bool RenderDeferred;
 	static F32 RenderDeferredSunWash;
 	static U32 RenderFSAASamples;
 	static U32 RenderResolutionDivisor;
-	static BOOL RenderUIBuffer;
+	static bool RenderUIBuffer;
 	static S32 RenderShadowDetail;
-	static BOOL RenderDeferredSSAO;
+	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
-	static BOOL RenderLocalLights;
-	static BOOL RenderDelayCreation;
-	static BOOL RenderAnimateRes;
-	static BOOL FreezeTime;
+	static bool RenderLocalLights;
+	static bool RenderDelayCreation;
+	static bool RenderAnimateRes;
+	static bool FreezeTime;
 	static S32 DebugBeaconLineWidth;
 	static F32 RenderHighlightBrightness;
 	static LLColor4 RenderHighlightColor;
 	static F32 RenderHighlightThickness;
-	static BOOL RenderSpotLightsInNondeferred;
+	static bool RenderSpotLightsInNondeferred;
 	static LLColor4 PreviewAmbientColor;
 	static LLColor4 PreviewDiffuse0;
 	static LLColor4 PreviewSpecular0;
@@ -900,8 +900,8 @@ public:
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
-	static BOOL RenderDepthOfField;
-	static BOOL RenderDepthOfFieldInEditMode;
+	static bool RenderDepthOfField;
+	static bool RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;
@@ -922,7 +922,7 @@ public:
 	static F32 RenderEdgeNormCutoff;
 	static LLVector3 RenderShadowGaussian;
 	static F32 RenderShadowBlurDistFactor;
-	static BOOL RenderDeferredAtmospheric;
+	static bool RenderDeferredAtmospheric;
 	static S32 RenderReflectionDetail;
 	static F32 RenderHighlightFadeTime;
 	static LLVector3 RenderShadowClipPlanes;
@@ -932,7 +932,7 @@ public:
 	static LLVector3 RenderShadowSplitExponent;
 	static F32 RenderShadowErrorCutoff;
 	static F32 RenderShadowFOVCutoff;
-	static BOOL CameraOffset;
+	static bool CameraOffset;
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
@@ -942,7 +942,7 @@ void render_bbox(const LLVector3 &min, const LLVector3 &max);
 void render_hud_elements();
 
 extern LLPipeline gPipeline;
-extern BOOL gDebugPipeline;
+extern bool gDebugPipeline;
 extern const LLMatrix4* gGLLastMatrix;
 
 #endif

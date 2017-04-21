@@ -35,7 +35,7 @@
 		Inizializzazione grafica non riuscita. Aggiorna il driver della scheda grafica!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -76,7 +76,7 @@ Data/ora creazione VFS (cache): [VFS_TIME]
 	<string name="AboutLibs">
 		Versione J2C Decoder: [J2C_VERSION]
 Versione Driver audio: [AUDIO_DRIVER_VERSION]
-Versione LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Versione CEF: [LIBCEF_VERSION]
 Versione LibVLC: [LIBVLC_VERSION]
 Versione Server voice: [VOICE_VERSION]
 	</string>

@@ -133,11 +133,6 @@ LLColor4 LLSelectMgr::sHighlightParentColor;
 LLColor4 LLSelectMgr::sHighlightChildColor;
 LLColor4 LLSelectMgr::sContextSilhouetteColor;
 
-static LLObjectSelection *get_null_object_selection();
-template<> 
-	const LLSafeHandle<LLObjectSelection>::NullFunc 
-		LLSafeHandle<LLObjectSelection>::sNullFunc = get_null_object_selection;
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // struct LLDeRezInfo
 //
@@ -157,25 +152,13 @@ struct LLDeRezInfo
 //
 
 
-static LLPointer<LLObjectSelection> sNullSelection;
-
 //
 // Functions
 //
 
 void LLSelectMgr::cleanupGlobals()
 {
-	sNullSelection = NULL;
 	LLSelectMgr::getInstance()->clearSelections();
-}
-
-LLObjectSelection *get_null_object_selection()
-{
-	if (sNullSelection.isNull())
-	{
-		sNullSelection = new LLObjectSelection;
-	}
-	return sNullSelection;
 }
 
 // Build time optimization, generate this function once here
