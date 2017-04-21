@@ -618,6 +618,7 @@ char const* const _PREHASH_GroupAccountSummaryRequest = LLMessageStringTable::ge
 char const* const _PREHASH_GroupVoteHistoryRequest = LLMessageStringTable::getInstance()->getString("GroupVoteHistoryRequest");
 char const* const _PREHASH_ParamValue = LLMessageStringTable::getInstance()->getString("ParamValue");
 char const* const _PREHASH_MaxAgents = LLMessageStringTable::getInstance()->getString("MaxAgents");
+char const* const _PREHASH_HardMaxAgents = LLMessageStringTable::getInstance()->getString("HardMaxAgents");
 char const* const _PREHASH_CreateNewOutfitAttachments = LLMessageStringTable::getInstance()->getString("CreateNewOutfitAttachments");
 char const* const _PREHASH_RegionHandle = LLMessageStringTable::getInstance()->getString("RegionHandle");
 char const* const _PREHASH_TeleportProgress = LLMessageStringTable::getInstance()->getString("TeleportProgress");

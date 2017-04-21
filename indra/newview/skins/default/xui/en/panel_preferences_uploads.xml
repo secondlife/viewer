@@ -38,13 +38,14 @@
    type="string"
    use_ellipses="true"
    follows="left|top"
-   height="23"
+   height="27"
    layout="topleft"
    font.style="BOLD"
    left="37"
    name="upload_textures"
    top_pad="5"
-   width="350" />
+   width="370"
+   word_wrap="true"/>
   
   <text
    type="string"
@@ -62,13 +63,14 @@
    type="string"
    use_ellipses="true"
    follows="left|top"
-   height="23"
+   height="27"
    layout="topleft"
    font.style="BOLD"
    left="37"
    name="upload_sounds"
    top_pad="5"
-   width="350" />
+   width="370"
+   word_wrap="true"/>
   
   <text
    type="string"
@@ -86,13 +88,14 @@
    type="string"
    use_ellipses="true"
    follows="left|top"
-   height="23"
+   height="27"
    layout="topleft"
    font.style="BOLD"
    left="37"
    name="upload_animation"
    top_pad="5"
-   width="350" />
+   width="370"
+   word_wrap="true"/>
 
   <text
    type="string"
@@ -110,13 +113,14 @@
    type="string"
    use_ellipses="true"
    follows="left|top"
-   height="23"
+   height="27"
    layout="topleft"
    font.style="BOLD"
    left="37"
    name="upload_models"
    top_pad="5"
-   width="350" />
+   width="370"
+   word_wrap="true"/>
 
   <text
    type="string"

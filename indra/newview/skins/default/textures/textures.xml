@@ -136,6 +136,7 @@ with the same filename but different name
   <texture name="Command_Facebook_Icon"     file_name="toolbar_icons/facebook.png"     preload="true" />
   <texture name="Command_Flickr_Icon"       file_name="toolbar_icons/flickr.png"       preload="true" />
   <texture name="Command_Gestures_Icon"     file_name="toolbar_icons/gestures.png"     preload="true" />
+  <texture name="Command_Grid_Status_Icon"  file_name="toolbar_icons/grid_status.png"  preload="true" />
   <texture name="Command_HowTo_Icon"        file_name="toolbar_icons/howto.png"        preload="true" />
   <texture name="Command_Inventory_Icon"    file_name="toolbar_icons/inventory.png"    preload="true" />
   <texture name="Command_Map_Icon"          file_name="toolbar_icons/map.png"          preload="true" />

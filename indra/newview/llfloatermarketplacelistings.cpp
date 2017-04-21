@@ -603,6 +603,7 @@ void LLFloaterMarketplaceListings::updateView()
             text = LLTrans::getString("InventoryMarketplaceError", subs);
             title = LLTrans::getString("InventoryOutboxErrorTitle");
             tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
+            LL_WARNS() << "Marketplace status code: " << mkt_status << LL_ENDL;
         }
     
         mInventoryText->setValue(text);

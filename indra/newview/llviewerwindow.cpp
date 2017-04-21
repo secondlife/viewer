@@ -2724,8 +2724,16 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			return TRUE;
 		}
 
-		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
+		if (gAgent.isInitialized()
+			&& (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE || gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+			&& gMenuBarView
+			&& gMenuBarView->handleAcceleratorKey(key, mask))
+		{
+			LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+			return TRUE;
+		}
+
+		if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 		{
 			LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 			return TRUE;
@@ -2855,8 +2863,16 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// give menus a chance to handle unmodified accelerator keys
-	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-		||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
+	if (gAgent.isInitialized()
+		&& (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE || gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+		&& gMenuBarView
+		&& gMenuBarView->handleAcceleratorKey(key, mask))
+	{
+		LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+		return TRUE;
+	}
+
+	if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 	{
 		return TRUE;
 	}
