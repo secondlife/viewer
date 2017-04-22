@@ -980,7 +980,7 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1500 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1300 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 
