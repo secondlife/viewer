@@ -163,6 +163,28 @@ void LLDayCycleManager::initSingleton()
 {
 	LL_DEBUGS("Windlight") << "Loading all day cycles" << LL_ENDL;
 	loadAllPresets();
+
+	// presets loaded, can set params
+	if (LLEnvManagerNew::instance().getUseDayCycle())
+	{
+		LLSD params;
+		std::string preferred_day = LLEnvManagerNew::getInstance()->getDayCycleName();
+		if (getPreset(preferred_day, params))
+		{
+			// Same as through useDayCycle(), but it will call LLDayCycleManager and we are initializing
+			// so no need to cycle
+			LLWLParamManager::getInstance()->applyDayCycleParams(params, LLEnvKey::SCOPE_LOCAL);
+		}
+		else
+		{
+			LL_WARNS() << "No day cycle named " << preferred_day << ", reverting LLWLParamManager to defaults" << LL_ENDL;
+			LLWLParamManager::getInstance()->setDefaultDay();
+		}
+	}
+	else
+	{
+		LLWLParamManager::getInstance()->setDefaultDay();
+	}
 }
 
 void LLDayCycleManager::loadAllPresets()

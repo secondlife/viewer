@@ -51,6 +51,7 @@
 #include "llvosky.h"
 #include "llcubemap.h"
 #include "llviewercontrol.h"
+#include "llenvmanager.h"
 
 #include "llvowlsky.h"
 
@@ -340,6 +341,8 @@ void LLSky::init(const LLVector3 &sun_direction)
 	LLGLState::checkTextureChannels();
 
 	mUpdatedThisFrame = TRUE;
+
+	LLEnvManagerNew::instance().usePrefs(); //inits day cycles and water
 }
 
 

@@ -50,7 +50,6 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
-#include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llwlparamset.h"
 #include "llpostprocess.h"
@@ -487,6 +486,12 @@ bool LLWLParamManager::applyDayCycleParams(const LLSD& params, LLEnvKey::EScope 
 	return true;
 }
 
+void LLWLParamManager::setDefaultDay()
+{
+	mDay.loadDayCycleFromFile("Default.xml");
+	resetAnimator(0.5, LLEnvManagerNew::getInstance()->getUseDayCycle());
+}
+
 bool LLWLParamManager::applySkyParams(const LLSD& params)
 {
 	mAnimator.deactivate();
@@ -672,17 +677,6 @@ void LLWLParamManager::initSingleton()
 
 	loadAllPresets();
 
-	// load the day
-	std::string preferred_day = LLEnvManagerNew::instance().getDayCycleName();
-	if (!LLDayCycleManager::instance().getPreset(preferred_day, mDay))
-	{
-		// Fall back to default.
-		LL_WARNS() << "No day cycle named " << preferred_day << ", falling back to defaults" << LL_ENDL;
-		mDay.loadDayCycleFromFile("Default.xml");
-
-		// *TODO: Fix user preferences accordingly.
-	}
-
 	// *HACK - sets cloud scrolling to what we want... fix this better in the future
 	std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
 	if (!getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams))
@@ -698,8 +692,6 @@ void LLWLParamManager::initSingleton()
 
 	// but use linden time sets it to what the estate is
 	mAnimator.setTimeType(LLWLAnimator::TIME_LINDEN);
-
-	LLEnvManagerNew::instance().usePrefs();
 }
 
 // static
