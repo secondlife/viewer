@@ -618,7 +618,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	BOOL damped = !undamped;
 
 	// Position
-	LLVector3 old_pos(mXform.getPosition());
+	const LLVector3 old_pos(mXform.getPosition());
 	LLVector3 target_pos;
 	if (mXform.isRoot())
 	{
@@ -632,7 +632,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	}
 	
 	// Rotation
-	LLQuaternion old_rot(mXform.getRotation());
+	const LLQuaternion old_rot(mXform.getRotation());
 	LLQuaternion target_rot = mVObjp->getRotation();
 	//scaling
 	LLVector3 target_scale = mVObjp->getScale();
@@ -667,6 +667,8 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
+			mCurrentScale = target_scale;
+
 			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
 				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
@@ -683,11 +685,11 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		//dist_squared += dist_vec_squared(old_scale, target_scale);
 	}
 
-	LLVector3 vec = mCurrentScale-target_scale;
+	const LLVector3 vec = mCurrentScale-target_scale;
+	mCurrentScale = target_scale;
 	
 	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
 	{ //scale change requires immediate rebuild
-		mCurrentScale = target_scale;
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!isRoot() && 
