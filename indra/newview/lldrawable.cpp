@@ -667,6 +667,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
+			//set target scale here, because of dist_squared = 0.0f remove object from move list
 			mCurrentScale = target_scale;
 
 			if (getVOVolume() && !isRoot())
@@ -686,6 +687,11 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	}
 
 	const LLVector3 vec = mCurrentScale-target_scale;
+	
+	//It's a very important on each cycle on Drawable::update form(), when object remained in move
+	//, list update the CurrentScale member, because if do not do that, it remained in this list forever 
+	//or when the delta time between two frames a become a sufficiently large (due to interpolation) 
+	//for overcome the MIN_INTERPOLATE_DISTANCE_SQUARED.
 	mCurrentScale = target_scale;
 	
 	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
