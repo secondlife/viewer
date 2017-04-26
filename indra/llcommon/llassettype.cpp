@@ -31,9 +31,6 @@
 #include "llmemory.h"
 #include "llsingleton.h"
 
-#include <set>
-#include <boost/algorithm/string.hpp>
-
 ///----------------------------------------------------------------------------
 /// Class LLAssetType
 ///----------------------------------------------------------------------------

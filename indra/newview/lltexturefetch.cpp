@@ -1428,7 +1428,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
             F64 byte_count = 0;
             for (S32 i=mFirstPacket; i<=mLastPacket; i++)
             {
-                byte_count += mPackets[i]->mSize;
+                if (mPackets[i])
+                {
+                    byte_count += mPackets[i]->mSize;
+                }
             }
 
 			LL_DEBUGS(LOG_TXT) << mID << ": Loaded from Sim. Bytes: " << mFormattedImage->getDataSize() << LL_ENDL;

@@ -253,6 +253,8 @@ public:
 		bool user_waiting= false,
 		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) = 0;
 
+    virtual void logAssetStorageInfo() = 0;
+    
 	void checkForTimeouts();
 
 	void getEstateAsset(const LLHost &object_sim, const LLUUID &agent_id, const LLUUID &session_id,
