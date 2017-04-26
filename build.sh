@@ -97,14 +97,14 @@ pre_build()
 
     # nat 2016-12-20: disable HAVOK on Mac until we get a 64-bit Mac build.
     RELEASE_CRASH_REPORTING=ON
+    HAVOK=ON
     SIGNING=()
     if [ "$arch" == "Darwin" ]
-    then HAVOK=OFF
+    then
          if [ "$variant" == "Release" ]
          then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                        "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
          fi
-    else HAVOK=ON
     fi
 
     "$autobuild" configure --quiet -c $variant -- \
