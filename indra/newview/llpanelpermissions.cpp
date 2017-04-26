@@ -383,6 +383,9 @@ void LLPanelPermissions::refresh()
 	style_params.color = link_color;
 	style_params.readonly_color = link_color;
 	style_params.is_link = true; // link will be added later
+	const LLFontGL* fontp = getChild<LLTextBox>("Creator Name")->getFont();
+	style_params.font.name = LLFontGL::nameFromFont(fontp);
+	style_params.font.size = LLFontGL::sizeFromFont(fontp);
 	style_params.font.style = "UNDERLINE";
 
 	LLAvatarName av_name;
