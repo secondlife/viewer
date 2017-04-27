@@ -2130,9 +2130,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e2b519ee7538b25877e34ede6864a250</string>
+              <string>162a3fc9b66626072ec8679361b174f5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1691/3748/llphysicsextensions_source-1.0.501678-darwin64-501678.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4722/14837/llphysicsextensions_source-1.0.504710-darwin64-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2142,9 +2142,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b2c1f53f7f1add01af1e7cfa737e20e</string>
+              <string>c1b43e99c5ddccc18b0e9cb288bf75e1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1689/3734/llphysicsextensions_source-1.0.501678-linux64-501678.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4721/14828/llphysicsextensions_source-1.0.504710-linux64-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2154,16 +2154,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e8cb92ae79c9435b98e444322ec5798</string>
+              <string>dd85c9e0f5fa3ce483ea183db008c4bc</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1696/3763/llphysicsextensions_source-1.0.501678-windows-501678.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4726/14858/llphysicsextensions_source-1.0.504710-windows-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501678</string>
+        <string>1.0.504710</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2182,9 +2182,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>32309a20161f54f42d08f7bc1e7fcf01</string>
+              <string>566aa2c6f5b2f40a8b0bedf90d9c6beb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1692/3749/llphysicsextensions_stub-1.0.501679-darwin64-501679.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4723/14838/llphysicsextensions_stub-1.0.504712-darwin64-504712.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2194,9 +2194,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>58af530891721f3690a4dce9a8c73190</string>
+              <string>711f4ec769e4b5f59ba25ee43c11bcbc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1690/3739/llphysicsextensions_stub-1.0.501679-linux64-501679.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4724/14846/llphysicsextensions_stub-1.0.504712-linux64-504712.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2206,16 +2206,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c59cb5d1dd96ab51f87cd0cf202304dd</string>
+              <string>d830aca10ea9396557b1e613c2736e49</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1695/3757/llphysicsextensions_stub-1.0.501679-windows-501679.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4725/14853/llphysicsextensions_stub-1.0.504712-windows-504712.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501679</string>
+        <string>1.0.504712</string>
       </map>
       <key>mesa</key>
       <map>
