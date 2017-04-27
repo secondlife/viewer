@@ -2306,6 +2306,26 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		// Clear the clipboard before we start adding things on it
 		LLClipboard::instance().reset();
 	}
+	if ("replace_links" == action)
+	{
+		LLSD params;
+		if (root->getSelectedCount() == 1)
+		{
+			LLFolderViewItem* folder_item = root->getSelectedItems().front();
+			LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+
+			if (bridge)
+			{
+				LLInventoryObject* obj = bridge->getInventoryObject();
+				if (obj && obj->getType() != LLAssetType::AT_CATEGORY && obj->getActualType() != LLAssetType::AT_LINK_FOLDER)
+				{
+					params = LLSD(obj->getUUID());
+				}
+			}
+		}
+		LLFloaterReg::showInstance("linkreplace", params);
+		return;
+	}
 
 	static const std::string change_folder_string = "change_folder_type_";
 	if (action.length() > change_folder_string.length() && 

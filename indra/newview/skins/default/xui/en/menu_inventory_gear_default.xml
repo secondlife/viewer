@@ -146,6 +146,14 @@
 			 function="Inventory.GearDefault.Enable"
 			 parameter="find_links" />
         </menu_item_call>
+    <menu_item_call 
+         label="Replace Links"
+         layout="topleft"
+         name="Replace Links">
+            <on_click
+             function="Inventory.GearDefault.Custom.Action"
+             parameter="replace_links" />
+        </menu_item_call>
     <menu_item_separator
      layout="topleft" />
 
