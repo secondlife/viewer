@@ -2643,12 +2643,12 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="RegionInfoAllEstatesYouManage">
 		all estates that you manage for [OWNER]
 	</string>
-	<string name="RegionInfoAllowedResidents">Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
-	<string name="RegionInfoAllowedGroups">Allowed Groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedResidents">Always allowed: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedGroups">Groups always allowed: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
 	<string name="RegionInfoEstateManagers">Estate Managers: ([ESTATEMANAGERS], max [MAXMANAGERS])</string>
-	<string name="RegionInfoBannedResidents">Banned Residents: ([BANNEDAGENTS], max [MAXBANNED])</string>
-	<string name="RegionInfoListTypeAllowedAgents">Allowed Residents</string>
-	<string name="RegionInfoListTypeBannedAgents">Banned Residents</string>
+	<string name="RegionInfoBannedResidents">Always banned: ([BANNEDAGENTS], max [MAXBANNED])</string>
+	<string name="RegionInfoListTypeAllowedAgents">Always allowed</string>
+	<string name="RegionInfoListTypeBannedAgents">Always banned</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>

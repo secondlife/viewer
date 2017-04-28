@@ -4979,6 +4979,17 @@ Are you sure you want to change the Estate Covenant?
 
   <notification
    icon="alertmodal.tga"
+   name="EstateParcelAccessOverride"
+   type="alertmodal">
+Unchecking this option may remove restrictions that parcel owners have added to prevent griefing, maintain privacy, or protect underage residents from adult material. Please discuss with your parcel owners as needed.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RegionEntryAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>

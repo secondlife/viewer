@@ -82,24 +82,32 @@
     <view_border
      bevel_style="none"
      follows="top|left"
-     height="95"
+     height="100"
      layout="topleft"
      left="10"
      top_pad="5"
-     width="470" />
-
-    <check_box
-     height="20"
-     label="Allow Public Access"
+     width="505" />
+    <radio_group
+     height="32"
      layout="topleft"
-     left="20"
-     name="externally_visible_check"
+     name="externally_visible_radio"
      top_delta="5"
-     width="200" />
-
+     left="20"
+     width="200">
+        <radio_item
+         height="16"
+         label="Allow only residents and groups listed below"
+         layout="topleft"
+         name="estate_restricted_access" />
+        <radio_item
+         height="16"
+         label="Anyone can visit"
+         layout="topleft"
+         name="estate_public_access" />
+    </radio_group>
     <check_box
      height="18"
-     label="Allow Parcel Access Override"
+     label="Parcel owners can be more restrictive"
      layout="topleft"
      left="280"
      name="parcel_access_override"
@@ -140,7 +148,7 @@
      layout="topleft"
      left="20"
      name="Only Allow"
-     top_delta="-30"
+     top_delta="-25"
      width="278">
         Allow access only to Residents who:
     </text>
@@ -173,7 +181,7 @@
      height="20"
      layout="topleft"
      name="estate_manager_label"
-     top_pad="30"
+     top_pad="25"
      left="10"
      width="200">
         Estate Managers:
@@ -188,7 +196,7 @@
      name="allow_resident_label"
      top_delta="0"
      width="200">
-        Allowed Residents:
+        Always allowed:
     </text>
 
     <!-- Estate Managers box -->
@@ -199,7 +207,7 @@
      layout="topleft"
      left="10"
      top_pad="-5"
-     width="200" />
+     width="235" />
     <name_list
      follows="left|top"
      height="71"
@@ -208,9 +216,9 @@
      multi_select="true"
      name="estate_manager_name_list"
      top_delta="0"
-     width="200" />
+     width="235" />
 
-    <!-- Allowed Residents box -->
+    <!-- Always allowed box -->
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -218,7 +226,7 @@
      layout="topleft"
      left="280"
      top_delta="0"
-     width="200" />
+     width="235" />
     <name_list
      follows="left|top"
      height="71"
@@ -227,7 +235,7 @@
      multi_select="true"
      name="allowed_avatar_name_list"
      top_delta="0"
-     width="200" />
+     width="235" />
 
     <!-- Estate Managers buttons -->
     <button
@@ -238,7 +246,7 @@
      left="10"
      name="add_estate_manager_btn"
      top_pad="6"
-     width="97" />
+     width="114" />
     <button
      follows="left|top"
      height="23"
@@ -246,9 +254,9 @@
      layout="topleft"
      name="remove_estate_manager_btn"
      left_pad="6"
-     width="97" />
+     width="114" />
 
-    <!-- Allowed Residents buttons -->
+    <!-- Always allowed buttons -->
     <button
      follows="left|top"
      height="23"
@@ -257,7 +265,7 @@
      layout="topleft"
      name="add_allowed_avatar_btn"
      top_delta="0"
-     width="97" />
+     width="114" />
     <button
      follows="left|top"
      height="23"
@@ -266,7 +274,7 @@
      name="remove_allowed_avatar_btn"
      left_pad="6"
      top_delta="0"
-     width="97" />
+     width="114" />
 
     <text
      type="string"
@@ -278,7 +286,7 @@
      name="allow_group_label"
      top_pad="10"
      width="200">
-        Allowed Groups:
+        Groups always allowed:
     </text>
     <text
      type="string"
@@ -290,10 +298,10 @@
      name="ban_resident_label"
      top_delta="0"
      width="200">
-        Banned Residents:
+        Always banned:
     </text>
 
-    <!-- Allowed Groups box -->
+    <!-- Groups always allowed box -->
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -301,7 +309,7 @@
      layout="topleft"
      left="10"
      top_pad="-5"
-     width="200" />
+     width="235" />
     <name_list
      follows="left|top"
      height="71"
@@ -310,9 +318,9 @@
      multi_select="true"
      name="allowed_group_name_list"
      top_delta="0"
-     width="200" />
+     width="235" />
 
-    <!-- Banned Residents box -->
+    <!-- Always banned box -->
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -320,7 +328,7 @@
      layout="topleft"
      left="280"
      top_delta="0"
-     width="200" />
+     width="235" />
     <name_list
      follows="left|top"
      height="71"
@@ -329,9 +337,9 @@
      multi_select="true"
      name="banned_avatar_name_list"
      top_delta="0"
-     width="200" />
+     width="235" />
 
-    <!-- Allowed Groups buttons -->
+    <!-- Groups always allowed buttons -->
     <button
      follows="left|top"
      height="23"
@@ -340,7 +348,7 @@
      left="10"
      name="add_allowed_group_btn"
      top_pad="6"
-     width="97" />
+     width="114" />
     <button
      follows="left|top"
      height="23"
@@ -349,9 +357,9 @@
      name="remove_allowed_group_btn"
      left_pad="6"
      top_delta="0"
-     width="97" />
+     width="114" />
 
-    <!-- Banned Residents buttons -->
+    <!-- Always banned buttons -->
     <button
      follows="left|top"
      height="23"
@@ -360,7 +368,7 @@
      left="280"
      name="add_banned_avatar_btn"
      top_delta="0"
-     width="97" />
+     width="114" />
     <button
      follows="left|top"
      height="23"
@@ -369,7 +377,7 @@
      name="remove_banned_avatar_btn"
      top_delta="0"
      left_pad="6"
-     width="97" />
+     width="114" />
 
     <button
      follows="left|top"
@@ -379,7 +387,7 @@
      left="10"
      name="message_estate_btn"
      top_pad="20"
-     width="220" />
+     width="235" />
     <button
      follows="left|top"
      height="23"
@@ -388,6 +396,6 @@
      left="280"
      name="kick_user_from_estate_btn"
      top_delta="0"
-     width="220" />
+     width="235" />
 
 </panel>
