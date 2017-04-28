@@ -46,6 +46,10 @@ set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
     )
 
+set(media_plugin_cef_HEADER_FILES
+    volume_catcher.h
+    )
+
 set (media_plugin_cef_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
@@ -53,7 +57,9 @@ set (media_plugin_cef_LINK_LIBRARIES
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES})
 
-
+if (WINDOWS)
+  list(APPEND media_plugin_cef_SOURCE_FILES windows_volume_catcher.cpp)
+endif (WINDOWS)
 
 set_source_files_properties(${media_plugin_cef_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)

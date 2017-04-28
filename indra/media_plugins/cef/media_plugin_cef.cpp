@@ -34,6 +34,7 @@
 #include "llplugininstance.h"
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
+#include "volume_catcher.h"
 #include "media_plugin_base.h"
 
 #include <functional>
@@ -77,7 +78,7 @@ private:
 	void unicodeInput(LLSD native_key_data);
 
 	void checkEditState();
-    void setVolume(F32 vol);
+    void setVolume();
 
 	bool mEnableMediaPluginDebugging;
 	std::string mHostLanguage;
@@ -95,6 +96,8 @@ private:
 	std::string mCachePath;
 	std::string mCookiePath;
 	std::string mPickedFile;
+	VolumeCatcher mVolumeCatcher;
+	F32 mCurVolume;
 	dullahan* mCEFLib;
 };
 
@@ -123,8 +126,11 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCachePath = "";
 	mCookiePath = "";
 	mPickedFile = "";
+	mCurVolume = 0.0;
+
 	mCEFLib = new dullahan();
 
+	setVolume();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +458,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.flip_mouse_y = false;
 				settings.flip_pixels_y = true;
 				settings.frame_rate = 60;
+				settings.force_wave_audio = true;
 				settings.initial_height = 1024;
 				settings.initial_width = 1024;
 				settings.java_enabled = false;
@@ -713,8 +720,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
         {
             if (message_name == "set_volume")
             {
-                F32 volume = (F32)message_in.getValueReal("volume");
-                setVolume(volume);
+				F32 volume = (F32)message_in.getValueReal("volume");
+				mCurVolume = volume;
+                setVolume();
             }
         }
         else
@@ -793,8 +801,9 @@ void MediaPluginCEF::checkEditState()
 	}
 }
 
-void MediaPluginCEF::setVolume(F32 vol)
+void MediaPluginCEF::setVolume()
 {
+	mVolumeCatcher.setVolume(mCurVolume);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
