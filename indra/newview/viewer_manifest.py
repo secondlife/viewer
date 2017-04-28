@@ -654,7 +654,6 @@ class WindowsManifest(ViewerManifest):
             'version' : '.'.join(self.args['version']),
             'version_short' : '.'.join(self.args['version'][:-1]),
             'version_dashes' : '-'.join(self.args['version']),
-            'viewer_exe' : self.channel_with_pkg_suffix().replace(' ', '')+'.exe',
             'final_exe' : self.final_exe(),
             'flags':'',
             'app_name':self.app_name(),
@@ -669,7 +668,7 @@ class WindowsManifest(ViewerManifest):
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
-        !define VIEWER_EXE "%(viewer_exe)s%"
+        !define VIEWER_EXE "%(final_exe)s"
         """ % substitution_strings
         
         if self.channel_type() == 'release':
