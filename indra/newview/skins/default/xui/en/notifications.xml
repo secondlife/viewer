@@ -6197,7 +6197,7 @@ Your trash is overflowing. This may cause problems logging in.
         <usetemplate
          name="okcancelbuttons"
          notext="I will empty trash later"
-         yestext="Empty trash now"/>
+         yestext="Check trash folder"/>
   </notification>
 
   <notification
