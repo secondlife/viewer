@@ -40,6 +40,7 @@
 #include "lltransfertargetvfile.h"
 #include "llviewerassetstats.h"
 #include "llcoros.h"
+#include "llcoproceduremanager.h"
 #include "lleventcoro.h"
 #include "llsdutil.h"
 #include "llworld.h"
@@ -398,8 +399,8 @@ void LLViewerAssetStorage::queueRequestHttp(
         bool is_temp = false;
         LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
-        LLCoros::instance().launch("LLViewerAssetStorage::assetRequestCoro",
-                                   boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
+        LLCoprocedureManager::instance().enqueueCoprocedure("AssetStorage","LLViewerAssetStorage::assetRequestCoro",
+            boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, _1, req, uuid, atype, callback, user_data));
     }
 }
 
@@ -433,6 +434,7 @@ struct LLScopedIncrement
 };
 
 void LLViewerAssetStorage::assetRequestCoro(
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &defaultHttpAdapter, // not used
     LLViewerAssetRequest *req,
     const LLUUID& uuid,
     LLAssetType::EType atype,

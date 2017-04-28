@@ -14723,6 +14723,15 @@
         <key>Value</key>
             <real>1</real>
         </map>
+    <key>PoolSizeAssetStorage</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for AssetStorage requests</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>12</real>
+        </map>
 
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid
