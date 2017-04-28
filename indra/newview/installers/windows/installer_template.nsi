@@ -337,6 +337,10 @@ WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$
 # URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
 WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
 
+# Only allow Launcher to be the icon
+WriteRegStr HKEY_CLASSES_ROOT "Applications" "$INSTEXE" "IsHostApp"
+WriteRegStr HKEY_CLASSES_ROOT "Applications" "$VIEWER_EXE" "NoStartPage"
+
 # Write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
 
