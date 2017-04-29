@@ -82,7 +82,7 @@
     <view_border
      bevel_style="none"
      follows="top|left"
-     height="100"
+     height="105"
      layout="topleft"
      left="10"
      top_pad="5"
@@ -106,20 +106,40 @@
          name="estate_public_access" />
     </radio_group>
     <check_box
+     follows="top|left"
+     height="18"
+     label="Must be 18+"
+     layout="topleft"
+     left_delta="20"
+     name="limit_age_verified"
+     tool_tip="Residents must be age 18 or older to access this estate. See the [SUPPORT_SITE] for more information."
+     top_delta="40"
+     width="278" />
+    <check_box
+     follows="top|left"
+     height="18"
+     label="Must have payment info on file"
+     layout="topleft"
+     left_delta="0"
+     name="limit_payment"
+     tool_tip="Residents must have payment information on file to access this estate.  See the [SUPPORT_SITE] for more information."
+     top_pad="2"
+     width="278" />
+    <check_box
      height="18"
      label="Parcel owners can be more restrictive"
      layout="topleft"
-     left="280"
+     left="20"
      name="parcel_access_override"
-     top_delta="0"
-     width="200" />
+     top_pad="2"
+     width="240" />
     <check_box
      height="18"
      label="Allow Voice Chat"
      layout="topleft"
-     left_delta ="0"
+     left="290"
      name="voice_chat_check"
-     top_pad="4"
+     top_delta="-78"
      width="200" />
     <check_box
      height="18"
@@ -136,43 +156,10 @@
      label="Apply"
      layout="topleft"
      name="apply_btn"
-     top_pad="7"
+     top_pad="30"
      left_delta="0"
      width="97" />
-
-    <text
-     type="string"
-     length="1"
-     follows="top|left"
-     height="16"
-     layout="topleft"
-     left="20"
-     name="Only Allow"
-     top_delta="-25"
-     width="278">
-        Allow access only to Residents who:
-    </text>
-    <check_box
-     follows="top|left"
-     height="16"
-     label="Have payment information on file"
-     layout="topleft"
-     left_delta="0"
-     name="limit_payment"
-     tool_tip="Residents must have payment information on file to access this estate.  See the [SUPPORT_SITE] for more information."
-     top_pad="2"
-     width="278" />
-    <check_box
-     follows="top|left"
-     height="16"
-     label="Are age 18 or older"
-     layout="topleft"
-     left_delta="0"
-     name="limit_age_verified"
-     tool_tip="Residents must be age 18 or older to access this estate. See the [SUPPORT_SITE] for more information."
-     top_pad="2"
-     width="278" />
-
+    
     <text
      type="string"
      length="1"
