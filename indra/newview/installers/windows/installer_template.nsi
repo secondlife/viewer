@@ -339,8 +339,8 @@ WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$
 WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
 
 # Only allow Launcher to be the icon
-WriteRegStr HKEY_CLASSES_ROOT "Applications" "$INSTEXE" "IsHostApp"
-WriteRegStr HKEY_CLASSES_ROOT "Applications" "$VIEWER_EXE" "NoStartPage"
+WriteRegStr HKEY_CLASSES_ROOT "Applications\$INSTEXE" "IsHostApp" ""
+WriteRegStr HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "NoStartPage" ""
 
 # Write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
