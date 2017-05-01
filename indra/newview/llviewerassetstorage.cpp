@@ -400,7 +400,7 @@ void LLViewerAssetStorage::queueRequestHttp(
         LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
         LLCoprocedureManager::instance().enqueueCoprocedure("AssetStorage","LLViewerAssetStorage::assetRequestCoro",
-            boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, _1, req, uuid, atype, callback, user_data));
+            boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
     }
 }
 
@@ -434,9 +434,8 @@ struct LLScopedIncrement
 };
 
 void LLViewerAssetStorage::assetRequestCoro(
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &defaultHttpAdapter, // not used
     LLViewerAssetRequest *req,
-    const LLUUID& uuid,
+    const LLUUID uuid,
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data)

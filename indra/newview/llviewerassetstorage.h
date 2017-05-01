@@ -83,10 +83,8 @@ protected:
 
     void capsRecvForRegion(const LLUUID& region_id, std::string pumpname);
     
-    void assetRequestCoro(
-                          LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &defaultHttpAdapter,
-                          LLViewerAssetRequest *req,
-                          const LLUUID& uuid,
+    void assetRequestCoro(LLViewerAssetRequest *req,
+                          const LLUUID uuid,
                           LLAssetType::EType atype,
                           void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
                           void *user_data);
