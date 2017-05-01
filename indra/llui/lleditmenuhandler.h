@@ -58,9 +58,6 @@ public:
 	
 	virtual void	deselect() {};
 	virtual BOOL	canDeselect() const { return FALSE; }
-	
-	virtual void	duplicate() {};
-	virtual BOOL	canDuplicate() const { return FALSE; }
 
 	// TODO: Instead of being a public data member, it would be better to hide it altogether
 	// and have a "set" method and then a bunch of static versions of the cut, copy, paste

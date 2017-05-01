@@ -3312,7 +3312,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
 	if (! LLStringUtil::endsWith(url, "/"))
 		url += "/";
-	url += LLURI::escape(LLVersionInfo::getChannel()) + "/";
+	std::string channel = LLVersionInfo::getChannel();
+	if (LLStringUtil::endsWith(boost::to_lower_copy(channel), " edu")) // Release Notes url shouldn't include the EDU parameter
+	{
+		boost::erase_tail(channel, 4);
+	}
+	url += LLURI::escape(channel) + "/";
 	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
@@ -5587,6 +5592,8 @@ void LLAppViewer::forceErrorBreakpoint()
    	LL_WARNS() << "Forcing a deliberate breakpoint" << LL_ENDL;
 #ifdef LL_WINDOWS
     DebugBreak();
+#else
+    asm ("int $3");
 #endif
     return;
 }

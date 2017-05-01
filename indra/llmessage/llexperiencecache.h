@@ -64,6 +64,7 @@ public:
 
     //-------------------------------------------
     void fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, ExperienceGetFn_t fn);
+    void fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, std::string url, ExperienceGetFn_t fn);
     void findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn);
     void getGroupExperiences(const LLUUID &groupId, ExperienceGetFn_t fn);
 
@@ -148,7 +149,7 @@ private:
     void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
     void requestExperiences();
 
-    void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, ExperienceGetFn_t);
+    void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, std::string, ExperienceGetFn_t);
     void findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, int, ExperienceGetFn_t);
     void getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID , ExperienceGetFn_t);
     void regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn);

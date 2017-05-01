@@ -727,6 +727,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	{
 	    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
+
+	mVisuallyMuteSetting = LLVOAvatar::VisualMuteSettings(LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(getID()));
 }
 
 std::string LLVOAvatar::avString() const
@@ -7074,7 +7076,9 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-	if (isSelf() || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && gSavedSettings.getBOOL("AlwaysRenderFriends"));
+
+	if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
 		too_complex = false;
 	}
@@ -9232,8 +9236,9 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
     mVisuallyMuteSetting = set;
     mNeedsImpostorUpdate = TRUE;
-}
 
+    LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
+}
 
 void LLVOAvatar::calcMutedAVColor()
 {

@@ -106,6 +106,14 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 // virtual
 void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
+	LLUICtrl* name_form = getChild<LLUICtrl>("name_form");
+	if (name_form && name_form->getValue().asString().empty())
+	{
+		std::string name_string;
+		LLAgentUI::buildFullname(name_string);
+		getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
+	}
+
 	LLPanelSnapshot::onOpen(key);
 }
 

@@ -360,9 +360,12 @@ void LLInventoryModelBackgroundFetch::incrFetchCount(S32 fetching)
 	}
 }
 
+static LLTrace::BlockTimerStatHandle FTM_BULK_FETCH("Bulk Fetch");
+
 // Bundle up a bunch of requests to send all at once.
 void LLInventoryModelBackgroundFetch::bulkFetch()
 {
+	LL_RECORD_BLOCK_TIME(FTM_BULK_FETCH);
 	//Background fetch is called from gIdleCallbacks in a loop until background fetch is stopped.
 	//If there are items in mFetchQueue, we want to check the time since the last bulkFetch was 
 	//sent.  If it exceeds our retry time, go ahead and fire off another batch.  

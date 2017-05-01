@@ -2312,7 +2312,8 @@ We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace
 The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	</string>
 	<string name="InventoryMarketplaceError">
-This feature is currently in Beta. Please add your name to this [http://goo.gl/forms/FCQ7UXkakz Google form] if you would like to participate.
+An error occurred while opening Marketplace Listings.
+If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">Your Marketplace Listings folder is empty.</string>
 	<string name="InventoryMarketplaceListingsNoItemsTooltip"></string>
@@ -3628,7 +3629,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Conference with [AGENT_NAME]
   </string>
   <string name="inventory_item_offered-im">
-    Inventory item offered
+    Inventory item '[ITEM_NAME]' offered
+  </string>
+  <string name="inventory_folder_offered-im">
+    Inventory folder '[ITEM_NAME]' offered
   </string>
   <string name="share_alert">
     Drag items from inventory here
@@ -3736,7 +3740,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
   <string name="Home position set.">Home position set.</string>
 
-  <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
+  <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
+  <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
 
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
@@ -3879,9 +3884,9 @@ Abuse Report</string>
   <string name="words_separator" value=", "/>
 
   <string name="server_is_down">
-	Despite our best efforts, something unexpected has gone wrong.
+  Despite our best efforts, something unexpected has gone wrong.
 
-	Please check status.secondlifegrid.net to see if there is a known problem with the service.
+Please check http://status.secondlifegrid.net to see if there is a known problem with the service.
         If you continue to experience problems, please check your network and firewall setup.
   </string>
 
@@ -4070,6 +4075,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Facebook_Label">Facebook</string>
   <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
+  <string name="Command_Grid_Status_Label">Grid status</string>
   <string name="Command_HowTo_Label">How to</string>
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
@@ -4102,6 +4108,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Facebook_Tooltip">Post to Facebook</string>
   <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
+  <string name="Command_Grid_Status_Tooltip">Show current Grid status</string>
   <string name="Command_HowTo_Tooltip">How to do common tasks</string>
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
   <string name="Command_Map_Tooltip">Map of the world</string>

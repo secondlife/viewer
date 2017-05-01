@@ -70,7 +70,7 @@
      top="32"
      word_wrap="true"
      width="552">
-       You will need to go to my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
+       You will need to go to https://my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
      </text>
     <web_browser
       trusted_content="true" 
