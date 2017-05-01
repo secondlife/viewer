@@ -76,9 +76,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae733dd8f2c83055030ea6e08c623306</string>
+              <string>f65774ebabb256f2d217a872b0cf2b5b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/745/1534/apr_suite-1.4.5.500735-darwin64-500735.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4812/15284/apr_suite-1.4.5.504800-darwin64-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -100,9 +100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bc8855c8253b8293c7e61af7b1ed0f05</string>
+              <string>84a1a140f20b25d714949185e854d14b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/744/1545/apr_suite-1.4.5.500735-linux64-500735.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4811/15302/apr_suite-1.4.5.504800-linux64-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -112,9 +112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f80a5551e8a0257efd7a73ed9bbf18f1</string>
+              <string>dc80eca3d113b038b469003da8cd6638</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4174/11812/apr_suite-1.4.5.504161-windows-504161.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4813/15290/apr_suite-1.4.5.504800-windows-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -124,16 +124,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ff2fc463385024c37532c0cc73c1c989</string>
+              <string>63146d3d3d5fe7aa6be1a1b0afed36dd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4172/11806/apr_suite-1.4.5.504161-windows64-504161.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4814/15296/apr_suite-1.4.5.504800-windows64-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.5.504161</string>
+        <string>1.4.5.504800</string>
       </map>
       <key>boost</key>
       <map>
@@ -526,9 +526,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9005fcda30e6659790e2fdfc27d4e2ee</string>
+              <string>2924fbd14d8d5346dff79a9834a3dd00</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4384/12984/dullahan-1.1.764_3.2987.1591.gd3e47f5-darwin64-504373.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4804/15260/dullahan-1.1.764_3.2987.1591.gd3e47f5-darwin64-504793.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -538,9 +538,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f537886de9bb68d8698f08fecaa843f3</string>
+              <string>45a2dc847fe3348ced66f9f81802f7e4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4536/13621/dullahan-1.1.764_3.2987.1591.gd3e47f5-windows-504524.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4806/15271/dullahan-1.1.764_3.2987.1591.gd3e47f5-windows-504793.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -550,9 +550,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5d841fad742e58a050fb529b2f5ab965</string>
+              <string>2bd634d9b5ec8710e7a898dddb7231b2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4535/13626/dullahan-1.1.764_3.2987.1591.gd3e47f5-windows64-504524.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4805/15265/dullahan-1.1.764_3.2987.1591.gd3e47f5-windows64-504793.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
