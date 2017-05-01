@@ -67,8 +67,9 @@ if(WINDOWS)
     endif (MSVC80)
 
     # try to copy VS2010 redist independently of system version
-    list(APPEND LMSVC_VER 100)
-    list(APPEND LMSVC_VERDOT 10.0)
+    # maint-7360 CP
+    # list(APPEND LMSVC_VER 100)
+    # list(APPEND LMSVC_VERDOT 10.0)
     
     list(LENGTH LMSVC_VER count)
     math(EXPR count "${count}-1")
