@@ -255,19 +255,6 @@ U64 LLMemory::getCurrentRSS()
 
 #elif defined(LL_DARWIN)
 
-/* 
-	The API used here is not capable of dealing with 64-bit memory sizes, but is available before 10.4.
-	
-	Once we start requiring 10.4, we can use the updated API, which looks like this:
-	
-	task_basic_info_64_data_t basicInfo;
-	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_64_COUNT;
-	if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
-	
-	Of course, this doesn't gain us anything unless we start building the viewer as a 64-bit executable, since that's the only way
-	for our memory allocation to exceed 2^32.
-*/
-
 // 	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
 // 	{
 // 		LL_WARNS() << "Couldn't get page size" << LL_ENDL;
@@ -280,9 +267,9 @@ U64 LLMemory::getCurrentRSS()
 U64 LLMemory::getCurrentRSS()
 {
 	U64 residentSize = 0;
-	task_basic_info_data_t basicInfo;
-	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_COUNT;
-	if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
+	task_basic_info_64_data_t basicInfo;
+	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_64_COUNT;
+	if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
 	{
 		residentSize = basicInfo.resident_size;
 
