@@ -419,24 +419,36 @@ void LLVoiceClient::setNonSpatialChannel(
 	const std::string &uri,
 	const std::string &credentials)
 {
-	if (mVoiceModule) mVoiceModule->setNonSpatialChannel(uri, credentials);
+	if (mVoiceModule)
+    {
+        mVoiceModule->setNonSpatialChannel(uri, credentials);
+    }
 }
 
 void LLVoiceClient::setSpatialChannel(
 	const std::string &uri,
 	const std::string &credentials)
 {
-	if (mVoiceModule) mVoiceModule->setSpatialChannel(uri, credentials);
+	if (mVoiceModule)
+    {
+        mVoiceModule->setSpatialChannel(uri, credentials);
+    }
 }
 
 void LLVoiceClient::leaveNonSpatialChannel()
 {
-	if (mVoiceModule) mVoiceModule->leaveNonSpatialChannel();
+	if (mVoiceModule)
+    {
+        mVoiceModule->leaveNonSpatialChannel();
+    }
 }
 
 void LLVoiceClient::leaveChannel(void)
 {
-	if (mVoiceModule) mVoiceModule->leaveChannel();
+	if (mVoiceModule)
+    {
+        mVoiceModule->leaveChannel();
+    }
 }
 
 std::string LLVoiceClient::getCurrentChannel()
