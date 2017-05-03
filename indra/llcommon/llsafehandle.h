@@ -29,6 +29,29 @@
 #include "llerror.h"	// *TODO: consider eliminating this
 #include "llsingleton.h"
 
+/*==========================================================================*|
+ ____   ___    _   _  ___ _____   _   _ ____  _____ _
+|  _ \ / _ \  | \ | |/ _ \_   _| | | | / ___|| ____| |
+| | | | | | | |  \| | | | || |   | | | \___ \|  _| | |
+| |_| | |_| | | |\  | |_| || |   | |_| |___) | |___|_|
+|____/ \___/  |_| \_|\___/ |_|    \___/|____/|_____(_)
+
+This handle class is deprecated. Unfortunately it is already in widespread use
+to reference the LLObjectSelection and LLParcelSelection classes, but do not
+apply LLSafeHandle to other classes, or declare new instances.
+
+Instead, use LLPointer or other smart pointer types with appropriate checks
+for NULL. If you're certain the reference cannot (or must not) be NULL,
+consider storing a C++ reference instead -- or use (e.g.) LLCheckedHandle.
+
+When an LLSafeHandle<T> containing NULL is dereferenced, it resolves to a
+canonical "null" T instance. This raises issues about the lifespan of the
+"null" instance. In addition to encouraging sloppy coding practices, it
+potentially masks bugs when code that performs some mutating operation
+inadvertently applies it to the "null" instance. That result might or might
+not ever affect subsequent computations.
+|*==========================================================================*/
+
 // Expands LLPointer to return a pointer to a special instance of class Type instead of NULL.
 // This is useful in instances where operations on NULL pointers are semantically safe and/or
 // when error checking occurs at a different granularity or in a different part of the code
