@@ -943,7 +943,7 @@
             </menu_item_call>
         </menu>
         <menu_item_call
-            label="Linksets..."
+            label="Region Objects"
             name="pathfinding_linkset_menu_item">
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
@@ -1103,7 +1103,7 @@
          name="Pathfinding"
          tear_off="true">
         <menu_item_call
-            label="Linksets..."
+            label="Region Objects"
             name="pathfinding_linksets_menu_item">
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
