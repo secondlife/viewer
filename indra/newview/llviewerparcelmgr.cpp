@@ -1427,122 +1427,128 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 // static
 void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **user)
 {
-	S32		request_result;
-	S32		sequence_id;
-	BOOL	snap_selection = FALSE;
-	S32		self_count = 0;
-	S32		other_count = 0;
-	S32		public_count = 0;
-	S32		local_id;
-	LLUUID	owner_id;
-	BOOL	is_group_owned;
-	U32 auction_id = 0;
-	S32		claim_price_per_meter = 0;
-	S32		rent_price_per_meter = 0;
-	S32		claim_date = 0;
-	LLVector3	aabb_min;
-	LLVector3	aabb_max;
-	S32		area = 0;
-	S32		sw_max_prims = 0;
-	S32		sw_total_prims = 0;
-	//LLUUID	buyer_id;
-	U8 status = 0;
-	S32		max_prims = 0;
-	S32		total_prims = 0;
-	S32		owner_prims = 0;
-	S32		group_prims = 0;
-	S32		other_prims = 0;
-	S32		selected_prims = 0;
-	F32		parcel_prim_bonus = 1.f;
-	BOOL	region_push_override = false;
-	BOOL	region_deny_anonymous_override = false;
-	BOOL	region_deny_identified_override = false; // Deprecated
-	BOOL	region_deny_transacted_override = false; // Deprecated
-	BOOL	region_deny_age_unverified_override = false;
+    S32		request_result;
+    S32		sequence_id;
+    BOOL	snap_selection = FALSE;
+    S32		self_count = 0;
+    S32		other_count = 0;
+    S32		public_count = 0;
+    S32		local_id;
+    LLUUID	owner_id;
+    BOOL	is_group_owned;
+    U32 auction_id = 0;
+    S32		claim_price_per_meter = 0;
+    S32		rent_price_per_meter = 0;
+    S32		claim_date = 0;
+    LLVector3	aabb_min;
+    LLVector3	aabb_max;
+    S32		area = 0;
+    S32		sw_max_prims = 0;
+    S32		sw_total_prims = 0;
+    //LLUUID	buyer_id;
+    U8 status = 0;
+    S32		max_prims = 0;
+    S32		total_prims = 0;
+    S32		owner_prims = 0;
+    S32		group_prims = 0;
+    S32		other_prims = 0;
+    S32		selected_prims = 0;
+    F32		parcel_prim_bonus = 1.f;
+    BOOL	region_push_override = false;
+    BOOL	region_deny_anonymous_override = false;
+    BOOL	region_deny_identified_override = false; // Deprecated
+    BOOL	region_deny_transacted_override = false; // Deprecated
+    BOOL	region_deny_age_unverified_override = false;
+    BOOL    region_allow_access_override = true;
     BOOL	agent_parcel_update = false; // updating previous(existing) agent parcel
 
-	S32		other_clean_time = 0;
+    S32		other_clean_time = 0;
 
-	LLViewerParcelMgr& parcel_mgr = LLViewerParcelMgr::instance();
+    LLViewerParcelMgr& parcel_mgr = LLViewerParcelMgr::instance();
 
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_RequestResult, request_result );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SequenceID, sequence_id );
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_RequestResult, request_result);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SequenceID, sequence_id);
 
-	if (request_result == PARCEL_RESULT_NO_DATA)
-	{
-		// no valid parcel data
-		LL_INFOS() << "no valid parcel data" << LL_ENDL;
-		return;
-	}
+    if (request_result == PARCEL_RESULT_NO_DATA)
+    {
+        // no valid parcel data
+        LL_INFOS() << "no valid parcel data" << LL_ENDL;
+        return;
+    }
 
-	// Decide where the data will go.
-	LLParcel* parcel = NULL;
-	if (sequence_id == SELECTED_PARCEL_SEQ_ID)
-	{
-		// ...selected parcels report this sequence id
-		parcel_mgr.mRequestResult = PARCEL_RESULT_SUCCESS;
-		parcel = parcel_mgr.mCurrentParcel;
-	}
-	else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
-	{
-		parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
-		parcel = parcel_mgr.mHoverParcel;
-	}
-	else if (sequence_id == COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID ||
-			 sequence_id == COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID ||
-			 sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)
-	{
-		parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
-		parcel = parcel_mgr.mCollisionParcel;
-	}
-	else if (sequence_id == 0 || sequence_id > parcel_mgr.mAgentParcelSequenceID)
-	{
-		// new agent parcel
-		parcel_mgr.mAgentParcelSequenceID = sequence_id;
-		parcel = parcel_mgr.mAgentParcel;
-	}
-	else
-	{
-		LL_INFOS() << "out of order agent parcel sequence id " << sequence_id
-			<< " last good " << parcel_mgr.mAgentParcelSequenceID
-			<< LL_ENDL;
-		return;
-	}
+    // Decide where the data will go.
+    LLParcel* parcel = NULL;
+    if (sequence_id == SELECTED_PARCEL_SEQ_ID)
+    {
+        // ...selected parcels report this sequence id
+        parcel_mgr.mRequestResult = PARCEL_RESULT_SUCCESS;
+        parcel = parcel_mgr.mCurrentParcel;
+    }
+    else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
+    {
+        parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
+        parcel = parcel_mgr.mHoverParcel;
+    }
+    else if (sequence_id == COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID ||
+        sequence_id == COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID ||
+        sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)
+    {
+        parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
+        parcel = parcel_mgr.mCollisionParcel;
+    }
+    else if (sequence_id == 0 || sequence_id > parcel_mgr.mAgentParcelSequenceID)
+    {
+        // new agent parcel
+        parcel_mgr.mAgentParcelSequenceID = sequence_id;
+        parcel = parcel_mgr.mAgentParcel;
+    }
+    else
+    {
+        LL_INFOS() << "out of order agent parcel sequence id " << sequence_id
+            << " last good " << parcel_mgr.mAgentParcelSequenceID
+            << LL_ENDL;
+        return;
+    }
 
-	msg->getBOOL("ParcelData", "SnapSelection", snap_selection);
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelfCount, self_count);
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherCount, other_count);
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_PublicCount, public_count);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_LocalID,		local_id );
-	msg->getUUIDFast(_PREHASH_ParcelData, _PREHASH_OwnerID,		owner_id);
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_IsGroupOwned, is_group_owned);
-	msg->getU32Fast(_PREHASH_ParcelData, _PREHASH_AuctionID, auction_id);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_ClaimDate,	claim_date);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_ClaimPrice,	claim_price_per_meter);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_RentPrice,	rent_price_per_meter);
-	msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMin, aabb_min);
-	msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMax, aabb_max);
-	msg->getS32Fast(	_PREHASH_ParcelData, _PREHASH_Area, area );
-	//msg->getUUIDFast(	_PREHASH_ParcelData, _PREHASH_BuyerID, buyer_id);
-	msg->getU8("ParcelData", "Status", status);
-	msg->getS32("ParcelData", "SimWideMaxPrims", sw_max_prims );
-	msg->getS32("ParcelData", "SimWideTotalPrims", sw_total_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_MaxPrims, max_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_TotalPrims, total_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OwnerPrims, owner_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_GroupPrims, group_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherPrims, other_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelectedPrims, selected_prims );
-	msg->getF32Fast(_PREHASH_ParcelData, _PREHASH_ParcelPrimBonus, parcel_prim_bonus );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionPushOverride, region_push_override );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyAnonymous, region_deny_anonymous_override );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override ); // Deprecated
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override ); // Deprecated
-	if (msg->getNumberOfBlocksFast(_PREHASH_AgeVerificationBlock))
-	{
-		// this block was added later and may not be on older sims, so we have to test its existence first
-		msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override );
-	}
+    msg->getBOOL("ParcelData", "SnapSelection", snap_selection);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelfCount, self_count);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherCount, other_count);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_PublicCount, public_count);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_LocalID, local_id);
+    msg->getUUIDFast(_PREHASH_ParcelData, _PREHASH_OwnerID, owner_id);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_IsGroupOwned, is_group_owned);
+    msg->getU32Fast(_PREHASH_ParcelData, _PREHASH_AuctionID, auction_id);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_ClaimDate, claim_date);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_ClaimPrice, claim_price_per_meter);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_RentPrice, rent_price_per_meter);
+    msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMin, aabb_min);
+    msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMax, aabb_max);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_Area, area);
+    //msg->getUUIDFast(	_PREHASH_ParcelData, _PREHASH_BuyerID, buyer_id);
+    msg->getU8("ParcelData", "Status", status);
+    msg->getS32("ParcelData", "SimWideMaxPrims", sw_max_prims);
+    msg->getS32("ParcelData", "SimWideTotalPrims", sw_total_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_MaxPrims, max_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_TotalPrims, total_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OwnerPrims, owner_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_GroupPrims, group_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherPrims, other_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelectedPrims, selected_prims);
+    msg->getF32Fast(_PREHASH_ParcelData, _PREHASH_ParcelPrimBonus, parcel_prim_bonus);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionPushOverride, region_push_override);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyAnonymous, region_deny_anonymous_override);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override); // Deprecated
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override); // Deprecated
+    if (msg->getNumberOfBlocksFast(_PREHASH_AgeVerificationBlock))
+    {
+        // this block was added later and may not be on older sims, so we have to test its existence first
+        msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override);
+    }
+
+    if (msg->getNumberOfBlocks(_PREHASH_RegionAllowAccessBlock))
+    {
+        msg->getBOOLFast(_PREHASH_RegionAllowAccessBlock, _PREHASH_RegionAllowAccessOverride, region_allow_access_override);
+    }
 
 	msg->getS32("ParcelData", "OtherCleanTime", other_clean_time );
 
@@ -1585,6 +1591,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		parcel->setRegionPushOverride(region_push_override);
 		parcel->setRegionDenyAnonymousOverride(region_deny_anonymous_override);
 		parcel->setRegionDenyAgeUnverifiedOverride(region_deny_age_unverified_override);
+        parcel->setRegionAllowAccessOverride(region_allow_access_override);
 		parcel->unpackMessage(msg);
 
 		if (parcel == parcel_mgr.mAgentParcel)

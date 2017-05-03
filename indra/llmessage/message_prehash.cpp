@@ -1373,6 +1373,9 @@ char const* const _PREHASH_OwnerMask = LLMessageStringTable::getInstance()->getS
 char const* const _PREHASH_TransferInventoryAck = LLMessageStringTable::getInstance()->getString("TransferInventoryAck");
 char const* const _PREHASH_RegionDenyAgeUnverified = LLMessageStringTable::getInstance()->getString("RegionDenyAgeUnverified");
 char const* const _PREHASH_AgeVerificationBlock = LLMessageStringTable::getInstance()->getString("AgeVerificationBlock");
+char const* const _PREHASH_RegionAllowAccessBlock = LLMessageStringTable::getInstance()->getString("RegionAllowAccessBlock");
+char const* const _PREHASH_RegionAllowAccessOverride = LLMessageStringTable::getInstance()->getString("RegionAllowAccessOverride");
+
 char const* const _PREHASH_UCoord = LLMessageStringTable::getInstance()->getString("UCoord");
 char const* const _PREHASH_VCoord = LLMessageStringTable::getInstance()->getString("VCoord");
 char const* const _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getString("FaceIndex");
