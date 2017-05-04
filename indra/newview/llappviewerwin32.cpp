@@ -502,7 +502,8 @@ bool LLAppViewerWin32::init()
 	disableWinErrorReporting();
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	LLWinDebug::instance().init();
+	// Merely requesting the LLSingleton instance initializes it.
+	LLWinDebug::instance();
 #endif
 
 #if LL_WINDOWS
@@ -525,10 +526,6 @@ bool LLAppViewerWin32::cleanup()
 	bool result = LLAppViewer::cleanup();
 
 	gDXHardware.cleanup();
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LLWinDebug::instance().cleanup();
-#endif
 
 	if (mIsConsoleAllocated)
 	{
