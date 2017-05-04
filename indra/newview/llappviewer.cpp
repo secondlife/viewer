@@ -3111,7 +3111,12 @@ void LLAppViewer::initUpdater()
 	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
 	mUpdater->initialize(channel, 
 						 version,
+// DRTVWR-418 transitional: query using "win64" until VMP is in place
+#if LL_WINDOWS && (ADDRESS_SIZE == 64)
+						 "win64",
+#else
 						 gPlatform,
+#endif
 						 getOSInfo().getOSVersionString(),
 						 unique_id,
 						 willing_to_test
