@@ -360,6 +360,15 @@ Please try logging in again in a minute.</string>
 	<string name="AssetErrorPriceMismatch">Viewer and server do not agree on price</string>
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
 
+	<!-- Asset upload errors. -->
+	<string name="AssetUploadServerUnreacheble">Service unreachable.</string>
+	<string name="AssetUploadServerDifficulties">The server is experiencing unexpected difficulties.</string>
+	<string name="AssetUploadServerUnavaliable">Service not available or upload timeout was reached.</string>
+	<string name="AssetUploadRequestInvalid">
+Error in upload request.  Please visit 
+http://secondlife.com/support for help fixing this problem.
+</string>
+
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>

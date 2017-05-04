@@ -815,14 +815,19 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
     }
     else
     {
-        if (status.getType() == 499)
+        switch (status.getType())
         {
-            reason = "The server is experiencing unexpected difficulties.";
-        }
-        else
-        {
-            reason = "Error in upload request.  Please visit "
-                "http://secondlife.com/support for help fixing this problem.";
+        case 404:
+            reason = LLTrans::getString("AssetUploadServerUnreacheble");
+            break;
+        case 499:
+            reason = LLTrans::getString("AssetUploadServerDifficulties");
+            break;
+        case 503:
+            reason = LLTrans::getString("AssetUploadServerUnavaliable");
+            break;
+        default:
+            reason = LLTrans::getString("AssetUploadRequestInvalid");
         }
     }
 
