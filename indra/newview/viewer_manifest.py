@@ -208,7 +208,7 @@ class ViewerManifest(LLManifest):
                             "Platform":summary_json_platform}
             #MAINT-7294: Windows exe names depend on channel name, so write that in also
             if summary_json_platform.startswith('win'):
-                summary_dict.update({'Executable':self.channel_with_pkg_suffix().replace(' ', '')+'.exe'})
+                summary_dict.update({'Executable':self.final_exe()})
             with open(os.path.join(os.pardir,'summary.json'), 'w') as summary_handle:
                 json.dump(summary_dict,summary_handle)
 
