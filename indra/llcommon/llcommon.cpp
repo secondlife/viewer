@@ -41,7 +41,6 @@ static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 //static
 void LLCommon::initClass()
 {
-	LLMemory::initClass();
 	if (!sAprInitialized)
 	{
 		ll_init_apr();
@@ -70,5 +69,4 @@ void LLCommon::cleanupClass()
 		ll_cleanup_apr();
 		sAprInitialized = FALSE;
 	}
-	SUBSYSTEM_CLEANUP(LLMemory);
 }
