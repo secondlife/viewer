@@ -255,8 +255,6 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
-	void showReleaseNotesIfRequired();
-	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
 	static LLAppViewer* sInstance; 
@@ -391,8 +389,8 @@ extern BOOL		gDisconnected;
 
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
-extern BOOL		gUseWireframe;
-extern BOOL		gInitialDeferredModeForWireframe;
+extern bool		gUseWireframe;
+extern bool		gInitialDeferredModeForWireframe;
 
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer

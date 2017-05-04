@@ -233,6 +233,7 @@ protected:
 class LLObjectSelection : public LLRefCount
 {
 	friend class LLSelectMgr;
+	friend class LLSafeHandle<LLObjectSelection>;
 
 protected:
 	~LLObjectSelection();
@@ -623,6 +624,9 @@ public:
 	// returns TRUE if you can modify all selected objects. 
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
+
+	// returns TRUE if all objects are in same region
+	BOOL selectGetSameRegion();
 
 	// returns TRUE if is all objects are non-permanent-enforced
 	BOOL selectGetRootsNonPermanentEnforced();

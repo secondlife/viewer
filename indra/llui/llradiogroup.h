@@ -66,8 +66,6 @@ public:
 	
 	virtual BOOL postBuild();
 	
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	void setIndexEnabled(S32 index, BOOL enabled);
@@ -75,6 +73,8 @@ public:
 	S32 getSelectedIndex() const { return mSelectedIndex; }
 	// set the index value programatically
 	BOOL setSelectedIndex(S32 index, BOOL from_event = FALSE);
+	// foxus child by index if it can get focus
+	void focusSelectedRadioBtn();
 
 	// Accept and retrieve strings of the radio group control names
 	virtual void	setValue(const LLSD& value );

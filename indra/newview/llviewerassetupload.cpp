@@ -307,10 +307,9 @@ void LLResourceUploadInfo::assignDefaults()
         mDescription = "(No Description)";
     }
 
-    mFolderId = gInventory.findCategoryUUIDForType(
+    mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
         (mDestinationFolderType == LLFolderType::FT_NONE) ?
         (LLFolderType::EType)mAssetType : mDestinationFolderType);
-
 }
 
 std::string LLResourceUploadInfo::getDisplayName() const

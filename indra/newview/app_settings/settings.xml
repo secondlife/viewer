@@ -1608,18 +1608,6 @@
     <real>60.0</real>
   </map>
 
-  <key>CameraAspectRatio</key>
-  <map>
-    <key>Comment</key>
-    <string>Camera aspect ratio for DoF effect</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.5</real>
-  </map>
-
   <key>CertStore</key>
     <map>
       <key>Comment</key>
@@ -5175,6 +5163,39 @@
       <key>Value</key>
       <string>http://wiki.secondlife.com/wiki/[LSL_STRING]</string>
     </map>
+    <key>GridStatusRSS</key>
+    <map>
+      <key>Comment</key>
+      <string>URL that points to SL Grid Status RSS</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://secondlife-status.statuspage.io/history.atom</string>
+    </map>
+    <key>GridStatusUpdateDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timer delay for updating Grid Status RSS.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>60.0</real>
+    </map>
+    <key>TestGridStatusRSSFromFile</key>
+    <map>
+      <key>Comment</key>
+      <string>For testing only: Don't update rss xml file from server.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LagMeterShrunk</key>
     <map>
       <key>Comment</key>
@@ -5388,7 +5409,7 @@
     <key>LeftClickShowMenu</key>
     <map>
       <key>Comment</key>
-      <string>Left click opens pie menu (FALSE = left click touches or grabs object)</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8394,6 +8415,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+  <key>AlwaysRenderFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Always render friends regardless of max complexity</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>RenderAvatar</key>
     <map>
       <key>Comment</key>
@@ -11813,6 +11845,17 @@
       <key>Value</key>
       <integer>75</integer>
     </map>
+    <key>AbuseReportScreenshotDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Time delay before taking screenshot to avoid UI artifacts.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.3</real>
+    </map>
     <key>SpeedTest</key>
     <map>
       <key>Comment</key>
@@ -14733,6 +14776,7 @@
 	      <string>snapshot</string>
 	      <string>postcard</string>
 	      <string>mini_map</string>
+	      <string>beacons</string>
       </array>
     </map>
     <key>LandmarksSortedByDate</key>
@@ -15114,6 +15158,22 @@
         <integer>0</integer>
         </array>
         </map>
+    <key>GridStatusFloaterRect</key>
+    <map>
+        <key>Comment</key>
+        <string>Web profile floater dimensions</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Rect</string>
+        <key>Value</key>
+        <array>
+            <integer>0</integer>
+            <integer>520</integer>
+            <integer>625</integer>
+            <integer>0</integer>
+        </array>
+    </map>
     <key>HelpFloaterOpen</key>
     <map>
       <key>Comment</key>

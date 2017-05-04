@@ -218,7 +218,7 @@ void LLFloaterIMNearbyChat::loadHistory()
 		else
  		{
 			std::string legacy_name = gCacheName->buildLegacyName(from);
- 			gCacheName->getUUID(legacy_name, from_id);
+			from_id = LLAvatarNameCache::findIdByName(legacy_name);
  		}
 
 		LLChat chat;
@@ -304,6 +304,13 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
 	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
 	LLFloaterIMSessionTab::restoreFloater();
+	if (app_quitting)
+	{
+		// We are starting and closing floater in "expanded" state
+		// Update expanded (restored) rect and position for use in next session
+		forceReshape();
+		storeRectControl();
+	}
 }
 
 // virtual

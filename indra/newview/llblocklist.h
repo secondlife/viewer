@@ -67,6 +67,8 @@ public:
 	void sortByType();
 	void refresh();
 
+	U32 getMuteListSize() { return mMuteListSize; }
+
 private:
 
 	void addNewItem(const LLMute* mute);
@@ -77,6 +79,9 @@ private:
 
 	bool isActionEnabled(const LLSD& userdata);
 	void onCustomAction (const LLSD& userdata);
+	bool isMenuItemChecked(const LLSD& userdata);
+	bool isMenuItemVisible(const LLSD& userdata);
+	void toggleMute(U32 flags);
 	void createList();
 
 	BlockListActionType getCurrentMuteListActionType();

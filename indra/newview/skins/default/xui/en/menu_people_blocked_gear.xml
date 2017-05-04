@@ -13,6 +13,80 @@
        function="Block.Enable"
        parameter="unblock_item" /> 
   </menu_item_call>
+
+  <menu_item_check
+   label="Block Voice"
+   layout="topleft"
+   name="BlockVoice">
+      <on_check
+       function="Block.Check"
+       parameter="block_voice" />
+      <on_click
+       function="Block.Action"
+       parameter="block_voice" />
+      <on_enable
+       function="Block.Enable"
+       parameter="block_voice" />
+      <on_visible
+       function="Block.Visible"
+       parameter="block_voice" />
+  </menu_item_check>
+
+  <menu_item_check
+   label="Block Text"
+   layout="topleft"
+   name="MuteText">
+      <on_check
+       function="Block.Check"
+       parameter="block_text" />
+      <on_click
+       function="Block.Action"
+       parameter="block_text" />
+     <on_enable
+       function="Block.Enable"
+       parameter="block_text" />
+     <on_visible
+       function="Block.Visible"
+       parameter="block_text" />
+  </menu_item_check>
+
+  <menu_item_check
+   label="Block Particles"
+   layout="topleft"
+   name="MuteText">
+      <on_check
+       function="Block.Check"
+       parameter="block_particles" />
+      <on_click
+       function="Block.Action" 
+       parameter="block_particles" />
+      <on_enable
+       function="Block.Enable"
+       parameter="block_particles" />
+      <on_visible
+       function="Block.Visible"
+       parameter="block_particles" />
+  </menu_item_check>
+
+  <menu_item_check
+   label="Block Object Sounds"
+   layout="topleft"
+   name="BlockObjectSounds">
+      <on_check
+       function="Block.Check"
+       parameter="block_obj_sounds" />
+      <on_click
+       function="Block.Action"
+       parameter="block_obj_sounds" />
+      <on_enable
+       function="Block.Enable"
+       parameter="block_obj_sounds" />
+      <on_visible
+       function="Block.Visible"
+       parameter="block_obj_sounds" />
+  </menu_item_check>
+
+  <menu_item_separator />
   <menu_item_call
    label="Profile..."
    name="profile">

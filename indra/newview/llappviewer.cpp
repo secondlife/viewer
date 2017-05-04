@@ -125,10 +125,8 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/llceflib.h"
-#if LL_WINDOWS
+#include "cef/dullahan.h"
 #include "vlc/libvlc_version.h"
-#endif // LL_WINDOWS
 #endif // LL_LINUX
 
 // Third party library includes
@@ -334,10 +332,10 @@ BOOL				gDisconnected = FALSE;
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
-BOOL			gUseWireframe = FALSE;
+bool			gUseWireframe = FALSE;
 
 //use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
+bool			gInitialDeferredModeForWireframe = FALSE;
 
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
@@ -740,10 +738,7 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::deleteSingleton();
 
-	LLLoginInstance::instance().setUpdaterService(0);
-	
 	destroyMainloopTimeout();
     
 	// If we got to this destructor somehow, the app didn't hang.
@@ -1104,7 +1099,7 @@ bool LLAppViewer::init()
 			minSpecs += "\n";
 			unsupported = true;
 		}
-		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+		if(gSysMemory.getPhysicalMemoryKB() < minRAM)
 		{
 			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedRAM");
 			minSpecs += "\n";
@@ -1235,7 +1230,8 @@ bool LLAppViewer::init()
         boost::bind(&LLControlGroup::getU32, boost::ref(gSavedSettings), _1),
         boost::bind(&LLControlGroup::declareU32, boost::ref(gSavedSettings), _1, _2, _3, LLControlVariable::PERSIST_ALWAYS));
 
-	showReleaseNotesIfRequired();
+	// TODO: consider moving proxy initialization here or LLCopocedureManager after proxy initialization, may be implement
+	// some other protection to make sure we don't use network before initializng proxy
 
 	/*----------------------------------------------------------------------*/
 	// nat 2016-06-29 moved the following here from the former mainLoop().
@@ -1489,11 +1485,9 @@ bool LLAppViewer::frame()
 				ms_sleep(500);
 			}
 
-			const F64Milliseconds max_idle_time = llmin(.005f*10.f*(F32Milliseconds)gFrameTimeSeconds, F32Milliseconds(5)); // 5 ms a second
 			idleTimer.reset();
 			S32 total_work_pending = 0;
 			S32 total_io_pending = 0;	
-			while(1)
 			{
 				S32 work_pending = 0;
 				S32 io_pending = 0;
@@ -1517,11 +1511,7 @@ bool LLAppViewer::frame()
 
 				total_work_pending += work_pending ;
 				total_io_pending += io_pending ;
-				
-				if (!work_pending || idleTimer.getElapsedTimeF64() >= max_idle_time)
-				{
-					break;
-				}
+
 			}
 			gMeshRepo.update() ;
 			
@@ -2117,19 +2107,14 @@ bool LLAppViewer::cleanup()
 	// realtime, or might throw an exception.
 	LLSingletonBase::cleanupAll();
 
+	// The logging subsystem depends on an LLSingleton. Any logging after
+	// LLSingletonBase::deleteAll() won't be recorded.
+	LL_INFOS() << "Goodbye!" << LL_ENDL;
+
 	// This calls every remaining LLSingleton's deleteSingleton() method.
 	// No class destructor should perform any cleanup that might take
 	// significant realtime, or throw an exception.
-	// LLSingleton machinery includes a last-gasp implicit deleteAll() call,
-	// so this explicit call shouldn't strictly be necessary. However, by the
-	// time the runtime engages that implicit call, it may already have
-	// destroyed things like std::cerr -- so the implicit deleteAll() refrains
-	// from logging anything. Since both cleanupAll() and deleteAll() call
-	// their respective cleanup methods in computed dependency order, it's
-	// probably useful to be able to log that order.
 	LLSingletonBase::deleteAll();
-
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
@@ -3119,7 +3104,12 @@ void LLAppViewer::initUpdater()
 	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
 	mUpdater->initialize(channel, 
 						 version,
+// DRTVWR-418 transitional: query using "win64" until VMP is in place
+#if LL_WINDOWS && (ADDRESS_SIZE == 64)
+						 "win64",
+#else
 						 gPlatform,
+#endif
 						 getOSInfo().getOSVersionString(),
 						 unique_id,
 						 willing_to_test
@@ -3318,7 +3308,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
 	if (! LLStringUtil::endsWith(url, "/"))
 		url += "/";
-	url += LLURI::escape(LLVersionInfo::getChannel()) + "/";
+	std::string channel = LLVersionInfo::getChannel();
+	if (LLStringUtil::endsWith(boost::to_lower_copy(channel), " edu")) // Release Notes url shouldn't include the EDU parameter
+	{
+		boost::erase_tail(channel, 4);
+	}
+	url += LLURI::escape(channel) + "/";
 	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
@@ -3393,20 +3388,33 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
-#else
-	info["LLCEFLIB_VERSION"] = "Undefined";
+	std::ostringstream cef_ver_codec;
+	cef_ver_codec << "Dullahan: ";
+	cef_ver_codec << DULLAHAN_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_BUILD;
 
+	cef_ver_codec << " / CEF: ";
+	cef_ver_codec << CEF_VERSION;
+
+	cef_ver_codec << " / Chrome: ";
+	cef_ver_codec << CHROME_VERSION_MAJOR;
+
+	info["LIBCEF_VERSION"] = cef_ver_codec.str();
+#else
+	info["LIBCEF_VERSION"] = "Undefined";
 #endif
 
-#if LL_WINDOWS
-	std::ostringstream ver_codec;
-	ver_codec << LIBVLC_VERSION_MAJOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_MINOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_REVISION;
-	info["LIBVLC_VERSION"] = ver_codec.str();
+#if !LL_LINUX
+	std::ostringstream vlc_ver_codec;
+	vlc_ver_codec << LIBVLC_VERSION_MAJOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_MINOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 #else
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif
@@ -3733,11 +3741,10 @@ void LLAppViewer::handleViewerCrash()
 	{
 		gDebugInfo["Dynamic"]["ParcelMediaURL"] = parcel->getMediaURL();
 	}
-	
-	
+
 	gDebugInfo["Dynamic"]["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
-	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = (LLSD::Integer) LLMemory::getCurrentRSS() >> 10;
-	
+	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = LLSD::Integer(LLMemory::getCurrentRSS() / 1024);
+
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["Dynamic"]["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
@@ -5593,6 +5600,8 @@ void LLAppViewer::forceErrorBreakpoint()
    	LL_WARNS() << "Forcing a deliberate breakpoint" << LL_ENDL;
 #ifdef LL_WINDOWS
     DebugBreak();
+#else
+    asm ("int $3");
 #endif
     return;
 }
@@ -5868,21 +5877,6 @@ void LLAppViewer::launchUpdater()
 
 	// *REMOVE:Mani - Saving for reference...
 	// LLAppViewer::instance()->forceQuit();
-}
-
-/**
-* Check if user is running a new version of the viewer.
-* Display the Release Notes if it's not overriden by the "UpdaterShowReleaseNotes" setting.
-*/
-void LLAppViewer::showReleaseNotesIfRequired()
-{
-	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
-		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-		&& !gSavedSettings.getBOOL("FirstLoginThisInstall"))
-	{
-		LLSD info(getViewerInfo());
-		LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
-	}
 }
 
 //virtual

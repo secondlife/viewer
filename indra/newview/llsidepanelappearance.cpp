@@ -388,7 +388,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 		return;
 	}
 
-	if (mEditWearable->getVisible() == visible && (!visible || mEditWearable->getWearable() != wearable))
+	if (mEditWearable->getVisible() == visible && (!visible || mEditWearable->getWearable() == wearable))
 	{
 		// visibility isn't changing and panel doesn't need an update, hence nothing to do
 		return;
@@ -421,6 +421,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 	{
 		// Save changes if closing.
 		mEditWearable->saveChanges();
+		mEditWearable->setWearable(NULL);
 		LLAppearanceMgr::getInstance()->updateIsDirty();
 		if (change_state)
 		{

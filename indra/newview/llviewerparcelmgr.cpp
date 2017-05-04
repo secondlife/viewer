@@ -706,7 +706,7 @@ bool LLViewerParcelMgr::allowAgentScripts(const LLViewerRegion* region, const LL
 bool LLViewerParcelMgr::allowAgentDamage(const LLViewerRegion* region, const LLParcel* parcel) const
 {
 	return (region && region->getAllowDamage())
-		&& (parcel && parcel->getAllowDamage());
+		|| (parcel && parcel->getAllowDamage());
 }
 
 BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const
@@ -2456,7 +2456,6 @@ void sanitize_corners(const LLVector3d &corner1,
 
 void LLViewerParcelMgr::cleanupGlobals()
 {
-	LLParcelSelection::sNullSelection = NULL;
 }
 
 LLViewerTexture* LLViewerParcelMgr::getBlockedImage() const

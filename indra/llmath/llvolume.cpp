@@ -3697,10 +3697,46 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 			continue;
 		}
 
-		if (face.mTypeMask & (LLVolumeFace::CAP_MASK)) {
+		if (face.mTypeMask & (LLVolumeFace::CAP_MASK))
+		{
+			LLVector4a* v = (LLVector4a*)face.mPositions;
+			LLVector4a* n = (LLVector4a*)face.mNormals;
+
+			for (U32 j = 0; j < face.mNumIndices / 3; j++)
+			{
+				for (S32 k = 0; k < 3; k++)
+				{
+					S32 index = face.mEdge[j * 3 + k];
+
+					if (index == -1)
+					{
+						// silhouette edge, currently only cubes, so no other conditions
+
+						S32 v1 = face.mIndices[j * 3 + k];
+						S32 v2 = face.mIndices[j * 3 + ((k + 1) % 3)];
+
+						LLVector4a t;
+						mat.affineTransform(v[v1], t);
+						vertices.push_back(LLVector3(t[0], t[1], t[2]));
+
+						norm_mat.rotate(n[v1], t);
+
+						t.normalize3fast();
+						normals.push_back(LLVector3(t[0], t[1], t[2]));
+
+						mat.affineTransform(v[v2], t);
+						vertices.push_back(LLVector3(t[0], t[1], t[2]));
+
+						norm_mat.rotate(n[v2], t);
+						t.normalize3fast();
+						normals.push_back(LLVector3(t[0], t[1], t[2]));
+					}
+				}
+			}
 	
 		}
-		else {
+		else
+		{
 
 			//==============================================
 			//DEBUG draw edge map instead of silhouette edge
@@ -5549,10 +5585,17 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	if (!partial_build)
 	{
 		resizeIndices(grid_size*grid_size*6);
+		if (!volume->isMeshAssetLoaded())
+		{
+			mEdge.resize(grid_size*grid_size * 6);
+		}
 
 		U16* out = mIndices;
 
 		S32 idxs[] = {0,1,(grid_size+1)+1,(grid_size+1)+1,(grid_size+1),0};
+
+		int cur_edge = 0;
+
 		for(S32 gx = 0;gx<grid_size;gx++)
 		{
 			
@@ -5563,7 +5606,49 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 					for(S32 i=5;i>=0;i--)
 					{
 						*out++ = ((gy*(grid_size+1))+gx+idxs[i]);
-					}		
+					}
+
+					S32 edge_value = grid_size * 2 * gy + gx * 2;
+
+					if (gx > 0)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1; // Mark face to higlight it
+					}
+
+					if (gy < grid_size - 1)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					mEdge[cur_edge++] = edge_value;
+
+					if (gx < grid_size - 1)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					if (gy > 0)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					mEdge[cur_edge++] = edge_value;
 				}
 				else
 				{
@@ -5571,8 +5656,50 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 					{
 						*out++ = ((gy*(grid_size+1))+gx+idxs[i]);
 					}
+
+					S32 edge_value = grid_size * 2 * gy + gx * 2;
+
+					if (gy > 0)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					if (gx < grid_size - 1)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					mEdge[cur_edge++] = edge_value;
+
+					if (gy < grid_size - 1)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					if (gx > 0)
+					{
+						mEdge[cur_edge++] = edge_value;
+					}
+					else
+					{
+						mEdge[cur_edge++] = -1;
+					}
+
+					mEdge[cur_edge++] = edge_value;
 				}
-			}	
+			}
 		}
 	}
 		

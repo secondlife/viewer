@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu 
+     name="menu_settings_add.xml"
+     left="0" bottom="0" visible="false"
+     mouse_opaque="false">
+  <menu_item_call
+   label="Always Render a Resident..."
+   name="add_avatar_always_render">
+      <on_click
+       function="Settings.AddNewEntry" parameter="always"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Never Render a Resident..."
+   name="add_avatar_never_render">
+      <on_click
+       function="Settings.AddNewEntry"  parameter="never"/>
+  </menu_item_call>
+</toggleable_menu>

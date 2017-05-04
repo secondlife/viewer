@@ -338,56 +338,41 @@ BOOL LLToolPie::handleLeftClickPick()
 
 	// If left-click never selects or spawns a menu
 	// Eat the event.
-	if (!gSavedSettings.getBOOL("LeftClickShowMenu"))
+
+	// mouse already released
+	if (!mMouseButtonDown)
 	{
-		// mouse already released
-		if (!mMouseButtonDown)
-		{
-			return true;
-		}
+		return true;
+	}
 
-		while( object && object->isAttachment() && !object->flagHandleTouch())
+	while (object && object->isAttachment() && !object->flagHandleTouch())
+	{
+		// don't pick avatar through hud attachment
+		if (object->isHUDAttachment())
 		{
-			// don't pick avatar through hud attachment
-			if (object->isHUDAttachment())
-			{
-				break;
-			}
-			object = (LLViewerObject*)object->getParent();
+			break;
 		}
-		if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk"))
-		{
-			// we left clicked on avatar, switch to focus mode
-			mMouseButtonDown = false;
-			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
-			gViewerWindow->hideCursor();
-			LLToolCamera::getInstance()->setMouseCapture(TRUE);
-			LLToolCamera::getInstance()->pickCallback(mPick);
-			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+		object = (LLViewerObject*)object->getParent();
+	}
+	if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk"))
+	{
+		// we left clicked on avatar, switch to focus mode
+		mMouseButtonDown = false;
+		LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
+		gViewerWindow->hideCursor();
+		LLToolCamera::getInstance()->setMouseCapture(TRUE);
+		LLToolCamera::getInstance()->pickCallback(mPick);
+		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 
-			return TRUE;
-		}
+		return TRUE;
+	}
 	//////////
 	//	// Could be first left-click on nothing
 	//	LLFirstUse::useLeftClickNoHit();
 	/////////
-		
-		// Eat the event
-		return LLTool::handleMouseDown(x, y, mask);
-	}
 
-	if (gAgent.leftButtonGrabbed())
-	{
-		// if the left button is grabbed, don't put up the pie menu
-		return LLTool::handleMouseDown(x, y, mask);
-	}
-
-	// Can't ignore children here.
-	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
-
-	// Spawn pie menu
-	LLTool::handleRightMouseDown(x, y, mask);
-	return TRUE;
+	// Eat the event
+	return LLTool::handleMouseDown(x, y, mask);
 }
 
 BOOL LLToolPie::useClickAction(MASK mask, 
@@ -908,14 +893,19 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 				line.append(LLTrans::getString("RetrievingData"));
 			}
 		}
-		else if(gCacheName->getFullName(owner, name))
-		{
-			line.append(name);
-		}
-		else
-		{
-			line.append(LLTrans::getString("RetrievingData"));
-		}
+        else
+        {
+            LLAvatarName av_name;
+            if (LLAvatarNameCache::get(owner, &av_name))
+            {
+                name = av_name.getUserName();
+                line.append(name);
+            }
+            else
+            {
+                line.append(LLTrans::getString("RetrievingData"));
+            }
+        }
 	}
 	else
 	{

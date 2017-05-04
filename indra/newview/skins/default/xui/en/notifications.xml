@@ -341,8 +341,7 @@ Initialization with the Marketplace failed because of a system or network error.
         type="alertmodal">
         The transaction with the Marketplace failed with the following error :
         
-        Reason : &apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
         
         <usetemplate
         name="okbutton"
@@ -1935,6 +1934,14 @@ Please make sure none are locked, and that you own all of them.
    name="CannotLinkPermanent"
    type="alertmodal">
     Objects cannot be linked across region boundaries.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotLinkAcrossRegions"
+   type="alertmodal">
+Objects cannot be linked across region boundaries.
     <tag>fail</tag>
   </notification>
 
@@ -4031,7 +4038,7 @@ An update was downloaded. It will be installed during restart.
  icon="alertmodal.tga"
  name="UpdateCheckError"
  type="alertmodal">
-An error occured while checking for update.
+An error occurred while checking for update.
 Please try again later.
     <tag>confirm</tag>
     <usetemplate
@@ -4326,7 +4333,6 @@ Cannot offer friendship at this time. Please try again in a moment.
 Do Not Disturb is on.  You will not be notified of incoming communications.
 
 - Other residents will receive your Do Not Disturb response (set in Preferences &gt; General).
-- Teleportation offers will be declined.
 - Voice calls will be rejected.
     <usetemplate
      ignoretext="I change my status to Do Not Disturb mode"
@@ -9849,29 +9855,29 @@ Eject failed because you don't have admin permission for that parcel.
 
   <notification
    icon="alertmodal.tga"
-   name="CantMoveObjectParcelFull"
+   name="CMOParcelFull"
    type="notify">
    <tag>fail</tag>
-Can't move object '[OBJECT_NAME]' to
-[OBJ_POSITION] in region [REGION_NAME] because the parcel is full.
+Can't move object '[O]' to
+[P] in region [R] because the parcel is full.
   </notification>
 
   <notification
    icon="alertmodal.tga"
-   name="CantMoveObjectParcelPerms"
+   name="CMOParcelPerms"
    type="notify">
    <tag>fail</tag>
-Can't move object '[OBJECT_NAME]' to
-[OBJ_POSITION] in region [REGION_NAME] because your objects are not allowed on this parcel.
+Can't move object '[O]' to
+[P] in region [R] because your objects are not allowed on this parcel.
   </notification>
 
   <notification
    icon="alertmodal.tga"
-   name="CantMoveObjectParcelResources"
+   name="CMOParcelResources"
    type="notify">
    <tag>fail</tag>
-Can't move object '[OBJECT_NAME]' to
-[OBJ_POSITION] in region [REGION_NAME] because there are not enough resources for this object on this parcel.
+Can't move object '[O]' to
+[P] in region [R] because there are not enough resources for this object on this parcel.
   </notification>
 
   <notification
@@ -9884,29 +9890,29 @@ Copy failed because you lack access to that parcel.
 
   <notification
    icon="alertmodal.tga"
-   name="CantMoveObjectRegionVersion"
+   name="CMORegionVersion"
    type="notify">
-   <tag>fail</tag>
-Can't move object '[OBJECT_NAME]' to
-[OBJ_POSITION] in region [REGION_NAME] because the other region is running an older version which does not support receiving this object via region crossing.
+    <tag>fail</tag>
+    Can't move object '[O]' to
+    [P] in region [R] because the other region is running an older version which does not support receiving this object via region crossing.
   </notification>
 
   <notification
    icon="alertmodal.tga"
-   name="CantMoveObjectNavMesh"
+   name="CMONavMesh"
    type="notify">
    <tag>fail</tag>
-Can't move object '[OBJECT_NAME]' to
-[OBJ_POSITION] in region [REGION_NAME] because you cannot modify the navmesh across region boundaries.
+Can't move object '[O]' to
+[P] in region [R] because you cannot modify the navmesh across region boundaries.
   </notification>
 
   <notification
    icon="alertmodal.tga"
-   name="CantMoveObjectWTF"
+   name="CMOWTF"
    type="notify">
    <tag>fail</tag>
-Can't move object '[OBJECT_NAME]' to
-[OBJ_POSITION] in region [REGION_NAME] because of an unknown reason. ([FAILURE_TYPE])
+Can't move object '[O]' to
+[P] in region [R] because of an unknown reason. ([F])
   </notification>
 
   <notification

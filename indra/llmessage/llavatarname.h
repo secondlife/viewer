@@ -65,7 +65,7 @@ public:
 	
 	// For normal names, returns "James Linden (james.linden)"
 	// When display names are disabled returns just "James Linden"
-	std::string getCompleteName(bool use_parentheses = true) const;
+	std::string getCompleteName(bool use_parentheses = true, bool force_use_complete_name = false) const;
 	
 	// Returns "James Linden" or "bobsmith123 Resident" for backwards
 	// compatibility with systems like voice and muting
@@ -75,7 +75,7 @@ public:
 	// "José Sanchez" or "James Linden", UTF-8 encoded Unicode
 	// Takes the display name preference into account. This is truly the name that should 
 	// be used for all UI where an avatar name has to be used unless we truly want something else (rare)
-	std::string getDisplayName() const;
+	std::string getDisplayName(bool force_use_display_name = false) const;
 	
 	// Returns "James Linden" or "bobsmith123 Resident"
 	// Used where we explicitely prefer or need a non UTF-8 legacy (ASCII) name

@@ -391,13 +391,9 @@ class WindowsManifest(ViewerManifest):
             if self.args['configuration'].lower() == 'debug':
                  self.path("msvcr120d.dll")
                  self.path("msvcp120d.dll")
-                 self.path("msvcr100d.dll")
-                 self.path("msvcp100d.dll")
             else:
                  self.path("msvcr120.dll")
                  self.path("msvcp120.dll")
-                 self.path("msvcr100.dll")
-                 self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -439,33 +435,39 @@ class WindowsManifest(ViewerManifest):
             self.path("media_plugin_libvlc.dll")
             self.end_prefix()
 
+        # Media plugins - Example (useful for debugging - not shipped with release viewer)
+        if self.channel_type() != 'release':
+            if self.prefix(src='../media_plugins/example/%s' % self.args['configuration'], dst="llplugin"):
+                self.path("media_plugin_example.dll")
+                self.end_prefix()
+
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
         else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
 
         # MSVC DLLs needed for CEF and have to be in same directory as plugin
@@ -633,6 +635,13 @@ class WindowsManifest(ViewerManifest):
             Caption "%(caption)s"
             """
 
+        if(self.args['arch'].lower() == 'x86_64'):
+            engage_registry="SetRegView 64"
+            program_files="$PROGRAMFILES64"
+        else:
+            engage_registry="SetRegView 32"
+            program_files="$PROGRAMFILES32"
+
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
@@ -641,6 +650,8 @@ class WindowsManifest(ViewerManifest):
                 "%%SOURCE%%":self.get_src_prefix(),
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
+                "%%PROGRAMFILES%%":program_files,
+                "%%ENGAGEREGISTRY%%":engage_registry,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
         # We use the Unicode version of NSIS, available from
@@ -839,25 +850,29 @@ class DarwinManifest(ViewerManifest):
                         except OSError as err:
                             print "Can't symlink %s -> %s: %s" % (src, dst, err)
 
-                # LLCefLib helper apps go inside SLPlugin.app
+                # Dullahan helper apps go inside SLPlugin.app
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
-                    for helperappfile in ('LLCefLib Helper.app',
-                                          'LLCefLib Helper EH.app'):
+                    for helperappfile in ('DullahanHelper.app'):
                         self.path2basename(relpkgdir, helperappfile)
 
                     pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
                     # Putting a Frameworks directory under Contents/MacOS
-                    # isn't canonical, but the path baked into LLCefLib
-                    # Helper.app/Contents/MacOS/LLCefLib Helper is:
+                    # isn't canonical, but the path baked into Dullahan
+                    # Helper.app/Contents/MacOS/DullahanHelper is:
                     # @executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework
                     # (notice, not @executable_path/../Frameworks/etc.)
                     # So we'll create a symlink (below) from there back to the
                     # Frameworks directory nested under SLPlugin.app.
                     helperframeworkpath = \
-                        self.dst_path_of('LLCefLib Helper.app/Contents/MacOS/'
+                        self.dst_path_of('DullahanHelper.app/Contents/MacOS/'
                                          'Frameworks/Chromium Embedded Framework.framework')
 
                     self.end_prefix()
+
+                    helperexecutablepath = self.dst_path_of('SLPlugin.app/Contents/Frameworks/DullahanHelper.app/Contents/MacOS/DullahanHelper')
+                    self.run_command('install_name_tool -change '
+                                     '"@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" '
+                                     '"@executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % helperexecutablepath)
 
                 # SLPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
@@ -874,12 +889,18 @@ class DarwinManifest(ViewerManifest):
                         self.end_prefix()
 
                     # copy LibVLC plugins folder
-                    if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release', 'plugins' ), dst="plugins"):
-                        self.path( "lib*_plugin.dylib" )
+                    if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release', 'plugins' ), dst="lib"):
+                        self.path( "*.dylib" )
                         self.path( "plugins.dat" )
                         self.end_prefix()
 
                     self.end_prefix("llplugin")
+
+                    # do this install_name_tool *after* media plugin is copied over
+                    dylibexecutablepath = self.dst_path_of('llplugin/media_plugin_cef.dylib')
+                    self.run_command('install_name_tool -change '
+                                     '"@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" '
+                                     '"@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % dylibexecutablepath)
 
                 self.end_prefix("Resources")
 
@@ -918,7 +939,7 @@ class DarwinManifest(ViewerManifest):
                     # Life.app/Contents/Frameworks/Chromium Embedded Framework.framework
                     origin, target = pluginframeworkpath, frameworkpath
                     symlinkf(target, origin)
-                    # from SLPlugin.app/Contents/Frameworks/LLCefLib
+                    # from SLPlugin.app/Contents/Frameworks/Dullahan
                     # Helper.app/Contents/MacOS/Frameworks/Chromium Embedded
                     # Framework.framework back to
                     # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework
@@ -961,7 +982,7 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1000 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1300 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 

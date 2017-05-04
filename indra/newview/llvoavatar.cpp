@@ -118,6 +118,9 @@ extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 const F32 MAX_HOVER_Z = 2.0;
 const F32 MIN_HOVER_Z = -2.0;
 
+const F32 MIN_ATTACHMENT_COMPLEXITY = 0.f;
+const F32 MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
+
 using namespace LLAvatarAppearanceDefines;
 
 //-----------------------------------------------------------------------------
@@ -724,6 +727,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	{
 	    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
+
+	mVisuallyMuteSetting = LLVOAvatar::VisualMuteSettings(LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(getID()));
 }
 
 std::string LLVOAvatar::avString() const
@@ -7071,7 +7076,9 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-	if (isSelf() || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && gSavedSettings.getBOOL("AlwaysRenderFriends"));
+
+	if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
 		too_complex = false;
 	}
@@ -9056,10 +9063,10 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 						const LLVOVolume* volume = drawable->getVOVolume();
 						if (volume)
 						{
-                            U32 attachment_total_cost = 0;
-                            U32 attachment_volume_cost = 0;
-                            U32 attachment_texture_cost = 0;
-                            U32 attachment_children_cost = 0;
+                            F32 attachment_total_cost = 0;
+                            F32 attachment_volume_cost = 0;
+                            F32 attachment_texture_cost = 0;
+                            F32 attachment_children_cost = 0;
 
 							attachment_volume_cost += volume->getRenderCost(textures);
 
@@ -9083,7 +9090,6 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 								// add the cost of each individual texture in the linkset
 								attachment_texture_cost += volume_texture->second;
 							}
-
                             attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
                             LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
                                                    << " total: " << attachment_total_cost
@@ -9092,7 +9098,8 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                                                    << ", " << volume->numChildren()
                                                    << " children: " << attachment_children_cost
                                                    << LL_ENDL;
-                            cost += attachment_total_cost;
+                            // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
+                            cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, MAX_ATTACHMENT_COMPLEXITY);
 						}
 					}
 				}
@@ -9229,8 +9236,9 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
     mVisuallyMuteSetting = set;
     mNeedsImpostorUpdate = TRUE;
-}
 
+    LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
+}
 
 void LLVOAvatar::calcMutedAVColor()
 {

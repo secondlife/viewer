@@ -1505,15 +1505,21 @@ bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_ve
 
 bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
 {
+	const LLConversationItem *conversation_item = getCurSelectedViewModelItem();
+	if(!conversation_item)
+	{
+		return false;
+	}
+
 	const std::string& item = userdata.asString();
 
 	if ("show_mute" == item)
 	{
-		return !isMuted(getCurSelectedViewModelItem()->getUUID());
+		return !isMuted(conversation_item->getUUID());
 	}
 	else if ("show_unmute" == item)
 	{
-		return isMuted(getCurSelectedViewModelItem()->getUUID());
+		return isMuted(conversation_item->getUUID());
 	}
 
 	return true;
@@ -2093,9 +2099,10 @@ void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
 void LLFloaterIMContainer::toggleMute(const LLUUID& participant_id, U32 flags)
 {
         BOOL is_muted = LLMuteList::getInstance()->isMuted(participant_id, flags);
-        std::string name;
-        gCacheName->getFullName(participant_id, name);
-        LLMute mute(participant_id, name, LLMute::AGENT);
+
+        LLAvatarName av_name;
+        LLAvatarNameCache::get(participant_id, &av_name);
+        LLMute mute(participant_id, av_name.getUserName(), LLMute::AGENT);
 
         if (!is_muted)
         {

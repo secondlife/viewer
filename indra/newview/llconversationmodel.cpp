@@ -602,12 +602,12 @@ bool LLConversationItemParticipant::isVoiceMuted()
 
 void LLConversationItemParticipant::muteVoice(bool mute_voice)
 {
-	std::string name;
-	gCacheName->getFullName(mUUID, name);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(mUUID, &av_name);
 	LLMuteList * mute_listp = LLMuteList::getInstance();
-	bool voice_already_muted = mute_listp->isMuted(mUUID, name);
+	bool voice_already_muted = mute_listp->isMuted(mUUID, av_name.getUserName());
 
-	LLMute mute(mUUID, name, LLMute::AGENT);
+	LLMute mute(mUUID, av_name.getUserName(), LLMute::AGENT);
 	if (voice_already_muted && !mute_voice)
 	{
 		mute_listp->remove(mute);

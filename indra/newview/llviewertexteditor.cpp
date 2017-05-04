@@ -191,7 +191,7 @@ public:
 		return false;
 	}
 
-	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
+	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
 	{
 		// always draw at beginning of line
 		if (line_offset == 0)
@@ -1105,10 +1105,6 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLPointer<LLInventoryItem> item, llwch
 			openEmbeddedSound( item, wc );
 			return TRUE;
 
-		case LLAssetType::AT_NOTECARD:
-			openEmbeddedNotecard( item, wc );
-			return TRUE;
-
 		case LLAssetType::AT_LANDMARK:
 			openEmbeddedLandmark( item, wc );
 			return TRUE;
@@ -1117,6 +1113,7 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLPointer<LLInventoryItem> item, llwch
 			openEmbeddedCallingcard( item, wc );
 			return TRUE;
 
+		case LLAssetType::AT_NOTECARD:
 		case LLAssetType::AT_LSL_TEXT:
 		case LLAssetType::AT_CLOTHING:
 		case LLAssetType::AT_OBJECT:
@@ -1180,11 +1177,6 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLPointer<LLInventoryItem> item_p
 		LLEmbeddedLandmarkCopied::processForeignLandmark(landmark, mObjectID,
 				mNotecardInventoryID, item_ptr);
 	}
-}
-
-void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, llwchar wc )
-{
-	copyInventory(item, gInventoryCallbacks.registerCB(mInventoryCallback));
 }
 
 void LLViewerTextEditor::openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc )

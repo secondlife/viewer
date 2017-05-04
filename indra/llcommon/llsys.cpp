@@ -914,22 +914,6 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 #endif
 }
 
-U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
-{
-	// Return the total physical memory in bytes, but clamp it
-	// to no more than U32_MAX
-	
-	U32Kilobytes phys_kb = getPhysicalMemoryKB();
-	if (phys_kb >= U32Gigabytes(4))
-	{
-		return U32Bytes(U32_MAX);
-	}
-	else
-	{
-		return phys_kb;
-	}
-}
-
 //static
 void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
 {

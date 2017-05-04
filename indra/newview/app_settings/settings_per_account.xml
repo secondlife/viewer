@@ -348,5 +348,49 @@
         <key>Value</key>
              <integer>1</integer>
         </map>
+      <key>ModelUploadFolder</key>
+      <map>
+        <key>Comment</key>
+        <string>All model uploads will be stored in this directory (UUID)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
+      <key>TextureUploadFolder</key>
+      <map>
+        <key>Comment</key>
+        <string>All image(texture) uploads will be stored in this directory (UUID)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
+      <key>SoundUploadFolder</key>
+      <map>
+        <key>Comment</key>
+        <string>All sound uploads will be stored in this directory (UUID)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
+      <key>AnimationUploadFolder</key>
+      <map>
+        <key>Comment</key>
+        <string>All animation uploads will be stored in this directory (UUID)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
     </map>
 </llsd>

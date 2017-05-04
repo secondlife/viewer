@@ -391,6 +391,14 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(S32 status, const std::stri
 }
 
 // callback from the name cache with an owner name to add to the list
+void LLPanelScriptLimitsRegionMemory::onAvatarNameCache(
+    const LLUUID& id,
+    const LLAvatarName& av_name)
+{
+    onNameCache(id, av_name.getUserName());
+}
+
+// callback from the name cache with an owner name to add to the list
 void LLPanelScriptLimitsRegionMemory::onNameCache(
 						 const LLUUID& id,
 						 const std::string& full_name)
@@ -503,7 +511,9 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				}
 				else
 				{
-					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
+					LLAvatarName av_name;
+					name_is_cached = LLAvatarNameCache::get(owner_id, &av_name);
+					owner_buf = av_name.getUserName();
 					owner_buf = LLCacheName::buildUsername(owner_buf);
 				}
 				if(!name_is_cached)
@@ -511,9 +521,18 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 					if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 					{
 						names_requested.push_back(owner_id);
-						gCacheName->get(owner_id, is_group_owned,  // username
-							boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
-							    this, _1, _2));
+						if (is_group_owned)
+						{
+							gCacheName->getGroup(owner_id,
+								boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+								    this, _1, _2));
+						}
+						else
+						{
+							LLAvatarNameCache::get(owner_id,
+								boost::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
+								    this, _1, _2));
+						}
 					}
 				}
 			}

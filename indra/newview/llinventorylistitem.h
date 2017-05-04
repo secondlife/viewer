@@ -129,8 +129,8 @@ public:
 	 */
 	/*virtual*/ S32  notify(const LLSD& info);
 
-	 /* Highlights item */
-	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+	/* Highlights item */
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/* Removes item highlight */
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
@@ -153,6 +153,7 @@ public:
 	LLViewerInventoryItem* getItem() const;
 
 	void setSeparatorVisible(bool visible) { mSeparatorVisible = visible; }
+	void resetHighlight() { mHovered = FALSE; }
 
 	virtual ~LLPanelInventoryListItemBase(){}
 
