@@ -518,8 +518,7 @@
      layout="topleft"
      name="Purge Item">
         <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="purge" />
+         function="Inventory.Purge"/>
     </menu_item_call>
     <menu_item_call
      label="Restore Item"

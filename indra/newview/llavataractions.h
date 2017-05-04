@@ -125,6 +125,8 @@ public:
 	 */
 	static void shareWithAvatars(LLView * panel);
 
+	static void purgeSelectedItems();
+
 	/**
 	 * Block/unblock the avatar.
 	 */
@@ -243,6 +245,7 @@ public:
 
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
+	static bool callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
 	static bool handleFreezeAvatar(const LLSD& notification, const LLSD& response);

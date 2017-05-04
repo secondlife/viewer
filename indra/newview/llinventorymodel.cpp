@@ -3318,7 +3318,14 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 {
 	if (!notification.empty())
 	{
-		LLNotificationsUtil::add(notification, LLSD(), LLSD(),
+		LLSD args;
+		if(LLFolderType::FT_TRASH == preferred_type)
+		{
+			static const U32 trash_max_capacity = gSavedSettings.getU32("InventoryTrashMaxCapacity");
+			const LLUUID trash_id = findCategoryUUIDForType(preferred_type);
+			args["COUNT"] = (S32)getDescendentsCountRecursive(trash_id, trash_max_capacity);
+		}
+		LLNotificationsUtil::add(notification, args, LLSD(),
 										boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, preferred_type));
 	}
 	else

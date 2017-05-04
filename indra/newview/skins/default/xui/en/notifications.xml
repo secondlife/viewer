@@ -6188,13 +6188,24 @@ The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders 
 
   <notification
    icon="alertmodal.tga"
-   name="ConfirmEmptyTrash"
+   name="PurgeSelectedItems"
    type="alertmodal">
-Are you sure you want to permanently delete the contents of your Trash?
+[COUNT] item(s) will be permanently deleted. Are you sure you want to permanently delete selected item(s) from your Trash?
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Confirm before I empty the inventory Trash folder"
-     name="okcancelignore"
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmEmptyTrash"
+   type="alertmodal">
+[COUNT] items will be permanently deleted. Are you sure you want to permanently delete the contents of your Trash?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
   </notification>
