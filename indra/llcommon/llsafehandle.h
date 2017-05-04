@@ -181,6 +181,7 @@ protected:
 	class NullInstanceHolder: public LLSingleton<NullInstanceHolder>
 	{
 		LLSINGLETON_EMPTY_CTOR(NullInstanceHolder);
+		~NullInstanceHolder() {}
 	public:
 		Type mNullInstance;
 	};
