@@ -313,7 +313,7 @@ void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)
 		{
 			bool is_outfit_folder = gInventory.isObjectDescendentOf(source_item->getParentUUID(), outfit_folder_id);
 			// If either the new or old item in the COF is a wearable, we need to update wearable ordering after the link has been replaced
-			bool needs_wearable_ordering_update = is_outfit_folder && source_item->getType() == LLAssetType::AT_CLOTHING || target_item->getType() == LLAssetType::AT_CLOTHING;
+			bool needs_wearable_ordering_update = (is_outfit_folder && source_item->getType() == LLAssetType::AT_CLOTHING) || target_item->getType() == LLAssetType::AT_CLOTHING;
 			// Other items in the COF need a description update (description of the actual link item must be empty)
 			bool needs_description_update = is_outfit_folder && target_item->getType() != LLAssetType::AT_CLOTHING;
 
