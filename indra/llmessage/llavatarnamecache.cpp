@@ -755,6 +755,28 @@ void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_na
 	sCache[agent_id] = av_name;
 }
 
+LLUUID LLAvatarNameCache::findIdByName(const std::string& name)
+{
+    std::map<LLUUID, LLAvatarName>::iterator it;
+    std::map<LLUUID, LLAvatarName>::iterator end = sCache.end();
+    for (it = sCache.begin(); it != end; ++it)
+    {
+        if (it->second.getUserName() == name)
+        {
+            return it->first;
+        }
+    }
+
+    // Legacy method
+    LLUUID id;
+    if (gCacheName->getUUID(name, id))
+    {
+        return id;
+    }
+
+    return LLUUID::null;
+}
+
 #if 0
 F64 LLAvatarNameCache::nameExpirationFromHeaders(LLCore::HttpHeaders *headers)
 {

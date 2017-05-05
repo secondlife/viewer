@@ -167,6 +167,7 @@ public:
 			args("args"),
 			cwd("cwd"),
 			autokill("autokill", true),
+			attached("attached", true),
 			files("files"),
 			postend("postend"),
 			desc("desc")
@@ -183,9 +184,31 @@ public:
 		Multiple<std::string> args;
 		/// current working directory, if need it changed
 		Optional<std::string> cwd;
-		/// implicitly kill process on destruction of LLProcess object
-		/// (default true)
+		/// implicitly kill child process on termination of parent, whether
+		/// voluntary or crash (default true)
 		Optional<bool> autokill;
+		/// implicitly kill process on destruction of LLProcess object
+		/// (default same as autokill)
+		///
+		/// Originally, 'autokill' conflated two concepts: kill child process on
+		/// - destruction of its LLProcess object, and
+		/// - termination of parent process, voluntary or otherwise.
+		///
+		/// It's useful to tease these apart. Some child processes are sent a
+		/// "clean up and terminate" message before the associated LLProcess
+		/// object is destroyed. A child process launched with attached=false
+		/// has an extra time window from the destruction of its LLProcess
+		/// until parent-process termination in which to perform its own
+		/// orderly shutdown, yet autokill=true still guarantees that we won't
+		/// accumulate orphan instances of such processes indefinitely. With
+		/// attached=true, if a child process cannot clean up between the
+		/// shutdown message and LLProcess destruction (presumably very soon
+		/// thereafter), it's forcibly killed anyway -- which can lead to
+		/// distressing user-visible crash indications.
+		///
+		/// (The usefulness of attached=true with autokill=false is less
+		/// clear, but we don't prohibit that combination.)
+		Optional<bool> attached;
 		/**
 		 * Up to three FileParam items: for child stdin, stdout, stderr.
 		 * Passing two FileParam entries means default treatment for stderr,
@@ -540,7 +563,7 @@ private:
 	std::string mDesc;
 	std::string mPostend;
 	apr_proc_t mProcess;
-	bool mAutokill;
+	bool mAutokill, mAttached;
 	Status mStatus;
 	// explicitly want this ptr_vector to be able to store NULLs
 	typedef boost::ptr_vector< boost::nullable<BasePipe> > PipeVector;

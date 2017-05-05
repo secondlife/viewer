@@ -1083,7 +1083,7 @@ bool LLAppViewer::init()
 			minSpecs += "\n";
 			unsupported = true;
 		}
-		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+		if(gSysMemory.getPhysicalMemoryKB() < minRAM)
 		{
 			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedRAM");
 			minSpecs += "\n";
@@ -2098,13 +2098,6 @@ bool LLAppViewer::cleanup()
 	// This calls every remaining LLSingleton's deleteSingleton() method.
 	// No class destructor should perform any cleanup that might take
 	// significant realtime, or throw an exception.
-	// LLSingleton machinery includes a last-gasp implicit deleteAll() call,
-	// so this explicit call shouldn't strictly be necessary. However, by the
-	// time the runtime engages that implicit call, it may already have
-	// destroyed things like std::cerr -- so the implicit deleteAll() refrains
-	// from logging anything. Since both cleanupAll() and deleteAll() call
-	// their respective cleanup methods in computed dependency order, it's
-	// probably useful to be able to log that order.
 	LLSingletonBase::deleteAll();
 
 	removeDumpDir();
@@ -3076,7 +3069,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
 	if (! LLStringUtil::endsWith(url, "/"))
 		url += "/";
-	url += LLURI::escape(LLVersionInfo::getChannel()) + "/";
+	std::string channel = LLVersionInfo::getChannel();
+	if (LLStringUtil::endsWith(boost::to_lower_copy(channel), " edu")) // Release Notes url shouldn't include the EDU parameter
+	{
+		boost::erase_tail(channel, 4);
+	}
+	url += LLURI::escape(channel) + "/";
 	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
@@ -3504,11 +3502,10 @@ void LLAppViewer::handleViewerCrash()
 	{
 		gDebugInfo["Dynamic"]["ParcelMediaURL"] = parcel->getMediaURL();
 	}
-	
-	
+
 	gDebugInfo["Dynamic"]["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
-	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = (LLSD::Integer) LLMemory::getCurrentRSS() >> 10;
-	
+	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = LLSD::Integer(LLMemory::getCurrentRSS() / 1024);
+
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["Dynamic"]["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
@@ -5364,6 +5361,8 @@ void LLAppViewer::forceErrorBreakpoint()
    	LL_WARNS() << "Forcing a deliberate breakpoint" << LL_ENDL;
 #ifdef LL_WINDOWS
     DebugBreak();
+#else
+    asm ("int $3");
 #endif
     return;
 }

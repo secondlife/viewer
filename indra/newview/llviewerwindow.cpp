@@ -53,6 +53,7 @@
 #include "llrender.h"
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
+#include "stringize.h"
 
 //
 // TODO: Many of these includes are unnecessary.  Remove them.
@@ -394,7 +395,8 @@ public:
 #if LL_WINDOWS
 		if (gSavedSettings.getBOOL("DebugShowMemory"))
 		{
-			addText(xpos, ypos, llformat("Memory: %d (KB)", LLMemory::getWorkingSetSize() / 1024)); 
+			addText(xpos, ypos,
+					STRINGIZE("Memory: " << (LLMemory::getCurrentRSS() / 1024) << " (KB)"));
 			ypos += y_inc;
 		}
 #endif
@@ -2724,8 +2726,16 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			return TRUE;
 		}
 
-		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
+		if (gAgent.isInitialized()
+			&& (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE || gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+			&& gMenuBarView
+			&& gMenuBarView->handleAcceleratorKey(key, mask))
+		{
+			LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+			return TRUE;
+		}
+
+		if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 		{
 			LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 			return TRUE;
@@ -2855,8 +2865,16 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// give menus a chance to handle unmodified accelerator keys
-	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-		||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
+	if (gAgent.isInitialized()
+		&& (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE || gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+		&& gMenuBarView
+		&& gMenuBarView->handleAcceleratorKey(key, mask))
+	{
+		LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+		return TRUE;
+	}
+
+	if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 	{
 		return TRUE;
 	}

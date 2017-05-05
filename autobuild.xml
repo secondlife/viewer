@@ -76,9 +76,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae733dd8f2c83055030ea6e08c623306</string>
+              <string>f65774ebabb256f2d217a872b0cf2b5b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/745/1534/apr_suite-1.4.5.500735-darwin64-500735.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4812/15284/apr_suite-1.4.5.504800-darwin64-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -100,9 +100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bc8855c8253b8293c7e61af7b1ed0f05</string>
+              <string>84a1a140f20b25d714949185e854d14b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/744/1545/apr_suite-1.4.5.500735-linux64-500735.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4811/15302/apr_suite-1.4.5.504800-linux64-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -112,9 +112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d97a3788ea4f89eccb7789e4f015bb3</string>
+              <string>dc80eca3d113b038b469003da8cd6638</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/747/1540/apr_suite-1.4.5.500735-windows-500735.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4813/15290/apr_suite-1.4.5.504800-windows-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -124,16 +124,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8820c4df1079a9af53f52485f50ff179</string>
+              <string>63146d3d3d5fe7aa6be1a1b0afed36dd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/746/1537/apr_suite-1.4.5.500735-windows64-500735.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4814/15296/apr_suite-1.4.5.504800-windows64-504800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.5.500735</string>
+        <string>1.4.5.504800</string>
       </map>
       <key>boost</key>
       <map>
@@ -526,9 +526,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1517ca15cd1209b0910a8f6720c65cb4</string>
+              <string>da5c705fa4fae169cba26fba92dba1ef</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3408/8552/dullahan-1.1.636_3.2987.1591.gd3e47f5-darwin64-503397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4835/15404/dullahan-1.1.800_3.3029.1611.g44e39a8-darwin64-504824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -538,9 +538,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5dc1349abce3ccb04c6ac79a0ff19d59</string>
+              <string>17cd8f6e8f95df877d0c9c234f860324</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3410/8559/dullahan-1.1.636_3.2987.1591.gd3e47f5-windows-503397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4836/15410/dullahan-1.1.800_3.3029.1611.g44e39a8-windows-504824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -550,16 +550,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>928db398436823aa804046de91339177</string>
+              <string>7a478f8f0e13f5f81cab657a8c351186</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3409/8562/dullahan-1.1.636_3.2987.1591.gd3e47f5-windows64-503397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4837/15415/dullahan-1.1.800_3.3029.1611.g44e39a8-windows64-504824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.636_3.2987.1591.gd3e47f5</string>
+        <string>1.1.800_3.3029.1611.g44e39a8</string>
       </map>
       <key>elfio</key>
       <map>
@@ -1376,9 +1376,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cbaa7619050123c3fd2a88959f88bd47</string>
+              <string>a0c4405c9e44d4a0135fe20ba8cfbace</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/749/1553/havok_source-2012.1-2-darwin64-500739.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4693/14627/havok_source-2012.1-2-darwin64-504680.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1412,9 +1412,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dab55cc0555d7126fda925e20af851ea</string>
+              <string>035572a1929be66f6c56468e0ef7fe74</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1194/2807/havok_source-2012.1-2-windows-501181.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4695/14637/havok_source-2012.1-2-windows-504680.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1424,9 +1424,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7bbc1c3512a5665b7576b4b0357a9eb7</string>
+              <string>d8525d2fbb9e0f7bc31427b47350e468</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1195/2816/havok_source-2012.1-2-windows64-501181.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4694/14634/havok_source-2012.1-2-windows64-504680.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2182,9 +2182,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e2b519ee7538b25877e34ede6864a250</string>
+              <string>162a3fc9b66626072ec8679361b174f5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1691/3748/llphysicsextensions_source-1.0.501678-darwin64-501678.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4722/14837/llphysicsextensions_source-1.0.504710-darwin64-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2194,9 +2194,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b2c1f53f7f1add01af1e7cfa737e20e</string>
+              <string>c1b43e99c5ddccc18b0e9cb288bf75e1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1689/3734/llphysicsextensions_source-1.0.501678-linux64-501678.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4721/14828/llphysicsextensions_source-1.0.504710-linux64-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2206,16 +2206,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e8cb92ae79c9435b98e444322ec5798</string>
+              <string>dd85c9e0f5fa3ce483ea183db008c4bc</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1696/3763/llphysicsextensions_source-1.0.501678-windows-501678.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4726/14858/llphysicsextensions_source-1.0.504710-windows-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501678</string>
+        <string>1.0.504710</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2234,9 +2234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>32309a20161f54f42d08f7bc1e7fcf01</string>
+              <string>566aa2c6f5b2f40a8b0bedf90d9c6beb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1692/3749/llphysicsextensions_stub-1.0.501679-darwin64-501679.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4723/14838/llphysicsextensions_stub-1.0.504712-darwin64-504712.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2246,9 +2246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>58af530891721f3690a4dce9a8c73190</string>
+              <string>711f4ec769e4b5f59ba25ee43c11bcbc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1690/3739/llphysicsextensions_stub-1.0.501679-linux64-501679.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4724/14846/llphysicsextensions_stub-1.0.504712-linux64-504712.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2258,16 +2258,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c59cb5d1dd96ab51f87cd0cf202304dd</string>
+              <string>d830aca10ea9396557b1e613c2736e49</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1695/3757/llphysicsextensions_stub-1.0.501679-windows-501679.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4725/14853/llphysicsextensions_stub-1.0.504712-windows-504712.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.501679</string>
+        <string>1.0.504712</string>
       </map>
       <key>mesa</key>
       <map>
@@ -3496,7 +3496,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>default</key>
@@ -3524,7 +3523,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>name</key>
@@ -3558,7 +3556,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>name</key>
@@ -3584,7 +3581,6 @@
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                  <string>-DHAVOK:BOOL=OFF</string>
                 </array>
               </map>
               <key>name</key>

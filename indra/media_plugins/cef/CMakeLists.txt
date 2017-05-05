@@ -46,6 +46,10 @@ set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
     )
 
+set(media_plugin_cef_HEADER_FILES
+    volume_catcher.h
+    )
+
 set (media_plugin_cef_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
@@ -53,7 +57,21 @@ set (media_plugin_cef_LINK_LIBRARIES
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES})
 
-
+# Select which VolumeCatcher implementation to use
+if (LINUX)
+  message(FATAL_ERROR "CEF plugin has been enabled for a Linux compile.\n"
+    "  Please create a volume_catcher implementation for this platform.")
+elseif (DARWIN)
+  list(APPEND media_plugin_cef_SOURCE_FILES mac_volume_catcher_null.cpp)
+  find_library(CORESERVICES_LIBRARY CoreServices)
+  find_library(AUDIOUNIT_LIBRARY AudioUnit)
+  list(APPEND media_plugin_cef_LINK_LIBRARIES
+       ${CORESERVICES_LIBRARY}     # for Component Manager calls
+       ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
+       )
+elseif (WINDOWS)
+  list(APPEND media_plugin_cef_SOURCE_FILES windows_volume_catcher.cpp)
+endif (LINUX)
 
 set_source_files_properties(${media_plugin_cef_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
