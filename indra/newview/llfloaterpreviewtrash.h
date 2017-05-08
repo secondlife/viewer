@@ -35,6 +35,7 @@ class LLFloaterPreviewTrash
 {
 public:
 	static void show();
+	static bool isVisible();
 
 	LLFloaterPreviewTrash(const LLSD& key);
 	~LLFloaterPreviewTrash();

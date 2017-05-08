@@ -168,6 +168,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 	mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
+	mCommitCallbackRegistrar.add("Inventory.Purge", boost::bind(&LLInventoryPanel::purgeSelectedItems, this));
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -1210,6 +1211,21 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
         gSavedPerAccountSettings.setString("AnimationUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
     }
 }
+
+void LLInventoryPanel::purgeSelectedItems()
+{
+    const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
+    if (inventory_selected.empty()) return;
+
+    std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin();
+    const std::set<LLFolderViewItem*>::const_iterator it_end = inventory_selected.end();
+    for (; it != it_end; ++it)
+    {
+        LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
+        remove_inventory_object(item_id, NULL);
+    }
+}
+
 
 bool LLInventoryPanel::attachObject(const LLSD& userdata)
 {

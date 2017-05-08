@@ -3437,8 +3437,16 @@ void  LLInventoryModel::checkTrashOverflow()
 	const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	if (getDescendentsCountRecursive(trash_id, trash_max_capacity) >= trash_max_capacity)
 	{
-		LLNotificationsUtil::add("TrashIsFull", LLSD(), LLSD(),
-			boost::bind(callback_preview_trash_folder, _1, _2));
+		if (LLFloaterPreviewTrash::isVisible())
+		{
+			// bring to front
+			LLFloaterPreviewTrash::show();
+		}
+		else
+		{
+			LLNotificationsUtil::add("TrashIsFull", LLSD(), LLSD(),
+				boost::bind(callback_preview_trash_folder, _1, _2));
+		}
 	}
 }
 
