@@ -165,7 +165,8 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	}
     else if(PRESETS_CAMERA == subdirectory)
 	{
-		name_list = {"Placeholder"};
+		name_list.clear();
+		name_list.push_back("Placeholder");
 	}
     else
     {
