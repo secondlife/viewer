@@ -36,7 +36,14 @@
 #include <boost/iterator/indirect_iterator.hpp>
 
 // As of 2017-05-06, as far as nat knows, only clang supports __has_feature().
-#if defined(LL_TEST_llinstancetracker) && defined(__clang__) && __has_feature(cxx_noexcept)
+// Unfortunately VS2013's preprocessor shortcut logic doesn't prevent it from
+// producing (fatal) warnings for defined(__clang__) && __has_feature(...).
+// Have to work around that.
+#if ! defined(__clang__)
+#define __has_feature(x) 0
+#endif // __clang__
+
+#if defined(LL_TEST_llinstancetracker) && __has_feature(cxx_noexcept)
 // ~LLInstanceTracker() performs llassert_always() validation. That's fine in
 // production code, since the llassert_always() is implemented as an LL_ERRS
 // message, which will crash-with-message. In our integration test executable,
