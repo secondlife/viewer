@@ -156,7 +156,13 @@ if (DARWIN)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
   set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
+  # The viewer code base can now be successfully compiled with -std=c++14. But
+  # turning that on in the generic viewer-build-variables/variables file would
+  # potentially require tweaking each of our ~50 third-party library builds.
+  # Until we decide to set -std=c++14 in viewer-build-variables/variables, set
+  # it locally here: we want to at least prevent inadvertently reintroducing
+  # viewer code that would fail with C++14.
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags} -std=c++14")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
