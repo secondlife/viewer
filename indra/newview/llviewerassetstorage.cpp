@@ -532,13 +532,16 @@ void LLViewerAssetStorage::assetRequestCoro(
                 result_code = LL_ERR_ASSET_REQUEST_FAILED;
                 ext_status = LL_EXSTAT_VFS_CORRUPT;
             }
-            if (!vf.rename(uuid, atype))
+            else if (!vf.rename(uuid, atype))
             {
                 LL_WARNS("ViewerAsset") << "rename failed" << LL_ENDL;
                 result_code = LL_ERR_ASSET_REQUEST_FAILED;
                 ext_status = LL_EXSTAT_VFS_CORRUPT;
             }
-            mCountSucceeded++;
+            else
+            {
+                mCountSucceeded++;
+            }
         }
         else
         {

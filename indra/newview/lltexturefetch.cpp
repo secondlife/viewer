@@ -1426,11 +1426,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
             // Capture some measure of total size for metrics
             F64 byte_count = 0;
-            for (S32 i=mFirstPacket; i<=mLastPacket; i++)
+            if (mLastPacket >= mFirstPacket)
             {
-                if (mPackets[i])
+                for (S32 i=mFirstPacket; i<=mLastPacket; i++)
                 {
-                    byte_count += mPackets[i]->mSize;
+                    llassert_always((i>=0) && (i<mPackets.size()));
+                    if (mPackets[i])
+                    {
+                        byte_count += mPackets[i]->mSize;
+                    }
                 }
             }
 
@@ -2231,6 +2235,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 		S32 buffer_size = mFormattedImage->getDataSize();
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
+            llassert_always((i>=0) && (i<mPackets.size()));
 			llassert_always(mPackets[i]);
 			buffer_size += mPackets[i]->mSize;
 		}
