@@ -138,4 +138,15 @@ struct Collect
     StringVec result;
 };
 
+struct Concat
+{
+    bool operator()(const LLSD& event)
+    {
+        result += event.asString();
+        return false;
+    }
+    void clear() { result.clear(); }
+    std::string result;
+};
+
 #endif /* ! defined(LL_LISTENER_H) */
