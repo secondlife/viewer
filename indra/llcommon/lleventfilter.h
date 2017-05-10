@@ -270,14 +270,15 @@ private:
  * For a deferred event, the LLSD blob delivered to listeners is from the most
  * recent deferred post() call. However, a sender may obtain the previous
  * event blob by calling pending(), modifying it as desired and post()ing the
- * new value. Each time an event is delivered to listeners, the pending()
- * value is reset to isUndefined().
+ * new value. (See LLEventBatchThrottle.) Each time an event is delivered to
+ * listeners, the pending() value is reset to isUndefined().
  *
  * You may also call flush() to immediately pass along any deferred events to
  * all listeners.
  *
  * @NOTE This is an abstract base class so that, for testing, we can use an
- * alternate "timer" that doesn't actually consume real time.
+ * alternate "timer" that doesn't actually consume real time. See
+ * LLEventThrottle.
  */
 class LL_COMMON_API LLEventThrottleBase: public LLEventFilter
 {
@@ -348,20 +349,31 @@ private:
 };
 
 /**
- * LLEventBatchThrottle: like LLEventThrottle, it refuses to pass events to
- * listeners more often than once per specified time interval.
- * Like LLEventBatch, it accumulates pending events into an LLSD Array.
+ * LLEventBatchThrottle: like LLEventThrottle, it's reluctant to pass events
+ * to listeners more often than once per specified time interval -- but only
+ * reluctant, since exceeding the specified batch size limit can cause it to
+ * deliver accumulated events sooner. Like LLEventBatch, it accumulates
+ * pending events into an LLSD Array, optionally flushing when the batch grows
+ * to a certain size.
  */
 class LLEventBatchThrottle: public LLEventThrottle
 {
 public:
-    // pass time interval
-    LLEventBatchThrottle(F32 interval);
+    // pass time interval and (optionally) max batch size; 0 means batch can
+    // grow arbitrarily large
+    LLEventBatchThrottle(F32 interval, std::size_t size = 0);
     // construct and connect
-    LLEventBatchThrottle(LLEventPump& source, F32 interval);
+    LLEventBatchThrottle(LLEventPump& source, F32 interval, std::size_t size = 0);
 
     // append a new event to current batch
     virtual bool post(const LLSD& event);
+
+    // query or reset batch size
+    std::size_t getSize() const { return mBatchSize; }
+    void setSize(std::size_t size);
+
+private:
+    std::size_t mBatchSize;
 };
 
 #endif /* ! defined(LL_LLEVENTFILTER_H) */

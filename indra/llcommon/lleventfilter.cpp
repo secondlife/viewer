@@ -206,10 +206,8 @@ void LLEventBatch::flush()
 bool LLEventBatch::post(const LLSD& event)
 {
     mBatch.append(event);
-    if (mBatch.size() >= mBatchSize)
-    {
-        flush();
-    }
+    // calling setSize(same) performs the very check we want
+    setSize(mBatchSize);
     return false;
 }
 
@@ -377,12 +375,14 @@ F32  LLEventThrottle::timerGetRemaining() const
 /*****************************************************************************
 *   LLEventBatchThrottle
 *****************************************************************************/
-LLEventBatchThrottle::LLEventBatchThrottle(F32 interval):
-    LLEventThrottle(interval)
+LLEventBatchThrottle::LLEventBatchThrottle(F32 interval, std::size_t size):
+    LLEventThrottle(interval),
+    mBatchSize(size)
 {}
 
-LLEventBatchThrottle::LLEventBatchThrottle(LLEventPump& source, F32 interval):
-    LLEventThrottle(source, interval)
+LLEventBatchThrottle::LLEventBatchThrottle(LLEventPump& source, F32 interval, std::size_t size):
+    LLEventThrottle(source, interval),
+    mBatchSize(size)
 {}
 
 bool LLEventBatchThrottle::post(const LLSD& event)
@@ -390,5 +390,22 @@ bool LLEventBatchThrottle::post(const LLSD& event)
     // simply retrieve pending value and append the new event to it
     LLSD partial = pending();
     partial.append(event);
-    return LLEventThrottle::post(partial);
+    bool ret = LLEventThrottle::post(partial);
+    // The post() call above MIGHT have called flush() already. If it did,
+    // then pending() was reset to empty. If it did not, though, but the batch
+    // size has grown to the limit, flush() anyway. If there's a limit at all,
+    // of course. Calling setSize(same) performs the very check we want.
+    setSize(mBatchSize);
+    return ret;
+}
+
+void LLEventBatchThrottle::setSize(std::size_t size)
+{
+    mBatchSize = size;
+    // Changing the size might mean that we have to flush NOW. Don't forget
+    // that 0 means unlimited.
+    if (mBatchSize && pending().size() >= mBatchSize)
+    {
+        flush();
+    }
 }
