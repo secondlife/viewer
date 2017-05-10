@@ -247,7 +247,7 @@ private:
 };
 
 /**
- * LLEventThrottle: construct with a time interval. Regardless of how
+ * LLEventThrottleBase: construct with a time interval. Regardless of how
  * frequently you call post(), LLEventThrottle will pass on an event to
  * its listeners no more often than once per specified interval.
  *
@@ -268,21 +268,24 @@ private:
  * 17: post(): immediately passed to listeners, next no sooner than 20
  *
  * For a deferred event, the LLSD blob delivered to listeners is from the most
- * recent deferred post() call. However, you may obtain the previous event
- * blob by calling pending(), modify it however you want and post() the new
- * value. Each time an event is delivered to listeners, the pending() value is
- * reset to isUndefined().
+ * recent deferred post() call. However, a sender may obtain the previous
+ * event blob by calling pending(), modifying it as desired and post()ing the
+ * new value. Each time an event is delivered to listeners, the pending()
+ * value is reset to isUndefined().
  *
  * You may also call flush() to immediately pass along any deferred events to
  * all listeners.
+ *
+ * @NOTE This is an abstract base class so that, for testing, we can use an
+ * alternate "timer" that doesn't actually consume real time.
  */
-class LL_COMMON_API LLEventThrottle: public LLEventFilter
+class LL_COMMON_API LLEventThrottleBase: public LLEventFilter
 {
 public:
     // pass time interval
-    LLEventThrottle(F32 interval);
+    LLEventThrottleBase(F32 interval);
     // construct and connect
-    LLEventThrottle(LLEventPump& source, F32 interval);
+    LLEventThrottleBase(LLEventPump& source, F32 interval);
 
     // force out any deferred events
     void flush();
@@ -301,7 +304,17 @@ public:
     std::size_t getPostCount() const { return mPosts; }
 
     // time until next event would be passed through, 0.0 if now
-    F32 getDelay() const { return mTimer.getRemainingTimeF32(); }
+    F32 getDelay() const;
+
+protected:
+    // Implement these time-related methods for a valid LLEventThrottleBase
+    // subclass (see LLEventThrottle). For testing, we use a subclass that
+    // doesn't involve actual elapsed time.
+    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) = 0;
+    virtual bool alarmRunning() const = 0;
+    virtual void alarmCancel() = 0;
+    virtual void timerSet(F32 interval) = 0;
+    virtual F32  timerGetRemaining() const = 0;
 
 private:
     // remember throttle interval
@@ -310,6 +323,24 @@ private:
     std::size_t mPosts;
     // pending event data from most recent deferred event
     LLSD mPending;
+};
+
+/**
+ * Production implementation of LLEventThrottle.
+ */
+class LLEventThrottle: public LLEventThrottleBase
+{
+public:
+    LLEventThrottle(F32 interval);
+    LLEventThrottle(LLEventPump& source, F32 interval);
+
+private:
+    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) override;
+    virtual bool alarmRunning() const override;
+    virtual void alarmCancel() override;
+    virtual void timerSet(F32 interval) override;
+    virtual F32  timerGetRemaining() const override;
+
     // use this to arrange a deferred flush() call
     LLEventTimeout mAlarm;
     // use this to track whether we're within mInterval of last flush()

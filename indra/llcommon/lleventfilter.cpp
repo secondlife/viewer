@@ -38,12 +38,18 @@
 #include "llerror.h"                // LL_ERRS
 #include "llsdutil.h"               // llsd_matches()
 
+/*****************************************************************************
+*   LLEventFilter
+*****************************************************************************/
 LLEventFilter::LLEventFilter(LLEventPump& source, const std::string& name, bool tweak):
     LLEventStream(name, tweak),
     mSource(source.listen(getName(), boost::bind(&LLEventFilter::post, this, _1)))
 {
 }
 
+/*****************************************************************************
+*   LLEventMatching
+*****************************************************************************/
 LLEventMatching::LLEventMatching(const LLSD& pattern):
     LLEventFilter("matching"),
     mPattern(pattern)
@@ -64,6 +70,9 @@ bool LLEventMatching::post(const LLSD& event)
     return LLEventStream::post(event);
 }
 
+/*****************************************************************************
+*   LLEventTimeoutBase
+*****************************************************************************/
 LLEventTimeoutBase::LLEventTimeoutBase():
     LLEventFilter("timeout")
 {
@@ -153,6 +162,9 @@ bool LLEventTimeoutBase::running() const
     return mMainloop.connected();
 }
 
+/*****************************************************************************
+*   LLEventTimeout
+*****************************************************************************/
 LLEventTimeout::LLEventTimeout() {}
 
 LLEventTimeout::LLEventTimeout(LLEventPump& source):
@@ -170,6 +182,9 @@ bool LLEventTimeout::countdownElapsed() const
     return mTimer.hasExpired();
 }
 
+/*****************************************************************************
+*   LLEventBatch
+*****************************************************************************/
 LLEventBatch::LLEventBatch(std::size_t size):
     LLEventFilter("batch"),
     mBatchSize(size)
@@ -208,19 +223,22 @@ void LLEventBatch::setSize(std::size_t size)
     }
 }
 
-LLEventThrottle::LLEventThrottle(F32 interval):
+/*****************************************************************************
+*   LLEventThrottleBase
+*****************************************************************************/
+LLEventThrottleBase::LLEventThrottleBase(F32 interval):
     LLEventFilter("throttle"),
     mInterval(interval),
     mPosts(0)
 {}
 
-LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
+LLEventThrottleBase::LLEventThrottleBase(LLEventPump& source, F32 interval):
     LLEventFilter(source, "throttle"),
     mInterval(interval),
     mPosts(0)
 {}
 
-void LLEventThrottle::flush()
+void LLEventThrottleBase::flush()
 {
     // flush() is a no-op unless there's something pending.
     // Don't test mPending because there's no requirement that the consumer
@@ -228,11 +246,11 @@ void LLEventThrottle::flush()
     if (mPosts)
     {
         mPosts = 0;
-        mAlarm.cancel();
+        alarmCancel();
         // This is not to set our alarm; we are not yet requesting
         // any notification. This is just to track whether subsequent post()
         // calls fall within this mInterval or not.
-        mTimer.setTimerExpirySec(mInterval);
+        timerSet(mInterval);
         // copy and clear mPending BEFORE posting to avoid weird circularity
         // effects
         LLSD pending = mPending;
@@ -241,12 +259,12 @@ void LLEventThrottle::flush()
     }
 }
 
-LLSD LLEventThrottle::pending() const
+LLSD LLEventThrottleBase::pending() const
 {
     return mPending;
 }
 
-bool LLEventThrottle::post(const LLSD& event)
+bool LLEventThrottleBase::post(const LLSD& event)
 {
     // Always capture most recent post() event data. If caller wants to
     // aggregate multiple events, let them retrieve pending() and modify
@@ -257,7 +275,7 @@ bool LLEventThrottle::post(const LLSD& event)
     ++mPosts;
     // We reset mTimer on every flush() call to let us know if we're still
     // within the same mInterval. So -- are we?
-    F32 timeRemaining = mTimer.getRemainingTimeF32();
+    F32 timeRemaining = timerGetRemaining();
     if (! timeRemaining)
     {
         // more than enough time has elapsed, immediately flush()
@@ -266,24 +284,24 @@ bool LLEventThrottle::post(const LLSD& event)
     else
     {
         // still within mInterval of the last flush() call: have to defer
-        if (! mAlarm.running())
+        if (! alarmRunning())
         {
             // timeRemaining tells us how much longer it will be until
             // mInterval seconds since the last flush() call. At that time,
             // flush() deferred events.
-            mAlarm.actionAfter(timeRemaining, boost::bind(&LLEventThrottle::flush, this));
+            alarmActionAfter(timeRemaining, boost::bind(&LLEventThrottleBase::flush, this));
         }
     }
     return false;
 }
 
-void LLEventThrottle::setInterval(F32 interval)
+void LLEventThrottleBase::setInterval(F32 interval)
 {
     F32 oldInterval = mInterval;
     mInterval = interval;
     // If we are not now within oldInterval of the last flush(), we're done:
     // this will only affect behavior starting with the next flush().
-    F32 timeRemaining = mTimer.getRemainingTimeF32();
+    F32 timeRemaining = timerGetRemaining();
     if (timeRemaining)
     {
         // We are currently within oldInterval of the last flush(). Figure out
@@ -305,16 +323,60 @@ void LLEventThrottle::setInterval(F32 interval)
         else
         {
             // immediately reset mTimer
-            mTimer.setTimerExpirySec(timeRemaining);
+            timerSet(timeRemaining);
             // and if mAlarm is running, reset that too
-            if (mAlarm.running())
+            if (alarmRunning())
             {
-                mAlarm.actionAfter(timeRemaining, boost::bind(&LLEventThrottle::flush, this));
+                alarmActionAfter(timeRemaining, boost::bind(&LLEventThrottleBase::flush, this));
             }
         }
     }
 }
 
+F32 LLEventThrottleBase::getDelay() const
+{
+    return timerGetRemaining();
+}
+
+/*****************************************************************************
+*   LLEventThrottle implementation
+*****************************************************************************/
+LLEventThrottle::LLEventThrottle(F32 interval):
+    LLEventThrottleBase(interval)
+{}
+
+LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
+    LLEventThrottleBase(source, interval)
+{}
+
+void LLEventThrottle::alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action)
+{
+    mAlarm.actionAfter(interval, action);
+}
+
+bool LLEventThrottle::alarmRunning() const
+{
+    return mAlarm.running();
+}
+
+void LLEventThrottle::alarmCancel()
+{
+    return mAlarm.cancel();
+}
+
+void LLEventThrottle::timerSet(F32 interval)
+{
+    mTimer.setTimerExpirySec(interval);
+}
+
+F32  LLEventThrottle::timerGetRemaining() const
+{
+    return mTimer.getRemainingTimeF32();
+}
+
+/*****************************************************************************
+*   LLEventBatchThrottle
+*****************************************************************************/
 LLEventBatchThrottle::LLEventBatchThrottle(F32 interval):
     LLEventThrottle(interval)
 {}
@@ -326,5 +388,7 @@ LLEventBatchThrottle::LLEventBatchThrottle(LLEventPump& source, F32 interval):
 bool LLEventBatchThrottle::post(const LLSD& event)
 {
     // simply retrieve pending value and append the new event to it
-    return LLEventThrottle::post(pending().append(event));
+    LLSD partial = pending();
+    partial.append(event);
+    return LLEventThrottle::post(partial);
 }
