@@ -1128,10 +1128,10 @@ LLSD LLMemoryInfo::loadStatsMap()
 	//
 	
 	{
-		vm_statistics_data_t vmstat;
-		mach_msg_type_number_t vmstatCount = HOST_VM_INFO_COUNT;
+		vm_statistics64_data_t vmstat;
+		mach_msg_type_number_t vmstatCount = HOST_VM_INFO64_COUNT;
 
-		if (host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
+		if (host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
 	{
 			LL_WARNS("LLMemoryInfo") << "Unable to collect memory information" << LL_ENDL;
 		}
@@ -1189,20 +1189,20 @@ LLSD LLMemoryInfo::loadStatsMap()
 	//
 
 		{
-		task_basic_info_64_data_t taskinfo;
-		unsigned taskinfoSize = sizeof(taskinfo);
-		
-		if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t) &taskinfo, &taskinfoSize) != KERN_SUCCESS)
+			mach_task_basic_info_data_t taskinfo;
+			mach_msg_type_number_t task_count = MACH_TASK_BASIC_INFO_COUNT;
+			if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t) &taskinfo, &task_count) != KERN_SUCCESS)
 			{
-			LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
-				}
-				else
-				{
-			stats.add("Basic suspend count",					taskinfo.suspend_count);
-			stats.add("Basic virtual memory KB",				taskinfo.virtual_size / 1024);
-			stats.add("Basic resident memory KB",				taskinfo.resident_size / 1024);
-			stats.add("Basic new thread policy",				taskinfo.policy);
-		}
+				LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
+			}
+			else
+			{
+				stats.add("Basic virtual memory KB", taskinfo.virtual_size / 1024);
+				stats.add("Basic resident memory KB", taskinfo.resident_size / 1024);
+				stats.add("Basic max resident memory KB", taskinfo.resident_size_max / 1024);
+				stats.add("Basic new thread policy", taskinfo.policy);
+				stats.add("Basic suspend count", taskinfo.suspend_count);
+			}
 	}
 
 #elif LL_SOLARIS
