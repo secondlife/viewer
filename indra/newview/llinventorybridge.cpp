@@ -3870,6 +3870,13 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     }
 	if(trash_id == mUUID)
 	{
+		bool is_recent_panel = false;
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+		if (active_panel && (active_panel->getName() == "Recent Items"))
+		{
+			is_recent_panel = true;
+		}
+
 		// This is the trash.
 		items.push_back(std::string("Empty Trash"));
 
@@ -3877,7 +3884,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		LLInventoryModel::item_array_t* item_array;
 		gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
 		// Enable Empty menu item only when there is something to act upon.
-		if (0 == cat_array->size() && 0 == item_array->size())
+		if ((0 == cat_array->size() && 0 == item_array->size()) || is_recent_panel)
 		{
 			disabled_items.push_back(std::string("Empty Trash"));
 		}
