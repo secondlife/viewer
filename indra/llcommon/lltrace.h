@@ -57,7 +57,7 @@ class StatBase
 {
 public:
 	StatBase(const char* name, const char* description);
-	virtual ~StatBase() {};
+	virtual ~StatBase() LLINSTANCETRACKER_DTOR_NOEXCEPT	{}
 	virtual const char* getUnitLabel() const;
 
 	const std::string& getName() const { return mName; }

@@ -3,6 +3,9 @@ include(LLTestCommand)
 include(GoogleMock)
 include(Tut)
 
+#*****************************************************************************
+#   LL_ADD_PROJECT_UNIT_TESTS
+#*****************************************************************************
 MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # Given a project name and a list of sourcefiles (with optional properties on each),
   # add targets to build and run the tests specified.
@@ -74,19 +77,17 @@ INCLUDE(GoogleMock)
     # Per-codefile additional / external source, header, and include dir property extraction
     #
     # Source
-    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_SOURCE_FILES ${source} LL_TEST_ADDITIONAL_SOURCE_FILES)
-    IF(${name}_test_additional_SOURCE_FILES MATCHES NOTFOUND)
-      SET(${name}_test_additional_SOURCE_FILES "")
-    ENDIF(${name}_test_additional_SOURCE_FILES MATCHES NOTFOUND)
-    SET(${name}_test_SOURCE_FILES ${source} tests/${name}_test.${extension} ${alltest_SOURCE_FILES} ${${name}_test_additional_SOURCE_FILES} )
+    GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_SOURCE_FILES ${source} LL_TEST_ADDITIONAL_SOURCE_FILES)
+    SET(${name}_test_SOURCE_FILES
+      ${source}
+      tests/${name}_test.${extension}
+      ${alltest_SOURCE_FILES}
+      ${${name}_test_additional_SOURCE_FILES} )
     IF(LL_TEST_VERBOSE)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_SOURCE_FILES ${${name}_test_SOURCE_FILES}")
     ENDIF(LL_TEST_VERBOSE)
     # Headers
-    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_HEADER_FILES ${source} LL_TEST_ADDITIONAL_HEADER_FILES)
-    IF(${name}_test_additional_HEADER_FILES MATCHES NOTFOUND)
-      SET(${name}_test_additional_HEADER_FILES "")
-    ENDIF(${name}_test_additional_HEADER_FILES MATCHES NOTFOUND)
+    GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_HEADER_FILES ${source} LL_TEST_ADDITIONAL_HEADER_FILES)
     SET(${name}_test_HEADER_FILES ${name}.h ${${name}_test_additional_HEADER_FILES})
     set_source_files_properties(${${name}_test_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
     LIST(APPEND ${name}_test_SOURCE_FILES ${${name}_test_HEADER_FILES})
@@ -94,10 +95,7 @@ INCLUDE(GoogleMock)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_HEADER_FILES ${${name}_test_HEADER_FILES}")
     ENDIF(LL_TEST_VERBOSE)
     # Include dirs
-    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_INCLUDE_DIRS ${source} LL_TEST_ADDITIONAL_INCLUDE_DIRS)
-    IF(${name}_test_additional_INCLUDE_DIRS MATCHES NOTFOUND)
-      SET(${name}_test_additional_INCLUDE_DIRS "")
-    ENDIF(${name}_test_additional_INCLUDE_DIRS MATCHES NOTFOUND)
+    GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_INCLUDE_DIRS ${source} LL_TEST_ADDITIONAL_INCLUDE_DIRS)
     INCLUDE_DIRECTORIES(${alltest_INCLUDE_DIRS} ${${name}_test_additional_INCLUDE_DIRS} )
     IF(LL_TEST_VERBOSE)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_INCLUDE_DIRS ${${name}_test_additional_INCLUDE_DIRS}")
@@ -113,15 +111,9 @@ INCLUDE(GoogleMock)
     #
     # WARNING: it's REALLY IMPORTANT to not mix these. I guarantee it will not work in the future. + poppy 2009-04-19
     # Projects
-    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_PROJECTS ${source} LL_TEST_ADDITIONAL_PROJECTS)
-    IF(${name}_test_additional_PROJECTS MATCHES NOTFOUND)
-      SET(${name}_test_additional_PROJECTS "")
-    ENDIF(${name}_test_additional_PROJECTS MATCHES NOTFOUND)
+    GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_PROJECTS ${source} LL_TEST_ADDITIONAL_PROJECTS)
     # Libraries
-    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_LIBRARIES ${source} LL_TEST_ADDITIONAL_LIBRARIES)
-    IF(${name}_test_additional_LIBRARIES MATCHES NOTFOUND)
-      SET(${name}_test_additional_LIBRARIES "")
-    ENDIF(${name}_test_additional_LIBRARIES MATCHES NOTFOUND)
+    GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_LIBRARIES ${source} LL_TEST_ADDITIONAL_LIBRARIES)
     IF(LL_TEST_VERBOSE)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_PROJECTS ${${name}_test_additional_PROJECTS}")
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_LIBRARIES ${${name}_test_additional_LIBRARIES}")
@@ -129,13 +121,14 @@ INCLUDE(GoogleMock)
     # Add to project
     TARGET_LINK_LIBRARIES(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${alltest_DEP_TARGETS} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
     # Compile-time Definitions
-    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
-     IF(NOT ${name}_test_additional_CFLAGS MATCHES NOTFOUND)
-       SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name} PROPERTIES COMPILE_FLAGS ${${name}_test_additional_CFLAGS} )
-       IF(LL_TEST_VERBOSE)
-         MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
-       ENDIF(LL_TEST_VERBOSE)
-     ENDIF(NOT ${name}_test_additional_CFLAGS MATCHES NOTFOUND)
+    GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
+    SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name}
+      PROPERTIES
+      COMPILE_FLAGS "${${name}_test_additional_CFLAGS}"
+      COMPILE_DEFINITIONS "LL_TEST=${name};LL_TEST_${name}")
+    IF(LL_TEST_VERBOSE)
+      MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
+    ENDIF(LL_TEST_VERBOSE)
      
     #
     # Setup test targets
@@ -175,6 +168,19 @@ INCLUDE(GoogleMock)
   ADD_DEPENDENCIES(${project} ${project}_tests)
 ENDMACRO(LL_ADD_PROJECT_UNIT_TESTS)
 
+#*****************************************************************************
+#   GET_OPT_SOURCE_FILE_PROPERTY
+#*****************************************************************************
+MACRO(GET_OPT_SOURCE_FILE_PROPERTY var filename property)
+  GET_SOURCE_FILE_PROPERTY(${var} "${filename}" "${property}")
+  IF("${${var}}" MATCHES NOTFOUND)
+    SET(${var} "")
+  ENDIF("${${var}}" MATCHES NOTFOUND)
+ENDMACRO(GET_OPT_SOURCE_FILE_PROPERTY)
+
+#*****************************************************************************
+#   LL_ADD_INTEGRATION_TEST
+#*****************************************************************************
 FUNCTION(LL_ADD_INTEGRATION_TEST 
     testname
     additional_source_files
@@ -184,7 +190,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   if(TEST_DEBUG)
     message(STATUS "Adding INTEGRATION_TEST_${testname} - debug output is on")
   endif(TEST_DEBUG)
-  
+
   SET(source_files
     tests/${testname}_test.cpp
     ${CMAKE_SOURCE_DIR}/test/test.cpp
@@ -206,7 +212,11 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     message(STATUS "ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})")
   endif(TEST_DEBUG)
   ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
-  SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
+  SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
+    COMPILE_DEFINITIONS "LL_TEST=${testname};LL_TEST_${testname}"
+    )
 
   if(USESYSTEMLIBS)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
@@ -268,6 +278,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
 ENDFUNCTION(LL_ADD_INTEGRATION_TEST)
 
+#*****************************************************************************
+#   SET_TEST_PATH
+#*****************************************************************************
 MACRO(SET_TEST_PATH LISTVAR)
   IF(WINDOWS)
     # We typically build/package only Release variants of third-party
