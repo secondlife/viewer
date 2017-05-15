@@ -72,7 +72,7 @@ bool LLFloaterPreviewTrash::isVisible()
 
 void LLFloaterPreviewTrash::onClickEmpty()
 {
-	gInventory.emptyFolderType("", LLFolderType::FT_TRASH);
+	gInventory.emptyFolderType("PurgeSelectedItems", LLFolderType::FT_TRASH);
 	closeFloater();
 }
 
