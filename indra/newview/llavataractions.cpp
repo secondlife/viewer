@@ -929,17 +929,6 @@ void LLAvatarActions::shareWithAvatars(LLView * panel)
 	LLNotificationsUtil::add("ShareNotification");
 }
 
-
-//static
-void LLAvatarActions::purgeSelectedItems()
-{
-	const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
-	if (inventory_selected_uuids.empty()) return;
-	LLSD args;
-	args["COUNT"] = (S32)inventory_selected_uuids.size();
-	LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), &callbackPurgeSelectedItems);
-}
-
 // static
 bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NULL*/)
 {
@@ -1176,24 +1165,6 @@ bool LLAvatarActions::callbackAddFriendWithMessage(const LLSD& notification, con
 		requestFriendship(notification["payload"]["id"].asUUID(), 
 		    notification["payload"]["name"].asString(),
 		    response["message"].asString());
-	}
-	return false;
-}
-
-bool LLAvatarActions::callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
-		if (inventory_selected_uuids.empty()) return false;
-
-		std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin();
-		const std::set<LLUUID>::const_iterator it_end = inventory_selected_uuids.end();
-		for (; it != it_end; ++it)
-		{
-			remove_inventory_object(*it, NULL);
-		}
 	}
 	return false;
 }
