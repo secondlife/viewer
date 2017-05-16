@@ -391,6 +391,7 @@ void LLInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)
 		}
 	}
 	removeBatchNoCheck(batch);
+	model->checkTrashOverflow();
 }
 
 void  LLInvFVBridge::removeBatchNoCheck(std::vector<LLFolderViewModelItem*>&  batch)
