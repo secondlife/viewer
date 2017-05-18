@@ -337,6 +337,12 @@
                 <menu_item_call.on_click
                  function="Communicate.VoiceMorphing.Subscribe" />
             </menu_item_call>
+            <menu_item_call
+             label="Premium perk..."
+             name="PremiumPerk">
+                <menu_item_call.on_click
+                 function="Communicate.VoiceMorphing.PremiumPerk" />
+            </menu_item_call>
         </menu>
         <menu_item_check
          label="Gestures..."
@@ -1018,6 +1024,15 @@
                function="Object.Return" />
 			<menu_item_call.on_enable
                function="Object.EnableReturn" />
+          </menu_item_call>
+          <menu_item_call
+           label="Duplicate"
+           name="DuplicateObject"
+           shortcut="control|D">
+            <menu_item_call.on_click
+               function="Object.Duplicate" />
+            <menu_item_call.on_enable
+               function="Object.EnableDuplicate" />
           </menu_item_call>
 		</menu>
         <menu

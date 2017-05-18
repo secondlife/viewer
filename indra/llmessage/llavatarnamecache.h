@@ -84,7 +84,15 @@ namespace LLAvatarNameCache
 	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
 	void erase(const LLUUID& agent_id);
 
-    /// Provide some fallback for agents that return errors.
+	// A way to find agent id by UUID, very slow, also unreliable
+	// since it doesn't request names, just serch exsisting ones
+	// that are likely not in cache.
+	//
+	// Todo: Find a way to remove this.
+	// Curently this method is used for chat history and in some cases notices.
+	LLUUID findIdByName(const std::string& name);
+
+	/// Provide some fallback for agents that return errors.
 	void handleAgentError(const LLUUID& agent_id);
 
 	// Compute name expiration time from HTTP Cache-Control header,

@@ -489,6 +489,12 @@ class WindowsManifest(ViewerManifest):
             self.path("media_plugin_libvlc.dll")
             self.end_prefix()
 
+        # Media plugins - Example (useful for debugging - not shipped with release viewer)
+        if self.channel_type() != 'release':
+            if self.prefix(src='../media_plugins/example/%s' % self.args['configuration'], dst="llplugin"):
+                self.path("media_plugin_example.dll")
+                self.end_prefix()
+
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
@@ -699,7 +705,7 @@ class WindowsManifest(ViewerManifest):
                 "%%SOURCE%%":self.get_src_prefix(),
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
-                "%%$PROGRAMFILES%%":program_files,
+                "%%PROGRAMFILES%%":program_files,
                 "%%ENGAGEREGISTRY%%":engage_registry,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
@@ -1067,7 +1073,7 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1000 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1300 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 

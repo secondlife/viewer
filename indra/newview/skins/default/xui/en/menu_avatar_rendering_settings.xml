@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Settings">
+    <menu_item_check
+     label="Default"
+     layout="topleft"
+     name="default">
+        <on_click function="Settings.SetRendering" parameter="default"/>
+	<on_check function="Settings.IsSelected" parameter="default" />  
+    </menu_item_check>
+    <menu_item_check
+     label="Always render"
+     layout="topleft"
+     name="always_render">
+        <on_click function="Settings.SetRendering" parameter="always"/>
+	<on_check function="Settings.IsSelected" parameter="always" />  
+    </menu_item_check>
+    <menu_item_check
+     label="Never render"
+     layout="topleft"
+     name="never_render">
+        <on_click function="Settings.SetRendering" parameter="never"/>
+	<on_check function="Settings.IsSelected" parameter="never" />  
+    </menu_item_check>  
+</context_menu>

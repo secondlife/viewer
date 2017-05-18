@@ -44,10 +44,10 @@
 #include "llsys.h"
 #include "llframetimer.h"
 #include "lltrace.h"
+#include "llerror.h"
 //----------------------------------------------------------------------------
 
 //static
-char* LLMemory::reserveMem = 0;
 U32Kilobytes LLMemory::sAvailPhysicalMemInKB(U32_MAX);
 U32Kilobytes LLMemory::sMaxPhysicalMemInKB(0);
 static LLTrace::SampleStatHandle<F64Megabytes> sAllocatedMem("allocated_mem", "active memory in use by application");
@@ -78,29 +78,6 @@ void ll_assert_aligned_func(uintptr_t ptr,U32 alignment)
 #endif
 }
 
-//static
-void LLMemory::initClass()
-{
-	if (!reserveMem)
-	{
-		reserveMem = new char[16*1024]; // reserve 16K for out of memory error handling
-	}
-}
-
-//static
-void LLMemory::cleanupClass()
-{
-	delete [] reserveMem;
-	reserveMem = NULL;
-}
-
-//static
-void LLMemory::freeReserve()
-{
-	delete [] reserveMem;
-	reserveMem = NULL;
-}
-
 //static 
 void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure)
 {
@@ -111,19 +88,18 @@ void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_f
 //static 
 void LLMemory::updateMemoryInfo() 
 {
-#if LL_WINDOWS	
-	HANDLE self = GetCurrentProcess();
+#if LL_WINDOWS
 	PROCESS_MEMORY_COUNTERS counters;
-	
-	if (!GetProcessMemoryInfo(self, &counters, sizeof(counters)))
+
+	if (!GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters)))
 	{
 		LL_WARNS() << "GetProcessMemoryInfo failed" << LL_ENDL;
 		return ;
 	}
 
-	sAllocatedMemInKB = (U32Bytes)(counters.WorkingSetSize) ;
+	sAllocatedMemInKB = U64Bytes(counters.WorkingSetSize) ;
 	sample(sAllocatedMem, sAllocatedMemInKB);
-	sAllocatedPageSizeInKB = (U32Bytes)(counters.PagefileUsage) ;
+	sAllocatedPageSizeInKB = U64Bytes(counters.PagefileUsage) ;
 	sample(sVirtualMem, sAllocatedPageSizeInKB);
 
 	U32Kilobytes avail_phys, avail_virtual;
@@ -140,9 +116,9 @@ void LLMemory::updateMemoryInfo()
 	}
 #else
 	//not valid for other systems for now.
-	sAllocatedMemInKB = (U32Bytes)LLMemory::getCurrentRSS();
-	sMaxPhysicalMemInKB = (U32Bytes)U32_MAX ;
-	sAvailPhysicalMemInKB = (U32Bytes)U32_MAX ;
+	sAllocatedMemInKB = U64Bytes(LLMemory::getCurrentRSS());
+	sMaxPhysicalMemInKB = U64Bytes(U32_MAX);
+	sAvailPhysicalMemInKB = U64Bytes(U32_MAX);
 #endif
 
 	return ;
@@ -169,7 +145,7 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
 	return address ;
 #else
 	return (void*)0x01 ; //skip checking
-#endif	
+#endif
 }
 
 //static 
@@ -183,7 +159,7 @@ void LLMemory::logMemoryInfo(BOOL update)
 
 	LL_INFOS() << "Current allocated physical memory(KB): " << sAllocatedMemInKB << LL_ENDL ;
 	LL_INFOS() << "Current allocated page size (KB): " << sAllocatedPageSizeInKB << LL_ENDL ;
-	LL_INFOS() << "Current availabe physical memory(KB): " << sAvailPhysicalMemInKB << LL_ENDL ;
+	LL_INFOS() << "Current available physical memory(KB): " << sAvailPhysicalMemInKB << LL_ENDL ;
 	LL_INFOS() << "Current max usable memory(KB): " << sMaxPhysicalMemInKB << LL_ENDL ;
 
 	LL_INFOS() << "--- private pool information -- " << LL_ENDL ;
@@ -263,12 +239,12 @@ U32Kilobytes LLMemory::getAllocatedMemKB()
 
 #if defined(LL_WINDOWS)
 
+//static 
 U64 LLMemory::getCurrentRSS()
 {
-	HANDLE self = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS counters;
-	
-	if (!GetProcessMemoryInfo(self, &counters, sizeof(counters)))
+
+	if (!GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters)))
 	{
 		LL_WARNS() << "GetProcessMemoryInfo failed" << LL_ENDL;
 		return 0;
@@ -277,34 +253,7 @@ U64 LLMemory::getCurrentRSS()
 	return counters.WorkingSetSize;
 }
 
-//static 
-U32 LLMemory::getWorkingSetSize()
-{
-    PROCESS_MEMORY_COUNTERS pmc ;
-	U32 ret = 0 ;
-
-    if (GetProcessMemoryInfo( GetCurrentProcess(), &pmc, sizeof(pmc)) )
-	{
-		ret = pmc.WorkingSetSize ;
-	}
-
-	return ret ;
-}
-
 #elif defined(LL_DARWIN)
-
-/* 
-	The API used here is not capable of dealing with 64-bit memory sizes, but is available before 10.4.
-	
-	Once we start requiring 10.4, we can use the updated API, which looks like this:
-	
-	task_basic_info_64_data_t basicInfo;
-	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_64_COUNT;
-	if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
-	
-	Of course, this doesn't gain us anything unless we start building the viewer as a 64-bit executable, since that's the only way
-	for our memory allocation to exceed 2^32.
-*/
 
 // 	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
 // 	{
@@ -318,16 +267,15 @@ U32 LLMemory::getWorkingSetSize()
 U64 LLMemory::getCurrentRSS()
 {
 	U64 residentSize = 0;
-	task_basic_info_data_t basicInfo;
-	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_COUNT;
-	if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
+	mach_task_basic_info_data_t basicInfo;
+	mach_msg_type_number_t  basicInfoCount = MACH_TASK_BASIC_INFO_COUNT;
+	if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
 	{
-		residentSize = basicInfo.resident_size;
-
-		// If we ever wanted it, the process virtual size is also available as:
-		// virtualSize = basicInfo.virtual_size;
-		
-//		LL_INFOS() << "resident size is " << residentSize << LL_ENDL;
+//		residentSize = basicInfo.resident_size;
+		// Although this method is defined to return the "resident set size,"
+		// in fact what callers want from it is the total virtual memory
+		// consumed by the application.
+		residentSize = basicInfo.virtual_size;
 	}
 	else
 	{
@@ -335,11 +283,6 @@ U64 LLMemory::getCurrentRSS()
 	}
 
 	return residentSize;
-}
-
-U32 LLMemory::getWorkingSetSize()
-{
-	return 0 ;
 }
 
 #elif defined(LL_LINUX)
@@ -353,7 +296,7 @@ U64 LLMemory::getCurrentRSS()
 	if (fp == NULL)
 	{
 		LL_WARNS() << "couldn't open " << statPath << LL_ENDL;
-		goto bail;
+		return 0;
 	}
 
 	// Eee-yew!	 See Documentation/filesystems/proc.txt in your
@@ -372,13 +315,7 @@ U64 LLMemory::getCurrentRSS()
 	
 	fclose(fp);
 
-bail:
 	return rss;
-}
-
-U32 LLMemory::getWorkingSetSize()
-{
-	return 0 ;
 }
 
 #elif LL_SOLARIS
@@ -410,19 +347,9 @@ U64 LLMemory::getCurrentRSS()
 	return((U64)proc_psinfo.pr_rssize * 1024);
 }
 
-U32 LLMemory::getWorkingSetSize()
-{
-	return 0 ;
-}
-
 #else
 
 U64 LLMemory::getCurrentRSS()
-{
-	return 0;
-}
-
-U32 LLMemory::getWorkingSetSize()
 {
 	return 0;
 }

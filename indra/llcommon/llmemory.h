@@ -334,13 +334,9 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 class LL_COMMON_API LLMemory
 {
 public:
-	static void initClass();
-	static void cleanupClass();
-	static void freeReserve();
 	// Return the resident set size of the current process, in bytes.
 	// Return value is zero if not known.
 	static U64 getCurrentRSS();
-	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
 	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
@@ -351,7 +347,6 @@ public:
 	static U32Kilobytes getMaxMemKB() ;
 	static U32Kilobytes getAllocatedMemKB() ;
 private:
-	static char* reserveMem;
 	static U32Kilobytes sAvailPhysicalMemInKB ;
 	static U32Kilobytes sMaxPhysicalMemInKB ;
 	static U32Kilobytes sAllocatedMemInKB;

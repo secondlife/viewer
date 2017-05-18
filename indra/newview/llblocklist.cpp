@@ -55,7 +55,9 @@ LLBlockList::LLBlockList(const Params& p)
 
 	registrar.add		("Block.Action",	boost::bind(&LLBlockList::onCustomAction,	this, _2));
 	enable_registrar.add("Block.Enable",	boost::bind(&LLBlockList::isActionEnabled,	this, _2));
-
+	enable_registrar.add("Block.Check",     boost::bind(&LLBlockList::isMenuItemChecked, this, _2));
+	enable_registrar.add("Block.Visible",   boost::bind(&LLBlockList::isMenuItemVisible, this, _2));
+	
 	LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 									"menu_people_blocked_gear.xml",
 									gMenuHolder,
@@ -128,7 +130,14 @@ BOOL LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLBlockList::removeListItem(const LLMute* mute)
 {
-	removeItemByUUID(mute->mID);
+	if (mute->mID.notNull())
+	{
+		removeItemByUUID(mute->mID);
+	}
+	else
+	{
+		removeItemByValue(mute->mName);
+	}
 }
 
 void LLBlockList::hideListItem(LLBlockedListItem* item, bool show)
@@ -176,7 +185,14 @@ void LLBlockList::addNewItem(const LLMute* mute)
 	{
 		item->highlightName(mNameFilter);
 	}
-	addItem(item, item->getUUID(), ADD_BOTTOM);
+	if (item->getUUID().notNull())
+	{
+		addItem(item, item->getUUID(), ADD_BOTTOM);
+	}
+	else
+	{
+		addItem(item, item->getName(), ADD_BOTTOM);
+	}
 }
 
 void LLBlockList::refresh()
@@ -184,7 +200,8 @@ void LLBlockList::refresh()
 	bool have_filter = !mNameFilter.empty();
 
 	// save selection to restore it after list rebuilt
-	LLUUID selected = getSelectedUUID(), next_selected;
+	LLSD selected = getSelectedValue();
+	LLSD next_selected;
 
 	if(mShouldAddAll)	// creating list of blockers
 	{
@@ -202,14 +219,15 @@ void LLBlockList::refresh()
 		}
 		else if(mActionType == REMOVE)
 		{
-			if(selected == mute.mID)
+			if ((mute.mID.notNull() && selected.isUUID() && selected.asUUID() == mute.mID)
+				|| (mute.mID.isNull() && selected.isString() && selected.asString() == mute.mName))
 			{
 				// we are going to remove currently selected item, so select next item and save the selection to restore it
-	if (!selectNextItemPair(false, true))
-	{
-		selectNextItemPair(true, true);
-	}
-				next_selected = getSelectedUUID();
+				if (!selectNextItemPair(false, true))
+				{
+					selectNextItemPair(true, true);
+				}
+				next_selected = getSelectedValue();
 			}
 			removeListItem(&mute);
 		}
@@ -235,15 +253,18 @@ void LLBlockList::refresh()
 	}
 	mPrevNameFilter = mNameFilter;
 
-	if (getItemPair(selected))
+	if (selected.isDefined())
 	{
-		// restore previously selected item
-		selectItemPair(getItemPair(selected), true);
-	}
-	else if (getItemPair(next_selected))
-	{
-		// previously selected item was removed, so select next item
-		selectItemPair(getItemPair(next_selected), true);
+		if (getItemPair(selected))
+		{
+			// restore previously selected item
+			selectItemPair(getItemPair(selected), true);
+		}
+		else if (next_selected.isDefined() && getItemPair(next_selected))
+		{
+			// previously selected item was removed, so select next item
+			selectItemPair(getItemPair(next_selected), true);
+		}
 	}
 	mMuteListSize = LLMuteList::getInstance()->getMutes().size();
 
@@ -272,7 +293,11 @@ bool LLBlockList::isActionEnabled(const LLSD& userdata)
 
 	const std::string command_name = userdata.asString();
 
-	if ("profile_item" == command_name)
+	if ("profile_item" == command_name 
+		|| "block_voice" == command_name
+		|| "block_text" == command_name
+		|| "block_particles" == command_name
+		|| "block_obj_sounds" == command_name)
 	{
 		LLBlockedListItem* item = getBlockedItem();
 		action_enabled = item && (LLMute::AGENT == item->getType());
@@ -313,6 +338,83 @@ void LLBlockList::onCustomAction(const LLSD& userdata)
 		default:
 			break;
 		}
+	}
+	else if ("block_voice" == command_name)
+	{
+		toggleMute(LLMute::flagVoiceChat);
+	}
+	else if ("block_text" == command_name)
+	{
+		toggleMute(LLMute::flagTextChat);
+	}
+	else if ("block_particles" == command_name)
+	{
+		toggleMute(LLMute::flagParticles);
+	}
+	else if ("block_obj_sounds" == command_name)
+	{
+		toggleMute(LLMute::flagObjectSounds);
+	}
+}
+
+bool LLBlockList::isMenuItemChecked(const LLSD& userdata)
+{
+	LLBlockedListItem* item = getBlockedItem();
+	if (!item)
+	{
+		return false;
+	}
+
+	const std::string command_name = userdata.asString();
+
+	if ("block_voice" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagVoiceChat);
+	}
+	else if ("block_text" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagTextChat);
+	}
+	else if ("block_particles" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagParticles);
+	}
+	else if ("block_obj_sounds" == command_name)
+	{
+		return LLMuteList::getInstance()->isMuted(item->getUUID(), LLMute::flagObjectSounds);
+	}
+
+	return false;
+}
+
+bool LLBlockList::isMenuItemVisible(const LLSD& userdata)
+{
+	LLBlockedListItem* item = getBlockedItem();
+	const std::string command_name = userdata.asString();
+
+	if ("block_voice" == command_name
+		|| "block_text" == command_name
+		|| "block_particles" == command_name
+		|| "block_obj_sounds" == command_name)
+	{
+		return item && (LLMute::AGENT == item->getType());
+	}
+
+	return false;
+}
+
+void LLBlockList::toggleMute(U32 flags)
+{
+	LLBlockedListItem* item = getBlockedItem();
+	LLMute mute(item->getUUID(), item->getName(), item->getType());
+
+	if (!LLMuteList::getInstance()->isMuted(item->getUUID(), flags))
+	{
+		LLMuteList::getInstance()->add(mute, flags);
+	}
+	else
+	{
+		LLMuteList::getInstance()->remove(mute, flags);
 	}
 }
 

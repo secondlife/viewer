@@ -302,7 +302,8 @@ void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
     std::string appname = gDirUtilp->getExecutableFilename();
     std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
     std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
-    LL_WARNS() << "about to launch mac-crash-logger" << pid_str << " " << logdir << " " << appname << LL_ENDL;
+    LL_WARNS() << "about to launch mac-crash-logger" << pid_str.str()
+               << " " << logdir << " " << appname << LL_ENDL;
     launchApplication(&command_str, &args);
 }
 

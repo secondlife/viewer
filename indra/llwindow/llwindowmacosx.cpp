@@ -544,7 +544,7 @@ void getPreeditLocation(float *location, unsigned int length)
 		
 		preeditor->getPreeditLocation(length, &coord, &rect, NULL);
 		
-		float c[4] = {coord.mX, coord.mY, 0, 0};
+		float c[4] = {float(coord.mX), float(coord.mY), 0, 0};
 		
 		convertRectToScreen(gWindowImplementation->getWindow(), c);
 		
@@ -899,7 +899,7 @@ BOOL LLWindowMacOSX::setPosition(const LLCoordScreen position)
 {
 	if(mWindow)
 	{
-		float pos[2] = {position.mX, position.mY};
+		float pos[2] = {float(position.mX), float(position.mY)};
 		setWindowPos(mWindow, pos);
 	}
 

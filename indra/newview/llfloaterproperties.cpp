@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <functional>
 #include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "lldbstrings.h"
 #include "llfloaterreg.h"
 
@@ -274,12 +275,12 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 	if (item->getCreatorUUID().notNull())
 	{
-		std::string name;
-		gCacheName->getFullName(item->getCreatorUUID(), name);
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(item->getCreatorUUID(), &av_name);
 		getChildView("BtnCreator")->setEnabled(TRUE);
 		getChildView("LabelCreatorTitle")->setEnabled(TRUE);
 		getChildView("LabelCreatorName")->setEnabled(TRUE);
-		getChild<LLUICtrl>("LabelCreatorName")->setValue(name);
+		getChild<LLUICtrl>("LabelCreatorName")->setValue(av_name.getUserName());
 	}
 	else
 	{
@@ -301,7 +302,9 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		}
 		else
 		{
-			gCacheName->getFullName(perm.getOwner(), name);
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(perm.getOwner(), &av_name);
+			name = av_name.getUserName();
 		}
 		getChildView("BtnOwner")->setEnabled(TRUE);
 		getChildView("LabelOwnerTitle")->setEnabled(TRUE);

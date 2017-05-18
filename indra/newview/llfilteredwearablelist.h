@@ -52,9 +52,9 @@ public:
 	void setFilterCollector(LLInventoryCollectFunctor* collector);
 
 	/**
-	 * Populates wearable list with filtered data.
-	 */
-	void populateList();
+	* Populates wearable list with filtered data in case there were any updates.
+	*/
+	void populateIfNeeded();
 
 	/**
 	 * Drop operation
@@ -62,8 +62,14 @@ public:
 	void holdProgress();
 
 private:
+	/**
+	* Populates wearable list with filtered data.
+	*/
+	void populateList();
+
 	LLInventoryItemsList* mWearableList;
 	LLInventoryCollectFunctor* mCollector;
+	bool mListStale;
 };
 
 #endif //LL_LLFILTEREDWEARABLELIST_H

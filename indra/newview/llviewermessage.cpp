@@ -1390,6 +1390,14 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
 }
 
+
+void inventory_offer_mute_avatar_callback(const LLUUID& blocked_id,
+    const LLAvatarName& av_name)
+{
+    inventory_offer_mute_callback(blocked_id, av_name.getUserName(), false);
+}
+
+
 std::string LLOfferInfo::mResponderType = "offer_info";
 
 LLOfferInfo::LLOfferInfo()
@@ -1538,7 +1546,14 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	{
 		if (notification_ptr != NULL)
 		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
+			if (mFromGroup)
+			{
+				gCacheName->getGroup(mFromID, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
+			}
+			else
+			{
+				LLAvatarNameCache::get(mFromID, boost::bind(&inventory_offer_mute_avatar_callback, _1, _2));
+			}
 		}
 	}
 
@@ -1695,7 +1710,14 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		llassert(notification_ptr != NULL);
 		if (notification_ptr != NULL)
 		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
+			if (mFromGroup)
+			{
+				gCacheName->getGroup(mFromID, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
+			}
+			else
+			{
+				LLAvatarNameCache::get(mFromID, boost::bind(&inventory_offer_mute_avatar_callback, _1, _2));
+			}
 		}
 	}
 	
@@ -1744,12 +1766,12 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		}
 		else
 		{
-			std::string full_name;
-			if (gCacheName->getFullName(mFromID, full_name))
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(mFromID, &av_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+ LLTrans::getString("'") + mFromName 
-					+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + full_name;
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + full_name;
+					+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + av_name.getUserName();
+				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + av_name.getUserName();
 			}
 			else
 			{
@@ -2601,9 +2623,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				original_name = original_name.substr(0, index);
 			}
+
 			std::string legacy_name = gCacheName->buildLegacyName(original_name);
-			LLUUID agent_id;
-			gCacheName->getUUID(legacy_name, agent_id);
+			LLUUID agent_id = LLAvatarNameCache::findIdByName(legacy_name);
 
 			if (agent_id.isNull())
 			{
@@ -2662,6 +2684,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["subject"] = subj;
 				payload["message"] = mes;
 				payload["sender_name"] = name;
+				payload["sender_id"] = agent_id;
 				payload["group_id"] = group_id;
 				payload["inventory_name"] = item_name;
  				payload["received_time"] = LLDate::now();
@@ -3038,16 +3061,17 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{ 
 				return;
 			}
-			else if (is_do_not_disturb) 
-			{
-				send_do_not_disturb_message(msg, from_id);
-			}
 			else if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL))
 			{
 				return;
 			}
 			else
 			{
+				if (is_do_not_disturb)
+				{
+					send_do_not_disturb_message(msg, from_id);
+				}
+
 				LLVector3 pos, look_at;
 				U64 region_handle(0);
 				U8 region_access(SIM_ACCESS_MIN);
@@ -6182,7 +6206,7 @@ void handle_show_mean_events(void *)
 	//LLFloaterBump::showInstance();
 }
 
-void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_group)
+void mean_name_callback(const LLUUID &id, const LLAvatarName& av_name)
 {
 	static const U32 max_collision_list_size = 20;
 	if (gMeanCollisionList.size() > max_collision_list_size)
@@ -6199,7 +6223,7 @@ void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_
 		LLMeanCollisionData *mcd = *iter;
 		if (mcd->mPerp == id)
 		{
-			mcd->mFullName = full_name;
+			mcd->mFullName = av_name.getUserName();
 		}
 	}
 }
@@ -6253,7 +6277,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 		{
 			LLMeanCollisionData *mcd = new LLMeanCollisionData(gAgentID, perp, time, type, mag);
 			gMeanCollisionList.push_front(mcd);
-			gCacheName->get(perp, false, boost::bind(&mean_name_callback, _1, _2, _3));
+			LLAvatarNameCache::get(perp, boost::bind(&mean_name_callback, _1, _2));
 		}
 	}
 	LLFloaterBump* bumps_floater = LLFloaterBump::getInstance();
@@ -7030,10 +7054,10 @@ void send_lures(const LLSD& notification, const LLSD& response)
 
 		// Record the offer.
 		{
-			std::string target_name;
-			gCacheName->getFullName(target_id, target_name);  // for im log filenames
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(target_id, &av_name);  // for im log filenames
 			LLSD args;
-			args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
+			args["TO_NAME"] = LLSLURL("agent", target_id, "completename").getSLURLString();;
 	
 			LLSD payload;
 				
@@ -7116,10 +7140,10 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 		return false;
 	}
 
-	std::string from_name;
-	gCacheName->getFullName(from_id, from_name);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(from_id, &av_name);
 
-	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(from_name))
+	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(av_name.getUserName()))
 	{
 		return false;
 	}
@@ -7394,8 +7418,7 @@ bool callback_load_url(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration callback_load_url_reg("LoadWebPage", callback_load_url);
 
-
-// We've got the name of the person who owns the object hurling the url.
+// We've got the name of the person or group that owns the object hurling the url.
 // Display confirmation dialog.
 void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
@@ -7437,6 +7460,12 @@ void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool
 	}
 }
 
+// We've got the name of the person who owns the object hurling the url.
+void callback_load_url_avatar_name(const LLUUID& id, const LLAvatarName& av_name)
+{
+    callback_load_url_name(id, av_name.getUserName(), false);
+}
+
 void process_load_url(LLMessageSystem* msg, void**)
 {
 	LLUUID object_id;
@@ -7474,8 +7503,14 @@ void process_load_url(LLMessageSystem* msg, void**)
 	// Add to list of pending name lookups
 	gLoadUrlList.push_back(payload);
 
-	gCacheName->get(owner_id, owner_is_group,
-		boost::bind(&callback_load_url_name, _1, _2, _3));
+	if (owner_is_group)
+	{
+		gCacheName->getGroup(owner_id, boost::bind(&callback_load_url_name, _1, _2, _3));
+	}
+	else
+	{
+		LLAvatarNameCache::get(owner_id, boost::bind(&callback_load_url_avatar_name, _1, _2));
+	}
 }
 
 

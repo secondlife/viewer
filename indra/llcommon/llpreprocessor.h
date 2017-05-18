@@ -192,13 +192,9 @@
 # define LL_COMMON_API
 #endif // LL_COMMON_LINK_SHARED
 
-#if LL_WINDOWS
-#define LL_TYPEOF(exp) decltype(exp)
-#elif LL_LINUX
-#define LL_TYPEOF(exp) typeof(exp)
-#elif LL_DARWIN
-#define LL_TYPEOF(exp) typeof(exp)
-#endif
+// With C++11, decltype() is standard. We no longer need a platform-dependent
+// macro to get the type of an expression.
+#define LL_TYPEOF(expr) decltype(expr)
 
 #define LL_TO_STRING_HELPER(x) #x
 #define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)

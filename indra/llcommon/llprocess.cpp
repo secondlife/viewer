@@ -517,6 +517,10 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 
 LLProcess::LLProcess(const LLSDOrParams& params):
 	mAutokill(params.autokill),
+	// Because 'autokill' originally meant both 'autokill' and 'attached', to
+	// preserve existing semantics, we promise that mAttached defaults to the
+	// same setting as mAutokill.
+	mAttached(params.attached.isProvided()? params.attached : params.autokill),
 	mPipes(NSLOTS)
 {
 	// Hmm, when you construct a ptr_vector with a size, it merely reserves
@@ -625,9 +629,9 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// std handles and the like, and that's a bit more detachment than we
 	// want. autokill=false just means not to implicitly kill the child when
 	// the parent terminates!
-//	chkapr(apr_procattr_detach_set(procattr, params.autokill? 0 : 1));
+//	chkapr(apr_procattr_detach_set(procattr, mAutokill? 0 : 1));
 
-	if (params.autokill)
+	if (mAutokill)
 	{
 #if ! defined(APR_HAS_PROCATTR_AUTOKILL_SET)
 		// Our special preprocessor symbol isn't even defined -- wrong APR
@@ -696,7 +700,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// take steps to terminate the child. This is all suspenders-and-belt: in
 	// theory our destructor should kill an autokill child, but in practice
 	// that doesn't always work (e.g. VWR-21538).
-	if (params.autokill)
+	if (mAutokill)
 	{
 /*==========================================================================*|
 		// NO: There may be an APR bug, not sure -- but at least on Mac, when
@@ -799,7 +803,7 @@ LLProcess::~LLProcess()
 		sProcessListener.dropPoll(*this);
 	}
 
-	if (mAutokill)
+	if (mAttached)
 	{
 		kill("destructor");
 	}

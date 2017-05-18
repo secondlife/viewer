@@ -3800,7 +3800,7 @@ LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( cons
 // When it handled the message, the value to be returned from
 // the Window Procedure is set to *result.
 
-BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
+BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *result)
 {
 	if ( mPreeditor )
 	{
