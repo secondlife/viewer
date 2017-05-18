@@ -336,11 +336,11 @@ public:
     LLEventThrottle(LLEventPump& source, F32 interval);
 
 private:
-    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) override;
-    virtual bool alarmRunning() const override;
-    virtual void alarmCancel() override;
-    virtual void timerSet(F32 interval) override;
-    virtual F32  timerGetRemaining() const override;
+    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) /*override*/;
+    virtual bool alarmRunning() const /*override*/;
+    virtual void alarmCancel() /*override*/;
+    virtual void timerSet(F32 interval) /*override*/;
+    virtual F32  timerGetRemaining() const /*override*/;
 
     // use this to arrange a deferred flush() call
     LLEventTimeout mAlarm;
