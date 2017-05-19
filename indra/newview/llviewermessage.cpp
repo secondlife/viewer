@@ -1222,6 +1222,11 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const LLUUID& obj_id = (*obj_iter);
 		if(!highlight_offered_object(obj_id))
 		{
+			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(obj_id);
+			if (parent && (parent->getPreferredType() == LLFolderType::FT_TRASH))
+			{
+				gInventory.checkTrashOverflow();
+			}
 			continue;
 		}
 
