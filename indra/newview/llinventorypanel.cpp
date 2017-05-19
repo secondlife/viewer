@@ -1217,7 +1217,16 @@ void LLInventoryPanel::purgeSelectedItems()
     const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
     if (inventory_selected.empty()) return;
     LLSD args;
-    args["COUNT"] = (S32)inventory_selected.size();
+    S32 count = inventory_selected.size();
+    static const U32 trash_max_capacity = gSavedSettings.getU32("InventoryTrashMaxCapacity");
+    for (std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin(), end_it = inventory_selected.end();
+        it != end_it;
+        ++it)
+    {
+        LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
+        count += gInventory.getDescendentsCountRecursive(item_id, trash_max_capacity);
+    }
+    args["COUNT"] = count;
     LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(&LLInventoryPanel::callbackPurgeSelectedItems, this, _1, _2));
 }
 
