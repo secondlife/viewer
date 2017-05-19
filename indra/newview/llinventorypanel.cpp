@@ -1224,7 +1224,10 @@ void LLInventoryPanel::purgeSelectedItems()
         ++it)
     {
         LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-        count += gInventory.getDescendentsCountRecursive(item_id, trash_max_capacity);
+        LLInventoryModel::cat_array_t cats;
+        LLInventoryModel::item_array_t items;
+        gInventory.collectDescendents(item_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
+        count += items.size() + cats.size();
     }
     args["COUNT"] = count;
     LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(&LLInventoryPanel::callbackPurgeSelectedItems, this, _1, _2));
