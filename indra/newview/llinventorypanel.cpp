@@ -1218,7 +1218,6 @@ void LLInventoryPanel::purgeSelectedItems()
     if (inventory_selected.empty()) return;
     LLSD args;
     S32 count = inventory_selected.size();
-    static const U32 trash_max_capacity = gSavedSettings.getU32("InventoryTrashMaxCapacity");
     for (std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin(), end_it = inventory_selected.end();
         it != end_it;
         ++it)
