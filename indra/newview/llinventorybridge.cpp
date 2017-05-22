@@ -3884,8 +3884,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		LLInventoryModel::cat_array_t* cat_array;
 		LLInventoryModel::item_array_t* item_array;
 		gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+		LLViewerInventoryCategory *trash = getCategory();
 		// Enable Empty menu item only when there is something to act upon.
-		if ((0 == cat_array->size() && 0 == item_array->size()) || is_recent_panel)
+		// Also don't enable menu if folder isn't fully fetched
+		if ((0 == cat_array->size() && 0 == item_array->size())
+			|| is_recent_panel
+			|| !trash
+			|| trash->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN
+			|| trash->getDescendentCount() == LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
 			disabled_items.push_back(std::string("Empty Trash"));
 		}
