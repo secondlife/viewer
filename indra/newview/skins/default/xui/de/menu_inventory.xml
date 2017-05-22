@@ -42,6 +42,12 @@
 		<menu_item_call label="Neues Haar" name="New Hair"/>
 		<menu_item_call label="Neue Augen" name="New Eyes"/>
 	</menu>
+	<menu label="Als Standard verwenden für" name="upload_def">
+		<menu_item_call label="Hochgeladene Bilder" name="Image uploads"/>
+		<menu_item_call label="Hochgeladene Sounds" name="Sound uploads"/>
+		<menu_item_call label="Hochgeladene Animationen" name="Animation uploads"/>
+		<menu_item_call label="Hochgeladene Modelle" name="Model uploads"/>
+	</menu>
 	<menu label="Typ ändern" name="Change Type">
 		<menu_item_call label="Standard" name="Default"/>
 		<menu_item_call label="Handschuhe" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Aktuelles Outfit ersetzen" name="Replace Outfit"/>
 	<menu_item_call label="Zum aktuellen Outfit hinzufügen" name="Add To Outfit"/>
 	<menu_item_call label="Vom aktuellen Outfit entfernen" name="Remove From Outfit"/>
+	<menu_item_call label="Outfitliste in Zwischenablage kopieren" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Original suchen" name="Find Original"/>
 	<menu_item_call label="Objekt löschen" name="Purge Item"/>
 	<menu_item_call label="Objekt wiederherstellen" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="Kopieren" name="Copy"/>
 	<menu_item_call label="Einfügen" name="Paste"/>
 	<menu_item_call label="Als Link einfügen" name="Paste As Link"/>
-	<menu_item_call label="Löschen" name="Remove Link"/>
 	<menu_item_call label="Löschen" name="Delete"/>
 	<menu_item_call label="Systemordner löschen" name="Delete System Folder"/>
 	<menu_item_call label="Konferenz-Chat starten" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="Bearbeiten" name="Wearable Edit"/>
 	<menu_item_call label="Hinzufügen" name="Wearable Add"/>
 	<menu_item_call label="Ausziehen" name="Take Off"/>
-	<menu_item_call label="In Händler-Outbox kopieren" name="Merchant Copy"/>
 	<menu_item_call label="In Marktplatz-Auflistungen kopieren" name="Marketplace Copy"/>
 	<menu_item_call label="In Marktplatz-Auflistungen verschieben" name="Marketplace Move"/>
 	<menu_item_call label="--keine Optionen--" name="--no options--"/>

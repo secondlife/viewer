@@ -1473,7 +1473,8 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		La [[MARKETPLACE_CREATE_STORE_URL] tienda del Mercado] devuelve errores.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Esta función está actualmente en versión beta. Si quieres participar, añade tu nombre a este [http://goo.gl/forms/FCQ7UXkakz Formulario de Google].
+		Se ha producido un error al abrir Artículos del Mercado.
+Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia de Second Life en http://support.secondlife.com
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Tu carpeta Artículos del mercado está vacía.
@@ -4354,7 +4355,10 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Conferencia con [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Ofrecido el item del inventario
+		Ítem del inventario &apos;[ITEM_NAME]&apos; ofrecido
+	</string>
+	<string name="inventory_folder_offered-im">
+		Carpeta del inventario &apos;[ITEM_NAME]&apos; ofrecida
 	</string>
 	<string name="share_alert">
 		Arrastra los ítems desde el invenbtario hasta aquí
@@ -4441,7 +4445,10 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Posición inicial establecida.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] te ha pagado [AMOUNT] L$ [REASON].
@@ -4650,7 +4657,7 @@ Denuncia de infracción
 		Varón - Encogimiento de hombros
 	</string>
 	<string name="Male - Stick tougue out">
-		Varón - Sacando la lengua
+		Hombre - Sacando la lengua
 	</string>
 	<string name="Male - Wow">
 		Varón - Admiración
@@ -4812,7 +4819,7 @@ Denuncia de infracción
 	<string name="server_is_down">
 		Parece que hay algún problema que ha escapado a nuestros controles.
 
-	Visita status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.
+Visita http://status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.
         Si sigues teniendo problemas, comprueba la configuración de la red y del servidor de seguridad.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5273,6 +5280,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Gestures_Label">
 		Gestos
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Estado del Grid
+	</string>
 	<string name="Command_HowTo_Label">
 		Cómo
 	</string>
@@ -5365,6 +5375,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gestos para tu avatar
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Mostrar el estado actual del Grid
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Cómo hacer las tareas habituales
@@ -5587,6 +5600,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="loading_chat_logs">
 		Cargando...
+	</string>
+	<string name="na">
+		n/c
 	</string>
 	<string name="preset_combo_label">
 		-Lista vacía-

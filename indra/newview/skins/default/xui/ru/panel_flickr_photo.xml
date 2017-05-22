@@ -29,6 +29,6 @@
 		<combo_box.item label="Умеренный рейтинг Flickr" name="ModerateRating"/>
 		<combo_box.item label="Ограниченный рейтинг Flickr" name="RestrictedRating"/>
 	</combo_box>
-	<button label="Передать" name="post_photo_btn"/>
+	<button label="Поделиться" name="post_photo_btn"/>
 	<button label="Отмена" name="cancel_photo_btn"/>
 </panel>

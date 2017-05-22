@@ -24,12 +24,14 @@
 	<text name="BetterText">
 		Daha iyi
 	</text>
+	<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
 	<slider label="Avatarın Maksimum Karmaşıklığı:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık bir avatarın ne zaman JellyDoll olarak çizileceğini belirler"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
-	<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
+	<check_box initial_value="true" label="Arkadaşları Her Zaman İşle" name="AlwaysRenderFriends"/>
+	<button label="İstisnalar..." name="RenderExceptionsButton"/>
 	<button label="Ayarları ön ayar olarak kaydet..." name="PrefSaveButton"/>
 	<button label="Ön ayarı yükle..." name="PrefLoadButton"/>
 	min_val=&quot;0,125&quot;

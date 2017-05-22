@@ -214,6 +214,7 @@ Ansariel Hiller
 	MAINT-6953
 	MAINT-7028
 	MAINT-7059
+	MAINT-6519
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -770,6 +771,8 @@ Kadah Coba
 	STORM-1060
     STORM-1843
 Jondan Lundquist
+Joosten Briebers
+    MAINT-7074
 Josef Munster
 Josette Windlow
 Juilan Tripsa

@@ -43,6 +43,7 @@ public:
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ void draw();
+    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
 
     void onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
 
@@ -51,6 +52,9 @@ public:
     void onCustomAction (const LLSD& userdata, const LLUUID& av_id);
     bool isActionChecked(const LLSD& userdata, const LLUUID& av_id);
     void onClickAdd(const LLSD& userdata);
+    void setAvatarRenderSetting(const LLUUID& av_id, S32 new_setting);
+
+    std::string createTimestamp(S32 datetime);
 
     static void setNeedsUpdate();
 

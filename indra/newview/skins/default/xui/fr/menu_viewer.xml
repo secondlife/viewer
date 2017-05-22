@@ -44,6 +44,7 @@
 			<menu_item_check label="Aucun effet de voix" name="NoVoiceMorphing"/>
 			<menu_item_check label="Aperçu..." name="Preview"/>
 			<menu_item_call label="S&apos;abonner..." name="Subscribe"/>
+			<menu_item_call label="Avantage Premium..." name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="Gestes..." name="Gestures"/>
 		<menu_item_check label="Amis" name="My Friends"/>
@@ -57,7 +58,8 @@
 		<menu_item_call label="Destinations..." name="Destinations"/>
 		<menu_item_check label="Carte du monde" name="World Map"/>
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
-		<menu_item_check label="Rechercher" name="Search"/>
+		<menu_item_call label="Événements" name="Events"/>
+		<menu_item_check label="Recherche..." name="Search"/>
 		<menu_item_call label="Me téléporter chez moi" name="Teleport Home"/>
 		<menu_item_call label="Définir le domicile ici" name="Set Home to Here"/>
 		<menu_item_call label="Photo" name="Take Snapshot"/>
@@ -128,8 +130,10 @@
 			<menu_item_call label="Prendre une copie" name="Take Copy"/>
 			<menu_item_call label="Enregistrer dans le contenu des objets" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Renvoi de l&apos;objet" name="Return Object back to Owner"/>
+			<menu_item_call label="Dupliquer" name="DuplicateObject"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
+			<menu_item_check label="Avertissements/Erreurs de scripts..." name="Script debug"/>
 			<menu_item_call label="Recompiler les scripts (Mono)" name="Mono"/>
 			<menu_item_call label="Recompiler les scripts (LSL)" name="LSL"/>
 			<menu_item_call label="Réinitialiser les scripts" name="Reset Scripts"/>

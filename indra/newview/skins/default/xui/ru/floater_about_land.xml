@@ -446,7 +446,7 @@
 			<spinner label="Часы доступа:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Всегда разрешено" name="AllowedText">
-					Допущенные жители ([COUNT])
+					Допущенные жители ([COUNT], макс. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
 				<button label="Добавить" name="add_allowed"/>
@@ -454,7 +454,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Бан" name="BanCheck">
-					Забаненные жители ([COUNT])
+					Забаненные жители ([COUNT], макс. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
 				<button label="Добавить" name="add_banned"/>

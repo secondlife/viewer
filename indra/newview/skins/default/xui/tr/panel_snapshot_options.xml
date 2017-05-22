@@ -2,9 +2,9 @@
 <panel name="panel_snapshot_options">
 	<button label="Diske Kaydet" name="save_to_computer_btn"/>
 	<button label="Envantere Kaydet (L$[AMOUNT])" name="save_to_inventory_btn"/>
-	<button label="Profile Yükle" name="save_to_profile_btn"/>
-	<button label="Facebook&apos;a Yükle" name="send_to_facebook_btn"/>
-	<button label="Twitter&apos;a Yükle" name="send_to_twitter_btn"/>
-	<button label="Flickr&apos;a Yükle" name="send_to_flickr_btn"/>
+	<button label="Profil Akışında Paylaş" name="save_to_profile_btn"/>
+	<button label="Facebook&apos;ta Paylaş" name="send_to_facebook_btn"/>
+	<button label="Twitter&apos;da Paylaş" name="send_to_twitter_btn"/>
+	<button label="Flickr&apos;da Paylaş" name="send_to_flickr_btn"/>
 	<button label="E-postayla Gönder" name="save_to_email_btn"/>
 </panel>

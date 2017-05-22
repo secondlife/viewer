@@ -42,6 +42,7 @@
 			<menu_item_check label="沒有變聲效果" name="NoVoiceMorphing"/>
 			<menu_item_check label="預覽……" name="Preview"/>
 			<menu_item_call label="訂閱……" name="Subscribe"/>
+			<menu_item_call label="付費會員獨享…" name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="姿勢…" name="Gestures"/>
 		<menu_item_check label="朋友" name="My Friends"/>
@@ -55,7 +56,8 @@
 		<menu_item_call label="目的地…" name="Destinations"/>
 		<menu_item_check label="世界地圖" name="World Map"/>
 		<menu_item_check label="迷你地圖" name="Mini-Map"/>
-		<menu_item_check label="搜尋" name="Search"/>
+		<menu_item_call label="活動" name="Events"/>
+		<menu_item_check label="搜尋…" name="Search"/>
 		<menu_item_call label="瞬間傳送回家" name="Teleport Home"/>
 		<menu_item_call label="把這裡設為我的家" name="Set Home to Here"/>
 		<menu_item_call label="快照" name="Take Snapshot"/>
@@ -126,8 +128,10 @@
 			<menu_item_call label="取得副本" name="Take Copy"/>
 			<menu_item_call label="回存到物件內容" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="退回物件" name="Return Object back to Owner"/>
+			<menu_item_call label="複製" name="DuplicateObject"/>
 		</menu>
 		<menu label="腳本" name="Scripts">
+			<menu_item_check label="腳本警告/錯誤…" name="Script debug"/>
 			<menu_item_call label="重新編譯腳本（Mono）" name="Mono"/>
 			<menu_item_call label="重新編譯腳本（LSL）" name="LSL"/>
 			<menu_item_call label="重設腳本" name="Reset Scripts"/>

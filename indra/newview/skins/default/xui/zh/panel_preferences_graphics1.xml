@@ -24,12 +24,14 @@
 	<text name="BetterText">
 		最佳
 	</text>
+	<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
 	<slider label="化身最大複雜度：" name="IndirectMaxComplexity" tool_tip="控制在何時機下讓複雜化身呈像為「JellyDoll」"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
-	<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
+	<check_box initial_value="true" label="永遠呈現朋友" name="AlwaysRenderFriends"/>
+	<button label="例外…" name="RenderExceptionsButton"/>
 	<button label="將設定存為預設值 …" name="PrefSaveButton"/>
 	<button label="載入預設..." name="PrefLoadButton"/>
 	min_val=&quot;0.125&quot;

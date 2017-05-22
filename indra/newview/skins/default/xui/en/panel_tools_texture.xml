@@ -148,6 +148,18 @@
                 top_pad="1"
                 value="2"/>
             </radio_group> 
+            <check_box
+             control_name="SyncMaterialSettings"
+             follows="top|left"
+             height="20"
+             initial_value="false"
+             label="Lock repeat"
+             layout="topleft"
+             left="8"
+             name="checkbox_sync_settings"
+             tool_tip="Adjust all maps repeats simultaneously"
+             top_pad="-16"
+             width="160" />
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -159,7 +171,7 @@
              left="10"
              name="texture control"
              tool_tip="Click to choose a picture"
-             top_pad="7"
+             top_pad="5"
              width="64" />
             <text
              type="string"
@@ -586,7 +598,7 @@
 			 label_width="205"
              left="10"
              max_val="100"
-             min_val="0.1"
+             min_val="-100"
              name="rptctrl"
              width="265" />
            <spinner

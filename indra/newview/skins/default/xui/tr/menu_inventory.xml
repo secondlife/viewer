@@ -42,6 +42,12 @@
 		<menu_item_call label="Yeni Saç" name="New Hair"/>
 		<menu_item_call label="Yeni Gözler" name="New Eyes"/>
 	</menu>
+	<menu label="Şunun için varsayılan olarak kullan" name="upload_def">
+		<menu_item_call label="Karşıya yüklenen görüntüler" name="Image uploads"/>
+		<menu_item_call label="Karşıya yüklenen sesler" name="Sound uploads"/>
+		<menu_item_call label="Karşıya yüklenen animasyonlar" name="Animation uploads"/>
+		<menu_item_call label="Karşıya yüklenen modeller" name="Model uploads"/>
+	</menu>
 	<menu label="Türü Değiştir" name="Change Type">
 		<menu_item_call label="Varsayılan" name="Default"/>
 		<menu_item_call label="Eldivenler" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Mevcut Dış Görünümü Değiştir" name="Replace Outfit"/>
 	<menu_item_call label="Mevcut Dış Görünüme Ekle" name="Add To Outfit"/>
 	<menu_item_call label="Mevcut Dış Görünümden Kaldır" name="Remove From Outfit"/>
+	<menu_item_call label="Dış görünüm listesini panoya kopyala" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Orijinali Bul" name="Find Original"/>
 	<menu_item_call label="Öğeyi Temizle" name="Purge Item"/>
 	<menu_item_call label="Öğeyi Geri Yükle" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="Kopyala" name="Copy"/>
 	<menu_item_call label="Yapıştır" name="Paste"/>
 	<menu_item_call label="Bağlantı Olarak Yapıştır" name="Paste As Link"/>
-	<menu_item_call label="Sil" name="Remove Link"/>
 	<menu_item_call label="Sil" name="Delete"/>
 	<menu_item_call label="Sistem Klasörünü Sil" name="Delete System Folder"/>
 	<menu_item_call label="Konferans Sohbeti Başlat" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="Düzenle" name="Wearable Edit"/>
 	<menu_item_call label="Ekle" name="Wearable Add"/>
 	<menu_item_call label="Çıkar" name="Take Off"/>
-	<menu_item_call label="Satıcı Giden Kutusuna Kopyala" name="Merchant Copy"/>
 	<menu_item_call label="Pazaryeri İlanlarına Kopyala" name="Marketplace Copy"/>
 	<menu_item_call label="Pazaryeri İlanlarına Taşı" name="Marketplace Move"/>
 	<menu_item_call label="--seçenek yok--" name="--no options--"/>

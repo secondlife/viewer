@@ -6042,7 +6042,14 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
                 return LLMarketplaceData::instance().getListing(llsdBlock["listing_id"].asInteger());
             }
         }
-        
+
+		// Error Notification can come with and without reason
+		if (notificationID == "JoinGroupError" && llsdBlock.has("reason"))
+		{
+			LLNotificationsUtil::add("JoinGroupErrorReason", llsdBlock);
+			return true;
+		}
+
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
 	}	

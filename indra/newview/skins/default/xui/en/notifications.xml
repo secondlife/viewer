@@ -909,6 +909,108 @@ Please invite members within 48 hours.
 
   <notification
    icon="alertmodal.tga"
+   name="JoinGroupInaccessible"
+   type="alertmodal">
+This group is not accessible to you.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupError"
+   type="alertmodal">
+Error processing your group membership request.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupErrorReason"
+   type="alertmodal">
+Unable to join group: [reason]
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <tag>reason</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupTrialUser"
+   type="alertmodal">
+Sorry, trial users can't join groups.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupMaxGroups"
+   type="alertmodal">
+You cannot join '[group_name]':
+You are already a member of [group_count] groups, the maximum number allowed is [max_groups]
+    <tag>success</tag>
+    <tag>group_id</tag>
+    <tag>group_name</tag>
+    <tag>group_count</tag>
+    <tag>max_groups</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupClosedEnrollment"
+   type="alertmodal">
+You cannot join '[group_name]':
+The group no longer has open enrollment.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupSuccess"
+   type="alertmodal">
+You have been added to the group
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupInsufficientFunds"
+   type="alertmodal">
+Unable to transfer the required L$ [membership_fee] membership fee.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="LandBuyPass"
    type="alertmodal">
    <tag>fail</tag>
@@ -4985,6 +5087,17 @@ Are you sure you want to change the Estate Covenant?
 
   <notification
    icon="alertmodal.tga"
+   name="EstateParcelAccessOverride"
+   type="alertmodal">
+Unchecking this option may remove restrictions that parcel owners have added to prevent griefing, maintain privacy, or protect underage residents from adult material. Please discuss with your parcel owners as needed.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RegionEntryAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
@@ -6075,13 +6188,24 @@ The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders 
 
   <notification
    icon="alertmodal.tga"
-   name="ConfirmEmptyTrash"
+   name="PurgeSelectedItems"
    type="alertmodal">
-Are you sure you want to permanently delete the contents of your Trash?
+[COUNT] item(s) will be permanently deleted. Are you sure you want to permanently delete selected item(s) from your Trash?
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Confirm before I empty the inventory Trash folder"
-     name="okcancelignore"
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmEmptyTrash"
+   type="alertmodal">
+[COUNT] items will be permanently deleted. Are you sure you want to permanently delete the contents of your Trash?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
   </notification>
@@ -6095,7 +6219,7 @@ Your trash is overflowing. This may cause problems logging in.
         <usetemplate
          name="okcancelbuttons"
          notext="I will empty trash later"
-         yestext="Empty trash now"/>
+         yestext="Check trash folder"/>
   </notification>
 
   <notification
@@ -6388,13 +6512,6 @@ The string [STRING_NAME] is missing from strings.xml
    name="Cancelled"
    type="notifytip">
 Cancelled
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="CancelledSit"
-   type="notifytip">
-Cancelled Sit
   </notification>
 
   <notification
@@ -8508,11 +8625,20 @@ Select residents to share with.
   </notification>
 
   <notification
+    name="MeshUploadErrorDetails"
+    icon="alert.tga"
+    type="alert">
+      [LABEL] failed to upload: [MESSAGE]
+[DETAILS]See SecondLife.log for details
+  </notification>
+
+  <notification
     name="MeshUploadError"
     icon="alert.tga"
     type="alert">
-      [LABEL] failed to upload: [MESSAGE] [IDENTIFIER]
-[DETAILS]See SecondLife.log for details
+      [LABEL] failed to upload: [MESSAGE]
+
+See SecondLife.log for details
   </notification>
    
   <notification

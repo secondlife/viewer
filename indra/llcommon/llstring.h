@@ -336,6 +336,7 @@ public:
 
 	static void	addCRLF(string_type& string);
 	static void	removeCRLF(string_type& string);
+	static void removeWindowsCR(string_type& string);
 
 	static void	replaceTabsWithSpaces( string_type& string, size_type spaces_per_tab );
 	static void	replaceNonstandardASCII( string_type& string, T replacement );
@@ -1322,6 +1323,28 @@ void LLStringUtilBase<T>::removeCRLF(string_type& string)
 
 //static
 template<class T> 
+void LLStringUtilBase<T>::removeWindowsCR(string_type& string)
+{
+    const T LF = 10;
+    const T CR = 13;
+
+    size_type cr_count = 0;
+    size_type len = string.size();
+    size_type i;
+    for( i = 0; i < len - cr_count - 1; i++ )
+    {
+        if( string[i+cr_count] == CR && string[i+cr_count+1] == LF)
+        {
+            cr_count++;
+        }
+
+        string[i] = string[i+cr_count];
+    }
+    string.erase(i, cr_count);
+}
+
+//static
+template<class T>
 void LLStringUtilBase<T>::replaceChar( string_type& string, T target, T replacement )
 {
 	size_type found_pos = 0;

@@ -7,5 +7,8 @@
 		<menu_button name="plus_btn" tool_tip="Einwohner oder Objekt zum ignorieren auswählen"/>
 		<button name="unblock_btn" tool_tip="Einwohner oder Objekt aus der Liste der ignorierten Einwohner oder Objekte entfernen"/>
 	</panel>
+	<text name="block_limit">
+		[COUNT] Einträge in Ihrer Liste der ignorierten Einwohner. Höchstwert: [LIMIT].
+	</text>
 	<block_list name="blocked" tool_tip="Liste der zur Zeit ignorierten Einwohner" width="290"/>
 </panel>

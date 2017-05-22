@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Загрузки" name="uploads">
+	<text name="title">
+		Текущие папки назначения для передачи
+	</text>
+	<text name="title_models">
+		Изображения
+	</text>
+	<text name="title_sounds">
+		Звуки
+	</text>
+	<text name="title_animation">
+		Анимация
+	</text>
+	<text name="upload_help">
+		Чтобы сменить папку назначения, щелкните ее в инвентаре правой кнопкой мыши и выберите
+ &quot;Использовать по умолчанию для&quot;
+	</text>
+</panel>

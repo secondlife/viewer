@@ -220,6 +220,9 @@ void LLSingletonBase::capture_dependency(list_t& initializing, EInitState initSt
             std::find(initializing.begin(), initializing.end(), this);
         if (found != initializing.end())
         {
+            list_t::const_iterator it_next = found;
+            it_next++;
+
             // Report the circularity. Requiring the coder to dig through the
             // logic to diagnose exactly how we got here is less than helpful.
             std::ostringstream out;
@@ -238,11 +241,30 @@ void LLSingletonBase::capture_dependency(list_t& initializing, EInitState initSt
             // otherwise we'd be returning a pointer to a partially-
             // constructed object! But from initSingleton() is okay: that
             // method exists specifically to support circularity.
-            // Decide which log helper to call based on initState. They have
-            // identical signatures.
-            ((initState == CONSTRUCTING)? logerrs : logwarns)
-                ("LLSingleton circularity: ", out.str().c_str(),
-                 demangle(typeid(*this).name()).c_str(), "");
+            // Decide which log helper to call.
+            if (initState == CONSTRUCTING)
+            {
+                logerrs("LLSingleton circularity in Constructor: ", out.str().c_str(),
+                    demangle(typeid(*this).name()).c_str(), "");
+            }
+            else if (it_next == initializing.end())
+            {
+                // Points to self after construction, but during initialization.
+                // Singletons can initialize other classes that depend onto them,
+                // so this is expected.
+                //
+                // Example: LLNotifications singleton initializes default channels.
+                // Channels register themselves with singleton once done.
+                logdebugs("LLSingleton circularity: ", out.str().c_str(),
+                    demangle(typeid(*this).name()).c_str(), "");
+            }
+            else
+            {
+                // Actual circularity with other singleton (or single singleton is used extensively).
+                // Dependency can be unclear.
+                logwarns("LLSingleton circularity: ", out.str().c_str(),
+                    demangle(typeid(*this).name()).c_str(), "");
+            }
         }
         else
         {

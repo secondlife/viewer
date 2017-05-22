@@ -9,6 +9,18 @@
     name="chat"
     top="1"
     width="517">
+    
+  <check_box
+      control_name="ChatAutocompleteGestures"
+      height="16"
+      initial_value="true"
+      label="Auto-complete gestures in nearby chat"
+      layout="topleft"
+      top="17"
+      left="13"
+      name="auto_complete_gestures"
+      width="330">
+  </check_box>
 
   <panel
       border="false"

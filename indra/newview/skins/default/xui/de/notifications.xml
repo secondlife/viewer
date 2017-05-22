@@ -144,8 +144,7 @@ Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschl
 	<notification name="MerchantTransactionFailed">
 		Marktplatztransaktion fehlgeschlagen mit Fehler:
         
-        Grund: „[ERROR_REASON]“
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -767,6 +766,9 @@ Sie können maximal [MAX] Objekte verknüpfen.
 Stellen Sie sicher, dass kein Objekt gesperrt ist und alle Objekte Ihnen gehören.
 	</notification>
 	<notification name="CannotLinkPermanent">
+		Objekte können nicht über Regionsgrenzen hinweg verknüpft werden.
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
 		Objekte können nicht über Regionsgrenzen hinweg verknüpft werden.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
@@ -1798,7 +1800,6 @@ Diese Gruppe verlassen?
 		Nicht-stören-Modus ist aktiviert:  Sie erhalten keine Benachrichtigung über eingehende Kommunikation.
 
 - Andere Einwohner erhalten Ihre Nicht-stören-Antwort (festgelegt in Einstellungen &gt; Allgemein).
-- Teleport-Angebote werden abgelehnt.
 - Voice-Anrufe werden abgelehnt.
 		<usetemplate ignoretext="Ich ändere meinen Status zu „Nicht stören“" name="okignore" yestext="OK"/>
 	</notification>
@@ -2567,9 +2568,6 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 	</notification>
 	<notification name="Cancelled">
 		Abgebrochen
-	</notification>
-	<notification name="CancelledSit">
-		Sitzen beendet
 	</notification>
 	<notification name="CancelledAttach">
 		Anhängen abgebrochen
@@ -3897,32 +3895,32 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 	<notification name="AvatarEjectFailed">
 		Hinauswerfen fehlgeschlagen, da Sie keine Admin-Berechtigung für diese Parzelle haben.
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		Objekt „[OBJECT_NAME]“ kann nicht nach
-[OBJ_POSITION] in Region [REGION_NAME] verschoben werden, da die Parzelle voll ist.
+	<notification name="CMOParcelFull">
+		Objekt „[O]“ kann nicht nach
+[P] in Region [R] verschoben werden, da die Parzelle voll ist.
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		Objekt „[OBJECT_NAME]“ kann nicht nach
-[OBJ_POSITION] in Region [REGION_NAME] verschoben werden, da Ihre Objekte auf dieser Parzelle nicht gestattet sind.
+	<notification name="CMOParcelPerms">
+		Objekt „[O]“ kann nicht nach
+[P] in Region [R] verschoben werden, da Ihre Objekte auf dieser Parzelle nicht gestattet sind.
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		Objekt „[OBJECT_NAME]“ kann nicht nach
-[OBJ_POSITION] in Region [REGION_NAME] verschoben werden, da nicht genügend Ressourcen für dieses Objekt auf dieser Parzelle vorhanden sind.
+	<notification name="CMOParcelResources">
+		Objekt „[O]“ kann nicht nach
+[P] in Region [R] verschoben werden, da nicht genügend Ressourcen für dieses Objekt auf dieser Parzelle vorhanden sind.
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		Kopiervorgang fehlgeschlagen, da Sie keinen Zugriff auf diese Parzelle haben.
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		Objekt „[OBJECT_NAME]“ kann nicht nach
-[OBJ_POSITION] in Region [REGION_NAME] verschoben werden, da die andere Region eine ältere Version verwendet, die das Empfangen dieses Objekts per Regionswechsel nicht unterstützt.
+	<notification name="CMORegionVersion">
+		Objekt „[O]“ kann nicht nach
+    [P] in Region [R] verschoben werden, da die andere Region eine ältere Version verwendet, die das Empfangen dieses Objekts per Regionswechsel nicht unterstützt.
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		Objekt „[OBJECT_NAME]“ kann nicht nach
-[OBJ_POSITION] in Region [REGION_NAME] verschoben werden, da Sie das Navmesh nicht regionsübergreifend modifizieren können.
+	<notification name="CMONavMesh">
+		Objekt „[O]“ kann nicht nach
+[P] in Region [R] verschoben werden, da Sie das Navmesh nicht regionsübergreifend modifizieren können.
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		Objekt „[OBJECT_NAME]“ kann nicht nach
-[OBJ_POSITION] in Region [REGION_NAME] verschoben werden, da ein unbekannter Fehler vorliegt. ([FAILURE_TYPE])
+	<notification name="CMOWTF">
+		Objekt „[O]“ kann nicht nach
+[P] in Region [R] verschoben werden, da ein unbekannter Fehler vorliegt. ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		Ihnen fehlt die Berechtigung zum Modifizieren dieses Objekts.

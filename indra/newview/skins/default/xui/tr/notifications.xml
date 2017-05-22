@@ -144,8 +144,7 @@ Bir sistem veya ağ hatası nedeniyle Pazaryeri başlatılamadı.  Daha sonra te
 	<notification name="MerchantTransactionFailed">
 		Pazaryerinde yapılan işlem başarısız oldu. Hata kodu:
         
-        Neden: &quot;[ERROR_REASON]&quot;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -760,6 +759,9 @@ En fazla [MAX] nesneyi birbirine bağlayabilirsiniz.
 Lütfen hiçbirinin kilitli olmadığından ve hepsine sahip olduğunuzdan emin olun.
 	</notification>
 	<notification name="CannotLinkPermanent">
+		Nesneler bölge sınırları üzerinden bağlantılandırılamaz.
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
 		Nesneler bölge sınırları üzerinden bağlantılandırılamaz.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
@@ -1783,11 +1785,10 @@ Gruptan ayrılmak istiyor musunuz?
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="DoNotDisturbModeSet">
-		Rahatsız Etme açık.  Gelen iletişimlerle ilgili size bilgi verilmeyecek.
+		Rahatsız Etme işlevi etkin.  Gelen mesajlar için bildirim almazsınız.
 
-- Diğer sakinlere sizin Rahatsız Etmeyin yanıtı iletilecektir (Tercihler &gt; Genel içerisinde ayarlanır).
-- Işınlanma teklifleri reddedilecektir.
-- Sesli aramalar reddedilecektir.
+- Diğer sakinler sizin Rahatsız Etme yanıtınızı alır (Tercihler &gt; Genel altında ayarlanır).
+- Sesli aramalar reddedilir.
 		<usetemplate ignoretext="Durumumu Rahatsız Etme moduna değiştiriyorum" name="okignore" yestext="Tamam"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
@@ -2552,9 +2553,6 @@ Diğer kişilerin bu konuma kolayca erişmesini sağlamak için bu adrese bir we
 	</notification>
 	<notification name="Cancelled">
 		İptal Edildi
-	</notification>
-	<notification name="CancelledSit">
-		Oturma İptal Edildi
 	</notification>
 	<notification name="CancelledAttach">
 		Takma İptal Edildi
@@ -3883,26 +3881,26 @@ Lütfen bir dakika sonra tekrar deneyin.
 	<notification name="AvatarEjectFailed">
 		Çıkarma başarılamadı çünkü bu parsel için yönetici iznine sahip değilsiniz.
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü parsel dolu.
+	<notification name="CMOParcelFull">
+		&quot;[O]&quot; nesnesi [R] bölgesindeki [P] parseline taşınamıyor çünkü parsel dolu.
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü bu parselde nesnelerinize izin verilmiyor.
+	<notification name="CMOParcelPerms">
+		&quot;[O]&quot; nesnesi [R] bölgesindeki [P] parseline taşınamıyor çünkü bu parselde nesnelerinize izin verilmiyor.
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor, çünkü bu parselde bu nesne için yeterli kaynak yok.
+	<notification name="CMOParcelResources">
+		&quot;[O]&quot; nesnesi [R] bölgesindeki [P] parseline taşınamıyor çünkü parselde bu nesne için yeterli kaynak yok.
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		Bu parsele erişiminiz olmadığı için kopyalama işlemi yapılamadı.
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü bölgede çalıştırılan eski versiyon, bölge değiştirme üzerinden bu nesnenin alınmasını desteklemiyor.
+	<notification name="CMORegionVersion">
+		&quot;[O]&quot; nesnesi [R] bölgesindeki [P] parseline taşınamıyor çünkü diğer bölge, bu nesnenin bölgeler arası geçişle alınmasını desteklemeyen daha eski bir sürüm çalıştırıyor.
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü navmesh&apos;i bölge sınırları ötesinde değiştiremezsiniz.
+	<notification name="CMONavMesh">
+		&quot;[O]&quot; nesnesi [R] bölgesindeki [P] parseline taşınamıyor çünkü bölge sınırları ötesindeki navigasyon örgüsünde değişiklik yapamazsınız.
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		Bilinmeyen bir nedenden ötürü [REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor. ([FAILURE_TYPE])
+	<notification name="CMOWTF">
+		Bilinmeyen bir nedenle, &quot;[O]&quot; nesnesi [R] bölgesindeki [P] parseline taşınamıyor. ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		Bu nesneyi değiştirme izniniz yok
