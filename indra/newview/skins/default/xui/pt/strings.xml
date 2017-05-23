@@ -29,7 +29,7 @@
 		Falha na inicialização dos gráficos. Atualize seu driver gráfico!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -70,7 +70,7 @@ Tempo de criação de VFS (cache): [VFS_TIME]
 	<string name="AboutLibs">
 		Versão do J2C Decoder: [J2C_VERSION]
 Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
-Versão de LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Versão de CEF: [LIBCEF_VERSION]
 Versão da LibVLC: [LIBVLC_VERSION]
 Versão do servidor de voz: [VOICE_VERSION]
 	</string>

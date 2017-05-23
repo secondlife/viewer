@@ -1,6 +1,8 @@
 /** 
  * @file windows_volume_catcher.cpp
- * @brief A Windows implementation of volume level control of all audio channels opened by a process.
+ * @brief A null implementation of volume level control of all audio channels opened by a process.
+ *        We are using this for the macOS version for now until we can understand how to make the 
+ *        exitising mac_volume_catcher.cpp work without the (now, non-existant) QuickTime dependency
  *
  * @cond
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
@@ -27,7 +29,6 @@
  */
 
 #include "volume_catcher.h"
-#include <windows.h>
 #include "llsingleton.h"
 class VolumeCatcherImpl : public LLSingleton<VolumeCatcherImpl>
 {
@@ -59,13 +60,6 @@ VolumeCatcherImpl::~VolumeCatcherImpl()
 void VolumeCatcherImpl::setVolume(F32 volume)
 {
 	mVolume = volume;
-
-	// set both left/right to same volume
-	// TODO: use pan value to set independently
-	DWORD left_channel = (DWORD)(mVolume * 65535.0f);
-	DWORD right_channel = (DWORD)(mVolume * 65535.0f);
-	DWORD hw_volume = left_channel << 16 | right_channel;
-	::waveOutSetVolume(NULL, hw_volume);
 }
 
 void VolumeCatcherImpl::setPan(F32 pan)
@@ -99,5 +93,3 @@ void VolumeCatcher::pump()
 {
 	// No periodic tasks are necessary for this implementation.
 }
-
-

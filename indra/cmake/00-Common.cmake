@@ -2,18 +2,34 @@
 #
 # Compilation options shared by all Second Life components.
 
+#*****************************************************************************
+#   It's important to realize that CMake implicitly concatenates
+#   CMAKE_CXX_FLAGS with (e.g.) CMAKE_CXX_FLAGS_RELEASE for Release builds. So
+#   set switches in CMAKE_CXX_FLAGS that should affect all builds, but in
+#   CMAKE_CXX_FLAGS_RELEASE or CMAKE_CXX_FLAGS_RELWITHDEBINFO for switches
+#   that should affect only that build variant.
+#
+#   Also realize that CMAKE_CXX_FLAGS may already be partially populated on
+#   entry to this file.
+#*****************************************************************************
+
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 include(Variables)
 
-# Portable compilation flags.
-set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG -DLL_DEBUG=1")
-set(CMAKE_CXX_FLAGS_RELEASE
-    "-DLL_RELEASE=1 -DLL_RELEASE_FOR_DOWNLOAD=1 -DNDEBUG") 
+# We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{LL_BUILD_RELEASE}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "$ENV{LL_BUILD_RELWITHDEBINFO}")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{LL_BUILD_DEBUG}")
+# Given that, all the flags you see added below are flags NOT present in
+# https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables.
+# Before adding new ones here, it's important to ask: can this flag really be
+# applied to the viewer only, or should/must it be applied to all 3p libraries
+# as well?
 
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-    "-DLL_RELEASE=1 -DNDEBUG -DLL_RELEASE_WITH_DEBUG_INFO=1")
+# Portable compilation flags.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DADDRESS_SIZE=${ADDRESS_SIZE}")
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
@@ -46,26 +62,25 @@ if (WINDOWS)
   # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
   string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd /MP -D_SCL_SECURE_NO_WARNINGS=1"
-      CACHE STRING "C++ compiler debug options" FORCE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /Zo /MD /MP /Ob0 -D_SECURE_STL=0"
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /Zo /MD /MP /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /Zo"
       CACHE STRING "C++ compiler release options" FORCE)
   # zlib has assembly-language object files incompatible with SAFESEH
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099")
 
   set(CMAKE_CXX_STANDARD_LIBRARIES "")
   set(CMAKE_C_STANDARD_LIBRARIES "")
 
   add_definitions(
-      /DLL_WINDOWS=1
       /DNOMINMAX
 #      /DDOM_DYNAMIC            # For shared library colladadom
-      /DUNICODE
-      /D_UNICODE 
+      )
+  add_compile_options(
       /GS
       /TP
       /W3
@@ -73,94 +88,41 @@ if (WINDOWS)
       /Zc:forScope
       /nologo
       /Oy-
-      /Zc:wchar_t-
-      /arch:SSE2
+#      /arch:SSE2
       /fp:fast
       )
+
+  # Nicky: x64 implies SSE2
+  if( ADDRESS_SIZE EQUAL 32 )
+    add_definitions( /arch:SSE2 )
+  endif()
      
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_definitions(/WX)
   endif (NOT VS_DISABLE_FATAL_WARNINGS)
-
-  # configure Win32 API for Windows Vista+ compatibility
-  set(WINVER "0x0600" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
-  add_definitions("/DWINVER=${WINVER}" "/D_WIN32_WINNT=${WINVER}")
 endif (WINDOWS)
 
 
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
-  # Here's a giant hack for Fedora 8, where we can't use
-  # _FORTIFY_SOURCE if we're using a compiler older than gcc 4.1.
+  add_definitions(-D_FORTIFY_SOURCE=2)
 
-  find_program(GXX g++)
-  mark_as_advanced(GXX)
-
-  if (GXX)
-    execute_process(
-        COMMAND ${GXX} --version
-        COMMAND sed "s/^[gc+ ]*//"
-        COMMAND head -1
-        OUTPUT_VARIABLE GXX_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-  else (GXX)
-    set(GXX_VERSION x)
-  endif (GXX)
-
-  # The quoting hack here is necessary in case we're using distcc or
-  # ccache as our compiler.  CMake doesn't pass the command line
-  # through the shell by default, so we end up trying to run "distcc"
-  # " g++" - notice the leading space.  Ugh.
-
-  execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} --version"
-      COMMAND sed "s/^[gc+ ]*//"
-      COMMAND head -1
-      OUTPUT_VARIABLE CXX_VERSION
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  if (${GXX_VERSION} STREQUAL ${CXX_VERSION})
-    add_definitions(-D_FORTIFY_SOURCE=2)
-  else (${GXX_VERSION} STREQUAL ${CXX_VERSION})
-    if (NOT ${GXX_VERSION} MATCHES " 4.1.*Red Hat")
-      add_definitions(-D_FORTIFY_SOURCE=2)
-    endif (NOT ${GXX_VERSION} MATCHES " 4.1.*Red Hat")
-  endif (${GXX_VERSION} STREQUAL ${CXX_VERSION})
-
-  # Let's actually get a numerical version of gxx's version
-  STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.([0-9]).*" "\\1\\2\\3" CXX_VERSION_NUMBER ${CXX_VERSION})
-
-  # Hacks to work around gcc 4.1 TC build pool machines which can't process pragma warning disables
-  # This is pure rubbish; I wish there was another way.
-  #
-  if(${CXX_VERSION_NUMBER} LESS 420)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized -Wno-unused-variable -Wno-unused-function ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION_NUMBER} LESS 420)
-
-  if(${CXX_VERSION_NUMBER} GREATER 459)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION_NUMBER} GREATER 459)
+  set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable ${CMAKE_CXX_FLAGS}")
 
   # gcc 4.3 and above don't like the LL boost and also
   # cause warnings due to our use of deprecated headers
-  if(${CXX_VERSION_NUMBER} GREATER 429)
-    add_definitions(-Wno-parentheses)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION_NUMBER} GREATER 429)
-
-  # End of hacks.
+  add_definitions(-Wno-parentheses)
 
   add_definitions(
-      -DLL_LINUX=1
       -D_REENTRANT
+      )
+  add_compile_options(
       -fexceptions
       -fno-math-errno
       -fno-strict-aliasing
       -fsigned-char
-      -g
       -msse2
       -mfpmath=sse
       -pthread
@@ -170,39 +132,43 @@ if (LINUX)
   add_definitions(-DEXTERNAL_TOS)
 
   add_definitions(-DAPPID=secondlife)
-  add_definitions(-fvisibility=hidden)
-  # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
+  add_compile_options(-fvisibility=hidden)
+  # don't catch SIGCHLD in our base application class for the viewer - some of
+  # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
+  # viewer doesn't need to catch SIGCHLD anyway.
   add_definitions(-DLL_IGNORE_SIGCHLD)
-  if (WORD_SIZE EQUAL 32)
-    add_definitions(-march=pentium4)
-  endif (WORD_SIZE EQUAL 32)
-  add_definitions(-mfpmath=sse)
-  #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
+  if (ADDRESS_SIZE EQUAL 32)
+    add_compile_options(-march=pentium4)
+  endif (ADDRESS_SIZE EQUAL 32)
+  #add_compile_options(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
   if (NOT USESYSTEMLIBS)
     # this stops us requiring a really recent glibc at runtime
-    add_definitions(-fno-stack-protector)
+    add_compile_options(-fno-stack-protector)
     # linking can be very memory-hungry, especially the final viewer link
     set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
   endif (NOT USESYSTEMLIBS)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
 endif (LINUX)
 
 
 if (DARWIN)
-  add_definitions(-DLL_DARWIN=1)
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
+  set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-g -Wno-unused-local-typedef -Wno-deprecated-declarations")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
+  set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
+  # The viewer code base can now be successfully compiled with -std=c++14. But
+  # turning that on in the generic viewer-build-variables/variables file would
+  # potentially require tweaking each of our ~50 third-party library builds.
+  # Until we decide to set -std=c++14 in viewer-build-variables/variables, set
+  # it locally here: we want to at least prevent inadvertently reintroducing
+  # viewer code that would fail with C++14.
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags} -std=c++14")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  set(ENABLE_SIGNING TRUE)
-  set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+## Really?? On developer machines too?
+##set(ENABLE_SIGNING TRUE)
+##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
 endif (DARWIN)
 
 
@@ -226,22 +192,17 @@ if (LINUX OR DARWIN)
   set(CMAKE_C_FLAGS "${GCC_WARNINGS} ${CMAKE_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${GCC_CXX_WARNINGS} ${CMAKE_CXX_FLAGS}")
 
-  if (WORD_SIZE EQUAL 32)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-  elseif (WORD_SIZE EQUAL 64)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-  endif (WORD_SIZE EQUAL 32)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m${ADDRESS_SIZE}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m${ADDRESS_SIZE}")
 endif (LINUX OR DARWIN)
 
 
 if (USESYSTEMLIBS)
   add_definitions(-DLL_USESYSTEMLIBS=1)
 
-  if (LINUX AND ${ARCH} STREQUAL "i686")
+  if (LINUX AND ADDRESS_SIZE EQUAL 32)
     add_definitions(-march=pentiumpro)
-  endif (LINUX AND ${ARCH} STREQUAL "i686")
+  endif (LINUX AND ADDRESS_SIZE EQUAL 32)
 
 else (USESYSTEMLIBS)
   set(${ARCH}_linux_INCLUDES

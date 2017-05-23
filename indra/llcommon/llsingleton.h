@@ -27,7 +27,6 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_set.hpp>
-#include <boost/intrusive_ptr.hpp>
 #include <list>
 #include <vector>
 #include <typeinfo>
@@ -36,8 +35,6 @@ class LLSingletonBase: private boost::noncopyable
 {
 public:
     class MasterList;
-    class MasterRefcount;
-    typedef boost::intrusive_ptr<MasterRefcount> ref_ptr_t;
 
 private:
     // All existing LLSingleton instances are tracked in this master list.
@@ -119,9 +116,6 @@ protected:
                          const char* p3="", const char* p4="");
     static std::string demangle(const char* mangled);
 
-    // obtain canonical ref_ptr_t
-    static ref_ptr_t get_master_refcount();
-
     // Default methods in case subclass doesn't declare them.
     virtual void initSingleton() {}
     virtual void cleanupSingleton() {}
@@ -174,10 +168,6 @@ public:
      */
     static void deleteAll();
 };
-
-// support ref_ptr_t
-void intrusive_ptr_add_ref(LLSingletonBase::MasterRefcount*);
-void intrusive_ptr_release(LLSingletonBase::MasterRefcount*);
 
 // Most of the time, we want LLSingleton_manage_master() to forward its
 // methods to real LLSingletonBase methods.
@@ -298,8 +288,7 @@ private:
     // stores pointer to singleton instance
     struct SingletonLifetimeManager
     {
-        SingletonLifetimeManager():
-            mMasterRefcount(LLSingletonBase::get_master_refcount())
+        SingletonLifetimeManager()
         {
             construct();
         }
@@ -317,17 +306,14 @@ private:
             // of static-object destruction, mean that we DO NOT WANT this
             // destructor to delete this LLSingleton. This destructor will run
             // without regard to any other LLSingleton whose cleanup might
-            // depend on its existence. What we really want is to count the
-            // runtime's attempts to cleanup LLSingleton static data -- and on
-            // the very last one, call LLSingletonBase::deleteAll(). That
-            // method will properly honor cross-LLSingleton dependencies. This
-            // is why we store an intrusive_ptr to a MasterRefcount: our
-            // ref_ptr_t member counts SingletonLifetimeManager instances.
-            // Once the runtime destroys the last of these, THEN we can delete
-            // every remaining LLSingleton.
+            // depend on its existence. If you want to clean up LLSingletons,
+            // call LLSingletonBase::deleteAll() sometime before static-object
+            // destruction begins. That method will properly honor cross-
+            // LLSingleton dependencies. Otherwise we simply leak LLSingleton
+            // instances at shutdown. Since the whole process is terminating
+            // anyway, that's not necessarily a bad thing; it depends on what
+            // resources your LLSingleton instances are managing.
         }
-
-        LLSingletonBase::ref_ptr_t mMasterRefcount;
     };
 
 protected:
@@ -450,6 +436,14 @@ public:
     static bool instanceExists()
     {
         return sData.mInitState == INITIALIZED;
+    }
+
+    // Has this singleton been deleted? This can be useful during shutdown
+    // processing to avoid "resurrecting" a singleton we thought we'd already
+    // cleaned up.
+    static bool wasDeleted()
+    {
+        return sData.mInitState == DELETED;
     }
 
 private:
