@@ -360,6 +360,15 @@ Please try logging in again in a minute.</string>
 	<string name="AssetErrorPriceMismatch">Viewer and server do not agree on price</string>
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
 
+	<!-- Asset upload errors. -->
+	<string name="AssetUploadServerUnreacheble">Service unreachable.</string>
+	<string name="AssetUploadServerDifficulties">The server is experiencing unexpected difficulties.</string>
+	<string name="AssetUploadServerUnavaliable">Service not available or upload timeout was reached.</string>
+	<string name="AssetUploadRequestInvalid">
+Error in upload request.  Please visit 
+http://secondlife.com/support for help fixing this problem.
+</string>
+
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>
@@ -2644,12 +2653,12 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="RegionInfoAllEstatesYouManage">
 		all estates that you manage for [OWNER]
 	</string>
-	<string name="RegionInfoAllowedResidents">Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
-	<string name="RegionInfoAllowedGroups">Allowed Groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedResidents">Always allowed: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedGroups">Groups always allowed: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
 	<string name="RegionInfoEstateManagers">Estate Managers: ([ESTATEMANAGERS], max [MAXMANAGERS])</string>
-	<string name="RegionInfoBannedResidents">Banned Residents: ([BANNEDAGENTS], max [MAXBANNED])</string>
-	<string name="RegionInfoListTypeAllowedAgents">Allowed Residents</string>
-	<string name="RegionInfoListTypeBannedAgents">Banned Residents</string>
+	<string name="RegionInfoBannedResidents">Always banned: ([BANNEDAGENTS], max [MAXBANNED])</string>
+	<string name="RegionInfoListTypeAllowedAgents">Always allowed</string>
+	<string name="RegionInfoListTypeBannedAgents">Always banned</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>

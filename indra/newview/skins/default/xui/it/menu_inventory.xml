@@ -42,6 +42,12 @@
 		<menu_item_call label="Nuovi capelli" name="New Hair"/>
 		<menu_item_call label="Nuovi occhi" name="New Eyes"/>
 	</menu>
+	<menu label="Usa come impostazione predefinita per" name="upload_def">
+		<menu_item_call label="Caricamenti immagini" name="Image uploads"/>
+		<menu_item_call label="Caricamenti suoni" name="Sound uploads"/>
+		<menu_item_call label="Caricamenti animazioni" name="Animation uploads"/>
+		<menu_item_call label="Caricamenti modelli" name="Model uploads"/>
+	</menu>
 	<menu label="Cambia tipo" name="Change Type">
 		<menu_item_call label="Predefinito" name="Default"/>
 		<menu_item_call label="Guanti" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Sostituisci vestiti" name="Replace Outfit"/>
 	<menu_item_call label="Aggiungi al vestiario" name="Add To Outfit"/>
 	<menu_item_call label="Rimuovi dal vestiario attuale" name="Remove From Outfit"/>
+	<menu_item_call label="Copia gruppo vestiti negli Appunti" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Trova originale" name="Find Original"/>
 	<menu_item_call label="Elimina oggetto" name="Purge Item"/>
 	<menu_item_call label="Ripristina oggetto" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="Copia" name="Copy"/>
 	<menu_item_call label="Incolla" name="Paste"/>
 	<menu_item_call label="Incolla come link" name="Paste As Link"/>
-	<menu_item_call label="Elimina" name="Remove Link"/>
 	<menu_item_call label="Cancella" name="Delete"/>
 	<menu_item_call label="Elimina la cartella di sistema" name="Delete System Folder"/>
 	<menu_item_call label="Inizia la conferenza chat" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="Modifica" name="Wearable Edit"/>
 	<menu_item_call label="Aggiungi" name="Wearable Add"/>
 	<menu_item_call label="Togli" name="Take Off"/>
-	<menu_item_call label="Copia nella casella venditore in uscita" name="Merchant Copy"/>
 	<menu_item_call label="Copia negli annunci Marketplace" name="Marketplace Copy"/>
 	<menu_item_call label="Sposta negli annunci Marketplace" name="Marketplace Move"/>
 	<menu_item_call label="--nessuna opzione--" name="--no options--"/>

@@ -1491,7 +1491,8 @@ Veuillez réessayer de vous connecter dans une minute.
 		La [[MARKETPLACE_CREATE_STORE_URL] boutique de la Place du marché] renvoie des erreurs.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Cette fonctionnalité est en version bêta. Veuillez ajouter votre nom à ce [http://goo.gl/forms/FCQ7UXkakz formulaire Google] si vous souhaitez participer.
+		Une erreur est survenue lors de l’ouverture des annonces de la Place du marché.
+Si vous continuez de recevoir ce message, contactez l’assistance Second Life à http://support.secondlife.com pour obtenir de l’aide.
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Votre dossier Annonces de la Place du marché est vide.
@@ -4444,7 +4445,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Conférence avec [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Objet de l&apos;inventaire offert
+		Objet de l’inventaire [ITEM_NAME] offert
+	</string>
+	<string name="inventory_folder_offered-im">
+		Dossier de l’inventaire [ITEM_NAME] offert
 	</string>
 	<string name="share_alert">
 		Faire glisser les objets de l&apos;inventaire ici
@@ -4531,7 +4535,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Emplacement du domicile défini.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] vous a payé [AMOUNT] L$ [REASON].
@@ -4900,9 +4907,9 @@ du rapport d&apos;infraction
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		Malgré nos efforts, une erreur inattendue s&apos;est produite.
+		Malgré nos efforts, une erreur inattendue s’est produite.
 
-	Veuillez vous reporter à status.secondlifegrid.net afin de déterminer si un problème connu existe avec ce service.
+Veuillez vous reporter à http://status.secondlifegrid.net afin de déterminer si un problème connu existe avec ce service.
         Si le problème persiste, vérifiez la configuration de votre réseau et de votre pare-feu.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5363,6 +5370,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Command_Gestures_Label">
 		Gestes
 	</string>
+	<string name="Command_Grid_Status_Label">
+		État de la grille
+	</string>
 	<string name="Command_HowTo_Label">
 		Aide rapide
 	</string>
@@ -5455,6 +5465,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gestes de votre avatar
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Afficher l’état actuel de la grille
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Comment effectuer les opérations courantes
@@ -5677,6 +5690,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="loading_chat_logs">
 		Chargement...
+	</string>
+	<string name="na">
+		s.o.
 	</string>
 	<string name="preset_combo_label">
 		-Liste vide-

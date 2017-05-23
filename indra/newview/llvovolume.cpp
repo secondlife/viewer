@@ -3977,7 +3977,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			start_face = face;
 			end_face = face+1;
 		}
-
+		pick_transparent |= isHiglightedOrBeacon();
 		bool special_cursor = specialHoverCursor();
 		for (S32 i = start_face; i < end_face; ++i)
 		{

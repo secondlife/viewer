@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Я" name="File">
 		<menu_item_call label="Настройки..." name="Preferences..."/>
+		<menu_item_check label="Выбор сетки" name="Show Grid Picker"/>
 		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Справка" name="Help">
@@ -33,7 +34,6 @@
 			<menu_item_check label="Ошибка" name="Error"/>
 			<menu_item_check label="Нет" name="None"/>
 		</menu>
-		<menu_item_check label="Выбор сетки" name="Show Grid Picker"/>
 		<menu_item_call label="Консоль уведомлений" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

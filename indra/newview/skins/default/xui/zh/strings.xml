@@ -1483,7 +1483,8 @@ http://secondlife.com/viewer-access-faq
 		[[MARKETPLACE_CREATE_STORE_URL] 購物市集商店]正傳回錯誤。
 	</string>
 	<string name="InventoryMarketplaceError">
-		這功能尚在 Beta 測試階段。 如你想參與，請到這個[http://goo.gl/forms/FCQ7UXkakz Google 表單]填寫姓名。
+		開啟Marketplace刊登內容時發生錯誤。
+如果你繼續收到這個訊息，請到 http://support.secondlife.com 聯絡 Second Life 支援人員。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		你的 Marketplace 刊登資料夾是空的。
@@ -4436,7 +4437,10 @@ http://secondlife.com/viewer-access-faq
 		和 [AGENT_NAME] 多方通話
 	</string>
 	<string name="inventory_item_offered-im">
-		收納區物品已發送
+		收納區物品&apos;[ITEM_NAME]&apos;已向人提供
+	</string>
+	<string name="inventory_folder_offered-im">
+		收納區資料夾&apos;[ITEM_NAME]&apos;已向人提供
 	</string>
 	<string name="share_alert">
 		將收納區物品拖曳到這裡
@@ -4523,7 +4527,10 @@ http://secondlife.com/viewer-access-faq
 		我的家位置已定。
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] 支付你 L$[AMOUNT]（[REASON]）。
@@ -4894,8 +4901,8 @@ http://secondlife.com/viewer-access-faq
 	<string name="server_is_down">
 		儘管我們努力避免，還是發生意料外的錯誤。
 
-	請察訪 status.secondlifegrid.net 看是否發生了已知狀況。
-        如果文體繼續發生，請檢查你的網路和防火牆設定。
+請察訪 http://status.secondlifegrid.net 看是否發生了已知狀況。
+        如果問題繼續發生，請檢查你的網路和防火牆設定。
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		星期日:星期一:星期二:星期三:星期四:星期五:星期六
@@ -5367,6 +5374,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="Command_Gestures_Label">
 		姿勢
 	</string>
+	<string name="Command_Grid_Status_Label">
+		網格狀態
+	</string>
 	<string name="Command_HowTo_Label">
 		簡易教學
 	</string>
@@ -5459,6 +5469,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		你化身可用的姿勢
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		顯示當前網格狀態
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		如何完成常用的動作
@@ -5681,6 +5694,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="loading_chat_logs">
 		載入中…
+	</string>
+	<string name="na">
+		不適用
 	</string>
 	<string name="preset_combo_label">
 		-空白清單-

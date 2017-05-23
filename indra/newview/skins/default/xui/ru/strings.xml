@@ -1488,7 +1488,8 @@ support@secondlife.com.
 		[[MARKETPLACE_CREATE_STORE_URL] Магазин] возвращает ошибки.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Это бета-версия функции. Если вы хотите участвовать в ее тестировании, заполните эту [http://goo.gl/forms/FCQ7UXkakz форму Google].
+		Ошибка при открытии списков товаров торгового центра.
+Если данное сообщение повторится, обратитесь за помощью в службу поддержки Second Life на странице http://support.secondlife.com
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Папка списков товаров торгового центра пуста.
@@ -4438,7 +4439,10 @@ support@secondlife.com.
 		Конференция с жителем [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Предложено пополнить инвентарь
+		Предложен предмет инвентаря «[ITEM_NAME]»
+	</string>
+	<string name="inventory_folder_offered-im">
+		Предложена папка инвентаря «[ITEM_NAME]»
 	</string>
 	<string name="share_alert">
 		Перетаскивайте вещи из инвентаря сюда
@@ -4525,7 +4529,10 @@ support@secondlife.com.
 		Задано положение дома.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		Житель [NAME] заплатил вам L$[AMOUNT] за [REASON].
@@ -4896,7 +4903,7 @@ support@secondlife.com.
 	<string name="server_is_down">
 		Несмотря на наши усилия, что-то неожиданно пошло не так.
 
-	Ознакомьтесь с описанием известных проблем в работе этой службы на сайте status.secondlifegrid.net.
+Ознакомьтесь с описанием известных проблем в работе этой службы на сайте http://status.secondlifegrid.net.
         Если проблемы продолжаются, то проверьте подключение к сети и настройки брандмауэра.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5369,6 +5376,9 @@ support@secondlife.com.
 	<string name="Command_Gestures_Label">
 		Жесты
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Состояние сетки
+	</string>
 	<string name="Command_HowTo_Label">
 		Инструкции
 	</string>
@@ -5461,6 +5471,9 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Жесты для аватара
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Показать текущее состояние сетки
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Выполнение типичных задач
@@ -5683,6 +5696,9 @@ support@secondlife.com.
 	</string>
 	<string name="loading_chat_logs">
 		Загрузка...
+	</string>
+	<string name="na">
+		н/д
 	</string>
 	<string name="preset_combo_label">
 		-Пустой список-

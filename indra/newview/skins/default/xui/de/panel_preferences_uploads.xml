@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Uploads" name="uploads">
+	<text name="title">
+		Aktuelle Zielorder für Uploads
+	</text>
+	<text name="title_models">
+		Bilder
+	</text>
+	<text name="title_sounds">
+		Sounds
+	</text>
+	<text name="title_animation">
+		Animationen
+	</text>
+	<text name="upload_help">
+		Um einen Zielordner zu ändern, klicken Sie im Inventar mit der rechten Maustaste auf den Ordner und wählen Sie „Als Standard verwenden für“.
+	</text>
+</panel>

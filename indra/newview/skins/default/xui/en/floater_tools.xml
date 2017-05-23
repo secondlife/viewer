@@ -946,18 +946,29 @@
              width="90">
                 Creator:
             </text>
+            <avatar_icon
+             default_icon_name="Generic_Person"
+             height="18"
+             follows="left|top"
+             layout="topleft"
+             left_pad="1"
+             name="Creator Icon"
+             visible="false"
+             top_delta="0"
+             width="18" />
             <!-- *NOTE: Intentionally wide for long names -->
             <text
              type="string"
              length="1"
              follows="left|top"
-             left_pad="0"
+             left_pad="1"
              height="29"
              layout="topleft"
              name="Creator Name"
-             top_delta="0"
+             font="SansSerifSmall"
+             top_delta="-1"
              translate="false"
-             width="190"
+             width="170"
              word_wrap="true"
              use_ellipses="true">
                 TestString PleaseIgnore (please.ignore)
@@ -974,6 +985,26 @@
              width="90">
                 Owner:
             </text>
+            <avatar_icon
+             default_icon_name="Generic_Person"
+             height="18"
+             follows="left|top"
+             layout="topleft"
+             left_pad="1"
+             name="Owner Icon"
+             visible="false"
+             top_delta="0"
+             width="18" />
+            <group_icon
+             default_icon_name="Generic_Group"
+             height="18"
+             follows="left|top"
+             layout="topleft"
+             left_pad="-18"
+             name="Owner Group Icon"
+             visible="false"
+             top_delta="0"
+             width="18" />
             <!-- *NOTE: Intentionally wide for long names -->
             <text
              type="string"
@@ -982,10 +1013,11 @@
              height="29"
              layout="topleft"
              name="Owner Name"
-             left_pad="0"
-             top_delta="0"
+             font="SansSerifSmall"
+             left_pad="1"
+             top_delta="-1"
              translate="false"
-             width="190"
+             width="170"
              word_wrap="true"
              use_ellipses="true">
                 TestString PleaseIgnore (please.ignore)

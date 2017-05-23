@@ -1373,6 +1373,8 @@ extern char const* const _PREHASH_OwnerMask;
 extern char const* const _PREHASH_TransferInventoryAck;
 extern char const* const _PREHASH_RegionDenyAgeUnverified;
 extern char const* const _PREHASH_AgeVerificationBlock;
+extern char const* const _PREHASH_RegionAllowAccessBlock;
+extern char const* const _PREHASH_RegionAllowAccessOverride;
 extern char const* const _PREHASH_UCoord;
 extern char const* const _PREHASH_VCoord;
 extern char const* const _PREHASH_FaceIndex;

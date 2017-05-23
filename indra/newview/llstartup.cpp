@@ -1461,6 +1461,7 @@ bool idle_startup()
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
 
+		LLEnvManagerNew::getInstance()->usePrefs(); // Load all presets and settings
 		gSky.init(initial_sun_direction);
 
 		LLGLState::checkStates();

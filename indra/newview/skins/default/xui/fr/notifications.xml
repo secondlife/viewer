@@ -142,10 +142,9 @@ L&apos;initialisation de la Place du marché a échoué en raison d&apos;une err
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantTransactionFailed">
-		La transaction avec la Place du marché a échoué en raison de l&apos;erreur suivante :
+		La transaction avec la Place du marché a échoué en renvoyant l’erreur suivante :
         
-        Motif : &apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -760,6 +759,9 @@ Assurez-vous que vous êtes le propriétaire de tous les objets et qu&apos;aucun
 	</notification>
 	<notification name="CannotLinkPermanent">
 		Impossible de lier des objets d&apos;une région à une autre.
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
+		Impossible de lier des objets d’une région à une autre.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		Impossible de lier car les objets n&apos;ont pas tous le même propriétaire.
@@ -1783,7 +1785,6 @@ Quitter le groupe ?
 		Ne pas déranger est activé.  Vous ne recevrez pas les notifications de communications entrantes.
 
 - Les autres résidents recevront votre réponse Ne pas déranger (définie dans Préférences &gt; Général).
-- Toutes les offres de téléportation seront refusées.
 - Les appels vocaux seront refusés.
 		<usetemplate ignoretext="J&apos;ai changé mon statut et suis désormais en mode Ne pas déranger." name="okignore" yestext="OK"/>
 	</notification>
@@ -2553,9 +2554,6 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 	</notification>
 	<notification name="Cancelled">
 		Annulé
-	</notification>
-	<notification name="CancelledSit">
-		Action annulée
 	</notification>
 	<notification name="CancelledAttach">
 		Attachement annulé
@@ -3884,32 +3882,32 @@ Veuillez réessayer dans une minute.
 	<notification name="AvatarEjectFailed">
 		Vous n&apos;avez pas pu réaliser l&apos;exclusion car vous ne disposez pas des droits d&apos;admin pour cette parcelle.
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		Impossible de déplacer [OBJECT_NAME] jusqu&apos;à
-[OBJ_POSITION] dans la région [REGION_NAME] car la parcelle est pleine.
+	<notification name="CMOParcelFull">
+		Impossible de déplacer l’objet [O] jusqu’à
+[P] dans la région [R] car la parcelle est pleine.
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		Impossible de déplacer [OBJECT_NAME] jusqu&apos;à
-[OBJ_POSITION] dans la région [REGION_NAME] car vos objets ne sont pas autorisés sur cette parcelle.
+	<notification name="CMOParcelPerms">
+		Impossible de déplacer l’objet [O] jusqu’à
+[P] dans la région [R] car vos objets ne sont pas autorisés sur cette parcelle.
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		Impossible de déplacer [OBJECT_NAME] jusqu&apos;à
-[OBJ_POSITION] dans la région [REGION_NAME] car il n&apos;y a pas suffisamment de ressources pour cet objet sur cette parcelle.
+	<notification name="CMOParcelResources">
+		Impossible de déplacer l’objet [O] jusqu’à
+[P] dans la région [R] car il n’y a pas suffisamment de ressources pour cet objet sur cette parcelle.
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		La copie a échoué car vous n’avez pas accès à cette parcelle.
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		Impossible de déplacer [OBJECT_NAME] jusqu&apos;à
-[OBJ_POSITION] dans la région [REGION_NAME] car l&apos;autre région exécute une version plus ancienne qui ne prend pas en charge la réception de cet objet via le passage à une autre région.
+	<notification name="CMORegionVersion">
+		Impossible de déplacer l’objet [O] jusqu’à
+[P] dans la région [R] car l’autre région exécute une version plus ancienne qui ne prend pas en charge la réception de cet objet via le passage à une autre région.
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		Impossible de déplacer [OBJECT_NAME] jusqu&apos;à
-[OBJ_POSITION] dans la région [REGION_NAME] car vous ne pouvez pas modifier le maillage de navigation d&apos;une région à une autre.
+	<notification name="CMONavMesh">
+		Impossible de déplacer l’objet [O] jusqu’à
+[P] dans la région [R] car vous ne pouvez pas modifier le maillage de navigtion d’une région à une autre.
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		Impossible de déplacer [OBJECT_NAME] jusqu&apos;à
-[OBJ_POSITION] dans la région [REGION_NAME] pour une raison inconnue. ([FAILURE_TYPE])
+	<notification name="CMOWTF">
+		Impossible de déplacer l’objet [O] jusqu’à
+[P] dans la région [R] pour une raison inconnue. ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		Vous n&apos;êtes pas autorisé à modifier cet objet.

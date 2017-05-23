@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_flickr" title="ЗАГРУЗИТЬ НА FLICKR">
+<floater name="floater_flickr" title="ПОДЕЛИТЬСЯ В FLICKR">
 	<panel name="background">
 		<tab_container name="tabs">
 			<panel label="ФОТО" name="panel_flickr_photo"/>

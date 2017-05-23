@@ -144,8 +144,7 @@
 	<notification name="MerchantTransactionFailed">
 		Не удалось выполнить транзакцию с торговым центром, ошибка:
         
-        Причина: &apos;[ERROR_REASON]&apos;
-        [ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -760,6 +759,9 @@
 Убедитесь, что все объекты разблокированы и что вы владеете всеми ими.
 	</notification>
 	<notification name="CannotLinkPermanent">
+		Объекты нельзя связывать через границу региона.
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
 		Объекты нельзя связывать через границу региона.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
@@ -1786,7 +1788,6 @@ http://secondlife.com/download.
 		Режим «Не беспокоить» включен.  Вы не будете получать уведомлений о входящих вызовах.
 
 - Другие жители будут получать ваш ответ, установленный для режима «Не беспокоить» (Настройки &gt; Общие).
-- Предложения телепортации будут отклоняться.
 - Голосовые вызовы будут отклоняться.
 		<usetemplate ignoretext="Смена моего статуса на режим «Не беспокоить»" name="okignore" yestext="OK"/>
 	</notification>
@@ -2553,9 +2554,6 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="Cancelled">
 		Отменено
-	</notification>
-	<notification name="CancelledSit">
-		Отмененная посадка
 	</notification>
 	<notification name="CancelledAttach">
 		Отмененное присоединение
@@ -3885,31 +3883,32 @@ http://secondlife.com/download.
 	<notification name="AvatarEjectFailed">
 		Не удалось выбросить: у вас нет прав администратора на этом участке.
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		Нельзя переместить объект «[OBJECT_NAME]» в позицию «[OBJ_POSITION]» региона [REGION_NAME]: участок уже заполнен.
+	<notification name="CMOParcelFull">
+		Нельзя переместить объект «[O]» в позицию
+«[P]» региона [R]: участок уже заполнен.
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		Нельзя переместить объект «[OBJECT_NAME]» в позицию
-«[OBJ_POSITION]» региона [REGION_NAME]: вашим объектам не разрешено присутствовать на этом участке.
+	<notification name="CMOParcelPerms">
+		Нельзя переместить объект «[O]» в позицию
+«[P]» региона [R]: вашим объектам не разрешено присутствовать на этом участке.
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		Нельзя переместить объект «[OBJECT_NAME]» в позицию
-«[OBJ_POSITION]» региона [REGION_NAME]: на этом участке недостаточно ресурсов для данного объекта.
+	<notification name="CMOParcelResources">
+		Нельзя переместить объект «[O]» в позицию
+«[P]» региона [R]: на этом участке недостаточно ресурсов для данного объекта.
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		Не удалось скопировать: у вас нет доступа к этому участку.
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		Нельзя переместить объект «[OBJECT_NAME]» в позицию
-[OBJ_POSITION] региона [REGION_NAME]: в другом регионе работает старая версия симулятора, которая не поддерживает прием этого объекта через границу регионов.
+	<notification name="CMORegionVersion">
+		Нельзя переместить объект «[O]» в позицию
+    [P] региона [R]: в другом регионе работает старая версия симулятора, которая не поддерживает прием этого объекта через границу регионов.
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		Нельзя переместить объект «[OBJECT_NAME]» в позицию
-«[OBJ_POSITION]» региона [REGION_NAME]: вам не разрешено изменять навигационную сетку за пределами региона.
+	<notification name="CMONavMesh">
+		Нельзя переместить объект «[O]» в позицию
+«[P]» региона [R]: вам не разрешено изменять навигационную сетку за пределами региона.
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		Нельзя переместить объект «[OBJECT_NAME]» в позицию
-[OBJ_POSITION] региона [REGION_NAME] по неизвестной причине. ([FAILURE_TYPE])
+	<notification name="CMOWTF">
+		Нельзя переместить объект «[O]» в позицию
+[P] региона [R] по неизвестной причине. ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		У вас нет прав на изменение этого объекта

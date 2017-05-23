@@ -427,7 +427,6 @@ void LLWaterParamManager::initSingleton()
 {
 	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
 	loadAllPresets();
-	LLEnvManagerNew::instance().usePrefs();
 }
 
 // static

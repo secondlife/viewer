@@ -446,7 +446,7 @@ Sadece büyük parseller aramada görünür.
 			<spinner label="Erişim saatleri:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Her Zaman İzin Ver" name="AllowedText">
-					İzin Verilen Sakinler ([COUNT])
+					İzin Verilen Sakinler ([COUNT], maks. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listeli, [MAX] maksimum)"/>
 				<button label="Ekle" name="add_allowed"/>
@@ -454,7 +454,7 @@ Sadece büyük parseller aramada görünür.
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Yasakla" name="BanCheck">
-					Yasaklı Sakinler ([COUNT])
+					Engellenmiş Sakinler ([COUNT], maks. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] listeli, [MAX] maksimum)"/>
 				<button label="Ekle" name="add_banned"/>

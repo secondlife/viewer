@@ -2801,7 +2801,7 @@ BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 				if (utf16str)
 				{
 					dst = utf16str_to_wstring(utf16str);
-					LLWStringUtil::removeCRLF(dst);
+					LLWStringUtil::removeWindowsCR(dst);
 					GlobalUnlock(h_data);
 					success = TRUE;
 				}

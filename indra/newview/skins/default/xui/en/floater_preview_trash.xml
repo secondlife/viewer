@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="330"
+ width="310"
+ layout="topleft"
+ min_height="200"
+ min_width="310"
+ name="floater_preview_trash"
+ save_rect="true"
+ title="TRASH"
+ single_instance="true"
+ reuse_instance="true"
+ can_minimize="false">
+  <inventory_panel
+      name="inventory_outbox"
+      start_folder.name="Trash"
+      show_empty_message="false"
+      start_folder.type="trash"
+      follows="all"
+      layout="topleft"
+      top="18" left="7" height="280" width="296"
+      top_pad="0"
+      bg_opaque_color="DkGray2"
+      bg_alpha_color="DkGray2"
+      background_visible="true"
+      border="false"
+      bevel_style="none"
+      scroll.reserve_scroll_corner="false">
+    <folder folder_arrow_image="Folder_Arrow"
+            folder_indentation="8"
+            item_height="20"
+            item_top_pad="4"
+            selection_image="Rounded_Square"
+            left_pad="5"
+            icon_pad="2"
+            icon_width="16"
+            text_pad="1"
+            text_pad_right="4"
+            arrow_size="12"
+            max_folder_item_overlap="2"/>
+    <item allow_wear="false"/>
+  </inventory_panel>
+
+  <layout_stack follows="bottom|left|right"
+                height="23"
+                layout="topleft"
+                mouse_opaque="false"
+                name="button_panel_ls"
+                left="0"
+                orientation="horizontal"
+                top_pad="5"
+                width="310">
+    <layout_panel follows="bottom|left|right"
+                  height="23"
+                  layout="bottomleft"
+                  left="0"
+                  mouse_opaque="false"
+                  name="empty_btn_lp"
+                  auto_resize="true"
+                  width="155">
+      <button enabled="true"
+              follows="bottom|left|right"
+              height="23"
+              label="Empty Trash"
+              layout="topleft"
+              left="30"
+              name="empty_btn"
+              top="0"
+              width="120" />
+    </layout_panel>
+    <layout_panel
+               follows="bottom|left|right"
+               height="23"
+               layout="bottomleft"
+               left_pad="0"
+               mouse_opaque="false"
+               name="share_btn_lp"
+               auto_resize="true"
+               width="155">
+      <button
+           enabled="true"
+           follows="bottom|left|right"
+           height="23"
+           label="Cancel"
+           layout="topleft"
+           left="5"
+           name="cancel_btn"
+           top="0"
+           width="120" />
+    </layout_panel>
+  </layout_stack>
+</floater>

@@ -7,5 +7,8 @@
 		<menu_button name="plus_btn" tool_tip="挑選一位居民或物件，加以封鎖"/>
 		<button name="unblock_btn" tool_tip="將居民或物件由封鎖清單中移除"/>
 	</panel>
+	<text name="block_limit">
+		封鎖名單目前有[COUNT]名，上限為[LIMIT]。
+	</text>
 	<block_list name="blocked" tool_tip="目前封鎖的居民清單"/>
 </panel>
