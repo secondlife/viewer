@@ -17,8 +17,10 @@
 	<menu_item_call label="Mais zoom" name="Zoom In"/>
 	<menu_item_call label="Pagar" name="Pay..."/>
 	<menu_item_call label="Perfil do objeto" name="Object Inspect"/>
-	<menu_item_check label="Renderizar normalmente" name="RenderNormally"/>
-	<menu_item_check label="Não renderizar" name="DoNotRender"/>
-	<menu_item_check label="Renderizar completamente" name="AlwaysRenderFully"/>
+	<context_menu label="Renderizar avatar" name="Render Avatar">
+		<menu_item_check label="Padrão" name="RenderNormally"/>
+		<menu_item_check label="Sempre" name="AlwaysRenderFully"/>
+		<menu_item_check label="Nunca" name="DoNotRender"/>
+	</context_menu>
 	<menu_item_call label="Bloquear proprietário da partícula" name="Mute Particle"/>
 </context_menu>

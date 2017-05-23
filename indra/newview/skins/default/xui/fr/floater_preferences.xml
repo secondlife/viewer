@@ -13,5 +13,6 @@
 		<panel label="Confidentialité" name="im"/>
 		<panel label="Configuration" name="input"/>
 		<panel label="Avancées" name="advanced1"/>
+		<panel label="Chargements" name="uploads"/>
 	</tab_container>
 </floater>

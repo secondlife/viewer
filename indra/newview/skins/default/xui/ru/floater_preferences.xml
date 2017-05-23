@@ -13,5 +13,6 @@
 		<panel label="Приватность" name="im"/>
 		<panel label="Конфигурация" name="input"/>
 		<panel label="Дополнительно" name="advanced1"/>
+		<panel label="Переданное" name="uploads"/>
 	</tab_container>
 </floater>

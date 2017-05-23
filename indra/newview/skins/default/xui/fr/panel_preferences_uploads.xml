@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Chargements" name="uploads">
+	<text name="title">
+		Dossiers de destination actuels pour les chargements
+	</text>
+	<text name="title_models">
+		Images
+	</text>
+	<text name="title_sounds">
+		Sons
+	</text>
+	<text name="title_animation">
+		Animations
+	</text>
+	<text name="upload_help">
+		Pour modifier un dossier de destination, cliquez-droit sur ce dossier dans l’inventaire et faites votre choix
+ &quot;Utiliser comme défaut pour&quot;
+	</text>
+</panel>

@@ -24,12 +24,14 @@
 	<text name="BetterText">
 		遅い
 	</text>
+	<check_box initial_value="true" label="周囲 (大気) シェーダー" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="高度なライティングモデル" name="UseLightShaders"/>
 	<slider label="アバターの最大複雑度:" name="IndirectMaxComplexity" tool_tip="どの点で視覚的に複雑なアバターを JellyDoll として描くかを制御します"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
-	<check_box initial_value="true" label="周囲 (大気) シェーダー" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="高度なライティングモデル" name="UseLightShaders"/>
+	<check_box initial_value="true" label="常に友人を描画" name="AlwaysRenderFriends"/>
+	<button label="例外..." name="RenderExceptionsButton"/>
 	<button label="設定をプリセットとして保存..." name="PrefSaveButton"/>
 	<button label="プリセットをロード..." name="PrefLoadButton"/>
 	min_val=&quot;0.125&quot;

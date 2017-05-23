@@ -825,13 +825,14 @@ bool LLRenderMuteList::saveToFile()
         LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;
         return false;
     }
+
     for (std::map<LLUUID, S32>::iterator it = sVisuallyMuteSettingsMap.begin(); it != sVisuallyMuteSettingsMap.end(); ++it)
     {
         if (it->second != 0)
         {
             std::string id_string;
             it->first.toString(id_string);
-            fprintf(fp, "%d %s\n", (S32)it->second, id_string.c_str());
+            fprintf(fp, "%d %s [%d]\n", (S32)it->second, id_string.c_str(), (S32)sVisuallyMuteDateMap[it->first]);
         }
     }
     fclose(fp);
@@ -854,8 +855,10 @@ bool LLRenderMuteList::loadFromFile()
 	{
 		id_buffer[0] = '\0';
 		S32 setting = 0;
-		sscanf(buffer, " %d %254s\n", &setting, id_buffer);
+		S32 time = 0;
+		sscanf(buffer, " %d %254s [%d]\n", &setting, id_buffer, &time);
 		sVisuallyMuteSettingsMap[LLUUID(id_buffer)] = setting;
+		sVisuallyMuteDateMap[LLUUID(id_buffer)] = (time == 0) ? (S32)time_corrected() : time;
 	}
 	fclose(fp);
     return true;
@@ -866,10 +869,15 @@ void LLRenderMuteList::saveVisualMuteSetting(const LLUUID& agent_id, S32 setting
     if(setting == 0)
     {
         sVisuallyMuteSettingsMap.erase(agent_id);
+        sVisuallyMuteDateMap.erase(agent_id);
     }
     else
     {
         sVisuallyMuteSettingsMap[agent_id] = setting;
+        if (sVisuallyMuteDateMap.find(agent_id) == sVisuallyMuteDateMap.end())
+        {
+            sVisuallyMuteDateMap[agent_id] =  (S32)time_corrected();
+        }
     }
     saveToFile();
     notifyObservers();
@@ -879,6 +887,17 @@ S32 LLRenderMuteList::getSavedVisualMuteSetting(const LLUUID& agent_id)
 {
     std::map<LLUUID, S32>::iterator iter = sVisuallyMuteSettingsMap.find(agent_id);
     if (iter != sVisuallyMuteSettingsMap.end())
+    {
+        return iter->second;
+    }
+
+    return 0;
+}
+
+S32 LLRenderMuteList::getVisualMuteDate(const LLUUID& agent_id)
+{
+    std::map<LLUUID, S32>::iterator iter = sVisuallyMuteDateMap.find(agent_id);
+    if (iter != sVisuallyMuteDateMap.end())
     {
         return iter->second;
     }

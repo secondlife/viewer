@@ -2,9 +2,9 @@
 <panel name="panel_snapshot_options">
 	<button label="Сохранить на диске" name="save_to_computer_btn"/>
 	<button label="Сохранить в инвентаре (L$[AMOUNT])" name="save_to_inventory_btn"/>
-	<button label="Загрузить в профиль" name="save_to_profile_btn"/>
-	<button label="Загрузить в Facebook" name="send_to_facebook_btn"/>
-	<button label="Загрузить в Twitter" name="send_to_twitter_btn"/>
-	<button label="Загрузить на Flickr" name="send_to_flickr_btn"/>
+	<button label="Поделиться в профиле" name="save_to_profile_btn"/>
+	<button label="Поделиться в Facebook" name="send_to_facebook_btn"/>
+	<button label="Поделиться в Twitter" name="send_to_twitter_btn"/>
+	<button label="Поделиться в Flickr" name="send_to_flickr_btn"/>
 	<button label="Отправить по почте" name="save_to_email_btn"/>
 </panel>

@@ -70,6 +70,85 @@ private:
     bool mElapsed;
 };
 
+// Similar remarks about LLEventThrottle: we're actually testing the logic in
+// LLEventThrottleBase, dummying out the LLTimer and LLEventTimeout used by
+// the production LLEventThrottle class.
+class TestEventThrottle: public LLEventThrottleBase
+{
+public:
+    TestEventThrottle(F32 interval):
+        LLEventThrottleBase(interval),
+        mAlarmRemaining(-1),
+        mTimerRemaining(-1)
+    {}
+    TestEventThrottle(LLEventPump& source, F32 interval):
+        LLEventThrottleBase(source, interval),
+        mAlarmRemaining(-1),
+        mTimerRemaining(-1)
+    {}
+
+    /*----- implementation of LLEventThrottleBase timing functionality -----*/
+    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) /*override*/
+    {
+        mAlarmRemaining = interval;
+        mAlarmAction = action;
+    }
+
+    virtual bool alarmRunning() const /*override*/
+    {
+        // decrementing to exactly 0 should mean the alarm fires
+        return mAlarmRemaining > 0;
+    }
+
+    virtual void alarmCancel() /*override*/
+    {
+        mAlarmRemaining = -1;
+    }
+
+    virtual void timerSet(F32 interval) /*override*/
+    {
+        mTimerRemaining = interval;
+    }
+
+    virtual F32  timerGetRemaining() const /*override*/
+    {
+        // LLTimer.getRemainingTimeF32() never returns negative; 0.0 means expired
+        return (mTimerRemaining > 0.0)? mTimerRemaining : 0.0;
+    }
+
+    /*------------------- methods for manipulating time --------------------*/
+    void alarmAdvance(F32 delta)
+    {
+        bool wasRunning = alarmRunning();
+        mAlarmRemaining -= delta;
+        if (wasRunning && ! alarmRunning())
+        {
+            mAlarmAction();
+        }
+    }
+
+    void timerAdvance(F32 delta)
+    {
+        // This simple implementation, like alarmAdvance(), completely ignores
+        // HOW negative mTimerRemaining might go. All that matters is whether
+        // it's negative. We trust that no test method in this source will
+        // drive it beyond the capacity of an F32. Seems like a safe assumption.
+        mTimerRemaining -= delta;
+    }
+
+    void advance(F32 delta)
+    {
+        // Advance the timer first because it has no side effects.
+        // alarmAdvance() might call flush(), which will need to see the
+        // change in the timer.
+        timerAdvance(delta);
+        alarmAdvance(delta);
+    }
+
+    F32 mAlarmRemaining, mTimerRemaining;
+    LLEventTimeoutBase::Action mAlarmAction;
+};
+
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
@@ -116,7 +195,9 @@ namespace tut
             listener0.listenTo(driver));
         // Construct a pattern LLSD: desired Event must have a key "foo"
         // containing string "bar"
-        LLEventMatching filter(driver, LLSD().insert("foo", "bar"));
+        LLSD pattern;
+        pattern.insert("foo", "bar");
+        LLEventMatching filter(driver, pattern);
         listener1.reset(0);
         LLTempBoundListener temp2(
             listener1.listenTo(filter));
@@ -284,6 +365,47 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 3", listener0, LLSD(0));
+    }
+
+    template<> template<>
+    void filter_object::test<5>()
+    {
+        set_test_name("LLEventThrottle");
+        TestEventThrottle throttle(3);
+        Concat cat;
+        throttle.listen("concat", boost::ref(cat));
+
+        // (sequence taken from LLEventThrottleBase Doxygen comments)
+        //  1: post(): event immediately passed to listeners, next no sooner than 4
+        throttle.advance(1);
+        throttle.post("1");
+        ensure_equals("1", cat.result, "1"); // delivered immediately
+        //  2: post(): deferred: waiting for 3 seconds to elapse
+        throttle.advance(1);
+        throttle.post("2");
+        ensure_equals("2", cat.result, "1"); // "2" not yet delivered
+        //  3: post(): deferred
+        throttle.advance(1);
+        throttle.post("3");
+        ensure_equals("3", cat.result, "1"); // "3" not yet delivered
+        //  4: no post() call, but event delivered to listeners; next no sooner than 7
+        throttle.advance(1);
+        ensure_equals("4", cat.result, "13"); // "3" delivered
+        //  6: post(): deferred
+        throttle.advance(2);
+        throttle.post("6");
+        ensure_equals("6", cat.result, "13"); // "6" not yet delivered
+        //  7: no post() call, but event delivered; next no sooner than 10
+        throttle.advance(1);
+        ensure_equals("7", cat.result, "136"); // "6" delivered
+        // 12: post(): immediately passed to listeners, next no sooner than 15
+        throttle.advance(5);
+        throttle.post(";12");
+        ensure_equals("12", cat.result, "136;12"); // "12" delivered
+        // 17: post(): immediately passed to listeners, next no sooner than 20
+        throttle.advance(5);
+        throttle.post(";17");
+        ensure_equals("17", cat.result, "136;12;17"); // "17" delivered
     }
 } // namespace tut
 

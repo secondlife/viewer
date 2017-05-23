@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Ich" name="File">
 		<menu_item_call label="Einstellungen..." name="Preferences..."/>
+		<menu_item_check label="Grid-Auswahl anzeigen" name="Show Grid Picker"/>
 		<menu_item_call label="[APP_NAME] schließen" name="Quit"/>
 	</menu>
 	<menu label="Hilfe" name="Help">
@@ -33,7 +34,6 @@
 			<menu_item_check label="Fehler" name="Error"/>
 			<menu_item_check label="Keine" name="None"/>
 		</menu>
-		<menu_item_check label="Grid-Auswahl anzeigen" name="Show Grid Picker"/>
 		<menu_item_call label="Benachrichtigungs-Konsole anzeigen" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

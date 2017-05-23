@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Subidas" name="uploads">
+	<text name="title">
+		Carpetas de destino actuales para las subidas
+	</text>
+	<text name="title_models">
+		Imágenes
+	</text>
+	<text name="title_sounds">
+		Sonidos
+	</text>
+	<text name="title_animation">
+		Animaciones
+	</text>
+	<text name="upload_help">
+		Para cambiar una carpeta de destino, pulsa con el botón derecho en ella en el inventario y elige
+&quot;Usar como valor predeterminado para&quot;
+	</text>
+</panel>

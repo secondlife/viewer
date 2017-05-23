@@ -6274,6 +6274,24 @@ BOOL	LLViewerObject::isTempAttachment() const
 	return (mID.notNull() && (mID == mAttachmentItemID));
 }
 
+BOOL LLViewerObject::isHiglightedOrBeacon() const
+{
+	if (LLFloaterReg::instanceVisible("beacons") && (gPipeline.getRenderBeacons(NULL) || gPipeline.getRenderHighlights(NULL)))
+	{
+		BOOL has_media = (getMediaType() == LLViewerObject::MEDIA_SET);
+		BOOL is_scripted = !isAvatar() && !getParent() && flagScripted();
+		BOOL is_physical = !isAvatar() && flagUsePhysics();
+
+		return (isParticleSource() && gPipeline.getRenderParticleBeacons(NULL))
+				|| (isAudioSource() && gPipeline.getRenderSoundBeacons(NULL))
+				|| (has_media && gPipeline.getRenderMOAPBeacons(NULL))
+				|| (is_scripted && gPipeline.getRenderScriptedBeacons(NULL))
+				|| (is_scripted && flagHandleTouch() && gPipeline.getRenderScriptedTouchBeacons(NULL))
+				|| (is_physical && gPipeline.getRenderPhysicalBeacons(NULL));
+	}
+	return FALSE;
+}
+
 
 const LLUUID &LLViewerObject::getAttachmentItemID() const
 {

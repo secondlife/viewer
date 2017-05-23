@@ -519,7 +519,7 @@
      name="Purge Item">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
-         parameter="purge" />
+         parameter="purge"/>
     </menu_item_call>
     <menu_item_call
      label="Restore Item"
@@ -603,6 +603,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="paste_link" />
+    </menu_item_call>
+    <menu_item_call
+     label="Replace Links"
+     layout="topleft"
+     name="Replace Links">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="replace_links" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" 

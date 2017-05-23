@@ -42,6 +42,12 @@
 		<menu_item_call label="Novo cabelo" name="New Hair"/>
 		<menu_item_call label="Novos olhos" name="New Eyes"/>
 	</menu>
+	<menu label="Usar como padrão para" name="upload_def">
+		<menu_item_call label="Envios de imagem" name="Image uploads"/>
+		<menu_item_call label="Envios de som" name="Sound uploads"/>
+		<menu_item_call label="Envios de animação" name="Animation uploads"/>
+		<menu_item_call label="Envios de modelos" name="Model uploads"/>
+	</menu>
 	<menu label="Alterar fonte" name="Change Type">
 		<menu_item_call label="Padrão" name="Default"/>
 		<menu_item_call label="Luvas" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Substituir look" name="Replace Outfit"/>
 	<menu_item_call label="Adicionar a look" name="Add To Outfit"/>
 	<menu_item_call label="Tirar do look atual" name="Remove From Outfit"/>
+	<menu_item_call label="Copiar lista de looks para a área de transferência" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Encontrar original" name="Find Original"/>
 	<menu_item_call label="Remover item" name="Purge Item"/>
 	<menu_item_call label="Restaurar item" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Colar" name="Paste"/>
 	<menu_item_call label="Colar como link" name="Paste As Link"/>
-	<menu_item_call label="Excluir" name="Remove Link"/>
 	<menu_item_call label="Apagar" name="Delete"/>
 	<menu_item_call label="Excluir pasta do sistema" name="Delete System Folder"/>
 	<menu_item_call label="Pasta conversa em conferência" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="Editar" name="Wearable Edit"/>
 	<menu_item_call label="Adicionar" name="Wearable Add"/>
 	<menu_item_call label="Tirar" name="Take Off"/>
-	<menu_item_call label="Copiar para Caixa de saída do lojista" name="Merchant Copy"/>
 	<menu_item_call label="Copiar para Listagens do Marketplace" name="Marketplace Copy"/>
 	<menu_item_call label="Mover para Listagens do Marketplace" name="Marketplace Move"/>
 	<menu_item_call label="--Sem opções--" name="--no options--"/>
