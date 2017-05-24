@@ -123,20 +123,20 @@ class ViewerManifest(LLManifest):
 
                 #do not need to test for existence.  If no platform is passed, llmanifest computes a default in get_default_platform
                 #the choice of value names (lnx, mac, win32, win) is dictated by the VMM API
-                summary_json_platform = ""
+                build_data_json_platform = ""
                 if 'linux' in self.args['platform']:
-                    summary_json_platform = 'lnx'
+                    build_data_json_platform = 'lnx'
                 elif 'darwin' in self.args['platform']:
-                    summary_json_platform = 'mac'
+                    build_data_json_platform = 'mac'
                 elif 'windows' in self.args['platform']:
                     #default case
-                    summary_json_platform = 'win'
+                    build_data_json_platform = 'win'
                     if 'arch' in self.args and self.args['arch']:
                         if 'i686' in  self.args['arch']:
-                            summary_json_platform = 'win32'
+                            build_data_json_platform = 'win32'
                 #we really shouldn't be here, something is very wrong at this point
                 else:
-                    summary_json_platform = 'None'
+                    build_data_json_platform = 'None'
 
 
                 # put_in_file(src=) need not be an actual pathname; it
@@ -201,21 +201,26 @@ class ViewerManifest(LLManifest):
             # File in the newview/ directory
             self.path("gpu_table.txt")
 
-            #summary.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
+            #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
-            summary_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
+            build_data_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
+                            "Channel Base": CHANNEL_VENDOR_BASE,
                             "Channel":self.channel_with_pkg_suffix(),
-                            "Platform":summary_json_platform}
+                            "Platform":build_data_json_platform,
+                            "Update Service":"https://update.secondlife.com/update/",
+                            }
             #MAINT-7294: Windows exe names depend on channel name, so write that in also
-            if summary_json_platform.startswith('win'):
-                summary_dict.update({'Executable':self.final_exe()})
-            with open(os.path.join(os.pardir,'summary.json'), 'w') as summary_handle:
-                json.dump(summary_dict,summary_handle)
+            if build_data_json_platform.startswith('win'):
+                build_data_dict.update({'Executable':self.final_exe()})
+            if build_data_json_platform.startswith('mac'):
+                build_data_dict.update({'Bundle Id':self.args['bundleid']})
+            with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
+                json.dump(build_data_dict,build_data_handle)
 
             #we likely no longer need the test, since we will throw an exception above, but belt and suspenders and we get the
             #return code for free.
-            if not self.path2basename(os.pardir, "summary.json"):
-                print "No summary.json file"
+            if not self.path2basename(os.pardir, "build_data.json"):
+                print "No build_data.json file"
 
     def grid(self):
         return self.args['grid']

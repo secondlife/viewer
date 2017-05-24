@@ -1,4 +1,4 @@
-This directory only exists as a place for the summary.json file to exist when the unit tests are run on a Mac, where the file goes to a sibling directory of the scripts dir.  In Linux and Windows, the JSON file goes into the same directory as the script.
+This directory only exists as a place for the build_data.json file to exist when the unit tests are run on a Mac, where the file goes to a sibling directory of the scripts dir.  In Linux and Windows, the JSON file goes into the same directory as the script.
 
 See:
 
