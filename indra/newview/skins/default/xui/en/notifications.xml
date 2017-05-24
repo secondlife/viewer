@@ -8535,7 +8535,7 @@ Failed to save appearance to XML.
 
   <notification icon="notifytip.tga"
     name="SnapshotToComputerFailed" type="notifytip">
-Failed to save snapshot to [PATH]: Not enough memory. [NEED_MEMORY]KB is required but only [FREE_MEMORY]KB is free.
+Failed to save snapshot to [PATH]: Disk is full. [NEED_MEMORY]KB is required but only [FREE_MEMORY]KB is free.
   </notification>
 
   <notification
