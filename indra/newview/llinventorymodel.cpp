@@ -221,7 +221,11 @@ BOOL LLInventoryModel::isObjectDescendentOf(const LLUUID& obj_id,
 const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(const LLUUID& obj_id) const
 {
 	const LLInventoryObject* obj = getObject(obj_id);
-
+	if(!obj)
+	{
+		LL_WARNS(LOG_INV) << "Non-existent object [ id: " << obj_id << " ] " << LL_ENDL;
+		return NULL;
+	}
 	// Search up the parent chain until we get to root or an acceptable folder.
 	// This assumes there are no cycles in the tree else we'll get a hang.
 	LLUUID parent_id = obj->getParentUUID();
