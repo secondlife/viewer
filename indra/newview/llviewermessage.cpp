@@ -2841,6 +2841,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_INVENTORY_ACCEPTED:
 	{
 		args["NAME"] = LLSLURL("agent", from_id, "completename").getSLURLString();;
+		args["ORIGINAL_NAME"] = original_name;
 		LLSD payload;
 		payload["from_id"] = from_id;
 		// Passing the "SESSION_NAME" to use it for IM notification logging

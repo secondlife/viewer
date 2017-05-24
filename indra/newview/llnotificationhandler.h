@@ -322,6 +322,8 @@ public:
 	 */
 	static std::string getSubstitutionName(const LLNotificationPtr& notification);
 
+	static std::string getSubstitutionOriginalName(const LLNotificationPtr& notification);
+
 	/**
 	 * Adds notification panel to the IM floater.
 	 */

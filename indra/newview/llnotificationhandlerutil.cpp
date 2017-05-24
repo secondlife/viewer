@@ -242,6 +242,20 @@ std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notifica
 }
 
 // static
+std::string LLHandlerUtil::getSubstitutionOriginalName(const LLNotificationPtr& notification)
+{
+	if(notification->getSubstitutions().has("ORIGINAL_NAME"))
+	{
+		std::string name = notification->getSubstitutions()["ORIGINAL_NAME"];
+		if(!name.empty())
+		{
+			return name;
+		}
+	}
+	return LLHandlerUtil::getSubstitutionName(notification);
+}
+
+// static
 void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 {
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
