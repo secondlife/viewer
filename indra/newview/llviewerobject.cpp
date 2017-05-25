@@ -5458,6 +5458,11 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
 		  new_block = new LLLightImageParams();
 		  break;
 	  }
+      case LLNetworkData::PARAMS_EXTENDED_MESH:
+      {
+		  new_block = new LLExtendedMeshParams();
+		  break;
+      }
 	  default:
 	  {
 		  LL_INFOS() << "Unknown param type." << LL_ENDL;

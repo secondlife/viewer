@@ -261,9 +261,16 @@ public:
 	virtual BOOL isMesh() const;
 	virtual BOOL hasLightTexture() const;
 
+    
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
+
+    // Extended Mesh Properties
+    U32 getExtendedMeshFlags() const;
+    void setExtendedMeshFlags(U32 flags);
+    bool canBeAnimatedMesh() const;
+    bool isAnimatedMesh() const;
 
     // Functions that deal with media, or media navigation
     

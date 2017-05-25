@@ -86,6 +86,7 @@ BOOL	LLPanelVolume::postBuild()
 {
 	// Flexible Objects Parameters
 	{
+		childSetCommitCallback("Animated Mesh Checkbox Ctrl", boost::bind(&LLPanelVolume::onCommitAnimatedMeshCheckbox, this, _1, _2), NULL);
 		childSetCommitCallback("Flexible1D Checkbox Ctrl", boost::bind(&LLPanelVolume::onCommitIsFlexible, this, _1, _2), NULL);
 		childSetCommitCallback("FlexNumSections",onCommitFlexible,this);
 		getChild<LLUICtrl>("FlexNumSections")->setValidateBeforeCommit(precommitValidate);
@@ -347,7 +348,16 @@ void LLPanelVolume::getState( )
 		getChildView("Light Focus")->setEnabled(false);
 		getChildView("Light Ambiance")->setEnabled(false);
 	}
-	
+
+    // Animated Mesh
+	BOOL is_animated_mesh = volobjp && volobjp->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+	getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->setValue(is_animated_mesh);
+    // AXON FIXME CHECK FOR SKIN INFO ALSO
+    // WHAT ABOUT isPermanentEnforced?
+    // What about linksets with some skinned objects?
+    BOOL can_be_animated_mesh = volobjp && volobjp->canBeAnimatedMesh() && editable;
+    getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(can_be_animated_mesh);
+
 	// Flexible properties
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
 	getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->setValue(is_flexible);
@@ -897,6 +907,31 @@ void LLPanelVolume::onCommitFlexible( LLUICtrl* ctrl, void* userdata )
 
 	// Values may fail validation
 	self->refresh();
+}
+
+void LLPanelVolume::onCommitAnimatedMeshCheckbox(LLUICtrl *, void*)
+{
+	LLViewerObject* objectp = mObject;
+	if (!objectp || (objectp->getPCode() != LL_PCODE_VOLUME))
+	{
+		return;
+    }
+	LLVOVolume *volobjp = (LLVOVolume *)objectp;
+	BOOL animated_mesh = getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->getValue();
+    U32 flags = volobjp->getExtendedMeshFlags();
+    U32 new_flags = flags;
+    if (animated_mesh)
+    {
+        new_flags |= LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    }
+    else
+    {
+        new_flags &= ~LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    }
+    if (new_flags != flags)
+    {
+        volobjp->setExtendedMeshFlags(new_flags);
+    }
 }
 
 void LLPanelVolume::onCommitIsFlexible(LLUICtrl *, void*)
