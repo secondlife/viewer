@@ -177,6 +177,7 @@ struct LLNotificationTemplate
 		Optional<bool>					persist,
 										log_to_im,
 										show_toast,
+										fade_toast,
 										log_to_chat,
 										force_urls_external;
 		Optional<std::string>			functor,
@@ -199,6 +200,7 @@ struct LLNotificationTemplate
 		Params()
 		:	name("name"),
 			persist("persist", false),
+			fade_toast("fade_toast", true),
 			log_to_im("log_to_im", false),
 			show_toast("show_toast", true),
 			log_to_chat("log_to_chat", true),
@@ -316,6 +318,7 @@ struct LLNotificationTemplate
 	bool mLogToChat;
 	bool mLogToIM;
 	bool mShowToast;
+	bool mFadeToast;
 };
 
 #endif //LL_LLNOTIFICATION_TEMPLATE_H

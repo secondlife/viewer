@@ -7527,6 +7527,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="TeleportOffered"
    log_to_im="true"
    log_to_chat="false"
+   fade_toast="false"
    type="offer"
    sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
@@ -7602,6 +7603,7 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="TeleportRequest"
    log_to_im="true"
+   fade_toast="false"
    type="offer">
 [NAME_SLURL] is requesting to be teleported to your location.
 [MESSAGE]
@@ -7958,6 +7960,7 @@ Other Key Experiences may be available.
    icon="notify.tga"
    name="ScriptQuestionExperience"
    persist="false"
+   fade_toast="false"
    type="notify">
 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE] experience:
 

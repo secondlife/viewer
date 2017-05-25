@@ -426,6 +426,7 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	mLogToChat(p.log_to_chat),
 	mLogToIM(p.log_to_im),
 	mShowToast(p.show_toast),
+	mFadeToast(p.fade_toast),
     mSoundName("")
 {
 	if (p.sound.isProvided()
@@ -940,6 +941,11 @@ bool LLNotification::canLogToIM() const
 bool LLNotification::canShowToast() const
 {
 	return mTemplatep->mShowToast;
+}
+
+bool LLNotification::canFadeToast() const
+{
+	return mTemplatep->mFadeToast;
 }
 
 bool LLNotification::hasFormElements() const
