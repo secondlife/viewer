@@ -92,6 +92,8 @@ BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 std::list<LLUUID> LLInventoryAction::sMarketplaceFolders;
 
+const int LLInventoryAction::sConfirmOnDeleteItemsNumber = 5;
+
 // Helper function : callback to update a folder after inventory action happened in the background
 void update_folder_cb(const LLUUID& dest_folder)
 {
@@ -2297,6 +2299,33 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		LLSD args;
 		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
+		static bool sDisplayedAtSession = false;
+		std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
+		LLFolderViewModelItemInventory * viewModel = NULL;
+		bool has_folder_items = false;
+		for (; set_iter != selected_items.end(); ++set_iter)
+		{
+			viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
+			if (viewModel && viewModel->hasChildren())
+			{
+				has_folder_items = true;
+				break;
+			}
+		}
+		if (root->getSelectedCount() >= sConfirmOnDeleteItemsNumber || has_folder_items)
+		{
+			bool ignore = !(LLUI::sSettingGroups["ignores"]->getBOOL("DeleteItems"));
+			if (ignore)
+			{
+
+				if (!sDisplayedAtSession)
+				{
+					LLUI::sSettingGroups["ignores"]->setBOOL("DeleteItems", TRUE);
+					sDisplayedAtSession = true;
+				}
+
+			}
+		}
 		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
         // Note: marketplace listings will be updated in the callback if delete confirmed
 		return;
