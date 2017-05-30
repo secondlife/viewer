@@ -597,6 +597,7 @@ void LLPanelVolume::clearCtrls()
 	getChildView("Light Radius")->setEnabled(false);
 	getChildView("Light Falloff")->setEnabled(false);
 
+    getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(false);
 	getChildView("Flexible1D Checkbox Ctrl")->setEnabled(false);
 	getChildView("FlexNumSections")->setEnabled(false);
 	getChildView("FlexGravity")->setEnabled(false);
