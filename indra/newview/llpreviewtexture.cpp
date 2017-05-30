@@ -52,6 +52,8 @@
 #include "llviewerwindow.h"
 #include "lllineeditor.h"
 
+#include <boost/lexical_cast.hpp>
+
 const S32 CLIENT_RECT_VPAD = 4;
 
 const F32 SECONDS_TO_SHOW_FILE_SAVED_MSG = 8.f;
@@ -579,12 +581,25 @@ void LLPreviewTexture::adjustAspectRatio()
 			std::vector<std::string>::const_iterator found = std::find(mRatiosList.begin(), mRatiosList.end(), ratio.str());
 			if (found == mRatiosList.end())
 			{
-				combo->setCurrentByIndex(0);
+				// No existing ratio found, create an element that will show image at original ratio
+				std::string ratio = boost::lexical_cast<std::string>(num)+":" + boost::lexical_cast<std::string>(denom);
+				mRatiosList.push_back(ratio);
+				combo->add(ratio);
+				combo->setCurrentByIndex(mRatiosList.size()- 1);
 			}
 			else
 			{
 				combo->setCurrentByIndex(found - mRatiosList.begin());
 			}
+		}
+	}
+	else
+	{
+		// Aspect ratio was set to unconstrained or was clamped
+		LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
+		if (combo)
+		{
+			combo->setCurrentByIndex(0); //unconstrained
 		}
 	}
 
