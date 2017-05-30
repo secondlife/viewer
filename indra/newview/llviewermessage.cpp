@@ -103,6 +103,7 @@
 #include "llviewerwindow.h"
 #include "llvlmanager.h"
 #include "llvoavatarself.h"
+#include "llvovolume.h"
 #include "llworld.h"
 #include "pipeline.h"
 #include "llfloaterworldmap.h"
@@ -4976,12 +4977,15 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	LLUUID	animation_id;
 	LLUUID	uuid;
 	S32		anim_sequence_id;
-	LLVOAvatar *avatarp;
+	LLVOAvatar *avatarp = NULL;
 	
 	mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
-	//clear animation flags
-	avatarp = (LLVOAvatar *)gObjectList.findObject(uuid);
+	LLViewerObject *objp = gObjectList.findObject(uuid);
+    if (objp)
+    {
+        avatarp =  objp->asAvatar();
+    }
 
 	if (!avatarp)
 	{
@@ -4993,6 +4997,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
 
+	//clear animation flags
 	avatarp->mSignaledAnimations.clear();
 	
 	if (avatarp->isSelf())
@@ -5062,6 +5067,58 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 		avatarp->processAnimationStateChanges();
 	}
 }
+
+void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
+{
+	LLUUID	animation_id;
+	LLUUID	uuid;
+#if 0
+	S32		anim_sequence_id;
+#endif
+	
+	mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
+
+    LLViewerObject *objp = gObjectList.findObject(uuid);
+    if (!objp)
+    {
+		LL_WARNS("Messaging") << "Received animation state for unknown object" << uuid << LL_ENDL;
+        return;
+    }
+    
+	LLVOVolume *volp = dynamic_cast<LLVOVolume*>(objp);
+    if (!volp)
+    {
+		LL_WARNS("Messaging") << "Received animation state for non-volume object" << uuid << LL_ENDL;
+        return;
+    }
+
+    if (!volp->isAnimatedMesh())
+    {
+		LL_WARNS("Messaging") << "Received animation state for non-animated object" << uuid << LL_ENDL;
+        return;
+    }
+
+    LL_WARNS() << "ADD SUPPORT FOR OBJECT ANIMATION HERE" << LL_ENDL;
+#if 0
+	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
+	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
+
+	avatarp->mSignaledAnimations.clear();
+	
+    for( S32 i = 0; i < num_blocks; i++ )
+    {
+        mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
+        mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
+        avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+    }
+
+	if (num_blocks)
+	{
+		avatarp->processAnimationStateChanges();
+	}
+#endif
+}
+
 
 void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
 {
