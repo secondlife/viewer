@@ -150,8 +150,7 @@ support@secondlife.com.</string>
 	<string name="LoginFailedAcountSuspended">Your account is not accessible until
 [TIME] Pacific Time.</string>
 	<string name="LoginFailedAccountDisabled">We are unable to complete your request at this time.
-Please contact Second Life support for assistance at http://secondlife.com/support.
-If you are unable to change your password, please call (866) 476-9763.</string>
+Please contact Second Life support for assistance at http://support.secondlife.com.</string>
 	<string name="LoginFailedTransformError">Data inconsistency found during login.
 Please contact support@secondlife.com.</string>
 	<string name="LoginFailedAccountMaintenance">Your account is undergoing minor maintenance.
