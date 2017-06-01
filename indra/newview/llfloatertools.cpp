@@ -646,14 +646,12 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		mRadioGroupMove->setValue("radio move");
 	}
 	else if ((mask == MASK_VERTICAL) ||
-			gGrabBtnVertical && 
-			(mask != MASK_SPIN))
+			 (gGrabBtnVertical && (mask != MASK_SPIN)))
 	{
 		mRadioGroupMove->setValue("radio lift");
 	}
 	else if ((mask == MASK_SPIN) || 
-			gGrabBtnSpin && 
-			(mask != MASK_VERTICAL))
+			 (gGrabBtnSpin && (mask != MASK_VERTICAL)))
 	{
 		mRadioGroupMove->setValue("radio spin");
 	}
