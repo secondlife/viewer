@@ -6010,6 +6010,22 @@ You cannot undo this action.
      notext="Cancel"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteFilteredItems"
+   type="alertmodal">
+    <unique/>
+    Your inventory is currently filtered and not all of the items you're about to delete are currently visible.
+
+Are you sure you want to delete them?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before deleting filtered items"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
   
   <notification
      icon="alertmodal.tga"

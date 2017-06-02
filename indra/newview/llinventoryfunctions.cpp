@@ -2297,15 +2297,12 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     
 	if ("delete" == action)
 	{
-		LLSD args;
-		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
 		static bool sDisplayedAtSession = false;
-		std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
-		LLFolderViewModelItemInventory * viewModel = NULL;
+
 		bool has_folder_items = false;
-		for (; set_iter != selected_items.end(); ++set_iter)
+		for (std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
 		{
-			viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
+			LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
 			if (viewModel && viewModel->hasChildren())
 			{
 				has_folder_items = true;
@@ -2317,16 +2314,34 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 			bool ignore = !(LLUI::sSettingGroups["ignores"]->getBOOL("DeleteItems"));
 			if (ignore)
 			{
-
 				if (!sDisplayedAtSession)
 				{
 					LLUI::sSettingGroups["ignores"]->setBOOL("DeleteItems", TRUE);
 					sDisplayedAtSession = true;
 				}
-
 			}
 		}
-		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		
+		LLAllDescendentsPassedFilter f;
+		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
+		{
+			if (LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(*it))
+			{
+				folder->applyFunctorRecursively(f);
+			}
+		}
+
+		// Fall through to the generic confirmation if the user choose to ignore the specialized one
+		if ( (!f.allDescendentsPassedFilter()) && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
+		{
+			LLNotificationsUtil::add("DeleteFilteredItems", LLSD(), LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		}
+		else
+		{
+			LLSD args;
+			args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
+			LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		}
         // Note: marketplace listings will be updated in the callback if delete confirmed
 		return;
 	}
