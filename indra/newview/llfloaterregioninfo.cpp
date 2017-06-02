@@ -2290,6 +2290,8 @@ BOOL LLPanelEstateInfo::postBuild()
 
 	getChild<LLUICtrl>("parcel_access_override")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeAccessOverride, this));
 
+	getChild<LLUICtrl>("externally_visible_radio")->setFocus(TRUE);
+
 	return LLPanelRegionInfo::postBuild();
 }
 
