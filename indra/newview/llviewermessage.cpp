@@ -5072,51 +5072,50 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLUUID	animation_id;
 	LLUUID	uuid;
-#if 0
 	S32		anim_sequence_id;
-#endif
 	
 	mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
     LLViewerObject *objp = gObjectList.findObject(uuid);
     if (!objp)
     {
-		LL_WARNS("Messaging") << "Received animation state for unknown object" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "AXON Received animation state for unknown object" << uuid << LL_ENDL;
         return;
     }
     
 	LLVOVolume *volp = dynamic_cast<LLVOVolume*>(objp);
     if (!volp)
     {
-		LL_WARNS("Messaging") << "Received animation state for non-volume object" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "AXON Received animation state for non-volume object" << uuid << LL_ENDL;
         return;
     }
 
     if (!volp->isAnimatedMesh())
     {
-		LL_WARNS("Messaging") << "Received animation state for non-animated object" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "AXON Received animation state for non-animated object" << uuid << LL_ENDL;
         return;
     }
 
-    LL_WARNS() << "ADD SUPPORT FOR OBJECT ANIMATION HERE" << LL_ENDL;
-#if 0
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
-	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
+	LL_WARNS() << "AXON handle object animation here, num_blocks " << num_blocks << LL_ENDL;
 
-	avatarp->mSignaledAnimations.clear();
+	//avatarp->mSignaledAnimations.clear();
+    volp->setDebugText(llformat("Animations %d", num_blocks));
 	
     for( S32 i = 0; i < num_blocks; i++ )
     {
         mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
         mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
-        avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+        //avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+        LL_INFOS() << "AXON got object animation request for object " 
+                   << uuid << " animation id " << animation_id << LL_ENDL;
     }
 
 	if (num_blocks)
 	{
-		avatarp->processAnimationStateChanges();
+        LL_INFOS() << "AXON process animation state changes here" << LL_ENDL;
+		//avatarp->processAnimationStateChanges();
 	}
-#endif
 }
 
 
