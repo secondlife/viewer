@@ -151,7 +151,7 @@ public:
 public:
 	U32		getFileSize();
 	BOOL	serialize(LLDataPacker& dp) const;
-	BOOL	deserialize(LLDataPacker& dp);
+	BOOL	deserialize(LLDataPacker& dp, const LLUUID& asset_id);
 	BOOL	isLoaded() { return mJointMotionList != NULL; }
     void	dumpToFile(const std::string& name);
 
