@@ -2775,6 +2775,16 @@ void LLPanelGroupActionsSubTab::activate()
 	LLPanelGroupSubTab::activate();
 
 	update(GC_ALL);
+	mActionDescription->clear();
+	mActionList->deselectAllItems();
+	mActionList->deleteAllItems();
+	buildActionsList(mActionList,
+					 GP_ALL_POWERS,
+					 GP_ALL_POWERS,
+					 NULL,
+					 FALSE,
+					 TRUE,
+					 FALSE);
 }
 
 void LLPanelGroupActionsSubTab::deactivate()
@@ -2803,19 +2813,17 @@ void LLPanelGroupActionsSubTab::update(LLGroupChange gc)
 
 	if (mGroupID.isNull()) return;
 
-	mActionList->deselectAllItems();
 	mActionMembers->deleteAllItems();
 	mActionRoles->deleteAllItems();
-	mActionDescription->clear();
 
-	mActionList->deleteAllItems();
-	buildActionsList(mActionList,
-					 GP_ALL_POWERS,
-					 GP_ALL_POWERS,
-					 NULL,
-					 FALSE,
-					 TRUE,
-					 FALSE);
+	if(mActionList->hasSelectedItem())
+	{
+		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+		if (gdatap && gdatap->isMemberDataComplete() && gdatap->isRoleDataComplete())
+		{
+			handleActionSelect();
+		}
+	}
 }
 
 void LLPanelGroupActionsSubTab::handleActionSelect()
