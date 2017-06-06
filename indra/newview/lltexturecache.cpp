@@ -1987,15 +1987,13 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		if(w * h *c > 0) //valid
 		{
 			//make a duplicate to keep the original raw image untouched.
-			raw = raw->duplicate();
+			raw = raw->scaled(w, h);
 			if (raw->isBufferInvalid())
 			{
 				LL_WARNS() << "Invalid image duplicate buffer" << LL_ENDL;
 				return false;
 			}
 
-			raw->scale(w, h) ;
-			
 			discardlevel += i ;
 		}
 	}
