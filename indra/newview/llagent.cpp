@@ -4383,16 +4383,18 @@ void LLAgent::requestAgentUserInfoCoro(std::string capurl)
     }
 
     bool im_via_email;
+    bool is_verified_email;
     std::string email;
     std::string dir_visibility;
 
     im_via_email = result["im_via_email"].asBoolean();
+    is_verified_email = result["is_verified"].asBoolean();
     email = result["email"].asString();
     dir_visibility = result["directory_visibility"].asString();
 
     // TODO: This should probably be changed.  I'm not entirely comfortable 
     // having LLAgent interact directly with the UI in this way.
-    LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email);
+    LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, is_verified_email);
     LLFloaterSnapshot::setAgentEmail(email);
 }
 

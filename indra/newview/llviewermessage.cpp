@@ -7277,7 +7277,8 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	std::string dir_visibility;
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
-	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email);
+    // For Message based user info information the is_verified is assumed to be false.
+	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, false);   
 	LLFloaterSnapshot::setAgentEmail(email);
 }
 
