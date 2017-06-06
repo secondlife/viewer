@@ -1331,7 +1331,7 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-#summary.json creation moved to viewer_manifest.py MAINT-6413
+#build_data.json creation moved to viewer_manifest.py MAINT-6413
 # the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
@@ -2073,6 +2073,7 @@ if (DARWIN)
       --grid=${GRID}
       "--channel=${VIEWER_CHANNEL}"
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS
       ${VIEWER_BINARY_NAME}
