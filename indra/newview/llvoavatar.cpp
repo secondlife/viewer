@@ -44,6 +44,7 @@
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llavatarrendernotifier.h"
+#include "llcontrolavatar.h"
 #include "llexperiencecache.h"
 #include "llphysicsmotion.h"
 #include "llviewercontrol.h"
@@ -663,7 +664,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastUpdateRequestCOFVersion(-1),
 	mLastUpdateReceivedCOFVersion(-1),
 	mCachedMuteListUpdateTime(0),
-	mCachedInMuteList(false)
+	mCachedInMuteList(false),
+    mIsControlAvatar(false)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -1942,7 +1944,7 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::releaseMeshData()
 {
-	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD || mIsDummy)
+	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD)// || mIsDummy)
 	{
 		return;
 	}
@@ -2738,7 +2740,8 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			if (!isTooComplex()) // do not generate particles for overly-complex avatars
+            // TRIF skip cloud effects for dummy avs as well
+			if (!mIsDummy && !isTooComplex()) // do not generate particles for overly-complex avatars
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -3530,7 +3533,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 
 	// change animation time quanta based on avatar render load
-	if (!isSelf() && !mIsDummy)
+	if (!isSelf())// && !mIsDummy)
 	{
 		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
 		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
@@ -3652,7 +3655,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		//--------------------------------------------------------------------
 		// Propagate viewer object rotation to root of avatar
 		//--------------------------------------------------------------------
-		if (!isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
+        // FIXME TRIF - just skipping this for now for all dummy avs
+		if (!mIsDummy && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
 		{
 			LLQuaternion iQ;
 			LLVector3 upDir( 0.0f, 0.0f, 1.0f );
@@ -4041,7 +4045,7 @@ void LLVOAvatar::updateVisibility()
 
 	if (mIsDummy)
 	{
-		visible = TRUE;
+		visible = FALSE;
 	}
 	else if (mDrawable.isNull())
 	{
@@ -4356,7 +4360,7 @@ U32 LLVOAvatar::renderSkinned()
 		{
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
+				if (isTextureVisible(TEX_HEAD_BAKED))// || mIsDummy)
 				{
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
@@ -4366,7 +4370,7 @@ U32 LLVOAvatar::renderSkinned()
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
+			if (isTextureVisible(TEX_UPPER_BAKED))// || mIsDummy)
 			{
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
@@ -4376,7 +4380,7 @@ U32 LLVOAvatar::renderSkinned()
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
+			if (isTextureVisible(TEX_LOWER_BAKED))// || mIsDummy)
 			{
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
@@ -4435,6 +4439,8 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		}
 		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
 		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
+        if (!mIsDummy)
+        {
 		if ( (getImage(TEX_HAIR_BAKED, 0) && getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE)
 			|| LLDrawPoolAlpha::sShowDebugAlpha)		
 		{
@@ -4445,6 +4451,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			}
 			first_pass = FALSE;
 		}
+        }
 		if (LLPipeline::sImpostorRender)
 		{
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
@@ -5521,12 +5528,26 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 {
-	LLVOAvatar *av = vo->getAvatarAncestor();
+    bool non_attached_case = false;
+    // FIXME TRIF - will this work if vo has child objects?
+    if (vo->mControlAvatar)
+    {
+        non_attached_case = true;
+    }
+    LLVOAvatar *av;
+    if (non_attached_case)
+    {
+        av = vo->mControlAvatar;
+    }
+    else
+    {
+        av = vo->getAvatarAncestor();
 	if (!av || (av != this))
 	{
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
         return;
 	}
+    }
 
     LLScopedContextString str("addAttachmentOverridesForObject " + av->getFullname());
     
@@ -5554,7 +5575,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
 	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
 
-	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
+	if ( vobj && (vobj->isAttachment()||non_attached_case) && vobj->isMesh() && pSkinData )
 	{
 		const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
         const int jointCnt = pSkinData->mJointNames.size();
@@ -5738,6 +5759,7 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
 //-----------------------------------------------------------------------------
 // resetJointsOnDetach
 //-----------------------------------------------------------------------------
+// TRIF handle NPC case
 void LLVOAvatar::resetJointsOnDetach(LLViewerObject *vo)
 {
 	LLVOAvatar *av = vo->getAvatarAncestor();
@@ -5766,6 +5788,7 @@ void LLVOAvatar::resetJointsOnDetach(LLViewerObject *vo)
 //-----------------------------------------------------------------------------
 // resetJointsOnDetach
 //-----------------------------------------------------------------------------
+// TRIF handle NPC case
 void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
 {	
 	//Subsequent joints are relative to pelvis
@@ -6288,7 +6311,7 @@ void LLVOAvatar::removeChild(LLViewerObject *childp)
 
 LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* viewer_object)
 {
-	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getState());
+	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getAttachmentState());
 
 	// This should never happen unless the server didn't process the attachment point
 	// correctly, but putting this check in here to be safe.
@@ -6812,6 +6835,11 @@ BOOL LLVOAvatar::isVisible() const
 // Determine if we have enough avatar data to render
 bool LLVOAvatar::getIsCloud() const
 {
+	if (mIsDummy)
+	{
+		return false;
+	}
+
 	return (   ((const_cast<LLVOAvatar*>(this))->visualParamWeightsAreDefault())// Do we have a shape?
 			|| (   !isTextureDefined(TEX_LOWER_BAKED)
 				|| !isTextureDefined(TEX_UPPER_BAKED)

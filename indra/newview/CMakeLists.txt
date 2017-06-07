@@ -149,6 +149,7 @@ set(viewer_SOURCE_FILES
     llcommunicationchannel.cpp
     llcompilequeue.cpp
     llconfirmationmanager.cpp
+    llcontrolavatar.cpp
     llconversationlog.cpp
     llconversationloglist.cpp
     llconversationloglistitem.cpp
@@ -769,6 +770,7 @@ set(viewer_HEADER_FILES
     llcommunicationchannel.h
     llcompilequeue.h
     llconfirmationmanager.h
+    llcontrolavatar.h
     llconversationlog.h
     llconversationloglist.h
     llconversationloglistitem.h

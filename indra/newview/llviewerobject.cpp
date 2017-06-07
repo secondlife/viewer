@@ -60,6 +60,7 @@
 #include "llbbox.h"
 #include "llbox.h"
 #include "llcylinder.h"
+#include "llcontrolavatar.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llfloaterproperties.h"
@@ -138,7 +139,7 @@ const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
-LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
+LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
@@ -165,6 +166,12 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 				}
 			}
 			res = gAgentAvatarp;
+		}
+		else if (flags & CO_FLAG_CONTROL_AVATAR)
+		{
+            LLControlAvatar *avatar = new LLControlAvatar(id, pcode, regionp);
+			avatar->initInstance();
+			res = avatar;
 		}
 		else
 		{
@@ -235,6 +242,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mText(),
 	mHudText(""),
 	mHudTextColor(LLColor4::white),
+    mControlAvatar(NULL),
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
@@ -259,7 +267,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mRotTime(0.f),
 	mAngularVelocityRot(),
 	mPreviousRotation(),
-	mState(0),
+	mAttachmentState(0),
 	mMedia(NULL),
 	mClickAction(0),
 	mObjectCost(0),
@@ -369,11 +377,18 @@ void LLViewerObject::markDead()
 			((LLViewerObject *)getParent())->removeChild(this);
 		}
 		LLUUID mesh_id;
+        // FIXME AXON - need to do this for control avatars too
 		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
 		{
 			// This case is needed for indirectly attached mesh objects.
 			av->resetJointsOnDetach(mesh_id);
 		}
+        if (mControlAvatar)
+        {
+            LLControlAvatar *av = mControlAvatar;
+            mControlAvatar = NULL;
+            av->markDead();
+        }
 
 		// Mark itself as dead
 		mDead = TRUE;
@@ -1378,7 +1393,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				U8 state;
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_State, state, block_num );
-				mState = state;
+				mAttachmentState = state;
 
 				// ...new objects that should come in selected need to be added to the selected list
 				mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
@@ -1648,7 +1663,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				U8 state;
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_State, state, block_num );
-				mState = state;
+				mAttachmentState = state;
 				break;
 			}
 
@@ -1671,7 +1686,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		U8		state;
 
 		dp->unpackU8(state, "State");
-		mState = state;
+		mAttachmentState = state;
 
 		switch(update_type)
 		{
@@ -3857,7 +3872,7 @@ const LLVector3 LLViewerObject::getRenderPosition() const
 	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
 	{
 		LLVOAvatar* avatar = getAvatar();
-		if (avatar)
+		if (avatar && !mControlAvatar)
 		{
 			return avatar->getPositionAgent();
 		}
@@ -3993,6 +4008,10 @@ void LLViewerObject::setPosition(const LLVector3 &pos, BOOL damped)
 		// position caches need to be up to date on root objects
 		updatePositionCaches();
 	}
+    if (mControlAvatar)
+    {
+        mControlAvatar->matchTransform(dynamic_cast<LLVOVolume*>(this));
+    }
 }
 
 void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, BOOL damped)
@@ -6358,6 +6377,10 @@ const std::string& LLViewerObject::getAttachmentItemName() const
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {
+    if (mControlAvatar)
+    {
+        return mControlAvatar;
+    }
 	if (isAttachment())
 	{
 		LLViewerObject* vobj = (LLViewerObject*) getParent();

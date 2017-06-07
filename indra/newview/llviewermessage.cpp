@@ -55,6 +55,7 @@
 #include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
+#include "llcontrolavatar.h"
 #include "llfirstuse.h"
 #include "llfloaterbump.h"
 #include "llfloaterbuyland.h"
@@ -5099,22 +5100,28 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	LL_WARNS() << "AXON handle object animation here, num_blocks " << num_blocks << LL_ENDL;
 
-	//avatarp->mSignaledAnimations.clear();
+    LLControlAvatar *avatarp = volp->mControlAvatar;
+    if (!avatarp->mPlaying)
+    {
+        avatarp->mPlaying = true;
+        avatarp->updateGeom(volp);
+    }
+	avatarp->mSignaledAnimations.clear();
     volp->setDebugText(llformat("Animations %d", num_blocks));
 	
     for( S32 i = 0; i < num_blocks; i++ )
     {
         mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
         mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
-        //avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+        avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
         LL_INFOS() << "AXON got object animation request for object " 
                    << uuid << " animation id " << animation_id << LL_ENDL;
     }
 
-	if (num_blocks)
+	if (num_blocks >= 0)
 	{
         LL_INFOS() << "AXON process animation state changes here" << LL_ENDL;
-		//avatarp->processAnimationStateChanges();
+		avatarp->processAnimationStateChanges();
 	}
 }
 

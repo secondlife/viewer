@@ -6907,7 +6907,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 		// Do not enable drop if all faces of object are not enabled
 		if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
 		{
-    		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getState());
+    		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getAttachmentState());
 			attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
 
 			if (attachment)

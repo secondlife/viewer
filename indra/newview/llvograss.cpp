@@ -92,7 +92,8 @@ LLVOGrass::~LLVOGrass()
 
 void LLVOGrass::updateSpecies()
 {
-	mSpecies = mState;
+	// TRIF is grass still even supported? This use of state seems odd.
+	mSpecies = getAttachmentState();
 	
 	if (!sSpeciesTable.count(mSpecies))
 	{

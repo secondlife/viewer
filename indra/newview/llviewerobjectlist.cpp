@@ -1942,12 +1942,12 @@ void LLViewerObjectList::resetObjectBeacons()
 	mDebugBeacons.clear();
 }
 
-LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp)
+LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
 	LLUUID fullid;
 	fullid.generate();
 
-	LLViewerObject *objectp = LLViewerObject::createObject(fullid, pcode, regionp);
+	LLViewerObject *objectp = LLViewerObject::createObject(fullid, pcode, regionp, flags);
 	if (!objectp)
 	{
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << LL_ENDL;
