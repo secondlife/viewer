@@ -100,6 +100,29 @@ LLPreviewTexture::~LLPreviewTexture()
 	}
 }
 
+void LLPreviewTexture::populateRatioList()
+{
+	// Fill in ratios list with common aspect ratio values
+	mRatiosList.clear();
+	mRatiosList.push_back(LLTrans::getString("Unconstrained"));
+	mRatiosList.push_back("1:1");
+	mRatiosList.push_back("4:3");
+	mRatiosList.push_back("10:7");
+	mRatiosList.push_back("3:2");
+	mRatiosList.push_back("16:10");
+	mRatiosList.push_back("16:9");
+	mRatiosList.push_back("2:1");
+	
+	// Now fill combo box with provided list
+	LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
+	combo->removeall();
+
+	for (std::vector<std::string>::const_iterator it = mRatiosList.begin(); it != mRatiosList.end(); ++it)
+	{
+		combo->add(*it);
+	}
+}
+
 // virtual
 BOOL LLPreviewTexture::postBuild()
 {
@@ -140,27 +163,12 @@ BOOL LLPreviewTexture::postBuild()
         }
     }
 
-	// Fill in ratios list with common aspect ratio values
-	mRatiosList.clear();
-	mRatiosList.push_back(LLTrans::getString("Unconstrained"));
-	mRatiosList.push_back("1:1");
-	mRatiosList.push_back("4:3");
-	mRatiosList.push_back("10:7");
-	mRatiosList.push_back("3:2");
-	mRatiosList.push_back("16:10");
-	mRatiosList.push_back("16:9");
-	mRatiosList.push_back("2:1");
-	
-	// Now fill combo box with provided list
-	LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
-	combo->removeall();
-
-	for (std::vector<std::string>::const_iterator it = mRatiosList.begin(); it != mRatiosList.end(); ++it)
-	{
-		combo->add(*it);
-	}
+	// Fill in ratios list and combo box with common aspect ratio values
+	populateRatioList();
 
 	childSetCommitCallback("combo_aspect_ratio", onAspectRatioCommit, this);
+
+	LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
 	combo->setCurrentByIndex(0);
 	
 	return LLPreview::postBuild();
@@ -446,16 +454,25 @@ void LLPreviewTexture::updateDimensions()
 		return;
 	}
 
-	if (mAssetStatus != PREVIEW_ASSET_LOADED)
+	S32 img_width = mImage->getFullWidth();
+	S32 img_height = mImage->getFullHeight();
+
+	if (mAssetStatus != PREVIEW_ASSET_LOADED
+		|| mLastWidth != img_width
+		|| mLastHeight != img_height)
 	{
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 		// Asset has been fully loaded, adjust aspect ratio
 		adjustAspectRatio();
 	}
-	
+
+
 	// Update the width/height display every time
-	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", mImage->getFullWidth()));
-	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", mImage->getFullHeight()));
+	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", img_width));
+	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", img_height));
+
+	mLastHeight = img_height;
+	mLastWidth = img_width;
 
 	// Reshape the floater only when required
 	if (mUpdateDimensions)
@@ -582,6 +599,7 @@ void LLPreviewTexture::adjustAspectRatio()
 			if (found == mRatiosList.end())
 			{
 				// No existing ratio found, create an element that will show image at original ratio
+				populateRatioList(); // makes sure previous custom ratio is cleared
 				std::string ratio = boost::lexical_cast<std::string>(num)+":" + boost::lexical_cast<std::string>(denom);
 				mRatiosList.push_back(ratio);
 				combo->add(ratio);
