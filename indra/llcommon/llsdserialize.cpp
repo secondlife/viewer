@@ -2175,6 +2175,14 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		U32 have = CHUNK-strm.avail_out;
 
 		result = (U8*) realloc(result, cur_size + have);
+		if (result == NULL)
+		{
+			LL_WARNS() << "Failed to unzip LLSD block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
+			inflateEnd(&strm);
+			free(result);
+			delete[] in;
+			return false;
+		}
 		memcpy(result+cur_size, out, have);
 		cur_size += have;
 
