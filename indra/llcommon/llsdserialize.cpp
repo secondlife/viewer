@@ -2092,6 +2092,12 @@ std::string zip_llsd(LLSD& data)
 
 			have = CHUNK-strm.avail_out;
 			output = (U8*) realloc(output, cur_size+have);
+			if (output == NULL)
+			{
+				LL_WARNS() << "Failed to compress LLSD block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
+				deflateEnd(&strm);
+				return std::string();
+			}
 			memcpy(output+cur_size, out, have);
 			cur_size += have;
 		}
@@ -2175,6 +2181,13 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		U32 have = CHUNK-strm.avail_out;
 
 		result = (U8*) realloc(result, cur_size + have);
+		if (result == NULL)
+		{
+			LL_WARNS() << "Failed to unzip LLSD block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
+			inflateEnd(&strm);
+			delete[] in;
+			return false;
+		}
 		memcpy(result+cur_size, out, have);
 		cur_size += have;
 
@@ -2267,6 +2280,14 @@ U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize, std::istream& is, S32
 		U32 have = CHUNK-strm.avail_out;
 
 		result = (U8*) realloc(result, cur_size + have);
+		if (result == NULL)
+		{
+			LL_WARNS() << "Failed to unzip LLSD NavMesh block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
+			inflateEnd(&strm);
+			delete[] in;
+			valid = false;
+			return NULL;
+		}
 		memcpy(result+cur_size, out, have);
 		cur_size += have;
 
