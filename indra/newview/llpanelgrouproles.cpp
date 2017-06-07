@@ -494,6 +494,7 @@ void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 	mSearchFilter = filter;
 	LLStringUtil::toLower(mSearchFilter);
 	update(GC_ALL);
+	onFilterChanged();
 }
 
 void LLPanelGroupSubTab::activate()
@@ -2824,6 +2825,20 @@ void LLPanelGroupActionsSubTab::update(LLGroupChange gc)
 			handleActionSelect();
 		}
 	}
+}
+
+void LLPanelGroupActionsSubTab::onFilterChanged()
+{
+	mActionDescription->clear();
+	mActionList->deselectAllItems();
+	mActionList->deleteAllItems();
+	buildActionsList(mActionList,
+		GP_ALL_POWERS,
+		GP_ALL_POWERS,
+		NULL,
+		FALSE,
+		TRUE,
+		FALSE);
 }
 
 void LLPanelGroupActionsSubTab::handleActionSelect()
