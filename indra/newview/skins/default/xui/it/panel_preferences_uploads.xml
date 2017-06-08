@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Caricamenti" name="uploads">
+	<text name="title">
+		Cartelle correnti di destinazione dei caricamenti
+	</text>
+	<text name="title_models">
+		Immagini
+	</text>
+	<text name="title_sounds">
+		Suoni
+	</text>
+	<text name="title_animation">
+		Animazioni
+	</text>
+	<text name="upload_help">
+		Per cambiare una cartella di destinazione, fai clic col pulsante destro del mouse sulla cartella desiderata nell&apos;inventario e sceglila
+ &quot;Usa come impostazione predefinita per&quot;
+	</text>
+</panel>

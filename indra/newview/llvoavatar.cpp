@@ -119,7 +119,7 @@ const F32 MAX_HOVER_Z = 2.0;
 const F32 MIN_HOVER_Z = -2.0;
 
 const F32 MIN_ATTACHMENT_COMPLEXITY = 0.f;
-const F32 MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
+const F32 DEFAULT_MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -9018,6 +9018,9 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
      * the official viewer for consideration.
      *****************************************************************/
 	static const U32 COMPLEXITY_BODY_PART_COST = 200;
+	static LLCachedControl<F32> max_complexity_setting(gSavedSettings,"MaxAttachmentComplexity");
+	F32 max_attachment_complexity = max_complexity_setting;
+	max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
 
 	// Diagnostic list of all textures on our avatar
 	static std::set<LLUUID> all_textures;
@@ -9099,7 +9102,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                                                    << " children: " << attachment_children_cost
                                                    << LL_ENDL;
                             // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
-                            cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, MAX_ATTACHMENT_COMPLEXITY);
+                            cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
 						}
 					}
 				}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Karşıya Yüklemeler" name="uploads">
+	<text name="title">
+		Karşıya yüklemeler için mevcut hedef klasörler
+	</text>
+	<text name="title_models">
+		Görüntüler
+	</text>
+	<text name="title_sounds">
+		Sesler
+	</text>
+	<text name="title_animation">
+		Animasyonlar
+	</text>
+	<text name="upload_help">
+		Bir hedef klasörü değiştirmek için, envanterde o klasöre sağ tıklayın ve şu öğeyi seçin:
+&quot;Şunun için varsayılan olarak kullan:&quot;
+	</text>
+</panel>

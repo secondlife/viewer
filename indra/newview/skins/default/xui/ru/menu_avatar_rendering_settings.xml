@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Settings">
+	<menu_item_check label="По умолчанию" name="default"/>
+	<menu_item_check label="Всегда рисовать" name="always_render"/>
+	<menu_item_check label="Никогда не рисовать" name="never_render"/>
+</context_menu>

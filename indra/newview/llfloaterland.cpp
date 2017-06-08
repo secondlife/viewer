@@ -2432,9 +2432,16 @@ void LLPanelLandAccess::refresh()
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
 		BOOL public_access = !use_access_list;
 		
-		getChild<LLUICtrl>("public_access")->setValue(public_access );
-		getChild<LLUICtrl>("GroupCheck")->setValue(use_group );
-
+        if (parcel->getRegionAllowAccessOverride())
+        {
+            getChild<LLUICtrl>("public_access")->setValue(public_access);
+            getChild<LLUICtrl>("GroupCheck")->setValue(use_group);
+        }
+        else
+        {
+            getChild<LLUICtrl>("public_access")->setValue(TRUE);
+            getChild<LLUICtrl>("GroupCheck")->setValue(FALSE);
+        }
 		std::string group_name;
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name );
@@ -2610,9 +2617,14 @@ void LLPanelLandAccess::refresh_ui()
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel && !gDisconnected)
 	{
-		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
+        BOOL can_manage_allowed = false;
 		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);
 	
+        if (parcel->getRegionAllowAccessOverride())
+        {   // Estate owner may have disabled allowing the parcel owner from managing access.
+            can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
+        }
+
 		getChildView("public_access")->setEnabled(can_manage_allowed);
 		BOOL public_access = getChild<LLUICtrl>("public_access")->getValue().asBoolean();
 		if (public_access)
@@ -2666,7 +2678,8 @@ void LLPanelLandAccess::refresh_ui()
 		std::string group_name;
 		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
 		{
-			getChildView("GroupCheck")->setEnabled(can_manage_allowed);
+			bool can_allow_groups = !public_access || (public_access && (getChild<LLUICtrl>("limit_payment")->getValue().asBoolean() ^ getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean()));
+			getChildView("GroupCheck")->setEnabled(can_manage_allowed && can_allow_groups);
 		}
 		getChildView("AccessList")->setEnabled(can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();

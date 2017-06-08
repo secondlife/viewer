@@ -76,13 +76,6 @@
 // * Review the download rate throttling.  Slow then fast?
 //   Detect bandwidth usage and speed up when it drops?
 //
-// * A lot of calls to notifyObservers().  It looks like
-//   these could be collapsed by maintaining a 'dirty'
-//   bit and there appears to be an attempt to do this.
-//   But it isn't used or is used in a limited fashion.
-//   Are there semanic issues requiring a call after certain
-//   updateItem() calls?
-//
 // * An error on a fetch could be due to one item in the batch.
 //   If the batch were broken up, perhaps more of the inventory
 //   would download.  (Handwave here, not certain this is an
@@ -393,6 +386,12 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	{
 		// Process completed background HTTP requests
 		gInventory.handleResponses(false);
+		// Just processed a bunch of items.
+		// Note: do we really need notifyObservers() here?
+		// OnIdle it will be called anyway due to Add flag for processed item.
+		// It seems like in some cases we are updaiting on fail (no flag),
+		// but is there anything to update?
+		gInventory.notifyObservers();
 	}
 	
 	if ((mFetchCount > max_concurrent_fetches) ||
@@ -711,7 +710,6 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
                         titem->setParent(lost_uuid);
                         titem->updateParentOnServer(FALSE);
                         gInventory.updateItem(titem);
-                        gInventory.notifyObservers();
                     }
                 }
             }
@@ -784,8 +782,6 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
 	{
 		fetcher->setAllFoldersFetched();
 	}
-	
-	gInventory.notifyObservers();
 }
 
 
@@ -828,7 +824,6 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 			fetcher->setAllFoldersFetched();
 		}
 	}
-	gInventory.notifyObservers();
 }
 
 
@@ -866,7 +861,6 @@ void BGFolderHttpHandler::processFailure(const char * const reason, LLCore::Http
 			fetcher->setAllFoldersFetched();
 		}
 	}
-	gInventory.notifyObservers();
 }
 
 

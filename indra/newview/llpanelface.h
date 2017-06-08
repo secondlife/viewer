@@ -162,13 +162,24 @@ protected:
 
 	// Callback funcs for individual controls
 	//
-	static void		onCommitTextureInfo( 	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitTextureInfo(LLUICtrl* ctrl, void* userdata);
+	static void		onCommitTextureScaleX(LLUICtrl* ctrl, void* userdata);
+	static void		onCommitTextureScaleY(LLUICtrl* ctrl, void* userdata);
+	static void		onCommitTextureRot(LLUICtrl* ctrl, void* userdata);
+	static void		onCommitTextureOffsetX(LLUICtrl* ctrl, void* userdata);
+	static void		onCommitTextureOffsetY(LLUICtrl* ctrl, void* userdata);
 
 	static void		onCommitMaterialBumpyScaleX(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialBumpyScaleY(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialBumpyRot(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialBumpyOffsetX(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialBumpyOffsetY(	LLUICtrl* ctrl, void* userdata);
+
+	static void		syncRepeatX(LLPanelFace* self, F32 scaleU);
+	static void		syncRepeatY(LLPanelFace* self, F32 scaleV);
+	static void		syncOffsetX(LLPanelFace* self, F32 offsetU);
+	static void		syncOffsetY(LLPanelFace* self, F32 offsetV);
+	static void 	syncMaterialRot(LLPanelFace* self, F32 rot);
 
 	static void		onCommitMaterialShinyScaleX(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialShinyScaleY(	LLUICtrl* ctrl, void* userdata);

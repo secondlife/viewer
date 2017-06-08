@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Ben" name="File">
 		<menu_item_call label="Tercihler..." name="Preferences..."/>
+		<menu_item_check label="Izgara Seçiciyi Göster" name="Show Grid Picker"/>
 		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
 	</menu>
 	<menu label="Yardım" name="Help">
@@ -33,7 +34,6 @@
 			<menu_item_check label="Hata" name="Error"/>
 			<menu_item_check label="Hiçbiri" name="None"/>
 		</menu>
-		<menu_item_check label="Izgara Seçiciyi Göster" name="Show Grid Picker"/>
 		<menu_item_call label="Bildirimler Konsolunu Göster" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

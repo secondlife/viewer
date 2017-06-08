@@ -2,9 +2,9 @@
 <panel name="panel_snapshot_options">
 	<button label="Auf Datenträger speichern" name="save_to_computer_btn"/>
 	<button label="In Inventar speichern ([AMOUNT] L$)" name="save_to_inventory_btn"/>
-	<button label="In Profil hochladen" name="save_to_profile_btn"/>
-	<button label="Auf Facebook hochladen" name="send_to_facebook_btn"/>
-	<button label="Auf Twitter hochladen" name="send_to_twitter_btn"/>
-	<button label="Auf Flickr hochladen" name="send_to_flickr_btn"/>
+	<button label="Im Profil-Feed teilen" name="save_to_profile_btn"/>
+	<button label="Auf Facebook teilen" name="send_to_facebook_btn"/>
+	<button label="Auf Twitter teilen" name="send_to_twitter_btn"/>
+	<button label="Auf Flickr teilen" name="send_to_flickr_btn"/>
 	<button label="Per E-Mail senden" name="save_to_email_btn"/>
 </panel>

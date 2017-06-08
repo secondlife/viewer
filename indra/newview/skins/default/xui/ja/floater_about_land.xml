@@ -450,7 +450,7 @@
 			<spinner label="アクセス時間：" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="常に許可" name="AllowedText">
-					立入を許可された住人 ([COUNT])
+					許可された住人 ([COUNT]、最大 [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="(合計[LISTED] 人、最大 [MAX] 人）"/>
 				<button label="追加" name="add_allowed"/>
@@ -458,7 +458,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="禁止" name="BanCheck">
-					立入を禁止された住人 ([COUNT])
+					立入禁止された住人 ([COUNT]、最大 [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="(合計 [LISTED] 人、最大 [MAX] 人）"/>
 				<button label="追加" name="add_banned"/>

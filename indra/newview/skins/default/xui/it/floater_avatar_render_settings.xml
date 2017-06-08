@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_avatar_render_settings" title="IMPOSTAZIONI DI RENDERING AVATAR">
+	<string name="av_never_render" value="Mai"/>
+	<string name="av_always_render" value="Sempre"/>
+	<filter_editor label="Filtro persone" name="people_filter_input"/>
+	<menu_button name="plus_btn" tool_tip="Azioni per la persona selezionata"/>
+	<name_list name="render_settings_list">
+		<name_list.columns label="Nome" name="name"/>
+		<name_list.columns label="Impostazione di rendering" name="setting"/>
+	</name_list>
+</floater>

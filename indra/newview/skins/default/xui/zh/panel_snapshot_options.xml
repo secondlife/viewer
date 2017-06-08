@@ -2,9 +2,9 @@
 <panel name="panel_snapshot_options">
 	<button label="儲存到硬碟" name="save_to_computer_btn"/>
 	<button label="儲存到收納區（L$[AMOUNT]）" name="save_to_inventory_btn"/>
-	<button label="上傳到簡覽" name="save_to_profile_btn"/>
-	<button label="上傳到臉書" name="send_to_facebook_btn"/>
-	<button label="上傳到推特" name="send_to_twitter_btn"/>
-	<button label="上傳到 Flickr" name="send_to_flickr_btn"/>
+	<button label="分享至檔案訊息發佈" name="save_to_profile_btn"/>
+	<button label="分享到臉書" name="send_to_facebook_btn"/>
+	<button label="分享到推特" name="send_to_twitter_btn"/>
+	<button label="分享到Flickr" name="send_to_flickr_btn"/>
 	<button label="用電郵傳送" name="save_to_email_btn"/>
 </panel>

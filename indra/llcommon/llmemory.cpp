@@ -267,16 +267,15 @@ U64 LLMemory::getCurrentRSS()
 U64 LLMemory::getCurrentRSS()
 {
 	U64 residentSize = 0;
-	task_basic_info_64_data_t basicInfo;
-	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_64_COUNT;
-	if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
+	mach_task_basic_info_data_t basicInfo;
+	mach_msg_type_number_t  basicInfoCount = MACH_TASK_BASIC_INFO_COUNT;
+	if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
 	{
-		residentSize = basicInfo.resident_size;
-
-		// If we ever wanted it, the process virtual size is also available as:
-		// virtualSize = basicInfo.virtual_size;
-		
-//		LL_INFOS() << "resident size is " << residentSize << LL_ENDL;
+//		residentSize = basicInfo.resident_size;
+		// Although this method is defined to return the "resident set size,"
+		// in fact what callers want from it is the total virtual memory
+		// consumed by the application.
+		residentSize = basicInfo.virtual_size;
 	}
 	else
 	{

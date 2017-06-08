@@ -57,10 +57,14 @@
         <name_list.columns
          label="Name"
          name="name"
-         relative_width="0.65" />
+         relative_width="0.5" />
         <name_list.columns
          label="Render setting"
          name="setting"
-         relative_width="0.35" />
+         relative_width="0.25" />
+        <name_list.columns
+         label="Date added"
+         name="timestamp"
+         relative_width="0.25" />
      </name_list>
 </floater>

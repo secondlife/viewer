@@ -42,6 +42,12 @@
 		<menu_item_call label="新頭髮" name="New Hair"/>
 		<menu_item_call label="新眼睛" name="New Eyes"/>
 	</menu>
+	<menu label="作這一用途的預設值：" name="upload_def">
+		<menu_item_call label="圖像上傳" name="Image uploads"/>
+		<menu_item_call label="聲音上傳" name="Sound uploads"/>
+		<menu_item_call label="動作上傳" name="Animation uploads"/>
+		<menu_item_call label="模型上傳" name="Model uploads"/>
+	</menu>
 	<menu label="變更類型" name="Change Type">
 		<menu_item_call label="預設" name="Default"/>
 		<menu_item_call label="手套" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="取代目前的裝扮" name="Replace Outfit"/>
 	<menu_item_call label="添加到目前裝扮" name="Add To Outfit"/>
 	<menu_item_call label="由目前的裝扮移除" name="Remove From Outfit"/>
+	<menu_item_call label="複製裝扮清單到剪貼簿" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="尋找原件" name="Find Original"/>
 	<menu_item_call label="清空物品" name="Purge Item"/>
 	<menu_item_call label="還原物品" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="恚庨" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>
 	<menu_item_call label="以連結格式貼上" name="Paste As Link"/>
-	<menu_item_call label="刪除" name="Remove Link"/>
 	<menu_item_call label="刪除" name="Delete"/>
 	<menu_item_call label="刪除系統資料夾" name="Delete System Folder"/>
 	<menu_item_call label="發起多方通話" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="編輯" name="Wearable Edit"/>
 	<menu_item_call label="添加" name="Wearable Add"/>
 	<menu_item_call label="脫下" name="Take Off"/>
-	<menu_item_call label="複製到商家發件匣" name="Merchant Copy"/>
 	<menu_item_call label="複製到 Marketplace 刊登" name="Marketplace Copy"/>
 	<menu_item_call label="移到 Marketplace 刊登" name="Marketplace Move"/>
 	<menu_item_call label="-- 無選項 --" name="--no options--"/>

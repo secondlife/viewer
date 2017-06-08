@@ -7,5 +7,8 @@
 		<menu_button name="plus_btn" tool_tip="Elige un residente o un objeto para ignorarlo"/>
 		<button name="unblock_btn" tool_tip="Quita al Residente o al objeto de la lista de ignorados"/>
 	</panel>
+	<text name="block_limit">
+		[COUNT] entradas en tu lista de bloqueados, y el límite es [LIMIT].
+	</text>
 	<block_list name="blocked" tool_tip="Lista de los residentes ignorados actualmente"/>
 </panel>

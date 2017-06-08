@@ -42,6 +42,12 @@
 		<menu_item_call label="Pelo nuevo" name="New Hair"/>
 		<menu_item_call label="Ojos nuevos" name="New Eyes"/>
 	</menu>
+	<menu label="Usar como valor predeterminado para" name="upload_def">
+		<menu_item_call label="Imágenes subidas" name="Image uploads"/>
+		<menu_item_call label="Sonidos subidos" name="Sound uploads"/>
+		<menu_item_call label="Animaciones subidas" name="Animation uploads"/>
+		<menu_item_call label="Modelos subidos" name="Model uploads"/>
+	</menu>
 	<menu label="Change Type" name="Change Type">
 		<menu_item_call label="Por defecto" name="Default"/>
 		<menu_item_call label="Guantes" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Reemplazar el vestuario" name="Replace Outfit"/>
 	<menu_item_call label="Añadir al vestuario" name="Add To Outfit"/>
 	<menu_item_call label="Quitar del vestuario actual" name="Remove From Outfit"/>
+	<menu_item_call label="Copiar la lista del vestuario al portapapeles" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Encontrar el original" name="Find Original"/>
 	<menu_item_call label="Eliminar el ítem" name="Purge Item"/>
 	<menu_item_call label="Restaurar el ítem" name="Restore Item"/>
@@ -71,7 +78,6 @@
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Pegar" name="Paste"/>
 	<menu_item_call label="Pegar como enlace" name="Paste As Link"/>
-	<menu_item_call label="Borrar" name="Remove Link"/>
 	<menu_item_call label="Borrar" name="Delete"/>
 	<menu_item_call label="Borrar carpeta del sistema" name="Delete System Folder"/>
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
@@ -94,7 +100,6 @@
 	<menu_item_call label="Editar" name="Wearable Edit"/>
 	<menu_item_call label="Añadir" name="Wearable Add"/>
 	<menu_item_call label="Quitarse" name="Take Off"/>
-	<menu_item_call label="Copiar al Buzón de salida de comerciante" name="Merchant Copy"/>
 	<menu_item_call label="Copiar en artículos del Mercado" name="Marketplace Copy"/>
 	<menu_item_call label="Mover a artículos del Mercado" name="Marketplace Move"/>
 	<menu_item_call label="--sin opciones--" name="--no options--"/>

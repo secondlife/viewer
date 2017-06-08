@@ -492,7 +492,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	mCachedRegionPrefs = new_settings;
 
 	// Load region sky presets.
-	LLWLParamManager::instance().refreshRegionPresets();
+	LLWLParamManager::instance().refreshRegionPresets(getRegionSettings().getSkyMap());
 
 	// If using server settings, update managers.
 	if (getUseRegionSettings())
@@ -525,6 +525,25 @@ void LLEnvManagerNew::initSingleton()
 	LL_DEBUGS("Windlight") << "Initializing LLEnvManagerNew" << LL_ENDL;
 
 	loadUserPrefs();
+
+	// preferences loaded, can set params
+	std::string preferred_day = getDayCycleName();
+	if (!useDayCycle(preferred_day, LLEnvKey::SCOPE_LOCAL))
+	{
+		LL_WARNS() << "No day cycle named " << preferred_day << ", reverting LLWLParamManager to defaults" << LL_ENDL;
+		LLWLParamManager::instance().setDefaultDay();
+	}
+
+	std::string sky = getSkyPresetName();
+	if (!useSkyPreset(sky))
+	{
+		LL_WARNS() << "No sky preset named " << sky << ", falling back to defaults" << LL_ENDL;
+		LLWLParamManager::instance().setDefaultSky();
+
+		// *TODO: Fix user preferences accordingly.
+	}
+
+	LLWLParamManager::instance().resetAnimator(0.5 /*noon*/, getUseDayCycle());
 }
 
 void LLEnvManagerNew::updateSkyFromPrefs()

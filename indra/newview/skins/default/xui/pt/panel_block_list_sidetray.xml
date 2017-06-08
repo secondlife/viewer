@@ -7,5 +7,8 @@
 		<menu_button name="plus_btn" tool_tip="Escolher um residente ou um objeto a ser bloqueado"/>
 		<button name="unblock_btn" tool_tip="Remover residente ou objeto da lista dos bloqueados"/>
 	</panel>
+	<text name="block_limit">
+		[COUNT] registros na sua lista de bloqueados. O limite é [LIMIT].
+	</text>
 	<block_list name="blocked" tool_tip="Lista atual dos residentes bloqueados"/>
 </panel>

@@ -155,6 +155,14 @@
 	      function="Avatar.SetImpostorMode"
 	      parameter="1" />
       </menu_item_check>
+      <menu_item_separator />
+      <menu_item_call
+        label="Exceptions..."
+        name="RenderExceptions">
+        <menu_item_call.on_click
+          function="Floater.ToggleOrBringToFront"
+          parameter="avatar_render_settings" />
+      </menu_item_call>
       </context_menu>
 
   <menu_item_separator 
