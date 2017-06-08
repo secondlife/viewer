@@ -869,7 +869,7 @@ Do you wish to proceed?
    icon="alertmodal.tga"
    name="JoinGroupNoCost"
    type="alertmodal">
-You are joining group [NAME].
+You are joining group &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 Do you wish to proceed?
     <tag>group</tag>
     <tag>confirm</tag>
@@ -960,7 +960,7 @@ Sorry, trial users can't join groups.
    icon="alertmodal.tga"
    name="JoinGroupMaxGroups"
    type="alertmodal">
-You cannot join '[group_name]':
+You cannot join &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;:
 You are already a member of [group_count] groups, the maximum number allowed is [max_groups]
     <tag>success</tag>
     <tag>group_id</tag>
@@ -976,7 +976,7 @@ You are already a member of [group_count] groups, the maximum number allowed is 
    icon="alertmodal.tga"
    name="JoinGroupClosedEnrollment"
    type="alertmodal">
-You cannot join '[group_name]':
+You cannot join &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;:
 The group no longer has open enrollment.
     <tag>group_id</tag>
     <tag>success</tag>
@@ -1065,7 +1065,7 @@ Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NA
    icon="alertmodal.tga"
    name="ReturnObjectsDeededToGroup"
    type="alertmodal">
-Are you sure you want to return all objects shared with the group &apos;[NAME]&apos; on this parcel of land back to their previous owner&apos;s inventory?
+Are you sure you want to return all objects shared with the group &apos;&lt;nolink&gt;[NAME]&lt;/nolink&gt;&apos; on this parcel of land back to their previous owner&apos;s inventory?
 
 *WARNING* This will delete the non-transferable objects deeded to the group!
 
@@ -1168,7 +1168,7 @@ Are you sure you want to disable all objects in this region?
    icon="alertmodal.tga"
    name="ReturnObjectsNotOwnedByGroup"
    type="alertmodal">
-Return the objects on this parcel of land that are NOT shared with the group [NAME] back to their owners?
+Return the objects on this parcel of land that are NOT shared with the group &lt;nolink&gt;[NAME]&lt;/nolink&gt; back to their owners?
 
 Objects: [N]
     <tag>confirm</tag>
@@ -1956,7 +1956,7 @@ Eject [AVATAR_NAME] from your land?
    name="EjectAvatarFromGroup"
    persist="true"
    type="notify">
-You ejected [AVATAR_NAME] from group [GROUP_NAME]
+You ejected [AVATAR_NAME] from group &lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;
     <tag>group</tag>
   </notification>
 
@@ -3331,7 +3331,7 @@ Please select a smaller area and try again.
 By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
-Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+Deed this [AREA] m² of land to the group &apos;&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;&apos;?
     <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
@@ -3348,7 +3348,7 @@ By deeding this parcel, the group will be required to have and maintain sufficie
 The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
-Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+Deed this [AREA] m² of land to the group &apos;&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;&apos;?
     <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
@@ -4324,7 +4324,7 @@ Leave Group?
    icon="notify.tga"
    name="GroupDepart"
    type="notify">
-You have left the group &apos;[group_name]&apos;.
+You have left the group &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;.
     <tag>group</tag>
   </notification>
 
@@ -7055,7 +7055,7 @@ The objects on the selected parcel of land owned by the Resident &apos;[NAME]&ap
    name="GroupObjectsReturned"
    persist="true"
    type="notify">
-The objects on the selected parcel of land shared with the group [GROUPNAME] have been returned back to their owner&apos;s inventory.
+The objects on the selected parcel of land shared with the group &lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt; have been returned back to their owner&apos;s inventory.
 Transferable deeded objects have been returned to their previous owners.
 Non-transferable objects that are deeded to the group have been deleted.
     <tag>group</tag>
@@ -8086,7 +8086,7 @@ To grant this permission please update your viewer to the latest version from [D
    show_toast="false"
    type="notify">
     <tag>group</tag>
-[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
+&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt;&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -8217,7 +8217,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    icon="notify.tga"
    name="VoiceInviteGroup"
    type="notify">
-[NAME] has joined a Voice Chat call with the group [GROUP].
+[NAME] has joined a Voice Chat call with the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <tag>group</tag>
     <tag>confirm</tag>
