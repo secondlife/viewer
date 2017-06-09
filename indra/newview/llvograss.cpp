@@ -92,7 +92,7 @@ LLVOGrass::~LLVOGrass()
 
 void LLVOGrass::updateSpecies()
 {
-	// TRIF is grass still even supported? This use of state seems odd.
+	// AXON is grass still even supported? This use of state seems odd.
 	mSpecies = getAttachmentState();
 	
 	if (!sSpeciesTable.count(mSpecies))

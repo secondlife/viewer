@@ -269,8 +269,8 @@ public:
     // Extended Mesh Properties
     U32 getExtendedMeshFlags() const;
     void setExtendedMeshFlags(U32 flags);
-    bool canBeAnimatedMesh() const;
-    bool isAnimatedMesh() const;
+    bool canBeAnimatedObject() const;
+    bool isAnimatedObject() const;
 
     // Functions that deal with media, or media navigation
     

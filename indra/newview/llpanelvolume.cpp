@@ -355,8 +355,8 @@ void LLPanelVolume::getState( )
     // AXON FIXME CHECK FOR SKIN INFO ALSO
     // WHAT ABOUT isPermanentEnforced?
     // What about linksets with some skinned objects?
-    BOOL can_be_animated_mesh = volobjp && volobjp->canBeAnimatedMesh() && editable;
-    getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(can_be_animated_mesh);
+    BOOL can_be_animated_object = volobjp && volobjp->canBeAnimatedObject() && editable;
+    getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(can_be_animated_object);
 
 	// Flexible properties
 	BOOL is_flexible = volobjp && volobjp->isFlexible();

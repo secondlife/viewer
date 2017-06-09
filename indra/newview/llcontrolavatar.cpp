@@ -92,14 +92,11 @@ void LLControlAvatar::updateGeom(LLVOVolume *obj)
 
 LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 {
-    // TRIF Lifted from LLPreviewAnimation
+    // AXON Lifted from LLPreviewAnimation
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
 	cav->createDrawable(&gPipeline);
 	cav->mIsDummy = TRUE;
 	cav->mSpecialRenderMode = 1;
-	//cav->setPositionAgent(obj->getRenderPosition());
-	//cav->slamPosition();
-	//cav->setRotation(obj->getRotation());
 	cav->updateJointLODs();
 	cav->updateGeometry(cav->mDrawable);
 	cav->startMotion(ANIM_AGENT_STAND, 5.0f);

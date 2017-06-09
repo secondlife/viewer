@@ -5091,7 +5091,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         return;
     }
 
-    if (!volp->isAnimatedMesh())
+    if (!volp->isAnimatedObject())
     {
 		LL_WARNS("Messaging") << "AXON Received animation state for non-animated object" << uuid << LL_ENDL;
         return;

@@ -3308,7 +3308,7 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
     }
 }
 
-bool LLVOVolume::canBeAnimatedMesh() const
+bool LLVOVolume::canBeAnimatedObject() const
 {
     if (!isMesh())
     {
@@ -3322,9 +3322,9 @@ bool LLVOVolume::canBeAnimatedMesh() const
     return true;
 }
 
-bool LLVOVolume::isAnimatedMesh() const
+bool LLVOVolume::isAnimatedObject() const
 {
-    return canBeAnimatedMesh() && (getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
+    return canBeAnimatedObject() && (getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
 }
 
 //----------------------------------------------------------------------------
@@ -4850,11 +4850,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
-            // TRIF why this variable? Only different from rigged if
+            // AXON why this variable? Only different from rigged if
             // there are no LLFaces associated with the drawable.
 			bool is_rigged = false;
 
-            // TRIF handle NPC case
+            // AXON handle NPC case
             if (rigged && pAvatarVO)
             {
                 pAvatarVO->addAttachmentOverridesForObject(vobj);
