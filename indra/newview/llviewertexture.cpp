@@ -2089,7 +2089,9 @@ bool LLViewerFetchedTexture::updateFetch()
 	{
 		make_request = false;
 	}
-	else if(mCachedRawImage.notNull() && (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
+	else if(mCachedRawImage.notNull() // can be empty
+			&& mCachedRawImageReady
+			&& (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
 	{
 		make_request = false;
 		switchToCachedImage(); //use the cached raw data first
