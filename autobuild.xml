@@ -2137,33 +2137,69 @@
             <key>name</key>
             <string>darwin</string>
           </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e18eeb0691af053b83bd46b76c6ee86a</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6299/21982/llbase-0.9.3.506286-darwin64-506286.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>80ef3f9f6bde28787b02837ace2ad84c</string>
+              <string>b77e44582267b499c63234e8b1012b9c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/318106/arch/Linux/installer/llbase-0.8.6.318106-linux-318106.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6298/21977/llbase-0.9.3.506286-linux-506286.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>84f5808ed9772da32c3866cee84e8ceb</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6297/21970/llbase-0.9.3.506286-linux64-506286.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>57837daafa60f98a4d9fa4dfe53d995e</string>
+              <string>e6865670f9bca1c82fb8b91db3ea515c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/318106/arch/CYGWIN/installer/llbase-0.8.6.0-windows-318106.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6301/21994/llbase-0.9.3.506286-windows-506286.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>15be196632bf4b96955106c9a2dfd7a2</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6300/21988/llbase-0.9.3.506286-windows64-506286.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
         <key>version</key>
-        <string>0.8.6.318106</string>
+        <string>0.9.3.506286</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
