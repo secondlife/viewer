@@ -2125,18 +2125,6 @@
         <string>llbase</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>13998879705aa1af36c6ea8f480901e3</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llbase/rev/318106/arch/Darwin/installer/llbase-0.8.6.318106-darwin-318106.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
           <key>darwin64</key>
           <map>
             <key>archive</key>
@@ -2149,30 +2137,6 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b77e44582267b499c63234e8b1012b9c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6298/21977/llbase-0.9.3.506286-linux-506286.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>84f5808ed9772da32c3866cee84e8ceb</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6297/21970/llbase-0.9.3.506286-linux64-506286.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -2184,18 +2148,6 @@
             </map>
             <key>name</key>
             <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>15be196632bf4b96955106c9a2dfd7a2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6300/21988/llbase-0.9.3.506286-windows64-506286.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
@@ -3108,9 +3060,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>649e328b371b18700cae028affea6455</string>
+              <string>b5089aa1ee07546d6cc554ec7874ca5f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6442/22536/viewer_manager-1.0.506431-darwin64-506431.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6458/22603/viewer_manager-1.0.506447-darwin64-506447.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3132,9 +3084,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d7368d0b260dc967b0c3e31d73f7836f</string>
+              <string>e3da9c355450b4a7c09b0bdc00bda5cd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6443/22542/viewer_manager-1.0.506431-windows-506431.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6459/22609/viewer_manager-1.0.506447-windows-506447.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3145,7 +3097,7 @@
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.506431</string>
+        <string>1.0.506447</string>
       </map>
       <key>vlc-bin</key>
       <map>
