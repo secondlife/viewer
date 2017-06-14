@@ -482,7 +482,7 @@ class WindowsManifest(ViewerManifest):
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
-        self.path("featuretable_xp.txt")
+        self.path("ca-bundle.crt")
 
         # Media plugins - CEF
         if self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
@@ -836,6 +836,7 @@ class DarwinManifest(ViewerManifest):
                 self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
                 self.path("SecondLife.nib")
+                self.path("ca-bundle.crt")
 
                 icon_path = self.icon_path()
                 if self.prefix(src=icon_path, dst="") :
@@ -1295,6 +1296,7 @@ class LinuxManifest(ViewerManifest):
             print "Skipping llcommon.so (assuming llcommon was linked statically)"
 
         self.path("featuretable_linux.txt")
+        self.path("ca-bundle.crt")
 
     def package_finish(self):
         installer_name = self.installer_base_name()

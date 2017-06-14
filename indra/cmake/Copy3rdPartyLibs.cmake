@@ -20,7 +20,6 @@ if(WINDOWS)
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice.exe
-        ca-bundle.crt
         libsndfile-1.dll
         vivoxsdk.dll
         ortp.dll
@@ -151,7 +150,6 @@ elseif(DARWIN)
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice
-        ca-bundle.crt
         libsndfile.dylib
         libvivoxoal.dylib
         libortp.dylib
