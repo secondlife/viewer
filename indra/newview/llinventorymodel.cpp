@@ -462,12 +462,8 @@ void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::E
         }
         
         // Purge the emptied folder
-        // Note: we'd like to use purgeObject() but it doesn't cleanly eliminate the folder
-        // which leads to issues further down the road when the folder is found again
-        //purgeObject(folder_id);
-        // We remove the folder and empty the trash instead which seems to work
-		removeCategory(folder_id);
-        gInventory.emptyFolderType("", LLFolderType::FT_TRASH);
+        removeCategory(folder_id);
+        remove_inventory_category(folder_id, NULL);
 	}
 }
 
