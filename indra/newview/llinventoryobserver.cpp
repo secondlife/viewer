@@ -350,6 +350,11 @@ void LLInventoryFetchDescendentsObserver::startFetch()
 		if (!cat) continue;
 		if (!isCategoryComplete(cat))
 		{
+			// CHECK IT: isCategoryComplete() checks both version and descendant count but
+			// fetch() only works for Unknown version and doesn't care about descentants,
+			// as result fetch won't start and folder will potentially get stuck as
+			// incomplete in observer.
+			// Likely either both should use only version or both should check descendants.
 			cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
 			mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
 		}
