@@ -93,6 +93,7 @@ public:
 
 	void			onEditorCommit(const LLSD& data);
 	static void		onEditorGainFocus(LLFocusableElement* caller, void *userdata);
+	static void		onEditorLostFocus(LLFocusableElement* caller, void *userdata);
 	static void		onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
 	void			onUpBtn(const LLSD& data);
