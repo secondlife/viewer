@@ -207,7 +207,7 @@ class ViewerManifest(LLManifest):
                             "Channel Base": CHANNEL_VENDOR_BASE,
                             "Channel":self.channel_with_pkg_suffix(),
                             "Platform":build_data_json_platform,
-                            "Update Service":"https://update.secondlife.com/update/",
+                            "Update Service":"https://update.secondlife.com/update",
                             }
             #MAINT-7294: Windows exe names depend on channel name, so write that in also
             if build_data_json_platform.startswith('win'):
