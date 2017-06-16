@@ -372,7 +372,7 @@ class WindowsManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
-        llbasedir = os.path.join(pkgdir, "llbase")
+        llbasedir = os.path.join(pkgdir, "lib", "python", "llbase")
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -792,7 +792,7 @@ class DarwinManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
-        llbasedir = os.path.join(pkgdir, "llbase")
+        llbasedir = os.path.join(pkgdir, "lib", "python", "llbase")
         requestsdir = os.path.join(pkgdir, "requests")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
@@ -1255,8 +1255,8 @@ class LinuxManifest(ViewerManifest):
             if not os.path.exists(llbase_path):
                 os.makedirs(llbase_path)
             if self.prefix(dst="llbase"):
-                self.path2basename("../packages/llbase","*.py")
-                self.path2basename("../packages/llbase","_cllsd.so")         
+                self.path2basename("../packages/lib/python/llbase","*.py")
+                self.path2basename("../packages/lib/python/llbase","_cllsd.so")         
             self.end_prefix("bin")
 
         if self.prefix("res-sdl"):
