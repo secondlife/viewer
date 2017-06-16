@@ -33,7 +33,8 @@
 
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
-    mPlaying(false)
+    mPlaying(false),
+    mGlobalScale(1.0f)
 {
     mIsControlAvatar = true;
 }
@@ -54,6 +55,35 @@ void LLControlAvatar::matchTransform(LLVOVolume *obj)
 	setRotation(result_rot);
     mRoot->setWorldRotation(result_rot);
     mRoot->setPosition(obj->getRenderPosition());
+}
+
+void LLControlAvatar::setGlobalScale(F32 scale)
+{
+    if (scale <= 0.0)
+    {
+        LL_WARNS() << "invalid global scale " << scale << LL_ENDL;
+        return;
+    }
+    if (scale != mGlobalScale)
+    {
+        F32 adjust_scale = scale/mGlobalScale;
+        LL_INFOS() << "scale " << scale << " adjustment " << adjust_scale << LL_ENDL;
+        // AXON - should we be scaling from the pelvis or the root?
+        recursiveScaleJoint(mPelvisp,adjust_scale);
+        mGlobalScale = scale;
+    }
+}
+
+void LLControlAvatar::recursiveScaleJoint(LLJoint* joint, F32 factor)
+{
+    joint->setScale(factor * joint->getScale());
+    
+	for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+		 iter != joint->mChildren.end(); ++iter)
+	{
+		LLJoint* child = *iter;
+		recursiveScaleJoint(child, factor);
+	}
 }
 
 // Based on LLViewerJointAttachment::setupDrawable(), without the attaching part.
@@ -86,8 +116,29 @@ void LLControlAvatar::updateGeom(LLVOVolume *obj)
     gPipeline.markRebuild(obj->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
     obj->markForUpdate(TRUE);
 
+    // Note that attachment overrides aren't needed here, have already
+    // been applied at the time the mControlAvatar was created, in
+    // llvovolume.cpp.
+
     matchTransform(obj);
-    //addAttachmentOverridesForObject(obj);
+
+    // AXON testing scale
+
+    // What should the scale be? What we really want is the ratio
+    // between the scale at which the object was originally designed
+    // and rigged, and the scale to which it has been subsequently
+    // modified - for example, if the object has been scaled down by a
+    // factor of 2 then we should use 0.5 as the global scale. But we
+    // don't have the original scale stored anywhere, just the current
+    // scale. Possibilities - 1) remember the original scale
+    // somewhere, 2) add another field to let the user specify the
+    // global scale, 3) approximate the original scale by looking at
+    // the proportions of the skeleton after joint positions have
+    // been applied
+    
+    //LLVector3 obj_scale = obj->getScale();
+    //F32 obj_scale_z = llmax(obj_scale[2],0.1f);
+    //setGlobalScale(obj_scale_z/2.0f); // roughly fit avatar height range (2m) into object height
 }
 
 LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)

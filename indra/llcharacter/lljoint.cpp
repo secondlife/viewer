@@ -881,7 +881,7 @@ void LLJoint::setWorldRotation( const LLQuaternion& rot )
 //--------------------------------------------------------------------
 const LLVector3& LLJoint::getScale()
 {
-	return mXform.getScale();	
+    return mXform.getScale();
 }
 
 //--------------------------------------------------------------------

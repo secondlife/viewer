@@ -42,9 +42,13 @@ public:
     void matchTransform(LLVOVolume *obj);
     void updateGeom(LLVOVolume *obj);
         
+    void setGlobalScale(F32 scale);
+    void recursiveScaleJoint(LLJoint *joint, F32 factor);
     static LLControlAvatar *createControlAvatar(LLVOVolume *obj);
 
     bool mPlaying;
+
+    F32 mGlobalScale;
 };
 
 #endif //LL_CONTROLAVATAR_H

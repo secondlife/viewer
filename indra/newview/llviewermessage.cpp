@@ -5097,10 +5097,16 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         return;
     }
 
+    LLControlAvatar *avatarp = volp->mControlAvatar;
+    if (!avatarp)
+    {
+        LL_WARNS() << "AXON no control avatar, ignoring" << LL_ENDL;
+        return;
+    }
+    
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	LL_WARNS() << "AXON handle object animation here, num_blocks " << num_blocks << LL_ENDL;
 
-    LLControlAvatar *avatarp = volp->mControlAvatar;
     if (!avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
