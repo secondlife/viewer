@@ -5113,7 +5113,6 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         avatarp->updateGeom(volp);
     }
 	avatarp->mSignaledAnimations.clear();
-    volp->setDebugText(llformat("Animations %d", num_blocks));
 	
     for( S32 i = 0; i < num_blocks; i++ )
     {

@@ -242,7 +242,7 @@ private: //aligned members
 	// Updates
 	//--------------------------------------------------------------------
 public:
-	void			updateDebugText();
+	virtual void	updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
 	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
 	void 			idleUpdateMisc(bool detailed_update);
@@ -443,10 +443,11 @@ public:
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
 	//--------------------------------------------------------------------
-	// NPC status
+	// animated object status
 	//--------------------------------------------------------------------
 public:
     bool mIsControlAvatar;
+    bool mEnableDefaultMotions;
 
 	//--------------------------------------------------------------------
 	// Morph masks
