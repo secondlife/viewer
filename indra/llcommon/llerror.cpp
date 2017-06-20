@@ -572,7 +572,7 @@ namespace LLError
 		mFunctionString += std::string(mFunction) + ":";
 		for (size_t i = 0; i < mTagCount; i++)
 		{
-			mTagString += std::string("#") + mTags[i] + ((i == mTagCount - 1) ? "" : ",");
+			mTagString += std::string("#") + mTags[i] + ((i == mTagCount - 1) ? " " : ",");
 		}
 	}
 

@@ -14694,6 +14694,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AssetStorageLogFrequency</key>
+        <map>
+        <key>Comment</key>
+        <string>Seconds between display of AssetStorage info in log (0 for never)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>60.0</real>
+        </map>
     <key>LogWearableAssetSave</key>
     <map>
       <key>Comment</key>
@@ -14766,6 +14777,15 @@
             <string>U32</string>
         <key>Value</key>
             <real>1</real>
+        </map>
+    <key>PoolSizeAssetStorage</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for AssetStorage requests</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>12</real>
         </map>
 
     <!-- Settings below are for back compatibility only.
