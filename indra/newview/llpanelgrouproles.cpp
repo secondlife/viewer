@@ -2472,12 +2472,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 		
 		//////////////////////////////////////////////////////////////////////////
 
-		LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.find(role_id);
-		U64 current_role_powers = GP_NO_POWERS;
-		if (rit != gdatap->mRoles.end())
-		{
-			current_role_powers = ((*rit).second->getRoleData().mRolePowers);
-		}
+		U64 current_role_powers = gdatap->getRolePowers(role_id);
 
 		if(isEnablingAbility)
 		{
