@@ -225,6 +225,36 @@
         <key>version</key>
         <string>1.57</string>
       </map>
+      <key>chardet</key>
+      <map>
+        <key>copyright</key>
+        <string>Contributors to charset (see https://github.com/chardet/chardet)</string>
+        <key>description</key>
+        <string>Python Character Encoding Library</string>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>license_file</key>
+        <string>LICENSES/chardet.txt</string>
+        <key>name</key>
+        <string>chardet</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0124862b6a1b88455c78a68f8b823d21</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6662/23578/chardet-3.0.4-darwin64-506651.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.0.4</string>
+      </map>
       <key>colladadom</key>
       <map>
         <key>copyright</key>
@@ -526,9 +556,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da5c705fa4fae169cba26fba92dba1ef</string>
+              <string>95a6d7d1ff2ffc8679601d9408533663</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4835/15404/dullahan-1.1.800_3.3029.1611.g44e39a8-darwin64-504824.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6185/21567/dullahan-1.1.800_3.3071.1637.gcb6cf75-darwin64-506174.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -538,9 +568,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>17cd8f6e8f95df877d0c9c234f860324</string>
+              <string>c14caa52a6ab343c35e6e76af840257f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4836/15410/dullahan-1.1.800_3.3029.1611.g44e39a8-windows-504824.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6187/21579/dullahan-1.1.800_3.3071.1634.g9cc59c8-windows-506174.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -550,16 +580,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7a478f8f0e13f5f81cab657a8c351186</string>
+              <string>ff4d59eb23011198ccd0aa4f5875bbd1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4837/15415/dullahan-1.1.800_3.3029.1611.g44e39a8-windows64-504824.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6186/21573/dullahan-1.1.800_3.3071.1634.g9cc59c8-windows64-506174.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.800_3.3029.1611.g44e39a8</string>
+        <string>1.1.800_3.3071.1634.g9cc59c8</string>
       </map>
       <key>elfio</key>
       <map>
@@ -1434,6 +1464,36 @@
         </map>
         <key>version</key>
         <string>2012.1-2</string>
+      </map>
+      <key>idna</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-2017, Kim Davies. All rights reserved.</string>
+        <key>description</key>
+        <string>Python Internationalized Domain Names in Applications (IDNA) Library</string>
+        <key>license</key>
+        <string>see idna.rst</string>
+        <key>license_file</key>
+        <string>LICENSES/idna.rst</string>
+        <key>name</key>
+        <string>idna</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7dfe9fc4023d7d4f511dd9fac7258266</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6663/23584/idna-2.5-darwin64-506652.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2.5</string>
       </map>
       <key>jpeglib</key>
       <map>
@@ -2788,13 +2848,13 @@
       <key>requests</key>
       <map>
         <key>copyright</key>
-        <string>Kenneth Reitz</string>
+        <string>Copyright 2016 Kenneth Reitz</string>
         <key>description</key>
         <string>Python HTTP Library</string>
         <key>license</key>
         <string>Apache</string>
         <key>license_file</key>
-        <string>requests.txt</string>
+        <string>LICENSES/requests.txt</string>
         <key>name</key>
         <string>requests</string>
         <key>platforms</key>
@@ -2804,9 +2864,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>20a84252b40223d5c08a6c1575b3333b</string>
+              <string>b8d134a970261b445a3f376ba4e05ff7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4106/11536/requests-1.0-darwin64-504094.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6693/23788/requests-2.18.1-darwin64-506681.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2829,7 +2889,7 @@
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0</string>
+        <string>2.18.1</string>
       </map>
       <key>slvoice</key>
       <map>
@@ -3040,6 +3100,36 @@
         </map>
         <key>version</key>
         <string>0.8.0.1</string>
+      </map>
+      <key>urllib3</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2008-2016 Andrey Petrov and contributors (see CONTRIBUTORS.txt)</string>
+        <key>description</key>
+        <string>Python HTTP Library</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/urllib3.txt</string>
+        <key>name</key>
+        <string>urllib3</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>22f64c7fbb6704d2e9519fd1cca8e49b</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6659/23560/urllib3-1.21.1-darwin64-506648.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.21.1</string>
       </map>
       <key>viewer-manager</key>
       <map>

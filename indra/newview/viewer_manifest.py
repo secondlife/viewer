@@ -793,7 +793,10 @@ class DarwinManifest(ViewerManifest):
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
         vmpdir = os.path.join(pkgdir, "VMP")
         llbasedir = os.path.join(pkgdir, "lib", "python", "llbase")
-        requestsdir = os.path.join(pkgdir, "requests")
+        requestsdir = os.path.join(pkgdir, "lib", "python", "requests")
+        urllib3dir = os.path.join(pkgdir, "lib", "python", "urllib3")
+        chardetdir = os.path.join(pkgdir, "lib", "python", "chardet")
+        idnadir = os.path.join(pkgdir, "lib", "python", "idna")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
             self.path("Info.plist", dst="Info.plist")
@@ -806,10 +809,17 @@ class DarwinManifest(ViewerManifest):
                 #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322, SL-323
                 self.path2basename(vmpdir,"SL_Launcher")
                 self.path2basename(vmpdir,"*.py")
+                # certifi will be imported by requests; this is our custom version to get our ca-bundle.crt 
+                certifi_path = os.path.join(self.get_dst_prefix(),'certifi')
+                if not os.path.exists(certifi_path):
+                    os.makedirs(certifi_path)
+                if self.prefix(dst="certifi"):
+                    self.path2basename(os.path.join(vmpdir,"certifi"),"*")
+                    self.end_prefix()                   
+                # llbase provides our llrest service layer and llsd decoding
                 llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
                 if not os.path.exists(llbase_path):
                     os.makedirs(llbase_path)
-                #before, we only needed llbase at build time.  With VMP, we need it at run time.
                 if self.prefix(dst="llbase"):
                     self.path2basename(llbasedir,"*.py")
                     self.path2basename(llbasedir,"_cllsd.so")
@@ -821,6 +831,24 @@ class DarwinManifest(ViewerManifest):
                     os.makedirs(requests_path)
                 if self.prefix(dst="requests"):
                     self.path2basename(requestsdir,"*")
+                    self.end_prefix()                   
+                urllib3_path = os.path.join(self.get_dst_prefix(),'urllib3')
+                if not os.path.exists(urllib3_path):
+                    os.makedirs(urllib3_path)
+                if self.prefix(dst="urllib3"):
+                    self.path2basename(urllib3dir,"*")
+                    self.end_prefix()                   
+                chardet_path = os.path.join(self.get_dst_prefix(),'chardet')
+                if not os.path.exists(chardet_path):
+                    os.makedirs(chardet_path)
+                if self.prefix(dst="chardet"):
+                    self.path2basename(chardetdir,"*")
+                    self.end_prefix()                   
+                idna_path = os.path.join(self.get_dst_prefix(),'idna')
+                if not os.path.exists(idna_path):
+                    os.makedirs(idna_path)
+                if self.prefix(dst="idna"):
+                    self.path2basename(idnadir,"*")
                     self.end_prefix()                   
                 self.end_prefix()         
 
