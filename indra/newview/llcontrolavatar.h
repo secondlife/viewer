@@ -39,8 +39,8 @@ public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual	~LLControlAvatar();
 
-    void matchTransform(LLVOVolume *obj);
-    void updateGeom(LLVOVolume *obj);
+    void matchVolumeTransform();
+    void updateVolumeGeom();
         
     void setGlobalScale(F32 scale);
     void recursiveScaleJoint(LLJoint *joint, F32 factor);
@@ -49,6 +49,8 @@ public:
     bool mPlaying;
 
     F32 mGlobalScale;
+
+    LLVOVolume *mVolp;
 };
 
 #endif //LL_CONTROLAVATAR_H

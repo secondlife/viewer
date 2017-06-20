@@ -46,17 +46,17 @@ LLControlAvatar::~LLControlAvatar()
 {
 }
 
-void LLControlAvatar::matchTransform(LLVOVolume *obj)
+void LLControlAvatar::matchVolumeTransform()
 {
-	setPositionAgent(obj->getRenderPosition());
+	setPositionAgent(mVolp->getRenderPosition());
 	//slamPosition();
 
     LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
-    LLQuaternion obj_rot = obj->getRotation();
+    LLQuaternion obj_rot = mVolp->getRotation();
     LLQuaternion result_rot = fix_axes_rot * obj_rot;
 	setRotation(result_rot);
     mRoot->setWorldRotation(result_rot);
-    mRoot->setPosition(obj->getRenderPosition());
+    mRoot->setPosition(mVolp->getRenderPosition());
 }
 
 void LLControlAvatar::setGlobalScale(F32 scale)
@@ -89,20 +89,20 @@ void LLControlAvatar::recursiveScaleJoint(LLJoint* joint, F32 factor)
 }
 
 // Based on LLViewerJointAttachment::setupDrawable(), without the attaching part.
-void LLControlAvatar::updateGeom(LLVOVolume *obj)
+void LLControlAvatar::updateVolumeGeom()
 {
-	if (!obj->mDrawable)
+	if (!mVolp->mDrawable)
 		return;
-	if (obj->mDrawable->isActive())
+	if (mVolp->mDrawable->isActive())
 	{
-		obj->mDrawable->makeStatic(FALSE);
+		mVolp->mDrawable->makeStatic(FALSE);
 	}
-	obj->mDrawable->makeActive();
-	gPipeline.markMoved(obj->mDrawable);
-	gPipeline.markTextured(obj->mDrawable); // face may need to change draw pool to/from POOL_HUD
-	obj->mDrawable->setState(LLDrawable::USE_BACKLIGHT);
+	mVolp->mDrawable->makeActive();
+	gPipeline.markMoved(mVolp->mDrawable);
+	gPipeline.markTextured(mVolp->mDrawable); // face may need to change draw pool to/from POOL_HUD
+	mVolp->mDrawable->setState(LLDrawable::USE_BACKLIGHT);
 
-	LLViewerObject::const_child_list_t& child_list = obj->getChildren();
+	LLViewerObject::const_child_list_t& child_list = mVolp->getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 		 iter != child_list.end(); ++iter)
 	{
@@ -115,14 +115,14 @@ void LLControlAvatar::updateGeom(LLVOVolume *obj)
         }
     }
 
-    gPipeline.markRebuild(obj->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-    obj->markForUpdate(TRUE);
+    gPipeline.markRebuild(mVolp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+    mVolp->markForUpdate(TRUE);
 
     // Note that attachment overrides aren't needed here, have already
     // been applied at the time the mControlAvatar was created, in
     // llvovolume.cpp.
 
-    matchTransform(obj);
+    matchVolumeTransform();
 
     // AXON testing scale
 
@@ -147,6 +147,9 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 {
     // AXON Lifted from LLPreviewAnimation
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
+
+    cav->mVolp = obj;
+    
 	cav->createDrawable(&gPipeline);
 	cav->mIsDummy = TRUE;
 	cav->mSpecialRenderMode = 1;
@@ -155,14 +158,8 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 	//cav->startMotion(ANIM_AGENT_STAND, 5.0f);
 	cav->hideSkirt();
 
-	// stop extraneous animations
-	cav->stopMotion( ANIM_AGENT_HEAD_ROT, TRUE );
-	cav->stopMotion( ANIM_AGENT_EYE, TRUE );
-	cav->stopMotion( ANIM_AGENT_BODY_NOISE, TRUE );
-	cav->stopMotion( ANIM_AGENT_BREATHE_ROT, TRUE );
-
     // Sync up position/rotation with object
-    cav->matchTransform(obj);
+    cav->matchVolumeTransform();
 
     return cav;
 }

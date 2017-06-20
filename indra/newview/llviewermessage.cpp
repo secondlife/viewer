@@ -5110,7 +5110,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     if (!avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
-        avatarp->updateGeom(volp);
+		avatarp->updateVolumeGeom();
     }
 	avatarp->mSignaledAnimations.clear();
 	

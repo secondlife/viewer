@@ -4010,7 +4010,7 @@ void LLViewerObject::setPosition(const LLVector3 &pos, BOOL damped)
 	}
     if (mControlAvatar)
     {
-        mControlAvatar->matchTransform(dynamic_cast<LLVOVolume*>(this));
+        mControlAvatar->matchVolumeTransform();
     }
 }
 

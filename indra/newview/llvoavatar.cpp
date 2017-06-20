@@ -3426,8 +3426,27 @@ void LLVOAvatar::updateDebugText()
 			if (motionp->getMinPixelArea() < getPixelArea())
 			{
 				std::string output;
-				if (motionp->getName().empty())
+                std::string motion_name = motionp->getName();
+				if (motion_name.empty())
 				{
+                    if (isControlAvatar())
+                    {
+                        LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+                        // Try to get name from inventory of associated object
+                        LLVOVolume *volp = control_av->mVolp;
+                        if (volp)
+                        {
+                            volp->requestInventory(); // AXON should be a no-op if already requested or fetched?
+                            LLViewerInventoryItem* item = volp->getInventoryItemByAsset(motionp->getID());
+                            if (item)
+                            {
+                                motion_name = item->getName();
+                            }
+                        }
+                    }
+                }
+                if (motion_name.empty())
+                {
 					output = llformat("%s - %d",
 							  gAgent.isGodlikeWithoutAdminMenuFakery() ?
 							  motionp->getID().asString().c_str() :
@@ -3437,8 +3456,8 @@ void LLVOAvatar::updateDebugText()
 				else
 				{
 					output = llformat("%s - %d",
-							  motionp->getName().c_str(),
-							  (U32)motionp->getPriority());
+                                      motion_name.c_str(),
+                                      (U32)motionp->getPriority());
 				}
 				addDebugText(output);
 			}
