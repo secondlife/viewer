@@ -4840,7 +4840,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 {
                     vobj->mControlAvatar = LLControlAvatar::createControlAvatar(vobj);
                     vobj->mControlAvatar->addAttachmentOverridesForObject(vobj);
-                    vobj->requestInventory();
                 }
                 if (vobj->mControlAvatar)
                 {
