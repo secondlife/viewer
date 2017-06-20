@@ -80,6 +80,47 @@
  *
  */
 
+namespace LLTrace
+{
+// This little bit of shimmery is to allow the creation of
+// default-constructed stat and event handles so we can make arrays of
+// the things.
+
+// The only sensible way to use this function is to immediately make a
+// copy of the contents, since it always returns the same pointer.
+const char *makeNewAutoName()
+{
+    static char name[64];
+    static S32 auto_namer_number = 0;
+    snprintf(name,64,"auto_name_%d",auto_namer_number);
+    auto_namer_number++;
+    return name;
+}
+
+template <typename T = F64>
+class DCCountStatHandle:
+        public CountStatHandle<T>
+{
+public:
+    DCCountStatHandle(const char *name = makeNewAutoName(), const char *description=NULL):
+        CountStatHandle<T>(name,description)
+    {
+    }
+};
+
+template <typename T = F64>
+class DCEventStatHandle:
+        public EventStatHandle<T>
+{
+public:
+    DCEventStatHandle(const char *name = makeNewAutoName(), const char *description=NULL):
+        EventStatHandle<T>(name,description)
+    {
+    }
+};
+
+}
+
 namespace LLViewerAssetStatsFF
 {
 	static EViewerAssetCategories asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp)
@@ -90,176 +131,45 @@ namespace LLViewerAssetStatsFF
 		//  - wearables (clothing, bodyparts) which directly affect
 		//    user experiences when they log in
 		//  - sounds
-		//  - gestures
+		//  - gestures, including animations
 		//  - everything else.
 		//
-		llassert_always(50 == LLViewerAssetType::AT_COUNT);
 
-		// Multiple asset definitions are floating around so this requires some
-		// maintenance and attention.
-		static const EViewerAssetCategories asset_to_bin_map[LLViewerAssetType::AT_COUNT] =
-		{
-			EVACTextureTempHTTPGet,			// (0) AT_TEXTURE
-			EVACSoundUDPGet,				// AT_SOUND
-			EVACOtherGet,					// AT_CALLINGCARD
-			EVACOtherGet,					// AT_LANDMARK
-			EVACOtherGet,					// AT_SCRIPT
-			EVACWearableUDPGet,				// AT_CLOTHING
-			EVACOtherGet,					// AT_OBJECT
-			EVACOtherGet,					// AT_NOTECARD
-			EVACOtherGet,					// AT_CATEGORY
-			EVACOtherGet,					// AT_ROOT_CATEGORY
-			EVACOtherGet,					// (10) AT_LSL_TEXT
-			EVACOtherGet,					// AT_LSL_BYTECODE
-			EVACOtherGet,					// AT_TEXTURE_TGA
-			EVACWearableUDPGet,				// AT_BODYPART
-			EVACOtherGet,					// AT_TRASH
-			EVACOtherGet,					// AT_SNAPSHOT_CATEGORY
-			EVACOtherGet,					// AT_LOST_AND_FOUND
-			EVACSoundUDPGet,				// AT_SOUND_WAV
-			EVACOtherGet,					// AT_IMAGE_TGA
-			EVACOtherGet,					// AT_IMAGE_JPEG
-			EVACGestureUDPGet,				// (20) AT_ANIMATION
-			EVACGestureUDPGet,				// AT_GESTURE
-			EVACOtherGet,					// AT_SIMSTATE
-			EVACOtherGet,					// AT_FAVORITE
-			EVACOtherGet,					// AT_LINK
-			EVACOtherGet,					// AT_LINK_FOLDER
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// (30)
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// (40)
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					//
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// 
-			EVACOtherGet,					// AT_MESH
-			// (50)
-		};
-
-		if (at < 0 || at >= LLViewerAssetType::AT_COUNT)
-		{
-			return EVACOtherGet;
-		}
-		EViewerAssetCategories ret(asset_to_bin_map[at]);
-		if (EVACTextureTempHTTPGet == ret)
-		{
-			// Indexed with [is_temp][with_http]
-			static const EViewerAssetCategories texture_bin_map[2][2] =
-			{
-				{
-					EVACTextureNonTempUDPGet,
-					EVACTextureNonTempHTTPGet,
-				},
-				{
-					EVACTextureTempUDPGet,
-					EVACTextureTempHTTPGet,
-				}
-			};
-	
-			ret = texture_bin_map[is_temp][with_http];
-		}
+        EViewerAssetCategories ret;
+        switch (at)
+        {
+            case LLAssetType::AT_TEXTURE:
+                if (is_temp)
+                    ret = with_http ? EVACTextureTempHTTPGet : EVACTextureTempUDPGet;
+                else
+                    ret = with_http ? EVACTextureNonTempHTTPGet : EVACTextureNonTempUDPGet;
+                break;
+            case LLAssetType::AT_SOUND:
+            case LLAssetType::AT_SOUND_WAV:
+                ret = with_http ? EVACSoundHTTPGet : EVACSoundUDPGet;
+                break;
+            case LLAssetType::AT_CLOTHING:
+            case LLAssetType::AT_BODYPART:
+                ret = with_http ? EVACWearableHTTPGet : EVACWearableUDPGet;
+                break;
+            case LLAssetType::AT_ANIMATION:
+            case LLAssetType::AT_GESTURE:
+                ret = with_http ? EVACGestureHTTPGet : EVACGestureUDPGet;
+                break;
+            case LLAssetType::AT_LANDMARK:
+                ret = with_http ? EVACLandmarkHTTPGet : EVACLandmarkUDPGet;
+                break;
+            default:
+                ret = with_http ? EVACOtherHTTPGet : EVACOtherUDPGet;
+                break;
+        }
 		return ret;
 	}
 
-	static LLTrace::CountStatHandle<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
-																	"Number of temporary texture asset http requests enqueued"),
-							sEnqueueAssetRequestsTempTextureUDP    ("enqueuedassetrequeststemptextureudp", 
-																	"Number of temporary texture asset udp requests enqueued"),
-							sEnqueueAssetRequestsNonTempTextureHTTP("enqueuedassetrequestsnontemptexturehttp", 
-																	"Number of texture asset http requests enqueued"),
-							sEnqueueAssetRequestsNonTempTextureUDP ("enqueuedassetrequestsnontemptextureudp", 
-																	"Number of texture asset udp requests enqueued"),
-							sEnqueuedAssetRequestsWearableUdp      ("enqueuedassetrequestswearableudp", 
-																	"Number of wearable asset requests enqueued"),
-							sEnqueuedAssetRequestsSoundUdp         ("enqueuedassetrequestssoundudp", 
-																	"Number of sound asset requests enqueued"),
-							sEnqueuedAssetRequestsGestureUdp       ("enqueuedassetrequestsgestureudp", 
-																	"Number of gesture asset requests enqueued"),
-							sEnqueuedAssetRequestsOther            ("enqueuedassetrequestsother", 
-																	"Number of other asset requests enqueued");
-
-	static LLTrace::CountStatHandle<>* sEnqueued[EVACCount] = {		
-		&sEnqueueAssetRequestsTempTextureHTTP,   
-		&sEnqueueAssetRequestsTempTextureUDP,  
-		&sEnqueueAssetRequestsNonTempTextureHTTP,
-		&sEnqueueAssetRequestsNonTempTextureUDP,
-		&sEnqueuedAssetRequestsWearableUdp,
-		&sEnqueuedAssetRequestsSoundUdp,
-		&sEnqueuedAssetRequestsGestureUdp,
-		&sEnqueuedAssetRequestsOther            
-	};
-	
-	static LLTrace::CountStatHandle<> sDequeueAssetRequestsTempTextureHTTP   ("dequeuedassetrequeststemptexturehttp", 
-																	"Number of temporary texture asset http requests dequeued"),
-							sDequeueAssetRequestsTempTextureUDP    ("dequeuedassetrequeststemptextureudp", 
-																	"Number of temporary texture asset udp requests dequeued"),
-							sDequeueAssetRequestsNonTempTextureHTTP("dequeuedassetrequestsnontemptexturehttp", 
-																	"Number of texture asset http requests dequeued"),
-							sDequeueAssetRequestsNonTempTextureUDP ("dequeuedassetrequestsnontemptextureudp", 
-																	"Number of texture asset udp requests dequeued"),
-							sDequeuedAssetRequestsWearableUdp      ("dequeuedassetrequestswearableudp", 
-																	"Number of wearable asset requests dequeued"),
-							sDequeuedAssetRequestsSoundUdp         ("dequeuedassetrequestssoundudp", 
-																	"Number of sound asset requests dequeued"),
-							sDequeuedAssetRequestsGestureUdp       ("dequeuedassetrequestsgestureudp", 
-																	"Number of gesture asset requests dequeued"),
-							sDequeuedAssetRequestsOther            ("dequeuedassetrequestsother", 
-																	"Number of other asset requests dequeued");
-
-	static LLTrace::CountStatHandle<>* sDequeued[EVACCount] = {
-		&sDequeueAssetRequestsTempTextureHTTP,   
-		&sDequeueAssetRequestsTempTextureUDP,  
-		&sDequeueAssetRequestsNonTempTextureHTTP,
-		&sDequeueAssetRequestsNonTempTextureUDP,
-		&sDequeuedAssetRequestsWearableUdp,
-		&sDequeuedAssetRequestsSoundUdp,
-		&sDequeuedAssetRequestsGestureUdp,
-		&sDequeuedAssetRequestsOther            
-	};
-
-	static LLTrace::EventStatHandle<F64Seconds >	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp",
-																							"Time spent responding to temporary texture asset http requests"),
-													sResponseAssetRequestsTempTextureUDP    ("assetresponsetimestemptextureudp", 
-																							"Time spent responding to temporary texture asset udp requests"),
-													sResponseAssetRequestsNonTempTextureHTTP("assetresponsetimesnontemptexturehttp", 
-																							"Time spent responding to texture asset http requests"),
-													sResponseAssetRequestsNonTempTextureUDP ("assetresponsetimesnontemptextureudp", 
-																							"Time spent responding to texture asset udp requests"),
-													sResponsedAssetRequestsWearableUdp      ("assetresponsetimeswearableudp", 
-																							"Time spent responding to wearable asset requests"),
-													sResponsedAssetRequestsSoundUdp         ("assetresponsetimessoundudp", 
-																							"Time spent responding to sound asset requests"),
-													sResponsedAssetRequestsGestureUdp       ("assetresponsetimesgestureudp", 
-																							"Time spent responding to gesture asset requests"),
-													sResponsedAssetRequestsOther            ("assetresponsetimesother", 
-																							"Time spent responding to other asset requests");
-
-	static LLTrace::EventStatHandle<F64Seconds >* sResponse[EVACCount] = {
-		&sResponseAssetRequestsTempTextureHTTP,   
-		&sResponseAssetRequestsTempTextureUDP,  
-		&sResponseAssetRequestsNonTempTextureHTTP,
-		&sResponseAssetRequestsNonTempTextureUDP,
-		&sResponsedAssetRequestsWearableUdp,
-		&sResponsedAssetRequestsSoundUdp,
-		&sResponsedAssetRequestsGestureUdp,
-		&sResponsedAssetRequestsOther            
-	};
+	static LLTrace::DCCountStatHandle<> sEnqueued[EVACCount];
+	static LLTrace::DCCountStatHandle<> sDequeued[EVACCount];
+	static LLTrace::DCEventStatHandle<> sBytesFetched[EVACCount];
+	static LLTrace::DCEventStatHandle<F64Seconds > sResponse[EVACCount];
 }
 
 // ------------------------------------------------------
@@ -353,6 +263,26 @@ void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 	mRegionHandle = region_handle;
 }
 
+template <typename T>
+void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output)
+{
+	using namespace LLViewerAssetStatsFF;
+
+    if (!compact_output
+        || rec.getSampleCount(sEnqueued[cat]) 
+        || rec.getSampleCount(sDequeued[cat])
+        || rec.getSampleCount(sResponse[cat]))
+    {
+        req	.enqueued(rec.getSampleCount(sEnqueued[cat]))
+            .dequeued(rec.getSampleCount(sDequeued[cat]))
+            .resp_count(rec.getSampleCount(sResponse[cat]))
+            .resp_min(rec.getMin(sResponse[cat]).value())
+            .resp_max(rec.getMax(sResponse[cat]).value())
+            .resp_mean(rec.getMean(sResponse[cat]).value())
+            .resp_mean_bytes(rec.getMean(sBytesFetched[cat]));
+    }
+}
+
 void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 {
 	using namespace LLViewerAssetStatsFF;
@@ -365,108 +295,22 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 	{
 		RegionStats& r = stats.regions.add();
 		LLTrace::Recording& rec = it->second;
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureTempHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureTempHTTPGet])
-			|| rec.getSum(*sResponse[EVACTextureTempHTTPGet]).value())
-		{
-			r.get_texture_temp_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureTempHTTPGet]))
-									.dequeued((S32)rec.getSum(*sDequeued[EVACTextureTempHTTPGet]))
-									.resp_count((S32)rec.getSum(*sResponse[EVACTextureTempHTTPGet]).value())
-									.resp_min(rec.getMin(*sResponse[EVACTextureTempHTTPGet]).value())
-									.resp_max(rec.getMax(*sResponse[EVACTextureTempHTTPGet]).value())
-									.resp_mean(rec.getMean(*sResponse[EVACTextureTempHTTPGet]).value());
-		}
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureTempUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureTempUDPGet])
-			|| rec.getSum(*sResponse[EVACTextureTempUDPGet]).value())
-		{
-			r.get_texture_temp_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureTempUDPGet]))
-									.dequeued((S32)rec.getSum(*sDequeued[EVACTextureTempUDPGet]))
-									.resp_count((S32)rec.getSum(*sResponse[EVACTextureTempUDPGet]).value())
-									.resp_min(rec.getMin(*sResponse[EVACTextureTempUDPGet]).value())
-									.resp_max(rec.getMax(*sResponse[EVACTextureTempUDPGet]).value())
-									.resp_mean(rec.getMean(*sResponse[EVACTextureTempUDPGet]).value());
-		}
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureNonTempHTTPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureNonTempHTTPGet])
-			|| rec.getSum(*sResponse[EVACTextureNonTempHTTPGet]).value())
-		{
-			r.get_texture_non_temp_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureNonTempHTTPGet]))
-										.dequeued((S32)rec.getSum(*sDequeued[EVACTextureNonTempHTTPGet]))
-										.resp_count((S32)rec.getSum(*sResponse[EVACTextureNonTempHTTPGet]).value())
-										.resp_min(rec.getMin(*sResponse[EVACTextureNonTempHTTPGet]).value())
-										.resp_max(rec.getMax(*sResponse[EVACTextureNonTempHTTPGet]).value())
-										.resp_mean(rec.getMean(*sResponse[EVACTextureNonTempHTTPGet]).value());
-		}
 
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACTextureNonTempUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACTextureNonTempUDPGet])
-			|| rec.getSum(*sResponse[EVACTextureNonTempUDPGet]).value())
-		{
-			r.get_texture_non_temp_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureNonTempUDPGet]))
-										.dequeued((S32)rec.getSum(*sDequeued[EVACTextureNonTempUDPGet]))
-										.resp_count((S32)rec.getSum(*sResponse[EVACTextureNonTempUDPGet]).value())
-										.resp_min(rec.getMin(*sResponse[EVACTextureNonTempUDPGet]).value())
-										.resp_max(rec.getMax(*sResponse[EVACTextureNonTempUDPGet]).value())
-										.resp_mean(rec.getMean(*sResponse[EVACTextureNonTempUDPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACWearableUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACWearableUDPGet])
-			|| rec.getSum(*sResponse[EVACWearableUDPGet]).value())
-		{
-			r.get_wearable_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACWearableUDPGet]))
-								.dequeued((S32)rec.getSum(*sDequeued[EVACWearableUDPGet]))
-								.resp_count((S32)rec.getSum(*sResponse[EVACWearableUDPGet]).value())
-								.resp_min(rec.getMin(*sResponse[EVACWearableUDPGet]).value())
-								.resp_max(rec.getMax(*sResponse[EVACWearableUDPGet]).value())
-								.resp_mean(rec.getMean(*sResponse[EVACWearableUDPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACSoundUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACSoundUDPGet])
-			|| rec.getSum(*sResponse[EVACSoundUDPGet]).value())
-		{
-			r.get_sound_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACSoundUDPGet]))
-							.dequeued((S32)rec.getSum(*sDequeued[EVACSoundUDPGet]))
-							.resp_count((S32)rec.getSum(*sResponse[EVACSoundUDPGet]).value())
-							.resp_min(rec.getMin(*sResponse[EVACSoundUDPGet]).value())
-							.resp_max(rec.getMax(*sResponse[EVACSoundUDPGet]).value())
-							.resp_mean(rec.getMean(*sResponse[EVACSoundUDPGet]).value());
-		}
-
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACGestureUDPGet]) 
-			|| rec.getSum(*sDequeued[EVACGestureUDPGet])
-			|| rec.getSum(*sResponse[EVACGestureUDPGet]).value())
-		{
-			r.get_gesture_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACGestureUDPGet]))
-								.dequeued((S32)rec.getSum(*sDequeued[EVACGestureUDPGet]))
-								.resp_count((S32)rec.getSum(*sResponse[EVACGestureUDPGet]).value())
-								.resp_min(rec.getMin(*sResponse[EVACGestureUDPGet]).value())
-								.resp_max(rec.getMax(*sResponse[EVACGestureUDPGet]).value())
-								.resp_mean(rec.getMean(*sResponse[EVACGestureUDPGet]).value());
-		}
-			
-		if (!compact_output
-			|| rec.getSum(*sEnqueued[EVACOtherGet]) 
-			|| rec.getSum(*sDequeued[EVACOtherGet])
-			|| rec.getSum(*sResponse[EVACOtherGet]).value())
-			{
-			r.get_other	.enqueued((S32)rec.getSum(*sEnqueued[EVACOtherGet]))
-						.dequeued((S32)rec.getSum(*sDequeued[EVACOtherGet]))
-						.resp_count((S32)rec.getSum(*sResponse[EVACOtherGet]).value())
-						.resp_min(rec.getMin(*sResponse[EVACOtherGet]).value())
-						.resp_max(rec.getMax(*sResponse[EVACOtherGet]).value())
-						.resp_mean(rec.getMean(*sResponse[EVACOtherGet]).value());
-		}
-
+        getStat(rec, r.get_texture_temp_http, EVACTextureTempHTTPGet, compact_output);
+        getStat(rec, r.get_texture_temp_udp, EVACTextureTempUDPGet, compact_output);
+        getStat(rec, r.get_texture_non_temp_http, EVACTextureNonTempHTTPGet, compact_output);
+        getStat(rec, r.get_texture_non_temp_udp, EVACTextureNonTempUDPGet, compact_output);
+        getStat(rec, r.get_wearable_http, EVACWearableHTTPGet, compact_output);
+        getStat(rec, r.get_wearable_udp, EVACWearableUDPGet, compact_output);
+        getStat(rec, r.get_sound_http, EVACSoundHTTPGet, compact_output);
+        getStat(rec, r.get_sound_udp, EVACSoundUDPGet, compact_output);
+        getStat(rec, r.get_gesture_http, EVACGestureHTTPGet, compact_output);
+        getStat(rec, r.get_gesture_udp, EVACGestureUDPGet, compact_output);
+        getStat(rec, r.get_landmark_http, EVACLandmarkHTTPGet, compact_output);
+        getStat(rec, r.get_landmark_udp, EVACLandmarkUDPGet, compact_output);
+        getStat(rec, r.get_other_http, EVACOtherHTTPGet, compact_output);
+        getStat(rec, r.get_other_udp, EVACOtherUDPGet, compact_output);
+        
 		S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
 		if (!compact_output || fps != 0)
 		{
@@ -479,10 +323,10 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 		grid_from_region_handle(it->first, &grid_x, &grid_y);
 		r	.grid_x(grid_x)
 			.grid_y(grid_y)
-			.duration(F64Microseconds(rec.getDuration()).value());
+			.duration(F64Seconds(rec.getDuration()).value());
 	}
 
-	stats.duration(mCurRecording ? F64Microseconds(mCurRecording->getDuration()).value() : 0.0);
+	stats.duration(mCurRecording ? F64Seconds(mCurRecording->getDuration()).value() : 0.0);
 }
 
 LLSD LLViewerAssetStats::asLLSD(bool compact_output)
@@ -518,21 +362,22 @@ void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	add(*sEnqueued[int(eac)], 1);
+	add(sEnqueued[int(eac)], 1);
 }
 
 void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	add(*sDequeued[int(eac)], 1);
+	add(sDequeued[int(eac)], 1);
 }
 
-void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration)
+void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	record(*sResponse[int(eac)], F64Microseconds(duration));
+	record(sResponse[int(eac)], F64Seconds(duration));
+	record(sBytesFetched[int(eac)], bytes);
 }
 
 void init()
@@ -561,7 +406,8 @@ LLViewerAssetStats::AssetRequestType::AssetRequestType()
 	resp_count("resp_count"),
 	resp_min("resp_min"),
 	resp_max("resp_max"),
-	resp_mean("resp_mean")
+	resp_mean("resp_mean"),
+    resp_mean_bytes("resp_mean_bytes")
 {}
 	
 LLViewerAssetStats::FPSStats::FPSStats() 
@@ -576,10 +422,16 @@ LLViewerAssetStats::RegionStats::RegionStats()
 	get_texture_temp_udp("get_texture_temp_udp"),
 	get_texture_non_temp_http("get_texture_non_temp_http"),
 	get_texture_non_temp_udp("get_texture_non_temp_udp"),
+	get_wearable_http("get_wearable_http"),
 	get_wearable_udp("get_wearable_udp"),
+	get_sound_http("get_sound_http"),
 	get_sound_udp("get_sound_udp"),
+	get_gesture_http("get_gesture_http"),
 	get_gesture_udp("get_gesture_udp"),
-	get_other("get_other"),
+	get_landmark_http("get_landmark_http"),
+	get_landmark_udp("get_landmark_udp"),
+	get_other_http("get_other_http"),
+	get_other_udp("get_other_udp"),
 	fps("fps"),
 	grid_x("grid_x"),
 	grid_y("grid_y"),
