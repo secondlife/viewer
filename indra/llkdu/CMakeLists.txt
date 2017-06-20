@@ -40,6 +40,14 @@ set_source_files_properties(${llkdu_HEADER_FILES}
 
 list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 
+# Our KDU package is built with KDU_X86_INTRINSICS in its .vcxproj file.
+# Unless that macro is also set for every consumer build, KDU freaks out,
+# spamming the viewer log with alignment FUD.
+set_source_files_properties(${llkdu_SOURCE_FILES}
+                            PROPERTIES
+                            COMPILE_DEFINITIONS
+                            "KDU_X86_INTRINSICS")
+
 if (USE_KDU)
   add_library (llkdu ${llkdu_SOURCE_FILES})
 

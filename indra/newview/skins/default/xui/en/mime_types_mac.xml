@@ -130,7 +130,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</scheme>
 	<mimetype name="blank">
@@ -141,7 +141,7 @@
 			none
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="none/none">
@@ -163,7 +163,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/*">
@@ -174,7 +174,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="image/*">
@@ -196,7 +196,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -218,7 +218,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="application/pdf">
@@ -295,7 +295,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/mpeg">
@@ -306,7 +306,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
@@ -317,7 +317,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
@@ -328,7 +328,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
@@ -438,7 +438,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/mp4">
@@ -449,7 +449,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/quicktime">
@@ -460,7 +460,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
@@ -471,7 +471,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
@@ -482,7 +482,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/x-msvideo">
@@ -493,7 +493,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 </mimetypes>

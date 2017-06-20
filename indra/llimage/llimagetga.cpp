@@ -811,7 +811,7 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
 			}
 
 			src += 4;
-			register U32 value = rgba;
+			U32 value = rgba;
 			do
 			{
 				*dst_pixels = value;

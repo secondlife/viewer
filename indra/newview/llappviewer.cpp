@@ -125,10 +125,8 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/llceflib.h"
-#if LL_WINDOWS
+#include "cef/dullahan.h"
 #include "vlc/libvlc_version.h"
-#endif // LL_WINDOWS
 #endif // LL_LINUX
 
 // Third party library includes
@@ -334,10 +332,10 @@ BOOL				gDisconnected = FALSE;
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
-BOOL			gUseWireframe = FALSE;
+bool			gUseWireframe = FALSE;
 
 //use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
+bool			gInitialDeferredModeForWireframe = FALSE;
 
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
@@ -740,10 +738,7 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::deleteSingleton();
 
-	LLLoginInstance::instance().setUpdaterService(0);
-	
 	destroyMainloopTimeout();
     
 	// If we got to this destructor somehow, the app didn't hang.
@@ -1098,7 +1093,7 @@ bool LLAppViewer::init()
 			minSpecs += "\n";
 			unsupported = true;
 		}
-		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+		if(gSysMemory.getPhysicalMemoryKB() < minRAM)
 		{
 			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedRAM");
 			minSpecs += "\n";
@@ -2106,19 +2101,14 @@ bool LLAppViewer::cleanup()
 	// realtime, or might throw an exception.
 	LLSingletonBase::cleanupAll();
 
+	// The logging subsystem depends on an LLSingleton. Any logging after
+	// LLSingletonBase::deleteAll() won't be recorded.
+	LL_INFOS() << "Goodbye!" << LL_ENDL;
+
 	// This calls every remaining LLSingleton's deleteSingleton() method.
 	// No class destructor should perform any cleanup that might take
 	// significant realtime, or throw an exception.
-	// LLSingleton machinery includes a last-gasp implicit deleteAll() call,
-	// so this explicit call shouldn't strictly be necessary. However, by the
-	// time the runtime engages that implicit call, it may already have
-	// destroyed things like std::cerr -- so the implicit deleteAll() refrains
-	// from logging anything. Since both cleanupAll() and deleteAll() call
-	// their respective cleanup methods in computed dependency order, it's
-	// probably useful to be able to log that order.
 	LLSingletonBase::deleteAll();
-
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
@@ -3108,7 +3098,12 @@ void LLAppViewer::initUpdater()
 	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
 	mUpdater->initialize(channel, 
 						 version,
+// DRTVWR-418 transitional: query using "win64" until VMP is in place
+#if LL_WINDOWS && (ADDRESS_SIZE == 64)
+						 "win64",
+#else
 						 gPlatform,
+#endif
 						 getOSInfo().getOSVersionString(),
 						 unique_id,
 						 willing_to_test
@@ -3295,6 +3290,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["CHANNEL"] = LLVersionInfo::getChannel();
+    info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")
     {
@@ -3386,20 +3382,33 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
-#else
-	info["LLCEFLIB_VERSION"] = "Undefined";
+	std::ostringstream cef_ver_codec;
+	cef_ver_codec << "Dullahan: ";
+	cef_ver_codec << DULLAHAN_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_BUILD;
 
+	cef_ver_codec << " / CEF: ";
+	cef_ver_codec << CEF_VERSION;
+
+	cef_ver_codec << " / Chrome: ";
+	cef_ver_codec << CHROME_VERSION_MAJOR;
+
+	info["LIBCEF_VERSION"] = cef_ver_codec.str();
+#else
+	info["LIBCEF_VERSION"] = "Undefined";
 #endif
 
-#if LL_WINDOWS
-	std::ostringstream ver_codec;
-	ver_codec << LIBVLC_VERSION_MAJOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_MINOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_REVISION;
-	info["LIBVLC_VERSION"] = ver_codec.str();
+#if !LL_LINUX
+	std::ostringstream vlc_ver_codec;
+	vlc_ver_codec << LIBVLC_VERSION_MAJOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_MINOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 #else
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif
@@ -3726,11 +3735,10 @@ void LLAppViewer::handleViewerCrash()
 	{
 		gDebugInfo["Dynamic"]["ParcelMediaURL"] = parcel->getMediaURL();
 	}
-	
-	
+
 	gDebugInfo["Dynamic"]["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
-	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = (LLSD::Integer) LLMemory::getCurrentRSS() >> 10;
-	
+	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = LLSD::Integer(LLMemory::getCurrentRSS() / 1024);
+
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["Dynamic"]["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;

@@ -9,6 +9,12 @@
 #   LINUX   - Linux
 #   WINDOWS - Windows
 
+# Switches set here and in 00-Common.cmake must agree with
+# https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
+# Reading $LL_BUILD is an attempt to directly use those switches.
+if ("$ENV{LL_BUILD}" STREQUAL "")
+  message(FATAL_ERROR "Environment variable LL_BUILD must be set")
+endif ()
 
 # Relative and absolute paths to subtrees.
 
@@ -60,46 +66,55 @@ if (NOT CMAKE_BUILD_TYPE)
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
+# If someone has specified an address size, use that to determine the
+# architecture.  Otherwise, let the architecture specify the address size.
+if (ADDRESS_SIZE EQUAL 32)
+  #message(STATUS "ADDRESS_SIZE is 32")
+  set(ARCH i686)
+elseif (ADDRESS_SIZE EQUAL 64)
+  #message(STATUS "ADDRESS_SIZE is 64")
+  set(ARCH x86_64)
+else (ADDRESS_SIZE EQUAL 32)
+  #message(STATUS "ADDRESS_SIZE is UNRECOGNIZED: '${ADDRESS_SIZE}'")
+  # Use Python's platform.machine() since uname -m isn't available everywhere.
+  # Even if you can assume cygwin uname -m, the answer depends on whether
+  # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
+  # report a 64-bit processor.
+  execute_process(COMMAND
+                  "${PYTHON_EXECUTABLE}" "-c"
+                  "import platform; print platform.machine()"
+                  OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # We expect values of the form i386, i686, x86_64, AMD64.
+  # In CMake, expressing ARCH.endswith('64') is awkward:
+  string(LENGTH "${ARCH}" ARCH_LENGTH)
+  math(EXPR ARCH_LEN_2 "${ARCH_LENGTH} - 2")
+  string(SUBSTRING "${ARCH}" ${ARCH_LEN_2} 2 ARCH_LAST_2)
+  if (ARCH_LAST_2 STREQUAL 64)
+    #message(STATUS "ARCH is detected as 64; ARCH is ${ARCH}")
+    set(ADDRESS_SIZE 64)
+  else ()
+    #message(STATUS "ARCH is detected as 32; ARCH is ${ARCH}")
+    set(ADDRESS_SIZE 32)
+  endif ()
+endif (ADDRESS_SIZE EQUAL 32)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
-  set(ARCH i686)
   set(LL_ARCH ${ARCH}_win32)
   set(LL_ARCH_DIR ${ARCH}-win32)
-  set(WORD_SIZE 32)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
 
-  # If someone has specified a word size, use that to determine the
-  # architecture.  Otherwise, let the architecture specify the word size.
-  if (WORD_SIZE EQUAL 32)
-    #message(STATUS "WORD_SIZE is 32")
-    set(ARCH i686)
-  elseif (WORD_SIZE EQUAL 64)
-    #message(STATUS "WORD_SIZE is 64")
-    set(ARCH x86_64)
-  else (WORD_SIZE EQUAL 32)
-    #message(STATUS "WORD_SIZE is UNDEFINED")
-    execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
-                    OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if (ARCH STREQUAL x86_64)
-      #message(STATUS "ARCH is detected as 64; ARCH is ${ARCH}")
-      set(WORD_SIZE 64)
-    else (ARCH STREQUAL x86_64)
-      #message(STATUS "ARCH is detected as 32; ARCH is ${ARCH}")
-      set(WORD_SIZE 32)
-    endif (ARCH STREQUAL x86_64)
-  endif (WORD_SIZE EQUAL 32)
-
-  if (WORD_SIZE EQUAL 32)
+  if (ADDRESS_SIZE EQUAL 32)
     set(DEB_ARCHITECTURE i386)
     set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
     set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib32 ${CMAKE_SYSTEM_LIBRARY_PATH})
-  else (WORD_SIZE EQUAL 32)
+  else (ADDRESS_SIZE EQUAL 32)
     set(DEB_ARCHITECTURE amd64)
     set(FIND_LIBRARY_USE_LIB64_PATHS ON)
-  endif (WORD_SIZE EQUAL 32)
+  endif (ADDRESS_SIZE EQUAL 32)
 
   execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH 
       RESULT_VARIABLE DPKG_RESULT
@@ -129,29 +144,45 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
-  
-  # now we only support Xcode 7.0 using 10.11 (El Capitan), minimum OS 10.7 (Lion)
+
+  string(REGEX MATCH "-mmacosx-version-min=([^ ]+)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = '${CMAKE_OSX_DEPLOYMENT_TARGET}'")
+
+  string(REGEX MATCH "-stdlib=([^ ]+)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY = '${CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY}'")
+
+  string(REGEX MATCH " -g([^ ]*)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT = '${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}'")
+
+  string(REGEX MATCH "-O([^ ]*)" scratch "$ENV{LL_BUILD}")
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL "${CMAKE_MATCH_1}")
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL = '${CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL}'")
+
+  string(REGEX MATCHALL "[^ ]+" LL_BUILD_LIST "$ENV{LL_BUILD}")
+  list(FIND LL_BUILD_LIST "-iwithsysroot" sysroot_idx)
+  if ("${sysroot_idx}" LESS 0)
+    message(FATAL_ERROR "Environment variable LL_BUILD must contain '-iwithsysroot'")
+  endif ()
+  math(EXPR sysroot_idx "${sysroot_idx} + 1")
+  list(GET LL_BUILD_LIST "${sysroot_idx}" CMAKE_OSX_SYSROOT)
+  message(STATUS "CMAKE_OSX_SYSROOT = '${CMAKE_OSX_SYSROOT}'")
+
   set(XCODE_VERSION 7.0)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7)
-  set(CMAKE_OSX_SYSROOT macosx10.11)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL 3)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS ssse3)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
 
-  # Build only for i386 by default, system default on MacOSX 10.6+ is x86_64
-  if (NOT CMAKE_OSX_ARCHITECTURES)
-    set(CMAKE_OSX_ARCHITECTURES "i386")
-  endif (NOT CMAKE_OSX_ARCHITECTURES)
+  set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
+  string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+  string(REPLACE "AMD64" "x86_64" CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
 
-  set(ARCH ${CMAKE_OSX_ARCHITECTURES})
   set(LL_ARCH ${ARCH}_darwin)
   set(LL_ARCH_DIR universal-darwin)
-  set(WORD_SIZE 32)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid

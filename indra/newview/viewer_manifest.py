@@ -41,10 +41,7 @@ viewer_dir = os.path.dirname(__file__)
 # indra.util.llmanifest under their system Python!
 sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
 from indra.util.llmanifest import LLManifest, main, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL, ManifestError
-try:
-    from llbase import llsd
-except ImportError:
-    from indra.base import llsd
+from llbase import llsd
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
@@ -287,7 +284,8 @@ class ViewerManifest(LLManifest):
         random.shuffle(names)
         return ', '.join(names)
 
-class Windows_i686_Manifest(ViewerManifest):
+
+class WindowsManifest(ViewerManifest):
     def final_exe(self):
         return self.app_name_oneword()+".exe"
 
@@ -338,7 +336,7 @@ class Windows_i686_Manifest(ViewerManifest):
             print "Doesn't exist:", src
         
     def construct(self):
-        super(Windows_i686_Manifest, self).construct()
+        super(WindowsManifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -378,31 +376,24 @@ class Windows_i686_Manifest(ViewerManifest):
 
             # Get fmodex dll, continue if missing
             try:
-                if self.args['configuration'].lower() == 'debug':
-                    self.path("fmodexL.dll")
+                if(self.args['arch'].lower() == 'x86_64'):
+                    self.path("fmodex64.dll")
                 else:
                     self.path("fmodex.dll")
             except:
                 print "Skipping fmodex audio library(assuming other audio engine)"
 
             # For textures
-            if self.args['configuration'].lower() == 'debug':
-                self.path("openjpegd.dll")
-            else:
-                self.path("openjpeg.dll")
+            self.path("openjpeg.dll")
 
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             if self.args['configuration'].lower() == 'debug':
                  self.path("msvcr120d.dll")
                  self.path("msvcp120d.dll")
-                 self.path("msvcr100d.dll")
-                 self.path("msvcp100d.dll")
             else:
                  self.path("msvcr120.dll")
                  self.path("msvcp120.dll")
-                 self.path("msvcr100.dll")
-                 self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -434,11 +425,6 @@ class Windows_i686_Manifest(ViewerManifest):
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
 
-        # Media plugins - QuickTime
-        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_quicktime.dll")
-            self.end_prefix()
-
         # Media plugins - CEF
         if self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_cef.dll")
@@ -449,38 +435,39 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("media_plugin_libvlc.dll")
             self.end_prefix()
 
-        # winmm.dll shim
-        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
-            self.path("winmm.dll")
-            self.end_prefix()
+        # Media plugins - Example (useful for debugging - not shipped with release viewer)
+        if self.channel_type() != 'release':
+            if self.prefix(src='../media_plugins/example/%s' % self.args['configuration'], dst="llplugin"):
+                self.path("media_plugin_example.dll")
+                self.end_prefix()
 
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
         else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
 
         # MSVC DLLs needed for CEF and have to be in same directory as plugin
@@ -648,6 +635,13 @@ class Windows_i686_Manifest(ViewerManifest):
             Caption "%(caption)s"
             """
 
+        if(self.args['arch'].lower() == 'x86_64'):
+            engage_registry="SetRegView 64"
+            program_files="$PROGRAMFILES64"
+        else:
+            engage_registry="SetRegView 32"
+            program_files="$PROGRAMFILES32"
+
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
@@ -656,6 +650,8 @@ class Windows_i686_Manifest(ViewerManifest):
                 "%%SOURCE%%":self.get_src_prefix(),
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
+                "%%PROGRAMFILES%%":program_files,
+                "%%ENGAGEREGISTRY%%":engage_registry,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
         # We use the Unicode version of NSIS, available from
@@ -671,7 +667,7 @@ class Windows_i686_Manifest(ViewerManifest):
         while (not installer_created) and (nsis_attempts > 0):
             try:
                 nsis_attempts-=1;
-                self.run_command('"' + NSIS_path + '" ' + self.dst_path_of(tempfile))
+                self.run_command('"' + NSIS_path + '" /V2 ' + self.dst_path_of(tempfile))
                 installer_created=True # if no exception was raised, the codesign worked
             except ManifestError, err:
                 if nsis_attempts:
@@ -699,7 +695,17 @@ class Windows_i686_Manifest(ViewerManifest):
         self.package_file = installer_file
 
 
-class Darwin_i386_Manifest(ViewerManifest):
+class Windows_i686_Manifest(WindowsManifest):
+    # specialize when we must
+    pass
+
+
+class Windows_x86_64_Manifest(WindowsManifest):
+    # specialize when we must
+    pass
+
+
+class DarwinManifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
@@ -725,7 +731,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
-                super(Darwin_i386_Manifest, self).construct()
+                super(DarwinManifest, self).construct()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")
@@ -793,7 +799,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
                                 "libcollada14dom.dylib",
-                                "libexpat.1.5.2.dylib",
+                                "libexpat.1.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
                                 ):
@@ -844,23 +850,57 @@ class Darwin_i386_Manifest(ViewerManifest):
                         except OSError as err:
                             print "Can't symlink %s -> %s: %s" % (src, dst, err)
 
-                # LLCefLib helper apps go inside SLPlugin.app
+                # Dullahan helper apps go inside SLPlugin.app
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
-                    for helperappfile in ('LLCefLib Helper.app',
-                                          'LLCefLib Helper EH.app'):
+                    for helperappfile in ('DullahanHelper.app'):
                         self.path2basename(relpkgdir, helperappfile)
 
                     pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
+                    # Putting a Frameworks directory under Contents/MacOS
+                    # isn't canonical, but the path baked into Dullahan
+                    # Helper.app/Contents/MacOS/DullahanHelper is:
+                    # @executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework
+                    # (notice, not @executable_path/../Frameworks/etc.)
+                    # So we'll create a symlink (below) from there back to the
+                    # Frameworks directory nested under SLPlugin.app.
+                    helperframeworkpath = \
+                        self.dst_path_of('DullahanHelper.app/Contents/MacOS/'
+                                         'Frameworks/Chromium Embedded Framework.framework')
 
                     self.end_prefix()
 
+                    helperexecutablepath = self.dst_path_of('SLPlugin.app/Contents/Frameworks/DullahanHelper.app/Contents/MacOS/DullahanHelper')
+                    self.run_command('install_name_tool -change '
+                                     '"@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" '
+                                     '"@executable_path/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % helperexecutablepath)
+
                 # SLPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
-                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
-                                       "media_plugin_quicktime.dylib")
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],
                                        "media_plugin_cef.dylib")
+
+                    # copy LibVLC plugin itself
+                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
+                                       "media_plugin_libvlc.dylib")
+
+                    # copy LibVLC dynamic libraries
+                    if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release' ), dst="lib"):
+                        self.path( "libvlc*.dylib*" )
+                        self.end_prefix()
+
+                    # copy LibVLC plugins folder
+                    if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release', 'plugins' ), dst="lib"):
+                        self.path( "*.dylib" )
+                        self.path( "plugins.dat" )
+                        self.end_prefix()
+
                     self.end_prefix("llplugin")
+
+                    # do this install_name_tool *after* media plugin is copied over
+                    dylibexecutablepath = self.dst_path_of('llplugin/media_plugin_cef.dylib')
+                    self.run_command('install_name_tool -change '
+                                     '"@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" '
+                                     '"@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%s"' % dylibexecutablepath)
 
                 self.end_prefix("Resources")
 
@@ -879,16 +919,36 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # this symlink, Second Life web media can't possibly work.
                 # Real Framework folder:
                 #   Second Life.app/Contents/Frameworks/Chromium Embedded Framework.framework/
-                # Location of symlink and why it'ds relative 
+                # Location of symlink and why it's relative 
                 #   Second Life.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
                 #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
-                frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
+                # It might seem simpler just to create a symlink Frameworks to
+                # the parent of Chromimum Embedded Framework.framework. But
+                # that would create a symlink cycle, which breaks our
+                # packaging step. So make a symlink from Chromium Embedded
+                # Framework.framework to the directory of the same name, which
+                # is NOT an ancestor of the symlink.
+                frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir,
+                                             os.pardir, "Frameworks",
+                                             "Chromium Embedded Framework.framework")
                 try:
-                    symlinkf(frameworkpath, pluginframeworkpath)
+                    # from SLPlugin.app/Contents/Frameworks/Chromium Embedded
+                    # Framework.framework back to Second
+                    # Life.app/Contents/Frameworks/Chromium Embedded Framework.framework
+                    origin, target = pluginframeworkpath, frameworkpath
+                    symlinkf(target, origin)
+                    # from SLPlugin.app/Contents/Frameworks/Dullahan
+                    # Helper.app/Contents/MacOS/Frameworks/Chromium Embedded
+                    # Framework.framework back to
+                    # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework
+                    self.cmakedirs(os.path.dirname(helperframeworkpath))
+                    origin = helperframeworkpath
+                    target = os.path.join(os.pardir, frameworkpath)
+                    symlinkf(target, origin)
                 except OSError as err:
-                    print "Can't symlink %s -> %s: %s" % (frameworkpath, pluginframeworkpath, err)
+                    print "Can't symlink %s -> %s: %s" % (origin, target, err)
                     raise
 
             self.end_prefix("Contents")
@@ -922,7 +982,7 @@ class Darwin_i386_Manifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1000 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1300 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 
@@ -1051,6 +1111,20 @@ class Darwin_i386_Manifest(ViewerManifest):
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
+
+
+class Darwin_i386_Manifest(DarwinManifest):
+    pass
+
+
+class Darwin_i686_Manifest(DarwinManifest):
+    """alias in case arch is passed as i686 instead of i386"""
+    pass
+
+
+class Darwin_x86_64_Manifest(DarwinManifest):
+    pass
+
 
 class LinuxManifest(ViewerManifest):
     def construct(self):

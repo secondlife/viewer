@@ -161,6 +161,10 @@ void MediaPluginLibVLC::initVLC()
 		"--video-filter=transform{type=vflip}",  // MAINT-6578 Y flip textures in plugin vs client
 	};
 
+#if LL_DARWIN
+	setenv("VLC_PLUGIN_PATH", ".", 1);
+#endif
+
 	int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
 	mLibVLC = libvlc_new(vlc_argc, vlc_argv);
 

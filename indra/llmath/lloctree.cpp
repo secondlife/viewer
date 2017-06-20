@@ -1,8 +1,7 @@
 /** 
- * @file llwindebug.h
- * @brief LLWinDebug class header file
+ * @file lloctree.cpp
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -23,24 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-
-#ifndef LL_LLWINDEBUG_H
-#define LL_LLWINDEBUG_H
-
 #include "stdtypes.h"
-#include "llwin32headerslean.h"
-#include <dbghelp.h>
 
-class LLWinDebug:
-	public LLSingleton<LLWinDebug>
-{
-	LLSINGLETON_EMPTY_CTOR(LLWinDebug);
-public:
-	void initSingleton();
-	static void generateMinidump(struct _EXCEPTION_POINTERS *pExceptionInfo = NULL);
-	void cleanupSingleton();
-private:
-	static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename);
-};
+U32 gOctreeMaxCapacity;
+F32 gOctreeMinSize;
 
-#endif // LL_LLWINDEBUG_H
