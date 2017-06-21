@@ -238,6 +238,11 @@ void LLPanelVolume::getState( )
 	{
 		volobjp = (LLVOVolume *)objectp;
 	}
+	LLVOVolume *root_volobjp = NULL;
+    if (root_objectp && (root_objectp->getPCode() == LL_PCODE_VOLUME))
+    {
+        root_volobjp  = (LLVOVolume *)root_objectp;
+    }
 	
 	if( !objectp )
 	{
@@ -350,13 +355,17 @@ void LLPanelVolume::getState( )
 	}
 
     // Animated Mesh
-	BOOL is_animated_mesh = volobjp && volobjp->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+	BOOL is_animated_mesh = root_volobjp && root_volobjp->isAnimatedObject();
 	getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->setValue(is_animated_mesh);
     // AXON FIXME CHECK FOR SKIN INFO ALSO
     // WHAT ABOUT isPermanentEnforced?
     // What about linksets with some skinned objects?
-    BOOL can_be_animated_object = volobjp && volobjp->canBeAnimatedObject() && editable;
-    getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(can_be_animated_object);
+    BOOL enabled_animated_object_box = FALSE;
+    if (root_volobjp && root_volobjp == volobjp)
+    {
+        enabled_animated_object_box = root_volobjp && root_volobjp->canBeAnimatedObject() && editable; 
+    }
+    getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(enabled_animated_object_box);
 
 	// Flexible properties
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
