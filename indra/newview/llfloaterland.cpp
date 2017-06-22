@@ -2181,17 +2181,8 @@ void LLPanelLandOptions::refreshSearch()
 			&& region
 			&& !(region->getRegionFlag(REGION_FLAGS_BLOCK_PARCEL_SEARCH));
 
-	// There is a bug with this panel whereby the Show Directory bit can be 
-	// slammed off by the Region based on an override.  Since this data is cached
-	// locally the change will not reflect in the panel, which could cause confusion
-	// A workaround for this is to flip the bit off in the locally cached version
-	// when we detect a mismatch case.
-	if(!can_change && parcel->getParcelFlag(PF_SHOW_DIRECTORY))
-	{
-		parcel->setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
-	}
 	BOOL show_directory = parcel->getParcelFlag(PF_SHOW_DIRECTORY);
-	mCheckShowDirectory	->set(show_directory);
+	mCheckShowDirectory->set(show_directory);
 
 	// Set by string in case the order in UI doesn't match the order by index.
 	LLParcel::ECategory cat = parcel->getCategory();
