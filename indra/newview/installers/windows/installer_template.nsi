@@ -318,9 +318,9 @@ CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
 # Other shortcuts
 SetOutPath "$INSTDIR"
 CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "%%SOURCE%%\icons\release\secondlife.ico"
+        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$INSTEXE"
 CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "%%SOURCE%%\icons\release\secondlife.ico"
+        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$INSTEXE"
 CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' ''
 
