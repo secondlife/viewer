@@ -704,16 +704,14 @@ class WindowsManifest(ViewerManifest):
 
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         # note that the enclosing setup exe is signed later, after the makensis makes it.
-        sign_py = os.environ.get('SIGN', r'C:\buildscripts\code-signing\sign.py')
-        python  = os.environ.get('PYTHON', 'python')
-        #Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
+        # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
         for exe in (
             "apply_update.exe",
             "download_update.exe",
             "SL_Launcher.exe",
             "update_manager.exe",
             ):
-            self.sign(sign_py, exe)
+            self.sign(exe)
             
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
@@ -741,11 +739,13 @@ class WindowsManifest(ViewerManifest):
             print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
             raise
 
-        self.sign(sign_py, installer_file)
+        self.sign(installer_file)
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
 
-    def sign(self, sign_py, exe):
+    def sign(self, exe):
+        sign_py = os.environ.get('SIGN', r'C:\buildscripts\code-signing\sign.py')
+        python  = os.environ.get('PYTHON', 'python')
         if os.path.exists(sign_py):
             dst_path = self.dst_path_of(exe)
             print "about to run signing of: ", dst_path
