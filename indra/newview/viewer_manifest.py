@@ -121,24 +121,6 @@ class ViewerManifest(LLManifest):
                     settings_install['CmdLineGridChoice']['Value'] = self.grid()
                     print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
-                #do not need to test for existence.  If no platform is passed, llmanifest computes a default in get_default_platform
-                #the choice of value names (lnx, mac, win32, win) is dictated by the VMM API
-                build_data_json_platform = ""
-                if 'linux' in self.args['platform']:
-                    build_data_json_platform = 'lnx'
-                elif 'darwin' in self.args['platform']:
-                    build_data_json_platform = 'mac'
-                elif 'windows' in self.args['platform']:
-                    #default case
-                    build_data_json_platform = 'win'
-                    if 'arch' in self.args and self.args['arch']:
-                        if 'i686' in  self.args['arch']:
-                            build_data_json_platform = 'win32'
-                #we really shouldn't be here, something is very wrong at this point
-                else:
-                    build_data_json_platform = 'None'
-
-
                 # put_in_file(src=) need not be an actual pathname; it
                 # only needs to be non-empty
                 self.put_in_file(llsd.format_pretty_xml(settings_install),
@@ -206,14 +188,10 @@ class ViewerManifest(LLManifest):
             build_data_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
                             "Channel Base": CHANNEL_VENDOR_BASE,
                             "Channel":self.channel_with_pkg_suffix(),
-                            "Platform":build_data_json_platform,
+                            "Platform":self.build_data_json_platform,
                             "Update Service":"https://update.secondlife.com/update",
                             }
-            #MAINT-7294: Windows exe names depend on channel name, so write that in also
-            if build_data_json_platform.startswith('win'):
-                build_data_dict.update({'Executable':self.final_exe()})
-            if build_data_json_platform.startswith('mac'):
-                build_data_dict.update({'Bundle Id':self.args['bundleid']})
+            build_data_dict = self.finish_build_data_dict(build_data_dict)
             with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
                 json.dump(build_data_dict,build_data_handle)
 
@@ -221,6 +199,9 @@ class ViewerManifest(LLManifest):
             #return code for free.
             if not self.path2basename(os.pardir, "build_data.json"):
                 print "No build_data.json file"
+
+    def finish_build_data_dict(self, build_data_dict):
+        return build_data_dict
 
     def grid(self):
         return self.args['grid']
@@ -318,6 +299,11 @@ class ViewerManifest(LLManifest):
 class WindowsManifest(ViewerManifest):
     def final_exe(self):
         return self.app_name_oneword()+".exe"
+
+    def finish_build_data_dict(self, build_data_dict):
+        #MAINT-7294: Windows exe names depend on channel name, so write that in also
+        build_data_dict.update({'Executable':self.final_exe()})
+        return build_data_dict
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -431,7 +417,7 @@ class WindowsManifest(ViewerManifest):
 
             # Get fmodex dll, continue if missing
             try:
-                if(self.args['arch'].lower() == 'x86_64'):
+                if(self.address_size == 64):
                     self.path("fmodex64.dll")
                 else:
                     self.path("fmodex.dll")
@@ -664,6 +650,8 @@ class WindowsManifest(ViewerManifest):
             'version' : '.'.join(self.args['version']),
             'version_short' : '.'.join(self.args['version'][:-1]),
             'version_dashes' : '-'.join(self.args['version']),
+            'version_registry' : '%s(%s)' %
+            ('.'.join(self.args['version']), self.address_size),
             'final_exe' : self.final_exe(),
             'flags':'',
             'app_name':self.app_name(),
@@ -678,6 +666,7 @@ class WindowsManifest(ViewerManifest):
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
+        !define VERSION_REGISTRY "%(version_registry)s"
         !define VIEWER_EXE "%(final_exe)s"
         """ % substitution_strings
         
@@ -694,7 +683,7 @@ class WindowsManifest(ViewerManifest):
             Caption "%(caption)s"
             """
 
-        if(self.args['arch'].lower() == 'x86_64'):
+        if(self.address_size == 64):
             engage_registry="SetRegView 64"
             program_files="$PROGRAMFILES64"
         else:
@@ -715,71 +704,77 @@ class WindowsManifest(ViewerManifest):
 
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         # note that the enclosing setup exe is signed later, after the makensis makes it.
-        sign_py = os.path.expandvars("${SIGN}")
-        if not sign_py or sign_py == "${SIGN}":
-            sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
-        else:
-            sign_py = sign_py.replace('\\', '\\\\\\\\')
-        python = os.path.expandvars("${PYTHON}")
-        if not python or python == "${PYTHON}":
-            python = 'python'
-        if os.path.exists(sign_py):
-            #Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
-            print "about to run signing of: ", self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("apply_update.exe").replace('\\', '\\\\\\\\')))
-            print "about to run signing of: ", self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("download_update.exe").replace('\\', '\\\\\\\\')))
-            print "about to run signing of: ", self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("SL_Launcher.exe").replace('\\', '\\\\\\\\')))
-            print "about to run signing of: ", self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of("update_manager.exe").replace('\\', '\\\\\\\\'))) 
-        else:
-            print "Skipping code signing of vmp executables,", sign_py, "does not exist"        
+        sign_py = os.environ.get('SIGN', r'C:\buildscripts\code-signing\sign.py')
+        python  = os.environ.get('PYTHON', 'python')
+        #Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
+        for exe in (
+            "apply_update.exe",
+            "download_update.exe",
+            "SL_Launcher.exe",
+            "update_manager.exe",
+            ):
+            self.sign(sign_py, exe)
             
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
         # Yay 64bit windows.
-        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
-        if not os.path.exists(NSIS_path):
-            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
+        for ProgramFiles in 'ProgramFiles', 'ProgramFiles(x86)':
+            NSIS_path = os.path.expandvars(r'${%s}\NSIS\Unicode\makensis.exe' % ProgramFiles)
+            if os.path.exists(NSIS_path):
+                break
         installer_created=False
         nsis_attempts=3
         nsis_retry_wait=15
-        while (not installer_created) and (nsis_attempts > 0):
+        for attempt in xrange(nsis_attempts):
             try:
-                nsis_attempts-=1;
                 self.run_command('"' + NSIS_path + '" /V2 ' + self.dst_path_of(tempfile))
-                installer_created=True # if no exception was raised, the codesign worked
             except ManifestError, err:
-                if nsis_attempts:
+                if attempt+1 < nsis_attempts:
                     print >> sys.stderr, "nsis failed, waiting %d seconds before retrying" % nsis_retry_wait
                     time.sleep(nsis_retry_wait)
                     nsis_retry_wait*=2
-                else:
-                    print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
-                    raise
-        
-        if os.path.exists(sign_py):
-            print "about to run signing of: ", self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
+            else:
+                # NSIS worked! Done!
+                break
         else:
-            print "Skipping code signing of setup executable,", sign_py, "does not exist"
+            print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
+            raise
+
+        self.sign(sign_py, installer_file)
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
 
+    def sign(self, sign_py, exe):
+        if os.path.exists(sign_py):
+            dst_path = self.dst_path_of(exe)
+            print "about to run signing of: ", dst_path
+            self.run_command(' '.join((python, self.escape_slashes(sign_py),
+                                       self.escape_slashes(dst_path))))
+        else:
+            print "Skipping code signing of %s: %s not found" % (exe, sign_py)
+
+    def escape_slashes(self, path):
+        return path.replace('\\', '\\\\\\\\')
 
 class Windows_i686_Manifest(WindowsManifest):
-    # specialize when we must
-    pass
-
+    # Although we aren't literally passed ADDRESS_SIZE, we can infer it from
+    # the passed 'arch', which is used to select the specific subclass.
+    address_size = 32
+    build_data_json_platform = 'win32'
 
 class Windows_x86_64_Manifest(WindowsManifest):
-    # specialize when we must
-    pass
+    address_size = 64
+    build_data_json_platform = 'win'
 
 
 class DarwinManifest(ViewerManifest):
+    build_data_json_platform = 'mac'
+
+    def finish_build_data_dict(self, build_data_dict):
+        build_data_dict.update({'Bundle Id':self.args['bundleid']})
+        return build_data_dict
+
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
@@ -1237,7 +1232,7 @@ class DarwinManifest(ViewerManifest):
 
 
 class Darwin_i386_Manifest(DarwinManifest):
-    pass
+    address_size = 32
 
 
 class Darwin_i686_Manifest(DarwinManifest):
@@ -1246,10 +1241,12 @@ class Darwin_i686_Manifest(DarwinManifest):
 
 
 class Darwin_x86_64_Manifest(DarwinManifest):
-    pass
+    address_size = 64
 
 
 class LinuxManifest(ViewerManifest):
+    build_data_json_platform = 'lnx'
+
     def construct(self):
         super(LinuxManifest, self).construct()
 
@@ -1369,6 +1366,8 @@ class LinuxManifest(ViewerManifest):
             self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name \*.py \! -name SL_Launcher \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) 
 
 class Linux_i686_Manifest(LinuxManifest):
+    address_size = 32
+
     def construct(self):
         super(Linux_i686_Manifest, self).construct()
 
@@ -1454,6 +1453,8 @@ class Linux_i686_Manifest(LinuxManifest):
 
 
 class Linux_x86_64_Manifest(LinuxManifest):
+    address_size = 64
+
     def construct(self):
         super(Linux_x86_64_Manifest, self).construct()
 
