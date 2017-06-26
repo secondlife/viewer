@@ -374,9 +374,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99fbc15f514be77c36280f300d257d5a</string>
+              <string>8854daffb8b87a2238461a7f72e4b4fd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1077/2495/curl-7.47.0.501064-darwin64-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6822/24534/curl-7.54.1.506810-darwin64-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -398,9 +398,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5d1b0439235f5f3829662a45e566743</string>
+              <string>37a6a2615d81b491e449e5680cf8d9c7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1075/2484/curl-7.47.0.501064-linux64-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6821/24528/curl-7.54.1.506810-linux64-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -410,11 +410,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bda9f237d3e8238440bc5bedc2657547</string>
+              <string>eb2508dd444ac885b7fdf7d89cd2e010</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1078/2487/curl-7.47.0.501064-windows-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6823/24516/curl-7.54.1.506810-windows-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -424,16 +424,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7fa42c7157cd5007283ae7a5d97393d</string>
+              <string>1a9848d3b1ed53e57afe44f175c2ecea</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1079/2490/curl-7.47.0.501064-windows64-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6824/24522/curl-7.54.1.506810-windows64-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.47.0.501064</string>
+        <string>7.54.1.506810</string>
       </map>
       <key>db</key>
       <map>
