@@ -3150,9 +3150,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>949a1c69fd476dc76bd001318c8082fc</string>
+              <string>e4fa9d067379b1800324f7764bb02a6c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6865/24782/viewer_manager-1.0.506854-darwin64-506854.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6934/25239/viewer_manager-1.0.506923-darwin64-506923.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3174,9 +3174,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6ec8e5444c70ce3fede77bb113b0fb5d</string>
+              <string>ff7e089d2e4b16a2a15b04b61d3e03e3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6866/24788/viewer_manager-1.0.506854-windows-506854.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6935/25245/viewer_manager-1.0.506923-windows-506923.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3187,7 +3187,7 @@
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.506854</string>
+        <string>1.0.506923</string>
       </map>
       <key>vlc-bin</key>
       <map>
