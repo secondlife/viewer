@@ -585,9 +585,6 @@ void send_stats()
 	misc["string_1"] = llformat("%d", window_size);
 	misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gTextureTimer.getElapsedTimeF32(), gFrameTimeSeconds.value());
 
-// 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
-// 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
-
 	F32 unbaked_time = LLVOAvatar::sUnbakedTime * 1000.f / gFrameTimeSeconds;
 	misc["int_1"] = LLSD::Integer(unbaked_time); // Steve: 1.22
 	F32 grey_time = LLVOAvatar::sGreyTime * 1000.f / gFrameTimeSeconds;

@@ -315,8 +315,6 @@ F32SecondsImplicit gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64MicrosecondsImplicit	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
-U32 gFrameStalls = 0;
-const F64 FRAME_STALL_THRESHOLD = 1.0;
 
 LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
@@ -705,7 +703,8 @@ LLAppViewer::LLAppViewer()
 	mFastTimerLogThread(NULL),
 	mUpdater(new LLUpdaterService()),
 	mSettingsLocationList(NULL),
-	mIsFirstRun(false)
+	mIsFirstRun(false),
+	mMinMicroSecPerFrame(0.f)
 {
 	if(NULL != sInstance)
 	{
@@ -1249,6 +1248,9 @@ bool LLAppViewer::init()
 	joystick->setNeedsReset(true);
 	/*----------------------------------------------------------------------*/
 
+	gSavedSettings.getControl("FramePerSecondLimit")->getSignal()->connect(boost::bind(&LLAppViewer::onChangeFrameLimit, this, _2));
+	onChangeFrameLimit(gSavedSettings.getLLSD("FramePerSecondLimit"));
+
 	return true;
 }
 
@@ -1328,9 +1330,6 @@ bool LLAppViewer::frame()
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
 
-	LLTimer frameTimer,idleTimer;
-	LLTimer debugTime;
-
 	//LLPrivateMemoryPoolTester::getInstance()->run(false) ;
 	//LLPrivateMemoryPoolTester::getInstance()->run(true) ;
 	//LLPrivateMemoryPoolTester::destroy() ;
@@ -1371,14 +1370,6 @@ bool LLAppViewer::frame()
 			gViewerWindow->getWindow()->gatherInput();
 		}
 
-#if 1 && !LL_RELEASE_FOR_DOWNLOAD
-		// once per second debug info
-		if (debugTime.getElapsedTimeF32() > 1.f)
-		{
-			debugTime.reset();
-		}
-		
-#endif
 		//memory leaking simulation
 		LLFloaterMemLeak* mem_leak_instance =
 			LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1432,7 +1423,25 @@ bool LLAppViewer::frame()
 			{
 				pingMainloopTimeout("Main:Display");
 				gGLActive = TRUE;
+
+				static U64 last_call = 0;
+				if (LLStartUp::getStartupState() == STATE_STARTED
+					&& !gTeleportDisplay)
+				{
+					// Frame/draw throttling
+					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
+					if (elapsed_time < mMinMicroSecPerFrame)
+					{
+						LL_RECORD_BLOCK_TIME(FTM_SLEEP);
+						// llclamp for when time function gets funky
+						U64 sleep_time = llclamp(mMinMicroSecPerFrame - elapsed_time, (U64)1, (U64)1e6);
+						micro_sleep(sleep_time, 0);
+					}
+				}
+				last_call = LLTimer::getTotalTime();
+
 				display();
+
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
 					LLFloaterOutfitSnapshot::update();
@@ -1460,7 +1469,8 @@ bool LLAppViewer::frame()
 					|| !gFocusMgr.getAppHasFocus())
 			{
 				// Sleep if we're not rendering, or the window is minimized.
-				S32 milliseconds_to_sleep = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 1000);
+				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
+				S32 milliseconds_to_sleep = llclamp((S32)s_bacground_yeild_time, 0, 1000);
 				// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
 				// of equal priority on Windows
 				if (milliseconds_to_sleep > 0)
@@ -1484,7 +1494,6 @@ bool LLAppViewer::frame()
 				ms_sleep(500);
 			}
 
-			idleTimer.reset();
 			S32 total_work_pending = 0;
 			S32 total_io_pending = 0;	
 			{
@@ -1536,13 +1545,6 @@ bool LLAppViewer::frame()
 					tex_fetch_debugger_instance->idle() ;				
 				}
 			}
-
-			if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
-				(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
-			{
-				gFrameStalls++;
-			}
-			frameTimer.reset();
 
 			resumeMainloopTimeout();
 
@@ -5583,6 +5585,19 @@ void LLAppViewer::disconnectViewer()
 	// Pass the connection state to LLUrlEntryParcel not to attempt
 	// parcel info requests while disconnected.
 	LLUrlEntryParcel::setDisconnected(gDisconnected);
+}
+
+bool LLAppViewer::onChangeFrameLimit(LLSD const & evt)
+{
+	if (evt.asInteger() > 0)
+	{
+		mMinMicroSecPerFrame = 1000000 / evt.asInteger();
+	}
+	else
+	{
+		mMinMicroSecPerFrame = 0;
+	}
+	return false;
 }
 
 void LLAppViewer::forceErrorLLError()
