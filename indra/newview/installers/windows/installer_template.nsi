@@ -299,7 +299,7 @@ StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
 CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
 SetOutPath "$INSTDIR"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "%%SOURCE%%\icons\release\secondlife.ico"
+				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 
 
 WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
