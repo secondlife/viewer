@@ -46,11 +46,20 @@ public:
     void recursiveScaleJoint(LLJoint *joint, F32 factor);
     static LLControlAvatar *createControlAvatar(LLVOVolume *obj);
 
+    // Delayed kill so we don't make graphics pipeline unhappy calling
+    // markDead() inside other graphics pipeline operations.
+    void markForDeath();
+
+    virtual void idleUpdate(LLAgent &agent, const F64 &time);
+    
     bool mPlaying;
 
     F32 mGlobalScale;
 
     LLVOVolume *mRootVolp;
+
+    bool mMarkedForDeath;
+
 };
 
 #endif //LL_CONTROLAVATAR_H

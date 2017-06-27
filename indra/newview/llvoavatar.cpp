@@ -1225,8 +1225,6 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	{
 		return getPosition() * mDrawable->getParent()->getRenderMatrix();
 	}
-	
-	
 }
 
 void LLVOAvatar::updateDrawable(BOOL force_damped)
@@ -1243,6 +1241,10 @@ void LLVOAvatar::onShift(const LLVector4a& shift_vector)
 
 void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
+    if (mDrawable.isNull())
+    {
+        return;
+    }
 	if (isImpostor() && !needsImpostorUpdate())
 	{
 		LLVector3 delta = getRenderPosition() -
@@ -1971,15 +1973,15 @@ void LLVOAvatar::releaseMeshData()
 		LLFace* facep = mDrawable->getFace(0);
 		if (facep)
 		{
-		facep->setSize(0, 0);
-		for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
-		{
-			facep = mDrawable->getFace(i);
+            facep->setSize(0, 0);
+            for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
+            {
+                facep = mDrawable->getFace(i);
 				if (facep)
 				{
-			facep->setSize(0, 0);
-		}
-	}
+                    facep->setSize(0, 0);
+                }
+            }
 		}
 	}
 	
@@ -2003,6 +2005,10 @@ void LLVOAvatar::releaseMeshData()
 void LLVOAvatar::restoreMeshData()
 {
 	llassert(!isSelf());
+    if (mDrawable.isNull())
+    {
+        return;
+    }
 	
 	//LL_INFOS() << "Restoring" << LL_ENDL;
 	mMeshValid = TRUE;
@@ -2580,13 +2586,16 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 		}
 	}
 
-	mDrawable->movePartition();
-	
-	//force a move if sitting on an active object
-	if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
-	{
-		gPipeline.markMoved(mDrawable, TRUE);
-	}
+    if (mDrawable.notNull())
+    {
+        mDrawable->movePartition();
+        
+        //force a move if sitting on an active object
+        if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
+        {
+            gPipeline.markMoved(mDrawable, TRUE);
+        }
+    }
 }
 
 void LLVOAvatar::idleUpdateAppearanceAnimation()
@@ -3504,7 +3513,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	//--------------------------------------------------------------------
 
 	bool visually_muted = isVisuallyMuted();
-	if (visible && (!isSelf() || visually_muted) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+    // AXON FIXME this expression is a crawling horror
+	if (mDrawable.notNull() && visible && (!isSelf() || visually_muted) && 
+        !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
@@ -4222,6 +4233,11 @@ U32 LLVOAvatar::renderSkinned()
 	{
 		return num_indices;
 	}
+
+    if (mDrawable.isNull())
+    {
+		return num_indices;
+    }
 
 	LLFace* face = mDrawable->getFace(0);
 
@@ -8845,6 +8861,11 @@ void LLVOAvatar::updateFreezeCounter(S32 counter)
 
 BOOL LLVOAvatar::updateLOD()
 {
+    if (mDrawable.isNull())
+    {
+        return FALSE;
+    }
+    
 	if (isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;

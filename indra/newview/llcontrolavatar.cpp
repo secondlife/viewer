@@ -35,7 +35,8 @@
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
     mPlaying(false),
-    mGlobalScale(1.0f)
+    mGlobalScale(1.0f),
+    mMarkedForDeath(false)
 {
     mIsControlAvatar = true;
     mEnableDefaultMotions = false;
@@ -155,7 +156,6 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 	cav->mSpecialRenderMode = 1;
 	cav->updateJointLODs();
 	cav->updateGeometry(cav->mDrawable);
-	//cav->startMotion(ANIM_AGENT_STAND, 5.0f);
 	cav->hideSkirt();
 
     // Sync up position/rotation with object
@@ -163,4 +163,24 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 
     return cav;
 }
+
+void LLControlAvatar::markForDeath()
+{
+    mMarkedForDeath = true;
+}
+
+// static
+void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
+{
+    if (mMarkedForDeath)
+    {
+        markDead();
+        mMarkedForDeath = false;
+    }
+    else
+    {
+        LLVOAvatar::idleUpdate(agent,time);
+    }
+}
+
 
