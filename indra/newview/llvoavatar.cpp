@@ -3433,7 +3433,7 @@ void LLVOAvatar::updateDebugText()
                     {
                         LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
                         // Try to get name from inventory of associated object
-                        LLVOVolume *volp = control_av->mVolp;
+                        LLVOVolume *volp = control_av->mRootVolp;
                         if (volp)
                         {
                             volp->requestInventory(); // AXON should be a no-op if already requested or fetched?
@@ -5565,14 +5565,14 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 {
     bool non_attached_case = false;
     // FIXME AXON - will this work if vo has child objects?
-    if (vo->mControlAvatar)
+    if (vo->getControlAvatar())
     {
         non_attached_case = true;
     }
     LLVOAvatar *av;
     if (non_attached_case)
     {
-        av = vo->mControlAvatar;
+        av = vo->getControlAvatar();
     }
     else
     {

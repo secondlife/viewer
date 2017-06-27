@@ -50,7 +50,7 @@ public:
 
     F32 mGlobalScale;
 
-    LLVOVolume *mVolp;
+    LLVOVolume *mRootVolp;
 };
 
 #endif //LL_CONTROLAVATAR_H

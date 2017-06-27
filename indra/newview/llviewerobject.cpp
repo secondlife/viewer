@@ -383,11 +383,9 @@ void LLViewerObject::markDead()
 			// This case is needed for indirectly attached mesh objects.
 			av->resetJointsOnDetach(mesh_id);
 		}
-        if (mControlAvatar)
+        if (getControlAvatar())
         {
-            LLControlAvatar *av = mControlAvatar;
-            mControlAvatar = NULL;
-            av->markDead();
+            unlinkControlAvatar();
         }
 
 		// Mark itself as dead
@@ -2917,6 +2915,55 @@ void LLViewerObject::fetchInventoryFromServer()
 	}
 }
 
+LLControlAvatar *LLViewerObject::getControlAvatar()
+{
+    return getRootEdit()->mControlAvatar.get();
+}
+
+LLControlAvatar *LLViewerObject::getControlAvatar() const
+{
+    return getRootEdit()->mControlAvatar.get();
+}
+
+void LLViewerObject::linkControlAvatar()
+{
+    if (!getControlAvatar() && isRootEdit())
+    {
+        LLVOVolume *volp = dynamic_cast<LLVOVolume*>(this);
+        if (!volp)
+        {
+            LL_WARNS() << "called with null or non-volume object" << LL_ENDL;
+            return;
+        }
+        mControlAvatar = LLControlAvatar::createControlAvatar(volp);
+    }
+    if (getControlAvatar())
+    {
+        getControlAvatar()->addAttachmentOverridesForObject(this);
+    }
+    else
+    {
+        LL_WARNS() << "no control avatar found!" << LL_ENDL;
+    }
+}
+
+void LLViewerObject::unlinkControlAvatar()
+{
+    if (getControlAvatar())
+    {
+        getControlAvatar()->resetJointsOnDetach(this);
+    }
+    if (isRootEdit())
+    {
+        // This will remove the entire linkset from the control avatar
+        LLControlAvatar *av = mControlAvatar;
+        mControlAvatar = NULL;
+        av->markDead();
+    }
+    // For non-root prims, removing from the linkset will
+    // automatically remove the control avatar connection.
+}
+
 struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
@@ -3872,7 +3919,7 @@ const LLVector3 LLViewerObject::getRenderPosition() const
 	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
 	{
 		LLVOAvatar* avatar = getAvatar();
-		if (avatar && !mControlAvatar)
+		if (avatar && !getControlAvatar())
 		{
 			return avatar->getPositionAgent();
 		}
@@ -4008,9 +4055,9 @@ void LLViewerObject::setPosition(const LLVector3 &pos, BOOL damped)
 		// position caches need to be up to date on root objects
 		updatePositionCaches();
 	}
-    if (mControlAvatar)
+    if (getControlAvatar() && isRootEdit())
     {
-        mControlAvatar->matchVolumeTransform();
+        getControlAvatar()->matchVolumeTransform();
     }
 }
 
@@ -6377,9 +6424,9 @@ const std::string& LLViewerObject::getAttachmentItemName() const
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {
-    if (mControlAvatar)
+    if (getControlAvatar())
     {
-        return mControlAvatar;
+        return getControlAvatar();
     }
 	if (isAttachment())
 	{

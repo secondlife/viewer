@@ -3314,6 +3314,10 @@ bool LLVOVolume::canBeAnimatedObject() const
     {
         return false;
     }
+    if (isAttachment())
+    {
+        return false;
+    }
 	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(getVolume()->getParams().getSculptID(), this);
     if (!skin)
     {
@@ -4830,20 +4834,24 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                           vobj->isMesh() && 
 						  gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
 
-            bool rigged_non_attachment = !vobj->isAttachment() &&
-                                         vobj->isMesh() && 
-                                         gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
-
-            if (rigged_non_attachment)
+            if (vobj->isAnimatedObject())
             {
-                if (!vobj->mControlAvatar)
+                if (!vobj->getControlAvatar())
                 {
-                    vobj->mControlAvatar = LLControlAvatar::createControlAvatar(vobj);
-                    vobj->mControlAvatar->addAttachmentOverridesForObject(vobj);
+                    vobj->linkControlAvatar();
                 }
-                if (vobj->mControlAvatar)
+                if (vobj->getControlAvatar())
                 {
-                    pAvatarVO = vobj->mControlAvatar;
+                    pAvatarVO = vobj->getControlAvatar();
+                }
+            }
+            else
+            {
+                // Not animated but has a control avatar - probably
+                // the checkbox has changed since the last rebuild.
+                if (vobj->getControlAvatar())
+                {
+                    vobj->unlinkControlAvatar();
                 }
             }
 
@@ -4880,7 +4888,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//sum up face verts and indices
 				drawablep->updateFaceSize(i);
 			
-				if (rigged || (vobj->mControlAvatar && vobj->mControlAvatar->mPlaying))
+				if (rigged || (vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying))
 				{
 					if (!facep->isState(LLFace::RIGGED))
 					{ //completely reset vertex buffer
