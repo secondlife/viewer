@@ -266,6 +266,8 @@ void LLPanelVolume::getState( )
 	BOOL editable = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
 	BOOL single_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME )
 		&& LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1;
+    BOOL single_root_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ) && 
+        LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1;
 
 	// Select Single Message
 	if (single_volume)
@@ -355,7 +357,7 @@ void LLPanelVolume::getState( )
 	}
 
     // Animated Mesh
-	BOOL is_animated_mesh = root_volobjp && root_volobjp->isAnimatedObject();
+	BOOL is_animated_mesh = single_root_volume && root_volobjp && root_volobjp->isAnimatedObject();
 	getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->setValue(is_animated_mesh);
     // AXON FIXME CHECK FOR SKIN INFO ALSO
     // WHAT ABOUT isPermanentEnforced?
@@ -363,7 +365,7 @@ void LLPanelVolume::getState( )
     BOOL enabled_animated_object_box = FALSE;
     if (root_volobjp && root_volobjp == volobjp)
     {
-        enabled_animated_object_box = root_volobjp && root_volobjp->canBeAnimatedObject() && editable; 
+        enabled_animated_object_box = single_root_volume && root_volobjp && root_volobjp->canBeAnimatedObject() && editable; 
     }
     getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(enabled_animated_object_box);
 
