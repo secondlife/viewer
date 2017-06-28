@@ -377,7 +377,6 @@ void LLViewerObject::markDead()
 			((LLViewerObject *)getParent())->removeChild(this);
 		}
 		LLUUID mesh_id;
-        // FIXME AXON - need to do this for control avatars too
 		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
 		{
 			// This case is needed for indirectly attached mesh objects.

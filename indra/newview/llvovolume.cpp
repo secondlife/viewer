@@ -1391,7 +1391,8 @@ void LLVOVolume::updateFaceFlags()
 BOOL LLVOVolume::setParent(LLViewerObject* parent)
 {
 	BOOL ret = FALSE ;
-	if (parent != getParent())
+    LLViewerObject *old_parent = (LLViewerObject*) getParent();
+	if (parent != old_parent)
 	{
 		ret = LLViewerObject::setParent(parent);
 		if (ret && mDrawable)
@@ -1399,6 +1400,7 @@ BOOL LLVOVolume::setParent(LLViewerObject* parent)
 			gPipeline.markMoved(mDrawable);
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 		}
+        updateAnimatedObjectState(old_parent, parent);
 	}
 
 	return ret ;
@@ -3328,7 +3330,108 @@ bool LLVOVolume::canBeAnimatedObject() const
 
 bool LLVOVolume::isAnimatedObject() const
 {
-    return canBeAnimatedObject() && (getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
+    LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
+    bool can_be_animated = canBeAnimatedObject();
+    bool root_can_be_animated = root_vol->canBeAnimatedObject();
+    bool root_is_animated = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    if (can_be_animated && root_can_be_animated && root_is_animated)
+    {
+        return true;
+    }
+    return false;
+}
+
+// Make sure animated objects in a linkset are consistent. The rules are:
+// Only the root of a linkset can have the animated object flag set
+// Only the root of a linkset can have a control avatar (iff the animated object flag is set)
+// Only skinned mesh volumes can have the animated object flag set, or a control avatar
+bool LLVOVolume::isAnimatedObjectStateConsistent() const
+{
+    if (!canBeAnimatedObject())
+    {
+        if ((getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG) ||
+            mControlAvatar.notNull())
+        {
+            LL_WARNS("AXON") << "Non animatable object has mesh enabled flag or mControlAvatar. Flags " 
+                             << getExtendedMeshFlags() << " cav " << mControlAvatar.get() << LL_ENDL;
+            return false;
+        }
+    }
+    if (!isRootEdit())
+    {
+        if ((getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG) ||
+            mControlAvatar.notNull())
+        {
+            LL_WARNS("AXON") << "Non root object has mesh enabled flag or mControlAvatar. Flags " 
+                             << getExtendedMeshFlags() << " cav " << mControlAvatar.get() << LL_ENDL;
+            return false;
+        }
+    }
+    // If we get here, we have a potentially animatable root volume.
+    bool is_animation_enabled = getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    bool has_control_avatar = (mControlAvatar.notNull());
+    if (is_animation_enabled != has_control_avatar)
+    {
+        LL_WARNS("AXON") << "Inconsistent state: animation enabled " << is_animation_enabled
+                         << " has control avatar " << has_control_avatar 
+                         << " flags " << getExtendedMeshFlags() << " cav " << mControlAvatar.get() << LL_ENDL;
+        return false;
+    }
+    return true;
+}
+
+// Called any time parenting changes for a volume. Update flags and
+// control av accordingly.  This is called after parent has been
+// changed to new_parent.
+void LLVOVolume::updateAnimatedObjectState(LLViewerObject *old_parent, LLViewerObject *new_parent)
+{
+    LLVOVolume *old_volp = dynamic_cast<LLVOVolume*>(old_parent);
+    LLVOVolume *new_volp = dynamic_cast<LLVOVolume*>(new_parent);
+
+    if (new_parent)
+    {
+        // Object should inherit control avatar and animated mesh flag
+        // from parent, so clear them out from our own state
+        if (getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
+        {
+            setExtendedMeshFlags(getExtendedMeshFlags() & ~LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
+        }
+        if (mControlAvatar.notNull())
+        {
+            LLControlAvatar *av = mControlAvatar;
+            mControlAvatar = NULL;
+            av->markForDeath();
+        }
+        // If this succeeds now, it's because the new_parent is an animated object
+        if (isAnimatedObject())
+        {
+            getControlAvatar()->addAttachmentOverridesForObject(this);
+        }
+    }
+    if (old_volp && old_volp->isAnimatedObject())
+    {
+        // W have been removed from an animated object, need to do cleanup.
+        old_volp->getControlAvatar()->resetJointsOnDetach(this);
+    }
+    
+    if (old_volp)
+    {
+        if (!old_volp->isAnimatedObjectStateConsistent())
+        {
+            LL_WARNS("AXON") << "old_volp failed consistency check" << LL_ENDL;
+        }
+    }
+    if (new_volp)
+    {
+        if (!new_volp->isAnimatedObjectStateConsistent())
+        {
+            LL_WARNS("AXON") << "new_volp failed consistency check" << LL_ENDL;
+        }
+    }
+    if (!isAnimatedObjectStateConsistent())
+    {
+        LL_WARNS("AXON") << "child object failed consistency check" << LL_ENDL;
+    }
 }
 
 //----------------------------------------------------------------------------

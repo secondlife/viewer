@@ -271,6 +271,8 @@ public:
     void setExtendedMeshFlags(U32 flags);
     bool canBeAnimatedObject() const;
     bool isAnimatedObject() const;
+    bool isAnimatedObjectStateConsistent() const;
+    void updateAnimatedObjectState(LLViewerObject *old_parent, LLViewerObject *new_parent);
 
     // Functions that deal with media, or media navigation
     
