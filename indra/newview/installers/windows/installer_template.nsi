@@ -277,6 +277,7 @@ SetShellVarContext all			# Install for all users (if you change this, change it 
 # Start with some default values.
 StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
+StrCpy $VIEWER_EXE "${VIEWER_EXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 Call CheckIfAdministrator		# Make sure the user can install/uninstall
@@ -299,7 +300,7 @@ StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
 CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
 SetOutPath "$INSTDIR"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "%%SOURCE%%\icons\release\secondlife.ico"
+				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 
 
 WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
@@ -317,9 +318,9 @@ CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
 # Other shortcuts
 SetOutPath "$INSTDIR"
 CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$INSTEXE"
+        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$INSTEXE"
+        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' ''
 
