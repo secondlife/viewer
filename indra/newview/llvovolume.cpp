@@ -3320,6 +3320,10 @@ bool LLVOVolume::canBeAnimatedObject() const
     {
         return false;
     }
+	if (!getVolume())
+	{
+		return false;
+	}
 	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(getVolume()->getParams().getSculptID(), this);
     if (!skin)
     {
