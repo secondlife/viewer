@@ -1409,13 +1409,29 @@ void LLVOAvatar::renderCollisionVolumes()
         static F32 sphere_scale = 1.0f;
         static F32 center_dot_scale = 0.05f;
 
-        static LLVector3 CV_COLOR_OCCLUDED(0.0f, 0.0f, 1.0f);
-        static LLVector3 CV_COLOR_VISIBLE(0.5f, 0.5f, 1.0f);
-        static LLVector3 DOT_COLOR_OCCLUDED(1.0f, 1.0f, 1.0f);
-        static LLVector3 DOT_COLOR_VISIBLE(1.0f, 1.0f, 1.0f);
+        static LLVector3 BLUE(0.0f, 0.0f, 1.0f);
+        static LLVector3 PASTEL_BLUE(0.5f, 0.5f, 1.0f);
+        static LLVector3 RED(1.0f, 0.0f, 0.0f);
+        static LLVector3 PASTEL_RED(1.0f, 0.5f, 0.5f);
+        static LLVector3 WHITE(1.0f, 1.0f, 1.0f);
+        
 
-        render_sphere_and_line(begin_pos, end_pos, sphere_scale, CV_COLOR_OCCLUDED, CV_COLOR_VISIBLE);
-        render_sphere_and_line(begin_pos, end_pos, center_dot_scale, DOT_COLOR_OCCLUDED, DOT_COLOR_VISIBLE);
+        LLVector3 cv_color_occluded;
+        LLVector3 cv_color_visible;
+        LLVector3 dot_color_occluded(WHITE);
+        LLVector3 dot_color_visible(WHITE);
+        if (isControlAvatar())
+        {
+            cv_color_occluded = RED;
+            cv_color_visible = PASTEL_RED;
+        }
+        else
+        {
+            cv_color_occluded = BLUE;
+            cv_color_visible = PASTEL_BLUE;
+        }
+        render_sphere_and_line(begin_pos, end_pos, sphere_scale, cv_color_occluded, cv_color_visible);
+        render_sphere_and_line(begin_pos, end_pos, center_dot_scale, dot_color_occluded, dot_color_visible);
 
         gGL.popMatrix();
     }
@@ -1427,9 +1443,6 @@ void LLVOAvatar::renderCollisionVolumes()
 	
 		mNameText->lineSegmentIntersect(unused, unused, unused, TRUE);
 	}
-
-	mDebugText.clear();
-	addDebugText(ostr.str());
 }
 
 void LLVOAvatar::renderBones()
@@ -3357,8 +3370,7 @@ bool LLVOAvatar::isInMuteList()
 
 void LLVOAvatar::updateDebugText()
 {
-	// clear debug text
-	mDebugText.clear();
+    // Leave mDebugText uncleared here, in case a derived class has added some state first
 
 	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 	{
@@ -3482,8 +3494,7 @@ void LLVOAvatar::updateDebugText()
 	{
 		setDebugText(mDebugText);
 	}
-	mDebugText.clear();
-
+    mDebugText.clear();
 }
 
 //------------------------------------------------------------------------
@@ -5579,28 +5590,13 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 {
-    bool non_attached_case = false;
-    // FIXME AXON - will this work if vo has child objects?
-    if (vo->getControlAvatar())
+    if (vo->getAvatar() != this)
     {
-        non_attached_case = true;
-    }
-    LLVOAvatar *av;
-    if (non_attached_case)
-    {
-        av = vo->getControlAvatar();
-    }
-    else
-    {
-        av = vo->getAvatarAncestor();
-	if (!av || (av != this))
-	{
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
         return;
-	}
     }
 
-    LLScopedContextString str("addAttachmentOverridesForObject " + av->getFullname());
+    LLScopedContextString str("addAttachmentOverridesForObject " + vo->getAvatar()->getFullname());
     
 	// Process all children
 	LLViewerObject::const_child_list_t& children = vo->getChildren();
@@ -5626,7 +5622,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
 	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
 
-	if ( vobj && (vobj->isAttachment()||non_attached_case) && vobj->isMesh() && pSkinData )
+	if ( vobj && vobj->isMesh() && pSkinData )
 	{
 		const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
         const int jointCnt = pSkinData->mJointNames.size();
@@ -5808,15 +5804,15 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
 }
 
 //-----------------------------------------------------------------------------
-// resetJointsOnDetach
+// removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
 // AXON handle NPC case
-void LLVOAvatar::resetJointsOnDetach(LLViewerObject *vo)
+void LLVOAvatar::removeAttachmentOverridesForObject(LLViewerObject *vo)
 {
-	LLVOAvatar *av = vo->getAvatarAncestor();
-	if (!av || (av != this))
+	if (vo->getAvatar() != this)
 	{
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+        return;
 	}
 		
 	// Process all children
@@ -5825,22 +5821,22 @@ void LLVOAvatar::resetJointsOnDetach(LLViewerObject *vo)
 		 it != children.end(); ++it)
 	{
 		LLViewerObject *childp = *it;
-		resetJointsOnDetach(childp);
+		removeAttachmentOverridesForObject(childp);
 	}
 
 	// Process self.
 	LLUUID mesh_id;
 	if (getRiggedMeshID(vo,mesh_id))
 	{
-		resetJointsOnDetach(mesh_id);
+		removeAttachmentOverridesForObject(mesh_id);
 	}
 }
 
 //-----------------------------------------------------------------------------
-// resetJointsOnDetach
+// removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
 // AXON handle NPC case
-void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
+void LLVOAvatar::removeAttachmentOverridesForObject(const LLUUID& mesh_id)
 {	
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
@@ -6559,7 +6555,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 	LLUUID mesh_id;
 	if (getRiggedMeshID(pVO, mesh_id))
 	{
-		resetJointsOnDetach(mesh_id);
+		removeAttachmentOverridesForObject(mesh_id);
 		if ( gAgentCamera.cameraCustomizeAvatar() )
 		{
 			gAgent.unpauseAnimation();

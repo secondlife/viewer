@@ -5105,7 +5105,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     }
     
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
-	LL_WARNS() << "AXON handle object animation here, num_blocks " << num_blocks << LL_ENDL;
+	LL_DEBUGS("AXON") << "handle object animation here, num_blocks " << num_blocks << LL_ENDL;
 
     if (!avatarp->mPlaying)
     {
@@ -5119,13 +5119,13 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
         mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
         avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
-        LL_INFOS() << "AXON got object animation request for object " 
+        LL_DEBUGS("AXON") << "got object animation request for object " 
                    << uuid << " animation id " << animation_id << LL_ENDL;
     }
 
 	if (num_blocks >= 0)
 	{
-        LL_INFOS() << "AXON process animation state changes here" << LL_ENDL;
+        LL_DEBUGS("AXON") << "process animation state changes here" << LL_ENDL;
 		avatarp->processAnimationStateChanges();
 	}
 }

@@ -3415,7 +3415,7 @@ void LLVOVolume::updateAnimatedObjectState(LLViewerObject *old_parent, LLViewerO
     if (old_volp && old_volp->isAnimatedObject())
     {
         // W have been removed from an animated object, need to do cleanup.
-        old_volp->getControlAvatar()->resetJointsOnDetach(this);
+        old_volp->getControlAvatar()->removeAttachmentOverridesForObject(this);
     }
     
     if (old_volp)

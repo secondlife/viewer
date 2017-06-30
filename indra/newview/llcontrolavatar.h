@@ -52,6 +52,8 @@ public:
 
     virtual void idleUpdate(LLAgent &agent, const F64 &time);
     
+	virtual void	updateDebugText();
+
     bool mPlaying;
 
     F32 mGlobalScale;

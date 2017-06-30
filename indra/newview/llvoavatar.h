@@ -202,8 +202,8 @@ public:
 	LLJoint*		        getJoint(S32 num);
 	
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo);
-	void					resetJointsOnDetach(const LLUUID& mesh_id);
-	void					resetJointsOnDetach(LLViewerObject *vo);
+	void					removeAttachmentOverridesForObject(const LLUUID& mesh_id);
+	void					removeAttachmentOverridesForObject(LLViewerObject *vo);
     bool					jointIsRiggedTo(const std::string& joint_name);
     bool					jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo);
 	void					clearAttachmentOverrides();

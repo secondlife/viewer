@@ -183,4 +183,10 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
 }
 
+//virtual
+void LLControlAvatar::updateDebugText()
+{
+    addDebugText("I'm a control avatar");
 
+    LLVOAvatar::updateDebugText();
+}
