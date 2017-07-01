@@ -164,6 +164,7 @@ static void killGateway()
 {
 	if (sGatewayPtr)
 	{
+		sGatewayPump.stopListening("VivoxDaemonPump");
 		sGatewayPtr->kill();
 	}
 }
@@ -602,11 +603,14 @@ bool LLVivoxVoiceClient::endAndDisconnectSession()
 
 bool LLVivoxVoiceClient::callbackEndDaemon(const LLSD& data)
 {
-    terminateAudioSession(false);
-    closeSocket();
-    cleanUp();
-    LLVoiceClient::getInstance()->setUserPTTState(false);
-    gAgent.setVoiceConnected(false);
+    if (!LLAppViewer::isExiting())
+    {
+        terminateAudioSession(false);
+        closeSocket();
+        cleanUp();
+        LLVoiceClient::getInstance()->setUserPTTState(false);
+        gAgent.setVoiceConnected(false);
+    }
     sGatewayPump.stopListening("VivoxDaemonPump");
     return false;
 }
