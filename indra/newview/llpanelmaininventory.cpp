@@ -540,7 +540,7 @@ BOOL LLPanelMainInventory::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 {
 	// Check to see if we are auto scrolling from the last frame
 	LLInventoryPanel* panel = (LLInventoryPanel*)this->getActivePanel();
-	BOOL needsToScroll = panel->getScrollableContainer()->autoScroll(x, y);
+	BOOL needsToScroll = panel->getScrollableContainer()->canAutoScroll(x, y);
 	if(mFilterTabs)
 	{
 		if(needsToScroll)

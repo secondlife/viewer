@@ -114,7 +114,8 @@ public:
 
 	virtual void	draw();
 	virtual bool	addChild(LLView* view, S32 tab_group = 0);
-	
+
+	bool canAutoScroll(S32 x, S32 y);
 	bool autoScroll(S32 x, S32 y);
 
 	S32 getSize() const { return mSize; }
@@ -128,6 +129,7 @@ private:
 	virtual void scrollHorizontal( S32 new_pos );
 	virtual void scrollVertical( S32 new_pos );
 	void updateScroll();
+	bool autoScroll(S32 x, S32 y, bool do_scroll);
 	void calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 
 	LLScrollbar* mScrollbar[ORIENTATION_COUNT];
