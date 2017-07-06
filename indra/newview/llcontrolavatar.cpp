@@ -190,3 +190,67 @@ void LLControlAvatar::updateDebugText()
 
     LLVOAvatar::updateDebugText();
 }
+
+void LLControlAvatar::getAnimatedVolumes(std::vector<LLVOVolume*>& volumes)
+{
+    if (!mRootVolp)
+    {
+        return;
+    }
+
+    volumes.push_back(mRootVolp);
+    
+	LLViewerObject::const_child_list_t& child_list = mRootVolp->getChildren();
+	for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); ++iter)
+	{
+		LLViewerObject* childp = *iter;
+        LLVOVolume *child_volp = dynamic_cast<LLVOVolume*>(childp);
+        if (child_volp && child_volp->isAnimatedObject())
+        {
+            volumes.push_back(child_volp);
+        }
+    }
+}
+
+// This is called after an associated object receives an animation
+// message. Combine the signaled animations for all associated objects
+// and process any resulting state changes.
+void LLControlAvatar::updateAnimations()
+{
+    if (!mRootVolp)
+    {
+        LL_WARNS("AXON") << "No root vol" << LL_ENDL;
+        return;
+    }
+
+    std::vector<LLVOVolume*> volumes;
+    getAnimatedVolumes(volumes);
+    
+    // Rebuild mSignaledAnimations from the associated volumes.
+	std::map<LLUUID, S32> anims;
+    for (std::vector<LLVOVolume*>::iterator vol_it = volumes.begin(); vol_it != volumes.end(); ++vol_it)
+    {
+        LLVOVolume *volp = *vol_it;
+        for (std::map<LLUUID,S32>::iterator anim_it = volp->mObjectSignaledAnimations.begin();
+             anim_it != volp->mObjectSignaledAnimations.end();
+             ++anim_it)
+        {
+            std::map<LLUUID,S32>::iterator found_anim_it = anims.find(anim_it->first);
+            if (found_anim_it != anims.end())
+            {
+                // Animation already present, use the larger sequence id
+                anims[anim_it->first] = llmax(found_anim_it->second, anim_it->second);
+            }
+            else
+            {
+                // Animation not already present, use this sequence id.
+                anims[anim_it->first] = anim_it->second;
+            }
+        }
+    }
+    mSignaledAnimations = anims;
+
+    LL_DEBUGS("AXON") << "process animation state changes here" << LL_ENDL;
+    processAnimationStateChanges();
+}

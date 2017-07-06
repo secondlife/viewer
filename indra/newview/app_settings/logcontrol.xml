@@ -50,6 +50,7 @@
 						</array>
 					<key>tags</key>
 						<array>
+                          <string>AXON</string>
 						<!-- sample entry for debugging specific items	
 						     <string>Avatar</string>
 						     <string>Inventory</string>

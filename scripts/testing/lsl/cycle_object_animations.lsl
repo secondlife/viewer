@@ -9,17 +9,17 @@ cycle_animations()
         ItemName = llGetInventoryName(INVENTORY_ANIMATION, count);
         if (NowPlaying != "")
         {
-            llSay(0, "Stopping " + NowPlaying);
+            //llSay(0, "Stopping " + NowPlaying);
             llStopObjectAnimation(NowPlaying);
         }
-        llSay(0, "Starting " + ItemName);
+        //llSay(0, "Starting " + ItemName);
         llStartObjectAnimation(ItemName);
         NowPlaying = ItemName;
         llSleep(10);
     }
     if (NowPlaying != "")
     {
-        llSay(0, "Stopping " + NowPlaying);
+        //llSay(0, "Stopping " + NowPlaying);
         llStopObjectAnimation(NowPlaying);
         llSleep(10);
     }

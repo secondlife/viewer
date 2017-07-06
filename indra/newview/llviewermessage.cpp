@@ -5112,22 +5112,19 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         avatarp->mPlaying = true;
 		avatarp->updateVolumeGeom();
     }
-	avatarp->mSignaledAnimations.clear();
+
+	volp->mObjectSignaledAnimations.clear();
 	
     for( S32 i = 0; i < num_blocks; i++ )
     {
         mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
         mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
-        avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+        volp->mObjectSignaledAnimations[animation_id] = anim_sequence_id;
         LL_DEBUGS("AXON") << "got object animation request for object " 
-                   << uuid << " animation id " << animation_id << LL_ENDL;
+                          << uuid << " animation id " << animation_id << LL_ENDL;
     }
 
-	if (num_blocks >= 0)
-	{
-        LL_DEBUGS("AXON") << "process animation state changes here" << LL_ENDL;
-		avatarp->processAnimationStateChanges();
-	}
+    avatarp->updateAnimations();
 }
 
 
