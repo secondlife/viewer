@@ -403,8 +403,7 @@ F32 gpu_benchmark();
 
 bool LLFeatureManager::loadGPUClass()
 {
-	benchmark_flag = gSavedSettings.getBOOL("SkipBenchmark")
-	if (!benchmark_flag)
+	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
 		//get memory bandwidth from benchmark
 		F32 gbps = gpu_benchmark();
