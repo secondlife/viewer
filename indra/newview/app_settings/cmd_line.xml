@@ -81,6 +81,14 @@
       <key>map-to</key>
       <string>PacketDropPercentage</string>
     </map>
+    
+    <key>forceaddresssize</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>CmdLineForceAddrSize</string>
+    </map>
 
     <key>god</key>
     <map>
