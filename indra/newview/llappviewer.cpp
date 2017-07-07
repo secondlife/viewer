@@ -4079,7 +4079,7 @@ void dumpVFSCaches()
 U32 LLAppViewer::getTextureCacheVersion() 
 {
 	//viewer texture cache version, change if the texture cache format changes.
-	const U32 TEXTURE_CACHE_VERSION = 7;
+	const U32 TEXTURE_CACHE_VERSION = 8;
 
 	return TEXTURE_CACHE_VERSION ;
 }
@@ -4089,7 +4089,7 @@ U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
 	// format changes. JC
-	const U32 INDRA_OBJECT_CACHE_VERSION = 14;
+	const U32 INDRA_OBJECT_CACHE_VERSION = 15;
 
 	return INDRA_OBJECT_CACHE_VERSION;
 }
