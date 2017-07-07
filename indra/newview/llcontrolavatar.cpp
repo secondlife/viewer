@@ -186,7 +186,15 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 //virtual
 void LLControlAvatar::updateDebugText()
 {
-    addDebugText("I'm a control avatar");
+    S32 total_linkset_count = 0;
+    if (mRootVolp)
+    {
+        total_linkset_count = 1 + mRootVolp->getChildren().size();
+    }
+    std::vector<LLVOVolume*> volumes;
+    getAnimatedVolumes(volumes);
+    S32 animated_volume_count = volumes.size();
+    addDebugText(llformat("CAV obj %d anim %d", total_linkset_count, animated_volume_count));
 
     LLVOAvatar::updateDebugText();
 }
