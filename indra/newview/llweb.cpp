@@ -224,6 +224,22 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	}
 	substitution["PARCEL_ID"] = llformat("%d", parcel_id);
 
+	// find the grid
+	std::string current_grid = LLGridManager::getInstance()->getGridId();
+	std::transform(current_grid.begin(), current_grid.end(), current_grid.begin(), ::tolower);
+	if (current_grid == "agni")
+	{
+		substitution["GRID"] = "secondlife.com";
+	}
+	else if (current_grid == "damballah")
+	{
+		// Staging grid has its own naming scheme.
+		substitution["GRID"] = "secondlife-staging.com";
+	}
+	else
+	{
+		substitution["GRID"] = llformat("%s.lindenlab.com", current_grid.c_str());
+	}
 	// expand all of the substitution strings and escape the url
 	std::string expanded_url = url;
 	LLStringUtil::format(expanded_url, substitution);
