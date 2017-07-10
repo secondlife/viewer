@@ -66,6 +66,7 @@ public:
 							hide_scrollbar;
 		Optional<F32>		min_auto_scroll_rate,
 							max_auto_scroll_rate;
+		Optional<U32>		max_auto_scroll_zone;
 		Optional<LLUIColor>	bg_color;
 		Optional<LLScrollbar::callback_t> scroll_callback;
 		Optional<S32>		size;
@@ -143,6 +144,7 @@ private:
 	F32			mAutoScrollRate;
 	F32			mMinAutoScrollRate;
 	F32			mMaxAutoScrollRate;
+	U32			mMaxAutoScrollZone;
 	bool		mHideScrollbar;
 };
 

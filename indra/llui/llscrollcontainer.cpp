@@ -72,6 +72,7 @@ LLScrollContainer::Params::Params()
 	hide_scrollbar("hide_scrollbar"),
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
+	max_auto_scroll_zone("max_auto_scroll_zone", 16),
 	reserve_scroll_corner("reserve_scroll_corner", false),
 	size("size", -1)
 {}
@@ -88,6 +89,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mReserveScrollCorner(p.reserve_scroll_corner),
 	mMinAutoScrollRate(p.min_auto_scroll_rate),
 	mMaxAutoScrollRate(p.max_auto_scroll_rate),
+	mMaxAutoScrollZone(p.max_auto_scroll_zone),
 	mScrolledView(NULL),
 	mSize(p.size)
 {
@@ -332,8 +334,8 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
 
 		S32 auto_scroll_speed = ll_round(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
 		// autoscroll region should take up no more than one third of visible scroller area
-		S32 auto_scroll_region_width = llmin(inner_rect_local.getWidth() / 3, 10); 
-		S32 auto_scroll_region_height = llmin(inner_rect_local.getHeight() / 3, 10); 
+		S32 auto_scroll_region_width = llmin(inner_rect_local.getWidth() / 3, (S32)mMaxAutoScrollZone); 
+		S32 auto_scroll_region_height = llmin(inner_rect_local.getHeight() / 3, (S32)mMaxAutoScrollZone); 
 
 		if(	mScrollbar[HORIZONTAL]->getVisible() )
 		{
