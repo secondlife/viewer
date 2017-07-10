@@ -61,6 +61,7 @@ using namespace llsd;
 #if LL_WINDOWS
 #	include "llwin32headerslean.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
+#	include <VersionHelpers.h>
 #elif LL_DARWIN
 #	include <errno.h>
 #	include <sys/sysctl.h>
@@ -110,78 +111,6 @@ static const F32 MEM_INFO_THROTTLE = 20;
 // dropped below the login framerate, we'd have very little additional data.
 static const F32 MEM_INFO_WINDOW = 10*60;
 
-#if LL_WINDOWS
-// We cannot trust GetVersionEx function on Win8.1 , we should check this value when creating OS string
-static const U32 WINNT_WINBLUE = 0x0603;
-
-#ifndef DLLVERSIONINFO
-typedef struct _DllVersionInfo
-{
-    DWORD cbSize;
-    DWORD dwMajorVersion;
-    DWORD dwMinorVersion;
-    DWORD dwBuildNumber;
-    DWORD dwPlatformID;
-}DLLVERSIONINFO;
-#endif
-
-#ifndef DLLGETVERSIONPROC
-typedef int (FAR WINAPI *DLLGETVERSIONPROC) (DLLVERSIONINFO *);
-#endif
-
-bool get_shell32_dll_version(DWORD& major, DWORD& minor, DWORD& build_number)
-{
-	bool result = false;
-	const U32 BUFF_SIZE = 32767;
-	WCHAR tempBuf[BUFF_SIZE];
-	if(GetSystemDirectory((LPWSTR)&tempBuf, BUFF_SIZE))
-	{
-		
-		std::basic_string<WCHAR> shell32_path(tempBuf);
-
-		// Shell32.dll contains the DLLGetVersion function. 
-		// according to msdn its not part of the API
-		// so you have to go in and get it.
-		// http://msdn.microsoft.com/en-us/library/bb776404(VS.85).aspx
-		shell32_path += TEXT("\\shell32.dll");
-
-		HMODULE hDllInst = LoadLibrary(shell32_path.c_str());   //load the DLL
-		if(hDllInst) 
-		{  // Could successfully load the DLL
-			DLLGETVERSIONPROC pDllGetVersion;
-			/*
-			You must get this function explicitly because earlier versions of the DLL
-			don't implement this function. That makes the lack of implementation of the
-			function a version marker in itself.
-			*/
-			pDllGetVersion = (DLLGETVERSIONPROC) GetProcAddress(hDllInst, 
-																"DllGetVersion");
-
-			if(pDllGetVersion) 
-			{    
-				// DLL supports version retrieval function
-				DLLVERSIONINFO    dvi;
-
-				ZeroMemory(&dvi, sizeof(dvi));
-				dvi.cbSize = sizeof(dvi);
-				HRESULT hr = (*pDllGetVersion)(&dvi);
-
-				if(SUCCEEDED(hr)) 
-				{ // Finally, the version is at our hands
-					major = dvi.dwMajorVersion;
-					minor = dvi.dwMinorVersion;
-					build_number = dvi.dwBuildNumber;
-					result = true;
-				} 
-			} 
-
-			FreeLibrary(hDllInst);  // Release DLL
-		} 
-	}
-	return result;
-}
-#endif // LL_WINDOWS
-
 // Wrap boost::regex_match() with a function that doesn't throw.
 template <typename S, typename M, typename R>
 static bool regex_match_no_exc(const S& string, M& match, const R& regex)
@@ -214,221 +143,139 @@ static bool regex_search_no_exc(const S& string, M& match, const R& regex)
     }
 }
 
-#if LL_WINDOWS
-// GetVersionEx should not works correct with Windows 8.1 and the later version. We need to check this case 
-static bool	check_for_version(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
-{
-    OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0 };
-    DWORDLONG        const dwlConditionMask = VerSetConditionMask(
-        VerSetConditionMask(
-        VerSetConditionMask(
-            0, VER_MAJORVERSION, VER_GREATER_EQUAL),
-               VER_MINORVERSION, VER_GREATER_EQUAL),
-               VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-
-    osvi.dwMajorVersion = wMajorVersion;
-    osvi.dwMinorVersion = wMinorVersion;
-    osvi.wServicePackMajor = wServicePackMajor;
-
-    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
-}
-#endif
-
 
 LLOSInfo::LLOSInfo() :
 	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")	 
 {
 
 #if LL_WINDOWS
-	OSVERSIONINFOEX osvi;
-	BOOL bOsVersionInfoEx;
-	BOOL bShouldUseShellVersion = false;
+
+	if (IsWindowsVersionOrGreater(10, 0, 0))
+	{
+		mMajorVer = 10;
+		mMinorVer = 0;
+		mOSStringSimple = "Microsoft Windows 10 ";
+	}
+	else if (IsWindows8Point1OrGreater())
+	{
+		mMajorVer = 6;
+		mMinorVer = 3;
+		if (IsWindowsServer())
+		{
+			mOSStringSimple = "Windows Server 2012 R2 ";
+		}
+		else
+		{
+			mOSStringSimple = "Microsoft Windows 8.1 ";
+		}
+	}
+	else if (IsWindows8OrGreater())
+	{
+		mMajorVer = 6;
+		mMinorVer = 2;
+		if (IsWindowsServer())
+		{
+			mOSStringSimple = "Windows Server 2012 ";
+		}
+		else
+		{
+			mOSStringSimple = "Microsoft Windows 8 ";
+		}
+	}
+	else if (IsWindows7SP1OrGreater())
+	{
+		mMajorVer = 6;
+		mMinorVer = 1;
+		if (IsWindowsServer())
+		{
+			mOSStringSimple = "Windows Server 2008 R2 SP1 ";
+		}
+		else
+		{
+			mOSStringSimple = "Microsoft Windows 7 SP1 ";
+		}
+	}
+	else if (IsWindows7OrGreater())
+	{
+		mMajorVer = 6;
+		mMinorVer = 1;
+		if (IsWindowsServer())
+		{
+			mOSStringSimple = "Windows Server 2008 R2 ";
+		}
+		else
+		{
+			mOSStringSimple = "Microsoft Windows 7 ";
+		}
+	}
+	else if (IsWindowsVistaSP2OrGreater())
+	{
+		mMajorVer = 6;
+		mMinorVer = 0;
+		if (IsWindowsServer())
+		{
+			mOSStringSimple = "Windows Server 2008 SP2 ";
+		}
+		else
+		{
+			mOSStringSimple = "Microsoft Windows Vista SP2 ";
+		}
+	}
+	else
+	{
+		mOSStringSimple = "Unsupported Windows version ";
+	}
+
+	///get native system info if available..
+	typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO); ///function pointer for loading GetNativeSystemInfo
+	SYSTEM_INFO si; //System Info object file contains architecture info
+	PGNSI pGNSI; //pointer object
+	ZeroMemory(&si, sizeof(SYSTEM_INFO)); //zero out the memory in information
+	pGNSI = (PGNSI)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo"); //load kernel32 get function
+	if (NULL != pGNSI) //check if it has failed
+		pGNSI(&si); //success
+	else
+		GetSystemInfo(&si); //if it fails get regular system info 
+	//(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
+
+	//msdn microsoft finds 32 bit and 64 bit flavors this way..
+	//http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
+	//of windows than this code does (in case it is needed for the future)
+	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) //check for 64 bit
+	{
+		mOSStringSimple += "64-bit ";
+	}
+	else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+	{
+		mOSStringSimple += "32-bit ";
+	}
 
 	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
+	OSVERSIONINFOEX osvi;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	if(!(bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO *) &osvi)))
+	if (GetVersionEx((OSVERSIONINFO *)&osvi))
+	{
+		mBuild = osvi.dwBuildNumber & 0xffff;
+	}
+	else
 	{
 		// If OSVERSIONINFOEX doesn't work, try OSVERSIONINFO.
-		osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-		if(!GetVersionEx( (OSVERSIONINFO *) &osvi))
-			return;
+		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		if (GetVersionEx((OSVERSIONINFO *)&osvi))
+		{
+			mBuild = osvi.dwBuildNumber & 0xffff;
+		}
 	}
-	mMajorVer = osvi.dwMajorVersion;
-	mMinorVer = osvi.dwMinorVersion;
-	mBuild = osvi.dwBuildNumber;
 
-	DWORD shell32_major, shell32_minor, shell32_build;
-	bool got_shell32_version = get_shell32_dll_version(shell32_major, 
-													   shell32_minor, 
-													   shell32_build);
-
-	switch(osvi.dwPlatformId)
+	mOSString = mOSStringSimple;
+	if (mBuild > 0)
 	{
-	case VER_PLATFORM_WIN32_NT:
-		{
-			// Test for the product.
-			if(osvi.dwMajorVersion <= 4)
-			{
-				mOSStringSimple = "Microsoft Windows NT ";
-			}
-			else if(osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
-			{
-				mOSStringSimple = "Microsoft Windows 2000 ";
-			}
-			else if(osvi.dwMajorVersion ==5 && osvi.dwMinorVersion == 1)
-			{
-				mOSStringSimple = "Microsoft Windows XP ";
-			}
-			else if(osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
-			{
-				 if(osvi.wProductType == VER_NT_WORKSTATION)
-					mOSStringSimple = "Microsoft Windows XP x64 Edition ";
-				 else
-					mOSStringSimple = "Microsoft Windows Server 2003 ";
-			}
-			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion <= 2)
-			{
-				if(osvi.dwMinorVersion == 0)
-				{
-					if(osvi.wProductType == VER_NT_WORKSTATION)
-						mOSStringSimple = "Microsoft Windows Vista ";
-					else
-						mOSStringSimple = "Windows Server 2008 ";
-				}
-				else if(osvi.dwMinorVersion == 1)
-				{
-					if(osvi.wProductType == VER_NT_WORKSTATION)
-						mOSStringSimple = "Microsoft Windows 7 ";
-					else
-						mOSStringSimple = "Windows Server 2008 R2 ";
-				}
-				else if(osvi.dwMinorVersion == 2)
-				{
-					if (check_for_version(HIBYTE(WINNT_WINBLUE), LOBYTE(WINNT_WINBLUE), 0))
-					{
-						mOSStringSimple = "Microsoft Windows 8.1 ";
-						bShouldUseShellVersion = true; // GetVersionEx failed, going to use shell version
-					}
-					else
-					{
-					if(osvi.wProductType == VER_NT_WORKSTATION)
-						mOSStringSimple = "Microsoft Windows 8 ";
-					else
-						mOSStringSimple = "Windows Server 2012 ";
-				}
-				}
-
-				///get native system info if available..
-				typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO); ///function pointer for loading GetNativeSystemInfo
-				SYSTEM_INFO si; //System Info object file contains architecture info
-				PGNSI pGNSI; //pointer object
-				ZeroMemory(&si, sizeof(SYSTEM_INFO)); //zero out the memory in information
-				pGNSI = (PGNSI) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),  "GetNativeSystemInfo"); //load kernel32 get function
-				if(NULL != pGNSI) //check if it has failed
-					pGNSI(&si); //success
-				else 
-					GetSystemInfo(&si); //if it fails get regular system info 
-				//(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
-
-				//msdn microsoft finds 32 bit and 64 bit flavors this way..
-				//http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
-				//of windows than this code does (in case it is needed for the future)
-				if ( si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64 ) //check for 64 bit
-				{
-					mOSStringSimple += "64-bit ";
-				}
-				else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL )
-				{
-					mOSStringSimple += "32-bit ";
-				}
-			}
-			else   // Use the registry on early versions of Windows NT.
-			{
-				mOSStringSimple = "Microsoft Windows (unrecognized) ";
-
-				HKEY hKey;
-				WCHAR szProductType[80];
-				DWORD dwBufLen;
-				RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-							L"SYSTEM\\CurrentControlSet\\Control\\ProductOptions",
-							0, KEY_QUERY_VALUE, &hKey );
-				RegQueryValueEx( hKey, L"ProductType", NULL, NULL,
-								(LPBYTE) szProductType, &dwBufLen);
-				RegCloseKey( hKey );
-				if ( lstrcmpi( L"WINNT", szProductType) == 0 )
-				{
-					mOSStringSimple += "Professional ";
-				}
-				else if ( lstrcmpi( L"LANMANNT", szProductType) == 0 )
-				{
-					mOSStringSimple += "Server ";
-				}
-				else if ( lstrcmpi( L"SERVERNT", szProductType) == 0 )
-				{
-					mOSStringSimple += "Advanced Server ";
-				}
-			}
-
-			std::string csdversion = utf16str_to_utf8str(osvi.szCSDVersion);
-			// Display version, service pack (if any), and build number.
-			std::string tmpstr;
-			if(osvi.dwMajorVersion <= 4)
-			{
-				tmpstr = llformat("version %d.%d %s (Build %d)",
-								  osvi.dwMajorVersion,
-								  osvi.dwMinorVersion,
-								  csdversion.c_str(),
-								  (osvi.dwBuildNumber & 0xffff));
-			}
-			else
-			{
-				tmpstr = !bShouldUseShellVersion ?  llformat("%s (Build %d)", csdversion.c_str(), (osvi.dwBuildNumber & 0xffff)):
-					llformat("%s (Build %d)", csdversion.c_str(), shell32_build);
-			}
-
-			mOSString = mOSStringSimple + tmpstr;
-		}
-		break;
-
-	case VER_PLATFORM_WIN32_WINDOWS:
-		// Test for the Windows 95 product family.
-		if(osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
-		{
-			mOSStringSimple = "Microsoft Windows 95 ";
-			if ( osvi.szCSDVersion[1] == 'C' || osvi.szCSDVersion[1] == 'B' )
-			{
-                mOSStringSimple += "OSR2 ";
-			}
-		} 
-		if(osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
-		{
-			mOSStringSimple = "Microsoft Windows 98 ";
-			if ( osvi.szCSDVersion[1] == 'A' )
-			{
-                mOSStringSimple += "SE ";
-			}
-		} 
-		if(osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
-		{
-			mOSStringSimple = "Microsoft Windows Millennium Edition ";
-		}
-		mOSString = mOSStringSimple;
-		break;
+		mOSString += llformat("(Build %d)", mBuild);
 	}
 
-	std::string compatibility_mode;
-	if(got_shell32_version)
-	{
-		if((osvi.dwMajorVersion != shell32_major || osvi.dwMinorVersion != shell32_minor) && !bShouldUseShellVersion)
-		{
-			compatibility_mode = llformat(" compatibility mode. real ver: %d.%d (Build %d)", 
-											shell32_major,
-											shell32_minor,
-											shell32_build);
-		}
-	}
-	mOSString += compatibility_mode;
+	LLStringUtil::trim(mOSStringSimple);
+	LLStringUtil::trim(mOSString);
 
 #elif LL_DARWIN
 	
