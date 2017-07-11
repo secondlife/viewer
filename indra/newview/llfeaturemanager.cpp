@@ -403,69 +403,77 @@ F32 gpu_benchmark();
 
 bool LLFeatureManager::loadGPUClass()
 {
-	//get memory bandwidth from benchmark
-	F32 gbps = gpu_benchmark();
-
-	if (gbps < 0.f)
-	{ //couldn't bench, use GLVersion
-#if LL_DARWIN
-        //GLVersion is misleading on OSX, just default to class 3 if we can't bench
+	if (!gSavedSettings.getBOOL("SkipBenchmark"))
+	{
+		//get memory bandwidth from benchmark
+		F32 gbps = gpu_benchmark();
+	
+		if (gbps < 0.f)
+		{ //couldn't bench, use GLVersion
+	#if LL_DARWIN
+		//GLVersion is misleading on OSX, just default to class 3 if we can't bench
 		LL_WARNS() << "Unable to get an accurate benchmark; defaulting to class 3" << LL_ENDL;
-        mGPUClass = GPU_CLASS_3;
-#else
-		if (gGLManager.mGLVersion < 2.f)
+		mGPUClass = GPU_CLASS_3;
+	#else
+			if (gGLManager.mGLVersion < 2.f)
+			{
+				mGPUClass = GPU_CLASS_0;
+			}
+			else if (gGLManager.mGLVersion < 3.f)
+			{
+				mGPUClass = GPU_CLASS_1;
+			}
+			else if (gGLManager.mGLVersion < 3.3f)
+			{
+				mGPUClass = GPU_CLASS_2;
+			}
+			else if (gGLManager.mGLVersion < 4.f)
+			{
+				mGPUClass = GPU_CLASS_3;
+			}
+			else 
+			{
+				mGPUClass = GPU_CLASS_4;
+			}
+	#endif
+		}
+		else if (gGLManager.mGLVersion <= 2.f)
 		{
 			mGPUClass = GPU_CLASS_0;
 		}
-		else if (gGLManager.mGLVersion < 3.f)
+		else if (gGLManager.mGLVersion <= 3.f)
 		{
 			mGPUClass = GPU_CLASS_1;
 		}
-		else if (gGLManager.mGLVersion < 3.3f)
+		else if (gbps <= 5.f)
+		{
+			mGPUClass = GPU_CLASS_0;
+		}
+		else if (gbps <= 8.f)
+		{
+			mGPUClass = GPU_CLASS_1;
+		}
+		else if (gbps <= 16.f)
 		{
 			mGPUClass = GPU_CLASS_2;
 		}
-		else if (gGLManager.mGLVersion < 4.f)
+		else if (gbps <= 40.f)
 		{
 			mGPUClass = GPU_CLASS_3;
 		}
-		else 
+		else if (gbps <= 80.f)
 		{
 			mGPUClass = GPU_CLASS_4;
 		}
-#endif
-	}
-	else if (gGLManager.mGLVersion <= 2.f)
+		else 
+		{
+			mGPUClass = GPU_CLASS_5;
+		}
+	} //end if benchmark
+	else
 	{
-		mGPUClass = GPU_CLASS_0;
-	}
-	else if (gGLManager.mGLVersion <= 3.f)
-	{
+		//setting says don't benchmark MAINT-7558
 		mGPUClass = GPU_CLASS_1;
-	}
-	else if (gbps <= 5.f)
-	{
-		mGPUClass = GPU_CLASS_0;
-	}
-	else if (gbps <= 8.f)
-	{
-		mGPUClass = GPU_CLASS_1;
-	}
-	else if (gbps <= 16.f)
-	{
-		mGPUClass = GPU_CLASS_2;
-	}
-	else if (gbps <= 40.f)
-	{
-		mGPUClass = GPU_CLASS_3;
-	}
-	else if (gbps <= 80.f)
-	{
-		mGPUClass = GPU_CLASS_4;
-	}
-	else 
-	{
-		mGPUClass = GPU_CLASS_5;
 	}
 
 	// defaults
