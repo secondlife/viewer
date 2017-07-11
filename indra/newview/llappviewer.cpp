@@ -1425,8 +1425,7 @@ bool LLAppViewer::frame()
 				gGLActive = TRUE;
 
 				static U64 last_call = 0;
-				if (LLStartUp::getStartupState() == STATE_STARTED
-					&& !gTeleportDisplay)
+				if (!gTeleportDisplay)
 				{
 					// Frame/draw throttling
 					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
