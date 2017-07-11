@@ -1293,7 +1293,7 @@ There was a problem uploading a report screenshot due to the following reason: [
    name="MustAgreeToLogIn"
    type="alertmodal">
    <tag>fail</tag>
-You must agree to the Terms of Service to continue logging into [SECOND_LIFE].
+You must agree to the Second Life Terms and Conditions, Privacy Policy, and Terms of Service to continue logging into [SECOND_LIFE].
   </notification>
 
   <notification
