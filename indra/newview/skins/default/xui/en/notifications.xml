@@ -4138,10 +4138,9 @@ An update was downloaded. It will be installed during restart.
 
   <notification
  icon="alertmodal.tga"
- name="UpdateCheckError"
+ name="UpdateDeferred"
  type="alertmodal">
-An error occurred while checking for update.
-Please try again later.
+An update was downloaded that you previously chose to skip or defer to the next start up.
     <tag>confirm</tag>
     <usetemplate
      name="okbutton"

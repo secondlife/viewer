@@ -160,7 +160,7 @@ public:
 	void commandSendMetrics(const std::string & caps_url,
 							const LLUUID & session_id,
 							const LLUUID & agent_id,
-							LLViewerAssetStats * main_stats);
+							LLSD& stats_sd);
 
 	// Threads:  T*
 	void commandDataBreak();

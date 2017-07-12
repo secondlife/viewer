@@ -225,6 +225,36 @@
         <key>version</key>
         <string>1.57</string>
       </map>
+      <key>chardet</key>
+      <map>
+        <key>copyright</key>
+        <string>Contributors to charset (see https://github.com/chardet/chardet)</string>
+        <key>description</key>
+        <string>Python Character Encoding Library</string>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>license_file</key>
+        <string>LICENSES/chardet.txt</string>
+        <key>name</key>
+        <string>chardet</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0124862b6a1b88455c78a68f8b823d21</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6662/23578/chardet-3.0.4-darwin64-506651.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.0.4</string>
+      </map>
       <key>colladadom</key>
       <map>
         <key>copyright</key>
@@ -344,9 +374,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99fbc15f514be77c36280f300d257d5a</string>
+              <string>8854daffb8b87a2238461a7f72e4b4fd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1077/2495/curl-7.47.0.501064-darwin64-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6822/24534/curl-7.54.1.506810-darwin64-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -368,9 +398,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5d1b0439235f5f3829662a45e566743</string>
+              <string>37a6a2615d81b491e449e5680cf8d9c7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1075/2484/curl-7.47.0.501064-linux64-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6821/24528/curl-7.54.1.506810-linux64-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -380,11 +410,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bda9f237d3e8238440bc5bedc2657547</string>
+              <string>eb2508dd444ac885b7fdf7d89cd2e010</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1078/2487/curl-7.47.0.501064-windows-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6823/24516/curl-7.54.1.506810-windows-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -394,16 +424,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7fa42c7157cd5007283ae7a5d97393d</string>
+              <string>1a9848d3b1ed53e57afe44f175c2ecea</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1079/2490/curl-7.47.0.501064-windows64-501064.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6824/24522/curl-7.54.1.506810-windows64-506810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.47.0.501064</string>
+        <string>7.54.1.506810</string>
       </map>
       <key>db</key>
       <map>
@@ -1435,6 +1465,36 @@
         <key>version</key>
         <string>2012.1-2</string>
       </map>
+      <key>idna</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-2017, Kim Davies. All rights reserved.</string>
+        <key>description</key>
+        <string>Python Internationalized Domain Names in Applications (IDNA) Library</string>
+        <key>license</key>
+        <string>see idna.rst</string>
+        <key>license_file</key>
+        <string>LICENSES/idna.rst</string>
+        <key>name</key>
+        <string>idna</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7dfe9fc4023d7d4f511dd9fac7258266</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6663/23584/idna-2.5-darwin64-506652.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2.5</string>
+      </map>
       <key>jpeglib</key>
       <map>
         <key>copyright</key>
@@ -2113,6 +2173,46 @@
         <key>version</key>
         <string>0.0.1</string>
       </map>
+      <key>llbase</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/llbase-license.txt</string>
+        <key>name</key>
+        <string>llbase</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e18eeb0691af053b83bd46b76c6ee86a</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6299/21982/llbase-0.9.3.506286-darwin64-506286.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e6865670f9bca1c82fb8b91db3ea515c</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6301/21994/llbase-0.9.3.506286-windows-506286.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.9.3.506286</string>
+      </map>
       <key>llphysicsextensions_source</key>
       <map>
         <key>copyright</key>
@@ -2745,6 +2845,52 @@
         <key>version</key>
         <string>8.35.500898</string>
       </map>
+      <key>requests</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2016 Kenneth Reitz</string>
+        <key>description</key>
+        <string>Python HTTP Library</string>
+        <key>license</key>
+        <string>Apache</string>
+        <key>license_file</key>
+        <string>LICENSES/requests.txt</string>
+        <key>name</key>
+        <string>requests</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b8d134a970261b445a3f376ba4e05ff7</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6693/23788/requests-2.18.1-darwin64-506681.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>a92f2235991871c3d601a73cfef9b2af</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4105/11530/requests-1.0-linux64-504094.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+        </map>
+        <key>source</key>
+        <string>https://bitbucket.org/lindenlab/p64_python-requests</string>
+        <key>source_type</key>
+        <string>hg</string>
+        <key>version</key>
+        <string>2.18.1</string>
+      </map>
       <key>slvoice</key>
       <map>
         <key>copyright</key>
@@ -2954,6 +3100,94 @@
         </map>
         <key>version</key>
         <string>0.8.0.1</string>
+      </map>
+      <key>urllib3</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2008-2016 Andrey Petrov and contributors (see CONTRIBUTORS.txt)</string>
+        <key>description</key>
+        <string>Python HTTP Library</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/urllib3.txt</string>
+        <key>name</key>
+        <string>urllib3</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>22f64c7fbb6704d2e9519fd1cca8e49b</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6659/23560/urllib3-1.21.1-darwin64-506648.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.21.1</string>
+      </map>
+      <key>viewer-manager</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Linden Lab Viewer Management Process suite.</string>
+        <key>license</key>
+        <string>Proprietary</string>
+        <key>license_file</key>
+        <string>LICENSE</string>
+        <key>name</key>
+        <string>viewer-manager</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>425fc3c3ab386ba39a43e4648f917fc7</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/7011/25711/viewer_manager-1.0.507000-darwin64-507000.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8c7f32f85850248809ae811ba8e47d81</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/3428/8686/viewer_manager-1.0-linux-503417.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c448493f1afd7eb93160c4cb3fc9ef57</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/7012/25717/viewer_manager-1.0.507000-windows-507000.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>source</key>
+        <string>https://bitbucket.org/lindenlab/vmp-standalone</string>
+        <key>source_type</key>
+        <string>hg</string>
+        <key>version</key>
+        <string>1.0.507000</string>
       </map>
       <key>vlc-bin</key>
       <map>

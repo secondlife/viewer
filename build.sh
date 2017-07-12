@@ -209,6 +209,7 @@ fi
 
 # load autobuild provided shell functions and variables
 "$autobuild" --quiet source_environment > "$build_log_dir/source_environment"
+PYTHONPATH="$BUILDSCRIPTS_SHARED/packages/lib/python:$PYTHONPATH"
 begin_section "dump source environment commands"
 cat "$build_log_dir/source_environment"
 end_section "dump source environment commands"

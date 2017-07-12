@@ -312,7 +312,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", dest="loglevel", action="store_const",
-                        const=logging.DEBUG, default=logging.WARNING)
+                        const=logging.DEBUG, default=logging.INFO)
     parser.add_argument("-D", "--define", dest="vars", default=[], action="append",
                         metavar="VAR=value",
                         help="Add VAR=value to the env variables defined")

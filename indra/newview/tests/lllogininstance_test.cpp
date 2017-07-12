@@ -31,6 +31,9 @@
 #include "../llviewernetwork.h"
 #include "../lllogininstance.h"
 
+ // Needed for Auth Test
+ #include "../llhasheduniqueid.h"
+
 // STL headers
 // std headers
 // external library headers
@@ -188,40 +191,16 @@ void LLUIColorTable::saveUserSettings(void)const {}
 const std::string &LLVersionInfo::getVersion() { return VIEWERLOGIN_VERSION; }
 const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
 
-//-----------------------------------------------------------------------------
-#include "../llappviewer.h"
-void LLAppViewer::forceQuit(void) {}
-LLAppViewer * LLAppViewer::sInstance = 0;
-
-//-----------------------------------------------------------------------------
-#include "llupdaterservice.h"
-
-std::string const & LLUpdaterService::pumpName(void)
-{
-	static std::string wakka = "wakka wakka wakka";
-	return wakka;
-}
-bool LLUpdaterService::updateReadyToInstall(void) { return false; }
-void LLUpdaterService::initialize(const std::string& channel,
-								  const std::string& version,
-								  const std::string& platform,
-								  const std::string& platform_version,
-								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
-								  const bool&         willing_to_test
-								  ) {}
-
-void LLUpdaterService::setCheckPeriod(unsigned int seconds) {}
-void LLUpdaterService::startChecking(bool install_if_ready) {}
-void LLUpdaterService::stopChecking() {}
-bool LLUpdaterService::isChecking() { return false; }
-LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
-std::string LLUpdaterService::updatedVersion() { return ""; }
-
 bool llHashedUniqueID(unsigned char* id) 
 {
 	memcpy( id, "66666666666666666666666666666666", MD5HEX_STR_SIZE );
 	return true;
 }
+
+//-----------------------------------------------------------------------------
+#include "../llappviewer.h"
+void LLAppViewer::forceQuit(void) {}
+LLAppViewer * LLAppViewer::sInstance = 0;
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"
@@ -339,7 +318,6 @@ namespace tut
 			gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareBOOL("ConnectAsGod", FALSE, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", LLControlVariable::PERSIST_NO);
-			gSavedSettings.declareBOOL("ForceMandatoryUpdate", FALSE, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", LLControlVariable::PERSIST_NO);
@@ -476,111 +454,5 @@ namespace tut
 		ensure("TOS auth failure", logininstance->authFailure());
 		logininstance->connect(test_uri, agentCredential);
 		ensure_equals("Default for agree to tos", gLoginCreds["params"]["read_critical"].asBoolean(), false);
-	}
-
-    template<> template<>
-    void lllogininstance_object::test<3>()
-    {
-		set_test_name("Test Mandatory Update User Accepts");
-
-		// Part 1 - Mandatory Update, with User accepts response.
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "update";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-
-		notifications.sendYesResponse();
-
-		ensure("Disconnected", !(logininstance->authSuccess()));
-	}
-
-	template<> template<>
-    void lllogininstance_object::test<4>()
-    {
-		set_test_name("Test Mandatory Update User Decline");
-
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "update";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-		notifications.sendNoResponse();
-
-		ensure("Disconnected", !(logininstance->authSuccess()));
-	}
-
-	template<> template<>
-    void lllogininstance_object::test<6>()
-    {
-		set_test_name("Test Optional Update User Accept");
-
-		// Part 3 - Mandatory Update, with bogus response.
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "optional";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-		notifications.sendYesResponse();
-
-		ensure("Disconnected", !(logininstance->authSuccess()));
-	}
-
-	template<> template<>
-    void lllogininstance_object::test<7>()
-    {
-		set_test_name("Test Optional Update User Denies");
-
-		// Part 3 - Mandatory Update, with bogus response.
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "optional";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-		notifications.sendNoResponse();
-
-		// User skips, should be reconnecting.
-		ensure_equals("reconnect uri", gLoginURI, VIEWERLOGIN_URI); 
-		ensure_equals("skipping optional update", gLoginCreds["params"]["skipoptional"].asBoolean(), true); 
 	}
 }
