@@ -412,7 +412,7 @@ bool LLFeatureManager::loadGPUClass()
 		{ //couldn't bench, use GLVersion
 	#if LL_DARWIN
 		//GLVersion is misleading on OSX, just default to class 3 if we can't bench
-		LL_WARNS() << "Unable to get an accurate benchmark; defaulting to class 3" << LL_ENDL;
+		LL_WARNS("RenderInit") << "Unable to get an accurate benchmark; defaulting to class 3" << LL_ENDL;
 		mGPUClass = GPU_CLASS_3;
 	#else
 			if (gGLManager.mGLVersion < 2.f)
@@ -473,6 +473,8 @@ bool LLFeatureManager::loadGPUClass()
 	else
 	{
 		//setting says don't benchmark MAINT-7558
+        LL_WARNS("RenderInit") << "Setting 'SkipBenchmark' is true; defaulting to class 1 (may be required for some GPUs)" << LL_ENDL;
+        
 		mGPUClass = GPU_CLASS_1;
 	}
 
@@ -618,7 +620,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		LLControlVariable* ctrl = gSavedSettings.getControl(mIt->first);
 		if(ctrl == NULL)
 		{
-			LL_WARNS() << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
+			LL_WARNS("RenderInit") << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
 			continue;
 		}
 
@@ -641,7 +643,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		}
 		else
 		{
-			LL_WARNS() << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
+			LL_WARNS("RenderInit") << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
 		}
 	}
 }
@@ -848,7 +850,7 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
 		LLControlVariable* ctrl = gSavedSettings.getControl(mIt->first);
 		if (ctrl == NULL)
 		{
-			LL_WARNS() << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
+			LL_WARNS("RenderInit") << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
 			continue;
 		}
 
@@ -866,7 +868,7 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
 		}
 		else
 		{
-			LL_WARNS() << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
+			LL_WARNS("RenderInit") << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
 			continue;
 		}
 		map[mIt->first]["Comment"] = ctrl->getComment();;
