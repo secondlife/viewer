@@ -32,7 +32,7 @@
    height="23"
    increment="64"
    initial_value="1024"
-   label="Cache size (64 - 9984MB)"
+   label="Cache size (256 - 9984MB)"
    label_width="150"
    layout="topleft"
    left="80"
