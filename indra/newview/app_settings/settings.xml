@@ -16132,6 +16132,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SkipBenchmark</key>
+    <map>
+      <key>Comment</key>
+      <string>if true, disables running the GPU benchmark at startup
+      (default to class 1)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
 </map>
 </llsd>
 
