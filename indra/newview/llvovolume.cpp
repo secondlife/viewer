@@ -4269,9 +4269,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 bool LLVOVolume::treatAsRigged()
 {
 	return isSelected() &&
-			isAttachment() &&
-			mDrawable.notNull() &&
-			mDrawable->isState(LLDrawable::RIGGED);
+        (isAttachment() || isAnimatedObject()) &&
+        mDrawable.notNull() &&
+        mDrawable->isState(LLDrawable::RIGGED);
 }
 
 LLRiggedVolume* LLVOVolume::getRiggedVolume()

@@ -46,6 +46,7 @@
 #include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"
+#include "llcontrolavatar.h"
 #include "message.h"
 #include "object_flags.h"
 #include "llquaternion.h"
@@ -6660,7 +6661,15 @@ void LLSelectMgr::updateSelectionCenter()
 		}
 		else
 		{
-			mPauseRequest = NULL;
+            LLVOVolume *volp = dynamic_cast<LLVOVolume*>(object);
+            if (volp && volp->isAnimatedObject() && volp->getControlAvatar())
+            {
+                mPauseRequest = volp->getControlAvatar()->requestPause();
+            }
+            else
+            {
+                mPauseRequest = NULL;
+            }
 		}
 
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
