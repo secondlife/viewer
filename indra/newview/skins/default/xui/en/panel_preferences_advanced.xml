@@ -87,7 +87,7 @@
    height="23"
    layout="topleft"
    left="80"
-   max_length="4096"
+   max_length_bytes="4096"
    name="cache_location"
    top_pad="5"
    width="205" />
