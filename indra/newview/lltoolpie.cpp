@@ -1764,6 +1764,12 @@ BOOL LLToolPie::handleRightClickPick()
 			{
 				return TRUE; // unexpected, but escape
 			}
+#if 0       // AXON TBD
+            if (object->asAvatar() && object->asAvatar()->isControlAvatar())
+            {
+				return TRUE; // control avatars are not people...
+            }
+#endif
 
 			// Object is an avatar, so check for mute by id.
 			LLVOAvatar* avatar = (LLVOAvatar*)object;
