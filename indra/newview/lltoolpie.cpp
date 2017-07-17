@@ -1750,8 +1750,7 @@ BOOL LLToolPie::handleRightClickPick()
 		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 
 		bool is_other_attachment = (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner());
-		if (object->isAvatar() 
-			|| is_other_attachment)
+		if (object->isAvatar() || is_other_attachment)
 		{
 			// Find the attachment's avatar
 			while( object && object->isAttachment())
@@ -1764,12 +1763,6 @@ BOOL LLToolPie::handleRightClickPick()
 			{
 				return TRUE; // unexpected, but escape
 			}
-#if 0       // AXON TBD
-            if (object->asAvatar() && object->asAvatar()->isControlAvatar())
-            {
-				return TRUE; // control avatars are not people...
-            }
-#endif
 
 			// Object is an avatar, so check for mute by id.
 			LLVOAvatar* avatar = (LLVOAvatar*)object;
