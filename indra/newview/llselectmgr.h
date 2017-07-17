@@ -742,6 +742,8 @@ public:
 	LLVector3d		getSelectionCenterGlobal() const	{ return mSelectionCenterGlobal; }
 	void			updateSelectionCenter();
 
+    void pauseAssociatedAvatars();
+
 	void resetAgentHUDZoom();
 	void setAgentHUDZoom(F32 target_zoom, F32 current_zoom);
 	void getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const;
@@ -843,7 +845,7 @@ private:
 	LLFrameTimer			mEffectsTimer;
 	BOOL					mForceSelection;
 
-	LLAnimPauseRequest		mPauseRequest;
+    std::vector<LLAnimPauseRequest>	mPauseRequests;
 };
 
 // *DEPRECATED: For callbacks or observers, use

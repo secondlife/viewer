@@ -6629,7 +6629,10 @@ S32 get_family_count(LLViewerObject *parent)
 
 //-----------------------------------------------------------------------------
 // updateSelectionCenter
-//-----------------------------------------------------------------------------
+//
+// FIXME this is a grab bag of functionality only some of which has to do
+// with the selection center
+// -----------------------------------------------------------------------------
 void LLSelectMgr::updateSelectionCenter()
 {
 	const F32 MOVE_SELECTION_THRESHOLD = 1.f;		//  Movement threshold in meters for updating selection
@@ -6647,30 +6650,11 @@ void LLSelectMgr::updateSelectionCenter()
 		mSelectionCenterGlobal.clearVec();
 		mShowSelection = FALSE;
 		mSelectionBBox = LLBBox(); 
-		mPauseRequest = NULL;
 		resetAgentHUDZoom();
-
 	}
 	else
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
-
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid() && object->getParent() != NULL)
-		{
-			mPauseRequest = gAgentAvatarp->requestPause();
-		}
-		else
-		{
-            LLVOVolume *volp = dynamic_cast<LLVOVolume*>(object);
-            if (volp && volp->isAnimatedObject() && volp->getControlAvatar())
-            {
-                mPauseRequest = volp->getControlAvatar()->requestPause();
-            }
-            else
-            {
-                mPauseRequest = NULL;
-            }
-		}
 
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
@@ -6748,6 +6732,45 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		gEditMenuHandler = NULL;
 	}
+
+    pauseAssociatedAvatars();
+}
+
+//-----------------------------------------------------------------------------
+// pauseAssociatedAvatars
+//
+// If the selection includes an attachment or an animated object, the
+// associated avatars should pause their animations until they are no
+// longer selected.
+//-----------------------------------------------------------------------------
+void LLSelectMgr::pauseAssociatedAvatars()
+{
+    mPauseRequests.clear();
+
+    for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+         iter != mSelectedObjects->end(); iter++)
+    {
+        LLSelectNode* node = *iter;
+        LLViewerObject* object = node->getObject();
+        if (!object)
+            continue;
+			
+        mSelectedObjects->mSelectType = getSelectTypeForObject(object);
+
+        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
+            isAgentAvatarValid() && object->getParent() != NULL)
+        {
+            mPauseRequests.push_back(gAgentAvatarp->requestPause());
+        }
+        else
+        {
+            LLVOVolume *volp = dynamic_cast<LLVOVolume*>(object);
+            if (volp && volp->isAnimatedObject() && volp->getControlAvatar())
+            {
+                mPauseRequests.push_back(volp->getControlAvatar()->requestPause());
+            }
+        }
+    }
 }
 
 void LLSelectMgr::updatePointAt()
