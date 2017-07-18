@@ -4364,6 +4364,9 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
     LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
 
+    S32 rigged_vert_count = 0;
+    S32 rigged_face_count = 0;
+    LLVector4a box_min, box_max;
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
 		const LLVolumeFace& vol_face = volume->getVolumeFace(i);
@@ -4385,6 +4388,8 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
 
                 U32 max_joints = LLSkinningUtil::getMaxJointCount();
+                rigged_vert_count += dst_face.mNumVertices;
+                rigged_face_count++;
 				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
 				{
 					LLMatrix4a final_mat;
@@ -4404,12 +4409,19 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 				min = pos[0];
 				max = pos[1];
+                if (i==0)
+                {
+                    box_min = min;
+                    box_max = max;
+                }
 
 				for (U32 j = 1; j < dst_face.mNumVertices; ++j)
 				{
 					min.setMin(min, pos[j]);
 					max.setMax(max, pos[j]);
 				}
+                box_min.setMin(min,box_min);
+                box_max.setMax(max,box_max);
 
 				dst_face.mCenter->setAdd(dst_face.mExtents[0], dst_face.mExtents[1]);
 				dst_face.mCenter->mul(0.5f);
@@ -4429,6 +4441,10 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			}
 		}
 	}
+    mExtraDebugText = llformat("rigged %d/%d - box (%f %f %f) (%f %f %f)",
+                               rigged_face_count, rigged_vert_count,
+                               box_min[0], box_min[1], box_min[2],
+                               box_max[0], box_max[1], box_max[2]);
 }
 
 U32 LLVOVolume::getPartitionType() const

@@ -195,6 +195,18 @@ void LLControlAvatar::updateDebugText()
     getAnimatedVolumes(volumes);
     S32 animated_volume_count = volumes.size();
     addDebugText(llformat("CAV obj %d anim %d", total_linkset_count, animated_volume_count));
+#if 0
+    // AXON - detailed rigged mesh info
+    for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
+         it != volumes.end(); ++it)
+    {
+        LLRiggedVolume *rig_vol = (*it)->getRiggedVolume();
+        if (rig_vol)
+        {
+            addDebugText(rig_vol->mExtraDebugText);
+        }
+    }
+#endif
 
     LLVOAvatar::updateDebugText();
 }
@@ -261,4 +273,38 @@ void LLControlAvatar::updateAnimations()
 
     LL_DEBUGS("AXON") << "process animation state changes here" << LL_ENDL;
     processAnimationStateChanges();
+}
+
+// virtual
+LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLVector4a& start, const LLVector4a& end,
+									  S32 face,
+									  BOOL pick_transparent,
+									  BOOL pick_rigged,
+									  S32* face_hit,
+									  LLVector4a* intersection,
+									  LLVector2* tex_coord,
+									  LLVector4a* normal,
+									  LLVector4a* tangent)
+{
+	LLViewerObject* hit = NULL;
+
+	if (lineSegmentBoundingBox(start, end))
+	{
+		LLVector4a local_end = end;
+		LLVector4a local_intersection;
+
+        if (mRootVolp &&
+            mRootVolp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
+        {
+            local_end = local_intersection;
+            if (intersection)
+            {
+                *intersection = local_intersection;
+            }
+			
+            hit = mRootVolp;
+        }
+	}
+		
+	return hit;
 }
