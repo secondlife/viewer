@@ -1561,6 +1561,15 @@ if (WINDOWS)
     if (INTEL_MEMOPS_LIBRARY)
       list(APPEND viewer_LIBRARIES ${INTEL_MEMOPS_LIBRARY})
     endif (INTEL_MEMOPS_LIBRARY)
+
+    if (ADDRESS_SIZE EQUAL 64)
+        # We deliberately omit this from the 32bit build because it declares that
+        # the viewer is compatible with Windows 10; we need that to properly detect
+        # the Windows version, but doing so causes systems with certain HD video
+        # cards to fail because Windows 10 does not support them.  Leaving this out
+        # causes those systems to run in a Windows 8 compatibility mode, which works.
+        LIST(APPEND viewer_SOURCE_FILES windows.manifest)
+    endif (ADDRESS_SIZE EQUAL 64)
 endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
