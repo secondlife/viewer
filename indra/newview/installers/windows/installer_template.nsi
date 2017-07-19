@@ -404,6 +404,8 @@ DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
 # BUG-2707 Remove entry that disabled SEHOP
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$INSTEXE"
+DeleteRegKey HKEY_CLASSES_ROOT "Applications\$INSTEXE"
+DeleteRegKey HKEY_CLASSES_ROOT "Applications\${VIEWER_EXE}"
 
 # Clean up shortcuts
 Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
