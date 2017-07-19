@@ -194,7 +194,29 @@ void LLControlAvatar::updateDebugText()
     std::vector<LLVOVolume*> volumes;
     getAnimatedVolumes(volumes);
     S32 animated_volume_count = volumes.size();
-    addDebugText(llformat("CAV obj %d anim %d", total_linkset_count, animated_volume_count));
+    std::string active_string;
+    for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
+         it != volumes.end(); ++it)
+    {
+        LLVOVolume *volp = *it;
+        if (volp && volp->mDrawable)
+        {
+            if (volp->mDrawable->isActive())
+            {
+                active_string += "A";
+            }
+            else
+            {
+                active_string += "S";
+            }
+        }
+        else
+        {
+            active_string += "-";
+        }
+    }
+    addDebugText(llformat("CAV obj %d anim %d active %s",
+                          total_linkset_count, animated_volume_count, active_string.c_str()));
 #if 0
     // AXON - detailed rigged mesh info
     for (std::vector<LLVOVolume*>::iterator it = volumes.begin();

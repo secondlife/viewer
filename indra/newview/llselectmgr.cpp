@@ -6764,10 +6764,9 @@ void LLSelectMgr::pauseAssociatedAvatars()
         }
         else
         {
-            LLVOVolume *volp = dynamic_cast<LLVOVolume*>(object);
-            if (volp && volp->isAnimatedObject() && volp->getControlAvatar())
+            if (object && object->isAnimatedObject() && object->getControlAvatar())
             {
-                mPauseRequests.push_back(volp->getControlAvatar()->requestPause());
+                mPauseRequests.push_back(object->getControlAvatar()->requestPause());
             }
         }
     }

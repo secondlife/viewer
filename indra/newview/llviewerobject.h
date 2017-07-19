@@ -693,7 +693,9 @@ public:
     void linkControlAvatar();
     // Remove any reference to control av for this prim
     void unlinkControlAvatar();
-    
+
+    virtual bool isAnimatedObject() const;
+
 protected:
     LLPointer<LLControlAvatar> mControlAvatar;
 

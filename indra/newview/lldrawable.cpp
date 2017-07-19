@@ -550,7 +550,8 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 	if (isState(ACTIVE) && 
 		!isState(ACTIVE_CHILD) && 
 		!mVObjp->isAttachment() && 
-		!mVObjp->isFlexible())
+		!mVObjp->isFlexible() &&
+        !mVObjp->isAnimatedObject())
 	{
 		clearState(ACTIVE | ANIMATED_CHILD);
 

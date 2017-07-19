@@ -2965,6 +2965,12 @@ void LLViewerObject::unlinkControlAvatar()
     // automatically remove the control avatar connection.
 }
 
+// virtual
+bool LLViewerObject::isAnimatedObject() const
+{
+    return false;
+}
+
 struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
