@@ -13,7 +13,7 @@
     </floater.string>
     <floater.string
      name="loading_url">
-        data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Loading %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
+      data:text/html;charset=utf-8;base64,PGh0bWw+DQo8aGVhZD4NCjxzdHlsZT4NCmJvZHkgew0KICBmb250LWZhbWlseTogIkRlamEgVnUgU2FucyIsIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7DQogIGNvbG9yOiAjZmZmOw0KICBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMzEsIDMxLCAzMSk7DQp9DQphIHsNCiAgICBjb2xvcjogcmdiKDkyLCAxNzcsIDE0Nik7DQogICAgdGV4dC1kZWNvcmF0aW9uOiBub25lOw0KfQ0KI2NlbnRlcmVkIHsNCiAgcG9zaXRpb246IHJlbGF0aXZlOw0KICBmbG9hdDogbGVmdDsNCiAgdG9wOiA1MCU7DQogIGxlZnQ6IDUwJTsNCiAgdHJhbnNmb3JtOiB0cmFuc2xhdGUoLTUwJSwgLTUwJSk7DQp9DQo8L3N0eWxlPg0KPC9oZWFkPg0KPGJvZHk+DQo8ZGl2IGlkPSJjZW50ZXJlZCI+TG9hZGluZyA8YSB0YXJnZXQ9Il9leHRlcm5hbCIgaHJlZj0iaHR0cDovL3NlY29uZGxpZmUuY29tL2FwcC90b3MvIj5UZXJtcyBvZiBTZXJ2aWNlPC9hPi4uLjwvZGl2Pg0KPC9ib2R5Pg0KPC9odG1sPg==
     </floater.string>
     <text
      type="string"
@@ -57,7 +57,7 @@
      follows="top|left"
      font="SansSerif"
      height="16"
-     label="I have read and agree to"
+     label=""
      layout="topleft"
      left_delta="0"
      name="agree_chk"
@@ -70,11 +70,13 @@
      font="SansSerif"
      height="30"
      layout="topleft"
-     left_delta="20"
+     left_delta="28"
      name="agree_list"
-     top_delta="15"
+     top_delta="0"
      word_wrap="true"
-     width="552">the Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the dispute resolution requirements. 
+     text_readonly_color="LabelDisabledColor"
+     width="552">
+      I have read and agree to the Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the dispute resolution requirements.
     </text>
     <button
      enabled="false"
