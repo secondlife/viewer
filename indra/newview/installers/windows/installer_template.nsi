@@ -712,15 +712,15 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-# Function .onInstSuccess
-# Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
-# 	Push $R0					# Option value, unused# 
-# 	StrCmp $SKIP_AUTORUN "true" +2;
+Function .onInstSuccess
+Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
+        Push $R0					# Option value, unused# 
+        StrCmp $SKIP_AUTORUN "true" +2;
 # Assumes SetOutPath $INSTDIR
-# 	Exec '"$WINDIR\explorer.exe" "$INSTDIR\autorun.bat"'
-# 	Pop $R0
+        Exec '"$WINDIR\explorer.exe" "$INSTDIR\autorun.bat"'
+        Pop $R0
 # 
-# FunctionEnd
+FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Recommend Upgrading to Service Pack 1 for Windows 7, if not present
