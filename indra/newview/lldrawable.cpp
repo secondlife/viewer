@@ -50,6 +50,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llvocache.h"
+#include "llcontrolavatar.h"
 
 const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
 const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
@@ -697,6 +698,11 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
 
+    if (mVObjp && mVObjp->isRootEdit() && mVObjp->getControlAvatar())
+    {
+        mVObjp->getControlAvatar()->matchVolumeTransform();
+    }
+    
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);

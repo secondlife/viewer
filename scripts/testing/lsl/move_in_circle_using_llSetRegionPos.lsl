@@ -1,6 +1,6 @@
 integer listenHandle; 
 integer verbose;
-integer num_steps = 50;
+integer num_steps = 12;
 float circle_time = 5.0;
 integer circle_step;
 vector circle_pos;
@@ -14,12 +14,21 @@ start_circle(vector center, float radius)
     circle_radius = radius;
     circle_step = 0;
     llSetTimerEvent(circle_time/num_steps);
+    llTargetOmega(<0.0, 0.0, 1.0>, TWO_PI/circle_time, 1.0);
 }
 
 stop_circle()
 {
     llSetTimerEvent(0);
-    llSetRegionPos(circle_center);
+    llTargetOmega(<0.0, 0.0, 1.0>, TWO_PI/circle_time, 0.0);
+    integer i;
+    for (i=0; i<10; i++)
+    {
+        vector new_pos = circle_center;
+        new_pos.x += llFrand(0.01);
+        llSetRegionPos(new_pos);
+        llSleep(0.1);
+    }
 }
 
 next_circle()
@@ -32,34 +41,19 @@ next_circle()
     circle_step = (circle_step+1)%num_steps;
 }
 
-circle_path(vector center, float radius)
-{
-    integer i;
-    integer num_steps = 50;
-    float circle_time = 5.0; // seconds
-    for (i=0; i<num_steps; ++i)
-    {
-        float rad = (i * TWO_PI)/num_steps;
-        float x = center.x + llCos(rad)*radius;
-        float y = center.y + llSin(rad)*radius;
-        float z = center.z;
-        llSetRegionPos(<x,y,z>);
-        llSleep(circle_time/num_steps);
-    }
-}
-
 default
 {
     state_entry()
     {
-        llSay(0, "Hello, Avatar!");
+        //llSay(0, "Hello, Avatar!");
         listenHandle = llListen(-2001,"","","");  
         verbose = 0;
+        circle_center = llGetPos();
     }
 
     listen(integer channel, string name, key id, string message)
     {
-        llOwnerSay("got message " + name + " " + (string) id + " " + message);
+        //llOwnerSay("got message " + name + " " + (string) id + " " + message);
         list words = llParseString2List(message,[" "],[]);
         string command = llList2String(words,0);
         string option = llList2String(words,1);
@@ -84,6 +78,11 @@ default
             {
                 verbose = 0;
             }
+        }
+        if (command=="step")
+        {
+            llSetTimerEvent(0);
+            next_circle();
         }
     }
 

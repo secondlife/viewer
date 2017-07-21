@@ -1,4 +1,4 @@
-list buttons = ["anim start", "anim stop", " ", "verbose on", "verbose off", " "];
+list buttons = ["anim start", "anim stop", "step", "verbose on", "verbose off", " "];
 string dialogInfo = "\nPlease make a choice.";
  
 key ToucherID;
@@ -20,7 +20,7 @@ default
         llListenRemove(listenHandle);
         listenHandle = llListen(dialogChannel, "", ToucherID, "");
         llDialog(ToucherID, dialogInfo, buttons, dialogChannel);
-        llSetTimerEvent(60.0); // Here we set a time limit for responses
+        //llSetTimerEvent(60.0); // Here we set a time limit for responses
     }
  
     listen(integer channel, string name, key id, string message)
@@ -35,7 +35,7 @@ default
         //  stop timer since the menu was clicked
         llSetTimerEvent(0);
 
-        llOwnerSay("Sending message " + message + " on channel " + (string)commandChannel);
+        //llOwnerSay("Sending message " + message + " on channel " + (string)commandChannel);
         llRegionSay(commandChannel, message);
     }
  
@@ -45,7 +45,7 @@ default
         llSetTimerEvent(0);
  
         llListenRemove(listenHandle);
-        llWhisper(0, "Sorry. You snooze; you lose.");
+        //llWhisper(0, "Sorry. You snooze; you lose.");
     }
 }
 

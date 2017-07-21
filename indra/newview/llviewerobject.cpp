@@ -4062,10 +4062,6 @@ void LLViewerObject::setPosition(const LLVector3 &pos, BOOL damped)
 		// position caches need to be up to date on root objects
 		updatePositionCaches();
 	}
-    if (getControlAvatar() && isRootEdit())
-    {
-        getControlAvatar()->matchVolumeTransform();
-    }
 }
 
 void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, BOOL damped)
