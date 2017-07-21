@@ -92,8 +92,6 @@ BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 std::list<LLUUID> LLInventoryAction::sMarketplaceFolders;
 
-const int LLInventoryAction::sConfirmOnDeleteItemsNumber = 5;
-
 // Helper function : callback to update a folder after inventory action happened in the background
 void update_folder_cb(const LLUUID& dest_folder)
 {
@@ -2298,29 +2296,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	if ("delete" == action)
 	{
 		static bool sDisplayedAtSession = false;
-
-		bool has_folder_items = false;
-		for (std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
-		{
-			LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
-			if (viewModel && viewModel->hasChildren())
-			{
-				has_folder_items = true;
-				break;
-			}
-		}
-		if (root->getSelectedCount() >= sConfirmOnDeleteItemsNumber || has_folder_items)
-		{
-			bool ignore = !(LLUI::sSettingGroups["ignores"]->getBOOL("DeleteItems"));
-			if (ignore)
-			{
-				if (!sDisplayedAtSession)
-				{
-					LLUI::sSettingGroups["ignores"]->setBOOL("DeleteItems", TRUE);
-					sDisplayedAtSession = true;
-				}
-			}
-		}
 		
 		LLAllDescendentsPassedFilter f;
 		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
@@ -2330,7 +2305,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 				folder->applyFunctorRecursively(f);
 			}
 		}
-
 		// Fall through to the generic confirmation if the user choose to ignore the specialized one
 		if ( (!f.allDescendentsPassedFilter()) && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
 		{
@@ -2338,6 +2312,12 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		}
 		else
 		{
+			if (!sDisplayedAtSession) // ask for the confirmation at least once per session
+			{
+				LLNotifications::instance().setIgnored("DeleteItems", false);
+				sDisplayedAtSession = true;
+			}
+
 			LLSD args;
 			args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
 			LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
