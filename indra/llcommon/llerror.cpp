@@ -574,7 +574,7 @@ namespace LLError
 		{
             mTagString.append(tag_hash);
 			mTagString.append(mTags[i]);
-            mTagString.append((i == mTagCount - 1) ? "" : ",");
+            mTagString.append((i == mTagCount - 1) ? ";" : ",");
 		}
 	}
 
