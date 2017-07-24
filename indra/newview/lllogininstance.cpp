@@ -63,6 +63,8 @@
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
 
+const S32 LOGIN_MAX_RETRIES = 3;
+
 class LLLoginInstance::Disposable {
 public:
 	virtual ~Disposable() {}
@@ -610,13 +612,16 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args
 
+	// Specify desired timeout/retry options
+	LLSD http_params;
+	http_params["timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
+	http_params["retries"] = LOGIN_MAX_RETRIES;
+
 	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";
 	mRequestData["params"] = request_params;
 	mRequestData["options"] = requested_options;
-
-	mRequestData["cfg_srv_timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
-	mRequestData["cfg_srv_pump"] = gSavedSettings.getString("LoginSRVPump");
+	mRequestData["http_params"] = http_params;
 }
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)

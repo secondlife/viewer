@@ -5592,12 +5592,12 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>10.0</real>
+    <real>40.0</real>
   </map>
   <key>LoginSRVPump</key>
   <map>
     <key>Comment</key>
-    <string>Name of the message pump that handles SRV request</string>
+    <string>Name of the message pump that handles SRV request (deprecated)</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
