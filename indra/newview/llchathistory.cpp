@@ -452,11 +452,13 @@ public:
 			if (gAgent.isInGroup(mSessionID))
 			{
 				LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-				const LLSpeaker * speakerp = speaker_mgr->findSpeaker(getAvatarId());
-
-				if (NULL != speakerp)
+				if(speaker_mgr)
 				{
-					return !speakerp->mModeratorMutedText;
+					const LLSpeaker * speakerp = speaker_mgr->findSpeaker(getAvatarId());
+					if (NULL != speakerp)
+					{
+						return !speakerp->mModeratorMutedText;
+					}
 				}
 			}
 			return false;
