@@ -37,7 +37,7 @@
    layout="topleft"
    left="80"
    max_val="9984"
-   min_val="64"
+   min_val="256"
    top_pad="10"
    name="cachesizespinner"
    width="200" />
