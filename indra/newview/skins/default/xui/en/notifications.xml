@@ -4,6 +4,11 @@
 		Don&apos;t show me this again
   </global>
 
+  <global name="skipnexttimesessiononly">
+
+    Don&apos;t show me this again (for this session only)
+  </global>
+
   <global name="alwayschoose">
 
 		Always choose this option
@@ -6004,11 +6009,20 @@ You cannot undo this action.
     <unique/>
     [QUESTION]
     <tag>confirm</tag>
-    <usetemplate
-     ignoretext="Confirm before deleting items"
-     name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"/>
+    <form name="form">
+     <ignore name="ignore"
+      session_only="true"
+      text="Confirm before deleting items"/>
+      <button
+       default="true"
+       index="0"
+       name="Yes"
+       text="OK"/>
+      <button
+       index="1"
+       name="No"
+       text="Cancel"/>
+    </form>
   </notification>
 
   <notification
