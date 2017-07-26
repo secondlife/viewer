@@ -232,6 +232,8 @@ public:
 	int					mPolicy503Retries;
 	HttpTime			mPolicyRetryAt;
 	int					mPolicyRetryLimit;
+	HttpTime			mPolicyMinRetryBackoff; // initial delay between retries (mcs)
+	HttpTime			mPolicyMaxRetryBackoff;
 };  // end class HttpOpRequest
 
 

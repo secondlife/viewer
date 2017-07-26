@@ -127,9 +127,12 @@ const int HTTP_TRACE_MAX = HTTP_TRACE_CURL_BODIES;
 // We want to span a few windows to allow transport to slow
 // after onset of the throttles and then recover without a final
 // failure.  Other systems may need other constants.
-const int HTTP_RETRY_COUNT_DEFAULT = 8;
+const int HTTP_RETRY_COUNT_DEFAULT = 5;
 const int HTTP_RETRY_COUNT_MIN = 0;
 const int HTTP_RETRY_COUNT_MAX = 100;
+const HttpTime HTTP_RETRY_BACKOFF_MIN_DEFAULT = 1E6L; // 1 sec
+const HttpTime HTTP_RETRY_BACKOFF_MAX_DEFAULT = 5E6L; // 5 sec
+const HttpTime HTTP_RETRY_BACKOFF_MAX = 20E6L; // 20 sec
 
 const int HTTP_REDIRECTS_DEFAULT = 10;
 
