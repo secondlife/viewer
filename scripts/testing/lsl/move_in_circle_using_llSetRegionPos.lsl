@@ -21,14 +21,7 @@ stop_circle()
 {
     llSetTimerEvent(0);
     llTargetOmega(<0.0, 0.0, 1.0>, TWO_PI/circle_time, 0.0);
-    integer i;
-    for (i=0; i<10; i++)
-    {
-        vector new_pos = circle_center;
-        new_pos.x += llFrand(0.01);
-        llSetRegionPos(new_pos);
-        llSleep(0.1);
-    }
+    llSetRegionPos(circle_center);
 }
 
 next_circle()

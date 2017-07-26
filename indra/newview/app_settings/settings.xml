@@ -2171,6 +2171,17 @@
       <key>Value</key>
       <string />
     </map>
+  <key>DebugAnimatedObjects</key>
+  <map>
+    <key>Comment</key>
+    <string>Show info related to animated objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>

@@ -31,6 +31,7 @@
 #include "pipeline.h"
 #include "llanimationstates.h"
 #include "llviewercontrol.h"
+#include "llmeshrepository.h"
 
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
@@ -49,6 +50,20 @@ LLControlAvatar::~LLControlAvatar()
 
 void LLControlAvatar::matchVolumeTransform()
 {
+    {
+        LLVolume *volume = mRootVolp->getVolume();
+        if (volume)
+        {
+            LLUUID mesh_id = volume->getParams().getSculptID();
+            const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, mRootVolp);
+            if (skin)
+            {
+                LLMatrix4 bind_shape = skin->mBindShapeMatrix;
+                LL_INFOS("AXON") << "bind_shape is " << bind_shape << LL_ENDL;
+            }
+        }
+    }
+    
 	setPositionAgent(mRootVolp->getRenderPosition());
 	//slamPosition();
 
@@ -186,49 +201,54 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 //virtual
 void LLControlAvatar::updateDebugText()
 {
-    S32 total_linkset_count = 0;
-    if (mRootVolp)
+	if (gSavedSettings.getBOOL("DebugAnimatedObjects"))
     {
-        total_linkset_count = 1 + mRootVolp->getChildren().size();
-    }
-    std::vector<LLVOVolume*> volumes;
-    getAnimatedVolumes(volumes);
-    S32 animated_volume_count = volumes.size();
-    std::string active_string;
-    for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
-         it != volumes.end(); ++it)
-    {
-        LLVOVolume *volp = *it;
-        if (volp && volp->mDrawable)
+        S32 total_linkset_count = 0;
+        if (mRootVolp)
         {
-            if (volp->mDrawable->isActive())
+            total_linkset_count = 1 + mRootVolp->getChildren().size();
+        }
+        std::vector<LLVOVolume*> volumes;
+        getAnimatedVolumes(volumes);
+        S32 animated_volume_count = volumes.size();
+        std::string active_string;
+        for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
+             it != volumes.end(); ++it)
+        {
+            LLVOVolume *volp = *it;
+            if (volp && volp->mDrawable)
             {
-                active_string += "A";
+                if (volp->mDrawable->isActive())
+                {
+                    active_string += "A";
+                }
+                else
+                {
+                    active_string += "S";
+                }
             }
             else
             {
-                active_string += "S";
+                active_string += "-";
             }
         }
-        else
-        {
-            active_string += "-";
-        }
-    }
-    addDebugText(llformat("CAV obj %d anim %d active %s",
-                          total_linkset_count, animated_volume_count, active_string.c_str()));
+        addDebugText(llformat("CAV obj %d anim %d active %s",
+                              total_linkset_count, animated_volume_count, active_string.c_str()));
+
 #if 0
-    // AXON - detailed rigged mesh info
-    for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
-         it != volumes.end(); ++it)
-    {
-        LLRiggedVolume *rig_vol = (*it)->getRiggedVolume();
-        if (rig_vol)
+        // AXON - detailed rigged mesh info
+        for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
+             it != volumes.end(); ++it)
         {
-            addDebugText(rig_vol->mExtraDebugText);
+            LLRiggedVolume *rig_vol = (*it)->getRiggedVolume();
+            if (rig_vol)
+            {
+                addDebugText(rig_vol->mExtraDebugText);
+            }
         }
-    }
 #endif
+
+    }
 
     LLVOAvatar::updateDebugText();
 }
