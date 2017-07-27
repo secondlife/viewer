@@ -73,7 +73,7 @@ public:
 	static void resetChannel(const std::string& channel);
 
     /// return the bit width of an address
-    static const U32 getAddressSize() { return ADDRESS_SIZE; }
+    static const S32 getAddressSize() { return ADDRESS_SIZE; }
 
     typedef enum
     {
