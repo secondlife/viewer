@@ -187,8 +187,8 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 
 LLTexLayerSetInfo::LLTexLayerSetInfo() :
 	mBodyRegion( "" ),
-	mWidth( 512 ),
-	mHeight( 512 ),
+	mWidth( 1024 ),
+	mHeight( 1024 ),
 	mClearAlpha( TRUE )
 {
 }
