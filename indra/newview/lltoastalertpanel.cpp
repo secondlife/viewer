@@ -351,6 +351,10 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	{
 		setCheckBox(LLNotifications::instance().getGlobalString("skipnexttime"), ignore_label);
 	}
+	if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY)
+	{
+		setCheckBox(LLNotifications::instance().getGlobalString("skipnexttimesessiononly"), ignore_label);
+	}
 	else if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
 	{
 		setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label);
