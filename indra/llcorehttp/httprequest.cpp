@@ -37,7 +37,7 @@
 #include "_httpopsetget.h"
 
 #include "lltimer.h"
-
+#include "httpstats.h"
 
 namespace
 {
@@ -52,6 +52,7 @@ namespace LLCore
 // ====================================
 // HttpRequest Implementation
 // ====================================
+HttpRequest::Statistics HttpRequest::mStatistics;
 
 
 HttpRequest::HttpRequest()
@@ -62,6 +63,12 @@ HttpRequest::HttpRequest()
 	mRequestQueue->addRef();
 
 	mReplyQueue.reset( new HttpReplyQueue() );
+
+    ++mStatistics.mCurrentRequests;
+    ++mStatistics.mTotalRequests;
+
+    
+    LL_WARNS("HTTPRequest") << "New HttpRequest created (outstanding: " << mStatistics.mCurrentRequests << " total: " << mStatistics.mTotalRequests << ")" << LL_ENDL;
 }
 
 
@@ -74,6 +81,9 @@ HttpRequest::~HttpRequest()
 	}
 
     mReplyQueue.reset();
+    --mStatistics.mCurrentRequests;
+
+    LL_WARNS("HTTPRequest") << "HttpRequest destroyed (outstanding: " << mStatistics.mCurrentRequests << " total: " << mStatistics.mTotalRequests << ")" << LL_ENDL;
 }
 
 

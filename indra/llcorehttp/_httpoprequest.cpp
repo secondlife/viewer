@@ -47,6 +47,8 @@
 #include "llhttpconstants.h"
 #include "llproxy.h"
 
+#include "httpstats.h"
+
 // *DEBUG:  "[curl:bugs] #1420" problem and testing.
 //
 // A pipelining problem, https://sourceforge.net/p/curl/bugs/1420/,
@@ -805,6 +807,7 @@ size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void
 	}
 	const size_t req_size(size * nmemb);
 	const size_t write_size(op->mReplyBody->append(static_cast<char *>(data), req_size));
+    HTTPStats::instance().recordDataDown(write_size);
 	return write_size;
 }
 
@@ -833,7 +836,8 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 
 	const size_t do_size((std::min)(req_size, body_size - op->mCurlBodyPos));
 	const size_t read_size(op->mReqBody->read(op->mCurlBodyPos, static_cast<char *>(data), do_size));
-	op->mCurlBodyPos += read_size;
+    HTTPStats::instance().recordDataUp(read_size);
+    op->mCurlBodyPos += read_size;
 	return read_size;
 }
 

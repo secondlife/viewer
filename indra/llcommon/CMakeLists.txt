@@ -226,6 +226,7 @@ set(llcommon_HEADER_FILES
     llstring.h
     llstringtable.h
     llstaticstringtable.h
+    llstatsaccumulator.h
     llsys.h
     llthread.h
     llthreadlocalstorage.h
