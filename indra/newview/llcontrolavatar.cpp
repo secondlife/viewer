@@ -248,6 +248,10 @@ void LLControlAvatar::updateDebugText()
         }
 #endif
 
+        addDebugText(llformat("anim time %.1f (step %f factor %f)", 
+                              mMotionController.getAnimTime(),
+                              mMotionController.getTimeStep(), 
+                              mMotionController.getTimeFactor()));
     }
 
     LLVOAvatar::updateDebugText();
