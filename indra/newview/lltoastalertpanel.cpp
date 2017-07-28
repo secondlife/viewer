@@ -46,6 +46,8 @@
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h" // for gSavedSettings
 
+#include <boost/algorithm/string.hpp>
+
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
 
@@ -389,15 +391,18 @@ bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::
 
 	const LLFontGL* font =  mCheck->getFont();
 	const S32 LINE_HEIGHT = font->getLineHeight();
+
+	std::vector<std::string> lines;
+	boost::split(lines, check_title, boost::is_any_of("\n"));
 	
 	// Extend dialog for "check next time"
 	S32 max_msg_width = LLToastPanel::getRect().getWidth() - 2 * HPAD;
-	S32 check_width = S32(font->getWidth(check_title) + 0.99f) + 16;
+	S32 check_width = S32(font->getWidth(lines[0]) + 0.99f) + 16; // use width of the first line
 	max_msg_width = llmax(max_msg_width, check_width);
 	S32 dialog_width = max_msg_width + 2 * HPAD;
 
 	S32 dialog_height = LLToastPanel::getRect().getHeight();
-	dialog_height += LINE_HEIGHT;
+	dialog_height += LINE_HEIGHT * lines.size();
 	dialog_height += LINE_HEIGHT / 2;
 
 	LLToastPanel::reshape( dialog_width, dialog_height, FALSE );
@@ -406,7 +411,7 @@ bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::
 
 	// set check_box's attributes
 	LLRect check_rect;
-	mCheck->setRect(check_rect.setOriginAndSize(msg_x, VPAD+BTN_HEIGHT+LINE_HEIGHT/2, max_msg_width, LINE_HEIGHT));
+	mCheck->setRect(check_rect.setOriginAndSize(msg_x, VPAD+BTN_HEIGHT+LINE_HEIGHT/2, max_msg_width, LINE_HEIGHT*lines.size()));
 	mCheck->setLabel(check_title);
 	mCheck->setCommitCallback(boost::bind(&LLToastAlertPanel::onClickIgnore, this, _1));
 	
