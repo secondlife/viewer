@@ -212,11 +212,15 @@ void LLControlAvatar::updateDebugText()
         getAnimatedVolumes(volumes);
         S32 animated_volume_count = volumes.size();
         std::string active_string;
+        std::string lod_string;
+        S32 total_tris = 0;
         for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
              it != volumes.end(); ++it)
         {
             LLVOVolume *volp = *it;
-            if (volp && volp->mDrawable)
+            total_tris += volp->getTriangleCount();
+            lod_string += llformat("%d",volp->getLOD());
+                        if (volp && volp->mDrawable)
             {
                 if (volp->mDrawable->isActive())
                 {
@@ -248,10 +252,13 @@ void LLControlAvatar::updateDebugText()
         }
 #endif
 
-        addDebugText(llformat("anim time %.1f (step %f factor %f)", 
-                              mMotionController.getAnimTime(),
-                              mMotionController.getTimeStep(), 
-                              mMotionController.getTimeFactor()));
+        addDebugText(llformat("lod %s",lod_string.c_str()));
+        addDebugText(llformat("tris %d", total_tris));
+        //addDebugText(llformat("anim time %.1f (step %f factor %f)", 
+        //                      mMotionController.getAnimTime(),
+        //                      mMotionController.getTimeStep(), 
+        //                      mMotionController.getTimeFactor()));
+        
     }
 
     LLVOAvatar::updateDebugText();

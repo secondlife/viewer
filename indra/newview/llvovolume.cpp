@@ -91,6 +91,8 @@ U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
 BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
+// AXON TEMP
+S32 LLVOVolume::sForceLOD = -1;
 F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
@@ -1222,16 +1224,24 @@ void LLVOVolume::sculpt()
 S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
 {
 	S32	cur_detail;
-	if (LLPipeline::sDynamicLOD)
-	{
-		// We've got LOD in the profile, and in the twist.  Use radius.
-		F32 tan_angle = (LLVOVolume::sLODFactor*radius)/distance;
-		cur_detail = LLVolumeLODGroup::getDetailFromTan(ll_round(tan_angle, 0.01f));
-	}
-	else
-	{
-		cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
-	}
+    // AXON TEMP
+    if (LLVOVolume::sForceLOD>=0 && LLVOVolume::sForceLOD<=3)
+    {
+        cur_detail = LLVOVolume::sForceLOD;
+    }
+    else
+    {
+        if (LLPipeline::sDynamicLOD)
+        {
+            // We've got LOD in the profile, and in the twist.  Use radius.
+            F32 tan_angle = (LLVOVolume::sLODFactor*radius)/distance;
+            cur_detail = LLVolumeLODGroup::getDetailFromTan(ll_round(tan_angle, 0.01f));
+        }
+        else
+        {
+            cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
+        }
+    }
 	return cur_detail;
 }
 
@@ -1291,9 +1301,8 @@ BOOL LLVOVolume::calcLOD()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
-		//setDebugText(llformat("%.2f:%.2f, %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
-
-		setDebugText(llformat("%d", mDrawable->getFace(0)->getTextureIndex()));
+        // This is a display for LODs. If you need the texture index, put it somewhere else!
+		setDebugText(llformat("lod %d", cur_detail));
 	}
 
 	if (cur_detail != mLOD)
