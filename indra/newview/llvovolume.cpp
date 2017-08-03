@@ -1295,14 +1295,35 @@ BOOL LLVOVolume::calcLOD()
 	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-									ll_round(radius, 0.01f));
+                                  ll_round(radius, 0.01f));
 
 
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT) && mDrawable->getFace(0))
+    {
+        if (isRootEdit() && getChildren().size()>0)
+        {
+            S32 total_tris = getTriangleCount();
+            LLViewerObject::const_child_list_t& child_list = getChildren();
+            for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+                 iter != child_list.end(); ++iter)
+            {
+                LLViewerObject* childp = *iter;
+                LLVOVolume *child_volp = dynamic_cast<LLVOVolume*>(childp);
+                total_tris += child_volp->getTriangleCount();
+            }
+            setDebugText(llformat("TRIS %d TOTAL %d", getTriangleCount(), total_tris));
+        }
+        else
+        {
+            setDebugText(llformat("TRIS %d", getTriangleCount()));
+        }
+	
+    }
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
-        // This is a display for LODs. If you need the texture index, put it somewhere else!
-		setDebugText(llformat("lod %d", cur_detail));
+        // This is a debug display for LODs. Please don't put the texture index here.
+        setDebugText(llformat("%d", cur_detail));
 	}
 
 	if (cur_detail != mLOD)

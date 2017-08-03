@@ -1,5 +1,4 @@
 /** 
-
  * @file llvolume.cpp
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
