@@ -110,6 +110,11 @@ public:
 	virtual const std::string& getDisplayName() const;
 	virtual const std::string& getSearchableName() const;
 
+	virtual std::string getSearchableDescription() const {return LLStringUtil::null;}
+	virtual std::string getSearchableCreatorName() const {return LLStringUtil::null;}
+	virtual std::string getSearchableUUIDString() const {return LLStringUtil::null;}
+
+
 	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
 	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
