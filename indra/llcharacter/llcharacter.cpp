@@ -501,7 +501,7 @@ void LLCharacter::updateVisualParams()
 }
  
 LLAnimPauseRequest LLCharacter::requestPause()
-{
+{X
 	mMotionController.pauseAllMotions();
 	return mPauseRequest;
 }

@@ -1309,7 +1309,10 @@ BOOL LLVOVolume::calcLOD()
             {
                 LLViewerObject* childp = *iter;
                 LLVOVolume *child_volp = dynamic_cast<LLVOVolume*>(childp);
-                total_tris += child_volp->getTriangleCount();
+                if (child_volp)
+                {
+                    total_tris += child_volp->getTriangleCount();
+                }
             }
             setDebugText(llformat("TRIS %d TOTAL %d", getTriangleCount(), total_tris));
         }
