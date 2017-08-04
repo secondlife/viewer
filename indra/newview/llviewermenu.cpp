@@ -618,6 +618,7 @@ class LLAdvancedDumpInfoToConsole : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		gDebugView->mDebugConsolep->setVisible(TRUE);
 		std::string info_type = userdata.asString();
 		if ("region" == info_type)
 		{
