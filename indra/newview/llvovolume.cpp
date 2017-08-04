@@ -5023,7 +5023,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			bool is_rigged = false;
 
             // AXON handle NPC case
-            if (rigged && pAvatarVO)
+            if (rigged && pAvatarVO && !vobj->isAnimatedObject())
             {
                 pAvatarVO->addAttachmentOverridesForObject(vobj);
 				if (!LLApp::isExiting() && pAvatarVO->isSelf() && debugLoggingEnabled("AvatarAttachments"))
