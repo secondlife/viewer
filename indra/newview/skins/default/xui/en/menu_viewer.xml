@@ -2654,6 +2654,16 @@
            parameter="lod info" />
         </menu_item_check>
         <menu_item_check
+         label="Triangle Count"
+         name="Triangle Count">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="triangle count" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="triangle count" />
+        </menu_item_check>
+        <menu_item_check
          label="Build Queue"
          name="Build Queue">
           <menu_item_check.on_check

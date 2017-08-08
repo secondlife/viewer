@@ -1342,6 +1342,32 @@ BOOL LLVOVolume::calcLOD()
     llassert(cur_detail == getLODAtDistance(debug_distance));
 #endif
     
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT) && mDrawable->getFace(0))
+    {
+        S32 my_tris = getTriangleCount();
+        if (isRootEdit() && getChildren().size()>0)
+        {
+            S32 total_tris = my_tris;
+            LLViewerObject::const_child_list_t& child_list = getChildren();
+            for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+                 iter != child_list.end(); ++iter)
+            {
+                LLViewerObject* childp = *iter;
+                LLVOVolume *child_volp = dynamic_cast<LLVOVolume*>(childp);
+                if (child_volp)
+                {
+                    total_tris += child_volp->getTriangleCount();
+                }
+            }
+            setDebugText(llformat("TRIS %d TOTAL %d", my_tris, total_tris));
+        }
+        else
+        {
+            setDebugText(llformat("TRIS %d", my_tris));
+        }
+	
+    }
+
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
