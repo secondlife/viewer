@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ positioning="cascading"
+ height="200"
+ min_height="100"
+ min_width="230"
+ layout="topleft"
+ name="floater_avatar_render_settings"
+ save_rect="true"
+ single_instance="true"
+ reuse_instance="true"
+ title="AVATAR RENDER SETTINGS"
+ width="300">
+    <string
+     name="av_never_render"
+     value="Never"/>
+    <string
+     name="av_always_render"
+     value="Always"/>
+    <filter_editor
+     follows="left|top|right"
+     height="23"
+     layout="topleft"
+     left="8"
+     right="-47"
+     label="Filter People"
+     max_length_chars="300"
+     name="people_filter_input"
+     text_color="Black"
+     text_pad_left="10"
+     top="4" />
+    <menu_button
+     follows="top|right"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="AddItem_Off"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="7"
+     menu_filename="menu_avatar_rendering_settings_add.xml"
+     menu_position="bottomleft"
+     name="plus_btn"
+     tool_tip="Actions on selected person"
+     top="3"
+     width="31" />
+    <name_list
+     bottom="-8"
+     draw_heading="true"
+     follows="all"
+     left="8"
+     multi_select="false"
+     name="render_settings_list"
+     right="-8"
+     top="32">
+        <name_list.columns
+         label="Name"
+         name="name"
+         relative_width="0.5" />
+        <name_list.columns
+         label="Render setting"
+         name="setting"
+         relative_width="0.25" />
+        <name_list.columns
+         label="Date added"
+         name="timestamp"
+         relative_width="0.25" />
+     </name_list>
+</floater>

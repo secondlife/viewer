@@ -540,18 +540,34 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
-        boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, fn));
+        boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId,  std::string(), fn));
 }
 
-void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, ExperienceGetFn_t fn)
+void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, std::string url, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
+        boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, url, fn));
+}
+
+void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, std::string url, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
-    std::string url = mCapability("GetMetadata");
 
     if (url.empty())
     {
-        LL_WARNS("ExperienceCache") << "No Metadata capability." << LL_ENDL;
-        return;
+        url = mCapability("GetMetadata");
+
+        if (url.empty())
+        {
+            LL_WARNS("ExperienceCache") << "No Metadata capability." << LL_ENDL;
+            return;
+        }
     }
 
     LLSD fields;

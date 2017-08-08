@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_avatar_render_settings" title="化身呈像設定">
+	<string name="av_never_render" value="絕不"/>
+	<string name="av_always_render" value="永遠"/>
+	<filter_editor label="過濾人員" name="people_filter_input"/>
+	<menu_button name="plus_btn" tool_tip="對選取的人採取的動作"/>
+	<name_list name="render_settings_list">
+		<name_list.columns label="名稱" name="name"/>
+		<name_list.columns label="呈像設定" name="setting"/>
+	</name_list>
+</floater>

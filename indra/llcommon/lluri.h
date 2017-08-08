@@ -121,6 +121,14 @@ public:
 	/** @name Escaping Utilities */
 	//@{
 	/**
+	 * @brief 'Escape' symbol into stream
+	 *
+	 * @param ostr Output stream.
+	 * @param val Symbol to encode.
+	 */
+	static void encodeCharacter(std::ostream& ostr, std::string::value_type val);
+
+	/**
 	 * @brief Escape the string passed except for unreserved
 	 *
 	 *  ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz

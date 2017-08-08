@@ -42,6 +42,7 @@
 			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
 			<menu_item_check label="Просмотр..." name="Preview"/>
 			<menu_item_call label="Подписаться..." name="Subscribe"/>
+			<menu_item_call label="Премиум-бонус..." name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="Жесты..." name="Gestures"/>
 		<menu_item_check label="Друзья" name="My Friends"/>
@@ -55,7 +56,8 @@
 		<menu_item_call label="Пункты..." name="Destinations"/>
 		<menu_item_check label="Карта мира" name="World Map"/>
 		<menu_item_check label="Миникарта" name="Mini-Map"/>
-		<menu_item_check label="Поиск" name="Search"/>
+		<menu_item_call label="События" name="Events"/>
+		<menu_item_check label="Поиск..." name="Search"/>
 		<menu_item_call label="Телепортация домой" name="Teleport Home"/>
 		<menu_item_call label="Установить дом здесь" name="Set Home to Here"/>
 		<menu_item_call label="Снимок" name="Take Snapshot"/>
@@ -126,8 +128,10 @@
 			<menu_item_call label="Взять копию" name="Take Copy"/>
 			<menu_item_call label="Сохранить в контенте объектов" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Вернуть объект" name="Return Object back to Owner"/>
+			<menu_item_call label="Дублировать" name="DuplicateObject"/>
 		</menu>
 		<menu label="Скрипты" name="Scripts">
+			<menu_item_check label="Предупреждения/ошибки скриптов..." name="Script debug"/>
 			<menu_item_call label="Перекомпилировать скрипты (Mono)" name="Mono"/>
 			<menu_item_call label="Перекомпилировать скрипты (LSL)" name="LSL"/>
 			<menu_item_call label="Сброс скриптов" name="Reset Scripts"/>

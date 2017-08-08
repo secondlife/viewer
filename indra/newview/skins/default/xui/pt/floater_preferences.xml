@@ -13,5 +13,6 @@
 		<panel label="Privacidade" name="im"/>
 		<panel label="Configurações" name="input"/>
 		<panel label="Avançado" name="advanced1"/>
+		<panel label="Envios" name="uploads"/>
 	</tab_container>
 </floater>

@@ -44,6 +44,7 @@
 			<menu_item_check label="ボイスモーフィングなし" name="NoVoiceMorphing"/>
 			<menu_item_check label="プレビュー..." name="Preview"/>
 			<menu_item_call label="申し込む..." name="Subscribe"/>
+			<menu_item_call label="プレミアム会員特典..." name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="ジェスチャー..." name="Gestures"/>
 		<menu_item_check label="フレンド" name="My Friends"/>
@@ -57,7 +58,8 @@
 		<menu_item_call label="行き先..." name="Destinations"/>
 		<menu_item_check label="世界地図" name="World Map"/>
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
-		<menu_item_check label="検索" name="Search"/>
+		<menu_item_call label="イベント" name="Events"/>
+		<menu_item_check label="検索..." name="Search"/>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
@@ -128,8 +130,10 @@
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
 			<menu_item_call label="オブジェクトの中身に保存" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="オブジェクトを返却する" name="Return Object back to Owner"/>
+			<menu_item_call label="複製" name="DuplicateObject"/>
 		</menu>
 		<menu label="スクリプト" name="Scripts">
+			<menu_item_check label="スクリプトの警告/エラー..." name="Script debug"/>
 			<menu_item_call label="スクリプトのリコンパイル（Mono）" name="Mono"/>
 			<menu_item_call label="スクリプトのリコンパイル（LSL）" name="LSL"/>
 			<menu_item_call label="スクリプトのリセット" name="Reset Scripts"/>

@@ -218,7 +218,7 @@ void LLFloaterIMNearbyChat::loadHistory()
 		else
  		{
 			std::string legacy_name = gCacheName->buildLegacyName(from);
- 			gCacheName->getUUID(legacy_name, from_id);
+			from_id = LLAvatarNameCache::findIdByName(legacy_name);
  		}
 
 		LLChat chat;
@@ -485,7 +485,8 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 	KEY key = gKeyboard->currentKey();
 
 	// Ignore "special" keys, like backspace, arrows, etc.
-	if (length > 1 
+	if (gSavedSettings.getBOOL("ChatAutocompleteGestures")
+		&& length > 1
 		&& raw_text[0] == '/'
 		&& key < KEY_SPECIAL)
 	{

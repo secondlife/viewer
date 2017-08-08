@@ -143,8 +143,7 @@
 	<notification name="MerchantTransactionFailed">
 		マーケットプレイスによる取引が次のエラーにより失敗しました:
         
-理由：&apos;[ERROR_REASON]&apos;
-[ERROR_DESCRIPTION]
+[ERROR_REASON][ERROR_DESCRIPTION]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MerchantUnprocessableEntity">
@@ -779,6 +778,9 @@ L$ が不足しているのでこのグループに参加することができ�
 どのオブジェクトもロックされておらず、あなたのものであることを確認してください。
 	</notification>
 	<notification name="CannotLinkPermanent">
+		地域（リージョン）の境界を越えてオブジェクトをリンクできません。
+	</notification>
+	<notification name="CannotLinkAcrossRegions">
 		地域（リージョン）の境界を越えてオブジェクトをリンクできません。
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
@@ -1815,11 +1817,10 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DoNotDisturbModeSet">
-		「通知を受けない」がオンになります。着信通信はあなたには通知されません。
+		着信拒否がオンになっています。着信する通信が通知されません。
 
-- 他の住民は「通知を受けない」の応答（「設定」&gt;「一般」で設定）を受け取ることになります。
-- テレポートのオファーはすべて受け取り拒否となります。
-- ボイスコールは拒否されます。
+- 他の住人は「着信拒否」応答を受け取ります (「環境設定」 &gt; 「一般」で設定)。
+- 音声通話は拒否されます。
 		<usetemplate ignoretext="マイ ログイン状態を「通知を受けない」モードに変更しました。" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
@@ -2596,9 +2597,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="Cancelled">
 		取り消されました。
-	</notification>
-	<notification name="CancelledSit">
-		座るのをやめました。
 	</notification>
 	<notification name="CancelledAttach">
 		添付が取り消されました。
@@ -3925,27 +3923,26 @@ M キーを押して変更します。
 	<notification name="AvatarEjectFailed">
 		その区画の管理権限がないため、追放できませんでした。
 	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		区画が埋まっているため、オブジェクト &apos;[OBJECT_NAME]&apos; を、リージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	<notification name="CMOParcelFull">
+		区画がいっぱいなので、オブジェクト &apos;[O]&apos; を地域（リージョン） [R] の [P] に移動できません。
 	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		オブジェクト &apos;[OBJECT_NAME]&apos; は、この区画で許可されていないため、リージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	<notification name="CMOParcelPerms">
+		ご使用のオブジェクトはこの区画で使用が許可されていないため、オブジェクト &apos;[O]&apos; を地域（リージョン） [R] の [P] に移動できません。
 	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		この区画でこのオブジェクトのリソースが不足しているため、オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	<notification name="CMOParcelResources">
+		この区画にこのオブジェクトのリソースが不足しているため、オブジェクト &apos;[O]&apos; を地域（リージョン） [R] の [P] に移動できません。
 	</notification>
 	<notification name="NoParcelPermsNoObject">
 		その区画へのアクセス権がないため、コピーが失敗しました。
 	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動することはできません。他のリージョンでは、リージョンの境界をまたいだこのオブジェクトを受信することができない古いバージョンを実行しているためです。
+	<notification name="CMORegionVersion">
+		他の地域（リージョン）でこのオブジェクトの地域（リージョン）をまたがる受け取りに対応していない旧バージョンを実行しているため、オブジェクト &apos;[O]&apos; を地域（リージョン） [R] の [P] に移動できません。
 	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		リージョン境界をまたぐナビメッシュを変更できないため、オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	<notification name="CMONavMesh">
+		リージョンの境界にわたってナビメッシュを変更できないため、オブジェクト &apos;[O]&apos; を地域（リージョン） [R] の [P] に移動できません。
 	</notification>
-	<notification name="CantMoveObjectWTF">
-		不明な理由により、オブジェクト &apos;[OBJECT_NAME]&apos; を、リージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
-([FAILURE_TYPE])
+	<notification name="CMOWTF">
+		不明な理由により、オブジェクト &apos;[O]&apos; を地域（リージョン） [R] の [P] に移動できません。 ([F])
 	</notification>
 	<notification name="NoPermModifyObject">
 		そのオブジェクトを変更する権限がありません

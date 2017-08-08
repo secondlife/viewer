@@ -17,8 +17,10 @@
 	<menu_item_call label="Yakınlaştır" name="Zoom In"/>
 	<menu_item_call label="Öde" name="Pay..."/>
 	<menu_item_call label="Nesne Profili" name="Object Inspect"/>
-	<menu_item_check label="Normal Olarak İşle" name="RenderNormally"/>
-	<menu_item_check label="İşleme" name="DoNotRender"/>
-	<menu_item_check label="Tam Olarak İşle" name="AlwaysRenderFully"/>
+	<context_menu label="Avatarı İşle" name="Render Avatar">
+		<menu_item_check label="Varsayılan" name="RenderNormally"/>
+		<menu_item_check label="Her Zaman" name="AlwaysRenderFully"/>
+		<menu_item_check label="Asla" name="DoNotRender"/>
+	</context_menu>
 	<menu_item_call label="Parçacık Sahibini Engelle" name="Mute Particle"/>
 </context_menu>

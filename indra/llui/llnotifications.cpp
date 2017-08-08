@@ -1405,20 +1405,14 @@ void LLNotifications::createDefaultChannels()
 	mDefaultChannels.push_back(new LLPersistentNotificationChannel());
 
 	// connect action methods to these channels
-	LLNotifications::instance().getChannel("Enabled")->
-		connectFailedFilter(&defaultResponse);
-	LLNotifications::instance().getChannel("Expiration")->
-        connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
+	getChannel("Enabled")->connectFailedFilter(&defaultResponse);
+	getChannel("Expiration")->connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
 	// uniqueHandler slot should be added as first slot of the signal due to
 	// usage LLStopWhenHandled combiner in LLStandardSignal
-	LLNotifications::instance().getChannel("Unique")->
-        connectAtFrontChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
-	LLNotifications::instance().getChannel("Unique")->
-        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
-	LLNotifications::instance().getChannel("Ignore")->
-		connectFailedFilter(&handleIgnoredNotification);
-	LLNotifications::instance().getChannel("VisibilityRules")->
-		connectFailedFilter(&visibilityRuleMached);
+	getChannel("Unique")->connectAtFrontChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
+	getChannel("Unique")->connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
+	getChannel("Ignore")->connectFailedFilter(&handleIgnoredNotification);
+	getChannel("VisibilityRules")->connectFailedFilter(&visibilityRuleMached);
 }
 
 

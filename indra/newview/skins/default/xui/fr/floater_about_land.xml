@@ -456,7 +456,7 @@ musique :
 			<spinner label="Durée en heures :" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Toujours autoriser" name="AllowedText">
-					Résidents autorisés ([COUNT])
+					Résidents autorisés ([COUNT], max. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
 				<button label="Ajouter" name="add_allowed"/>
@@ -464,7 +464,7 @@ musique :
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Bannir" name="BanCheck">
-					Résidents bannis ([COUNT])
+					Résidents bannis ([COUNT], max. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
 				<button label="Ajouter" name="add_banned"/>

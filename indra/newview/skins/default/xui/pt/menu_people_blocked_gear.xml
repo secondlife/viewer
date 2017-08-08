@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_blocked_gear">
 	<menu_item_call label="Desbloquear" name="unblock"/>
+	<menu_item_check label="Bloquear voz" name="BlockVoice"/>
+	<menu_item_check label="Bloquear texto" name="MuteText"/>
+	<menu_item_check label="Bloquear sons de objeto" name="BlockObjectSounds"/>
 	<menu_item_call label="Perfil..." name="profile"/>
 </toggleable_menu>

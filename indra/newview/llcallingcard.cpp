@@ -243,7 +243,6 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 	using namespace std;
 
 	U32 new_buddy_count = 0;
-	std::string full_name;
 	LLUUID agent_id;
 	for(buddy_map_t::const_iterator itr = buds.begin(); itr != buds.end(); ++itr)
 	{
@@ -253,8 +252,11 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 		{
 			++new_buddy_count;
 			mBuddyInfo[agent_id] = (*itr).second;
-			// IDEVO: is this necessary?  name is unused?
-			gCacheName->getFullName(agent_id, full_name);
+
+			// pre-request name for notifications?
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(agent_id, &av_name);
+
 			addChangedMask(LLFriendObserver::ADD, agent_id);
 			LL_DEBUGS() << "Added buddy " << agent_id
 					<< ", " << (mBuddyInfo[agent_id]->isOnline() ? "Online" : "Offline")
@@ -889,7 +891,9 @@ bool LLCollectMappableBuddies::operator()(const LLUUID& buddy_id, LLRelationship
 
 bool LLCollectOnlineBuddies::operator()(const LLUUID& buddy_id, LLRelationship* buddy)
 {
-	gCacheName->getFullName(buddy_id, mFullName);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(buddy_id, &av_name);
+	mFullName = av_name.getUserName();
 	buddy_map_t::value_type value(buddy_id, mFullName);
 	if(buddy->isOnline())
 	{

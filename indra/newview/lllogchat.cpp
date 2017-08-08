@@ -67,7 +67,8 @@ const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
 const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
 
-const static std::string IM_SEPARATOR(": ");
+const static char IM_SYMBOL_SEPARATOR(':');
+const static std::string IM_SEPARATOR(std::string() + IM_SYMBOL_SEPARATOR + " ");
 const static std::string NEW_LINE("\n");
 const static std::string NEW_LINE_SPACE_PREFIX("\n ");
 const static std::string TWO_SPACES("  ");
@@ -838,7 +839,7 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 	}
 
 	if (im[LL_IM_TIME].isDefined())
-{
+	{
 		std::string timestamp = im[LL_IM_TIME].asString();
 		boost::trim(timestamp);
 		ostr << '[' << timestamp << ']' << TWO_SPACES;
@@ -851,9 +852,29 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 	{
 		std::string from = im[LL_IM_FROM].asString();
 		boost::trim(from);
-		if (from.size())
+
+		std::size_t found = from.find(IM_SYMBOL_SEPARATOR);
+		std::size_t len = from.size();
+		std::size_t start = 0;
+		while (found != std::string::npos)
 		{
-			ostr << from << IM_SEPARATOR;
+			std::size_t sub_len = found - start;
+			if (sub_len > 0)
+			{
+				ostr << from.substr(start, sub_len);
+			}
+			LLURI::encodeCharacter(ostr, IM_SYMBOL_SEPARATOR);
+			start = found + 1;
+			found = from.find(IM_SYMBOL_SEPARATOR, start);
+		}
+		if (start < len)
+		{
+			std::string str_end = from.substr(start, len - start);
+			ostr << str_end;
+		}
+		if (len > 0)
+		{
+			ostr << IM_SEPARATOR;
 		}
 	}
 
@@ -865,7 +886,7 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 		boost::replace_all(im_text, NEW_LINE, NEW_LINE_SPACE_PREFIX);
 		ostr << im_text;
 	}
-	}
+}
 
 bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params)
 {
@@ -912,7 +933,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	if (!boost::regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
 
 	bool has_name = name_and_text[IDX_NAME].matched;
-	std::string name = name_and_text[IDX_NAME];
+	std::string name = LLURI::unescape(name_and_text[IDX_NAME]);
 
 	//we don't need a name/text separator
 	if (has_name && name.length() && name[name.length()-1] == ':')
@@ -933,7 +954,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 		U32 divider_pos = stuff.find(NAME_TEXT_DIVIDER);
 		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
 		{
-			im[LL_IM_FROM] = stuff.substr(0, divider_pos);
+			im[LL_IM_FROM] = LLURI::unescape(stuff.substr(0, divider_pos));
 			im[LL_IM_TEXT] = stuff.substr(divider_pos + NAME_TEXT_DIVIDER.length());
 			return true;
 		}

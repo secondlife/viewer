@@ -42,6 +42,12 @@
 		<menu_item_call label="Nouveaux cheveux" name="New Hair"/>
 		<menu_item_call label="Nouveaux yeux" name="New Eyes"/>
 	</menu>
+	<menu label="Utiliser comme défaut pour" name="upload_def">
+		<menu_item_call label="Chargements d’images" name="Image uploads"/>
+		<menu_item_call label="Chargements de sons" name="Sound uploads"/>
+		<menu_item_call label="Chargements d’animations" name="Animation uploads"/>
+		<menu_item_call label="Chargements de modèles" name="Model uploads"/>
+	</menu>
 	<menu label="Changer de type" name="Change Type">
 		<menu_item_call label="Défaut" name="Default"/>
 		<menu_item_call label="Gants" name="Gloves"/>
@@ -60,6 +66,7 @@
 	<menu_item_call label="Remplacer la tenue actuelle" name="Replace Outfit"/>
 	<menu_item_call label="Ajouter à la tenue actuelle" name="Add To Outfit"/>
 	<menu_item_call label="Enlever de la tenue actuelle" name="Remove From Outfit"/>
+	<menu_item_call label="Copier la liste de la tenue dans le presse-papiers" name="Copy outfit list to clipboard"/>
 	<menu_item_call label="Trouver l&apos;original" name="Find Original"/>
 	<menu_item_call label="Purger l&apos;objet" name="Purge Item"/>
 	<menu_item_call label="Restaurer l&apos;objet" name="Restore Item"/>
@@ -72,7 +79,6 @@
 	<menu_item_call label="Copier" name="Copy"/>
 	<menu_item_call label="Coller" name="Paste"/>
 	<menu_item_call label="Coller comme lien" name="Paste As Link"/>
-	<menu_item_call label="Supprimer" name="Remove Link"/>
 	<menu_item_call label="Supprimer" name="Delete"/>
 	<menu_item_call label="Supprimer le dossier système" name="Delete System Folder"/>
 	<menu_item_call label="Démarrer le chat conférence" name="Conference Chat Folder"/>
@@ -95,7 +101,6 @@
 	<menu_item_call label="Modifier" name="Wearable Edit"/>
 	<menu_item_call label="Ajouter" name="Wearable Add"/>
 	<menu_item_call label="Enlever" name="Take Off"/>
-	<menu_item_call label="Copier vers la boîte d&apos;envoi vendeur" name="Merchant Copy"/>
 	<menu_item_call label="Copier dans les annonces Place du marché" name="Marketplace Copy"/>
 	<menu_item_call label="Déplacer dans les annonces Place du marché" name="Marketplace Move"/>
 	<menu_item_call label="--aucune option--" name="--no options--"/>

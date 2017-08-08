@@ -1491,7 +1491,7 @@ support@secondlife.com にお問い合わせください。
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] がエラーを返しています。
 	</string>
 	<string name="InventoryMarketplaceError">
-		この機能は、現在、ベータ版の機能です。参加するには、この [http://goo.gl/forms/FCQ7UXkakz Google form] に名前を追加してください。
+		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Life のサポート (http://support.secondlife.com) にお問い合わせください
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		マーケットプレイスのリストフォルダが空です。
@@ -4444,7 +4444,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		[AGENT_NAME] とコンファレンスする
 	</string>
 	<string name="inventory_item_offered-im">
-		インベントリアイテムを送りました
+		持ち物アイテム &apos;[ITEM_NAME]&apos; が送られてきました
+	</string>
+	<string name="inventory_folder_offered-im">
+		持ち物フォルダ &apos;[ITEM_NAME]&apos; が送られてきました
 	</string>
 	<string name="share_alert">
 		インベントリからここにアイテムをドラッグします
@@ -4531,7 +4534,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		家の配置の設定。
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] は [REASON] のために L$[AMOUNT] を支払いました。
@@ -4902,7 +4908,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="server_is_down">
 		大変申し訳ございませんが、予期しない問題が発生しました。
 
-	サービスに関する既知の問題については、status.secondlifegrid.net をご覧ください。
+サービスに関する既知の問題については、http://status.secondlifegrid.net をご覧ください。
 問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5363,6 +5369,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Gestures_Label">
 		ジェスチャー
 	</string>
+	<string name="Command_Grid_Status_Label">
+		グリッドステータス
+	</string>
 	<string name="Command_HowTo_Label">
 		ハウツー
 	</string>
@@ -5455,6 +5464,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		アバターのジェスチャー
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		現在のグリッドステータスを表示
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		一般的タスクの実行方法
@@ -5677,6 +5689,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="loading_chat_logs">
 		ロード中...
+	</string>
+	<string name="na">
+		該当なし
 	</string>
 	<string name="preset_combo_label">
 		-空リスト-

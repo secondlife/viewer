@@ -28,6 +28,7 @@
  
 #include "llnameeditor.h"
 #include "llcachename.h"
+#include "llavatarnamecache.h"
 
 #include "llfontgl.h"
 
@@ -65,7 +66,9 @@ void LLNameEditor::setNameID(const LLUUID& name_id, BOOL is_group)
 
 	if (!is_group)
 	{
-		gCacheName->getFullName(name_id, name);
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(name_id, &av_name);
+		name = av_name.getUserName();
 	}
 	else
 	{

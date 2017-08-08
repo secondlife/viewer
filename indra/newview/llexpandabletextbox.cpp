@@ -44,7 +44,7 @@ public:
 		mExpanderLabel(more_text)
 	{}
 
-	/*virtual*/ bool	getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const 
+	/*virtual*/ bool	getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const 
 	{
 		// more label always spans width of text box
 		if (num_chars == 0)

@@ -16,8 +16,10 @@
 	<menu_item_call label="Dump XML" name="Dump XML"/>
 	<menu_item_call label="Zoomer en avant" name="Zoom In"/>
 	<menu_item_call label="Payer" name="Pay..."/>
-	<menu_item_check label="Effectuer le rendu normalement" name="RenderNormally"/>
-	<menu_item_check label="Ne pas effectuer le rendu" name="DoNotRender"/>
-	<menu_item_check label="Effectuer le rendu total" name="AlwaysRenderFully"/>
+	<context_menu label="Effectuer le rendu de l’avatar" name="Render Avatar">
+		<menu_item_check label="Valeur par défaut" name="RenderNormally"/>
+		<menu_item_check label="Toujours" name="AlwaysRenderFully"/>
+		<menu_item_check label="Jamais" name="DoNotRender"/>
+	</context_menu>
 	<menu_item_call label="Ignorer le propriétaire des particules" name="Mute Particle"/>
 </context_menu>

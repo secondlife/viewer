@@ -46,6 +46,7 @@
 #include "llviewerobjectlist.h"
 #include "llexperiencecache.h"
 #include "lltrans.h"
+#include "llviewerregion.h"
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -327,9 +328,13 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
         LLTextBox* tb = getChild<LLTextBox>("LabelItemExperience");
         tb->setText(getString("loading_experience"));
         tb->setVisible(TRUE);
-
-        LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), 
-            boost::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
+        std::string url = std::string();
+        if(object && object->getRegion())
+        {
+            url = object->getRegion()->getCapability("GetMetadata");
+        }
+        LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), url,
+                boost::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
     }
     
 	//////////////////////
@@ -810,40 +815,49 @@ void LLSidepanelItemInfo::onCommitPermissions()
 	//LL_INFOS() << "LLSidepanelItemInfo::onCommitPermissions()" << LL_ENDL;
 	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
-	LLPermissions perm(item->getPermissions());
 
+	BOOL is_group_owned;
+	LLUUID owner_id;
+	LLUUID group_id;
+	LLPermissions perm(item->getPermissions());
+	perm.getOwnership(owner_id, is_group_owned);
+
+	if (is_group_owned && gAgent.hasPowerInGroup(owner_id, GP_OBJECT_MANIPULATE))
+	{
+		group_id = owner_id;
+	}
 
 	LLCheckBoxCtrl* CheckShareWithGroup = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
 
 	if(CheckShareWithGroup)
 	{
-		perm.setGroupBits(gAgent.getID(), gAgent.getGroupID(),
+		perm.setGroupBits(gAgent.getID(), group_id,
 						CheckShareWithGroup->get(),
 						PERM_MODIFY | PERM_MOVE | PERM_COPY);
 	}
 	LLCheckBoxCtrl* CheckEveryoneCopy = getChild<LLCheckBoxCtrl>("CheckEveryoneCopy");
 	if(CheckEveryoneCopy)
 	{
-		perm.setEveryoneBits(gAgent.getID(), gAgent.getGroupID(),
+		perm.setEveryoneBits(gAgent.getID(), group_id,
 						 CheckEveryoneCopy->get(), PERM_COPY);
 	}
 
 	LLCheckBoxCtrl* CheckNextOwnerModify = getChild<LLCheckBoxCtrl>("CheckNextOwnerModify");
 	if(CheckNextOwnerModify)
 	{
-		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
+		perm.setNextOwnerBits(gAgent.getID(), group_id,
 							CheckNextOwnerModify->get(), PERM_MODIFY);
 	}
 	LLCheckBoxCtrl* CheckNextOwnerCopy = getChild<LLCheckBoxCtrl>("CheckNextOwnerCopy");
 	if(CheckNextOwnerCopy)
 	{
-		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
+		perm.setNextOwnerBits(gAgent.getID(), group_id,
 							CheckNextOwnerCopy->get(), PERM_COPY);
 	}
 	LLCheckBoxCtrl* CheckNextOwnerTransfer = getChild<LLCheckBoxCtrl>("CheckNextOwnerTransfer");
 	if(CheckNextOwnerTransfer)
 	{
-		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
+		perm.setNextOwnerBits(gAgent.getID(), group_id,
 							CheckNextOwnerTransfer->get(), PERM_TRANSFER);
 	}
 	if(perm != item->getPermissions()

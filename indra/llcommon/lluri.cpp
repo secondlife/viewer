@@ -40,7 +40,8 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 
-void encode_character(std::ostream& ostr, std::string::value_type val)
+// static
+void LLURI::encodeCharacter(std::ostream& ostr, std::string::value_type val)
 {
 	ostr << "%"
 
@@ -95,7 +96,7 @@ std::string LLURI::escape(
 			}
 			else
 			{
-				encode_character(ostr, c);
+				encodeCharacter(ostr, c);
 			}
 		}
 	}
@@ -106,7 +107,7 @@ std::string LLURI::escape(
 			c = *it;
 			if(allowed.find(c) == std::string::npos)
 			{
-				encode_character(ostr, c);
+				encodeCharacter(ostr, c);
 			}
 			else
 			{

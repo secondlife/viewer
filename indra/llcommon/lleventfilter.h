@@ -177,6 +177,9 @@ public:
     /// Cancel timer without event
     void cancel();
 
+    /// Is this timer currently running?
+    bool running() const;
+
 protected:
     virtual void setCountdown(F32 seconds) = 0;
     virtual bool countdownElapsed() const = 0;
@@ -213,6 +216,164 @@ protected:
 
 private:
     LLTimer mTimer;
+};
+
+/**
+ * LLEventBatch: accumulate post() events (LLSD blobs) into an LLSD Array
+ * until the array reaches a certain size, then call listeners with the Array
+ * and clear it back to empty.
+ */
+class LL_COMMON_API LLEventBatch: public LLEventFilter
+{
+public:
+    // pass batch size
+    LLEventBatch(std::size_t size);
+    // construct and connect
+    LLEventBatch(LLEventPump& source, std::size_t size);
+
+    // force out the pending batch
+    void flush();
+
+    // accumulate an event and flush() when big enough
+    virtual bool post(const LLSD& event);
+
+    // query or reset batch size
+    std::size_t getSize() const { return mBatchSize; }
+    void setSize(std::size_t size);
+
+private:
+    LLSD mBatch;
+    std::size_t mBatchSize;
+};
+
+/**
+ * LLEventThrottleBase: construct with a time interval. Regardless of how
+ * frequently you call post(), LLEventThrottle will pass on an event to
+ * its listeners no more often than once per specified interval.
+ *
+ * A new event after more than the specified interval will immediately be
+ * passed along to listeners. But subsequent events will be delayed until at
+ * least one time interval since listeners were last called. Consider the
+ * sequence below. Suppose we have an LLEventThrottle constructed with an
+ * interval of 3 seconds. The numbers on the left are timestamps in seconds
+ * relative to an arbitrary reference point.
+ *
+ *  1: post(): event immediately passed to listeners, next no sooner than 4
+ *  2: post(): deferred: waiting for 3 seconds to elapse
+ *  3: post(): deferred
+ *  4: no post() call, but event delivered to listeners; next no sooner than 7
+ *  6: post(): deferred
+ *  7: no post() call, but event delivered; next no sooner than 10
+ * 12: post(): immediately passed to listeners, next no sooner than 15
+ * 17: post(): immediately passed to listeners, next no sooner than 20
+ *
+ * For a deferred event, the LLSD blob delivered to listeners is from the most
+ * recent deferred post() call. However, a sender may obtain the previous
+ * event blob by calling pending(), modifying it as desired and post()ing the
+ * new value. (See LLEventBatchThrottle.) Each time an event is delivered to
+ * listeners, the pending() value is reset to isUndefined().
+ *
+ * You may also call flush() to immediately pass along any deferred events to
+ * all listeners.
+ *
+ * @NOTE This is an abstract base class so that, for testing, we can use an
+ * alternate "timer" that doesn't actually consume real time. See
+ * LLEventThrottle.
+ */
+class LL_COMMON_API LLEventThrottleBase: public LLEventFilter
+{
+public:
+    // pass time interval
+    LLEventThrottleBase(F32 interval);
+    // construct and connect
+    LLEventThrottleBase(LLEventPump& source, F32 interval);
+
+    // force out any deferred events
+    void flush();
+
+    // retrieve (aggregate) deferred event since last event sent to listeners
+    LLSD pending() const;
+
+    // register an event, may be either passed through or deferred
+    virtual bool post(const LLSD& event);
+
+    // query or reset interval
+    F32 getInterval() const { return mInterval; }
+    void setInterval(F32 interval);
+
+    // deferred posts
+    std::size_t getPostCount() const { return mPosts; }
+
+    // time until next event would be passed through, 0.0 if now
+    F32 getDelay() const;
+
+protected:
+    // Implement these time-related methods for a valid LLEventThrottleBase
+    // subclass (see LLEventThrottle). For testing, we use a subclass that
+    // doesn't involve actual elapsed time.
+    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) = 0;
+    virtual bool alarmRunning() const = 0;
+    virtual void alarmCancel() = 0;
+    virtual void timerSet(F32 interval) = 0;
+    virtual F32  timerGetRemaining() const = 0;
+
+private:
+    // remember throttle interval
+    F32 mInterval;
+    // count post() calls since last flush()
+    std::size_t mPosts;
+    // pending event data from most recent deferred event
+    LLSD mPending;
+};
+
+/**
+ * Production implementation of LLEventThrottle.
+ */
+class LLEventThrottle: public LLEventThrottleBase
+{
+public:
+    LLEventThrottle(F32 interval);
+    LLEventThrottle(LLEventPump& source, F32 interval);
+
+private:
+    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) /*override*/;
+    virtual bool alarmRunning() const /*override*/;
+    virtual void alarmCancel() /*override*/;
+    virtual void timerSet(F32 interval) /*override*/;
+    virtual F32  timerGetRemaining() const /*override*/;
+
+    // use this to arrange a deferred flush() call
+    LLEventTimeout mAlarm;
+    // use this to track whether we're within mInterval of last flush()
+    LLTimer mTimer;
+};
+
+/**
+ * LLEventBatchThrottle: like LLEventThrottle, it's reluctant to pass events
+ * to listeners more often than once per specified time interval -- but only
+ * reluctant, since exceeding the specified batch size limit can cause it to
+ * deliver accumulated events sooner. Like LLEventBatch, it accumulates
+ * pending events into an LLSD Array, optionally flushing when the batch grows
+ * to a certain size.
+ */
+class LLEventBatchThrottle: public LLEventThrottle
+{
+public:
+    // pass time interval and (optionally) max batch size; 0 means batch can
+    // grow arbitrarily large
+    LLEventBatchThrottle(F32 interval, std::size_t size = 0);
+    // construct and connect
+    LLEventBatchThrottle(LLEventPump& source, F32 interval, std::size_t size = 0);
+
+    // append a new event to current batch
+    virtual bool post(const LLSD& event);
+
+    // query or reset batch size
+    std::size_t getSize() const { return mBatchSize; }
+    void setSize(std::size_t size);
+
+private:
+    std::size_t mBatchSize;
 };
 
 #endif /* ! defined(LL_LLEVENTFILTER_H) */

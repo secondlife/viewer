@@ -13,5 +13,6 @@
 		<panel label="隱私" name="im"/>
 		<panel label="設定" name="input"/>
 		<panel label="進階" name="advanced1"/>
+		<panel label="上傳內容" name="uploads"/>
 	</tab_container>
 </floater>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_flickr" title="上傳到 FLICKR">
+<floater name="floater_flickr" title="分享到FLICKR">
 	<panel name="background">
 		<tab_container name="tabs">
 			<panel label="相片" name="panel_flickr_photo"/>

@@ -237,7 +237,7 @@ Use "" for multi-word tags
            top_pad="7"
            left="10"
            height="23"
-           label="Upload"
+           label="Share"
            name="post_photo_btn"
            width="100">
             <button.commit_callback

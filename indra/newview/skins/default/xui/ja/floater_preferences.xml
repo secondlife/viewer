@@ -13,5 +13,6 @@
 		<panel label="プライバシー" name="im"/>
 		<panel label="セットアップ" name="input"/>
 		<panel label="詳細" name="advanced1"/>
+		<panel label="アップロード" name="uploads"/>
 	</tab_container>
 </floater>

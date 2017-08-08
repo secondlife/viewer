@@ -30,6 +30,6 @@ Für Markierungen, die aus mehreren Wörtern bestehen, &quot;&quot; verwenden.
 		<combo_box.item label="Moderate Flickr-Einstufung" name="ModerateRating"/>
 		<combo_box.item label="Beschränkte Flickr-Einstufung" name="RestrictedRating"/>
 	</combo_box>
-	<button label="Hochladen" name="post_photo_btn"/>
+	<button label="Teilen" name="post_photo_btn"/>
 	<button label="Abbrechen" name="cancel_photo_btn"/>
 </panel>

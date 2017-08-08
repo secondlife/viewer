@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="instant_message" name="panel_notify_textbox">
-	<string name="message_max_lines_count" value="7"/>
-	<panel label="info_panel" name="info_panel">
+	<string name="message_max_lines_count" value="14"/>
+	<panel label="info_panel" name="info_panel"/>
+	<panel label="info_panel" name="textbox_panel">
 		<text_editor name="message" value="メッセージ"/>
 	</panel>
 	<panel label="control_panel" name="control_panel">

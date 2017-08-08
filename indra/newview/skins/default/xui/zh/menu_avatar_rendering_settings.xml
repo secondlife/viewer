@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Settings">
+	<menu_item_check label="預設" name="default"/>
+	<menu_item_check label="總是呈現" name="always_render"/>
+	<menu_item_check label="絕不呈現" name="never_render"/>
+</context_menu>

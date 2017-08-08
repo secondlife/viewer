@@ -20,6 +20,16 @@
              function="Floater.Toggle"
              parameter="preferences" />
         </menu_item_call>
+        <menu_item_call
+         label="Close Window"
+         name="Close Window"
+         visible="false" 
+         shortcut="control|W">
+            <menu_item_call.on_click
+             function="File.CloseWindow" />
+            <menu_item_call.on_enable
+             function="File.EnableCloseWindow" />
+        </menu_item_call>
         <menu_item_check
          label="Show Grid Picker"
          name="Show Grid Picker"

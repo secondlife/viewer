@@ -175,5 +175,28 @@ public:
 	virtual void onChangeDetailed(const LLMute& ) { }
 };
 
+class LLRenderMuteList : public LLSingleton<LLRenderMuteList>
+{
+    LLSINGLETON(LLRenderMuteList);
+public:
+	bool loadFromFile();
+	bool saveToFile();
+	S32 getSavedVisualMuteSetting(const LLUUID& agent_id);
+	void saveVisualMuteSetting(const LLUUID& agent_id, S32 setting);
+
+	S32 getVisualMuteDate(const LLUUID& agent_id);
+
+	void addObserver(LLMuteListObserver* observer);
+	void removeObserver(LLMuteListObserver* observer);
+
+	std::map<LLUUID, S32> sVisuallyMuteSettingsMap;
+	std::map<LLUUID, S32> sVisuallyMuteDateMap;
+
+private:
+	void notifyObservers();
+	typedef std::set<LLMuteListObserver*> observer_set_t;
+	observer_set_t mObservers;
+};
+
 
 #endif //LL_MUTELIST_H
