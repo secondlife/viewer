@@ -1192,6 +1192,18 @@ class DarwinManifest(ViewerManifest):
                     keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
                     keychain_pwd = open(keychain_pwd_path).read().rstrip()
 
+                    # Note: As of macOS Sierra, keychains are created with names postfixed with '-db' so for example, the
+                    #       SL Viewer keychain would by default be found in ~/Library/Keychains/viewer.keychain-db instead of
+                    #       just ~/Library/Keychains/viewer.keychain in earlier versions.
+                    #
+                    #       Because we have old OS files from previous versions of macOS on the build hosts, the configurations
+                    #       are different on each host. Some have viewer.keychain, some have viewer.keychain-db and some have both.
+                    #       As you can see in the line below, this script expects the Linden Developer cert/keys to be in viewer.keychain.
+                    #
+                    #       To correctly sign builds you need to make sure ~/Library/Keychains/viewer.keychain exists on the host
+                    #       and that it contains the correct cert/key. If a build host is set up with a clean version of macOS Sierra (or later)
+                    #       then you will need to change this line (and the one for 'codesign' command below) to point to right place or else
+                    #       pull in the cert/key into the default viewer keychain 'viewer.keychain-db' and export it to 'viewer.keychain'
                     self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
                     signed=False
                     sign_attempts=3
@@ -1200,6 +1212,7 @@ class DarwinManifest(ViewerManifest):
                         try:
                             sign_attempts-=1;
                             self.run_command(
+                                # Note: See blurb above about names of keychains
                                'codesign --verbose --deep --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
                                    'home_path' : home_path,
                                    'identity': identity,
