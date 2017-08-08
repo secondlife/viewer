@@ -11,8 +11,9 @@ default
         llOwnerSay("Touched, starting tests");
 
         float test_time = 20.0;
-        float pause_time = 20.0;
-        list properties = ["materials", "specmap", "normalmap", "point_light", "bump", "alpha", "glow", "shiny"];
+        float pause_time = 8.0;
+        //list properties = ["materials", "specmap", "normalmap", "point_light", "bump", "alpha", "glow", "shiny"];
+        list properties = ["texture_res_128", "texture_res_1024"];
         integer length = llGetListLength(properties);
         integer index = 0;
         while (index < length)

@@ -1,7 +1,49 @@
 integer listenHandle; 
 
+integer change_textures(string diffuse_prefix, string normal_prefix, string spec_prefix, integer res, integer count)
+{
+    llOwnerSay("change_textures starts " + (string) res + (string) count);
+    integer start = llGetNumberOfPrims() > 1;
+    integer end = start + llGetNumberOfPrims();
+    integer i = 0;
+    integer link;
+    for(link=start; link < end; ++link)//loop through all prims
+    {
+        llOwnerSay("link " + (string) link + " change_textures");
+        integer face = 0;
+        for (;face < llGetLinkNumberOfSides(link);++face)
+        {
+            string diffuse_name = diffuse_prefix + "_" + (string) res + "_" + (string) i;
+            llOwnerSay("alter link " + (string) link + " face " + (string) face + " diffusemap " + diffuse_name);
+            llSetLinkPrimitiveParamsFast(link, [PRIM_TEXTURE, face, diffuse_name, <1,1,0>, <0,0,0>, 0]);
+            
+            string normal_name = normal_prefix + "_" + (string) res + "_" + (string) i;
+            llOwnerSay("alter link " + (string) link + " face " + (string) face + " normalmap " + normal_name);
+            llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, normal_name, <1,1,0>, <0,0,0>, 0]);
+            
+            string spec_name = spec_prefix + "_" + (string) res + "_" + (string) i;
+            llOwnerSay("alter link " + (string) link + " face " + (string) face + " specmap " + spec_name);
+            llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, spec_name, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
+
+            i = (i+1)%count;
+        }
+    }
+    return 0;
+}
+
 integer change_gstate(string gstate)
 {
+    llOwnerSay("change_gstate " + gstate);
+    if (gstate=="texture_res_128")
+    {
+        change_textures("cloud_texture","normal_map_rings","spec_map_rings",128,10);
+        return 0;
+    }
+    else if (gstate=="texture_res_1024")
+    {
+        change_textures("cloud_texture","normal_map_rings","spec_map_rings",1024,10);
+        return 0;
+    }
     integer start = llGetNumberOfPrims() > 1;
     integer end = start + llGetNumberOfPrims();
     integer link;
@@ -88,13 +130,21 @@ integer change_gstate(string gstate)
 // state, so just set it to a cheap default.
 integer clear_gstate(string gstate)
 {
+    if (gstate=="texture_res_128")
+    {
+        return 0;
+    }
+    else if (gstate=="texture_res_1024")
+    {
+        return 0;
+    }
     integer start = llGetNumberOfPrims() > 1;
     integer end = start + llGetNumberOfPrims();
     integer link;
     integer i = 0;
     for(link=start; link < end; ++link)//loop through all prims
     {
-        llOwnerSay("link " + (string) link + " change_gstate gstate " + gstate);
+        llOwnerSay("link " + (string) link + " clear_gstate gstate " + gstate);
         integer face = 0;
         for (;face < llGetLinkNumberOfSides(link);++face)
         {
