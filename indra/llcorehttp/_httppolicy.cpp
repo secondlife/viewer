@@ -450,7 +450,7 @@ bool HttpPolicy::stageAfterCompletion(const HttpOpRequest::ptr_t &op)
 
 	op->stageFromActive(mService);
 
-    HTTPStats::instance().recordResultCode(op->mStatus.getStatus());
+    HTTPStats::instance().recordResultCode(op->mStatus.getType());
 	return false;						// not active
 }
 

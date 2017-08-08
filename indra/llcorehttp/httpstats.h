@@ -55,12 +55,16 @@ namespace LLCore
             mDataUp.push(bytes);
         }
 
+        void    recordHTTPRequest() { ++mRequests; }
+
         void    recordResultCode(S32 code);
 
         void    dumpStats();
     private:
         StatsAccumulator mDataDown;
         StatsAccumulator mDataUp;
+
+        S32              mRequests;
 
         std::map<S32, S32> mResutCodes;
     };

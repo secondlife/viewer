@@ -52,7 +52,6 @@ namespace LLCore
 // ====================================
 // HttpRequest Implementation
 // ====================================
-HttpRequest::Statistics HttpRequest::mStatistics;
 
 
 HttpRequest::HttpRequest()
@@ -64,11 +63,7 @@ HttpRequest::HttpRequest()
 
 	mReplyQueue.reset( new HttpReplyQueue() );
 
-    ++mStatistics.mCurrentRequests;
-    ++mStatistics.mTotalRequests;
-
-    
-    LL_WARNS("HTTPRequest") << "New HttpRequest created (outstanding: " << mStatistics.mCurrentRequests << " total: " << mStatistics.mTotalRequests << ")" << LL_ENDL;
+    HTTPStats::instance().recordHTTPRequest();
 }
 
 
@@ -81,9 +76,6 @@ HttpRequest::~HttpRequest()
 	}
 
     mReplyQueue.reset();
-    --mStatistics.mCurrentRequests;
-
-    LL_WARNS("HTTPRequest") << "HttpRequest destroyed (outstanding: " << mStatistics.mCurrentRequests << " total: " << mStatistics.mTotalRequests << ")" << LL_ENDL;
 }
 
 

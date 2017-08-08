@@ -247,6 +247,25 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setHeaders(mReplyHeaders);
         response->setRequestURL(mReqURL);
 
+        std::string method("UNKNOWN");
+
+        if (mReqMethod == HOR_COPY)
+            method = "COPY";
+        else if (mReqMethod == HOR_DELETE)
+            method = "DELETE";
+        else if (mReqMethod == HOR_GET)
+            method = "GET";
+        else if (mReqMethod == HOR_MOVE)
+            method = "MOVE";
+        else if (mReqMethod == HOR_PATCH)
+            method = "PATCH";
+        else if (mReqMethod == HOR_POST)
+            method = "POST";
+        else if (mReqMethod == HOR_PUT)
+            method = "PUT";
+
+        response->setRequestMethod(method);
+
         if (mReplyOffset || mReplyLength)
 		{
 			// Got an explicit offset/length in response

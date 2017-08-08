@@ -44,6 +44,7 @@ void HTTPStats::resetStats()
     mResutCodes.clear();
     mDataDown.reset();
     mDataUp.reset();
+    mRequests = 0;
 }
 
 
@@ -60,15 +61,40 @@ void HTTPStats::recordResultCode(S32 code)
 
 }
 
+namespace
+{
+    std::string byte_count_converter(F32 bytes)
+    {
+        static const char unit_suffix[] = { 'B', 'K', 'M', 'G' };
+
+        F32 value = bytes;
+        int suffix = 0;
+
+        while ((value > 1024.0) && (suffix < 3))
+        {
+            value /= 1024.0;
+            ++suffix;
+        }
+
+        std::stringstream out;
+
+        out << std::setprecision(4) << value << unit_suffix[suffix];
+
+        return out.str();
+    }
+}
+
 void HTTPStats::dumpStats()
 {
     std::stringstream out;
 
-    out << "HTTPCore Stats" << std::endl;
-    out << "Bytes Sent: " << mDataUp.getSum() << std::endl;
-    out << "Bytes Recv: " << mDataDown.getSum() << std::endl;
+    out << "HTTP DATA SUMMARY" << std::endl;
+    out << "HTTP Transfer counts:" << std::endl;
+    out << "Data Sent: " << byte_count_converter(mDataUp.getSum()) << "   (" << mDataUp.getSum() << ")" << std::endl;
+    out << "Data Recv: " << byte_count_converter(mDataDown.getSum()) << "   (" << mDataDown.getSum() << ")" << std::endl;
+    out << "Total requests: " << mRequests << "(request objects created)" << std::endl;
+    out << std::endl;
     out << "Result Codes:" << std::endl << "--- -----" << std::endl;
-
 
     for (std::map<S32, S32>::iterator it = mResutCodes.begin(); it != mResutCodes.end(); ++it)
     { 

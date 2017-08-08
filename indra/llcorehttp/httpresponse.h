@@ -204,6 +204,15 @@ public:
             return mRequestUrl;
         }
 
+    void setRequestMethod(const std::string &method)
+        {
+            mRequestMethod = method;
+        }
+
+    const std::string &getRequestMethod() const
+        {
+            return mRequestMethod;
+        }
 
 protected:
 	// Response data here
@@ -217,6 +226,7 @@ protected:
 	unsigned int		mRetries;
 	unsigned int		m503Retries;
     std::string         mRequestUrl;
+    std::string         mRequestMethod;
 
 	TransferStats::ptr_t	mStats;
 };
