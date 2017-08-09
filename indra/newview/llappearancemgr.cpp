@@ -2057,6 +2057,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 				LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
 			}
 		}
+        mLastRequestedCategoryName = pcat->getName();
 	}
 	
 	// Collect and filter descendents to determine new COF contents.

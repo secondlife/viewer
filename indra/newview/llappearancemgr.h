@@ -118,6 +118,9 @@ public:
 	const LLViewerInventoryItem *getBaseOutfitLink();
 	bool getBaseOutfitName(std::string &name);
 
+    const std::string& getLastRequestedCategoryName() { return mLastRequestedCategoryName; }
+    std::string mLastRequestedCategoryName;
+    
 	// find the UUID of the currently worn outfit (Base Outfit)
 	const LLUUID getBaseOutfitUUID();
 

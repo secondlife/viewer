@@ -7030,10 +7030,25 @@ LLSD LLVOAvatar::getFrameData() const
     av_sd["ARCCalculated"] = (LLSD::Integer) getVisualComplexity();
     av_sd["ARCReported"] = (LLSD::Integer) getReportedVisualComplexity();
     av_sd["AttachmentSurfaceArea"] = (LLSD::Real) getAttachmentSurfaceArea();
-    std::string outfit_name;
-    if (isSelf() && LLAppearanceMgr::instance().getBaseOutfitName(outfit_name))
+    if (isSelf())
     {
-        av_sd["OutfitName"] = (LLSD::String) outfit_name;
+        std::string outfit_name;
+        if (LLAppearanceMgr::instance().getBaseOutfitName(outfit_name))
+        {
+            av_sd["OutfitName"] = (LLSD::String) outfit_name;
+        }
+        else
+        {
+            outfit_name = LLAppearanceMgr::instance().getLastRequestedCategoryName();
+            if (!outfit_name.empty())
+            {
+                av_sd["OutfitName"] = outfit_name;
+            }
+            else
+            {
+                av_sd["OutfitName"] = "Unknown Outfit";
+            }
+        }
     }
     LLSD av_attachments = LLSD::emptyArray();
 
