@@ -1326,6 +1326,8 @@ static LLTrace::BlockTimerStatHandle FTM_FRAME_DATA_LOGGING("FrameDataLogging");
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
+LLUUID g_unique_session_id;
+
 void LLAppViewer::doPerFrameStatsLogging()
 {
     if (LLTrace::BlockTimer::sLog)
@@ -1347,9 +1349,7 @@ void LLAppViewer::doPerFrameStatsLogging()
                     }
                     // Even if llHashedUniqueID fails, it zeroes the id string, so we have something.
                     session_sd["UniqueHostID"] = (LLSD::String) (char*) unique_id; 
-                    LLUUID unique_session_id;
-                    unique_session_id.generate();
-                    session_sd["UniqueSessionUUID"] = (LLSD::String) unique_session_id.asString(); 
+                    session_sd["UniqueSessionUUID"] = (LLSD::String) g_unique_session_id.asString(); 
                     session_sd["Platform"] = (LLSD::String) gPlatform;
                     session_sd["OSVersion"] = (LLSD::String) getOSInfo().getOSVersionString();
                     session_sd["DebugInfo"] = gDebugInfo;
@@ -2681,6 +2681,8 @@ bool LLAppViewer::initConfiguration()
         if (gSavedSettings.getString("PerformanceLogFormat")=="extended")
         {
             LLTrace::BlockTimer::sExtendedLogging = true;
+            g_unique_session_id.generate();
+            LLTrace::BlockTimer::sLogName += "_" + g_unique_session_id.asString();
         }
 	}
 	
