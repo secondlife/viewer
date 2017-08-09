@@ -237,9 +237,10 @@ private:
 
 	struct HeaderMetaInfo
 	{
-		HeaderMetaInfo() : mVersion(0){}
+		HeaderMetaInfo() : mVersion(0), mAddressSize(0) {}
 
 		U32 mVersion;
+		U32 mAddressSize;
 	};
 
 	struct header_entry_less

@@ -31,6 +31,7 @@
 #include "llapr.h"
 #include "lldir.h"
 #include "llimage.h"
+#include "llimagej2c.h" // for version control
 #include "lllfsthread.h"
 #include "llviewercontrol.h"
 
@@ -938,6 +939,14 @@ BOOL LLTextureCache::isInLocal(const LLUUID& id)
 F32 LLTextureCache::sHeaderCacheVersion = 1.7f;
 U32 LLTextureCache::sCacheMaxEntries = 1024 * 1024; //~1 million textures.
 S64 LLTextureCache::sCacheMaxTexturesSize = 0; // no limit
+std::string LLTextureCache::sHeaderCacheEncoderVersion = LLImageJ2C::getEngineInfo();
+
+#if defined(ADDRESS_SIZE)
+U32 LLTextureCache::sHeaderCacheAddressSize = ADDRESS_SIZE;
+#else
+U32 LLTextureCache::sHeaderCacheAddressSize = 32;
+#endif
+
 const char* entries_filename = "texture.entries";
 const char* cache_filename = "texture.cache";
 const char* old_textures_dirname = "textures";
@@ -1080,10 +1089,26 @@ void LLTextureCache::readEntriesHeader()
 	}
 	else //create an empty entries header.
 	{
-		mHeaderEntriesInfo.mVersion = sHeaderCacheVersion ;
-		mHeaderEntriesInfo.mEntries = 0 ;
+		setEntriesHeader();
 		writeEntriesHeader() ;
 	}
+}
+
+void LLTextureCache::setEntriesHeader()
+{
+	if (sHeaderEncoderStringSize < sHeaderCacheEncoderVersion.size() + 1)
+	{
+		// For simplicity we use predefined size of header, so if version string
+		// doesn't fit, either getEngineInfo() returned malformed string or 
+		// sHeaderEncoderStringSize need to be increased.
+		// Also take into accout that c_str() returns additional null character
+		LL_ERRS() << "Version string doesn't fit in header" << LL_ENDL;
+	}
+
+	mHeaderEntriesInfo.mVersion = sHeaderCacheVersion;
+	mHeaderEntriesInfo.mAdressSize = sHeaderCacheAddressSize;
+	strcpy(mHeaderEntriesInfo.mEncoderVersion, sHeaderCacheEncoderVersion.c_str());
+	mHeaderEntriesInfo.mEntries = 0;
 }
 
 void LLTextureCache::writeEntriesHeader()
@@ -1439,7 +1464,9 @@ void LLTextureCache::readHeaderCache()
 
 	readEntriesHeader();
 	
-	if (mHeaderEntriesInfo.mVersion != sHeaderCacheVersion)
+	if (mHeaderEntriesInfo.mVersion != sHeaderCacheVersion
+		|| mHeaderEntriesInfo.mAdressSize != sHeaderCacheAddressSize
+		|| strcmp(mHeaderEntriesInfo.mEncoderVersion, sHeaderCacheEncoderVersion.c_str()) != 0)
 	{
 		if (!mReadOnly)
 		{
@@ -1601,8 +1628,7 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 	mUpdatedEntryMap.clear();
 
 	// Info with 0 entries
-	mHeaderEntriesInfo.mVersion = sHeaderCacheVersion;
-	mHeaderEntriesInfo.mEntries = 0;
+	setEntriesHeader();
 	writeEntriesHeader();
 
 	LL_INFOS() << "The entire texture cache is cleared." << LL_ENDL ;
