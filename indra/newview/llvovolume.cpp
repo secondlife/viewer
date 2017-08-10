@@ -1359,9 +1359,9 @@ BOOL LLVOVolume::calcLOD()
                     total_tris += child_volp->getTriangleCount();
                 }
             }
-            setDebugText(llformat("TRIS %d TOTAL %d", my_tris, total_tris));
+            setDebugText(llformat("PRIMS %d TRIS %d TOTAL %d", 1+child_list.size(), my_tris, total_tris));
         }
-        else
+        else if (isRootEdit())
         {
             setDebugText(llformat("TRIS %d", my_tris));
         }
@@ -3601,7 +3601,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
 
-        LLMaterial* mat = te->getMaterialParams();
+        LLMaterial* mat = NULL;
+        if (te)
+        {
+            mat = te->getMaterialParams();
+        }
         if (mat)
         {
             materials = 1;
