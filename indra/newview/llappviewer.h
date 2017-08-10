@@ -103,6 +103,7 @@ public:
 	void setServerReleaseNotesURL(const std::string& url) { mServerReleaseNotesURL = url; }
 	LLSD getViewerInfo() const;
 	std::string getViewerInfoString() const;
+	std::string getShortViewerInfoString() const;
 
 	// Report true if under the control of a debugger. A null-op default.
 	virtual bool beingDebugged() { return false; } 

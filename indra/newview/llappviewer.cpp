@@ -3382,7 +3382,7 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
-	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
+	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : "Undefined";
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
 		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
@@ -3514,6 +3514,70 @@ std::string LLAppViewer::getViewerInfoString() const
 	// SLT timestamp
 	LLSD substitution;
 	substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
+	support << "\n" << LLTrans::getString("AboutTime", substitution);
+
+	return support.str();
+}
+
+std::string LLAppViewer::getShortViewerInfoString() const
+{
+	std::ostringstream support;
+	LLSD info(getViewerInfo());
+
+	support << LLTrans::getString("APP_NAME") << " " << info["VIEWER_VERSION_STR"].asString();
+	support << " (" << info["CHANNEL"].asString() << ")";
+	if (info.has("BUILD_CONFIG"))
+	{
+		support << "\n" << "Build Configuration " << info["BUILD_CONFIG"].asString();
+	}
+	if (info.has("REGION"))
+	{
+		support << "\n\n" << "You are at " << ll_vector3_from_sd(info["POSITION_LOCAL"]) << " in " << info["REGION"].asString();
+		support << " located at " << info["HOSTNAME"].asString() << " (" << info["HOSTIP"].asString() << ")";
+		support << "\n" << "SLURL: " << info["SLURL"].asString();
+		support << "\n" << "(Global coordinates " << ll_vector3_from_sd(info["POSITION"]) << ")";
+		support << "\n" << info["SERVER_VERSION"].asString();
+	}
+
+	support << "\n\n" << "CPU: " << info["CPU"].asString();
+	support << "\n" << "Memory: " << info["MEMORY_MB"].asString() << " MB";
+	support << "\n" << "OS: " << info["OS_VERSION"].asString();
+	support << "\n" << "Graphics Card: " << info["GRAPHICS_CARD"].asString() << " (" <<  info["GRAPHICS_CARD_VENDOR"].asString() << ")";
+
+	if (info.has("GRAPHICS_DRIVER_VERSION"))
+	{
+		support << "\n" << "Windows Graphics Driver Version: " << info["GRAPHICS_DRIVER_VERSION"].asString();
+	}
+
+	support << "\n" << "OpenGL Version: " << info["OPENGL_VERSION"].asString();
+
+	support << "\n\n" << "Window size:" << info["WINDOW_WIDTH"].asString() << "x" << info["WINDOW_HEIGHT"].asString();
+	support << "\n" << "Language: " << LLUI::getLanguage();
+	support << "\n" << "Font Size Adjustment: " << info["FONT_SIZE_ADJUSTMENT"].asString() << "pt";
+	support << "\n" << "UI Scaling: " << info["UI_SCALE"].asString();
+	support << "\n" << "Draw distance: " << info["DRAW_DISTANCE"].asString();
+	support << "\n" << "Bandwidth: " << info["NET_BANDWITH"].asString() << "kbit/s";
+	support << "\n" << "LOD factor: " << info["LOD_FACTOR"].asString();
+	support << "\n" << "Render quality: " << info["RENDER_QUALITY"].asString() << " / 7";
+	support << "\n" << "ALM: " << info["GPU_SHADERS"].asString();
+	support << "\n" << "Texture memory: " << info["TEXTURE_MEMORY"].asString() << "MB";
+	support << "\n" << "VFS (cache) creation time: " << info["VFS_TIME"].asString();
+
+	support << "\n\n" << "J2C Decoder: " << info["J2C_VERSION"].asString();
+	support << "\n" << "Audio Driver: " << info["AUDIO_DRIVER_VERSION"].asString();
+	support << "\n" << "LLCEFLib/CEF: " << info["LLCEFLIB_VERSION"].asString();
+	support << "\n" << "LibVLC: " << info["LIBVLC_VERSION"].asString();
+	support << "\n" << "Voice Server: " << info["VOICE_VERSION"].asString();
+
+	if (info.has("PACKETS_IN"))
+	{
+		support << "\n" << "Packets Lost: " << info["PACKETS_LOST"].asInteger() << "/" << info["PACKETS_IN"].asInteger();
+		F32 packets_pct = info["PACKETS_PCT"].asReal();
+		support << " (" << ll_round(packets_pct, 0.001f) << "%)";
+	}
+
+	LLSD substitution;
+	substitution["datetime"] = (S32)time(NULL);
 	support << "\n" << LLTrans::getString("AboutTime", substitution);
 
 	return support.str();
