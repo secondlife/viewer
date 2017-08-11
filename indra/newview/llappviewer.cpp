@@ -1101,6 +1101,14 @@ bool LLAppViewer::init()
 		}
 	}
 
+	char* PARENT = getenv("PARENT");
+	if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
+	{
+		// Don't directly run this executable. Please run the launcher, which
+		// will run the viewer itself.
+		LLNotificationsUtil::add("RunLauncher");
+	}
+
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{

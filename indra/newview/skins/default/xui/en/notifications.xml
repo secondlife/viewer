@@ -1760,6 +1760,13 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
+   name="RunLauncher"
+   type="alertmodal">
+Please do not directly run the viewer executable. Update any existing shortcuts to run SL_Launcher instead.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
