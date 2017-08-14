@@ -77,6 +77,7 @@ private:
 	void handleLoginSuccess(const LLSD& event);
 	void handleDisconnect(const LLSD& event);
 	void handleIndeterminate(const LLSD& event);
+    void handleLoginDisallowed(const LLSD& notification, const LLSD& response);
 
 	bool handleTOSResponse(bool v, const std::string& key);
 

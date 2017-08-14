@@ -40,6 +40,7 @@
 // other Linden headers
 #include "../test/lltut.h"
 #include "llevents.h"
+#include "llnotificationsutil.h"
 
 #if defined(LL_WINDOWS)
 #pragma warning(disable: 4355)      // using 'this' in base-class ctor initializer expr
@@ -110,6 +111,19 @@ void LLCredential::identifierType(std::string &idType)
 
 void LLCredential::authenticatorType(std::string &idType)
 {
+}
+
+LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
+                                           const LLSD& substitutions, 
+                                           const LLSD& payload, 
+                                           boost::function<void (const LLSD&, const LLSD&)> functor)
+{
+    return LLNotificationPtr((LLNotification*)NULL);
+}
+
+LLNotificationPtr LLNotificationsUtil::add(const std::string& name, const LLSD& args)
+{
+    return LLNotificationPtr((LLNotification*)NULL);
 }
 
 //-----------------------------------------------------------------------------

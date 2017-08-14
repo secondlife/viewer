@@ -31,6 +31,7 @@
 // llcommon
 #include "llevents.h"
 #include "stringize.h"
+#include "llsdserialize.h"
 
 // llmessage (!)
 #include "llfiltersd2xmlrpc.h" // for xml_escape_string()
@@ -47,12 +48,10 @@
 #include "llstartup.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
-#if LL_LINUX
-#include "lltrans.h"
-#endif
 #include "llsecapi.h"
 #include "llstartup.h"
 #include "llmachineid.h"
@@ -250,8 +249,6 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
-	
-
 	// Login has failed. 
 	// Figure out why and respond...
 	LLSD response = event["data"];
@@ -302,11 +299,40 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 					boost::bind(&LLLoginInstance::handleTOSResponse, 
 								this, _1, "read_critical"));
 	}
+	else if(reason_response == "update")
+	{
+        // This shouldn't happen - the viewer manager should have forced an update; 
+        // possibly the user ran the viewer directly and bypassed the update check
+        std::string required_version = response["message_args"]["VERSION"];
+		LL_WARNS() << "Login failed because an update to version " << required_version << " is required." << LL_ENDL;
+
+		if (gViewerWindow)
+			gViewerWindow->setShowProgress(FALSE);
+
+		LLSD data(LLSD::emptyMap());
+        data["VERSION"] = required_version;
+        LLNotificationsUtil::add("RequiredUpdate", data, LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
+	}
+	else if(reason_response == "key")
+	{
+        // this is a password problem or other restriction
+        // an appropriate message has already been displayed
+        attemptComplete();
+    }
 	else
 	{	
-		LL_INFOS() << "LLLoginInstance::handleLoginFailure attemptComplete" << LL_ENDL;
-		attemptComplete();
+		LL_WARNS() << "Login failed for an unknown reason: " << LLSDOStreamer<LLSDNotationFormatter>(response) << LL_ENDL;
+
+		if (gViewerWindow)
+			gViewerWindow->setShowProgress(FALSE);
+
+        LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
 	}	
+}
+
+void LLLoginInstance::handleLoginDisallowed(const LLSD& notification, const LLSD& response)
+{
+    attemptComplete();
 }
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)
@@ -362,6 +388,7 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 	LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
 	return true;
 }
+
 
 std::string construct_start_string()
 {
