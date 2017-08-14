@@ -3825,6 +3825,14 @@ Please set the object for sale and try again.
 
   <notification
    icon="alertmodal.tga"
+   name="FinishedRawDownload"
+   type="alertmodal">
+Finished download of raw terrain file to:
+[DOWNLOAD_PATH].
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RequiredUpdate"
    type="alertmodal">
 Version [VERSION] is required for login.
@@ -3840,11 +3848,12 @@ Please download from https://secondlife.com/support/downloads/
    icon="alertmodal.tga"
    name="LoginFailedUnknown"
    type="alertmodal">
-Login failed for an unrecognized reason.
+Sorry, login failed for an unrecognized reason.
+If you continue to get this message, please check the [SUPPORT_SITE].
     <tag>confirm</tag>
     <usetemplate
      name="okbutton"
-     yestext="Sorry"/>
+     yestext="Quit"/>
   </notification>
 
   <notification

@@ -299,35 +299,35 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 					boost::bind(&LLLoginInstance::handleTOSResponse, 
 								this, _1, "read_critical"));
 	}
-	else if(reason_response == "update")
-	{
+    else if(reason_response == "update")
+    {
         // This shouldn't happen - the viewer manager should have forced an update; 
         // possibly the user ran the viewer directly and bypassed the update check
         std::string required_version = response["message_args"]["VERSION"];
-		LL_WARNS() << "Login failed because an update to version " << required_version << " is required." << LL_ENDL;
+        LL_WARNS() << "Login failed because an update to version " << required_version << " is required." << LL_ENDL;
 
-		if (gViewerWindow)
-			gViewerWindow->setShowProgress(FALSE);
+        if (gViewerWindow)
+            gViewerWindow->setShowProgress(FALSE);
 
-		LLSD data(LLSD::emptyMap());
+        LLSD data(LLSD::emptyMap());
         data["VERSION"] = required_version;
         LLNotificationsUtil::add("RequiredUpdate", data, LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
-	}
-	else if(reason_response == "key")
-	{
+    }
+    else if(reason_response == "key")
+    {
         // this is a password problem or other restriction
         // an appropriate message has already been displayed
         attemptComplete();
     }
-	else
-	{	
-		LL_WARNS() << "Login failed for an unknown reason: " << LLSDOStreamer<LLSDNotationFormatter>(response) << LL_ENDL;
+    else
+    {   
+        LL_WARNS() << "Login failed for an unknown reason: " << LLSDOStreamer<LLSDNotationFormatter>(response) << LL_ENDL;
 
-		if (gViewerWindow)
-			gViewerWindow->setShowProgress(FALSE);
+        if (gViewerWindow)
+            gViewerWindow->setShowProgress(FALSE);
 
         LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
-	}	
+    }   
 }
 
 void LLLoginInstance::handleLoginDisallowed(const LLSD& notification, const LLSD& response)
