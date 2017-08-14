@@ -247,24 +247,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setHeaders(mReplyHeaders);
         response->setRequestURL(mReqURL);
 
-        std::string method("UNKNOWN");
-
-        if (mReqMethod == HOR_COPY)
-            method = "COPY";
-        else if (mReqMethod == HOR_DELETE)
-            method = "DELETE";
-        else if (mReqMethod == HOR_GET)
-            method = "GET";
-        else if (mReqMethod == HOR_MOVE)
-            method = "MOVE";
-        else if (mReqMethod == HOR_PATCH)
-            method = "PATCH";
-        else if (mReqMethod == HOR_POST)
-            method = "POST";
-        else if (mReqMethod == HOR_PUT)
-            method = "PUT";
-
-        response->setRequestMethod(method);
+        response->setRequestMethod(methodToString(mReqMethod));
 
         if (mReplyOffset || mReplyLength)
 		{
@@ -1161,6 +1144,25 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	return 0;
 }
 
+std::string HttpOpRequest::methodToString(const HttpOpRequest::EMethod &e)
+{
+    if (e == HOR_COPY)
+        return "COPY";
+    else if (e == HOR_DELETE)
+        return  "DELETE";
+    else if (e == HOR_GET)
+        return "GET";
+    else if (e == HOR_MOVE)
+        return "MOVE";
+    else if (e == HOR_PATCH)
+        return "PATCH";
+    else if (e == HOR_POST)
+        return "POST";
+    else if (e == HOR_PUT)
+        return "PUT";
+
+    return "UNKNOWN";
+}
 
 }   // end namespace LLCore
 
