@@ -249,56 +249,56 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
-	// Login has failed. 
-	// Figure out why and respond...
-	LLSD response = event["data"];
-	std::string reason_response = response["reason"].asString();
-	std::string message_response = response["message"].asString();
-	// For the cases of critical message or TOS agreement,
-	// start the TOS dialog. The dialog response will be handled
-	// by the LLLoginInstance::handleTOSResponse() callback.
-	// The callback intiates the login attempt next step, either 
-	// to reconnect or to end the attempt in failure.
-	if(reason_response == "tos")
-	{
-		LL_INFOS() << "LLLoginInstance::handleLoginFailure ToS" << LL_ENDL;
+    // Login has failed. 
+    // Figure out why and respond...
+    LLSD response = event["data"];
+    std::string reason_response = response["reason"].asString();
+    std::string message_response = response["message"].asString();
+    // For the cases of critical message or TOS agreement,
+    // start the TOS dialog. The dialog response will be handled
+    // by the LLLoginInstance::handleTOSResponse() callback.
+    // The callback intiates the login attempt next step, either 
+    // to reconnect or to end the attempt in failure.
+    if(reason_response == "tos")
+    {
+        LL_INFOS() << "LLLoginInstance::handleLoginFailure ToS" << LL_ENDL;
 
-		LLSD data(LLSD::emptyMap());
-		data["message"] = message_response;
-		data["reply_pump"] = TOS_REPLY_PUMP;
-		if (gViewerWindow)
-			gViewerWindow->setShowProgress(FALSE);
-		LLFloaterReg::showInstance("message_tos", data);
-		LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
-			.listen(TOS_LISTENER_NAME,
-					boost::bind(&LLLoginInstance::handleTOSResponse, 
-								this, _1, "agree_to_tos"));
-	}
-	else if(reason_response == "critical")
-	{
-		LL_INFOS() << "LLLoginInstance::handleLoginFailure Crit" << LL_ENDL;
+        LLSD data(LLSD::emptyMap());
+        data["message"] = message_response;
+        data["reply_pump"] = TOS_REPLY_PUMP;
+        if (gViewerWindow)
+            gViewerWindow->setShowProgress(FALSE);
+        LLFloaterReg::showInstance("message_tos", data);
+        LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
+            .listen(TOS_LISTENER_NAME,
+                    boost::bind(&LLLoginInstance::handleTOSResponse, 
+                                this, _1, "agree_to_tos"));
+    }
+    else if(reason_response == "critical")
+    {
+        LL_INFOS() << "LLLoginInstance::handleLoginFailure Crit" << LL_ENDL;
 
-		LLSD data(LLSD::emptyMap());
-		data["message"] = message_response;
-		data["reply_pump"] = TOS_REPLY_PUMP;
-		if(response.has("error_code"))
-		{
-			data["error_code"] = response["error_code"];
-		}
-		if(response.has("certificate"))
-		{
-			data["certificate"] = response["certificate"];
-		}
-		
-		if (gViewerWindow)
-			gViewerWindow->setShowProgress(FALSE);
+        LLSD data(LLSD::emptyMap());
+        data["message"] = message_response;
+        data["reply_pump"] = TOS_REPLY_PUMP;
+        if(response.has("error_code"))
+        {
+            data["error_code"] = response["error_code"];
+        }
+        if(response.has("certificate"))
+        {
+            data["certificate"] = response["certificate"];
+        }
+        
+        if (gViewerWindow)
+            gViewerWindow->setShowProgress(FALSE);
 
-		LLFloaterReg::showInstance("message_critical", data);
-		LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
-			.listen(TOS_LISTENER_NAME,
-					boost::bind(&LLLoginInstance::handleTOSResponse, 
-								this, _1, "read_critical"));
-	}
+        LLFloaterReg::showInstance("message_critical", data);
+        LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
+            .listen(TOS_LISTENER_NAME,
+                    boost::bind(&LLLoginInstance::handleTOSResponse, 
+                                this, _1, "read_critical"));
+    }
     else if(reason_response == "update")
     {
         // This shouldn't happen - the viewer manager should have forced an update; 
