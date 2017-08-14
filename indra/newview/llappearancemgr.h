@@ -291,6 +291,9 @@ public:
 	BOOL getIsInCOF(const LLUUID& obj_id) const;
 	// Is this in the COF and can the user delete it from the COF?
 	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
+
+	// Outfits will prioritize textures with such name to use for preview in gallery
+	static const std::string sExpectedTextureName;
 };
 
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback

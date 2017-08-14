@@ -699,13 +699,24 @@ void LLOutfitGalleryItem::draw()
     const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if (mTexturep)
     {
-        LLRect interior = border;
-        interior.stretch(-1);
+        if (mImageUpdatePending && mTexturep->getDiscardLevel() >= 0)
+        {
+            mImageUpdatePending = false;
+            if (mTexturep->getOriginalWidth() > MAX_OUTFIT_PHOTO_WIDTH || mTexturep->getOriginalHeight() > MAX_OUTFIT_PHOTO_HEIGHT)
+            {
+                setDefaultImage();
+            }
+        }
+        else
+        {
+            LLRect interior = border;
+            interior.stretch(-1);
 
-        gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
+            gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
 
-        // Pump the priority
-        mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
+            // Pump the priority
+            mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
+        }
     }
     
 }
@@ -771,12 +782,19 @@ BOOL LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
     return LLPanel::handleDoubleClick(x, y, mask);
 }
 
-void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
+bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 {
-    mImageAssetId = image_asset_id;
-    mTexturep = LLViewerTextureManager::getFetchedTexture(image_asset_id, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-    getChildView("preview_outfit")->setVisible(FALSE);
-    mDefaultImage = false;
+    LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(image_asset_id, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    if (texture && texture->getOriginalWidth() <= MAX_OUTFIT_PHOTO_WIDTH && texture->getOriginalHeight() <= MAX_OUTFIT_PHOTO_HEIGHT)
+    {
+        mImageAssetId = image_asset_id;
+        mTexturep = texture;
+        getChildView("preview_outfit")->setVisible(FALSE);
+        mDefaultImage = false;
+        mImageUpdatePending = (texture->getDiscardLevel() == -1);
+        return true;
+    }
+    return false;
 }
 
 LLUUID LLOutfitGalleryItem::getImageAssetId()
@@ -790,6 +808,7 @@ void LLOutfitGalleryItem::setDefaultImage()
     mImageAssetId.setNull();
     getChildView("preview_outfit")->setVisible(TRUE);
     mDefaultImage = true;
+    mImageUpdatePending = false;
 }
 
 LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
@@ -1025,13 +1044,28 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
         BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
         {
             LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-            if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            LLUUID asset_id, inv_id;
+            std::string item_name;
+            if (linked_item != NULL)
             {
-                LLUUID asset_id = linked_item->getAssetUUID();
-                mOutfitMap[category_id]->setImageAssetId(asset_id);
-                photo_loaded = true;
-                std::string linked_item_name = linked_item->getName();
-                if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == linked_item_name)
+                if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+                {
+                    asset_id = linked_item->getAssetUUID();
+                    inv_id = linked_item->getUUID();
+                    item_name = linked_item->getName();
+                }
+            }
+            else if (outfit_item->getActualType() == LLAssetType::AT_TEXTURE)
+            {
+                asset_id = outfit_item->getAssetUUID();
+                inv_id = outfit_item->getUUID();
+                item_name = outfit_item->getName();
+            }
+            if (asset_id.notNull())
+            {
+                photo_loaded |= mOutfitMap[category_id]->setImageAssetId(asset_id);
+                // Rename links
+                if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == item_name)
                 {
                     LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(mOutfitRenamePending);
                     LLStringUtil::format_map_t photo_string_args;
@@ -1039,7 +1073,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                     std::string new_name = getString("outfit_photo_string", photo_string_args);
                     LLSD updates;
                     updates["name"] = new_name;
-                    update_inventory_item(linked_item->getUUID(), updates, NULL);
+                    update_inventory_item(inv_id, updates, NULL);
                     mOutfitRenamePending.setNull();
                     LLFloater* inv_floater = LLFloaterReg::getInstance("inventory");
                     if (inv_floater)
@@ -1052,7 +1086,11 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                         appearance_floater->setFocus(TRUE);
                     }
                 }
-                break;
+                if (item_name == LLAppearanceMgr::sExpectedTextureName)
+                {
+                    // Images with "appropriate" name take priority
+                    break;
+                }
             }
             if (!photo_loaded)
             {
@@ -1067,6 +1105,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
     }
 }
 
+// Refresh linked textures from "textures" uploads folder
 void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
 {
     LLInventoryModel::cat_array_t cat_array;
