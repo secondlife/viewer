@@ -3356,6 +3356,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
 	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
+	gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::getAddressSize();
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 
