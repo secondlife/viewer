@@ -34,6 +34,7 @@
 #include "_httppolicyclass.h"
 
 #include "lltimer.h"
+#include "httpstats.h"
 
 namespace
 {
@@ -448,6 +449,8 @@ bool HttpPolicy::stageAfterCompletion(const HttpOpRequest::ptr_t &op)
 	}
 
 	op->stageFromActive(mService);
+
+    HTTPStats::instance().recordResultCode(op->mStatus.getType());
 	return false;						// not active
 }
 
