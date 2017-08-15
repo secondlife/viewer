@@ -5260,13 +5260,13 @@ void LLVOAvatar::resetAnimations()
 
 // Override selectively based on avatar sex and whether we're using new
 // animations.
-LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
+LLUUID LLVOAvatar::remapMotionID(const LLUUID& id, ESex gender)
 {
 	BOOL use_new_walk_run = gSavedSettings.getBOOL("UseNewWalkRun");
 	LLUUID result = id;
 
 	// start special case female walk for female avatars
-	if (getSex() == SEX_FEMALE)
+	if (gender == SEX_FEMALE)
 	{
 		if (id == ANIM_AGENT_WALK)
 		{
@@ -5316,7 +5316,7 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
 	LL_DEBUGS() << "motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << LL_ENDL;
 
-	LLUUID remap_id = remapMotionID(id);
+	LLUUID remap_id = remapMotionID(id, getSex());
 
 	if (remap_id != id)
 	{
@@ -5338,8 +5338,13 @@ BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
 	LL_DEBUGS() << "motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << LL_ENDL;
 
-	LLUUID remap_id = remapMotionID(id);
-	
+	LLUUID remap_id = remapMotionID(id, getSex());
+	if (findMotion(remap_id) == NULL)
+	{
+		//possibility of encountering animation from the previous gender
+		remap_id = remapMotionID(id, (getSex() == SEX_MALE) ? SEX_FEMALE : SEX_MALE);
+	}
+
 	if (remap_id != id)
 	{
 		LL_DEBUGS() << "motion resultant " << remap_id.asString() << " " << gAnimLibrary.animationName(remap_id) << LL_ENDL;
