@@ -1222,6 +1222,11 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const LLUUID& obj_id = (*obj_iter);
 		if(!highlight_offered_object(obj_id))
 		{
+			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(obj_id);
+			if (parent && (parent->getPreferredType() == LLFolderType::FT_TRASH))
+			{
+				gInventory.checkTrashOverflow();
+			}
 			continue;
 		}
 
@@ -2836,6 +2841,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_INVENTORY_ACCEPTED:
 	{
 		args["NAME"] = LLSLURL("agent", from_id, "completename").getSLURLString();;
+		args["ORIGINAL_NAME"] = original_name;
 		LLSD payload;
 		payload["from_id"] = from_id;
 		// Passing the "SESSION_NAME" to use it for IM notification logging

@@ -87,6 +87,10 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 	{ "/shout"	, CHAT_TYPE_SHOUT}
 };
 
+bool cb_do_nothing()
+{
+	return false;
+}
 
 LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
 :	LLFloaterIMSessionTab(LLSD(LLUUID::null)),
@@ -97,6 +101,12 @@ LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
     mIsP2PChat = false;
 	mIsNearbyChat = true;
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+
+	// Required by LLFloaterIMSessionTab::mGearBtn
+	// But nearby floater has no 'per agent' menu items, 
+	mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&cb_do_nothing));
+	mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&cb_do_nothing));
+	mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&cb_do_nothing));
 }
 
 //static

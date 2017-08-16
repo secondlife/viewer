@@ -201,6 +201,8 @@ public:
 
 	virtual BOOL	isSelected(const LLSD& value) const;
 
+	BOOL 			hasSelectedItem() const;
+
 	BOOL			handleClick(S32 x, S32 y, MASK mask);
 	BOOL			selectFirstItem();
 	BOOL			selectNthItem( S32 index );

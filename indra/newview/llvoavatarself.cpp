@@ -2246,7 +2246,9 @@ bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
 {
 	const F32 AV_METRICS_INTERVAL_QA = 30.0;
 	F32 send_period = 300.0;
-	if (gSavedSettings.getBOOL("QAModeMetrics"))
+
+	static LLCachedControl<bool> qa_mode_metrics(gSavedSettings,"QAModeMetrics");
+	if (qa_mode_metrics)
 	{
 		send_period = AV_METRICS_INTERVAL_QA;
 	}

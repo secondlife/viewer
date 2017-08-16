@@ -638,20 +638,20 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	// HACK - highlight buttons for next click
 	mRadioGroupMove->setVisible(move_visible);
-	if (!gGrabBtnSpin && 
-		!gGrabBtnVertical &&
-		!(mask == MASK_VERTICAL) && 
-		!(mask == MASK_SPIN) )
+	if (!(gGrabBtnSpin || 
+		gGrabBtnVertical || 
+		(mask == MASK_VERTICAL) || 
+		(mask == MASK_SPIN)))
 	{
 		mRadioGroupMove->setValue("radio move");
 	}
-	else if (gGrabBtnVertical || 
-			 (mask == MASK_VERTICAL) )
+	else if ((mask == MASK_VERTICAL) ||
+			 (gGrabBtnVertical && (mask != MASK_SPIN)))
 	{
 		mRadioGroupMove->setValue("radio lift");
 	}
-	else if (gGrabBtnSpin || 
-			 (mask == MASK_SPIN) )
+	else if ((mask == MASK_SPIN) || 
+			 (gGrabBtnSpin && (mask != MASK_VERTICAL)))
 	{
 		mRadioGroupMove->setValue("radio spin");
 	}

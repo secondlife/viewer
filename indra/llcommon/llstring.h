@@ -1325,6 +1325,10 @@ void LLStringUtilBase<T>::removeCRLF(string_type& string)
 template<class T> 
 void LLStringUtilBase<T>::removeWindowsCR(string_type& string)
 {
+    if (string.empty())
+    {
+        return;
+    }
     const T LF = 10;
     const T CR = 13;
 
