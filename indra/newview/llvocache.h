@@ -268,6 +268,9 @@ public:
 
 	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
 
+	U32 getCacheEntries() { return mNumEntries; }
+	U32 getCacheEntriesMax() { return mCacheSize; }
+
 private:
 	void setDirNames(ELLPath location);	
 	// determine the cache filename for the region from the region handle	

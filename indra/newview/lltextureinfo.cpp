@@ -26,10 +26,19 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
+#include "llmeshrepository.h"
+#include "llsdutil.h"
 #include "lltextureinfo.h"
+#include "lltexturecache.h"
+#include "lltexturefetch.h"
 #include "lltexturestats.h"
-#include "llviewercontrol.h"
 #include "lltrace.h"
+#include "llviewercontrol.h"
+#include "llviewerregion.h"
+#include "llviewerstats.h"
+#include "llvocache.h"
+#include "llworld.h"
 
 static LLTrace::CountStatHandle<S32> sTextureDownloadsStarted("texture_downloads_started", "number of texture downloads initiated");
 static LLTrace::CountStatHandle<S32> sTextureDownloadsCompleted("texture_downloads_completed", "number of texture downloads completed");
@@ -175,6 +184,43 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 			endTime << completeTime;
 			texture_data["end_time"] = endTime.str();
 			texture_data["averages"] = getAverages();
+
+			// Texture cache
+			LLSD texture_cache;
+			U32 cache_read = 0, cache_write = 0, res_wait = 0;
+			F64 cache_hit_rate = 0;
+			LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
+			if (cache_read > 0 || cache_write > 0)
+			{
+				cache_hit_rate = cache_read / (cache_read + cache_write);
+			}
+			texture_cache["cache_read"] = LLSD::Integer(cache_read);
+			texture_cache["cache_write"] = LLSD::Integer(cache_write);
+			texture_cache["hit_rate"] = LLSD::Real(cache_hit_rate);
+			texture_cache["entries"] = LLSD::Integer(LLAppViewer::getTextureCache()->getEntries());
+			texture_cache["space_max"] = ll_sd_from_U64((U64)LLAppViewer::getTextureCache()->getMaxUsage().value()); // bytes
+			texture_cache["space_used"] = ll_sd_from_U64((U64)LLAppViewer::getTextureCache()->getUsage().value()); // bytes
+			texture_data["texture_cache"] = texture_cache;
+
+			// VO and mesh cache
+			LLSD object_cache;
+			object_cache["vo_entries_max"] = LLSD::Integer(LLVOCache::getInstance()->getCacheEntriesMax());
+			object_cache["vo_entries_curent"] = LLSD::Integer(LLVOCache::getInstance()->getCacheEntries());
+			object_cache["vo_active_entries"] = LLSD::Integer(LLWorld::getInstance()->getNumOfActiveCachedObjects());
+			U64 region_hit_count = gAgent.getRegion() != NULL ? gAgent.getRegion()->getRegionCacheHitCount() : 0;
+			U64 region_miss_count = gAgent.getRegion() != NULL ? gAgent.getRegion()->getRegionCacheMissCount() : 0;
+			F64 region_vocache_hit_rate = 0;
+			if (region_hit_count > 0 || region_miss_count > 0)
+			{
+				region_vocache_hit_rate = region_hit_count / (region_hit_count + region_miss_count);
+			}
+			object_cache["vo_region_hitcount"] = ll_sd_from_U64(region_hit_count);
+			object_cache["vo_region_misscount"] = ll_sd_from_U64(region_miss_count);
+			object_cache["vo_region_hitrate"] = LLSD::Real(region_vocache_hit_rate);
+			object_cache["mesh_reads"] = LLSD::Integer(LLMeshRepository::sCacheReads);
+			object_cache["mesh_writes"] = LLSD::Integer(LLMeshRepository::sCacheWrites);
+			texture_data["object_cache"] = object_cache;
+
 			send_texture_stats_to_sim(texture_data);
 			resetTextureStatistics();
 		}
