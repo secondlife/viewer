@@ -215,7 +215,8 @@ void HttpRequestTestObjectType::test<1>()
 		HttpRequest::destroyService();
 
 		// make sure we didn't leak any memory
-		ensure("Memory returned", mMemTotal == GetMemTotal());
+		// nat 2017-08-15 don't: requires total stasis in every other subsystem
+//		ensure("Memory returned", mMemTotal == GetMemTotal());
 	}
 	catch (...)
 	{
