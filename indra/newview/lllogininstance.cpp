@@ -493,10 +493,12 @@ LLLoginInstance::LLLoginInstance() :
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,
-									  const std::string platform_version)
+									  const std::string platform_version,
+                                      const std::string platform_name)
 {
 	mPlatform = platform;
 	mPlatformVersion = platform_version;
+    mPlatformVersionName = platform_name;
 }
 
 LLLoginInstance::~LLLoginInstance()
@@ -565,7 +567,6 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("event_notifications");
 	requested_options.append("classified_categories");
 	requested_options.append("adult_compliant"); 
-	//requested_options.append("inventory-targets");
 	requested_options.append("buddy-list");
 	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
@@ -587,8 +588,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 		requested_options.append("god-connect");
 	}
 	
-	// (re)initialize the request params with creds.
-	LLSD request_params = user_credential->getLoginParams();
+	LLSD request_params;
 
 	unsigned char hashed_unique_id_string[MD5HEX_STR_SIZE];
 	if ( ! llHashedUniqueID(hashed_unique_id_string) )
@@ -606,9 +606,23 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["platform"] = mPlatform;
 	request_params["platform_version"] = mPlatformVersion;
+	request_params["platform_string"] = mPlatformVersionName;
 	request_params["id0"] = mSerialNumber;
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args
+
+    // log request_params _before_ adding the credentials   
+    LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
+
+    // Copy the credentials into the request after logging the rest
+    LLSD credentials(user_credential->getLoginParams());
+    for (LLSD::map_const_iterator it = credentials.beginMap();
+         it != credentials.endMap();
+         it++
+         )
+    {
+        request_params[it->first] = it->second;
+    }
 
 	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";
