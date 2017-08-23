@@ -41,16 +41,13 @@ LLFloaterLinkReplace::LLFloaterLinkReplace(const LLSD& key)
 	mRemainingItems(0),
 	mSourceUUID(LLUUID::null),
 	mTargetUUID(LLUUID::null),
-	mInstance(NULL),
 	mBatchSize(gSavedSettings.getU32("LinkReplaceBatchSize"))
 {
 	mEventTimer.stop();
-	mInstance = this;
 }
 
 LLFloaterLinkReplace::~LLFloaterLinkReplace()
 {
-	mInstance = NULL;
 }
 
 BOOL LLFloaterLinkReplace::postBuild()
@@ -180,11 +177,9 @@ void LLFloaterLinkReplace::onStartClicked()
 	}
 }
 
-void LLFloaterLinkReplace::linkCreatedCallback(const LLUUID& old_item_id,
-												const LLUUID& target_item_id,
-												bool needs_wearable_ordering_update,
-												bool needs_description_update,
-												const LLUUID& outfit_folder_id)
+// static
+void LLFloaterLinkReplace::linkCreatedCallback(LLHandle<LLFloaterLinkReplace> floater_handle, const LLUUID& old_item_id, const LLUUID& target_item_id,
+												bool needs_wearable_ordering_update, bool needs_description_update, const LLUUID& outfit_folder_id)
 {
 	LL_DEBUGS() << "Inventory link replace:" << LL_NEWLINE
 		<< " - old_item_id = " << old_item_id.asString() << LL_NEWLINE
@@ -239,20 +234,21 @@ void LLFloaterLinkReplace::linkCreatedCallback(const LLUUID& old_item_id,
 		outfit_update_folder = outfit_folder_id;
 	}
 
-	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(&LLFloaterLinkReplace::itemRemovedCallback, this, outfit_update_folder));
+	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(&LLFloaterLinkReplace::itemRemovedCallback, floater_handle, outfit_update_folder));
 	remove_inventory_object(old_item_id, cb);
 }
 
-void LLFloaterLinkReplace::itemRemovedCallback(const LLUUID& outfit_folder_id)
+// static
+void LLFloaterLinkReplace::itemRemovedCallback(LLHandle<LLFloaterLinkReplace> floater_handle, const LLUUID& outfit_folder_id)
 {
 	if (outfit_folder_id.notNull())
 	{
 		LLAppearanceMgr::getInstance()->updateClothingOrderingInfo(outfit_folder_id);
 	}
 
-	if (mInstance)
+	if (!floater_handle.isDead())
 	{
-		decreaseOpenItemCount();
+		floater_handle.get()->decreaseOpenItemCount();
 	}
 }
 
@@ -324,7 +320,7 @@ void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)
 			LLInventoryObject::const_object_list_t obj_array;
 			obj_array.push_back(LLConstPointer<LLInventoryObject>(target_item));
 			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(&LLFloaterLinkReplace::linkCreatedCallback,
-																											this,
+																											getDerivedHandle<LLFloaterLinkReplace>(),
 																											source_item->getUUID(),
 																											target_item->getUUID(),
 																											needs_wearable_ordering_update,

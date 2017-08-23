@@ -478,38 +478,52 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
 	}
 
 	//--------------------------------------------------
+	// Determine target mode
+	//--------------------------------------------------
+	bool vertical_dragging = false;
+	bool spin_grabbing = false;
+	if ((mask == MASK_VERTICAL)
+		|| (gGrabBtnVertical && (mask != MASK_SPIN)))
+	{
+		vertical_dragging = TRUE;
+	}
+	else if ((mask == MASK_SPIN)
+			|| (gGrabBtnSpin && (mask != MASK_VERTICAL)))
+	{
+		spin_grabbing = TRUE;
+	}
+
+	//--------------------------------------------------
 	// Toggle spinning
 	//--------------------------------------------------
-	if (mSpinGrabbing && !(mask == MASK_SPIN) && !gGrabBtnSpin)
+	if (mSpinGrabbing && !spin_grabbing)
 	{
-		// user released ALT key, stop spinning
+		// user released or switched mask key(s), stop spinning
 		stopSpin();
 	}
-	else if (!mSpinGrabbing && (mask == MASK_SPIN) )
+	else if (!mSpinGrabbing && spin_grabbing)
 	{
-		// user pressed ALT key, start spinning
+		// user pressed mask key(s), start spinning
 		startSpin();
 	}
+	mSpinGrabbing = spin_grabbing;
 
 	//--------------------------------------------------
 	// Toggle vertical dragging
 	//--------------------------------------------------
-	if (mVerticalDragging && !(mask == MASK_VERTICAL) && !gGrabBtnVertical)
+	if (mVerticalDragging && !vertical_dragging)
 	{
 		// ...switch to horizontal dragging
-		mVerticalDragging = FALSE;
-
 		mDragStartPointGlobal = gViewerWindow->clickPointInWorldGlobal(x, y, objectp);
 		mDragStartFromCamera = mDragStartPointGlobal - gAgentCamera.getCameraPositionGlobal();
 	}
-	else if (!mVerticalDragging && (mask == MASK_VERTICAL) )
+	else if (!mVerticalDragging && vertical_dragging)
 	{
 		// ...switch to vertical dragging
-		mVerticalDragging = TRUE;
-
 		mDragStartPointGlobal = gViewerWindow->clickPointInWorldGlobal(x, y, objectp);
 		mDragStartFromCamera = mDragStartPointGlobal - gAgentCamera.getCameraPositionGlobal();
 	}
+	mVerticalDragging = vertical_dragging;
 
 	const F32 RADIANS_PER_PIXEL_X = 0.01f;
 	const F32 RADIANS_PER_PIXEL_Y = 0.01f;
@@ -755,12 +769,13 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
 		//--------------------------------------------------
 		// Toggle vertical dragging
 		//--------------------------------------------------
-		if (mVerticalDragging && !(mask == MASK_VERTICAL) && !gGrabBtnVertical)
+		if (!(mask == MASK_VERTICAL) && !gGrabBtnVertical)
 		{
 			mVerticalDragging = FALSE;
 		}
 	
-		else if (!mVerticalDragging && (mask == MASK_VERTICAL) )
+		else if ((gGrabBtnVertical && (mask != MASK_SPIN)) 
+				|| (mask == MASK_VERTICAL))
 		{
 			mVerticalDragging = TRUE;
 		}

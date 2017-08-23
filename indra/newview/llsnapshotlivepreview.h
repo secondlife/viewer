@@ -41,6 +41,7 @@ class LLSnapshotLivePreview : public LLView
 	LOG_CLASS(LLSnapshotLivePreview);
 public:
 
+	static BOOL saveLocal(LLPointer<LLImageFormatted>);
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Params()

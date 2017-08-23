@@ -130,6 +130,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 	mEditor->setFocusReceivedCallback( boost::bind(&LLSpinCtrl::onEditorGainFocus, _1, this ));
+	mEditor->setFocusLostCallback( boost::bind(&LLSpinCtrl::onEditorLostFocus, _1, this ));
 	if (p.allow_digits_only)
 	{
 		mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);
@@ -237,6 +238,31 @@ void LLSpinCtrl::onEditorGainFocus( LLFocusableElement* caller, void *userdata )
 	llassert( caller == self->mEditor );
 
 	self->onFocusReceived();
+}
+
+// static
+void LLSpinCtrl::onEditorLostFocus( LLFocusableElement* caller, void *userdata )
+{
+	LLSpinCtrl* self = (LLSpinCtrl*) userdata;
+	llassert( caller == self->mEditor );
+
+	self->onFocusLost();
+
+	std::string text = self->mEditor->getText();
+
+	LLLocale locale(LLLocale::USER_LOCALE);
+	F32 val = (F32)atof(text.c_str());
+
+	F32 saved_val = self->getValueF32();
+	if (saved_val != val && !self->mEditor->isDirty())
+	{
+		// Editor was focused when value update arrived, string
+		// in editor is different from one in spin control.
+		// Since editor is not dirty, it won't commit, so either
+		// attempt to commit value from editor or revert to a more
+		// recent value from spin control
+		self->updateEditor();
+	}
 }
 
 void LLSpinCtrl::setValue(const LLSD& value )

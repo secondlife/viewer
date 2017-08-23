@@ -86,7 +86,7 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 	}
 
 	std::string session_name = notification->getPayload()["SESSION_NAME"];
-	const std::string name = notification->getSubstitutions()["NAME"];
+	const std::string name = LLHandlerUtil::getSubstitutionOriginalName(notification);
 	if (session_name.empty())
 	{
 		session_name = name;

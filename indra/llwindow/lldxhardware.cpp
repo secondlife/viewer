@@ -35,6 +35,7 @@
 #undef INITGUID
 
 #include <wbemidl.h>
+#include <comdef.h>
 
 #include <boost/tokenizer.hpp>
 
@@ -204,6 +205,160 @@ HRESULT GetVideoMemoryViaWMI( WCHAR* strInputDeviceID, DWORD* pdwAdapterRam )
         return S_OK;
     else
         return E_FAIL;
+}
+
+//Getting the version of graphics controller driver via WMI
+std::string LLDXHardware::getDriverVersionWMI()
+{
+	std::string mDriverVersion;
+	HRESULT hrCoInitialize = S_OK;
+	HRESULT hres;
+	hrCoInitialize = CoInitialize(0);
+	IWbemLocator *pLoc = NULL;
+
+	hres = CoCreateInstance(
+		CLSID_WbemLocator,
+		0,
+		CLSCTX_INPROC_SERVER,
+		IID_IWbemLocator, (LPVOID *)&pLoc);
+	
+	if (FAILED(hres))
+	{
+		LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << hres << LL_ENDL;
+		return std::string();                  // Program has failed.
+	}
+
+	IWbemServices *pSvc = NULL;
+
+	// Connect to the root\cimv2 namespace with
+	// the current user and obtain pointer pSvc
+	// to make IWbemServices calls.
+	hres = pLoc->ConnectServer(
+		_bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
+		NULL,                    // User name. NULL = current user
+		NULL,                    // User password. NULL = current
+		0,                       // Locale. NULL indicates current
+		NULL,                    // Security flags.
+		0,                       // Authority (e.g. Kerberos)
+		0,                       // Context object 
+		&pSvc                    // pointer to IWbemServices proxy
+		);
+
+	if (FAILED(hres))
+	{
+		LL_WARNS("AppInit") << "Could not connect. Error code = 0x" << hres << LL_ENDL;
+		pLoc->Release();
+		CoUninitialize();
+		return std::string();                // Program has failed.
+	}
+
+	LL_DEBUGS("AppInit") << "Connected to ROOT\\CIMV2 WMI namespace" << LL_ENDL;
+
+	// Set security levels on the proxy -------------------------
+	hres = CoSetProxyBlanket(
+		pSvc,                        // Indicates the proxy to set
+		RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+		RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+		NULL,                        // Server principal name 
+		RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+		RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+		NULL,                        // client identity
+		EOAC_NONE                    // proxy capabilities 
+		);
+
+	if (FAILED(hres))
+	{
+		LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x" << hres << LL_ENDL;
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		return std::string();               // Program has failed.
+	}
+	IEnumWbemClassObject* pEnumerator = NULL;
+
+	// Get the data from the query
+	ULONG uReturn = 0;
+	hres = pSvc->ExecQuery( 
+		bstr_t("WQL"),
+		bstr_t("SELECT * FROM Win32_VideoController"), //Consider using Availability to filter out disabled controllers
+		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+		NULL,
+		&pEnumerator);
+
+	if (FAILED(hres))
+	{
+		LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x" << hres << LL_ENDL;
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		return std::string();               // Program has failed.
+	}
+
+	while (pEnumerator)
+	{
+		IWbemClassObject *pclsObj = NULL;
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1,
+			&pclsObj, &uReturn);
+
+		if (0 == uReturn)
+		{
+			break;               // If quantity less then 1.
+		}
+
+		VARIANT vtProp;
+
+		// Get the value of the Name property
+		hr = pclsObj->Get(L"DriverVersion", 0, &vtProp, 0, 0);
+
+		if (FAILED(hr))
+		{
+			LL_WARNS("AppInit") << "Query for name property failed." << " Error code = 0x" << hr << LL_ENDL;
+			pSvc->Release();
+			pLoc->Release();
+			CoUninitialize();
+			return std::string();               // Program has failed.
+		}
+
+		// use characters in the returned driver version
+		BSTR driverVersion(vtProp.bstrVal);
+
+		//convert BSTR to std::string
+		std::wstring ws(driverVersion, SysStringLen(driverVersion));
+		std::string str(ws.begin(), ws.end());
+		LL_INFOS("AppInit") << " DriverVersion : " << str << LL_ENDL;
+
+		if (mDriverVersion.empty())
+		{
+			mDriverVersion = str;
+		}
+		else if (mDriverVersion != str)
+		{
+			LL_WARNS("DriverVersion") << "Different versions of drivers. Version of second driver : " << str << LL_ENDL;
+		}
+
+		VariantClear(&vtProp);
+		pclsObj->Release();
+	}
+
+	// Cleanup
+	// ========
+	if (pSvc)
+	{
+		pSvc->Release();
+	}
+	if (pLoc)
+	{
+		pLoc->Release();
+	}
+	if (pEnumerator)
+	{
+		pEnumerator->Release();
+	}
+	if (SUCCEEDED(hrCoInitialize))
+	{
+		CoUninitialize();
+	}
+	return mDriverVersion;
 }
 
 void get_wstring(IDxDiagContainer* containerp, WCHAR* wszPropName, WCHAR* wszPropValue, int outputSize)
