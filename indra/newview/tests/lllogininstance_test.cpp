@@ -354,7 +354,7 @@ namespace tut
 			accountCredential->setCredentialData(identifier, authenticator);			
 
 			logininstance->setNotificationsInterface(&notifications);
-			logininstance->setPlatformInfo("win", "1.3.5");
+			logininstance->setPlatformInfo("win", "1.3.5", "Windows Bogus Version 100.6.6.6");
 		}
 
 		LLLoginInstance* logininstance;
