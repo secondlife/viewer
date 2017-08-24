@@ -63,6 +63,11 @@
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
 
+// this can be removed once it is defined by the build for all forks
+#ifndef ADDRESS_SIZE
+#  define ADDRESS_SIZE 32
+#endif
+
 class LLLoginInstance::Disposable {
 public:
 	virtual ~Disposable() {}
@@ -605,6 +610,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["version"] = LLVersionInfo::getVersion();
 	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["platform"] = mPlatform;
+	request_params["address_size"] = ADDRESS_SIZE;
 	request_params["platform_version"] = mPlatformVersion;
 	request_params["platform_string"] = mPlatformVersionName;
 	request_params["id0"] = mSerialNumber;
