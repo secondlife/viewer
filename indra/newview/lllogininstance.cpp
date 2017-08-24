@@ -59,6 +59,7 @@
 #include "llupdaterservice.h"
 #include "llevents.h"
 #include "llappviewer.h"
+#include "llsdserialize.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
