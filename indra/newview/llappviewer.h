@@ -98,8 +98,6 @@ public:
 
 	void writeDebugInfo(bool isStatic=true);
 
-	const LLOSInfo& getOSInfo() const { return mSysOSInfo; }
-
 	void setServerReleaseNotesURL(const std::string& url) { mServerReleaseNotesURL = url; }
 	LLSD getViewerInfo() const;
 	std::string getViewerInfoString() const;
@@ -270,8 +268,6 @@ private:
 	std::string mLogoutMarkerFileName;
 	LLAPRFile mLogoutMarkerFile; // A file created to indicate the app is running.
 
-	
-	LLOSInfo mSysOSInfo; 
 	bool mReportedCrash;
 
 	std::string mServerReleaseNotesURL;

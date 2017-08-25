@@ -733,7 +733,7 @@ LLAppViewer::LLAppViewer()
 	//
 	
 	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
-	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString());
+	LLLoginInstance::instance().setPlatformInfo(gPlatform, LLOSInfo::instance().getOSVersionString());
 }
 
 LLAppViewer::~LLAppViewer()
@@ -3110,7 +3110,7 @@ void LLAppViewer::initUpdater()
 	mUpdater->initialize(channel, 
 						 version,
 						 gPlatform,
-						 getOSInfo().getOSVersionString(),
+						 LLOSInfo::instance().getOSVersionString(),
 						 unique_id,
 						 willing_to_test
 						 );
@@ -3192,10 +3192,13 @@ bool LLAppViewer::initWindow()
 		
     
 #ifdef LL_DARWIN
-    //Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
-   if (getOSInfo().mMajorVer == 10 && getOSInfo().mMinorVer < 7)
-		if ( getOSInfo().mMinorVer == 6 && getOSInfo().mBuild < 8 )
-       		gViewerWindow->getWindow()->setOldResize(true);
+	//Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
+	LLOSInfo& os_info = LLOSInfo::instance();
+	if (os_info.mMajorVer == 10 && os_info.mMinorVer < 7)
+	{
+		if ( os_info.mMinorVer == 6 && os_info.mBuild < 8 )
+			gViewerWindow->getWindow()->setOldResize(true);
+	}
 #endif
     
 	if (gSavedSettings.getBOOL("WindowMaximized"))
@@ -3337,7 +3340,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["CPU"] = gSysCPU.getCPUString();
 	info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Megabytes>());
 	// Moved hack adjustment to Windows memory size into llsys.cpp
-	info["OS_VERSION"] = LLAppViewer::instance()->getOSInfo().getOSString();
+	info["OS_VERSION"] = LLOSInfo::instance().getOSString();
 	info["GRAPHICS_CARD_VENDOR"] = (const char*)(glGetString(GL_VENDOR));
 	info["GRAPHICS_CARD"] = (const char*)(glGetString(GL_RENDERER));
 
@@ -3659,7 +3662,7 @@ void LLAppViewer::writeSystemInfo()
 	
 	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB().value());
 	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
-	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
+	gDebugInfo["OSInfo"] = LLOSInfo::instance().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url
 	// which may have been the intended grid. 
@@ -3701,8 +3704,8 @@ void LLAppViewer::writeSystemInfo()
 	// query some system information
 	LL_INFOS("SystemInfo") << "CPU info:\n" << gSysCPU << LL_ENDL;
 	LL_INFOS("SystemInfo") << "Memory info:\n" << gSysMemory << LL_ENDL;
-	LL_INFOS("SystemInfo") << "OS: " << getOSInfo().getOSStringSimple() << LL_ENDL;
-	LL_INFOS("SystemInfo") << "OS info: " << getOSInfo() << LL_ENDL;
+	LL_INFOS("SystemInfo") << "OS: " << LLOSInfo::instance().getOSStringSimple() << LL_ENDL;
+	LL_INFOS("SystemInfo") << "OS info: " << LLOSInfo::instance() << LL_ENDL;
 
     gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();

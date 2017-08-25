@@ -791,7 +791,7 @@ void LLPanelLogin::loadLoginPage()
 	params["grid"] = LLGridManager::getInstance()->getGridId();
 
 	// add OS info
-	params["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	params["os"] = LLOSInfo::instance().getOSStringSimple();
 
 	// sourceid
 	params["sourceid"] = gSavedSettings.getString("sourceid");

@@ -489,7 +489,7 @@ void send_stats()
 	LLSD &system = body["system"];
 	
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
-	system["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	system["os"] = LLOSInfo::instance().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
 	LLUUID::getNodeID(MACAddress);
