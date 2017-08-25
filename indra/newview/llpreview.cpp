@@ -62,7 +62,8 @@ LLPreview::LLPreview(const LLSD& key)
 	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
 	mAssetStatus(PREVIEW_ASSET_UNLOADED),
-	mDirty(TRUE)
+	mDirty(TRUE),
+	mSaveDialogShown(FALSE)
 {
 	mAuxItem = new LLInventoryItem;
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action

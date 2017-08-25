@@ -167,6 +167,7 @@ private:
 	LLLiveLSLFile*	mLiveFile;
 	LLUUID			mAssociatedExperience;
 	BOOL			mScriptRemoved;
+	BOOL			mSaveDialogShown;
 
 	LLScriptEdContainer* mContainer; // parent view
 
