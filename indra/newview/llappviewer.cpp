@@ -735,7 +735,7 @@ LLAppViewer::LLAppViewer()
 	//
 	
 	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
-	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString());
+	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString(), getOSInfo().getOSStringSimple());
 }
 
 LLAppViewer::~LLAppViewer()
