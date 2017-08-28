@@ -124,12 +124,12 @@ bool LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 
 	// Temporary buffer to hold the encoded image. Note: the final image
 	// size should be much smaller due to compression.
-	U32 bufferSize = getWidth() * getHeight() * getComponents() + 1024;
+	U32 bufferSize = getWidth() * getHeight() * getComponents() + 8192;
     U8* tmpWriteBuffer = new U8[ bufferSize ];
 
 	// Delegate actual encoding work to wrapper
 	LLPngWrapper pngWrapper;
-	if (! pngWrapper.writePng(raw_image, tmpWriteBuffer))
+	if (!pngWrapper.writePng(raw_image, tmpWriteBuffer, bufferSize))
 	{
 		setLastError(pngWrapper.getErrorMessage());
 		delete[] tmpWriteBuffer;
