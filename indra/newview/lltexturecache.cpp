@@ -1615,9 +1615,9 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 				gDirUtilp->deleteFilesInDir(dirname, mask);
 			}
 		}
+		gDirUtilp->deleteFilesInDir(mTexturesDirName, mask); // headers, fast cache
 		if (purge_directories)
 		{
-			gDirUtilp->deleteFilesInDir(mTexturesDirName, mask);
 			LLFile::rmdir(mTexturesDirName);
 		}
 	}
