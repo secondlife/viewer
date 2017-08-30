@@ -3966,7 +3966,7 @@ void LLTexturePipelineTester::updateStablizingTime()
 }
 
 //virtual 
-void LLTexturePipelineTester::compareTestSessions(std::ofstream* os) 
+void LLTexturePipelineTester::compareTestSessions(llofstream* os) 
 {	
 	LLTexturePipelineTester::LLTextureTestSession* base_sessionp = dynamic_cast<LLTexturePipelineTester::LLTextureTestSession*>(mBaseSessionp);
 	LLTexturePipelineTester::LLTextureTestSession* current_sessionp = dynamic_cast<LLTexturePipelineTester::LLTextureTestSession*>(mCurrentSessionp);
