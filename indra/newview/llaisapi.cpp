@@ -394,6 +394,40 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         {
             status = LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Malformed response contents");
         }
+        else if (status.getType() == 410) //GONE
+        {
+            // Item does not exist or was already deleted from server.
+            // parent folder is out of sync
+            if (type == REMOVECATEGORY)
+            {
+                LLViewerInventoryCategory *cat = gInventory.getCategory(targetId);
+                if (cat)
+                {
+                    LL_WARNS("Inventory") << "Purge failed for '" << cat->getName()
+                        << "' local version:" << cat->getVersion()
+                        << " since folder no longer exists at server. Descendent count: server == " << cat->getDescendentCount()
+                        << ", viewer == " << cat->getViewerDescendentCount()
+                        << LL_ENDL;
+                    gInventory.fetchDescendentsOf(cat->getParentUUID());
+                    // Note: don't delete folder here - contained items will be deparented (or deleted)
+                    // and since we are clearly out of sync we can't be sure we won't get rid of something we need.
+                    // For example folder could have been moved or renamed with items intact, let it fetch first.
+                }
+            }
+            else if (type == REMOVEITEM)
+            {
+                LLViewerInventoryItem *item = gInventory.getItem(targetId);
+                if (item)
+                {
+                    LL_WARNS("Inventory") << "Purge failed for '" << item->getName()
+                        << "' since item no longer exists at server." << LL_ENDL;
+                    gInventory.fetchDescendentsOf(item->getParentUUID());
+                    // since item not on the server and exists at viewer, so it needs an update at the least,
+                    // so delete it, in worst case item will be refetched with new params.
+                    gInventory.onObjectDeletedFromServer(targetId);
+                }
+            }
+        }
         LL_WARNS("Inventory") << "Inventory error: " << status.toString() << LL_ENDL;
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
     }
@@ -970,7 +1004,16 @@ void AISUpdate::doUpdate()
             // inventory COF is maintained on the viewer through calls to 
             // LLInventoryModel::accountForUpdate when a changing operation 
             // is performed.  This occasionally gets out of sync however.
-            cat->setVersion(version);
+            if (version != LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                cat->setVersion(version);
+            }
+            else
+            {
+                // We do not account for update if version is UNKNOWN, so we shouldn't rise version
+                // either or viewer will get stuck on descendants count -1, try to refetch folder instead
+                cat->fetch();
+            }
 		}
 	}
 

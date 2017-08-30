@@ -1285,7 +1285,7 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 	showWearablesListView();
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
-	applyListViewFilter((EListViewItemType) (LVIT_SHAPE + type));
+	applyListViewFilter(static_cast<EListViewItemType>(LVIT_SHAPE + type));
 }
 
 static void update_status_widget_rect(LLView * widget, S32 right_border)
@@ -1305,8 +1305,10 @@ void LLPanelOutfitEdit::onOutfitChanging(bool started)
 	S32 delta = started ? indicator_delta : 0;
 	S32 right_border = status_panel->getRect().getWidth() - delta;
 
-	update_status_widget_rect(mCurrentOutfitName, right_border);
-	update_status_widget_rect(mStatus, right_border);
+	if (mCurrentOutfitName)
+		update_status_widget_rect(mCurrentOutfitName, right_border);
+	if (mStatus)
+		update_status_widget_rect(mStatus, right_border);
 
 	indicator->setVisible(started);
 }

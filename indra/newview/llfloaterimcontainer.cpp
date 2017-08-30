@@ -1150,11 +1150,11 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		}
 		else if ("block_unblock" == command)
 		{
-			toggleMute(userID, LLMute::flagVoiceChat);
+			LLAvatarActions::toggleMute(userID, LLMute::flagVoiceChat);
 		}
 		else if ("mute_unmute" == command)
 		{
-			toggleMute(userID, LLMute::flagTextChat);
+			LLAvatarActions::toggleMute(userID, LLMute::flagTextChat);
 		}
 		else if ("selected" == command || "mute_all" == command || "unmute_all" == command)
 		{
@@ -2094,24 +2094,6 @@ void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
 	{
 		speaker_managerp->toggleAllowTextChat(participant_uuid);
 	}
-}
-
-void LLFloaterIMContainer::toggleMute(const LLUUID& participant_id, U32 flags)
-{
-        BOOL is_muted = LLMuteList::getInstance()->isMuted(participant_id, flags);
-
-        LLAvatarName av_name;
-        LLAvatarNameCache::get(participant_id, &av_name);
-        LLMute mute(participant_id, av_name.getUserName(), LLMute::AGENT);
-
-        if (!is_muted)
-        {
-                LLMuteList::getInstance()->add(mute, flags);
-        }
-        else
-        {
-                LLMuteList::getInstance()->remove(mute, flags);
-        }
 }
 
 void LLFloaterIMContainer::openNearbyChat()
