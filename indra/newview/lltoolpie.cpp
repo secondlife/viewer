@@ -113,7 +113,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseDownY = y;
 
 	//left mouse down always picks transparent (but see handleMouseUp)
-	mPick = gViewerWindow->pickImmediate(x, y, FALSE, FALSE);
+	mPick = gViewerWindow->pickImmediate(x, y, TRUE, FALSE);
 	mPick.mKeyMask = mask;
 
 	mMouseButtonDown = true;
