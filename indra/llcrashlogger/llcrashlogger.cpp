@@ -462,7 +462,7 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     
 	updateApplication("Sending reports...");
 
-	std::ofstream out_file(report_file.c_str());
+	llofstream out_file(report_file.c_str());
 	LLSDSerialize::toPrettyXML(post_data, out_file);
     out_file.flush();
 	out_file.close();
