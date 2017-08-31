@@ -815,7 +815,7 @@
     <key>FramePerSecondLimit</key>
     <map>
       <key>Comment</key>
-      <string>Test</string>
+      <string>Controls upper limit of frames per second</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
