@@ -1287,13 +1287,13 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	{
 		const LLUUID &trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(trash_id);
-		return children != LLInventoryModel::CHILDREN_NO;
+		return children != LLInventoryModel::CHILDREN_NO && gInventory.isCategoryComplete(trash_id);
 	}
 	if (command_name == "empty_lostnfound")
 	{
 		const LLUUID &trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(trash_id);
-		return children != LLInventoryModel::CHILDREN_NO;
+		return children != LLInventoryModel::CHILDREN_NO && gInventory.isCategoryComplete(trash_id);
 	}
 
 	return TRUE;

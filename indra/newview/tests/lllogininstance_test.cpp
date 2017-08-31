@@ -362,7 +362,7 @@ namespace tut
 			accountCredential->setCredentialData(identifier, authenticator);			
 
 			logininstance->setNotificationsInterface(&notifications);
-			logininstance->setPlatformInfo("win", "1.3.5");
+			logininstance->setPlatformInfo("win", "1.3.5", "Windows Bogus Version 100.6.6.6");
 		}
 
 		LLLoginInstance* logininstance;
@@ -478,109 +478,4 @@ namespace tut
 		ensure_equals("Default for agree to tos", gLoginCreds["params"]["read_critical"].asBoolean(), false);
 	}
 
-    template<> template<>
-    void lllogininstance_object::test<3>()
-    {
-		set_test_name("Test Mandatory Update User Accepts");
-
-		// Part 1 - Mandatory Update, with User accepts response.
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "update";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-
-		notifications.sendYesResponse();
-
-		ensure("Disconnected", !(logininstance->authSuccess()));
-	}
-
-	template<> template<>
-    void lllogininstance_object::test<4>()
-    {
-		set_test_name("Test Mandatory Update User Decline");
-
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "update";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-		notifications.sendNoResponse();
-
-		ensure("Disconnected", !(logininstance->authSuccess()));
-	}
-
-	template<> template<>
-    void lllogininstance_object::test<6>()
-    {
-		set_test_name("Test Optional Update User Accept");
-
-		// Part 3 - Mandatory Update, with bogus response.
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "optional";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-		notifications.sendYesResponse();
-
-		ensure("Disconnected", !(logininstance->authSuccess()));
-	}
-
-	template<> template<>
-    void lllogininstance_object::test<7>()
-    {
-		set_test_name("Test Optional Update User Denies");
-
-		// Part 3 - Mandatory Update, with bogus response.
-		// Test connect with update needed.
-		logininstance->connect(agentCredential);
-
-		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
-
-		// Update needed failure response.
-		LLSD response;
-		response["state"] = "offline";
-		response["change"] = "fail.login";
-		response["progress"] = 0.0;
-		response["transfer_rate"] = 7;
-		response["data"]["reason"] = "optional";
-		gTestPump.post(response);
-
-		ensure_equals("Notification added", notifications.addedCount(), 1);
-		notifications.sendNoResponse();
-
-		// User skips, should be reconnecting.
-		ensure_equals("reconnect uri", gLoginURI, VIEWERLOGIN_URI); 
-		ensure_equals("skipping optional update", gLoginCreds["params"]["skipoptional"].asBoolean(), true); 
-	}
 }

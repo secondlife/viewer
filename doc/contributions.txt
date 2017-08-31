@@ -362,6 +362,7 @@ Cinder Roxley
     STORM-2053
     STORM-2113
     STORM-2127
+    STORM-2144
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -821,6 +822,8 @@ Kitty Barnett
 	MAINT-6153
 	MAINT-6154
 	MAINT-6568
+	STORM-2149
+	MAINT-7581
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
@@ -1302,6 +1305,7 @@ Sovereign Engineer
     MAINT-6218
     MAINT-6913
     STORM-2143
+    STORM-2148
     MAINT-7343
 SpacedOut Frye
 	VWR-34

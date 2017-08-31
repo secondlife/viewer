@@ -115,8 +115,6 @@ public:
     void onBeforeOutfitSnapshotSave();
     void onAfterOutfitSnapshotSave();
 
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
     /*virtual*/ void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid);
@@ -150,7 +148,7 @@ private:
     void updateRowsIfNeeded();
     void updateGalleryWidth();
 
-    LLOutfitGalleryItem* buildGalleryItem(std::string name);
+    LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id);
 
     void onTextureSelectionChanged(LLInventoryItem* itemp);
 
@@ -258,6 +256,7 @@ public:
     /*virtual*/ void draw();
     /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
     /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
     void setDefaultImage();
     void setImageAssetId(LLUUID asset_id);
@@ -265,6 +264,7 @@ public:
     void setOutfitName(std::string name);
     void setOutfitWorn(bool value);
     void setSelected(bool value);
+    void setUUID(LLUUID outfit_id) {mUUID = outfit_id;}
     
     std::string getItemName() {return mOutfitName;}
     bool isDefaultImage() {return mDefaultImage;}
@@ -274,6 +274,7 @@ public:
     
 private:
     LLPointer<LLViewerFetchedTexture> mTexturep;
+    LLUUID mUUID;
     LLUUID mImageAssetId;
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;

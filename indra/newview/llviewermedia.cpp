@@ -3052,20 +3052,23 @@ void LLViewerMediaImpl::update()
 					data = mMediaSource->getBitsData();
 				}
 
-				// Offset the pixels pointer to match x_pos and y_pos
-				data += ( x_pos * mMediaSource->getTextureDepth() * mMediaSource->getBitsWidth() );
-				data += ( y_pos * mMediaSource->getTextureDepth() );
-
+				if(data != NULL)
 				{
-					LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
-					placeholder_image->setSubImage(
-							data,
-							mMediaSource->getBitsWidth(),
-							mMediaSource->getBitsHeight(),
-							x_pos,
-							y_pos,
-							width,
-							height);
+					// Offset the pixels pointer to match x_pos and y_pos
+					data += ( x_pos * mMediaSource->getTextureDepth() * mMediaSource->getBitsWidth() );
+					data += ( y_pos * mMediaSource->getTextureDepth() );
+
+					{
+						LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
+									placeholder_image->setSubImage(
+									data,
+									mMediaSource->getBitsWidth(),
+									mMediaSource->getBitsHeight(),
+									x_pos,
+									y_pos,
+									width,
+									height);
+					}
 				}
 
 			}

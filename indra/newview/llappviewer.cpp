@@ -594,6 +594,7 @@ static void settings_to_globals()
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
+	LLVOVolume::sForceLOD				= gSavedSettings.getS32("RenderForceVolumeLOD");
 	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
 	LLVOVolume::sDistanceFactor			= 1.f-LLVOVolume::sLODFactor * 0.1f;
 	LLVolumeImplFlexible::sUpdateFactor = gSavedSettings.getF32("RenderFlexTimeFactor");
@@ -734,7 +735,7 @@ LLAppViewer::LLAppViewer()
 	//
 	
 	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
-	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString());
+	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString(), getOSInfo().getOSStringSimple());
 }
 
 LLAppViewer::~LLAppViewer()
@@ -3341,10 +3342,19 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["GRAPHICS_CARD"] = (const char*)(glGetString(GL_RENDERER));
 
 #if LL_WINDOWS
-	LLSD driver_info = gDXHardware.getDisplayInfo();
-	if (driver_info.has("DriverVersion"))
+	std::string drvinfo = gDXHardware.getDriverVersionWMI();
+	if (!drvinfo.empty())
 	{
-		info["GRAPHICS_DRIVER_VERSION"] = driver_info["DriverVersion"];
+		info["GRAPHICS_DRIVER_VERSION"] = drvinfo;
+	}
+	else
+	{
+		LL_WARNS("Driver version")<< "Cannot get driver version from getDriverVersionWMI" << LL_ENDL;
+		LLSD driver_info = gDXHardware.getDisplayInfo();
+		if (driver_info.has("DriverVersion"))
+		{
+			info["GRAPHICS_DRIVER_VERSION"] = driver_info["DriverVersion"];
+		}
 	}
 #endif
 

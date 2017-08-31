@@ -6760,12 +6760,27 @@ void LLSelectMgr::pauseAssociatedAvatars()
         if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
             isAgentAvatarValid() && object->getParent() != NULL)
         {
-            mPauseRequests.push_back(gAgentAvatarp->requestPause());
+            if (object->isAnimatedObject())
+            {
+                // Is an animated object attachment.
+                // Pause both the control avatar and the avatar it's attached to.
+                if (object->getControlAvatar())
+                {
+                    mPauseRequests.push_back(object->getControlAvatar()->requestPause());
+                }
+                mPauseRequests.push_back(gAgentAvatarp->requestPause());
+            }
+            else
+            {
+                // Is a regular attachment. Pause the avatar it's attached to.
+                mPauseRequests.push_back(gAgentAvatarp->requestPause());
+            }
         }
         else
         {
             if (object && object->isAnimatedObject() && object->getControlAvatar())
             {
+                // Is a non-attached animated object. Pause the control avatar.
                 mPauseRequests.push_back(object->getControlAvatar()->requestPause());
             }
         }

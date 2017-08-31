@@ -1462,9 +1462,17 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 	}
 
 	bool size_okay = true;
-	
-	U32 raw_width = mRawImage->getWidth() << mRawDiscardLevel;
-	U32 raw_height = mRawImage->getHeight() << mRawDiscardLevel;
+
+	S32 discard_level = mRawDiscardLevel;
+	if (mRawDiscardLevel < 0)
+	{
+		LL_DEBUGS() << "Negative raw discard level when creating image: " << mRawDiscardLevel << LL_ENDL;
+		discard_level = 0;
+	}
+
+	U32 raw_width = mRawImage->getWidth() << discard_level;
+	U32 raw_height = mRawImage->getHeight() << discard_level;
+
 	if( raw_width > MAX_IMAGE_SIZE || raw_height > MAX_IMAGE_SIZE )
 	{
 		LL_INFOS() << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << raw_width << "," << raw_height << ")" << LL_ENDL;
@@ -2081,7 +2089,9 @@ bool LLViewerFetchedTexture::updateFetch()
 	{
 		make_request = false;
 	}
-	else if(mCachedRawImage.notNull() && (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
+	else if(mCachedRawImage.notNull() // can be empty
+			&& mCachedRawImageReady
+			&& (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
 	{
 		make_request = false;
 		switchToCachedImage(); //use the cached raw data first

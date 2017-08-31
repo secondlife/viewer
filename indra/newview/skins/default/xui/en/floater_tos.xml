@@ -15,6 +15,67 @@
      name="loading_url">
         data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Loading %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
     </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="45"
+     layout="topleft"
+     left="20"
+     name="tos_heading"
+     top="20"
+     word_wrap="true"
+     width="552">
+        Please read the following Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the requirements for the use of arbitration and the waiver of any class or group claim to resolve disputes. To continue logging in to [SECOND_LIFE], you must accept these agreements.
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="30"
+     layout="topleft"
+     left="20"
+     name="external_tos_required"
+     visible="false"
+     top="20"
+     word_wrap="true"
+     width="552">
+       You will need to go to https://my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
+     </text>
+    <web_browser
+      trusted_content="true" 
+     follows="left|top"
+     height="305"
+     layout="topleft"
+     left_delta="0"
+     name="tos_html"
+     top_delta="70"
+     width="568" />
+    <check_box
+     follows="top|left"
+     font="SansSerif"
+     height="16"
+     label="I have read and agree to"
+     layout="topleft"
+     left_delta="0"
+     name="agree_chk"
+     top_delta="320"
+     width="55" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="30"
+     layout="topleft"
+     left_delta="20"
+     name="agree_list"
+     top_delta="15"
+     word_wrap="true"
+     width="552">the Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the dispute resolution requirements. 
+    </text>
     <button
      enabled="false"
      height="20"
@@ -23,7 +84,7 @@
      layout="topleft"
      left="484"
      name="Continue"
-     top="464"
+     top_delta="35"
      width="100" />
     <button
      height="20"
@@ -34,51 +95,4 @@
      name="Cancel"
      top_delta="0"
      width="100" />
-    <check_box
-     follows="top|right"
-     height="16"
-     label="I Agree to the Terms of Service and Privacy Policy"
-     layout="topleft"
-     left_delta="0"
-     name="agree_chk"
-     top_delta="-45"
-     width="55" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     height="30"
-     layout="topleft"
-     left_delta="0"
-     name="tos_heading"
-     top_delta="-399"
-     word_wrap="true"
-     width="552">
-        Please read the following Terms of Service and Privacy Policy carefully. To continue logging in to [SECOND_LIFE], you must accept the agreement.
-    </text>
-     <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     height="30"
-     layout="topleft"
-     left="16"
-     name="external_tos_required"
-     visible="false"
-     top="32"
-     word_wrap="true"
-     width="552">
-       You will need to go to https://my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
-     </text>
-    <web_browser
-      trusted_content="true" 
-     follows="left|top"
-     height="340"
-     layout="topleft"
-     left_delta="0"
-     name="tos_html"
-     top_delta="40"
-     width="568" />
 </floater>
