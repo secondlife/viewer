@@ -694,7 +694,7 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	PROCESS_INFORMATION processInfo;
 
 	std::wstring exe_wstr;
-	exe_wstr=wstringize(exe_path);
+	exe_wstr = utf8str_to_utf16str(exe_path);
 
 	std::wstring arg_wstr;
 	arg_wstr=wstringize(arg_str);
