@@ -6,7 +6,7 @@
 	<text name="Cache:">
 		Cache:
 	</text>
-	<spinner label="Cache (64 - 9984 MB)" name="cachesizespinner"/>
+	<spinner label="Cache (256 - 9984 MB)" name="cachesizespinner"/>
 	<text name="text_box5">
 		MB
 	</text>

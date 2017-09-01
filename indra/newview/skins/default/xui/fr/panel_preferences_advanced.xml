@@ -6,7 +6,7 @@
 	<text name="Cache:">
 		Cache :
 	</text>
-	<spinner label="Taille du cache (64 - 9984 Mo)" name="cachesizespinner"/>
+	<spinner label="Taille du cache (256 - 9984 Mo)" name="cachesizespinner"/>
 	<text name="text_box5">
 		Mo
 	</text>
