@@ -13,15 +13,28 @@ say_if_verbose(integer channel, string message)
 
 stop_all_animations()
 {
-    integer count = llGetInventoryNumber(INVENTORY_ANIMATION);
-    string ItemName;
-    string NowPlaying;
-    while (count--)
+    list curr_anims = llGetObjectAnimationNames();
+    say_if_verbose(0,"stopping all, curr_anims are " + (string) curr_anims);
+    integer length = llGetListLength(curr_anims);
+    integer index = 0;
+    while (index < length)
     {
-        ItemName = llGetInventoryName(INVENTORY_ANIMATION, count);
-        say_if_verbose(0, "Stopping " + ItemName);
-        llStopObjectAnimation(ItemName);
+        string anim = llList2String(curr_anims, index);
+        say_if_verbose(0, "Stopping " + anim);
+        llStopObjectAnimation(anim);
+        // This check isn't really needed, just included to demonstrate is_animation_running()
+        if (is_animation_running(anim))
+        {
+            say_if_verbose(0, "ERROR - failed to stop " + anim + "!");
+        }
+        ++index;
     }
+}
+
+integer is_animation_running(string anim)
+{
+    list curr_anims = llGetObjectAnimationNames();
+    return ~llListFindList(curr_anims, (list)anim);
 }
 
 start_cycle_animations()
@@ -44,6 +57,8 @@ next_animation()
         ItemName = llGetInventoryName(INVENTORY_ANIMATION, current_animation_number);
         say_if_verbose(0, "Starting " + ItemName);
         llStartObjectAnimation(ItemName);
+        key anim_id = llGetInventoryKey(ItemName);
+        say_if_verbose(0, "Started item " + ItemName + " inv key " + (string) anim_id);
         NowPlaying = ItemName;
     }
     else
@@ -114,5 +129,5 @@ default
 }
 
 // Local Variables:
-// shadow-file-name: "$SW_HOME/axon/scripts/testing/lsl/cycle_object_animations.lsl"
+// shadow-file-name: "$SW_HOME/axon/scripts/testing/lsl/cycle_object_animations_v2.lsl"
 // End:
