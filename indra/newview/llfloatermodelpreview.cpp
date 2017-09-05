@@ -1755,9 +1755,17 @@ void LLModelPreview::getJointAliases( JointMap& joint_map)
     //Joint names and aliases come from avatar_skeleton.xml
     
     joint_map = av->getJointAliases();
-    for (S32 i = 0; i < av->mNumCollisionVolumes; i++)
+
+    std::vector<std::string> cv_names, attach_names;
+    av->getSortedJointNames(1, cv_names);
+    av->getSortedJointNames(2, attach_names);
+    for (std::vector<std::string>::iterator it = cv_names.begin(); it != cv_names.end(); ++it)
     {
-        joint_map[av->mCollisionVolumes[i].getName()] = av->mCollisionVolumes[i].getName();
+        joint_map[*it] = *it;
+    }
+    for (std::vector<std::string>::iterator it = attach_names.begin(); it != attach_names.end(); ++it)
+    {
+        joint_map[*it] = *it;
     }
 }
 
