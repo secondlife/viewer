@@ -29,15 +29,26 @@
 #include <stdlib.h>
 #include "llcrashloggerwindows.h"
 
+#ifdef _UNICODE
+int APIENTRY wWinMain(HINSTANCE hInstance,
+                      HINSTANCE hPrevInstance,
+                      LPWSTR    lpCmdLine,
+                      int       nCmdShow)
+#else
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
+#endif //_UNICODE
 {
 	LL_INFOS() << "Starting crash reporter with args" << &lpCmdLine << LL_ENDL;
 	LLCrashLoggerWindows app;
 	app.setHandle(hInstance);
+#ifdef _UNICODE
+	app.parseCommandOptions(__argc, __wargv);
+#else
 	app.parseCommandOptions(__argc, __argv);
+#endif //_UNICODE
 
 	LLSD options = LLApp::instance()->getOptionData(
                    LLApp::PRIORITY_COMMAND_LINE);
