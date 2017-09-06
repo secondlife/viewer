@@ -126,8 +126,8 @@ BOOL LLViewerDynamicTexture::render()
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
 	//only images up to 512x512 are supported
-	llassert(mFullHeight <= 512);
-	llassert(mFullWidth <= 512);
+	//llassert(mFullHeight <= 512);
+	//llassert(mFullWidth <= 512);
 
 	if (gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI)
 	{ //using offscreen render target, just use the bottom left corner
