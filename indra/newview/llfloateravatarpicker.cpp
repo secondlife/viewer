@@ -496,6 +496,18 @@ void LLFloaterAvatarPicker::find()
 
 	std::string text = getChild<LLUICtrl>("Edit")->getValue().asString();
 
+	size_t separator_index = text.find_first_of(" ._");
+	if (separator_index != text.npos)
+	{
+		std::string first = text.substr(0, separator_index);
+		std::string last = text.substr(separator_index+1, text.npos);
+		LLStringUtil::trim(last);
+		if("Resident" == last)
+		{
+			text = first;
+		}
+	}
+
 	mQueryID.generate();
 
 	std::string url;
@@ -739,12 +751,13 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 
 		if (search_results->isEmpty())
 		{
-			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = getChild<LLUICtrl>("Edit")->getValue().asString();
+			std::string name = "'" + getChild<LLUICtrl>("Edit")->getValue().asString() + "'";
 			LLSD item;
 			item["id"] = LLUUID::null;
 			item["columns"][0]["column"] = "name";
-			item["columns"][0]["value"] = getString("not_found", map);
+			item["columns"][0]["value"] = name;
+			item["columns"][1]["column"] = "username";
+			item["columns"][1]["value"] = getString("not_found_text");
 			search_results->addElement(item);
 			search_results->setEnabled(false);
 			getChildView("ok_btn")->setEnabled(false);
