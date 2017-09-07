@@ -271,7 +271,12 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
 		}
 		int offset = 1;
 		if(wargv[ii][1] == '-') ++offset;
-		name.assign(utf16str_to_utf8str(&wargv[ii][offset]));
+
+#if LL_WINDOWS
+	name.assign(utf16str_to_utf8str(&wargv[ii][offset]));
+#else
+	name.assign(wstring_to_utf8str(&wargv[ii][offset]));
+#endif
 		if(((ii+1) >= argc) || (wargv[ii+1][0] == '-'))
 		{
 			// we found another option after this one or we have
@@ -290,7 +295,12 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
 			continue;
 		}
 		++ii;
-		value.assign(utf16str_to_utf8str(wargv[ii]));
+
+#if LL_WINDOWS
+	value.assign(utf16str_to_utf8str((wargv[ii])));
+#else
+	value.assign(wstring_to_utf8str((wargv[ii])));
+#endif
 
 #if LL_WINDOWS
 		//Windows changed command line parsing.  Deal with it.
