@@ -698,11 +698,6 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
 
-    if (mVObjp && mVObjp->isRootEdit() && mVObjp->getControlAvatar())
-    {
-        mVObjp->getControlAvatar()->matchVolumeTransform();
-    }
-    
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);

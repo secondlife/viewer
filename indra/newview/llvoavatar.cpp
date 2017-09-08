@@ -110,6 +110,8 @@
 #include "llcallstack.h"
 #include "llrendersphere.h"
 
+#include <boost/lexical_cast.hpp>
+
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
@@ -3518,6 +3520,17 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 
 	BOOL visible = isVisible();
+    bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
+	bool is_attachment = false;
+	if (is_control_avatar)
+	{
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+		is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
+	}
+
+    LLScopedContextString str("updateCharacter " + getFullname() + " is_control_avatar "
+                              + boost::lexical_cast<std::string>(is_control_avatar) 
+                              + " is_attachment " + boost::lexical_cast<std::string>(is_attachment));
 
 	// For fading out the names above heads, only let the timer
 	// run if we're visible.
@@ -3532,21 +3545,25 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	bool visually_muted = isVisuallyMuted();
     // AXON FIXME this expression is a crawling horror
-	if (mDrawable.notNull() && visible && (!isSelf() || visually_muted) && 
-        !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+	if (mDrawable.notNull()
+        && visible 
+        && (!isSelf() || visually_muted) // AXON would the self ever be visually muted?
+        && !mIsDummy
+        && sUseImpostors
+        && !mNeedsAnimUpdate 
+        && !sFreezeCounter)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
-
 		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (visually_muted)
 		{ // visually muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (   ! shouldImpostor()
+		else if (! shouldImpostor()
 				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
 		{   // first 25% of max visible avatars are not impostored
 			// also, don't impostor avatars whose bounding box may be penetrating the 
@@ -3590,7 +3607,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	// change animation time quanta based on avatar render load
     // AXON how should control avs be handled here?
-    bool is_pure_dummy = mIsDummy && !isControlAvatar();
+    bool is_pure_dummy = mIsDummy && !is_control_avatar;
 	if (!isSelf() && !is_pure_dummy)
 	{
 		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
@@ -3602,6 +3619,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			stopMotion(ANIM_AGENT_WALK_ADJUST);
 			removeAnimationData("Walk Speed");
 		}
+        // AXON: see SL-763 - playback with altered time step does not
+        // appear to work correctly, odd behavior for distant avatars.
 		mMotionController.setTimeStep(time_step);
 		//		LL_INFOS() << "Setting timestep to " << time_quantum * pixel_area_scale << LL_ENDL;
 	}
@@ -3698,23 +3717,28 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{
 			root_pos += LLVector3d(getHoverOffset());
 		}
-		
-		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
-
-		if (newPosition != mRoot->getXform()->getWorldPosition())
-		{		
-			mRoot->touch();
-			// SL-315
-			mRoot->setWorldPosition( newPosition ); // regular update				
-		}
-
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+        if (cav)
+        {
+            cav->matchVolumeTransform();
+        }
+        else
+        {
+            LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+            if (newPosition != mRoot->getXform()->getWorldPosition())
+            {		
+                mRoot->touch();
+                // SL-315
+                mRoot->setWorldPosition( newPosition ); // regular update				
+            }
+        }
 
 		//--------------------------------------------------------------------
 		// Propagate viewer object rotation to root of avatar
 		//--------------------------------------------------------------------
-        // AXON - also skip for control avatars
-		if (!isControlAvatar() && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
+        // AXON - also skip for control avatars? Rotation fixups for avatars in motion, some may be relevant.
+		if (!is_control_avatar && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
 		{
 			LLQuaternion iQ;
 			LLVector3 upDir( 0.0f, 0.0f, 1.0f );
@@ -3868,6 +3892,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 	else if (mDrawable.notNull())
 	{
+        // Sitting on an object - mRoot is slaved to mDrawable orientation.
 		LLVector3 pos = mDrawable->getPosition();
 		pos += getHoverOffset() * mDrawable->getRotation();
 		// SL-315

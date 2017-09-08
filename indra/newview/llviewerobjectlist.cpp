@@ -862,8 +862,8 @@ void LLViewerObjectList::update(LLAgent &agent)
 			{
 				if (idle_count >= idle_list.size())
 				{
-				idle_list.push_back( objectp );
-			}
+                    idle_list.push_back( objectp );
+                }
 			else
 				{
 					idle_list[idle_count] = objectp;
@@ -900,7 +900,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 		{
 			objectp = *idle_iter;
 			llassert(objectp->isActive());
-			objectp->idleUpdate(agent, frame_time);
+                objectp->idleUpdate(agent, frame_time);
 		}
 
 		//update flexible objects

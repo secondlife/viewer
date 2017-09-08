@@ -50,6 +50,8 @@ LLControlAvatar::~LLControlAvatar()
 
 void LLControlAvatar::matchVolumeTransform()
 {
+#if 0
+    // AXON - should we be using bind_shape?
     {
         LLVolume *volume = mRootVolp->getVolume();
         if (volume)
@@ -63,16 +65,40 @@ void LLControlAvatar::matchVolumeTransform()
             }
         }
     }
-    
-	setPositionAgent(mRootVolp->getRenderPosition());
-	//slamPosition();
+#endif
 
-    LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
-    LLQuaternion obj_rot = mRootVolp->getRotation();
-    LLQuaternion result_rot = fix_axes_rot * obj_rot;
-	setRotation(result_rot);
-    mRoot->setWorldRotation(result_rot);
-    mRoot->setPosition(mRootVolp->getRenderPosition());
+
+    if (mRootVolp)
+    {
+        if (mRootVolp->isAttachment())
+        {
+            LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
+            if (attached_av)
+            {
+                LLViewerJointAttachment *attach = attached_av->getTargetAttachmentPoint(mRootVolp);
+                setPositionAgent(mRootVolp->getRenderPosition());
+                LLVector3 pos = attach->getParent()->getWorldPosition();
+                mRoot->setWorldPosition(pos);
+                mRoot->setRotation(attach->getParent()->getWorldRotation());
+            }
+            else
+            {
+                LL_WARNS_ONCE() << "can't find attached av!" << LL_ENDL;
+            }
+        }
+        else
+        {
+            setPositionAgent(mRootVolp->getRenderPosition());
+            //slamPosition();
+        
+            LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
+            LLQuaternion obj_rot = mRootVolp->getRotation();
+            LLQuaternion result_rot = fix_axes_rot * obj_rot;
+            setRotation(result_rot);
+            mRoot->setWorldRotation(result_rot);
+            mRoot->setPosition(mRootVolp->getRenderPosition());
+        }
+    }
 }
 
 void LLControlAvatar::setGlobalScale(F32 scale)

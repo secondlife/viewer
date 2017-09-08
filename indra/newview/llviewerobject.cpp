@@ -5188,10 +5188,15 @@ LLVOAvatar* LLViewerObject::asAvatar()
 	return NULL;
 }
 
-// If this object is directly or indirectly parented by an avatar, return it.
+// If this object is directly or indirectly parented by an avatar,
+// return it.  Normally getAvatar() is the correct function to call;
+// it will give the avatar used for skinning.  The exception is with
+// animated objects that are also attachments; in that case,
+// getAvatar() will return the control avatar, used for skinning, and
+// getAvatarAncestor will return the avatar to which the object is
+// attached.
 LLVOAvatar* LLViewerObject::getAvatarAncestor()
 {
-    LL_ERRS("AXON") << "this method has been targetted for termination. Use getAvatar()." << LL_ENDL;
 	LLViewerObject *pobj = (LLViewerObject*) getParent();
 	while (pobj)
 	{

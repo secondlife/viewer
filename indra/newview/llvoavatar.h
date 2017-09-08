@@ -749,9 +749,9 @@ public:
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;
 	LLViewerObject *	findAttachmentByID( const LLUUID & target_id ) const;
+	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 
 protected:
-	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	void 				lazyAttach();
 	void				rebuildRiggedAttachments( void );
 
