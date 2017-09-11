@@ -51,6 +51,7 @@ public:
     void markForDeath();
 
     virtual void idleUpdate(LLAgent &agent, const F64 &time);
+	virtual BOOL updateCharacter(LLAgent &agent);
 
     void getAnimatedVolumes(std::vector<LLVOVolume*>& volumes);
     void updateAnimations();  

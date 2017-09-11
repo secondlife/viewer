@@ -145,7 +145,7 @@ const LLUUID ANIM_AGENT_PHYSICS_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df44
 //-----------------------------------------------------------------------------
 // Constants
 //-----------------------------------------------------------------------------
-const F32 DELTA_TIME_MIN = 0.01f;	// we clamp measured deltaTime to this
+const F32 DELTA_TIME_MIN = 0.01f;	// we clamp measured delta_time to this
 const F32 DELTA_TIME_MAX = 0.2f;	// range to insure stability of computations.
 
 const F32 PELVIS_LAG_FLYING		= 0.22f;// pelvis follow half life while flying
@@ -2318,7 +2318,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	{	
 		LL_RECORD_BLOCK_TIME(FTM_JOINT_UPDATE);
 	
-		if (mIsSitting && getParent())
+		if (isSitting() && getParent())
 		{
 			LLViewerObject *root_object = (LLViewerObject*)getRoot();
 			LLDrawable* drawablep = root_object->mDrawable;
@@ -2484,7 +2484,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		// (the following version uses a tweak of "mHeadOffset" which handle sitting vs. standing)
 		//--------------------------------------------------------------------------------------------
 		
-		if ( mIsSitting )
+		if ( isSitting() )
 		{
 			LLVector3 headOffset = LLVector3( 0.0f, 0.0f, mHeadOffset.mV[2] );
 			mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot->getWorldPosition() + headOffset );
@@ -3424,7 +3424,7 @@ void LLVOAvatar::updateDebugText()
 		if (hover_offset[2] != 0.0)
 		{
 			debug_line += llformat(" hov_z: %.3f", hover_offset[2]);
-			debug_line += llformat(" %s", (mIsSitting ? "S" : "T"));
+			debug_line += llformat(" %s", (isSitting() ? "S" : "T"));
 			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
 		}
         LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
@@ -3440,6 +3440,7 @@ void LLVOAvatar::updateDebugText()
 
 		addDebugText(debug_line);
 	}
+
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
 	{
 		if (!mBakedTextureDebugText.empty())
@@ -3507,433 +3508,12 @@ void LLVOAvatar::updateDebugText()
 }
 
 //------------------------------------------------------------------------
-// updateCharacter()
-// called on both your avatar and other avatars
+// updateFootstepSounds
+// Factored out from updateCharacter()
+// Generate footstep sounds when feet hit the ground
 //------------------------------------------------------------------------
-BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
-{	
-	updateDebugText();
-	
-	if (!mIsBuilt)
-	{
-		return FALSE;
-	}
-
-	BOOL visible = isVisible();
-    bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
-	bool is_attachment = false;
-	if (is_control_avatar)
-	{
-        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
-		is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
-	}
-
-    LLScopedContextString str("updateCharacter " + getFullname() + " is_control_avatar "
-                              + boost::lexical_cast<std::string>(is_control_avatar) 
-                              + " is_attachment " + boost::lexical_cast<std::string>(is_attachment));
-
-	// For fading out the names above heads, only let the timer
-	// run if we're visible.
-	if (mDrawable.notNull() && !visible)
-	{
-		mTimeVisible.reset();
-	}
-
-	//--------------------------------------------------------------------
-	// the rest should only be done occasionally for far away avatars
-	//--------------------------------------------------------------------
-
-	bool visually_muted = isVisuallyMuted();
-    // AXON FIXME this expression is a crawling horror
-	if (mDrawable.notNull()
-        && visible 
-        && (!isSelf() || visually_muted) // AXON would the self ever be visually muted?
-        && !mIsDummy
-        && sUseImpostors
-        && !mNeedsAnimUpdate 
-        && !sFreezeCounter)
-	{
-		const LLVector4a* ext = mDrawable->getSpatialExtents();
-		LLVector4a size;
-		size.setSub(ext[1],ext[0]);
-		F32 mag = size.getLength3().getF32()*0.5f;
-		
-		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (visually_muted)
-		{ // visually muted avatars update at 16 hz
-			mUpdatePeriod = 16;
-		}
-		else if (! shouldImpostor()
-				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
-		{   // first 25% of max visible avatars are not impostored
-			// also, don't impostor avatars whose bounding box may be penetrating the 
-			// impostor camera near clip plane
-			mUpdatePeriod = 1;
-		}
-		else if ( shouldImpostor(4) )
-		{ //background avatars are REALLY slow updating impostors
-			mUpdatePeriod = 16;
-		}
-		else if ( shouldImpostor(3) )
-		{ //back 25% of max visible avatars are slow updating impostors
-			mUpdatePeriod = 8;
-		}
-		else if (mImpostorPixelArea <= impostor_area)
-		{  // stuff in between gets an update period based on pixel area
-			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
-		}
-		else
-		{
-			//nearby avatars, update the impostors more frequently.
-			mUpdatePeriod = 4;
-		}
-
-		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
-	}
-	else
-	{
-		mUpdatePeriod = 1;
-	}
-
-
-	// don't early out for your own avatar, as we rely on your animations playing reliably
-	// for example, the "turn around" animation when entering customize avatar needs to trigger
-	// even when your avatar is offscreen
-	if (!visible && !isSelf())
-	{
-		updateMotions(LLCharacter::HIDDEN_UPDATE);
-		return FALSE;
-	}
-
-	// change animation time quanta based on avatar render load
-    // AXON how should control avs be handled here?
-    bool is_pure_dummy = mIsDummy && !is_control_avatar;
-	if (!isSelf() && !is_pure_dummy)
-	{
-		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
-		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
-		F32 time_step = time_quantum * pixel_area_scale;
-		if (time_step != 0.f)
-		{
-			// disable walk motion servo controller as it doesn't work with motion timesteps
-			stopMotion(ANIM_AGENT_WALK_ADJUST);
-			removeAnimationData("Walk Speed");
-		}
-        // AXON: see SL-763 - playback with altered time step does not
-        // appear to work correctly, odd behavior for distant avatars.
-		mMotionController.setTimeStep(time_step);
-		//		LL_INFOS() << "Setting timestep to " << time_quantum * pixel_area_scale << LL_ENDL;
-	}
-
-	if (getParent() && !mIsSitting)
-	{
-		sitOnObject((LLViewerObject*)getParent());
-	}
-	else if (!getParent() && mIsSitting && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
-	{
-		getOffObject();
-	}
-
-	//--------------------------------------------------------------------
-	// create local variables in world coords for region position values
-	//--------------------------------------------------------------------
-	F32 speed;
-	LLVector3 normal;
-
-	LLVector3 xyVel = getVelocity();
-	xyVel.mV[VZ] = 0.0f;
-	speed = xyVel.length();
-	// remembering the value here prevents a display glitch if the
-	// animation gets toggled during this update.
-	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
-	
-	if (!(mIsSitting && getParent()))
-	{
-		// This case includes all configurations except sitting on an
-		// object, so does include ground sit.
-
-		//--------------------------------------------------------------------
-		// get timing info
-		// handle initial condition case
-		//--------------------------------------------------------------------
-		F32 animation_time = mAnimTimer.getElapsedTimeF32();
-		if (mTimeLast == 0.0f)
-		{
-			mTimeLast = animation_time;
-
-			// put the pelvis at slaved position/mRotation
-			// SL-315
-			mRoot->setWorldPosition( getPositionAgent() ); // first frame
-			mRoot->setWorldRotation( getRotation() );
-		}
-	
-		//--------------------------------------------------------------------
-		// dont' let dT get larger than 1/5th of a second
-		//--------------------------------------------------------------------
-		F32 deltaTime = animation_time - mTimeLast;
-
-		deltaTime = llclamp( deltaTime, DELTA_TIME_MIN, DELTA_TIME_MAX );
-		mTimeLast = animation_time;
-
-		mSpeedAccum = (mSpeedAccum * 0.95f) + (speed * 0.05f);
-
-		//--------------------------------------------------------------------
-		// compute the position of the avatar's root
-		//--------------------------------------------------------------------
-		LLVector3d root_pos;
-		LLVector3d ground_under_pelvis;
-
-		if (isSelf())
-		{
-			gAgent.setPositionAgent(getRenderPosition());
-		}
-
-		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
-		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
-
-
-		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
-		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
-		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
-						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
-
-		if (in_air && !mInAir)
-		{
-			mTimeInAir.reset();
-		}
-		mInAir = in_air;
-
-        // SL-402: with the ability to animate the position of joints
-        // that affect the body size calculation, computed body size
-        // can get stale much more easily. Simplest fix is to update
-        // it frequently.
-        // SL-427: this appears to be too frequent, moving to only do on animation state change.
-        //computeBodySize();
-    
-		// correct for the fact that the pelvis is not necessarily the center 
-		// of the agent's physical representation
-		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		if (!mIsSitting && !was_sit_ground_constrained)
-		{
-			root_pos += LLVector3d(getHoverOffset());
-		}
-
-        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
-        if (cav)
-        {
-            cav->matchVolumeTransform();
-        }
-        else
-        {
-            LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
-            if (newPosition != mRoot->getXform()->getWorldPosition())
-            {		
-                mRoot->touch();
-                // SL-315
-                mRoot->setWorldPosition( newPosition ); // regular update				
-            }
-        }
-
-		//--------------------------------------------------------------------
-		// Propagate viewer object rotation to root of avatar
-		//--------------------------------------------------------------------
-        // AXON - also skip for control avatars? Rotation fixups for avatars in motion, some may be relevant.
-		if (!is_control_avatar && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
-		{
-			LLQuaternion iQ;
-			LLVector3 upDir( 0.0f, 0.0f, 1.0f );
-			
-			// Compute a forward direction vector derived from the primitive rotation
-			// and the velocity vector.  When walking or jumping, don't let body deviate
-			// more than 90 from the view, if necessary, flip the velocity vector.
-
-			LLVector3 primDir;
-			if (isSelf())
-			{
-				primDir = agent.getAtAxis() - projected_vec(agent.getAtAxis(), agent.getReferenceUpVector());
-				primDir.normalize();
-			}
-			else
-			{
-				primDir = getRotation().getMatrix3().getFwdRow();
-			}
-			LLVector3 velDir = getVelocity();
-			velDir.normalize();
-			if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
-			{
-				F32 vpD = velDir * primDir;
-				if (vpD < -0.5f)
-				{
-					velDir *= -1.0f;
-				}
-			}
-			LLVector3 fwdDir = lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
-			if (isSelf() && gAgentCamera.cameraMouselook())
-			{
-				// make sure fwdDir stays in same general direction as primdir
-				if (gAgent.getFlying())
-				{
-					fwdDir = LLViewerCamera::getInstance()->getAtAxis();
-				}
-				else
-				{
-					LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
-					LLVector3 up_vector = gAgent.getReferenceUpVector();
-					at_axis -= up_vector * (at_axis * up_vector);
-					at_axis.normalize();
-					
-					F32 dot = fwdDir * at_axis;
-					if (dot < 0.f)
-					{
-						fwdDir -= 2.f * at_axis * dot;
-						fwdDir.normalize();
-					}
-				}
-			}
-
-			LLQuaternion root_rotation = mRoot->getWorldMatrix().quaternion();
-			F32 root_roll, root_pitch, root_yaw;
-			root_rotation.getEulerAngles(&root_roll, &root_pitch, &root_yaw);
-
-			// When moving very slow, the pelvis is allowed to deviate from the
-			// forward direction to allow it to hold it's position while the torso
-			// and head turn.  Once in motion, it must conform however.
-			BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
-
-			LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
-
-			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
-			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
-
-			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
-						
-			if (self_in_mouselook)
-			{
-				pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
-			}
-			pelvis_rot_threshold *= DEG_TO_RAD;
-
-			F32 angle = angle_between( pelvisDir, fwdDir );
-
-			// The avatar's root is allowed to have a yaw that deviates widely
-			// from the forward direction, but if roll or pitch are off even
-			// a little bit we need to correct the rotation.
-			if(root_roll < 1.f * DEG_TO_RAD
-			   && root_pitch < 5.f * DEG_TO_RAD)
-			{
-				// smaller correction vector means pelvis follows prim direction more closely
-				if (!mTurning && angle > pelvis_rot_threshold*0.75f)
-				{
-					mTurning = TRUE;
-				}
-
-				// use tighter threshold when turning
-				if (mTurning)
-				{
-					pelvis_rot_threshold *= 0.4f;
-				}
-
-				// am I done turning?
-				if (angle < pelvis_rot_threshold)
-				{
-					mTurning = FALSE;
-				}
-
-				LLVector3 correction_vector = (pelvisDir - fwdDir) * clamp_rescale(angle, pelvis_rot_threshold*0.75f, pelvis_rot_threshold, 1.0f, 0.0f);
-				fwdDir += correction_vector;
-			}
-			else
-			{
-				mTurning = FALSE;
-			}
-
-			// Now compute the full world space rotation for the whole body (wQv)
-			LLVector3 leftDir = upDir % fwdDir;
-			leftDir.normalize();
-			fwdDir = leftDir % upDir;
-			LLQuaternion wQv( fwdDir, leftDir, upDir );
-
-			if (isSelf() && mTurning)
-			{
-				if ((fwdDir % pelvisDir) * upDir > 0.f)
-				{
-					gAgent.setControlFlags(AGENT_CONTROL_TURN_RIGHT);
-				}
-				else
-				{
-					gAgent.setControlFlags(AGENT_CONTROL_TURN_LEFT);
-				}
-			}
-
-			// Set the root rotation, but do so incrementally so that it
-			// lags in time by some fixed amount.
-			//F32 u = LLSmoothInterpolation::getInterpolant(PELVIS_LAG);
-			F32 pelvis_lag_time = 0.f;
-			if (self_in_mouselook)
-			{
-				pelvis_lag_time = PELVIS_LAG_MOUSELOOK;
-			}
-			else if (mInAir)
-			{
-				pelvis_lag_time = PELVIS_LAG_FLYING;
-				// increase pelvis lag time when moving slowly
-				pelvis_lag_time *= clamp_rescale(mSpeedAccum, 0.f, 15.f, 3.f, 1.f);
-			}
-			else
-			{
-				pelvis_lag_time = PELVIS_LAG_WALKING;
-			}
-
-			F32 u = llclamp((deltaTime / pelvis_lag_time), 0.0f, 1.0f);	
-
-			mRoot->setWorldRotation( slerp(u, mRoot->getWorldRotation(), wQv) );
-			
-		}
-	}
-	else if (mDrawable.notNull())
-	{
-        // Sitting on an object - mRoot is slaved to mDrawable orientation.
-		LLVector3 pos = mDrawable->getPosition();
-		pos += getHoverOffset() * mDrawable->getRotation();
-		// SL-315
-		mRoot->setPosition(pos);
-		mRoot->setRotation(mDrawable->getRotation());
-	}
-	
-	//-------------------------------------------------------------------------
-	// Update character motions
-	//-------------------------------------------------------------------------
-	// store data relevant to motions
-	mSpeed = speed;
-
-	// update animations
-	if (mSpecialRenderMode == 1) // Animation Preview
-	{
-		updateMotions(LLCharacter::FORCE_UPDATE);
-	}
-	else
-	{
-		updateMotions(LLCharacter::NORMAL_UPDATE);
-	}
-
-	// Special handling for sitting on ground.
-	if (!getParent() && (mIsSitting || was_sit_ground_constrained))
-	{
-		
-		F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
-		if (off_z != 0.0)
-		{
-			LLVector3 pos = mRoot->getWorldPosition();
-			pos.mV[VZ] += off_z;
-			mRoot->touch();
-			// SL-315
-			mRoot->setWorldPosition(pos);
-		}
-	}
-
-	// update head position
-	updateHeadOffset();
-
+void LLVOAvatar::updateFootstepSounds()
+{
 	//-------------------------------------------------------------------------
 	// Find the ground under each foot, these are used for a variety
 	// of things that follow
@@ -3943,13 +3523,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	LLVector3 ankle_left_ground_agent = ankle_left_pos_agent;
 	LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
+    LLVector3 normal;
 	resolveHeightAgent(ankle_left_pos_agent, ankle_left_ground_agent, normal);
 	resolveHeightAgent(ankle_right_pos_agent, ankle_right_ground_agent, normal);
 
 	F32 leftElev = llmax(-0.2f, ankle_left_pos_agent.mV[VZ] - ankle_left_ground_agent.mV[VZ]);
 	F32 rightElev = llmax(-0.2f, ankle_right_pos_agent.mV[VZ] - ankle_right_ground_agent.mV[VZ]);
 
-	if (!mIsSitting)
+	if (!isSitting())
 	{
 		//-------------------------------------------------------------------------
 		// Figure out which foot is on ground
@@ -3966,9 +3547,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 	}
 	
-	//-------------------------------------------------------------------------
-	// Generate footstep sounds when feet hit the ground
-	//-------------------------------------------------------------------------
 	const LLUUID AGENT_FOOTSTEP_ANIMS[] = {ANIM_AGENT_WALK, ANIM_AGENT_RUN, ANIM_AGENT_LAND};
 	const S32 NUM_AGENT_FOOTSTEP_ANIMS = LL_ARRAY_SIZE(AGENT_FOOTSTEP_ANIMS);
 
@@ -4011,13 +3589,522 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			}
 		}
 	}
+}
 
+//------------------------------------------------------------------------
+// computeUpdatePeriod()
+// Factored out from updateCharacter()
+// Set new value for mUpdatePeriod based on distance and various other factors.
+//------------------------------------------------------------------------
+void LLVOAvatar::computeUpdatePeriod()
+{
+	bool visually_muted = isVisuallyMuted();
+    // AXON FIXME this expression is a crawling horror
+	if (mDrawable.notNull()
+        && isVisible() 
+        && (!isSelf() || visually_muted) // AXON would the self ever be visually muted?
+        && !mIsDummy
+        && sUseImpostors
+        && !mNeedsAnimUpdate 
+        && !sFreezeCounter)
+	{
+		const LLVector4a* ext = mDrawable->getSpatialExtents();
+		LLVector4a size;
+		size.setSub(ext[1],ext[0]);
+		F32 mag = size.getLength3().getF32()*0.5f;
+		
+		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
+		if (visually_muted)
+		{ // visually muted avatars update at 16 hz
+			mUpdatePeriod = 16;
+		}
+		else if (! shouldImpostor()
+				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
+		{   // first 25% of max visible avatars are not impostored
+			// also, don't impostor avatars whose bounding box may be penetrating the 
+			// impostor camera near clip plane
+			mUpdatePeriod = 1;
+		}
+		else if ( shouldImpostor(4) )
+		{ //background avatars are REALLY slow updating impostors
+			mUpdatePeriod = 16;
+		}
+		else if ( shouldImpostor(3) )
+		{ //back 25% of max visible avatars are slow updating impostors
+			mUpdatePeriod = 8;
+		}
+		else if (mImpostorPixelArea <= impostor_area)
+		{  // stuff in between gets an update period based on pixel area
+			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
+		}
+		else
+		{
+			//nearby avatars, update the impostors more frequently.
+			mUpdatePeriod = 4;
+		}
+	}
+	else
+	{
+		mUpdatePeriod = 1;
+	}
+
+}
+
+//------------------------------------------------------------------------
+// updateOrientation()
+// Factored out from updateCharacter()
+// This is used by updateCharacter() to update the avatar's orientation:
+// - updates mTurning state
+// - updates rotation of the mRoot joint in the skeleton
+// - for self, calls setControlFlags() to notify the simulator about any turns
+//------------------------------------------------------------------------
+void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
+{
+    LLQuaternion iQ;
+    LLVector3 upDir( 0.0f, 0.0f, 1.0f );
+			
+    // Compute a forward direction vector derived from the primitive rotation
+    // and the velocity vector.  When walking or jumping, don't let body deviate
+    // more than 90 from the view, if necessary, flip the velocity vector.
+
+    LLVector3 primDir;
+    if (isSelf())
+    {
+        primDir = agent.getAtAxis() - projected_vec(agent.getAtAxis(), agent.getReferenceUpVector());
+        primDir.normalize();
+    }
+    else
+    {
+        primDir = getRotation().getMatrix3().getFwdRow();
+    }
+    LLVector3 velDir = getVelocity();
+    velDir.normalize();
+    if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
+    {
+        F32 vpD = velDir * primDir;
+        if (vpD < -0.5f)
+        {
+            velDir *= -1.0f;
+        }
+    }
+    LLVector3 fwdDir = lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
+    if (isSelf() && gAgentCamera.cameraMouselook())
+    {
+        // make sure fwdDir stays in same general direction as primdir
+        if (gAgent.getFlying())
+        {
+            fwdDir = LLViewerCamera::getInstance()->getAtAxis();
+        }
+        else
+        {
+            LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
+            LLVector3 up_vector = gAgent.getReferenceUpVector();
+            at_axis -= up_vector * (at_axis * up_vector);
+            at_axis.normalize();
+					
+            F32 dot = fwdDir * at_axis;
+            if (dot < 0.f)
+            {
+                fwdDir -= 2.f * at_axis * dot;
+                fwdDir.normalize();
+            }
+        }
+    }
+
+    LLQuaternion root_rotation = mRoot->getWorldMatrix().quaternion();
+    F32 root_roll, root_pitch, root_yaw;
+    root_rotation.getEulerAngles(&root_roll, &root_pitch, &root_yaw);
+
+    // When moving very slow, the pelvis is allowed to deviate from the
+    // forward direction to allow it to hold its position while the torso
+    // and head turn.  Once in motion, it must conform however.
+    BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
+
+    LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
+
+    static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
+    static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
+
+    F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
+						
+    if (self_in_mouselook)
+    {
+        pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
+    }
+    pelvis_rot_threshold *= DEG_TO_RAD;
+
+    F32 angle = angle_between( pelvisDir, fwdDir );
+
+    // The avatar's root is allowed to have a yaw that deviates widely
+    // from the forward direction, but if roll or pitch are off even
+    // a little bit we need to correct the rotation.
+    if(root_roll < 1.f * DEG_TO_RAD
+       && root_pitch < 5.f * DEG_TO_RAD)
+    {
+        // smaller correction vector means pelvis follows prim direction more closely
+        if (!mTurning && angle > pelvis_rot_threshold*0.75f)
+        {
+            mTurning = TRUE;
+        }
+
+        // use tighter threshold when turning
+        if (mTurning)
+        {
+            pelvis_rot_threshold *= 0.4f;
+        }
+
+        // am I done turning?
+        if (angle < pelvis_rot_threshold)
+        {
+            mTurning = FALSE;
+        }
+
+        LLVector3 correction_vector = (pelvisDir - fwdDir) * clamp_rescale(angle, pelvis_rot_threshold*0.75f, pelvis_rot_threshold, 1.0f, 0.0f);
+        fwdDir += correction_vector;
+    }
+    else
+    {
+        mTurning = FALSE;
+    }
+
+    // Now compute the full world space rotation for the whole body (wQv)
+    LLVector3 leftDir = upDir % fwdDir;
+    leftDir.normalize();
+    fwdDir = leftDir % upDir;
+    LLQuaternion wQv( fwdDir, leftDir, upDir );
+
+    if (isSelf() && mTurning)
+    {
+        if ((fwdDir % pelvisDir) * upDir > 0.f)
+        {
+            gAgent.setControlFlags(AGENT_CONTROL_TURN_RIGHT);
+        }
+        else
+        {
+            gAgent.setControlFlags(AGENT_CONTROL_TURN_LEFT);
+        }
+    }
+
+    // Set the root rotation, but do so incrementally so that it
+    // lags in time by some fixed amount.
+    //F32 u = LLSmoothInterpolation::getInterpolant(PELVIS_LAG);
+    F32 pelvis_lag_time = 0.f;
+    if (self_in_mouselook)
+    {
+        pelvis_lag_time = PELVIS_LAG_MOUSELOOK;
+    }
+    else if (mInAir)
+    {
+        pelvis_lag_time = PELVIS_LAG_FLYING;
+        // increase pelvis lag time when moving slowly
+        pelvis_lag_time *= clamp_rescale(mSpeedAccum, 0.f, 15.f, 3.f, 1.f);
+    }
+    else
+    {
+        pelvis_lag_time = PELVIS_LAG_WALKING;
+    }
+
+    F32 u = llclamp((delta_time / pelvis_lag_time), 0.0f, 1.0f);	
+
+    mRoot->setWorldRotation( slerp(u, mRoot->getWorldRotation(), wQv) );
+}
+
+//------------------------------------------------------------------------
+// updateTimeStep()
+// Factored out from updateCharacter().
+//
+// Updates the time step used by the motion controller, based on area
+// and avatar count criteria.  This will also stop the
+// ANIM_AGENT_WALK_ADJUST animation under some circumstances.
+// ------------------------------------------------------------------------
+void LLVOAvatar::updateTimeStep()
+{
+    bool is_pure_dummy = mIsDummy && !isControlAvatar();
+	if (!isSelf() && !is_pure_dummy) // ie, non-self avatars, and animated objects will be affected.
+	{
+        // AXON note that sInstances counts animated objects and standard avatars in the same bucket. Is this desirable?
+		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
+		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
+		F32 time_step = time_quantum * pixel_area_scale;
+        // Extrema:
+        //   If number of avs is 10 or less, time_step is unmodified (flagged with 0.0).
+        //   If area of av is 5000 or greater, time_step is unmodified (flagged with 0.0).
+        //   If number of avs is 35 or greater, and area of av is 100 or less,
+        //   time_step takes the maximum possible value of 0.25.
+        //   Other situations will give values within the (0, 0.25) range.
+		if (time_step != 0.f)
+		{
+			// disable walk motion servo controller as it doesn't work with motion timesteps
+			stopMotion(ANIM_AGENT_WALK_ADJUST);
+			removeAnimationData("Walk Speed");
+		}
+        // AXON: see SL-763 - playback with altered time step does not
+        // appear to work correctly, odd behavior for distant avatars.
+		mMotionController.setTimeStep(time_step);
+	}
+
+}
+
+//------------------------------------------------------------------------
+// updateCharacter()
+//
+// This is called for all avatars, so there are 4 possible situations:
+//
+// 1) Avatar is your own. In this case the class is LLVOAvatarSelf,
+// isSelf() is true, and agent specifies the corresponding agent
+// information for you. In all the other cases, agent is irrelevant
+// and it would be less confusing if it were null or something.
+//
+// 2) Avatar is controlled by another resident. Class is LLVOAvatar,
+// and isSelf() is false.
+//
+// 3) Avatar is the controller for an animated object. Class is
+// LLControlAvatar and mIsDummy is true. Avatar is a purely
+// viewer-side entity with no representation on the simulator.
+//
+// 4) Avatar is a "dummy" avatar used in some areas of the UI, such as
+// when previewing uploaded animations. Class is LLVOAvatar, and
+// mIsDummy is true. Avatar is purely viewer-side with no
+// representation on the simulator.
+//
+//------------------------------------------------------------------------
+BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
+{	
+	updateDebugText();
+	
+	if (!mIsBuilt)
+	{
+		return FALSE;
+	}
+
+	BOOL visible = isVisible();
+    bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
+	bool is_attachment = false;
+	if (is_control_avatar)
+	{
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+		is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
+	}
+
+    LLScopedContextString str("updateCharacter " + getFullname() + " is_control_avatar "
+                              + boost::lexical_cast<std::string>(is_control_avatar) 
+                              + " is_attachment " + boost::lexical_cast<std::string>(is_attachment));
+
+	// For fading out the names above heads, only let the timer
+	// run if we're visible.
+	if (mDrawable.notNull() && !visible)
+	{
+		mTimeVisible.reset();
+	}
+
+	//--------------------------------------------------------------------
+	// The rest should only be done occasionally for far away avatars.
+    // Set mUpdatePeriod and visible based on distance and other criteria.
+	//--------------------------------------------------------------------
+    computeUpdatePeriod();
+    visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
+
+	//--------------------------------------------------------------------
+    // Early out if not visible and not self
+	// don't early out for your own avatar, as we rely on your animations playing reliably
+	// for example, the "turn around" animation when entering customize avatar needs to trigger
+	// even when your avatar is offscreen
+	//--------------------------------------------------------------------
+	if (!visible && !isSelf())
+	{
+		updateMotions(LLCharacter::HIDDEN_UPDATE);
+		return FALSE;
+	}
+
+	//--------------------------------------------------------------------
+	// change animation time quanta based on avatar render load
+    // AXON how should control avs be handled here?
+	//--------------------------------------------------------------------
+    updateTimeStep();
+    
+	//--------------------------------------------------------------------
+    // Update sitting state based on parent and active animation info.
+	//--------------------------------------------------------------------
+	if (getParent() && !isSitting())
+	{
+		sitOnObject((LLViewerObject*)getParent());
+	}
+	else if (!getParent() && isSitting() && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
+	{
+		getOffObject();
+	}
+
+	//--------------------------------------------------------------------
+	// create local variables in world coords for region position values
+	//--------------------------------------------------------------------
+	F32 speed;
+	LLVector3 normal;
+
+	LLVector3 xyVel = getVelocity();
+	xyVel.mV[VZ] = 0.0f;
+	speed = xyVel.length();
+	// remembering the value here prevents a display glitch if the
+	// animation gets toggled during this update.
+	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
+
+	//--------------------------------------------------------------------
+    // This does a bunch of state updating, including figuring out
+    // whether av is in the air, setting mRoot position and rotation
+    // In some cases, calls updateOrientation() for a lot of the
+    // work
+    // --------------------------------------------------------------------
+	if (!(isSitting() && getParent()))
+	{
+		// This case includes all configurations except sitting on an
+		// object, so does include ground sit.
+
+		//--------------------------------------------------------------------
+		// get timing info
+		// handle initial condition case
+		//--------------------------------------------------------------------
+		F32 animation_time = mAnimTimer.getElapsedTimeF32();
+		if (mTimeLast == 0.0f)
+		{
+			mTimeLast = animation_time;
+
+			// Initially put the pelvis at slaved position/mRotation
+			// SL-315
+			mRoot->setWorldPosition( getPositionAgent() ); // first frame
+			mRoot->setWorldRotation( getRotation() );
+		}
+	
+		//--------------------------------------------------------------------
+		// dont' let dT get larger than 1/5th of a second
+		//--------------------------------------------------------------------
+		F32 delta_time = animation_time - mTimeLast;
+
+		delta_time = llclamp( delta_time, DELTA_TIME_MIN, DELTA_TIME_MAX );
+		mTimeLast = animation_time;
+
+		mSpeedAccum = (mSpeedAccum * 0.95f) + (speed * 0.05f);
+
+		//--------------------------------------------------------------------
+		// compute the position of the avatar's root
+		//--------------------------------------------------------------------
+		LLVector3d root_pos;
+		LLVector3d ground_under_pelvis;
+
+		if (isSelf())
+		{
+			gAgent.setPositionAgent(getRenderPosition());
+		}
+
+		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
+		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
+
+
+		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
+		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
+		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
+						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
+
+		if (in_air && !mInAir)
+		{
+			mTimeInAir.reset();
+		}
+		mInAir = in_air;
+
+        // SL-402: with the ability to animate the position of joints
+        // that affect the body size calculation, computed body size
+        // can get stale much more easily. Simplest fix is to update
+        // it frequently.
+        // SL-427: this appears to be too frequent, moving to only do on animation state change.
+        //computeBodySize();
+    
+		// correct for the fact that the pelvis is not necessarily the center 
+		// of the agent's physical representation
+		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		if (!isSitting() && !was_sit_ground_constrained)
+		{
+			root_pos += LLVector3d(getHoverOffset());
+		}
+
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+        if (cav)
+        {
+            cav->matchVolumeTransform();
+        }
+        else
+        {
+            LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+            if (newPosition != mRoot->getXform()->getWorldPosition())
+            {		
+                mRoot->touch();
+                // SL-315
+                mRoot->setWorldPosition( newPosition ); // regular update				
+            }
+        }
+
+		//--------------------------------------------------------------------
+		// Propagate viewer object rotation to root of avatar
+		//--------------------------------------------------------------------
+		if (!is_control_avatar && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
+		{
+            // AXON - should we always skip for control avatars? Rotation fixups for avatars in motion, some may be relevant.
+            updateOrientation(agent, speed, delta_time);
+		}
+	}
+	else if (mDrawable.notNull())
+	{
+        // Sitting on an object - mRoot is slaved to mDrawable orientation.
+		LLVector3 pos = mDrawable->getPosition();
+		pos += getHoverOffset() * mDrawable->getRotation();
+		// SL-315
+		mRoot->setPosition(pos);
+		mRoot->setRotation(mDrawable->getRotation());
+	}
+	
+	//-------------------------------------------------------------------------
+	// Update character motions
+	//-------------------------------------------------------------------------
+	// store data relevant to motions
+	mSpeed = speed;
+
+	// update animations
+	if (mSpecialRenderMode == 1) // Animation Preview
+	{
+		updateMotions(LLCharacter::FORCE_UPDATE);
+	}
+	else
+	{
+		updateMotions(LLCharacter::NORMAL_UPDATE);
+	}
+
+	// Special handling for sitting on ground.
+	if (!getParent() && (isSitting() || was_sit_ground_constrained))
+	{
+		
+		F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
+		if (off_z != 0.0)
+		{
+			LLVector3 pos = mRoot->getWorldPosition();
+			pos.mV[VZ] += off_z;
+			mRoot->touch();
+			// SL-315
+			mRoot->setWorldPosition(pos);
+		}
+	}
+
+	// update head position
+	updateHeadOffset();
+
+	// Generate footstep sounds when feet hit the ground
+    updateFootstepSounds();
+
+
+	// Update child joints as needed.
 	mRoot->updateWorldMatrixChildren();
 
-	//mesh vertices need to be reskinned
+	// system avatar mesh vertices need to be reskinned
 	mNeedsSkin = TRUE;
 	return TRUE;
 }
+
 //-----------------------------------------------------------------------------
 // updateHeadOffset()
 //-----------------------------------------------------------------------------
@@ -4032,7 +4119,7 @@ void LLVOAvatar::updateHeadOffset()
 	{
 		midEyePt = midEyePt * ~mDrawable->getWorldRotation();
 	}
-	if (mIsSitting)
+	if (isSitting())
 	{
 		mHeadOffset = midEyePt;	
 	}
@@ -5123,7 +5210,7 @@ void LLVOAvatar::processAnimationStateChanges()
 		startMotion(ANIM_AGENT_WALK_ADJUST);
 		stopMotion(ANIM_AGENT_FLY_ADJUST);
 	}
-	else if (mInAir && !mIsSitting)
+	else if (mInAir && !isSitting())
 	{
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
         if (mEnableDefaultMotions)

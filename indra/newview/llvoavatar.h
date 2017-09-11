@@ -245,6 +245,10 @@ private: //aligned members
 public:
 	virtual void	updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
+    void			updateFootstepSounds();
+    void			computeUpdatePeriod();
+    void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
+    void			updateTimeStep();
 	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
 	void 			idleUpdateMisc(bool detailed_update);
 	virtual void	idleUpdateAppearanceAnimation();
