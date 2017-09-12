@@ -3514,6 +3514,11 @@ void LLVOAvatar::updateDebugText()
 //------------------------------------------------------------------------
 void LLVOAvatar::updateFootstepSounds()
 {
+    if (mIsDummy)
+    {
+        return;
+    }
+    
 	//-------------------------------------------------------------------------
 	// Find the ground under each foot, these are used for a variety
 	// of things that follow
@@ -3845,6 +3850,116 @@ void LLVOAvatar::updateTimeStep()
 
 }
 
+void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool was_sit_ground_constrained) 
+{
+	if (!(isSitting() && getParent()))
+	{
+		// This case includes all configurations except sitting on an
+		// object, so does include ground sit.
+
+		//--------------------------------------------------------------------
+		// get timing info
+		// handle initial condition case
+		//--------------------------------------------------------------------
+		F32 animation_time = mAnimTimer.getElapsedTimeF32();
+		if (mTimeLast == 0.0f)
+		{
+			mTimeLast = animation_time;
+
+			// Initially put the pelvis at slaved position/mRotation
+			// SL-315
+			mRoot->setWorldPosition( getPositionAgent() ); // first frame
+			mRoot->setWorldRotation( getRotation() );
+		}
+	
+		//--------------------------------------------------------------------
+		// dont' let dT get larger than 1/5th of a second
+		//--------------------------------------------------------------------
+		F32 delta_time = animation_time - mTimeLast;
+
+		delta_time = llclamp( delta_time, DELTA_TIME_MIN, DELTA_TIME_MAX );
+		mTimeLast = animation_time;
+
+		mSpeedAccum = (mSpeedAccum * 0.95f) + (speed * 0.05f);
+
+		//--------------------------------------------------------------------
+		// compute the position of the avatar's root
+		//--------------------------------------------------------------------
+		LLVector3d root_pos;
+		LLVector3d ground_under_pelvis;
+
+		if (isSelf())
+		{
+			gAgent.setPositionAgent(getRenderPosition());
+		}
+
+		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
+		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
+
+        // AXON need to review mInAir calcs for animated objects, if the value even matters.
+        LLVector3 normal;
+		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
+		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
+		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
+						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
+
+		if (in_air && !mInAir)
+		{
+			mTimeInAir.reset();
+		}
+		mInAir = in_air;
+
+        // SL-402: with the ability to animate the position of joints
+        // that affect the body size calculation, computed body size
+        // can get stale much more easily. Simplest fix is to update
+        // it frequently.
+        // SL-427: this appears to be too frequent, moving to only do on animation state change.
+        //computeBodySize();
+    
+		// correct for the fact that the pelvis is not necessarily the center 
+		// of the agent's physical representation
+		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		if (!isSitting() && !was_sit_ground_constrained)
+		{
+			root_pos += LLVector3d(getHoverOffset());
+		}
+
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+        if (cav)
+        {
+            cav->matchVolumeTransform();
+        }
+        else
+        {
+            LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+            if (newPosition != mRoot->getXform()->getWorldPosition())
+            {		
+                mRoot->touch();
+                // SL-315
+                mRoot->setWorldPosition( newPosition ); // regular update				
+            }
+        }
+
+		//--------------------------------------------------------------------
+		// Propagate viewer object rotation to root of avatar
+		//--------------------------------------------------------------------
+		if (!isControlAvatar() && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
+		{
+            // AXON - should we always skip for control avatars? Rotation fixups for avatars in motion, some may be relevant.
+            updateOrientation(agent, speed, delta_time);
+		}
+	}
+	else if (mDrawable.notNull())
+	{
+        // Sitting on an object - mRoot is slaved to mDrawable orientation.
+		LLVector3 pos = mDrawable->getPosition();
+		pos += getHoverOffset() * mDrawable->getRotation();
+		// SL-315
+		mRoot->setPosition(pos);
+		mRoot->setRotation(mDrawable->getRotation());
+	}
+}
+
 //------------------------------------------------------------------------
 // updateCharacter()
 //
@@ -3937,12 +4052,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	//--------------------------------------------------------------------
 	// create local variables in world coords for region position values
 	//--------------------------------------------------------------------
-	F32 speed;
-	LLVector3 normal;
-
 	LLVector3 xyVel = getVelocity();
 	xyVel.mV[VZ] = 0.0f;
-	speed = xyVel.length();
+	F32 speed = xyVel.length();
 	// remembering the value here prevents a display glitch if the
 	// animation gets toggled during this update.
 	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
@@ -3953,111 +4065,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
     // In some cases, calls updateOrientation() for a lot of the
     // work
     // --------------------------------------------------------------------
-	if (!(isSitting() && getParent()))
-	{
-		// This case includes all configurations except sitting on an
-		// object, so does include ground sit.
-
-		//--------------------------------------------------------------------
-		// get timing info
-		// handle initial condition case
-		//--------------------------------------------------------------------
-		F32 animation_time = mAnimTimer.getElapsedTimeF32();
-		if (mTimeLast == 0.0f)
-		{
-			mTimeLast = animation_time;
-
-			// Initially put the pelvis at slaved position/mRotation
-			// SL-315
-			mRoot->setWorldPosition( getPositionAgent() ); // first frame
-			mRoot->setWorldRotation( getRotation() );
-		}
-	
-		//--------------------------------------------------------------------
-		// dont' let dT get larger than 1/5th of a second
-		//--------------------------------------------------------------------
-		F32 delta_time = animation_time - mTimeLast;
-
-		delta_time = llclamp( delta_time, DELTA_TIME_MIN, DELTA_TIME_MAX );
-		mTimeLast = animation_time;
-
-		mSpeedAccum = (mSpeedAccum * 0.95f) + (speed * 0.05f);
-
-		//--------------------------------------------------------------------
-		// compute the position of the avatar's root
-		//--------------------------------------------------------------------
-		LLVector3d root_pos;
-		LLVector3d ground_under_pelvis;
-
-		if (isSelf())
-		{
-			gAgent.setPositionAgent(getRenderPosition());
-		}
-
-		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
-		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
-
-
-		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
-		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
-		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
-						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
-
-		if (in_air && !mInAir)
-		{
-			mTimeInAir.reset();
-		}
-		mInAir = in_air;
-
-        // SL-402: with the ability to animate the position of joints
-        // that affect the body size calculation, computed body size
-        // can get stale much more easily. Simplest fix is to update
-        // it frequently.
-        // SL-427: this appears to be too frequent, moving to only do on animation state change.
-        //computeBodySize();
-    
-		// correct for the fact that the pelvis is not necessarily the center 
-		// of the agent's physical representation
-		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		if (!isSitting() && !was_sit_ground_constrained)
-		{
-			root_pos += LLVector3d(getHoverOffset());
-		}
-
-        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
-        if (cav)
-        {
-            cav->matchVolumeTransform();
-        }
-        else
-        {
-            LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
-            if (newPosition != mRoot->getXform()->getWorldPosition())
-            {		
-                mRoot->touch();
-                // SL-315
-                mRoot->setWorldPosition( newPosition ); // regular update				
-            }
-        }
-
-		//--------------------------------------------------------------------
-		// Propagate viewer object rotation to root of avatar
-		//--------------------------------------------------------------------
-		if (!is_control_avatar && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
-		{
-            // AXON - should we always skip for control avatars? Rotation fixups for avatars in motion, some may be relevant.
-            updateOrientation(agent, speed, delta_time);
-		}
-	}
-	else if (mDrawable.notNull())
-	{
-        // Sitting on an object - mRoot is slaved to mDrawable orientation.
-		LLVector3 pos = mDrawable->getPosition();
-		pos += getHoverOffset() * mDrawable->getRotation();
-		// SL-315
-		mRoot->setPosition(pos);
-		mRoot->setRotation(mDrawable->getRotation());
-	}
+    updateRootPositionAndRotation(agent, speed, was_sit_ground_constrained);
 	
 	//-------------------------------------------------------------------------
 	// Update character motions
@@ -4096,12 +4104,12 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// Generate footstep sounds when feet hit the ground
     updateFootstepSounds();
 
-
 	// Update child joints as needed.
 	mRoot->updateWorldMatrixChildren();
 
-	// system avatar mesh vertices need to be reskinned
-	mNeedsSkin = TRUE;
+	// System avatar mesh vertices need to be reskinned.
+    mNeedsSkin = TRUE;
+
 	return TRUE;
 }
 

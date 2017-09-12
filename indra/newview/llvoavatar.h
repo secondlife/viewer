@@ -249,6 +249,8 @@ public:
     void			computeUpdatePeriod();
     void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
     void			updateTimeStep();
+    void			updateRootPositionAndRotation(LLAgent &agent, F32 speed, bool was_sit_ground_constrained);
+    
 	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
 	void 			idleUpdateMisc(bool detailed_update);
 	virtual void	idleUpdateAppearanceAnimation();
