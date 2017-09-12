@@ -875,15 +875,13 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         llcoro::suspend();
     }
 
-    LLViewerRegion *region = gAgent.getRegion();
-
-    while (!region->capabilitiesReceived())
+    while (!gAgent.getRegion()->capabilitiesReceived())
     {
         // *TODO* Pump a message for wake up.
         llcoro::suspend();
     }
 
-    std::string url = region->getCapability("ProvisionVoiceAccountRequest");
+    std::string url = gAgent.getRegionCapability("ProvisionVoiceAccountRequest");
 
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
