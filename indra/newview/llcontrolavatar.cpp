@@ -77,9 +77,19 @@ void LLControlAvatar::matchVolumeTransform()
             {
                 LLViewerJointAttachment *attach = attached_av->getTargetAttachmentPoint(mRootVolp);
                 setPositionAgent(mRootVolp->getRenderPosition());
-                LLVector3 pos = attach->getParent()->getWorldPosition();
-                mRoot->setWorldPosition(pos);
-                mRoot->setRotation(attach->getParent()->getWorldRotation());
+                // AXON why doesn't attach joint have a valid world
+                // position? Using the parent as a kludge but not
+                // right.
+                //LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
+                LLVector3 joint_pos = attach->getParent()->getWorldPosition();
+                LLQuaternion joint_rot = attach->getParent()->getWorldRotation();
+                //LLVector3 attach_pos = mRootVolp->mDrawable->getPosition();
+                //attach_pos.rotVec(joint_rot);
+                //LLQuaternion attach_rot = mRootVolp->mDrawable->getRotation();
+                //mRoot->setWorldPosition(joint_pos + attach_pos);
+                //mRoot->setWorldRotation(joint_rot * (attach_rot * ~fix_axes_rot));
+                mRoot->setWorldPosition(joint_pos);
+                mRoot->setWorldRotation(joint_rot);
             }
             else
             {
