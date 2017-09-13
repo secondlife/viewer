@@ -799,7 +799,7 @@ void upload_new_resource(
 //     uploadInfo->setTransactionId(tid);
 
 
-	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
+	std::string url = gAgent.getRegionCapability("NewFileAgentInventory");
 
 	if ( !url.empty() )
 	{

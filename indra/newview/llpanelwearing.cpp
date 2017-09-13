@@ -416,7 +416,7 @@ bool LLPanelWearing::populateAttachmentsList(bool update)
 void LLPanelWearing::requestAttachmentDetails()
 {
 	LLSD body;
-	std::string url = gAgent.getRegion()->getCapability("AttachmentResources");
+	std::string url = gAgent.getRegionCapability("AttachmentResources");
 	if (!url.empty())
 	{
 		LLCoros::instance().launch("LLPanelWearing::getAttachmentLimitsCoro",
