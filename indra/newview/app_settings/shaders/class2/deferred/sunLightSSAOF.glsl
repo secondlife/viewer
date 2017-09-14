@@ -24,6 +24,8 @@
  
 #extension GL_ARB_texture_rectangle : enable
 
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
