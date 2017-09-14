@@ -811,25 +811,26 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			
 			flags &= ~flag_write_to_out_of_extra_block_area;
 			flags |= flag_extra_block_marker_was_found;
-			continue;
 		}
-
-		shader_code_text[shader_code_count] = (GLcharARB *)strdup((char *)buff);
+        else
+        {
+            shader_code_text[shader_code_count] = (GLcharARB *)strdup((char *)buff);
 		
-		if(flag_write_to_out_of_extra_block_area & flags)
-		{
-			shader_code_text[extra_code_count + start_shader_code + out_of_extra_block_counter]
-				= shader_code_text[shader_code_count];
-			out_of_extra_block_counter++;
+            if(flag_write_to_out_of_extra_block_area & flags)
+            {
+                shader_code_text[extra_code_count + start_shader_code + out_of_extra_block_counter]
+                    = shader_code_text[shader_code_count];
+                out_of_extra_block_counter++;
 			
-			if(out_of_extra_block_counter == extra_code_count)
-			{
-				shader_code_count += extra_code_count;
-				flags &= ~flag_write_to_out_of_extra_block_area;
-			}
-		}
+                if(out_of_extra_block_counter == extra_code_count)
+                {
+                    shader_code_count += extra_code_count;
+                    flags &= ~flag_write_to_out_of_extra_block_area;
+                }
+            }
 		
-		++shader_code_count;
+            ++shader_code_count;
+		}
 	} //while
 	
 	if(!(flag_extra_block_marker_was_found & flags))
