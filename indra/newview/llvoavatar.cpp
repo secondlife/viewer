@@ -9029,10 +9029,10 @@ U32 LLVOAvatar::getPartitionType() const
 void LLVOAvatar::updateImpostors()
 {
 	LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
-	LLCharacter::sAllowInstancesChange = FALSE;
 
-	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		iter != LLCharacter::sInstances.end(); ++iter)
+    std::vector<LLCharacter*> instances_copy = LLCharacter::sInstances;
+	for (std::vector<LLCharacter*>::iterator iter = instances_copy.begin();
+		iter != instances_copy.end(); ++iter)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
