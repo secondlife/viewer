@@ -130,6 +130,7 @@ protected:
 private:
     void loadPhotos();
     void uploadPhoto(LLUUID outfit_id);
+    void updateSnapshotFolderObserver();
     LLUUID getPhotoAssetId(const LLUUID& outfit_id);
     LLUUID getDefaultPhoto();
     void linkPhotoToOutfit(LLUUID outfit_id, LLUUID photo_id);
@@ -168,6 +169,7 @@ private:
     LLPanel* mLastRowPanel;
     LLUUID mOutfitLinkPending;
     LLUUID mOutfitRenamePending;
+    LLUUID mSnapshotFolderID;
     LLTextBox* mMessageTextBox;
     bool mGalleryCreated;
     int mRowCount;

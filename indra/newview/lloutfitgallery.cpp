@@ -72,6 +72,7 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mItemsAddedCount(0),
       mOutfitLinkPending(NULL),
       mOutfitRenamePending(NULL),
+      mSnapshotFolderID(NULL),
       mRowPanelHeight(p.row_panel_height),
       mVerticalGap(p.vertical_gap),
       mHorizontalGap(p.horizontal_gap),
@@ -1011,8 +1012,8 @@ void LLOutfitGallery::onTextureSelectionChanged(LLInventoryItem* itemp)
 void LLOutfitGallery::loadPhotos()
 {
     //Iterate over inventory
-    LLUUID textures = gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE);
-    LLViewerInventoryCategory* textures_category = gInventory.getCategory(textures);
+    mSnapshotFolderID = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+    LLViewerInventoryCategory* textures_category = gInventory.getCategory(mSnapshotFolderID);
     if (!textures_category)
         return;
     if (mTexturesObserver == NULL)
@@ -1022,10 +1023,24 @@ void LLOutfitGallery::loadPhotos()
     }
 
     // Start observing changes in "Textures" category.
-    mTexturesObserver->addCategory(textures,
-        boost::bind(&LLOutfitGallery::refreshTextures, this, textures));
-    
+    mTexturesObserver->addCategory(mSnapshotFolderID,
+        boost::bind(&LLOutfitGallery::refreshTextures, this, mSnapshotFolderID));
+
     textures_category->fetch();
+}
+
+void LLOutfitGallery::updateSnapshotFolderObserver()
+{
+    if(mSnapshotFolderID != gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE))
+    {
+        if (gInventory.containsObserver(mTexturesObserver))
+        {
+            gInventory.removeObserver(mTexturesObserver);
+        }
+        delete mTexturesObserver;
+        mTexturesObserver = NULL;
+        loadPhotos();
+    }
 }
 
 void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
@@ -1200,7 +1215,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 
             LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(outfit_id);
             if (!outfit_cat) return;
-
+            updateSnapshotFolderObserver();
             checkRemovePhoto(outfit_id);
             std::string upload_pending_name = outfit_id.asString();
             std::string upload_pending_desc = "";
@@ -1372,6 +1387,7 @@ void LLOutfitGallery::onBeforeOutfitSnapshotSave()
     if (!selected_outfit_id.isNull())
     {
         checkRemovePhoto(selected_outfit_id);
+        updateSnapshotFolderObserver();
     }
 }
 
