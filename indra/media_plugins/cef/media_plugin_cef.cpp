@@ -75,7 +75,7 @@ private:
 	void authResponse(LLPluginMessage &message);
 
 	void keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_data);
-	void unicodeInput(LLSD native_key_data);
+	void unicodeInput(std::string event, LLSD native_key_data);
 
 	void checkEditState();
     void setVolume();
@@ -603,8 +603,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "text_event")
 			{
+				std::string event = message_in.getValue("event");
 				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
-				unicodeInput(native_key_data);
+				unicodeInput(event, native_key_data);
 			}
 			else if (message_name == "key_event")
 			{
@@ -742,9 +743,14 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_dat
 	U32 event_umodchars = native_key_data["event_umodchars"].asInteger();
 	bool event_isrepeat = native_key_data["event_isrepeat"].asBoolean();
 
-	mCEFLib->nativeKeyboardEventOSX(key_event, event_modifiers, 
-									event_keycode, event_chars, 
-									event_umodchars, event_isrepeat);
+	// adding new code below in unicodeInput means we don't send ascii chars
+	// here too or we get double key presses on a mac.  
+	if (((unsigned char)event_chars < 0x20 || (unsigned char)event_chars >= 0x7f ))
+	{
+		mCEFLib->nativeKeyboardEventOSX(key_event, event_modifiers, 
+										event_keycode, event_chars, 
+										event_umodchars, event_isrepeat);
+	}
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
@@ -754,12 +760,29 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_dat
 #endif
 };
 
-void MediaPluginCEF::unicodeInput(LLSD native_key_data = LLSD::emptyMap())
+void MediaPluginCEF::unicodeInput(std::string event, LLSD native_key_data = LLSD::emptyMap())
 {
 #if LL_DARWIN
-	// code to send keys here doesn't seem to be required for Darwin - in fact,
-	// not having reliable key event type info here means we don't know what to send anyway
+	// i didn't think this code was needed for macOS but without it, the IME
+	// input in japanese (and likely others too) doesn't work correctly.
+	// see maint-7654
+	U32 event_modifiers = native_key_data["event_modifiers"].asInteger();
+	U32 event_keycode = native_key_data["event_keycode"].asInteger();
+	U32 event_chars = native_key_data["event_chars"].asInteger();
+	U32 event_umodchars = native_key_data["event_umodchars"].asInteger();
+	bool event_isrepeat = native_key_data["event_isrepeat"].asBoolean();
+
+    dullahan::EKeyEvent key_event = dullahan::KE_KEY_UP;
+    if (event == "down")
+    {
+        key_event = dullahan::KE_KEY_DOWN;
+    }
+
+	mCEFLib->nativeKeyboardEventOSX(key_event, event_modifiers, 
+									event_keycode, event_chars, 
+									event_umodchars, event_isrepeat);
 #elif LL_WINDOWS
+	event = ""; // not needed here but prevents unused var warning as error
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
