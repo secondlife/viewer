@@ -550,9 +550,11 @@ bool LLTextureCacheRemoteWorker::doWrite()
 	{
 		if ((mOffset != 0) // We currently do not support write offsets
 			|| (mDataSize <= 0) // Things will go badly wrong if mDataSize is nul or negative...
-			|| (mImageSize < mDataSize))
+			|| (mImageSize < mDataSize)
+			|| (mRawDiscardLevel < 0)
+			|| (mRawImage->isBufferInvalid())) // decode failed or malfunctioned, don't write
 		{
-			LL_WARNS() << "INIT state check failed" << LL_ENDL;
+			LL_WARNS() << "INIT state check failed for image: " << mID << " Size: " << mImageSize << " DataSize: " << mDataSize << " Discard:" << mRawDiscardLevel << LL_ENDL;
 			mDataSize = -1; // failed
 			done = true;
 		}
@@ -577,15 +579,12 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			idx = mCache->setHeaderCacheEntry(mID, entry, mImageSize, mDataSize); // create the new entry.
 			if(idx >= 0)
 			{
-				// (almost always) write to the fast cache.
-				if (mRawImage->getDataSize())
+				// write to the fast cache.
+				if(!mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel))
 				{
-					if(!mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel))
-					{
-						LL_WARNS() << "writeToFastCache failed" << LL_ENDL;
-						mDataSize = -1; // failed
-						done = true;
-					}
+					LL_WARNS() << "writeToFastCache failed" << LL_ENDL;
+					mDataSize = -1; // failed
+					done = true;
 				}
 			}
 		}
