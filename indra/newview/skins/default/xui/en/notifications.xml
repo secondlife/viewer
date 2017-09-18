@@ -10614,6 +10614,15 @@ You are not allowed to change this shape.
 
   <notification
    icon="alertmodal.tga"
+   name="NoPermsTooManyAttachedAnimatedObjects"
+   type="notify">
+   <tag>fail</tag>
+Operation would cause the number of attached animated objects to exceed the limit.
+  </notification>
+
+
+  <notification
+   icon="alertmodal.tga"
    name="NoAccessToClaimObjects"
    type="notify">
    <tag>fail</tag>
