@@ -779,11 +779,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	
 	unsigned char flags = flag_write_to_out_of_extra_block_area;
 	
-	GLuint out_of_extra_block_counter = 0, start_shader_code = shader_code_count;
+	GLuint out_of_extra_block_counter = 0, start_shader_code = shader_code_count, file_lines_count = 0;
 	
 	while(NULL != fgets((char *)buff, 1024, file)
 		  && shader_code_count < (LL_ARRAY_SIZE(shader_code_text) - LL_ARRAY_SIZE(extra_code_text)))
 	{
+		file_lines_count++;
+
 		bool extra_block_area_found = NULL != strstr((const char*)buff, "[EXTRA_CODE_HERE]");
 		
 		if(extra_block_area_found && !(flag_extra_block_marker_was_found & flags))
@@ -840,6 +842,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			shader_code_text[n] = extra_code_text[n - start_shader_code];
 		}
 		
+		if (file_lines_count < extra_code_count)
+		{
+			shader_code_count += extra_code_count;
+		}
+
 		extra_code_count = 0;
 	}
 
