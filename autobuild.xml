@@ -2343,6 +2343,75 @@
         <key>version</key>
         <string>7.11.1.297294</string>
       </map>
+      <key>nghttp2</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2012, 2014, 2015, 2016 Tatsuhiro Tsujikawa
+Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
+        <key>description</key>
+        <string>Library providing HTTP 2 support for libcurl</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/nghttp2.txt</string>
+        <key>name</key>
+        <string>nghttp2</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1a64653e2ac1d5bcc815828aaabf9db7</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8625/35570/nghttp2-1.25.0.508613-darwin64-508613.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7e0ef746d69030b6cbbda571cdb05a8d</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8624/35576/nghttp2-1.25.0.508613-linux-508613.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>a5372aff890c93d50e0d96492058728d</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8627/35588/nghttp2-1.25.0.508613-windows-508613.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>d9e29813995bfd1a09cad876d4739736</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8626/35583/nghttp2-1.25.0.508613-windows64-508613.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>source_type</key>
+        <string>hg</string>
+        <key>version</key>
+        <string>1.25.0.508613</string>
+      </map>
       <key>nvapi</key>
       <map>
         <key>copyright</key>
