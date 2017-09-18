@@ -777,10 +777,11 @@ public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
 	void 				resetHUDAttachments();
-	BOOL				canAttachMoreObjects() const;
-	BOOL				canAttachMoreObjects(U32 n) const;
+	BOOL				canAttachMoreObjects(U32 n=1) const;
+    BOOL				canAttachMoreAnimatedObjects(U32 n=1) const;
 protected:
 	U32					getNumAttachments() const; // O(N), not O(1)
+	U32					getNumAnimatedObjectAttachments() const; // O(N), not O(1)
 
 /**                    Wearables
  **                                                                            **

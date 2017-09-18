@@ -6579,19 +6579,36 @@ U32 LLVOAvatar::getNumAttachments() const
 
 //-----------------------------------------------------------------------------
 // canAttachMoreObjects()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::canAttachMoreObjects() const
-{
-	return (getNumAttachments() < MAX_AGENT_ATTACHMENTS);
-}
-
-//-----------------------------------------------------------------------------
-// canAttachMoreObjects()
 // Returns true if we can attach <n> more objects.
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::canAttachMoreObjects(U32 n) const
 {
 	return (getNumAttachments() + n) <= MAX_AGENT_ATTACHMENTS;
+}
+
+//-----------------------------------------------------------------------------
+// getNumAnimatedObjectAttachments()
+//-----------------------------------------------------------------------------
+U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
+{
+	U32 num_attachments = 0;
+	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		const LLViewerJointAttachment *attachment_pt = (*iter).second;
+		num_attachments += attachment_pt->getNumAnimatedObjects();
+	}
+	return num_attachments;
+}
+
+//-----------------------------------------------------------------------------
+// canAttachMoreAnimatedObjects()
+// Returns true if we can attach <n> more animated objects.
+//-----------------------------------------------------------------------------
+BOOL LLVOAvatar::canAttachMoreAnimatedObjects(U32 n) const
+{
+	return (getNumAnimatedObjectAttachments() + n) <= MAX_AGENT_ANIMATED_OBJECT_ATTACHMENTS;
 }
 
 //-----------------------------------------------------------------------------
