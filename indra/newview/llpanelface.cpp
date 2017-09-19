@@ -1623,6 +1623,15 @@ void LLPanelFace::updateShinyControls(bool is_setting_texture, bool mess_with_sh
 			}
 		}
 	}
+	else
+	{
+		if (shiny_texture_ID.isNull() && comboShiny && comboShiny->itemExists(USE_TEXTURE))
+		{
+			comboShiny->remove(SHINY_TEXTURE);
+			comboShiny->selectFirstItem();
+		}
+	}
+
 
 	LLComboBox* combo_matmedia = getChild<LLComboBox>("combobox matmedia");
 	LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
