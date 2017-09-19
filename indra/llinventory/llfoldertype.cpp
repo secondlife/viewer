@@ -147,7 +147,7 @@ bool LLFolderType::lookupIsEnsembleType(EType folder_type)
 // static
 LLAssetType::EType LLFolderType::folderTypeToAssetType(LLFolderType::EType folder_type)
 {
-	if (LLAssetType::lookup(LLAssetType::EType(folder_type)) == LLAssetType::badLookup())
+	if (LLAssetType::lookup(LLAssetType::EType(folder_type)) == LLAssetType::BADLOOKUP)
 	{
 		LL_WARNS() << "Converting to unknown asset type " << folder_type << LL_ENDL;
 	}

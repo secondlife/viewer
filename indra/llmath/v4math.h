@@ -48,6 +48,7 @@ class LLVector4
 		explicit LLVector4(const F64 *vec);			// Initialized LLVector4 to ((F32) vec[0], (F32) vec[1], (F32) vec[3], (F32) vec[4]);
 		explicit LLVector4(const LLVector3 &vec);			// Initializes LLVector4 to (vec, 1)
 		explicit LLVector4(const LLVector3 &vec, F32 w);	// Initializes LLVector4 to (vec, w)
+        explicit LLVector4(const LLSD &sd);
 		LLVector4(F32 x, F32 y, F32 z);		// Initializes LLVector4 to (x. y, z, 1)
 		LLVector4(F32 x, F32 y, F32 z, F32 w);
 
@@ -60,6 +61,15 @@ class LLVector4
 			ret[3] = mV[3];
 			return ret;
 		}
+
+        void setValue(const LLSD& sd)
+        {
+            mV[0] = sd[0].asReal();
+            mV[1] = sd[1].asReal();
+            mV[2] = sd[2].asReal();
+            mV[3] = sd[3].asReal();
+        }
+
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 
@@ -189,6 +199,11 @@ inline LLVector4::LLVector4(const LLVector3 &vec, F32 w)
 	mV[VY] = vec.mV[VY];
 	mV[VZ] = vec.mV[VZ];
 	mV[VW] = w;
+}
+
+inline LLVector4::LLVector4(const LLSD &sd)
+{
+    setValue(sd);
 }
 
 

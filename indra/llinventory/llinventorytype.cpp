@@ -85,6 +85,7 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
 	addEntry(LLInventoryType::IT_WIDGET,              new InventoryEntry("widget",    "widget",        1, LLAssetType::AT_WIDGET));
 	addEntry(LLInventoryType::IT_PERSON,              new InventoryEntry("person",    "person",        1, LLAssetType::AT_PERSON));
+    addEntry(LLInventoryType::IT_SETTINGS,            new InventoryEntry("settings",  "settings",      1, LLAssetType::AT_SETTINGS));
 }
 
 
@@ -145,6 +146,14 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// 47	AT_NONE
 	LLInventoryType::IT_NONE,			// 48	AT_NONE
 	LLInventoryType::IT_MESH,			// 49	AT_MESH
+
+    LLInventoryType::IT_NONE,   		// 50   AT_RESERVED_1
+    LLInventoryType::IT_NONE,	    	// 51   AT_RESERVED_2
+    LLInventoryType::IT_NONE,		    // 52   AT_RESERVED_3
+    LLInventoryType::IT_NONE,			// 53   AT_RESERVED_4
+    LLInventoryType::IT_NONE,			// 54   AT_RESERVED_5
+
+    LLInventoryType::IT_SETTINGS,       // 55   AT_SETTINGS
 };
 
 // static
@@ -194,6 +203,7 @@ bool LLInventoryType::cannotRestrictPermissions(LLInventoryType::EType type)
 	{
 		case IT_CALLINGCARD:
 		case IT_LANDMARK:
+        case IT_SETTINGS:
 			return true;
 		default:
 			return false;

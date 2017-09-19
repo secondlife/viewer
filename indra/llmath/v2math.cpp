@@ -118,7 +118,7 @@ LLSD LLVector2::getValue() const
 	return ret;
 }
 
-void LLVector2::setValue(LLSD& sd)
+void LLVector2::setValue(const LLSD& sd)
 {
 	mV[0] = (F32) sd[0].asReal();
 	mV[1] = (F32) sd[1].asReal();

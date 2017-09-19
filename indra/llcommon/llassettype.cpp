@@ -70,34 +70,37 @@ LLAssetDictionary::LLAssetDictionary()
 {
 	//       												   DESCRIPTION			TYPE NAME	HUMAN NAME			CAN LINK?   CAN FETCH?  CAN KNOW?	
 	//      												  |--------------------|-----------|-------------------|-----------|-----------|---------|
-	addEntry(LLAssetType::AT_TEXTURE, 			new AssetEntry("TEXTURE",			"texture",	"texture",			true,		false,		true));
-	addEntry(LLAssetType::AT_SOUND, 			new AssetEntry("SOUND",				"sound",	"sound",			true,		true,		true));
-	addEntry(LLAssetType::AT_CALLINGCARD, 		new AssetEntry("CALLINGCARD",		"callcard",	"calling card",		true,		false,		false));
-	addEntry(LLAssetType::AT_LANDMARK, 			new AssetEntry("LANDMARK",			"landmark",	"landmark",			true,		true,		true));
-	addEntry(LLAssetType::AT_SCRIPT, 			new AssetEntry("SCRIPT",			"script",	"legacy script",	true,		false,		false));
-	addEntry(LLAssetType::AT_CLOTHING, 			new AssetEntry("CLOTHING",			"clothing",	"clothing",			true,		true,		true));
-	addEntry(LLAssetType::AT_OBJECT, 			new AssetEntry("OBJECT",			"object",	"object",			true,		false,		false));
-	addEntry(LLAssetType::AT_NOTECARD, 			new AssetEntry("NOTECARD",			"notecard",	"note card",		true,		false,		true));
-	addEntry(LLAssetType::AT_CATEGORY, 			new AssetEntry("CATEGORY",			"category",	"folder",			true,		false,		false));
-	addEntry(LLAssetType::AT_LSL_TEXT, 			new AssetEntry("LSL_TEXT",			"lsltext",	"lsl2 script",		true,		false,		false));
-	addEntry(LLAssetType::AT_LSL_BYTECODE, 		new AssetEntry("LSL_BYTECODE",		"lslbyte",	"lsl bytecode",		true,		false,		false));
-	addEntry(LLAssetType::AT_TEXTURE_TGA, 		new AssetEntry("TEXTURE_TGA",		"txtr_tga",	"tga texture",		true,		false,		false));
-	addEntry(LLAssetType::AT_BODYPART, 			new AssetEntry("BODYPART",			"bodypart",	"body part",		true,		true,		true));
-	addEntry(LLAssetType::AT_SOUND_WAV, 		new AssetEntry("SOUND_WAV",			"snd_wav",	"sound",			true,		false,		false));
-	addEntry(LLAssetType::AT_IMAGE_TGA, 		new AssetEntry("IMAGE_TGA",			"img_tga",	"targa image",		true,		false,		false));
-	addEntry(LLAssetType::AT_IMAGE_JPEG, 		new AssetEntry("IMAGE_JPEG",		"jpeg",		"jpeg image",		true,		false,		false));
-	addEntry(LLAssetType::AT_ANIMATION, 		new AssetEntry("ANIMATION",			"animatn",	"animation",		true,		true,		true));
-	addEntry(LLAssetType::AT_GESTURE, 			new AssetEntry("GESTURE",			"gesture",	"gesture",			true,		true,		true));
-	addEntry(LLAssetType::AT_SIMSTATE, 			new AssetEntry("SIMSTATE",			"simstate",	"simstate",			false,		false,		false));
+    addEntry(LLAssetType::AT_TEXTURE,           new AssetEntry("TEXTURE",           "texture",  "texture",			true,		false,		true));
+    addEntry(LLAssetType::AT_SOUND,             new AssetEntry("SOUND",             "sound",    "sound",			true,		true,		true));
+    addEntry(LLAssetType::AT_CALLINGCARD,       new AssetEntry("CALLINGCARD",       "callcard", "calling card",		true,		false,		false));
+    addEntry(LLAssetType::AT_LANDMARK,          new AssetEntry("LANDMARK",          "landmark", "landmark",			true,		true,		true));
+    addEntry(LLAssetType::AT_SCRIPT,            new AssetEntry("SCRIPT",            "script",   "legacy script",	true,		false,		false));
+    addEntry(LLAssetType::AT_CLOTHING,          new AssetEntry("CLOTHING",          "clothing", "clothing",			true,		true,		true));
+    addEntry(LLAssetType::AT_OBJECT,            new AssetEntry("OBJECT",            "object",   "object",			true,		false,		false));
+    addEntry(LLAssetType::AT_NOTECARD,          new AssetEntry("NOTECARD",          "notecard", "note card",		true,		false,		true));
+    addEntry(LLAssetType::AT_CATEGORY,          new AssetEntry("CATEGORY",          "category", "folder",			true,		false,		false));
+    addEntry(LLAssetType::AT_LSL_TEXT,          new AssetEntry("LSL_TEXT",          "lsltext",  "lsl2 script",		true,		false,		false));
+    addEntry(LLAssetType::AT_LSL_BYTECODE,      new AssetEntry("LSL_BYTECODE",      "lslbyte",  "lsl bytecode",		true,		false,		false));
+    addEntry(LLAssetType::AT_TEXTURE_TGA,       new AssetEntry("TEXTURE_TGA",       "txtr_tga", "tga texture",		true,		false,		false));
+    addEntry(LLAssetType::AT_BODYPART,          new AssetEntry("BODYPART",          "bodypart", "body part",		true,		true,		true));
+    addEntry(LLAssetType::AT_SOUND_WAV,         new AssetEntry("SOUND_WAV",         "snd_wav",  "sound",			true,		false,		false));
+    addEntry(LLAssetType::AT_IMAGE_TGA,         new AssetEntry("IMAGE_TGA",         "img_tga",  "targa image",		true,		false,		false));
+    addEntry(LLAssetType::AT_IMAGE_JPEG,        new AssetEntry("IMAGE_JPEG",        "jpeg",     "jpeg image",		true,		false,		false));
+    addEntry(LLAssetType::AT_ANIMATION,         new AssetEntry("ANIMATION",         "animatn",  "animation",		true,		true,		true));
+    addEntry(LLAssetType::AT_GESTURE,           new AssetEntry("GESTURE",			"gesture",  "gesture",			true,		true,		true));
+    addEntry(LLAssetType::AT_SIMSTATE, 		    new AssetEntry("SIMSTATE",			"simstate", "simstate",			false,		false,		false));
 
-	addEntry(LLAssetType::AT_LINK, 				new AssetEntry("LINK",				"link",		"sym link",			false,		false,		true));
-	addEntry(LLAssetType::AT_LINK_FOLDER, 		new AssetEntry("FOLDER_LINK",		"link_f", 	"sym folder link",	false,		false,		true));
-	addEntry(LLAssetType::AT_MESH,              new AssetEntry("MESH",              "mesh",     "mesh",             false,      false,      false));
-	addEntry(LLAssetType::AT_WIDGET,            new AssetEntry("WIDGET",            "widget",   "widget",           false,      false,      false));
-	addEntry(LLAssetType::AT_PERSON,            new AssetEntry("PERSON",            "person",   "person",           false,      false,      false));
-	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		FALSE,		FALSE,		FALSE));
+    addEntry(LLAssetType::AT_LINK, 			    new AssetEntry("LINK",              "link",     "sym link",			false,		false,		true));
+    addEntry(LLAssetType::AT_LINK_FOLDER, 		new AssetEntry("FOLDER_LINK",       "link_f",   "sym folder link",	false,		false,		true));
+    addEntry(LLAssetType::AT_MESH,              new AssetEntry("MESH",              "mesh",     "mesh",             false,      false,      false));
+    addEntry(LLAssetType::AT_WIDGET,            new AssetEntry("WIDGET",            "widget",   "widget",           false,      false,      false));
+    addEntry(LLAssetType::AT_PERSON,            new AssetEntry("PERSON",            "person",   "person",           false,      false,      false));
+    addEntry(LLAssetType::AT_SETTINGS,          new AssetEntry("SETTINGS",          "settings", "settings blob",    false,      true,       true));
+    addEntry(LLAssetType::AT_NONE,              new AssetEntry("NONE",              "-1",		NULL,		  		FALSE,		FALSE,		FALSE));
 
 };
+
+const std::string LLAssetType::BADLOOKUP("llassettype_bad_lookup");
 
 // static
 LLAssetType::EType LLAssetType::getType(const std::string& desc_name)
@@ -117,7 +120,7 @@ const std::string &LLAssetType::getDesc(LLAssetType::EType asset_type)
 	}
 	else
 	{
-		return badLookup();
+		return BADLOOKUP;
 	}
 }
 
@@ -132,7 +135,7 @@ const char *LLAssetType::lookup(LLAssetType::EType asset_type)
 	}
 	else
 	{
-		return badLookup().c_str();
+		return BADLOOKUP.c_str();
 	}
 }
 
@@ -170,7 +173,7 @@ const char *LLAssetType::lookupHumanReadable(LLAssetType::EType asset_type)
 	}
 	else
 	{
-		return badLookup().c_str();
+		return BADLOOKUP.c_str();
 	}
 }
 
@@ -218,14 +221,6 @@ bool LLAssetType::lookupIsLinkType(EType asset_type)
 		return true;
 	}
 	return false;
-}
-
-// static
-const std::string &LLAssetType::badLookup()
-{
-	static const std::string sBadLookup = "llassettype_bad_lookup";
-	return sBadLookup;
-
 }
 
 // static

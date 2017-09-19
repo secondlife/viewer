@@ -84,6 +84,10 @@ public:
 		II_FLAGS_WEARABLES_MASK = 0xff,
 			// Wearables use the low order byte of flags to store the
 			// LLWearableType::EType enumeration found in newview/llwearable.h
+			// 
+        II_FLAGS_SETTINGS_MASK                      = 0x0000ff,
+            // Settings (like wearables) use the low order byte of flags to store 
+            // the settings type 
 
 		II_FLAGS_PERM_OVERWRITE_MASK = 				(II_FLAGS_OBJECT_SLAM_PERM |
 													 II_FLAGS_OBJECT_SLAM_SALE |

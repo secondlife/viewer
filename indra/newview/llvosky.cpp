@@ -50,6 +50,7 @@
 #include "lldrawpoolwlsky.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
+#include "v3colorutil.h"
 
 #undef min
 #undef max
@@ -558,68 +559,6 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 			mShinyTex[side].setPixel(calcSkyColorInDir(mSkyTex[side].getDir(x, y), true), x, y);
 		}
 	}
-}
-
-static inline LLColor3 componentDiv(LLColor3 const &left, LLColor3 const & right)
-{
-	return LLColor3(left.mV[0]/right.mV[0],
-					 left.mV[1]/right.mV[1],
-					 left.mV[2]/right.mV[2]);
-}
-
-
-static inline LLColor3 componentMult(LLColor3 const &left, LLColor3 const & right)
-{
-	return LLColor3(left.mV[0]*right.mV[0],
-					 left.mV[1]*right.mV[1],
-					 left.mV[2]*right.mV[2]);
-}
-
-
-static inline LLColor3 componentExp(LLColor3 const &v)
-{
-	return LLColor3(exp(v.mV[0]),
-					 exp(v.mV[1]),
-					 exp(v.mV[2]));
-}
-
-static inline LLColor3 componentPow(LLColor3 const &v, F32 exponent)
-{
-	return LLColor3(pow(v.mV[0], exponent),
-					pow(v.mV[1], exponent),
-					pow(v.mV[2], exponent));
-}
-
-static inline LLColor3 componentSaturate(LLColor3 const &v)
-{
-	return LLColor3(std::max(std::min(v.mV[0], 1.f), 0.f),
-					 std::max(std::min(v.mV[1], 1.f), 0.f),
-					 std::max(std::min(v.mV[2], 1.f), 0.f));
-}
-
-
-static inline LLColor3 componentSqrt(LLColor3 const &v)
-{
-	return LLColor3(sqrt(v.mV[0]),
-					 sqrt(v.mV[1]),
-					 sqrt(v.mV[2]));
-}
-
-static inline void componentMultBy(LLColor3 & left, LLColor3 const & right)
-{
-	left.mV[0] *= right.mV[0];
-	left.mV[1] *= right.mV[1];
-	left.mV[2] *= right.mV[2];
-}
-
-static inline LLColor3 colorMix(LLColor3 const & left, LLColor3 const & right, F32 amount)
-{
-	return (left + ((right - left) * amount));
-}
-
-static inline LLColor3 smear(F32 val)
-{
-	return LLColor3(val, val, val);
 }
 
 void LLVOSky::initAtmospherics(void)
