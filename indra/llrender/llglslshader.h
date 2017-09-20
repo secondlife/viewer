@@ -166,14 +166,20 @@ public:
 	U32 mMatHash[LLRender::NUM_MATRIX_MODES];
 	U32 mLightHash;
 
+    typedef std::map<S32, GLint> uniforms_index_t;
+    typedef std::pair<U32, U32>  magmin_values_t;
+
+    typedef std::map < S32, magmin_values_t> magmin_filter_t;
+
 	GLhandleARB mProgramObject;
 	std::vector<GLint> mAttribute; //lookup table of attribute enum to attribute channel
 	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
-	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
+    uniforms_index_t mUniform;
+    uniforms_index_t mTexture;
+
 	LLStaticStringTable<GLint> mUniformMap; //lookup map of uniform name to uniform location
 	std::map<GLint, std::string> mUniformNameMap; //lookup map of uniform location to uniform name
 	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value
-	std::vector<GLint> mTexture;
 	S32 mTotalUniformSize;
 	S32 mActiveTextureChannels;
 	S32 mShaderLevel;
@@ -197,11 +203,26 @@ public:
 	static U32 sTotalDrawCalls;
 
 	bool mTextureStateFetched;
-	std::vector<U32> mTextureMagFilter;
-	std::vector<U32> mTextureMinFilter;
+    magmin_filter_t mTextureMagMinFilter;
 
 private:
 	void unloadInternal();
+
+    inline GLint getLocationForIndex(S32 index)
+    {
+        uniforms_index_t::iterator it = mUniform.find(index);
+        if (it == mUniform.end())
+            return -1;
+        return (*it).second;
+    }
+
+    inline GLint getTexChannelForIndex(S32 index)
+    {
+        uniforms_index_t::iterator it = mTexture.find(index);
+        if (it == mTexture.end())
+            return -1;
+        return (*it).second;
+    }
 };
 
 //UI shader (declared here so llui_libtest will link properly)

@@ -154,8 +154,7 @@ void LLGLSLShader::clearStats()
     mSamplesDrawn = 0;
     mDrawCalls = 0;
     mTextureStateFetched = false;
-    mTextureMagFilter.clear();
-    mTextureMinFilter.clear();
+    mTextureMagMinFilter.clear();
 }
 
 void LLGLSLShader::dumpStats()
@@ -168,14 +167,16 @@ void LLGLSLShader::dumpStats()
         {
             LL_INFOS() << mShaderFiles[i].first << LL_ENDL;
         }
-        for (U32 i = 0; i < mTexture.size(); ++i)
+        for (uniforms_index_t::iterator it = mTexture.begin(); it != mTexture.end(); ++it)
         {
-            GLint idx = mTexture[i];
+            S32 i = (*it).first;
+            GLint idx = (*it).second;
             
             if (idx >= 0)
             {
                 GLint uniform_idx = getUniformLocation(i);
-                LL_INFOS() << mUniformNameMap[uniform_idx] << " - " << std::hex << mTextureMagFilter[i] << "/" << mTextureMinFilter[i] << std::dec << LL_ENDL;
+                magmin_filter_t::iterator it = mTextureMagMinFilter.find(i);
+                LL_INFOS() << mUniformNameMap[uniform_idx] << " - " << std::hex << (*it).second.second << "/" << (*it).second.first << std::dec << LL_ENDL;
             }
         }
         LL_INFOS() << "=============================================" << LL_ENDL;
@@ -232,14 +233,13 @@ void LLGLSLShader::placeProfileQuery()
     if (!mTextureStateFetched)
     {
         mTextureStateFetched = true;
-        mTextureMagFilter.resize(mTexture.size());
-        mTextureMinFilter.resize(mTexture.size());
 
         U32 cur_active = gGL.getCurrentTexUnitIndex();
 
-        for (U32 i = 0; i < mTexture.size(); ++i)
+        for (uniforms_index_t::iterator it = mTexture.begin(); it != mTexture.end(); ++it)
         {
-            GLint idx = mTexture[i];
+            S32 i = (*it).first;
+            GLint idx = (*it).second;
 
             if (idx >= 0)
             {
@@ -253,8 +253,7 @@ void LLGLSLShader::placeProfileQuery()
                 glGetTexParameteriv(type, GL_TEXTURE_MAG_FILTER, (GLint*) &mag);
                 glGetTexParameteriv(type, GL_TEXTURE_MIN_FILTER, (GLint*) &min);
 
-                mTextureMagFilter[i] = mag;
-                mTextureMinFilter[i] = min;
+                mTextureMagMinFilter[i] = magmin_values_t(mag, min);
             }
         }
 
@@ -470,13 +469,14 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
         }
 
         S32 cur_tex = channel_count; //adjust any texture channels that might have been overwritten
-        for (U32 i = 0; i < mTexture.size(); i++)
+        for (uniforms_index_t::iterator it = mTexture.begin(); it != mTexture.end(); ++it)
         {
-            if (mTexture[i] > -1 && mTexture[i] < channel_count)
+            int i = (*it).first;
+            if (((*it).second >= 0) && ((*it).second < channel_count))
             {
                 llassert(cur_tex < gGLManager.mNumTextureImageUnits);
                 uniform1i(i, cur_tex);
-                mTexture[i] = cur_tex++;
+                (*it).second = cur_tex++;
             }
         }
         unbind();
@@ -655,13 +655,16 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
         //find the index of this uniform
         for (S32 i = 0; i < (S32) LLShaderMgr::instance()->mReservedUniforms.size(); i++)
         {
-            if ( (mUniform[i] == -1)
-                && (LLShaderMgr::instance()->mReservedUniforms[i] == name))
+            if (LLShaderMgr::instance()->mReservedUniforms[i] == name)
             {
-                //found it
-                mUniform[i] = location;
-                mTexture[i] = mapUniformTextureChannel(location, type);
-                return;
+                std::pair<uniforms_index_t::iterator, bool> result;
+
+                result = mUniform.insert(uniforms_index_t::value_type(i, location));
+                if (result.second)
+                {
+                    mTexture[i] = mapUniformTextureChannel(location, type);
+                    return;
+                }
             }
         }
 
@@ -669,13 +672,17 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
         {
             for (U32 i = 0; i < uniforms->size(); i++)
             {
-                if ( (mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] == -1)
-                    && ((*uniforms)[i].String() == name))
+                std::pair<uniforms_index_t::iterator, bool> result;
+                S32 index = i + LLShaderMgr::instance()->mReservedUniforms.size();
+
+                if ((*uniforms)[i].String() == name)
                 {
-                    //found it
-                    mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] = location;
-                    mTexture[i+LLShaderMgr::instance()->mReservedUniforms.size()] = mapUniformTextureChannel(location, type);
-                    return;
+                    result = mUniform.insert(uniforms_index_t::value_type(index, location));
+                    if (result.second)
+                    {
+                        mTexture[index] = mapUniformTextureChannel(location, type);
+                        return;
+                    }
                 }
             }
         }
@@ -715,10 +722,6 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	mUniformNameMap.clear();
 	mTexture.clear();
 	mValue.clear();
-	//initialize arrays
-	U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
-	mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
-	mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
 
 	bind();
 
@@ -910,20 +913,14 @@ S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LL
 
 S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
 {
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    GLint channel = getTexChannelForIndex(uniform);
+    
+    if (channel > -1)
     {
-        UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
-        return -1;
+        gGL.getTexUnit(channel)->bind(texture, mode);
     }
     
-    uniform = mTexture[uniform];
-    
-    if (uniform > -1)
-    {
-        gGL.getTexUnit(uniform)->bind(texture, mode);
-    }
-    
-    return uniform;
+    return channel;
 }
 
 S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureType mode)
@@ -936,82 +933,64 @@ S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureT
 
 S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    GLint channel = getTexChannelForIndex(uniform);
+
+    if (channel > -1)
     {
-        UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
-        return -1;
+        gGL.getTexUnit(channel)->unbind(mode);
     }
     
-    uniform = mTexture[uniform];
-    
-    if (uniform > -1)
-    {
-        gGL.getTexUnit(uniform)->unbind(mode);
-    }
-    
-    return uniform;
+    return channel;
 }
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    GLint channel = getTexChannelForIndex(uniform);
+
+    if (channel != -1)
     {
-        UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
-        return -1;
+        gGL.getTexUnit(channel)->activate();
+        gGL.getTexUnit(channel)->enable(mode);
     }
-    S32 index = mTexture[uniform];
-    if (index != -1)
-    {
-        gGL.getTexUnit(index)->activate();
-        gGL.getTexUnit(index)->enable(mode);
-    }
-    return index;
+    return channel;
 }
 
 S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    GLint channel = getTexChannelForIndex(uniform);
+
+    if (channel != -1 && gGL.getTexUnit(channel)->getCurrType() != LLTexUnit::TT_NONE)
     {
-        UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
-        return -1;
-    }
-    S32 index = mTexture[uniform];
-    if (index != -1 && gGL.getTexUnit(index)->getCurrType() != LLTexUnit::TT_NONE)
-    {
-        if (gDebugGL && gGL.getTexUnit(index)->getCurrType() != mode)
+        if (gDebugGL && gGL.getTexUnit(channel)->getCurrType() != mode)
         {
             if (gDebugSession)
             {
-                gFailLog << "Texture channel " << index << " texture type corrupted." << std::endl;
+                gFailLog << "Texture channel " << channel << " texture type corrupted." << std::endl;
                 ll_fail("LLGLSLShader::disableTexture failed");
             }
             else
             {
-                LL_ERRS() << "Texture channel " << index << " texture type corrupted." << LL_ENDL;
+                LL_ERRS() << "Texture channel " << channel << " texture type corrupted." << LL_ENDL;
             }
         }
-        gGL.getTexUnit(index)->disable();
+        gGL.getTexUnit(channel)->disable();
     }
-    return index;
+    return channel;
 }
 
 void LLGLSLShader::uniform1i(U32 index, GLint x)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
-                glUniform1iARB(mUniform[index], x);
-                mValue[mUniform[index]] = LLVector4(x,0.f,0.f,0.f);
+                glUniform1iARB(location, x);
+                mValue[location] = LLVector4(x,0.f,0.f,0.f);
             }
         }
     }
@@ -1021,19 +1000,15 @@ void LLGLSLShader::uniform1f(U32 index, GLfloat x)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
-                glUniform1fARB(mUniform[index], x);
-                mValue[mUniform[index]] = LLVector4(x,0.f,0.f,0.f);
+                glUniform1fARB(location, x);
+                mValue[location] = LLVector4(x,0.f,0.f,0.f);
             }
         }
     }
@@ -1043,20 +1018,16 @@ void LLGLSLShader::uniform2f(U32 index, GLfloat x, GLfloat y)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(x,y,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
-                glUniform2fARB(mUniform[index], x, y);
-                mValue[mUniform[index]] = vec;
+                glUniform2fARB(location, x, y);
+                mValue[location] = vec;
             }
         }
     }
@@ -1066,20 +1037,16 @@ void LLGLSLShader::uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(x,y,z,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
-                glUniform3fARB(mUniform[index], x, y, z);
-                mValue[mUniform[index]] = vec;
+                glUniform3fARB(location, x, y, z);
+                mValue[location] = vec;
             }
         }
     }
@@ -1089,20 +1056,16 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(x,y,z,w);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
-                glUniform4fARB(mUniform[index], x, y, z, w);
-                mValue[mUniform[index]] = vec;
+                glUniform4fARB(location, x, y, z, w);
+                mValue[location] = vec;
             }
         }
     }
@@ -1112,20 +1075,16 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(v[0],0.f,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform1ivARB(mUniform[index], count, v);
-                mValue[mUniform[index]] = vec;
+                glUniform1ivARB(location, count, v);
+                mValue[location] = vec;
             }
         }
     }
@@ -1135,20 +1094,16 @@ void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(v[0],0.f,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform1fvARB(mUniform[index], count, v);
-                mValue[mUniform[index]] = vec;
+                glUniform1fvARB(location, count, v);
+                mValue[location] = vec;
             }
         }
     }
@@ -1158,20 +1113,16 @@ void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(v[0],v[1],0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform2fvARB(mUniform[index], count, v);
-                mValue[mUniform[index]] = vec;
+                glUniform2fvARB(location, count, v);
+                mValue[location] = vec;
             }
         }
     }
@@ -1181,20 +1132,16 @@ void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(v[0],v[1],v[2],0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform3fvARB(mUniform[index], count, v);
-                mValue[mUniform[index]] = vec;
+                glUniform3fvARB(location, count, v);
+                mValue[location] = vec;
             }
         }
     }
@@ -1204,20 +1151,16 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
             LLVector4 vec(v[0],v[1],v[2],v[3]);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform4fvARB(mUniform[index], count, v);
-                mValue[mUniform[index]] = vec;
+                glUniform4fvARB(location, count, v);
+                mValue[location] = vec;
             }
         }
     }
@@ -1227,15 +1170,11 @@ void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, c
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            glUniformMatrix2fvARB(mUniform[index], count, transpose, v);
+            glUniformMatrix2fvARB(location, count, transpose, v);
         }
     }
 }
@@ -1244,15 +1183,11 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            glUniformMatrix3fvARB(mUniform[index], count, transpose, v);
+            glUniformMatrix3fvARB(location, count, transpose, v);
         }
     }
 }
@@ -1261,15 +1196,11 @@ void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose,
 {
 	if (mProgramObject > 0)
 	{	
-		if (mUniform.size() <= index)
-		{
-			UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-			return;
-		}
+        GLint location = getLocationForIndex(index);
 
-		if (mUniform[index] >= 0)
+		if (location >= 0)
 		{
-			glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
+			glUniformMatrix3x4fv(location, count, transpose, v);
 		}
 	}
 }
@@ -1278,15 +1209,11 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 {
     if (mProgramObject > 0)
     {   
-        if (mUniform.size() <= index)
-        {
-            UNIFORM_ERRS << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+        GLint location = getLocationForIndex(index);
 
-        if (mUniform[index] >= 0)
+        if (location >= 0)
         {
-            glUniformMatrix4fvARB(mUniform[index], count, transpose, v);
+            glUniformMatrix4fvARB(location, count, transpose, v);
         }
     }
 }
@@ -1317,14 +1244,8 @@ GLint LLGLSLShader::getUniformLocation(const LLStaticHashedString& uniform)
 
 GLint LLGLSLShader::getUniformLocation(U32 index)
 {
-    GLint ret = -1;
-    if (mProgramObject > 0)
-    {
-        llassert(index < mUniform.size());
-        return mUniform[index];
-    }
-
-    return ret;
+    /*TODO: flatten this... change calls to gUL(U32) */
+    return getLocationForIndex(index);
 }
 
 GLint LLGLSLShader::getAttribLocation(U32 attrib)
