@@ -49,9 +49,7 @@ class ManifestError(RuntimeError):
 
 class MissingError(ManifestError):
     """You specified a file that doesn't exist"""
-    def __init__(self, msg):
-        self.msg = msg
-        super(MissingError, self).__init__(self.msg)
+    pass
 
 def path_ancestors(path):
     drive, path = os.path.splitdrive(os.path.normpath(path))
@@ -316,7 +314,7 @@ def main():
             try:
                 wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
                 wm.do(*args['actions'])
-            except ManifestError as err:
+            except Exception as err:
                 sys.exit(str(err))
             if touch:
                 print 'Created additional package ', wm.package_file, ' for ', package_id
