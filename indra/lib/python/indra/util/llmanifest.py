@@ -43,11 +43,15 @@ import subprocess
 
 class ManifestError(RuntimeError):
     """Use an exception more specific than generic Python RuntimeError"""
-    pass
+    def __init__(self, msg):
+        self.msg = msg
+        super(ManifestError, self).__init__(self.msg)
 
 class MissingError(ManifestError):
     """You specified a file that doesn't exist"""
-    pass
+    def __init__(self, msg):
+        self.msg = msg
+        super(MissingError, self).__init__(self.msg)
 
 def path_ancestors(path):
     drive, path = os.path.splitdrive(os.path.normpath(path))
@@ -309,8 +313,11 @@ def main():
                 continue
             if touch:
                 print 'Creating additional package for "', package_id, '" in ', args['dest']
-            wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
-            wm.do(*args['actions'])
+            try:
+                wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
+                wm.do(*args['actions'])
+            except ManifestError as err:
+                sys.exit(str(err))
             if touch:
                 print 'Created additional package ', wm.package_file, ' for ', package_id
                 faketouch = base_touch_prefix + '/' + package_id + '/' + base_touch_postfix
@@ -449,29 +456,17 @@ class LLManifest(object):
         return path
 
     def run_command(self, command):
-        """ Runs an external command, and returns the output.  Raises
-        an exception if the command returns a nonzero status code.  For
-        debugging/informational purposes, prints out the command's
-        output as it is received."""
+        """ 
+        Runs an external command.  
+        Raises ManifestError exception if the command returns a nonzero status.
+        """
         print "Running command:", command
         sys.stdout.flush()
-        child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                 shell=True)
-        lines = []
-        while True:
-            lines.append(child.stdout.readline())
-            if lines[-1] == '':
-                break
-            else:
-                print lines[-1],
-        output = ''.join(lines)
-        child.stdout.close()
-        status = child.wait()
-        if status:
-            raise ManifestError(
-                "Command %s returned non-zero status (%s) \noutput:\n%s"
-                % (command, status, output) )
-        return output
+        try:
+            subprocess.check_call(command, shell=True)
+        except subprocess.CalledProcessError as err:
+            raise ManifestError( "Command %s returned non-zero status (%s)"
+                                % (command, err.returncode) )
 
     def created_path(self, path):
         """ Declare that you've created a path in order to
@@ -621,7 +616,7 @@ class LLManifest(object):
         if self.includes(src, dst):
             try:
                 os.unlink(dst)
-            except OSError, err:
+            except OSError as err:
                 if err.errno != errno.ENOENT:
                     raise
 
@@ -642,7 +637,7 @@ class LLManifest(object):
             dstname = os.path.join(dst, name)
             try:
                 self.ccopymumble(srcname, dstname)
-            except (IOError, os.error), why:
+            except (IOError, os.error) as why:
                 errors.append((srcname, dstname, why))
         if errors:
             raise ManifestError, errors

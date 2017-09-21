@@ -36,6 +36,8 @@ import re
 import tarfile
 import time
 import random
+import subprocess
+
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
 # Put it FIRST because some of our build hosts have an ancient install of
@@ -341,9 +343,9 @@ class WindowsManifest(ViewerManifest):
                     else:
                         test_assembly_binding(src, "Microsoft.VC80.CRT", "")
                     raise Exception("Unknown condition")
-                except NoManifestException, err:
+                except NoManifestException as err:
                     pass
-                except NoMatchingAssemblyException, err:
+                except NoMatchingAssemblyException as err:
                     pass
                     
                 self.ccopy(src,dst)
@@ -405,14 +407,14 @@ class WindowsManifest(ViewerManifest):
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
                 
-            except RuntimeError, err:
+            except RuntimeError as err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
                 self.path("glod.dll")
-            except RuntimeError, err:
+            except RuntimeError as err:
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
 
@@ -728,7 +730,7 @@ class WindowsManifest(ViewerManifest):
         for attempt in xrange(nsis_attempts):
             try:
                 self.run_command('"' + NSIS_path + '" /V2 ' + self.dst_path_of(tempfile))
-            except ManifestError, err:
+            except ManifestError as err:
                 if attempt+1 < nsis_attempts:
                     print >> sys.stderr, "nsis failed, waiting %d seconds before retrying" % nsis_retry_wait
                     time.sleep(nsis_retry_wait)
@@ -1106,7 +1108,11 @@ class DarwinManifest(ViewerManifest):
                 'vol':volname})
 
         # mount the image and get the name of the mount point and device node
-        hdi_output = self.run_command('hdiutil attach -private %r' % sparsename)
+        try:
+            hdi_output = subprocess.check_output(['hdiutil', 'attach', '-private', sparsename])
+        except subprocess.CalledProcessError as err:
+            sys.exit("failed to mount image at '%s'" % sparsename)
+            
         try:
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
             volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
@@ -1220,7 +1226,7 @@ class DarwinManifest(ViewerManifest):
                                    'bundle': app_in_dmg
                                    })
                             signed=True # if no exception was raised, the codesign worked
-                        except ManifestError, err:
+                        except ManifestError as err:
                             if sign_attempts:
                                 print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
                                 time.sleep(sign_retry_wait)
@@ -1483,7 +1489,7 @@ def symlinkf(src, dst):
     """
     try:
         os.symlink(src, dst)
-    except OSError, err:
+    except OSError as err:
         if err.errno != errno.EEXIST:
             raise
         # We could just blithely attempt to remove and recreate the target
