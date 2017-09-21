@@ -117,17 +117,17 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
 
     if (oldsettings.has(SETTING_AMBIENT))
     {
-        newsettings[SETTING_AMBIENT] = LLColor3(oldsettings[SETTING_AMBIENT]).getValue();
+        newsettings[SETTING_AMBIENT] = LLColor4(oldsettings[SETTING_AMBIENT]).getValue();
     }
 
     if (oldsettings.has(SETTING_BLUE_DENSITY))
     {
-        newsettings[SETTING_BLUE_DENSITY] = LLColor3(oldsettings[SETTING_BLUE_DENSITY]).getValue();
+        newsettings[SETTING_BLUE_DENSITY] = LLColor4(oldsettings[SETTING_BLUE_DENSITY]).getValue();
     }
 
     if (oldsettings.has(SETTING_BLUE_HORIZON))
     {
-        newsettings[SETTING_BLUE_HORIZON] = LLColor3(oldsettings[SETTING_BLUE_HORIZON]).getValue();
+        newsettings[SETTING_BLUE_HORIZON] = LLColor4(oldsettings[SETTING_BLUE_HORIZON]).getValue();
     }
 
     if (oldsettings.has(SETTING_CLOUD_COLOR))
@@ -188,12 +188,12 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
 
     if (oldsettings.has(SETTING_GLOW))
     {
-        newsettings[SETTING_GLOW] = LLColor3(oldsettings[SETTING_GLOW]).getValue();
+        newsettings[SETTING_GLOW] = LLColor4(oldsettings[SETTING_GLOW]).getValue();
     }
 
     if (oldsettings.has(SETTING_GAMMA))
     {
-        newsettings[SETTING_GAMMA] = LLSD::Real(oldsettings[SETTING_GAMMA][0].asReal());
+        newsettings[SETTING_GAMMA] = LLVector4(oldsettings[SETTING_GAMMA]).getValue();
     }
 
     if (oldsettings.has(SETTING_CLOUD_SCROLL_RATE))
@@ -283,21 +283,21 @@ LLSD LLSettingsSky::defaults()
     LLQuaternion moonquat = ~sunquat;
 
     // Magic constants copied form dfltsetting.xml 
-    dfltsetting[SETTING_AMBIENT]            = LLColor3::white.getValue();
-    dfltsetting[SETTING_BLUE_DENSITY]       = LLColor3(0.2447, 0.4487, 0.7599).getValue();
-    dfltsetting[SETTING_BLUE_HORIZON]       = LLColor3(0.4954, 0.4954, 0.6399).getValue();
-    dfltsetting[SETTING_CLOUD_COLOR]        = LLColor3(0.4099, 0.4099, 0.4099).getValue();
-    dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor3(1.0000, 0.5260, 1.0000).getValue();
-    dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor3(1.0000, 0.5260, 1.0000).getValue();
+    dfltsetting[SETTING_AMBIENT]            = LLColor4::white.getValue();
+    dfltsetting[SETTING_BLUE_DENSITY]       = LLColor4(0.2447, 0.4487, 0.7599, 1.0).getValue();
+    dfltsetting[SETTING_BLUE_HORIZON]       = LLColor4(0.4954, 0.4954, 0.6399, 1.0).getValue();
+    dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 1.0).getValue();
+    dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 1.0).getValue();
+    dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 1.0).getValue();
     dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
     dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(10.1999)(10.0109);
-    dfltsetting[SETTING_CLOUD_SHADOW]       = LLColor3(0.2699, 0.0000, 0.0000).getValue();
+    dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
     dfltsetting[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(0.0001);
     dfltsetting[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(0.8000);
-    dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(1.0);
-    dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(0.0);
-    dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0000);
-    dfltsetting[SETTING_GLOW]               = LLColor3(5.000, 0.0010, -0.4799).getValue();   // *RIDER: This is really weird for a color... TODO: check if right.
+    dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
+    dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
+    dfltsetting[SETTING_GAMMA]              = LLVector4(1.0, 0.0, 0.0, 1.0).getValue();
+    dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();   // *RIDER: This is really weird for a color... TODO: check if right.
     dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
     dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
     dfltsetting[SETTING_LIGHT_NORMAL]       = LLVector4(0.0000, 0.9126, -0.4086, 0.0000).getValue();
@@ -305,7 +305,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
     dfltsetting[SETTING_NAME]               = std::string("_default_");
     dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(0.0000);
-    dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor3(0.7342, 0.7815, 0.8999).getValue();
+    dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 1.0).getValue();
     dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = LLUUID::null;
@@ -468,8 +468,35 @@ void LLSettingsSky::calculateLightSettings()
     mTotalAmbient.setAlpha(1);
 
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
-    mFadeColor.setAlpha(0);
+    mFadeColor.setAlpha(1);
 
+}
+
+LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
+{
+    static parammapping_t param_map;
+
+    if (param_map.empty())
+    {
+        param_map[SETTING_AMBIENT] = LLShaderMgr::AMBIENT;
+        param_map[SETTING_BLUE_DENSITY] = LLShaderMgr::BLUE_DENSITY;
+        param_map[SETTING_BLUE_HORIZON] = LLShaderMgr::BLUE_HORIZON;
+        param_map[SETTING_CLOUD_COLOR] = LLShaderMgr::CLOUD_COLOR;
+        param_map[SETTING_CLOUD_POS_DENSITY1] = LLShaderMgr::CLOUD_POS_DENSITY1;
+        param_map[SETTING_CLOUD_POS_DENSITY2] = LLShaderMgr::CLOUD_POS_DENSITY2;
+        param_map[SETTING_CLOUD_SCALE] = LLShaderMgr::CLOUD_SCALE;
+        param_map[SETTING_CLOUD_SHADOW] = LLShaderMgr::CLOUD_SHADOW;
+        param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
+        param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
+        param_map[SETTING_GAMMA] = LLShaderMgr::GAMMA;
+        param_map[SETTING_GLOW] = LLShaderMgr::GLOW;
+        param_map[SETTING_HAZE_DENSITY] = LLShaderMgr::HAZE_DENSITY;
+        param_map[SETTING_HAZE_HORIZON] = LLShaderMgr::HAZE_HORIZON;
+        param_map[SETTING_MAX_Y] = LLShaderMgr::MAX_Y;
+        param_map[SETTING_SUNLIGHT_COLOR] = LLShaderMgr::SUNLIGHT_COLOR;
+    }
+
+    return param_map;
 }
 
 
@@ -480,14 +507,14 @@ LLSettingsSky::stringset_t LLSettingsSky::getSkipApplyKeys() const
 
     if (skip_apply_set.empty())
     {
-        skip_apply_set.insert(SETTING_GAMMA);
         skip_apply_set.insert(SETTING_MOON_ROTATION);
         skip_apply_set.insert(SETTING_SUN_ROTATION);
         skip_apply_set.insert(SETTING_NAME);
         skip_apply_set.insert(SETTING_STAR_BRIGHTNESS);
         skip_apply_set.insert(SETTING_CLOUD_SCROLL_RATE);
         skip_apply_set.insert(SETTING_LIGHT_NORMAL);
-        skip_apply_set.insert(SETTING_CLOUD_POS_DENSITY1);
+        skip_apply_set.insert(SETTING_DOME_OFFSET);
+        skip_apply_set.insert(SETTING_DOME_RADIUS);
     }
 
     return skip_apply_set;
@@ -505,6 +532,8 @@ void LLSettingsSky::applySpecial(void *ptarget)
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
     
     shader->uniform4f(LLShaderMgr::GAMMA, getGama(), 0.0, 0.0, 1.0);
+
+
 }
 
 //-------------------------------------------------------------------------

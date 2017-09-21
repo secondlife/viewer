@@ -42,6 +42,8 @@
 #include "llface.h"
 #include "llrender.h"
 
+#include "llenvironment.h" 
+
 LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
 LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
@@ -190,14 +192,14 @@ void LLDrawPoolWLSky::renderStars(void) const
 	
 	// *NOTE: we divide by two here and GL_ALPHA_SCALE by two below to avoid
 	// clamping and allow the star_alpha param to brighten the stars.
-	bool error;
 	LLColor4 star_alpha(LLColor4::black);
-	star_alpha.mV[3] = LLWLParamManager::getInstance()->mCurParams.getFloat("star_brightness", error) / 2.f;
+    // *LAPRAS
+    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 2.f;
 
 	// If start_brightness is not set, exit
-	if( error )
+	if( star_alpha.mV[3] < 0.001 )
 	{
-		LL_WARNS() << "star_brightness missing in mCurParams" << LL_ENDL;
+		LL_DEBUGS("SKY") << "star_brightness below threshold." << LL_ENDL;
 		return;
 	}
 

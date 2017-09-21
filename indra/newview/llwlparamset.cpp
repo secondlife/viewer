@@ -65,6 +65,8 @@ static LLTrace::BlockTimerStatHandle FTM_WL_PARAM_UPDATE("WL Param Update");
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	
 	LL_RECORD_BLOCK_TIME(FTM_WL_PARAM_UPDATE);
+    //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
+
 	LLSD::map_const_iterator i = mParamValues.beginMap();
 	std::vector<LLStaticHashedString>::const_iterator n = mParamHashedNames.begin();
 	for(;(i != mParamValues.endMap()) && (n != mParamHashedNames.end());++i, n++)
@@ -91,7 +93,8 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			val.mV[3] = (F32) i->second[3].asReal();
 
 			stop_glerror();
-			shader->uniform4fv(param, 1, val.mV);
+            //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+            shader->uniform4fv(param, 1, val.mV);
 			stop_glerror();
 		}
 		else if (param == sCloudScale || param == sCloudShadow ||
@@ -102,7 +105,8 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			F32 val = (F32) i->second[0].asReal();
 
 			stop_glerror();
-			shader->uniform1f(param, val);
+            //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+            shader->uniform1f(param, val);
 			stop_glerror();
 		}
 		else // param is the uniform name
@@ -118,7 +122,8 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 				val.mV[3] = (F32) i->second[3].asReal();															
 
 				stop_glerror();
-				shader->uniform4fv(param, 1, val.mV);
+                //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+                shader->uniform4fv(param, 1, val.mV);
 				stop_glerror();
 			} 
 			else if (i->second.isReal())
@@ -126,7 +131,8 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 				F32 val = (F32) i->second.asReal();
 
 				stop_glerror();
-				shader->uniform1f(param, val);
+                //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+                shader->uniform1f(param, val);
 				stop_glerror();
 			} 
 			else if (i->second.isInteger())
@@ -134,7 +140,8 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 				S32 val = (S32) i->second.asInteger();
 
 				stop_glerror();
-				shader->uniform1i(param, val);
+                //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+                shader->uniform1i(param, val);
 				stop_glerror();
 			} 
 			else if (i->second.isBoolean())
@@ -142,7 +149,8 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 				S32 val = (i->second.asBoolean() ? 1 : 0);
 
 				stop_glerror();
-				shader->uniform1i(param, val);
+                //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+                shader->uniform1i(param, val);
 				stop_glerror();
 			}
 		}

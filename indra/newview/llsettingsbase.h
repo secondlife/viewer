@@ -45,6 +45,8 @@ class LLSettingsBase: private boost::noncopyable
     friend class LLEnvironment;
 
 public:
+    typedef std::map<std::string, S32>  parammapping_t;
+
     typedef boost::shared_ptr<LLSettingsBase> ptr_t;
 
     virtual ~LLSettingsBase() { };
@@ -122,6 +124,7 @@ protected:
 
     typedef std::set<std::string>   stringset_t;
 
+
     // combining settings objects. Customize for specific setting types
     virtual void lerpSettings(const LLSettingsBase &other, F32 mix);
 
@@ -140,6 +143,8 @@ protected:
     virtual stringset_t getSkipApplyKeys() const { return stringset_t(); }
     // Apply any settings that need special handling. 
     virtual void applySpecial(void *) { };
+
+    virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 
     LLSD    mSettings;
 

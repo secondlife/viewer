@@ -351,7 +351,8 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 {
 	if (gPipeline.canUseWindLightShaders())
 	{
-		mCurParams.update(shader);
+        LLEnvironment::instance().updateGLVariablesForSettings(shader, LLEnvironment::instance().getCurrentSky());
+		//mCurParams.update(shader);
 	}
 
 	if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)

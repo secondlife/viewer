@@ -161,12 +161,12 @@ public:
 
     F32 getGama() const
     {
-        return mSettings[SETTING_GAMMA].asReal();
+        return mSettings[SETTING_GAMMA][0].asReal();
     }
 
     LLColor3 getGlow() const
     {
-        return mSettings[SETTING_GLOW].asReal();
+        return LLColor3(mSettings[SETTING_GLOW]);
     }
 
     F32 getHazeDensity() const
@@ -177,6 +177,11 @@ public:
     F32 getHazeHorizon() const
     {
         return mSettings[SETTING_HAZE_HORIZON].asReal();
+    }
+
+    LLVector3 getLightNormal() const
+    {
+        return LLVector3(mSettings[SETTING_LIGHT_NORMAL]);
     }
 
     F32 getMaxY() const
@@ -289,6 +294,8 @@ protected:
 
     virtual void        updateSettings();
 
+    virtual parammapping_t getParameterMap() const;
+
     virtual stringset_t getSkipApplyKeys() const;
     virtual void        applySpecial(void *);
 
@@ -309,6 +316,10 @@ private:
     
     LLColor4    mTotalAmbient;
     LLColor4    mFadeColor;
+
+    typedef std::map<std::string, S32> mapNameToUniformId_t;
+
+    static mapNameToUniformId_t sNameToUniformMapping;
 };
 
 #endif
