@@ -339,6 +339,9 @@ public:
 	// returns TRUE is any node is currenly worn as an attachment
 	BOOL isAttachment();
 
+    // AXON validate a potential link against limits
+    bool checkAnimatedObjectEstTris();
+    
 	// Apply functors to various subsets of the selected objects
 	// If firstonly is FALSE, returns the AND of all apply() calls.
 	// Else returns TRUE immediately if any apply() call succeeds (i.e. OR with early exit)

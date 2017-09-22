@@ -3349,20 +3349,23 @@ bool LLVOVolume::canBeAnimatedObject() const
     {
         return false;
     }
-// AXON remove this check if animated object attachments are allowed
-#if 0
-    if (isAttachment())
-    {
-        return false;
-    }
-#endif
 	if (!getVolume())
 	{
 		return false;
 	}
+    if (!isRootEdit())
+    {
+        return false;
+    }
 	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(getVolume()->getParams().getSculptID(), this);
     if (!skin)
     {
+        return false;
+    }
+    F32 est_tris = recursiveGetEstTrianglesHigh();
+    if (est_tris > getAnimatedObjectMaxTris())
+    {
+        LL_INFOS() << "est_tris " << est_tris << " exceeds limit " << getAnimatedObjectMaxTris() << LL_ENDL;
         return false;
     }
     return true;
@@ -3831,6 +3834,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	}
 
 	return (U32)shame;
+}
+
+F32 LLVOVolume::getEstTrianglesHigh() const
+{
+	if (isMesh())
+	{
+		return gMeshRepo.getEstTrianglesHigh(getVolume()->getParams().getSculptID());
+	}
+    return 0.f;
 }
 
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const

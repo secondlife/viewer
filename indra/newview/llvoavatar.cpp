@@ -6603,12 +6603,31 @@ U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
 }
 
 //-----------------------------------------------------------------------------
+// getMaxAnimatedObjectAttachments()
+// Gets from simulator feature if available, otherwise 0.
+//-----------------------------------------------------------------------------
+S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
+{
+    S32 max_attach = 0;
+    LLSD features;
+    if (getRegion())
+    {
+        getRegion()->getSimulatorFeatures(features);
+        if (features.has("AnimatedObjects"))
+        {
+            max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();
+        }
+    }
+    return max_attach;
+}
+
+//-----------------------------------------------------------------------------
 // canAttachMoreAnimatedObjects()
 // Returns true if we can attach <n> more animated objects.
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::canAttachMoreAnimatedObjects(U32 n) const
 {
-	return (getNumAnimatedObjectAttachments() + n) <= MAX_AGENT_ANIMATED_OBJECT_ATTACHMENTS;
+	return (getNumAnimatedObjectAttachments() + n) <= getMaxAnimatedObjectAttachments();
 }
 
 //-----------------------------------------------------------------------------

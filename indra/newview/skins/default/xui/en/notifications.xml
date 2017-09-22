@@ -10620,6 +10620,29 @@ You are not allowed to change this shape.
 Operation would cause the number of attached animated objects to exceed the limit.
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsLinkAnimatedObjectTooLarge"
+   type="notify">
+   <tag>fail</tag>
+Can't link these objects because the resulting animated object would exceed the size limit.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsSetFlagAnimatedObjectTooLarge"
+   type="notify">
+   <tag>fail</tag>
+Can't make this object into an animated object because it would exceed the size limit.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ErrorNoMeshData"
+   type="notify">
+   <tag>fail</tag>
+Server error: cannot complete this operation because mesh data is not loaded.
+  </notification>
 
   <notification
    icon="alertmodal.tga"

@@ -778,6 +778,7 @@ public:
 	LLBBox 				getHUDBBox() const;
 	void 				resetHUDAttachments();
 	BOOL				canAttachMoreObjects(U32 n=1) const;
+    S32					getMaxAnimatedObjectAttachments() const;
     BOOL				canAttachMoreAnimatedObjects(U32 n=1) const;
 protected:
 	U32					getNumAttachments() const; // O(N), not O(1)

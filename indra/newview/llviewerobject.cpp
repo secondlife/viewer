@@ -3580,6 +3580,38 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
+F32 LLViewerObject::recursiveGetEstTrianglesHigh() const
+{
+    F32 est_tris = getEstTrianglesHigh();
+    for (child_list_t::const_iterator iter = mChildList.begin();
+         iter != mChildList.end(); iter++)
+    {
+        const LLViewerObject* child = *iter;
+        est_tris += child->recursiveGetEstTrianglesHigh();
+    }
+    return est_tris;
+}
+
+S32 LLViewerObject::getAnimatedObjectMaxTris() const
+{
+    S32 max_tris = 0;
+    LLSD features;
+    if (getRegion())
+    {
+        getRegion()->getSimulatorFeatures(features);
+        if (features.has("AnimatedObjects"))
+        {
+            max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
+        }
+    }
+    return max_tris;
+}
+
+F32 LLViewerObject::getEstTrianglesHigh() const
+{
+    return 0.f;
+}
+
 F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
 {
 	return 0.f;
@@ -3697,7 +3729,6 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 		}
 	}
 }
-
 
 void LLViewerObject::setLineWidthForWindowSize(S32 window_width)
 {

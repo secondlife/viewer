@@ -4021,6 +4021,33 @@ void LLMeshRepository::uploadError(LLSD& args)
 	mUploadErrorQ.push(args);
 }
 
+F32 LLMeshRepository::getEstTrianglesHigh(LLUUID mesh_id)
+{
+    F32 triangles_high = 0.f;
+    if (mThread && mesh_id.notNull())
+    {
+        LLMutexLock lock(mThread->mHeaderMutex);
+        LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
+        if (iter != mThread->mMeshHeader.end() && mThread->mMeshHeaderSize[mesh_id] > 0)
+        {
+            LLSD& header = iter->second;
+            if (header.has("404")
+                || !header.has("lowest_lod")
+                || (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION))
+            {
+                return 0.f;
+            }
+
+            S32 bytes_high = header["high_lod"]["size"].asInteger();
+            F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
+            F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
+            F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
+            triangles_high = llmax((F32) bytes_high-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+        }
+    }
+    return triangles_high;
+}
+
 F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
 {
     if (mThread && mesh_id.notNull())
