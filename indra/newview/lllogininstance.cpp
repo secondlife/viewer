@@ -330,10 +330,12 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         data["VERSION"] = required_version;
         LLNotificationsUtil::add("RequiredUpdate", data, LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }
-    else if(reason_response == "key")
+    else if(   reason_response == "key"
+            || reason_response == "presence"
+            || reason_response == "connect"
+            )
     {
-        // this is a password problem or other restriction
-        // an appropriate message has already been displayed
+        // these are events that have already been communicated elsewhere
         attemptComplete();
     }
     else
