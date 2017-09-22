@@ -224,7 +224,7 @@ protected:
 	
 	// accessor that looks at permissions, copyability, and names of
 	// inventory items to determine if a drop would be ok.
-	static EAcceptance willObjectAcceptInventory(LLViewerObject* obj, LLInventoryItem* item);
+	static EAcceptance willObjectAcceptInventory(LLViewerObject* obj, LLInventoryItem* item, EDragAndDropType type = DAD_NONE);
 
 public:
 	// helper functions

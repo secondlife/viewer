@@ -210,6 +210,8 @@ private:
 
     inline GLint getLocationForIndex(S32 index)
     {
+        if (!mProgramObject)
+            return -1;
         uniforms_index_t::iterator it = mUniform.find(index);
         if (it == mUniform.end())
             return -1;
@@ -218,6 +220,8 @@ private:
 
     inline GLint getTexChannelForIndex(S32 index)
     {
+        if (!mProgramObject)
+            return -1;
         uniforms_index_t::iterator it = mTexture.find(index);
         if (it == mTexture.end())
             return -1;

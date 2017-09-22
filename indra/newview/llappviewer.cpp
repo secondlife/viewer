@@ -724,7 +724,7 @@ LLAppViewer::LLAppViewer()
 	// OK to write stuff to logs now, we've now crash reported if necessary
 	//
 	
-	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString());
+	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString(), getOSInfo().getOSStringSimple());
 }
 
 LLAppViewer::~LLAppViewer()
@@ -3111,10 +3111,19 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["GRAPHICS_CARD"] = (const char*)(glGetString(GL_RENDERER));
 
 #if LL_WINDOWS
-	LLSD driver_info = gDXHardware.getDisplayInfo();
-	if (driver_info.has("DriverVersion"))
+	std::string drvinfo = gDXHardware.getDriverVersionWMI();
+	if (!drvinfo.empty())
 	{
-		info["GRAPHICS_DRIVER_VERSION"] = driver_info["DriverVersion"];
+		info["GRAPHICS_DRIVER_VERSION"] = drvinfo;
+	}
+	else
+	{
+		LL_WARNS("Driver version")<< "Cannot get driver version from getDriverVersionWMI" << LL_ENDL;
+		LLSD driver_info = gDXHardware.getDisplayInfo();
+		if (driver_info.has("DriverVersion"))
+		{
+			info["GRAPHICS_DRIVER_VERSION"] = driver_info["DriverVersion"];
+		}
 	}
 #endif
 

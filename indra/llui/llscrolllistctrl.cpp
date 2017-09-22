@@ -345,6 +345,21 @@ S32 LLScrollListCtrl::getItemCount() const
 	return mItemList.size();
 }
 
+BOOL LLScrollListCtrl::hasSelectedItem() const
+{
+	item_list::iterator iter;
+	for (iter = mItemList.begin(); iter < mItemList.end(); )
+	{
+		LLScrollListItem* itemp = *iter;
+		if (itemp && itemp->getSelected())
+		{
+			return TRUE;
+		}
+		iter++;
+	}
+	return FALSE;
+}
+
 // virtual LLScrolListInterface function (was deleteAllItems)
 void LLScrollListCtrl::clearRows()
 {

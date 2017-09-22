@@ -221,7 +221,11 @@ BOOL LLInventoryModel::isObjectDescendentOf(const LLUUID& obj_id,
 const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(const LLUUID& obj_id) const
 {
 	const LLInventoryObject* obj = getObject(obj_id);
-
+	if(!obj)
+	{
+		LL_WARNS(LOG_INV) << "Non-existent object [ id: " << obj_id << " ] " << LL_ENDL;
+		return NULL;
+	}
 	// Search up the parent chain until we get to root or an acceptable folder.
 	// This assumes there are no cycles in the tree else we'll get a hang.
 	LLUUID parent_id = obj->getParentUUID();
@@ -458,12 +462,8 @@ void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::E
         }
         
         // Purge the emptied folder
-        // Note: we'd like to use purgeObject() but it doesn't cleanly eliminate the folder
-        // which leads to issues further down the road when the folder is found again
-        //purgeObject(folder_id);
-        // We remove the folder and empty the trash instead which seems to work
-		removeCategory(folder_id);
-        gInventory.emptyFolderType("", LLFolderType::FT_TRASH);
+        removeCategory(folder_id);
+        remove_inventory_category(folder_id, NULL);
 	}
 }
 
@@ -797,22 +797,6 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 			}
 		}
 	}
-}
-
-U32 LLInventoryModel::getDescendentsCountRecursive(const LLUUID& id, U32 max_item_limit)
-{
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(id, cats, items, LLInventoryModel::INCLUDE_TRASH);
-
-	U32 items_found = items.size() + cats.size();
-
-	for (U32 i = 0; i < cats.size() && items_found <= max_item_limit; ++i)
-	{
-		items_found += getDescendentsCountRecursive(cats[i]->getUUID(), max_item_limit - items_found);
-	}
-
-	return items_found;
 }
 
 void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
@@ -3321,9 +3305,12 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 		LLSD args;
 		if(LLFolderType::FT_TRASH == preferred_type)
 		{
-			static const U32 trash_max_capacity = gSavedSettings.getU32("InventoryTrashMaxCapacity");
+			LLInventoryModel::cat_array_t cats;
+			LLInventoryModel::item_array_t items;
 			const LLUUID trash_id = findCategoryUUIDForType(preferred_type);
-			args["COUNT"] = (S32)getDescendentsCountRecursive(trash_id, trash_max_capacity);
+			gInventory.collectDescendents(trash_id, cats, items, LLInventoryModel::INCLUDE_TRASH); //All descendants
+			S32 item_count = items.size() + cats.size();
+			args["COUNT"] = item_count;
 		}
 		LLNotificationsUtil::add(notification, args, LLSD(),
 										boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, preferred_type));
@@ -3433,9 +3420,20 @@ bool callback_preview_trash_folder(const LLSD& notification, const LLSD& respons
 
 void  LLInventoryModel::checkTrashOverflow()
 {
-	static const U32 trash_max_capacity = gSavedSettings.getU32("InventoryTrashMaxCapacity");
+	static LLCachedControl<U32> trash_max_capacity(gSavedSettings, "InventoryTrashMaxCapacity");
+
+	// Collect all descendants including those in subfolders.
+	//
+	// Note: Do we really need content of subfolders?
+	// This was made to prevent download of trash folder timeouting
+	// viewer and sub-folders are supposed to download independently.
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
 	const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if (getDescendentsCountRecursive(trash_id, trash_max_capacity) >= trash_max_capacity)
+	gInventory.collectDescendents(trash_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
+	S32 item_count = items.size() + cats.size();
+
+	if (item_count >= trash_max_capacity)
 	{
 		if (LLFloaterPreviewTrash::isVisible())
 		{

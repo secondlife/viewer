@@ -19,9 +19,7 @@ set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 include(Variables)
 
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
-set(CMAKE_CXX_FLAGS_RELEASE "$ENV{LL_BUILD_RELEASE}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "$ENV{LL_BUILD_RELWITHDEBINFO}")
-set(CMAKE_CXX_FLAGS_DEBUG "$ENV{LL_BUILD_DEBUG}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
 # Given that, all the flags you see added below are flags NOT present in
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables.
 # Before adding new ones here, it's important to ask: can this flag really be
@@ -156,6 +154,10 @@ if (DARWIN)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
   set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
+  # Ensure that CMAKE_CXX_FLAGS has the correct -g debug information format --
+  # see Variables.cmake.
+  string(REPLACE "-gdwarf-2" "-g${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}"
+    CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   # The viewer code base can now be successfully compiled with -std=c++14. But
   # turning that on in the generic viewer-build-variables/variables file would
   # potentially require tweaking each of our ~50 third-party library builds.

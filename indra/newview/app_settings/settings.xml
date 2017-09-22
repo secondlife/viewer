@@ -13454,9 +13454,9 @@
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>
-      <string>Default period between update checking.</string>
+      <string>Obsolete; no longer used.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
@@ -13476,7 +13476,7 @@
     <key>UpdaterServicePath</key>
     <map>
       <key>Comment</key>
-      <string>Path on the update server host.</string>
+      <string>Obsolete: no longer used</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>

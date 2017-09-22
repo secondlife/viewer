@@ -155,6 +155,20 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
   string(REGEX MATCH " -g([^ ]*)" scratch "$ENV{LL_BUILD}")
   set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "${CMAKE_MATCH_1}")
+  # -gdwarf-2 is passed in LL_BUILD according to 00-COMPILE-LINK-RUN.txt.
+  # However, when CMake 3.9.2 sees -gdwarf-2, it silently deletes the whole -g
+  # switch, producing no symbols at all! The same thing happens if we specify
+  # plain -g ourselves, i.e. CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT is
+  # the empty string. Specifying -gdwarf-with-dsym or just -gdwarf drives a
+  # different CMake behavior: it substitutes plain -g. As of 2017-09-19,
+  # viewer-build-variables/variables still passes -gdwarf-2, which is the
+  # no-symbols case. Set -gdwarf, triggering CMake to substitute plain -g --
+  # at least that way we should get symbols, albeit mangled ones. It Would Be
+  # Nice if CMake's behavior could be predicted from a consistent mental
+  # model, instead of only observed experimentally.
+  string(REPLACE "dwarf-2" "dwarf"
+    CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT
+    "${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}")
   message(STATUS "CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT = '${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}'")
 
   string(REGEX MATCH "-O([^ ]*)" scratch "$ENV{LL_BUILD}")

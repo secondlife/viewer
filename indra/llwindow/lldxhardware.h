@@ -88,6 +88,8 @@ public:
 	// vram_only TRUE does a "light" probe.
 	BOOL getInfo(BOOL vram_only);
 
+	std::string getDriverVersionWMI();
+
 	S32 getVRAM() const { return mVRAM; }
 
 	LLSD getDisplayInfo();
