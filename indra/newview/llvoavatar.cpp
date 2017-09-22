@@ -9165,6 +9165,12 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 
 void LLVOAvatar::idleUpdateRenderComplexity()
 {
+    if (isControlAvatar())
+    {
+        // ARC for animated object attachments is accounted with the avatar they're attached to.
+        return;
+    }
+
     // Render Complexity
     calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
 
@@ -9319,7 +9325,13 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                             F32 attachment_volume_cost = 0;
                             F32 attachment_texture_cost = 0;
                             F32 attachment_children_cost = 0;
+                            // AXON placeholder value, will revisit in testing.
+                            const F32 animated_object_attachment_surcharge = 20000;
 
+                            if (attached_object->isAnimatedObject())
+                            {
+                                attachment_volume_cost += animated_object_attachment_surcharge;
+                            }
 							attachment_volume_cost += volume->getRenderCost(textures);
 
 							const_child_list_t children = volume->getChildren();

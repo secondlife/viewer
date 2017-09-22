@@ -3340,6 +3340,10 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
             param_block->setFlags(flags);
         }
         parameterChanged(LLNetworkData::PARAMS_EXTENDED_MESH, true);
+        if (isAttachment() && getAvatarAncestor())
+        {
+            getAvatarAncestor()->updateVisualComplexity();
+        }
     }
 }
 
