@@ -8566,6 +8566,21 @@ Please check your network and firewall setup.
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="NoVoiceConnect-GIAB"
+   type="alertmodal">
+We're having trouble connecting to your voice server.
+
+Voice communications will not be available.
+Please check your network and firewall setup.
+    <tag>voice</tag>
+  <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="AvatarRezLeftNotification"
    type="notifytip">
