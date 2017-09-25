@@ -3439,12 +3439,14 @@ void LLVOVolume::updateAnimatedObjectState(LLViewerObject *old_parent, LLViewerO
     // we may want to include or remove the isAvatar() check.
     if (new_parent && !new_parent->isAvatar())
     {
+#if 0 // AXON - MAINT-7819
         // Object should inherit control avatar and animated mesh flag
         // from parent, so clear them out from our own state
         if (getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
         {
             setExtendedMeshFlags(getExtendedMeshFlags() & ~LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
         }
+#endif
         if (mControlAvatar.notNull())
         {
             LLControlAvatar *av = mControlAvatar;
