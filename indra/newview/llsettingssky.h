@@ -116,12 +116,12 @@ public:
 
     LLColor3 getCloudPosDensity1() const
     {
-        return mSettings[SETTING_CLOUD_POS_DENSITY1].asReal();
+        return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY1]);
     }
 
     LLColor3 getCloudPosDensity2() const
     {
-        return mSettings[SETTING_CLOUD_POS_DENSITY2].asReal();
+        return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY2]);
     }
 
     F32 getCloudScale() const
@@ -296,7 +296,6 @@ protected:
 
     virtual parammapping_t getParameterMap() const;
 
-    virtual stringset_t getSkipApplyKeys() const;
     virtual void        applySpecial(void *);
 
 private:

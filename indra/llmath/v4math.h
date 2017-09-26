@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llmath.h"
 #include "v3math.h"
+#include "v2math.h"
 
 class LLMatrix3;
 class LLMatrix4;
@@ -46,6 +47,8 @@ class LLVector4
 		LLVector4();						// Initializes LLVector4 to (0, 0, 0, 1)
 		explicit LLVector4(const F32 *vec);			// Initializes LLVector4 to (vec[0]. vec[1], vec[2], vec[3])
 		explicit LLVector4(const F64 *vec);			// Initialized LLVector4 to ((F32) vec[0], (F32) vec[1], (F32) vec[3], (F32) vec[4]);
+        explicit LLVector4(const LLVector2 &vec);
+        explicit LLVector4(const LLVector2 &vec, F32 z, F32 w);
 		explicit LLVector4(const LLVector3 &vec);			// Initializes LLVector4 to (vec, 1)
 		explicit LLVector4(const LLVector3 &vec, F32 w);	// Initializes LLVector4 to (vec, w)
         explicit LLVector4(const LLSD &sd);
@@ -183,6 +186,22 @@ inline LLVector4::LLVector4(const F64 *vec)
 	mV[VY] = (F32) vec[VY];
 	mV[VZ] = (F32) vec[VZ];
 	mV[VW] = (F32) vec[VW];
+}
+
+inline LLVector4::LLVector4(const LLVector2 &vec)
+{
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
+    mV[VZ] = 0.f;
+    mV[VW] = 0.f;
+}
+
+inline LLVector4::LLVector4(const LLVector2 &vec, F32 z, F32 w)
+{
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
+    mV[VZ] = z;
+    mV[VW] = w;
 }
 
 inline LLVector4::LLVector4(const LLVector3 &vec)

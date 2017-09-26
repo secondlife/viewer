@@ -140,7 +140,6 @@ protected:
     // Calculate any custom settings that may need to be cached.
     virtual void updateSettings() { mDirty = false; };
 
-    virtual stringset_t getSkipApplyKeys() const { return stringset_t(); }
     // Apply any settings that need special handling. 
     virtual void applySpecial(void *) { };
 

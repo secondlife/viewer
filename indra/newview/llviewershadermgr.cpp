@@ -45,6 +45,7 @@
 #include "llrender.h"
 #include "lljoint.h"
 #include "llskinningutil.h"
+#include "llenvironment.h"
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
@@ -3430,7 +3431,8 @@ std::string LLViewerShaderMgr::getShaderDirPrefix(void)
 void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)
 {
     //*LAPRAS*/
-	LLWLParamManager::getInstance()->updateShaderUniforms(shader);
+    LLEnvironment::instance().updateShaderUniforms(shader);
+	//LLWLParamManager::getInstance()->updateShaderUniforms(shader);
 	LLWaterParamManager::getInstance()->updateShaderUniforms(shader);
 }
 

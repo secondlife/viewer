@@ -37,6 +37,7 @@
 #include "llglslshader.h"
 #include "llviewershadermgr.h"
 
+#include "llenvironment.h"
 #include "llsky.h"
 
 //=========================================================================
@@ -482,7 +483,7 @@ LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
         param_map[SETTING_BLUE_DENSITY] = LLShaderMgr::BLUE_DENSITY;
         param_map[SETTING_BLUE_HORIZON] = LLShaderMgr::BLUE_HORIZON;
         param_map[SETTING_CLOUD_COLOR] = LLShaderMgr::CLOUD_COLOR;
-        param_map[SETTING_CLOUD_POS_DENSITY1] = LLShaderMgr::CLOUD_POS_DENSITY1;
+
         param_map[SETTING_CLOUD_POS_DENSITY2] = LLShaderMgr::CLOUD_POS_DENSITY2;
         param_map[SETTING_CLOUD_SCALE] = LLShaderMgr::CLOUD_SCALE;
         param_map[SETTING_CLOUD_SHADOW] = LLShaderMgr::CLOUD_SHADOW;
@@ -499,44 +500,37 @@ LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
     return param_map;
 }
 
-
-LLSettingsSky::stringset_t LLSettingsSky::getSkipApplyKeys() const
-{
-
-    static stringset_t skip_apply_set;
-
-    if (skip_apply_set.empty())
-    {
-        skip_apply_set.insert(SETTING_MOON_ROTATION);
-        skip_apply_set.insert(SETTING_SUN_ROTATION);
-        skip_apply_set.insert(SETTING_NAME);
-        skip_apply_set.insert(SETTING_STAR_BRIGHTNESS);
-        skip_apply_set.insert(SETTING_CLOUD_SCROLL_RATE);
-        skip_apply_set.insert(SETTING_LIGHT_NORMAL);
-        skip_apply_set.insert(SETTING_DOME_OFFSET);
-        skip_apply_set.insert(SETTING_DOME_RADIUS);
-    }
-
-    return skip_apply_set;
-}
-
 void LLSettingsSky::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
-    if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
-    {
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mLightDirectionClamped.mV);
-    }
+    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mLightDirectionClamped.mV);
 
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
     
     shader->uniform4f(LLShaderMgr::GAMMA, getGama(), 0.0, 0.0, 1.0);
 
+    {
+        //LLEnvironment::instance().getCloudDelta();
+        LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
+        vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
+        shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
+    }
+
+//     {
+//         LLVector4 val(mSettings[ ];
+//         val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
+//         val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
+//         val.mV[2] = (F32)i->second[2].asReal();
+//         val.mV[3] = (F32)i->second[3].asReal();
+// 
+//         stop_glerror();
+//         //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
+//         shader->uniform4fv(param, 1, val.mV);
+//         stop_glerror();
+// 
+//     }
+
+    //param_map[SETTING_CLOUD_POS_DENSITY1] = LLShaderMgr::CLOUD_POS_DENSITY1;
 
 }
-
-//-------------------------------------------------------------------------
-// const std::string LLSettingsSky::SETTING_DENSITY_MULTIPLIER("density_multiplier");
-// const std::string LLSettingsSky::SETTING_LIGHT_NORMAL("lightnorm");
-// const std::string LLSettingsSky::SETTING_NAME("name");

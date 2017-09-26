@@ -117,9 +117,20 @@ void LLEnvironment::updateCloudScroll()
 
     F64 delta_t = s_cloud_timer.getElapsedTimeAndResetF64();
     
-    LLVector2 cloud_delta = static_cast<F32>(delta_t) * (mCurrentSky->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
+    LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentSky->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
+    mCloudScrollDelta += cloud_delta;
 
-    mCloudScroll += cloud_delta;
+//     {
+//         LLVector2 v2(mCurrentSky->getCloudScrollRate());
+//         static F32 xoffset(0.f);
+//         static F32 yoffset(0.f);
+// 
+//         xoffset += F32(delta_t * (v2[0] - 10.f) / 100.f);
+//         yoffset += F32(delta_t * (v2[1] - 10.f) / 100.f);
+// 
+//         LL_WARNS("RIDER") << "offset " << mCloudScrollDelta << " vs (" << xoffset << ", " << yoffset << ")" << LL_ENDL;
+//     }
+
 
 }
 
@@ -158,7 +169,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         {
             LLVector4 vect4(value);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform4fv((*it).second, 4, vect4.mV);
+            shader->uniform4fv((*it).second, 1, vect4.mV);
 
             break;
         }
@@ -176,7 +187,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
     }
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
 
-//    psetting->applySpecial(shader);
+    psetting->applySpecial(shader);
 
     if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && !LLPipeline::sUnderWaterRender)
     {
@@ -213,17 +224,17 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mCurrentSky->getSceneLightStrength());
 
-    {
-        LLVector4 cloud_scroll(mCloudScroll[0], mCloudScroll[1], 0.0, 0.0);
-//         val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
-//         val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
-//         val.mV[2] = (F32)i->second[2].asReal();
-//         val.mV[3] = (F32)i->second[3].asReal();
-
-        stop_glerror();
-        shader->uniform4fv(LLSettingsSky::SETTING_CLOUD_POS_DENSITY1, 1, cloud_scroll.mV);
-        stop_glerror();
-    }
+//     {
+//         LLVector4 cloud_scroll(mCloudScroll[0], mCloudScroll[1], 0.0, 0.0);
+// //         val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
+// //         val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
+// //         val.mV[2] = (F32)i->second[2].asReal();
+// //         val.mV[3] = (F32)i->second[3].asReal();
+// 
+//         stop_glerror();
+//         shader->uniform4fv(LLSettingsSky::SETTING_CLOUD_POS_DENSITY1, 1, cloud_scroll.mV);
+//         stop_glerror();
+//     }
 
 
 }

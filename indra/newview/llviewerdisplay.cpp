@@ -79,6 +79,8 @@
 #include "llpostprocess.h"
 #include "llscenemonitor.h"
 
+#include "llenvironment.h"
+
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
 
@@ -200,7 +202,9 @@ void display_update_camera()
 	gViewerWindow->setup3DRender();
 	
 	// update all the sky/atmospheric/water settings
-	LLWLParamManager::getInstance()->update(LLViewerCamera::getInstance());
+	// *LAPRAS
+	//LLWLParamManager::getInstance()->update(LLViewerCamera::getInstance());
+    LLEnvironment::instance().update(LLViewerCamera::getInstance());
 	LLWaterParamManager::getInstance()->update(LLViewerCamera::getInstance());
 
 	// Update land visibility too

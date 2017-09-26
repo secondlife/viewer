@@ -953,7 +953,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		// Add shader file to map
 		mShaderObjects[filename] = ret;
 		shader_level = try_gpu_class;
-	}
+        LL_WARNS("RIDER") << "Shader '" << filename << "' loaded with handle=" << ret << LL_ENDL;
+    }
 	else
 	{
 		if (shader_level > 1)

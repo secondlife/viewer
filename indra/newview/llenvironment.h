@@ -54,6 +54,9 @@ public:
     void                    updateShaderUniforms(LLGLSLShader *shader);
 
     void                    addSky(const LLSettingsSky::ptr_t &sky);
+
+    inline LLVector2        getCloudScrollDelta() const { return mCloudScrollDelta; }
+
 private:
     static const F32        SUN_DELTA_YAW;
 
@@ -61,7 +64,7 @@ private:
     typedef std::map<LLUUID, LLSettingsSky::ptr_t> AssetSkyMap_t;
 
     LLVector4               mRotatedLight;
-    LLVector2               mCloudScroll;
+    LLVector2               mCloudScrollDelta;  // cumulative cloud delta
 
     LLSettingsSky::ptr_t    mCurrentSky;
 
