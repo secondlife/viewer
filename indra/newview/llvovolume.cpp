@@ -3343,6 +3343,11 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
         if (isAttachment() && getAvatarAncestor())
         {
             getAvatarAncestor()->updateVisualComplexity();
+            if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
+            {
+                // Making a rigged mesh into an animated object
+                getAvatarAncestor()->removeAttachmentOverridesForObject(this);
+            }
         }
     }
 }
