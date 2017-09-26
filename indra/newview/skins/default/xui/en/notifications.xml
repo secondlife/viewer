@@ -3991,7 +3991,8 @@ http://secondlife.com/download.
   <notification
    icon="alertmodal.tga"
    name="UpdaterServiceNotRunning"
-   type="alertmodal">
+   type="alertmodal"
+   force_urls_external="true">
 There is a required update for your Second Life Installation.
 
 You may download this update from http://www.secondlife.com/downloads
