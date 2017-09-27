@@ -930,6 +930,7 @@ class DarwinManifest(ViewerManifest):
                                 "libexpat.1.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
+                                "libnghttp2.dylib",
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 

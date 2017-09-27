@@ -169,6 +169,7 @@ elseif(DARWIN)
         ${EXPAT_COPY}
         libGLOD.dylib
         libndofdev.dylib
+        libnghttp2.dylib
        )
 
     if (FMODEX)

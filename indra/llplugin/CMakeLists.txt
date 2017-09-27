@@ -82,7 +82,7 @@ if (LL_TESTS)
     set_source_files_properties(
       llplugincookiestore.cpp
       PROPERTIES
-        LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
+        LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES};${NGHTTP2_LIBRARIES}"
       )
 
     LL_ADD_PROJECT_UNIT_TESTS(llplugin "${llplugin_TEST_SOURCE_FILES}")
