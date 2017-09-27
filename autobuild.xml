@@ -2363,9 +2363,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1a64653e2ac1d5bcc815828aaabf9db7</string>
+              <string>217f55fa2177ac98a383b39ac31091de</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8625/35570/nghttp2-1.25.0.508613-darwin64-508613.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8982/38932/nghttp2-1.25.0.508969-darwin64-508969.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2375,21 +2375,33 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e0ef746d69030b6cbbda571cdb05a8d</string>
+              <string>65461e7161e029046302382040e0fdb7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8624/35576/nghttp2-1.25.0.508613-linux-508613.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8980/38938/nghttp2-1.25.0.508969-linux-508969.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>988bdb05380bc7c8d1e1972d2851a2b8</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8981/38944/nghttp2-1.25.0.508969-linux64-508969.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a5372aff890c93d50e0d96492058728d</string>
+              <string>d346466bd59f505581de51070058615a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8627/35588/nghttp2-1.25.0.508613-windows-508613.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8984/38956/nghttp2-1.25.0.508969-windows-508969.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2399,9 +2411,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d9e29813995bfd1a09cad876d4739736</string>
+              <string>9715a004eef95f758e85c05cf74a9969</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8626/35583/nghttp2-1.25.0.508613-windows64-508613.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8983/38950/nghttp2-1.25.0.508969-windows64-508969.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2410,7 +2422,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.25.0.508613</string>
+        <string>1.25.0.508969</string>
       </map>
       <key>nvapi</key>
       <map>
