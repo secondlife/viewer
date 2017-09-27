@@ -106,7 +106,7 @@ public:
 
     LLColor3 getCloudColor() const
     {
-        return mSettings[SETTING_CLOUD_COLOR].asReal();
+        return LLColor3(mSettings[SETTING_CLOUD_COLOR]);
     }
 
     LLUUID getCloudNoiseTextureId() const
