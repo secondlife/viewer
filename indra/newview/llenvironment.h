@@ -54,8 +54,15 @@ public:
     void                    updateShaderUniforms(LLGLSLShader *shader);
 
     void                    addSky(const LLSettingsSky::ptr_t &sky);
+    void                    selectSky(const std::string &name);
 
     inline LLVector2        getCloudScrollDelta() const { return mCloudScrollDelta; }
+
+    F32                     getCamHeight() const;
+
+    inline F32              getSceneLightStrength() const { return mSceneLightStrength; }
+    inline void             setSceneLightStrength(F32 light_strength) { mSceneLightStrength = light_strength; }
+
 
 private:
     static const F32        SUN_DELTA_YAW;
@@ -70,6 +77,8 @@ private:
 
     NamedSkyMap_t           mSkysByName;
     AssetSkyMap_t           mSkysById;
+
+    F32                     mSceneLightStrength;
 
     void addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
     void removeSky(const std::string &name);

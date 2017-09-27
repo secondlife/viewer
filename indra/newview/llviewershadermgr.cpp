@@ -38,7 +38,6 @@
 #include "llviewercontrol.h"
 #include "pipeline.h"
 #include "llworld.h"
-#include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llsky.h"
 #include "llvosky.h"
@@ -3430,9 +3429,7 @@ std::string LLViewerShaderMgr::getShaderDirPrefix(void)
 
 void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)
 {
-    //*LAPRAS*/
     LLEnvironment::instance().updateShaderUniforms(shader);
-	//LLWLParamManager::getInstance()->updateShaderUniforms(shader);
 	LLWaterParamManager::getInstance()->updateShaderUniforms(shader);
 }
 

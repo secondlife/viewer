@@ -34,7 +34,6 @@
 #include "llviewerregion.h"
 #include "llwaterparammanager.h"
 #include "llwlhandlers.h"
-#include "llwlparammanager.h"
 #include "lltrans.h"
 #include "lltrace.h"
 #include "llfasttimer.h"
@@ -63,6 +62,12 @@ LLEnvironment::LLEnvironment():
 
 LLEnvironment::~LLEnvironment()
 {
+}
+
+//-------------------------------------------------------------------------
+F32 LLEnvironment::getCamHeight() const
+{
+    return (mCurrentSky->getDomeOffset() * mCurrentSky->getDomeRadius());
 }
 
 //-------------------------------------------------------------------------
@@ -222,7 +227,7 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
         stop_glerror();
     }
 
-    shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mCurrentSky->getSceneLightStrength());
+    shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, getSceneLightStrength());
 
 //     {
 //         LLVector4 cloud_scroll(mCloudScroll[0], mCloudScroll[1], 0.0, 0.0);
@@ -243,6 +248,8 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
 {
     std::string name = sky->getValue(LLSettingsSky::SETTING_NAME).asString();
+
+    LL_WARNS("RIDER") << "Adding sky as '" << name << "'" << LL_ENDL;
 
     std::pair<NamedSkyMap_t::iterator, bool> result;
     result = mSkysByName.insert(NamedSkyMap_t::value_type(name, sky));
@@ -278,5 +285,16 @@ void LLEnvironment::clearAllSkys()
 {
     mSkysByName.clear();
     mSkysById.clear();
+}
+
+void LLEnvironment::selectSky(const std::string &name)
+{
+    NamedSkyMap_t::iterator it = mSkysByName.find(name);
+
+    if (it == mSkysByName.end())
+        return;
+
+    mCurrentSky = (*it).second;
+    mCurrentSky->setDirtyFlag(true);
 }
 

@@ -33,7 +33,6 @@
 #include "pipeline.h"
 #include "llviewercamera.h"
 #include "llimage.h"
-#include "llwlparammanager.h"
 #include "llviewershadermgr.h"
 #include "llglslshader.h"
 #include "llsky.h"
@@ -83,7 +82,8 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 		}
 	}
 
-	LLWLParamManager::getInstance()->propagateParameters();
+    /* *LAPRAS */
+//	LLWLParamManager::getInstance()->propagateParameters();
 }
 
 LLDrawPoolWLSky::~LLDrawPoolWLSky()
@@ -312,7 +312,8 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	}
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
-	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
+
+    const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 
 	LLGLSNoFog disableFog;
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -359,7 +360,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	}
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
-	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
+    const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 
 	LLGLSNoFog disableFog;
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);

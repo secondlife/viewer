@@ -233,12 +233,6 @@ public:
         return mLightDirectionClamped;
     };
 
-    F32 getSceneLightStrength() const
-    {
-        update();
-        return mSceneLightStrength;
-    }
-
     LLVector3   getSunDirection() const
     {
         update();
@@ -304,7 +298,6 @@ private:
 
     LLVector3   mSunDirection;
     LLVector3   mMoonDirection;
-    F32         mSceneLightStrength;
     LLVector3   mLightDirection;
     LLVector3   mLightDirectionClamped;
 

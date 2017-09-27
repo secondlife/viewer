@@ -91,5 +91,25 @@ inline LLColor3 smear(F32 val)
     return LLColor3(val, val, val);
 }
 
+inline F32 color_intens(const LLColor3 &col)
+{
+    return col.mV[0] + col.mV[1] + col.mV[2];
+}
+
+inline F32 color_max(const LLColor3 &col)
+{
+    return llmax(col.mV[0], col.mV[1], col.mV[2]);
+}
+
+inline F32 color_max(const LLColor4 &col)
+{
+    return llmax(col.mV[0], col.mV[1], col.mV[2]);
+}
+
+
+inline F32 color_min(const LLColor3 &col)
+{
+    return llmin(col.mV[0], col.mV[1], col.mV[2]);
+}
 
 #endif

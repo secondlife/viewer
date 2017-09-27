@@ -37,6 +37,8 @@
 #include "llwlparamset.h"
 #include "llwlparammanager.h"
 
+#include "llenvironment.h"
+
 LLFloaterEnvironmentSettings::LLFloaterEnvironmentSettings(const LLSD &key)
 : 	 LLFloater(key)
 	,mRegionSettingsRadioGroup(NULL)
@@ -188,7 +190,9 @@ void LLFloaterEnvironmentSettings::apply()
 	{
 		if (use_fixed_sky)
 		{
-			env_mgr.useSkyPreset(sky_preset);
+            /* LAPRAS */
+			//env_mgr.useSkyPreset(sky_preset);
+            LLEnvironment::instance().selectSky(sky_preset);
 		}
 		else
 		{

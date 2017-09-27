@@ -33,6 +33,7 @@
 #include "llviewertexture.h"
 #include "llviewerobject.h"
 #include "llframetimer.h"
+#include "v3colorutil.h"
 
 
 //////////////////////////////////
@@ -85,26 +86,6 @@ BOOL clip_quad_to_horizon(F32& t_left, F32& t_right, LLVector3 v_clipped[4],
 						  const LLVector3 v_corner[4], const F32 cos_max_angle);
 F32 clip_side_to_horizon(const LLVector3& v0, const LLVector3& v1, const F32 cos_max_angle);
 
-inline F32 color_intens ( const LLColor3 &col )
-{
-	return col.mV[0] + col.mV[1] + col.mV[2];
-}
-
-inline F32 color_max(const LLColor3 &col)
-{
-	return llmax(col.mV[0], col.mV[1], col.mV[2]);
-}
-
-inline F32 color_max(const LLColor4 &col)
-{
-	return llmax(col.mV[0], col.mV[1], col.mV[2]);
-}
-
-
-inline F32 color_min(const LLColor3 &col)
-{
-	return llmin(col.mV[0], col.mV[1], col.mV[2]);
-}
 
 class LLFace;
 class LLHaze;

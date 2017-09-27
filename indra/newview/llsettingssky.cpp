@@ -48,7 +48,10 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_BLEND_ENVIRONMENT("Blending Environment Params");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_ENVIRONMENT("Update Environment Params");
 
+    LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude);
+
 }
+
 
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
@@ -112,38 +115,27 @@ LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const
 
 LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
 {
-    LLSD newsettings(LLSD::emptyMap());
+    LLSD newsettings(defaults());
 
     newsettings[SETTING_NAME] = name;
+
 
     if (oldsettings.has(SETTING_AMBIENT))
     {
         newsettings[SETTING_AMBIENT] = LLColor4(oldsettings[SETTING_AMBIENT]).getValue();
     }
-
     if (oldsettings.has(SETTING_BLUE_DENSITY))
     {
         newsettings[SETTING_BLUE_DENSITY] = LLColor4(oldsettings[SETTING_BLUE_DENSITY]).getValue();
     }
-
     if (oldsettings.has(SETTING_BLUE_HORIZON))
     {
         newsettings[SETTING_BLUE_HORIZON] = LLColor4(oldsettings[SETTING_BLUE_HORIZON]).getValue();
     }
-
     if (oldsettings.has(SETTING_CLOUD_COLOR))
     {
         newsettings[SETTING_CLOUD_COLOR] = LLColor4(oldsettings[SETTING_CLOUD_COLOR]).getValue();
     }
-    if (oldsettings.has(SETTING_SUNLIGHT_COLOR))
-    {
-        newsettings[SETTING_SUNLIGHT_COLOR] = LLColor4(oldsettings[SETTING_SUNLIGHT_COLOR]).getValue();
-    }
-    if (oldsettings.has(SETTING_CLOUD_SHADOW))
-    {
-        newsettings[SETTING_CLOUD_SHADOW] = LLSD::Real(oldsettings[SETTING_CLOUD_SHADOW][0].asReal());
-    }
-
     if (oldsettings.has(SETTING_CLOUD_POS_DENSITY1))
     {
         newsettings[SETTING_CLOUD_POS_DENSITY1] = LLColor4(oldsettings[SETTING_CLOUD_POS_DENSITY1]).getValue();
@@ -152,51 +144,10 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
     {
         newsettings[SETTING_CLOUD_POS_DENSITY2] = LLColor4(oldsettings[SETTING_CLOUD_POS_DENSITY2]).getValue();
     }
-    if (oldsettings.has(SETTING_LIGHT_NORMAL))
-    {
-        newsettings[SETTING_LIGHT_NORMAL] = LLVector4(oldsettings[SETTING_LIGHT_NORMAL]).getValue();
-    }
-
     if (oldsettings.has(SETTING_CLOUD_SCALE))
     {
         newsettings[SETTING_CLOUD_SCALE] = LLSD::Real(oldsettings[SETTING_CLOUD_SCALE][0].asReal());
     }
-
-    if (oldsettings.has(SETTING_DENSITY_MULTIPLIER))
-    {
-        newsettings[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(oldsettings[SETTING_DENSITY_MULTIPLIER][0].asReal());
-    }
-    if (oldsettings.has(SETTING_DISTANCE_MULTIPLIER))
-    {
-        newsettings[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(oldsettings[SETTING_DISTANCE_MULTIPLIER][0].asReal());
-    }
-    if (oldsettings.has(SETTING_HAZE_DENSITY))
-    {
-        newsettings[SETTING_HAZE_DENSITY] = LLSD::Real(oldsettings[SETTING_HAZE_DENSITY][0].asReal());
-    }
-    if (oldsettings.has(SETTING_HAZE_HORIZON))
-    {
-        newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(oldsettings[SETTING_HAZE_HORIZON][0].asReal());
-    }
-    if (oldsettings.has(SETTING_MAX_Y))
-    {
-        newsettings[SETTING_MAX_Y] = LLSD::Real(oldsettings[SETTING_MAX_Y][0].asReal());
-    }
-    if (oldsettings.has(SETTING_STAR_BRIGHTNESS))
-    {
-        newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(oldsettings[SETTING_STAR_BRIGHTNESS].asReal());
-    }
-
-    if (oldsettings.has(SETTING_GLOW))
-    {
-        newsettings[SETTING_GLOW] = LLColor4(oldsettings[SETTING_GLOW]).getValue();
-    }
-
-    if (oldsettings.has(SETTING_GAMMA))
-    {
-        newsettings[SETTING_GAMMA] = LLVector4(oldsettings[SETTING_GAMMA]).getValue();
-    }
-
     if (oldsettings.has(SETTING_CLOUD_SCROLL_RATE))
     {
         LLVector2 cloud_scroll(oldsettings[SETTING_CLOUD_SCROLL_RATE]);
@@ -212,29 +163,69 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
 
         newsettings[SETTING_CLOUD_SCROLL_RATE] = cloud_scroll.getValue();
     }
+    if (oldsettings.has(SETTING_CLOUD_SHADOW))
+    {
+        newsettings[SETTING_CLOUD_SHADOW] = LLSD::Real(oldsettings[SETTING_CLOUD_SHADOW][0].asReal());
+    }
+    if (oldsettings.has(SETTING_DENSITY_MULTIPLIER))
+    {
+        newsettings[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(oldsettings[SETTING_DENSITY_MULTIPLIER][0].asReal());
+    }
+    if (oldsettings.has(SETTING_DISTANCE_MULTIPLIER))
+    {
+        newsettings[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(oldsettings[SETTING_DISTANCE_MULTIPLIER][0].asReal());
+    }
+    if (oldsettings.has(SETTING_GAMMA))
+    {
+        newsettings[SETTING_GAMMA] = LLVector4(oldsettings[SETTING_GAMMA]).getValue();
+    }
+    if (oldsettings.has(SETTING_GLOW))
+    {
+        newsettings[SETTING_GLOW] = LLColor4(oldsettings[SETTING_GLOW]).getValue();
+    }
+    if (oldsettings.has(SETTING_HAZE_DENSITY))
+    {
+        newsettings[SETTING_HAZE_DENSITY] = LLSD::Real(oldsettings[SETTING_HAZE_DENSITY][0].asReal());
+    }
+    if (oldsettings.has(SETTING_HAZE_HORIZON))
+    {
+        newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(oldsettings[SETTING_HAZE_HORIZON][0].asReal());
+    }
+    if (oldsettings.has(SETTING_LIGHT_NORMAL))
+    {
+        newsettings[SETTING_LIGHT_NORMAL] = LLVector4(oldsettings[SETTING_LIGHT_NORMAL]).getValue();
+    }
+    if (oldsettings.has(SETTING_MAX_Y))
+    {
+        newsettings[SETTING_MAX_Y] = LLSD::Real(oldsettings[SETTING_MAX_Y][0].asReal());
+    }
+    if (oldsettings.has(SETTING_STAR_BRIGHTNESS))
+    {
+        newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(oldsettings[SETTING_STAR_BRIGHTNESS].asReal());
+    }
+    if (oldsettings.has(SETTING_SUNLIGHT_COLOR))
+    {
+        newsettings[SETTING_SUNLIGHT_COLOR] = LLColor4(oldsettings[SETTING_SUNLIGHT_COLOR]).getValue();
+    }
 
+
+//     dfltsetting[SETTING_DOME_OFFSET] = LLSD::Real(0.96f);
+//     dfltsetting[SETTING_DOME_RADIUS] = LLSD::Real(15000.f);
+// 
+//     dfltsetting[SETTING_MOON_ROTATION] = moonquat.getValue();
+//     dfltsetting[SETTING_SUN_ROTATION] = sunquat.getValue();
+// 
+//     dfltsetting[SETTING_BLOOM_TEXTUREID] = LLUUID::null;
+//     dfltsetting[SETTING_CLOUD_TEXTUREID] = LLUUID::null;
+//     dfltsetting[SETTING_MOON_TEXTUREID] = IMG_SUN; // gMoonTextureID;   // These two are returned by the login... wow!
+//     dfltsetting[SETTING_SUN_TEXUTUREID] = IMG_MOON; // gSunTextureID;
 
     if (oldsettings.has(SETTING_LEGACY_EAST_ANGLE) && oldsettings.has(SETTING_LEGACY_SUN_ANGLE))
     {   // convert the east and sun angles into a quaternion.
-        F32 east = oldsettings[SETTING_LEGACY_EAST_ANGLE].asReal();
-        F32 azimuth = oldsettings[SETTING_LEGACY_SUN_ANGLE].asReal();
+        F32 azimuth = oldsettings[SETTING_LEGACY_EAST_ANGLE].asReal();
+        F32 altitude = oldsettings[SETTING_LEGACY_SUN_ANGLE].asReal();
 
-        LLQuaternion sunquat;
-        sunquat.setEulerAngles(azimuth, 0.0, east);
-//         // set the sun direction from SunAngle and EastAngle
-//         F32 sinTheta = sin(east);
-//         F32 cosTheta = cos(east);
-// 
-//         F32 sinPhi = sin(azimuth);
-//         F32 cosPhi = cos(azimuth);
-// 
-//         LLVector4 sunDir;
-//         sunDir.mV[0] = -sinTheta * cosPhi;
-//         sunDir.mV[1] = sinPhi;
-//         sunDir.mV[2] = cosTheta * cosPhi;
-//         sunDir.mV[3] = 0;
-// 
-//         LLQuaternion sunquat = LLQuaternion(0.1, sunDir);   // small rotation around axis
+        LLQuaternion sunquat = ::body_position_from_angles(azimuth, altitude);
         LLQuaternion moonquat = ~sunquat;
 
         newsettings[SETTING_SUN_ROTATION] = sunquat.getValue();
@@ -252,7 +243,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildDefaultSky()
     LLSD settings = LLSettingsSky::defaults();
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
-    skyp->update();
+    //skyp->update();
 
     return skyp;
 }
@@ -458,7 +449,7 @@ void LLSettingsSky::calculateLightSettings()
     // between sunlight and point lights in windlight to normalize point lights.
     F32 sun_dynamic_range = std::max(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
     
-    mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
+    LLEnvironment::instance().setSceneLightStrength(2.0f * (1.0f + sun_dynamic_range * dp));
 
     mSunDiffuse = vary_SunlightColor;
     mSunAmbient = vary_AmbientColor;
@@ -506,8 +497,6 @@ void LLSettingsSky::applySpecial(void *ptarget)
 
     shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mLightDirectionClamped.mV);
 
-    shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
-    
     shader->uniform4f(LLShaderMgr::GAMMA, getGama(), 0.0, 0.0, 1.0);
 
     {
@@ -533,4 +522,31 @@ void LLSettingsSky::applySpecial(void *ptarget)
 
     //param_map[SETTING_CLOUD_POS_DENSITY1] = LLShaderMgr::CLOUD_POS_DENSITY1;
 
+}
+
+//=========================================================================
+namespace
+{
+    LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude)
+    {
+        static const LLVector3 VECT_ZENITH(0.f, 0.f, 1.f);
+        static const LLVector3 VECT_NORTHSOUTH(0.f, 1.f, 0.f);
+
+        // Azimuth is traditionally calculated from North, we are going from East.
+        LLQuaternion rot_azi;
+        LLQuaternion rot_alt;
+
+        rot_azi.setAngleAxis(azimuth, VECT_ZENITH);
+        rot_alt.setAngleAxis(-altitude, VECT_NORTHSOUTH);
+
+        LLQuaternion body_quat = rot_alt * rot_azi;
+        body_quat.normalize();
+
+        LLVector3 sun_vector = (DUE_EAST * body_quat);
+
+
+        LL_WARNS("RIDER") << "Azimuth=" << azimuth << " Altitude=" << altitude << " Body Vector=" << sun_vector.getValue() << LL_ENDL;
+
+        return body_quat;
+    }
 }

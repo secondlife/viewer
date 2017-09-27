@@ -202,8 +202,6 @@ void display_update_camera()
 	gViewerWindow->setup3DRender();
 	
 	// update all the sky/atmospheric/water settings
-	// *LAPRAS
-	//LLWLParamManager::getInstance()->update(LLViewerCamera::getInstance());
     LLEnvironment::instance().update(LLViewerCamera::getInstance());
 	LLWaterParamManager::getInstance()->update(LLViewerCamera::getInstance());
 

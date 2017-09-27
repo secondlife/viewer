@@ -32,8 +32,9 @@
 #include "llsky.h"
 #include "lldrawpoolwlsky.h"
 #include "llface.h"
-#include "llwlparammanager.h"
 #include "llviewercontrol.h"
+#include "llenvironment.h"
+#include "llsettingssky.h"
 
 #define DOME_SLICES 1
 const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f)*0.25f;
@@ -232,7 +233,7 @@ void subdivide(LLVertexBuffer& in, LLVertexBuffer* ret)
 void chop(LLVertexBuffer& in, LLVertexBuffer* out)
 {
 	//chop off all triangles below horizon 
-	F32 d = LLWLParamManager::sParamMgr->getDomeOffset() * LLWLParamManager::sParamMgr->getDomeRadius();
+    F32 d = LLEnvironment::instance().getCamHeight();
 	
 	std::vector<LLVector3> vert;
 	
@@ -399,7 +400,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 #else
 	mStripsVerts = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 	
-	const F32 RADIUS = LLWLParamManager::sParamMgr->getDomeRadius();
+    const F32 RADIUS = LLEnvironment::getCurrentSky()->getDomeRadius();
 
 	LLPointer<LLVertexBuffer> temp = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 0);
 	temp->allocateBuffer(12, 60, TRUE);
@@ -574,7 +575,7 @@ void LLVOWLSky::buildFanBuffer(LLStrider<LLVector3> & vertices,
 							   LLStrider<LLVector2> & texCoords,
 							   LLStrider<U16> & indices)
 {
-	const F32 RADIUS = LLWLParamManager::getInstance()->getDomeRadius();
+    const F32 RADIUS = LLEnvironment::instance().getCurrentSky()->getDomeRadius();
 
 	U32 i, num_slices;
 	F32 phi0, theta, x0, y0, z0;
@@ -635,7 +636,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
 								  LLStrider<LLVector2> & texCoords,
 								  LLStrider<U16> & indices)
 {
-	const F32 RADIUS = LLWLParamManager::getInstance()->getDomeRadius();
+    const F32 RADIUS = LLEnvironment::instance().getCurrentSky()->getDomeRadius();
 
 	U32 i, j, num_slices, num_stacks;
 	F32 phi0, theta, x0, y0, z0;
