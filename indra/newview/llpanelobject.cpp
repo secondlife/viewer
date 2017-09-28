@@ -342,9 +342,13 @@ void LLPanelObject::getState( )
 	}
 
 	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+
+    // AXON it's not entirely clear what the motivation is to have 3
+    // different rules for enablement. At least the difference between
+    // move and rotate looks like just a parens error, have updated accordingly.
+	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && ((objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
 	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && objectp->permModify();
-	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && ((objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
 
 	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
