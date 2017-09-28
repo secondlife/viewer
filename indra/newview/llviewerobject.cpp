@@ -3981,7 +3981,7 @@ const LLVector3 LLViewerObject::getPivotPositionAgent() const
 const LLQuaternion LLViewerObject::getRenderRotation() const
 {
 	LLQuaternion ret;
-	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
+	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED) && !isAnimatedObject())
 	{
 		return ret;
 	}

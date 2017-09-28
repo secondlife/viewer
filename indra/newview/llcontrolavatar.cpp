@@ -68,6 +68,9 @@ void LLControlAvatar::matchVolumeTransform()
 #endif
 
 
+    // Avatars seem to 90 degrees off from the rest of the world, this is a fixup.
+    LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
+
     if (mRootVolp)
     {
         if (mRootVolp->isAttachment())
@@ -77,19 +80,15 @@ void LLControlAvatar::matchVolumeTransform()
             {
                 LLViewerJointAttachment *attach = attached_av->getTargetAttachmentPoint(mRootVolp);
                 setPositionAgent(mRootVolp->getRenderPosition());
-                // AXON why doesn't attach joint have a valid world
-                // position? Using the parent as a kludge but not
-                // right.
-                //LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
-                LLVector3 joint_pos = attach->getParent()->getWorldPosition();
-                LLQuaternion joint_rot = attach->getParent()->getWorldRotation();
-                //LLVector3 attach_pos = mRootVolp->mDrawable->getPosition();
-                //attach_pos.rotVec(joint_rot);
-                //LLQuaternion attach_rot = mRootVolp->mDrawable->getRotation();
-                //mRoot->setWorldPosition(joint_pos + attach_pos);
-                //mRoot->setWorldRotation(joint_rot * (attach_rot * ~fix_axes_rot));
-                mRoot->setWorldPosition(joint_pos);
-                mRoot->setWorldRotation(joint_rot);
+				attach->updateWorldPRSParent();
+                LLVector3 joint_pos = attach->getWorldPosition();
+                LLQuaternion joint_rot = attach->getWorldRotation();
+                LLVector3 obj_pos = mRootVolp->mDrawable->getPosition();
+                LLQuaternion obj_rot = mRootVolp->mDrawable->getRotation();
+                obj_pos.rotVec(joint_rot);
+                mRoot->setWorldPosition(obj_pos + joint_pos);
+                mRoot->setWorldRotation(fix_axes_rot * obj_rot * joint_rot);
+                setRotation(mRoot->getRotation());
             }
             else
             {
@@ -99,9 +98,6 @@ void LLControlAvatar::matchVolumeTransform()
         else
         {
             setPositionAgent(mRootVolp->getRenderPosition());
-            //slamPosition();
-        
-            LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
             LLQuaternion obj_rot = mRootVolp->getRotation();
             LLQuaternion result_rot = fix_axes_rot * obj_rot;
             setRotation(result_rot);
