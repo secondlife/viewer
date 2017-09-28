@@ -2045,9 +2045,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>50f0332f7b2245962d272604247ebcf9</string>
+              <string>7f9cc8a054f69323ac552f3139c3ddf9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3545/9127/slvoice-4.7.0005.25982.503529-darwin-503529.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9058/39730/slvoice-4.9.0002.27193.509044-darwin-509044.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2069,16 +2069,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>76a27f11377a5437ee373efb1ebca6d5</string>
+              <string>e1e885f127de8ab403948b22b6146164</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3544/9121/slvoice-4.7.0005.25982.503529-windows-503529.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9123/40194/slvoice-4.9.0002.27193.509044-windows-509044.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.7.0005.25982.503529</string>
+        <string>4.9.0002.27193.509044</string>
       </map>
       <key>tut</key>
       <map>
