@@ -4021,9 +4021,9 @@ void LLMeshRepository::uploadError(LLSD& args)
 	mUploadErrorQ.push(args);
 }
 
-F32 LLMeshRepository::getEstTrianglesHigh(LLUUID mesh_id)
+F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
 {
-    F32 triangles_high = 0.f;
+    F32 triangles_max = 0.f;
     if (mThread && mesh_id.notNull())
     {
         LLMutexLock lock(mThread->mHeaderMutex);
@@ -4039,13 +4039,18 @@ F32 LLMeshRepository::getEstTrianglesHigh(LLUUID mesh_id)
             }
 
             S32 bytes_high = header["high_lod"]["size"].asInteger();
+            S32 bytes_med = header["medium_lod"]["size"].asInteger();
+            S32 bytes_low = header["low_lod"]["size"].asInteger();
+            S32 bytes_lowest = header["lowest_lod"]["size"].asInteger();
+            S32 bytes_max = llmax(bytes_high, bytes_med, bytes_low, bytes_lowest);
+
             F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
             F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
             F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
-            triangles_high = llmax((F32) bytes_high-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+            triangles_max = llmax((F32) bytes_max-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
         }
     }
-    return triangles_high;
+    return triangles_max;
 }
 
 F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)

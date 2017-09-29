@@ -134,7 +134,7 @@ public:
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
 				typedef std::map<LLUUID, S32> texture_cost_t;
 				U32 	getRenderCost(texture_cost_t &textures) const;
-    /*virtual*/	F32		getEstTrianglesHigh() const;
+    /*virtual*/	F32		getEstTrianglesMax() const;
 				F32		getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const;
 	/*virtual*/	F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL) { return getStreamingCost(bytes, visible_bytes, NULL); }
 

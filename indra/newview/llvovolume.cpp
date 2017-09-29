@@ -3376,7 +3376,7 @@ bool LLVOVolume::canBeAnimatedObject() const
     {
         return false;
     }
-    F32 est_tris = recursiveGetEstTrianglesHigh();
+    F32 est_tris = recursiveGetEstTrianglesMax();
     if (est_tris > getAnimatedObjectMaxTris())
     {
         LL_INFOS() << "est_tris " << est_tris << " exceeds limit " << getAnimatedObjectMaxTris() << LL_ENDL;
@@ -3388,12 +3388,15 @@ bool LLVOVolume::canBeAnimatedObject() const
 bool LLVOVolume::isAnimatedObject() const
 {
     LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
-    bool can_be_animated = canBeAnimatedObject();
-    bool root_can_be_animated = root_vol->canBeAnimatedObject();
-    bool root_is_animated = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
-    if (can_be_animated && root_can_be_animated && root_is_animated)
+    bool root_is_animated_flag = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    if (root_is_animated_flag)
     {
-        return true;
+        bool root_can_be_animated = root_vol->canBeAnimatedObject();
+        bool this_can_be_animated = ((root_vol == this) && root_can_be_animated) || canBeAnimatedObject();
+        if (this_can_be_animated && root_can_be_animated)
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -3852,11 +3855,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	return (U32)shame;
 }
 
-F32 LLVOVolume::getEstTrianglesHigh() const
+F32 LLVOVolume::getEstTrianglesMax() const
 {
 	if (isMesh())
 	{
-		return gMeshRepo.getEstTrianglesHigh(getVolume()->getParams().getSculptID());
+		return gMeshRepo.getEstTrianglesMax(getVolume()->getParams().getSculptID());
 	}
     return 0.f;
 }

@@ -3580,14 +3580,14 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::recursiveGetEstTrianglesHigh() const
+F32 LLViewerObject::recursiveGetEstTrianglesMax() const
 {
-    F32 est_tris = getEstTrianglesHigh();
+    F32 est_tris = getEstTrianglesMax();
     for (child_list_t::const_iterator iter = mChildList.begin();
          iter != mChildList.end(); iter++)
     {
         const LLViewerObject* child = *iter;
-        est_tris += child->recursiveGetEstTrianglesHigh();
+        est_tris += child->recursiveGetEstTrianglesMax();
     }
     return est_tris;
 }
@@ -3607,7 +3607,7 @@ S32 LLViewerObject::getAnimatedObjectMaxTris() const
     return max_tris;
 }
 
-F32 LLViewerObject::getEstTrianglesHigh() const
+F32 LLViewerObject::getEstTrianglesMax() const
 {
     return 0.f;
 }
