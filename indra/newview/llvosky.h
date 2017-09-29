@@ -381,25 +381,25 @@ class LLVOSky : public LLStaticViewerObject
 {
 public:
 	/// WL PARAMS
-	F32 dome_radius;
-	F32 dome_offset_ratio;
-	LLColor3 sunlight_color;
-	LLColor3 ambient;
-	F32 gamma;
+//	F32 dome_radius;
+//	F32 dome_offset_ratio;
+//	LLColor3 sunlight_color;
+//	LLColor3 ambient;
+//	F32 gamma;
 	LLVector4 lightnorm;
 	LLVector4 unclamped_lightnorm;
-	LLColor3 blue_density;
-	LLColor3 blue_horizon;
-	F32 haze_density;
-	F32 haze_horizon;
-	F32 density_multiplier;
-	F32 max_y;
-	LLColor3 glow;
-	F32 cloud_shadow;
-	LLColor3 cloud_color;
-	F32 cloud_scale;
-	LLColor3 cloud_pos_density1;
-	LLColor3 cloud_pos_density2;
+//	LLColor3 blue_density;
+//	LLColor3 blue_horizon;
+//	F32 haze_density;
+//	F32 haze_horizon;
+//	F32 density_multiplier;
+//	F32 max_y;
+//	LLColor3 glow;
+//	F32 cloud_shadow;
+//	LLColor3 cloud_color;
+//	F32 cloud_scale;
+//	LLColor3 cloud_pos_density1;
+//	LLColor3 cloud_pos_density2;
 	
 public:
 	void initAtmospherics(void);

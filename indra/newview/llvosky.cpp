@@ -331,24 +331,24 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mBumpSunDir(0.f, 0.f, 1.f)
 {
 	/// WL PARAMS
-	dome_radius = 1.f;
-	dome_offset_ratio = 0.f;
-	sunlight_color = LLColor3();
-	ambient = LLColor3();
-	gamma = 1.f;
-	lightnorm = LLVector4();
-	blue_density = LLColor3();
-	blue_horizon = LLColor3();
-	haze_density = 0.f;
-	haze_horizon = 1.f;
-	density_multiplier = 0.f;
-	max_y = 0.f;
-	glow = LLColor3();
-	cloud_shadow = 0.f;
-	cloud_color = LLColor3();
-	cloud_scale = 0.f;
-	cloud_pos_density1 = LLColor3();
-	cloud_pos_density2 = LLColor3();
+//	dome_radius = 1.f;
+//	dome_offset_ratio = 0.f;
+//	sunlight_color = LLColor3();
+//	ambient = LLColor3();
+//	gamma = 1.f;
+//	lightnorm = LLVector4();
+//	blue_density = LLColor3();
+//	blue_horizon = LLColor3();
+//	haze_density = 0.f;
+//	haze_horizon = 1.f;
+//	density_multiplier = 0.f;
+//	max_y = 0.f;
+//	glow = LLColor3();
+//	cloud_shadow = 0.f;
+//	cloud_color = LLColor3();
+//	cloud_scale = 0.f;
+//	cloud_pos_density1 = LLColor3();
+//	cloud_pos_density2 = LLColor3();
 
 	mInitialized = FALSE;
 	mbCanSelect = FALSE;
@@ -369,11 +369,12 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mEarthCenter = LLVector3(mCameraPosAgent.mV[0], mCameraPosAgent.mV[1], -EARTH_RADIUS);
 
     // *LAPRAS
-    mSunDefaultPosition = LLEnvironment::instance().getCurrentSky()->getLightNormal();
+    mSunDefaultPosition = LLEnvironment::instance().getCurrentSky()->getSunDirection();
 
 	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition"))
 	{
-		initSunDirection(mSunDefaultPosition, LLVector3(0, 0, 0));
+
+        initSunDirection(LLVector3(mSunDefaultPosition.mV[2], mSunDefaultPosition.mV[0], mSunDefaultPosition.mV[1]), LLVector3(0, 0, 0));
 	}
 	mAmbientScale = gSavedSettings.getF32("SkyAmbientScale");
 	mNightColorShift = gSavedSettings.getColor3("SkyNightColorShift");
@@ -569,33 +570,35 @@ void LLVOSky::initAtmospherics(void)
 	
     // *LAPRAS
     // uniform parameters for convenience
-    LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    dome_radius = sky->getDomeRadius();
-    dome_offset_ratio = sky->getDomeOffset();
-    sunlight_color = sky->getSunlightColor();
-    ambient = sky->getAmbientColor();
-    gamma = sky->getGama();
-    blue_density = sky->getBlueDensity();
-    blue_horizon = sky->getBlueHorizon();
-    haze_density = sky->getHazeDensity();
-    haze_horizon = sky->getHazeHorizon();
-    density_multiplier = sky->getDensityMultiplier();
-    max_y = sky->getMaxY();
-    glow = sky->getGlow();
-    cloud_shadow = sky->getCloudShadow();
-    cloud_color = sky->getCloudColor();
-    cloud_scale = sky->getCloudScale();
-    cloud_pos_density1 = sky->getCloudPosDensity1();
-    cloud_pos_density2 = sky->getCloudPosDensity2();
+//    dome_radius = psky->getDomeRadius();
+//    dome_offset_ratio = psky->getDomeOffset();
+//    sunlight_color = psky->getSunlightColor();
+//    ambient = psky->getAmbientColor();
+//    gamma = psky->getGama();
+//    blue_density = psky->getBlueDensity();
+//    blue_horizon = psky->getBlueHorizon();
+//    haze_density = psky->getHazeDensity();
+//    haze_horizon = psky->getHazeHorizon();
+//    density_multiplier = psky->getDensityMultiplier();
+//    max_y = psky->getMaxY();
+//    glow = psky->getGlow();
+//    cloud_shadow = psky->getCloudShadow();
+//    cloud_color = psky->getCloudColor();
+//    cloud_scale = psky->getCloudScale();
+//    cloud_pos_density1 = psky->getCloudPosDensity1();
+//    cloud_pos_density2 = psky->getCloudPosDensity2();
 
 	// light norm is different.  We need the sun's direction, not the light direction
 	// which could be from the moon.  And we need to clamp it
 	// just like for the gpu
-	LLVector3 sunDir = gSky.getSunDirection();
+//	LLVector3 sunDir = gSky.getSunDirection();
+    LLVector3 sunDir = psky->getSunDirection();
 
 	// CFR_TO_OGL
-	lightnorm = LLVector4(sunDir.mV[1], sunDir.mV[2], sunDir.mV[0], 0);
+//	lightnorm = LLVector4(sunDir.mV[1], sunDir.mV[2], sunDir.mV[0], 0);
+    lightnorm = LLVector4(sunDir, 0);
 	unclamped_lightnorm = lightnorm;
 	if(lightnorm.mV[1] < -0.1f)
 	{
@@ -676,6 +679,11 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
 							LLVector2 vary_HorizontalProjection[2])
 {
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    LLColor3 blue_density = psky->getBlueDensity();
+    F32      max_y = psky->getMaxY();
+
 	// project the direction ray onto the sky dome.
 	F32 phi = acos(Pn[1]);
 	F32 sinA = sin(F_PI - phi);
@@ -684,7 +692,8 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 		sinA = 0.01f;
 	}
 
-	F32 Plen = dome_radius * sin(F_PI + phi + asin(dome_offset_ratio * sinA)) / sinA;
+//	F32 Plen = dome_radius * sin(F_PI + phi + asin(dome_offset_ratio * sinA)) / sinA;
+	F32 Plen = psky->getDomeRadius() * sin(F_PI + phi + asin(psky->getDomeOffset() * sinA)) / sinA;
 
 	Pn *= Plen;
 
@@ -705,7 +714,14 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 	Pn /= Plen;
 
 	// Initialize temp variables
-	LLColor3 sunlight = sunlight_color;
+	LLColor3 sunlight = psky->getSunlightColor();
+    LLColor3 ambient = psky->getAmbientColor();
+    LLColor3 blue_horizon = psky->getBlueHorizon();
+    F32 haze_density = psky->getHazeDensity();
+    F32 haze_horizon = psky->getHazeHorizon();
+    F32 density_multiplier = psky->getDensityMultiplier();
+    LLColor3 glow = psky->getGlow();
+    F32 cloud_shadow = psky->getCloudShadow();
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
@@ -766,7 +782,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 	// Final atmosphere additive
 	componentMultBy(vary_HazeColor, LLColor3::white - temp1);
 
-	sunlight = sunlight_color;
+	sunlight = psky->getSunlightColor();
 	temp2.mV[1] = llmax(0.f, lightnorm[1] * 2.f);
 	temp2.mV[1] = 1.f / temp2.mV[1];
 	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
@@ -807,8 +823,10 @@ LLColor3 LLVOSky::calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor, 
 							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
 							LLVector2 vary_HorizontalProjection[2])
 {
-	LLColor3 res;
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    F32 gamma = psky->getGama();
 
+	LLColor3 res;
 	LLColor3 color0 = vary_HazeColor;
 	
 	if (!gPipeline.canUseWindLightShaders())
@@ -874,6 +892,7 @@ LLColor3 LLVOSky::createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLC
 
 void LLVOSky::calcAtmospherics(void)
 {
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 	initAtmospherics();
 
 	LLColor3 vary_HazeColor;
@@ -881,7 +900,16 @@ void LLVOSky::calcAtmospherics(void)
 	LLColor3 vary_AmbientColor;
 	{
 		// Initialize temp variables
-		LLColor3 sunlight = sunlight_color;
+		LLColor3 sunlight = psky->getSunlightColor();
+        LLColor3 ambient = psky->getAmbientColor();
+        F32      gamma = psky->getGama();
+        LLColor3 blue_density = psky->getBlueDensity();
+        LLColor3 blue_horizon = psky->getBlueHorizon();
+        F32      haze_density = psky->getHazeDensity();
+        F32      haze_horizon = psky->getHazeHorizon();
+        F32      density_multiplier = psky->getDensityMultiplier();
+        F32      max_y = psky->getMaxY();
+        F32      cloud_shadow = psky->getCloudShadow();
 
 		// Sunlight attenuation effect (hue and brightness) due to atmosphere
 		// this is used later for sunlight modulation at various altitudes
@@ -1210,6 +1238,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	}
 
 	mCameraPosAgent = drawable->getPositionAgent();
+
 	mEarthCenter.mV[0] = mCameraPosAgent.mV[0];
 	mEarthCenter.mV[1] = mCameraPosAgent.mV[1];
 
@@ -1808,152 +1837,155 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
 	LLFace *face = mFace[FACE_REFLECTION]; 
 
-	if (!face->getVertexBuffer() || quads*4 != face->getGeomCount())
-	{
-		face->setSize(quads * 4, quads * 6);
-		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
-		buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
-		face->setIndicesIndex(0);
-		face->setGeomIndex(0);
-		face->setVertexBuffer(buff);
-	}
-	
-	LLStrider<LLVector3> verticesp;
-	LLStrider<LLVector3> normalsp;
-	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U16> indicesp;
-	S32 index_offset;
-	
-	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
-	if (-1 == index_offset)
-	{
-		return;
-	}
+    if (face)
+    {
+        if (!face->getVertexBuffer() || quads * 4 != face->getGeomCount())
+        {
+            face->setSize(quads * 4, quads * 6);
+            LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+            buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+            face->setIndicesIndex(0);
+            face->setGeomIndex(0);
+            face->setVertexBuffer(buff);
+        }
 
-	LLColor3 hb_col3 = HB.getInterpColor();
-	hb_col3.clamp();
-	const LLColor4 hb_col = LLColor4(hb_col3);
+        LLStrider<LLVector3> verticesp;
+        LLStrider<LLVector3> normalsp;
+        LLStrider<LLVector2> texCoordsp;
+        LLStrider<U16> indicesp;
+        S32 index_offset;
 
-	const F32 min_attenuation = 0.4f;
-	const F32 max_attenuation = 0.7f;
-	const F32 attenuation = min_attenuation
-		+ cos_angle_of_view * (max_attenuation - min_attenuation);
+        index_offset = face->getGeometry(verticesp, normalsp, texCoordsp, indicesp);
+        if (-1 == index_offset)
+        {
+            return;
+        }
 
-	LLColor4 hb_refl_col = (1-attenuation) * hb_col + attenuation * mFogColor;
-	face->setFaceColor(hb_refl_col);
-	
-	LLVector3 v_far[2];
-	v_far[0] = v_refl_corner[1];
-	v_far[1] = v_refl_corner[3];
+        LLColor3 hb_col3 = HB.getInterpColor();
+        hb_col3.clamp();
+        const LLColor4 hb_col = LLColor4(hb_col3);
 
-	if(dt_clip > 0)
-	{
-		if (dt_clip >= 1)
-		{
-			for (S32 vtx = 0; vtx < 4; ++vtx)
-			{
-				F32 ratio = far_clip / v_refl_corner[vtx].length();
-				*(verticesp++) = v_refl_corner[vtx] = ratio * v_refl_corner[vtx] + mCameraPosAgent;
-			}
-			const LLVector3 draw_pos = 0.25 *
-				(v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
-			face->mCenterAgent = draw_pos;
-		}
-		else
-		{
-			F32 ratio = far_clip / v_refl_corner[1].length();
-			v_sprite_corner[1] = v_refl_corner[1] * ratio;
+        const F32 min_attenuation = 0.4f;
+        const F32 max_attenuation = 0.7f;
+        const F32 attenuation = min_attenuation
+            + cos_angle_of_view * (max_attenuation - min_attenuation);
 
-			ratio = far_clip / v_refl_corner[3].length();
-			v_sprite_corner[3] = v_refl_corner[3] * ratio;
+        LLColor4 hb_refl_col = (1 - attenuation) * hb_col + attenuation * mFogColor;
+        face->setFaceColor(hb_refl_col);
 
-			v_refl_corner[1] = (1 - dt_clip) * v_refl_corner[1] + dt_clip * v_refl_corner[0];
-			v_refl_corner[3] = (1 - dt_clip) * v_refl_corner[3] + dt_clip * v_refl_corner[2];
-			v_sprite_corner[0] = v_refl_corner[1];
-			v_sprite_corner[2] = v_refl_corner[3];
+        LLVector3 v_far[2];
+        v_far[0] = v_refl_corner[1];
+        v_far[1] = v_refl_corner[3];
 
-			for (S32 vtx = 0; vtx < 4; ++vtx)
-			{
-				*(verticesp++) = v_sprite_corner[vtx] + mCameraPosAgent;
-			}
+        if (dt_clip > 0)
+        {
+            if (dt_clip >= 1)
+            {
+                for (S32 vtx = 0; vtx < 4; ++vtx)
+                {
+                    F32 ratio = far_clip / v_refl_corner[vtx].length();
+                    *(verticesp++) = v_refl_corner[vtx] = ratio * v_refl_corner[vtx] + mCameraPosAgent;
+                }
+                const LLVector3 draw_pos = 0.25 *
+                    (v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
+                face->mCenterAgent = draw_pos;
+            }
+            else
+            {
+                F32 ratio = far_clip / v_refl_corner[1].length();
+                v_sprite_corner[1] = v_refl_corner[1] * ratio;
 
-			const LLVector3 draw_pos = 0.25 *
-				(v_refl_corner[0] + v_sprite_corner[1] + v_refl_corner[2] + v_sprite_corner[3]);
-			face->mCenterAgent = draw_pos;
-		}
+                ratio = far_clip / v_refl_corner[3].length();
+                v_sprite_corner[3] = v_refl_corner[3] * ratio;
 
-		*(texCoordsp++) = TEX0tt;
-		*(texCoordsp++) = TEX0t;
-		*(texCoordsp++) = TEX1tt;
-		*(texCoordsp++) = TEX1t;
+                v_refl_corner[1] = (1 - dt_clip) * v_refl_corner[1] + dt_clip * v_refl_corner[0];
+                v_refl_corner[3] = (1 - dt_clip) * v_refl_corner[3] + dt_clip * v_refl_corner[2];
+                v_sprite_corner[0] = v_refl_corner[1];
+                v_sprite_corner[2] = v_refl_corner[3];
 
-		*indicesp++ = index_offset + 0;
-		*indicesp++ = index_offset + 2;
-		*indicesp++ = index_offset + 1;
+                for (S32 vtx = 0; vtx < 4; ++vtx)
+                {
+                    *(verticesp++) = v_sprite_corner[vtx] + mCameraPosAgent;
+                }
 
-		*indicesp++ = index_offset + 1;
-		*indicesp++ = index_offset + 2;
-		*indicesp++ = index_offset + 3;
+                const LLVector3 draw_pos = 0.25 *
+                    (v_refl_corner[0] + v_sprite_corner[1] + v_refl_corner[2] + v_sprite_corner[3]);
+                face->mCenterAgent = draw_pos;
+            }
 
-		index_offset += 4;
-	}
+            *(texCoordsp++) = TEX0tt;
+            *(texCoordsp++) = TEX0t;
+            *(texCoordsp++) = TEX1tt;
+            *(texCoordsp++) = TEX1t;
 
-	if (dt_clip < 1)
-	{
-		if (dt_clip <= 0)
-		{
-			const LLVector3 draw_pos = 0.25 *
-				(v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
-			face->mCenterAgent = draw_pos;
-		}
+            *indicesp++ = index_offset + 0;
+            *indicesp++ = index_offset + 2;
+            *indicesp++ = index_offset + 1;
 
-		const F32 raws_inv = 1.f/raws;
-		const F32 cols_inv = 1.f/cols;
-		LLVector3 left	= v_refl_corner[0] - v_refl_corner[1];
-		LLVector3 right = v_refl_corner[2] - v_refl_corner[3];
-		left *= raws_inv;
-		right *= raws_inv;
+            *indicesp++ = index_offset + 1;
+            *indicesp++ = index_offset + 2;
+            *indicesp++ = index_offset + 3;
 
-		F32 dt_raw = dt;
+            index_offset += 4;
+        }
 
-		for (S32 raw = 0; raw < raws; ++raw)
-		{
-			F32 dt_v0 = raw * raws_inv;
-			F32 dt_v1 = (raw + 1) * raws_inv;
-			const LLVector3 BL = v_refl_corner[1] + (F32)raw * left;
-			const LLVector3 BR = v_refl_corner[3] + (F32)raw * right;
-			const LLVector3 EL = BL + left;
-			const LLVector3 ER = BR + right;
-			dt_v0 = dt_raw;
-			dt_raw = dt_v1 = dtReflection(EL, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
-			for (S32 col = 0; col < cols; ++col)
-			{
-				F32 dt_h0 = col * cols_inv;
-				*(verticesp++) = (1 - dt_h0) * EL + dt_h0 * ER + mCameraPosAgent;
-				*(verticesp++) = (1 - dt_h0) * BL + dt_h0 * BR + mCameraPosAgent;
-				F32 dt_h1 = (col + 1) * cols_inv;
-				*(verticesp++) = (1 - dt_h1) * EL + dt_h1 * ER + mCameraPosAgent;
-				*(verticesp++) = (1 - dt_h1) * BL + dt_h1 * BR + mCameraPosAgent;
+        if (dt_clip < 1)
+        {
+            if (dt_clip <= 0)
+            {
+                const LLVector3 draw_pos = 0.25 *
+                    (v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
+                face->mCenterAgent = draw_pos;
+            }
 
-				*(texCoordsp++) = LLVector2(dt_h0, dt_v1);
-				*(texCoordsp++) = LLVector2(dt_h0, dt_v0);
-				*(texCoordsp++) = LLVector2(dt_h1, dt_v1);
-				*(texCoordsp++) = LLVector2(dt_h1, dt_v0);
+            const F32 raws_inv = 1.f / raws;
+            const F32 cols_inv = 1.f / cols;
+            LLVector3 left = v_refl_corner[0] - v_refl_corner[1];
+            LLVector3 right = v_refl_corner[2] - v_refl_corner[3];
+            left *= raws_inv;
+            right *= raws_inv;
 
-				*indicesp++ = index_offset + 0;
-				*indicesp++ = index_offset + 2;
-				*indicesp++ = index_offset + 1;
+            F32 dt_raw = dt;
 
-				*indicesp++ = index_offset + 1;
-				*indicesp++ = index_offset + 2;
-				*indicesp++ = index_offset + 3;
+            for (S32 raw = 0; raw < raws; ++raw)
+            {
+                F32 dt_v0 = raw * raws_inv;
+                F32 dt_v1 = (raw + 1) * raws_inv;
+                const LLVector3 BL = v_refl_corner[1] + (F32)raw * left;
+                const LLVector3 BR = v_refl_corner[3] + (F32)raw * right;
+                const LLVector3 EL = BL + left;
+                const LLVector3 ER = BR + right;
+                dt_v0 = dt_raw;
+                dt_raw = dt_v1 = dtReflection(EL, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
+                for (S32 col = 0; col < cols; ++col)
+                {
+                    F32 dt_h0 = col * cols_inv;
+                    *(verticesp++) = (1 - dt_h0) * EL + dt_h0 * ER + mCameraPosAgent;
+                    *(verticesp++) = (1 - dt_h0) * BL + dt_h0 * BR + mCameraPosAgent;
+                    F32 dt_h1 = (col + 1) * cols_inv;
+                    *(verticesp++) = (1 - dt_h1) * EL + dt_h1 * ER + mCameraPosAgent;
+                    *(verticesp++) = (1 - dt_h1) * BL + dt_h1 * BR + mCameraPosAgent;
 
-				index_offset += 4;
-			}
-		}
-	}
+                    *(texCoordsp++) = LLVector2(dt_h0, dt_v1);
+                    *(texCoordsp++) = LLVector2(dt_h0, dt_v0);
+                    *(texCoordsp++) = LLVector2(dt_h1, dt_v1);
+                    *(texCoordsp++) = LLVector2(dt_h1, dt_v0);
 
-	face->getVertexBuffer()->flush();
+                    *indicesp++ = index_offset + 0;
+                    *indicesp++ = index_offset + 2;
+                    *indicesp++ = index_offset + 1;
+
+                    *indicesp++ = index_offset + 1;
+                    *indicesp++ = index_offset + 2;
+                    *indicesp++ = index_offset + 3;
+
+                    index_offset += 4;
+                }
+            }
+        }
+
+        face->getVertexBuffer()->flush();
+    }
 }
 
 

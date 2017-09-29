@@ -151,12 +151,14 @@ public:
 
     F32 getDomeOffset() const
     {
-        return mSettings[SETTING_DOME_OFFSET].asReal();
+        return DOME_OFFSET;
+        //return mSettings[SETTING_DOME_OFFSET].asReal();
     }
 
     F32 getDomeRadius() const
     {
-        return mSettings[SETTING_DOME_RADIUS].asReal();
+        return DOME_RADIUS;
+        //return mSettings[SETTING_DOME_RADIUS].asReal();
     }
 
     F32 getGama() const
@@ -219,8 +221,33 @@ public:
         return mSettings[SETTING_SUN_TEXUTUREID].asUUID();
     }
 
-
     // Internal/calculated settings
+    LLVector3 getLightDirection() const
+    {
+        update();
+        return mLightDirection;
+    };
+
+    LLVector3 getClampedLightDirection() const
+    {
+        update();
+        return mClampedLightDirection;
+    };
+
+    LLVector3   getSunDirection() const
+    {
+        update();
+        return mSunDirection;
+    }
+
+    LLVector3   getMoonDirection() const
+    {
+        update();
+        return mMoonDirection;
+    }
+
+
+#if 0
     LLVector3 getLightDirection() const
     {
         update();
@@ -280,6 +307,7 @@ public:
         update();
         return mFadeColor;
     }
+#endif
 
 protected:
     LLSettingsSky();
@@ -299,15 +327,18 @@ private:
     LLVector3   mSunDirection;
     LLVector3   mMoonDirection;
     LLVector3   mLightDirection;
-    LLVector3   mLightDirectionClamped;
+    LLVector3   mClampedLightDirection;
 
-    LLColor3    mSunDiffuse;
-    LLColor3    mSunAmbient;
-    LLColor3    mMoonDiffuse;
-    LLColor3    mMoonAmbient;        
-    
-    LLColor4    mTotalAmbient;
-    LLColor4    mFadeColor;
+    static const F32 DOME_RADIUS;
+    static const F32 DOME_OFFSET;
+
+//     LLColor3    mSunDiffuse;
+//     LLColor3    mSunAmbient;
+//     LLColor3    mMoonDiffuse;
+//     LLColor3    mMoonAmbient;        
+//     
+//     LLColor4    mTotalAmbient;
+//     LLColor4    mFadeColor;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 

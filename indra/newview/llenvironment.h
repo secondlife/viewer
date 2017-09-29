@@ -48,8 +48,6 @@ public:
 
     void                    update(const LLViewerCamera * cam);
 
-    LLVector4               getRotatedLightDir() const { return mRotatedLight; }
-
     void                    updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting);
     void                    updateShaderUniforms(LLGLSLShader *shader);
 
@@ -63,6 +61,9 @@ public:
     inline F32              getSceneLightStrength() const { return mSceneLightStrength; }
     inline void             setSceneLightStrength(F32 light_strength) { mSceneLightStrength = light_strength; }
 
+    inline LLVector4        getLightDirection() const { return LLVector4(mCurrentSky->getLightDirection(), 0.0f); }
+    inline LLVector4        getClampedLightDirection() const { return LLVector4(mCurrentSky->getClampedLightDirection(), 0.0f); }
+    inline LLVector4        getRotatedLight() const { return mRotatedLight; }
 
 private:
     static const F32        SUN_DELTA_YAW;
@@ -70,7 +71,6 @@ private:
     typedef std::map<std::string, LLSettingsSky::ptr_t> NamedSkyMap_t;
     typedef std::map<LLUUID, LLSettingsSky::ptr_t> AssetSkyMap_t;
 
-    LLVector4               mRotatedLight;
     LLVector2               mCloudScrollDelta;  // cumulative cloud delta
 
     LLSettingsSky::ptr_t    mCurrentSky;
@@ -79,6 +79,7 @@ private:
     AssetSkyMap_t           mSkysById;
 
     F32                     mSceneLightStrength;
+    LLVector4               mRotatedLight;
 
     void addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
     void removeSky(const std::string &name);

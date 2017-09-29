@@ -85,7 +85,7 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 //         mAnimator.update(mCurParams);
 //     }
 
-    LLVector3 lightdir = mCurrentSky->getLightDirection();
+    //LLVector3 lightdir = mCurrentSky->getLightDirection();
     // update the shaders and the menu
 
     F32 camYaw = cam->getYaw();
@@ -95,7 +95,7 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     // *TODO: potential optimization - this block may only need to be
     // executed some of the time.  For example for water shaders only.
     {
-        LLVector3 lightNorm3(mCurrentSky->getLightDirection());
+        LLVector3 lightNorm3( getLightDirection() );
 
         lightNorm3 *= LLQuaternion(-(camYaw + SUN_DELTA_YAW), LLVector3(0.f, 1.f, 0.f));
         mRotatedLight = LLVector4(lightNorm3, 0.f);
@@ -125,16 +125,6 @@ void LLEnvironment::updateCloudScroll()
     LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentSky->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
     mCloudScrollDelta += cloud_delta;
 
-//     {
-//         LLVector2 v2(mCurrentSky->getCloudScrollRate());
-//         static F32 xoffset(0.f);
-//         static F32 yoffset(0.f);
-// 
-//         xoffset += F32(delta_t * (v2[0] - 10.f) / 100.f);
-//         yoffset += F32(delta_t * (v2[1] - 10.f) / 100.f);
-// 
-//         LL_WARNS("RIDER") << "offset " << mCloudScrollDelta << " vs (" << xoffset << ", " << yoffset << ")" << LL_ENDL;
-//     }
 
 
 }
@@ -223,23 +213,11 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
     else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
     {
         stop_glerror();
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mCurrentSky->getLightDirectionClamped().mV);
+        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, getClampedLightDirection().mV);
         stop_glerror();
     }
 
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, getSceneLightStrength());
-
-//     {
-//         LLVector4 cloud_scroll(mCloudScroll[0], mCloudScroll[1], 0.0, 0.0);
-// //         val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
-// //         val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
-// //         val.mV[2] = (F32)i->second[2].asReal();
-// //         val.mV[3] = (F32)i->second[3].asReal();
-// 
-//         stop_glerror();
-//         shader->uniform4fv(LLSettingsSky::SETTING_CLOUD_POS_DENSITY1, 1, cloud_scroll.mV);
-//         stop_glerror();
-//     }
 
 
 }

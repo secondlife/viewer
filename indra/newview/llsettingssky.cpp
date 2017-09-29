@@ -43,7 +43,7 @@
 //=========================================================================
 namespace
 {
-    const LLVector3 DUE_EAST(-1.0f, 0.0f, 0.0);
+    const LLVector3 DUE_EAST(0.0f, 0.0f, 1.0);
 
     LLTrace::BlockTimerStatHandle FTM_BLEND_ENVIRONMENT("Blending Environment Params");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_ENVIRONMENT("Update Environment Params");
@@ -52,6 +52,8 @@ namespace
 
 }
 
+const F32 LLSettingsSky::DOME_OFFSET(0.96f);
+const F32 LLSettingsSky::DOME_RADIUS(15000.f);
 
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
@@ -226,7 +228,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
         F32 altitude = oldsettings[SETTING_LEGACY_SUN_ANGLE].asReal();
 
         LLQuaternion sunquat = ::body_position_from_angles(azimuth, altitude);
-        LLQuaternion moonquat = ~sunquat;
+        LLQuaternion moonquat = ::body_position_from_angles(azimuth + F_PI, -altitude);
 
         newsettings[SETTING_SUN_ROTATION] = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
@@ -302,8 +304,8 @@ LLSD LLSettingsSky::defaults()
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = LLUUID::null;
     dfltsetting[SETTING_CLOUD_TEXTUREID]    = LLUUID::null;
-    dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_SUN; // gMoonTextureID;   // These two are returned by the login... wow!
-    dfltsetting[SETTING_SUN_TEXUTUREID]     = IMG_MOON; // gSunTextureID;
+    dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_MOON; // gMoonTextureID;   // These two are returned by the login... wow!
+    dfltsetting[SETTING_SUN_TEXUTUREID]     = IMG_SUN;  // gSunTextureID;
 
     return dfltsetting;
 }
@@ -327,6 +329,12 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
     mMoonDirection = DUE_EAST * getMoonRotation();
     mMoonDirection.normalize();
 
+    {   // set direction (in CRF) and don't allow overriding
+        LLVector3 crf_sunDirection(mSunDirection.mV[2], mSunDirection.mV[0], mSunDirection.mV[1]);
+
+        gSky.setSunDirection(crf_sunDirection, LLVector3(0, 0, 0));
+        gSky.setOverrideSun(TRUE);
+    }
 
     // is the normal from the sun or the moon
     if (mSunDirection.mV[1] >= 0.0)
@@ -338,7 +346,7 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
         // clamp v1 to 0 so sun never points up and causes weirdness on some machines
         LLVector3 vec(mSunDirection);
         vec.mV[1] = 0.0;
-        vec.normVec();
+        vec.normalize();
         mLightDirection = vec;
     }
     else
@@ -348,16 +356,18 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 
     // calculate the clamp lightnorm for sky (to prevent ugly banding in sky
     // when haze goes below the horizon
-    mLightDirectionClamped = mSunDirection;
+    mClampedLightDirection = mLightDirection;
 
-    if (mLightDirectionClamped.mV[1] < -0.1f)
+    if (mClampedLightDirection.mV[1] < -0.1f)
     {
-        mLightDirectionClamped.mV[1] = -0.1f;
+        mClampedLightDirection.mV[1] = -0.1f;
+        mClampedLightDirection.normalize();
     }
 }
 
 void LLSettingsSky::calculateLightSettings()
 {
+#if 0
     LLColor3 vary_HazeColor;
     LLColor3 vary_SunlightColor;
     LLColor3 vary_AmbientColor;
@@ -461,7 +471,7 @@ void LLSettingsSky::calculateLightSettings()
 
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(1);
-
+#endif
 }
 
 LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
@@ -495,7 +505,7 @@ void LLSettingsSky::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
-    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mLightDirectionClamped.mV);
+    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mClampedLightDirection.mV);
 
     shader->uniform4f(LLShaderMgr::GAMMA, getGama(), 0.0, 0.0, 1.0);
 
@@ -529,8 +539,8 @@ namespace
 {
     LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude)
     {
-        static const LLVector3 VECT_ZENITH(0.f, 0.f, 1.f);
-        static const LLVector3 VECT_NORTHSOUTH(0.f, 1.f, 0.f);
+        static const LLVector3 VECT_ZENITH(0.f, 1.f, 0.f);
+        static const LLVector3 VECT_NORTHSOUTH(1.f, 0.f, 0.f);
 
         // Azimuth is traditionally calculated from North, we are going from East.
         LLQuaternion rot_azi;
