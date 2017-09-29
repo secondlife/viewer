@@ -863,6 +863,7 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 		else
 		{
+			sCredentialSet = FALSE;
 			LLPointer<LLCredential> cred;
 			BOOL remember;
 			getFields(cred, remember);
