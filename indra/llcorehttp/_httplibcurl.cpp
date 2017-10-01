@@ -470,7 +470,6 @@ void HttpLibcurl::policyUpdated(int policy_class)
 		
 		HttpPolicyClass & options(policy.getClassOptions(policy_class));
 		CURLM * multi_handle(mMultiHandles[policy_class]);
-		CURLMcode code;
 
 		// Enable policy if stalled
 		policy.stallPolicy(policy_class, false);

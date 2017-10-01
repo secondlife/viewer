@@ -460,8 +460,6 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 // *TODO:  Move this to _httplibcurl where it belongs.
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
-	CURLcode code;
-	
 	// Scrub transport and result data for retried op case
 	mCurlActive = false;
 	mCurlHandle = NULL;
