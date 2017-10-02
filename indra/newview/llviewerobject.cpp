@@ -3627,6 +3627,22 @@ U32 LLViewerObject::getHighLODTriangleCount()
 	return 0;
 }
 
+U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
+{
+    S32 total_tris = getTriangleCount(vcount);
+    LLViewerObject::const_child_list_t& child_list = getChildren();
+    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+         iter != child_list.end(); ++iter)
+    {
+        LLViewerObject* childp = *iter;
+        if (childp)
+        {
+            total_tris += childp->getTriangleCount(vcount);
+        }
+    }
+    return total_tris;
+}
+
 void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
 	LLVector4a center;

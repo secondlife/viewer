@@ -364,6 +364,8 @@ public:
 	virtual U32 getTriangleCount(S32* vcount = NULL) const;
 	virtual U32 getHighLODTriangleCount();
 
+    U32 recursiveGetTriangleCount(S32* vcount = NULL) const;
+
 	void setObjectCost(F32 cost);
 	F32 getObjectCost();
 	

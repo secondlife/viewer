@@ -1103,16 +1103,26 @@ void LLVOVolume::updateSculptTexture()
 	
 }
 
+void LLVOVolume::updateVisualComplexity()
+{
+    LLVOAvatar* avatar = getAvatarAncestor();
+    if (avatar)
+    {
+        avatar->updateVisualComplexity();
+    }
+    LLVOAvatar* rigged_avatar = getAvatar();
+    if(rigged_avatar && (rigged_avatar != avatar))
+    {
+        rigged_avatar->updateVisualComplexity();
+    }
+}
+
 void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
 
-	LLVOAvatar* avatar = getAvatar();
-	if (avatar)
-	{
-		avatar->updateVisualComplexity();
-	}
+    updateVisualComplexity();
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -1302,18 +1312,7 @@ BOOL LLVOVolume::calcLOD()
     {
         if (isRootEdit() && getChildren().size()>0)
         {
-            S32 total_tris = getTriangleCount();
-            LLViewerObject::const_child_list_t& child_list = getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
-                 iter != child_list.end(); ++iter)
-            {
-                LLViewerObject* childp = *iter;
-                LLVOVolume *child_volp = dynamic_cast<LLVOVolume*>(childp);
-                if (child_volp)
-                {
-                    total_tris += child_volp->getTriangleCount();
-                }
-            }
+            S32 total_tris = recursiveGetTriangleCount();
             setDebugText(llformat("TRIS %d TOTAL %d", getTriangleCount(), total_tris));
         }
         else
@@ -1333,7 +1332,8 @@ BOOL LLVOVolume::calcLOD()
 	{
 		mAppAngle = ll_round((F32) atan2( mDrawable->getRadius(), mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
 		mLOD = cur_detail;		
-		return TRUE;
+
+        return TRUE;
 	}
 
 	return FALSE;
@@ -1691,6 +1691,11 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 
 	if ((new_lod != old_lod) || mSculptChanged)
 	{
+        if (mDrawable->isState(LLDrawable::RIGGED))
+        {
+            updateVisualComplexity();
+        }
+
 		compiled = TRUE;
 		sNumLODChanges += new_num_faces;
 
@@ -3342,7 +3347,7 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
         parameterChanged(LLNetworkData::PARAMS_EXTENDED_MESH, true);
         if (isAttachment() && getAvatarAncestor())
         {
-            getAvatarAncestor()->updateVisualComplexity();
+            updateVisualComplexity();
             if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
             {
                 // Making a rigged mesh into an animated object
@@ -3392,7 +3397,7 @@ bool LLVOVolume::isAnimatedObject() const
     if (root_is_animated_flag)
     {
         bool root_can_be_animated = root_vol->canBeAnimatedObject();
-        bool this_can_be_animated = ((root_vol == this) && root_can_be_animated) || canBeAnimatedObject();
+        bool this_can_be_animated = (root_vol == this) ? root_can_be_animated : canBeAnimatedObject();
         if (this_can_be_animated && root_can_be_animated)
         {
             return true;
@@ -4923,25 +4928,29 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	group->mBuilt = 1.f;
 	
 	LLVOAvatar* pAvatarVO = NULL;
+	LLVOAvatar *attached_av = NULL;
 
 	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
 	if (bridge)
 	{
+        LLViewerObject* vobj = bridge->mDrawable->getVObj();
 		if (bridge->mAvatar.isNull())
 		{
-			LLViewerObject* vobj = bridge->mDrawable->getVObj();
 			if (vobj)
 			{
 				bridge->mAvatar = vobj->getAvatar();
 			}
 		}
-
+        if (vobj)
+        {
+            attached_av = vobj->getAvatarAncestor();
+        }
 		pAvatarVO = bridge->mAvatar;
 	}
 
-	if (pAvatarVO)
+	if (attached_av)
 	{
-		pAvatarVO->subtractAttachmentArea( group->mSurfaceArea );
+		attached_av->subtractAttachmentArea( group->mSurfaceArea );
 	}
 
 	group->mGeometryBytes = 0;
@@ -5518,9 +5527,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	mFaceList.clear();
 
-	if (pAvatarVO)
+	if (attached_av)
 	{
-        pAvatarVO->addAttachmentArea( group->mSurfaceArea );
+        attached_av->addAttachmentArea( group->mSurfaceArea );
 	}
 }
 
