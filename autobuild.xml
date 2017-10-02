@@ -374,9 +374,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9c964c3333009082d709176653f4d4ca</string>
+              <string>f426c56252c70fe38fcb2251f7c1d762</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8989/39128/curl-7.54.1.508978-darwin64-508978.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9265/41615/curl-7.54.1.509254-darwin64-509254.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -410,11 +410,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2e7b65a981e0c24a3004c4b0b778ddc</string>
+              <string>4c7a960e1ee518acceac6a0c65495800</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8991/39116/curl-7.54.1.508978-windows-508978.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9268/41606/curl-7.54.1.509254-windows-509254.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -424,16 +424,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7640810a1ee7588fb38279d44f44e400</string>
+              <string>32df7cce1658ccec893fb46cd476c024</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8992/39122/curl-7.54.1.508978-windows64-508978.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9267/41607/curl-7.54.1.509254-windows64-509254.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.54.1.508978</string>
+        <string>7.54.1.509254</string>
       </map>
       <key>db</key>
       <map>
