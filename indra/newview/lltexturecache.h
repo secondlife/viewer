@@ -226,7 +226,7 @@ private:
 
 	typedef std::map<S32, Entry> idx_entry_map_t;
 	idx_entry_map_t mUpdatedEntryMap;
-	typedef std::vector<std::pair<S32, Entry>> idx_entry_vector_t;
+	typedef std::vector<std::pair<S32, Entry> > idx_entry_vector_t;
 	idx_entry_vector_t mPurgeEntryList;
 
 	// Statics
