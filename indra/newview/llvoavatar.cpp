@@ -620,6 +620,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
 	mAttachmentSurfaceArea(0.f),
+	mDirectAttachmentSurfaceArea(0.f),
 	mAttachmentVisibleTriangleCount(0),
 	mAttachmentEstTriangleCount(0.f),
 	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
@@ -9230,12 +9231,14 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		mText->addLine(info_line, info_color, info_style);
 
         // Triangle count
-        mText->addLine(llformat("Tris %u",mAttachmentVisibleTriangleCount), info_color, info_style);
-        mText->addLine(llformat("Est Tris %f",mAttachmentEstTriangleCount), info_color, info_style);
+        mText->addLine(std::string("VisTris ") + LLStringOps::getReadableNumber(mAttachmentVisibleTriangleCount), 
+                       info_color, info_style);
+        mText->addLine(std::string("EstMaxTris ") + LLStringOps::getReadableNumber(mAttachmentEstTriangleCount), 
+                       info_color, info_style);
 
 		// Attachment Surface Area
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
-		info_line = llformat("%.0f m^2", mAttachmentSurfaceArea);
+		info_line = llformat("%.0f m^2 (%.0f)", mAttachmentSurfaceArea, mDirectAttachmentSurfaceArea);
 
 		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
 		{
@@ -9288,6 +9291,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
     {
         mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
         mAttachmentEstTriangleCount += attached_object->recursiveGetEstTrianglesMax();
+        mDirectAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
         textures.clear();
         const LLDrawable* drawable = attached_object->mDrawable;
@@ -9441,7 +9445,8 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
         mAttachmentVisibleTriangleCount = 0;
         mAttachmentEstTriangleCount = 0.f;
-
+        mDirectAttachmentSurfaceArea = 0.f;
+        
         // A standalone animated object needs to be accounted for
         // using its associated volume. Attached animated objects
         // will be covered by the subsequent loop over attachments.

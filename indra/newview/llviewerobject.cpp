@@ -3643,6 +3643,42 @@ U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
     return total_tris;
 }
 
+// This is using the stored surface area for each volume (which
+// defaults to 1.0 for the case of everything except a sculpt) and
+// then scaling it linearly based on the largest dimension in the
+// prim's scale. Should revisit at some point.
+F32 LLViewerObject::recursiveGetScaledSurfaceArea() const
+{
+    F32 area = 0.f;
+    const LLDrawable* drawable = mDrawable;
+    if (drawable)
+    {
+        const LLVOVolume* volume = drawable->getVOVolume();
+        if (volume)
+        {
+            if (volume->getVolume())
+            {
+				const LLVector3& scale = volume->getScale();
+                area += volume->getVolume()->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
+            }
+            LLViewerObject::const_child_list_t children = volume->getChildren();
+            for (LLViewerObject::const_child_list_t::const_iterator child_iter = children.begin();
+                 child_iter != children.end();
+                 ++child_iter)
+            {
+                LLViewerObject* child_obj = *child_iter;
+                LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+                if (child && child->getVolume())
+                {
+                    const LLVector3& scale = child->getScale();
+                    area += child->getVolume()->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
+                }
+            }
+        }
+    }
+    return area;
+}
+
 void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
 	LLVector4a center;

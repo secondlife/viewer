@@ -438,6 +438,7 @@ public:
         
   private:
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
+	F32			mDirectAttachmentSurfaceArea; //estimated surface area of attachments
     U32			mAttachmentVisibleTriangleCount;
     F32			mAttachmentEstTriangleCount;
 	bool		shouldAlphaMask();

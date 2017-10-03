@@ -4905,8 +4905,6 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
-	
-
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -4927,13 +4925,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	group->mBuilt = 1.f;
 	
-	LLVOAvatar* pAvatarVO = NULL;
-	LLVOAvatar *attached_av = NULL;
+	LLVOAvatar *rigged_av = NULL;
+    LLVOAvatar *attached_av = NULL;
 
 	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
+    LLViewerObject *vobj = NULL;
+    LLVOVolume *vol_obj = NULL;
 	if (bridge)
 	{
-        LLViewerObject* vobj = bridge->mDrawable->getVObj();
+        vobj = bridge->mDrawable->getVObj();
+        vol_obj = dynamic_cast<LLVOVolume*>(vobj);
 		if (bridge->mAvatar.isNull())
 		{
 			if (vobj)
@@ -4941,17 +4942,25 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				bridge->mAvatar = vobj->getAvatar();
 			}
 		}
-        if (vobj)
-        {
-            attached_av = vobj->getAvatarAncestor();
-        }
-		pAvatarVO = bridge->mAvatar;
+        rigged_av = bridge->mAvatar;
 	}
+    if (vobj)
+    {
+        attached_av = vobj->getAvatarAncestor();
+    }
 
-	if (attached_av)
-	{
-		attached_av->subtractAttachmentArea( group->mSurfaceArea );
-	}
+    if (attached_av)
+    {
+        attached_av->subtractAttachmentArea( group->mSurfaceArea );
+    }
+    if (rigged_av && (rigged_av != attached_av))
+    {
+        rigged_av->subtractAttachmentArea( group->mSurfaceArea );
+    }
+    if (vol_obj)
+    {
+        vol_obj->updateVisualComplexity();
+    }
 
 	group->mGeometryBytes = 0;
 	group->mSurfaceArea = 0;
@@ -5046,7 +5055,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 }
                 if (vobj->getControlAvatar())
                 {
-                    pAvatarVO = vobj->getControlAvatar();
+                    rigged_av = vobj->getControlAvatar();
                 }
             }
             else
@@ -5066,13 +5075,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			bool is_rigged = false;
 
             // AXON handle NPC case
-            if (rigged && pAvatarVO && !vobj->isAnimatedObject())
+            if (rigged && rigged_av && !vobj->isAnimatedObject())
             {
-                pAvatarVO->addAttachmentOverridesForObject(vobj);
-				if (!LLApp::isExiting() && pAvatarVO->isSelf() && debugLoggingEnabled("AvatarAttachments"))
+                rigged_av->addAttachmentOverridesForObject(vobj);
+				if (!LLApp::isExiting() && rigged_av->isSelf() && debugLoggingEnabled("AvatarAttachments"))
                 {
                     bool verbose = true;
-					pAvatarVO->showAttachmentOverrides(verbose);
+					rigged_av->showAttachmentOverrides(verbose);
 				}
             }
 
@@ -5527,10 +5536,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	mFaceList.clear();
 
-	if (attached_av)
-	{
+    if (attached_av)
+    {
         attached_av->addAttachmentArea( group->mSurfaceArea );
-	}
+    }
+    if (rigged_av && (rigged_av != attached_av))
+    {
+        rigged_av->addAttachmentArea( group->mSurfaceArea );
+    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_REBUILD_MESH_FLUSH("Flush Mesh");
