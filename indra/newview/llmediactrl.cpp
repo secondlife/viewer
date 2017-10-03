@@ -872,7 +872,7 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
 
 	if (mStretchToFill)
 	{
-		if (mMaintainAspectRatio)
+		if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaPlugin())
 		{
 			F32 media_aspect = (F32)(mMediaSource->getMediaPlugin()->getWidth()) / (F32)(mMediaSource->getMediaPlugin()->getHeight());
 			F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
