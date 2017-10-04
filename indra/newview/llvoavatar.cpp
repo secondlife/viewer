@@ -5699,7 +5699,18 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 {
     LLScopedContextString str("rebuildAttachmentOverrides " + getFullname());
 
-    // Attachment points
+    // Handle the case that we're resetting the skeleton of an animated object.
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    if (control_av)
+    {
+        LLVOVolume *volp = control_av->mRootVolp;
+        if (volp)
+        {
+            addAttachmentOverridesForObject(volp);
+        }
+    }
+
+    // Attached objects
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -5710,11 +5721,18 @@ void LLVOAvatar::rebuildAttachmentOverrides()
             for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
 				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
             {
-                addAttachmentOverridesForObject(*at_it);
+                LLViewerObject *vo = *at_it;
+                // Attached animated objects affect joints in their control
+                // avs, not the avs to which they are attached.
+                if (!vo->isAnimatedObject())
+                {
+                    addAttachmentOverridesForObject(vo);
+                }
             }
         }
     }
 }
+
 //-----------------------------------------------------------------------------
 // addAttachmentPosOverridesForObject
 //-----------------------------------------------------------------------------
