@@ -1856,6 +1856,13 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChild<LLUICtrl>("online_visibility")->setValue(mOriginalHideOnlineStatus); 	 
 	getChild<LLUICtrl>("online_visibility")->setLabelArg("[DIR_VIS]", mDirectoryVisibility);
 	getChildView("send_im_to_email")->setEnabled(is_verified_email);
+
+    std::string tooltip;
+    if (!is_verified_email)
+        tooltip = getString("email_unverified_tooltip");
+
+    getChildView("send_im_to_email")->setToolTip(tooltip);
+
     // *TODO: Show or hide verify email text here based on is_verified_email
     getChild<LLUICtrl>("send_im_to_email")->setValue(im_via_email);
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
