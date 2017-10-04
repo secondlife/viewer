@@ -9238,7 +9238,10 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 		// Attachment Surface Area
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
-		info_line = llformat("%.0f m^2 (%.0f)", mAttachmentSurfaceArea, mDirectAttachmentSurfaceArea);
+        // AXON we can consolidate mAttachmentSurfaceArea and
+        // mDirectAttachmentSurfaceArea once QA establishes
+        // equivalence.
+		info_line = llformat("%.0f m^2", mDirectAttachmentSurfaceArea);
 
 		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
 		{
@@ -9353,6 +9356,8 @@ void LLVOAvatar::accountRenderComplexityForObject(
         && attached_object->mDrawable)
     {
         textures.clear();
+
+        mDirectAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
         const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
         if (volume)
