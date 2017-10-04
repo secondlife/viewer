@@ -6613,9 +6613,9 @@ S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 {
     S32 max_attach = 0;
     LLSD features;
-    if (getRegion())
+    if (gAgent.getRegion())
     {
-        getRegion()->getSimulatorFeatures(features);
+        gAgent.getRegion()->getSimulatorFeatures(features);
         if (features.has("AnimatedObjects"))
         {
             max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();

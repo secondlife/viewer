@@ -3596,9 +3596,9 @@ S32 LLViewerObject::getAnimatedObjectMaxTris() const
 {
     S32 max_tris = 0;
     LLSD features;
-    if (getRegion())
+    if (gAgent.getRegion())
     {
-        getRegion()->getSimulatorFeatures(features);
+        gAgent.getRegion()->getSimulatorFeatures(features);
         if (features.has("AnimatedObjects"))
         {
             max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
