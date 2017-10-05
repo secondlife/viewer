@@ -30,6 +30,11 @@
 #include "llgl.h"
 #include "llglslshader.h"
 
+/*RIDER: TODO:
+ * This should use the LL Singleton<> template... but not a quick conversion.
+ * (llviewershadermgr derives from this)
+ */
+
 class LLShaderMgr
 {
 public:
@@ -215,7 +220,7 @@ public:
 		TERRAIN_ALPHARAMP,
 		
 		SHINY_ORIGIN,
-DISPLAY_GAMMA,
+        DISPLAY_GAMMA,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

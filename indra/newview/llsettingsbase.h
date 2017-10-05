@@ -124,7 +124,6 @@ protected:
 
     typedef std::set<std::string>   stringset_t;
 
-
     // combining settings objects. Customize for specific setting types
     virtual void lerpSettings(const LLSettingsBase &other, F32 mix);
 
@@ -146,6 +145,8 @@ protected:
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 
     LLSD    mSettings;
+
+    LLSD    cloneSettings() const;
 
 private:
     bool    mDirty;

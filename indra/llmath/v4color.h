@@ -114,9 +114,11 @@ class LLColor4
 		friend LLColor4 operator-(const LLColor4 &a, const LLColor4 &b);	// Return vector a minus b
 		friend LLColor4 operator*(const LLColor4 &a, const LLColor4 &b);	// Return component wise a * b
 		friend LLColor4 operator*(const LLColor4 &a, F32 k);				// Return rgb times scaler k (no alpha change)
+        friend LLColor4 operator/(const LLColor4 &a, F32 k);                // Return rgb divided by scalar k (no alpha change)
 		friend LLColor4 operator*(F32 k, const LLColor4 &a);				// Return rgb times scaler k (no alpha change)
 		friend LLColor4 operator%(const LLColor4 &a, F32 k);				// Return alpha times scaler k (no rgb change)
 		friend LLColor4 operator%(F32 k, const LLColor4 &a);				// Return alpha times scaler k (no rgb change)
+
 		friend bool operator==(const LLColor4 &a, const LLColor4 &b);		// Return a == b
 		friend bool operator!=(const LLColor4 &a, const LLColor4 &b);		// Return a != b
 		
@@ -475,6 +477,15 @@ inline LLColor4 operator*(const LLColor4 &a, F32 k)
 		a.mV[VY] * k,
 		a.mV[VZ] * k,
 		a.mV[VW]);
+}
+
+inline LLColor4 operator/(const LLColor4 &a, F32 k)
+{
+    return LLColor4(
+        a.mV[VX] / k,
+        a.mV[VY] / k,
+        a.mV[VZ] / k,
+        a.mV[VW]);
 }
 
 inline LLColor4 operator*(F32 k, const LLColor4 &a)

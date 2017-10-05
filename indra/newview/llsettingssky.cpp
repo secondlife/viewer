@@ -44,12 +44,14 @@
 namespace
 {
     const LLVector3 DUE_EAST(0.0f, 0.0f, 1.0);
+    const LLVector3 VECT_ZENITH(0.f, 1.f, 0.f);
+    const LLVector3 VECT_NORTHSOUTH(1.f, 0.f, 0.f);
 
     LLTrace::BlockTimerStatHandle FTM_BLEND_ENVIRONMENT("Blending Environment Params");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_ENVIRONMENT("Update Environment Params");
 
     LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude);
-
+    void angles_from_rotation(LLQuaternion quat, F32 &azimuth, F32 &altitude);
 }
 
 const F32 LLSettingsSky::DOME_OFFSET(0.96f);
@@ -101,6 +103,32 @@ LLSettingsSky::LLSettingsSky():
 {
 }
 
+void LLSettingsSky::setMoonRotation(F32 azimuth, F32 altitude)
+{
+    setValue(SETTING_MOON_ROTATION, ::body_position_from_angles(azimuth, altitude));
+}
+
+LLSettingsSky::azimalt_t LLSettingsSky::getMoonRotationAzAl() const
+{
+    azimalt_t res;
+    ::angles_from_rotation(getMoonRotation(), res.first, res.second);
+
+    return res;
+}
+
+void LLSettingsSky::setSunRotation(F32 azimuth, F32 altitude)
+{
+    setValue(SETTING_SUN_ROTATION, ::body_position_from_angles(azimuth, altitude));
+}
+
+LLSettingsSky::azimalt_t LLSettingsSky::getSunRotationAzAl() const
+{
+    azimalt_t res;
+    ::angles_from_rotation(getSunRotation(), res.first, res.second);
+
+    return res;
+}
+
 LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const 
 { 
     static stringset_t slepSet;
@@ -124,27 +152,27 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
 
     if (oldsettings.has(SETTING_AMBIENT))
     {
-        newsettings[SETTING_AMBIENT] = LLColor4(oldsettings[SETTING_AMBIENT]).getValue();
+        newsettings[SETTING_AMBIENT] = LLColor3(oldsettings[SETTING_AMBIENT]).getValue();
     }
     if (oldsettings.has(SETTING_BLUE_DENSITY))
     {
-        newsettings[SETTING_BLUE_DENSITY] = LLColor4(oldsettings[SETTING_BLUE_DENSITY]).getValue();
+        newsettings[SETTING_BLUE_DENSITY] = LLColor3(oldsettings[SETTING_BLUE_DENSITY]).getValue();
     }
     if (oldsettings.has(SETTING_BLUE_HORIZON))
     {
-        newsettings[SETTING_BLUE_HORIZON] = LLColor4(oldsettings[SETTING_BLUE_HORIZON]).getValue();
+        newsettings[SETTING_BLUE_HORIZON] = LLColor3(oldsettings[SETTING_BLUE_HORIZON]).getValue();
     }
     if (oldsettings.has(SETTING_CLOUD_COLOR))
     {
-        newsettings[SETTING_CLOUD_COLOR] = LLColor4(oldsettings[SETTING_CLOUD_COLOR]).getValue();
+        newsettings[SETTING_CLOUD_COLOR] = LLColor3(oldsettings[SETTING_CLOUD_COLOR]).getValue();
     }
     if (oldsettings.has(SETTING_CLOUD_POS_DENSITY1))
     {
-        newsettings[SETTING_CLOUD_POS_DENSITY1] = LLColor4(oldsettings[SETTING_CLOUD_POS_DENSITY1]).getValue();
+        newsettings[SETTING_CLOUD_POS_DENSITY1] = LLColor3(oldsettings[SETTING_CLOUD_POS_DENSITY1]).getValue();
     }
     if (oldsettings.has(SETTING_CLOUD_POS_DENSITY2))
     {
-        newsettings[SETTING_CLOUD_POS_DENSITY2] = LLColor4(oldsettings[SETTING_CLOUD_POS_DENSITY2]).getValue();
+        newsettings[SETTING_CLOUD_POS_DENSITY2] = LLColor3(oldsettings[SETTING_CLOUD_POS_DENSITY2]).getValue();
     }
     if (oldsettings.has(SETTING_CLOUD_SCALE))
     {
@@ -179,11 +207,11 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
     }
     if (oldsettings.has(SETTING_GAMMA))
     {
-        newsettings[SETTING_GAMMA] = LLVector4(oldsettings[SETTING_GAMMA]).getValue();
+        newsettings[SETTING_GAMMA] = oldsettings[SETTING_GAMMA][0].asReal();
     }
     if (oldsettings.has(SETTING_GLOW))
     {
-        newsettings[SETTING_GLOW] = LLColor4(oldsettings[SETTING_GLOW]).getValue();
+        newsettings[SETTING_GLOW] = LLColor3(oldsettings[SETTING_GLOW]).getValue();
     }
     if (oldsettings.has(SETTING_HAZE_DENSITY))
     {
@@ -230,6 +258,9 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
         LLQuaternion sunquat = ::body_position_from_angles(azimuth, altitude);
         LLQuaternion moonquat = ::body_position_from_angles(azimuth + F_PI, -altitude);
 
+        F32 az(0), al(0);
+        ::angles_from_rotation(sunquat, az, al);
+
         newsettings[SETTING_SUN_ROTATION] = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
     }
@@ -245,11 +276,18 @@ LLSettingsSky::ptr_t LLSettingsSky::buildDefaultSky()
     LLSD settings = LLSettingsSky::defaults();
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
-    //skyp->update();
 
     return skyp;
 }
 
+LLSettingsSky::ptr_t LLSettingsSky::buildClone()
+{
+    LLSD settings = cloneSettings();
+
+    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
+
+    return skyp;
+}
 
 // Settings status 
 
@@ -278,11 +316,11 @@ LLSD LLSettingsSky::defaults()
 
     // Magic constants copied form dfltsetting.xml 
     dfltsetting[SETTING_AMBIENT]            = LLColor4::white.getValue();
-    dfltsetting[SETTING_BLUE_DENSITY]       = LLColor4(0.2447, 0.4487, 0.7599, 1.0).getValue();
-    dfltsetting[SETTING_BLUE_HORIZON]       = LLColor4(0.4954, 0.4954, 0.6399, 1.0).getValue();
-    dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 1.0).getValue();
-    dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 1.0).getValue();
-    dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 1.0).getValue();
+    dfltsetting[SETTING_BLUE_DENSITY]       = LLColor4(0.2447, 0.4487, 0.7599, 0.0).getValue();
+    dfltsetting[SETTING_BLUE_HORIZON]       = LLColor4(0.4954, 0.4954, 0.6399, 0.0).getValue();
+    dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
+    dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
+    dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
     dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(10.1999)(10.0109);
     dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
@@ -290,7 +328,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(0.8000);
     dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
     dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
-    dfltsetting[SETTING_GAMMA]              = LLVector4(1.0, 0.0, 0.0, 1.0).getValue();
+    dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
     dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();   // *RIDER: This is really weird for a color... TODO: check if right.
     dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
     dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
@@ -299,7 +337,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
     dfltsetting[SETTING_NAME]               = std::string("_default_");
     dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(0.0000);
-    dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 1.0).getValue();
+    dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
     dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = LLUUID::null;
@@ -367,29 +405,26 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 
 void LLSettingsSky::calculateLightSettings()
 {
-#if 0
     LLColor3 vary_HazeColor;
     LLColor3 vary_SunlightColor;
     LLColor3 vary_AmbientColor;
     {
         // Initialize temp variables
-        LLColor3 sunlight = getSunlightColor();
-
-        // Fetch these once...
-        F32 haze_density = getHazeDensity();
-        F32 haze_horizon = getHazeHorizon();
-        F32 density_multiplier = getDensityMultiplier();
-        F32 max_y = getMaxY();
-        F32 gamma = getGama();
-        F32 cloud_shadow = getCloudShadow();
-        LLColor3 blue_density = getBlueDensity();
-        LLColor3 blue_horizon = getBlueHorizon();
-        LLColor3 ambient = getAmbientColor();
-
+        LLColor3    sunlight = getSunlightColor();
+        LLColor3    ambient = getAmbientColor();
+        F32         gamma = getGamma();
+        LLColor3    blue_density = getBlueDensity();
+        LLColor3    blue_horizon = getBlueHorizon();
+        F32         haze_density = getHazeDensity();
+        F32         haze_horizon = getHazeHorizon();
+        F32         density_multiplier = getDensityMultiplier();
+        F32         max_y = getMaxY();
+        F32         cloud_shadow = getCloudShadow();
+        LLVector3   lightnorm = getLightDirection();
 
         // Sunlight attenuation effect (hue and brightness) due to atmosphere
         // this is used later for sunlight modulation at various altitudes
-        LLColor3 light_atten =  
+        LLColor3 light_atten =
             (blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
 
         // Calculate relative weights
@@ -403,14 +438,14 @@ void LLSettingsSky::calculateLightSettings()
         // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
 
         // and vary_sunlight will work properly with moon light
-        F32 lighty = mLightDirection[1];
+        F32 lighty = lightnorm[1];
         if (lighty < LLSky::NIGHTTIME_ELEVATION_COS)
         {
             lighty = -lighty;
         }
 
         temp2.mV[1] = llmax(0.f, lighty);
-        if (temp2.mV[1] > 0.f)
+        if(temp2.mV[1] > 0.f)
         {
             temp2.mV[1] = 1.f / temp2.mV[1];
         }
@@ -429,9 +464,9 @@ void LLSettingsSky::calculateLightSettings()
 
         //haze color
         vary_HazeColor =
-            (blue_horizon * blue_weight * (sunlight*(1.f - cloud_shadow) + tmpAmbient)
+            (blue_horizon * blue_weight * (sunlight*(1.f - cloud_shadow) + tmpAmbient)	
             + componentMult(haze_horizon * haze_weight, sunlight*(1.f - cloud_shadow) * temp2.mV[0] + tmpAmbient)
-            );
+            );	
 
         //brightness of surface both sunlight and ambient
         vary_SunlightColor = componentMult(sunlight, temp1) * 1.f;
@@ -449,7 +484,16 @@ void LLSettingsSky::calculateLightSettings()
 
     }
 
-    float dp = getSunDirection() * LLVector3(0, 0, 1.f); // a dot b
+#if 0
+    mSun.setColor(vary_SunlightColor);
+    mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
+
+    mSun.renewDirection();
+    mSun.renewColor();
+    mMoon.renewDirection();
+    mMoon.renewColor();
+
+    float dp = getToSunLast() * LLVector3(0,0,1.f);
     if (dp < 0)
     {
         dp = 0;
@@ -457,21 +501,19 @@ void LLSettingsSky::calculateLightSettings()
 
     // Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
     // between sunlight and point lights in windlight to normalize point lights.
-    F32 sun_dynamic_range = std::max(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
-    
+    F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
     LLEnvironment::instance().setSceneLightStrength(2.0f * (1.0f + sun_dynamic_range * dp));
+#endif
 
     mSunDiffuse = vary_SunlightColor;
     mSunAmbient = vary_AmbientColor;
     mMoonDiffuse = vary_SunlightColor;
     mMoonAmbient = vary_AmbientColor;
 
-    mTotalAmbient = vary_AmbientColor;
-    mTotalAmbient.setAlpha(1);
+    mTotalAmbient = LLColor4(vary_AmbientColor, 1.0f);
 
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
-    mFadeColor.setAlpha(1);
-#endif
+    mFadeColor.setAlpha(0);
 }
 
 LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
@@ -490,7 +532,6 @@ LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
         param_map[SETTING_CLOUD_SHADOW] = LLShaderMgr::CLOUD_SHADOW;
         param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
         param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
-        param_map[SETTING_GAMMA] = LLShaderMgr::GAMMA;
         param_map[SETTING_GLOW] = LLShaderMgr::GLOW;
         param_map[SETTING_HAZE_DENSITY] = LLShaderMgr::HAZE_DENSITY;
         param_map[SETTING_HAZE_HORIZON] = LLShaderMgr::HAZE_HORIZON;
@@ -507,7 +548,7 @@ void LLSettingsSky::applySpecial(void *ptarget)
 
     shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mClampedLightDirection.mV);
 
-    shader->uniform4f(LLShaderMgr::GAMMA, getGama(), 0.0, 0.0, 1.0);
+    shader->uniform4f(LLShaderMgr::GAMMA, getGamma(), 0.0, 0.0, 1.0);
 
     {
         //LLEnvironment::instance().getCloudDelta();
@@ -515,23 +556,6 @@ void LLSettingsSky::applySpecial(void *ptarget)
         vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
         shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
     }
-
-//     {
-//         LLVector4 val(mSettings[ ];
-//         val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
-//         val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
-//         val.mV[2] = (F32)i->second[2].asReal();
-//         val.mV[3] = (F32)i->second[3].asReal();
-// 
-//         stop_glerror();
-//         //_WARNS("RIDER") << "pushing '" << param.String() << "' as " << val << LL_ENDL;
-//         shader->uniform4fv(param, 1, val.mV);
-//         stop_glerror();
-// 
-//     }
-
-    //param_map[SETTING_CLOUD_POS_DENSITY1] = LLShaderMgr::CLOUD_POS_DENSITY1;
-
 }
 
 //=========================================================================
@@ -539,9 +563,6 @@ namespace
 {
     LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude)
     {
-        static const LLVector3 VECT_ZENITH(0.f, 1.f, 0.f);
-        static const LLVector3 VECT_NORTHSOUTH(1.f, 0.f, 0.f);
-
         // Azimuth is traditionally calculated from North, we are going from East.
         LLQuaternion rot_azi;
         LLQuaternion rot_alt;
@@ -552,11 +573,26 @@ namespace
         LLQuaternion body_quat = rot_alt * rot_azi;
         body_quat.normalize();
 
-        LLVector3 sun_vector = (DUE_EAST * body_quat);
-
-
-        LL_WARNS("RIDER") << "Azimuth=" << azimuth << " Altitude=" << altitude << " Body Vector=" << sun_vector.getValue() << LL_ENDL;
-
+        //LLVector3 sun_vector = (DUE_EAST * body_quat);
+        //_WARNS("RIDER") << "Azimuth=" << azimuth << " Altitude=" << altitude << " Body Vector=" << sun_vector.getValue() << LL_ENDL;
         return body_quat;
+    }
+
+    void angles_from_rotation(LLQuaternion quat, F32 &azimuth, F32 &altitude)
+    {
+        LLVector3 body_vector = (DUE_EAST * quat);
+
+        LLVector3 body_az(body_vector[0], 0.f, body_vector[2]);
+        LLVector3 body_al(0.f, body_vector[1], body_vector[2]);
+        
+        if (fabs(body_az.normalize()) > 0.001)
+            azimuth = angle_between(DUE_EAST, body_az);
+        else
+            azimuth = 0.0f;
+
+        if (fabs(body_al.normalize()) > 0.001)
+            altitude = angle_between(DUE_EAST, body_al);
+        else
+            altitude = 0.0f;
     }
 }

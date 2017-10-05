@@ -379,30 +379,8 @@ class LLCubeMap;
 
 class LLVOSky : public LLStaticViewerObject
 {
-public:
-	/// WL PARAMS
-//	F32 dome_radius;
-//	F32 dome_offset_ratio;
-//	LLColor3 sunlight_color;
-//	LLColor3 ambient;
-//	F32 gamma;
-	LLVector4 lightnorm;
-	LLVector4 unclamped_lightnorm;
-//	LLColor3 blue_density;
-//	LLColor3 blue_horizon;
-//	F32 haze_density;
-//	F32 haze_horizon;
-//	F32 density_multiplier;
-//	F32 max_y;
-//	LLColor3 glow;
-//	F32 cloud_shadow;
-//	LLColor3 cloud_color;
-//	F32 cloud_scale;
-//	LLColor3 cloud_pos_density1;
-//	LLColor3 cloud_pos_density2;
 	
 public:
-	void initAtmospherics(void);
 	void calcAtmospherics(void);
 	LLColor3 createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
 	LLColor3 createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
@@ -470,13 +448,12 @@ public:
 	const LLVector3& getToMoon() const						{ return mMoon.getDirection(); }
 	const LLVector3& getToMoonLast() const					{ return mMoon.getDirectionCached(); }
 	BOOL isSunUp() const									{ return mSun.getDirectionCached().mV[2] > -0.05f; }
-	void calculateColors();
 
-	LLColor3 getSunDiffuseColor() const						{ return mSunDiffuse; }
-	LLColor3 getMoonDiffuseColor() const					{ return mMoonDiffuse; }
-	LLColor4 getSunAmbientColor() const						{ return mSunAmbient; }
-	LLColor4 getMoonAmbientColor() const					{ return mMoonAmbient; }
-	const LLColor4& getTotalAmbientColor() const			{ return mTotalAmbient; }
+    LLColor3 getSunDiffuseColor() const;
+    LLColor3 getMoonDiffuseColor() const;
+    LLColor4 getSunAmbientColor() const;
+    LLColor4 getMoonAmbientColor() const;
+    LLColor4 getTotalAmbientColor() const;
 	LLColor4 getFogColor() const							{ return mFogColor; }
 	LLColor4 getGLFogColor() const							{ return mGLFogCol; }
 	
@@ -508,8 +485,8 @@ public:
 	void setWorldScale(const F32 s)						{ mWorldScale = s; }
 	void updateFog(const F32 distance);
 	void setFogRatio(const F32 fog_ratio)				{ mFogRatio = fog_ratio; }
-	LLColor4U getFadeColor() const						{ return mFadeColor; }
-	F32 getFogRatio() const								{ return mFogRatio; }
+    LLColor4U getFadeColor() const;
+    F32 getFogRatio() const								{ return mFogRatio; }
 	void setCloudDensity(F32 cloud_density)				{ mCloudDensity = cloud_density; }
 	void setWind ( const LLVector3& wind )				{ mWind = wind.length(); }
 
@@ -576,12 +553,12 @@ protected:
 	F32					mFogRatio;
 	F32					mWorldScale;
 
-	LLColor4			mSunAmbient;
-	LLColor4			mMoonAmbient;
-	LLColor4			mTotalAmbient;
-	LLColor3			mSunDiffuse;
-	LLColor3			mMoonDiffuse;
-	LLColor4U			mFadeColor;					// Color to fade in from	
+// 	LLColor4			mSunAmbient;
+// 	LLColor4			mMoonAmbient;
+// 	LLColor4			mTotalAmbient;
+// 	LLColor3			mSunDiffuse;
+// 	LLColor3			mMoonDiffuse;
+// 	LLColor4U			mFadeColor;					// Color to fade in from	
 
 	LLPointer<LLCubeMap>	mCubeMap;					// Cube map for the environment
 	S32					mDrawRefl;

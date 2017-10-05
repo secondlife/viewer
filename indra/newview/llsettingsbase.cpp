@@ -80,6 +80,14 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
                 newSettings[key_name].append(*ita);
             }
             break;
+        //case LLSD::TypeInteger:
+        //case LLSD::TypeReal:
+        //case LLSD::TypeBoolean:
+        //case LLSD::TypeString:
+        //case LLSD::TypeUUID:
+        //case LLSD::TypeURI:
+        //case LLSD::TypeDate:
+        //case LLSD::TypeBinary:
         default:
             newSettings[key_name] = value;
             break;
@@ -106,6 +114,14 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
                     newSettings[key_name].append(*ita);
                 }
                 break;
+            //case LLSD::TypeInteger:
+            //case LLSD::TypeReal:
+            //case LLSD::TypeBoolean:
+            //case LLSD::TypeString:
+            //case LLSD::TypeUUID:
+            //case LLSD::TypeURI:
+            //case LLSD::TypeDate:
+            //case LLSD::TypeBinary:
             default:
                 newSettings[key_name] = value;
                 break;
@@ -217,6 +233,11 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
     }
 
     return newSettings;
+}
+
+LLSD LLSettingsBase::cloneSettings() const
+{
+    return combineSDMaps(mSettings, LLSD());
 }
 
 

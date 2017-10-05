@@ -181,6 +181,7 @@ set(viewer_SOURCE_FILES
     lldrawpoolwlsky.cpp
     lldynamictexture.cpp
     llemote.cpp
+    llenvadapters.cpp
     llenvironment.cpp
     llenvmanager.cpp
     llestateinfomodel.cpp
@@ -804,6 +805,7 @@ set(viewer_HEADER_FILES
     lldrawpoolwlsky.h
     lldynamictexture.h
     llemote.h
+    llenvadapters.h
     llenvironment.h
     llenvmanager.h
     llestateinfomodel.h

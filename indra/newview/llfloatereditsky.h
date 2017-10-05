@@ -28,12 +28,17 @@
 #define LL_LLFLOATEREDITSKY_H
 
 #include "llfloater.h"
-#include "llwlparammanager.h"
+#include "llsettingssky.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLLineEditor;
+class WLColorControl;
+class LLSkySettingsAdapter;
+
+typedef boost::shared_ptr<LLSkySettingsAdapter> LLSkySettingsAdapterPtr;
+
 
 /**
  * Floater for creating or editing a sky preset.
@@ -66,6 +71,8 @@ private:
 	void onColorControlBMoved(LLUICtrl* ctrl, void* userdata);
 	void onFloatControlMoved(LLUICtrl* ctrl, void* userdata);
 
+    void adjustIntensity(WLColorControl *ctrl, F32 color, F32 scale);
+
 	// lighting callbacks for glow
 	void onGlowRMoved(LLUICtrl* ctrl, void* userdata);
 	void onGlowBMoved(LLUICtrl* ctrl, void* userdata);
@@ -80,8 +87,6 @@ private:
 	// handle cloud scrolling
 	void onCloudScrollXMoved(LLUICtrl* ctrl);
 	void onCloudScrollYMoved(LLUICtrl* ctrl);
-	void onCloudScrollXToggled(LLUICtrl* ctrl);
-	void onCloudScrollYToggled(LLUICtrl* ctrl);
 
 	//-- WL stuff ends --------------------------------------------------------
 
@@ -90,7 +95,7 @@ private:
 	void refreshSkyPresetsList();
 	void enableEditing(bool enable);
 	void saveRegionSky();
-	LLWLParamKey getSelectedSkyPreset();
+//	LLWLParamKey getSelectedSkyPreset();
 
 	void onSkyPresetNameEdited();
 	void onSkyPresetSelected();
@@ -104,10 +109,14 @@ private:
 	void onRegionSettingsChange();
 	void onRegionInfoUpdate();
 
+    LLSettingsSky::ptr_t mEditSettings;
+
 	LLLineEditor*	mSkyPresetNameEditor;
 	LLComboBox*		mSkyPresetCombo;
 	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
 	LLButton*		mSaveButton;
+    LLSkySettingsAdapterPtr mSkyAdapter;
+
 };
 
 #endif // LL_LLFLOATEREDITSKY_H

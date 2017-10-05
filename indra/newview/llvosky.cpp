@@ -331,24 +331,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mBumpSunDir(0.f, 0.f, 1.f)
 {
 	/// WL PARAMS
-//	dome_radius = 1.f;
-//	dome_offset_ratio = 0.f;
-//	sunlight_color = LLColor3();
-//	ambient = LLColor3();
-//	gamma = 1.f;
-//	lightnorm = LLVector4();
-//	blue_density = LLColor3();
-//	blue_horizon = LLColor3();
-//	haze_density = 0.f;
-//	haze_horizon = 1.f;
-//	density_multiplier = 0.f;
-//	max_y = 0.f;
-//	glow = LLColor3();
-//	cloud_shadow = 0.f;
-//	cloud_color = LLColor3();
-//	cloud_scale = 0.f;
-//	cloud_pos_density1 = LLColor3();
-//	cloud_pos_density2 = LLColor3();
 
 	mInitialized = FALSE;
 	mbCanSelect = FALSE;
@@ -565,48 +547,6 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::initAtmospherics(void)
-{	
-	
-    // *LAPRAS
-    // uniform parameters for convenience
-    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
-//    dome_radius = psky->getDomeRadius();
-//    dome_offset_ratio = psky->getDomeOffset();
-//    sunlight_color = psky->getSunlightColor();
-//    ambient = psky->getAmbientColor();
-//    gamma = psky->getGama();
-//    blue_density = psky->getBlueDensity();
-//    blue_horizon = psky->getBlueHorizon();
-//    haze_density = psky->getHazeDensity();
-//    haze_horizon = psky->getHazeHorizon();
-//    density_multiplier = psky->getDensityMultiplier();
-//    max_y = psky->getMaxY();
-//    glow = psky->getGlow();
-//    cloud_shadow = psky->getCloudShadow();
-//    cloud_color = psky->getCloudColor();
-//    cloud_scale = psky->getCloudScale();
-//    cloud_pos_density1 = psky->getCloudPosDensity1();
-//    cloud_pos_density2 = psky->getCloudPosDensity2();
-
-	// light norm is different.  We need the sun's direction, not the light direction
-	// which could be from the moon.  And we need to clamp it
-	// just like for the gpu
-//	LLVector3 sunDir = gSky.getSunDirection();
-    LLVector3 sunDir = psky->getSunDirection();
-
-	// CFR_TO_OGL
-//	lightnorm = LLVector4(sunDir.mV[1], sunDir.mV[2], sunDir.mV[0], 0);
-    lightnorm = LLVector4(sunDir, 0);
-	unclamped_lightnorm = lightnorm;
-	if(lightnorm.mV[1] < -0.1f)
-	{
-		lightnorm.mV[1] = -0.1f;
-	}
-	
-}
-
 LLColor4 LLVOSky::calcSkyColorInDir(const LLVector3 &dir, bool isShiny)
 {
 	F32 saturation = 0.3f;
@@ -681,8 +621,9 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    LLColor3 blue_density = psky->getBlueDensity();
-    F32      max_y = psky->getMaxY();
+    LLColor3    blue_density = psky->getBlueDensity();
+    F32         max_y = psky->getMaxY();
+    LLVector3   lightnorm = psky->getLightNormal();
 
 	// project the direction ray onto the sky dome.
 	F32 phi = acos(Pn[1]);
@@ -692,7 +633,6 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 		sinA = 0.01f;
 	}
 
-//	F32 Plen = dome_radius * sin(F_PI + phi + asin(dome_offset_ratio * sinA)) / sinA;
 	F32 Plen = psky->getDomeRadius() * sin(F_PI + phi + asin(psky->getDomeOffset() * sinA)) / sinA;
 
 	Pn *= Plen;
@@ -748,7 +688,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 
 
 	// Compute haze glow
-	temp2.mV[0] = Pn * LLVector3(lightnorm);
+	temp2.mV[0] = Pn * lightnorm;
 
 	temp2.mV[0] = 1.f - temp2.mV[0];
 		// temp2.x is 0 at the sun and increases away from sun
@@ -824,7 +764,7 @@ LLColor3 LLVOSky::calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor, 
 							LLVector2 vary_HorizontalProjection[2])
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-    F32 gamma = psky->getGama();
+    F32 gamma = psky->getGamma();
 
 	LLColor3 res;
 	LLColor3 color0 = vary_HazeColor;
@@ -893,87 +833,8 @@ LLColor3 LLVOSky::createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLC
 void LLVOSky::calcAtmospherics(void)
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-	initAtmospherics();
 
-	LLColor3 vary_HazeColor;
-	LLColor3 vary_SunlightColor;
-	LLColor3 vary_AmbientColor;
-	{
-		// Initialize temp variables
-		LLColor3 sunlight = psky->getSunlightColor();
-        LLColor3 ambient = psky->getAmbientColor();
-        F32      gamma = psky->getGama();
-        LLColor3 blue_density = psky->getBlueDensity();
-        LLColor3 blue_horizon = psky->getBlueHorizon();
-        F32      haze_density = psky->getHazeDensity();
-        F32      haze_horizon = psky->getHazeHorizon();
-        F32      density_multiplier = psky->getDensityMultiplier();
-        F32      max_y = psky->getMaxY();
-        F32      cloud_shadow = psky->getCloudShadow();
-
-		// Sunlight attenuation effect (hue and brightness) due to atmosphere
-		// this is used later for sunlight modulation at various altitudes
-		LLColor3 light_atten =
-			(blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
-
-		// Calculate relative weights
-		LLColor3 temp2(0.f, 0.f, 0.f);
-		LLColor3 temp1 = blue_density + smear(haze_density);
-		LLColor3 blue_weight = componentDiv(blue_density, temp1);
-		LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
-
-		// Compute sunlight from P & lightnorm (for long rays like sky)
-		/// USE only lightnorm.
-		// temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
-		
-		// and vary_sunlight will work properly with moon light
-		F32 lighty = unclamped_lightnorm[1];
-		if(lighty < LLSky::NIGHTTIME_ELEVATION_COS)
-		{
-			lighty = -lighty;
-		}
-
-		temp2.mV[1] = llmax(0.f, lighty);
-		if(temp2.mV[1] > 0.f)
-		{
-			temp2.mV[1] = 1.f / temp2.mV[1];
-		}
-		componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
-
-		// Distance
-		temp2.mV[2] = density_multiplier;
-
-		// Transparency (-> temp1)
-		temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
-
-		// vary_AtmosAttenuation = temp1; 
-
-		//increase ambient when there are more clouds
-		LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
-
-		//haze color
-		vary_HazeColor =
-			(blue_horizon * blue_weight * (sunlight*(1.f - cloud_shadow) + tmpAmbient)	
-			+ componentMult(haze_horizon * haze_weight, sunlight*(1.f - cloud_shadow) * temp2.mV[0] + tmpAmbient)
-				 );	
-
-		//brightness of surface both sunlight and ambient
-		vary_SunlightColor = componentMult(sunlight, temp1) * 1.f;
-		vary_SunlightColor.clamp();
-		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
-		vary_SunlightColor = componentPow(vary_SunlightColor, gamma);
-		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
-		vary_AmbientColor = componentMult(tmpAmbient, temp1) * 0.5;
-		vary_AmbientColor.clamp();
-		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
-		vary_AmbientColor = componentPow(vary_AmbientColor, gamma);
-		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
-
-		componentMultBy(vary_HazeColor, LLColor3(1.f, 1.f, 1.f) - temp1);
-
-	}
-
-	mSun.setColor(vary_SunlightColor);
+    mSun.setColor(psky->getSunlightColor());
 	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
 
 	mSun.renewDirection();
@@ -992,16 +853,6 @@ void LLVOSky::calcAtmospherics(void)
 	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
     LLEnvironment::instance().setSceneLightStrength(2.0f * (1.0f + sun_dynamic_range * dp));
 
-	mSunDiffuse = vary_SunlightColor;
-	mSunAmbient = vary_AmbientColor;
-	mMoonDiffuse = vary_SunlightColor;
-	mMoonAmbient = vary_AmbientColor;
-
-	mTotalAmbient = vary_AmbientColor;
-	mTotalAmbient.setAlpha(1);
-	
-	mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
-	mFadeColor.setAlpha(0);
 }
 
 void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
@@ -1010,6 +861,10 @@ void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
 
 BOOL LLVOSky::updateSky()
 {
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    LLColor4 total_ambient = psky->getTotalAmbient();
+
 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY)))
 	{
 		return TRUE;
@@ -1055,9 +910,9 @@ BOOL LLVOSky::updateSky()
 			const F32 dot_lighting = direction * mLastLightingDirection;
 
 			LLColor3 delta_color;
-			delta_color.setVec(mLastTotalAmbient.mV[0] - mTotalAmbient.mV[0],
-							   mLastTotalAmbient.mV[1] - mTotalAmbient.mV[1],
-							   mLastTotalAmbient.mV[2] - mTotalAmbient.mV[2]);
+			delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
+							   mLastTotalAmbient.mV[1] - total_ambient.mV[1],
+                               mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
 
 			if ( mForceUpdate 
 				 || (((dot_lighting < LIGHT_DIRECTION_THRESHOLD)
@@ -1066,7 +921,7 @@ BOOL LLVOSky::updateSky()
 				&& !direction.isExactlyZero()))
 			{
 				mLastLightingDirection = direction;
-				mLastTotalAmbient = mTotalAmbient;
+                mLastTotalAmbient = total_ambient;
 				mInitialized = TRUE;
 
 				if (mCubeMap)
@@ -2039,7 +1894,6 @@ void LLVOSky::updateFog(const F32 distance)
 	tosun_45.normalize();
 
 	// Sky colors, just slightly above the horizon in the direction of the sun, perpendicular to the sun, and at a 45 degree angle to the sun.
-	initAtmospherics();
 	res_color[0] = calcSkyColorInDir(tosun);
 	res_color[1] = calcSkyColorInDir(perp_tosun);
 	res_color[2] = calcSkyColorInDir(tosun_45);
@@ -2239,4 +2093,35 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang
 	if (dp < 0.995f) { //the sun jumped a great deal, update immediately
 		mForceUpdate = TRUE;
 	}
+}
+
+
+LLColor4U LLVOSky::getFadeColor() const
+{ 
+    return LLEnvironment::instance().getCurrentSky()->getFadeColor(); 
+}
+
+LLColor3 LLVOSky::getSunDiffuseColor() const 
+{
+    return LLEnvironment::instance().getCurrentSky()->getSunDiffuse();
+}
+
+LLColor3 LLVOSky::getMoonDiffuseColor() const 
+{ 
+    return LLEnvironment::instance().getCurrentSky()->getMoonDiffuse();
+}
+
+LLColor4 LLVOSky::getSunAmbientColor() const 
+{ 
+    return LLEnvironment::instance().getCurrentSky()->getSunAmbient();
+}
+
+LLColor4 LLVOSky::getMoonAmbientColor() const 
+{ 
+    return LLEnvironment::instance().getCurrentSky()->getMoonAmbient();
+}
+
+LLColor4 LLVOSky::getTotalAmbientColor() const 
+{ 
+    return LLEnvironment::instance().getCurrentSky()->getTotalAmbient();
 }

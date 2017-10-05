@@ -67,13 +67,15 @@ public:
     static const std::string SETTING_LEGACY_SUN_ANGLE;
 
     typedef boost::shared_ptr<LLSettingsSky> ptr_t;
+    typedef std::pair<F32, F32> azimalt_t;
 
     //---------------------------------------------------------------------
     LLSettingsSky(const LLSD &data);
     virtual ~LLSettingsSky() { };
 
-    static ptr_t buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
-    static ptr_t buildDefaultSky();
+    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
+    static ptr_t    buildDefaultSky();
+    ptr_t           buildClone();
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const { return std::string("sky"); }
@@ -89,6 +91,11 @@ public:
         return LLColor3(mSettings[SETTING_AMBIENT]);
     }
 
+    void setAmbientColor(const LLColor3 &val)
+    {
+        setValue(SETTING_AMBIENT, val);
+    }
+
     LLUUID getBloomTextureId() const
     {
         return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
@@ -99,14 +106,29 @@ public:
         return LLColor3(mSettings[SETTING_BLUE_DENSITY]);
     }
 
+    void setBlueDensity(const LLColor3 &val)
+    {
+        setValue(SETTING_BLUE_DENSITY, val);
+    }
+
     LLColor3 getBlueHorizon() const
     {
         return LLColor3(mSettings[SETTING_BLUE_HORIZON]);
     }
 
+    void setBlueHorizon(const LLColor3 &val)
+    {
+        setValue(SETTING_BLUE_HORIZON, val);
+    }
+
     LLColor3 getCloudColor() const
     {
         return LLColor3(mSettings[SETTING_CLOUD_COLOR]);
+    }
+
+    void setCloudColor(const LLColor3 &val)
+    {
+        setValue(SETTING_CLOUD_COLOR, val);
     }
 
     LLUUID getCloudNoiseTextureId() const
@@ -119,9 +141,19 @@ public:
         return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY1]);
     }
 
+    void setCloudPosDensity1(const LLColor3 &val)
+    {
+        setValue(SETTING_CLOUD_POS_DENSITY1, val);
+    }
+
     LLColor3 getCloudPosDensity2() const
     {
         return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY2]);
+    }
+
+    void setCloudPosDensity2(const LLColor3 &val)
+    {
+        setValue(SETTING_CLOUD_POS_DENSITY2, val);
     }
 
     F32 getCloudScale() const
@@ -129,9 +161,31 @@ public:
         return mSettings[SETTING_CLOUD_SCALE].asReal();
     }
 
+    void setCloudScale(F32 val)
+    {
+        setValue(SETTING_CLOUD_SCALE, val);
+    }
+
     LLVector2 getCloudScrollRate() const
     {
         return LLVector2(mSettings[SETTING_CLOUD_SCROLL_RATE]);
+    }
+
+    void setCloudScrollRate(const LLVector2 &val)
+    {
+        setValue(SETTING_CLOUD_SCROLL_RATE, val);
+    }
+
+    void setCloudScrollRateX(F32 val)
+    {
+        mSettings[SETTING_CLOUD_SCROLL_RATE][0] = val;
+        setDirtyFlag(true);
+    }
+
+    void setCloudScrollRateY(F32 val)
+    {
+        mSettings[SETTING_CLOUD_SCROLL_RATE][1] = val;
+        setDirtyFlag(true);
     }
 
     F32 getCloudShadow() const
@@ -139,14 +193,29 @@ public:
         return mSettings[SETTING_CLOUD_SHADOW].asReal();
     }
 
+    void setCloudShadow(F32 val)
+    {
+        setValue(SETTING_CLOUD_SHADOW, val);
+    }
+
     F32 getDensityMultiplier() const
     {
         return mSettings[SETTING_DENSITY_MULTIPLIER].asReal();
     }
 
+    void setDensityMultiplier(F32 val)
+    {
+        setValue(SETTING_DENSITY_MULTIPLIER, val);
+    }
+
     F32 getDistanceMultiplier() const
     {
         return mSettings[SETTING_DISTANCE_MULTIPLIER].asReal();
+    }
+
+    void setDistanceMultiplier(F32 val)
+    {
+        setValue(SETTING_DISTANCE_MULTIPLIER, val);
     }
 
     F32 getDomeOffset() const
@@ -161,9 +230,15 @@ public:
         //return mSettings[SETTING_DOME_RADIUS].asReal();
     }
 
-    F32 getGama() const
+    F32 getGamma() const
     {
-        return mSettings[SETTING_GAMMA][0].asReal();
+        return mSettings[SETTING_GAMMA].asReal();
+    }
+
+    void setGamma(F32 val)
+    {
+        mSettings[SETTING_GAMMA] = LLSD::Real(val);
+        setDirtyFlag(true);
     }
 
     LLColor3 getGlow() const
@@ -171,9 +246,19 @@ public:
         return LLColor3(mSettings[SETTING_GLOW]);
     }
 
+    void setGlow(const LLColor3 &val)
+    {
+        setValue(SETTING_GLOW, val);
+    }
+
     F32 getHazeDensity() const
     {
         return mSettings[SETTING_HAZE_DENSITY].asReal();
+    }
+
+    void setHazeDensity(F32 val)
+    {
+        setValue(SETTING_HAZE_DENSITY, val);
     }
 
     F32 getHazeHorizon() const
@@ -181,9 +266,19 @@ public:
         return mSettings[SETTING_HAZE_HORIZON].asReal();
     }
 
+    void setHazeHorizon(F32 val)
+    {
+        setValue(SETTING_HAZE_HORIZON, val);
+    }
+
     LLVector3 getLightNormal() const
     {
         return LLVector3(mSettings[SETTING_LIGHT_NORMAL]);
+    }
+
+    void setLightNormal(const LLVector3 &val) 
+    {
+        setValue(SETTING_LIGHT_NORMAL, val);
     }
 
     F32 getMaxY() const
@@ -196,6 +291,20 @@ public:
         return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
     }
 
+    void setMoonRotation(const LLQuaternion &val)
+    {
+        setValue(SETTING_MOON_ROTATION, val);
+    }
+
+    azimalt_t getMoonRotationAzAl() const;
+
+    void setMoonRotation(F32 azimuth, F32 altitude);
+
+    void setMoonRotation(const azimalt_t &azialt)
+    {
+        setMoonRotation(azialt.first, azialt.second);
+    }
+
     LLUUID getMoonTextureId() const
     {
         return mSettings[SETTING_MOON_TEXTUREID].asUUID();
@@ -206,14 +315,38 @@ public:
         return mSettings[SETTING_STAR_BRIGHTNESS].asReal();
     }
 
+    void setStarBrightness(F32 val)
+    {
+        setValue(SETTING_STAR_BRIGHTNESS, val);
+    }
+
     LLColor3 getSunlightColor() const
     {
         return LLColor3(mSettings[SETTING_SUNLIGHT_COLOR]);
     }
 
+    void setSunlightColor(const LLColor3 &val)
+    {
+        setValue(SETTING_SUNLIGHT_COLOR, val);
+    }
+
     LLQuaternion getSunRotation() const
     {
         return LLQuaternion(mSettings[SETTING_SUN_ROTATION]);
+    }
+
+    azimalt_t getSunRotationAzAl() const;
+
+    void setSunRotation(const LLQuaternion &val) 
+    {
+        setValue(SETTING_SUN_ROTATION, val);
+    }
+
+    void setSunRotation(F32 azimuth, F32 altitude);
+
+    void setSunRotation(const azimalt_t & azimalt)
+    {
+        setSunRotation(azimalt.first, azimalt.second);
     }
 
     LLUUID getSunTextureId() const
@@ -246,42 +379,16 @@ public:
         return mMoonDirection;
     }
 
-
-#if 0
-    LLVector3 getLightDirection() const
+    LLColor4U   getFadeColor() const
     {
         update();
-        return mLightDirection;
-    };
-
-    LLVector3 getLightDirectionClamped() const
-    {
-        update();
-        return mLightDirectionClamped;
-    };
-
-    LLVector3   getSunDirection() const
-    {
-        update();
-        return mSunDirection;
+        return mFadeColor;
     }
 
-    LLVector3   getMoonDirection() const
+    LLColor4    getMoonAmbient() const
     {
         update();
-        return mMoonDirection;
-    }
-
-    LLColor3    getSunDiffuse() const
-    {
-        update();
-        return mSunDiffuse;
-    }
-
-    LLColor3    getSunAmbient() const
-    {
-        update();
-        return mSunAmbient;
+        return mMoonAmbient;
     }
 
     LLColor3    getMoonDiffuse() const
@@ -290,10 +397,16 @@ public:
         return mMoonDiffuse;
     }
 
-    LLColor3    getMoonAmbient() const
+    LLColor4    getSunAmbient() const
     {
         update();
-        return mMoonAmbient;
+        return mSunAmbient;
+    }
+
+    LLColor3    getSunDiffuse() const
+    {
+        update();
+        return mSunDiffuse;
     }
 
     LLColor4    getTotalAmbient() const
@@ -301,13 +414,6 @@ public:
         update();
         return mTotalAmbient;
     }
-
-    LLColor4    getFadeColor() const
-    {
-        update();
-        return mFadeColor;
-    }
-#endif
 
 protected:
     LLSettingsSky();
@@ -319,6 +425,7 @@ protected:
     virtual parammapping_t getParameterMap() const;
 
     virtual void        applySpecial(void *);
+
 
 private:
     void        calculateHeavnlyBodyPositions();
@@ -332,13 +439,13 @@ private:
     static const F32 DOME_RADIUS;
     static const F32 DOME_OFFSET;
 
-//     LLColor3    mSunDiffuse;
-//     LLColor3    mSunAmbient;
-//     LLColor3    mMoonDiffuse;
-//     LLColor3    mMoonAmbient;        
-//     
-//     LLColor4    mTotalAmbient;
-//     LLColor4    mFadeColor;
+    LLColor4U   mFadeColor;
+    LLColor4    mMoonAmbient;
+    LLColor3    mMoonDiffuse;
+    LLColor4    mSunAmbient;
+    LLColor3    mSunDiffuse;
+
+    LLColor4    mTotalAmbient;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 

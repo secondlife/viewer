@@ -68,28 +68,28 @@ LLWLParamManager::LLWLParamManager() :
 	/// Sun Delta Terrain tweak variables.
 	mSunDeltaYaw(180.0f),
 	mSceneLightStrength(2.0f),
-	mWLGamma(1.0f, "gamma"),
+//	mWLGamma(1.0f, "gamma"),
 
-	mBlueHorizon(0.25f, 0.25f, 1.0f, 1.0f, "blue_horizon", "WLBlueHorizon"),
-	mHazeDensity(1.0f, "haze_density"),
-	mBlueDensity(0.25f, 0.25f, 0.25f, 1.0f, "blue_density", "WLBlueDensity"),
-	mDensityMult(1.0f, "density_multiplier", 1000),
-	mHazeHorizon(1.0f, "haze_horizon"),
-	mMaxAlt(4000.0f, "max_y"),
+// 	mBlueHorizon(0.25f, 0.25f, 1.0f, 1.0f, "blue_horizon", "WLBlueHorizon"),
+// 	mHazeDensity(1.0f, "haze_density"),
+// 	mBlueDensity(0.25f, 0.25f, 0.25f, 1.0f, "blue_density", "WLBlueDensity"),
+// 	mDensityMult(1.0f, "density_multiplier", 1000),
+// 	mHazeHorizon(1.0f, "haze_horizon"),
+// 	mMaxAlt(4000.0f, "max_y"),
 
 	// Lighting
-	mLightnorm(0.f, 0.707f, -0.707f, 1.f, "lightnorm"),
-	mSunlight(0.5f, 0.5f, 0.5f, 1.0f, "sunlight_color", "WLSunlight"),
-	mAmbient(0.5f, 0.75f, 1.0f, 1.19f, "ambient", "WLAmbient"),
-	mGlow(18.0f, 0.0f, -0.01f, 1.0f, "glow"),
+// 	mLightnorm(0.f, 0.707f, -0.707f, 1.f, "lightnorm"),
+// 	mSunlight(0.5f, 0.5f, 0.5f, 1.0f, "sunlight_color", "WLSunlight"),
+// 	mAmbient(0.5f, 0.75f, 1.0f, 1.19f, "ambient", "WLAmbient"),
+// 	mGlow(18.0f, 0.0f, -0.01f, 1.0f, "glow"),
 
 	// Clouds
-	mCloudColor(0.5f, 0.5f, 0.5f, 1.0f, "cloud_color", "WLCloudColor"),
-	mCloudMain(0.5f, 0.5f, 0.125f, 1.0f, "cloud_pos_density1"),
-	mCloudCoverage(0.0f, "cloud_shadow"),
-	mCloudDetail(0.0f, 0.0f, 0.0f, 1.0f, "cloud_pos_density2"),
-	mDistanceMult(1.0f, "distance_multiplier"),
-	mCloudScale(0.42f, "cloud_scale"),
+// 	mCloudColor(0.5f, 0.5f, 0.5f, 1.0f, "cloud_color", "WLCloudColor"),
+// 	mCloudMain(0.5f, 0.5f, 0.125f, 1.0f, "cloud_pos_density1"),
+// 	mCloudCoverage(0.0f, "cloud_shadow"),
+// 	mCloudDetail(0.0f, 0.0f, 0.0f, 1.0f, "cloud_pos_density2"),
+// 	mDistanceMult(1.0f, "distance_multiplier"),
+// 	mCloudScale(0.42f, "cloud_scale"),
 
 	// sky dome
 	mDomeOffset(0.96f),

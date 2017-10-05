@@ -37,6 +37,7 @@
 
 class LLGLSLShader;
  
+#if 0
 // color control
 struct WLColorControl {
 	
@@ -114,6 +115,8 @@ struct WLFloatControl {
 		params.set(mName, x);
 	}
 };
+
+#endif
 
 /// WindLight parameter manager class - what controls all the wind light shaders
 class LLWLParamManager : public LLSingleton<LLWLParamManager>
@@ -245,10 +248,12 @@ public:
 
 	/// Sun Delta Terrain tweak variables.
 	F32 mSunDeltaYaw;
+#if 0
 	WLFloatControl mWLGamma;
-
+#endif
 	F32 mSceneLightStrength;
 	
+#if 0
 	/// Atmospherics
 	WLColorControl mBlueHorizon;
 	WLFloatControl mHazeDensity;
@@ -270,7 +275,7 @@ public:
 	WLColorControl mCloudDetail;
 	WLFloatControl mDistanceMult;
 	WLFloatControl mCloudScale;
-
+#endif
 	/// sky dome
 	F32 mDomeOffset;
 	F32 mDomeRadius;
