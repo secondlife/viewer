@@ -5664,7 +5664,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		args["NAME"] = source_slurl;
 		is_name_group = is_source_group;
 		name_id = source_id;
-		if (!reason.empty())
+
+		if (!reason.empty() && !LLMuteList::getInstance()->isMuted(source_id))
 		{
 			message = LLTrans::getString("paid_you_ldollars" + gift_suffix, args);
 		}
