@@ -368,10 +368,8 @@ class WindowsManifest(ViewerManifest):
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
             # include the compiled launcher scripts so that it gets included in the file_list
-            self.path(src='%s/apply_update.exe' % vmpdir, dst="apply_update.exe")
             self.path(src='%s/download_update.exe' % vmpdir, dst="download_update.exe")
             self.path(src='%s/SL_Launcher.exe' % vmpdir, dst="SL_Launcher.exe")
-            self.path(src='%s/update_manager.exe' % vmpdir, dst="update_manager.exe")
 
             #IUM is not normally executed directly, just imported.  No exe needed.
             self.path2basename(vmpdir,"InstallerUserMessage.py")
@@ -709,10 +707,8 @@ class WindowsManifest(ViewerManifest):
         # note that the enclosing setup exe is signed later, after the makensis makes it.
         # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
         for exe in (
-            "apply_update.exe",
             "download_update.exe",
             "SL_Launcher.exe",
-            "update_manager.exe",
             ):
             self.sign(exe)
             
