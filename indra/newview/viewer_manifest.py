@@ -380,6 +380,7 @@ class WindowsManifest(ViewerManifest):
             if self.prefix("vmp_icons"):
                 self.path("*.png")
                 self.path("*.gif")
+                self.path("*.ico")
                 self.end_prefix("vmp_icons")
 
             #before, we only needed llbase at build time.  With VMP, we need it at run time.
