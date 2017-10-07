@@ -188,8 +188,6 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>038853b97307a9b65de20c4c50098023</string>
-              <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9675/45694/boost-1.65.1-linux64-509640.tar.bz2</string>
             </map>
             <key>name</key>
