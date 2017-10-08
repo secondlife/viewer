@@ -3331,12 +3331,36 @@ U32 LLVOVolume::getExtendedMeshFlags() const
 	}
 }
 
+void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
+{
+    if (mDrawable.notNull() && !mUserSelected)
+    {
+        // Need to trigger rebuildGeom(), which is where control avatars get created/removed
+        //LL_INFOS() << (U32) this << " flags " << flags << ", calling markForUpdate()" << LL_ENDL;
+        markForUpdate(TRUE);
+    }
+    if (isAttachment() && getAvatarAncestor())
+    {
+        updateVisualComplexity();
+        if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
+        {
+            // Making a rigged mesh into an animated object
+            getAvatarAncestor()->removeAttachmentOverridesForObject(this);
+        }
+        else
+        {
+            // Making an animated object into a rigged mesh
+            getAvatarAncestor()->addAttachmentOverridesForObject(this);
+        }
+    }
+}
+
 void LLVOVolume::setExtendedMeshFlags(U32 flags)
 {
     U32 curr_flags = getExtendedMeshFlags();
     if (curr_flags != flags)
     {
-        bool in_use = (flags != 0);
+        bool in_use = true;
         setParameterEntryInUse(LLNetworkData::PARAMS_EXTENDED_MESH, in_use, true);
         LLExtendedMeshParams *param_block = 
             (LLExtendedMeshParams *)getParameterEntry(LLNetworkData::PARAMS_EXTENDED_MESH);
@@ -3345,20 +3369,11 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
             param_block->setFlags(flags);
         }
         parameterChanged(LLNetworkData::PARAMS_EXTENDED_MESH, true);
-        if (isAttachment() && getAvatarAncestor())
-        {
-            updateVisualComplexity();
-            if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
-            {
-                // Making a rigged mesh into an animated object
-                getAvatarAncestor()->removeAttachmentOverridesForObject(this);
-            }
-            else
-            {
-                // Making an animated object into a rigged mesh
-                getAvatarAncestor()->addAttachmentOverridesForObject(this);
-            }
-        }
+        LL_DEBUGS("AXON") << (U32) this
+                   << " new flags " << flags << " curr_flags " << curr_flags
+                   << ", calling onSetExtendedMeshFlags()"
+                   << LL_ENDL;
+        onSetExtendedMeshFlags(flags);
     }
 }
 
@@ -3960,6 +3975,22 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
 	{
 		mVolumeImpl->onParameterChanged(param_type, data, in_use, local_origin);
 	}
+    if (!local_origin && param_type == LLNetworkData::PARAMS_EXTENDED_MESH)
+    {
+        // AXON better if we could compare the before and after flags directly.
+        U32 extended_mesh_flags = getExtendedMeshFlags();
+        bool enabled =  (extended_mesh_flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
+        bool was_enabled = (getControlAvatar() != NULL);
+        if (enabled != was_enabled)
+        {
+            LL_INFOS() << (U32) this
+                       << " calling onSetExtendedMeshFlags, enabled " << (U32) enabled
+                       << " was_enabled " << (U32) was_enabled
+                       << " local_origin " << (U32) local_origin
+                       << LL_ENDL;
+            onSetExtendedMeshFlags(extended_mesh_flags);
+        }
+    }
 	if (mDrawable.notNull())
 	{
 		BOOL is_light = getIsLight();
@@ -4931,6 +4962,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
     LLViewerObject *vobj = NULL;
     LLVOVolume *vol_obj = NULL;
+
 	if (bridge)
 	{
         vobj = bridge->mDrawable->getVObj();
@@ -5018,6 +5050,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			}
 
 			LLVOVolume* vobj = drawablep->getVOVolume();
+            
+            std::string vobj_name = llformat("Vol%u", (U32) vobj);
 
 			if (!vobj)
 			{
@@ -5037,6 +5071,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				group->mSurfaceArea += volume->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
 			}
 
+            LL_DEBUGS("AXON") << vobj_name << " rebuilding, isAttachment: " << (U32) vobj->isAttachment()
+                       << " is_animated " << vobj->isAnimatedObject()
+                       << " can_animate " << vobj->canBeAnimatedObject() 
+                       << " cav " << vobj->getControlAvatar() 
+                       << " playing " << (U32) (vobj->getControlAvatar() ? vobj->getControlAvatar()->mPlaying : false)
+                       << " frame " << LLFrameTimer::getFrameCount()
+                       << LL_ENDL;
+
 			llassert_always(vobj);
 			vobj->updateTextureVirtualSize(true);
 			vobj->preRebuild();
@@ -5051,6 +5093,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             {
                 if (!vobj->getControlAvatar())
                 {
+                    LL_DEBUGS("AXON") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
                     vobj->linkControlAvatar();
                 }
                 if (vobj->getControlAvatar())
@@ -5064,6 +5107,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 // the checkbox has changed since the last rebuild.
                 if (vobj->getControlAvatar())
                 {
+                    LL_DEBUGS("AXON") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
                     vobj->unlinkControlAvatar();
                 }
             }
@@ -5520,9 +5564,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 			if(drawablep)
 			{
-			drawablep->clearState(LLDrawable::REBUILD_ALL);
-		}
-	}
+                drawablep->clearState(LLDrawable::REBUILD_ALL);
+            }
+        }
 	}
 
 	group->mLastUpdateTime = gFrameTimeSeconds;
