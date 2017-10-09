@@ -368,6 +368,9 @@ class WindowsManifest(ViewerManifest):
             #IUM is not normally executed directly, just imported.  No exe needed.
             self.path2basename(vmpdir,"InstallerUserMessage.py")
 
+            with self.prefix(src=self.icon_path(), dst="vmp_icons"):
+                self.path("secondlife.ico")
+
             #VMP  Tkinter icons
             with self.prefix("vmp_icons"):
                 self.path("*.png")
@@ -838,6 +841,9 @@ class DarwinManifest(ViewerManifest):
                 icon_path = self.icon_path()
                 with self.prefix(src=icon_path, dst="") :
                     self.path("secondlife.icns")
+
+                with self.prefix(src=icon_path, dst="vmp_icons"):
+                    self.path("secondlife.ico")
 
                 #VMP Tkinter icons
                 with self.prefix("vmp_icons"):
