@@ -50,23 +50,6 @@ LLControlAvatar::~LLControlAvatar()
 
 void LLControlAvatar::matchVolumeTransform()
 {
-#if 0
-    // AXON - should we be using bind_shape?
-    {
-        LLVolume *volume = mRootVolp->getVolume();
-        if (volume)
-        {
-            LLUUID mesh_id = volume->getParams().getSculptID();
-            const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, mRootVolp);
-            if (skin)
-            {
-                LLMatrix4 bind_shape = skin->mBindShapeMatrix;
-                LL_INFOS("AXON") << "bind_shape is " << bind_shape << LL_ENDL;
-            }
-        }
-    }
-#endif
-
     if (mRootVolp)
     {
         if (mRootVolp->isAttachment())
@@ -255,7 +238,7 @@ void LLControlAvatar::updateDebugText()
             total_tris += volp->getTriangleCount(&verts);
             total_verts += verts;
             lod_string += llformat("%d",volp->getLOD());
-                        if (volp && volp->mDrawable)
+            if (volp && volp->mDrawable)
             {
                 if (volp->mDrawable->isActive())
                 {
@@ -273,19 +256,6 @@ void LLControlAvatar::updateDebugText()
         }
         addDebugText(llformat("CAV obj %d anim %d active %s",
                               total_linkset_count, animated_volume_count, active_string.c_str()));
-
-#if 0
-        // AXON - detailed rigged mesh info
-        for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
-             it != volumes.end(); ++it)
-        {
-            LLRiggedVolume *rig_vol = (*it)->getRiggedVolume();
-            if (rig_vol)
-            {
-                addDebugText(rig_vol->mExtraDebugText);
-            }
-        }
-#endif
 
         addDebugText(llformat("lod %s",lod_string.c_str()));
         addDebugText(llformat("tris %d verts %d", total_tris, total_verts));
@@ -328,7 +298,7 @@ void LLControlAvatar::updateAnimations()
 {
     if (!mRootVolp)
     {
-        LL_WARNS("AXON") << "No root vol" << LL_ENDL;
+        LL_WARNS_ONCE("AXON") << "No root vol" << LL_ENDL;
         return;
     }
 

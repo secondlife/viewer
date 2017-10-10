@@ -3333,10 +3333,13 @@ U32 LLVOVolume::getExtendedMeshFlags() const
 
 void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
 {
+    // AXON - the check against mUserSelected is "empirically
+    // derived": doing rebuildGeom() while in selection trashes the
+    // graphics state of animated objects. Skipping this update is OK
+    // because we get another one on deselect.
     if (mDrawable.notNull() && !mUserSelected)
     {
         // Need to trigger rebuildGeom(), which is where control avatars get created/removed
-        //LL_INFOS() << (U32) this << " flags " << flags << ", calling markForUpdate()" << LL_ENDL;
         markForUpdate(TRUE);
     }
     if (isAttachment() && getAvatarAncestor())
