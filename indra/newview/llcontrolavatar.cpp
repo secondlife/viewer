@@ -67,10 +67,6 @@ void LLControlAvatar::matchVolumeTransform()
     }
 #endif
 
-
-    // Avatars seem to 90 degrees off from the rest of the world, this is a fixup.
-    LLQuaternion fix_axes_rot(-F_PI_BY_TWO, LLVector3(0,0,1));
-
     if (mRootVolp)
     {
         if (mRootVolp->isAttachment())
@@ -87,7 +83,7 @@ void LLControlAvatar::matchVolumeTransform()
                 LLQuaternion obj_rot = mRootVolp->mDrawable->getRotation();
                 obj_pos.rotVec(joint_rot);
                 mRoot->setWorldPosition(obj_pos + joint_pos);
-                mRoot->setWorldRotation(fix_axes_rot * obj_rot * joint_rot);
+                mRoot->setWorldRotation(obj_rot * joint_rot);
                 setRotation(mRoot->getRotation());
             }
             else
@@ -99,7 +95,7 @@ void LLControlAvatar::matchVolumeTransform()
         {
             setPositionAgent(mRootVolp->getRenderPosition());
             LLQuaternion obj_rot = mRootVolp->getRotation();
-            LLQuaternion result_rot = fix_axes_rot * obj_rot;
+            LLQuaternion result_rot = obj_rot;
             setRotation(result_rot);
             mRoot->setWorldRotation(result_rot);
             mRoot->setPosition(mRootVolp->getRenderPosition());
