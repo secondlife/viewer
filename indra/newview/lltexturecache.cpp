@@ -1879,24 +1879,27 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, Entry& entry)
 S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imagesize, S32 datasize)
 {
 	mHeaderMutex.lock();
-	S32 idx = openAndReadEntry(id, entry, true);
+	S32 idx = openAndReadEntry(id, entry, true); // read or create
 	mHeaderMutex.unlock();
+
+	if(idx < 0) // retry once
+	{
+		readHeaderCache(); // We couldn't write an entry, so refresh the LRU
+
+		mHeaderMutex.lock();
+		idx = openAndReadEntry(id, entry, true);
+		mHeaderMutex.unlock();
+	}
 
 	if (idx >= 0)
 	{
 		updateEntry(idx, entry, imagesize, datasize);				
 	}
-
-	if(idx < 0) // retry
+	else
 	{
-		readHeaderCache(); // We couldn't write an entry, so refresh the LRU
-	
-		mHeaderMutex.lock();
-		llassert_always(!mLRU.empty() || mHeaderEntriesInfo.mEntries < sCacheMaxEntries);
-		mHeaderMutex.unlock();
-
-		idx = setHeaderCacheEntry(id, entry, imagesize, datasize); // assert above ensures no inf. recursion
+		LL_WARNS() << "Failed to set cache entry for image: " << id << LL_ENDL;
 	}
+
 	return idx;
 }
 
