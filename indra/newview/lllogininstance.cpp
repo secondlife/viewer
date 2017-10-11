@@ -633,19 +633,6 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
         request_params[it->first] = it->second;
     }
 
-    // log request_params _before_ adding the credentials   
-    LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
-
-    // Copy the credentials into the request after logging the rest
-    LLSD credentials(user_credential->getLoginParams());
-    for (LLSD::map_const_iterator it = credentials.beginMap();
-         it != credentials.endMap();
-         it++
-         )
-    {
-        request_params[it->first] = it->second;
-    }
-
 	// Specify desired timeout/retry options
 	LLSD http_params;
 	http_params["timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
