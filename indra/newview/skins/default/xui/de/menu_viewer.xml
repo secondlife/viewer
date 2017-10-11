@@ -184,7 +184,6 @@
 		<menu_item_call label="Fehler melden" name="Report Bug"/>
 		<menu_item_call label="Rempler, Stöße &amp; Schläge" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="INFO ÜBER [APP_NAME]" name="About Second Life"/>
-		<menu_item_call label="Nach Updates suchen" name="Check for Updates"/>
 	</menu>
 	<menu label="Erweitert" name="Advanced">
 		<menu_item_call label="Textur neu laden" name="Rebake Texture"/>

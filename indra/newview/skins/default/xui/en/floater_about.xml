@@ -43,14 +43,6 @@
         top_pad="5"
         height="25"
         width="180" />
-      <button
-        follows="left|top"
-        label="Check for updates"
-        name="update_btn"
-        left_pad="70"
-        top_delta="0"
-        height="25"
-        width="180" />
     </panel>
     <panel
       border="true" 

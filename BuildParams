@@ -3,36 +3,18 @@
 # Please refer to:
 #  https://wiki.secondlife.com/wiki/Automated_Build_System
 
-
-# Global setting for now....
-Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
-CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
-Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
+# Variants (NOTE: 'Release' must be last for uploads to work correctly)
+variants = "RelWithDebInfo Release"
 
 # Use Public Upload Locations
 public_build = true
 build_docs = true
 
-# disable all Debug builds (RelWithDebInfo is sufficient)
-build_CYGWIN_Debug = false
-build_Linux_Debug = false
-build_Darwin_Debug = false
-build_Debug = false
-
 # enable Doxygen building on Linux for TeamCity (it can be done manually on any platform)
 build_Linux_Doxygen = true
 
-# Update Public Inworld Build Status Indicators (setting should mirror "public_build")
-email_status_this_is_os = true
-
-# Limit extent of codeticket updates to revisions after...
-codeticket_since = 3.3.0-release
-
-# Override build system default toolchain
-# Note that this will only affect automated builds.
-Linux.distcc_version = 
-Linux.gcc_version = /usr/bin/gcc-4.6
-Linux.cxx_version = /usr/bin/g++-4.6
+# Need viewer-build-variables as well as other shared repositories
+buildscripts_shared_more_NAMEs="build_variables"
 
 ################################################################
 ####      Examples of how to set the viewer_channel         ####
@@ -88,5 +70,5 @@ EDU_viewer_channel_suffix = "edu"
 # Notifications - to configure email notices use the TeamCity parameter
 # setting screen for your project or build configuration to set the
 # environment variable 'email' to a space-separated list of email addresses
-
+email=""
 

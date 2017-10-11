@@ -29,7 +29,7 @@
 		Error de inicialización de gráficos. Actualiza tu controlador de gráficos.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -70,8 +70,8 @@ Tiempo de creación de VFS (caché): [VFS_TIME]
 	<string name="AboutLibs">
 		Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
-Versión de LLCEFLib/CEF: [LLCEFLIB_VERSION]
-Versión de LibVLC: [LLCEFLIB_VERSION]
+Versión de CEF: [LIBCEF_VERSION]
+Versión de LibVLC: [LIBVLC_VERSION]
 Versión de Voice Server: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">

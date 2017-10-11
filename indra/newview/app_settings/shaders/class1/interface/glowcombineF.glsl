@@ -23,13 +23,15 @@
  * $/LicenseInfo$
  */
 
+#extension GL_ARB_texture_rectangle : enable
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
 
-#extension GL_ARB_texture_rectangle : enable
+/*[EXTRA_CODE_HERE]*/
 
 uniform sampler2D glowMap;
 uniform sampler2DRect screenMap;

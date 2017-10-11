@@ -182,7 +182,6 @@
 		<menu_item_call label="回報臭蟲" name="Report Bug"/>
 		<menu_item_call label="碰撞、推擠與打擊" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
-		<menu_item_call label="查詢是否有新版" name="Check for Updates"/>
 	</menu>
 	<menu label="進階" name="Advanced">
 		<menu_item_call label="重新產出材質" name="Rebake Texture"/>

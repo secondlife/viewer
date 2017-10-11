@@ -133,18 +133,29 @@
 			media_plugin_libvlc
 		</impl>
 	</scheme>
-  <scheme name="libvlc">
-    <label name="libvlc_label">
-      LibVLC supported media
-    </label>
-    <widgettype>
-      movie
-    </widgettype>
-    <impl>
-      media_plugin_libvlc
-    </impl>
-  </scheme>
-  <mimetype name="blank">
+	<scheme name="example">
+		<label name="example_label">
+			Example Plugin scheme trigger
+		</label>
+		<widgettype>
+			movie
+		</widgettype>
+		<impl>
+			media_plugin_example
+		</impl>
+	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			LibVLC supported media
+		</label>
+		<widgettype>
+			movie
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
+	</scheme>
+	<mimetype name="blank">
 		<label name="blank_label">
 			- None -
 		</label>
