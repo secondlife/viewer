@@ -41,13 +41,37 @@
    text_pad_left="10"
    follows="left|top|right"
    height="23"
-   label="Filter Inventory"
+   label="Enter search text"
    layout="topleft"
    left="10"
    max_length_chars="300"
    name="inventory search editor"
    top="18"
-   width="303" />
+   width="208" />
+  <combo_box
+   height="23"
+   layout="topleft"
+   left_pad="4"
+   name="search_type"
+   follows="top|right"
+   width="90">
+    <item
+     label="Name"
+     name="Name"
+     value="search_by_name"/>
+    <item
+     label="Creator"
+     name="Creator"
+     value="search_by_creator"/>
+    <item
+     label="Description"
+     name="Description"
+     value="search_by_description"/>
+    <item
+     label="UUID"
+     name="UUID"
+     value="search_by_UUID"/>
+    </combo_box>
   <tab_container
      follows="all"
      halign="center"
@@ -92,6 +116,20 @@
      name="Recent Items"
      show_item_link_overlays="true"
      width="290" />
+       <inventory_panel
+      name="Worn Items"
+      label="WORN"
+      show_empty_message="false"
+      follows="all"
+      layout="topleft"
+      width="290"
+      bg_opaque_color="DkGray2"
+      bg_alpha_color="DkGray2"
+      background_visible="true"
+      border="false"
+      bevel_style="none"
+      scroll.reserve_scroll_corner="false">
+  </inventory_panel>
   </tab_container>
   <layout_stack
    animate="false"

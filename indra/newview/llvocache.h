@@ -237,9 +237,10 @@ private:
 
 	struct HeaderMetaInfo
 	{
-		HeaderMetaInfo() : mVersion(0){}
+		HeaderMetaInfo() : mVersion(0), mAddressSize(0) {}
 
 		U32 mVersion;
+		U32 mAddressSize;
 	};
 
 	struct header_entry_less
@@ -266,6 +267,9 @@ public:
 	void removeEntry(U64 handle) ;
 
 	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
+
+	U32 getCacheEntries() { return mNumEntries; }
+	U32 getCacheEntriesMax() { return mCacheSize; }
 
 private:
 	void setDirNames(ELLPath location);	

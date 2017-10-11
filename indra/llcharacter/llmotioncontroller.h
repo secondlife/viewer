@@ -227,6 +227,8 @@ protected:
 	F32					mLastInterp;
 
 	U8					mJointSignature[2][LL_CHARACTER_MAX_ANIMATED_JOINTS];
+private:
+	U32					mLastCountAfterPurge; //for logging and debugging purposes
 };
 
 //-----------------------------------------------------------------------------

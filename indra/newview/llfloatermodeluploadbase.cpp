@@ -41,7 +41,7 @@ LLFloaterModelUploadBase::LLFloaterModelUploadBase(const LLSD& key)
 void LLFloaterModelUploadBase::requestAgentUploadPermissions()
 {
 	std::string capability = "MeshUploadFlag";
-	std::string url = gAgent.getRegion()->getCapability(capability);
+	std::string url = gAgent.getRegionCapability(capability);
 
 	if (!url.empty())
 	{

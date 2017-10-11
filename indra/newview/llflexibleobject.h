@@ -72,7 +72,6 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 {
 private:
 	static std::vector<LLVolumeImplFlexible*> sInstanceList;
-	static std::vector<S32> sUpdateDelay;
 	S32 mInstanceIndex;
 
 	public:
@@ -133,7 +132,8 @@ private:
 		S32							mInitializedRes;
 		S32							mSimulateRes;
 		S32							mRenderRes;
-		U32							mFrameNum;
+		U64							mLastFrameNum;
+		U32							mLastUpdatePeriod;
 		LLVector3					mCollisionSpherePosition;
 		F32							mCollisionSphereRadius;
 		U32							mID;

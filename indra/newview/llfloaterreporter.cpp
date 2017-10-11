@@ -438,8 +438,8 @@ void LLFloaterReporter::onClickSend(void *userdata)
 
 		LLUploadDialog::modalUploadDialog(LLTrans::getString("uploading_abuse_report"));
 		// *TODO don't upload image if checkbox isn't checked
-		std::string url = gAgent.getRegion()->getCapability("SendUserReport");
-		std::string sshot_url = gAgent.getRegion()->getCapability("SendUserReportWithScreenshot");
+		std::string url = gAgent.getRegionCapability("SendUserReport");
+		std::string sshot_url = gAgent.getRegionCapability("SendUserReportWithScreenshot");
 		if(!url.empty() || !sshot_url.empty())
 		{
 			self->sendReportViaCaps(url, sshot_url, self->gatherReport());

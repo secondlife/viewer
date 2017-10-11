@@ -461,7 +461,7 @@ void LLViewerParcelMedia::processParcelMediaUpdate( LLMessageSystem *msg, void *
 // *TODO: I can not find any active code where this method is called...
 void LLViewerParcelMedia::sendMediaNavigateMessage(const std::string& url)
 {
-	std::string region_url = gAgent.getRegion()->getCapability("ParcelNavigateMedia");
+	std::string region_url = gAgent.getRegionCapability("ParcelNavigateMedia");
 	if (!region_url.empty())
 	{
 		// send navigate event to sim for link sharing

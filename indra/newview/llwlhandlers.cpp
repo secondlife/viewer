@@ -74,7 +74,7 @@ void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id)
 // static
 bool LLEnvironmentRequest::doRequest()
 {
-	std::string url = gAgent.getRegion()->getCapability("EnvironmentSettings");
+	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
 	if (url.empty())
 	{
 		LL_INFOS("WindlightCaps") << "Skipping windlight setting request - we don't have this capability" << LL_ENDL;
@@ -162,7 +162,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 	sLastUpdate = current;
 
 	// Send update request.
-	std::string url = gAgent.getRegion()->getCapability("EnvironmentSettings");
+	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
 	if (url.empty())
 	{
 		LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;

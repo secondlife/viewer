@@ -569,6 +569,14 @@
          function="Inventory.DoToSelected"
          parameter="copy_uuid" />
     </menu_item_call>
+    <menu_item_call
+     label="Show in Main Panel"
+     layout="topleft"
+     name="Show in Main Panel">
+       <menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="show_in_main_panel" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" 
      name="Copy Separator" />

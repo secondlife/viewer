@@ -818,7 +818,7 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);
 	if (!speakerp) return;
 
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	std::string url = gAgent.getRegionCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "mute update";
 	data["session-id"] = getSessionID();
@@ -844,7 +844,7 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 	// do not send voice moderation changes for avatars not in voice channel
 	if (!is_in_voice) return;
 
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	std::string url = gAgent.getRegionCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "mute update";
 	data["session-id"] = getSessionID();
@@ -924,7 +924,7 @@ void LLIMSpeakerMgr::processSessionUpdate(const LLSD& session_update)
 
 void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallow_voice)
 {
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	std::string url = gAgent.getRegionCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "session update";
 	data["session-id"] = session_id;

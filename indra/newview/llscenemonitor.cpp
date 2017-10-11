@@ -532,7 +532,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 	LL_INFOS("SceneMonitor") << "Saving scene load stats to " << file_name << LL_ENDL; 
 
-	std::ofstream os(file_name.c_str());
+	llofstream os(file_name.c_str());
 
 	os << std::setprecision(10);
 

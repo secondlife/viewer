@@ -116,11 +116,11 @@ BOOL LLFloaterRegionDebugConsole::postBuild()
 
 	mOutput = getChild<LLTextEditor>("region_debug_console_output");
 
-	std::string url = gAgent.getRegion()->getCapability("SimConsoleAsync");
+	std::string url = gAgent.getRegionCapability("SimConsoleAsync");
 	if (url.empty())
 	{
 		// Fall back to see if the old API is supported.
-		url = gAgent.getRegion()->getCapability("SimConsole");
+		url = gAgent.getRegionCapability("SimConsole");
 		if (url.empty())
 		{
 			mOutput->appendText(
@@ -139,11 +139,11 @@ void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
 	LLLineEditor* input = static_cast<LLLineEditor*>(ctrl);
 	std::string text = input->getText() + "\n";
 
-	std::string url = gAgent.getRegion()->getCapability("SimConsoleAsync");
+	std::string url = gAgent.getRegionCapability("SimConsoleAsync");
 	if (url.empty())
 	{
 		// Fall back to the old API
-		url = gAgent.getRegion()->getCapability("SimConsole");
+		url = gAgent.getRegionCapability("SimConsole");
 		if (url.empty())
 		{
 			text += CONSOLE_UNAVAILABLE + PROMPT;

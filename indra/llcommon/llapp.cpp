@@ -256,6 +256,70 @@ bool LLApp::parseCommandOptions(int argc, char** argv)
 	return true;
 }
 
+bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
+{
+	LLSD commands;
+	std::string name;
+	std::string value;
+	for(int ii = 1; ii < argc; ++ii)
+	{
+		if(wargv[ii][0] != '-')
+		{
+			LL_INFOS() << "Did not find option identifier while parsing token: "
+				<< wargv[ii] << LL_ENDL;
+			return false;
+		}
+		int offset = 1;
+		if(wargv[ii][1] == '-') ++offset;
+
+#if LL_WINDOWS
+	name.assign(utf16str_to_utf8str(&wargv[ii][offset]));
+#else
+	name.assign(wstring_to_utf8str(&wargv[ii][offset]));
+#endif
+		if(((ii+1) >= argc) || (wargv[ii+1][0] == '-'))
+		{
+			// we found another option after this one or we have
+			// reached the end. simply record that this option was
+			// found and continue.
+			int flag = name.compare("logfile");
+			if (0 == flag)
+			{
+				commands[name] = "log";
+			}
+			else
+			{
+				commands[name] = true;
+			}
+			
+			continue;
+		}
+		++ii;
+
+#if LL_WINDOWS
+	value.assign(utf16str_to_utf8str((wargv[ii])));
+#else
+	value.assign(wstring_to_utf8str((wargv[ii])));
+#endif
+
+#if LL_WINDOWS
+		//Windows changed command line parsing.  Deal with it.
+		S32 slen = value.length() - 1;
+		S32 start = 0;
+		S32 end = slen;
+		if (wargv[ii][start]=='"')start++;
+		if (wargv[ii][end]=='"')end--;
+		if (start!=0 || end!=slen) 
+		{
+			value = value.substr (start,end);
+		}
+#endif
+
+		commands[name] = value;
+	}
+	setOptionData(PRIORITY_COMMAND_LINE, commands);
+	return true;
+}
 
 void LLApp::manageLiveFile(LLLiveFile* livefile)
 {
@@ -354,7 +418,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 			std::wstring wpipe_name;
 			wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
 
-			const std::wstring wdump_path(wstringize(mDumpPath));
+			const std::wstring wdump_path(utf8str_to_utf16str(mDumpPath));
 
 			int retries = 30;
 			for (; retries > 0; --retries)
@@ -515,9 +579,9 @@ void LLApp::setMiniDumpDir(const std::string &path)
 
 	if(mExceptionHandler == 0) return;
 #ifdef LL_WINDOWS
-	wchar_t buffer[MAX_MINDUMP_PATH_LENGTH];
-	mbstowcs(buffer, mDumpPath.c_str(), MAX_MINDUMP_PATH_LENGTH);
-	mExceptionHandler->set_dump_path(std::wstring(buffer));
+	std::wstring buffer(utf8str_to_utf16str(mDumpPath));
+	if (buffer.size() > MAX_MINDUMP_PATH_LENGTH) buffer.resize(MAX_MINDUMP_PATH_LENGTH);
+	mExceptionHandler->set_dump_path(buffer);
 #elif LL_LINUX
         //google_breakpad::MinidumpDescriptor desc("/tmp");	//path works in debug fails in production inside breakpad lib so linux gets a little less stack reporting until it is patched.
         google_breakpad::MinidumpDescriptor desc(mDumpPath);	//path works in debug fails in production inside breakpad lib so linux gets a little less stack reporting until it is patched.

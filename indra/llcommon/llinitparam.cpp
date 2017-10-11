@@ -193,12 +193,7 @@ namespace LLInitParam
 		{
 			if (!silent)
 			{
-				std::string file_name = p.getCurrentFileName();
-				if(!file_name.empty())
-				{
-					file_name = "in file: " + file_name;
-				}
-				p.parserWarning(llformat("Failed to parse parameter \"%s\" %s", p.getCurrentElementName().c_str(), file_name.c_str()));
+				p.parserWarning(llformat("Failed to parse parameter \"%s\"", p.getCurrentElementName().c_str()));
 			}
 			return false;
 		}
