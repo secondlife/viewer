@@ -532,7 +532,9 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mDead(FALSE),
 	mLastVisitedEntry(NULL),
 	mInvisibilityCheckHistory(-1),
-	mPaused(FALSE)
+	mPaused(FALSE),
+	mRegionCacheHitCount(0),
+	mRegionCacheMissCount(0)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -2440,6 +2442,7 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id, bool valid)
 
 void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type)
 {
+	mRegionCacheMissCount++;
 #if 0
 	mCacheMissList.insert(CacheMissItem(id, miss_type));
 #else
@@ -2491,6 +2494,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		if (entry->getCRC() == crc)
 		{
 			// Record a hit
+			mRegionCacheHitCount++;
 			entry->recordHit();
 		cache_miss_type = CACHE_MISS_TYPE_NONE;
 			entry->setUpdateFlags(flags);

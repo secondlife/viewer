@@ -121,7 +121,8 @@ protected:
 	// for LLInventoryObserver 
 	virtual void changed(U32 mask);	
 	BOOL mDirty;
-	
+	BOOL mSaveDialogShown;
+
 protected:
 	LLUUID mItemUUID;
 

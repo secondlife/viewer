@@ -6,7 +6,7 @@
 	<text name="Cache:">
 		Önbellek:
 	</text>
-	<spinner label="Önbellek boyutu (64-9984 MB)" name="cachesizespinner"/>
+	<spinner label="Önbellek boyutu (256-9984 MB)" name="cachesizespinner"/>
 	<text name="text_box5">
 		MB
 	</text>

@@ -27,11 +27,13 @@
 
 #include "llfloateravatarrendersettings.h"
 
+#include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llfloateravatarpicker.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llnamelistctrl.h"
+#include "llnotificationsutil.h"
 #include "llmenugl.h"
 #include "lltrans.h"
 #include "llviewerobjectlist.h"
@@ -268,6 +270,11 @@ void LLFloaterAvatarRenderSettings::onClickAdd(const LLSD& userdata)
 void LLFloaterAvatarRenderSettings::callbackAvatarPicked(const uuid_vec_t& ids, S32 visual_setting)
 {
     if (ids.empty()) return;
+    if(ids[0] == gAgentID)
+    {
+        LLNotificationsUtil::add("AddSelfRenderExceptions");
+        return;
+    }
     setAvatarRenderSetting(ids[0], visual_setting);
 }
 

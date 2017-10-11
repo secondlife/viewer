@@ -136,7 +136,7 @@ public:
 
 private:
 	NamedTempFile mTempFile;
-	std::ofstream mFile;
+	llofstream mFile;
 };
 
 class LLReplayLogReal: public LLReplayLog, public boost::noncopyable
@@ -569,7 +569,7 @@ int main(int argc, char **argv)
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
 	int opt_id = 0;
-	boost::scoped_ptr<std::ofstream> output;
+	boost::scoped_ptr<llofstream> output;
 	const char *touch = NULL;
 
 	while(true)
@@ -599,7 +599,7 @@ int main(int argc, char **argv)
 				verbose_mode = true;
 				break;
 			case 'o':
-				output.reset(new std::ofstream);
+				output.reset(new llofstream);
 				output->open(opt_arg);
 				break;
 			case 's':	// --sourcedir
@@ -673,7 +673,7 @@ int main(int argc, char **argv)
 
 	if (touch && success)
 	{
-		std::ofstream s;
+		llofstream s;
 		s.open(touch);
 		s << "ok" << std::endl;
 		s.close();

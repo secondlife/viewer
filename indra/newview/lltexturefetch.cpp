@@ -2559,7 +2559,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mTextureInfoMainThread(false)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
+	mTextureInfo.setLogging(true);
 
 	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 	mHttpRequest = new LLCore::HttpRequest;

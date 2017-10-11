@@ -6216,7 +6216,7 @@ void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<LLQuater
 }
 
 //counter-translation
-void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplified)
+void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplified, BOOL skip_avatar_child)
 {
 	if(mChildList.empty())
 	{
@@ -6246,6 +6246,7 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 			iter != mChildList.end(); iter++)
 	{
 		LLViewerObject* childp = *iter;
+
 		if (!childp->isSelected() && childp->mDrawable.notNull())
 		{
 			if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
@@ -6255,14 +6256,16 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 			}
 			else //avatar
 			{
-				LLVector3 reset_pos = ((LLVOAvatar*)childp)->mDrawable->mXform.getPosition() + child_offset ;
+				if(!skip_avatar_child)
+				{
+					LLVector3 reset_pos = ((LLVOAvatar*)childp)->mDrawable->mXform.getPosition() + child_offset ;
 
-				((LLVOAvatar*)childp)->mDrawable->mXform.setPosition(reset_pos);
-				((LLVOAvatar*)childp)->mDrawable->getVObj()->setPosition(reset_pos);				
-				
-				LLManip::rebuild(childp);
-			}			
-		}		
+					((LLVOAvatar*)childp)->mDrawable->mXform.setPosition(reset_pos);
+					((LLVOAvatar*)childp)->mDrawable->getVObj()->setPosition(reset_pos);
+					LLManip::rebuild(childp);
+				}
+			}
+		}
 	}
 
 	return ;

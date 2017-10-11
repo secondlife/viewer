@@ -112,24 +112,16 @@ BOOL LLFloaterScriptLimits::postBuild()
 	}
 
 	// contruct the panels
-	std::string land_url = gAgent.getRegion()->getCapability("LandResources");
-	if (!land_url.empty())
-	{
-		LLPanelScriptLimitsRegionMemory* panel_memory;
-		panel_memory = new LLPanelScriptLimitsRegionMemory;
-		mInfoPanels.push_back(panel_memory);
-		panel_memory->buildFromFile( "panel_script_limits_region_memory.xml");
-		mTab->addTabPanel(panel_memory);
-	}
-	
-	std::string attachment_url = gAgent.getRegion()->getCapability("AttachmentResources");
-	if (!attachment_url.empty())
-	{
-		LLPanelScriptLimitsAttachment* panel_attachments = new LLPanelScriptLimitsAttachment;
-		mInfoPanels.push_back(panel_attachments);
-		panel_attachments->buildFromFile("panel_script_limits_my_avatar.xml");
-		mTab->addTabPanel(panel_attachments);
-	}
+	LLPanelScriptLimitsRegionMemory* panel_memory = new LLPanelScriptLimitsRegionMemory;
+	mInfoPanels.push_back(panel_memory);
+	panel_memory->buildFromFile( "panel_script_limits_region_memory.xml");
+	mTab->addTabPanel(panel_memory);
+
+	LLPanelScriptLimitsAttachment* panel_attachments = new LLPanelScriptLimitsAttachment;
+	mInfoPanels.push_back(panel_attachments);
+	panel_attachments->buildFromFile("panel_script_limits_my_avatar.xml");
+	mTab->addTabPanel(panel_attachments);
+
 	
 	if(mInfoPanels.size() > 0)
 	{
@@ -195,6 +187,8 @@ LLPanelScriptLimitsRegionMemory::~LLPanelScriptLimitsRegionMemory()
 
 BOOL LLPanelScriptLimitsRegionMemory::getLandScriptResources()
 {
+	if (!gAgent.getRegion()) return FALSE;
+
 	LLSD body;
 	std::string url = gAgent.getRegion()->getCapability("LandResources");
 	if (!url.empty())
@@ -718,10 +712,9 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 	LLParcel* parcel = instance->getCurrentSelectedParcel();
 	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	
-	LLUUID current_region_id = gAgent.getRegion()->getRegionID();
-
 	if ((region) && (parcel))
 	{
+		LLUUID current_region_id = gAgent.getRegion()->getRegionID();
 		LLVector3 parcel_center = parcel->getCenterpoint();
 		
 		region_id = region->getRegionID();
@@ -982,6 +975,8 @@ void LLPanelScriptLimitsRegionMemory::onClickReturn(void* userdata)
 
 BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 {
+	if (!gAgent.getRegion()) return FALSE;
+
 	LLSD body;
 	std::string url = gAgent.getRegion()->getCapability("AttachmentResources");
 	if (!url.empty())

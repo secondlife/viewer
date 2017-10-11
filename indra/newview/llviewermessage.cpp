@@ -3569,7 +3569,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(from_id, &av_name))
 		{
-			chat.mFromName = av_name.getDisplayName();
+			chat.mFromName = av_name.getCompleteName();
 		}
 		else
 		{
@@ -6851,14 +6851,10 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 		// Get the message ID
 		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, message_id);
 		big_reason = LLAgent::sTeleportErrorMessages[message_id];
-		if ( big_reason.size() > 0 )
-		{	// Substitute verbose reason from the local map
-			args["REASON"] = big_reason;
-		}
-		else
-		{	// Nothing found in the map - use what the server returned in the original message block
+		if ( big_reason.size() <= 0 )
+		{
+			// Nothing found in the map - use what the server returned in the original message block
 			msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, big_reason);
-			args["REASON"] = big_reason;
 		}
 
 		LLSD llsd_block;
@@ -6873,6 +6869,16 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 			}
 			else
 			{
+				if(llsd_block.has("REGION_NAME"))
+				{
+					std::string region_name = llsd_block["REGION_NAME"].asString();
+					if(!region_name.empty())
+					{
+						LLStringUtil::format_map_t name_args;
+						name_args["[REGION_NAME]"] = region_name;
+						LLStringUtil::format(big_reason, name_args);
+					}
+				}
 				// change notification name in this special case
 				if (handle_teleport_access_blocked(llsd_block, message_id, args["REASON"]))
 				{
@@ -6884,7 +6890,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 				}
 			}
 		}
-
+		args["REASON"] = big_reason;
 	}
 	else
 	{	// Extra message payload not found - use what the simulator sent

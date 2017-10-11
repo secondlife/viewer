@@ -1712,7 +1712,7 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 			if (mObject->isRootEdit())
 			{								
 				// only offset by parent's translation
-				mObject->resetChildrenPosition(LLVector3(-delta), TRUE) ;				
+				mObject->resetChildrenPosition(LLVector3(-delta), TRUE, TRUE) ;
 			}
 
 			if(!btn_down)

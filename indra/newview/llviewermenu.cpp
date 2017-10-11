@@ -618,6 +618,7 @@ class LLAdvancedDumpInfoToConsole : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		gDebugView->mDebugConsolep->setVisible(TRUE);
 		std::string info_type = userdata.asString();
 		if ("region" == info_type)
 		{
@@ -8016,7 +8017,7 @@ void handle_report_bug(const LLSD& param)
 	LLUIString url(param.asString());
 	
 	LLStringUtil::format_map_t replace;
-	replace["[ENVIRONMENT]"] = LLURI::escape(LLAppViewer::instance()->getViewerInfoString());
+	replace["[ENVIRONMENT]"] = LLURI::escape(LLAppViewer::instance()->getShortViewerInfoString());
 	LLSLURL location_url;
 	LLAgentUI::buildSLURL(location_url);
 	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());

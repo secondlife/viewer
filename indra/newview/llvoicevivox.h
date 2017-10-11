@@ -623,6 +623,7 @@ private:
     bool startAndConnectSession();
     bool endAndDisconnectSession();
 
+    bool callbackEndDaemon(const LLSD& data);
     bool startAndLaunchDaemon();
     bool provisionVoiceAccount();
     bool establishVoiceConnection();

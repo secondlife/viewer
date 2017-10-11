@@ -1511,67 +1511,64 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(id);
 	if (cat.notNull())
 	{
-		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
+		if (LLClipboard::instance().hasContents())
 		{
-			// Something on the clipboard is in "cut mode" and needs to be preserved
-			LL_DEBUGS(LOG_INV) << "purge_descendents_of clipboard case " << cat->getName()
-							   << " iterate and purge non hidden items" << LL_ENDL;
-			LLInventoryModel::cat_array_t* categories;
-			LLInventoryModel::item_array_t* items;
-			// Get the list of direct descendants in tha categoy passed as argument
-			gInventory.getDirectDescendentsOf(id, categories, items);
-			std::vector<LLUUID> list_uuids;
-			// Make a unique list with all the UUIDs of the direct descendants (items and categories are not treated differently)
-			// Note: we need to do that shallow copy as purging things will invalidate the categories or items lists
-			for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
+			// Remove items from clipboard or it will remain active even if there is nothing to paste/copy
+			LLInventoryModel::cat_array_t categories;
+			LLInventoryModel::item_array_t items;
+			gInventory.collectDescendents(id, categories, items, TRUE);
+
+			for (LLInventoryModel::cat_array_t::const_iterator it = categories.begin(); it != categories.end(); ++it)
 			{
-				list_uuids.push_back((*it)->getUUID());
-			}
-			for (LLInventoryModel::item_array_t::const_iterator it = items->begin(); it != items->end(); ++it)
-			{
-				list_uuids.push_back((*it)->getUUID());
-			}
-			// Iterate through the list and only purge the UUIDs that are not on the clipboard
-			for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
-			{
-				if (!LLClipboard::instance().isOnClipboard(*it))
+				if (LLClipboard::instance().isOnClipboard((*it)->getUUID()))
 				{
-					remove_inventory_object(*it, NULL);
+					// No sense in removing single items, partial 'paste' will result in confusion only
+					LLClipboard::instance().reset();
+					break;
+				}
+			}
+			if (LLClipboard::instance().hasContents())
+			{
+				for (LLInventoryModel::item_array_t::const_iterator it = items.begin(); it != items.end(); ++it)
+				{
+					if (LLClipboard::instance().isOnClipboard((*it)->getUUID()))
+					{
+						LLClipboard::instance().reset();
+						break;
+					}
 				}
 			}
 		}
-		else
+
+		if (AISAPI::isAvailable())
 		{
-            if (AISAPI::isAvailable())
+			if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
 			{
-				if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
-				{
-					LL_WARNS() << "Purging not fetched folder: " << cat->getName() << LL_ENDL;
-				}
-                AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-                AISAPI::PurgeDescendents(id, cr);
+				LL_WARNS() << "Purging not fetched folder: " << cat->getName() << LL_ENDL;
 			}
-			else // no cap
+			AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+			AISAPI::PurgeDescendents(id, cr);
+		}
+		else // no cap
+		{
+			// Fast purge
+			LL_DEBUGS(LOG_INV) << "purge_descendents_of fast case " << cat->getName() << LL_ENDL;
+
+			// send it upstream
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("PurgeInventoryDescendents");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("FolderID", id);
+			gAgent.sendReliableMessage();
+
+			// Update model immediately because there is no callback mechanism.
+			gInventory.onDescendentsPurgedFromServer(id);
+			if (cb)
 			{
-				// Fast purge
-				LL_DEBUGS(LOG_INV) << "purge_descendents_of fast case " << cat->getName() << LL_ENDL;
-
-				// send it upstream
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessage("PurgeInventoryDescendents");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", gAgent.getID());
-				msg->addUUID("SessionID", gAgent.getSessionID());
-				msg->nextBlock("InventoryData");
-				msg->addUUID("FolderID", id);
-				gAgent.sendReliableMessage();
-
-				// Update model immediately because there is no callback mechanism.
-				gInventory.onDescendentsPurgedFromServer(id);
-				if (cb)
-				{
-					cb->fire(id);
-				}
+				cb->fire(id);
 			}
 		}
 	}

@@ -208,7 +208,7 @@ public:
 	std::string         mCertStore;
 	LLSD mErrorCertData;
 
-	Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip);
+	Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams);
 	Impl(const std::string& uri,
 		const std::string& method, LLXMLRPCValue params, bool useGzip);
 	~Impl();
@@ -219,7 +219,7 @@ public:
 	void setHttpStatus(const LLCore::HttpStatus &status);
 
 private:
-	void init(XMLRPC_REQUEST request, bool useGzip);
+	void init(XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams);
 };
 
 LLXMLRPCTransaction::Handler::Handler(LLCore::HttpRequest::ptr_t &request, 
@@ -309,13 +309,13 @@ void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle,
 //=========================================================================
 
 LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
-		XMLRPC_REQUEST request, bool useGzip)
+		XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams)
 	: mHttpRequest(),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
 	  mResponse(0)
 {
-	init(request, useGzip);
+	init(request, useGzip, httpParams);
 }
 
 
@@ -331,7 +331,7 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 	XMLRPC_RequestSetRequestType(request, xmlrpc_request_call);
 	XMLRPC_RequestSetData(request, params.getValue());
 	
-	init(request, useGzip);
+	init(request, useGzip, LLSD());
     // DEV-28398: without this XMLRPC_RequestFree() call, it looks as though
     // the 'request' object is simply leaked. It's less clear to me whether we
     // should also ask to free request value data (second param 1), since the
@@ -339,7 +339,7 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
     XMLRPC_RequestFree(request, 1);
 }
 
-void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
+void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams)
 {
 	LLCore::HttpOptions::ptr_t httpOpts;
 	LLCore::HttpHeaders::ptr_t httpHeaders;
@@ -353,7 +353,15 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	// LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
 	httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()); 
 
-	httpOpts->setTimeout(40L);
+	// delay between repeats will start from 5 sec and grow to 20 sec with each repeat
+	httpOpts->setMinBackoff(5E6L);
+	httpOpts->setMaxBackoff(20E6L);
+
+	httpOpts->setTimeout(httpParams.has("timeout") ? httpParams["timeout"].asInteger() : 40L);
+	if (httpParams.has("retries"))
+	{
+		httpOpts->setRetries(httpParams["retries"].asInteger());
+	}
 
 	bool vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
 	mCertStore = gSavedSettings.getString("CertStore");
@@ -520,8 +528,8 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 
 
 LLXMLRPCTransaction::LLXMLRPCTransaction(
-	const std::string& uri, XMLRPC_REQUEST request, bool useGzip)
-: impl(* new Impl(uri, request, useGzip))
+	const std::string& uri, XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams)
+: impl(* new Impl(uri, request, useGzip, httpParams))
 { }
 
 

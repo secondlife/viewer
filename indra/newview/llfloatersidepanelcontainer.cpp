@@ -74,7 +74,10 @@ void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
 				{
 					edit_wearable_ptr->onClose();
 				}
-				panel_appearance->showOutfitsInventoryPanel();
+				if(!app_quitting)
+				{
+					panel_appearance->showOutfitsInventoryPanel();
+				}
 			}
 		}
 	}

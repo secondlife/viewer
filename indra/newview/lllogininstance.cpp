@@ -64,6 +64,8 @@
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
 
+const S32 LOGIN_MAX_RETRIES = 3;
+
 // this can be removed once it is defined by the build for all forks
 #ifndef ADDRESS_SIZE
 #  define ADDRESS_SIZE 32
@@ -631,13 +633,29 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
         request_params[it->first] = it->second;
     }
 
+    // log request_params _before_ adding the credentials   
+    LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
+
+    // Copy the credentials into the request after logging the rest
+    LLSD credentials(user_credential->getLoginParams());
+    for (LLSD::map_const_iterator it = credentials.beginMap();
+         it != credentials.endMap();
+         it++
+         )
+    {
+        request_params[it->first] = it->second;
+    }
+
+	// Specify desired timeout/retry options
+	LLSD http_params;
+	http_params["timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
+	http_params["retries"] = LOGIN_MAX_RETRIES;
+
 	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";
 	mRequestData["params"] = request_params;
 	mRequestData["options"] = requested_options;
-
-	mRequestData["cfg_srv_timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
-	mRequestData["cfg_srv_pump"] = gSavedSettings.getString("LoginSRVPump");
+	mRequestData["http_params"] = http_params;
 }
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)
