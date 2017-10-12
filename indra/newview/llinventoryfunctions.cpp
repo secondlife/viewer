@@ -2296,7 +2296,8 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	if ("delete" == action)
 	{
 		static bool sDisplayedAtSession = false;
-		
+		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		bool marketplacelistings_item = false;
 		LLAllDescendentsPassedFilter f;
 		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
 		{
@@ -2304,9 +2305,15 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 			{
 				folder->applyFunctorRecursively(f);
 			}
+			LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*it)->getViewModelItem());
+			if (viewModel && gInventory.isObjectDescendentOf(viewModel->getUUID(), marketplacelistings_id))
+			{
+				marketplacelistings_item = true;
+				break;
+			}
 		}
 		// Fall through to the generic confirmation if the user choose to ignore the specialized one
-		if ( (!f.allDescendentsPassedFilter()) && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
+		if ( (!f.allDescendentsPassedFilter()) && !marketplacelistings_item && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
 		{
 			LLNotificationsUtil::add("DeleteFilteredItems", LLSD(), LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
 		}

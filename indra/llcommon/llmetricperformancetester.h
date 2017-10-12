@@ -60,7 +60,7 @@ public:
 	 * By default, compares the test results against the baseline one by one, item by item, 
 	 * in the increasing order of the LLSD record counter, starting from the first one.
 	 */
-	virtual void analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) ;
+	virtual void analyzePerformance(llofstream* os, LLSD* base, LLSD* current) ;
 
 	static void doAnalysisMetrics(std::string baseline, std::string target, std::string output) ;
 
@@ -93,8 +93,8 @@ protected:
 	 * @param[in] v_base - Base value of the metric.
 	 * @param[in] v_current - Current value of the metric.
 	 */
-	virtual void compareTestResults(std::ofstream* os, std::string metric_string, S32 v_base, S32 v_current) ;
-	virtual void compareTestResults(std::ofstream* os, std::string metric_string, F32 v_base, F32 v_current) ;
+	virtual void compareTestResults(llofstream* os, std::string metric_string, S32 v_base, S32 v_current) ;
+	virtual void compareTestResults(llofstream* os, std::string metric_string, F32 v_base, F32 v_current) ;
 
 	/**
 	 * @brief Reset internal record count. Count starts with 1.
@@ -181,7 +181,7 @@ public:
 	 * This will be loading the base and current sessions and compare them using the virtual 
 	 * abstract methods loadTestSession() and compareTestSessions()
 	 */
-	virtual void analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) ;
+	virtual void analyzePerformance(llofstream* os, LLSD* base, LLSD* current) ;
 
 protected:
 	/**
@@ -205,7 +205,7 @@ protected:
 	 * @brief Compare the base session and the target session. Assumes base and current sessions have been loaded.
 	 * @param[out] os - The comparison result as a standard stream
 	 */
-	virtual void compareTestSessions(std::ofstream* os) = 0;
+	virtual void compareTestSessions(llofstream* os) = 0;
 
 	LLTestSession* mBaseSessionp;
 	LLTestSession* mCurrentSessionp;

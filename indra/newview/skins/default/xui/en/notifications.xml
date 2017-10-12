@@ -6589,6 +6589,13 @@ Although you&apos;re very nice, you can&apos;t add yourself as a friend.
 
   <notification
    icon="notifytip.tga"
+   name="AddSelfRenderExceptions"
+   type="notifytip">
+You can&apos;t add yourself to the rendering exceptions list.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="UploadingAuctionSnapshot"
    type="notifytip">
 Uploading in-world and web site snapshots...

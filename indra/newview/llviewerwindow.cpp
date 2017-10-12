@@ -4401,6 +4401,11 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 		LLViewerWindow::sSnapshotDir = gDirUtilp->getDirName(filepath);
 	}
 
+	if(LLViewerWindow::sSnapshotDir.empty())
+	{
+		return FALSE;
+	}
+
 // Check if there is enough free space to save snapshot
 #ifdef LL_WINDOWS
 	boost::filesystem::space_info b_space = boost::filesystem::space(utf8str_to_utf16str(sSnapshotDir));

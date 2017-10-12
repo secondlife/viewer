@@ -173,6 +173,7 @@
 	</menu>
 	<menu label="Aide" name="Help">
 		<menu_item_call label="Aide rapide..." name="How To"/>
+		<menu_item_call label="Démarrage rapide" name="Quickstart"/>
 		<menu_item_call label="Base de connaissances" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Forums de la communauté" name="Community Forums"/>

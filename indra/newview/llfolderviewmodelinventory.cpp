@@ -258,6 +258,15 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 	{
         // This is where filter check on the item done (CHUI-849)
 		const bool passed_filter = filter.check(this);
+		if (passed_filter && mChildren.empty()) // Update the latest filter generation for empty folders
+		{
+			LLFolderViewModelItemInventory* view_model = this;
+			while (view_model && view_model->mMostFilteredDescendantGeneration < filter_generation)
+			{
+				view_model->mMostFilteredDescendantGeneration = filter_generation;
+				view_model = static_cast<LLFolderViewModelItemInventory*>(view_model->mParent);
+			}
+		}
 		setPassedFilter(passed_filter, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
         continue_filtering = !filter.isTimedOut();
 	}

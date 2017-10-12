@@ -170,6 +170,7 @@
 	</menu>
 	<menu label="Справка" name="Help">
 		<menu_item_call label="Инструкции..." name="How To"/>
+		<menu_item_call label="Краткое руководство" name="Quickstart"/>
 		<menu_item_call label="База знаний" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Форумы сообщества" name="Community Forums"/>

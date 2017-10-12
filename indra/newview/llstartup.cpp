@@ -345,7 +345,7 @@ bool idle_startup()
 	const std::string delims (" ");
 	std::string system;
 	int begIdx, endIdx;
-	std::string osString = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	std::string osString = LLOSInfo::instance().getOSStringSimple();
 
 	begIdx = osString.find_first_not_of (delims);
 	endIdx = osString.find_first_of (delims, begIdx);
@@ -830,7 +830,8 @@ bool idle_startup()
 
 		// Don't do anything.  Wait for the login view to call the login_callback,
 		// which will push us to the next state.
-		display_startup();
+
+		// display() function will be the one to run display_startup()
 		// Sleep so we don't spin the CPU
 		ms_sleep(1);
 		return FALSE;

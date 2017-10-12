@@ -10,7 +10,6 @@
   help_topic="floater_web_content"
   save_rect="true"
   title=""
-  initial_mime_type="text/html"
   width="780">
   <layout_stack
     bottom="775"

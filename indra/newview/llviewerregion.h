@@ -338,6 +338,8 @@ public:
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
 	LLVOCacheEntry* getCacheEntry(U32 local_id, bool valid = true);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
+	U64 getRegionCacheHitCount() { return mRegionCacheHitCount; }
+	U64 getRegionCacheMissCount() { return mRegionCacheMissCount; }
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 	//update object cache if the object receives a full-update or terse update
@@ -534,7 +536,9 @@ private:
 		typedef std::list<CacheMissItem> cache_miss_list_t;
 	};
 	CacheMissItem::cache_miss_list_t   mCacheMissList;
-	
+	U64 mRegionCacheHitCount;
+	U64 mRegionCacheMissCount;
+
 	caps_received_signal_t mCapabilitiesReceivedSignal;		
 	caps_received_signal_t mSimulatorFeaturesReceivedSignal;		
 

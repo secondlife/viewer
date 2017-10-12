@@ -486,7 +486,7 @@ void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
 
 
 #if LL_WINDOWS
-    std::string os_string = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+    std::string os_string = LLOSInfo::instance().getOSStringSimple();
     std::string filename;
 
     if (os_string.find("Microsoft Windows XP") == 0)
@@ -767,7 +767,7 @@ void LLFeatureManager::applyBaseMasks()
 	}
 
 #if LL_DARWIN
-	const LLOSInfo& osInfo = LLAppViewer::instance()->getOSInfo();
+	const LLOSInfo& osInfo = LLOSInfo::instance();
 	if (osInfo.mMajorVer == 10 && osInfo.mMinorVer < 7)
 	{
 		maskFeatures("OSX_10_6_8");
