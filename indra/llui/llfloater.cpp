@@ -1145,11 +1145,11 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 			{
 				setDocked( false, false);
 			}
-		storeRectControl();
 		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 		LLRect screen_rect = calcScreenRect();
 		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
-	}
+		}
+		storeRectControl();
 
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
