@@ -188,9 +188,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fcddf4e12d0736d085903dfb3717e24c</string>
+              <string>038853b97307a9b65de20c4c50098023</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9531/44350/boost-1.65.1-linux64-509519.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9675/45694/boost-1.65.1-linux64-509640.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -324,9 +324,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d30354dc97e36cc078dccb951ce62267</string>
+              <string>c90613240ba3e3a171d3379275ae4ee3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9551/44388/colladadom-2.3.509540-linux64-509540.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9695/45732/colladadom-2.3.509683-linux64-509683.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -353,7 +353,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>2.3.509540</string>
+        <string>2.3.509683</string>
       </map>
       <key>curl</key>
       <map>
@@ -1270,9 +1270,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2b77ad2e21ae064ea20db43550bff402</string>
+              <string>ff459b58695c76838782847a0b792104</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9552/44374/googlemock-1.7.0.509541-linux64-509541.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9697/45717/googlemock-1.7.0.509686-linux64-509686.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1299,7 +1299,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.509541</string>
+        <string>1.7.0.509686</string>
       </map>
       <key>gstreamer</key>
       <map>
