@@ -62,10 +62,6 @@ public:
     static const std::string SETTING_SUN_ROTATION;
     static const std::string SETTING_SUN_TEXUTUREID;
 
-    static const std::string SETTING_LEGACY_EAST_ANGLE;
-    static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
-    static const std::string SETTING_LEGACY_SUN_ANGLE;
-
     typedef boost::shared_ptr<LLSettingsSky> ptr_t;
     typedef std::pair<F32, F32> azimalt_t;
 
@@ -428,6 +424,10 @@ protected:
 
 
 private:
+    static const std::string SETTING_LEGACY_EAST_ANGLE;
+    static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
+    static const std::string SETTING_LEGACY_SUN_ANGLE;
+
     void        calculateHeavnlyBodyPositions();
     void        calculateLightSettings();
 

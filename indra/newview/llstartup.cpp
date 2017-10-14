@@ -180,7 +180,6 @@
 #include "llnamebox.h"
 #include "llnameeditor.h"
 #include "llpostprocess.h"
-#include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llagentlanguage.h"
 #include "llwearable.h"
@@ -196,6 +195,9 @@
 #include "lltoolbarview.h"
 #include "llexperiencelog.h"
 #include "llcleanup.h"
+
+#include "llenvironment.h"
+#include "llenvmanager.h"
 
 #include "llstacktrace.h"
 
@@ -1461,7 +1463,7 @@ bool idle_startup()
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
 
-		LLEnvManagerNew::getInstance()->usePrefs(); // Load all presets and settings
+        LLEnvironment::instance().loadPreferences();
 		gSky.init(initial_sun_direction);
 
 		LLGLState::checkStates();

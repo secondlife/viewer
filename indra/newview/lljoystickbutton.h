@@ -178,4 +178,35 @@ public:
 	virtual void	onHeldDown();
 };
 
+// 
+class LLJoystickQuaternion :
+    public LLJoystick
+{
+public:
+    struct Params :
+        public LLInitParam::Block<Params, LLJoystick::Params>
+    {
+        Params();
+    };
+
+    LLJoystickQuaternion(const LLJoystickQuaternion::Params &);
+
+    virtual void	setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom);
+
+    virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual void	onHeldDown();
+    virtual void	draw();
+
+protected:
+    F32				getOrbitRate();
+    virtual void	updateSlop();
+    void			drawRotatedImage(LLPointer<LLUIImage> image, S32 rotations);
+
+    BOOL			mInLeft;
+    BOOL			mInTop;
+    BOOL			mInRight;
+    BOOL			mInBottom;
+};
+
 #endif  // LL_LLJOYSTICKBUTTON_H

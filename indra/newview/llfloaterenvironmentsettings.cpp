@@ -32,10 +32,6 @@
 #include "llradiogroup.h"
 
 #include "lldaycyclemanager.h"
-#include "llenvmanager.h"
-#include "llwaterparammanager.h"
-#include "llwlparamset.h"
-#include "llwlparammanager.h"
 
 #include "llenvironment.h"
 
@@ -74,10 +70,10 @@ BOOL LLFloaterEnvironmentSettings::postBuild()
 
 	setCloseCallback(boost::bind(&LLFloaterEnvironmentSettings::cancel, this));
 
-	LLEnvManagerNew::instance().setPreferencesChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::refresh, this));
-	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEnvironmentSettings::populateDayCyclePresetsList, this));
-	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::populateSkyPresetsList, this));
-	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::populateWaterPresetsList, this));
+// 	LLEnvManagerNew::instance().setPreferencesChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::refresh, this));
+//	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEnvironmentSettings::populateDayCyclePresetsList, this));
+// 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::populateSkyPresetsList, this));
+// 	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::populateWaterPresetsList, this));
 
 	return TRUE;
 }
@@ -199,7 +195,9 @@ void LLFloaterEnvironmentSettings::apply()
 			env_mgr.useDayCycle(day_cycle, LLEnvKey::SCOPE_LOCAL);
 		}
 
-		env_mgr.useWaterPreset(water_preset);
+        /* LAPRAS */
+        //env_mgr.useWaterPreset(water_preset);
+        LLEnvironment::instance().selectWater(water_preset);
 	}
 }
 
@@ -214,7 +212,7 @@ void LLFloaterEnvironmentSettings::populateWaterPresetsList()
 	mWaterPresetCombo->removeall();
 
 	std::list<std::string> user_presets, system_presets;
-	LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
+	//LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
 
 	// Add user presets first.
 	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)

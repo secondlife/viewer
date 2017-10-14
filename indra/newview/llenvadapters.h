@@ -185,6 +185,169 @@ private:
     F32 mult;
 };
 
+class WLXFloatControl
+{
+public:
+    inline WLXFloatControl(F32 val, const std::string& n, F32 b): 
+        mExp(val),
+        mBase(b),
+        mName(n)
+    {
+    }
+
+    inline WLXFloatControl & operator = (F32 val)
+    {
+        mExp = log(val) / log(mBase);
+
+        return *this;
+    }
+
+    inline operator F32 (void) const
+    {
+        return pow(mBase, mExp);
+    }
+
+    inline void update(const LLSettingsBase::ptr_t &psetting) const
+    {
+        psetting->setValue(mName, pow(mBase, mExp));
+    }
+
+    inline F32 getExp() const
+    {
+        return mExp;
+    }
+
+    inline void setExp(F32 val)
+    {
+        mExp = val;
+    }
+
+    inline F32 getBase() const
+    {
+        return mBase;
+    }
+
+    inline void setBase(F32 val)
+    {
+        mBase = val;
+    }
+
+private:
+    F32 mExp;
+    F32 mBase;
+    std::string mName;
+};
+
+class WLVect2Control
+{
+public:
+    inline WLVect2Control(LLVector2 val, const std::string& n): 
+        mU(val.mV[0]), 
+        mV(val.mV[1]), 
+        mName(n)
+    {
+    }
+
+    inline WLVect2Control & operator = (const LLVector2 & val)
+    {
+        mU = val.mV[0];
+        mV = val.mV[1];
+
+        return *this;
+    }
+
+    inline void update(const LLSettingsBase::ptr_t &psetting) const
+    {
+        psetting->setValue(mName, LLVector2(mU, mV));
+    }
+
+    inline F32 getU() const
+    {
+        return mU;
+    }
+
+    inline void setU(F32 val)
+    {
+        mU = val;
+    }
+
+    inline F32 getV() const
+    {
+        return mV;
+    }
+
+    inline void setV(F32 val)
+    {
+        mV = val;
+    }
+
+private:
+    F32 mU;
+    F32 mV;
+    std::string mName;
+};
+
+class WLVect3Control
+{
+public:
+    inline WLVect3Control(LLVector3 val, const std::string& n):
+        mX(val.mV[0]),
+        mY(val.mV[1]),
+        mZ(val.mV[2]),
+        mName(n)
+    {
+    }
+
+    inline WLVect3Control & operator = (const LLVector3 & val)
+    {
+        mX = val.mV[0];
+        mY = val.mV[1];
+        mZ = val.mV[2];
+
+        return *this;
+    }
+
+    inline void update(const LLSettingsBase::ptr_t &psetting) const
+    {
+        psetting->setValue(mName, LLVector3(mX, mY, mZ));
+    }
+
+    inline F32 getX() const
+    {
+        return mX;
+    }
+
+    inline void setX(F32 val)
+    {
+        mX = val;
+    }
+
+    inline F32 getY() const
+    {
+        return mY;
+    }
+
+    inline void setY(F32 val)
+    {
+        mY = val;
+    }
+
+    inline F32 getZ() const
+    {
+        return mZ;
+    }
+
+    inline void setZ(F32 val)
+    {
+        mZ = val;
+    }
+
+private:
+    F32 mX;
+    F32 mY;
+    F32 mZ;
+    std::string mName;
+};
 
 //-------------------------------------------------------------------------
 class LLSkySettingsAdapter
@@ -194,32 +357,54 @@ public:
     
     LLSkySettingsAdapter();
 
-    WLFloatControl mWLGamma;
+    WLFloatControl  mWLGamma;
 
     /// Atmospherics
-    WLColorControl mBlueHorizon;
-    WLFloatControl mHazeDensity;
-    WLColorControl mBlueDensity;
-    WLFloatControl mDensityMult;
-    WLFloatControl mHazeHorizon;
-    WLFloatControl mMaxAlt;
+    WLColorControl  mBlueHorizon;
+    WLFloatControl  mHazeDensity;
+    WLColorControl  mBlueDensity;
+    WLFloatControl  mDensityMult;
+    WLFloatControl  mHazeHorizon;
+    WLFloatControl  mMaxAlt;
 
     /// Lighting
-    WLColorControl mLightnorm;
-    WLColorControl mSunlight;
-    WLColorControl mAmbient;
-    WLColorControl mGlow;
+    WLColorControl  mLightnorm;
+    WLColorControl  mSunlight;
+    WLColorControl  mAmbient;
+    WLColorControl  mGlow;
 
     /// Clouds
-    WLColorControl mCloudColor;
-    WLColorControl mCloudMain;
-    WLFloatControl mCloudCoverage;
-    WLColorControl mCloudDetail;
-    WLFloatControl mDistanceMult;
-    WLFloatControl mCloudScale;
+    WLColorControl  mCloudColor;
+    WLColorControl  mCloudMain;
+    WLFloatControl  mCloudCoverage;
+    WLColorControl  mCloudDetail;
+    WLFloatControl  mDistanceMult;
+    WLFloatControl  mCloudScale;
+};
 
+class LLWatterSettingsAdapter
+{
+public:
+    typedef std::shared_ptr<LLWatterSettingsAdapter> ptr_t;
+
+    LLWatterSettingsAdapter();
+
+    WLColorControl  mFogColor;
+    WLXFloatControl mFogDensity;
+    WLFloatControl  mUnderWaterFogMod;
+
+    /// wavelet scales and directions
+    WLVect3Control  mNormalScale;
+    WLVect2Control  mWave1Dir;
+    WLVect2Control  mWave2Dir;
+
+    // controls how water is reflected and refracted
+    WLFloatControl  mFresnelScale;
+    WLFloatControl  mFresnelOffset;
+    WLFloatControl  mScaleAbove;
+    WLFloatControl  mScaleBelow;
+    WLFloatControl  mBlurMultiplier;
 
 };
 
 #endif // LL_ENVIRONMENT_H
-

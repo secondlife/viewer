@@ -31,9 +31,13 @@
 #include "llsd.h"
 
 #include "llsettingssky.h"
+#include "llsettingswater.h"
 
 class LLViewerCamera;
 class LLGLSLShader;
+
+//-------------------------------------------------------------------------
+
 
 //-------------------------------------------------------------------------
 class LLEnvironment : public LLSingleton<LLEnvironment>
@@ -42,9 +46,44 @@ class LLEnvironment : public LLSingleton<LLEnvironment>
     LOG_CLASS(LLEnvironment);
 
 public:
+    class UserPrefs
+    {
+        friend class LLEnvironment;
+    public:
+        UserPrefs();
+
+        bool        getUseRegionSettings() const { return mUseRegionSettings; }
+        bool        getUseDayCycle() const { return mUseDayCycle; }
+        bool        getUseFixedSky() const { return !getUseDayCycle(); }
+
+        std::string getWaterPresetName() const { return mWaterPresetName; }
+        std::string getSkyPresetName() const { return mSkyPresetName; }
+        std::string getDayCycleName() const { return mDayCycleName; }
+
+        void setUseRegionSettings(bool val);
+        void setUseWaterPreset(const std::string& name);
+        void setUseSkyPreset(const std::string& name);
+        void setUseDayCycle(const std::string& name);
+
+    private:
+        void load();
+        void store();
+
+        bool			mUseRegionSettings;
+        bool			mUseDayCycle;
+        bool            mPersistEnvironment;
+        std::string		mWaterPresetName;
+        std::string		mSkyPresetName;
+        std::string		mDayCycleName;
+    };
+
     virtual ~LLEnvironment();
 
+    void                    loadPreferences();
+    const UserPrefs &       getPreferences() const { return mUserPrefs; }
+
     LLSettingsSky::ptr_t    getCurrentSky() const { return mCurrentSky; }
+    LLSettingsWater::ptr_t  getCurrentWater() const { return mCurrentWater; }
 
     void                    update(const LLViewerCamera * cam);
 
@@ -53,10 +92,15 @@ public:
 
     void                    addSky(const LLSettingsSky::ptr_t &sky);
     void                    selectSky(const std::string &name);
+    void                    addWater(const LLSettingsWater::ptr_t &sky);
+    void                    selectWater(const std::string &name);
 
     inline LLVector2        getCloudScrollDelta() const { return mCloudScrollDelta; }
 
     F32                     getCamHeight() const;
+    F32                     getWaterHeight() const;
+    bool                    getIsDayTime() const;   // "Day Time" is defined as the sun above the horizon.
+    bool                    getIsNightTime() const { return !getIsDayTime(); } // "Not Day Time" 
 
     inline F32              getSceneLightStrength() const { return mSceneLightStrength; }
     inline void             setSceneLightStrength(F32 light_strength) { mSceneLightStrength = light_strength; }
@@ -65,26 +109,39 @@ public:
     inline LLVector4        getClampedLightDirection() const { return LLVector4(mCurrentSky->getClampedLightDirection(), 0.0f); }
     inline LLVector4        getRotatedLight() const { return mRotatedLight; }
 
+
 private:
     static const F32        SUN_DELTA_YAW;
+    static const F32        NIGHTTIME_ELEVATION_COS;
 
-    typedef std::map<std::string, LLSettingsSky::ptr_t> NamedSkyMap_t;
-    typedef std::map<LLUUID, LLSettingsSky::ptr_t> AssetSkyMap_t;
+    typedef std::map<std::string, LLSettingsBase::ptr_t> NamedSettingMap_t;
+    typedef std::map<LLUUID, LLSettingsBase::ptr_t> AssetSettingMap_t;
 
     LLVector2               mCloudScrollDelta;  // cumulative cloud delta
 
     LLSettingsSky::ptr_t    mCurrentSky;
+    LLSettingsWater::ptr_t  mCurrentWater;
 
-    NamedSkyMap_t           mSkysByName;
-    AssetSkyMap_t           mSkysById;
+    NamedSettingMap_t       mSkysByName;
+    AssetSettingMap_t       mSkysById;
+
+    NamedSettingMap_t       mWaterByName;
+    AssetSettingMap_t       mWaterById;
 
     F32                     mSceneLightStrength;
     LLVector4               mRotatedLight;
 
-    void addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
+    UserPrefs               mUserPrefs;
+
+    //void addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
     void removeSky(const std::string &name);
-    void removeSky(const LLUUID &id);
+    //void removeSky(const LLUUID &id);
     void clearAllSkys();
+
+    //void addWater(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
+    void removeWater(const std::string &name);
+    //void removeWater(const LLUUID &id);
+    void clearAllWater();
 
     void updateCloudScroll();
 };

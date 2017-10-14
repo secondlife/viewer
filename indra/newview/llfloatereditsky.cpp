@@ -145,11 +145,6 @@ void LLFloaterEditSky::initCallbacks(void)
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnSave, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnCancel, this));
 
-    // *LAPRAS
-    // TODO:
-// 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditSky::onRegionSettingsChange, this));
-// 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditSky::onSkyPresetListChange, this));
-
 	// Connect to region info updates.
 	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditSky::onRegionInfoUpdate, this));
 

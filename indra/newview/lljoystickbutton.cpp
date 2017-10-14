@@ -48,7 +48,7 @@ static LLDefaultChildRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide
 static LLDefaultChildRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
 static LLDefaultChildRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
 static LLDefaultChildRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
-
+static LLDefaultChildRegistry::Register<LLJoystickQuaternion> r6("joystick_quat");
 
 
 const F32 NUDGE_TIME = 0.25f;		// in seconds
@@ -646,3 +646,185 @@ void LLJoystickCameraTrack::onHeldDown()
 		gAgentCamera.setPanDownKey(getOrbitRate());
 	}
 }
+
+//-------------------------------------------------------------------------------
+// LLJoystickQuaternion
+//-------------------------------------------------------------------------------
+
+LLJoystickQuaternion::Params::Params()
+{
+}
+
+LLJoystickQuaternion::LLJoystickQuaternion(const LLJoystickQuaternion::Params &p):
+    LLJoystick(p),
+    mInLeft(false),
+    mInTop(false),
+    mInRight(false),
+    mInBottom(false)
+{
+}
+
+void LLJoystickQuaternion::setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom)
+{
+    mInLeft = left;
+    mInTop = top;
+    mInRight = right;
+    mInBottom = bottom;
+}
+
+BOOL LLJoystickQuaternion::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+    updateSlop();
+
+    // Set initial offset based on initial click location
+    S32 horiz_center = getRect().getWidth() / 2;
+    S32 vert_center = getRect().getHeight() / 2;
+
+    S32 dx = x - horiz_center;
+    S32 dy = y - vert_center;
+
+    if (dy > dx && dy > -dx)
+    {
+        // top
+        mInitialOffset.mX = 0;
+        mInitialOffset.mY = (mVertSlopNear + mVertSlopFar) / 2;
+        mInitialQuadrant = JQ_UP;
+    }
+    else if (dy > dx && dy <= -dx)
+    {
+        // left
+        mInitialOffset.mX = -(mHorizSlopNear + mHorizSlopFar) / 2;
+        mInitialOffset.mY = 0;
+        mInitialQuadrant = JQ_LEFT;
+    }
+    else if (dy <= dx && dy <= -dx)
+    {
+        // bottom
+        mInitialOffset.mX = 0;
+        mInitialOffset.mY = -(mVertSlopNear + mVertSlopFar) / 2;
+        mInitialQuadrant = JQ_DOWN;
+    }
+    else
+    {
+        // right
+        mInitialOffset.mX = (mHorizSlopNear + mHorizSlopFar) / 2;
+        mInitialOffset.mY = 0;
+        mInitialQuadrant = JQ_RIGHT;
+    }
+
+    return LLJoystick::handleMouseDown(x, y, mask);
+}
+
+BOOL LLJoystickQuaternion::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+    return LLJoystick::handleMouseUp(x, y, mask);
+}
+
+void LLJoystickQuaternion::onHeldDown()
+{
+    updateSlop();
+
+    S32 dx = mLastMouse.mX - mFirstMouse.mX + mInitialOffset.mX;
+    S32 dy = mLastMouse.mY - mFirstMouse.mY + mInitialOffset.mY;
+
+    // left-right rotation
+    if (dx > mHorizSlopNear)
+    {
+    }
+    else if (dx < -mHorizSlopNear)
+    {
+    }
+
+    // over/under rotation
+    if (dy > mVertSlopNear)
+    {
+    }
+    else if (dy < -mVertSlopNear)
+    {
+    }
+}
+
+void LLJoystickQuaternion::draw()
+{
+    LLGLSUIDefault gls_ui;
+
+    getImageUnselected()->draw(0, 0);
+    LLPointer<LLUIImage> image = getImageSelected();
+
+    if (mInTop)
+    {
+        drawRotatedImage(getImageSelected(), 0);
+    }
+
+    if (mInRight)
+    {
+        drawRotatedImage(getImageSelected(), 1);
+    }
+
+    if (mInBottom)
+    {
+        drawRotatedImage(getImageSelected(), 2);
+    }
+
+    if (mInLeft)
+    {
+        drawRotatedImage(getImageSelected(), 3);
+    }
+}
+
+F32 LLJoystickQuaternion::getOrbitRate()
+{
+    return 1;
+}
+
+void LLJoystickQuaternion::updateSlop()
+{
+    // small fixed slop region
+    mVertSlopNear = 16;
+    mVertSlopFar = 32;
+
+    mHorizSlopNear = 16;
+    mHorizSlopFar = 32;
+}
+
+void LLJoystickQuaternion::drawRotatedImage(LLPointer<LLUIImage> image, S32 rotations)
+{
+    S32 width = image->getWidth();
+    S32 height = image->getHeight();
+    LLTexture* texture = image->getImage();
+
+    /*
+    * Scale  texture coordinate system
+    * to handle the different between image size and size of texture.
+    */
+    F32 uv[][2] =
+    {
+        { (F32)width / texture->getWidth(), (F32)height / texture->getHeight() },
+        { 0.f, (F32)height / texture->getHeight() },
+        { 0.f, 0.f },
+        { (F32)width / texture->getWidth(), 0.f }
+    };
+
+    gGL.getTexUnit(0)->bind(texture);
+
+    gGL.color4fv(UI_VERTEX_COLOR.mV);
+
+    gGL.begin(LLRender::QUADS);
+    {
+        gGL.texCoord2fv(uv[(rotations + 0) % 4]);
+        gGL.vertex2i(width, height);
+
+        gGL.texCoord2fv(uv[(rotations + 1) % 4]);
+        gGL.vertex2i(0, height);
+
+        gGL.texCoord2fv(uv[(rotations + 2) % 4]);
+        gGL.vertex2i(0, 0);
+
+        gGL.texCoord2fv(uv[(rotations + 3) % 4]);
+        gGL.vertex2i(width, 0);
+    }
+    gGL.end();
+}
+
+
+

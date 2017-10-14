@@ -32,42 +32,67 @@
 #include "lldaycyclemanager.h"
 #include "llviewercontrol.h" // for gSavedSettings
 #include "llviewerregion.h"
-#include "llwaterparammanager.h"
 #include "llwlhandlers.h"
 #include "lltrans.h"
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "llviewercamera.h"
 #include "pipeline.h"
+#include "llsky.h"
 
 //=========================================================================
-const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
-
 namespace
 {
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
 }
 
+//=========================================================================
+const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
+const F32 LLEnvironment::NIGHTTIME_ELEVATION_COS(LLSky::NIGHTTIME_ELEVATION_COS);
+
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
     mCurrentSky(),
+    mCurrentWater(),
     mSkysById(),
-    mSkysByName()
+    mSkysByName(),
+    mWaterByName(),
+    mWaterById(),
+    mUserPrefs()
 {
     LLSettingsSky::ptr_t p_default_sky = LLSettingsSky::buildDefaultSky();
     addSky(p_default_sky);
     mCurrentSky = p_default_sky;
+
+    LLSettingsWater::ptr_t p_default_water = LLSettingsWater::buildDefaultWater();
+    addWater(p_default_water);
+    mCurrentWater = p_default_water;
 }
 
 LLEnvironment::~LLEnvironment()
 {
 }
 
+void LLEnvironment::loadPreferences()
+{
+    mUserPrefs.load();
+}
+
 //-------------------------------------------------------------------------
 F32 LLEnvironment::getCamHeight() const
 {
     return (mCurrentSky->getDomeOffset() * mCurrentSky->getDomeRadius());
+}
+
+F32 LLEnvironment::getWaterHeight() const
+{
+    return gAgent.getRegion()->getWaterHeight();
+}
+
+bool LLEnvironment::getIsDayTime() const
+{
+    return mCurrentSky->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
 }
 
 //-------------------------------------------------------------------------
@@ -201,6 +226,7 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
     if (gPipeline.canUseWindLightShaders())
     {
         updateGLVariablesForSettings(shader, mCurrentSky);
+        updateGLVariablesForSettings(shader, mCurrentWater);
     }
 
     if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
@@ -229,35 +255,35 @@ void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
 
     LL_WARNS("RIDER") << "Adding sky as '" << name << "'" << LL_ENDL;
 
-    std::pair<NamedSkyMap_t::iterator, bool> result;
-    result = mSkysByName.insert(NamedSkyMap_t::value_type(name, sky));
+    std::pair<NamedSettingMap_t::iterator, bool> result;
+    result = mSkysByName.insert(NamedSettingMap_t::value_type(name, sky));
 
     if (!result.second)
         (*(result.first)).second = sky;
 }
 
-void LLEnvironment::addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky)
-{
-    //     std::string name = sky->getValue(LLSettingsSky::SETTING_NAME).asString();
-    // 
-    //     std::pair<NamedSkyMap_t::iterator, bool> result;
-    //     result = mSkysByName.insert(NamedSkyMap_t::value_type(name, sky));
-    // 
-    //     if (!result.second)
-    //         (*(result.first)).second = sky;
-}
+// void LLEnvironment::addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky)
+// {
+//     //     std::string name = sky->getValue(LLSettingsSky::SETTING_NAME).asString();
+//     // 
+//     //     std::pair<NamedSkyMap_t::iterator, bool> result;
+//     //     result = mSkysByName.insert(NamedSkyMap_t::value_type(name, sky));
+//     // 
+//     //     if (!result.second)
+//     //         (*(result.first)).second = sky;
+// }
 
 void LLEnvironment::removeSky(const std::string &name)
 {
-    NamedSkyMap_t::iterator it = mSkysByName.find(name);
+    NamedSettingMap_t::iterator it = mSkysByName.find(name);
     if (it != mSkysByName.end())
         mSkysByName.erase(it);
 }
 
-void LLEnvironment::removeSky(const LLUUID &id)
-{
-
-}
+// void LLEnvironment::removeSky(const LLUUID &id)
+// {
+// 
+// }
 
 void LLEnvironment::clearAllSkys()
 {
@@ -267,12 +293,95 @@ void LLEnvironment::clearAllSkys()
 
 void LLEnvironment::selectSky(const std::string &name)
 {
-    NamedSkyMap_t::iterator it = mSkysByName.find(name);
+    NamedSettingMap_t::iterator it = mSkysByName.find(name);
 
     if (it == mSkysByName.end())
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to select sky with unknown name '" << name << "'" << LL_ENDL;
         return;
+    }
 
-    mCurrentSky = (*it).second;
+    mCurrentSky = boost::static_pointer_cast<LLSettingsSky>((*it).second);
     mCurrentSky->setDirtyFlag(true);
 }
 
+void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
+{
+    std::string name = water->getValue(LLSettingsWater::SETTING_NAME).asString();
+
+    LL_WARNS("RIDER") << "Adding water as '" << name << "'" << LL_ENDL;
+
+    std::pair<NamedSettingMap_t::iterator, bool> result;
+    result = mWaterByName.insert(NamedSettingMap_t::value_type(name, water));
+
+    if (!result.second)
+        (*(result.first)).second = water;
+}
+
+//void LLEnvironment::addWater(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
+
+void LLEnvironment::selectWater(const std::string &name)
+{
+    NamedSettingMap_t::iterator it = mWaterByName.find(name);
+
+    if (it == mWaterByName.end())
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to select water with unknown name '" << name << "'" << LL_ENDL;
+        return;
+    }
+
+    mCurrentWater = boost::static_pointer_cast<LLSettingsWater>((*it).second);
+    mCurrentWater->setDirtyFlag(true);
+}
+
+void LLEnvironment::removeWater(const std::string &name)
+{
+    NamedSettingMap_t::iterator it = mWaterByName.find(name);
+    if (it != mWaterByName.end())
+        mWaterByName.erase(it);
+}
+
+//void LLEnvironment::removeWater(const LLUUID &id);
+void LLEnvironment::clearAllWater()
+{
+    mWaterByName.clear();
+    mWaterById.clear();
+}
+
+
+//=========================================================================
+LLEnvironment::UserPrefs::UserPrefs():
+    mUseRegionSettings(true),
+    mUseDayCycle(true),
+    mPersistEnvironment(false),
+    mWaterPresetName(),
+    mSkyPresetName(),
+    mDayCycleName()
+{}
+
+
+void LLEnvironment::UserPrefs::load()
+{
+    mPersistEnvironment = gSavedSettings.getBOOL("EnvironmentPersistAcrossLogin");
+
+    mWaterPresetName = gSavedSettings.getString("WaterPresetName");
+    mSkyPresetName = gSavedSettings.getString("SkyPresetName");
+    mDayCycleName = gSavedSettings.getString("DayCycleName");
+
+    mUseRegionSettings = mPersistEnvironment ? gSavedSettings.getBOOL("UseEnvironmentFromRegion") : true;
+    mUseDayCycle = mPersistEnvironment ? gSavedSettings.getBOOL("UseDayCycle") : true;
+}
+
+void LLEnvironment::UserPrefs::store()
+{
+    gSavedSettings.setBOOL("EnvironmentPersistAcrossLogin", mPersistEnvironment);
+    if (mPersistEnvironment)
+    {
+        gSavedSettings.setString("WaterPresetName", getWaterPresetName());
+        gSavedSettings.setString("SkyPresetName", getSkyPresetName());
+        gSavedSettings.setString("DayCycleName", getDayCycleName());
+
+        gSavedSettings.setBOOL("UseEnvironmentFromRegion", getUseRegionSettings());
+        gSavedSettings.setBOOL("UseDayCycle", getUseDayCycle());
+    }
+}

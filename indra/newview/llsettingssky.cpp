@@ -47,8 +47,8 @@ namespace
     const LLVector3 VECT_ZENITH(0.f, 1.f, 0.f);
     const LLVector3 VECT_NORTHSOUTH(1.f, 0.f, 0.f);
 
-    LLTrace::BlockTimerStatHandle FTM_BLEND_ENVIRONMENT("Blending Environment Params");
-    LLTrace::BlockTimerStatHandle FTM_UPDATE_ENVIRONMENT("Update Environment Params");
+    LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
+    LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");
 
     LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude);
     void angles_from_rotation(LLQuaternion quat, F32 &azimuth, F32 &altitude);
@@ -266,8 +266,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
     }
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(newsettings);
-    skyp->update();
-
+ 
     return skyp;    
 }
 
@@ -293,11 +292,11 @@ LLSettingsSky::ptr_t LLSettingsSky::buildClone()
 
 LLSettingsSky::ptr_t LLSettingsSky::blend(const LLSettingsSky::ptr_t &other, F32 mix) const
 {
-    LL_RECORD_BLOCK_TIME(FTM_BLEND_ENVIRONMENT);
+    LL_RECORD_BLOCK_TIME(FTM_BLEND_SKYVALUES);
     LL_INFOS("WINDLIGHT", "SKY", "EEP") << "Blending new sky settings object." << LL_ENDL;
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(mSettings);
-    // the settings in the initial constructor are references tho this' settings block.  
+    // the settings in the initial constructor are references to this' settings block.  
     // They will be replaced in the following lerp
     skyp->lerpSettings(*other, mix);
 
@@ -329,7 +328,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
     dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
     dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
-    dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();   // *RIDER: This is really weird for a color... TODO: check if right.
+    dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();
     dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
     dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
     dfltsetting[SETTING_LIGHT_NORMAL]       = LLVector4(0.0000, 0.9126, -0.4086, 0.0000).getValue();
@@ -350,7 +349,7 @@ LLSD LLSettingsSky::defaults()
 
 void LLSettingsSky::updateSettings()
 {
-    LL_RECORD_BLOCK_TIME(FTM_UPDATE_ENVIRONMENT);
+    LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKYVALUES);
     LL_INFOS("WINDLIGHT", "SKY", "EEP") << "WL Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
 
     // base class clears dirty flag so as to not trigger recursive update

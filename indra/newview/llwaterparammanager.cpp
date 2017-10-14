@@ -58,17 +58,17 @@
 #include "curl/curl.h"
 
 LLWaterParamManager::LLWaterParamManager() :
-	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
-	mFogDensity(4, "waterFogDensity", 2),
-	mUnderWaterFogMod(0.25, "underWaterFogMod"),
-	mNormalScale(2.f, 2.f, 2.f, "normScale"),
-	mFresnelScale(0.5f, "fresnelScale"),
-	mFresnelOffset(0.4f, "fresnelOffset"),
-	mScaleAbove(0.025f, "scaleAbove"),
-	mScaleBelow(0.2f, "scaleBelow"),
-	mBlurMultiplier(0.1f, "blurMultiplier"),
-	mWave1Dir(.5f, .5f, "wave1Dir"),
-	mWave2Dir(.5f, .5f, "wave2Dir"),
+// 	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
+// 	mFogDensity(4, "waterFogDensity", 2),
+// 	mUnderWaterFogMod(0.25, "underWaterFogMod"),
+// 	mNormalScale(2.f, 2.f, 2.f, "normScale"),
+// 	mFresnelScale(0.5f, "fresnelScale"),
+// 	mFresnelOffset(0.4f, "fresnelOffset"),
+// 	mScaleAbove(0.025f, "scaleAbove"),
+// 	mScaleBelow(0.2f, "scaleBelow"),
+// 	mBlurMultiplier(0.1f, "blurMultiplier"),
+// 	mWave1Dir(.5f, .5f, "wave1Dir"),
+// 	mWave2Dir(.5f, .5f, "wave2Dir"),
 	mDensitySliderValue(1.0f),
 	mWaterFogKS(1.0f)
 {
@@ -135,6 +135,10 @@ bool LLWaterParamManager::loadPreset(const std::string& path)
 		addParamSet(name, params_data);
 	}
 
+    //*LAPRAS temp code testing conversion old preset to new settings.
+    LLSettingsWater::ptr_t test = LLSettingsWater::buildFromLegacyPreset(name, params_data);
+    LLEnvironment::instance().addWater(test);
+
 	return true;
 }
 
@@ -175,16 +179,19 @@ void LLWaterParamManager::propagateParameters(void)
 		}
 	}
 
-	bool err;
-	F32 fog_density_slider = 
+#if 0
+    bool err;
+    F32 fog_density_slider = 
 		log(mCurParams.getFloat(mFogDensity.mName, err)) / 
 		log(mFogDensity.mBase);
 
 	setDensitySliderValue(fog_density_slider);
+#endif
 }
 
 void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 {
+#if 0
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLEnvironment::instance().getRotatedLight().mV);
@@ -195,6 +202,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 		shader->uniform1f(LLShaderMgr::WATER_FOGKS, mWaterFogKS);
 		shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
 	}
+#endif
 }
 
 void LLWaterParamManager::applyParams(const LLSD& params, bool interpolate)

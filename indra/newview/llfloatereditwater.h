@@ -28,18 +28,22 @@
 #define LL_LLFLOATEREDITWATER_H
 
 #include "llfloater.h"
-#include "llenvmanager.h" // for LLEnvKey
+#include "llsettingswater.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLLineEditor;
 
-struct WaterVector2Control;
-struct WaterVector3Control;
-struct WaterColorControl;
-struct WaterFloatControl;
-struct WaterExpFloatControl;
+class WLVect2Control;
+class WLVect3Control;
+class WLColorControl;
+class WLFloatControl;
+class WLXFloatControl;
+
+class LLWatterSettingsAdapter;
+
+typedef boost::shared_ptr<LLWatterSettingsAdapter> LLWaterSettingsAdapterPtr;
 
 class LLFloaterEditWater : public LLFloater
 {
@@ -60,29 +64,22 @@ private:
 
 	void syncControls(); /// sync up sliders with parameters
 
-	// general purpose callbacks for dealing with color controllers
-	void onColorControlRMoved(LLUICtrl* ctrl, WaterColorControl* color_ctrl);
-	void onColorControlGMoved(LLUICtrl* ctrl, WaterColorControl* color_ctrl);
-	void onColorControlBMoved(LLUICtrl* ctrl, WaterColorControl* color_ctrl);
-	void onColorControlAMoved(LLUICtrl* ctrl, WaterColorControl* color_ctrl);
-	void onColorControlIMoved(LLUICtrl* ctrl, WaterColorControl* color_ctrl);
+    void onVector3ControlXMoved(LLUICtrl* ctrl, WLVect3Control* vector_ctrl);
+    void onVector3ControlYMoved(LLUICtrl* ctrl, WLVect3Control* vector_ctrl);
+    void onVector3ControlZMoved(LLUICtrl* ctrl, WLVect3Control* vector_ctrl);
 
-	void onVector3ControlXMoved(LLUICtrl* ctrl, WaterVector3Control* vector_ctrl);
-	void onVector3ControlYMoved(LLUICtrl* ctrl, WaterVector3Control* vector_ctrl);
-	void onVector3ControlZMoved(LLUICtrl* ctrl, WaterVector3Control* vector_ctrl);
+    void onVector2ControlXMoved(LLUICtrl* ctrl, WLVect2Control* vector_ctrl);
+    void onVector2ControlYMoved(LLUICtrl* ctrl, WLVect2Control* vector_ctrl);
 
-	void onVector2ControlXMoved(LLUICtrl* ctrl, WaterVector2Control* vector_ctrl);
-	void onVector2ControlYMoved(LLUICtrl* ctrl, WaterVector2Control* vector_ctrl);
+    void onFloatControlMoved(LLUICtrl* ctrl, WLFloatControl* floatControl);
 
-	void onFloatControlMoved(LLUICtrl* ctrl, WaterFloatControl* floatControl);
+    void onExpFloatControlMoved(LLUICtrl* ctrl, WLXFloatControl* expFloatControl);
 
-	void onExpFloatControlMoved(LLUICtrl* ctrl, WaterExpFloatControl* expFloatControl);
-
-	void onWaterFogColorMoved(LLUICtrl* ctrl, WaterColorControl* color_ctrl);
+    void onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color_ctrl);
 
 	void onNormalMapPicked(LLUICtrl* ctrl); /// handle if they choose a new normal map
 
-	//-- WL stuff ends --------------------------------------------------------
+    //-- WL stuff ends --------------------------------------------------------
 
 	void reset();
 	bool isNewPreset() const;
@@ -90,9 +87,9 @@ private:
 	void enableEditing(bool enable);
 	void saveRegionWater();
 
-	std::string			getCurrentPresetName() const;
-	LLEnvKey::EScope	getCurrentScope() const;
-	void				getSelectedPreset(std::string& name, LLEnvKey::EScope& scope) const;
+//	std::string			getCurrentPresetName() const;
+// 	LLEnvKey::EScope	getCurrentScope() const;
+//	void				getSelectedPreset(std::string& name, LLEnvKey::EScope& scope) const;
 
 	void onWaterPresetNameEdited();
 	void onWaterPresetSelected();
@@ -110,6 +107,9 @@ private:
 	LLComboBox*		mWaterPresetCombo;
 	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
 	LLButton*		mSaveButton;
+
+    LLWaterSettingsAdapterPtr   mWaterAdapter;
+    LLSettingsWater::ptr_t      mEditSettings;
 };
 
 #endif // LL_LLFLOATEREDITWATER_H

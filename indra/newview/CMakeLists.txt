@@ -537,6 +537,7 @@ set(viewer_SOURCE_FILES
     llselectmgr.cpp
     llsettingsbase.cpp
     llsettingssky.cpp
+    llsettingswater.cpp
     llshareavatarhandler.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
@@ -1153,6 +1154,7 @@ set(viewer_HEADER_FILES
     llselectmgr.h
     llsettingsbase.h
     llsettingssky.h
+    llsettingswater.h
     llsidepanelappearance.h
     llsidepanelinventory.h
     llsidepanelinventorysubpanel.h

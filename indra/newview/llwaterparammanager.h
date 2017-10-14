@@ -34,7 +34,7 @@
 #include "v4color.h"
 
 const F32 WATER_FOG_LIGHT_CLAMP = 0.3f;
-
+#if 0
 // color control
 struct WaterColorControl {
 	
@@ -209,7 +209,7 @@ struct WaterExpFloatControl
 		params.set(mName, pow(mBase, mExp));
 	}
 };
-
+#endif
 
 /// WindLight parameter manager class - what controls all the wind light shaders
 class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
@@ -298,7 +298,7 @@ public:
 public:
 
 	LLWaterParamSet mCurParams;
-
+#if 0
 	/// Atmospherics
 	WaterColorControl mFogColor;
 	WaterExpFloatControl mFogDensity;
@@ -315,8 +315,8 @@ public:
 	WaterFloatControl mScaleAbove;
 	WaterFloatControl mScaleBelow;
 	WaterFloatControl mBlurMultiplier;
-	
-	F32 mDensitySliderValue;
+#endif	
+    F32 mDensitySliderValue;
 
 private:
 	/*virtual*/ void initSingleton();

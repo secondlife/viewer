@@ -170,7 +170,6 @@
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
 #include "llpostprocess.h"
-#include "llwaterparammanager.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"

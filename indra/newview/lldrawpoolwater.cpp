@@ -46,7 +46,9 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
-#include "llwaterparammanager.h"
+#include "llenvironment.h"
+#include "llsettingssky.h"
+#include "llsettingswater.h"
 
 const LLUUID TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 const LLUUID OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");
@@ -58,10 +60,10 @@ BOOL deferred_render = FALSE;
 BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
-LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
+//LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
 F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 
-LLVector3 LLDrawPoolWater::sLightDir;
+//LLVector3 LLDrawPoolWater::sLightDir;
 
 LLDrawPoolWater::LLDrawPoolWater() :
 	LLFacePool(POOL_WATER)
@@ -110,8 +112,6 @@ void LLDrawPoolWater::prerender()
 
 	// got rid of modulation by light color since it got a little too
 	// green at sunset and sl-57047 (underwater turns black at 8:00)
-	sWaterFogColor = LLWaterParamManager::instance().getFogColor();
-	sWaterFogColor.mV[3] = 0;
 
 }
 
@@ -488,28 +488,49 @@ void LLDrawPoolWater::shade()
 	LLVector3 light_dir;
 	LLColor3 light_color;
 
-	if (gSky.getSunDirection().mV[2] > LLSky::NIGHTTIME_ELEVATION_COS) 	 
-    { 	 
-        light_dir  = gSky.getSunDirection(); 	 
-        light_dir.normVec(); 	
-		light_color = gSky.getSunDiffuseColor();
-		if(gSky.mVOSkyp) {
-	        light_diffuse = gSky.mVOSkyp->getSun().getColorCached(); 	 
-			light_diffuse.normVec(); 	 
-		}
-        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
-        light_diffuse *= light_exp + 0.25f; 	 
-    } 	 
-    else  	 
-    { 	 
-        light_dir       = gSky.getMoonDirection(); 	 
-        light_dir.normVec(); 	 
-		light_color = gSky.getMoonDiffuseColor();
-        light_diffuse   = gSky.mVOSkyp->getMoon().getColorCached(); 	 
-        light_diffuse.normVec(); 	 
-        light_diffuse *= 0.5f; 	 
-        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+
+    light_dir = psky->getLightDirection();
+    if (LLEnvironment::instance().getIsDayTime())
+    {
+        light_color = psky->getSunAmbient();
+        light_diffuse = psky->getSunDiffuse(); 
+        light_diffuse.normalize();
+        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
+        light_diffuse *= (light_exp + 0.25f);
     }
+    else
+    {
+        light_color = psky->getMoonAmbient();
+        light_diffuse = psky->getMoonDiffuse();
+        light_diffuse.normalize();
+        light_diffuse *= 0.5f;
+        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
+    }
+
+// 	if (gSky.getSunDirection().mV[2] > LLSky::NIGHTTIME_ELEVATION_COS) 	 
+//     { 	 
+//         light_dir  = gSky.getSunDirection(); 	 
+//         light_dir.normVec(); 	
+// 		light_color = gSky.getSunDiffuseColor();
+// 		if(gSky.mVOSkyp) {
+// 	        light_diffuse = gSky.mVOSkyp->getSun().getColorCached(); 	 
+// 			light_diffuse.normVec(); 	 
+// 		}
+//         light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
+//         light_diffuse *= light_exp + 0.25f; 	 
+//     } 	 
+//     else  	 
+//     { 	 
+//         light_dir       = gSky.getMoonDirection(); 	 
+//         light_dir.normVec(); 	 
+// 		light_color = gSky.getMoonDiffuseColor();
+//         light_diffuse   = gSky.mVOSkyp->getMoon().getColorCached(); 	 
+//         light_diffuse.normVec(); 	 
+//         light_diffuse *= 0.5f; 	 
+//         light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
+//     }
 
 	light_exp *= light_exp;
 	light_exp *= light_exp;
@@ -518,9 +539,11 @@ void LLDrawPoolWater::shade()
 	light_exp *= 256.f;
 	light_exp = light_exp > 32.f ? light_exp : 32.f;
 
+    light_diffuse *= 6.f;
+
 	LLGLSLShader* shader;
 
-	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
+	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - LLEnvironment::instance().getWaterHeight();
 	
 	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
 	{
@@ -551,7 +574,7 @@ void LLDrawPoolWater::shade()
 		shader->bind();
 	}
 
-	sTime = (F32)LLFrameTimer::getElapsedSeconds()*0.5f;
+	sTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;
 	
 	S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);
 		
@@ -565,12 +588,10 @@ void LLDrawPoolWater::shade()
 	//bind normal map
 	S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 
-	LLWaterParamManager * param_mgr = &LLWaterParamManager::instance();
-
 	// change mWaterNormp if needed
-	if (mWaterNormp->getID() != param_mgr->getNormalMapID())
+	if (mWaterNormp->getID() != pwater->getNormalMapID())
 	{
-		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID());
+		mWaterNormp = LLViewerTextureManager::getFetchedTexture(pwater->getNormalMapID());
 	}
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);
@@ -588,9 +609,8 @@ void LLDrawPoolWater::shade()
 		
 	if (screentex > -1)
 	{
-		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
-		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, 
-			param_mgr->getFogDensity());
+		shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getFogColor().mV);
+        shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getFogDensity());
 		gPipeline.mWaterDis.bindTexture(0, screentex);
 	}
 	
@@ -600,8 +620,9 @@ void LLDrawPoolWater::shade()
 
 	if (mVertexShaderLevel == 1)
 	{
-		sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
-		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+        LLColor4 fog_color(pwater->getFogColor(), 0.f);
+        fog_color[3] = pwater->getFogDensity();
+        shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, fog_color.mV);
 	}
 
 	F32 screenRes[] = 
@@ -615,25 +636,20 @@ void LLDrawPoolWater::shade()
 	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 	stop_glerror();
 	
-	light_dir.normVec();
-	sLightDir = light_dir;
-	
-	light_diffuse *= 6.f;
-
 	//shader->uniformMatrix4fv("inverse_ref", 1, GL_FALSE, (GLfloat*) gGLObliqueProjectionInverse.mMatrix);
 	shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, eyedepth);
 	shader->uniform1f(LLShaderMgr::WATER_TIME, sTime);
 	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
 	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
-	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
-	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, pwater->getWave1Dir().mV);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, pwater->getWave2Dir().mV);
 	shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
 
-	shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, param_mgr->getNormalScale().mV);
-	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, param_mgr->getFresnelScale());
-	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, param_mgr->getFresnelOffset());
-	shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, param_mgr->getBlurMultiplier());
+	shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, pwater->getNormalScale().mV);
+	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, pwater->getFresnelScale());
+	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, pwater->getFresnelOffset());
+    shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, pwater->getBlurMultiplier());
 
 	F32 sunAngle = llmax(0.f, light_dir.mV[2]);
 	F32 scaledAngle = 1.f - sunAngle;
@@ -648,12 +664,12 @@ void LLDrawPoolWater::shade()
 	if (LLViewerCamera::getInstance()->cameraUnderWater())
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, pwater->getScaleBelow());
 	}
 	else
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleAbove());
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, pwater->getScaleAbove());
 	}
 
 	if (water_color.mV[3] > 0.9f)

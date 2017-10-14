@@ -74,7 +74,6 @@
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 #include "lldrawpoolbump.h"
-#include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 #include "llscenemonitor.h"
@@ -203,7 +202,6 @@ void display_update_camera()
 	
 	// update all the sky/atmospheric/water settings
     LLEnvironment::instance().update(LLViewerCamera::getInstance());
-	LLWaterParamManager::getInstance()->update(LLViewerCamera::getInstance());
 
 	// Update land visibility too
 	LLWorld::getInstance()->setLandFarClip(final_far);
@@ -920,7 +918,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				gPipeline.mScreen.bindTarget();
 				if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
 				{
-					const LLColor4 &col = LLDrawPoolWater::sWaterFogColor;
+					const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getFogColor();
 					glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 				}
 				gPipeline.mScreen.clear();

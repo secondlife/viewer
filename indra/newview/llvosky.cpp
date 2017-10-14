@@ -48,7 +48,6 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "lldrawpoolwlsky.h"
-#include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "v3colorutil.h"
 
@@ -1952,11 +1951,12 @@ void LLVOSky::updateFog(const F32 distance)
 	}
 	else
 	{
+        LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 		F32 depth = water_height - camera_height;
 		
 		// get the water param manager variables
-		float water_fog_density = LLWaterParamManager::getInstance()->getFogDensity();
-		LLColor4 water_fog_color(LLDrawPoolWater::sWaterFogColor.mV);
+        float water_fog_density = pwater->getFogDensity();
+		LLColor4 water_fog_color(pwater->getFogColor());
 		
 		// adjust the color based on depth.  We're doing linear approximations
 		float depth_scale = gSavedSettings.getF32("WaterGLFogDepthScale");
