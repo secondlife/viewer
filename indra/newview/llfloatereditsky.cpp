@@ -215,7 +215,7 @@ void LLFloaterEditSky::syncControls()
 
 
 	// blue horizon
-	mSkyAdapter->mBlueHorizon = psky->getBlueHorizon();
+	mSkyAdapter->mBlueHorizon.setColor3( psky->getBlueHorizon() );
 	setColorSwatch("WLBlueHorizon", mSkyAdapter->mBlueHorizon, WL_BLUE_HORIZON_DENSITY_SCALE);
 
 	// haze density, horizon, mult, and altitude
@@ -229,22 +229,22 @@ void LLFloaterEditSky::syncControls()
 	childSetValue("WLMaxAltitude", (F32) mSkyAdapter->mMaxAlt);
 
 	// blue density
-    mSkyAdapter->mBlueDensity = psky->getBlueDensity();
+    mSkyAdapter->mBlueDensity.setColor3( psky->getBlueDensity() );
 	setColorSwatch("WLBlueDensity", mSkyAdapter->mBlueDensity, WL_BLUE_HORIZON_DENSITY_SCALE);
 
 	// Lighting
 
 	// sunlight
-    mSkyAdapter->mSunlight = psky->getSunlightColor();
+    mSkyAdapter->mSunlight.setColor3( psky->getSunlightColor() );
 	setColorSwatch("WLSunlight", mSkyAdapter->mSunlight, WL_SUN_AMBIENT_SLIDER_SCALE);
 
 	// glow
-    mSkyAdapter->mGlow = psky->getGlow();
+    mSkyAdapter->mGlow.setColor3( psky->getGlow() );
 	childSetValue("WLGlowR", 2 - mSkyAdapter->mGlow.getRed() / 20.0f);
 	childSetValue("WLGlowB", -mSkyAdapter->mGlow.getBlue() / 5.0f);
 
 	// ambient
-    mSkyAdapter->mAmbient = psky->getAmbientColor();
+    mSkyAdapter->mAmbient.setColor3( psky->getAmbientColor() );
 	setColorSwatch("WLAmbient", mSkyAdapter->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
 
     LLSettingsSky::azimalt_t azal = psky->getSunRotationAzAl();
@@ -257,17 +257,17 @@ void LLFloaterEditSky::syncControls()
 	// Clouds
 
 	// Cloud Color
-    mSkyAdapter->mCloudColor = psky->getCloudColor();
+    mSkyAdapter->mCloudColor.setColor3( psky->getCloudColor() );
 	setColorSwatch("WLCloudColor", mSkyAdapter->mCloudColor, WL_CLOUD_SLIDER_SCALE);
 
 	// Cloud
-    mSkyAdapter->mCloudMain = psky->getCloudPosDensity1();
+    mSkyAdapter->mCloudMain.setColor3( psky->getCloudPosDensity1() );
 	childSetValue("WLCloudX", mSkyAdapter->mCloudMain.getRed());
 	childSetValue("WLCloudY", mSkyAdapter->mCloudMain.getGreen());
 	childSetValue("WLCloudDensity", mSkyAdapter->mCloudMain.getBlue());
 
 	// Cloud Detail
-	mSkyAdapter->mCloudDetail = psky->getCloudPosDensity2();
+	mSkyAdapter->mCloudDetail.setColor3( psky->getCloudPosDensity2() );
 	childSetValue("WLCloudDetailX", mSkyAdapter->mCloudDetail.getRed());
 	childSetValue("WLCloudDetailY", mSkyAdapter->mCloudDetail.getGreen());
 	childSetValue("WLCloudDetailDensity", mSkyAdapter->mCloudDetail.getBlue());
@@ -307,7 +307,7 @@ void LLFloaterEditSky::syncControls()
 void LLFloaterEditSky::setColorSwatch(const std::string& name, const WLColorControl& from_ctrl, F32 k)
 {
 	// Set the value, dividing it by <k> first.
-	LLColor4 color = from_ctrl;
+	LLColor4 color = from_ctrl.getColor4();
 	getChild<LLColorSwatchCtrl>(name)->set(color / k);
 }
 
@@ -336,7 +336,7 @@ void LLFloaterEditSky::onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color
     color_vec.mV[3] = color_max(color_vec);
 
 	// Apply the new RGBI value.
-	*color_ctrl = color_vec;
+	color_ctrl->setColor4(color_vec);
 	color_ctrl->update(mEditSettings);
 }
 
@@ -410,7 +410,7 @@ void LLFloaterEditSky::adjustIntensity(WLColorControl *ctrl, F32 val, F32 scale)
 {
     if (ctrl->getHasSliderName())
     {
-        LLColor4 color = static_cast<LLColor4>(*ctrl);
+        LLColor4 color = ctrl->getColor4();
         F32 i = color_max(color) / scale;
         ctrl->setIntensity(i);
         std::string name = ctrl->getSliderName();

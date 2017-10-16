@@ -286,7 +286,7 @@ void LLFloaterEditWater::onExpFloatControlMoved(LLUICtrl* ctrl, WLXFloatControl*
 void LLFloaterEditWater::onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color_ctrl)
 {
 	LLColorSwatchCtrl* swatch = static_cast<LLColorSwatchCtrl*>(ctrl);
-	*color_ctrl = swatch->get();
+	color_ctrl->setColor4( swatch->get() );
 	color_ctrl->update(mEditSettings);
 }
 

@@ -51,18 +51,22 @@ public:
         mIsBlueHorizonOrDensity = (mSliderName == "WLBlueHorizon" || mSliderName == "WLBlueDensity");
     }
 
-    inline WLColorControl & operator = (const LLColor4 & val)
+    inline void setColor4(const LLColor4 & val)
     {
         mColor = val;
-        return *this;
     }
 
-    inline operator LLColor4 (void) const 
+    inline void setColor3(const LLColor3 & val)
+    {
+        mColor = val;
+    }
+
+    inline LLColor4 getColor4() const
     {
         return mColor;
     }
 
-    inline operator LLColor3 (void) const 
+    inline LLColor3 getColor3(void) const 
     {
         return vec4to3(mColor);
     }
