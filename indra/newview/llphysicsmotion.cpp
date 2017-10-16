@@ -44,7 +44,7 @@ typedef std::map<std::string, std::string> controller_map_t;
 typedef std::map<std::string, F32> default_controller_map_t;
 
 #define MIN_REQUIRED_PIXEL_AREA_AVATAR_PHYSICS_MOTION 0.f
-#define TIME_ITERATION_STEP 0.033f // roughtly 30 fps
+#define TIME_ITERATION_STEP 0.1f
 
 inline F64 llsgn(const F64 a)
 {
@@ -493,8 +493,8 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 
         const F32 time_delta = time - mLastTime;
 
-	// Don't update too frequently (below 0.01), to avoid precision errors from small time slices.
-	if (time_delta <= TIME_ITERATION_STEP)
+	// Don't update too frequently, to avoid precision errors from small time slices.
+	if (time_delta <= .01)
 	{
 		return FALSE;
 	}
@@ -561,10 +561,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		F32 time_iteration_step = TIME_ITERATION_STEP;
 		if (time_iteration + TIME_ITERATION_STEP > time_delta)
 		{
-			time_iteration_step = time_delta - time_iteration;
-			// Leave the rest for next update.
-			mLastTime = time - time_iteration_step;
-			break;
+			time_iteration_step = time_delta-time_iteration;
 		}
 		
 		// mPositon_local should be in normalized 0,1 range already.  Just making sure...
@@ -719,6 +716,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		mAccelerationJoint_local = acceleration_joint_local;
 		mPosition_local = position_new_local;
 	}
+	mLastTime = time;
 	mPosition_world = joint->getWorldPosition();
 	mVelocityJoint_local = velocity_joint_local;
 
