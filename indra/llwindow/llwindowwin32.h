@@ -214,6 +214,8 @@ protected:
 	U32				mRawWParam;
 	U32				mRawLParam;
 
+	BOOL			mMouseVanish;
+
 	friend class LLWindowManager;
 };
 
