@@ -119,7 +119,7 @@
 			<menu_item_call label="Sonraki Parçayı veya Yüzü Dahil Et" name="Include Next Part or Face"/>
 			<menu_item_call label="Önceki Parçayı veya Yüzü Dahil Et" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="Bölge Nesneleri" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Seçime Odaklan" name="Focus on Selection"/>
 		<menu_item_call label="Seçimi Yakınlaştır" name="Zoom to Selection"/>
 		<menu label="Nesne" name="Object">
@@ -139,7 +139,7 @@
 			<menu_item_call label="Komut Dosyalarını Çalışmıyor Olarak Ayarla" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Yol bulma" name="Pathfinding">
-			<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Bölge Nesneleri" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Karakterler..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Görüntüleme / test..." name="pathfinding_console_menu_item"/>
 			<menu_item_call label="Bölgeyi tekrar kaydet" name="pathfinding_rebake_navmesh_item"/>

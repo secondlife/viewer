@@ -7,5 +7,6 @@
 	<name_list name="render_settings_list">
 		<name_list.columns label="Ad" name="name"/>
 		<name_list.columns label="İşleme ayarı" name="setting"/>
+		<name_list.columns label="Ekleme tarihi" name="timestamp"/>
 	</name_list>
 </floater>

@@ -17,60 +17,34 @@ domaine.
 	<text name="estate_owner">
 		(inconnu)
 	</text>
-	<text name="Only Allow">
-		Conditions d&apos;accès des résidents :
-	</text>
-	<check_box label="Informations de paiement enregistrées" name="limit_payment" tool_tip="Pour pouvoir accéder à ce domaine, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
-	<check_box label="Avoir plus de 18 ans" name="limit_age_verified" tool_tip="Pour accéder à ce domaine, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="Autoriser uniquement les résidents et les groupes indiqués ci-dessous" name="estate_restricted_access"/>
+		<radio_item label="Visite ouverte à tous" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="Doit avoir plus de 18 ans" name="limit_age_verified" tool_tip="Pour accéder à ce domaine, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+	<check_box label="Les infos de paiement doivent être enregistrées" name="limit_payment" tool_tip="Pour pouvoir accéder à ce domaine, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+	<check_box label="Les propriétaires de terrain peuvent imposer plus de restrictions" name="parcel_access_override"/>
 	<check_box label="Autoriser les chats vocaux" name="voice_chat_check"/>
-	<button label="?" name="voice_chat_help"/>
-	<text name="abuse_email_text">
-		E-mail où signaler l&apos;infraction :
-	</text>
-	<string name="email_unsupported">
-		Non pris en charge
-	</string>
-	<button label="?" name="abuse_email_address_help"/>
+	<check_box label="Autoriser la téléportation directe" name="allow_direct_teleport"/>
+	<button label="Appliquer" name="apply_btn"/>
 	<text name="estate_manager_label">
 		Gérants du domaine :
 	</text>
-	<button label="?" name="estate_manager_help"/>
+	<text name="allow_resident_label">
+		Toujours autorisé :
+	</text>
 	<button label="Ajouter..." name="add_estate_manager_btn"/>
 	<button label="Supprimer..." name="remove_estate_manager_btn"/>
-	<check_box label="Utiliser le temps universel" name="use_global_time_check"/>
-	<button label="?" name="use_global_time_help"/>
-	<check_box label="Soleil fixe" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Phase" name="sun_hour_slider"/>
-	<check_box label="Autoriser l&apos;accès public" name="externally_visible_check"/>
-	<button label="?" name="externally_visible_help"/>
-	<check_box label="Vue sur le continent" name="mainland_visible_check"/>
-	<button label="?" name="mainland_visible_help"/>
-	<check_box label="Autoriser la téléportation directe" name="allow_direct_teleport"/>
-	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="region_text_lbl">
-		Refuser l&apos;accès selon les infos de paiement :
-	</text>
-	<check_box label="Refuser sans infos de paiement enregistrées" name="deny_anonymous"/>
-	<check_box label="Refuser avec infos de paiement enregistrées" name="deny_identified"/>
-	<check_box label="Refuser avec infos de paiement utilisées" name="deny_transacted"/>
-	<button label="Appliquer" name="apply_btn"/>
-	<text name="allow_resident_label">
-		Résidents autorisés :
-	</text>
-	<button label="?" name="allow_resident_help"/>
 	<button label="Ajouter..." name="add_allowed_avatar_btn"/>
 	<button label="Supprimer..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		Groupes autorisés :
+		Groupes toujours autorisés :
 	</text>
-	<button label="?" name="allow_group_help"/>
+	<text name="ban_resident_label">
+		Toujours interdit :
+	</text>
 	<button label="Ajouter..." name="add_allowed_group_btn"/>
 	<button label="Supprimer..." name="remove_allowed_group_btn"/>
-	<text name="ban_resident_label">
-		Résidents bannis :
-	</text>
-	<button label="?" name="ban_resident_help"/>
 	<button label="Ajouter..." name="add_banned_avatar_btn"/>
 	<button label="Supprimer..." name="remove_banned_avatar_btn"/>
 	<button label="Message au domaine..." name="message_estate_btn"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="Yol bulma bağlantı kümeleri">
+<floater name="floater_pathfinding_linksets" title="BÖLGE NESNELERİ">
 	<floater.string name="messaging_get_inprogress">
 		Yol bulma bağlantı kümeleri için sorgulama yapılıyor ...
 	</floater.string>
@@ -16,7 +16,7 @@
 		Yol bulma bağlantı kümeleri yok.
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		Toplam [NUM_TOTAL] bağlantı kümesi içerisinden [NUM_SELECTED] adet seçildi.
+		[NUM_SELECTED] / [NUM_TOTAL] seçildi.
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
 		Bu bölgede yol bulma etkin değil.
@@ -118,7 +118,7 @@
 			<scroll_list.columns label="Komut Dosyalı" name="scripted"/>
 			<scroll_list.columns label="Etki" name="land_impact"/>
 			<scroll_list.columns label="Mesafe" name="dist_from_you"/>
-			<scroll_list.columns label="Bağlantı kümesi kullanımı" name="linkset_use"/>
+			<scroll_list.columns label="Yol bulma kullanımı" name="linkset_use"/>
 			<scroll_list.columns label="% A" name="a_percent"/>
 			<scroll_list.columns label="% B" name="b_percent"/>
 			<scroll_list.columns label="% C" name="c_percent"/>
@@ -133,7 +133,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_actions">
 		<text name="linksets_actions_label">
-			Seçilen bağlantı kümeleri üzerindeki işlemler (bir bağlantı kümesi dünyadan çıkarılırsa, özellikleri de kaybolabilir)
+			Seçilenler üzerindeki eylemler
 		</text>
 		<check_box label="İşareti göster" name="show_beacon"/>
 		<button label="Al" name="take_objects"/>
@@ -144,7 +144,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_attributes">
 		<text name="linksets_attributes_label">
-			Seçili bağlantı kümelerinin özelliklerini düzenleyin ve değişiklikleri uygulamak için düğmeye basın
+			Yol bulma özelliklerini düzenle
 		</text>
 		<text name="walkability_coefficients_label">
 			Yürüyebilirlik:

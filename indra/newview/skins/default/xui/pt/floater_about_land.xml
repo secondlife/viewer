@@ -435,13 +435,10 @@ Mídia:
 			<panel.string name="estate_override">
 				Uma ou mais destas opções está definida no nível de propriedade.
 			</panel.string>
-			<check_box label="Permitir acesso público (Desmarcar esse item cria limites)" name="public_access"/>
-			<text name="Only Allow">
-				Permitir acesso apenas para residentes que:
-			</text>
-			<check_box label="Possuam Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Os residentes devem ter seus dados de pagamento cadastrados para acessar este lote.  Consulte o [SUPPORT_SITE] para saber mais."/>
-			<check_box label="Tem 18 anos ou mais [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Os residentes devem ter 18 anos ou mais para acessar este lote. Consulte o [SUPPORT_SITE] para obter mais informações."/>
-			<check_box label="Permitir acesso do grupo: [GROUP]" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
+			<check_box label="Qualquer um pode visitar (Desmarcar esse item criará limites)" name="public_access"/>
+			<check_box label="Deve ser maior de 18 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Os residentes devem ter 18 anos ou mais para acessar este lote. Consulte o [SUPPORT_SITE] para obter mais informações."/>
+			<check_box label="Deve conter no arquivo as informações de pagamento [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Os residentes devem ter seus dados de pagamento cadastrados para acessar este lote.  Consulte o [SUPPORT_SITE] para saber mais."/>
+			<check_box label="Permitir grupo [GROUP] sem restrições" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
 			<check_box label="Vender passes para:" name="PassCheck" tool_tip="Permite acesso temporário a este terreno"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Qualquer um" name="Anyone"/>
@@ -449,9 +446,12 @@ Mídia:
 			</combo_box>
 			<spinner label="Preço em L$:" name="PriceSpin"/>
 			<spinner label="Horas de acesso:" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(O proprietário do imóvel pode ter limitado estas escolhas)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Always Allow" name="AllowedText">
-					Residentes permitidos ([COUNT], máx: [MAX])
+					Sempre permitido ([COUNT], máx: [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="(Total [LISTED], máx de [MAX])"/>
 				<button label="Adicionar" name="add_allowed"/>
@@ -459,7 +459,7 @@ Mídia:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Ban" name="BanCheck">
-					Residentes banidos ([COUNT], máx: [MAX])
+					Sempre banido ([COUNT], máx: [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="(Total [LISTED], máx de [MAX])"/>
 				<button label="Adicionar" name="add_banned"/>

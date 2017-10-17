@@ -440,13 +440,10 @@ musique :
 			<panel.string name="estate_override">
 				Au moins une de ces options est définie au niveau du domaine.
 			</panel.string>
-			<check_box label="Autoriser l&apos;accès public (des lignes d&apos;interdiction seront créées si cette case n&apos;est pas cochée)" name="public_access"/>
-			<text name="Only Allow">
-				Conditions d&apos;accès des résidents :
-			</text>
-			<check_box label="Informations de paiement enregistrées [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Pour pouvoir accéder à cette parcelle, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
-			<check_box label="Avoir plus de 18 ans [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour accéder à cette parcelle, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
-			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
+			<check_box label="Tout le monde peut rendre visite (Des lignes d&apos;interdiction seront créées si cette case n&apos;est pas cochée)" name="public_access"/>
+			<check_box label="Doit avoir plus de 18 ans [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour accéder à cette parcelle, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+			<check_box label="Les infos de paiement doivent être enregistrées dans le dossier  [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Pour pouvoir accéder à cette parcelle, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+			<check_box label="Autoriser le groupe [GROUP] sans restrictions" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
 			<check_box label="Vendre des pass à :" name="PassCheck" tool_tip="Autoriser un accès temporaire à cette parcelle"/>
 			<combo_box name="pass_combo" width="110">
 				<combo_box.item label="Tout le monde" name="Anyone"/>
@@ -454,9 +451,12 @@ musique :
 			</combo_box>
 			<spinner label="Prix en L$ :" name="PriceSpin"/>
 			<spinner label="Durée en heures :" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(Le propriétaire de domaine peut avoir limité ces choix)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Toujours autoriser" name="AllowedText">
-					Résidents autorisés ([COUNT], max. [MAX])
+					Toujours autorisé ([COUNT], max. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
 				<button label="Ajouter" name="add_allowed"/>
@@ -464,7 +464,7 @@ musique :
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Bannir" name="BanCheck">
-					Résidents bannis ([COUNT], max. [MAX])
+					Toujours interdit ([COUNT], max. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
 				<button label="Ajouter" name="add_banned"/>

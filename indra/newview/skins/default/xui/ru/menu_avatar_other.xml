@@ -20,6 +20,7 @@
 		<menu_item_check label="По умолчанию" name="RenderNormally"/>
 		<menu_item_check label="Всегда" name="AlwaysRenderFully"/>
 		<menu_item_check label="Никогда" name="DoNotRender"/>
+		<menu_item_call label="Исключения..." name="RenderExceptions"/>
 	</context_menu>
 	<menu_item_call label="Блокировать владельца участка" name="Mute Particle"/>
 </context_menu>

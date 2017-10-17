@@ -6,13 +6,16 @@
 	<floater.string name="loading_url">
 		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Carregando %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETermos%20de%20Serviço%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
 	</floater.string>
-	<button label="Continuar" label_selected="Continuar" name="Continue"/>
-	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<check_box label="Concordo com os Termos de Serviço e com a Política de Privacidade" name="agree_chk"/>
 	<text name="tos_heading">
-		Leia com atenção os Termos do Serviço e a Política de Privacidade. Para continuar a entrar no [SECOND_LIFE], é preciso aceitar esses termos.
+		Por favor, leia os seguintes Termos e condições, Política de privacidade e Termos de serviço do Second Life, incluindo a exigência do uso da arbitragem e a renúncia de qualquer reivindicação de classe ou grupo para resolver disputas. Para continuar a acessar o [SECOND_LIFE], é preciso aceitar os acordos.
 	</text>
 	<text name="external_tos_required">
 		Antes de continuar, você precisará visitar https://my.secondlife.com e fazer login para aceitar os Termos de Serviço. Obrigado!
 	</text>
+	<check_box label="Li e concordo" name="agree_chk"/>
+	<text name="agree_list">
+		os Termos e condições, Política de privacidade e Termos de serviço do Second Life, incluindo as exigências para resolver disputas.
+	</text>
+	<button label="Continuar" label_selected="Continuar" name="Continue"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 </floater>
