@@ -43,9 +43,9 @@
 #include "llworld.h"
 #include "llvoavatar.h"
 
+static const F32 SEC_PER_FLEXI_FRAME = 1.f / 60.f; // 60 flexi updates per second
 /*static*/ F32 LLVolumeImplFlexible::sUpdateFactor = 1.0f;
 std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
-std::vector<S32> LLVolumeImplFlexible::sUpdateDelay;
 
 static LLTrace::BlockTimerStatHandle FTM_FLEXIBLE_REBUILD("Rebuild");
 static LLTrace::BlockTimerStatHandle FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
@@ -56,7 +56,10 @@ static LLTrace::BlockTimerStatHandle FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
 // constructor
 //-----------------------------------------------
 LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectData* attributes) :
-		mVO(vo), mAttributes(attributes)
+		mVO(vo),
+		mAttributes(attributes),
+		mLastFrameNum(0),
+		mLastUpdatePeriod(0)
 {
 	static U32 seed = 0;
 	mID = seed++;
@@ -64,7 +67,6 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 	mUpdated = FALSE;
 	mInitializedRes = -1;
 	mSimulateRes = 0;
-	mFrameNum = 0;
 	mCollisionSphereRadius = 0.f;
 	mRenderRes = -1;
 	
@@ -75,7 +77,6 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 
 	mInstanceIndex = sInstanceList.size();
 	sInstanceList.push_back(this);
-	sUpdateDelay.push_back(0);
 }//-----------------------------------------------
 
 LLVolumeImplFlexible::~LLVolumeImplFlexible()
@@ -86,28 +87,28 @@ LLVolumeImplFlexible::~LLVolumeImplFlexible()
 	{
 		sInstanceList[mInstanceIndex] = sInstanceList[end_idx];
 		sInstanceList[mInstanceIndex]->mInstanceIndex = mInstanceIndex;
-		sUpdateDelay[mInstanceIndex] = sUpdateDelay[end_idx];
 	}
 
 	sInstanceList.pop_back();
-	sUpdateDelay.pop_back();
 }
 
 //static
 void LLVolumeImplFlexible::updateClass()
 {
-	std::vector<S32>::iterator delay_iter = sUpdateDelay.begin();
+	LL_RECORD_BLOCK_TIME(FTM_DO_FLEXIBLE_UPDATE);
 
+	U64 virtual_frame_num = LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME;
 	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
 			iter != sInstanceList.end();
 			++iter)
 	{
-		--(*delay_iter);
-		if (*delay_iter <= 0)
+		// Note: by now update period might have changed
+		if ((*iter)->mRenderRes == -1
+			|| (*iter)->mLastFrameNum + (*iter)->mLastUpdatePeriod <= virtual_frame_num
+			|| (*iter)->mLastFrameNum > virtual_frame_num) //time issues, overflow
 		{
 			(*iter)->doIdleUpdate();
 		}
-		++delay_iter;
 	}
 }
 
@@ -334,15 +335,12 @@ void LLVolumeImplFlexible::updateRenderRes()
 // updated every time step. In the future, perhaps there could be an 
 // optimization similar to what Havok does for objects that are stationary. 
 //---------------------------------------------------------------------------------
-static LLTrace::BlockTimerStatHandle FTM_FLEXIBLE_UPDATE("Update Flexies");
 void LLVolumeImplFlexible::doIdleUpdate()
 {
 	LLDrawable* drawablep = mVO->mDrawable;
 
 	if (drawablep)
 	{
-		//LL_RECORD_BLOCK_TIME(FTM_FLEXIBLE_UPDATE);
-
 		//ensure drawable is active
 		drawablep->makeActive();
 
@@ -354,15 +352,20 @@ void LLVolumeImplFlexible::doIdleUpdate()
 			{
 				updateRenderRes();
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
-				sUpdateDelay[mInstanceIndex] = 0;
 			}
 			else
 			{
 				F32 pixel_area = mVO->getPixelArea();
 
+				// Note: Flexies afar will be rarely updated, closer ones will be updated more frequently.
+				// But frequency differences are extremely noticeable, so consider modifying update factor,
+				// or at least clamping value a bit more from both sides.
 				U32 update_period = (U32) (llmax((S32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f))),0)+1);
 				// MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
-				update_period = llclamp(update_period, 0U, 32U);
+				update_period = llclamp(update_period, 1U, 32U);
+
+				// We control how fast flexies update, buy splitting updates among frames
+				U64 virtual_frame_num = LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME;
 
 				if	(visible)
 				{
@@ -370,42 +373,44 @@ void LLVolumeImplFlexible::doIdleUpdate()
 						pixel_area > 256.f)
 					{
 						U32 id;
-				
 						if (mVO->isRootEdit())
 						{
 							id = mID;
 						}
 						else
 						{
-							LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+							LLVOVolume* parent = (LLVOVolume*)mVO->getParent();
 							id = parent->getVolumeInterfaceID();
 						}
 
-				if (mVO->isRootEdit())
-				{
-					id = mID;
+
+						// Throttle flexies and spread load by preventing flexies from updating in same frame
+						// Shows how many frames we need to wait before next update
+						U64 throttling_delay = (virtual_frame_num + id) % update_period;
+
+						if ((throttling_delay == 0 && mLastFrameNum < virtual_frame_num) //one or more virtual frames per frame
+							|| (mLastFrameNum + update_period < virtual_frame_num)) // missed virtual frame
+						{
+							// We need mLastFrameNum to compensate for 'unreliable time' and to filter 'duplicate' frames
+							// If happened too late, subtract throttling_delay (it is zero otherwise)
+							mLastFrameNum = virtual_frame_num - throttling_delay;
+
+							// Store update period for updateClass()
+							// Note: Consider substituting update_period with mLastUpdatePeriod everywhere.
+							mLastUpdatePeriod = update_period;
+
+							updateRenderRes();
+
+							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+						}
+					}
 				}
 				else
 				{
-					LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
-					id = parent->getVolumeInterfaceID();
-				}
-
-				if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
-				{
-							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
-
-					updateRenderRes();
-
-					gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+					mLastFrameNum = virtual_frame_num;
+					mLastUpdatePeriod = update_period;
 				}
 			}
-		}
-				else
-				{
-					sUpdateDelay[mInstanceIndex] = (S32) update_period;
-	}
-}
 
 		}
 	}

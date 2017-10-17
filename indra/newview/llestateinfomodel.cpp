@@ -116,7 +116,7 @@ void LLEstateInfoModel::notifyCommit()
 // tries to send estate info using a cap; returns true if it succeeded
 bool LLEstateInfoModel::commitEstateInfoCaps()
 {
-	std::string url = gAgent.getRegion()->getCapability("EstateChangeInfo");
+	std::string url = gAgent.getRegionCapability("EstateChangeInfo");
 
 	if (url.empty())
 	{

@@ -152,20 +152,16 @@ void HttpPolicy::addOp(const HttpOpRequest::ptr_t &op)
 
 void HttpPolicy::retryOp(const HttpOpRequest::ptr_t &op)
 {
-	static const HttpTime retry_deltas[] =
-		{
-			 250000,			// 1st retry in 0.25 S, etc...
-			 500000,
-			1000000,
-			2000000,
-			5000000				// ... to every 5.0 S.
-		};
-	static const int delta_max(int(LL_ARRAY_SIZE(retry_deltas)) - 1);
 	static const HttpStatus error_503(503);
 
 	const HttpTime now(totalTime());
 	const int policy_class(op->mReqPolicy);
-	HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
+
+	HttpTime delta_min = op->mPolicyMinRetryBackoff;
+	HttpTime delta_max = op->mPolicyMaxRetryBackoff;
+	// mPolicyRetries limited to 100
+	U32 delta_factor = op->mPolicyRetries <= 10 ? 1 << op->mPolicyRetries : 1024;
+	HttpTime delta = llmin(delta_min * delta_factor, delta_max);
 	bool external_delta(false);
 
 	if (op->mReplyRetryAfter > 0 && op->mReplyRetryAfter < 30)

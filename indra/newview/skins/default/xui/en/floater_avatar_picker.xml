@@ -16,6 +16,10 @@
         &apos;[TEXT]&apos; not found
     </floater.string>
     <floater.string
+     name="not_found_text">
+        Resident wasn't found.
+    </floater.string>
+    <floater.string
      name="no_one_near">
         No one near
     </floater.string>

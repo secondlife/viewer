@@ -106,7 +106,7 @@ public:
 	LLSD getOption(const std::string& name) const;
 
 	/** 
-	 * @brief Parse command line options and insert them into
+	 * @brief Parse ASCII command line options and insert them into
 	 * application command line options.
 	 *
 	 * The name inserted into the option will have leading option
@@ -118,6 +118,20 @@ public:
 	 * @return Returns true if the parse succeeded.
 	 */
 	bool parseCommandOptions(int argc, char** argv);
+
+	/** 
+	 * @brief Parse Unicode command line options and insert them into
+	 * application command line options.
+	 *
+	 * The name inserted into the option will have leading option
+	 * identifiers (a minus or double minus) stripped. All options
+	 * with values will be stored as a string, while all options
+	 * without values will be stored as true.
+	 * @param argc The argc passed into main().
+	 * @param wargv The wargv passed into main().
+	 * @return Returns true if the parse succeeded.
+	 */
+	bool parseCommandOptions(int argc, wchar_t** wargv);
 
 	/**
 	 * @brief Keep track of live files automatically.

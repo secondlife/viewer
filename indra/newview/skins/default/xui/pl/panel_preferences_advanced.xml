@@ -3,7 +3,7 @@
 	<text name="Cache:">
 		Pamięć podręczna:
 	</text>
-	<spinner label="Rozmiar (64 - 9984 MB)" name="cachesizespinner" />
+	<spinner label="Rozmiar (256 - 9984 MB)" name="cachesizespinner" />
 	<button label="Wyczyść" label_selected="Wyczyść" name="clear_cache" />
 	<text name="Cache location">
 		Położenie buforu pamięci podręcznej:

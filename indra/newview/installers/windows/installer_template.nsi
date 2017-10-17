@@ -324,11 +324,6 @@ CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
 CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' ''
 
-# Create *.bat file to specify lang params on first run from installer - see MAINT-5259S
-FileOpen $9 "$INSTDIR\autorun.bat" w
-FileWrite $9 'start "$INSTDIR\$INSTEXE" /d "$INSTDIR" "$INSTDIR\$INSTEXE" $SHORTCUT_LANG_PARAM$\r$\n'
-FileClose $9
-
 # Write registry
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
@@ -724,7 +719,7 @@ Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launc
         Push $R0					# Option value, unused# 
         StrCmp $SKIP_AUTORUN "true" +2;
 # Assumes SetOutPath $INSTDIR
-        Exec '"$WINDIR\explorer.exe" "$INSTDIR\autorun.bat"'
+	Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTSHORTCUT.lnk"'
         Pop $R0
 # 
 FunctionEnd

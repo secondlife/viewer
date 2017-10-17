@@ -234,9 +234,13 @@ BOOL LLPreviewGesture::canClose()
 	}
 	else
 	{
-		// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-		LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
-			boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
+		if(!mSaveDialogShown)
+		{
+			mSaveDialogShown = TRUE;
+			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
+			LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
+					boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
+		}
 		return FALSE;
 	}
 }
@@ -264,6 +268,7 @@ void LLPreviewGesture::onVisibilityChanged ( const LLSD& new_visibility )
 
 bool LLPreviewGesture::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
+	mSaveDialogShown = FALSE;
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{

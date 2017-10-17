@@ -6,7 +6,7 @@
 	<text name="Cache:">
 		快取：
 	</text>
-	<spinner label="快取大小 (64 - 9984MB)" name="cachesizespinner"/>
+	<spinner label="快取大小 (256 - 9984MB)" name="cachesizespinner"/>
 	<text name="text_box5">
 		MB
 	</text>

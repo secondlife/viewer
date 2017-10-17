@@ -1093,11 +1093,21 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	}
 	mCacheSize = llclamp(size, MIN_ENTRIES_TO_PURGE, MAX_NUM_OBJECT_ENTRIES);
 	mMetaInfo.mVersion = cache_version;
+
+#if defined(ADDRESS_SIZE)
+	U32 expected_address = ADDRESS_SIZE;
+#else
+	U32 expected_address = 32;
+#endif
+	mMetaInfo.mAddressSize = expected_address;
+
 	readCacheHeader();	
 
-	if(mMetaInfo.mVersion != cache_version) 
+	if( mMetaInfo.mVersion != cache_version
+		|| mMetaInfo.mAddressSize != expected_address) 
 	{
 		mMetaInfo.mVersion = cache_version ;
+		mMetaInfo.mAddressSize = expected_address;
 		if(mReadOnly) //disable cache
 		{
 			clearCacheInMemory();

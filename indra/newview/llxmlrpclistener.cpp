@@ -312,7 +312,7 @@ public:
         }
         XMLRPC_RequestSetData(request, xparams);
 
-        mTransaction.reset(new LLXMLRPCTransaction(mUri, request));
+        mTransaction.reset(new LLXMLRPCTransaction(mUri, request, true, command.has("http_params")? LLSD(command["http_params"]) : LLSD()));
 		mPreviousStatus = mTransaction->status(NULL);
 
         // Free the XMLRPC_REQUEST object and the attached data values.

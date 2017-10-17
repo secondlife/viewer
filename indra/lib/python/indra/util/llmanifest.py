@@ -376,12 +376,30 @@ class LLManifest(object):
         self.excludes.append(glob)
 
     def prefix(self, src='', build=None, dst=None):
-        """ Pushes a prefix onto the stack.  Until end_prefix is
-        called, all relevant method calls (esp. to path()) will prefix
-        paths with the entire prefix stack.  Source and destination
-        prefixes can be different, though if only one is provided they
-        are both equal.  To specify a no-op, use an empty string, not
-        None."""
+        """
+        Usage:
+
+        with self.prefix(...args as described...):
+            self.path(...)
+
+        For the duration of the 'with' block, pushes a prefix onto the stack.
+        Within that block, all relevant method calls (esp. to path()) will
+        prefix paths with the entire prefix stack. Source and destination
+        prefixes can be different, though if only one is provided they are
+        both equal. To specify a no-op, use an empty string, not None.
+
+        Also supports the older (pre-Python-2.5) syntax:
+
+        if self.prefix(...args as described...):
+            self.path(...)
+            self.end_prefix(...)
+
+        Before the arrival of the 'with' statement, one was required to code
+        self.prefix() and self.end_prefix() in matching pairs to push and to
+        pop the prefix stacks, respectively. The older prefix() method
+        returned True specifically so that the caller could indent the
+        relevant block of code with 'if', just for aesthetic purposes.
+        """
         if dst is None:
             dst = src
         if build is None:
@@ -390,7 +408,57 @@ class LLManifest(object):
         self.artwork_prefix.append(src)
         self.build_prefix.append(build)
         self.dst_prefix.append(dst)
-        return True  # so that you can wrap it in an if to get indentation
+
+        # The above code is unchanged from the original implementation. What's
+        # new is the return value. We're going to return an instance of
+        # PrefixManager that binds this LLManifest instance and Does The Right
+        # Thing on exit.
+        return self.PrefixManager(self)
+
+    class PrefixManager(object):
+        def __init__(self, manifest):
+            self.manifest = manifest
+            # stack attributes we manage in this LLManifest (sub)class
+            # instance
+            stacks = ("src_prefix", "artwork_prefix", "build_prefix", "dst_prefix")
+            # If the caller wrote:
+            # with self.prefix(...):
+            # as intended, then bind the state of each prefix stack as it was
+            # just BEFORE the call to prefix(). Since prefix() appended an
+            # entry to each prefix stack, capture len()-1.
+            self.prevlen = { stack: len(getattr(self.manifest, stack)) - 1
+                             for stack in stacks }
+
+        def __nonzero__(self):
+            # If the caller wrote:
+            # if self.prefix(...):
+            # then a value of this class had better evaluate as 'True'.
+            return True
+
+        def __enter__(self):
+            # nobody uses 'with self.prefix(...) as variable:'
+            return None
+
+        def __exit__(self, type, value, traceback):
+            # First, if the 'with' block raised an exception, just propagate.
+            # Do NOT swallow it.
+            if type is not None:
+                return False
+
+            # Okay, 'with' block completed successfully. Restore previous
+            # state of each of the prefix stacks in self.stacks.
+            # Note that we do NOT simply call pop() on them as end_prefix()
+            # does. This is to cope with the possibility that the coder
+            # changed 'if self.prefix(...):' to 'with self.prefix(...):' yet
+            # forgot to remove the self.end_prefix(...) call at the bottom of
+            # the block. In that case, calling pop() again would be Bad! But
+            # if we restore the length of each stack to what it was before the
+            # current prefix() block, it doesn't matter whether end_prefix()
+            # was called or not.
+            for stack, prevlen in self.prevlen.items():
+                # find the attribute in 'self.manifest' named by 'stack', and
+                # truncate that list back to 'prevlen'
+                del getattr(self.manifest, stack)[prevlen:]
 
     def end_prefix(self, descr=None):
         """Pops a prefix off the stack.  If given an argument, checks

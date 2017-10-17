@@ -322,6 +322,13 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
                                          const NameList& after,
                                          const NameList& before)
 {
+    if (!mSignal)
+    {
+        LL_WARNS() << "Can't connect listener" << LL_ENDL;
+        // connect will fail, return dummy
+        return LLBoundListener();
+    }
+
     float nodePosition = 1.0;
 
     // if the supplied name is empty we are not interested in the ordering mechanism 
