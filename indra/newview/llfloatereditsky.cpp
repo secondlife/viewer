@@ -56,10 +56,10 @@ static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 static const F32 WL_BLUE_HORIZON_DENSITY_SCALE = 2.0f;
 static const F32 WL_CLOUD_SLIDER_SCALE = 1.0f;
 
-static F32 sun_pos_to_time24(F32 sun_pos)
-{
-	return fmodf(sun_pos * 24.0f + 6, 24.0f);
-}
+// static F32 sun_pos_to_time24(F32 sun_pos)
+// {
+// 	return fmodf(sun_pos * 24.0f + 6, 24.0f);
+// }
 
 static F32 time24_to_sun_pos(F32 time24)
 {
