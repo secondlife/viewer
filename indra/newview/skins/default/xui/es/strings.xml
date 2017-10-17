@@ -78,7 +78,7 @@ Versión de Voice Server: [VOICE_VERSION]
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</string>
 	<string name="AboutTime">
-		[mes, fecha_hora, slt] [día, fecha_hora, slt] [año, fecha_hora, slt] [hora, fecha_hora, slt]:[min, fecha_hora, slt]:[segundo,fecha_hora,slt]
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Error al obtener la URL de las notas de la versión del servidor.

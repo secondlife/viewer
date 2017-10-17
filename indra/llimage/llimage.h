@@ -215,7 +215,8 @@ public:
 	void expandToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, bool scale_image = true);
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, bool scale_image = true);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
-	bool scale( S32 new_width, S32 new_height, bool scale_image = true );
+	bool scale(S32 new_width, S32 new_height, bool scale_image = true);
+    LLPointer<LLImageRaw> scaled(S32 new_width, S32 new_height);
 	
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );

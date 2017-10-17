@@ -6285,6 +6285,13 @@ Although you&apos;re very nice, you can&apos;t add yourself as a friend.
 
   <notification
    icon="notifytip.tga"
+   name="AddSelfRenderExceptions"
+   type="notifytip">
+You can&apos;t add yourself to the rendering exceptions list.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="UploadingAuctionSnapshot"
    type="notifytip">
 Uploading in-world and web site snapshots...
@@ -8555,6 +8562,21 @@ Please check your network and firewall setup.
 We're having trouble connecting to your voice server:
 
 [HOSTID]
+
+Voice communications will not be available.
+Please check your network and firewall setup.
+    <tag>voice</tag>
+  <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoVoiceConnect-GIAB"
+   type="alertmodal">
+We're having trouble connecting to your voice server.
 
 Voice communications will not be available.
 Please check your network and firewall setup.

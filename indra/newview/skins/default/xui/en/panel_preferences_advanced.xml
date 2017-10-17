@@ -32,12 +32,12 @@
    height="23"
    increment="64"
    initial_value="1024"
-   label="Cache size (64 - 9984MB)"
+   label="Cache size (256 - 9984MB)"
    label_width="150"
    layout="topleft"
    left="80"
    max_val="9984"
-   min_val="64"
+   min_val="256"
    top_pad="10"
    name="cachesizespinner"
    width="200" />
@@ -87,7 +87,7 @@
    height="23"
    layout="topleft"
    left="80"
-   max_length="4096"
+   max_length_bytes="4096"
    name="cache_location"
    top_pad="5"
    width="205" />

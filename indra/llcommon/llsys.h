@@ -37,13 +37,14 @@
 //
 
 #include "llsd.h"
+#include "llsingleton.h"
 #include <iosfwd>
 #include <string>
 
-class LL_COMMON_API LLOSInfo
+class LL_COMMON_API LLOSInfo : public LLSingleton<LLOSInfo>
 {
+	LLSINGLETON(LLOSInfo);
 public:
-	LLOSInfo();
 	void stream(std::ostream& s) const;
 
 	const std::string& getOSString() const;

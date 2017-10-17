@@ -90,6 +90,7 @@ public:
 	bool			canLoadOrSaveToFile( void* userdata );
 
 	void            setScriptText(const std::string& text, BOOL is_valid);
+	void			makeEditorPristine();
 	bool			loadScriptText(const std::string& filename);
 	bool			writeToFile(const std::string& filename);
 	void			sync();
@@ -166,6 +167,7 @@ private:
 	LLLiveLSLFile*	mLiveFile;
 	LLUUID			mAssociatedExperience;
 	BOOL			mScriptRemoved;
+	BOOL			mSaveDialogShown;
 
 	LLScriptEdContainer* mContainer; // parent view
 
