@@ -81,6 +81,9 @@ private:
 	void onSunMoved(LLUICtrl* ctrl, void* userdata);
 	void onTimeChanged();
 
+    void onSunRotationChanged();
+    void onMoonRotationChanged();
+
 	// for handling when the star slider is moved to adjust the alpha
 	void onStarAlphaMoved(LLUICtrl* ctrl);
 

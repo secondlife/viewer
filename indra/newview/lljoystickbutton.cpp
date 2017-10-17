@@ -660,8 +660,20 @@ LLJoystickQuaternion::LLJoystickQuaternion(const LLJoystickQuaternion::Params &p
     mInLeft(false),
     mInTop(false),
     mInRight(false),
-    mInBottom(false)
+    mInBottom(false),
+    mVectorZero(0.0f, 0.0f, 1.0f),
+    mRotation(),
+    mUpDnAxis(1.0f, 0.0f, 0.0f),
+    mLfRtAxis(0.0f, 0.0f, 1.0f),
+    mXAxisIndex(2), // left & right across the control
+    mYAxisIndex(0), // up & down across the  control
+    mZAxisIndex(1)  // tested for above and below
 {
+    for (int i = 0; i < 3; ++i)
+    {
+        mLfRtAxis.mV[i] = (mXAxisIndex == i) ? 1.0 : 0.0;
+        mUpDnAxis.mV[i] = (mYAxisIndex == i) ? 1.0 : 0.0;
+    }
 }
 
 void LLJoystickQuaternion::setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom)
@@ -722,6 +734,7 @@ BOOL LLJoystickQuaternion::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLJoystickQuaternion::onHeldDown()
 {
+    LLVector3 axis;
     updateSlop();
 
     S32 dx = mLastMouse.mX - mFirstMouse.mX + mInitialOffset.mX;
@@ -730,18 +743,34 @@ void LLJoystickQuaternion::onHeldDown()
     // left-right rotation
     if (dx > mHorizSlopNear)
     {
+        axis += mUpDnAxis;
     }
     else if (dx < -mHorizSlopNear)
     {
+        axis -= mUpDnAxis;
     }
 
     // over/under rotation
     if (dy > mVertSlopNear)
     {
+        axis += mLfRtAxis;
     }
     else if (dy < -mVertSlopNear)
     {
+        axis -= mLfRtAxis;
     }
+
+    if (axis.isNull())
+        return;
+
+    axis.normalize();
+
+    LLQuaternion delta;
+    delta.setAngleAxis(0.0523599f, axis);   // about 3deg 
+
+    mRotation *= delta;
+    setValue(mRotation.getValue());
+    onCommit();
 }
 
 void LLJoystickQuaternion::draw()
@@ -770,6 +799,16 @@ void LLJoystickQuaternion::draw()
     {
         drawRotatedImage(getImageSelected(), 3);
     }
+
+    LLVector3 draw_point = mVectorZero * mRotation;
+    S32 halfwidth = getRect().getWidth() / 2;
+    S32 halfheight = getRect().getHeight() / 2;
+    draw_point.mV[mXAxisIndex] = (draw_point.mV[mXAxisIndex] + 1.0) * halfwidth;
+    draw_point.mV[mYAxisIndex] = (draw_point.mV[mYAxisIndex] + 1.0) * halfheight;
+
+    gl_circle_2d(draw_point.mV[mXAxisIndex], draw_point.mV[mYAxisIndex], 4, 8,
+        draw_point.mV[mZAxisIndex] >= 0.f);
+
 }
 
 F32 LLJoystickQuaternion::getOrbitRate()
@@ -826,5 +865,19 @@ void LLJoystickQuaternion::drawRotatedImage(LLPointer<LLUIImage> image, S32 rota
     gGL.end();
 }
 
+void LLJoystickQuaternion::setRotation(const LLQuaternion &value)
+{
+    if (value != mRotation)
+    {
+        mRotation = value;
+        mRotation.normalize();
+        LLJoystick::setValue(mRotation.getValue());
+    }
+}
+
+LLQuaternion LLJoystickQuaternion::getRotation() const
+{
+    return mRotation;
+}
 
 

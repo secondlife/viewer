@@ -454,7 +454,34 @@
              width="200">
                 Sun/Moon Position
             </text>
-            <multi_slider
+            
+            <joystick_quat
+              follows="left|top"
+              height="78"
+              layout="topleft"
+              left_delta="0"
+              name="WLSunRotation"
+              quadrant="left"
+              sound_flags="3"
+              visible="true"
+              tool_tip="Move sun in sky"
+              top="44"
+              width="78" />              />
+
+            <joystick_quat
+              follows="left|top"
+              height="78"
+              layout="topleft"
+              left_delta="96"
+              name="WLMoonRotation"
+              quadrant="left"
+              sound_flags="3"
+              visible="true"
+              tool_tip="Move moon in sky"
+              top="44"
+              width="78" />              />
+              
+            <!-- multi_slider
              can_edit_text="true"
              control_name="WLSunPos"
              decimal_digits="0"
@@ -644,7 +671,7 @@
              left_delta="10"
              name="WLEastAngle"
              top_pad="6"
-             width="200" />
+             width="200" / -->
 
         </panel>
         <panel

@@ -40,6 +40,7 @@
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
 #include "lltimectrl.h"
+#include "lljoystickbutton.h"
 
 // newview
 #include "llagent.h"
@@ -88,8 +89,8 @@ BOOL LLFloaterEditSky::postBuild()
 
 	initCallbacks();
 
-	// Create the sun position scrubber on the slider.
-	getChild<LLMultiSliderCtrl>("WLSunPos")->addSlider(12.f);
+// 	// Create the sun position scrubber on the slider.
+// 	getChild<LLMultiSliderCtrl>("WLSunPos")->addSlider(12.f);
 
 	return TRUE;
 }
@@ -175,9 +176,11 @@ void LLFloaterEditSky::initCallbacks(void)
     getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mAmbient));
 
 	// time of day
-    getChild<LLUICtrl>("WLSunPos")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &mSkyAdapter->mLightnorm));     // multi-slider
-	getChild<LLTimeCtrl>("WLDayTime")->setCommitCallback(boost::bind(&LLFloaterEditSky::onTimeChanged, this));                          // time ctrl
-    getChild<LLUICtrl>("WLEastAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &mSkyAdapter->mLightnorm));
+//     getChild<LLUICtrl>("WLSunPos")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &mSkyAdapter->mLightnorm));     // multi-slider
+// 	getChild<LLTimeCtrl>("WLDayTime")->setCommitCallback(boost::bind(&LLFloaterEditSky::onTimeChanged, this));                          // time ctrl
+//     getChild<LLUICtrl>("WLEastAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &mSkyAdapter->mLightnorm));
+    getChild<LLJoystickQuaternion>("WLSunRotation")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunRotationChanged, this));
+    getChild<LLJoystickQuaternion>("WLMoonRotation")->setCommitCallback(boost::bind(&LLFloaterEditSky::onMoonRotationChanged, this));
 
 	// Clouds
 
@@ -247,12 +250,14 @@ void LLFloaterEditSky::syncControls()
     mSkyAdapter->mAmbient.setColor3( psky->getAmbientColor() );
 	setColorSwatch("WLAmbient", mSkyAdapter->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
 
-    LLSettingsSky::azimalt_t azal = psky->getSunRotationAzAl();
-
-	F32 time24 = sun_pos_to_time24(azal.second / F_TWO_PI);
-	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(time24, TRUE);
-	getChild<LLTimeCtrl>("WLDayTime")->setTime24(time24);
-	childSetValue("WLEastAngle", azal.first / F_TWO_PI);
+//     LLSettingsSky::azimalt_t azal = psky->getSunRotationAzAl();
+// 
+// 	F32 time24 = sun_pos_to_time24(azal.second / F_TWO_PI);
+// 	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(time24, TRUE);
+// 	getChild<LLTimeCtrl>("WLDayTime")->setTime24(time24);
+// 	childSetValue("WLEastAngle", azal.first / F_TWO_PI);
+    getChild<LLJoystickQuaternion>("WLSunRotation")->setRotation(psky->getSunRotation());
+    getChild<LLJoystickQuaternion>("WLMoonRotation")->setRotation(psky->getMoonRotation());
 
 	// Clouds
 
@@ -486,6 +491,22 @@ void LLFloaterEditSky::onTimeChanged()
 	F32 time24 = getChild<LLTimeCtrl>("WLDayTime")->getTime24();
 	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(time24, TRUE);
     onSunMoved(getChild<LLUICtrl>("WLSunPos"), &(mSkyAdapter->mLightnorm));
+}
+
+void LLFloaterEditSky::onSunRotationChanged()
+{
+    LLJoystickQuaternion* sun_spinner = getChild<LLJoystickQuaternion>("WLSunRotation");
+    LLQuaternion sunrot(sun_spinner->getRotation());
+
+    mEditSettings->setSunRotation(sunrot);
+}
+
+void LLFloaterEditSky::onMoonRotationChanged()
+{
+    LLJoystickQuaternion* moon_spinner = getChild<LLJoystickQuaternion>("WLMoonRotation");
+    LLQuaternion moonrot(moon_spinner->getRotation());
+
+    mEditSettings->setMoonRotation(moonrot);
 }
 
 void LLFloaterEditSky::onStarAlphaMoved(LLUICtrl* ctrl)

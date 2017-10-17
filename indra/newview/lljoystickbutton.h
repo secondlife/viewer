@@ -30,6 +30,7 @@
 #include "llbutton.h"
 #include "llcoord.h"
 #include "llviewertexture.h"
+#include "llquaternion.h"
 
 typedef enum e_joystick_quadrant
 {
@@ -198,6 +199,9 @@ public:
     virtual void	onHeldDown();
     virtual void	draw();
 
+    void            setRotation(const LLQuaternion &value);
+    LLQuaternion    getRotation() const;
+
 protected:
     F32				getOrbitRate();
     virtual void	updateSlop();
@@ -207,6 +211,15 @@ protected:
     BOOL			mInTop;
     BOOL			mInRight;
     BOOL			mInBottom;
+
+    S32             mXAxisIndex;
+    S32             mYAxisIndex;
+    S32             mZAxisIndex;
+
+    LLVector3       mVectorZero;
+    LLQuaternion    mRotation;
+    LLVector3       mUpDnAxis;
+    LLVector3       mLfRtAxis;
 };
 
 #endif  // LL_LLJOYSTICKBUTTON_H
