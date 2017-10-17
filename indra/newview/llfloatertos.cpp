@@ -75,7 +75,9 @@ BOOL LLFloaterTOS::postBuild()
 
 	// disable Agree to TOS radio button until the page has fully loaded
 	LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
-	tos_agreement->setEnabled( false );
+	tos_agreement->setEnabled(false);
+	LLTextBox* tos_list = getChild<LLTextBox>("agree_list");
+	tos_list->setEnabled(false);
 
 	// hide the SL text widget if we're displaying TOS with using a browser widget.
 	LLUICtrl *editor = getChild<LLUICtrl>("tos_text");
@@ -150,6 +152,8 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 			// but if the page is unavailable, we need to do this now
 			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 			tos_agreement->setEnabled( true );
+			LLTextBox* tos_list = getChild<LLTextBox>("agree_list");
+			tos_list->setEnabled(true);
 		}
 	}
 #endif
@@ -230,6 +234,8 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 			// enable Agree to TOS radio button now that page has loaded
 			LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 			tos_agreement->setEnabled( true );
+			LLTextBox* tos_list = getChild<LLTextBox>("agree_list");
+			tos_list->setEnabled(true);
 		}
 	}
 }
