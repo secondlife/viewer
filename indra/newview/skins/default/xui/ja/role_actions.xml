@@ -38,7 +38,7 @@
 		<action description="常に「地形を編集」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上で地形を編集することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、地形の編集が可能です。" name="land allow edit land" value="23"/>
 		<action description="常に「飛行」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上を飛行することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、飛行が可能です。" name="land allow fly" value="24"/>
 		<action description="常に「オブジェクト作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にオブジェクトを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、オブジェクトの作成が可能です。" name="land allow create" value="25"/>
-		<action description="常に「ランドマークを作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にランドマークを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、ランドマークの作成が可能です。" name="land allow landmark" value="26"/>
+		<action description="着地点を無視する" longdescription="この能力を持つ役割のメンバーは、。[土地について &gt; オプション] タブで着地点が設定されている場合でもグループ所有の区画に直接テレポートできます。" name="land allow direct teleport" value="26"/>
 		<action description="グループの土地への「ホーム設定」を許可" longdescription="この「役割」を持つメンバーは、このグループに譲渡された区画上で「世界」メニュー &gt; ランドマーク &gt; 現在地をホームに設定 を使用して、ホームの設定を行うことができます。" name="land allow set home" value="28"/>
 		<action description="グループ所有地での「イベント主催」を許可" longdescription="この「能力」を持つ「役割」のメンバーは、グループ所有区画を利用してイベントを開催することができます。" name="land allow host event" value="41"/>
 	</action_set>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="Наборы связей для поиска пути">
+<floater name="floater_pathfinding_linksets" title="ОБЪЕКТЫ РЕГИОНА">
 	<floater.string name="messaging_get_inprogress">
 		Запрос наборов связей для поиска пути...
 	</floater.string>
@@ -16,7 +16,7 @@
 		Нет наборов связей для поиска пути.
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		Выбрано наборов связей: [NUM_SELECTED] из [NUM_TOTAL].
+		Выбрано [NUM_SELECTED] из [NUM_TOTAL].
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
 		В этом регионе не разрешен поиск пути.
@@ -118,7 +118,7 @@
 			<scroll_list.columns label="Скриптовые" name="scripted"/>
 			<scroll_list.columns label="Воздействие" name="land_impact"/>
 			<scroll_list.columns label="Расстояние" name="dist_from_you"/>
-			<scroll_list.columns label="Использование набора связей" name="linkset_use"/>
+			<scroll_list.columns label="Использование поиска пути" name="linkset_use"/>
 			<scroll_list.columns label="A %" name="a_percent"/>
 			<scroll_list.columns label="B %" name="b_percent"/>
 			<scroll_list.columns label="C %" name="c_percent"/>
@@ -133,7 +133,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_actions">
 		<text name="linksets_actions_label">
-			Действия с выбранными наборами связей (если атрибут удаляется из мира, его атрибуты могут быть утрачены):
+			Действия с выбранным
 		</text>
 		<check_box label="Показать метку" name="show_beacon"/>
 		<button label="Взять" name="take_objects"/>
@@ -144,7 +144,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_attributes">
 		<text name="linksets_attributes_label">
-			Измените атрибуты выбранных наборов связей и нажмите кнопку, чтобы применить изменения
+			Изменить параметры поиска пути
 		</text>
 		<text name="walkability_coefficients_label">
 			Проходимость:

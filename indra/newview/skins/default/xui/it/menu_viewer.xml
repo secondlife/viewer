@@ -121,7 +121,7 @@
 			<menu_item_call label="Includi parte o faccia successiva" name="Include Next Part or Face"/>
 			<menu_item_call label="Includi parte o faccia precedente" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="Set collegati..." name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="Oggetti regione" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Ingrandisci selezione" name="Focus on Selection"/>
 		<menu_item_call label="Zoom sulla selezione" name="Zoom to Selection"/>
 		<menu label="Oggetto" name="Object">
@@ -141,7 +141,7 @@
 			<menu_item_call label="Imposta script come non in esecuzione" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Pathfinding" name="Pathfinding">
-			<menu_item_call label="Set collegati..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Oggetti regione" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Personaggi..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Visualizza / test..." name="pathfinding_console_menu_item"/>
 			<menu_item_call label="Rebake regione" name="pathfinding_rebake_navmesh_item"/>

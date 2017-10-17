@@ -38,7 +38,7 @@
 		<action description="固定允許「編輯地形」" longdescription="身負具此能力的角色的成員可以在群組所有地段上編輯地形，無論這功能在「土地資料」&gt; 選項頁籤裡是否被禁止。" name="land allow edit land" value="23"/>
 		<action description="固定允許「飛行」" longdescription="身負具此能力的角色的成員可以在群組所有地段上飛行，無論這能力是否在「土地資料」&gt; 選項頁籤裡被禁止。" name="land allow fly" value="24"/>
 		<action description="固定允許「新建物件」" longdescription="身負具此能力的角色的成員可以在群組所有地段上新建物件，無論這能力是否在「土地資料」&gt; 選項頁籤裡被禁止。" name="land allow create" value="25"/>
-		<action description="總是允許「新建地標」" longdescription="身負具此能力的角色的成員可以將群組所有的地段設為地標，無論這能力是否在「土地資料」&gt; 選項頁籤裡被禁止。" name="land allow landmark" value="26"/>
+		<action description="忽略降落點" longdescription="身負具此能力的角色的成員可以直接瞬間傳送到一個群組所有的地段，即使「土地資料」&gt;「選項」頁籤裡已設定了某個降落點。" name="land allow direct teleport" value="26"/>
 		<action description="允許在群組所有土地上「將這裡設為我的家」" longdescription="身負具此能力的角色的成員，可以在讓渡給這群組的地段上使用「世界」選單 &gt; 地標 &gt; 「將這裡設為我的家」。" name="land allow set home" value="28"/>
 		<action description="允許在群組所有土地上「開辦活動」" longdescription="身負具這能力的角色的成員，可以選擇群組所有的地段作為開辦活動的場地。" name="land allow host event" value="41"/>
 	</action_set>

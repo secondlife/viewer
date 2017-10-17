@@ -20,6 +20,7 @@
 		<menu_item_check label="Valeur par défaut" name="RenderNormally"/>
 		<menu_item_check label="Toujours" name="AlwaysRenderFully"/>
 		<menu_item_check label="Jamais" name="DoNotRender"/>
+		<menu_item_call label="Exceptions..." name="RenderExceptions"/>
 	</context_menu>
 	<menu_item_call label="Ignorer le propriétaire des particules" name="Mute Particle"/>
 </context_menu>

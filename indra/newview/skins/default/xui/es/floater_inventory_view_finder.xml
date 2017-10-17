@@ -15,6 +15,8 @@
 	<button label="Todos" label_selected="Todo" name="All"/>
 	<button label="Ninguno" label_selected="Nada" name="None"/>
 	<check_box label="Mostrar siempre las carpetas" name="check_show_empty"/>
+	<check_box label="Creado por mí" name="check_created_by_me"/>
+	<check_box label="Creado por otros" name="check_created_by_others"/>
 	<check_box bottom_delta="-36" label="Desde el fin de sesión" name="check_since_logoff"/>
 	<text name="- OR -">
 		- o -

@@ -261,9 +261,8 @@ support@secondlife.com.
 [TIME] Pacific Time wieder verfügbar.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Ihre Anfrage kann derzeit nicht bearbeitet werden.
-Wenden Sie sich unter http://secondlife.com/support an den Second Life-Support.
-Wenn Sie Ihr Kennwort nicht ändern können, rufen Sie die US-Nummer (866) 476-9763 an.
+		Ihre Anfrage kann derzeit nicht bearbeitet werden. 
+Bitte wenden Sie sich unter http://secondlife.com/support an den Second Life-Support.
 	</string>
 	<string name="LoginFailedTransformError">
 		Nicht übereinstimmende Daten bei der Anmeldung festgestellt.
@@ -703,6 +702,19 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Status unbekannt
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Dienst nicht verfügbar.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Auf dem Server sind unerwartete Probleme aufgetreten.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Dienst nicht verfügbar oder Zeitüberschreitung beim Upload.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Fehler bei der Upload-Anforderung. Um das Problem zu lösen, 
+besuchen Sie bitte http://secondlife.com/support
 	</string>
 	<string name="texture">
 		Textur
@@ -2198,10 +2210,19 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 		alle Grundbesitze, die Sie für [OWNER] verwalten
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Zulässige Einwohner: ([ALLOWEDAGENTS], max [MAXACCESS])
+		Immer zulässig: ([ALLOWEDAGENTS], max. [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Zulässige Gruppen: ([ALLOWEDGROUPS], max [MAXACCESS])
+		Immer zugelassene Gruppen: ([ALLOWEDGROUPS], max. [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Immer verbannt: ([BANNEDAGENTS], max. [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Immer zugelassen
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Immer verbannt
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Parzellenskript-Speicher

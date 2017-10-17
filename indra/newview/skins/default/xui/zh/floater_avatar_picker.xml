@@ -3,6 +3,9 @@
 	<floater.string name="not_found">
 		查無「[TEXT]」
 	</floater.string>
+	<floater.string name="not_found_text">
+		未發現居民。
+	</floater.string>
 	<floater.string name="no_one_near">
 		附近無人
 	</floater.string>

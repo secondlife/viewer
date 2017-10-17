@@ -26,6 +26,7 @@
 		<radio_item label="凹凸 (標準)" name="Bumpiness (normal)" value="1"/>
 		<radio_item label="輝き (反射)" name="Shininess (specular)" value="2"/>
 	</radio_group>
+	<check_box initial_value="false" label="繰り返しをロックする" name="checkbox_sync_settings" tool_tip="すべてのマップの繰り返しを調整する"/>
 	<texture_picker label="テクスチャ" name="texture control" tool_tip="クリックして写真を選択します"/>
 	<text name="label alphamode">
 		アルファモード
