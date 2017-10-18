@@ -68,7 +68,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 {
-	if (mAppearanceTabs)
+	if (mAppearanceTabs && mInitialized)
 	{
 		gSavedSettings.setS32("LastAppearanceTab", mAppearanceTabs->getCurrentPanelIndex());
 	}
