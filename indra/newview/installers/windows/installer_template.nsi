@@ -709,13 +709,24 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
 Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
+        Push $R0
+        Push $0
+        ;; MAINT-7812: Only write nsis.winstall file with /marker switch
+        ${GetParameters} $R0
+        ${GetOptionsS} $R0 "/marker" $0
+        ;; If no /marker switch, skip to ClearErrors
+        IfErrors +4 0
         ;; $EXEDIR is where we find the installer file
         ;; Put a marker file there so VMP will know we're done
         ;; and it can delete the download directory next time.
         ;; http://nsis.sourceforge.net/Write_text_to_a_file
-        FileOpen $9 "$EXEDIR\nsis.winstall" w
-        FileWrite $9 "NSIS done$\n"
-        FileClose $9
+        FileOpen $0 "$EXEDIR\nsis.winstall" w
+        FileWrite $0 "NSIS done$\n"
+        FileClose $0
+
+        ClearErrors
+        Pop $0
+        Pop $R0
         Push $R0					# Option value, unused# 
         StrCmp $SKIP_AUTORUN "true" +2;
 # Assumes SetOutPath $INSTDIR
