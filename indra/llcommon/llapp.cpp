@@ -50,6 +50,10 @@
 #include "stringize.h"
 #include "llcleanup.h"
 
+#include "BugSplat.h"
+
+MiniDmpSender *mpSender;
+
 //
 // Signal handling
 //
@@ -151,6 +155,14 @@ void LLApp::commonCtor()
 	// (this is used to avoid allocating memory in the crash handler)
 	memset(mMinidumpPath, 0, MAX_MINDUMP_PATH_LENGTH);
 	mCrashReportPipeStr = L"\\\\.\\pipe\\LLCrashReporterPipe";
+
+
+	static const wchar_t *bugdb_name = L"second_life_callum_test";
+	static const wchar_t *app_name = L"SecondLifeViewer";
+	static const wchar_t *app_version = L"1.0.0";
+	mpSender = new MiniDmpSender((const __wchar_t *)bugdb_name, (const __wchar_t *)app_name, (const __wchar_t *)app_version, NULL);
+
+
 }
 
 LLApp::LLApp(LLErrorThread *error_thread) :

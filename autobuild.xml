@@ -225,6 +225,48 @@
         <key>version</key>
         <string>1.57</string>
       </map>
+      <key>bugsplat</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2003-2017, BugSplat</string>
+        <key>description</key>
+        <string>Bugsplat crash reporting package</string>
+        <key>license</key>
+        <string>Proprietary</string>
+        <key>license_file</key>
+        <string>LICENSES/BUGSPLAT_LICENSE.txt</string>
+        <key>name</key>
+        <string>bugsplat</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f01c3cbeeeedf9efaf111c7b51fc3e5b</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9929/48024/bugsplat-3.5.0.5-windows-509917.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6878c5ac26ee1a7b8126d1c9f052e059</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9928/48018/bugsplat-3.5.0.5-windows64-509917.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.5.0.5</string>
+      </map>
       <key>chardet</key>
       <map>
         <key>copyright</key>

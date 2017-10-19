@@ -39,6 +39,9 @@ if(WINDOWS)
         libeay32.dll
         glod.dll
         libhunspell.dll
+        BugSplat64.dll
+        BugSplatRc64.dll
+        BsSndRpt64.exe
         )
 
     if (FMODEX)
