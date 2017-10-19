@@ -30,6 +30,7 @@
 #include <map>
 #include "llrun.h"
 #include "llsd.h"
+
 // Forward declarations
 template <typename Type> class LLAtomic32;
 typedef LLAtomic32<U32> LLAtomicU32;
@@ -37,6 +38,14 @@ class LLErrorThread;
 class LLLiveFile;
 #if LL_LINUX
 #include <signal.h>
+#endif
+
+// first version of Bugsplat (http://bugsplat.com) crash reporting tool
+// is only supported on Windows - macOS to follow.
+#define BUGSPLAT_ENABLED LL_WINDOWS
+
+#if BUGSPLAT_ENABLED
+class __declspec(dllexport) MiniDmpSender;
 #endif
 
 typedef void (*LLAppErrorHandler)();
@@ -315,7 +324,6 @@ private:
 	static LLApp* sApplication;
 	
 	google_breakpad::ExceptionHandler * mExceptionHandler;
-
 
 #if !LL_WINDOWS
 	friend void default_unix_signal_handler(int signum, siginfo_t *info, void *);

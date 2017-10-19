@@ -49,10 +49,20 @@
 #include "google_breakpad/exception_handler.h"
 #include "stringize.h"
 #include "llcleanup.h"
-
 #include "BugSplat.h"
 
-MiniDmpSender *mpSender;
+// TESTING ONLY - REMOVE FOR PRODUCTION
+// (Want to only invoke BugSplat crash reporting in the same way we did for Breakpad - for Release viewers
+// but need to test here in a ReleaseWithDebugInfo environment)
+#if BUGSPLAT_ENABLED
+#define LL_SEND_CRASH_REPORTS 1
+#endif
+
+// BugSplat crash reporting tool - http://bugsplat.com
+#if BUGSPLAT_ENABLED
+bool BugSplatExceptionCallback(unsigned int nCode, void* lpVal1, void* lpVal2);
+MiniDmpSender *gBugSplatSender;
+#endif
 
 //
 // Signal handling
@@ -155,14 +165,6 @@ void LLApp::commonCtor()
 	// (this is used to avoid allocating memory in the crash handler)
 	memset(mMinidumpPath, 0, MAX_MINDUMP_PATH_LENGTH);
 	mCrashReportPipeStr = L"\\\\.\\pipe\\LLCrashReporterPipe";
-
-
-	static const wchar_t *bugdb_name = L"second_life_callum_test";
-	static const wchar_t *app_name = L"SecondLifeViewer";
-	static const wchar_t *app_version = L"1.0.0";
-	mpSender = new MiniDmpSender((const __wchar_t *)bugdb_name, (const __wchar_t *)app_name, (const __wchar_t *)app_version, NULL);
-
-
 }
 
 LLApp::LLApp(LLErrorThread *error_thread) :
@@ -397,6 +399,42 @@ void EnableCrashingOnCrashes()
 }
 #endif
 
+#if BUGSPLAT_ENABLED
+bool BugSplatExceptionCallback(unsigned int nCode, void* lpVal1, void* lpVal2)
+{
+	switch (nCode)
+	{
+		case MDSCB_EXCEPTIONCODE:
+		{
+			EXCEPTION_RECORD *p = (EXCEPTION_RECORD *)lpVal1;
+			DWORD code = p ? p->ExceptionCode : 0;
+
+			// create some files in the %temp% directory and attach them
+			wchar_t cmdString[2 * MAX_PATH];
+			wchar_t filePath[MAX_PATH];
+			wchar_t tempPath[MAX_PATH];
+			GetTempPathW(MAX_PATH, tempPath);
+
+			wsprintf(filePath, L"%sfile1.txt", tempPath);
+			wsprintf(cmdString, L"echo Exception Code = 0x%08x > %s", code, filePath);
+			_wsystem(cmdString);
+			gBugSplatSender->sendAdditionalFile((const __wchar_t *)filePath);
+
+			wsprintf(filePath, L"%sfile2.txt", tempPath);
+			wchar_t buf[_MAX_PATH];
+			gBugSplatSender->getMinidumpPath((__wchar_t *)buf, _MAX_PATH);
+
+			wsprintf(cmdString, L"echo Crash reporting is so clutch!  minidump path = %s > %s", buf, filePath);
+			_wsystem(cmdString);
+			gBugSplatSender->sendAdditionalFile((const __wchar_t *)filePath);
+		}
+		break;
+	}
+
+	return false;
+}
+#endif
+
 void LLApp::setupErrorHandling(bool second_instance)
 {
 	// Error handling is done by starting up an error handling thread, which just sleeps and
@@ -405,6 +443,17 @@ void LLApp::setupErrorHandling(bool second_instance)
 #if LL_WINDOWS
 
 #if LL_SEND_CRASH_REPORTS
+
+#if BUGSPLAT_ENABLED
+	// TODOCP: populate these fields correctly
+	static const wchar_t *bugdb_name = L"second_life_callum_test";
+	static const wchar_t *app_name = L"SecondLifeViewer";
+	static const wchar_t *app_version = L"1.0.0";
+	gBugSplatSender = new MiniDmpSender((const __wchar_t *)bugdb_name, (const __wchar_t *)app_name, (const __wchar_t *)app_version, NULL);
+
+	gBugSplatSender->setCallback(BugSplatExceptionCallback);
+#else
+
 	EnableCrashingOnCrashes();
 
 	// This sets a callback to handle w32 signals to the console window.
@@ -466,8 +515,9 @@ void LLApp::setupErrorHandling(bool second_instance)
 			mExceptionHandler->set_handle_debug_exceptions(true);
 		}
 	}
-#endif
-#else
+#endif  // BUGSPLAT_ENABLED
+#endif	// LL_SEND_CRASH_REPORTS
+#else	// not LL_WINDOWS
 	//
 	// Start up signal handling.
 	//
@@ -528,7 +578,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 	}
 #endif
 
-#endif
+#endif // LL_WINDOWS
 	startErrorThread();
 }
 
