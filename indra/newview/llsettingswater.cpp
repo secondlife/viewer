@@ -45,7 +45,7 @@
 //=========================================================================
 namespace
 {
-//     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
+     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
      LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
 }
 
@@ -228,7 +228,7 @@ void LLSettingsWater::applySpecial(void *ptarget)
 //=========================================================================
 void LLSettingsWater::updateSettings()
 {
-    LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERVALUES);
+//    LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERVALUES);
     LL_INFOS("WINDLIGHT", "WATER", "EEP") << "Water Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
 
     // base class clears dirty flag so as to not trigger recursive update
