@@ -43,14 +43,11 @@
 #include "pipeline.h"
 
 //=========================================================================
-namespace
-{
-    LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
-    LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
-
-    LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude);
-    void angles_from_rotation(LLQuaternion quat, F32 &azimuth, F32 &altitude);
-}
+// namespace
+// {
+//     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
+//     LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
+// }
 
 //=========================================================================
 const std::string LLSettingsWater::SETTING_BLUR_MULTIPILER("blur_multiplier");
