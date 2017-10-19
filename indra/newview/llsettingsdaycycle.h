@@ -30,9 +30,19 @@
 
 #include "llsettingsbase.h"
 
+class LLSettingsWater;
+class LLSettingsSky;
+
+typedef boost::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
+typedef boost::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
+
 class LLSettingsDayCycle : public LLSettingsBase
 {
 public:
+    static const std::string    SETTING_DAYLENGTH;
+
+    static const S32            MINIMUM_DAYLENGTH;
+    static const S32            MAXIMUM_DAYLENGTH;
 
     typedef boost::shared_ptr<LLSettingsDayCycle> ptr_t;
 
@@ -53,14 +63,32 @@ public:
     static LLSD defaults();
 
     //---------------------------------------------------------------------
+    S32 getDayLength() const
+    {
+        return mSettings[SETTING_DAYLENGTH].asInteger();
+    }
+
+    void setDayLength(S32 seconds);
+
+    void setWaterAt(const LLSettingsSkyPtr_t &water, S32 seconds);
+    void setSkyAtOnTrack(const LLSettingsSkyPtr_t &water, S32 seconds, S32 track);
+    //---------------------------------------------------------------------
 
 protected:
     LLSettingsDayCycle();
 
     virtual void        updateSettings();
 
+    typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
+    typedef std::vector<CycleTrack_t>               CycleList_t;
+    typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
+
+    CycleList_t mDayTracks;
+
+    F32 secondsToOffset(S32 seconds);
 
 private:
+    
 };
 
 #endif

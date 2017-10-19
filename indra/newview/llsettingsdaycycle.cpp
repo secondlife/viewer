@@ -42,6 +42,10 @@
 #include "llagent.h"
 #include "pipeline.h"
 
+
+#include "llsettingssky.h"
+#include "llsettingswater.h"
+
 //=========================================================================
 namespace
 {
@@ -50,7 +54,10 @@ namespace
 }
 
 //=========================================================================
+const std::string LLSettingsDayCycle::SETTING_DAYLENGTH("day_length");
 
+const S32 LLSettingsDayCycle::MINIMUM_DAYLENGTH( 14400); // 4 hours
+const S32 LLSettingsDayCycle::MAXIMUM_DAYLENGTH(604800); // 7 days
 
 //=========================================================================
 LLSettingsDayCycle::LLSettingsDayCycle(const LLSD &data) :
@@ -105,9 +112,34 @@ LLSettingsDayCycle::ptr_t LLSettingsDayCycle::buildClone()
 }
 
 //=========================================================================
+F32 LLSettingsDayCycle::secondsToOffset(S32 seconds)
+{
+    S32 daylength = getDayLength();
+
+    return static_cast<F32>(seconds % daylength) / static_cast<F32>(daylength);
+}
+
+//=========================================================================
 void LLSettingsDayCycle::updateSettings()
 {
 
 }
 
 //=========================================================================
+void LLSettingsDayCycle::setDayLength(S32 seconds)
+{
+    seconds = llclamp(seconds, MINIMUM_DAYLENGTH, MAXIMUM_DAYLENGTH);
+
+    setValue(SETTING_DAYLENGTH, seconds);
+}
+
+void LLSettingsDayCycle::setWaterAt(const LLSettingsSkyPtr_t &water, S32 seconds)
+{
+//    F32 offset = secondsToOffset(seconds);
+
+}
+
+void setSkyAtOnTrack(const LLSettingsSkyPtr_t &water, S32 seconds, S32 track)
+{
+
+}

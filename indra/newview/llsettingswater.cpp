@@ -43,11 +43,11 @@
 #include "pipeline.h"
 
 //=========================================================================
-// namespace
-// {
+namespace
+{
 //     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
-//     LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
-// }
+     LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
+}
 
 //=========================================================================
 const std::string LLSettingsWater::SETTING_BLUR_MULTIPILER("blur_multiplier");
