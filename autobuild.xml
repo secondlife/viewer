@@ -244,9 +244,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f01c3cbeeeedf9efaf111c7b51fc3e5b</string>
+              <string>2710e051eb1b12dba574f470834baa9e</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9929/48024/bugsplat-3.5.0.5-windows-509917.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9992/49191/bugsplat-3.5.0.5-windows-509980.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -256,9 +256,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6878c5ac26ee1a7b8126d1c9f052e059</string>
+              <string>f2bb37c69f35522e49aae547d3408fd8</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9928/48018/bugsplat-3.5.0.5-windows64-509917.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9991/49185/bugsplat-3.5.0.5-windows64-509980.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

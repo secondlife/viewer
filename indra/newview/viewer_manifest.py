@@ -449,9 +449,14 @@ class WindowsManifest(ViewerManifest):
             self.path("libhunspell.dll")
 
             # BugSplat
-            self.path("BsSndRpt64.exe")
-            self.path("BugSplat64.dll")
-            self.path("BugSplatRc64.dll")
+            if(self.address_size == 64):
+                self.path("BsSndRpt64.exe")
+                self.path("BugSplat64.dll")
+                self.path("BugSplatRc64.dll")
+            else:
+                self.path("BsSndRpt.exe")
+                self.path("BugSplat.dll")
+                self.path("BugSplatRc.dll")
 
             # For google-perftools tcmalloc allocator.
             try:
@@ -579,11 +584,6 @@ class WindowsManifest(ViewerManifest):
             self.path("libvlc.dll")
             self.path("libvlccore.dll")
             self.path("plugins/")
-
-        with self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release'), dst=""):
-            self.path("BsSndRpt64.exe")
-            self.path("BugSplat64.dll")
-            self.path("BugSplatRc64.dll")
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter

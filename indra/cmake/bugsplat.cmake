@@ -9,7 +9,7 @@ else (USESYSTEMLIBS)
   use_prebuilt_binary(bugsplat)
   if (WINDOWS)
     set(BUGSPLAT_LIBRARIES 
-      ${ARCH_PREBUILT_DIRS_RELEASE}/bugsplat64.lib
+      ${ARCH_PREBUILT_DIRS_RELEASE}/bugsplat.lib
       )
   elseif (DARWIN)
 
