@@ -1,5 +1,6 @@
 integer listenHandle; 
 integer verbose;
+integer backChannel = -666;
 
 say_if_verbose(string message)
 {
@@ -238,16 +239,40 @@ default
         say_if_verbose("listen func called");
         say_if_verbose("got message " + name + " " + (string) id + " " + message);
         list words = llParseString2List(message,[" "],[]);
-        string gstate = llList2String(words,0);
-        string action = llList2String(words,1);
-        say_if_verbose("gstate " + gstate + " action " + action);
-        if (action=="start")
+        string gstate = llList2String(words,1);
+        string action = llList2String(words,0);
+        say_if_verbose("action " + action + " gstate " + gstate);
+        if (action=="start_prop")
         {
+            string duration = llList2String(words,2);
+            llOwnerSay("running change_gstate " + gstate + " duration " + (string) duration);
+            llOwnerSay("backChannel sending: started");
+            llSay(backChannel,"started");
+            llOwnerSay("step 1: running change_gstate");
             change_gstate(gstate);
-        }
-        else if (action=="stop")
-        {
+            
+            llOwnerSay("step 2: sleeping for " + (string) duration);
+            llSleep((integer) duration);
+
+            llOwnerSay("step 3: running clear_gstate");
             clear_gstate(gstate);
+
+            llOwnerSay("backChannel sending: done");
+            llSay(backChannel,"done");
+        }
+        else if (message == "verbose on")
+        {
+            llOwnerSay("setting verbose -> on");
+            verbose = 1;
+        }
+        else if (message == "verbose off")
+        {
+            llOwnerSay("setting verbose -> off");
+            verbose = 0;
+        }
+        else
+        {
+            llOwnerSay("ignoring message " + message);
         }
     }
     

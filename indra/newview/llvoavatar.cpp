@@ -7136,14 +7136,6 @@ LLSD LLVOAvatar::getFrameData() const
                             {
                                 LLSD attachment_sd = child->getFrameData(textures, material_textures);
                                 av_attachments.append(attachment_sd);
-
-                                // Second level children aren't accounted for!
-                                const_child_list_t grand_children = child->getChildren();
-                                if (grand_children.begin() != grand_children.end())
-                                {
-                                    LL_ERRS() << "GRANDCHILDREN ARE NOT ACCOUNTED FOR CURRENTLY!!!"
-                                        " FIX CALCULATIONS HERE AND IN calculateUpdateRenderComplexity() !!!" << LL_ENDL;
-                                }
                             }
                         }
                         

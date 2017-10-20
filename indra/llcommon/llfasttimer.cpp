@@ -517,6 +517,14 @@ void BlockTimer::logStatsExtended()
                 static F32 negligible_time = 0.0001;
                 if (call_count == 0 || time_val > negligible_time)
                 {
+                    const std::string& name = timer.getName();
+#if 0
+                    // ARCTAN terser form
+                    if (name != "Frame" && name != "Render" && name != "UI")
+                    {
+                        continue;
+                    }
+#endif
                     sd[timer.getName()]["Time"] = (LLSD::Real) time_val;
                     sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
 

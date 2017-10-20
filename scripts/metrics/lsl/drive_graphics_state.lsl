@@ -1,88 +1,169 @@
-integer command_channel;
-integer backchat_channel;
-integer dialog_channel;
+integer commandChannel = -777; // for sending commands to listeners
+integer backChannel = -666; // for listeners responding to the driver
+integer backHandle;
+key ToucherID;
 
-integer listen_handle;
+list buttons = ["test start", "test stop", " ", "verbose on", "verbose off", " "];
+string dialogInfo = "\nPlease make a choice.";
+integer dialogChannel = -888; // for dialog
+integer dialogHandle; // listen handle for dialog
 
-key toucher_id;
-list buttons = ["start", "stop"];
-string dialog_info = "\nPlease make a choice.";
+list properties = ["alpha", "glow", "shiny", "point_light",
+                   "materials", "specmap", "normalmap", "bump", 
+                   "texture_res_128", "texture_res_1024"];
+integer propertyIndex = -1;
+string prop;
 
-stop_tests()
-{
-    llOwnerSay("stopping tests");
-}
+integer acksStarted;
+integer acksDone;
 
-start_tests()
-{
-    llOwnerSay("starting tests");
+integer testDuration = 5; // 30
+integer maxAckDoneWaitDuration = 120;
+integer maxAckStartWaitDuration = 5; // 10
 
-    float test_time = 30.0;
-    float pause_time = 20.0;
-    list properties = ["alpha", "glow", "shiny", "point_light",
-                       "materials", "specmap", "normalmap", "bump", 
-                       "texture_res_128", "texture_res_1024"];
-    integer length = llGetListLength(properties);
-    integer index = 0;
-    while (index < length)
-    {
-        string prop = llList2String(properties, index);
-        ++index;
-            
-        llOwnerSay("Starting " + prop);
-        llSay(command_channel, prop + " start");
-        llSleep(test_time);
-        llOwnerSay("Done " + prop);
-        llSay(command_channel,prop + " stop");
-        llSleep(pause_time);
-    }
-}
-
-handle_button(string button_message)
-{
-    if (button_message == "start")
-    {
-        start_tests();
-    }
-    if (button_message == "stop")
-    {
-        stop_tests();
-    }
-}
 
 default
 {
     state_entry()
     {
-        // arbitrary
-        command_channel = -777;
-        dialog_channel = -555;
-        backchat_channel = -666;
-        
         llOwnerSay("driver is starting");
+        propertyIndex = -1;
     }
 
-    touch_start(integer total_number)
+    listen(integer channel, string name, key id, string message)
     {
-        toucher_id = llDetectedKey(0);
-        llListenRemove(listen_handle);
-        listen_handle = llListen(dialog_channel, "", toucher_id, "");
-        llDialog(toucher_id, dialog_info, buttons, dialog_channel);
-    }
-
-    listen(integer channel, string name, key id, string button_message)
-    {
-        if (button_message == "-")
+        if (channel == dialogChannel)
         {
-            llDialog(toucher_id, dialog_info, buttons, dialog_channel);
-            return;
-        }
- 
-        llListenRemove(listen_handle);
+            llOwnerSay("handle dialog message " + message);
+            if (message == "-")
+            {
+                llDialog(ToucherID, dialogInfo, buttons, dialogChannel);
+                return;
+            }
+            llListenRemove(dialogHandle);
 
-        handle_button(button_message);
+            if (message == "test start")
+            {
+                state nextProperty;
+            }
+            else if ((message == "verbose on") || (message == "verbose off"))
+            {
+                llOwnerSay("Sending command: " + message);
+                llSay(commandChannel,message);
+            }
+            else
+            {
+                llOwnerSay("don't know how to handle dialog choice: " + message);
+            }
+        }
+        else
+        {
+            llOwnerSay("need to handle message on channel " + (string) channel + ": " + message);
+        }
     }
  
+    touch_end(integer num_detected)
+    {
+        ToucherID = llDetectedKey(0);
+        llListenRemove(dialogHandle);
+        dialogHandle = llListen(dialogChannel, "", ToucherID, "");
+        llDialog(ToucherID, dialogInfo, buttons, dialogChannel);
+    }
+ 
+}
+
+state noMoreProperties
+{
+    state_entry()
+    {
+        llOwnerSay("done all properties");
+        state default;
+    }
+}
+
+state waitForPropDone
+{
+    state_entry()
+    {
+        backHandle = llListen(backChannel, "", "", "");
+        llSetTimerEvent(maxAckDoneWaitDuration);
+
+        if (acksDone >= acksStarted)
+        {
+            llOwnerSay("All started acks are done " + (string) acksStarted + "/" + (string) acksDone);
+            state nextProperty;
+        }
+    }
+
+    timer()
+    {
+        llOwnerSay("Done waiting for acks done");
+        llOwnerSay("Some started acks are done " + (string) acksStarted + "/" + (string) acksDone);
+        state nextProperty;
+    }
+    
+    listen(integer channel, string name, key id, string message)
+    {
+        llOwnerSay("listen on backChannel got: " + message);
+        if (message=="started")
+        {
+            acksStarted += 1;
+        }
+        if (message=="done")
+        {
+            acksDone += 1;
+        }
+        if (acksDone >= acksStarted)
+        {
+            llOwnerSay("All started acks are done " + (string) acksStarted + "/" + (string) acksDone);
+            state nextProperty;
+        }
+    }
+}
+
+state nextProperty
+{
+    state_entry()
+    {
+        llOwnerSay("nextProperty entered");
+        propertyIndex += 1;
+        integer length = llGetListLength(properties);
+        if (propertyIndex >= length)
+        {
+            state noMoreProperties;
+        }
+        prop = llList2String(properties, propertyIndex);
+        llOwnerSay("starting property " + prop);
+        backHandle = llListen(backChannel, "", "", "");
+        llSetTimerEvent(maxAckStartWaitDuration);
+        llSay(commandChannel,"start_prop " + prop + " " + (string) testDuration );
+        acksStarted = 0;
+        acksDone = 0;
+    }
+
+    state_exit()
+    {
+        llSetTimerEvent(0);
+    }
+
+    timer()
+    {
+        llOwnerSay("done waiting for starts");
+        state waitForPropDone;
+    }
+    
+    listen(integer channel, string name, key id, string message)
+    {
+        llOwnerSay("listen on backChannel got: " + message);
+        if (message=="started")
+        {
+            acksStarted += 1;
+        }
+        if (message=="done")
+        {
+            acksDone += 1;
+        }
+    }
 }
 
 // Local Variables:
