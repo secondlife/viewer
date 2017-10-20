@@ -517,8 +517,8 @@ void BlockTimer::logStatsExtended()
                 static F32 negligible_time = 0.0001;
                 if (call_count == 0 || time_val > negligible_time)
                 {
-                    const std::string& name = timer.getName();
 #if 0
+                    const std::string& name = timer.getName();
                     // ARCTAN terser form
                     if (name != "Frame" && name != "Render" && name != "UI")
                     {
