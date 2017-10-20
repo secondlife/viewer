@@ -293,15 +293,14 @@ void LLEnvironment::clearAllSkys()
 
 void LLEnvironment::selectSky(const std::string &name)
 {
-    NamedSettingMap_t::iterator it = mSkysByName.find(name);
-
-    if (it == mSkysByName.end())
+    LLSettingsSky::ptr_t next_sky = findSkyByName(name);
+    if (!next_sky)
     {
         LL_WARNS("ENVIRONMENT") << "Unable to select sky with unknown name '" << name << "'" << LL_ENDL;
         return;
     }
 
-    mCurrentSky = boost::static_pointer_cast<LLSettingsSky>((*it).second);
+    mCurrentSky = next_sky;
     mCurrentSky->setDirtyFlag(true);
 }
 
@@ -322,15 +321,15 @@ void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
 
 void LLEnvironment::selectWater(const std::string &name)
 {
-    NamedSettingMap_t::iterator it = mWaterByName.find(name);
+    LLSettingsWater::ptr_t next_water = findWaterByName(name);
 
-    if (it == mWaterByName.end())
+    if (!next_water)
     {
         LL_WARNS("ENVIRONMENT") << "Unable to select water with unknown name '" << name << "'" << LL_ENDL;
         return;
     }
 
-    mCurrentWater = boost::static_pointer_cast<LLSettingsWater>((*it).second);
+    mCurrentWater = next_water;
     mCurrentWater->setDirtyFlag(true);
 }
 
@@ -348,6 +347,31 @@ void LLEnvironment::clearAllWater()
     mWaterById.clear();
 }
 
+LLSettingsSky::ptr_t LLEnvironment::findSkyByName(std::string name) const
+{
+    NamedSettingMap_t::const_iterator it = mSkysByName.find(name);
+
+    if (it == mSkysByName.end())
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to find sky with unknown name '" << name << "'" << LL_ENDL;
+        return LLSettingsSky::ptr_t();
+    }
+
+    return boost::static_pointer_cast<LLSettingsSky>((*it).second);
+}
+
+LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
+{
+    NamedSettingMap_t::const_iterator it = mWaterByName.find(name);
+
+    if (it == mWaterByName.end())
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to find water with unknown name '" << name << "'" << LL_ENDL;
+        return LLSettingsWater::ptr_t();
+    }
+
+    return boost::static_pointer_cast<LLSettingsWater>((*it).second);
+}
 
 //=========================================================================
 LLEnvironment::UserPrefs::UserPrefs():

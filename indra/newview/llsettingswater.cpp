@@ -195,6 +195,17 @@ LLSettingsWater::ptr_t LLSettingsWater::buildClone()
     return skyp;
 }
 
+LLSettingsBase::ptr_t LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F32 blendf) const
+{
+    LLSettingsWater::ptr_t other = boost::static_pointer_cast<LLSettingsWater>(end);
+    LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+
+    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(blenddata);
+
+    return waterp;
+}
+
+
 //=========================================================================
 
 LLSettingsWater::parammapping_t LLSettingsWater::getParameterMap() const

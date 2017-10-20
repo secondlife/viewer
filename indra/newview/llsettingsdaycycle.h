@@ -40,11 +40,24 @@ class LLSettingsDayCycle : public LLSettingsBase
 {
 public:
     static const std::string    SETTING_DAYLENGTH;
+    static const std::string    SETTING_KEYID;
+    static const std::string    SETTING_KEYNAME;
+    static const std::string    SETTING_KEYOFFSET;
+    static const std::string    SETTING_NAME;
+    static const std::string    SETTING_TRACKS;
 
     static const S32            MINIMUM_DAYLENGTH;
     static const S32            MAXIMUM_DAYLENGTH;
 
-    typedef boost::shared_ptr<LLSettingsDayCycle> ptr_t;
+    static const S32            TRACK_WATER;
+    static const S32            TRACK_MAX;
+
+    typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
+    typedef std::vector<CycleTrack_t>               CycleList_t;
+    typedef boost::shared_ptr<LLSettingsDayCycle>   ptr_t;
+    typedef std::vector<S32>                        TimeList_t;
+    typedef std::vector<F32>                        OffsetList_t;
+    typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 
     //---------------------------------------------------------------------
     LLSettingsDayCycle(const LLSD &data);
@@ -58,7 +71,7 @@ public:
     virtual std::string getSettingType() const { return std::string("daycycle"); }
 
     // Settings status 
-    ptr_t blend(const ptr_t &other, F32 mix) const;
+    virtual LLSettingsBase::ptr_t blend(const LLSettingsBase::ptr_t &other, F32 mix) const;
 
     static LLSD defaults();
 
@@ -70,8 +83,14 @@ public:
 
     void setDayLength(S32 seconds);
 
-    void setWaterAt(const LLSettingsSkyPtr_t &water, S32 seconds);
-    void setSkyAtOnTrack(const LLSettingsSkyPtr_t &water, S32 seconds, S32 track);
+    OffsetList_t  getTrackOffsets(S32 track);
+    TimeList_t    getTrackTimes(S32 track);
+
+    void setWaterAtTime(const LLSettingsWaterPtr_t &water, S32 seconds);
+    void setWaterAtOffset(const LLSettingsWaterPtr_t &water, F32 offset);
+    LLSettingsSkyPtr_t getBlendedWaterAt(S32 seconds);
+
+    void setSkyAtOnTrack(const LLSettingsSkyPtr_t &sky, S32 seconds, S32 track);
     //---------------------------------------------------------------------
 
 protected:
@@ -79,13 +98,22 @@ protected:
 
     virtual void        updateSettings();
 
-    typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
-    typedef std::vector<CycleTrack_t>               CycleList_t;
-    typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 
     CycleList_t mDayTracks;
 
     F32 secondsToOffset(S32 seconds);
+    S32 offsetToSeconds(F32 offset);
+
+    LLSettingsBase::ptr_t getBlendedEntry(CycleTrack_t &track, F32 offset);
+
+    void parseFromLLSD(LLSD &data);
+//     CycleList_t &           getTrackRef(S32 trackno);
+
+    static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, F32 offset);
+    static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, F32 offset);
+
+    static TrackBound_t getBoundingEntries(CycleTrack_t &track, F32 offset);
+
 
 private:
     

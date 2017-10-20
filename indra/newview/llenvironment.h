@@ -85,6 +85,8 @@ public:
     LLSettingsSky::ptr_t    getCurrentSky() const { return mCurrentSky; }
     LLSettingsWater::ptr_t  getCurrentWater() const { return mCurrentWater; }
 
+
+
     void                    update(const LLViewerCamera * cam);
 
     void                    updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting);
@@ -92,6 +94,9 @@ public:
 
     void                    addSky(const LLSettingsSky::ptr_t &sky);
     void                    selectSky(const std::string &name);
+    LLSettingsSky::ptr_t    findSkyByName(std::string name) const;
+    LLSettingsWater::ptr_t  findWaterByName(std::string name) const;
+
     void                    addWater(const LLSettingsWater::ptr_t &sky);
     void                    selectWater(const std::string &name);
 

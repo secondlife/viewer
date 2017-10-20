@@ -414,6 +414,8 @@ public:
 protected:
     LLSettingsSky();
 
+    virtual LLSettingsBase::ptr_t blend(const LLSettingsBase::ptr_t &end, F32 blendf) const;
+
     virtual stringset_t getSlerpKeys() const;
 
     virtual void        updateSettings();

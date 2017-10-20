@@ -103,6 +103,17 @@ LLSettingsSky::LLSettingsSky():
 {
 }
 
+LLSettingsBase::ptr_t LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F32 blendf) const
+{
+    LLSettingsSky::ptr_t other = boost::static_pointer_cast<LLSettingsSky>(end);
+    LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+
+    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(blenddata);
+
+    return skyp;
+}
+
+
 void LLSettingsSky::setMoonRotation(F32 azimuth, F32 altitude)
 {
     setValue(SETTING_MOON_ROTATION, ::body_position_from_angles(azimuth, altitude));

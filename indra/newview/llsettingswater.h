@@ -63,7 +63,7 @@ public:
     virtual std::string getSettingType() const { return std::string("water"); }
 
     // Settings status 
-    ptr_t blend(const ptr_t &other, F32 mix) const;
+    virtual LLSettingsBase::ptr_t blend(const LLSettingsBase::ptr_t &end, F32 blendf) const;
 
     static LLSD defaults();
 

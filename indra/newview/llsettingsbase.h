@@ -43,6 +43,7 @@
 class LLSettingsBase: private boost::noncopyable
 {
     friend class LLEnvironment;
+    friend class LLSettingsDayCycle;
 
 public:
     typedef std::map<std::string, S32>  parammapping_t;
@@ -53,6 +54,8 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const = 0;
+
+    static ptr_t buildBlend(const ptr_t &begin, const ptr_t &end, F32 blendf);
 
     //---------------------------------------------------------------------
     // Settings status 
@@ -124,8 +127,11 @@ protected:
 
     typedef std::set<std::string>   stringset_t;
 
+    virtual ptr_t blend(const ptr_t &end, F32 blendf) const = 0;
+
     // combining settings objects. Customize for specific setting types
     virtual void lerpSettings(const LLSettingsBase &other, F32 mix);
+    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, F32 mix) const;
 
     /// when lerping between settings, some may require special handling.  
     /// Get a list of these key to be skipped by the default settings lerp.
@@ -152,7 +158,6 @@ private:
     bool    mDirty;
 
     LLSD    combineSDMaps(const LLSD &first, const LLSD &other) const;
-    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, F32 mix) const;
 
 };
 
