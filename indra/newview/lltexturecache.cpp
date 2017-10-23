@@ -936,7 +936,7 @@ BOOL LLTextureCache::isInLocal(const LLUUID& id)
 //////////////////////////////////////////////////////////////////////////////
 
 //static
-F32 LLTextureCache::sHeaderCacheVersion = 1.7f;
+F32 LLTextureCache::sHeaderCacheVersion = 1.71f;
 U32 LLTextureCache::sCacheMaxEntries = 1024 * 1024; //~1 million textures.
 S64 LLTextureCache::sCacheMaxTexturesSize = 0; // no limit
 std::string LLTextureCache::sHeaderCacheEncoderVersion = LLImageJ2C::getEngineInfo();
@@ -1898,6 +1898,9 @@ S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imag
 	else
 	{
 		LL_WARNS() << "Failed to set cache entry for image: " << id << LL_ENDL;
+		// We couldn't write to file, switch to read only mode and clear data
+		setReadOnly(true);
+		clearCorruptedCache(); // won't remove files due to "read only"
 	}
 
 	return idx;
@@ -2050,7 +2053,7 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
 	//rescale image if needed
-	if (raw.isNull() || !raw->getData())
+	if (raw.isNull() || raw->isBufferInvalid() || !raw->getData())
 	{
 		LL_ERRS() << "Attempted to write NULL raw image to fastcache" << LL_ENDL;
 		return false;
