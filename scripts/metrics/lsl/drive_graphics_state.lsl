@@ -17,9 +17,9 @@ string prop;
 integer acksStarted;
 integer acksDone;
 
-integer testDuration = 5; // 30
-integer maxAckDoneWaitDuration = 120;
-integer maxAckStartWaitDuration = 5; // 10
+integer testDuration = 30; // 30
+integer maxAckDoneWaitDuration = 120; // 120
+integer maxAckStartWaitDuration = 10; // 10
 
 
 default
@@ -34,7 +34,6 @@ default
     {
         if (channel == dialogChannel)
         {
-            llOwnerSay("handle dialog message " + message);
             if (message == "-")
             {
                 llDialog(ToucherID, dialogInfo, buttons, dialogChannel);
@@ -56,10 +55,6 @@ default
                 llOwnerSay("don't know how to handle dialog choice: " + message);
             }
         }
-        else
-        {
-            llOwnerSay("need to handle message on channel " + (string) channel + ": " + message);
-        }
     }
  
     touch_end(integer num_detected)
@@ -76,7 +71,8 @@ state noMoreProperties
 {
     state_entry()
     {
-        llOwnerSay("done all properties");
+        llOwnerSay("SUCCESS! done all properties");
+        llSetText("DONE!",<0,1,0>,1);
         state default;
     }
 }
@@ -98,13 +94,14 @@ state waitForPropDone
     timer()
     {
         llOwnerSay("Done waiting for acks done");
-        llOwnerSay("Some started acks are done " + (string) acksStarted + "/" + (string) acksDone);
-        state nextProperty;
+        llOwnerSay("Remaining started/done: " + (string) acksStarted + "/" + (string) acksDone);
+        llOwnerSay("ERROR! Out of sync, quitting");
+        llSetText("ERROR!",<1,0,0>,1);
+        state default;
     }
     
     listen(integer channel, string name, key id, string message)
     {
-        llOwnerSay("listen on backChannel got: " + message);
         if (message=="started")
         {
             acksStarted += 1;
@@ -115,7 +112,7 @@ state waitForPropDone
         }
         if (acksDone >= acksStarted)
         {
-            llOwnerSay("All started acks are done " + (string) acksStarted + "/" + (string) acksDone);
+            llOwnerSay("prop " + prop + " done; all started acks completed " + (string) acksStarted + "/" + (string) acksDone);
             state nextProperty;
         }
     }
@@ -125,7 +122,6 @@ state nextProperty
 {
     state_entry()
     {
-        llOwnerSay("nextProperty entered");
         propertyIndex += 1;
         integer length = llGetListLength(properties);
         if (propertyIndex >= length)
@@ -133,7 +129,8 @@ state nextProperty
             state noMoreProperties;
         }
         prop = llList2String(properties, propertyIndex);
-        llOwnerSay("starting property " + prop);
+        llSetText("Running [" + prop + "]...",<0,0,1>,1);
+        llOwnerSay("requesting start_prop " + prop);
         backHandle = llListen(backChannel, "", "", "");
         llSetTimerEvent(maxAckStartWaitDuration);
         llSay(commandChannel,"start_prop " + prop + " " + (string) testDuration );
@@ -148,13 +145,11 @@ state nextProperty
 
     timer()
     {
-        llOwnerSay("done waiting for starts");
         state waitForPropDone;
     }
     
     listen(integer channel, string name, key id, string message)
     {
-        llOwnerSay("listen on backChannel got: " + message);
         if (message=="started")
         {
             acksStarted += 1;

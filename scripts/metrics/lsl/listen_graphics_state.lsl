@@ -12,7 +12,7 @@ say_if_verbose(string message)
 
 integer change_textures(string diffuse_prefix, string normal_prefix, string spec_prefix, integer res, integer count)
 {
-    llSay(0,"change_textures starts, res " + (string) res + " count " + (string) count);
+    say_if_verbose("change_textures starts, res " + (string) res + " count " + (string) count);
     integer start = llGetNumberOfPrims() > 1;
     integer end = start + llGetNumberOfPrims();
     integer i = 0;
@@ -38,7 +38,7 @@ integer change_textures(string diffuse_prefix, string normal_prefix, string spec
             i = (i+1)%count;
         }
     }
-    llSay(0,"change_textures done");
+    say_if_verbose("change_textures done");
     return 0;
 }
 
@@ -54,7 +54,7 @@ integer change_gstate(string gstate)
         change_textures("cloud_texture","normal_map_rings","spec_map_rings",1024,10);
         return 0;
     }
-    llSay(0,"change_gstate " + gstate + " starts");
+    say_if_verbose("change_gstate " + gstate + " starts");
     integer start = llGetNumberOfPrims() > 1;
     integer end = start + llGetNumberOfPrims();
     integer link;
@@ -130,11 +130,11 @@ integer change_gstate(string gstate)
             }
             else
             {
-                llSay(0,"unknown gstate " + gstate);
+                say_if_verbose("ignoring unknown gstate " + gstate);
             }
         }
     }
-    llSay(0,"change_gstate " + gstate + " done");
+    say_if_verbose("change_gstate " + gstate + " done");
     return 0;
 }
 
@@ -150,7 +150,7 @@ integer clear_gstate(string gstate)
     {
         return 0;
     }
-    llSay(0,"clear_gstate " + gstate + " starts");
+    say_if_verbose("clear_gstate " + gstate + " starts");
     integer start = llGetNumberOfPrims() > 1;
     integer end = start + llGetNumberOfPrims();
     integer link;
@@ -221,7 +221,7 @@ integer clear_gstate(string gstate)
             }
         }
    }
-    llSay(0,"clear_gstate " + gstate + " done");
+    say_if_verbose("clear_gstate " + gstate + " done");
     return 0;
 }
 
@@ -229,7 +229,7 @@ default
 {
     state_entry()
     {
-        llOwnerSay("listening");
+        say_if_verbose("listening");
         listenHandle = llListen(-777,"","","");  
         verbose = 0;
     }
@@ -245,19 +245,19 @@ default
         if (action=="start_prop")
         {
             string duration = llList2String(words,2);
-            llOwnerSay("running change_gstate " + gstate + " duration " + (string) duration);
-            llOwnerSay("backChannel sending: started");
+            say_if_verbose("running change_gstate " + gstate + " duration " + (string) duration);
+            say_if_verbose("backChannel sending: started");
             llSay(backChannel,"started");
-            llOwnerSay("step 1: running change_gstate");
+            say_if_verbose("step 1: running change_gstate");
             change_gstate(gstate);
             
-            llOwnerSay("step 2: sleeping for " + (string) duration);
+            say_if_verbose("step 2: sleeping for requested duration " + (string) duration);
             llSleep((integer) duration);
 
-            llOwnerSay("step 3: running clear_gstate");
+            say_if_verbose("step 3: running clear_gstate");
             clear_gstate(gstate);
 
-            llOwnerSay("backChannel sending: done");
+            say_if_verbose("backChannel sending: done");
             llSay(backChannel,"done");
         }
         else if (message == "verbose on")
@@ -272,13 +272,8 @@ default
         }
         else
         {
-            llOwnerSay("ignoring message " + message);
+            say_if_verbose("ignoring message " + message);
         }
-    }
-    
-    touch_start(integer total_number)
-    {
-        llOwnerSay( "Touched.");
     }
 }
 
