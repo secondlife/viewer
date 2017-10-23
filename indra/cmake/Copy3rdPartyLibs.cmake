@@ -39,10 +39,19 @@ if(WINDOWS)
         libeay32.dll
         glod.dll
         libhunspell.dll
-        BugSplat64.dll
-        BugSplatRc64.dll
-        BsSndRpt64.exe
         )
+
+    # Filenames are different for 32/64 bit BugSplat file and we don't
+    # have any control over them so need to branch.
+    if(ADDRESS_SIZE EQUAL 32)
+        set(release_files ${release_files} BugSplat.dll)
+        set(release_files ${release_files} BugSplatRc.dll)
+        set(release_files ${release_files} BsSndRpt.exe)
+    else(ADDRESS_SIZE EQUAL 32)
+        set(release_files ${release_files} BugSplat64.dll)
+        set(release_files ${release_files} BugSplatRc64.dll)
+        set(release_files ${release_files} BsSndRpt64.exe)
+    endif(ADDRESS_SIZE EQUAL 32)
 
     if (FMODEX)
 
