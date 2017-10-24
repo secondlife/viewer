@@ -406,27 +406,11 @@ bool BugSplatExceptionCallback(unsigned int nCode, void* lpVal1, void* lpVal2)
 	{
 		case MDSCB_EXCEPTIONCODE:
 		{
-			EXCEPTION_RECORD *p = (EXCEPTION_RECORD *)lpVal1;
-			DWORD code = p ? p->ExceptionCode : 0;
-
-			// create some files in the %temp% directory and attach them
-			wchar_t cmdString[2 * MAX_PATH];
-			wchar_t filePath[MAX_PATH];
-			wchar_t tempPath[MAX_PATH];
-			GetTempPathW(MAX_PATH, tempPath);
-
-			wsprintf(filePath, L"%sfile1.txt", tempPath);
-			wsprintf(cmdString, L"echo Exception Code = 0x%08x > %s", code, filePath);
-			_wsystem(cmdString);
-			gBugSplatSender->sendAdditionalFile((const __wchar_t *)filePath);
-
-			wsprintf(filePath, L"%sfile2.txt", tempPath);
-			wchar_t buf[_MAX_PATH];
-			gBugSplatSender->getMinidumpPath((__wchar_t *)buf, _MAX_PATH);
-
-			wsprintf(cmdString, L"echo Crash reporting is so clutch!  minidump path = %s > %s", buf, filePath);
-			_wsystem(cmdString);
-			gBugSplatSender->sendAdditionalFile((const __wchar_t *)filePath);
+			// send the main viewer log file (Clearly a temporary hack since we don't have access to the gDir*** set of functions in newview
+			const std::string appdata = std::string(getenv("APPDATA"));
+			const std::string logfile = appdata + "\\SecondLife\\logs\\Secondlife.log";
+			const std::wstring wide_logfile(logfile.begin(), logfile.end());
+			gBugSplatSender->sendAdditionalFile((const __wchar_t *)wide_logfile.c_str());
 		}
 		break;
 	}
