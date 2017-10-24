@@ -736,6 +736,10 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		xfer_timeout *= 2L;
 
 		// Also try requesting HTTP/2.
+/******************************/
+		// but for test purposes, only if overriding VIEWERASSET
+		if (getenv("VIEWERASSET"))
+/******************************/
 		check_curl_easy_setopt(mCurlHandle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 	}
 	// *DEBUG:  Enable following override for timeout handling and "[curl:bugs] #1420" tests
