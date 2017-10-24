@@ -431,9 +431,17 @@ void LLApp::setupErrorHandling(bool second_instance)
 #if BUGSPLAT_ENABLED
 	// TODOCP: populate these fields correctly
 	static const wchar_t *bugdb_name = L"second_life_callum_test";
-	static const wchar_t *app_name = L"SecondLifeViewer";
-	static const wchar_t *app_version = L"1.0.0";
-	gBugSplatSender = new MiniDmpSender((const __wchar_t *)bugdb_name, (const __wchar_t *)app_name, (const __wchar_t *)app_version, NULL);
+
+	// build (painfully) the app/channel name
+	#define stringize_inner(x) L#x
+	#define stringize_outer(x) stringize_inner(x)
+	std::wstring app_name(stringize_outer(LL_VIEWER_CHANNEL));
+
+	// build in real app version now we leveraged CMake to build in BuildVersion.cmake into LLCommon
+	wchar_t version_string[MAX_STRING];
+	wsprintf(version_string, L"%d.%d.%d.%d", LL_VIEWER_VERSION_MAJOR, LL_VIEWER_VERSION_MINOR, LL_VIEWER_VERSION_PATCH, LL_VIEWER_VERSION_BUILD);
+
+	gBugSplatSender = new MiniDmpSender((const __wchar_t *)bugdb_name, (const __wchar_t *)app_name.c_str(), (const __wchar_t *)version_string, NULL);
 
 	gBugSplatSender->setCallback(BugSplatExceptionCallback);
 #else
