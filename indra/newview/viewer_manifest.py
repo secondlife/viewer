@@ -445,6 +445,9 @@ class WindowsManifest(ViewerManifest):
             self.path("ssleay32.dll")
             self.path("libeay32.dll")
 
+            # HTTP/2
+            self.path("nghttp2.dll")
+
             # Hunspell
             self.path("libhunspell.dll")
 
@@ -878,10 +881,19 @@ class DarwinManifest(ViewerManifest):
                     or a list containing dst (present). Concatenate these
                     return values to get a list of all libs that are present.
                     """
-                    if self.path(src, dst):
-                        return [dst]
-                    print "Skipping %s" % dst
-                    return []
+                    # This was simple before we started needing to pass
+                    # wildcards. Fortunately, self.path() ends up appending a
+                    # (source, dest) pair to self.file_list for every expanded
+                    # file processed. Remember its size before the call.
+                    oldlen = len(self.file_list)
+                    self.path(src, dst)
+                    # The dest appended to self.file_list has been prepended
+                    # with self.get_dst_prefix(). Strip it off again.
+                    added = [os.path.relpath(d, self.get_dst_prefix())
+                             for s, d in self.file_list[oldlen:]]
+                    if not added:
+                        print "Skipping %s" % dst
+                    return added
 
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a
@@ -902,6 +914,10 @@ class DarwinManifest(ViewerManifest):
                                 "libexpat.1.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
+                                # libnghttp2.dylib is a symlink to
+                                # libnghttp2.major.dylib, which is a symlink
+                                # to libnghttp2.version.dylib. Get all of them.
+                                "libnghttp2.*dylib",
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 

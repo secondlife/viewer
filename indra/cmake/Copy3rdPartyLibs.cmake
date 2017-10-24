@@ -37,6 +37,7 @@ if(WINDOWS)
         libapriconv-1.dll
         ssleay32.dll
         libeay32.dll
+        nghttp2.dll
         glod.dll
         libhunspell.dll
         )
@@ -169,6 +170,7 @@ elseif(DARWIN)
         ${EXPAT_COPY}
         libGLOD.dylib
         libndofdev.dylib
+        libnghttp2.dylib
        )
 
     if (FMODEX)
