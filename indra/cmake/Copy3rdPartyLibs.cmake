@@ -171,6 +171,8 @@ elseif(DARWIN)
         libGLOD.dylib
         libndofdev.dylib
         libnghttp2.dylib
+        libnghttp2.14.dylib
+        libnghttp2.14.14.0.dylib
        )
 
     if (FMODEX)
