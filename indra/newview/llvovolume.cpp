@@ -3314,6 +3314,24 @@ BOOL LLVOVolume::setIsFlexible(BOOL is_flexible)
 	return res;
 }
 
+const LLMeshSkinInfo* LLVOVolume::getSkinInfo() const
+{
+    if (getVolume())
+    {
+        return gMeshRepo.getSkinInfo(getVolume()->getParams().getSculptID(), this);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+// virtual
+BOOL LLVOVolume::isRiggedMesh() const
+{
+    return isMesh() && getSkinInfo();
+}
+
 //----------------------------------------------------------------------------
 // AXON - methods related to extended mesh flags
 
@@ -3382,18 +3400,12 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
 
 bool LLVOVolume::canBeAnimatedObject() const
 {
-#if 0
-    // AXON: we used to enforce that root had to be mesh. Should we at
-    // least require that some element of the linkset is mesh? Only
-    // problem with this is failures while mesh header is still being
-    // loaded.
     F32 est_tris = recursiveGetEstTrianglesMax();
     if (est_tris <= 0 || est_tris > getAnimatedObjectMaxTris())
     {
         LL_INFOS() << "est_tris " << est_tris << " is outside limit of 1-" << getAnimatedObjectMaxTris() << LL_ENDL;
         return false;
     }
-#endif
     return true;
 }
 
@@ -3685,7 +3697,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
 			if ( size > 0)
 			{
-				if (gMeshRepo.getSkinInfo(volume_params.getSculptID(), this))
+				if (isRiggedMesh())
 				{
 					// weighted attachment - 1 point for every 3 bytes
 					weighted_mesh = 1;
@@ -4393,9 +4405,7 @@ void LLVOVolume::updateRiggedVolume(bool force_update)
 	}
 
 	LLVolume* volume = getVolume();
-
-	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(volume->getParams().getSculptID(), this);
-
+	const LLMeshSkinInfo* skin = getSkinInfo();
 	if (!skin)
 	{
 		clearRiggedVolume();
@@ -4403,7 +4413,6 @@ void LLVOVolume::updateRiggedVolume(bool force_update)
 	}
 
 	LLVOAvatar* avatar = getAvatar();
-
 	if (!avatar)
 	{
 		clearRiggedVolume();
@@ -4418,7 +4427,6 @@ void LLVOVolume::updateRiggedVolume(bool force_update)
 	}
 
 	mRiggedVolume->update(skin, avatar, volume);
-
 }
 
 static LLTrace::BlockTimerStatHandle FTM_SKIN_RIGGED("Skin");
@@ -5081,9 +5089,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
-			bool rigged = vobj->isMesh() &&
-                          vobj->isAttachment() &&
-                          gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
+            // AXON this includes attached animeshes but leaves out standalone ones. Fix.
+			bool rigged = vobj->isRiggedMesh() && vobj->isAttachment();
 
             if (vobj->isAnimatedObject())
             {

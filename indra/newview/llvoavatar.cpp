@@ -5655,14 +5655,14 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
 		if ( pVObj )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
+			const LLMeshSkinInfo* pSkinData = pVObj->getSkinInfo();
 			if (pSkinData 
 				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
 				&& pSkinData->mAlternateBindMatrix.size() > 0 )
-					{				
-						mesh_id = pSkinData->mMeshID;
-						return true;
-					}
+            {				
+                mesh_id = pSkinData->mMeshID;
+                return true;
+            }
 		}
 	}
 	return false;
@@ -5709,8 +5709,7 @@ bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name, const LLViewerOb
 		return false;
 	}
 
-	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
-	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
+	const LLMeshSkinInfo* pSkinData = vobj->getSkinInfo();
 
 	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
 	{
@@ -5814,8 +5813,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 	{
 		return;
 	}
-	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
-	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
+	const LLMeshSkinInfo*  pSkinData = vobj->getSkinInfo();
 
 	if ( vobj && vobj->isMesh() && pSkinData )
 	{
