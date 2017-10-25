@@ -292,6 +292,10 @@ class ViewerManifest(LLManifest):
 
 
 class WindowsManifest(ViewerManifest):
+    # We want the platform, per se, for every Windows build to be 'win'. The
+    # VMP will concatenate that with the address_size.
+    build_data_json_platform = 'win'
+
     def final_exe(self):
         return self.app_name_oneword()+".exe"
 
@@ -743,11 +747,9 @@ class Windows_i686_Manifest(WindowsManifest):
     # Although we aren't literally passed ADDRESS_SIZE, we can infer it from
     # the passed 'arch', which is used to select the specific subclass.
     address_size = 32
-    build_data_json_platform = 'win32'
 
 class Windows_x86_64_Manifest(WindowsManifest):
     address_size = 64
-    build_data_json_platform = 'win'
 
 
 class DarwinManifest(ViewerManifest):
