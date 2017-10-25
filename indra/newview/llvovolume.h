@@ -276,7 +276,7 @@ public:
     bool canBeAnimatedObject() const;
     bool isAnimatedObject() const;
     bool isAnimatedObjectStateConsistent() const;
-    void updateAnimatedObjectState(LLViewerObject *old_parent, LLViewerObject *new_parent);
+    void updateAnimatedObjectStateOnReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
 
     // AXON For animated objects, we need to track animations requested
     // per-object, then reconcile those to manage the control avatar
