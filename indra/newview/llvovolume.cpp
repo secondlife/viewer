@@ -5081,9 +5081,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
-			bool rigged = vobj->isAttachment() && 
-                          vobj->isMesh() && 
-						  gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
+			bool rigged = vobj->isMesh() &&
+                          vobj->isAttachment() &&
+                          gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
 
             if (vobj->isAnimatedObject())
             {
@@ -5115,9 +5115,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             // there are no LLFaces associated with the drawable.
 			bool is_rigged = false;
 
-            // AXON handle NPC case
-            if (rigged && rigged_av && !vobj->isAnimatedObject())
+            if (rigged && rigged_av)
             {
+                // AXON don't we want to do this for standalone animesh as well?
                 rigged_av->addAttachmentOverridesForObject(vobj);
 				if (!LLApp::isExiting() && rigged_av->isSelf() && debugLoggingEnabled("AvatarAttachments"))
                 {
@@ -5142,7 +5142,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//sum up face verts and indices
 				drawablep->updateFaceSize(i);
 			
-				if (rigged || (vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying))
+				if (rigged || (vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying && vobj->isMesh()))
 				{
 					if (!facep->isState(LLFace::RIGGED))
 					{ //completely reset vertex buffer
