@@ -75,6 +75,7 @@ public:
 
 	LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
 				LLViewerTexture* image, LLVertexBuffer* buffer, 
+				bool selected,
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
 
@@ -117,6 +118,7 @@ public:
 	F32  mEnvIntensity;
 	F32  mAlphaMaskCutoff;
 	U8   mDiffuseAlphaMode;
+	bool mSelected;
 
 
 	struct CompareTexture

@@ -2656,7 +2656,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	{
 		scratch_space->copyContents(source, 
 									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 	}
 
 	dest.bindTarget();
@@ -4583,12 +4583,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
 
 	LLGLEnable cull(GL_CULL_FACE);
-
-	LLGLEnable stencil(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-	stop_glerror();
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	stop_glerror();
 
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
@@ -8145,7 +8139,7 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 	if (LLRenderTarget::sUseFBO)
 	{ //copy depth buffer from mScreen to framebuffer
 		LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
-			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 	}
 	
 
@@ -9026,7 +9020,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		{
 			LLGLDepthTest depth(GL_TRUE);
 			mDeferredDepth.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),
-							0, 0, mDeferredDepth.getWidth(), mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
+							0, 0, mDeferredDepth.getWidth(), mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);	
 		}
 
 		LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);

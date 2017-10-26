@@ -1060,6 +1060,7 @@ void LLManipTranslate::render()
 		renderGuidelines();
 	}
 	{
+		LLGLDisable gls_stencil(GL_STENCIL_TEST);
 		renderTranslationHandles();
 		renderSnapGuides();
 	}

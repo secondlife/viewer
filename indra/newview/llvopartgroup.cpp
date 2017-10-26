@@ -964,7 +964,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			U32 count = facep->getIndicesCount();
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
 				//facep->getTexture(),
-				buffer, fullbright); 
+				buffer, object->isSelected(), fullbright);
 
 			const LLVector4a* exts = group->getObjectExtents();
 			info->mExtents[0] = exts[0];
