@@ -5075,18 +5075,6 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	}
 }
 
-// AXON Move to llviewerobject
-void recursiveMarkForUpdate(LLViewerObject *vobj, BOOL priority)
-{
-    for (LLViewerObject::child_list_t::const_iterator iter = vobj->getChildren().begin();
-         iter != vobj->getChildren().end(); iter++)
-    {
-        LLViewerObject* child = (LLViewerObject*)*iter;
-        child->markForUpdate(priority);
-    }
-    vobj->markForUpdate(priority);
-}
-
 void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLUUID	animation_id;
@@ -5123,14 +5111,14 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     }
     
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
-	LL_DEBUGS("AXON") << "handle object animation here, num_blocks " << num_blocks << LL_ENDL;
+	LL_DEBUGS("AXON") << "processing object animation requests, num_blocks " << num_blocks << LL_ENDL;
 
-#if 1 
+#if 0 
     if (!avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
 		avatarp->updateVolumeGeom();
-        recursiveMarkForUpdate(avatarp->mRootVolp,TRUE);
+        avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
     }
 #else
     if (num_blocks > 0 && !avatarp->mPlaying)
@@ -5138,7 +5126,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         avatarp->mPlaying = true;
 		avatarp->updateVolumeGeom();
         // AXON FIXME need to update all objects in the linkset, not just the one where animation is playing
-        recursiveMarkForUpdate(avatarp->mRootVolp,TRUE);
+        avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
     }
     else if (num_blocks == 0 && avatarp->mPlaying)
     {
@@ -5148,7 +5136,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         avatarp->mPlaying = false;
 		avatarp->updateVolumeGeom();
         // AXON FIXME need to update all objects in the linkset, not just the one where animation is playing
-        recursiveMarkForUpdate(avatarp->mRootVolp,TRUE);
+        avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
     }
 #endif
 

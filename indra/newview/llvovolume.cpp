@@ -3403,7 +3403,7 @@ bool LLVOVolume::canBeAnimatedObject() const
     F32 est_tris = recursiveGetEstTrianglesMax();
     if (est_tris <= 0 || est_tris > getAnimatedObjectMaxTris())
     {
-        LL_INFOS() << "est_tris " << est_tris << " is outside limit of 1-" << getAnimatedObjectMaxTris() << LL_ENDL;
+        LL_DEBUGS("AXON") << "est_tris " << est_tris << " is outside limit of 1-" << getAnimatedObjectMaxTris() << LL_ENDL;
         return false;
     }
     return true;
@@ -3987,7 +3987,7 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
         bool was_enabled = (getControlAvatar() != NULL);
         if (enabled != was_enabled)
         {
-            LL_INFOS() << (U32) this
+            LL_DEBUGS("AXON") << (U32) this
                        << " calling onSetExtendedMeshFlags, enabled " << (U32) enabled
                        << " was_enabled " << (U32) was_enabled
                        << " local_origin " << (U32) local_origin

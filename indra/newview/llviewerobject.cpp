@@ -6020,6 +6020,17 @@ void LLViewerObject::updateVolume(const LLVolumeParams& volume_params)
 	}
 }
 
+void LLViewerObject::recursiveMarkForUpdate(BOOL priority)
+{
+    for (LLViewerObject::child_list_t::iterator iter = mChildList.begin();
+         iter != mChildList.end(); iter++)
+    {
+        LLViewerObject* child = *iter;
+        child->markForUpdate(priority);
+    }
+    markForUpdate(priority);
+}
+
 void LLViewerObject::markForUpdate(BOOL priority)
 {
 	if (mDrawable.notNull())
