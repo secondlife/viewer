@@ -5089,8 +5089,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
-            // AXON this includes attached animeshes but leaves out standalone ones. Fix.
-			bool rigged = vobj->isRiggedMesh() && vobj->isAttachment();
+            // Standard rigged mesh attachments: 
+			bool rigged = !vobj->isAnimatedObject() && vobj->isRiggedMesh() && vobj->isAttachment();
+            // Animated objects. Have to check for isRiggedMesh() to
+            // exclude static objects in animated object linksets.
+			rigged = rigged || (vobj->isAnimatedObject() && vobj->isRiggedMesh() &&
+                vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying);
 
             if (vobj->isAnimatedObject())
             {
@@ -5149,7 +5153,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//sum up face verts and indices
 				drawablep->updateFaceSize(i);
 			
-				if (rigged || (vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying && vobj->isMesh()))
+				if (rigged)
 				{
 					if (!facep->isState(LLFace::RIGGED))
 					{ //completely reset vertex buffer
