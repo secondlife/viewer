@@ -7,10 +7,7 @@
 # SEARCH_DIRS= The full paths to dirs to search for dependencies.
 # DST_PATH= The full path where the dependecies will be copied. 
 
-# *FIX:Mani - I pulled in the CMake 2.8 GetPrerequisites.cmake script here, because it works on windows where 2.6 did not.
-# Once we have officially upgraded to 2.8 we can just use that version of GetPrerequisites.cmake.
-get_filename_component(current_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
-include(${current_dir}/GetPrerequisites_2_8.cmake)
+include(GetPrerequisites)
 
 message(STATUS "Getting recursive dependencies for file: ${BIN_NAME}")
 

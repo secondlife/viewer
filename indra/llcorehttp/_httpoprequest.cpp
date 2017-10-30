@@ -108,6 +108,15 @@ void os_strlower(char * str);
 // Error testing and reporting for libcurl status codes
 void check_curl_easy_code(CURLcode code, int curl_setopt_option);
 
+// This is a template because different 'option' values require different
+// types for 'ARG'. Just pass them through unchanged (by value).
+template <typename ARG>
+void check_curl_easy_setopt(CURL* handle, CURLoption option, ARG argument)
+{
+    CURLcode code = curl_easy_setopt(handle, option, argument);
+    check_curl_easy_code(code, option);
+}
+
 static const char * const LOG_CORE("CoreHttp");
 
 } // end anonymous namespace
@@ -456,8 +465,6 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 // *TODO:  Move this to _httplibcurl where it belongs.
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
-	CURLcode code;
-	
 	// Scrub transport and result data for retried op case
 	mCurlActive = false;
 	mCurlHandle = NULL;
@@ -496,45 +503,28 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
 	}
 
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	check_curl_easy_code(code, CURLOPT_IPRESOLVE);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
-	check_curl_easy_code(code, CURLOPT_NOSIGNAL);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
-	check_curl_easy_code(code, CURLOPT_NOPROGRESS);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
-	check_curl_easy_code(code, CURLOPT_URL);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, getHandle());
-	check_curl_easy_code(code, CURLOPT_PRIVATE);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
-	check_curl_easy_code(code, CURLOPT_ENCODING);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, getHandle());
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
-	check_curl_easy_code(code, CURLOPT_AUTOREFERER);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
-	check_curl_easy_code(code, CURLOPT_MAXREDIRS);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-	check_curl_easy_code(code, CURLOPT_WRITEFUNCTION);
-    code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, getHandle());
-	check_curl_easy_code(code, CURLOPT_WRITEDATA);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
-	check_curl_easy_code(code, CURLOPT_READFUNCTION);
-    code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, getHandle());
-	check_curl_easy_code(code, CURLOPT_READDATA);
-    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKFUNCTION, seekCallback);
-    check_curl_easy_code(code, CURLOPT_SEEKFUNCTION);
-    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKDATA, getHandle());
-    check_curl_easy_code(code, CURLOPT_SEEKDATA);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
+    check_curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, getHandle());
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
+    check_curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, getHandle());
+    check_curl_easy_setopt(mCurlHandle, CURLOPT_SEEKFUNCTION, seekCallback);
+    check_curl_easy_setopt(mCurlHandle, CURLOPT_SEEKDATA, getHandle());
 
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_COOKIEFILE, "");
-	check_curl_easy_code(code, CURLOPT_COOKIEFILE);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_COOKIEFILE, "");
 
 	if (gpolicy.mSslCtxCallback)
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_FUNCTION, curlSslCtxCallback);
-		check_curl_easy_code(code, CURLOPT_SSL_CTX_FUNCTION);
-        code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_DATA, getHandle());
-		check_curl_easy_code(code, CURLOPT_SSL_CTX_DATA);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_FUNCTION, curlSslCtxCallback);
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_DATA, getHandle());
 		mCallbackSSLVerify = gpolicy.mSslCtxCallback;
 	}
 
@@ -552,16 +542,12 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		dnsCacheTimeout = mReqOptions->getDNSCacheTimeout();
         nobody = mReqOptions->getHeadersOnly() ? 1L : 0L;
 	}
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
-	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
 
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, sslPeerV);
-	check_curl_easy_code(code, CURLOPT_SSL_VERIFYPEER);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, sslHostV);
-	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, sslPeerV);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, sslHostV);
 
-    code = curl_easy_setopt(mCurlHandle, CURLOPT_NOBODY, nobody);
-    check_curl_easy_code(code, CURLOPT_NOBODY);
+    check_curl_easy_setopt(mCurlHandle, CURLOPT_NOBODY, nobody);
 
 	// The Linksys WRT54G V5 router has an issue with frequent
 	// DNS lookups from LAN machines.  If they happen too often,
@@ -569,8 +555,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// about 700 or so requests and starts issuing TCP RSTs to
 	// new connections.  Reuse the DNS lookups for even a few
 	// seconds and no RSTs.
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
-	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
 
 	if (gpolicy.mUseLLProxy)
 	{
@@ -593,81 +578,66 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	{
 		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, gpolicy.mHttpProxy.c_str());
-		check_curl_easy_code(code, CURLOPT_PROXY);
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		check_curl_easy_code(code, CURLOPT_PROXYTYPE);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, gpolicy.mHttpProxy.c_str());
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
 	}
 	if (gpolicy.mCAPath.size())
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, gpolicy.mCAPath.c_str());
-		check_curl_easy_code(code, CURLOPT_CAPATH);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, gpolicy.mCAPath.c_str());
 	}
 	if (gpolicy.mCAFile.size())
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, gpolicy.mCAFile.c_str());
-		check_curl_easy_code(code, CURLOPT_CAINFO);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, gpolicy.mCAFile.c_str());
 	}
 	
 	switch (mReqMethod)
 	{
 	case HOR_GET:
         if (nobody == 0)
-            code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
-		check_curl_easy_code(code, CURLOPT_HTTPGET);
+            check_curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
 		break;
 		
 	case HOR_POST:
 		{
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
-			check_curl_easy_code(code, CURLOPT_POST);
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
-			check_curl_easy_code(code, CURLOPT_ENCODING);
+			check_curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
+			check_curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 			long data_size(0);
 			if (mReqBody)
 			{
 				data_size = mReqBody->size();
 			}
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
-			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
-			check_curl_easy_code(code, CURLOPT_POSTFIELDSIZE);
+			check_curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
+			check_curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 		}
 		break;
 		
     case HOR_PATCH:
-        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "PATCH");
-        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "PATCH");
         // fall through.  The rest is the same as PUT
     case HOR_PUT:
 		{
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
-			check_curl_easy_code(code, CURLOPT_UPLOAD);
+			check_curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
 			long data_size(0);
 			if (mReqBody)
 			{
 				data_size = mReqBody->size();
 			}
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
-			check_curl_easy_code(code, CURLOPT_INFILESIZE);
+			check_curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 		}
 		break;
 		
     case HOR_DELETE:
-        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "DELETE");
-        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "DELETE");
         break;
 
     case HOR_COPY:
-        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "COPY");
-        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "COPY");
         break;
 
     case HOR_MOVE:
-        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "MOVE");
-        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "MOVE");
         break;
 
 	default:
@@ -685,12 +655,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Tracing
 	if (mTracing >= HTTP_TRACE_CURL_HEADERS)
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
-		check_curl_easy_code(code, CURLOPT_VERBOSE);
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
-		check_curl_easy_code(code, CURLOPT_DEBUGDATA);
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
-		check_curl_easy_code(code, CURLOPT_DEBUGFUNCTION);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
 	}
 	
 	// There's a CURLOPT for this now...
@@ -767,6 +734,13 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		//
 		// xfer_timeout *= cpolicy.mPipelining;
 		xfer_timeout *= 2L;
+
+		// Also try requesting HTTP/2.
+/******************************/
+		// but for test purposes, only if overriding VIEWERASSET
+		if (getenv("VIEWERASSET"))
+/******************************/
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 	}
 	// *DEBUG:  Enable following override for timeout handling and "[curl:bugs] #1420" tests
     //if (cpolicy.mPipelining)
@@ -774,10 +748,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     //    xfer_timeout = 1L;
     //    timeout = 1L;
     //}
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
-	check_curl_easy_code(code, CURLOPT_TIMEOUT);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
-	check_curl_easy_code(code, CURLOPT_CONNECTTIMEOUT);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
 
 	// Request headers
 	if (mReqHeaders)
@@ -785,15 +757,12 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// Caller's headers last to override
 		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
 	}
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
-	check_curl_easy_code(code, CURLOPT_HTTPHEADER);
+	check_curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 
 	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS | PF_USE_RETRY_AFTER))
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
-		check_curl_easy_code(code, CURLOPT_HEADERFUNCTION);
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
-		check_curl_easy_code(code, CURLOPT_HEADERDATA);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
+		check_curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
 	}
 	
 	if (status)
