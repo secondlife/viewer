@@ -1307,7 +1307,6 @@ BOOL LLVOVolume::calcLOD()
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
                                   ll_round(radius, 0.01f));
 
-
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT) && mDrawable->getFace(0))
     {
         if (isRootEdit() && getChildren().size()>0)
