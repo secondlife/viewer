@@ -3413,6 +3413,8 @@ bool LLVOVolume::isAnimatedObject() const
 {
     LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
     bool root_is_animated_flag = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    return root_is_animated_flag;
+#if 0
     if (root_is_animated_flag)
     {
         bool root_can_be_animated = root_vol->canBeAnimatedObject();
@@ -3423,6 +3425,7 @@ bool LLVOVolume::isAnimatedObject() const
         }
     }
     return false;
+#endif
 }
 
 // Make sure animated objects in a linkset are consistent. The rules are:
@@ -4008,10 +4011,17 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
 void LLVOVolume::setSelected(BOOL sel)
 {
 	LLViewerObject::setSelected(sel);
-	if (mDrawable.notNull())
-	{
-		markForUpdate(TRUE);
-	}
+    if (isAnimatedObject())
+    {
+        getRootEdit()->recursiveMarkForUpdate(TRUE);
+    }
+    else
+    {
+        if (mDrawable.notNull())
+        {
+            markForUpdate(TRUE);
+        }
+    }
 }
 
 void LLVOVolume::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)

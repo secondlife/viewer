@@ -691,7 +691,7 @@ bool LLSelectMgr::enableLinkObjects()
 			new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
 		}
 	}
-    if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectEstTris())
+    if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectLinkable())
     {
         new_value = false;
     }
@@ -7434,10 +7434,9 @@ bool LLObjectSelection::checkAnimatedObjectEstTris()
     F32 est_tris = 0;
     F32 max_tris = 0;
     S32 anim_count = 0;
-	for (root_iterator iter = root_begin(); iter != root_end(); )
+	for (root_iterator iter = root_begin(); iter != root_end(); ++iter)
 	{
-		root_iterator nextiter = iter++;
-		LLViewerObject* object = (*nextiter)->getObject();
+		LLViewerObject* object = (*iter)->getObject();
 		if (!object)
 			continue;
         if (object->isAnimatedObject())
@@ -7448,6 +7447,20 @@ bool LLObjectSelection::checkAnimatedObjectEstTris()
         max_tris = llmax((F32)max_tris,(F32)object->getAnimatedObjectMaxTris());
 	}
 	return anim_count==0 || est_tris <= max_tris;
+}
+
+bool LLObjectSelection::checkAnimatedObjectLinkable()
+{
+    // Can't link if any of the roots is currently an animated object
+	for (root_iterator iter = root_begin(); iter != root_end(); ++iter)
+	{
+        LLViewerObject* objectp = (*iter)->getObject();
+        if (objectp && objectp->isAnimatedObject())
+        {
+            return false;
+        }
+	}
+	return true;
 }
 
 bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly)

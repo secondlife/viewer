@@ -5113,7 +5113,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	LL_DEBUGS("AXON") << "processing object animation requests, num_blocks " << num_blocks << LL_ENDL;
 
-#if 0 
+#if 1 
     if (!avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
