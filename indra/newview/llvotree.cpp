@@ -525,7 +525,14 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		}
 
 		mReferenceBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, 0);
-		mReferenceBuffer->allocateBuffer(max_vertices, max_indices, TRUE);
+		if (!mReferenceBuffer->allocateBuffer(max_vertices, max_indices, TRUE))
+		{
+			LL_WARNS() << "Failed to allocate Vertex Buffer on update to "
+				<< max_vertices << " vertices and "
+				<< max_indices << " indices" << LL_ENDL;
+			mReferenceBuffer = NULL; //unref
+			return TRUE;
+		}
 
 		LLStrider<LLVector3> vertices;
 		LLStrider<LLVector3> normals;
@@ -883,7 +890,21 @@ void LLVOTree::updateMesh()
 	LLFace* facep = mDrawable->getFace(0);
 	if (!facep) return;
 	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
-	buff->allocateBuffer(vert_count, index_count, TRUE);
+	if (!buff->allocateBuffer(vert_count, index_count, TRUE))
+	{
+		LL_WARNS() << "Failed to allocate Vertex Buffer on mesh update to "
+			<< vert_count << " vertices and "
+			<< index_count << " indices" << LL_ENDL;
+		buff->allocateBuffer(1, 3, true);
+		memset((U8*)buff->getMappedData(), 0, buff->getSize());
+		memset((U8*)buff->getIndicesPointer(), 0, buff->getIndicesSize());
+		facep->setSize(1, 3);
+		facep->setVertexBuffer(buff);
+		mReferenceBuffer->flush();
+		buff->flush();
+		return;
+	}
+
 	facep->setVertexBuffer(buff);
 	
 	LLStrider<LLVector3> vertices;
