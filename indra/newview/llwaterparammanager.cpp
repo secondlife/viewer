@@ -135,10 +135,6 @@ bool LLWaterParamManager::loadPreset(const std::string& path)
 		addParamSet(name, params_data);
 	}
 
-    //*LAPRAS temp code testing conversion old preset to new settings.
-    LLSettingsWater::ptr_t test = LLSettingsWater::buildFromLegacyPreset(name, params_data);
-    LLEnvironment::instance().addWater(test);
-
 	return true;
 }
 

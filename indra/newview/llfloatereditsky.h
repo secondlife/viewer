@@ -98,7 +98,7 @@ private:
 	void refreshSkyPresetsList();
 	void enableEditing(bool enable);
 	void saveRegionSky();
-//	LLWLParamKey getSelectedSkyPreset();
+	std::string getSelectedPresetName() const;
 
 	void onSkyPresetNameEdited();
 	void onSkyPresetSelected();

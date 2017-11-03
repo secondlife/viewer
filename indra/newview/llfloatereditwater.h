@@ -87,6 +87,7 @@ private:
 	void enableEditing(bool enable);
 	void saveRegionWater();
 
+    std::string getSelectedPresetName() const;
 //	std::string			getCurrentPresetName() const;
 // 	LLEnvKey::EScope	getCurrentScope() const;
 //	void				getSelectedPreset(std::string& name, LLEnvKey::EScope& scope) const;

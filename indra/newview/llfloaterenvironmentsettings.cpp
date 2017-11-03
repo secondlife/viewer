@@ -70,10 +70,10 @@ BOOL LLFloaterEnvironmentSettings::postBuild()
 
 	setCloseCallback(boost::bind(&LLFloaterEnvironmentSettings::cancel, this));
 
+    LLEnvironment::instance().setSkyListChange(boost::bind(&LLFloaterEnvironmentSettings::populateSkyPresetsList, this));
+    LLEnvironment::instance().setWaterListChange(boost::bind(&LLFloaterEnvironmentSettings::populateWaterPresetsList, this));
+    LLEnvironment::instance().setDayCycleListChange(boost::bind(&LLFloaterEnvironmentSettings::populateDayCyclePresetsList, this));
 // 	LLEnvManagerNew::instance().setPreferencesChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::refresh, this));
-//	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEnvironmentSettings::populateDayCyclePresetsList, this));
-// 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::populateSkyPresetsList, this));
-// 	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::populateWaterPresetsList, this));
 
 	return TRUE;
 }
@@ -83,6 +83,14 @@ void LLFloaterEnvironmentSettings::onOpen(const LLSD& key)
 {
 	refresh();
 }
+
+//virtual
+void LLFloaterEnvironmentSettings::onClose(bool app_quitting)
+{
+    if (!app_quitting)
+        LLEnvironment::instance().clearAllSelected();
+}
+
 
 void LLFloaterEnvironmentSettings::onSwitchRegionSettings()
 {
@@ -133,6 +141,7 @@ void LLFloaterEnvironmentSettings::onBtnOK()
 		use_region_settings);
 
 	// *TODO: This triggers applying user preferences again, which is suboptimal.
+    LLEnvironment::instance().applyAllSelected();
 	closeFloater();
 }
 
@@ -173,9 +182,9 @@ void LLFloaterEnvironmentSettings::apply()
 	// Update environment with the user choice.
 	bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 	bool use_fixed_sky			= mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
-	std::string water_preset	= mWaterPresetCombo->getValue().asString();
-	std::string sky_preset		= mSkyPresetCombo->getValue().asString();
-	std::string day_cycle		= mDayCyclePresetCombo->getValue().asString();
+    std::string water_preset   = mWaterPresetCombo->getValue()[0].asString();
+    std::string sky_preset     = mSkyPresetCombo->getValue()[0].asString();
+	std::string day_cycle		= mDayCyclePresetCombo->getValue()[0].asString();
 
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
 	if (use_region_settings)
@@ -186,18 +195,23 @@ void LLFloaterEnvironmentSettings::apply()
 	{
 		if (use_fixed_sky)
 		{
-            /* LAPRAS */
-			//env_mgr.useSkyPreset(sky_preset);
-            LLEnvironment::instance().selectSky(sky_preset);
+            LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName(sky_preset);
+            if (psky)
+                LLEnvironment::instance().selectSky(psky);
 		}
 		else
 		{
-			env_mgr.useDayCycle(day_cycle, LLEnvKey::SCOPE_LOCAL);
+            LLSettingsDayCycle::ptr_t pday = LLEnvironment::instance().findDayCycleByName(day_cycle);
+            if (pday)
+                LLEnvironment::instance().selectDayCycle(pday);
+
+//             LLEnvironment::instance().selectDayCycle(day_cycle);
+// 			env_mgr.useDayCycle(day_cycle, LLEnvKey::SCOPE_LOCAL);
 		}
 
-        /* LAPRAS */
-        //env_mgr.useWaterPreset(water_preset);
-        LLEnvironment::instance().selectWater(water_preset);
+        LLSettingsWater::ptr_t pwater = LLEnvironment::instance().findWaterByName(water_preset);
+        if (pwater)
+            LLEnvironment::instance().selectWater(pwater);
 	}
 }
 
@@ -209,76 +223,36 @@ void LLFloaterEnvironmentSettings::cancel()
 
 void LLFloaterEnvironmentSettings::populateWaterPresetsList()
 {
-	mWaterPresetCombo->removeall();
+    mWaterPresetCombo->removeall();
 
-	std::list<std::string> user_presets, system_presets;
-	//LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
+    LLEnvironment::list_name_id_t list = LLEnvironment::instance().getWaterList();
 
-	// Add user presets first.
-	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
-	{
-		mWaterPresetCombo->add(*it);
-	}
-
-	if (user_presets.size() > 0)
-	{
-		mWaterPresetCombo->addSeparator();
-	}
-
-	// Add system presets.
-	for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
-	{
-		mWaterPresetCombo->add(*it);
-	}
+    for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        mWaterPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+    }
 }
 
 void LLFloaterEnvironmentSettings::populateSkyPresetsList()
 {
 	mSkyPresetCombo->removeall();
 
-	LLWLParamManager::preset_name_list_t region_presets; // unused as we don't list region presets here
-	LLWLParamManager::preset_name_list_t user_presets, sys_presets;
-	LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
+    LLEnvironment::list_name_id_t list = LLEnvironment::instance().getSkyList();
 
-	// Add user presets.
-	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
-	{
-		mSkyPresetCombo->add(*it);
-	}
-
-	if (!user_presets.empty())
-	{
-		mSkyPresetCombo->addSeparator();
-	}
-
-	// Add system presets.
-	for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
-	{
-		mSkyPresetCombo->add(*it);
-	}
+    for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        mSkyPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+    }
 }
 
 void LLFloaterEnvironmentSettings::populateDayCyclePresetsList()
 {
 	mDayCyclePresetCombo->removeall();
 
-	LLDayCycleManager::preset_name_list_t user_days, sys_days;
-	LLDayCycleManager::instance().getPresetNames(user_days, sys_days);
+    LLEnvironment::list_name_id_t list = LLEnvironment::instance().getDayCycleList();
 
-	// Add user days.
-	for (LLDayCycleManager::preset_name_list_t::const_iterator it = user_days.begin(); it != user_days.end(); ++it)
-	{
-		mDayCyclePresetCombo->add(*it);
-	}
-
-	if (user_days.size() > 0)
-	{
-		mDayCyclePresetCombo->addSeparator();
-	}
-
-	// Add system days.
-	for (LLDayCycleManager::preset_name_list_t::const_iterator it = sys_days.begin(); it != sys_days.end(); ++it)
-	{
-		mDayCyclePresetCombo->add(*it);
-	}
+    for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        mDayCyclePresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+    }
 }

@@ -73,6 +73,8 @@ BOOL LLFloaterEditWater::postBuild()
 
     mWaterAdapter = boost::make_shared<LLWatterSettingsAdapter>();
 
+    LLEnvironment::instance().setWaterListChange(boost::bind(&LLFloaterEditWater::onWaterPresetListChange, this));
+
 	initCallbacks();
 	refreshWaterPresetsList();
 	syncControls();
@@ -109,7 +111,7 @@ void LLFloaterEditWater::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-//		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
+        LLEnvironment::instance().clearAllSelected();
 	}
 }
 
@@ -175,6 +177,10 @@ void LLFloaterEditWater::syncControls()
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
     mEditSettings = pwater;
+
+    std::string name = pwater->getName();
+    mWaterPresetNameEditor->setText(name);
+    mWaterPresetCombo->setValue(name);
 
 	//getChild<LLUICtrl>("WaterGlow")->setValue(col.mV[3]);
     getChild<LLColorSwatchCtrl>("WaterFogColor")->set(LLColor4(pwater->getFogColor()));
@@ -322,44 +328,16 @@ bool LLFloaterEditWater::isNewPreset() const
 
 void LLFloaterEditWater::refreshWaterPresetsList()
 {
-#if 0
 	mWaterPresetCombo->removeall();
 
-#if 0 // *TODO: enable when we have a clear workflow to edit existing region environment
-	// If the region already has water params, add them to the list.
-	const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
-	if (region_settings.getWaterParams().size() != 0)
-	{
-		const std::string& region_name = gAgent.getRegion()->getName();
-		mWaterPresetCombo->add(region_name, LLSD().with(0, region_name).with(1, LLEnvKey::SCOPE_REGION));
-		mWaterPresetCombo->addSeparator();
-	}
-#endif
+    LLEnvironment::list_name_id_t list = LLEnvironment::instance().getWaterList();
 
-	std::list<std::string> user_presets, system_presets;
-	LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
-
-	// Add local user presets first.
-	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
-	{
-		const std::string& name = *it;
-		mWaterPresetCombo->add(name, LLSD().with(0, name).with(1, LLEnvKey::SCOPE_LOCAL)); // [<name>, <scope>]
-	}
-
-	if (user_presets.size() > 0)
-	{
-		mWaterPresetCombo->addSeparator();
-	}
-
-	// Add local system presets.
-	for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
-	{
-		const std::string& name = *it;
-		mWaterPresetCombo->add(name, LLSD().with(0, name).with(1, LLEnvKey::SCOPE_LOCAL)); // [<name>, <scope>]
-	}
+    for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        mWaterPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+    }
 
 	mWaterPresetCombo->setLabel(getString("combo_label"));
-#endif
 }
 
 void LLFloaterEditWater::enableEditing(bool enable)
@@ -406,36 +384,28 @@ LLEnvKey::EScope LLFloaterEditWater::getCurrentScope() const
 }
 #endif
 
-#if 0
-void LLFloaterEditWater::getSelectedPreset(std::string& name, LLEnvKey::EScope& scope) const
+std::string LLFloaterEditWater::getSelectedPresetName() const
 {
-
+    std::string name;
 	if (mWaterPresetNameEditor->getVisible())
 	{
 		name = mWaterPresetNameEditor->getText();
-		scope = LLEnvKey::SCOPE_LOCAL;
 	}
 	else
 	{
 		LLSD combo_val = mWaterPresetCombo->getValue();
-
-		if (!combo_val.isArray()) // manually typed text
-		{
-			name = combo_val.asString();
-			scope = LLEnvKey::SCOPE_LOCAL;
-		}
-		else
-		{
-			name = combo_val[0].asString();
-			scope = (LLEnvKey::EScope) combo_val[1].asInteger();
-		}
+		name = combo_val[0].asString();
 	}
 
+    return name;
 }
-#endif
 
 void LLFloaterEditWater::onWaterPresetNameEdited()
 {
+    std::string name = mWaterPresetNameEditor->getText();
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+
+    pwater->setName(name);
 #if 0
 	// Disable saving a water preset having empty name.
 	mSaveButton->setEnabled(!getCurrentPresetName().empty());
@@ -444,35 +414,24 @@ void LLFloaterEditWater::onWaterPresetNameEdited()
 
 void LLFloaterEditWater::onWaterPresetSelected()
 {
-#if 0
-	LLWaterParamSet water_params;
 	std::string name;
-	LLEnvKey::EScope scope;
 
-	getSelectedPreset(name, scope);
+	name = getSelectedPresetName();
 
-	// Display selected preset.
-	if (scope == LLEnvKey::SCOPE_REGION)
-	{
-		water_params.setAll(LLEnvManagerNew::instance().getRegionSettings().getWaterParams());
-	}
-	else // local preset selected
-	{
-		if (!LLWaterParamManager::instance().getParamSet(name, water_params))
-		{
-			// Manually entered string?
-			LL_WARNS("Windlight") << "No water preset named " << name << LL_ENDL;
-			return;
-		}
-	}
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().findWaterByName(name);
 
-	LLEnvManagerNew::instance().useWaterParams(water_params.getAll());
+    if (!pwater)
+    {
+        LL_WARNS("WATEREDIT") << "Could not find water preset" << LL_ENDL;
+        enableEditing(false);
+        return;
+    }
 
-	bool can_edit = (scope == LLEnvKey::SCOPE_LOCAL || LLEnvManagerNew::canEditRegionSettings());
-	enableEditing(can_edit);
+    pwater = pwater->buildClone();
+    LLEnvironment::instance().selectWater(pwater);
 
-	mMakeDefaultCheckBox->setEnabled(scope == LLEnvKey::SCOPE_LOCAL);
-#endif
+    syncControls();
+    enableEditing(true);
 }
 
 bool LLFloaterEditWater::onSaveAnswer(const LLSD& notification, const LLSD& response)
@@ -521,44 +480,11 @@ void LLFloaterEditWater::onSaveConfirmed()
 
 void LLFloaterEditWater::onBtnSave()
 {
-#if 0
-	LLEnvKey::EScope scope;
-	std::string name;
-	getSelectedPreset(name, scope);
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    LLEnvironment::instance().addWater(pwater);
 
-	if (scope == LLEnvKey::SCOPE_REGION)
-	{
-		saveRegionWater();
-		closeFloater();
-		return;
-	}
-
-	if (name.empty())
-	{
-		// *TODO: show an alert
-		LL_WARNS() << "Empty water preset name" << LL_ENDL;
-		return;
-	}
-
-	// Don't allow overwriting system presets.
-	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
-	if (water_mgr.isSystemPreset(name))
-	{
-		LLNotificationsUtil::add("WLNoEditDefault");
-		return;
-	}
-
-	// Save, ask for confirmation for overwriting an existing preset.
-	if (water_mgr.hasParamSet(name))
-	{
-		LLNotificationsUtil::add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterEditWater::onSaveAnswer, this, _1, _2));
-	}
-	else
-	{
-		// new preset, hence no confirmation needed
-		onSaveConfirmed();
-	}
-#endif
+    LLEnvironment::instance().applyWater();
+    closeFloater();
 }
 
 void LLFloaterEditWater::onBtnCancel()
@@ -568,23 +494,7 @@ void LLFloaterEditWater::onBtnCancel()
 
 void LLFloaterEditWater::onWaterPresetListChange()
 {
-#if 0
-	std::string name;
-	LLEnvKey::EScope scope;
-	getSelectedPreset(name, scope); // preset being edited
-
-	if (scope == LLEnvKey::SCOPE_LOCAL && !LLWaterParamManager::instance().hasParamSet(name))
-	{
-		// Preset we've been editing doesn't exist anymore. Close the floater.
-		closeFloater(false);
-	}
-	else
-	{
-		// A new preset has been added.
-		// Refresh the presets list, though it may not make sense as the floater is about to be closed.
-		refreshWaterPresetsList();
-	}
-#endif
+    refreshWaterPresetsList();
 }
 
 void LLFloaterEditWater::onRegionSettingsChange()

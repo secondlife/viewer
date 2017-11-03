@@ -33,10 +33,15 @@
 
 #include "llsdserialize.h"
 
+//=========================================================================
 namespace
 {
     const F32 BREAK_POINT = 0.5;
 }
+
+//=========================================================================
+const std::string LLSettingsBase::SETTING_ID("id");
+const std::string LLSettingsBase::SETTING_NAME("name");
 
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
@@ -242,15 +247,16 @@ LLSD LLSettingsBase::cloneSettings() const
 
 LLSettingsBase::ptr_t LLSettingsBase::buildBlend(const ptr_t &begin, const ptr_t &end, F32 blendf)
 {
-    if (begin->getSettingType() != end->getSettingType())
-    {
-        LL_WARNS("SETTINGS") << "Attempt to blend settings of different types! " << 
-            begin->getSettingType() << "<->" << end->getSettingType() << LL_ENDL;
+//     if (begin->getSettingType() != end->getSettingType())
+//     {
+//         LL_WARNS("SETTINGS") << "Attempt to blend settings of different types! " << 
+//             begin->getSettingType() << "<->" << end->getSettingType() << LL_ENDL;
+// 
+//         return LLSettingsBase::ptr_t();
+//     }
 
-        return LLSettingsBase::ptr_t();
-    }
-
-    return begin->blend(end, blendf);
+//    return begin->blend(end, blendf);
+    return LLSettingsBase::ptr_t();
 }
 
 void LLSettingsBase::exportSettings(std::string name) const

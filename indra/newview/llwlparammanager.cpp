@@ -319,11 +319,6 @@ bool LLWLParamManager::loadPreset(const std::string& path)
 		addParamSet(key, params_data);
 	}
 
-    //*LAPRAS temp code testing conversion old preset to new settings.
-    LLSettingsSky::ptr_t test = LLSettingsSky::buildFromLegacyPreset(name, params_data);
-    LLEnvironment::instance().addSky(test);
-    //test->exportSettings(name);
-
 	return true;
 }
 

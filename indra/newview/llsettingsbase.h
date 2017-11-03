@@ -46,6 +46,9 @@ class LLSettingsBase: private boost::noncopyable
     friend class LLSettingsDayCycle;
 
 public:
+    static const std::string SETTING_ID;
+    static const std::string SETTING_NAME;
+
     typedef std::map<std::string, S32>  parammapping_t;
 
     typedef boost::shared_ptr<LLSettingsBase> ptr_t;
@@ -63,6 +66,32 @@ public:
     inline bool isDirty() const { return mDirty; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; }
 
+    inline LLUUID getId() const
+    {
+        return getValue(SETTING_ID).asUUID();
+    }
+
+    inline std::string getName() const
+    {
+        return getValue(SETTING_NAME).asString();
+    }
+
+    inline void setName(std::string val)
+    {
+        setValue(SETTING_NAME, val);
+    }
+
+    inline void replaceSettings(LLSD settings)
+    {
+        mSettings = settings;
+        setDirtyFlag(true);
+    }
+
+    inline LLSD getSettings() const
+    {
+        return mSettings;
+    }
+
     //---------------------------------------------------------------------
     // 
     inline void setValue(const std::string &name, const LLSD &value)
@@ -71,7 +100,7 @@ public:
         mDirty = true;
     }
 
-    inline LLSD getValue(const std::string &name, const LLSD &deflt = LLSD())
+    inline LLSD getValue(const std::string &name, const LLSD &deflt = LLSD()) const
     {
         if (!mSettings.has(name))
             return deflt;
@@ -121,13 +150,14 @@ public:
     // TODO: This is temporary 
     virtual void exportSettings(std::string name) const;
 
+    virtual void blend(const ptr_t &end, F32 blendf) = 0;
+
 protected:
     LLSettingsBase();
     LLSettingsBase(const LLSD setting);
 
     typedef std::set<std::string>   stringset_t;
 
-    virtual ptr_t blend(const ptr_t &end, F32 blendf) const = 0;
 
     // combining settings objects. Customize for specific setting types
     virtual void lerpSettings(const LLSettingsBase &other, F32 mix);

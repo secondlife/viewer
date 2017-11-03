@@ -40,6 +40,7 @@ public:
 	LLFloaterEnvironmentSettings(const LLSD &key);
 	/*virtual*/	BOOL	postBuild();	
 	/*virtual*/ void	onOpen(const LLSD& key);
+    /*virtual*/ void    onClose(bool app_quitting);
 
 private:
 	void onSwitchRegionSettings();

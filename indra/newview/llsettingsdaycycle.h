@@ -42,7 +42,7 @@ public:
     static const std::string    SETTING_DAYLENGTH;
     static const std::string    SETTING_KEYID;
     static const std::string    SETTING_KEYNAME;
-    static const std::string    SETTING_KEYOFFSET;
+    static const std::string    SETTING_KEYKFRAME;
     static const std::string    SETTING_NAME;
     static const std::string    SETTING_TRACKS;
 
@@ -56,7 +56,7 @@ public:
     typedef std::vector<CycleTrack_t>               CycleList_t;
     typedef boost::shared_ptr<LLSettingsDayCycle>   ptr_t;
     typedef std::vector<S32>                        TimeList_t;
-    typedef std::vector<F32>                        OffsetList_t;
+    typedef std::vector<F32>                        KeyframeList_t;
     typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 
     //---------------------------------------------------------------------
@@ -71,7 +71,7 @@ public:
     virtual std::string getSettingType() const { return std::string("daycycle"); }
 
     // Settings status 
-    virtual LLSettingsBase::ptr_t blend(const LLSettingsBase::ptr_t &other, F32 mix) const;
+    virtual void blend(const LLSettingsBase::ptr_t &other, F32 mix);
 
     static LLSD defaults();
 
@@ -83,11 +83,11 @@ public:
 
     void setDayLength(S32 seconds);
 
-    OffsetList_t  getTrackOffsets(S32 track);
+    KeyframeList_t  getTrackKeyframes(S32 track);
     TimeList_t    getTrackTimes(S32 track);
 
     void setWaterAtTime(const LLSettingsWaterPtr_t &water, S32 seconds);
-    void setWaterAtOffset(const LLSettingsWaterPtr_t &water, F32 offset);
+    void setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
     LLSettingsSkyPtr_t getBlendedWaterAt(S32 seconds);
 
     void setSkyAtOnTrack(const LLSettingsSkyPtr_t &sky, S32 seconds, S32 track);
@@ -98,23 +98,27 @@ protected:
 
     virtual void        updateSettings();
 
+    LLSettingsSkyPtr_t    mBlendedSky;
+    LLSettingsWaterPtr_t  mBlendedWater;
 
     CycleList_t mDayTracks;
 
-    F32 secondsToOffset(S32 seconds);
-    S32 offsetToSeconds(F32 offset);
+    bool                mHasParsed;
 
-    LLSettingsBase::ptr_t getBlendedEntry(CycleTrack_t &track, F32 offset);
+    F32 secondsToKeyframe(S32 seconds);
+    S32 keyframeToSeconds(F32 keyframe);
+
+    //LLSettingsBase::ptr_t getBlendedEntry(const CycleTrack_t &track, F32 keyframe);
 
     void parseFromLLSD(LLSD &data);
 //     CycleList_t &           getTrackRef(S32 trackno);
 
-    static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, F32 offset);
-    static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, F32 offset);
+    static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, F32 keyframe);
+    static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, F32 keyframe);
 
-    static TrackBound_t getBoundingEntries(CycleTrack_t &track, F32 offset);
+    static TrackBound_t getBoundingEntries(CycleTrack_t &track, F32 keyframe);
 
-
+    F32Seconds  mLastUpdateTime;
 private:
     
 };

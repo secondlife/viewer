@@ -39,7 +39,6 @@ public:
     static const std::string SETTING_FOG_MOD;
     static const std::string SETTING_FRESNEL_OFFSET;
     static const std::string SETTING_FRESNEL_SCALE;
-    static const std::string SETTING_NAME;
     static const std::string SETTING_NORMAL_MAP;
     static const std::string SETTING_NORMAL_SCALE;
     static const std::string SETTING_SCALE_ABOVE;
@@ -63,7 +62,7 @@ public:
     virtual std::string getSettingType() const { return std::string("water"); }
 
     // Settings status 
-    virtual LLSettingsBase::ptr_t blend(const LLSettingsBase::ptr_t &end, F32 blendf) const;
+    virtual void blend(const LLSettingsBase::ptr_t &end, F32 blendf);
 
     static LLSD defaults();
 

@@ -81,7 +81,6 @@ const std::string LLSettingsSky::SETTING_LIGHT_NORMAL("lightnorm");
 const std::string LLSettingsSky::SETTING_MAX_Y("max_y");
 const std::string LLSettingsSky::SETTING_MOON_ROTATION("moon_rotation");
 const std::string LLSettingsSky::SETTING_MOON_TEXTUREID("moon_id");
-const std::string LLSettingsSky::SETTING_NAME("name");
 const std::string LLSettingsSky::SETTING_STAR_BRIGHTNESS("star_brightness");
 const std::string LLSettingsSky::SETTING_SUNLIGHT_COLOR("sunlight_color");
 const std::string LLSettingsSky::SETTING_SUN_ROTATION("sun_rotation");
@@ -103,14 +102,12 @@ LLSettingsSky::LLSettingsSky():
 {
 }
 
-LLSettingsBase::ptr_t LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F32 blendf) const
+void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F32 blendf) 
 {
     LLSettingsSky::ptr_t other = boost::static_pointer_cast<LLSettingsSky>(end);
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(blenddata);
-
-    return skyp;
+    replaceSettings(blenddata);
 }
 
 
@@ -301,18 +298,18 @@ LLSettingsSky::ptr_t LLSettingsSky::buildClone()
 
 // Settings status 
 
-LLSettingsSky::ptr_t LLSettingsSky::blend(const LLSettingsSky::ptr_t &other, F32 mix) const
-{
-    LL_RECORD_BLOCK_TIME(FTM_BLEND_SKYVALUES);
-    LL_INFOS("WINDLIGHT", "SKY", "EEP") << "Blending new sky settings object." << LL_ENDL;
-
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(mSettings);
-    // the settings in the initial constructor are references to this' settings block.  
-    // They will be replaced in the following lerp
-    skyp->lerpSettings(*other, mix);
-
-    return skyp;
-}
+// LLSettingsSky::ptr_t LLSettingsSky::blend(const LLSettingsSky::ptr_t &other, F32 mix) const
+// {
+//     LL_RECORD_BLOCK_TIME(FTM_BLEND_SKYVALUES);
+//     LL_INFOS("WINDLIGHT", "SKY", "EEP") << "Blending new sky settings object." << LL_ENDL;
+// 
+//     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(mSettings);
+//     // the settings in the initial constructor are references to this' settings block.  
+//     // They will be replaced in the following lerp
+//     skyp->lerpSettings(*other, mix);
+// 
+//     return skyp;
+// }
 
 
 LLSD LLSettingsSky::defaults()

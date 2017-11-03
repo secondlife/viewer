@@ -691,6 +691,7 @@ void LLFloaterEditDayCycle::onDayCycleNameEdited()
 
 void LLFloaterEditDayCycle::onDayCycleSelected()
 {
+
 	LLSD day_data;
 	LLWLParamKey dc_key = getSelectedDayCycle();
 	bool can_edit = true;

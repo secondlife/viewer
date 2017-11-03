@@ -56,7 +56,6 @@ const std::string LLSettingsWater::SETTING_FOG_DENSITY("water_fog_density");
 const std::string LLSettingsWater::SETTING_FOG_MOD("underwater_fog_mod");
 const std::string LLSettingsWater::SETTING_FRESNEL_OFFSET("fresnel_offset");
 const std::string LLSettingsWater::SETTING_FRESNEL_SCALE("fresnel_scale");
-const std::string LLSettingsWater::SETTING_NAME("name");
 const std::string LLSettingsWater::SETTING_NORMAL_MAP("normal_map");
 const std::string LLSettingsWater::SETTING_NORMAL_SCALE("normal_scale");
 const std::string LLSettingsWater::SETTING_SCALE_ABOVE("scale_above");
@@ -195,14 +194,12 @@ LLSettingsWater::ptr_t LLSettingsWater::buildClone()
     return skyp;
 }
 
-LLSettingsBase::ptr_t LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F32 blendf) const
+void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F32 blendf) 
 {
     LLSettingsWater::ptr_t other = boost::static_pointer_cast<LLSettingsWater>(end);
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
-
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(blenddata);
-
-    return waterp;
+    
+    replaceSettings(blenddata);
 }
 
 

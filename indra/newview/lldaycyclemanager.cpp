@@ -30,6 +30,9 @@
 
 #include "lldiriterator.h"
 
+#include "llenvironment.h"
+#include "llsettingsdaycycle.h"
+
 void LLDayCycleManager::getPresetNames(preset_name_list_t& names) const
 {
 	names.clear();

@@ -87,6 +87,8 @@ BOOL LLFloaterEditSky::postBuild()
 	mSaveButton = getChild<LLButton>("save");
     mSkyAdapter = boost::make_shared<LLSkySettingsAdapter>();
 
+    LLEnvironment::instance().setSkyListChange(boost::bind(&LLFloaterEditSky::onSkyPresetListChange, this));
+
 	initCallbacks();
 
 // 	// Create the sun position scrubber on the slider.
@@ -124,7 +126,7 @@ void LLFloaterEditSky::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-//		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
+        LLEnvironment::instance().clearAllSelected();
 	}
 }
 
@@ -216,6 +218,10 @@ void LLFloaterEditSky::syncControls()
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     mEditSettings = psky;
 
+    std::string name = psky->getName();
+
+    mSkyPresetNameEditor->setText(name);
+    mSkyPresetCombo->setValue(name);
 
 	// blue horizon
 	mSkyAdapter->mBlueHorizon.setColor3( psky->getBlueHorizon() );
@@ -557,44 +563,16 @@ bool LLFloaterEditSky::isNewPreset() const
 
 void LLFloaterEditSky::refreshSkyPresetsList()
 {
-#if 0
 	mSkyPresetCombo->removeall();
 
-	LLWLParamManager::preset_name_list_t region_presets, user_presets, sys_presets;
-	LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
+    LLEnvironment::list_name_id_t list = LLEnvironment::instance().getSkyList();
 
-#if 0 // Disable editing region skies until the workflow is clear enough.
-	// Add region presets.
-	std::string region_name = gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
-	for (LLWLParamManager::preset_name_list_t::const_iterator it = region_presets.begin(); it != region_presets.end(); ++it)
-	{
-		std::string item_title = *it + " (" + region_name + ")";
-		mSkyPresetCombo->add(item_title, LLWLParamKey(*it, LLEnvKey::SCOPE_REGION).toLLSD());
-	}
-	if (region_presets.size() > 0)
-	{
-		mSkyPresetCombo->addSeparator();
-	}
-#endif
-
-	// Add user presets.
-	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
-	{
-		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
-	}
-	if (user_presets.size() > 0)
-	{
-		mSkyPresetCombo->addSeparator();
-	}
-
-	// Add system presets.
-	for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
-	{
-		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
-	}
+    for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        mSkyPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+    }
 
 	mSkyPresetCombo->setLabel(getString("combo_label"));
-#endif
 }
 
 void LLFloaterEditSky::enableEditing(bool enable)
@@ -629,63 +607,51 @@ void LLFloaterEditSky::saveRegionSky()
 #endif
 }
 
-// LLWLParamKey LLFloaterEditSky::getSelectedSkyPreset()
-// {
-// 	LLWLParamKey key;
-// 
-// 	if (mSkyPresetNameEditor->getVisible())
-// 	{
-// 		key.name = mSkyPresetNameEditor->getText();
-// 		key.scope = LLEnvKey::SCOPE_LOCAL;
-// 	}
-// 	else
-// 	{
-// 		LLSD combo_val = mSkyPresetCombo->getValue();
-// 
-// 		if (!combo_val.isArray()) // manually typed text
-// 		{
-// 			key.name = combo_val.asString();
-// 			key.scope = LLEnvKey::SCOPE_LOCAL;
-// 		}
-// 		else
-// 		{
-// 			key.fromLLSD(combo_val);
-// 		}
-// 	}
-// 
-// 	return key;
-// }
+std::string LLFloaterEditSky::getSelectedPresetName() const
+{
+    std::string name;
+    if (mSkyPresetNameEditor->getVisible())
+    {
+        name = mSkyPresetNameEditor->getText();
+    }
+    else
+    {
+        LLSD combo_val = mSkyPresetCombo->getValue();
+        name = combo_val[0].asString();
+    }
+
+    return name;
+}
 
 void LLFloaterEditSky::onSkyPresetNameEdited()
 {
-#if 0
-	// Disable saving a sky preset having empty name.
-	LLWLParamKey key = getSelectedSkyPreset();
-	mSaveButton->setEnabled(!key.name.empty());
-#endif
+    std::string name = mSkyPresetNameEditor->getText();
+    LLSettingsWater::ptr_t psky = LLEnvironment::instance().getCurrentWater();
+
+    psky->setName(name);
 }
 
 void LLFloaterEditSky::onSkyPresetSelected()
 {
-#if 0
-	LLWLParamKey key = getSelectedSkyPreset();
-	LLWLParamSet sky_params;
+    std::string name;
 
-	if (!LLWLParamManager::instance().getParamSet(key, sky_params))
-	{
-		// Manually entered string?
-		LL_WARNS("Windlight") << "No sky preset named " << key.toString() << LL_ENDL;
-		return;
-	}
+    name = getSelectedPresetName();
 
-	LLEnvManagerNew::instance().useSkyParams(sky_params.getAll());
-	//syncControls();
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName(name);
 
-	bool can_edit = (key.scope == LLEnvKey::SCOPE_LOCAL || LLEnvManagerNew::canEditRegionSettings());
-	enableEditing(can_edit);
+    if (!psky)
+    {
+        LL_WARNS("WATEREDIT") << "Could not find water preset" << LL_ENDL;
+        enableEditing(false);
+        return;
+    }
 
-	mMakeDefaultCheckBox->setEnabled(key.scope == LLEnvKey::SCOPE_LOCAL);
-#endif
+    psky = psky->buildClone();
+    LLEnvironment::instance().selectSky(psky);
+
+    syncControls();
+    enableEditing(true);
+
 }
 
 bool LLFloaterEditSky::onSaveAnswer(const LLSD& notification, const LLSD& response)
@@ -733,43 +699,11 @@ void LLFloaterEditSky::onSaveConfirmed()
 
 void LLFloaterEditSky::onBtnSave()
 {
-#if 0
-	LLWLParamKey selected_sky = getSelectedSkyPreset();
-	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    LLEnvironment::instance().addSky(psky);
 
-	if (selected_sky.scope == LLEnvKey::SCOPE_REGION)
-	{
-		saveRegionSky();
-		closeFloater();
-		return;
-	}
-
-	std::string name = selected_sky.name;
-	if (name.empty())
-	{
-		// *TODO: show an alert
-		LL_WARNS() << "Empty sky preset name" << LL_ENDL;
-		return;
-	}
-
-	// Don't allow overwriting system presets.
-	if (wl_mgr.isSystemPreset(name))
-	{
-		LLNotificationsUtil::add("WLNoEditDefault");
-		return;
-	}
-
-	// Save, ask for confirmation for overwriting an existing preset.
-	if (wl_mgr.hasParamSet(selected_sky))
-	{
-		LLNotificationsUtil::add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterEditSky::onSaveAnswer, this, _1, _2));
-	}
-	else
-	{
-		// new preset, hence no confirmation needed
-		onSaveConfirmed();
-	}
-#endif
+    LLEnvironment::instance().applySky();
+    closeFloater();
 }
 
 void LLFloaterEditSky::onBtnCancel()
@@ -779,6 +713,7 @@ void LLFloaterEditSky::onBtnCancel()
 
 void LLFloaterEditSky::onSkyPresetListChange()
 {
+    refreshSkyPresetsList();
 #if 0
 	LLWLParamKey key = getSelectedSkyPreset(); // preset being edited
 	if (!LLWLParamManager::instance().hasParamSet(key))

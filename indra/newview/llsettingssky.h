@@ -56,7 +56,6 @@ public:
     static const std::string SETTING_MAX_Y;
     static const std::string SETTING_MOON_ROTATION;
     static const std::string SETTING_MOON_TEXTUREID;
-    static const std::string SETTING_NAME;
     static const std::string SETTING_STAR_BRIGHTNESS;
     static const std::string SETTING_SUNLIGHT_COLOR;
     static const std::string SETTING_SUN_ROTATION;
@@ -77,7 +76,7 @@ public:
     virtual std::string getSettingType() const { return std::string("sky"); }
 
     // Settings status 
-    ptr_t blend(const ptr_t &other, F32 mix) const;
+    virtual void blend(const LLSettingsBase::ptr_t &end, F32 blendf);
     
     static LLSD defaults();
 
@@ -414,7 +413,6 @@ public:
 protected:
     LLSettingsSky();
 
-    virtual LLSettingsBase::ptr_t blend(const LLSettingsBase::ptr_t &end, F32 blendf) const;
 
     virtual stringset_t getSlerpKeys() const;
 

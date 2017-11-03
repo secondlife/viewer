@@ -328,6 +328,7 @@ private:
 
 	void onRegionChange();
 
+
 	/// Emitted when user environment preferences change.
 	prefs_change_signal_t mUsePrefsChangeSignal;
 
