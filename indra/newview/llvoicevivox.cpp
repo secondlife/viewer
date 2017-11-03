@@ -5694,7 +5694,8 @@ void LLVivoxVoiceClient::deleteAllSessions()
 
     while (!mSessionsByHandle.empty())
 	{
-        deleteSession(mSessionsByHandle.begin()->second);
+        const sessionStatePtr_t session = mSessionsByHandle.begin()->second;
+        deleteSession(session);
 	}
 	
 }
