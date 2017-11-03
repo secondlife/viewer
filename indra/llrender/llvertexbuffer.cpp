@@ -1065,7 +1065,14 @@ LLVertexBuffer::~LLVertexBuffer()
 	sVertexCount -= mNumVerts;
 	sIndexCount -= mNumIndices;
 
-	llassert_always(!mMappedData && !mMappedIndexData);
+	if (mMappedData)
+	{
+		LL_ERRS() << "Failed to clear vertex buffer's vertices" << LL_ENDL;
+	}
+	if (mMappedIndexData)
+	{
+		LL_ERRS() << "Failed to clear vertex buffer's indices" << LL_ENDL;
+	}
 };
 
 void LLVertexBuffer::placeFence() const
