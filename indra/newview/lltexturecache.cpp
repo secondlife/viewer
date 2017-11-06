@@ -387,22 +387,35 @@ bool LLTextureCacheRemoteWorker::doRead()
 		}
 		// Allocate read buffer
 		mReadData = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), mDataSize);
-		S32 bytes_read = LLAPRFile::readEx(local_filename, 
-											 mReadData, mOffset, mDataSize, mCache->getLocalAPRFilePool());
-		if (bytes_read != mDataSize)
+
+		if (mReadData)
 		{
- 			LL_WARNS() << "Error reading file from local cache: " << local_filename
- 					<< " Bytes: " << mDataSize << " Offset: " << mOffset
+			S32 bytes_read = LLAPRFile::readEx( local_filename,
+												mReadData,
+												mOffset,
+												mDataSize,
+												mCache->getLocalAPRFilePool());
+
+			if (bytes_read != mDataSize)
+			{
+ 				LL_WARNS() << "Error reading file from local cache: " << local_filename
+ 						<< " Bytes: " << mDataSize << " Offset: " << mOffset
  					<< " / " << mDataSize << LL_ENDL;
-			mDataSize = 0;
-			FREE_MEM(LLImageBase::getPrivatePool(), mReadData);
-			mReadData = NULL;
+				mDataSize = 0;
+				FREE_MEM(LLImageBase::getPrivatePool(), mReadData);
+				mReadData = NULL;
+			}
+			else
+			{
+				mImageSize = local_size;
+				mImageLocal = TRUE;
+			}
 		}
 		else
 		{
-			//LL_INFOS() << "texture " << mID.asString() << " found in local_assets" << LL_ENDL;
-			mImageSize = local_size;
-			mImageLocal = TRUE;
+ 			LL_WARNS() << "Error allocating memory for cache: " << local_filename
+ 					<< " of size: " << mDataSize << LL_ENDL;
+			mDataSize = 0;
 		}
 		// We're done...
 		done = true;
@@ -477,44 +490,55 @@ bool LLTextureCacheRemoteWorker::doRead()
 			
 			// Reserve the whole data buffer first
 			U8* data = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), mDataSize);
-
-			// Set the data file pointers taking the read offset into account. 2 cases:
-			if (mOffset < TEXTURE_CACHE_ENTRY_SIZE)
+			if (data)
 			{
-				// Offset within the header record. That means we read something from the header cache.
-				// Note: most common case is (mOffset = 0), so this is the "normal" code path.
-				data_offset = TEXTURE_CACHE_ENTRY_SIZE - mOffset;	// i.e. TEXTURE_CACHE_ENTRY_SIZE if mOffset nul (common case)
-				file_offset = 0;
-				file_size = mDataSize - data_offset;
-				// Copy the raw data we've been holding from the header cache into the new sized buffer
-				llassert_always(mReadData);
-				memcpy(data, mReadData, data_offset);
-				FREE_MEM(LLImageBase::getPrivatePool(), mReadData);
-				mReadData = NULL;
+				// Set the data file pointers taking the read offset into account. 2 cases:
+				if (mOffset < TEXTURE_CACHE_ENTRY_SIZE)
+				{
+					// Offset within the header record. That means we read something from the header cache.
+					// Note: most common case is (mOffset = 0), so this is the "normal" code path.
+					data_offset = TEXTURE_CACHE_ENTRY_SIZE - mOffset;	// i.e. TEXTURE_CACHE_ENTRY_SIZE if mOffset nul (common case)
+					file_offset = 0;
+					file_size = mDataSize - data_offset;
+					// Copy the raw data we've been holding from the header cache into the new sized buffer
+					llassert_always(mReadData);
+					memcpy(data, mReadData, data_offset);
+					FREE_MEM(LLImageBase::getPrivatePool(), mReadData);
+					mReadData = NULL;
+				}
+				else
+				{
+					// Offset bigger than the header record. That means we haven't read anything yet.
+					data_offset = 0;
+					file_offset = mOffset - TEXTURE_CACHE_ENTRY_SIZE;
+					file_size = mDataSize;
+					// No data from header cache to copy in that case, we skipped it all
+				}
+
+				// Now use that buffer as the object read buffer
+				llassert_always(mReadData == NULL);
+				mReadData = data;
+
+				// Read the data at last
+				S32 bytes_read = LLAPRFile::readEx(filename, 
+												 mReadData + data_offset,
+												 file_offset, file_size,
+												 mCache->getLocalAPRFilePool());
+				if (bytes_read != file_size)
+				{
+					LL_WARNS() << "LLTextureCacheWorker: "  << mID
+							<< " incorrect number of bytes read from body: " << bytes_read
+							<< " / " << file_size << LL_ENDL;
+					FREE_MEM(LLImageBase::getPrivatePool(), mReadData);
+					mReadData = NULL;
+					mDataSize = -1; // failed
+					done = true;
+				}
 			}
 			else
 			{
-				// Offset bigger than the header record. That means we haven't read anything yet.
-				data_offset = 0;
-				file_offset = mOffset - TEXTURE_CACHE_ENTRY_SIZE;
-				file_size = mDataSize;
-				// No data from header cache to copy in that case, we skipped it all
-			}
-
-			// Now use that buffer as the object read buffer
-			llassert_always(mReadData == NULL);
-			mReadData = data;
-
-			// Read the data at last
-			S32 bytes_read = LLAPRFile::readEx(filename, 
-											 mReadData + data_offset,
-											 file_offset, file_size,
-											 mCache->getLocalAPRFilePool());
-			if (bytes_read != file_size)
-			{
 				LL_WARNS() << "LLTextureCacheWorker: "  << mID
-						<< " incorrect number of bytes read from body: " << bytes_read
-						<< " / " << file_size << LL_ENDL;
+					<< " failed to allocate memory for reading: " << mDataSize << LL_ENDL;
 				FREE_MEM(LLImageBase::getPrivatePool(), mReadData);
 				mReadData = NULL;
 				mDataSize = -1; // failed
