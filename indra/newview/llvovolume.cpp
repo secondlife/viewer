@@ -1349,6 +1349,15 @@ BOOL LLVOVolume::updateLOD()
 
 	if (lod_changed)
 	{
+#if 1
+        // AXON debugging
+        if (isAnimatedObject() && isRiggedMesh())
+        {
+            std::string vobj_name = llformat("Vol%u", (U32) this);
+            F32 est_tris = getEstTrianglesMax();
+            LL_DEBUGS("AXONLinkset") << vobj_name << " updateLOD to " << getLOD() << ", tris " << est_tris << LL_ENDL; 
+        }
+#endif
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		mLODChanged = TRUE;
 	}
@@ -3350,14 +3359,15 @@ U32 LLVOVolume::getExtendedMeshFlags() const
 
 void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
 {
-    // AXON - the check against mUserSelected is "empirically
+    // AXON - the check against isAnySelected() is "empirically
     // derived": doing rebuildGeom() while in selection trashes the
     // graphics state of animated objects. Skipping this update is OK
     // because we get another one on deselect.
-    if (mDrawable.notNull() && !mUserSelected)
+
+	if (!getRootEdit()->isAnySelected() && mDrawable.notNull())
     {
         // Need to trigger rebuildGeom(), which is where control avatars get created/removed
-        markForUpdate(TRUE);
+        getRootEdit()->recursiveMarkForUpdate(TRUE);
     }
     if (isAttachment() && getAvatarAncestor())
     {
@@ -4128,6 +4138,21 @@ const LLMatrix4& LLVOVolume::getWorldMatrix(LLXformMatrix* xform) const
 		return mVolumeImpl->getWorldMatrix(xform);
 	}
 	return xform->getWorldMatrix();
+}
+
+void LLVOVolume::markForUpdate(BOOL priority)
+{ 
+#if 1
+	// AXON debugging
+    if (isAnimatedObject() && isRiggedMesh())
+    {
+        std::string vobj_name = llformat("Vol%u", (U32) this);
+        F32 est_tris = getEstTrianglesMax();
+        LL_DEBUGS("AXONLinkset") << vobj_name << " markForUpdate, tris " << est_tris << LL_ENDL; 
+    }
+#endif
+    LLViewerObject::markForUpdate(priority); 
+    mVolumeChanged = TRUE; 
 }
 
 LLVector3 LLVOVolume::agentPositionToVolume(const LLVector3& pos) const
@@ -5082,15 +5107,19 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			}
 
             bool is_mesh = vobj->isMesh();
-            
-            LL_DEBUGS("AXON") << vobj_name << " rebuilding, isAttachment: " << (U32) vobj->isAttachment()
+            F32 est_tris = vobj->getEstTrianglesMax();
+
+#if 1
+            LL_DEBUGS("AXONLinkset") << vobj_name << " rebuilding, isAttachment: " << (U32) vobj->isAttachment()
                               << " is_mesh " << is_mesh
+                              << " est_tris " << est_tris
                               << " is_animated " << vobj->isAnimatedObject()
                               << " can_animate " << vobj->canBeAnimatedObject() 
                               << " cav " << vobj->getControlAvatar() 
                               << " playing " << (U32) (vobj->getControlAvatar() ? vobj->getControlAvatar()->mPlaying : false)
                               << " frame " << LLFrameTimer::getFrameCount()
                               << LL_ENDL;
+#endif
 
 			llassert_always(vobj);
 			vobj->updateTextureVirtualSize(true);
@@ -5633,6 +5662,15 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
+#if 1 
+                // AXON debugging
+                if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
+                {
+                    std::string vobj_name = llformat("Vol%u", (U32) vobj);
+                    F32 est_tris = vobj->getEstTrianglesMax();
+                    LL_DEBUGS("AXONLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL; 
+        }
+#endif
 				vobj->preRebuild();
 
 				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))

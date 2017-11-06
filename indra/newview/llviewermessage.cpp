@@ -5124,9 +5124,12 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     if (num_blocks > 0 && !avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
-		avatarp->updateVolumeGeom();
-        // AXON FIXME need to update all objects in the linkset, not just the one where animation is playing
-        avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        // AXON need to update all objects in the linkset, not just the one where animation is playing
+        if (!avatarp->mRootVolp->isAnySelected())
+        {
+            avatarp->updateVolumeGeom();
+            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        }
     }
     else if (num_blocks == 0 && avatarp->mPlaying)
     {
@@ -5134,9 +5137,12 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         // animations are signalled. Probably don't want to leave this
         // way but helpful for testing.
         avatarp->mPlaying = false;
-		avatarp->updateVolumeGeom();
-        // AXON FIXME need to update all objects in the linkset, not just the one where animation is playing
-        avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        // AXON need to update all objects in the linkset, not just the one where animation is playing
+        if (!avatarp->mRootVolp->isAnySelected())
+        {
+            avatarp->updateVolumeGeom();
+            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        }
     }
 #endif
 

@@ -688,6 +688,18 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 	}
 }
 
+BOOL LLViewerObject::isAnySelected() const
+{
+    bool any_selected = isSelected();
+    for (child_list_t::const_iterator iter = mChildList.begin();
+         iter != mChildList.end(); iter++)
+    {
+        const LLViewerObject* child = *iter;
+        any_selected = any_selected || child->isSelected();
+    }
+    return any_selected;
+}
+
 void LLViewerObject::setSelected(BOOL sel)
 {
 	mUserSelected = sel;

@@ -221,6 +221,8 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
+    // Check whole linkset
+    BOOL isAnySelected() const;
 	virtual void setSelected(BOOL sel);
 
 	const LLUUID &getID() const						{ return mID; }
