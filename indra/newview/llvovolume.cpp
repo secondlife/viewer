@@ -5557,6 +5557,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			else
 			{
 				drawablep->clearState(LLDrawable::RIGGED);
+                vobj->updateRiggedVolume();
 			}
 		}
 	}

@@ -5114,6 +5114,9 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 	LL_DEBUGS("AXON") << "processing object animation requests, num_blocks " << num_blocks << LL_ENDL;
 
 #if 1 
+    // Here we go into skinned mode once, the first time we get an
+    // animation request, and then stay there. This is probably the
+    // normally desired behavior.
     if (!avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
@@ -5121,6 +5124,9 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
     }
 #else
+    // AXON
+    // In this block we switch back into static mode when no animations are
+    // playing. This is mostly useful for debugging.
     if (num_blocks > 0 && !avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
@@ -5133,9 +5139,6 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     }
     else if (num_blocks == 0 && avatarp->mPlaying)
     {
-        // AXON this will cause meshes to go back to static when no
-        // animations are signalled. Probably don't want to leave this
-        // way but helpful for testing.
         avatarp->mPlaying = false;
         // AXON need to update all objects in the linkset, not just the one where animation is playing
         if (!avatarp->mRootVolp->isAnySelected())
