@@ -444,8 +444,6 @@ void send_stats()
 	
 	LLViewerStats::instance().getRecording().pause();
 
-	body["session_id"] = gAgentSessionID;
-	
 	LLSD &agent = body["agent"];
 	
 	time_t ltime;
@@ -598,9 +596,13 @@ void send_stats()
 	
 	body["MinimalSkin"] = false;
 
+	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+
+	// The session ID token must never appear in logs
+	body["session_id"] = gAgentSessionID;
+
 	LLViewerStats::getInstance()->addToMessage(body);
 
-	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
     LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
         "Statistics posted to sim", "Failed to post statistics to sim");
 	LLViewerStats::instance().getRecording().resume();
