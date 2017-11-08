@@ -3607,13 +3607,21 @@ F32 LLViewerObject::recursiveGetEstTrianglesMax() const
 S32 LLViewerObject::getAnimatedObjectMaxTris() const
 {
     S32 max_tris = 0;
-    LLSD features;
-    if (gAgent.getRegion())
+    // AXON remove after server testing done
+    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
     {
-        gAgent.getRegion()->getSimulatorFeatures(features);
-        if (features.has("AnimatedObjects"))
+        max_tris = S32_MAX;
+    }
+    else
+    {
+        if (gAgent.getRegion())
         {
-            max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
+            LLSD features;
+            gAgent.getRegion()->getSimulatorFeatures(features);
+            if (features.has("AnimatedObjects"))
+            {
+                max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
+            }
         }
     }
     return max_tris;

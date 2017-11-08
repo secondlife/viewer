@@ -6675,13 +6675,21 @@ U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
 S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 {
     S32 max_attach = 0;
-    LLSD features;
-    if (gAgent.getRegion())
+    // AXON remove after server testing done
+    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
     {
-        gAgent.getRegion()->getSimulatorFeatures(features);
-        if (features.has("AnimatedObjects"))
+        max_attach = MAX_AGENT_ATTACHMENTS;
+    }
+    else
+    {
+        if (gAgent.getRegion())
         {
-            max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();
+            LLSD features;
+            gAgent.getRegion()->getSimulatorFeatures(features);
+            if (features.has("AnimatedObjects"))
+            {
+                max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();
+            }
         }
     }
     return max_attach;

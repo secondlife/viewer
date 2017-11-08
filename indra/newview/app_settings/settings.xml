@@ -2193,6 +2193,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>AnimatedObjectsIgnoreLimits</key>
+  <map>
+    <key>Comment</key>
+    <string>Ignore server-enforced limits on animated objects. This is only useful for server testing.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>
