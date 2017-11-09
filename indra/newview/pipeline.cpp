@@ -9988,7 +9988,19 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				}
 				else
 				{
-				renderGeom(camera);
+					renderGeom(camera);
+
+					if (LLGLSLShader::sNoFixedFunction)
+					{
+						gUIProgram.bind();
+					}
+					
+					LLWorld::getInstance()->renderPropertyLines();
+					
+					if (LLGLSLShader::sNoFixedFunction)
+					{
+						gUIProgram.unbind();
+					}
 				}
 
 				if (LLPipeline::sRenderDeferred && materials_in_water)
