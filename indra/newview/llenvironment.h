@@ -46,10 +46,10 @@ class LLEnvironment : public LLSingleton<LLEnvironment>
     LOG_CLASS(LLEnvironment);
 
 public:
-    static const F32Seconds LLEnvironment::TRANSITION_INSTANT;
-    static const F32Seconds LLEnvironment::TRANSITION_FAST;
-    static const F32Seconds LLEnvironment::TRANSITION_DEFAULT;
-    static const F32Seconds LLEnvironment::TRANSITION_SLOW;
+    static const F32Seconds     TRANSITION_INSTANT;
+    static const F32Seconds     TRANSITION_FAST;
+    static const F32Seconds     TRANSITION_DEFAULT;
+    static const F32Seconds     TRANSITION_SLOW;
 
     typedef boost::signals2::connection     connection_t;
 
