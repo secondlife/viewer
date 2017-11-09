@@ -2969,9 +2969,11 @@ void LLViewerObject::unlinkControlAvatar()
     if (isRootEdit())
     {
         // This will remove the entire linkset from the control avatar
-        LLControlAvatar *av = mControlAvatar;
-        mControlAvatar = NULL;
-        av->markForDeath();
+        if (mControlAvatar)
+        {
+            mControlAvatar->markForDeath();
+            mControlAvatar = NULL;
+        }
     }
     // For non-root prims, removing from the linkset will
     // automatically remove the control avatar connection.
