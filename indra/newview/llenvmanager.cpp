@@ -486,7 +486,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	mLastReceivedID = content[0]["messageID"].asUUID();
 
 	// Refresh cached region settings.
-	LL_DEBUGS("Windlight") << "Received region environment settings: " << content << LL_ENDL;
+	LL_WARNS("Windlight") << "Received region environment settings: " << content << LL_ENDL;
 	F32 sun_hour = 0; // *TODO
 	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
 	mCachedRegionPrefs = new_settings;

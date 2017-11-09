@@ -43,6 +43,8 @@ namespace
 const std::string LLSettingsBase::SETTING_ID("id");
 const std::string LLSettingsBase::SETTING_NAME("name");
 
+const F32Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
+
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
@@ -218,6 +220,7 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
 //      case LLSD::TypeBinary:
 //      case LLSD::TypeDate:
         default:
+            /* TODO: If the UUID points to an image ID, blend the images. */
             // atomic or unknown data types. Lerping between them does not make sense so switch at the break.
             newSettings[key_name] = (mix > BREAK_POINT) ? other_value : value;
             break;
@@ -283,3 +286,25 @@ void LLSettingsBase::exportSettings(std::string name) const
         LL_WARNS("Presets") << "Cannot open for output preset file " << path_name << LL_ENDL;
     }
 }
+
+
+//=========================================================================
+
+void LLSettingsBlender::update(F32Seconds timedelta)
+{
+    mTimeSpent += timedelta;
+
+    if (mTimeSpent >= mSeconds)
+    {
+        LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
+        mOnFinished(shared_from_this());
+        mOnFinished.disconnect_all_slots(); // prevent from firing more than once.
+        return;
+    }
+
+    F32 blendf = fmod(mTimeSpent.value(), mSeconds.value()) / mSeconds.value();
+
+    mTarget->replaceSettings(mInitial->getSettings());
+    mTarget->blend(mFinal, blendf);
+}
+

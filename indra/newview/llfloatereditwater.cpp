@@ -52,6 +52,11 @@
 #include "v3colorutil.h"
 
 #undef max // Fixes a Windows compiler error
+namespace
+{
+    const F32 SWITCH_TRANSITION(1.0);
+}
+
 
 LLFloaterEditWater::LLFloaterEditWater(const LLSD &key):	
     LLFloater(key),	
@@ -428,7 +433,7 @@ void LLFloaterEditWater::onWaterPresetSelected()
     }
 
     pwater = pwater->buildClone();
-    LLEnvironment::instance().selectWater(pwater);
+    LLEnvironment::instance().selectWater(pwater, LLEnvironment::TRANSITION_FAST);
 
     syncControls();
     enableEditing(true);

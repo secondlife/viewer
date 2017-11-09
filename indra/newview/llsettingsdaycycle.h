@@ -46,8 +46,8 @@ public:
     static const std::string    SETTING_NAME;
     static const std::string    SETTING_TRACKS;
 
-    static const S32            MINIMUM_DAYLENGTH;
-    static const S32            MAXIMUM_DAYLENGTH;
+    static const S64            MINIMUM_DAYLENGTH;
+    static const S64            MAXIMUM_DAYLENGTH;
 
     static const S32            TRACK_WATER;
     static const S32            TRACK_MAX;
@@ -55,7 +55,7 @@ public:
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
     typedef boost::shared_ptr<LLSettingsDayCycle>   ptr_t;
-    typedef std::vector<S32>                        TimeList_t;
+    typedef std::vector<S64Seconds>                 TimeList_t;
     typedef std::vector<F32>                        KeyframeList_t;
     typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 
@@ -64,6 +64,7 @@ public:
     virtual ~LLSettingsDayCycle() { };
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
+    static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
     static ptr_t    buildDefaultDayCycle();
     ptr_t           buildClone();
 
@@ -76,51 +77,65 @@ public:
     static LLSD defaults();
 
     //---------------------------------------------------------------------
-    S32 getDayLength() const
+    S64Seconds getDayLength() const
     {
-        return mSettings[SETTING_DAYLENGTH].asInteger();
+        return S64Seconds(mSettings[SETTING_DAYLENGTH].asInteger());
     }
 
-    void setDayLength(S32 seconds);
+    void setDayLength(S64Seconds seconds);
 
-    KeyframeList_t  getTrackKeyframes(S32 track);
-    TimeList_t    getTrackTimes(S32 track);
+    KeyframeList_t              getTrackKeyframes(S32 track);
+    TimeList_t                  getTrackTimes(S32 track);
 
-    void setWaterAtTime(const LLSettingsWaterPtr_t &water, S32 seconds);
-    void setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
-    LLSettingsSkyPtr_t getBlendedWaterAt(S32 seconds);
+    void                        setWaterAtTime(const LLSettingsWaterPtr_t &water, S64Seconds seconds);
+    void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
 
-    void setSkyAtOnTrack(const LLSettingsSkyPtr_t &sky, S32 seconds, S32 track);
-    //---------------------------------------------------------------------
+    void                        setSkyAtTime(const LLSettingsSkyPtr_t &sky, S64Seconds seconds, S32 track);
+    void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe, S32 track);
+        //---------------------------------------------------------------------
+    void                        startDayCycle();
+
+    LLSettingsSkyPtr_t          getCurrentSky() const
+    {
+        return mBlendedSky;
+    }
+
+    LLSettingsWaterPtr_t        getCurrentWater() const
+    {
+        return mBlendedWater;
+    }
 
 protected:
     LLSettingsDayCycle();
 
-    virtual void        updateSettings();
+    virtual void                updateSettings();
 
-    LLSettingsSkyPtr_t    mBlendedSky;
-    LLSettingsWaterPtr_t  mBlendedWater;
+private:
+    LLSettingsBlender::ptr_t    mSkyBlender;    // convert to [] for altitudes 
+    LLSettingsBlender::ptr_t    mWaterBlender;
 
-    CycleList_t mDayTracks;
+    LLSettingsSkyPtr_t          mBlendedSky;
+    LLSettingsWaterPtr_t        mBlendedWater;
 
-    bool                mHasParsed;
+    CycleList_t                 mDayTracks;
 
-    F32 secondsToKeyframe(S32 seconds);
-    S32 keyframeToSeconds(F32 keyframe);
+    bool                        mHasParsed;
+    F64Seconds                  mLastUpdateTime;
 
-    //LLSettingsBase::ptr_t getBlendedEntry(const CycleTrack_t &track, F32 keyframe);
+    F32                         secondsToKeyframe(S64Seconds seconds);
+    F64Seconds                  keyframeToSeconds(F32 keyframe);
 
-    void parseFromLLSD(LLSD &data);
-//     CycleList_t &           getTrackRef(S32 trackno);
+    void                        parseFromLLSD(LLSD &data);
 
     static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, F32 keyframe);
     static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, F32 keyframe);
 
-    static TrackBound_t getBoundingEntries(CycleTrack_t &track, F32 keyframe);
+    TrackBound_t                getBoundingEntries(CycleTrack_t &track, F32 keyframe);
+    TrackBound_t                getBoundingEntries(CycleTrack_t &track, F64Seconds time);
 
-    F32Seconds  mLastUpdateTime;
-private:
-    
+    void                        onSkyTransitionDone(S32 track, const LLSettingsBlender::ptr_t &blender);
+    void                        onWaterTransitionDone(const LLSettingsBlender::ptr_t &blender);
+
 };
 
 #endif

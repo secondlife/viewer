@@ -43,6 +43,8 @@
 
 #include "llsdserialize.h"
 #include "lldiriterator.h"
+
+#include <boost/make_shared.hpp>
 //=========================================================================
 namespace
 {
@@ -51,6 +53,11 @@ namespace
 }
 
 //=========================================================================
+const F32Seconds LLEnvironment::TRANSITION_INSTANT(0.0f);
+const F32Seconds LLEnvironment::TRANSITION_FAST(1.0f);
+const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
+const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
+
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
 const F32 LLEnvironment::NIGHTTIME_ELEVATION_COS(LLSky::NIGHTTIME_ELEVATION_COS);
 
@@ -73,20 +80,23 @@ void LLEnvironment::initSingleton()
 {
     LLSettingsSky::ptr_t p_default_sky = LLSettingsSky::buildDefaultSky();
     addSky(p_default_sky);
-    mSelectedSky = p_default_sky;
+    mCurrentSky = p_default_sky;
 
     LLSettingsWater::ptr_t p_default_water = LLSettingsWater::buildDefaultWater();
     addWater(p_default_water);
-    mSelectedWater = p_default_water;
+    mCurrentWater = p_default_water;
 
     LLSettingsDayCycle::ptr_t p_default_day = LLSettingsDayCycle::buildDefaultDayCycle();
     addDayCycle(p_default_day);
-    mSelectedDayCycle.reset();
+    mCurrentDayCycle.reset();
 
     applyAllSelected();
 
     // LEGACY!
     legacyLoadAllPresets();
+
+    LLEnvironmentRequest::initiate();
+    gAgent.addRegionChangedCallback(boost::bind(&LLEnvironment::onRegionChange, this));
 }
 
 LLEnvironment::~LLEnvironment()
@@ -113,10 +123,16 @@ LLEnvironment::connection_t LLEnvironment::setDayCycleListChange(const LLEnviron
     return mDayCycleListChange.connect(cb);
 }
 
+
+void LLEnvironment::onRegionChange()
+{
+    LLEnvironmentRequest::initiate();
+}
+
 //-------------------------------------------------------------------------
 F32 LLEnvironment::getCamHeight() const
 {
-    return (mSelectedSky->getDomeOffset() * mSelectedSky->getDomeRadius());
+    return (mCurrentSky->getDomeOffset() * mCurrentSky->getDomeRadius());
 }
 
 F32 LLEnvironment::getWaterHeight() const
@@ -126,32 +142,34 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsDayTime() const
 {
-    return mSelectedSky->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
+    return mCurrentSky->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
 }
 
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
     LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
+    //F32Seconds now(LLDate::now().secondsSinceEpoch());
+    static LLFrameTimer timer;
+
+    F32Seconds delta(timer.getElapsedTimeAndResetF32());
+
+    if (mBlenderSky)
+        mBlenderSky->update(delta);
+    if (mBlenderWater)
+        mBlenderWater->update(delta);
 
     // update clouds, sun, and general
     updateCloudScroll();
-    if (mSelectedDayCycle)
-        mSelectedDayCycle->update();
 
-    if (mSelectedSky)
-        mSelectedSky->update();
-    if (mSelectedWater)
-        mSelectedWater->update();
+    if (mCurrentDayCycle)
+        mCurrentDayCycle->update();
 
-//     // update only if running
-//     if (mAnimator.getIsRunning())
-//     {
-//         mAnimator.update(mCurParams);
-//     }
+    if (mCurrentSky)
+        mCurrentSky->update();
+    if (mCurrentWater)
+        mCurrentWater->update();
 
-    //LLVector3 lightdir = mCurrentSky->getLightDirection();
-    // update the shaders and the menu
 
     F32 camYaw = cam->getYaw();
 
@@ -179,11 +197,6 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     }
 }
 
-void advanceDay(F32 delta)
-{
-
-}
-
 void LLEnvironment::updateCloudScroll()
 {
     // This is a function of the environment rather than the sky, since it should 
@@ -192,7 +205,7 @@ void LLEnvironment::updateCloudScroll()
 
     F64 delta_t = s_cloud_timer.getElapsedTimeAndResetF64();
     
-    LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mSelectedSky->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
+    LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentSky->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
     mCloudScrollDelta += cloud_delta;
 
 
@@ -270,8 +283,8 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 
     if (gPipeline.canUseWindLightShaders())
     {
-        updateGLVariablesForSettings(shader, mSelectedSky);
-        updateGLVariablesForSettings(shader, mSelectedWater);
+        updateGLVariablesForSettings(shader, mCurrentSky);
+        updateGLVariablesForSettings(shader, mCurrentWater);
     }
 
     if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
@@ -293,7 +306,7 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 
 }
 //--------------------------------------------------------------------------
-void LLEnvironment::selectSky(const std::string &name)
+void LLEnvironment::selectSky(const std::string &name, F32Seconds transition)
 {
     LLSettingsSky::ptr_t next_sky = findSkyByName(name);
     if (!next_sky)
@@ -302,33 +315,57 @@ void LLEnvironment::selectSky(const std::string &name)
         return;
     }
 
-    selectSky(next_sky);
+    selectSky(next_sky, transition);
 }
 
-void LLEnvironment::selectSky(const LLSettingsSky::ptr_t &sky)
+void LLEnvironment::selectSky(const LLSettingsSky::ptr_t &sky, F32Seconds transition)
 {
     if (!sky)
     {
-        mSelectedSky = mCurrentSky;
+        mCurrentSky = mSelectedSky;
+        mBlenderSky.reset();
         return;
     }
     mSelectedSky = sky;
-    mSelectedSky->setDirtyFlag(true);
+    if (fabs(transition.value()) <= F_ALMOST_ZERO)
+    {
+        mBlenderSky.reset();
+        mCurrentSky = sky;
+        mCurrentSky->setDirtyFlag(true);
+        mSelectedSky = sky;
+    }
+    else
+    {
+        LLSettingsSky::ptr_t skytarget = mCurrentSky->buildClone();
+
+        mBlenderSky = boost::make_shared<LLSettingsBlender>( skytarget, mCurrentSky, sky, transition );
+        mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::onSkyTransitionDone, this, _1));
+        mCurrentSky = skytarget;
+        mSelectedSky = sky;
+    }
+}
+
+void LLEnvironment::onSkyTransitionDone(const LLSettingsBlender::ptr_t &blender)
+{
+    mCurrentSky = mSelectedSky;
+    mBlenderSky.reset();
 }
 
 void LLEnvironment::applySky(const LLSettingsSky::ptr_t &sky)
 {
+#if 0
     if (sky)
     {
         mCurrentSky = sky;
     }
     else
     {
-        mCurrentSky = mSelectedSky;
+        mCurrentSky = mCurrentSky;
     }
+#endif
 }
 
-void LLEnvironment::selectWater(const std::string &name)
+void LLEnvironment::selectWater(const std::string &name, F32Seconds transition)
 {
     LLSettingsWater::ptr_t next_water = findWaterByName(name);
 
@@ -338,33 +375,57 @@ void LLEnvironment::selectWater(const std::string &name)
         return;
     }
 
-    selectWater(next_water);
+    selectWater(next_water, transition);
 }
 
-void LLEnvironment::selectWater(const LLSettingsWater::ptr_t &water)
+void LLEnvironment::selectWater(const LLSettingsWater::ptr_t &water, F32Seconds transition)
 {
     if (!water)
     {
-        mSelectedWater = mCurrentWater;
+        mCurrentWater = mSelectedWater;
+        mBlenderWater.reset();
         return;
     }
     mSelectedWater = water;
-    mSelectedWater->setDirtyFlag(true);
+    if (fabs(transition.value()) <= F_ALMOST_ZERO)
+    {
+        mBlenderWater.reset();
+        mCurrentWater = water;
+        mCurrentWater->setDirtyFlag(true);
+        mSelectedWater = water;
+    }
+    else
+    {
+        LLSettingsWater::ptr_t watertarget = mCurrentWater->buildClone();
+
+        mBlenderWater = boost::make_shared<LLSettingsBlender>(watertarget, mCurrentWater, water, transition);
+        mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::onWaterTransitionDone, this, _1));
+        mCurrentWater = watertarget;
+        mSelectedWater = water;
+    }
+}
+
+void LLEnvironment::onWaterTransitionDone(const LLSettingsBlender::ptr_t &blender)
+{
+    mCurrentWater = mSelectedWater;
+    mBlenderWater.reset();
 }
 
 void LLEnvironment::applyWater(const LLSettingsWater::ptr_t water)
 {
+#if 0
     if (water)
     {
         mCurrentWater = water;
     }
     else
     {
-        mCurrentWater = mSelectedWater;
+        mCurrentWater = mCurrentWater;
     }
+#endif
 }
 
-void LLEnvironment::selectDayCycle(const std::string &name)
+void LLEnvironment::selectDayCycle(const std::string &name, F32Seconds transition)
 {
     LLSettingsDayCycle::ptr_t next_daycycle = findDayCycleByName(name);
 
@@ -374,51 +435,56 @@ void LLEnvironment::selectDayCycle(const std::string &name)
         return;
     }
 
-    mSelectedDayCycle = next_daycycle;
-    mSelectedDayCycle->setDirtyFlag(true);
+    selectDayCycle(next_daycycle, transition);
 }
 
-void LLEnvironment::selectDayCycle(const LLSettingsDayCycle::ptr_t &daycycle)
+void LLEnvironment::selectDayCycle(const LLSettingsDayCycle::ptr_t &daycycle, F32Seconds transition)
 {
     if (!daycycle)
     {
-        mSelectedDayCycle = mCurrentDayCycle;
         return;
     }
 
-    mSelectedDayCycle = daycycle;
-    mSelectedDayCycle->setDirtyFlag(true);
+    mCurrentDayCycle = daycycle;
+
+    daycycle->startDayCycle();
+    selectWater(daycycle->getCurrentWater(), transition);
+    selectSky(daycycle->getCurrentSky(), transition);
 }
 
 void LLEnvironment::applyDayCycle(const LLSettingsDayCycle::ptr_t &daycycle)
 {
+#if 0
     if (daycycle)
     {
         mCurrentDayCycle = daycycle;
     }
     else
     {
-        mCurrentDayCycle = mSelectedDayCycle;
+        mCurrentDayCycle = mCurrentDayCycle;
     }
+#endif
 }
 
 void LLEnvironment::clearAllSelected()
 {
-    if (mSelectedSky != mCurrentSky)
+#if 0
+    if (mCurrentSky != mCurrentSky)
         selectSky();
-    if (mSelectedWater != mCurrentWater)
+    if (mCurrentWater != mCurrentWater)
         selectWater();
-    if (mSelectedDayCycle != mCurrentDayCycle)
+    if (mCurrentDayCycle != mCurrentDayCycle)
         selectDayCycle();
+#endif
 }
 
 void LLEnvironment::applyAllSelected()
 {
-    if (mSelectedSky != mCurrentSky)
+    if (mCurrentSky != mCurrentSky)
         applySky();
-    if (mSelectedWater != mCurrentWater)
+    if (mCurrentWater != mCurrentWater)
         applyWater();
-    if (mSelectedDayCycle != mCurrentDayCycle)
+    if (mCurrentDayCycle != mCurrentDayCycle)
         applyDayCycle();
 }
 
@@ -428,7 +494,7 @@ LLEnvironment::list_name_id_t LLEnvironment::getSkyList() const
 
     list.reserve(mSkysByName.size());
 
-    for (NamedSettingMap_t::const_iterator it = mSkysByName.begin(); it != mSkysByName.end(); ++it)
+    for (namedSettingMap_t::const_iterator it = mSkysByName.begin(); it != mSkysByName.end(); ++it)
     {
         list.push_back(std::vector<name_id_t>::value_type((*it).second->getName(), (*it).second->getId()));
     }
@@ -442,7 +508,7 @@ LLEnvironment::list_name_id_t LLEnvironment::getWaterList() const
 
     list.reserve(mWaterByName.size());
 
-    for (NamedSettingMap_t::const_iterator it = mWaterByName.begin(); it != mWaterByName.end(); ++it)
+    for (namedSettingMap_t::const_iterator it = mWaterByName.begin(); it != mWaterByName.end(); ++it)
     {
         list.push_back(std::vector<name_id_t>::value_type((*it).second->getName(), (*it).second->getId()));
     }
@@ -456,7 +522,7 @@ LLEnvironment::list_name_id_t LLEnvironment::getDayCycleList() const
 
     list.reserve(mDayCycleByName.size());
 
-    for (NamedSettingMap_t::const_iterator it = mDayCycleByName.begin(); it != mDayCycleByName.end(); ++it)
+    for (namedSettingMap_t::const_iterator it = mDayCycleByName.begin(); it != mDayCycleByName.end(); ++it)
     {
         list.push_back(std::vector<name_id_t>::value_type((*it).second->getName(), (*it).second->getId()));
     }
@@ -470,8 +536,8 @@ void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
 
     LL_WARNS("RIDER") << "Adding sky as '" << name << "'" << LL_ENDL;
 
-    std::pair<NamedSettingMap_t::iterator, bool> result;
-    result = mSkysByName.insert(NamedSettingMap_t::value_type(name, sky));
+    std::pair<namedSettingMap_t::iterator, bool> result;
+    result = mSkysByName.insert(namedSettingMap_t::value_type(name, sky));
 
     if (!result.second)
         (*(result.first)).second = sky;
@@ -491,7 +557,7 @@ void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
 
 void LLEnvironment::removeSky(const std::string &name)
 {
-    NamedSettingMap_t::iterator it = mSkysByName.find(name);
+    namedSettingMap_t::iterator it = mSkysByName.find(name);
     if (it != mSkysByName.end())
         mSkysByName.erase(it);
     mSkyListChange();
@@ -515,8 +581,8 @@ void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
 
     LL_WARNS("RIDER") << "Adding water as '" << name << "'" << LL_ENDL;
 
-    std::pair<NamedSettingMap_t::iterator, bool> result;
-    result = mWaterByName.insert(NamedSettingMap_t::value_type(name, water));
+    std::pair<namedSettingMap_t::iterator, bool> result;
+    result = mWaterByName.insert(namedSettingMap_t::value_type(name, water));
 
     if (!result.second)
         (*(result.first)).second = water;
@@ -527,7 +593,7 @@ void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
 
 void LLEnvironment::removeWater(const std::string &name)
 {
-    NamedSettingMap_t::iterator it = mWaterByName.find(name);
+    namedSettingMap_t::iterator it = mWaterByName.find(name);
     if (it != mWaterByName.end())
         mWaterByName.erase(it);
     mWaterListChange();
@@ -547,8 +613,8 @@ void LLEnvironment::addDayCycle(const LLSettingsDayCycle::ptr_t &daycycle)
 
     LL_WARNS("RIDER") << "Adding daycycle as '" << name << "'" << LL_ENDL;
 
-    std::pair<NamedSettingMap_t::iterator, bool> result;
-    result = mDayCycleByName.insert(NamedSettingMap_t::value_type(name, daycycle));
+    std::pair<namedSettingMap_t::iterator, bool> result;
+    result = mDayCycleByName.insert(namedSettingMap_t::value_type(name, daycycle));
 
     if (!result.second)
         (*(result.first)).second = daycycle;
@@ -559,7 +625,7 @@ void LLEnvironment::addDayCycle(const LLSettingsDayCycle::ptr_t &daycycle)
 
 void LLEnvironment::removeDayCycle(const std::string &name)
 {
-    NamedSettingMap_t::iterator it = mDayCycleByName.find(name);
+    namedSettingMap_t::iterator it = mDayCycleByName.find(name);
     if (it != mDayCycleByName.end())
         mDayCycleByName.erase(it);
     mDayCycleListChange();
@@ -575,7 +641,7 @@ void LLEnvironment::clearAllDayCycles()
 
 LLSettingsSky::ptr_t LLEnvironment::findSkyByName(std::string name) const
 {
-    NamedSettingMap_t::const_iterator it = mSkysByName.find(name);
+    namedSettingMap_t::const_iterator it = mSkysByName.find(name);
 
     if (it == mSkysByName.end())
     {
@@ -588,7 +654,7 @@ LLSettingsSky::ptr_t LLEnvironment::findSkyByName(std::string name) const
 
 LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
 {
-    NamedSettingMap_t::const_iterator it = mWaterByName.find(name);
+    namedSettingMap_t::const_iterator it = mWaterByName.find(name);
 
     if (it == mWaterByName.end())
     {
@@ -601,7 +667,7 @@ LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
 
 LLSettingsDayCycle::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
 {
-    NamedSettingMap_t::const_iterator it = mDayCycleByName.find(name);
+    namedSettingMap_t::const_iterator it = mDayCycleByName.find(name);
 
     if (it == mDayCycleByName.end())
     {
@@ -649,9 +715,21 @@ void LLEnvironment::UserPrefs::store()
     }
 }
 
-
 //=========================================================================
 // Transitional Code.
+void LLEnvironment::onLegacyRegionSettings(LLSD data)
+{
+    LLUUID regionId = data[0]["regionID"].asUUID();
+
+    LLSettingsDayCycle::ptr_t regionday;
+    if (data[1].isUndefined())
+        regionday = LLEnvironment::findDayCycleByName("Default");
+    else
+        regionday = LLSettingsDayCycle::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
+
+    selectDayCycle(regionday, TRANSITION_DEFAULT);
+}
+
 // static
 std::string LLEnvironment::getSysDir(const std::string &subdir)
 {

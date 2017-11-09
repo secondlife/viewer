@@ -31,6 +31,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "llsd.h"
 #include "llsdutil.h"
@@ -191,5 +192,75 @@ private:
 
 };
 
+
+class LLSettingsBlender : public boost::enable_shared_from_this<LLSettingsBlender>
+{
+public:
+    typedef boost::shared_ptr<LLSettingsBlender>      ptr_t;
+    typedef boost::signals2::signal<void(const ptr_t &)> finish_signal_t;
+    typedef boost::signals2::connection     connection_t;
+
+    static const F32Seconds DEFAULT_THRESHOLD;
+
+    LLSettingsBlender(const LLSettingsBase::ptr_t &target,
+        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F32Seconds seconds) :
+        mTarget(target),
+        mInitial(initsetting),
+        mFinal(endsetting),
+        mSeconds(seconds),
+        mOnFinished(),
+        mBlendThreshold(DEFAULT_THRESHOLD),
+        mLastUpdate(0.0f),
+        mTimeSpent(0.0f)
+    {
+        mTarget->replaceSettings(mInitial->getSettings());
+        mTimeStart = F32Seconds(LLDate::now().secondsSinceEpoch());
+        mLastUpdate = mTimeStart;
+    }
+
+    ~LLSettingsBlender() {}
+
+    connection_t setOnFinished(const finish_signal_t::slot_type &onfinished)
+    {
+        return mOnFinished.connect(onfinished);
+    }
+
+    void setUpdateThreshold(F32Seconds threshold)
+    {
+        mBlendThreshold = threshold;
+    }
+
+    F32Seconds getUpdateThreshold() const
+    {
+        return mBlendThreshold;
+    }
+
+    LLSettingsBase::ptr_t getTarget() const
+    {
+        return mTarget;
+    }
+
+    LLSettingsBase::ptr_t getInitial() const
+    {
+        return mInitial;
+    }
+
+    LLSettingsBase::ptr_t getFinal() const
+    {
+        return mFinal;
+    }
+
+    void update(F32Seconds time);
+private:
+    LLSettingsBase::ptr_t   mTarget;
+    LLSettingsBase::ptr_t   mInitial;
+    LLSettingsBase::ptr_t   mFinal;
+    F32Seconds              mSeconds;
+    finish_signal_t         mOnFinished;
+    F32Seconds              mBlendThreshold;
+    F32Seconds              mLastUpdate;
+    F32Seconds              mTimeSpent;
+    F32Seconds              mTimeStart;
+};
 
 #endif

@@ -34,6 +34,8 @@
 #include "llnotificationsutil.h"
 #include "llcorehttputil.h"
 
+#include "llenvironment.h"
+
 /****
  * LLEnvironmentRequest
  ****/
@@ -114,7 +116,8 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
     if (!status)
     {
         LL_WARNS("WindlightCaps") << "Got an error, not using region windlight... " << LL_ENDL;
-        LLEnvManagerNew::getInstance()->onRegionSettingsResponse(LLSD());
+        LLEnvironment::instance().onLegacyRegionSettings(LLSD());
+        
         return;
     }
     result = result["content"];
@@ -134,7 +137,7 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
         return;
     }
 
-    LLEnvManagerNew::getInstance()->onRegionSettingsResponse(result);
+    LLEnvironment::instance().onLegacyRegionSettings(result);
 }
 
 

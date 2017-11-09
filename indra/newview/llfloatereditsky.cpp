@@ -52,9 +52,12 @@
 #include "llenvironment.h"
 #include "llenvadapters.h"
 
-static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
-static const F32 WL_BLUE_HORIZON_DENSITY_SCALE = 2.0f;
-static const F32 WL_CLOUD_SLIDER_SCALE = 1.0f;
+namespace
+{
+    const F32 WL_SUN_AMBIENT_SLIDER_SCALE(3.0f);
+    const F32 WL_BLUE_HORIZON_DENSITY_SCALE(2.0f);
+    const F32 WL_CLOUD_SLIDER_SCALE(1.0f);
+}
 
 // static F32 sun_pos_to_time24(F32 sun_pos)
 // {
@@ -647,7 +650,7 @@ void LLFloaterEditSky::onSkyPresetSelected()
     }
 
     psky = psky->buildClone();
-    LLEnvironment::instance().selectSky(psky);
+    LLEnvironment::instance().selectSky(psky, LLEnvironment::TRANSITION_FAST);
 
     syncControls();
     enableEditing(true);

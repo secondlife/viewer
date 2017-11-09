@@ -53,7 +53,7 @@
 #include "llconsole.h"
 #include "lldaycyclemanager.h"
 #include "lldebugview.h"
-#include "llenvmanager.h"
+#include "llenvironment.h"
 #include "llfacebookconnect.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -8394,19 +8394,19 @@ class LLWorldEnvSettings : public view_listener_t
 
 		if (tod == "sunrise")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Sunrise");
+            LLEnvironment::instance().selectSky("Sunrise");
 		}
 		else if (tod == "noon")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Midday");
+            LLEnvironment::instance().selectSky("Midday");
 		}
 		else if (tod == "sunset")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Sunset");
+            LLEnvironment::instance().selectSky("Sunset");
 		}
 		else if (tod == "midnight")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Midnight");
+            LLEnvironment::instance().selectSky("Midnight");
 		}
 		else
 		{
@@ -8440,19 +8440,19 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		{
 			if (tod == "sunrise")
 			{
-				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Sunrise");
+                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Sunrise");
 			}
 			else if (tod == "noon")
 			{
-				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Midday");
+                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Midday");
 			}
 			else if (tod == "sunset")
 			{
-				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Sunset");
+                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Sunset");
 			}
 			else if (tod == "midnight")
 			{
-				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Midnight");
+                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Midnight");
 			}
 			else if (tod == "region")
 			{

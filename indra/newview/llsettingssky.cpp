@@ -358,7 +358,7 @@ LLSD LLSettingsSky::defaults()
 void LLSettingsSky::updateSettings()
 {
     LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKYVALUES);
-    LL_INFOS("WINDLIGHT", "SKY", "EEP") << "WL Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
+    //LL_INFOS("WINDLIGHT", "SKY", "EEP") << "WL Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
 
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
