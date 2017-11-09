@@ -295,7 +295,6 @@ void LLControlAvatar::updateDebugText()
         //                      mMotionController.getTimeFactor()));
         
     }
-
     LLVOAvatar::updateDebugText();
 }
 
