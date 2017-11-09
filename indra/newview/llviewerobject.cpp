@@ -6102,6 +6102,11 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 		child->setRegion(regionp);
 	}
 
+    if (mControlAvatar)
+    {
+        mControlAvatar->setRegion(regionp);
+    }
+
 	setChanged(MOVED | SILHOUETTE);
 	updateDrawable(FALSE);
 }

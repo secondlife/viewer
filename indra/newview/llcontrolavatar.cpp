@@ -32,6 +32,7 @@
 #include "llanimationstates.h"
 #include "llviewercontrol.h"
 #include "llmeshrepository.h"
+#include "llviewerregion.h"
 
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
@@ -275,6 +276,19 @@ void LLControlAvatar::updateDebugText()
                               total_linkset_count, animated_volume_count, active_string.c_str()));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
         addDebugText(llformat("tris %d verts %d", total_tris, total_verts));
+        std::string region_name = "no region";
+        if (mRootVolp->getRegion())
+        {
+            region_name = mRootVolp->getRegion()->getName();
+        }
+        std::string skel_region_name = "skel no region";
+        if (getRegion())
+        {
+            skel_region_name = getRegion()->getName();
+        }
+        addDebugText(llformat("region %x %s skel %x %s",
+                              mRootVolp->getRegion(), region_name.c_str(),
+                              getRegion(), skel_region_name.c_str()));
         //addDebugText(llformat("anim time %.1f (step %f factor %f)", 
         //                      mMotionController.getAnimTime(),
         //                      mMotionController.getTimeStep(), 
