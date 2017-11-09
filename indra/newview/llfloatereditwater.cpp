@@ -52,11 +52,6 @@
 #include "v3colorutil.h"
 
 #undef max // Fixes a Windows compiler error
-namespace
-{
-    const F32 SWITCH_TRANSITION(1.0);
-}
-
 
 LLFloaterEditWater::LLFloaterEditWater(const LLSD &key):	
     LLFloater(key),	
