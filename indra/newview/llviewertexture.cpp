@@ -669,34 +669,10 @@ S8 LLViewerTexture::getType() const
 
 void LLViewerTexture::cleanup()
 {
-	notifyAboutMissingAsset();
-
 	mFaceList[LLRender::DIFFUSE_MAP].clear();
 	mFaceList[LLRender::NORMAL_MAP].clear();
 	mFaceList[LLRender::SPECULAR_MAP].clear();
 	mVolumeList.clear();
-}
-
-void LLViewerTexture::notifyAboutCreatingTexture()
-{
-	for(U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
-	{
-		for(U32 f = 0; f < mNumFaces[ch]; f++)
-		{
-			mFaceList[ch][f]->notifyAboutCreatingTexture(this);
-		}
-	}
-}
-
-void LLViewerTexture::notifyAboutMissingAsset()
-{
-	for(U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
-	{
-		for(U32 f = 0; f < mNumFaces[ch]; f++)
-		{
-			mFaceList[ch][f]->notifyAboutMissingAsset(this);
-		}
-	}
 }
 
 // virtual
@@ -1498,8 +1474,6 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 
 	res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
 
-	notifyAboutCreatingTexture();
-
 	setActive();
 
 	if (!needsToSaveRawImage())
@@ -2224,8 +2198,6 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 	}
 	if (is_missing)
 	{
-		notifyAboutMissingAsset();
-
 		if (mUrl.empty())
 		{
 			LL_WARNS() << mID << ": Marking image as missing" << LL_ENDL;
