@@ -35,7 +35,6 @@
 #include "llpanel.h"
 #include "llextendedstatus.h"
 
-#include "llenvmanager.h" // for LLEnvironmentSettings
 #include "lleventcoro.h"
 
 class LLAvatarName;
@@ -463,7 +462,7 @@ private:
 	void onRegionSettingsApplied(bool ok);
 
 	/// New environment settings that are being applied to the region.
-	LLEnvironmentSettings	mNewRegionSettings;
+//	LLEnvironmentSettings	mNewRegionSettings;
 
 	bool			mEnableEditing;
 

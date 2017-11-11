@@ -197,7 +197,6 @@
 #include "llcleanup.h"
 
 #include "llenvironment.h"
-#include "llenvmanager.h"
 
 #include "llstacktrace.h"
 

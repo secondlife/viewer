@@ -44,7 +44,6 @@
 
 // newview includes
 #include "llagent.h"
-#include "llenvmanager.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"

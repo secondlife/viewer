@@ -89,17 +89,14 @@
 			<menu label="Predefinições da água" name="Water Presets">
 				<menu_item_call label="Nova predefinição..." name="new_water_preset"/>
 				<menu_item_call label="Editar predefinição..." name="edit_water_preset"/>
-				<menu_item_call label="Excluir predefinição..." name="delete_water_preset"/>
 			</menu>
 			<menu label="Predefinições de céu" name="Sky Presets">
 				<menu_item_call label="Nova predefinição..." name="new_sky_preset"/>
 				<menu_item_call label="Editar predefinição..." name="edit_sky_preset"/>
-				<menu_item_call label="Excluir predefinição..." name="delete_sky_preset"/>
 			</menu>
 			<menu label="Predefinições do dia" name="Day Presets">
 				<menu_item_call label="Nova predefinição..." name="new_day_preset"/>
 				<menu_item_call label="Editar predefinição..." name="edit_day_preset"/>
-				<menu_item_call label="Excluir predefinição..." name="delete_day_preset"/>
 			</menu>
 		</menu>
 	</menu>

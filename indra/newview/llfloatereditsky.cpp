@@ -59,10 +59,6 @@ namespace
     const F32 WL_CLOUD_SLIDER_SCALE(1.0f);
 }
 
-// static F32 sun_pos_to_time24(F32 sun_pos)
-// {
-// 	return fmodf(sun_pos * 24.0f + 6, 24.0f);
-// }
 
 static F32 time24_to_sun_pos(F32 time24)
 {
@@ -129,7 +125,7 @@ void LLFloaterEditSky::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-        LLEnvironment::instance().clearAllSelected();
+        LLEnvironment::instance().applyChosenEnvironment();
 	}
 }
 
@@ -672,40 +668,28 @@ bool LLFloaterEditSky::onSaveAnswer(const LLSD& notification, const LLSD& respon
 
 void LLFloaterEditSky::onSaveConfirmed()
 {
-#if 0
-	// Save current params to the selected preset.
-	LLWLParamKey key(getSelectedSkyPreset());
+    // Save currently displayed water params to the selected preset.
+    std::string name = mEditSettings->getName();
 
-	LL_DEBUGS("Windlight") << "Saving sky preset " << key.name << LL_ENDL;
-	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
-	if (wl_mgr.hasParamSet(key))
-	{
-		wl_mgr.setParamSet(key, wl_mgr.mCurParams);
-	}
-	else
-	{
-		wl_mgr.addParamSet(key, wl_mgr.mCurParams);
-	}
+    LL_DEBUGS("Windlight") << "Saving sky preset " << name << LL_ENDL;
 
-	wl_mgr.savePreset(key);
+    LLEnvironment::instance().addSky(mEditSettings);
 
-	// Change preference if requested.
-	if (mMakeDefaultCheckBox->getValue())
-	{
-		LL_DEBUGS("Windlight") << key.name << " is now the new preferred sky preset" << LL_ENDL;
-		LLEnvManagerNew::instance().setUseSkyPreset(key.name);
-	}
+    // Change preference if requested.
+    if (mMakeDefaultCheckBox->getEnabled() && mMakeDefaultCheckBox->getValue())
+    {
+        LL_DEBUGS("Windlight") << name << " is now the new preferred sky preset" << LL_ENDL;
+        LLEnvironment::instance().setUserSky(mEditSettings);
+    }
 
-	closeFloater();
-#endif
+    closeFloater();
 }
 
 void LLFloaterEditSky::onBtnSave()
 {
-    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-    LLEnvironment::instance().addSky(psky);
+    LLEnvironment::instance().addSky(mEditSettings);
+    LLEnvironment::instance().setUserSky(mEditSettings);
 
-    LLEnvironment::instance().applySky();
     closeFloater();
 }
 

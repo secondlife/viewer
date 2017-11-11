@@ -44,7 +44,7 @@
 class LLSettingsBase: private boost::noncopyable
 {
     friend class LLEnvironment;
-    friend class LLSettingsDayCycle;
+    friend class LLSettingsDay;
 
 public:
     static const std::string SETTING_ID;

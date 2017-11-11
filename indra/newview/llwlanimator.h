@@ -28,8 +28,9 @@
 #define LL_WL_ANIMATOR_H
 
 #include "llwlparamset.h"
-#include "llenvmanager.h"
 #include "llwaterparamset.h"
+#include "llenvmanager.h"
+
 #include <string>
 #include <map>
 

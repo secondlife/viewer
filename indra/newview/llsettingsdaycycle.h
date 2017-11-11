@@ -36,7 +36,7 @@ class LLSettingsSky;
 typedef boost::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
 typedef boost::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
 
-class LLSettingsDayCycle : public LLSettingsBase
+class LLSettingsDay : public LLSettingsBase
 {
 public:
     static const std::string    SETTING_DAYLENGTH;
@@ -54,14 +54,14 @@ public:
 
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
-    typedef boost::shared_ptr<LLSettingsDayCycle>   ptr_t;
+    typedef boost::shared_ptr<LLSettingsDay>   ptr_t;
     typedef std::vector<S64Seconds>                 TimeList_t;
     typedef std::vector<F32>                        KeyframeList_t;
     typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 
     //---------------------------------------------------------------------
-    LLSettingsDayCycle(const LLSD &data);
-    virtual ~LLSettingsDayCycle() { };
+    LLSettingsDay(const LLSD &data);
+    virtual ~LLSettingsDay() { };
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
@@ -106,7 +106,7 @@ public:
     }
 
 protected:
-    LLSettingsDayCycle();
+    LLSettingsDay();
 
     virtual void                updateSettings();
 

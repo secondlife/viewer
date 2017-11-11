@@ -65,15 +65,19 @@ const F32 LLEnvironment::NIGHTTIME_ELEVATION_COS(LLSky::NIGHTTIME_ELEVATION_COS)
 LLEnvironment::LLEnvironment():
     mSelectedSky(),
     mSelectedWater(),
-    mSelectedDayCycle(),
+    mSelectedDay(),
     mSkysById(),
     mSkysByName(),
     mWaterByName(),
     mWaterById(),
     mDayCycleByName(),
     mDayCycleById(),
-    mUserPrefs()
+    mUserPrefs(),
+    mSelectedEnvironment(ENV_LOCAL)
 {
+    mSetSkys.resize(ENV_END);
+    mSetWater.resize(ENV_END);
+    mSetDays.resize(ENV_END);
 }
 
 void LLEnvironment::initSingleton()
@@ -86,16 +90,14 @@ void LLEnvironment::initSingleton()
     addWater(p_default_water);
     mCurrentWater = p_default_water;
 
-    LLSettingsDayCycle::ptr_t p_default_day = LLSettingsDayCycle::buildDefaultDayCycle();
+    LLSettingsDay::ptr_t p_default_day = LLSettingsDay::buildDefaultDayCycle();
     addDayCycle(p_default_day);
-    mCurrentDayCycle.reset();
-
-    applyAllSelected();
+    mCurrentDay.reset();
 
     // LEGACY!
     legacyLoadAllPresets();
 
-    LLEnvironmentRequest::initiate();
+    requestRegionEnvironment();
     gAgent.addRegionChangedCallback(boost::bind(&LLEnvironment::onRegionChange, this));
 }
 
@@ -107,6 +109,17 @@ void LLEnvironment::loadPreferences()
 {
     mUserPrefs.load();
 }
+
+void LLEnvironment::updatePreferences()
+{
+    /*NOOP for now.  TODO record prefs and store.*/
+}
+
+bool LLEnvironment::canEdit() const
+{
+    return true;
+}
+
 
 LLEnvironment::connection_t LLEnvironment::setSkyListChange(const LLEnvironment::change_signal_t::slot_type& cb)
 {
@@ -126,7 +139,29 @@ LLEnvironment::connection_t LLEnvironment::setDayCycleListChange(const LLEnviron
 
 void LLEnvironment::onRegionChange()
 {
+    requestRegionEnvironment();
+}
+
+void LLEnvironment::requestRegionEnvironment()
+{
     LLEnvironmentRequest::initiate();
+}
+
+void LLEnvironment::onLegacyRegionSettings(LLSD data)
+{
+    LLUUID regionId = data[0]["regionID"].asUUID();
+
+    LLSettingsDay::ptr_t regionday;
+    if (data[1].isUndefined())
+        regionday = LLEnvironment::findDayCycleByName("Default");
+    else
+        regionday = LLSettingsDay::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
+
+    setSkyFor(ENV_REGION, LLSettingsSky::ptr_t());
+    setWaterFor(ENV_REGION, LLSettingsWater::ptr_t());
+    setDayFor(ENV_REGION, regionday);
+
+    applyChosenEnvironment();
 }
 
 //-------------------------------------------------------------------------
@@ -162,8 +197,8 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     // update clouds, sun, and general
     updateCloudScroll();
 
-    if (mCurrentDayCycle)
-        mCurrentDayCycle->update();
+    if (mCurrentDay)
+        mCurrentDay->update();
 
     if (mCurrentSky)
         mCurrentSky->update();
@@ -351,20 +386,6 @@ void LLEnvironment::onSkyTransitionDone(const LLSettingsBlender::ptr_t &blender)
     mBlenderSky.reset();
 }
 
-void LLEnvironment::applySky(const LLSettingsSky::ptr_t &sky)
-{
-#if 0
-    if (sky)
-    {
-        mCurrentSky = sky;
-    }
-    else
-    {
-        mCurrentSky = mCurrentSky;
-    }
-#endif
-}
-
 void LLEnvironment::selectWater(const std::string &name, F32Seconds transition)
 {
     LLSettingsWater::ptr_t next_water = findWaterByName(name);
@@ -411,23 +432,9 @@ void LLEnvironment::onWaterTransitionDone(const LLSettingsBlender::ptr_t &blende
     mBlenderWater.reset();
 }
 
-void LLEnvironment::applyWater(const LLSettingsWater::ptr_t water)
-{
-#if 0
-    if (water)
-    {
-        mCurrentWater = water;
-    }
-    else
-    {
-        mCurrentWater = mCurrentWater;
-    }
-#endif
-}
-
 void LLEnvironment::selectDayCycle(const std::string &name, F32Seconds transition)
 {
-    LLSettingsDayCycle::ptr_t next_daycycle = findDayCycleByName(name);
+    LLSettingsDay::ptr_t next_daycycle = findDayCycleByName(name);
 
     if (!next_daycycle)
     {
@@ -438,55 +445,126 @@ void LLEnvironment::selectDayCycle(const std::string &name, F32Seconds transitio
     selectDayCycle(next_daycycle, transition);
 }
 
-void LLEnvironment::selectDayCycle(const LLSettingsDayCycle::ptr_t &daycycle, F32Seconds transition)
+void LLEnvironment::selectDayCycle(const LLSettingsDay::ptr_t &daycycle, F32Seconds transition)
 {
     if (!daycycle)
     {
         return;
     }
 
-    mCurrentDayCycle = daycycle;
+    mCurrentDay = daycycle;
 
     daycycle->startDayCycle();
     selectWater(daycycle->getCurrentWater(), transition);
     selectSky(daycycle->getCurrentSky(), transition);
 }
 
-void LLEnvironment::applyDayCycle(const LLSettingsDayCycle::ptr_t &daycycle)
+
+void LLEnvironment::setSelectedEnvironment(EnvSelection_t env)
 {
-#if 0
-    if (daycycle)
-    {
-        mCurrentDayCycle = daycycle;
+    if (env == mSelectedEnvironment)
+    {   // No action to take
+        return;
     }
-    else
-    {
-        mCurrentDayCycle = mCurrentDayCycle;
-    }
-#endif
+
+    mSelectedEnvironment = env;
+    applyChosenEnvironment();
 }
 
-void LLEnvironment::clearAllSelected()
+void LLEnvironment::applyChosenEnvironment()
 {
-#if 0
-    if (mCurrentSky != mCurrentSky)
-        selectSky();
-    if (mCurrentWater != mCurrentWater)
-        selectWater();
-    if (mCurrentDayCycle != mCurrentDayCycle)
-        selectDayCycle();
-#endif
+    mSelectedSky.reset();
+    mSelectedWater.reset();
+    mSelectedDay.reset();
+
+    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+    {
+        if (mSetDays[idx] && !mSelectedSky && !mSelectedWater)
+            selectDayCycle(mSetDays[idx]);
+        if (mSetSkys[idx] && !mSelectedSky)
+            selectSky(mSetSkys[idx]);
+        if (mSetWater[idx] && !mSelectedWater)
+            selectWater(mSetWater[idx]);
+        if (mSelectedSky && mSelectedWater)
+            return;
+    }
+
+    if (!mSelectedSky)
+        selectSky("Default");
+    if (!mSelectedWater)
+        selectWater("Default");
 }
 
-void LLEnvironment::applyAllSelected()
+LLSettingsSky::ptr_t LLEnvironment::getChosenSky() const
 {
-    if (mCurrentSky != mCurrentSky)
-        applySky();
-    if (mCurrentWater != mCurrentWater)
-        applyWater();
-    if (mCurrentDayCycle != mCurrentDayCycle)
-        applyDayCycle();
+    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+    {
+        if (mSetSkys[idx])
+            return mSetSkys[idx];
+    }
+
+    return LLSettingsSky::ptr_t();
 }
+
+LLSettingsWater::ptr_t LLEnvironment::getChosenWater() const
+{
+    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+    {
+        if (mSetWater[idx])
+            return mSetWater[idx];
+    }
+
+    return LLSettingsWater::ptr_t();
+}
+
+LLSettingsDay::ptr_t LLEnvironment::getChosenDay() const
+{
+    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+    {
+        if (mSetDays[idx])
+           return mSetDays[idx];
+    }
+
+    return LLSettingsDay::ptr_t();
+}
+
+void LLEnvironment::setSkyFor(EnvSelection_t env, const LLSettingsSky::ptr_t &sky)
+{
+    mSetSkys[env] = sky;
+}
+
+LLSettingsSky::ptr_t LLEnvironment::getSkyFor(EnvSelection_t env) const
+{
+    return mSetSkys[env];
+}
+
+void LLEnvironment::setWaterFor(EnvSelection_t env, const LLSettingsWater::ptr_t &water)
+{
+    mSetWater[env] = water;
+}
+
+LLSettingsWater::ptr_t LLEnvironment::getWaterFor(EnvSelection_t env) const
+{
+    return mSetWater[env];
+}
+
+void LLEnvironment::setDayFor(EnvSelection_t env, const LLSettingsDay::ptr_t &day)
+{
+    mSetDays[env] = day;
+}
+
+LLSettingsDay::ptr_t LLEnvironment::getDayFor(EnvSelection_t env) const
+{
+    return mSetDays[env];
+}
+
+void  LLEnvironment::clearUserSettings()
+{
+    mSetSkys[ENV_LOCAL].reset();
+    mSetWater[ENV_LOCAL].reset();
+    mSetDays[ENV_LOCAL].reset();
+}
+
 
 LLEnvironment::list_name_id_t LLEnvironment::getSkyList() const
 {
@@ -544,17 +622,6 @@ void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
     mSkyListChange();
 }
 
-// void LLEnvironment::addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky)
-// {
-//     //     std::string name = sky->getValue(LLSettingsSky::SETTING_NAME).asString();
-//     // 
-//     //     std::pair<NamedSkyMap_t::iterator, bool> result;
-//     //     result = mSkysByName.insert(NamedSkyMap_t::value_type(name, sky));
-//     // 
-//     //     if (!result.second)
-//     //         (*(result.first)).second = sky;
-// }
-
 void LLEnvironment::removeSky(const std::string &name)
 {
     namedSettingMap_t::iterator it = mSkysByName.find(name);
@@ -562,11 +629,6 @@ void LLEnvironment::removeSky(const std::string &name)
         mSkysByName.erase(it);
     mSkyListChange();
 }
-
-// void LLEnvironment::removeSky(const LLUUID &id)
-// {
-// 
-// }
 
 void LLEnvironment::clearAllSkys()
 {
@@ -589,7 +651,6 @@ void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
     mWaterListChange();
 }
 
-//void LLEnvironment::addWater(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
 
 void LLEnvironment::removeWater(const std::string &name)
 {
@@ -599,7 +660,6 @@ void LLEnvironment::removeWater(const std::string &name)
     mWaterListChange();
 }
 
-//void LLEnvironment::removeWater(const LLUUID &id);
 void LLEnvironment::clearAllWater()
 {
     mWaterByName.clear();
@@ -607,9 +667,9 @@ void LLEnvironment::clearAllWater()
     mWaterListChange();
 }
 
-void LLEnvironment::addDayCycle(const LLSettingsDayCycle::ptr_t &daycycle)
+void LLEnvironment::addDayCycle(const LLSettingsDay::ptr_t &daycycle)
 {
-    std::string name = daycycle->getValue(LLSettingsDayCycle::SETTING_NAME).asString();
+    std::string name = daycycle->getValue(LLSettingsDay::SETTING_NAME).asString();
 
     LL_WARNS("RIDER") << "Adding daycycle as '" << name << "'" << LL_ENDL;
 
@@ -665,17 +725,17 @@ LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
     return boost::static_pointer_cast<LLSettingsWater>((*it).second);
 }
 
-LLSettingsDayCycle::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
+LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
 {
     namedSettingMap_t::const_iterator it = mDayCycleByName.find(name);
 
     if (it == mDayCycleByName.end())
     {
         LL_WARNS("ENVIRONMENT") << "Unable to find daycycle with unknown name '" << name << "'" << LL_ENDL;
-        return LLSettingsDayCycle::ptr_t();
+        return LLSettingsDay::ptr_t();
     }
 
-    return boost::static_pointer_cast<LLSettingsDayCycle>((*it).second);
+    return boost::static_pointer_cast<LLSettingsDay>((*it).second);
 }
 
 //=========================================================================
@@ -717,19 +777,6 @@ void LLEnvironment::UserPrefs::store()
 
 //=========================================================================
 // Transitional Code.
-void LLEnvironment::onLegacyRegionSettings(LLSD data)
-{
-    LLUUID regionId = data[0]["regionID"].asUUID();
-
-    LLSettingsDayCycle::ptr_t regionday;
-    if (data[1].isUndefined())
-        regionday = LLEnvironment::findDayCycleByName("Default");
-    else
-        regionday = LLSettingsDayCycle::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
-
-    selectDayCycle(regionday, TRANSITION_DEFAULT);
-}
-
 // static
 std::string LLEnvironment::getSysDir(const std::string &subdir)
 {
@@ -855,7 +902,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsDayCycle::ptr_t day = LLSettingsDayCycle::buildFromLegacyPreset(name, data);
+                LLSettingsDay::ptr_t day = LLSettingsDay::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addDayCycle(day);
             }
         }
@@ -874,7 +921,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsDayCycle::ptr_t day = LLSettingsDayCycle::buildFromLegacyPreset(name, data);
+                LLSettingsDay::ptr_t day = LLSettingsDay::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addDayCycle(day);
             }
         }

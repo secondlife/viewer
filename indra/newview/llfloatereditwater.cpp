@@ -111,7 +111,7 @@ void LLFloaterEditWater::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-        LLEnvironment::instance().clearAllSelected();
+        LLEnvironment::instance().applyChosenEnvironment();
 	}
 }
 
@@ -436,7 +436,6 @@ void LLFloaterEditWater::onWaterPresetSelected()
 
 bool LLFloaterEditWater::onSaveAnswer(const LLSD& notification, const LLSD& response)
 {
-#if 0
   	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	// If they choose save, do it.  Otherwise, don't do anything
@@ -444,46 +443,34 @@ bool LLFloaterEditWater::onSaveAnswer(const LLSD& notification, const LLSD& resp
 	{
 		onSaveConfirmed();
 	}
-#endif
-	return false;
+
+    return false;
 }
 
 void LLFloaterEditWater::onSaveConfirmed()
 {
-#if 0
 	// Save currently displayed water params to the selected preset.
-	std::string name = getCurrentPresetName();
+    std::string name = mEditSettings->getName();
 
 	LL_DEBUGS("Windlight") << "Saving sky preset " << name << LL_ENDL;
-	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
-	if (water_mgr.hasParamSet(name))
-	{
-		water_mgr.setParamSet(name, water_mgr.mCurParams);
-	}
-	else
-	{
-		water_mgr.addParamSet(name, water_mgr.mCurParams);
-	}
 
-	water_mgr.savePreset(name);
+    LLEnvironment::instance().addWater(mEditSettings);
 
 	// Change preference if requested.
 	if (mMakeDefaultCheckBox->getEnabled() && mMakeDefaultCheckBox->getValue())
 	{
 		LL_DEBUGS("Windlight") << name << " is now the new preferred water preset" << LL_ENDL;
-		LLEnvManagerNew::instance().setUseWaterPreset(name);
+		LLEnvironment::instance().setUserWater(mEditSettings);
 	}
 
 	closeFloater();
-#endif
 }
 
 void LLFloaterEditWater::onBtnSave()
 {
-    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
-    LLEnvironment::instance().addWater(pwater);
+    LLEnvironment::instance().addWater(mEditSettings);
+    LLEnvironment::instance().setUserWater(mEditSettings);
 
-    LLEnvironment::instance().applyWater();
     closeFloater();
 }
 

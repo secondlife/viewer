@@ -84,17 +84,14 @@
 			<menu name="Water Presets" label="Ustawienia wody">
 				<menu_item_call label="Nowe Ustawienie..." name="new_water_preset" />
 				<menu_item_call label="Edytuj Ustawienie..." name="edit_water_preset" />
-				<menu_item_call label="Usuń Ustawienie..." name="delete_water_preset" />
 			</menu>
 			<menu name="Sky Presets" label="Ustawienia nieba">
 				<menu_item_call label="Nowe Ustawienie..." name="new_sky_preset" />
 				<menu_item_call label="Edytuj Ustawienie..." name="edit_sky_preset" />
-				<menu_item_call label="Usuń Ustawienie..." name="delete_sky_preset" />
 			</menu>
 			<menu name="Day Presets" label="Ustawienia pory dnia">
 				<menu_item_call label="Nowe Ustawienie..." name="new_day_preset" />
 				<menu_item_call label="Edytuj Ustawienie..." name="edit_day_preset" />
-				<menu_item_call label="Usuń Ustawienie..." name="delete_day_preset" />
 			</menu>
 		</menu>
 	</menu>

@@ -51,6 +51,14 @@ public:
     static const F32Seconds     TRANSITION_DEFAULT;
     static const F32Seconds     TRANSITION_SLOW;
 
+    enum EnvSelection_t
+    {
+        ENV_LOCAL,
+        ENV_PARCEL,
+        ENV_REGION,
+        ENV_END
+    };
+
     typedef boost::signals2::connection     connection_t;
 
     class UserPrefs
@@ -92,7 +100,10 @@ public:
     virtual ~LLEnvironment();
 
     void                        loadPreferences();
+    void                        updatePreferences();
     const UserPrefs &           getPreferences() const { return mUserPrefs; }
+
+    bool                        canEdit() const;
 
     LLSettingsSky::ptr_t        getCurrentSky() const { return mCurrentSky; }
     LLSettingsWater::ptr_t      getCurrentWater() const { return mCurrentWater; }
@@ -104,19 +115,46 @@ public:
 
     void                        addSky(const LLSettingsSky::ptr_t &sky);
     void                        addWater(const LLSettingsWater::ptr_t &sky);
-    void                        addDayCycle(const LLSettingsDayCycle::ptr_t &day);
+    void                        addDayCycle(const LLSettingsDay::ptr_t &day);
 
     void                        selectSky(const std::string &name, F32Seconds transition = TRANSITION_DEFAULT);
     void                        selectSky(const LLSettingsSky::ptr_t &sky, F32Seconds transition = TRANSITION_DEFAULT);
-    void                        applySky(const LLSettingsSky::ptr_t &sky = LLSettingsSky::ptr_t());
     void                        selectWater(const std::string &name, F32Seconds transition = TRANSITION_DEFAULT);
     void                        selectWater(const LLSettingsWater::ptr_t &water, F32Seconds transition = TRANSITION_DEFAULT);
-    void                        applyWater(const LLSettingsWater::ptr_t water = LLSettingsWater::ptr_t());
     void                        selectDayCycle(const std::string &name, F32Seconds transition = TRANSITION_DEFAULT);
-    void                        selectDayCycle(const LLSettingsDayCycle::ptr_t &daycycle, F32Seconds transition = TRANSITION_DEFAULT);
-    void                        applyDayCycle(const LLSettingsDayCycle::ptr_t &daycycle = LLSettingsDayCycle::ptr_t());
-    void                        clearAllSelected();
-    void                        applyAllSelected();
+    void                        selectDayCycle(const LLSettingsDay::ptr_t &daycycle, F32Seconds transition = TRANSITION_DEFAULT);
+
+    void                        setUserSky(const LLSettingsSky::ptr_t &sky)
+    {
+        setSkyFor(ENV_LOCAL, sky);
+    }
+    void                        setUserWater(const LLSettingsWater::ptr_t &water)
+    {
+        setWaterFor(ENV_LOCAL, water);
+    }
+    void                        setUserDaycycle(const LLSettingsDay::ptr_t &day)
+    {
+        setDayFor(ENV_LOCAL, day);
+    }
+
+    void                        setSelectedEnvironment(EnvSelection_t env);
+    EnvSelection_t              getSelectedEnvironment() const
+    {
+        return mSelectedEnvironment;
+    }
+    void                        applyChosenEnvironment();
+    LLSettingsSky::ptr_t        getChosenSky() const;
+    LLSettingsWater::ptr_t      getChosenWater() const;
+    LLSettingsDay::ptr_t        getChosenDay() const;
+
+    void                        setSkyFor(EnvSelection_t env, const LLSettingsSky::ptr_t &sky);
+    LLSettingsSky::ptr_t        getSkyFor(EnvSelection_t env) const;
+    void                        setWaterFor(EnvSelection_t env, const LLSettingsWater::ptr_t &water);
+    LLSettingsWater::ptr_t      getWaterFor(EnvSelection_t env) const;
+    void                        setDayFor(EnvSelection_t env, const LLSettingsDay::ptr_t &day);
+    LLSettingsDay::ptr_t        getDayFor(EnvSelection_t env) const;
+
+    void                        clearUserSettings();
 
     list_name_id_t              getSkyList() const;
     list_name_id_t              getWaterList() const;
@@ -124,7 +162,7 @@ public:
 
     LLSettingsSky::ptr_t        findSkyByName(std::string name) const;
     LLSettingsWater::ptr_t      findWaterByName(std::string name) const;
-    LLSettingsDayCycle::ptr_t   findDayCycleByName(std::string name) const;
+    LLSettingsDay::ptr_t        findDayCycleByName(std::string name) const;
 
     inline LLVector2            getCloudScrollDelta() const { return mCloudScrollDelta; }
 
@@ -145,6 +183,8 @@ public:
     connection_t                setWaterListChange(const change_signal_t::slot_type& cb);
     connection_t                setDayCycleListChange(const change_signal_t::slot_type& cb);
 
+    void                        requestRegionEnvironment();
+
     void                        onLegacyRegionSettings(LLSD data);
 
 protected:
@@ -160,14 +200,38 @@ private:
 
     LLSettingsSky::ptr_t        mSelectedSky;
     LLSettingsWater::ptr_t      mSelectedWater;
-    LLSettingsDayCycle::ptr_t   mSelectedDayCycle;
+    LLSettingsDay::ptr_t        mSelectedDay;
 
-    LLSettingsBlender::ptr_t              mBlenderSky;
-    LLSettingsBlender::ptr_t              mBlenderWater;
+    LLSettingsBlender::ptr_t    mBlenderSky;
+    LLSettingsBlender::ptr_t    mBlenderWater;
 
     LLSettingsSky::ptr_t        mCurrentSky;
     LLSettingsWater::ptr_t      mCurrentWater;
-    LLSettingsDayCycle::ptr_t   mCurrentDayCycle;
+    LLSettingsDay::ptr_t        mCurrentDay;
+
+    EnvSelection_t              mSelectedEnvironment;
+
+    typedef std::vector<LLSettingsSky::ptr_t> SkyList_t;
+    typedef std::vector<LLSettingsWater::ptr_t> WaterList_t;
+    typedef std::vector<LLSettingsDay::ptr_t> DayList_t;
+
+    SkyList_t                   mSetSkys;
+    WaterList_t                 mSetWater;
+    DayList_t                   mSetDays;
+
+#if 0
+    LLSettingsSky::ptr_t        mRegionFixedSky;
+    LLSettingsWater::ptr_t      mRegionFixedWater;
+    LLSettingsDay::ptr_t        mRegionDay;
+
+    LLSettingsSky::ptr_t        mParcelFixedSky;
+    LLSettingsWater::ptr_t      mParcelFixedWater;
+    LLSettingsDay::ptr_t        mParcelDay;
+
+    LLSettingsSky::ptr_t        mUserSky;
+    LLSettingsWater::ptr_t      mUserWater;
+    LLSettingsDay::ptr_t        mUserDay;
+#endif
 
     namedSettingMap_t           mSkysByName;
     AssetSettingMap_t           mSkysById;

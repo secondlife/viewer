@@ -223,7 +223,6 @@ set(viewer_SOURCE_FILES
     llfloatercolorpicker.cpp
     llfloaterconversationlog.cpp
     llfloaterconversationpreview.cpp
-    llfloaterdeleteenvpreset.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
     llfloatereditdaycycle.cpp
@@ -850,7 +849,6 @@ set(viewer_HEADER_FILES
     llfloaterconversationlog.h
     llfloaterconversationpreview.h
     llfloaterdeleteprefpreset.h
-    llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
     llfloatereditdaycycle.h
     llfloatereditsky.h

@@ -42,10 +42,11 @@
 // newview
 #include "llagent.h"
 #include "lldaycyclemanager.h"
-#include "llenvmanager.h"
 #include "llregioninfomodel.h"
 #include "llviewerregion.h"
 #include "llwlparammanager.h"
+
+#include "llenvironment.h"
 
 const F32 LLFloaterEditDayCycle::sHoursPerDay = 24.0f;
 
@@ -114,7 +115,7 @@ void LLFloaterEditDayCycle::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current day cycle
+        LLEnvironment::instance().applyChosenEnvironment();
 	}
 }
 
@@ -142,11 +143,13 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	mSaveButton->setRightMouseDownCallback(boost::bind(&LLFloaterEditDayCycle::dumpTrack, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnCancel, this));
 
+#if 0
 	// Connect to env manager events.
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
 	env_mgr.setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsChange, this));
 	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionChange, this));
 	env_mgr.setRegionSettingsAppliedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsApplied, this, _1));
+#endif
 
 	// Connect to day cycle manager events.
 	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleListChange, this));
@@ -420,6 +423,7 @@ void LLFloaterEditDayCycle::onAddKey()
 			break;
 	}
 
+#if 0
 	if ((S32)mSliderToKey.size() >= max_sliders)
 	{
 		LLSD args;
@@ -428,6 +432,7 @@ void LLFloaterEditDayCycle::onAddKey()
 		LLNotificationsUtil::add("DayCycleTooManyKeyframes", args, LLSD(), LLNotificationFunctorRegistry::instance().DONOTHING);
 		return;
 	}
+#endif
 
 	// add the slider key
 	std::string key_val = mSkyPresetsCombo->getSelectedValue().asString();
@@ -547,6 +552,7 @@ void LLFloaterEditDayCycle::reset()
 
 void LLFloaterEditDayCycle::saveRegionDayCycle()
 {
+#if 0
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
 	LLWLDayCycle& cur_dayp = LLWLParamManager::instance().mDay; // the day cycle being edited
 
@@ -569,6 +575,7 @@ void LLFloaterEditDayCycle::saveRegionDayCycle()
 	}
 
 	setApplyProgress(true);
+#endif
 #endif
 }
 
@@ -628,6 +635,7 @@ void LLFloaterEditDayCycle::onDeleteKey()
 
 void LLFloaterEditDayCycle::onRegionSettingsChange()
 {
+#if 0
 	LL_DEBUGS("Windlight") << "Region settings changed" << LL_ENDL;
 
 	if (getApplyProgress()) // our region settings have being applied
@@ -643,6 +651,7 @@ void LLFloaterEditDayCycle::onRegionSettingsChange()
 
 		closeFloater();
 	}
+#endif
 }
 
 void LLFloaterEditDayCycle::onRegionChange()
@@ -669,6 +678,7 @@ void LLFloaterEditDayCycle::onRegionSettingsApplied(bool success)
 
 void LLFloaterEditDayCycle::onRegionInfoUpdate()
 {
+#if 0
 	LL_DEBUGS("Windlight") << "Region info updated" << LL_ENDL;
 	bool can_edit = true;
 
@@ -680,6 +690,7 @@ void LLFloaterEditDayCycle::onRegionInfoUpdate()
 	}
 
 	enableEditing(can_edit);
+#endif
 }
 
 void LLFloaterEditDayCycle::onDayCycleNameEdited()
@@ -691,6 +702,7 @@ void LLFloaterEditDayCycle::onDayCycleNameEdited()
 
 void LLFloaterEditDayCycle::onDayCycleSelected()
 {
+#if 0
 
 	LLSD day_data;
 	LLWLParamKey dc_key = getSelectedDayCycle();
@@ -723,8 +735,8 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 	F32 slider_time = mTimeSlider->getCurSliderValue() / sHoursPerDay;
 	LLWLParamManager::instance().applyDayCycleParams(day_data, dc_key.scope, slider_time);
 	loadTrack();
-
-	enableEditing(can_edit);
+#endif
+	enableEditing(false);
 }
 
 void LLFloaterEditDayCycle::onBtnSave()
@@ -786,6 +798,7 @@ bool LLFloaterEditDayCycle::onSaveAnswer(const LLSD& notification, const LLSD& r
 
 void LLFloaterEditDayCycle::onSaveConfirmed()
 {
+#if 0
 	std::string name = getSelectedDayCycle().name;
 
 	// Save preset.
@@ -799,7 +812,7 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 		LL_DEBUGS("Windlight") << name << " is now the new preferred day cycle" << LL_ENDL;
 		LLEnvManagerNew::instance().setUseDayCycle(name);
 	}
-
+#endif
 	closeFloater();
 }
 

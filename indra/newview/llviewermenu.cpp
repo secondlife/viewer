@@ -8394,32 +8394,30 @@ class LLWorldEnvSettings : public view_listener_t
 
 		if (tod == "sunrise")
 		{
-            LLEnvironment::instance().selectSky("Sunrise");
+            LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Sunrise");
+            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
 		}
 		else if (tod == "noon")
 		{
-            LLEnvironment::instance().selectSky("Midday");
-		}
+            LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Midday");
+            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+        }
 		else if (tod == "sunset")
 		{
-            LLEnvironment::instance().selectSky("Sunset");
-		}
+            LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Sunset");
+            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+        }
 		else if (tod == "midnight")
 		{
-            LLEnvironment::instance().selectSky("Midnight");
-		}
+            LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Midnight");
+            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+        }
 		else
 		{
-			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
-			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
-			bool use_fixed_sky = false;
-			bool use_region_settings = true;
-			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
-					    envmgr.getSkyPresetName(),
-					    envmgr.getDayCycleName(),
-					    use_fixed_sky, use_region_settings);
+            LLEnvironment::instance().clearUserSettings();
 		}
-
+    
+        LLEnvironment::instance().applyChosenEnvironment();
 		return true;
 	}
 };
@@ -8431,37 +8429,38 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		bool result = false;
 		std::string tod = userdata.asString();
 
-		if (LLEnvManagerNew::instance().getUseRegionSettings())
+        LLSettingsSky::ptr_t sky = LLEnvironment::instance().getSkyFor(LLEnvironment::ENV_LOCAL);
+
+		if (!sky)
 		{
 			return (tod == "region");
 		}
 
-		if (LLEnvManagerNew::instance().getUseFixedSky())
+        std::string skyname = (sky) ? sky->getName() : "";
+
+		if (tod == "sunrise")
 		{
-			if (tod == "sunrise")
-			{
-                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Sunrise");
-			}
-			else if (tod == "noon")
-			{
-                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Midday");
-			}
-			else if (tod == "sunset")
-			{
-                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Sunset");
-			}
-			else if (tod == "midnight")
-			{
-                result = (LLEnvironment::instance().getCurrentSky()->getName() == "Midnight");
-			}
-			else if (tod == "region")
-			{
-				return false;
-			}
-			else
-			{
-				LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;
-			}
+            result = (skyname == "Sunrise");
+		}
+		else if (tod == "noon")
+		{
+            result = (skyname == "Midday");
+		}
+		else if (tod == "sunset")
+		{
+            result = (skyname == "Sunset");
+		}
+		else if (tod == "midnight")
+		{
+            result = (skyname == "Midnight");
+		}
+		else if (tod == "region")
+		{
+			return false;
+		}
+		else
+		{
+			LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;
 		}
 		return result;
 	}
@@ -8481,10 +8480,6 @@ class LLWorldEnvPreset : public view_listener_t
 		{
 			LLFloaterReg::showInstance("env_edit_water", "edit");
 		}
-		else if (item == "delete_water")
-		{
-			LLFloaterReg::showInstance("env_delete_preset", "water");
-		}
 		else if (item == "new_sky")
 		{
 			LLFloaterReg::showInstance("env_edit_sky", "new");
@@ -8493,10 +8488,6 @@ class LLWorldEnvPreset : public view_listener_t
 		{
 			LLFloaterReg::showInstance("env_edit_sky", "edit");
 		}
-		else if (item == "delete_sky")
-		{
-			LLFloaterReg::showInstance("env_delete_preset", "sky");
-		}
 		else if (item == "new_day_cycle")
 		{
 			LLFloaterReg::showInstance("env_edit_day_cycle", "new");
@@ -8504,10 +8495,6 @@ class LLWorldEnvPreset : public view_listener_t
 		else if (item == "edit_day_cycle")
 		{
 			LLFloaterReg::showInstance("env_edit_day_cycle", "edit");
-		}
-		else if (item == "delete_day_cycle")
-		{
-			LLFloaterReg::showInstance("env_delete_preset", "day_cycle");
 		}
 		else
 		{

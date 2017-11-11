@@ -34,6 +34,7 @@
 #include "llwldaycycle.h"
 #include "llviewercamera.h"
 #include "lltrans.h"
+#include "llenvmanager.h"
 
 class LLGLSLShader;
  

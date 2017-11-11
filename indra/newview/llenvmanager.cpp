@@ -26,8 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llenvmanager.h"
-
 #include "llagent.h"
 #include "lldaycyclemanager.h"
 #include "llviewercontrol.h" // for gSavedSettings
@@ -36,6 +34,7 @@
 #include "llwlhandlers.h"
 #include "llwlparammanager.h"
 #include "lltrans.h"
+#include "llenvmanager.h"
 
 std::string LLWLParamKey::toString() const
 {

@@ -87,17 +87,14 @@
 			<menu label="水的自訂配置" name="Water Presets">
 				<menu_item_call label="新的自訂配置…" name="new_water_preset"/>
 				<menu_item_call label="編輯自訂配置…" name="edit_water_preset"/>
-				<menu_item_call label="刪除自訂配置…" name="delete_water_preset"/>
 			</menu>
 			<menu label="天空自訂配置" name="Sky Presets">
 				<menu_item_call label="新的自訂配置…" name="new_sky_preset"/>
 				<menu_item_call label="編輯自訂配置…" name="edit_sky_preset"/>
-				<menu_item_call label="刪除自訂配置…" name="delete_sky_preset"/>
 			</menu>
 			<menu label="日的自訂配置" name="Day Presets">
 				<menu_item_call label="新的自訂配置…" name="new_day_preset"/>
 				<menu_item_call label="編輯自訂配置…" name="edit_day_preset"/>
-				<menu_item_call label="刪除自訂配置…" name="delete_day_preset"/>
 			</menu>
 		</menu>
 	</menu>

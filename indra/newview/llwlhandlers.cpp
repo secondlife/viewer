@@ -30,7 +30,6 @@
 
 #include "llagent.h"
 #include "llviewerregion.h"
-#include "llenvmanager.h"
 #include "llnotificationsutil.h"
 #include "llcorehttputil.h"
 
@@ -245,13 +244,13 @@ void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content)
         }
 
         LL_DEBUGS("WindlightCaps") << "Success in applying windlight settings to region " << result["regionID"].asUUID() << LL_ENDL;
-        LLEnvManagerNew::instance().onRegionSettingsApplyResponse(true);
+        //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(true);
 
     } while (false);
 
     if (!notify.isUndefined())
     {
         LLNotificationsUtil::add("WLRegionApplyFail", notify);
-        LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
+        //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
     }
 }

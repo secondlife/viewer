@@ -35,7 +35,6 @@ class LLWLDayCycle;
 #include "llwlparamset.h"
 #include "llwlanimator.h"
 struct LLWLParamKey;
-#include "llenvmanager.h" // for LLEnvKey::EScope
 
 class LLWLDayCycle
 {

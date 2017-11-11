@@ -65,16 +65,13 @@ BOOL LLFloaterEnvironmentSettings::postBuild()
 	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLFloaterEnvironmentSettings::onSelectDayCyclePreset, this));
 
 	childSetCommitCallback("ok_btn", boost::bind(&LLFloaterEnvironmentSettings::onBtnOK, this), NULL);
-	getChild<LLUICtrl>("ok_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
 	childSetCommitCallback("cancel_btn", boost::bind(&LLFloaterEnvironmentSettings::onBtnCancel, this), NULL);
-	getChild<LLUICtrl>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
 
 	setCloseCallback(boost::bind(&LLFloaterEnvironmentSettings::cancel, this));
 
     LLEnvironment::instance().setSkyListChange(boost::bind(&LLFloaterEnvironmentSettings::populateSkyPresetsList, this));
     LLEnvironment::instance().setWaterListChange(boost::bind(&LLFloaterEnvironmentSettings::populateWaterPresetsList, this));
     LLEnvironment::instance().setDayCycleListChange(boost::bind(&LLFloaterEnvironmentSettings::populateDayCyclePresetsList, this));
-// 	LLEnvManagerNew::instance().setPreferencesChangeCallback(boost::bind(&LLFloaterEnvironmentSettings::refresh, this));
 
 	return TRUE;
 }
@@ -89,7 +86,7 @@ void LLFloaterEnvironmentSettings::onOpen(const LLSD& key)
 void LLFloaterEnvironmentSettings::onClose(bool app_quitting)
 {
     if (!app_quitting)
-        LLEnvironment::instance().clearAllSelected();
+        LLEnvironment::instance().applyChosenEnvironment();
 }
 
 
@@ -127,6 +124,41 @@ void LLFloaterEnvironmentSettings::onSelectDayCyclePreset()
 
 void LLFloaterEnvironmentSettings::onBtnOK()
 {
+    bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+
+    if (use_region_settings)
+    {
+        LLEnvironment::instance().clearUserSettings();
+    }
+    else
+    {
+        LLEnvironment::instance().clearUserSettings();
+
+        bool use_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
+
+        if (!use_fixed_sky)
+        {
+            std::string day_cycle = mDayCyclePresetCombo->getValue().asString();
+            LLSettingsDay::ptr_t day = LLEnvironment::instance().findDayCycleByName(day_cycle);
+            if (day)
+            {
+                LLEnvironment::instance().setDayFor(LLEnvironment::ENV_LOCAL, day);
+            }
+        }
+        else
+        {
+            std::string water_preset = mWaterPresetCombo->getValue().asString();
+            std::string sky_preset = mSkyPresetCombo->getValue().asString();
+            
+            LLSettingsSky::ptr_t sky = LLEnvironment::instance().findSkyByName(sky_preset);
+            LLSettingsWater::ptr_t water = LLEnvironment::instance().findWaterByName(water_preset);
+
+            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, sky);
+            LLEnvironment::instance().setWaterFor(LLEnvironment::ENV_LOCAL, water);
+        }
+    }
+
+#if 0
 	// Save and apply new user preferences.
 	bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 	bool use_fixed_sky			= mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
@@ -142,8 +174,8 @@ void LLFloaterEnvironmentSettings::onBtnOK()
 		use_region_settings);
 
 	// *TODO: This triggers applying user preferences again, which is suboptimal.
-    LLEnvironment::instance().applyAllSelected();
-	closeFloater();
+#endif
+    closeFloater();
 }
 
 void LLFloaterEnvironmentSettings::onBtnCancel()
@@ -153,10 +185,13 @@ void LLFloaterEnvironmentSettings::onBtnCancel()
 
 void LLFloaterEnvironmentSettings::refresh()
 {
-	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+    LLSettingsDay::ptr_t day = LLEnvironment::instance().getChosenDay();
+    LLSettingsSky::ptr_t sky = LLEnvironment::instance().getChosenSky();
+    LLSettingsWater::ptr_t water = LLEnvironment::instance().getChosenWater();
 
-	bool use_region_settings	= env_mgr.getUseRegionSettings();
-	bool use_fixed_sky			= env_mgr.getUseFixedSky();
+    
+    bool use_region_settings = true;
+	bool use_fixed_sky		   = !day;
 
 	// Set up radio buttons according to user preferences.
 	mRegionSettingsRadioGroup->setSelectedIndex(use_region_settings ? 0 : 1);
@@ -173,9 +208,18 @@ void LLFloaterEnvironmentSettings::refresh()
 	mDayCyclePresetCombo->setEnabled(!use_fixed_sky);
 
 	// Select the current presets in combo boxes.
-	mWaterPresetCombo->selectByValue(env_mgr.getWaterPresetName());
-	mSkyPresetCombo->selectByValue(env_mgr.getSkyPresetName());
-	mDayCyclePresetCombo->selectByValue(env_mgr.getDayCycleName());
+    if (water)
+        mWaterPresetCombo->selectByValue(water->getName());
+    else
+        mWaterPresetCombo->selectByValue(LLSD());
+    if (sky)
+        mSkyPresetCombo->selectByValue(sky->getName());
+    else
+        mSkyPresetCombo->selectByValue(LLSD());
+    if (day)
+        mDayCyclePresetCombo->selectByValue(day->getName());
+    else
+        mDayCyclePresetCombo->selectByValue(LLSD());
 }
 
 void LLFloaterEnvironmentSettings::apply()
@@ -183,14 +227,13 @@ void LLFloaterEnvironmentSettings::apply()
 	// Update environment with the user choice.
 	bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 	bool use_fixed_sky			= mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
-    std::string water_preset   = mWaterPresetCombo->getValue()[0].asString();
-    std::string sky_preset     = mSkyPresetCombo->getValue()[0].asString();
-	std::string day_cycle		= mDayCyclePresetCombo->getValue()[0].asString();
+    std::string water_preset   = mWaterPresetCombo->getValue().asString();
+    std::string sky_preset     = mSkyPresetCombo->getValue().asString();
+	std::string day_cycle		= mDayCyclePresetCombo->getValue().asString();
 
-	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
 	if (use_region_settings)
 	{
-		env_mgr.useRegionSettings();
+		//env_mgr.useRegionSettings();
 	}
 	else
 	{
@@ -202,12 +245,9 @@ void LLFloaterEnvironmentSettings::apply()
 		}
 		else
 		{
-            LLSettingsDayCycle::ptr_t pday = LLEnvironment::instance().findDayCycleByName(day_cycle);
+            LLSettingsDay::ptr_t pday = LLEnvironment::instance().findDayCycleByName(day_cycle);
             if (pday)
                 LLEnvironment::instance().selectDayCycle(pday, LLEnvironment::TRANSITION_FAST);
-
-//             LLEnvironment::instance().selectDayCycle(day_cycle);
-// 			env_mgr.useDayCycle(day_cycle, LLEnvKey::SCOPE_LOCAL);
 		}
 
         LLSettingsWater::ptr_t pwater = LLEnvironment::instance().findWaterByName(water_preset);
@@ -230,7 +270,7 @@ void LLFloaterEnvironmentSettings::populateWaterPresetsList()
 
     for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
     {
-        mWaterPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+        mWaterPresetCombo->add((*it).first, LLSD::String((*it).first)); // 
     }
 }
 
@@ -242,7 +282,7 @@ void LLFloaterEnvironmentSettings::populateSkyPresetsList()
 
     for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
     {
-        mSkyPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+        mSkyPresetCombo->add((*it).first, LLSD::String((*it).first));
     }
 }
 
@@ -254,6 +294,6 @@ void LLFloaterEnvironmentSettings::populateDayCyclePresetsList()
 
     for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
     {
-        mDayCyclePresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+        mDayCyclePresetCombo->add((*it).first, LLSD::String((*it).first));
     }
 }

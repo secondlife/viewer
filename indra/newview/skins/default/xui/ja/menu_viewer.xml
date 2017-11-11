@@ -89,17 +89,14 @@
 			<menu label="水の事前設定" name="Water Presets">
 				<menu_item_call label="新しい事前設定..." name="new_water_preset"/>
 				<menu_item_call label="事前設定を編集..." name="edit_water_preset"/>
-				<menu_item_call label="事前設定を削除..." name="delete_water_preset"/>
 			</menu>
 			<menu label="空の事前設定" name="Sky Presets">
 				<menu_item_call label="新しい事前設定..." name="new_sky_preset"/>
 				<menu_item_call label="事前設定を編集..." name="edit_sky_preset"/>
-				<menu_item_call label="事前設定を削除..." name="delete_sky_preset"/>
 			</menu>
 			<menu label="デイの事前設定" name="Day Presets">
 				<menu_item_call label="新しい事前設定..." name="new_day_preset"/>
 				<menu_item_call label="事前設定を編集..." name="edit_day_preset"/>
-				<menu_item_call label="事前設定を削除..." name="delete_day_preset"/>
 			</menu>
 		</menu>
 	</menu>
