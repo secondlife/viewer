@@ -52,7 +52,6 @@
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
-#include "lldaycyclemanager.h"
 #include "llestateinfomodel.h"
 #include "llfilepicker.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
@@ -86,7 +85,6 @@
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 #include "llvlcomposition.h"
-#include "llwaterparammanager.h"
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
@@ -97,8 +95,6 @@
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
 #include "llcorehttputil.h"
-
-#include "llenvmanager.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -338,13 +334,13 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	{
 		return;
 	}
-
+#if 0
 	// We need to re-request environment setting here,
 	// otherwise after we apply (send) updated region settings we won't get them back,
 	// so our environment won't be updated.
 	// This is also the way to know about externally changed region environment.
 	LLEnvManagerNew::instance().requestRegionSettings();
-	
+#endif	
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3117,16 +3113,16 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectDayCycle, this));
 
     childSetCommitCallback("apply_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this), NULL);
-	getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
+//	getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
 	childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
-	getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
+//	getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
 
-	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
-	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
+// 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
+// 	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
 
-	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLPanelEnvironmentInfo::populateDayCyclesList, this));
-	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelEnvironmentInfo::populateSkyPresetsList, this));
-	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelEnvironmentInfo::populateWaterPresetsList, this));
+// 	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLPanelEnvironmentInfo::populateDayCyclesList, this));
+// 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelEnvironmentInfo::populateSkyPresetsList, this));
+// 	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelEnvironmentInfo::populateWaterPresetsList, this));
 
 	return TRUE;
 }
@@ -3145,7 +3141,7 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
 	// display user's preferred environment.
 	if (!new_visibility)
 	{
-		LLEnvManagerNew::instance().usePrefs();
+//		LLEnvManagerNew::instance().usePrefs();
 	}
 }
 
@@ -3165,6 +3161,7 @@ bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelEnvironmentInfo::refresh()
 {
+#if 0
 	if(gDisconnected)
 	{
 		return;
@@ -3185,6 +3182,7 @@ void LLPanelEnvironmentInfo::refresh()
 	setControlsEnabled(mEnableEditing);
 
 	setDirty(false);
+#endif
 }
 
 void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
@@ -3494,7 +3492,7 @@ void LLPanelEnvironmentInfo::onSwitchRegionSettings()
 
 	if (use_defaults)
 	{
-		LLEnvManagerNew::instance().useDefaults();
+//		LLEnvManagerNew::instance().useDefaults();
 	}
 	else
 	{
@@ -3530,7 +3528,7 @@ void LLPanelEnvironmentInfo::onSelectWaterPreset()
 
 	if (getSelectedWaterParams(water_params))
 	{
-		LLEnvManagerNew::instance().useWaterParams(water_params);
+//		LLEnvManagerNew::instance().useWaterParams(water_params);
 	}
 
 	setDirty(true);
@@ -3543,7 +3541,7 @@ void LLPanelEnvironmentInfo::onSelectSkyPreset()
 
 	if (getSelectedSkyParams(params, dummy))
 	{
-		LLEnvManagerNew::instance().useSkyParams(params);
+//		LLEnvManagerNew::instance().useSkyParams(params);
 	}
 
 	setDirty(true);
@@ -3557,7 +3555,7 @@ void LLPanelEnvironmentInfo::onSelectDayCycle()
 
 	if (getSelectedDayCycleParams(day_cycle, sky_map, scope))
 	{
-		LLEnvManagerNew::instance().useDayCycleParams(day_cycle, (LLEnvKey::EScope) scope);
+//		LLEnvManagerNew::instance().useDayCycleParams(day_cycle, (LLEnvKey::EScope) scope);
 	}
 
 	setDirty(true);
@@ -3583,6 +3581,7 @@ void LLPanelEnvironmentInfo::onBtnApply()
 		{
 			LL_DEBUGS("Windlight") << "Use fixed sky" << LL_ENDL;
 
+#if 0
 			// Get selected sky params.
 			LLSD params;
 			std::string preset_name;
@@ -3603,6 +3602,7 @@ void LLPanelEnvironmentInfo::onBtnApply()
 			param_set.setAll(params);
 			refs[LLWLParamKey(preset_name, LLEnvKey::SCOPE_LOCAL)] = param_set; // scope doesn't matter here
 			sky_map = LLWLParamManager::createSkyMap(refs);
+#endif
 		}
 		else // use day cycle
 		{
@@ -3703,7 +3703,7 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 		// "Unable to update environment settings because the last update your viewer saw was not the same
 		// as the last update sent from the simulator.  Try sending your update again, and if this
 		// does not work, try leaving and returning to the region."
-		LLEnvManagerNew::instance().requestRegionSettings();
+//		LLEnvManagerNew::instance().requestRegionSettings();
 	}
 }
 

@@ -48,7 +48,6 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "lldrawpoolwlsky.h"
-#include "llwaterparammanager.h"
 #include "v3colorutil.h"
 
 #include "llsettingssky.h"

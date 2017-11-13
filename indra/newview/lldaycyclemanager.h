@@ -30,7 +30,6 @@
 #include <map>
 #include <string>
 
-#include "llwldaycycle.h"
 #include "llwlparammanager.h"
 
 /**
@@ -46,14 +45,14 @@ class LLDayCycleManager : public LLSingleton<LLDayCycleManager>
 public:
 	typedef std::list<std::string> preset_name_list_t;
 
-	typedef std::map<std::string, LLWLDayCycle> dc_map_t;
+// 	typedef std::map<std::string, LLWLDayCycle> dc_map_t;
 	typedef boost::signals2::signal<void()> modify_signal_t;
 
 	void getPresetNames(preset_name_list_t& names) const;
 	void getPresetNames(preset_name_list_t& user, preset_name_list_t& sys) const;
 	void getUserPresetNames(preset_name_list_t& user) const;
 
-	bool getPreset(const std::string name, LLWLDayCycle& day_cycle) const;
+//	bool getPreset(const std::string name, LLWLDayCycle& day_cycle) const;
 	bool getPreset(const std::string name, LLSD& day_cycle) const;
 	bool presetExists(const std::string name) const;
 	bool isSystemPreset(const std::string& name) const;

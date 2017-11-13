@@ -65,11 +65,6 @@ class LLPanelExperiences;
 class LLPanelRegionExperiences;
 
 class LLEventTimer;
-class LLEnvironmentSettings;
-class LLWLParamManager;
-class LLWaterParamManager;
-class LLWLParamSet;
-class LLWaterParamSet;
 
 class LLFloaterRegionInfo : public LLFloater
 {

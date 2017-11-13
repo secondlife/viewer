@@ -324,8 +324,6 @@ void LLFloaterEditSky::setColorSwatch(const std::string& name, const WLColorCont
 // color control callbacks
 void LLFloaterEditSky::onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color_ctrl)
 {
-	//LLWLParamManager::getInstance()->mAnimator.deactivate();
-
 	LLColorSwatchCtrl* swatch = static_cast<LLColorSwatchCtrl*>(ctrl);
 	LLColor4 color_vec(swatch->get().mV);
 
@@ -701,20 +699,6 @@ void LLFloaterEditSky::onBtnCancel()
 void LLFloaterEditSky::onSkyPresetListChange()
 {
     refreshSkyPresetsList();
-#if 0
-	LLWLParamKey key = getSelectedSkyPreset(); // preset being edited
-	if (!LLWLParamManager::instance().hasParamSet(key))
-	{
-		// Preset we've been editing doesn't exist anymore. Close the floater.
-		closeFloater(false);
-	}
-	else
-	{
-		// A new preset has been added.
-		// Refresh the presets list, though it may not make sense as the floater is about to be closed.
-		refreshSkyPresetsList();
-	}
-#endif
 }
 
 void LLFloaterEditSky::onRegionSettingsChange()

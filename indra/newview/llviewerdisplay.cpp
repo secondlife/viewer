@@ -74,7 +74,6 @@
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 #include "lldrawpoolbump.h"
-#include "llwaterparammanager.h"
 #include "llpostprocess.h"
 #include "llscenemonitor.h"
 

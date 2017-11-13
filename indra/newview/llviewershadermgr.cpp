@@ -38,7 +38,6 @@
 #include "llviewercontrol.h"
 #include "pipeline.h"
 #include "llworld.h"
-#include "llwaterparammanager.h"
 #include "llsky.h"
 #include "llvosky.h"
 #include "llrender.h"

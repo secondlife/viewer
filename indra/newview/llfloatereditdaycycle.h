@@ -29,8 +29,6 @@
 
 #include "llfloater.h"
 
-#include "llwlparammanager.h" // for LLWLParamKey
-
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLLineEditor;
@@ -70,10 +68,10 @@ private:
 	void refreshDayCyclesList();
 
 	/// add a slider to the track
-	void addSliderKey(F32 time, LLWLParamKey keyframe);
+//	void addSliderKey(F32 time, LLWLParamKey keyframe);
 
 	void initCallbacks();
-	LLWLParamKey getSelectedDayCycle();
+//	LLWLParamKey getSelectedDayCycle();
 	bool isNewDay() const;
 	void dumpTrack();
 	void enableEditing(bool enable);
@@ -109,15 +107,15 @@ private:
 	static std::string getRegionName();
 
 	/// convenience class for holding keyframes mapped to sliders
-	struct SliderKey
-	{
-	public:
-		SliderKey(LLWLParamKey kf, F32 t) : keyframe(kf), time(t) {}
-		SliderKey() : keyframe(), time(0.f) {} // Don't use this default constructor
-
-		LLWLParamKey keyframe;
-		F32 time;
-	};
+// 	struct SliderKey
+// 	{
+// 	public:
+// 		SliderKey(LLWLParamKey kf, F32 t) : keyframe(kf), time(t) {}
+// 		SliderKey() : keyframe(), time(0.f) {} // Don't use this default constructor
+// 
+// 		LLWLParamKey keyframe;
+// 		F32 time;
+// 	};
 
 	static const F32 sHoursPerDay;
 
@@ -131,7 +129,7 @@ private:
 	LLButton*			mSaveButton;
 
 	// map of sliders to parameters
-	std::map<std::string, SliderKey> mSliderToKey;
+//	std::map<std::string, SliderKey> mSliderToKey;
 };
 
 #endif // LL_LLFLOATEREDITDAYCYCLE_H

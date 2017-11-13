@@ -158,7 +158,6 @@ set(viewer_SOURCE_FILES
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
-    lldaycyclemanager.cpp
     lldebugmessagebox.cpp
     lldebugview.cpp
     lldeferredsounds.cpp
@@ -183,7 +182,6 @@ set(viewer_SOURCE_FILES
     llemote.cpp
     llenvadapters.cpp
     llenvironment.cpp
-    llenvmanager.cpp
     llestateinfomodel.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
@@ -692,19 +690,13 @@ set(viewer_SOURCE_FILES
     llvowater.cpp
     llvowlsky.cpp
     llwatchdog.cpp
-    llwaterparammanager.cpp
-    llwaterparamset.cpp
     llwearableitemslist.cpp
     llwearablelist.cpp
     llweb.cpp
     llwebprofile.cpp
     llwind.cpp
     llwindowlistener.cpp
-    llwlanimator.cpp
-    llwldaycycle.cpp
     llwlhandlers.cpp
-    llwlparammanager.cpp
-    llwlparamset.cpp
     llworld.cpp
     llworldmap.cpp
     llworldmapmessage.cpp
@@ -783,7 +775,6 @@ set(viewer_HEADER_FILES
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
-    lldaycyclemanager.h
     lldebugmessagebox.h
     lldebugview.h
     lldeferredsounds.h
@@ -808,7 +799,6 @@ set(viewer_HEADER_FILES
     llemote.h
     llenvadapters.h
     llenvironment.h
-    llenvmanager.h
     llestateinfomodel.h
     lleventnotifier.h
     lleventpoll.h
@@ -1311,19 +1301,13 @@ set(viewer_HEADER_FILES
     llvowater.h
     llvowlsky.h
     llwatchdog.h
-    llwaterparammanager.h
-    llwaterparamset.h
     llwearableitemslist.h
     llwearablelist.h
     llweb.h
     llwebprofile.h
     llwind.h
     llwindowlistener.h
-    llwlanimator.h
-    llwldaycycle.h
     llwlhandlers.h
-    llwlparammanager.h
-    llwlparamset.h
     llworld.h
     llworldmap.h
     llworldmapmessage.h
@@ -2369,7 +2353,6 @@ if (LL_TESTS)
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
-  llwlparammanager.cpp
   )
 set_source_files_properties(
   ${viewer_TEST_SOURCE_FILES}

@@ -31,8 +31,6 @@
 #include "llcombobox.h"
 #include "llradiogroup.h"
 
-#include "lldaycyclemanager.h"
-
 #include "llenvironment.h"
 
 
@@ -259,7 +257,7 @@ void LLFloaterEnvironmentSettings::apply()
 void LLFloaterEnvironmentSettings::cancel()
 {
 	// Revert environment to user preferences.
-	LLEnvManagerNew::instance().usePrefs();
+//	LLEnvManagerNew::instance().usePrefs();
 }
 
 void LLFloaterEnvironmentSettings::populateWaterPresetsList()

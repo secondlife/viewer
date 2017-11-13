@@ -32,8 +32,7 @@ class LLWLDayCycle;
 #include <vector>
 #include <map>
 #include <string>
-#include "llwlparamset.h"
-#include "llwlanimator.h"
+#include "llenvmanager.h"
 struct LLWLParamKey;
 
 class LLWLDayCycle
@@ -77,7 +76,7 @@ public:
 	LLSD asLLSD();
 
 	// get skies referenced by this day cycle
-	bool getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const;
+//	bool getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const;
 
 	// get referenced skies as LLSD
 	bool getSkyMap(LLSD& sky_map) const;
@@ -109,7 +108,7 @@ public:
 
 	/// get the param set at a given time
 	/// returns true if found one
-	bool getKeyedParam(F32 time, LLWLParamSet& param);
+//	bool getKeyedParam(F32 time, LLWLParamSet& param);
 
 	/// get the name
 	/// returns true if it found one

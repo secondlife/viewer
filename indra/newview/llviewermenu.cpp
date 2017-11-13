@@ -51,7 +51,6 @@
 #include "llagentpilot.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
-#include "lldaycyclemanager.h"
 #include "lldebugview.h"
 #include "llenvironment.h"
 #include "llfacebookconnect.h"
@@ -121,9 +120,6 @@
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
-#include "llwaterparammanager.h"
-#include "llwlanimator.h"
-#include "llwlparammanager.h"
 #include "llfloatercamera.h"
 #include "lluilistener.h"
 #include "llappearancemgr.h"
@@ -135,6 +131,7 @@
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
 #include "llcleanup.h"
+#include "llviewershadermgr.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -8509,30 +8506,6 @@ class LLWorldEnableEnvPreset : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string item = userdata.asString();
-
-		if (item == "delete_water")
-		{
-			LLWaterParamManager::preset_name_list_t user_waters;
-			LLWaterParamManager::instance().getUserPresetNames(user_waters);
-			return !user_waters.empty();
-		}
-		else if (item == "delete_sky")
-		{
-			LLWLParamManager::preset_name_list_t user_skies;
-			LLWLParamManager::instance().getUserPresetNames(user_skies);
-			return !user_skies.empty();
-		}
-		else if (item == "delete_day_cycle")
-		{
-			LLDayCycleManager::preset_name_list_t user_days;
-			LLDayCycleManager::instance().getUserPresetNames(user_days);
-			return !user_days.empty();
-		}
-		else
-		{
-			LL_WARNS() << "Unknown item" << LL_ENDL;
-		}
 
 		return false;
 	}

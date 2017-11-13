@@ -41,12 +41,11 @@
 
 // newview
 #include "llagent.h"
-#include "lldaycyclemanager.h"
 #include "llregioninfomodel.h"
 #include "llviewerregion.h"
-#include "llwlparammanager.h"
 
 #include "llenvironment.h"
+#include "lltrans.h"
 
 const F32 LLFloaterEditDayCycle::sHoursPerDay = 24.0f;
 
@@ -128,6 +127,7 @@ void LLFloaterEditDayCycle::draw()
 
 void LLFloaterEditDayCycle::initCallbacks(void)
 {
+#if 0
 	mDayCycleNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this), NULL);
 	mDayCyclesCombo->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleSelected, this));
 	mDayCyclesCombo->setTextEntryCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this));
@@ -143,58 +143,60 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	mSaveButton->setRightMouseDownCallback(boost::bind(&LLFloaterEditDayCycle::dumpTrack, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnCancel, this));
 
-#if 0
 	// Connect to env manager events.
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
 	env_mgr.setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsChange, this));
 	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionChange, this));
 	env_mgr.setRegionSettingsAppliedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsApplied, this, _1));
-#endif
-
 	// Connect to day cycle manager events.
 	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleListChange, this));
 
 	// Connect to sky preset list changes.
 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditDayCycle::onSkyPresetListChange, this));
 
+
 	// Connect to region info updates.
 	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditDayCycle::onRegionInfoUpdate, this));
+#endif
 }
 
 void LLFloaterEditDayCycle::syncTimeSlider()
 {
+#if 0
 	// set time
 	mTimeSlider->setCurSliderValue((F32)LLWLParamManager::getInstance()->mAnimator.getDayTime() * sHoursPerDay);
+#endif
 }
 
 void LLFloaterEditDayCycle::loadTrack()
 {
-	// clear the slider
-	mKeysSlider->clear();
-	mSliderToKey.clear();
-
-	// add sliders
-
-	LL_DEBUGS() << "Adding " << LLWLParamManager::getInstance()->mDay.mTimeMap.size() << " keys to slider" << LL_ENDL;
-
-	LLWLDayCycle& cur_dayp = LLWLParamManager::instance().mDay;
-	for (std::map<F32, LLWLParamKey>::iterator it = cur_dayp.mTimeMap.begin(); it != cur_dayp.mTimeMap.end(); ++it)
-	{
-		addSliderKey(it->first * sHoursPerDay, it->second);
-	}
-
-	// set drop-down menu to match preset of currently-selected keyframe (one is automatically selected initially)
-	const std::string& cur_sldr = mKeysSlider->getCurSlider();
-	if (strlen(cur_sldr.c_str()) > 0)	// only do this if there is a curSldr, otherwise we put an invalid entry into the map
-	{
-		mSkyPresetsCombo->selectByValue(mSliderToKey[cur_sldr].keyframe.toStringVal());
-	}
-
-	syncTimeSlider();
+// 	// clear the slider
+// 	mKeysSlider->clear();
+// 	mSliderToKey.clear();
+// 
+// 	// add sliders
+// 
+// 	LL_DEBUGS() << "Adding " << LLWLParamManager::getInstance()->mDay.mTimeMap.size() << " keys to slider" << LL_ENDL;
+// 
+// 	LLWLDayCycle& cur_dayp = LLWLParamManager::instance().mDay;
+// 	for (std::map<F32, LLWLParamKey>::iterator it = cur_dayp.mTimeMap.begin(); it != cur_dayp.mTimeMap.end(); ++it)
+// 	{
+// 		addSliderKey(it->first * sHoursPerDay, it->second);
+// 	}
+// 
+// 	// set drop-down menu to match preset of currently-selected keyframe (one is automatically selected initially)
+// 	const std::string& cur_sldr = mKeysSlider->getCurSlider();
+// 	if (strlen(cur_sldr.c_str()) > 0)	// only do this if there is a curSldr, otherwise we put an invalid entry into the map
+// 	{
+// 		mSkyPresetsCombo->selectByValue(mSliderToKey[cur_sldr].keyframe.toStringVal());
+// 	}
+// 
+// 	syncTimeSlider();
 }
 
 void LLFloaterEditDayCycle::applyTrack()
 {
+#if 0
 	LL_DEBUGS() << "Applying track (" << mSliderToKey.size() << ")" << LL_ENDL;
 
 	// if no keys, do nothing
@@ -223,10 +225,12 @@ void LLFloaterEditDayCycle::applyTrack()
 
 	LLWLParamManager::getInstance()->mAnimator.update(
 		LLWLParamManager::getInstance()->mCurParams);
+#endif
 }
 
 void LLFloaterEditDayCycle::refreshSkyPresetsList()
 {
+#if 0
 	// Don't allow selecting region skies for a local day cycle,
 	// because thus we may end up with invalid day cycle.
 	bool include_region_skies = getSelectedDayCycle().scope == LLEnvKey::SCOPE_REGION;
@@ -272,10 +276,12 @@ void LLFloaterEditDayCycle::refreshSkyPresetsList()
 
 	// set defaults on combo boxes
 	mSkyPresetsCombo->selectFirstItem();
+#endif
 }
 
 void LLFloaterEditDayCycle::refreshDayCyclesList()
 {
+#if 0
 	llassert(isNewDay() == false);
 
 	mDayCyclesCombo->removeall();
@@ -311,10 +317,12 @@ void LLFloaterEditDayCycle::refreshDayCyclesList()
 	}
 
 	mDayCyclesCombo->setLabel(getString("combo_label"));
+#endif
 }
 
 void LLFloaterEditDayCycle::onTimeSliderMoved()
 {
+#if 0
 	/// get the slider value
 	F32 val = mTimeSlider->getCurSliderValue() / sHoursPerDay;
 
@@ -325,10 +333,12 @@ void LLFloaterEditDayCycle::onTimeSliderMoved()
 	// then call update once
 	LLWLParamManager::getInstance()->mAnimator.update(
 		LLWLParamManager::getInstance()->mCurParams);
+#endif
 }
 
 void LLFloaterEditDayCycle::onKeyTimeMoved()
 {
+#if 0
 	if (mKeysSlider->getValue().size() == 0)
 	{
 		return;
@@ -354,10 +364,12 @@ void LLFloaterEditDayCycle::onKeyTimeMoved()
 	mTimeCtrl->setTime24(time24);
 
 	applyTrack();
+#endif
 }
 
 void LLFloaterEditDayCycle::onKeyTimeChanged()
 {
+#if 0
 	// if no keys, skipped
 	if (mSliderToKey.size() == 0)
 	{
@@ -375,10 +387,12 @@ void LLFloaterEditDayCycle::onKeyTimeChanged()
 	mSliderToKey[cur_sldr].time = time;
 
 	applyTrack();
+#endif
 }
 
 void LLFloaterEditDayCycle::onKeyPresetChanged()
 {
+#if 0
 	// do nothing if no sliders
 	if (mKeysSlider->getValue().size() == 0)
 	{
@@ -402,10 +416,12 @@ void LLFloaterEditDayCycle::onKeyPresetChanged()
 
 	// Apply changes to current day cycle.
 	applyTrack();
+#endif
 }
 
 void LLFloaterEditDayCycle::onAddKey()
 {
+#if 0
 	llassert_always(mSliderToKey.size() == mKeysSlider->getValue().size());
 
 	S32 max_sliders;
@@ -444,8 +460,10 @@ void LLFloaterEditDayCycle::onAddKey()
 
 	// apply the change to current day cycles
 	applyTrack();
+#endif
 }
 
+#if 0
 void LLFloaterEditDayCycle::addSliderKey(F32 time, LLWLParamKey keyframe)
 {
 	// make a slider
@@ -465,7 +483,9 @@ void LLFloaterEditDayCycle::addSliderKey(F32 time, LLWLParamKey keyframe)
 
 	llassert_always(mSliderToKey.size() == mKeysSlider->getValue().size());
 }
+#endif
 
+#if 0
 LLWLParamKey LLFloaterEditDayCycle::getSelectedDayCycle()
 {
 	LLWLParamKey dc_key;
@@ -492,6 +512,7 @@ LLWLParamKey LLFloaterEditDayCycle::getSelectedDayCycle()
 
 	return dc_key;
 }
+#endif
 
 bool LLFloaterEditDayCycle::isNewDay() const
 {
@@ -500,6 +521,7 @@ bool LLFloaterEditDayCycle::isNewDay() const
 
 void LLFloaterEditDayCycle::dumpTrack()
 {
+#if 0
 	LL_DEBUGS("Windlight") << "Dumping day cycle" << LL_ENDL;
 
 	LLWLDayCycle& cur_dayp = LLWLParamManager::instance().mDay;
@@ -510,6 +532,7 @@ void LLFloaterEditDayCycle::dumpTrack()
 		S32 m = (S32) ((time - h) * 60.0f);
 		LL_DEBUGS("Windlight") << llformat("(%.3f) %02d:%02d", time, h, m) << " => " << it->second.name << LL_ENDL;
 	}
+#endif
 }
 
 void LLFloaterEditDayCycle::enableEditing(bool enable)
@@ -523,6 +546,7 @@ void LLFloaterEditDayCycle::enableEditing(bool enable)
 
 void LLFloaterEditDayCycle::reset()
 {
+#if 0
 	// clear the slider
 	mKeysSlider->clear();
 	mSliderToKey.clear();
@@ -548,6 +572,7 @@ void LLFloaterEditDayCycle::reset()
 		// Disable controls until a day cycle  to edit is selected.
 		enableEditing(false);
 	}
+#endif
 }
 
 void LLFloaterEditDayCycle::saveRegionDayCycle()
@@ -602,6 +627,7 @@ bool LLFloaterEditDayCycle::getApplyProgress() const
 
 void LLFloaterEditDayCycle::onDeleteKey()
 {
+#if 0
 	if (mSliderToKey.size() == 0)
 	{
 		return;
@@ -631,6 +657,7 @@ void LLFloaterEditDayCycle::onDeleteKey()
 	mTimeCtrl->setTime24(time24);
 
 	applyTrack();
+#endif
 }
 
 void LLFloaterEditDayCycle::onRegionSettingsChange()
@@ -656,6 +683,7 @@ void LLFloaterEditDayCycle::onRegionSettingsChange()
 
 void LLFloaterEditDayCycle::onRegionChange()
 {
+#if 0
 	LL_DEBUGS("Windlight") << "Region changed" << LL_ENDL;
 
 	// If we're editing the region day cycle
@@ -663,6 +691,7 @@ void LLFloaterEditDayCycle::onRegionChange()
 	{
 		reset(); // undoes all unsaved changes
 	}
+#endif
 }
 
 void LLFloaterEditDayCycle::onRegionSettingsApplied(bool success)
@@ -695,9 +724,11 @@ void LLFloaterEditDayCycle::onRegionInfoUpdate()
 
 void LLFloaterEditDayCycle::onDayCycleNameEdited()
 {
+#if 0
 	// Disable saving a day cycle having empty name.
 	LLWLParamKey key = getSelectedDayCycle();
 	mSaveButton->setEnabled(!key.name.empty());
+#endif
 }
 
 void LLFloaterEditDayCycle::onDayCycleSelected()
@@ -741,6 +772,7 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 
 void LLFloaterEditDayCycle::onBtnSave()
 {
+#if 0
 	LLDayCycleManager& day_mgr = LLDayCycleManager::instance();
 	LLWLParamKey selected_day = getSelectedDayCycle();
 
@@ -776,6 +808,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 		// new preset, hence no confirmation needed
 		onSaveConfirmed();
 	}
+#endif
 }
 
 void LLFloaterEditDayCycle::onBtnCancel()

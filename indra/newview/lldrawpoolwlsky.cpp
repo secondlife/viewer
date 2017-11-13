@@ -81,9 +81,6 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 			sCloudNoiseRawImage = NULL ;
 		}
 	}
-
-    /* *LAPRAS */
-//	LLWLParamManager::getInstance()->propagateParameters();
 }
 
 LLDrawPoolWLSky::~LLDrawPoolWLSky()
