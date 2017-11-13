@@ -175,6 +175,10 @@ protected:
 	void init(bool firstinit) ;
 	void reorganizeFaceList() ;
 	void reorganizeVolumeList() ;
+
+	void notifyAboutMissingAsset();
+	void notifyAboutCreatingTexture();
+
 private:
 	friend class LLBumpImageList;
 	friend class LLUIImageList;
@@ -311,6 +315,7 @@ public:
 	void clearCallbackEntryList() ;
 
 	void addToCreateTexture();
+
 
 	 // ONLY call from LLViewerTextureList
 	BOOL createTexture(S32 usename = 0);

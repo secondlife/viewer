@@ -106,10 +106,16 @@ LLMaterial::LLMaterial()
 	, mEnvironmentIntensity(LLMaterial::DEFAULT_ENV_INTENSITY)
 	, mDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
 	, mAlphaMaskCutoff(0)
+	, mIsDiffuseAlphaInvalid(false)
+	, mIsNormalInvalid(false)
+	, mIsSpecularInvalid(false)
 {
 }
 
 LLMaterial::LLMaterial(const LLSD& material_data)
+	: mIsDiffuseAlphaInvalid(false)
+	, mIsNormalInvalid(false)
+	, mIsSpecularInvalid(false)
 {
 	fromLLSD(material_data);
 }
@@ -199,13 +205,17 @@ U32 LLMaterial::getShaderMask(U32 alpha_mode)
 	{
 		ret = getDiffuseAlphaMode();
 	}
+	if (mIsDiffuseAlphaInvalid && ret != DIFFUSE_ALPHA_MODE_DEFAULT)
+	{
+		ret = alpha_mode != DIFFUSE_ALPHA_MODE_NONE;
+	}
 
 	llassert(ret < SHADER_COUNT);
 
 	//next bit is whether or not specular map is present
 	const U32 SPEC_BIT = 0x4;
 
-	if (getSpecularID().notNull())
+	if (getSpecularID().notNull() && !mIsSpecularInvalid)
 	{
 		ret |= SPEC_BIT;
 	}
@@ -214,7 +224,7 @@ U32 LLMaterial::getShaderMask(U32 alpha_mode)
 	
 	//next bit is whether or not normal map is present
 	const U32 NORM_BIT = 0x8;
-	if (getNormalID().notNull())
+	if (getNormalID().notNull() && !mIsNormalInvalid)
 	{
 		ret |= NORM_BIT;
 	}

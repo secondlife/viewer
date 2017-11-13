@@ -1691,7 +1691,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
 
-	if (alpha && mat)
+	if (alpha && mat && !mat->isDiffuseAlphaInvalid())
 	{
 		switch (mat->getDiffuseAlphaMode())
 		{
@@ -1712,7 +1712,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		return LLDrawPool::POOL_ALPHA;
 	}
-	else if ((te->getBumpmap() || te->getShiny()) && (!mat || mat->getNormalID().isNull()))
+	else if ((te->getBumpmap() || te->getShiny()) && (!mat || mat->getNormalID().isNull() || mat->isNormalInvalid()))
 	{
 		return LLDrawPool::POOL_BUMP;
 	}

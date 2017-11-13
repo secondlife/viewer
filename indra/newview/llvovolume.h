@@ -380,7 +380,7 @@ public:
 	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
 	static F32 sLODFactor;				// LOD scale factor
 	static F32 sDistanceFactor;			// LOD distance factor
-		
+
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
 
@@ -388,6 +388,26 @@ protected:
 	static S32 sNumLODChanges;
 
 	friend class LLVolumeImplFlexible;
+
+public:
+	bool notifyAboutCreatingTexture(LLViewerTexture *texture);
+	bool notifyAboutMissingAsset(LLViewerTexture *texture);
+
+private:
+	struct material_info 
+	{
+		LLRender::eTexIndex map;
+		U8 te;
+
+		material_info(LLRender::eTexIndex map_, U8 te_)
+			: map(map_)
+			, te(te_)
+		{}
+	};
+
+	typedef std::multimap<LLUUID, material_info> mmap_UUID_MAP_t;
+	mmap_UUID_MAP_t	mWaitingTextureInfo;
+
 };
 
 #endif // LL_LLVOVOLUME_H
