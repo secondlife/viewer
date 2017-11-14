@@ -76,7 +76,6 @@ LLSky::LLSky()
 
 	mLightingGeneration = 0;
 	mUpdatedThisFrame = TRUE;
-	mOverrideSimSunPosition = FALSE;
 	mSunPhase = 0.f;
 }
 
@@ -133,32 +132,12 @@ void LLSky::resetVertexBuffers()
 	}
 }
 
-void LLSky::setOverrideSun(BOOL override)
-{
-	if (!mOverrideSimSunPosition && override)
-	{
-		mLastSunDirection = getSunDirection();
-	}
-	else if (mOverrideSimSunPosition && !override)
-	{
-		setSunDirection(mLastSunDirection, LLVector3::zero);
-	}
-	mOverrideSimSunPosition = override;
-}
-
-void LLSky::setSunDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity)
+void LLSky::setSunDirection(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
 {
 	if(mVOSkyp.notNull()) {
-		mVOSkyp->setSunDirection(sun_direction, sun_ang_velocity);
+        mVOSkyp->setSunDirection(sun_direction, moon_direction);
 	}
 }
-
-
-void LLSky::setSunTargetDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity)
-{
-	mSunTargDir = sun_direction;
-}
-
 
 LLVector3 LLSky::getSunDirection() const
 {
@@ -327,13 +306,13 @@ void LLSky::init(const LLVector3 &sun_direction)
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
-	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || mOverrideSimSunPosition)
+	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition"))
 	{
-		setSunDirection(mSunDefaultPosition, LLVector3(0.f, 0.f, 0.f));
+		setSunDirection(mSunDefaultPosition, -mSunDefaultPosition);
 	}
 	else
 	{
-		setSunDirection(sun_direction, LLVector3(0.f, 0.f, 0.f));
+		setSunDirection(sun_direction, -sun_direction);
 	}
 
 	LLGLState::checkStates();
@@ -363,24 +342,24 @@ void LLSky::setWind(const LLVector3& average_wind)
 
 void LLSky::propagateHeavenlyBodies(F32 dt)
 {
-	if (!mOverrideSimSunPosition)
-	{
-		LLVector3 curr_dir = getSunDirection();
-		LLVector3 diff = mSunTargDir - curr_dir;
-		const F32 dist = diff.normVec();
-		if (dist > 0)
-		{
-			const F32 step = llmin (dist, 0.00005f);
-			//const F32 step = min (dist, 0.0001);
-			diff *= step;
-			curr_dir += diff;
-			curr_dir.normVec();
-			if (mVOSkyp)
-			{
-				mVOSkyp->setSunDirection(curr_dir, LLVector3());
-			}
-		}
-	}
+// 	if (!mOverrideSimSunPosition)
+// 	{
+// 		LLVector3 curr_dir = getSunDirection();
+// 		LLVector3 diff = mSunTargDir - curr_dir;
+// 		const F32 dist = diff.normVec();
+// 		if (dist > 0)
+// 		{
+// 			const F32 step = llmin (dist, 0.00005f);
+// 			//const F32 step = min (dist, 0.0001);
+// 			diff *= step;
+// 			curr_dir += diff;
+// 			curr_dir.normVec();
+// 			if (mVOSkyp)
+// 			{
+// 				mVOSkyp->setSunDirection(curr_dir);
+// 			}
+// 		}
+// 	}
 }
 
 F32 LLSky::getSunPhase() const

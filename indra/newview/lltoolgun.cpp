@@ -107,8 +107,8 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 
 			if (gSavedSettings.getBOOL("MouseSun"))
 			{
-				gSky.setSunDirection(LLViewerCamera::getInstance()->getAtAxis(), LLVector3(0.f, 0.f, 0.f));
-				gSky.setOverrideSun(TRUE);
+                LLVector3 sunpos = LLViewerCamera::getInstance()->getAtAxis();
+				gSky.setSunDirection(sunpos, -sunpos);
 				gSavedSettings.setVector3("SkySunDefaultPosition", LLViewerCamera::getInstance()->getAtAxis());
 			}
 

@@ -461,7 +461,7 @@ public:
 
 	void initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity);
 
-	void setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity);
+    void setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_dir);
 
 	BOOL updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, const BOOL is_sun,
 									LLHeavenBody& hb, const F32 sin_max_angle,
@@ -552,13 +552,6 @@ protected:
 	
 	F32					mFogRatio;
 	F32					mWorldScale;
-
-// 	LLColor4			mSunAmbient;
-// 	LLColor4			mMoonAmbient;
-// 	LLColor4			mTotalAmbient;
-// 	LLColor3			mSunDiffuse;
-// 	LLColor3			mMoonDiffuse;
-// 	LLColor4U			mFadeColor;					// Color to fade in from	
 
 	LLPointer<LLCubeMap>	mCubeMap;					// Cube map for the environment
 	S32					mDrawRefl;

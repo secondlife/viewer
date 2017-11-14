@@ -52,10 +52,7 @@ public:
 
 	void cleanup();
 
-	void setOverrideSun(BOOL override);
-	BOOL getOverrideSun() { return mOverrideSimSunPosition; }
-	void setSunDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity);
-	void setSunTargetDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity);
+	void setSunDirection(const LLVector3 &sun_direction, const LLVector3 &moon_direction);
 
 	LLColor4 getFogColor() const;
 
@@ -97,8 +94,6 @@ public:
 
 	LLPointer<LLVOWLSky>	mVOWLSkyp;
 
-	LLVector3 mSunTargDir;
-
 	// Legacy stuff
 	LLVector3 mSunDefaultPosition;
 
@@ -106,12 +101,9 @@ public:
 	static const F32 NIGHTTIME_ELEVATION_COS;
 
 protected:
-	BOOL			mOverrideSimSunPosition;
-
 	F32				mSunPhase;
 	LLColor4		mFogColor;				// Color to use for fog and haze
 
-	LLVector3		mLastSunDirection;
 };
 
 extern LLSky    gSky;

@@ -376,9 +376,9 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 
     {   // set direction (in CRF) and don't allow overriding
         LLVector3 crf_sunDirection(mSunDirection.mV[2], mSunDirection.mV[0], mSunDirection.mV[1]);
+        LLVector3 crf_moonDirection(mMoonDirection.mV[2], mMoonDirection.mV[0], mMoonDirection.mV[1]);
 
-        gSky.setSunDirection(crf_sunDirection, LLVector3(0, 0, 0));
-        gSky.setOverrideSun(TRUE);
+        gSky.setSunDirection(crf_sunDirection, crf_moonDirection);
     }
 
     // is the normal from the sun or the moon

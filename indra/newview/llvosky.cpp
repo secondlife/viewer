@@ -833,7 +833,7 @@ void LLVOSky::calcAtmospherics(void)
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     mSun.setColor(psky->getSunlightColor());
-	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
+	mMoon.setColor(LLColor3(2.0f, 2.0f, 2.0f));
 
 	mSun.renewDirection();
 	mSun.renewColor();
@@ -2063,7 +2063,7 @@ void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_an
 	}		
 }
 
-void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)
+void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_dir)
 {
 	LLVector3 sun_direction = (sun_dir.length() == 0) ? LLVector3::x_axis : sun_dir;
 	sun_direction.normalize();
@@ -2086,8 +2086,8 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang
 
 	F32 dp = mLastLightingDirection * sun_direction;
 	mSun.setDirection(sun_direction);
-	mSun.setAngularVelocity(sun_ang_velocity);
-	mMoon.setDirection(-sun_direction);
+
+	mMoon.setDirection(moon_dir);
 	calcAtmospherics();
 	if (dp < 0.995f) { //the sun jumped a great deal, update immediately
 		mForceUpdate = TRUE;

@@ -4738,10 +4738,9 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 	LL_DEBUGS("Windlight Sync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25, 1.f) * 24.f << " h" << LL_ENDL;
 
 	gSky.setSunPhase(phase);
-	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
-	if ( !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()) )
+	if ( !gSavedSettings.getBOOL("SkyOverrideSimSunPosition") )
 	{
-		gSky.setSunDirection(sun_direction, sun_ang_velocity);
+		gSky.setSunDirection(sun_direction, -sun_direction);
 	}
 }
 
