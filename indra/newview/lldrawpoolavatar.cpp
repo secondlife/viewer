@@ -1494,7 +1494,7 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 			// allocate dummy triangle
 			buffer->allocateBuffer(1, 3, true);
 			memset((U8*)buffer->getMappedData(), 0, buffer->getSize());
-			memset((U8*)buffer->getIndicesPointer(), 0, buffer->getIndicesSize());
+			memset((U8*)buffer->getMappedIndices(), 0, buffer->getIndicesSize());
 		}
 	}
 	else
@@ -1508,7 +1508,7 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 			// allocate dummy triangle
 			buffer->resizeBuffer(1, 3);
 			memset((U8*)buffer->getMappedData(), 0, buffer->getSize());
-			memset((U8*)buffer->getIndicesPointer(), 0, buffer->getIndicesSize());
+			memset((U8*)buffer->getMappedIndices(), 0, buffer->getIndicesSize());
 		}
 	}
 

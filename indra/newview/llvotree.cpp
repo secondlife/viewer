@@ -897,7 +897,7 @@ void LLVOTree::updateMesh()
 			<< index_count << " indices" << LL_ENDL;
 		buff->allocateBuffer(1, 3, true);
 		memset((U8*)buff->getMappedData(), 0, buff->getSize());
-		memset((U8*)buff->getIndicesPointer(), 0, buff->getIndicesSize());
+		memset((U8*)buff->getMappedIndices(), 0, buff->getIndicesSize());
 		facep->setSize(1, 3);
 		facep->setVertexBuffer(buff);
 		mReferenceBuffer->flush();
