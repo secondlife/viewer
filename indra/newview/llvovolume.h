@@ -129,6 +129,7 @@ public:
 	/*virtual*/	BOOL	setParent(LLViewerObject* parent);
 				S32		getLOD() const						{ return mLOD; }
 				void	setNoLOD()							{ mLOD = NO_LOD; mLODChanged = TRUE; }
+				bool	isNoLOD() const						{ return NO_LOD == mLOD; }
 	const LLVector3		getPivotPositionAgent() const;
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
