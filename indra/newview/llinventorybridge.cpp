@@ -43,6 +43,7 @@
 #include "llfloatermarketplacelistings.h"
 #include "llfloateroutfitphotopreview.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llsidepanelinventory.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
 #include "llfriendcard.h"
@@ -1828,11 +1829,24 @@ void LLItemBridge::gotoItem()
 	LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
 	{
-		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
-		if (active_panel)
+		const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
+		if (gInventory.isObjectDescendentOf(obj->getLinkedUUID(), inbox_id))
 		{
-			active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+			LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			if (sidepanel_inventory && sidepanel_inventory->getInboxPanel())
+			{
+				sidepanel_inventory->getInboxPanel()->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+			}
 		}
+		else
+		{
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			if (active_panel)
+			{
+				active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+			}
+		}
+
 	}
 }
 

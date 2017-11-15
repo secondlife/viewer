@@ -46,6 +46,7 @@ public:
 	~LLInboxInventoryPanel();
 
 	// virtual
+	void initFromParams(const LLInventoryPanel::Params&);
 	LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 };
