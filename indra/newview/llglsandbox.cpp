@@ -963,11 +963,16 @@ F32 gpu_benchmark()
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector2> tc;
 
-	buff->getVertexStrider(v);
-	
-	v[0].set(-1,1,0);
-	v[1].set(-1,-3,0);
-	v[2].set(3,1,0);
+	if (buff->getVertexStrider(v))
+	{
+		v[0].set(-1, 1, 0);
+		v[1].set(-1, -3, 0);
+		v[2].set(3, 1, 0);
+	}
+	else
+	{
+		LL_WARNS() << "GL LLVertexBuffer::getVertexStrider() return false " << (NULL == buff->getMappedData() ? "buff->getMappedData() is NULL" : "buff->getMappedData() not NULL") << LL_ENDL;
+	}
 
 	buff->flush();
 
