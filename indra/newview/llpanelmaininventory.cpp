@@ -179,7 +179,9 @@ BOOL LLPanelMainInventory::postBuild()
 		mWornItemsPanel->setFilterWorn();
 		mWornItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mWornItemsPanel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
-		mWornItemsPanel->getFilter().markDefault();
+		LLInventoryFilter& worn_filter = mWornItemsPanel->getFilter();
+		worn_filter.setFilterCategoryTypes(worn_filter.getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
+		worn_filter.markDefault();
 		mWornItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mWornItemsPanel, _1, _2));
 	}
 	mSearchTypeCombo  = getChild<LLComboBox>("search_type");
