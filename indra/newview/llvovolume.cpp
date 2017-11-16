@@ -91,7 +91,6 @@ U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
 BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
-// AXON TEMP
 S32 LLVOVolume::sForceLOD = -1;
 F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
@@ -1234,7 +1233,7 @@ void LLVOVolume::sculpt()
 S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
 {
 	S32	cur_detail;
-    // AXON TEMP
+    // AXON TEMP REMOVE
     if (LLVOVolume::sForceLOD>=0 && LLVOVolume::sForceLOD<=3)
     {
         cur_detail = LLVOVolume::sForceLOD;
@@ -3341,8 +3340,6 @@ BOOL LLVOVolume::isRiggedMesh() const
 }
 
 //----------------------------------------------------------------------------
-// AXON - methods related to extended mesh flags
-
 U32 LLVOVolume::getExtendedMeshFlags() const
 {
 	const LLExtendedMeshParams *param_block = 
@@ -3412,7 +3409,6 @@ bool LLVOVolume::canBeAnimatedObject() const
     F32 est_tris = recursiveGetEstTrianglesMax();
     if (est_tris < 0 || est_tris > getAnimatedObjectMaxTris())
     {
-        LL_DEBUGS("AXON") << "est_tris " << est_tris << " is outside limit of 0-" << getAnimatedObjectMaxTris() << LL_ENDL;
         return false;
     }
     return true;
@@ -3441,6 +3437,8 @@ bool LLVOVolume::isAnimatedObject() const
 // Only the root of a linkset can have the animated object flag set
 // Only the root of a linkset can have a control avatar (iff the animated object flag is set)
 // Only skinned mesh volumes can have the animated object flag set, or a control avatar
+//
+// AXON REVIEW BASED ON FINAL RULES
 bool LLVOVolume::isAnimatedObjectStateConsistent() const
 {
     if (!canBeAnimatedObject())
@@ -3486,16 +3484,9 @@ void LLVOVolume::updateAnimatedObjectStateOnReparent(LLViewerObject *old_parent,
 
     // AXON - depending on whether animated objects can be attached,
     // we may want to include or remove the isAvatar() check.
+    // BUG??
     if (new_parent && !new_parent->isAvatar())
     {
-#if 0 // AXON - MAINT-7819
-        // Object should inherit control avatar and animated mesh flag
-        // from parent, so clear them out from our own state
-        if (getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
-        {
-            setExtendedMeshFlags(getExtendedMeshFlags() & ~LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG);
-        }
-#endif
         if (mControlAvatar.notNull())
         {
             LLControlAvatar *av = mControlAvatar;

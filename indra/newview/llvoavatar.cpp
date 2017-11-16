@@ -1108,7 +1108,7 @@ void LLVOAvatar::cleanupClass()
 }
 
 // virtual
-void LLVOAvatar::initInstance(void)
+void LLVOAvatar::initInstance()
 {
 	//-------------------------------------------------------------------------
 	// register motions
@@ -3470,7 +3470,7 @@ void LLVOAvatar::updateDebugText()
                         LLVOVolume *volp = control_av->mRootVolp;
                         if (volp)
                         {
-                            volp->requestInventory(); // AXON should be a no-op if already requested or fetched?
+                            volp->requestInventory(); 
                             LLViewerInventoryItem* item = volp->getInventoryItemByAsset(motionp->getID());
                             if (item)
                             {
@@ -3658,10 +3658,9 @@ void LLVOAvatar::updateFootstepSounds()
 void LLVOAvatar::computeUpdatePeriod()
 {
 	bool visually_muted = isVisuallyMuted();
-    // AXON FIXME this expression is a crawling horror
 	if (mDrawable.notNull()
         && isVisible() 
-        && (!isSelf() || visually_muted) // AXON would the self ever be visually muted?
+        && (!isSelf() || visually_muted)
         && !mIsDummy
         && sUseImpostors
         && !mNeedsAnimUpdate 
@@ -3881,7 +3880,8 @@ void LLVOAvatar::updateTimeStep()
     bool is_pure_dummy = mIsDummy && !isControlAvatar();
 	if (!isSelf() && !is_pure_dummy) // ie, non-self avatars, and animated objects will be affected.
 	{
-        // AXON note that sInstances counts animated objects and standard avatars in the same bucket. Is this desirable?
+        // AXON note that sInstances counts animated objects and
+        // standard avatars in the same bucket. Is this desirable?
 		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
 		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
 		F32 time_step = time_quantum * pixel_area_scale;
@@ -3999,7 +3999,9 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 		//--------------------------------------------------------------------
 		if (!isControlAvatar() && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
 		{
-            // AXON - should we always skip for control avatars? Rotation fixups for avatars in motion, some may be relevant.
+            // AXON - should we always skip for control avatars?
+            // Rotation fixups for avatars in motion, some may be
+            // relevant.
             updateOrientation(agent, speed, delta_time);
 		}
 	}
@@ -5999,7 +6001,6 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
 //-----------------------------------------------------------------------------
 // removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
-// AXON handle NPC case
 void LLVOAvatar::removeAttachmentOverridesForObject(LLViewerObject *vo)
 {
     if (vo->getAvatar() != this && vo->getAvatarAncestor() != this)
@@ -6028,7 +6029,6 @@ void LLVOAvatar::removeAttachmentOverridesForObject(LLViewerObject *vo)
 //-----------------------------------------------------------------------------
 // removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
-// AXON handle NPC case
 void LLVOAvatar::removeAttachmentOverridesForObject(const LLUUID& mesh_id)
 {	
 	//Subsequent joints are relative to pelvis
@@ -6107,7 +6107,7 @@ void LLVOAvatar::getGround(const LLVector3 &in_pos_agent, LLVector3 &out_pos_age
 	LLVector3d z_vec(0.0f, 0.0f, 1.0f);
 	LLVector3d p0_global, p1_global;
 
-    // AXON update for control avs?
+    // AXON UPDATE FOR CONTROL AVS?
 	if (mIsDummy)
 	{
 		outNorm.setVec(z_vec);
@@ -6137,7 +6137,7 @@ F32 LLVOAvatar::getTimeDilation()
 //-----------------------------------------------------------------------------
 F32 LLVOAvatar::getPixelArea() const
 {
-    // AXON update for control avatars
+    // AXON UPDATE FOR CONTROL AVATARS
 	if (mIsDummy)
 	{
 		return 100000.f;
@@ -6675,7 +6675,7 @@ U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
 S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 {
     S32 max_attach = 0;
-    // AXON remove after server testing done
+    // AXON REMOVE AFTER SERVER TESTING DONE
     if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
     {
         max_attach = MAX_AGENT_ATTACHMENTS;

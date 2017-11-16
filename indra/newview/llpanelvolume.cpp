@@ -361,9 +361,6 @@ void LLPanelVolume::getState( )
     // Animated Mesh
 	BOOL is_animated_mesh = single_root_volume && root_volobjp && root_volobjp->isAnimatedObject();
 	getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->setValue(is_animated_mesh);
-    // AXON FIXME CHECK FOR SKIN INFO ALSO
-    // WHAT ABOUT isPermanentEnforced?
-    // What about linksets with some skinned objects?
     BOOL enabled_animated_object_box = FALSE;
     if (root_volobjp && root_volobjp == volobjp)
     {

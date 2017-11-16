@@ -5106,7 +5106,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     LLControlAvatar *avatarp = volp->getControlAvatar();
     if (!avatarp)
     {
-        LL_WARNS() << "AXON no control avatar, ignoring" << LL_ENDL;
+        LL_WARNS("Messaging") << "AXON no control avatar, ignoring" << LL_ENDL;
         return;
     }
     
@@ -5120,17 +5120,19 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     if (!avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
-		avatarp->updateVolumeGeom();
-        avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        if (!avatarp->mRootVolp->isAnySelected())
+        {
+            avatarp->updateVolumeGeom();
+            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        }
     }
 #else
-    // AXON
+    // AXON REMOVE BEFORE RELEASE?
     // In this block we switch back into static mode when no animations are
     // playing. This is mostly useful for debugging.
     if (num_blocks > 0 && !avatarp->mPlaying)
     {
         avatarp->mPlaying = true;
-        // AXON need to update all objects in the linkset, not just the one where animation is playing
         if (!avatarp->mRootVolp->isAnySelected())
         {
             avatarp->updateVolumeGeom();
@@ -5140,7 +5142,6 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     else if (num_blocks == 0 && avatarp->mPlaying)
     {
         avatarp->mPlaying = false;
-        // AXON need to update all objects in the linkset, not just the one where animation is playing
         if (!avatarp->mRootVolp->isAnySelected())
         {
             avatarp->updateVolumeGeom();

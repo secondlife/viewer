@@ -664,9 +664,9 @@ void LLSelectMgr::confirmUnlinkObjects(const LLSD& notification, const LLSD& res
 // the selection and give an error message when the uer has a
 // reasonable expectation for the link to work, but it will fail.
 //
-// AXON - additional check that if the selection includes at least one
-// animated object, the total mesh triangle count cannot exceed the
-// designated limit.
+// For animated objects, there's additional check that if the
+// selection includes at least one animated object, the total mesh
+// triangle count cannot exceed the designated limit.
 bool LLSelectMgr::enableLinkObjects()
 {
 	bool new_value = false;

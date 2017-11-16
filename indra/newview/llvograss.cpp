@@ -92,7 +92,6 @@ LLVOGrass::~LLVOGrass()
 
 void LLVOGrass::updateSpecies()
 {
-	// AXON is grass still even supported? This use of state seems odd.
 	mSpecies = getAttachmentState();
 	
 	if (!sSpeciesTable.count(mSpecies))

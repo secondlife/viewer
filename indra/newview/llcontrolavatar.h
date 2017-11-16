@@ -37,6 +37,7 @@ class LLControlAvatar:
 
 public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
+	virtual void 			initInstance(); // Called after construction to initialize the class.
 	virtual	~LLControlAvatar();
 
     void matchVolumeTransform();

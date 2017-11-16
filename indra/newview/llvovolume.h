@@ -281,9 +281,6 @@ public:
     bool isAnimatedObjectStateConsistent() const;
     void updateAnimatedObjectStateOnReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
 
-    // AXON For animated objects, we need to track animations requested
-    // per-object, then reconcile those to manage the control avatar
-    // animation state.
 	std::map<LLUUID, S32> 					mObjectSignaledAnimations; // requested state of Animation name/value
 
     // Functions that deal with media, or media navigation

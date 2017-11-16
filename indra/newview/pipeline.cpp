@@ -3352,7 +3352,6 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 	{
 #if 1
         // AXON debugging
-        
         LLVOVolume *vol_obj = drawablep->getVOVolume();
         if (vol_obj && vol_obj->isAnimatedObject() && vol_obj->isRiggedMesh())
         {
