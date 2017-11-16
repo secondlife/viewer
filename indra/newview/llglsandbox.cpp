@@ -960,7 +960,7 @@ F32 gpu_benchmark()
 		std::vector<U32> source;
 	};
 
-	LLRenderTarget dest[count];
+	std::vector<LLRenderTarget> dest(count);
 	TextureHolder texHolder(0, count);
 	std::vector<F32> results;
 
