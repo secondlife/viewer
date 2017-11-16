@@ -3896,8 +3896,11 @@ void LLVOAvatar::updateTimeStep()
 			stopMotion(ANIM_AGENT_WALK_ADJUST);
 			removeAnimationData("Walk Speed");
 		}
-        // AXON: see SL-763 - playback with altered time step does not
+        // See SL-763 - playback with altered time step does not
         // appear to work correctly, odd behavior for distant avatars.
+        // As of 11-2017, LLMotionController::updateMotions() will
+        // ignore the value here. Need to re-enable if it's every
+        // fixed.
 		mMotionController.setTimeStep(time_step);
 	}
 

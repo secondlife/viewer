@@ -52,8 +52,9 @@ LLControlAvatar::~LLControlAvatar()
 // virtual
 void LLControlAvatar::initInstance()
 {
-	// AXON - potential optimizations here - avoid creating system
-	// avatar mesh since it's not used.
+	// AXON - potential optimizations here: avoid creating system
+	// avatar mesh content since it's not used. For now we just clean some
+	// things up after the fact in releaseMeshData().
     LLVOAvatar::initInstance();
 }
 
