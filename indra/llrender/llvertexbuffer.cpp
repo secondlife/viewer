@@ -1356,10 +1356,10 @@ bool LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 	sucsess &= updateNumVerts(nverts);
 	sucsess &= updateNumIndices(nindices);
 	
-	if (sucsess && create && (nverts || nindices))
+	if (create && (nverts || nindices))
 	{
 		//actually allocate space for the vertex buffer if using VBO mapping
-		flush();
+		flush(); //unmap
 
 		if (gGLManager.mHasVertexArrayObject && useVBOs() && sUseVAO)
 		{
@@ -1502,9 +1502,9 @@ bool LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 	sucsess &= updateNumVerts(newnverts);		
 	sucsess &= updateNumIndices(newnindices);
 	
-	if (sucsess && useVBOs())
+	if (useVBOs())
 	{
-		flush();
+		flush(); //unmap
 
 		if (mGLArray)
 		{ //if size changed, offsets changed
