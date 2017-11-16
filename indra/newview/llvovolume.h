@@ -278,7 +278,6 @@ public:
     void setExtendedMeshFlags(U32 flags);
     bool canBeAnimatedObject() const;
     bool isAnimatedObject() const;
-    bool isAnimatedObjectStateConsistent() const;
     void updateAnimatedObjectStateOnReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
 
 	std::map<LLUUID, S32> 					mObjectSignaledAnimations; // requested state of Animation name/value
