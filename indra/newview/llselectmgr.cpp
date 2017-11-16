@@ -691,7 +691,7 @@ bool LLSelectMgr::enableLinkObjects()
 			new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
 		}
 	}
-    if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectEstTris())
+    if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectLinkable())
     {
         new_value = false;
     }
@@ -7451,17 +7451,7 @@ bool LLObjectSelection::checkAnimatedObjectEstTris()
 
 bool LLObjectSelection::checkAnimatedObjectLinkable()
 {
-    LL_ERRS() << "Not using this restriction" << LL_ENDL;
-    // Can't link if any of the roots is currently an animated object
-	for (root_iterator iter = root_begin(); iter != root_end(); ++iter)
-	{
-        LLViewerObject* objectp = (*iter)->getObject();
-        if (objectp && objectp->isAnimatedObject())
-        {
-            return false;
-        }
-	}
-	return true;
+    return checkAnimatedObjectEstTris();
 }
 
 bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly)

@@ -1976,9 +1976,8 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::releaseMeshData()
 {
-    // AXON what should we be doing here for control avs? Why are
-    // dummies treated differently in the first place?
-	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD || mIsDummy)
+	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD ||
+        (mIsDummy && !isControlAvatar()))
 	{
 		return;
 	}
@@ -2781,8 +2780,8 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-            // AXON skip cloud effects for dummy avs as well
-			if (!mIsDummy && !isTooComplex()) // do not generate particles for overly-complex avatars
+			// do not generate particles for dummy or overly-complex avatars
+			if (!mIsDummy && !isTooComplex())
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -4393,7 +4392,8 @@ void LLVOAvatar::updateVisibility()
 	}
 	else
 	{
-		if (mMeshValid && mMeshInvisibleTime.getElapsedTimeF32() > TIME_BEFORE_MESH_CLEANUP)
+		if (mMeshValid &&
+            (isControlAvatar() || mMeshInvisibleTime.getElapsedTimeF32() > TIME_BEFORE_MESH_CLEANUP))
 		{
 			releaseMeshData();
 		}
