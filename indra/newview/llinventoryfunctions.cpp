@@ -2295,9 +2295,40 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     
 	if ("delete" == action)
 	{
-		LLSD args;
-		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
-		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		static bool sDisplayedAtSession = false;
+		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		bool marketplacelistings_item = false;
+		LLAllDescendentsPassedFilter f;
+		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
+		{
+			if (LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(*it))
+			{
+				folder->applyFunctorRecursively(f);
+			}
+			LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*it)->getViewModelItem());
+			if (viewModel && gInventory.isObjectDescendentOf(viewModel->getUUID(), marketplacelistings_id))
+			{
+				marketplacelistings_item = true;
+				break;
+			}
+		}
+		// Fall through to the generic confirmation if the user choose to ignore the specialized one
+		if ( (!f.allDescendentsPassedFilter()) && !marketplacelistings_item && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
+		{
+			LLNotificationsUtil::add("DeleteFilteredItems", LLSD(), LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		}
+		else
+		{
+			if (!sDisplayedAtSession) // ask for the confirmation at least once per session
+			{
+				LLNotifications::instance().setIgnored("DeleteItems", false);
+				sDisplayedAtSession = true;
+			}
+
+			LLSD args;
+			args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
+			LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		}
         // Note: marketplace listings will be updated in the callback if delete confirmed
 		return;
 	}

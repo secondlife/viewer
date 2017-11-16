@@ -102,6 +102,18 @@ void LLCloseAllFoldersFunctor::doFolder(LLFolderViewFolder* folder)
 void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 { }
 
+//---------------------------------------------------------------------------
+
+void LLAllDescendentsPassedFilter::doFolder(LLFolderViewFolder* folder)
+{
+	mAllDescendentsPassedFilter &= (folder) && (folder->passedFilter()) && (folder->descendantsPassedFilter());
+}
+
+void LLAllDescendentsPassedFilter::doItem(LLFolderViewItem* item)
+{
+	mAllDescendentsPassedFilter &= (item) && (item->passedFilter());
+}
+
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewScrollContainer
 ///----------------------------------------------------------------------------

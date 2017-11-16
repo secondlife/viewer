@@ -1450,13 +1450,20 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 
 // accessor that looks at permissions, copyability, and names of
 // inventory items to determine if a drop would be ok.
-EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LLInventoryItem* item)
+EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LLInventoryItem* item, EDragAndDropType type)
 {
 	// check the basics
 	if (!item || !obj) return ACCEPT_NO;
 	// HACK: downcast
 	LLViewerInventoryItem* vitem = (LLViewerInventoryItem*)item;
-	if (!vitem->isFinished()) return ACCEPT_NO;
+	if (!vitem->isFinished() && (type != DAD_CATEGORY))
+	{
+		// Note: for DAD_CATEGORY we assume that folder version check passed and folder 
+		// is complete, meaning that items inside are up to date. 
+		// (isFinished() == false) at the moment shows that item was loaded from cache.
+		// Library or agent inventory only.
+		return ACCEPT_NO;
+	}
 	if (vitem->getIsLinkType()) return ACCEPT_NO; // No giving away links
 
 	// deny attempts to drop from an object onto itself. This is to
@@ -2296,7 +2303,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 				(*item_iter) = item;
 			}
 			*/
-			rv = willObjectAcceptInventory(root_object, item);
+			rv = willObjectAcceptInventory(root_object, item, DAD_CATEGORY);
 			if (rv < ACCEPT_YES_COPY_SINGLE)
 			{
 				LL_DEBUGS() << "Object will not accept " << item->getUUID() << LL_ENDL;

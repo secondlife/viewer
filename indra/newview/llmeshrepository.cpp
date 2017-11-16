@@ -1586,7 +1586,12 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 				LLMeshRepository::sCacheBytesRead += size;
 				++LLMeshRepository::sCacheReads;
 				file.seek(offset);
-				U8* buffer = new U8[size];
+				U8* buffer = new(std::nothrow) U8[size];
+				if (!buffer)
+				{
+					LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh LOD" << LL_ENDL;
+					return false;
+				}
 				file.read(buffer, size);
 
 				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1887,7 +1892,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mOrigin = gAgent.getPositionAgent();
 	mHost = gAgent.getRegionHost();
 	
-	mWholeModelFeeCapability = gAgent.getRegion()->getCapability("NewFileAgentInventory");
+	mWholeModelFeeCapability = gAgent.getRegionCapability("NewFileAgentInventory");
 
 	mOrigin += gAgent.getAtAxis() * scale.magVec();
 
@@ -1975,14 +1980,14 @@ void dump_llsd_to_file(const LLSD& content, std::string filename)
 {
 	if (gSavedSettings.getBOOL("MeshUploadLogXML"))
 	{
-		std::ofstream of(filename.c_str());
+		llofstream of(filename.c_str());
 		LLSDSerialize::toPrettyXML(content,of);
 	}
 }
 
 LLSD llsd_from_file(std::string filename)
 {
-	std::ifstream ifs(filename.c_str());
+	llifstream ifs(filename.c_str());
 	LLSD result;
 	LLSDSerialize::fromXML(result,ifs);
 	return result;

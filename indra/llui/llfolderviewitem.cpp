@@ -1176,6 +1176,11 @@ BOOL LLFolderViewFolder::needsArrange()
 	return mLastArrangeGeneration < getRoot()->getArrangeGeneration();
 }
 
+bool LLFolderViewFolder::descendantsPassedFilter(S32 filter_generation)
+{
+	return getViewModelItem()->descendantsPassedFilter(filter_generation);
+}
+
 // Passes selection information on to children and record selection
 // information if necessary.
 BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem,

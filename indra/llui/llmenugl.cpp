@@ -3331,6 +3331,7 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		if (getHighlightedItem())
 		{
 			clearHoverItem();
+			LLMenuGL::setKeyboardMode(FALSE);
 		}
 		else
 		{
@@ -3777,10 +3778,10 @@ BOOL LLMenuHolderGL::hideMenus()
 	{
 		return FALSE;
 	}
+	LLMenuGL::setKeyboardMode(FALSE);
 	BOOL menu_visible = hasVisibleMenu();
 	if (menu_visible)
 	{
-		LLMenuGL::setKeyboardMode(FALSE);
 		// clicked off of menu, hide them all
 		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 		{

@@ -45,6 +45,7 @@
 #include "llimagepng.h"
 #include "lllandmarkactions.h"
 #include "lllocalcliprect.h"
+#include "llresmgr.h"
 #include "llnotificationsutil.h"
 #include "llslurl.h"
 #include "llsnapshotlivepreview.h"
@@ -56,6 +57,7 @@
 #include "llvfs.h"
 #include "llwindow.h"
 #include "llworld.h"
+#include <boost/filesystem.hpp>
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
@@ -1069,7 +1071,7 @@ BOOL LLSnapshotLivePreview::saveLocal()
     getFormattedImage();
     
     // Save the formatted image
-	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
+	BOOL success = saveLocal(mFormattedImage);
 
 	if(success)
 	{
@@ -1078,3 +1080,38 @@ BOOL LLSnapshotLivePreview::saveLocal()
 	return success;
 }
 
+//Check if failed due to insufficient memory
+BOOL LLSnapshotLivePreview::saveLocal(LLPointer<LLImageFormatted> mFormattedImage)
+{
+	BOOL insufficient_memory;
+	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage, FALSE, insufficient_memory);
+
+	if (insufficient_memory)
+	{
+		std::string lastSnapshotDir = LLViewerWindow::getLastSnapshotDir();
+
+#ifdef LL_WINDOWS
+		boost::filesystem::path b_path(utf8str_to_utf16str(lastSnapshotDir));
+#else
+		boost::filesystem::path b_path(lastSnapshotDir);
+#endif
+		boost::filesystem::space_info b_space = boost::filesystem::space(b_path);
+		if (b_space.free < mFormattedImage->getDataSize())
+		{
+			LLSD args;
+			args["PATH"] = lastSnapshotDir;
+
+			std::string needM_bytes_string;
+			LLResMgr::getInstance()->getIntegerString(needM_bytes_string, (mFormattedImage->getDataSize()) >> 10);
+			args["NEED_MEMORY"] = needM_bytes_string;
+
+			std::string freeM_bytes_string;
+			LLResMgr::getInstance()->getIntegerString(freeM_bytes_string, (b_space.free) >> 10);
+			args["FREE_MEMORY"] = freeM_bytes_string;
+
+			LLNotificationsUtil::add("SnapshotToComputerFailed", args);
+			return false;
+		}
+	}
+	return success;
+}

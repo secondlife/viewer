@@ -104,8 +104,13 @@ LLDir::~LLDir()
 std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 {
     //Returns a vector of fullpath filenames.
-    
-    boost::filesystem::path p (dirname);
+
+#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
+    boost::filesystem::path p(utf8str_to_utf16str(dirname));
+#else
+    boost::filesystem::path p(dirname);
+#endif
+
     std::vector<std::string> v;
     
     if (exists(p))
@@ -193,7 +198,12 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
 
 	try
 	{
-	   boost::filesystem::path dir_path(dir_name);
+#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
+		boost::filesystem::path dir_path(utf8str_to_utf16str(dir_name));
+#else
+		boost::filesystem::path dir_path(dir_name);
+#endif
+
 	   if (boost::filesystem::exists (dir_path))
 	   {
 	      if (!boost::filesystem::is_empty (dir_path))

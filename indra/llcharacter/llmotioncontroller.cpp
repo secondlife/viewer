@@ -139,7 +139,8 @@ LLMotionController::LLMotionController()
 	  mTimeStep(0.f),
 	  mTimeStepCount(0),
 	  mLastInterp(0.f),
-	  mIsSelf(FALSE)
+	  mIsSelf(FALSE),
+	  mLastCountAfterPurge(0)
 {
 }
 
@@ -238,10 +239,12 @@ void LLMotionController::purgeExcessMotions()
 		}
 	}
 
-	if (mLoadedMotions.size() > 2*MAX_MOTION_INSTANCES)
+	U32 loaded_count = mLoadedMotions.size();
+	if (loaded_count > (2 * MAX_MOTION_INSTANCES) && loaded_count > mLastCountAfterPurge)
 	{
-		LL_WARNS_ONCE("Animation") << "> " << 2*MAX_MOTION_INSTANCES << " Loaded Motions" << LL_ENDL;
+		LL_WARNS_ONCE("Animation") << loaded_count << " Loaded Motions. Amount of motions is over limit." << LL_ENDL;
 	}
+	mLastCountAfterPurge = loaded_count;
 }
 
 //-----------------------------------------------------------------------------

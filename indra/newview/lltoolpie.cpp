@@ -485,7 +485,8 @@ void LLToolPie::walkToClickedLocation()
 	mAutoPilotDestination->setColor(LLColor4U(170, 210, 190));
 	mAutoPilotDestination->setDuration(3.f);
 
-	handle_go_to();
+	LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
+	gAgent.startAutoPilotGlobal(pos, std::string(), NULL, NULL, NULL, 0.f, 0.03f, FALSE);
 }
 
 // When we get object properties after left-clicking on an object
