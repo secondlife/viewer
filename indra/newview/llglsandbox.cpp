@@ -64,6 +64,8 @@
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
 
+#include <vector>
+
 // Height of the yellow selection highlight posts for land
 const F32 PARCEL_POST_HEIGHT = 0.666f;
 
@@ -926,9 +928,40 @@ F32 gpu_benchmark()
 		LLGLSLShader::initProfile();
 	}
 
+	// This struct is used to ensure that each generateTextures() call is
+	// matched by a corresponding deleteTextures() call. It also handles the
+	// bindManual() calls using those textures.
+	struct TextureHolder
+	{
+		TextureHolder(U32 unit, U32 size):
+			texUnit(gGL.getTexUnit(unit)),
+			source(size)			// preallocate vector
+		{
+			// takes (count, pointer)
+			// &vector[0] gets pointer to contiguous array
+			LLImageGL::generateTextures(source.size(), &source[0]);
+		}
+
+		~TextureHolder()
+		{
+			// ensure that we delete these textures regardless of how we exit
+			LLImageGL::deleteTextures(source.size(), &source[0]);
+		}
+
+		void bind(U32 index)
+		{
+			texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
+		}
+
+		// capture which LLTexUnit we're going to use
+		LLTexUnit* texUnit;
+
+		// use std::vector for implicit resource management
+		std::vector<U32> source;
+	};
+
 	LLRenderTarget dest[count];
-	U32 source[count];
-	LLImageGL::generateTextures(count, source);
+	TextureHolder texHolder(0, count);
 	std::vector<F32> results;
 
 	//build a random texture
@@ -950,7 +983,7 @@ F32 gpu_benchmark()
 		dest[i].clear();
 		dest[i].flush();
 
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
+		texHolder.bind(i);
 		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 
@@ -963,16 +996,20 @@ F32 gpu_benchmark()
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector2> tc;
 
-	if (buff->getVertexStrider(v))
+	if (! buff->getVertexStrider(v))
 	{
-		v[0].set(-1, 1, 0);
-		v[1].set(-1, -3, 0);
-		v[2].set(3, 1, 0);
+		LL_WARNS() << "GL LLVertexBuffer::getVertexStrider() returned false, "
+				   << "buff->getMappedData() is"
+				   << (buff->getMappedData()? " not" : "")
+				   << " NULL" << LL_ENDL;
+		// abandon the benchmark test
+		return -1.f;
 	}
-	else
-	{
-		LL_WARNS() << "GL LLVertexBuffer::getVertexStrider() return false " << (NULL == buff->getMappedData() ? "buff->getMappedData() is NULL" : "buff->getMappedData() not NULL") << LL_ENDL;
-	}
+
+	// generate dummy triangle
+	v[0].set(-1, 1, 0);
+	v[1].set(-1, -3, 0);
+	v[2].set(3, 1, 0);
 
 	buff->flush();
 
@@ -991,7 +1028,7 @@ F32 gpu_benchmark()
 		for (U32 i = 0; i < count; ++i)
 		{
 			dest[i].bindTarget();
-			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
+			texHolder.bind(i);
 			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
 			dest[i].flush();
 		}
@@ -1038,8 +1075,6 @@ F32 gpu_benchmark()
 		LLGLSLShader::finishProfile(false);
 	}
 
-	LLImageGL::deleteTextures(count, source);
-
 	std::sort(results.begin(), results.end());
 
 	F32 gbps = results[results.size()/2];
@@ -1051,7 +1086,7 @@ F32 gpu_benchmark()
     { 
         LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
         //OSX is probably lying, discard result
-        gbps = -1.f;
+        return -1.f;
     }
 #endif
 
