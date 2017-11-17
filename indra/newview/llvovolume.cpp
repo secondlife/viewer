@@ -4923,7 +4923,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	group->mBuilt = 1.f;
 	
 	LLVOAvatar *rigged_av = NULL;
-    LLVOAvatar *attached_av = NULL;
 
 	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
     LLViewerObject *vobj = NULL;
@@ -4942,19 +4941,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
         rigged_av = bridge->mAvatar;
 	}
-    if (vobj)
-    {
-        attached_av = vobj->getAvatarAncestor();
-    }
-
-    if (attached_av)
-    {
-        attached_av->subtractAttachmentArea( group->mSurfaceArea );
-    }
-    if (rigged_av && (rigged_av != attached_av))
-    {
-        rigged_av->subtractAttachmentArea( group->mSurfaceArea );
-    }
     if (vol_obj)
     {
         vol_obj->updateVisualComplexity();
@@ -5563,15 +5549,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 
 	mFaceList.clear();
-
-    if (attached_av)
-    {
-        attached_av->addAttachmentArea( group->mSurfaceArea );
-    }
-    if (rigged_av && (rigged_av != attached_av))
-    {
-        rigged_av->addAttachmentArea( group->mSurfaceArea );
-    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_REBUILD_MESH_FLUSH("Flush Mesh");

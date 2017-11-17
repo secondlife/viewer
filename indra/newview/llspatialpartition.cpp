@@ -856,16 +856,6 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 		}
 	}
 	
-	//clean up avatar attachment stats
-	LLSpatialBridge* bridge = getSpatialPartition()->asBridge();
-	if (bridge)
-	{
-		if (bridge->mAvatar.notNull())
-		{
-			bridge->mAvatar->subtractAttachmentArea(mSurfaceArea );
-		}
-	}
-
 	clearDrawMap();
 	mVertexBuffer = NULL;
 	mBufferMap.clear();

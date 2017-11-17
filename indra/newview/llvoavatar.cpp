@@ -620,7 +620,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
 	mAttachmentSurfaceArea(0.f),
-	mDirectAttachmentSurfaceArea(0.f),
 	mAttachmentVisibleTriangleCount(0),
 	mAttachmentEstTriangleCount(0.f),
 	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
@@ -7412,9 +7411,9 @@ bool LLVOAvatar::isTooComplex() const
         // so that unlimited will completely disable the overly complex impostor rendering
         // yes, this leaves them vulnerable to griefing objects... their choice
         too_complex = (   max_render_cost > 0
-                       && (   mVisualComplexity > max_render_cost
-                           || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
-                           ));
+                          && (mVisualComplexity > max_render_cost
+                                 || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
+                              ));
 	}
 
 	return too_complex;
@@ -9312,10 +9311,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 		// Attachment Surface Area
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
-        // AXON we can consolidate mAttachmentSurfaceArea and
-        // mDirectAttachmentSurfaceArea once QA establishes
-        // equivalence.
-		info_line = llformat("%.0f m^2", mDirectAttachmentSurfaceArea);
+		info_line = llformat("%.0f m^2", mAttachmentSurfaceArea);
 
 		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
 		{
@@ -9331,20 +9327,11 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 			info_color.set(LLColor4::grey);
 			info_style = LLFontGL::NORMAL;
 		}
+
 		mText->addLine(info_line, info_color, info_style);
 
 		updateText(); // corrects position
 	}
-}
-
-void LLVOAvatar::addAttachmentArea(F32 delta_area)
-{
-    mAttachmentSurfaceArea   += delta_area;
-}
-
-void LLVOAvatar::subtractAttachmentArea(F32 delta_area)
-{
-    mAttachmentSurfaceArea   = delta_area > mAttachmentSurfaceArea ? 0.0 : mAttachmentSurfaceArea - delta_area;
 }
 
 void LLVOAvatar::updateVisualComplexity()
@@ -9368,7 +9355,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
     {
         mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
         mAttachmentEstTriangleCount += attached_object->recursiveGetEstTrianglesMax();
-        mDirectAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
         textures.clear();
         const LLDrawable* drawable = attached_object->mDrawable;
@@ -9431,7 +9418,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
     {
         textures.clear();
 
-        mDirectAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
         const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
         if (volume)
@@ -9524,7 +9511,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
         mAttachmentVisibleTriangleCount = 0;
         mAttachmentEstTriangleCount = 0.f;
-        mDirectAttachmentSurfaceArea = 0.f;
+        mAttachmentSurfaceArea = 0.f;
         
         // A standalone animated object needs to be accounted for
         // using its associated volume. Attached animated objects

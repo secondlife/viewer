@@ -281,8 +281,6 @@ public:
 	
 	U32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
 	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
-    void            addAttachmentArea(F32 delta_area);
-    void            subtractAttachmentArea(F32 delta_area);
 
 	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
 	void			setReportedVisualComplexity(U32 value)			{ mReportedVisualComplexity = value;			};
@@ -438,7 +436,6 @@ public:
         
   private:
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
-	F32			mDirectAttachmentSurfaceArea; //estimated surface area of attachments
     U32			mAttachmentVisibleTriangleCount;
     F32			mAttachmentEstTriangleCount;
 	bool		shouldAlphaMask();
