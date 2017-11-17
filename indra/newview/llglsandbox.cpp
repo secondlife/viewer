@@ -956,6 +956,8 @@ F32 gpu_benchmark()
 
 		~TextureHolder()
 		{
+			// unbind
+			texUnit->unbind(LLTexUnit::TT_TEXTURE);
 			// ensure that we delete these textures regardless of how we exit
 			LLImageGL::deleteTextures(source.size(), &source[0]);
 		}
