@@ -815,10 +815,10 @@ void LLMotionController::updateLoadingMotions()
 void LLMotionController::updateMotions(bool force_update)
 {
     // SL-763: "Distant animated objects run at super fast speed"
-    // The use_quantum optimization does not work as implemented.
-    // Disabling until such time as someone can do a deeper dive.
-	//BOOL use_quantum = (mTimeStep != 0.f);
-	BOOL use_quantum = FALSE;
+    // The use_quantum optimization or possibly the associated code in setTimeStamp()
+    // does not work as implemented.
+    // Currently setting mTimeStep to nonzero is disabled elsewhere.
+	BOOL use_quantum = (mTimeStep != 0.f);
 
 	// Always update mPrevTimerElapsed
 	F32 cur_time = mTimer.getElapsedTimeF32();
