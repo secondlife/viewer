@@ -416,6 +416,9 @@ protected:
 
     virtual stringset_t getSlerpKeys() const;
 
+    virtual validation_list_t getValidationList() const;
+
+
     virtual void        updateSettings();
 
     virtual parammapping_t getParameterMap() const;

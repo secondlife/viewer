@@ -833,7 +833,7 @@ void LLVOSky::calcAtmospherics(void)
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     mSun.setColor(psky->getSunlightColor());
-	mMoon.setColor(LLColor3(2.0f, 2.0f, 2.0f));
+	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
 
 	mSun.renewDirection();
 	mSun.renewColor();

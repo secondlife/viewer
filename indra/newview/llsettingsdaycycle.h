@@ -43,7 +43,6 @@ public:
     static const std::string    SETTING_KEYID;
     static const std::string    SETTING_KEYNAME;
     static const std::string    SETTING_KEYKFRAME;
-    static const std::string    SETTING_NAME;
     static const std::string    SETTING_TRACKS;
 
     static const S64            MINIMUM_DAYLENGTH;
@@ -51,6 +50,7 @@ public:
 
     static const S32            TRACK_WATER;
     static const S32            TRACK_MAX;
+    static const S32            FRAME_MAX;
 
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
@@ -109,6 +109,8 @@ protected:
     LLSettingsDay();
 
     virtual void                updateSettings();
+
+    virtual validation_list_t   getValidationList() const;
 
 private:
     LLSettingsBlender::ptr_t    mSkyBlender;    // convert to [] for altitudes 

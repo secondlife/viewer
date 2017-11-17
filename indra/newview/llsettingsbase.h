@@ -41,7 +41,9 @@
 #include "llquaternion.h"
 #include "v4color.h"
 
-class LLSettingsBase: private boost::noncopyable
+class LLSettingsBase : 
+    public boost::enable_shared_from_this<LLSettingsBase>,
+    private boost::noncopyable
 {
     friend class LLEnvironment;
     friend class LLSettingsDay;
@@ -58,8 +60,6 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const = 0;
-
-    static ptr_t buildBlend(const ptr_t &begin, const ptr_t &end, F32 blendf);
 
     //---------------------------------------------------------------------
     // Settings status 
@@ -153,13 +153,50 @@ public:
 
     virtual void blend(const ptr_t &end, F32 blendf) = 0;
 
+    virtual bool validate();
+
 protected:
+    class Validator
+    {
+    public:
+        typedef boost::function<bool(LLSD &)> verify_pr;
+
+        Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr()) :
+            mName(name),
+            mRequired(required),
+            mType(type),
+            mVerify(verify)
+        {   }
+
+        std::string getName() const { return mName; }
+        bool        isRequired() const { return mRequired; }
+        LLSD::Type  getType() const { return mType; }
+
+        bool        verify(LLSD &data);
+
+        // Some basic verifications
+        static bool verifyColor(LLSD &value);
+        static bool verifyVector(LLSD &value, S32 length);
+        static bool verifyVectorMinMax(LLSD &value, LLSD minvals, LLSD maxvals);
+        static bool verifyVectorNormalized(LLSD &value, S32 length);
+        static bool verifyQuaternion(LLSD &value);
+        static bool verifyQuaternionNormal(LLSD &value);
+        static bool verifyFloatRange(LLSD &value, LLSD range);
+        static bool verifyIntegerRange(LLSD &value, LLSD range);
+
+    private:
+        std::string mName;
+        bool        mRequired;
+        LLSD::Type  mType;
+        verify_pr   mVerify;
+    };
+    typedef std::vector<Validator> validation_list_t;
+
     LLSettingsBase();
     LLSettingsBase(const LLSD setting);
 
     typedef std::set<std::string>   stringset_t;
-
-
+    
     // combining settings objects. Customize for specific setting types
     virtual void lerpSettings(const LLSettingsBase &other, F32 mix);
     LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, F32 mix) const;
@@ -176,12 +213,15 @@ protected:
     // Calculate any custom settings that may need to be cached.
     virtual void updateSettings() { mDirty = false; };
 
+    virtual validation_list_t getValidationList() const = 0;
+
     // Apply any settings that need special handling. 
     virtual void applySpecial(void *) { };
 
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 
     LLSD    mSettings;
+    bool    mIsValid;
 
     LLSD    cloneSettings() const;
 

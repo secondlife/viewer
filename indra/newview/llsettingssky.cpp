@@ -90,7 +90,6 @@ const std::string LLSettingsSky::SETTING_LEGACY_EAST_ANGLE("east_angle");
 const std::string LLSettingsSky::SETTING_LEGACY_ENABLE_CLOUD_SCROLL("enable_cloud_scroll");
 const std::string LLSettingsSky::SETTING_LEGACY_SUN_ANGLE("sun_angle");
 
-
 //=========================================================================
 LLSettingsSky::LLSettingsSky(const LLSD &data) :
     LLSettingsBase(data)
@@ -150,6 +149,86 @@ LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const
     return slepSet;
 }
 
+LLSettingsSky::validation_list_t LLSettingsSky::getValidationList() const
+{
+    static validation_list_t validation;
+
+    if (validation.empty())
+    {   // Note the use of LLSD(LLSDArray()()()...) This is due to an issue with the 
+        // copy constructor for LLSDArray.  Directly binding the LLSDArray as 
+        // a parameter without first wrapping it in a pure LLSD object will result 
+        // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
+        
+        validation.push_back(Validator(SETTING_AMBIENT, true, LLSD::TypeArray,
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
+        validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_BLUE_DENSITY,        true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        validation.push_back(Validator(SETTING_BLUE_HORIZON,        true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(1.0f)(1.0f)(1.0f)("*")))));
+        validation.push_back(Validator(SETTING_CLOUD_POS_DENSITY1,  true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(1.68841f)(1.0f)(1.0f)("*")))));
+        validation.push_back(Validator(SETTING_CLOUD_POS_DENSITY2,  true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(1.68841f)(1.0f)(1.0f)("*")))));
+        validation.push_back(Validator(SETTING_CLOUD_SCALE,         true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.001f)(0.999f)))));
+        validation.push_back(Validator(SETTING_CLOUD_SCROLL_RATE,   true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)),
+                LLSD(LLSDArray(20.0f)(20.0f)))));
+        validation.push_back(Validator(SETTING_CLOUD_SHADOW,        true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_CLOUD_TEXTUREID,     false, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
+        validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+        validation.push_back(Validator(SETTING_DOME_OFFSET,         false, LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_DOME_RADIUS,         false, LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1000.0f)(2000.0f)))));
+        validation.push_back(Validator(SETTING_GAMMA,               true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(10.0f)))));
+        validation.push_back(Validator(SETTING_GLOW,                true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.2f)("*")(-2.5f)("*")),
+                LLSD(LLSDArray(20.0f)("*")(0.0f)("*")))));
+        validation.push_back(Validator(SETTING_HAZE_DENSITY,        true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
+        validation.push_back(Validator(SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_LIGHT_NORMAL,        false, LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorNormalized, _1, 3)));
+        validation.push_back(Validator(SETTING_MAX_Y,               true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4000.0f)))));
+        validation.push_back(Validator(SETTING_MOON_ROTATION,       true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
+        validation.push_back(Validator(SETTING_MOON_TEXTUREID,      false, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_STAR_BRIGHTNESS,     true,  LLSD::TypeReal, 
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+        validation.push_back(Validator(SETTING_SUNLIGHT_COLOR,      true,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
+        validation.push_back(Validator(SETTING_SUN_ROTATION,        true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
+        validation.push_back(Validator(SETTING_SUN_TEXUTUREID,      false, LLSD::TypeUUID));
+    }
+
+    return validation;
+}
 
 LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
 {
@@ -231,7 +310,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
     }
     if (oldsettings.has(SETTING_LIGHT_NORMAL))
     {
-        newsettings[SETTING_LIGHT_NORMAL] = LLVector4(oldsettings[SETTING_LIGHT_NORMAL]).getValue();
+        newsettings[SETTING_LIGHT_NORMAL] = LLVector3(oldsettings[SETTING_LIGHT_NORMAL]).getValue();
     }
     if (oldsettings.has(SETTING_MAX_Y))
     {
@@ -245,18 +324,6 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
     {
         newsettings[SETTING_SUNLIGHT_COLOR] = LLColor4(oldsettings[SETTING_SUNLIGHT_COLOR]).getValue();
     }
-
-
-//     dfltsetting[SETTING_DOME_OFFSET] = LLSD::Real(0.96f);
-//     dfltsetting[SETTING_DOME_RADIUS] = LLSD::Real(15000.f);
-// 
-//     dfltsetting[SETTING_MOON_ROTATION] = moonquat.getValue();
-//     dfltsetting[SETTING_SUN_ROTATION] = sunquat.getValue();
-// 
-//     dfltsetting[SETTING_BLOOM_TEXTUREID] = LLUUID::null;
-//     dfltsetting[SETTING_CLOUD_TEXTUREID] = LLUUID::null;
-//     dfltsetting[SETTING_MOON_TEXTUREID] = IMG_SUN; // gMoonTextureID;   // These two are returned by the login... wow!
-//     dfltsetting[SETTING_SUN_TEXUTUREID] = IMG_MOON; // gSunTextureID;
 
     if (oldsettings.has(SETTING_LEGACY_EAST_ANGLE) && oldsettings.has(SETTING_LEGACY_SUN_ANGLE))
     {   // convert the east and sun angles into a quaternion.
@@ -275,7 +342,10 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(newsettings);
  
-    return skyp;    
+    if (skyp->validate())
+        return skyp;
+
+    return LLSettingsSky::ptr_t();
 }
 
 LLSettingsSky::ptr_t LLSettingsSky::buildDefaultSky()
@@ -283,8 +353,10 @@ LLSettingsSky::ptr_t LLSettingsSky::buildDefaultSky()
     LLSD settings = LLSettingsSky::defaults();
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
+    if (skyp->validate())
+        return skyp;
 
-    return skyp;
+    return LLSettingsSky::ptr_t();
 }
 
 LLSettingsSky::ptr_t LLSettingsSky::buildClone()
@@ -293,23 +365,11 @@ LLSettingsSky::ptr_t LLSettingsSky::buildClone()
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
 
-    return skyp;
+    if (skyp->validate())
+        return skyp;
+
+    return LLSettingsSky::ptr_t();
 }
-
-// Settings status 
-
-// LLSettingsSky::ptr_t LLSettingsSky::blend(const LLSettingsSky::ptr_t &other, F32 mix) const
-// {
-//     LL_RECORD_BLOCK_TIME(FTM_BLEND_SKYVALUES);
-//     LL_INFOS("WINDLIGHT", "SKY", "EEP") << "Blending new sky settings object." << LL_ENDL;
-// 
-//     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(mSettings);
-//     // the settings in the initial constructor are references to this' settings block.  
-//     // They will be replaced in the following lerp
-//     skyp->lerpSettings(*other, mix);
-// 
-//     return skyp;
-// }
 
 
 LLSD LLSettingsSky::defaults()
@@ -339,7 +399,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();
     dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
     dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
-    dfltsetting[SETTING_LIGHT_NORMAL]       = LLVector4(0.0000, 0.9126, -0.4086, 0.0000).getValue();
+    dfltsetting[SETTING_LIGHT_NORMAL]       = LLVector3(0.0000, 0.9126, -0.4086).getValue();
     dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
     dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
     dfltsetting[SETTING_NAME]               = std::string("_default_");

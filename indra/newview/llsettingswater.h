@@ -209,6 +209,7 @@ protected:
 
     virtual void        applySpecial(void *);
 
+    virtual validation_list_t getValidationList() const;
 
 private:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;

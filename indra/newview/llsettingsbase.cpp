@@ -248,20 +248,6 @@ LLSD LLSettingsBase::cloneSettings() const
     return combineSDMaps(mSettings, LLSD());
 }
 
-LLSettingsBase::ptr_t LLSettingsBase::buildBlend(const ptr_t &begin, const ptr_t &end, F32 blendf)
-{
-//     if (begin->getSettingType() != end->getSettingType())
-//     {
-//         LL_WARNS("SETTINGS") << "Attempt to blend settings of different types! " << 
-//             begin->getSettingType() << "<->" << end->getSettingType() << LL_ENDL;
-// 
-//         return LLSettingsBase::ptr_t();
-//     }
-
-//    return begin->blend(end, blendf);
-    return LLSettingsBase::ptr_t();
-}
-
 void LLSettingsBase::exportSettings(std::string name) const
 {
     LLSD exprt = LLSDMap("type", LLSD::String(getSettingType()))
@@ -279,7 +265,6 @@ void LLSettingsBase::exportSettings(std::string name) const
         presetsXML.close();
 
         LL_DEBUGS() << "saved preset '" << name << "'; " << mSettings.size() << " settings" << LL_ENDL;
-
     }
     else
     {
@@ -287,6 +272,326 @@ void LLSettingsBase::exportSettings(std::string name) const
     }
 }
 
+#ifdef VALIDATION_DEBUG
+namespace
+{
+    LLSD clone_llsd(LLSD value)
+    {
+        LLSD clone;
+
+        switch (value.type())
+        {
+//         case LLSD::TypeMap:
+//             newSettings[key_name] = combineSDMaps(value, LLSD());
+//             break;
+        case LLSD::TypeArray:
+            clone = LLSD::emptyArray();
+            for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+            {
+                clone.append( clone_llsd(*ita) );
+            }
+            break;
+        case LLSD::TypeInteger:
+            clone = LLSD::Integer(value.asInteger());
+            break;
+        case LLSD::TypeReal:
+            clone = LLSD::Real(value.asReal());
+            break;
+        case LLSD::TypeBoolean:
+            clone = LLSD::Boolean(value.asBoolean());
+            break;
+        case LLSD::TypeString:
+            clone = LLSD::String(value.asString());
+            break;
+        case LLSD::TypeUUID:
+            clone = LLSD::UUID(value.asUUID());
+            break;
+        case LLSD::TypeURI:
+            clone = LLSD::URI(value.asURI());
+            break;
+        case LLSD::TypeDate:
+            clone = LLSD::Date(value.asDate());
+            break;
+        //case LLSD::TypeBinary:
+        //    break;
+        //default:
+        //    newSettings[key_name] = value;
+        //    break;
+        }
+
+        return clone;
+    }
+
+    bool compare_llsd(LLSD valA, LLSD valB)
+    {
+        if (valA.type() != valB.type())
+            return false;
+
+        switch (valA.type())
+        {
+        //         case LLSD::TypeMap:
+        //             newSettings[key_name] = combineSDMaps(value, LLSD());
+        //             break;
+        case LLSD::TypeArray:
+            if (valA.size() != valB.size())
+                return false;
+
+            for (S32 idx = 0; idx < valA.size(); ++idx)
+            {
+                if (!compare_llsd(valA[idx], valB[idx]))
+                    return false;
+            }
+            return true;
+
+        case LLSD::TypeInteger:
+            return valA.asInteger() == valB.asInteger();
+
+        case LLSD::TypeReal:
+            return is_approx_equal(valA.asReal(), valB.asReal());
+
+        case LLSD::TypeBoolean:
+            return valA.asBoolean() == valB.asBoolean();
+
+        case LLSD::TypeString:
+            return valA.asString() == valB.asString();
+
+        case LLSD::TypeUUID:
+            return valA.asUUID() == valB.asUUID();
+
+        case LLSD::TypeURI:
+            return valA.asString() == valB.asString();
+
+        case LLSD::TypeDate:
+            return valA.asDate() == valB.asDate();
+        }
+
+        return true;
+    }
+}
+#endif
+
+bool LLSettingsBase::validate()
+{
+    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString);
+    static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
+    validation_list_t validations = getValidationList();
+    stringset_t       validated;
+    stringset_t       strip;
+
+    // Fields common to all settings.
+    if (!validateName.verify(mSettings))
+    {
+        LL_WARNS("SETTINGS") << "Unable to validate name." << LL_ENDL;
+        mIsValid = false;
+        return false;
+    }
+    validated.insert(validateName.getName());
+
+    if (!validateId.verify(mSettings))
+    {
+        LL_WARNS("SETTINGS") << "Unable to validate Id." << LL_ENDL;
+        mIsValid = false;
+        return false;
+    }
+    validated.insert(validateId.getName());
+
+    // Fields for specific settings.
+    for (validation_list_t::iterator itv = validations.begin(); itv != validations.end(); ++itv)
+    {
+#ifdef VALIDATION_DEBUG
+        LLSD oldvalue;
+        if (mSettings.has((*itv).getName()))
+        {
+            oldvalue = clone_llsd(mSettings[(*itv).getName()]);
+        }
+#endif
+
+        if (!(*itv).verify(mSettings))
+        {
+            LL_WARNS("SETTINGS") << "Settings LLSD fails validation and could not be corrected!" << LL_ENDL;
+            mIsValid = false;
+            return false;
+        }
+        validated.insert((*itv).getName());
+
+#ifdef VALIDATION_DEBUG
+        if (!oldvalue.isUndefined())
+        {
+            if (!compare_llsd(mSettings[(*itv).getName()], oldvalue))
+            {
+                LL_WARNS("SETTINGS") << "Setting '" << (*itv).getName() << "' was changed: " << oldvalue << " -> " << mSettings[(*itv).getName()] << LL_ENDL;
+            }
+        }
+#endif
+    }
+
+    // strip extra entries
+    for (LLSD::map_iterator itm = mSettings.beginMap(); itm != mSettings.endMap(); ++itm)
+    {
+        if (validated.find((*itm).first) == validated.end())
+        {
+            LL_WARNS("SETTINGS") << "Stripping setting '" << (*itm).first << "'" << LL_ENDL;
+            strip.insert((*itm).first);
+        }
+    }
+
+    for (stringset_t::iterator its = strip.begin(); its != strip.end(); ++its)
+    {
+        mSettings.erase(*its);
+    }
+
+    return true;
+}
+
+//=========================================================================
+bool LLSettingsBase::Validator::verify(LLSD &data)
+{
+    if (!data.has(mName))
+    {
+        if (mRequired)
+            LL_WARNS("SETTINGS") << "Missing required setting '" << mName << "'" << LL_ENDL;
+        return !mRequired;
+    }
+
+    if (data[mName].type() != mType)
+    {
+        LL_WARNS("SETTINGS") << "Setting '" << mName << "' is incorrect type." << LL_ENDL;
+        return false;
+    }
+
+    if (!mVerify.empty() && !mVerify(data[mName]))
+    {
+        LL_WARNS("SETTINGS") << "Setting '" << mName << "' fails validation." << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+bool LLSettingsBase::Validator::verifyColor(LLSD &value)
+{
+    return (value.size() == 3 || value.size() == 4);
+}
+
+bool LLSettingsBase::Validator::verifyVector(LLSD &value, S32 length)
+{
+    return (value.size() == length);
+}
+
+bool LLSettingsBase::Validator::verifyVectorNormalized(LLSD &value, S32 length)
+{
+    if (value.size() != length)
+        return false;
+
+    LLSD newvector;
+
+    switch (length)
+    {
+    case 2:
+    {
+        LLVector2 vect(value);
+
+        if (is_approx_equal(vect.normalize(), 1.0f))
+            return true;
+        newvector = vect.getValue();
+        break;
+    }
+    case 3:
+    {
+        LLVector3 vect(value);
+
+        if (is_approx_equal(vect.normalize(), 1.0f))
+            return true;
+        newvector = vect.getValue();
+        break;
+    }
+    case 4:
+    {
+        LLVector4 vect(value);
+
+        if (is_approx_equal(vect.normalize(), 1.0f))
+            return true;
+        newvector = vect.getValue();
+        break;
+    }
+    default:
+        return false;
+    }
+
+    return true;
+}
+
+bool LLSettingsBase::Validator::verifyVectorMinMax(LLSD &value, LLSD minvals, LLSD maxvals)
+{
+    for (S32 index = 0; index < value.size(); ++index)
+    {
+        if (minvals[index].asString() != "*")
+        {
+            if (minvals[index].asReal() > value[index].asReal())
+            {
+                value[index] = minvals[index].asReal();
+            }
+        }
+        if (maxvals[index].asString() != "*") 
+        {
+            if (maxvals[index].asReal() < value[index].asReal())
+            {
+                value[index] = maxvals[index].asReal();
+            }
+        }
+    }
+
+    return true;
+}
+
+bool LLSettingsBase::Validator::verifyQuaternion(LLSD &value)
+{
+    return (value.size() == 4);
+}
+
+bool LLSettingsBase::Validator::verifyQuaternionNormal(LLSD &value)
+{
+    if (value.size() != 4)
+        return false;
+
+    LLQuaternion quat(value);
+
+    if (is_approx_equal(quat.normalize(), 1.0f))
+        return true;
+
+    LLSD newquat = quat.getValue();
+    for (S32 index = 0; index < 4; ++index)
+    {
+        value[index] = newquat[index];
+    }
+    return true;
+}
+
+bool LLSettingsBase::Validator::verifyFloatRange(LLSD &value, LLSD range)
+{
+    F32 real = value.asReal();
+
+    F32 clampedval = llclamp(LLSD::Real(real), range[0].asReal(), range[1].asReal());
+
+    if (is_approx_equal(clampedval, real))
+        return true;
+
+    value = LLSD::Real(clampedval);
+    return true;
+}
+
+bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
+{
+    S32 ival = value.asInteger();
+
+    S32 clampedval = llclamp(LLSD::Integer(ival), range[0].asInteger(), range[1].asInteger());
+
+    if (clampedval == ival)
+        return true;
+
+    value = LLSD::Integer(clampedval);
+    return true;
+}
 
 //=========================================================================
 

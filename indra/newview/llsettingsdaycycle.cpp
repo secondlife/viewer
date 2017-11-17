@@ -113,7 +113,6 @@ const std::string LLSettingsDay::SETTING_DAYLENGTH("day_length");
 const std::string LLSettingsDay::SETTING_KEYID("key_id");
 const std::string LLSettingsDay::SETTING_KEYNAME("key_name");
 const std::string LLSettingsDay::SETTING_KEYKFRAME("key_keyframe");
-const std::string LLSettingsDay::SETTING_NAME("name");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
 
 //const S64 LLSettingsDayCycle::MINIMUM_DAYLENGTH(  300); // 5 mins
@@ -123,6 +122,7 @@ const S64 LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
 
 const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
+const S32 LLSettingsDay::FRAME_MAX(56);
 
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
@@ -178,7 +178,10 @@ LLSettingsDay::ptr_t LLSettingsDay::buildFromLegacyPreset(const std::string &nam
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsDay>(newsettings);
     dayp->parseFromLLSD(dayp->mSettings);
 
-    return dayp;
+    if (dayp->validate())
+        return dayp;
+
+    return LLSettingsDay::ptr_t();
 }
 
 LLSettingsDay::ptr_t LLSettingsDay::buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skydefs, LLSD waterdef)
@@ -195,9 +198,9 @@ LLSettingsDay::ptr_t LLSettingsDay::buildFromLegacyMessage(const LLUUID &regionI
         LL_WARNS("WindlightCaps") << "created region sky '" << name << "'" << LL_ENDL;
     }
 
-    LLSettingsDay::ptr_t day = buildFromLegacyPreset("Region (legacy)", daycycle);
+    LLSettingsDay::ptr_t dayp = buildFromLegacyPreset("Region (legacy)", daycycle);
 
-    day->setWaterAtKeyframe(water, 0.0f);
+    dayp->setWaterAtKeyframe(water, 0.0f);
 
     for (LLSD::array_iterator ita = daycycle.beginArray(); ita != daycycle.endArray(); ++ita)
     {
@@ -208,14 +211,17 @@ LLSettingsDay::ptr_t LLSettingsDay::buildFromLegacyMessage(const LLUUID &regionI
 
         if (it == skys.end())
             continue;
-        day->setSkyAtKeyframe(boost::static_pointer_cast<LLSettingsSky>((*it).second), frame, 1);
+        dayp->setSkyAtKeyframe(boost::static_pointer_cast<LLSettingsSky>((*it).second), frame, 1);
 
         LL_WARNS("WindlightCaps") << "Added '" << name << "' to region day cycle at " << frame << LL_ENDL;
     }
 
-    day->mHasParsed = true;
+    dayp->mHasParsed = true;
 
-    return day;
+    if (dayp->validate())
+        return dayp;
+
+    return LLSettingsDay::ptr_t();
 }
 
 LLSettingsDay::ptr_t LLSettingsDay::buildDefaultDayCycle()
@@ -225,7 +231,10 @@ LLSettingsDay::ptr_t LLSettingsDay::buildDefaultDayCycle()
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsDay>(settings);
     dayp->parseFromLLSD(dayp->mSettings);
 
-    return dayp;
+    if (dayp->validate())
+        return dayp;
+
+    return LLSettingsDay::ptr_t();
 }
 
 void LLSettingsDay::parseFromLLSD(LLSD &data)
@@ -275,6 +284,71 @@ LLSettingsDay::ptr_t LLSettingsDay::buildClone()
 void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F32 mix)
 {
     LL_ERRS("DAYCYCLE") << "Day cycles are not blendable!" << LL_ENDL;
+}
+
+namespace
+{
+    bool validateDayCycleTrack(LLSD &value)
+    {
+        // Trim extra tracks.
+        while (value.size() > LLSettingsDay::TRACK_MAX)
+        {
+            value.erase(value.size() - 1);
+        }
+
+        for (LLSD::array_iterator track = value.beginArray(); track != value.endArray(); ++track)
+        {
+            S32 index = 0;
+            while (index < (*track).size())
+            {
+                if (index >= LLSettingsDay::FRAME_MAX)
+                {
+                    (*track).erase(index);
+                    continue;
+                }
+
+                if (!(*track)[index].has(LLSettingsDay::SETTING_KEYKFRAME) ||
+                        !(*track)[index][LLSettingsDay::SETTING_KEYKFRAME].isReal())
+                {
+                    (*track).erase(index);
+                    continue;
+                }
+
+                if (!(*track)[index].has(LLSettingsDay::SETTING_KEYNAME) &&
+                    !(*track)[index].has(LLSettingsDay::SETTING_KEYID))
+                {
+                    (*track).erase(index);
+                    continue;
+                }
+
+                F32 frame = (*track)[index][LLSettingsDay::SETTING_KEYKFRAME].asReal();
+                if ((frame < 0.0) || (frame > 1.0))
+                {
+                    frame = llclamp(frame, 0.0f, 1.0f);
+                    (*track)[index][LLSettingsDay::SETTING_KEYKFRAME] = frame;
+                }
+                ++index;
+            }
+
+        }
+        return true;
+    }
+}
+
+LLSettingsDay::validation_list_t LLSettingsDay::getValidationList() const
+{
+    static validation_list_t validation;
+
+    if (validation.empty())
+    {
+        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray, 
+            &validateDayCycleTrack));
+        validation.push_back(Validator(SETTING_DAYLENGTH, false, LLSD::TypeInteger,
+            boost::bind(&Validator::verifyIntegerRange, _1, 
+                LLSD(LLSDArray(LLSD::Integer(MINIMUM_DAYLENGTH))(LLSD::Integer(MAXIMUM_DAYLENGTH))))));
+    }
+
+    return validation;
 }
 
 //=========================================================================

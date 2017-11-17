@@ -114,7 +114,6 @@ LLSD LLSettingsWater::defaults()
     return dfltsetting;
 }
 
-
 LLSettingsWater::ptr_t LLSettingsWater::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
 {
     LLSD newsettings(defaults());
@@ -173,25 +172,34 @@ LLSettingsWater::ptr_t LLSettingsWater::buildFromLegacyPreset(const std::string 
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(newsettings);
 
-    return waterp;
+    if (waterp->validate())
+        return waterp;
+
+    return LLSettingsWater::ptr_t();
 }
 
 LLSettingsWater::ptr_t LLSettingsWater::buildDefaultWater()
 {
     LLSD settings = LLSettingsWater::defaults();
 
-    LLSettingsWater::ptr_t skyp = boost::make_shared<LLSettingsWater>(settings);
+    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(settings);
 
-    return skyp;
+    if (waterp->validate())
+        return waterp;
+
+    return LLSettingsWater::ptr_t();
 }
 
 LLSettingsWater::ptr_t LLSettingsWater::buildClone()
 {
     LLSD settings = cloneSettings();
 
-    LLSettingsWater::ptr_t skyp = boost::make_shared<LLSettingsWater>(settings);
+    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(settings);
 
-    return skyp;
+    if (waterp->validate())
+        return waterp;
+
+    return LLSettingsWater::ptr_t();
 }
 
 void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F32 blendf) 
@@ -202,6 +210,51 @@ void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F32 blendf)
     replaceSettings(blenddata);
 }
 
+LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const
+{
+    static validation_list_t validation;
+
+    if (validation.empty())
+    {   // Note the use of LLSD(LLSDArray()()()...) This is due to an issue with the 
+        // copy constructor for LLSDArray.  Directly binding the LLSDArray as 
+        // a parameter without first wrapping it in a pure LLSD object will result 
+        // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
+
+        validation.push_back(Validator(SETTING_BLUR_MULTIPILER, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.16f)))));
+        validation.push_back(Validator(SETTING_FOG_COLOR, true, LLSD::TypeArray,
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)(1.0f)),
+                LLSD(LLSDArray(1.0f)(1.0f)(1.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_FOG_DENSITY, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1.0f)(1024.0f)))));
+        validation.push_back(Validator(SETTING_FOG_MOD, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1.0f)(1024.0f)))));
+        validation.push_back(Validator(SETTING_FRESNEL_OFFSET, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_FRESNEL_SCALE, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_NORMAL_MAP, true, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_NORMAL_SCALE, true, LLSD::TypeArray,
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)),
+                LLSD(LLSDArray(10.0f)(10.0f)(10.0f)))));
+        validation.push_back(Validator(SETTING_SCALE_ABOVE, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_SCALE_BELOW, true, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_WAVE1_DIR, true, LLSD::TypeArray,
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(-4.0f)(-4.0f)),
+                LLSD(LLSDArray(4.0f)(4.0f)))));
+        validation.push_back(Validator(SETTING_WAVE2_DIR, true, LLSD::TypeArray,
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(-4.0f)(-4.0f)),
+                LLSD(LLSDArray(4.0f)(4.0f)))));
+    }
+
+    return validation;
+}
 
 //=========================================================================
 
