@@ -923,16 +923,28 @@ F32 gpu_benchmark()
 	//number of samples to take
 	const S32 samples = 64;
 
-	if (gGLManager.mHasTimerQuery)
+	// This struct is used to ensure that once we call initProfile(), it will
+	// definitely be matched by a corresponding call to finishProfile(). It's
+	// a struct rather than a class simply because every member is public.
+	struct ShaderProfileHelper
 	{
-		LLGLSLShader::initProfile();
-	}
+		ShaderProfileHelper()
+		{
+			LLGLSLShader::initProfile();
+		}
+		~ShaderProfileHelper()
+		{
+			LLGLSLShader::finishProfile(false);
+		}
+	};
+	ShaderProfileHelper initProfile;
 
-	// This struct is used to ensure that each generateTextures() call is
-	// matched by a corresponding deleteTextures() call. It also handles the
-	// bindManual() calls using those textures.
-	struct TextureHolder
+	// This helper class is used to ensure that each generateTextures() call
+	// is matched by a corresponding deleteTextures() call. It also handles
+	// the bindManual() calls using those textures.
+	class TextureHolder
 	{
+	public:
 		TextureHolder(U32 unit, U32 size):
 			texUnit(gGL.getTexUnit(unit)),
 			source(size)			// preallocate vector
@@ -953,6 +965,7 @@ F32 gpu_benchmark()
 			texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
 		}
 
+	private:
 		// capture which LLTexUnit we're going to use
 		LLTexUnit* texUnit;
 
@@ -1013,9 +1026,24 @@ F32 gpu_benchmark()
 
 	buff->flush();
 
-	gBenchmarkProgram.bind();
-	
-	bool busted_finish = false;
+	// ensure matched pair of bind() and unbind() calls
+	class ShaderBinder
+	{
+	public:
+		ShaderBinder(LLGLSLShader& shader):
+			mShader(shader)
+		{
+			mShader.bind();
+		}
+		~ShaderBinder()
+		{
+			mShader.unbind();
+		}
+
+	private:
+		LLGLSLShader& mShader;
+	};
+	ShaderBinder binder(gBenchmarkProgram);
 
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
@@ -1032,20 +1060,9 @@ F32 gpu_benchmark()
 			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
 			dest[i].flush();
 		}
-		
+
 		//wait for current batch of copies to finish
-		if (busted_finish)
-		{
-			//read a pixel off the last target since some drivers seem to ignore glFinish
-			dest[count-1].bindTarget();
-			U32 pixel = 0;
-			glReadPixels(0,0,1,1,GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
-			dest[count-1].flush();
-		}
-		else
-		{
-			glFinish();
-		}
+		glFinish();
 
 		F32 time = timer.getElapsedTimeF32();
 
@@ -1053,26 +1070,9 @@ F32 gpu_benchmark()
 		{ 
 			//store result in gigabytes per second
 			F32 gb = (F32) ((F64) (res*res*8*count))/(1000000000);
-
 			F32 gbps = gb/time;
-
-			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
-			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
-				busted_finish = true;
-				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
-			}
-			else
-			{
-				results.push_back(gbps);
-			}		
+			results.push_back(gbps);
 		}
-	}
-
-	gBenchmarkProgram.unbind();
-
-	if (gGLManager.mHasTimerQuery)
-	{
-		LLGLSLShader::finishProfile(false);
 	}
 
 	std::sort(results.begin(), results.end());
