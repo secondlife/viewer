@@ -1921,7 +1921,21 @@ void LLVertexBuffer::unmapBuffer()
 					const MappedRegion& region = mMappedVertexRegions[i];
 					S32 offset = region.mIndex >= 0 ? mOffsets[region.mType]+sTypeSize[region.mType]*region.mIndex : 0;
 					S32 length = sTypeSize[region.mType]*region.mCount;
-					glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, offset, length, (U8*) mMappedData+offset);
+					if (mSize >= length + offset)
+					{
+						glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, offset, length, (U8*)mMappedData + offset);
+					}
+					else
+					{
+						GLint size = 0;
+						glGetBufferParameterivARB(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+						LL_WARNS() << "Attempted to map regions to a buffer that is too small, " 
+							<< "mapped size: " << mSize
+							<< ", gl buffer size: " << size
+							<< ", length: " << length
+							<< ", offset: " << offset
+							<< LL_ENDL;
+					}
 					stop_glerror();
 				}
 
@@ -1989,7 +2003,21 @@ void LLVertexBuffer::unmapBuffer()
 					const MappedRegion& region = mMappedIndexRegions[i];
 					S32 offset = region.mIndex >= 0 ? sizeof(U16)*region.mIndex : 0;
 					S32 length = sizeof(U16)*region.mCount;
-					glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, (U8*) mMappedIndexData+offset);
+					if (mIndicesSize >= length + offset)
+					{
+						glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, (U8*) mMappedIndexData+offset);
+					}
+					else
+					{
+						GLint size = 0;
+						glGetBufferParameterivARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+						LL_WARNS() << "Attempted to map regions to a buffer that is too small, " 
+							<< "mapped size: " << mIndicesSize
+							<< ", gl buffer size: " << size
+							<< ", length: " << length
+							<< ", offset: " << offset
+							<< LL_ENDL;
+					}
 					stop_glerror();
 				}
 
