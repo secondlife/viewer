@@ -89,18 +89,9 @@ BOOL LLFloaterAvatarRenderSettings::postBuild()
     LLFloater::postBuild();
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
-    this->setVisibleCallback(boost::bind(&LLFloaterAvatarRenderSettings::removePicker, this));
     getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(boost::bind(&LLFloaterAvatarRenderSettings::onFilterEdit, this, _2));
 
 	return TRUE;
-}
-
-void LLFloaterAvatarRenderSettings::removePicker()
-{
-    if(mPicker.get())
-    {
-        mPicker.get()->closeFloater();
-    }
 }
 
 void LLFloaterAvatarRenderSettings::draw()
@@ -263,8 +254,6 @@ void LLFloaterAvatarRenderSettings::onClickAdd(const LLSD& userdata)
     {
         root_floater->addDependentFloater(picker);
     }
-
-    mPicker = picker->getHandle();
 }
 
 void LLFloaterAvatarRenderSettings::callbackAvatarPicked(const uuid_vec_t& ids, S32 visual_setting)
