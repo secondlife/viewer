@@ -791,6 +791,14 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 					LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 				}
 			}
+            else
+            {
+                if(gAudiop && LLViewerMedia::hasParcelAudio() && gSavedSettings.getBOOL("MediaTentativeAutoPlay"))
+                {
+                    LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
+                }
+            }
+
 			pimpl->setPriority(new_priority);
 
 			if(pimpl->getUsedInUI())
