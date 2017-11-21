@@ -115,7 +115,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCookiesEnabled = true;
 	mPluginsEnabled = false;
 	mJavascriptEnabled = true;
-	mDisableGPU = true;
+	mDisableGPU = false;
 	mUserAgentSubtring = "";
 	mAuthUsername = "";
 	mAuthPassword = "";
