@@ -203,14 +203,12 @@ public:
 protected:
     LLSettingsWater();
 
-    virtual void        updateSettings();
-
     virtual parammapping_t getParameterMap() const;
-
-    virtual void        applySpecial(void *);
 
     virtual validation_list_t getValidationList() const;
 
+    LLVector4           mWaterPlane;
+    F32                 mWaterFogKS;
 private:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
     static const std::string SETTING_LEGACY_FOG_COLOR;
@@ -224,11 +222,22 @@ private:
     static const std::string SETTING_LEGACY_SCALE_BELOW;
     static const std::string SETTING_LEGACY_WAVE1_DIR;
     static const std::string SETTING_LEGACY_WAVE2_DIR;
+};
 
-    static const F32    WATER_FOG_LIGHT_CLAMP;
+class LLSettingsVOWater : public LLSettingsWater
+{
+public:
+    LLSettingsVOWater(const LLSD &data);
 
-    LLVector4           mWaterPlane;
-    F32                 mWaterFogKS;
+protected:
+    LLSettingsVOWater();
+
+    virtual void updateSettings();
+    virtual void applySpecial(void *);
+
+private:
+    static const F32 WATER_FOG_LIGHT_CLAMP;
+
 };
 
 #endif

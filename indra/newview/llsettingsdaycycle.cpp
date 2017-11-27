@@ -115,9 +115,9 @@ const std::string LLSettingsDay::SETTING_KEYNAME("key_name");
 const std::string LLSettingsDay::SETTING_KEYKFRAME("key_keyframe");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
 
-//const S64 LLSettingsDayCycle::MINIMUM_DAYLENGTH(  300); // 5 mins
+const S64 LLSettingsDay::MINIMUM_DAYLENGTH(  300); // 5 mins
 
-const S64 LLSettingsDay::MINIMUM_DAYLENGTH( 14400); // 4 hours
+//const S64 LLSettingsDay::MINIMUM_DAYLENGTH( 14400); // 4 hours
 const S64 LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
 
 const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0

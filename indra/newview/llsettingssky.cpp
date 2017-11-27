@@ -340,7 +340,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildFromLegacyPreset(const std::string &nam
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
     }
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(newsettings);
+    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(newsettings);
  
     if (skyp->validate())
         return skyp;
@@ -352,7 +352,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildDefaultSky()
 {
     LLSD settings = LLSettingsSky::defaults();
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
+    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
     if (skyp->validate())
         return skyp;
 
@@ -363,7 +363,7 @@ LLSettingsSky::ptr_t LLSettingsSky::buildClone()
 {
     LLSD settings = cloneSettings();
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsSky>(settings);
+    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
 
     if (skyp->validate())
         return skyp;
@@ -551,27 +551,6 @@ void LLSettingsSky::calculateLightSettings()
 
     }
 
-#if 0
-    mSun.setColor(vary_SunlightColor);
-    mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
-
-    mSun.renewDirection();
-    mSun.renewColor();
-    mMoon.renewDirection();
-    mMoon.renewColor();
-
-    float dp = getToSunLast() * LLVector3(0,0,1.f);
-    if (dp < 0)
-    {
-        dp = 0;
-    }
-
-    // Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
-    // between sunlight and point lights in windlight to normalize point lights.
-    F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
-    LLEnvironment::instance().setSceneLightStrength(2.0f * (1.0f + sun_dynamic_range * dp));
-#endif
-
     mSunDiffuse = vary_SunlightColor;
     mSunAmbient = vary_AmbientColor;
     mMoonDiffuse = vary_SunlightColor;
@@ -607,22 +586,6 @@ LLSettingsSky::parammapping_t LLSettingsSky::getParameterMap() const
     }
 
     return param_map;
-}
-
-void LLSettingsSky::applySpecial(void *ptarget)
-{
-    LLGLSLShader *shader = (LLGLSLShader *)ptarget;
-
-    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mClampedLightDirection.mV);
-
-    shader->uniform4f(LLShaderMgr::GAMMA, getGamma(), 0.0, 0.0, 1.0);
-
-    {
-        //LLEnvironment::instance().getCloudDelta();
-        LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
-        vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
-        shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
-    }
 }
 
 //=========================================================================
@@ -663,3 +626,30 @@ namespace
             altitude = 0.0f;
     }
 }
+
+//=========================================================================
+LLSettingsVOSky::LLSettingsVOSky(const LLSD &data):
+    LLSettingsSky(data)
+{
+}
+
+LLSettingsVOSky::LLSettingsVOSky():
+    LLSettingsSky()
+{
+}
+
+void LLSettingsVOSky::applySpecial(void *ptarget)
+{
+    LLGLSLShader *shader = (LLGLSLShader *)ptarget;
+
+    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, getClampedLightDirection().mV);
+
+    shader->uniform4f(LLShaderMgr::GAMMA, getGamma(), 0.0, 0.0, 1.0);
+
+    {
+        LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
+        vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
+        shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
+    }
+}
+

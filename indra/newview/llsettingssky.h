@@ -413,18 +413,13 @@ public:
 protected:
     LLSettingsSky();
 
-
     virtual stringset_t getSlerpKeys() const;
 
     virtual validation_list_t getValidationList() const;
 
-
     virtual void        updateSettings();
 
     virtual parammapping_t getParameterMap() const;
-
-    virtual void        applySpecial(void *);
-
 
 private:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -453,6 +448,16 @@ private:
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
     static mapNameToUniformId_t sNameToUniformMapping;
+};
+
+class LLSettingsVOSky : public LLSettingsSky
+{
+public:
+    LLSettingsVOSky(const LLSD &data);
+protected:
+    LLSettingsVOSky();
+
+    virtual void        applySpecial(void *);
 };
 
 #endif

@@ -76,8 +76,6 @@ const std::string LLSettingsWater::SETTING_LEGACY_SCALE_BELOW("scaleBelow");
 const std::string LLSettingsWater::SETTING_LEGACY_WAVE1_DIR("wave1Dir");
 const std::string LLSettingsWater::SETTING_LEGACY_WAVE2_DIR("wave2Dir");
 
-const F32 LLSettingsWater::WATER_FOG_LIGHT_CLAMP(0.3f);
-
 const LLUUID LLSettingsWater::DEFAULT_WATER_NORMAL_ID(DEFAULT_WATER_NORMAL);
 
 
@@ -272,7 +270,23 @@ LLSettingsWater::parammapping_t LLSettingsWater::getParameterMap() const
     return param_map;
 }
 
-void LLSettingsWater::applySpecial(void *ptarget)
+//=========================================================================
+const F32 LLSettingsVOWater::WATER_FOG_LIGHT_CLAMP(0.3f);
+
+//=========================================================================
+LLSettingsVOWater::LLSettingsVOWater(const LLSD &data):
+    LLSettingsWater(data)
+{
+
+}
+
+LLSettingsVOWater::LLSettingsVOWater() :
+    LLSettingsWater()
+{
+
+}
+
+void LLSettingsVOWater::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
@@ -286,11 +300,10 @@ void LLSettingsWater::applySpecial(void *ptarget)
 
 }
 
-//=========================================================================
-void LLSettingsWater::updateSettings()
+void LLSettingsVOWater::updateSettings()
 {
-//    LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERVALUES);
-//    LL_INFOS("WINDLIGHT", "WATER", "EEP") << "Water Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
+    //    LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERVALUES);
+    //    LL_INFOS("WINDLIGHT", "WATER", "EEP") << "Water Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
 
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
@@ -324,3 +337,4 @@ void LLSettingsWater::updateSettings()
     }
 
 }
+
