@@ -67,6 +67,11 @@ public:
     inline bool isDirty() const { return mDirty; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; }
 
+    inline size_t getHash() const
+    {
+        return boost::hash<LLSD>{}(mSettings);
+    }
+
     inline LLUUID getId() const
     {
         return getValue(SETTING_ID).asUUID();
@@ -227,6 +232,7 @@ protected:
 
 private:
     bool    mDirty;
+    size_t  mHashValue;
 
     LLSD    combineSDMaps(const LLSD &first, const LLSD &other) const;
 

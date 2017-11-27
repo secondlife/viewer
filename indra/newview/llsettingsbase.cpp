@@ -48,13 +48,15 @@ const F32Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
-    mDirty(true)
+    mDirty(true),
+    mHashValue(0)
 {
 }
 
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
-    mDirty(true)
+    mDirty(true),
+    mHashValue(0)
 {
 }
 
