@@ -2188,7 +2188,6 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		U8* new_result = (U8*)realloc(result, cur_size + have);
 		if (new_result == NULL)
 		{
-			LL_WARNS() << "Failed to unzip LLSD block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
 			inflateEnd(&strm);
 			if (result)
 			{
