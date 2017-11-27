@@ -477,6 +477,7 @@ struct boost::hash<LLSD>
             }
             break;
         case LLSD::TypeUndefined:
+        default:
             break;
         }
 
