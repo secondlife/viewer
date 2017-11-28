@@ -2144,7 +2144,11 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		
 	const U32 CHUNK = 65536;
 
-	U8 *in = new U8[size];
+	U8 *in = new(std::nothrow) U8[size];
+	if (!in)
+	{
+		return false;
+	}
 	is.read((char*) in, size); 
 
 	U8 out[CHUNK];
