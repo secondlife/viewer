@@ -308,6 +308,8 @@ class WindowsManifest(ViewerManifest):
         # This is used to test a dll manifest.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
+        # TODO: This is redundant with LLManifest.copy_action(). Why aren't we
+        # calling copy_action() in conjunction with test_assembly_binding()?
         if src and (os.path.exists(src) or os.path.islink(src)):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
@@ -328,6 +330,8 @@ class WindowsManifest(ViewerManifest):
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
         from test_win32_manifest import NoManifestException, NoMatchingAssemblyException
+        # TODO: This is redundant with LLManifest.copy_action(). Why aren't we
+        # calling copy_action() in conjunction with test_assembly_binding()?
         if src and (os.path.exists(src) or os.path.islink(src)):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
@@ -378,9 +382,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("*.gif")
 
             #before, we only needed llbase at build time.  With VMP, we need it at run time.
-            llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
-            if not os.path.exists(llbase_path):
-                os.makedirs(llbase_path)
             with self.prefix(dst="llbase"):
                 self.path2basename(llbasedir,"*.py")
                 self.path2basename(llbasedir,"_cllsd.so")
@@ -779,49 +780,32 @@ class DarwinManifest(ViewerManifest):
         idnadir = os.path.join(pkgdir, "lib", "python", "idna")
 
         with self.prefix(src="", dst="Contents"):  # everything goes in Contents
-            self.path("Info.plist", dst="Info.plist")
+            self.path("Info.plist")
+
+            with self.prefix(src=relpkgdir, dst="Resources"):
+                self.path("libndofdev.dylib")
+                self.path("libhunspell-1.3.0.dylib")   
 
             # copy additional libs in <bundle>/Contents/MacOS/
-            self.path(os.path.join(relpkgdir, "libndofdev.dylib"), dst="Resources/libndofdev.dylib")
-            self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")   
-
             with self.prefix(dst="MacOS"):              
                 #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322, SL-323
                 self.path2basename(vmpdir,"SL_Launcher")
                 self.path2basename(vmpdir,"*.py")
                 # certifi will be imported by requests; this is our custom version to get our ca-bundle.crt 
-                certifi_path = os.path.join(self.get_dst_prefix(),'certifi')
-                if not os.path.exists(certifi_path):
-                    os.makedirs(certifi_path)
                 with self.prefix(dst="certifi"):
                     self.path2basename(os.path.join(vmpdir,"certifi"),"*")
                 # llbase provides our llrest service layer and llsd decoding
-                llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
-                if not os.path.exists(llbase_path):
-                    os.makedirs(llbase_path)
                 with self.prefix(dst="llbase"):
                     self.path2basename(llbasedir,"*.py")
                     self.path2basename(llbasedir,"_cllsd.so")
                 #requests module needed by llbase/llrest.py
                 #this is only needed on POSIX, because in Windows we compile it into the EXE
-                requests_path = os.path.join(self.get_dst_prefix(),'requests')
-                if not os.path.exists(requests_path):
-                    os.makedirs(requests_path)
                 with self.prefix(dst="requests"):
                     self.path2basename(requestsdir,"*")
-                urllib3_path = os.path.join(self.get_dst_prefix(),'urllib3')
-                if not os.path.exists(urllib3_path):
-                    os.makedirs(urllib3_path)
                 with self.prefix(dst="urllib3"):
                     self.path2basename(urllib3dir,"*")
-                chardet_path = os.path.join(self.get_dst_prefix(),'chardet')
-                if not os.path.exists(chardet_path):
-                    os.makedirs(chardet_path)
                 with self.prefix(dst="chardet"):
                     self.path2basename(chardetdir,"*")
-                idna_path = os.path.join(self.get_dst_prefix(),'idna')
-                if not os.path.exists(idna_path):
-                    os.makedirs(idna_path)
                 with self.prefix(dst="idna"):
                     self.path2basename(idnadir,"*")
 
@@ -1275,9 +1259,6 @@ class LinuxManifest(ViewerManifest):
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             self.path2basename("../viewer_components/manager","SL_Launcher")
             self.path2basename("../viewer_components/manager","*.py")
-            llbase_path = os.path.join(self.get_dst_prefix(),'llbase')
-            if not os.path.exists(llbase_path):
-                os.makedirs(llbase_path)
             with self.prefix(dst="llbase"):
                 self.path2basename("../packages/lib/python/llbase","*.py")
                 self.path2basename("../packages/lib/python/llbase","_cllsd.so")         
