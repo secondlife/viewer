@@ -13,5 +13,6 @@
 	<menu_item_call label="Поделиться" name="Share"/>
 	<menu_item_call label="Найти оригинал" name="Find Original"/>
 	<menu_item_call label="Найти все ссылки" name="Find All Links"/>
+	<menu_item_call label="Заменить ссылки" name="Replace Links"/>
 	<menu_item_call label="Очистить корзину" name="empty_trash"/>
 </toggleable_menu>

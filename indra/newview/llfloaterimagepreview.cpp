@@ -801,7 +801,13 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	U32 num_vertices = vf.mNumVertices;
 
 	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0, 0);
-	mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
+	if (!mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE))
+	{
+		LL_WARNS() << "Failed to allocate Vertex Buffer for image preview to"
+			<< num_vertices << " vertices and "
+			<< num_indices << " indices" << LL_ENDL;
+		// We are likely to crash on getTexCoord0Strider()
+	}
 
 	LLStrider<LLVector3> vertex_strider;
 	LLStrider<LLVector3> normal_strider;

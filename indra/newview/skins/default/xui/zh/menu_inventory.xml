@@ -75,10 +75,12 @@
 	<menu_item_call label="屬性" name="Properties"/>
 	<menu_item_call label="更名" name="Rename"/>
 	<menu_item_call label="覆製資產 UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="顯示在主面板" name="Show in Main Panel"/>
 	<menu_item_call label="剪下" name="Cut"/>
 	<menu_item_call label="恚庨" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>
 	<menu_item_call label="以連結格式貼上" name="Paste As Link"/>
+	<menu_item_call label="取代連結" name="Replace Links"/>
 	<menu_item_call label="刪除" name="Delete"/>
 	<menu_item_call label="刪除系統資料夾" name="Delete System Folder"/>
 	<menu_item_call label="發起多方通話" name="Conference Chat Folder"/>

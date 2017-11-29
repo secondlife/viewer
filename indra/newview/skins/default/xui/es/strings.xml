@@ -252,9 +252,8 @@ support@secondlife.com.
 [HORA] (horario de la costa del Pacífico).
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		En este momento no podemos completar la solicitud.
-Si deseas obtener asistencia, ponte en contacto con el departamento de soporte de Second Life a través de la página http://secondlife.com/support.
-Si no puedes cambiar la contraseña, llama al número (866) 476-9763.
+		En este momento no podemos completar la solicitud. 
+Por favor solicita ayuda al personal de asistencia de Second Life en http://support.secondlife.com.
 	</string>
 	<string name="LoginFailedTransformError">
 		Se han detectado datos incorrectos en el inicio de sesión.
@@ -691,6 +690,19 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Estado desconocido
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		El servicio no está disponible.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Se detectaron errores inesperados en el servidor.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		El servicio no está disponible o se alcanzó el tiempo de carga máxima.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Error en la solicitud de carga. Por favor, ingresa a 
+http://secondlife.com/support para obtener ayuda sobre cómo solucionar este problema.
 	</string>
 	<string name="texture">
 		la textura
@@ -2174,10 +2186,19 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 		todos los estados que administras para [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Resientes autorizados: ([ALLOWEDAGENTS], de un máx. de [MAXACCESS])
+		Siempre permitido: ([ALLOWEDAGENTS], de un máx. de [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Grupos autorizados: ([ALLOWEDGROUPS], de un máx. de [MAXACCESS])
+		Grupos siempre permitidos: ([ALLOWEDGROUPS], de un máx. de [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Siempre prohibido: ([BANNEDAGENTS], de un máx. de [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Siempre permitido
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Siempre prohibido
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria de los scripts de la parcela

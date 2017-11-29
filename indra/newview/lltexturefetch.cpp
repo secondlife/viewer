@@ -1746,7 +1746,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				// In case of a partial response, our offset may
 				// not be trivially contiguous with the data we have.
 				// Get back into alignment.
-				if (mHttpReplyOffset > cur_size)
+				if ( (mHttpReplyOffset > cur_size) || (cur_size > mHttpReplyOffset + append_size))
 				{
 					LL_WARNS(LOG_TXT) << "Partial HTTP response produces break in image data for texture "
 									  << mID << ".  Aborting load."  << LL_ENDL;
@@ -1890,11 +1890,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			if (mDecodedDiscard < 0)
 			{
-				LL_DEBUGS(LOG_TXT) << mID << ": Failed to Decode." << LL_ENDL;
 				if (mCachedSize > 0 && !mInLocalCache && mRetryAttempt == 0)
 				{
 					// Cache file should be deleted, try again
- 					LL_WARNS(LOG_TXT) << mID << ": Decode of cached file failed (removed), retrying" << LL_ENDL;
+ 					LL_DEBUGS(LOG_TXT) << mID << ": Decode of cached file failed (removed), retrying" << LL_ENDL;
 					llassert_always(mDecodeHandle == 0);
 					mFormattedImage = NULL;
 					++mRetryAttempt;
@@ -1904,7 +1903,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				else
 				{
-// 					LL_WARNS(LOG_TXT) << "UNABLE TO LOAD TEXTURE: " << mID << " RETRIES: " << mRetryAttempt << LL_ENDL;
+					LL_DEBUGS(LOG_TXT) << "Failed to Decode image " << mID << " after " << mRetryAttempt << " retries" << LL_ENDL;
 					setState(DONE); // failed
 				}
 			}

@@ -434,13 +434,10 @@
 			<panel.string name="estate_override">
 				1 つ以上のオプションが、不動産レベルで設定されています。
 			</panel.string>
-			<check_box label="パブリックアクセスを許可（このオプションをオフにすると立入禁止ラインが作成されます）" name="public_access"/>
-			<text name="Only Allow">
-				次の住人にのみアクセスを許可：
-			</text>
-			<check_box label="支払情情報が登録されている [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="支払情報が登録されていないと、この区画にアクセスすることはできません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
-			<check_box label="18 才以上です [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="この区画にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
-			<check_box label="グループのアクセスを許可：[GROUP]" name="GroupCheck" tool_tip="「一般」タブで、グループを選択してください。"/>
+			<check_box label="誰でも訪問可（このオプションをオフにすると立入禁止ラインが作成されます）" name="public_access"/>
+			<check_box label="18 歳以上である必要があります [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="この区画にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+			<check_box label="支払情報が登録されている必要があります [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="支払情報が登録されていないと、この区画にアクセスすることはできません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+			<check_box label="制約なしにグループ [GROUP] を許可する" name="GroupCheck" tool_tip="「一般」タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します。"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="誰でも" name="Anyone"/>
@@ -448,9 +445,12 @@
 			</combo_box>
 			<spinner label="価格（L$）：" name="PriceSpin"/>
 			<spinner label="アクセス時間：" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				（不動産所有者がこのオプションに制約を与えている場合があります）
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="常に許可" name="AllowedText">
-					許可された住人 ([COUNT]、最大 [MAX])
+					常に許可する （[COUNT] 人、最大 [MAX] 人）
 				</text>
 				<name_list name="AccessList" tool_tip="(合計[LISTED] 人、最大 [MAX] 人）"/>
 				<button label="追加" name="add_allowed"/>
@@ -458,7 +458,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="禁止" name="BanCheck">
-					立入禁止された住人 ([COUNT]、最大 [MAX])
+					常に禁止する （[COUNT] 人、最大 [MAX] 人）
 				</text>
 				<name_list name="BannedList" tool_tip="(合計 [LISTED] 人、最大 [MAX] 人）"/>
 				<button label="追加" name="add_banned"/>

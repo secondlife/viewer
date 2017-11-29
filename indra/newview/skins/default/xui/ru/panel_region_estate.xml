@@ -15,38 +15,36 @@
 	<text name="estate_owner">
 		(неизвестно)
 	</text>
-	<check_box label="Глобальное время" name="use_global_time_check"/>
-	<check_box label="Фиксированное" name="fixed_sun_check"/>
-	<slider label="Фаза" name="sun_hour_slider"/>
-	<check_box label="Разрешить общий доступ" name="externally_visible_check"/>
-	<text name="Only Allow">
-		Разрешить доступ только таким жителям:
-	</text>
-	<check_box label="Зарегистрирована информация об оплате" name="limit_payment" tool_tip="Для доступа к этому землевладению у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
-	<check_box label="18 лет и старше" name="limit_age_verified" tool_tip="Доступ к этому землевладению имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="Разрешено только нижеперечисленным жителям и группам" name="estate_restricted_access"/>
+		<radio_item label="Доступ открыт для всех" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="Должен быть 18 и старше" name="limit_age_verified" tool_tip="Доступ к этому землевладению имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+	<check_box label="Информация о платежах должна быть в файле" name="limit_payment" tool_tip="Для доступа к этому землевладению у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+	<check_box label="Владельцы участков могут принимать более ограничетельные меры" name="parcel_access_override"/>
 	<check_box label="Разрешить голосовое общение" name="voice_chat_check"/>
 	<check_box label="Разрешить прямой телепорт" name="allow_direct_teleport"/>
 	<button label="Применить" name="apply_btn"/>
-	<button label="Сообщение в землевладение..." name="message_estate_btn"/>
-	<button label="Выкинуть жителя с землевладения..." name="kick_user_from_estate_btn"/>
 	<text name="estate_manager_label">
 		Менеджеры землевладения:
 	</text>
-	<button label="Удалить..." name="remove_estate_manager_btn"/>
-	<button label="Добавить..." name="add_estate_manager_btn"/>
 	<text name="allow_resident_label">
-		Допущенные жители:
+		Разрешено всегда:
 	</text>
-	<button label="Удалить..." name="remove_allowed_avatar_btn"/>
+	<button label="Добавить..." name="add_estate_manager_btn"/>
+	<button label="Удалить..." name="remove_estate_manager_btn"/>
 	<button label="Добавить..." name="add_allowed_avatar_btn"/>
+	<button label="Удалить..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		Допущенные группы:
+		Группы всегда разрешены:
 	</text>
-	<button label="Удалить..." name="remove_allowed_group_btn"/>
-	<button label="Добавить..." name="add_allowed_group_btn"/>
 	<text name="ban_resident_label">
-		Забаненные жители:
+		Всегда заблокированы:
 	</text>
-	<button label="Удалить..." name="remove_banned_avatar_btn"/>
+	<button label="Добавить..." name="add_allowed_group_btn"/>
+	<button label="Удалить..." name="remove_allowed_group_btn"/>
 	<button label="Добавить..." name="add_banned_avatar_btn"/>
+	<button label="Удалить..." name="remove_banned_avatar_btn"/>
+	<button label="Сообщение в землевладение..." name="message_estate_btn"/>
+	<button label="Выкинуть жителя с землевладения..." name="kick_user_from_estate_btn"/>
 </panel>

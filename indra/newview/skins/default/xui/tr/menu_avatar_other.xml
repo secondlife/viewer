@@ -20,6 +20,7 @@
 		<menu_item_check label="Varsayılan" name="RenderNormally"/>
 		<menu_item_check label="Her Zaman" name="AlwaysRenderFully"/>
 		<menu_item_check label="Asla" name="DoNotRender"/>
+		<menu_item_call label="İstisnalar..." name="RenderExceptions"/>
 	</context_menu>
 	<menu_item_call label="Parçacık Sahibini Engelle" name="Mute Particle"/>
 </context_menu>

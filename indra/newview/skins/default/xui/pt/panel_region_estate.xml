@@ -15,54 +15,36 @@
 	<text name="estate_owner">
 		(desconhecido)
 	</text>
-	<check_box label="Usar Tempo global" name="use_global_time_check"/>
-	<button label="?" name="use_global_time_help"/>
-	<check_box label="Sol fixo" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Fase" name="sun_hour_slider"/>
-	<check_box label="Permitir acesso público" name="externally_visible_check"/>
-	<button label="?" name="externally_visible_help"/>
-	<text name="Only Allow">
-		Permitir acesso apenas para residentes que:
-	</text>
-	<check_box label="Dados de pagamento constam no registro." name="limit_payment" tool_tip="Propriedade de acesso restrito a residentes que já cadastraram seus dados de pagamento  Consulte o [SUPPORT_SITE] para saber mais."/>
-	<check_box label="Tem 18 anos ou mais" name="limit_age_verified" tool_tip="Os residentes devem ter 18 anos ou mais para acessar esta propriedade. Consulte o [SUPPORT_SITE] para obter mais informações."/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="Permitir somente os residentes e os grupos listados abaixo" name="estate_restricted_access"/>
+		<radio_item label="Qualquer um pode visitar" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="Deve ser maior de 18 anos" name="limit_age_verified" tool_tip="Os residentes devem ter 18 anos ou mais para acessar esta propriedade. Consulte o [SUPPORT_SITE] para obter mais informações."/>
+	<check_box label="Deve ter informação de pagamento no arquivo" name="limit_payment" tool_tip="Propriedade de acesso restrito a residentes que já cadastraram seus dados de pagamento  Consulte o [SUPPORT_SITE] para saber mais."/>
+	<check_box label="Os proprietários dos lotes podem ser mais restritivos." name="parcel_access_override"/>
 	<check_box label="Permitir conversa de voz" name="voice_chat_check"/>
-	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir Tele-transporte direto" name="allow_direct_teleport"/>
-	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="abuse_email_text">
-		Endereço de email de Abuso:
-	</text>
-	<string name="email_unsupported">
-		Funcionalidade não suportada
-	</string>
-	<button label="?" name="abuse_email_address_help"/>
 	<button label="Aplicar" name="apply_btn"/>
-	<button label="Expulsar da propriedade..." name="kick_user_from_estate_btn"/>
-	<button label="Enviar mensagem à Propriedade" name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Gerentes da propriedade:
 	</text>
-	<button label="?" name="estate_manager_help"/>
-	<button label="Remover..." name="remove_estate_manager_btn"/>
-	<button label="Adicionar..." name="add_estate_manager_btn"/>
 	<text name="allow_resident_label">
-		Residentes permitidos:
+		Sempre permitido:
 	</text>
-	<button label="?" name="allow_resident_help"/>
-	<button label="Remover..." name="remove_allowed_avatar_btn"/>
+	<button label="Adicionar..." name="add_estate_manager_btn"/>
+	<button label="Remover..." name="remove_estate_manager_btn"/>
 	<button label="Adicionar..." name="add_allowed_avatar_btn"/>
+	<button label="Remover..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		Grupos permitidos:
+		Grupos sempre permitidos:
 	</text>
-	<button label="?" name="allow_group_help"/>
-	<button label="Remover..." name="remove_allowed_group_btn"/>
-	<button label="Adicionar..." name="add_allowed_group_btn"/>
 	<text name="ban_resident_label">
-		Residentes banidos:
+		Sempre banido:
 	</text>
-	<button label="?" name="ban_resident_help"/>
-	<button label="Remover..." name="remove_banned_avatar_btn"/>
+	<button label="Adicionar..." name="add_allowed_group_btn"/>
+	<button label="Remover..." name="remove_allowed_group_btn"/>
 	<button label="Adicionar..." name="add_banned_avatar_btn"/>
+	<button label="Remover..." name="remove_banned_avatar_btn"/>
+	<button label="Enviar mensagem à Propriedade" name="message_estate_btn"/>
+	<button label="Expulsar da propriedade..." name="kick_user_from_estate_btn"/>
 </panel>

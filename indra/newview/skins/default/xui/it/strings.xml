@@ -258,9 +258,8 @@ support@secondlife.com.
 [TIME] fuso orario del Pacifico.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Non siamo attualmente in grado di completare la tua richiesta.
-Contatta l&apos;assistenza Second Life alla pagina http://secondlife.com/support.
-Se non sei in grado di cambiare la password, chiama (866) 476-9763.
+		Non siamo attualmente in grado di completare la tua richiesta. 
+Contatta l&apos;assistenza Second Life alla pagina http://support.secondlife.com.
 	</string>
 	<string name="LoginFailedTransformError">
 		Dati incompatibili rilevati durante l&apos;accesso.
@@ -697,6 +696,19 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Stato sconosciuto
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Servizio non raggiungibile.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Il servizio sta riscontrando difficoltà inaspettate.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Servizio non disponibile o limite di tempo per il caricamento raggiunto.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Errore nella richiesta di caricamento. Vai alla pagina 
+http://secondlife.com/support per risolvere il problema.
 	</string>
 	<string name="texture">
 		texture
@@ -2183,10 +2195,19 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 		tutte le proprietà immobiliari che gestisci per conto di [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Residenti consentiti: ([ALLOWEDAGENTS], massimo [MAXACCESS])
+		Sempre consentiti: ([ALLOWEDAGENTS], max [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Gruppi ammessi: ([ALLOWEDGROUPS], massimo [MAXACCESS])
+		Gruppi sempre consentiti: ([ALLOWEDGROUPS], max [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Sempre esclusi: ([BANNEDAGENTS], max [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Sempre consentiti:
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Sempre esclusi:
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria dello script del lotto

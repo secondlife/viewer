@@ -262,8 +262,7 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		現在リクエストを完了することができません。
-Second Life のサポート（http://secondlife.com/support）にお問い合わせください。
-パスワードを変更できない場合には、(866) 476-9763 に電話でお問い合わせください。
+Second Life のサポート（http://support.secondlife.com）にお問い合わせください。
 	</string>
 	<string name="LoginFailedTransformError">
 		ログイン時にデータの不一致が見つかりました。
@@ -703,6 +702,19 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		不明のステータス
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		サービスがご利用いただけません。
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		サーバーに予期せぬ問題が発生しました。
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		サービスがご利用いただけないか、アップロードがタイムアウトしました。
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		アップロードリクエスト中にエラーが発生しました。問題を解決するには、サポート
+（http://secondlife.com/support）にお問い合わせください。
 	</string>
 	<string name="texture">
 		テクスチャ
@@ -2197,10 +2209,19 @@ support@secondlife.com にお問い合わせください。
 		あなたが [OWNER] のために管理するすべての不動産
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		許可された住人： （[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
+		常に許可：（[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] ）
+		グループを常に許可：（[ALLOWEDGROUPS]、最大 [MAXACCESS]）
+	</string>
+	<string name="RegionInfoBannedResidents">
+		常に禁止：（[BANNEDAGENTS] 人、最大 [MAXBANNED] 人）
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		常に許可
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		常に禁止
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		区画スクリプトメモリ

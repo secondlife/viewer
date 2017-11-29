@@ -3,6 +3,10 @@
 	<global name="skipnexttime">
 		Não exibir isto novamente
 	</global>
+	<global name="skipnexttimesessiononly">
+		Não exibir isto novamente 
+(para a sessão atual)
+	</global>
 	<global name="alwayschoose">
 		Sempre escolher esta opção
 	</global>
@@ -342,7 +346,7 @@ Deseja prosseguir?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Unir-se"/>
 	</notification>
 	<notification name="JoinGroupNoCost">
-		Você está prestes a entrar no grupo [NAME].
+		Você está prestes a entrar no grupo &lt;nolink&gt;[NAME]&lt;/nolink&gt;. 
 Deseja continuar?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Entrar"/>
 	</notification>
@@ -355,6 +359,39 @@ Você não tem L$ suficientes para associar-se a este grupo.
 Grupos ser formados por mais de um membro, caso contrário serão definitivamente excluídos. 
 Convite outros membros dentro de 48 horas.
 		<usetemplate canceltext="Cancelar" name="okcancelbuttons" notext="Cancelar" yestext="Criar grupo por L$100"/>
+	</notification>
+	<notification name="JoinGroupInaccessible">
+		Este grupo não está acessível para você.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupError">
+		Erro no processamento da sua solicitação de associação ao grupo.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupErrorReason">
+		Não foi possível entrar para o grupo: [reason]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupTrialUser">
+		Lamentamos, usuários com conta experimental não pode entrar em grupos.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupMaxGroups">
+		Não pode entrar &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;: Você já é um membro de [group_count] grupos, o número máximo permitido é de [max_groups]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupClosedEnrollment">
+		Não pode entrar &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;: 
+O grupo não está aberto para novas inscrições.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupSuccess">
+		Você foi adicionado ao grupo
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupInsufficientFunds">
+		Não foi possível transferir a taxa solicitada do plano em L$ [membership_fee].
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandBuyPass">
 		Por L$[COST] você pode ingressar no terreno (&apos;[PARCEL_NAME]&apos;) por [TIME] horas.  Comprar um passe de acesso?
@@ -377,9 +414,9 @@ O preço será L$[SALE_PRICE] e [NAME] pode comprar o terreno.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		Tem certeza de que quer devolver todos os objetos compartilhados com o grupo &apos;[NAME]&apos; neste lote, para o inventário do seu antigo Proprietário?
+		Tem certeza de que deseja devolver todos os objetos compartilhados com o grupo &apos;&lt;nolink&gt;[NAME]&lt;/nolink&gt;&apos; neste lote do terreno para o inventário dos seus antigos proprietários? 
 
-*AVISO* Isso irá deletar os objetos não transferíveis doados ao grupo!
+*AVISO* Esta ação excluirá todos os objetos não transferíveis doados para o grupo! 
 
 Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
@@ -422,7 +459,7 @@ Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Desativar"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByGroup">
-		Retornar os objetos deste lote que NÃO são compartilhados com o grupo [NAME] de volta para seus proprietários?
+		Devolver os objetos neste lote do terreno que NÃO foram compartilhados com o grupo &lt;nolink&gt;[NAME]&lt;/nolink&gt; para os seus proprietários? 
 
 Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
@@ -470,7 +507,7 @@ Para colocar a mídia em só uma face, selecione Selecionar face e clique na fac
 		Houve um problema ao carregar a foto da reportagem devido à seguinte razão: [REASON]
 	</notification>
 	<notification name="MustAgreeToLogIn">
-		Você deve concordar com os Termos de Serviço para continuar a entrar no [SECOND_LIFE].
+		Você deve concordar com os Termos e condições, Política de privacidade e Termos de serviço Second Life para continuar a acessar o [SECOND_LIFE].
 	</notification>
 	<notification name="CouldNotPutOnOutfit">
 		Não foi possível vestir o look. A pasta do look não contém roupas, partes do corpo ou acessórios.
@@ -719,7 +756,7 @@ Ele ou ela vai ficar temporariamente incapaz de se mover, usar o bate-papo ou in
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ejetar"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
-		Você ejetou [AVATAR_NAME] do grupo [GROUP_NAME]
+		Você ejetou [AVATAR_NAME] do grupo &lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;
 	</notification>
 	<notification name="AcquireErrorTooManyObjects">
 		Erro de aquisição: Muitos objetos selecionados.
@@ -1316,18 +1353,18 @@ Tem certeza de que deseja pegar estes itens?
 Por favor, selecione uma área menor e tente novamente.
 	</notification>
 	<notification name="DeedLandToGroup">
-		No ato da doação deste lote, o grupo deverá ter e manter créditos suficientes para ter o terreno.
-O preço de aquisição dos terrenos não é restituído ao proprietário. Se uma parcela doada for vendida, o preço de venda é dividido igualmente entre os membros do grupo.
+		Ao transferir este terreno, o grupo precisa ter e manter créditos de uso de terrenos suficiente. 
+O preço pago pelo terreno não será reembolsado ao proprietário. Se um terreno doado for vendido, a receita da venda será dividida igualmente entre os membros do grupo. 
 
-Doar [AREA] m² ao grupo &apos;[GROUP_NAME]&apos;?
+Doar esta [AREA] m² do terreno para o grupo &apos;&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;&apos;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
-		Ao transferir este terreno, o grupo precisa ter e manter créditos de uso de terrenos suficientes.
-A doação inclui uma contribuição de terreno ao grupo de parte de &apos;[NAME]&apos;.
-O preço pago pelo terreno não será reembolsado ao proprietário. Se um terreno doado for vendido, a receita da venda será dividida igualmente entre os membros do grupo.
+		Ao transferir este terreno, o grupo precisa ter e manter créditos de uso de terrenos suficiente. 
+A doação inclui uma contribuição de terreno ao grupo de &apos;[NAME]&apos;. 
+O preço pago pelo terreno não será reembolsado ao proprietário. Se um terreno doado for vendido, a receita da venda será dividida igualmente entre os membros do grupo. 
 
-Doar este terreno de [AREA] m² para o grupo &apos;[GROUP_NAME]&apos;?
+Doar esta [AREA] m² do terreno para o grupo &apos;&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;&apos;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
@@ -1738,7 +1775,7 @@ Se você estiver muito ansioso para experimentar os novos recursos e correções
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
 	<notification name="GroupDepart">
-		Você deixou o grupo &apos;[group_name]&apos;.
+		Você deixou o grupo &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;.
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Não foi possível deixar o grupo. Você não pode deixar o grupo pois é o último proprietário dele. Primeiramente, atribua outro membro à função de proprietário.
@@ -2009,6 +2046,10 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 	<notification name="EstateChangeCovenant">
 		Tem certeza de que deseja mudar o Corretor da Propriedade?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Mudar"/>
+	</notification>
+	<notification name="EstateParcelAccessOverride">
+		Ao desselecionar esta opção, você pode remover as restrições que os proprietários dos terrenos adicionaram para evitar problemas, manter a privacidade ou proteger residentes menores de idade contra conteúdo adulto. Por favor, discuta com os seus proprietários de terreno conforme necessário.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		A região que você está tentando visitar tem conteúdo que excede suas preferências atuais.  Você pode alterar suas preferências acessando Eu &gt; Preferências &gt; Geral.
@@ -2350,7 +2391,17 @@ Não é possível desfazer essa ação.
 	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
-		<usetemplate ignoretext="Confirmar antes de excluir" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+		<form name="form">
+			<ignore name="ignore" text="Confirmar antes de excluir"/>
+			<button name="Yes" text="OK"/>
+			<button name="No" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification name="DeleteFilteredItems">
+		O seu inventário está atualmente filtrado e nem todos os itens que você está para excluir estão atualmente visíveis. 
+
+Tem certeza de que deseja exclui-los?
+		<usetemplate ignoretext="Confirme antes de excluir os itens filtrados" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmUnlink">
 		Essa é uma seleção ampla com linksets. Se você desvinculá-la, pode não ser possível vinculá-la novamente. Como precaução, pode ser interessante fazer cópias dos linksets no seu inventário.
@@ -2428,13 +2479,17 @@ Deseja desativar o Não perturbe antes de concluir esta transação?
 		A pasta &apos;[FOLDERNAME]&apos; é uma pasta do sistema. Excluir pastas de sistema pode deixar o sistema instável.   Tem certeza de que quer prosseguir?
 		<usetemplate ignoretext="Confirmar antes de excluir pastas do sistema." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
+	<notification name="PurgeSelectedItems">
+		[COUNT] item(ns) será(ão) permanentemente excluído(s) Tem certeza de que deseja excluir permanentemente o(s) item(ns) da sua lixeira?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmEmptyTrash">
-		Tem certeza de que deseja excluir o conteúdo da Lixeira? Para sempre?
-		<usetemplate ignoretext="Confirmar antes de esvaziar a pasta Lixeira" name="okcancelignore" notext="Não" yestext="Sim"/>
+		[COUNT] itens serão excluídos permanentemente. Tem certeza de que deseja excluir o conteúdo da Lixeira? Para sempre?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
 		Sua lixeira está transbordando. Isso pode causar problemas no logon.
-		<usetemplate name="okcancelbuttons" notext="Esvaziarei a lixeira mais tarde" yestext="Esvaziar lixeira agora"/>
+		<usetemplate name="okcancelbuttons" notext="Esvaziarei a lixeira mais tarde" yestext="Verifique a pasta lixeira"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Tem certeza de que quer apagar todo o histórico de viagens, web e buscas?
@@ -2562,6 +2617,9 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 	</notification>
 	<notification name="AddSelfFriend">
 		Você é o máximo! Mesmo assim, não dá para adicionar a si mesmo(a) como amigo(a).
+	</notification>
+	<notification name="AddSelfRenderExceptions">
+		Você não pode adicionar a si mesmo para renderizar a lista de exceções.
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
 		Fazendo o upload das fotos do site da web e do mundo...
@@ -2753,9 +2811,9 @@ Instale o plugin novamente ou contate o fabricante se o problema persistir.
 		Os objetos no lote selecionado, do residente [NAME], foram devolidos ao proprietãrio.
 	</notification>
 	<notification name="GroupObjectsReturned">
-		Os objetos no lote selecionado de terreno compartilhado pelo grupo [GROUPNAME], voltaram para os inventários de seus donos.
-Objetos trasnferíveis dados ao grupo, voltaram aos seus donos anteriores.
-Objetos não transferíveis dados ao grupo foram deletados.
+		Os objetos no lote selecionado do terreno compartilhado com o grupo &lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt; retornaram para o inventário do proprietário. 
+Os objetos transferíveis doados são devolvidos para os seus antigos proprietários. 
+Objetos não transferíveis que foram doados para o grupo foram excluídos.
 	</notification>
 	<notification name="UnOwnedObjectsReturned">
 		Os objetos no lote selecionado que NÃO são seus, voltaram aos seus donos.
@@ -3140,7 +3198,7 @@ Para conceder essa permissão, atualize seu visualizador para a versão mais rec
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [GROUPNAME]&apos;
+		&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt;&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
 			<button name="Client_Side_Mute" text="Bloquear"/>
@@ -3187,8 +3245,8 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 		[NAME] recebeu dinheiro e foi desbloqueado(a) automaticamente.
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME] atendeu uma ligação de bate-papo de voz com o grupo [GROUP].  
-Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique em Bloquear para bloquear ligações deste avatar.
+		[NAME] entrou em um bate-papo de voz com o grupo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;. 
+Clique em Aceitar para atender ou em Recusar para recusar este convite. Clique em Bloquear para bloquear ligações deste avatar.
 		<form name="form">
 			<button name="Accept" text="Aceitar"/>
 			<button name="Decline" text="Recusar"/>
@@ -3296,6 +3354,9 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	<notification name="AppearanceToXMLFailed">
 		Falha ao salvar a aparência como XML.
 	</notification>
+	<notification name="SnapshotToComputerFailed">
+		Falha ao salvar fotografia em [PATH]: Disco cheio. [NEED_MEMORY]KB é necessário, mas somente [FREE_MEMORY]KB está livre.
+	</notification>
 	<notification name="PresetNotSaved">
 		Erro ao salvar predefinição [NAME].
 	</notification>
@@ -3333,9 +3394,14 @@ O botão será exibido quando houver espaço suficente.
 	<notification name="ShareNotification">
 		Selecione os residentes com quem compartilhar.
 	</notification>
+	<notification name="MeshUploadErrorDetails">
+		[LABEL] falhou ao realizar upload: [MESSAGE] 
+[DETAILS]Acesse SecondLife.log para detalhes
+	</notification>
 	<notification name="MeshUploadError">
-		Falha no envio de [LABEL]: [MESSAGE] [IDENTIFIER]
-[DETAILS]Consulte SecondLife.log para obter mais detalhes
+		[LABEL] falhou ao realizar upload: [MESSAGE] 
+
+Acesse SecondLife.log para detalhes
 	</notification>
 	<notification name="MeshUploadPermError">
 		Erro ao solicitar permissões de upload de mesh.

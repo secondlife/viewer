@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="Linksets de pathfinding">
+<floater name="floater_pathfinding_linksets" title="OBJETOS DE LA REGIÓN">
 	<floater.string name="messaging_get_inprogress">
 		Consultando los linksets de pathfinding...
 	</floater.string>
@@ -16,7 +16,7 @@
 		No hay linksets de pathfinding.
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		[NUM_SELECTED] linksets seleccionados de [NUM_TOTAL].
+		[NUM_SELECTED] seleccionados de [NUM_TOTAL].
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
 		En esta región no está permitido el pathfinding.
@@ -118,7 +118,7 @@
 			<scroll_list.columns label="Con scripts" name="scripted"/>
 			<scroll_list.columns label="Impacto" name="land_impact"/>
 			<scroll_list.columns label="Distancia" name="dist_from_you"/>
-			<scroll_list.columns label="Utilización de linkset" name="linkset_use"/>
+			<scroll_list.columns label="Uso de Pathfinding" name="linkset_use"/>
 			<scroll_list.columns label="A %" name="a_percent"/>
 			<scroll_list.columns label="B %" name="b_percent"/>
 			<scroll_list.columns label="C %" name="c_percent"/>
@@ -133,7 +133,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_actions">
 		<text name="linksets_actions_label">
-			Acciones aplicadas a los linksets seleccionados (si se elimina un linkset de Second Life, podrían perderse sus atributos):
+			Acciones en los elementos seleccionados
 		</text>
 		<check_box label="Mostrar baliza" name="show_beacon"/>
 		<button label="Tomar" name="take_objects"/>
@@ -144,7 +144,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_attributes">
 		<text name="linksets_attributes_label">
-			Modifica los atributos de los linksets seleccionados y pulsa el botón para aplicar los cambios
+			Modificar atributos de pathfinding
 		</text>
 		<text name="walkability_coefficients_label">
 			Transitabilidad:

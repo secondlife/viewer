@@ -2031,13 +2031,8 @@ void LLPathParams::copyParams(const LLPathParams &params)
 	setSkew(params.getSkew());
 }
 
-S32 profile_delete_lock = 1 ; 
 LLProfile::~LLProfile()
 {
-	if(profile_delete_lock)
-	{
-		LL_ERRS() << "LLProfile should not be deleted here!" << LL_ENDL ;
-	}
 }
 
 
@@ -2102,9 +2097,7 @@ LLVolume::~LLVolume()
 	sNumMeshPoints -= mMesh.size();
 	delete mPathp;
 
-	profile_delete_lock = 0 ;
 	delete mProfilep;
-	profile_delete_lock = 1 ;
 
 	mPathp = NULL;
 	mProfilep = NULL;
