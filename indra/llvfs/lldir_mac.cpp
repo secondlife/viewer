@@ -94,7 +94,7 @@ LLDir_Mac::LLDir_Mac()
 		// MBW -- This keeps the mac application from finding other things.
 		// If this is really for skins, it should JUST apply to skins.
         
-		U32 build_dir_pos = mExecutableDir.rfind("/build-darwin-");
+		std::string::size_type build_dir_pos = mExecutableDir.rfind("/build-darwin-");
 		if (build_dir_pos != std::string::npos)
 		{
 			// ...we're in a dev checkout

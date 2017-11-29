@@ -4,7 +4,6 @@ include(APR)
 include(Boost)
 include(EXPAT)
 include(ZLIB)
-include(GooglePerfTools)
 
 set(LLCOMMON_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llcommon
@@ -33,8 +32,6 @@ else (LINUX)
         ${BOOST_THREAD_LIBRARY} 
         ${BOOST_SYSTEM_LIBRARY} )
 endif (LINUX)
-
-# add_definitions(${TCMALLOC_FLAG})
 
 set(LLCOMMON_LINK_SHARED OFF CACHE BOOL "Build the llcommon target as a static library.")
 if(LLCOMMON_LINK_SHARED)

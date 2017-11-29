@@ -246,17 +246,15 @@
      name="updater_service_combobox"
      width="300">
         <combo_box.item
-         label="Install automatically"
+         label="Install each update automatically"
          name="Install_automatically"
          value="3" />
-      <!--
         <combo_box.item
-         label="Ask before installing"
+         label="Ask me when an optional update is ready to install"
          name="Install_ask"
          value="1" />
-      -->
         <combo_box.item
-         label="I will download and install updates manually"
+         label="Install only mandatory updates"
          name="Install_manual"
          value="0" />
   </combo_box>

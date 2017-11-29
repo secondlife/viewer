@@ -680,7 +680,7 @@ private:
 	/// @}
 	// End Global State
 	// ====================================
-	
+
 };  // end class HttpRequest
 
 

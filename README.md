@@ -1,6 +1,6 @@
 Second Life Viewer
 ====================
- 
+
 This project manages the source code for the
 [Second Life](https://www.secondlife.com) Viewer.
 
@@ -14,4 +14,3 @@ To download the current default version, visit
 [the download page](https://secondlife.com/support/downloads). For
 even newer versions try
 [the Alternate Viewers page](https://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers)
-

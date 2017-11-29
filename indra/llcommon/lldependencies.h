@@ -124,8 +124,8 @@ public:
     virtual std::string describe(bool full=true) const;
 
 protected:
-    typedef std::vector< std::pair<int, int> > EdgeList;
-    typedef std::vector<int> VertexList;
+    typedef std::vector< std::pair<std::size_t, std::size_t> > EdgeList;
+    typedef std::vector<std::size_t> VertexList;
     VertexList topo_sort(int vertices, const EdgeList& edges) const;
 
     /**
@@ -508,7 +508,7 @@ public:
             // been explicitly added. Rely on std::map rejecting a second attempt
             // to insert the same key. Use the map's size() as the vertex number
             // to get a distinct value for each successful insertion.
-            typedef std::map<KEY, int> VertexMap;
+            typedef std::map<KEY, std::size_t> VertexMap;
             VertexMap vmap;
             // Nest each of these loops because !@#$%? MSVC warns us that its
             // former broken behavior has finally been fixed -- and our builds

@@ -47,13 +47,13 @@
 // namespace) that a global 'nil' macro breaks badly.
 #if defined(nil)
 // Capture the value of the macro 'nil', hoping int is an appropriate type.
-static const int nil_(nil);
+static const auto nil_(nil);
 // Now forget the macro.
 #undef nil
 // Finally, reintroduce 'nil' as a properly-scoped alias for the previously-
 // defined const 'nil_'. Make it static since otherwise it produces duplicate-
 // symbol link errors later.
-static const int& nil(nil_);
+static const auto& nil(nil_);
 #endif
 
 #include <string>

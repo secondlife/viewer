@@ -43,7 +43,9 @@ import subprocess
 
 class ManifestError(RuntimeError):
     """Use an exception more specific than generic Python RuntimeError"""
-    pass
+    def __init__(self, msg):
+        self.msg = msg
+        super(ManifestError, self).__init__(self.msg)
 
 class MissingError(ManifestError):
     """You specified a file that doesn't exist"""
@@ -143,6 +145,9 @@ ARGUMENTS=[
          default=None),
     dict(name='versionfile',
          description="""The name of a file containing the full version number."""),
+    dict(name='bundleid',
+         description="""The Mac OS X Bundle identifier.""",
+         default="com.secondlife.indra.viewer"),
     dict(name='signature',
          description="""This specifies an identity to sign the viewer with, if any.
         If no value is supplied, the default signature will be used, if any. Currently
@@ -306,8 +311,11 @@ def main():
                 continue
             if touch:
                 print 'Creating additional package for "', package_id, '" in ', args['dest']
-            wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
-            wm.do(*args['actions'])
+            try:
+                wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
+                wm.do(*args['actions'])
+            except Exception as err:
+                sys.exit(str(err))
             if touch:
                 print 'Created additional package ', wm.package_file, ' for ', package_id
                 faketouch = base_touch_prefix + '/' + package_id + '/' + base_touch_postfix
@@ -368,12 +376,30 @@ class LLManifest(object):
         self.excludes.append(glob)
 
     def prefix(self, src='', build=None, dst=None):
-        """ Pushes a prefix onto the stack.  Until end_prefix is
-        called, all relevant method calls (esp. to path()) will prefix
-        paths with the entire prefix stack.  Source and destination
-        prefixes can be different, though if only one is provided they
-        are both equal.  To specify a no-op, use an empty string, not
-        None."""
+        """
+        Usage:
+
+        with self.prefix(...args as described...):
+            self.path(...)
+
+        For the duration of the 'with' block, pushes a prefix onto the stack.
+        Within that block, all relevant method calls (esp. to path()) will
+        prefix paths with the entire prefix stack. Source and destination
+        prefixes can be different, though if only one is provided they are
+        both equal. To specify a no-op, use an empty string, not None.
+
+        Also supports the older (pre-Python-2.5) syntax:
+
+        if self.prefix(...args as described...):
+            self.path(...)
+            self.end_prefix(...)
+
+        Before the arrival of the 'with' statement, one was required to code
+        self.prefix() and self.end_prefix() in matching pairs to push and to
+        pop the prefix stacks, respectively. The older prefix() method
+        returned True specifically so that the caller could indent the
+        relevant block of code with 'if', just for aesthetic purposes.
+        """
         if dst is None:
             dst = src
         if build is None:
@@ -382,7 +408,57 @@ class LLManifest(object):
         self.artwork_prefix.append(src)
         self.build_prefix.append(build)
         self.dst_prefix.append(dst)
-        return True  # so that you can wrap it in an if to get indentation
+
+        # The above code is unchanged from the original implementation. What's
+        # new is the return value. We're going to return an instance of
+        # PrefixManager that binds this LLManifest instance and Does The Right
+        # Thing on exit.
+        return self.PrefixManager(self)
+
+    class PrefixManager(object):
+        def __init__(self, manifest):
+            self.manifest = manifest
+            # stack attributes we manage in this LLManifest (sub)class
+            # instance
+            stacks = ("src_prefix", "artwork_prefix", "build_prefix", "dst_prefix")
+            # If the caller wrote:
+            # with self.prefix(...):
+            # as intended, then bind the state of each prefix stack as it was
+            # just BEFORE the call to prefix(). Since prefix() appended an
+            # entry to each prefix stack, capture len()-1.
+            self.prevlen = { stack: len(getattr(self.manifest, stack)) - 1
+                             for stack in stacks }
+
+        def __nonzero__(self):
+            # If the caller wrote:
+            # if self.prefix(...):
+            # then a value of this class had better evaluate as 'True'.
+            return True
+
+        def __enter__(self):
+            # nobody uses 'with self.prefix(...) as variable:'
+            return None
+
+        def __exit__(self, type, value, traceback):
+            # First, if the 'with' block raised an exception, just propagate.
+            # Do NOT swallow it.
+            if type is not None:
+                return False
+
+            # Okay, 'with' block completed successfully. Restore previous
+            # state of each of the prefix stacks in self.stacks.
+            # Note that we do NOT simply call pop() on them as end_prefix()
+            # does. This is to cope with the possibility that the coder
+            # changed 'if self.prefix(...):' to 'with self.prefix(...):' yet
+            # forgot to remove the self.end_prefix(...) call at the bottom of
+            # the block. In that case, calling pop() again would be Bad! But
+            # if we restore the length of each stack to what it was before the
+            # current prefix() block, it doesn't matter whether end_prefix()
+            # was called or not.
+            for stack, prevlen in self.prevlen.items():
+                # find the attribute in 'self.manifest' named by 'stack', and
+                # truncate that list back to 'prevlen'
+                del getattr(self.manifest, stack)[prevlen:]
 
     def end_prefix(self, descr=None):
         """Pops a prefix off the stack.  If given an argument, checks
@@ -446,29 +522,17 @@ class LLManifest(object):
         return path
 
     def run_command(self, command):
-        """ Runs an external command, and returns the output.  Raises
-        an exception if the command returns a nonzero status code.  For
-        debugging/informational purposes, prints out the command's
-        output as it is received."""
+        """ 
+        Runs an external command.  
+        Raises ManifestError exception if the command returns a nonzero status.
+        """
         print "Running command:", command
         sys.stdout.flush()
-        child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                 shell=True)
-        lines = []
-        while True:
-            lines.append(child.stdout.readline())
-            if lines[-1] == '':
-                break
-            else:
-                print lines[-1],
-        output = ''.join(lines)
-        child.stdout.close()
-        status = child.wait()
-        if status:
-            raise ManifestError(
-                "Command %s returned non-zero status (%s) \noutput:\n%s"
-                % (command, status, output) )
-        return output
+        try:
+            subprocess.check_call(command, shell=True)
+        except subprocess.CalledProcessError as err:
+            raise ManifestError( "Command %s returned non-zero status (%s)"
+                                % (command, err.returncode) )
 
     def created_path(self, path):
         """ Declare that you've created a path in order to
@@ -618,7 +682,7 @@ class LLManifest(object):
         if self.includes(src, dst):
             try:
                 os.unlink(dst)
-            except OSError, err:
+            except OSError as err:
                 if err.errno != errno.ENOENT:
                     raise
 
@@ -639,7 +703,7 @@ class LLManifest(object):
             dstname = os.path.join(dst, name)
             try:
                 self.ccopymumble(srcname, dstname)
-            except (IOError, os.error), why:
+            except (IOError, os.error) as why:
                 errors.append((srcname, dstname, why))
         if errors:
             raise ManifestError, errors

@@ -25,6 +25,8 @@
  */
 
 #include "bufferarray.h"
+#include "llexception.h"
+#include "llmemory.h"
 
 
 // BufferArray is a list of chunks, each a BufferArray::Block, of contiguous
@@ -140,8 +142,22 @@ size_t BufferArray::append(const void * src, size_t len)
 		{
 			mBlocks.reserve(mBlocks.size() + 5);
 		}
-		Block * block = Block::alloc(BLOCK_ALLOC_SIZE);
-		memcpy(block->mData, c_src, copy_len);
+        Block * block;
+        try
+        {
+            block = Block::alloc(BLOCK_ALLOC_SIZE);
+        }
+        catch (std::bad_alloc)
+        {
+            LLMemory::logMemoryInfo(TRUE);
+
+            //output possible call stacks to log file.
+            LLError::LLCallStacks::print();
+
+            LL_WARNS() << "Bad memory allocation in thrown by Block::alloc in read!" << LL_ENDL;
+            break;
+        }
+        memcpy(block->mData, c_src, copy_len);
 		block->mUsed = copy_len;
 		llassert_always(block->mUsed <= block->mAlloced);
 		mBlocks.push_back(block);
@@ -149,7 +165,7 @@ size_t BufferArray::append(const void * src, size_t len)
 		c_src += copy_len;
 		len -= copy_len;
 	}
-	return ret;
+	return ret - len;
 }
 
 
