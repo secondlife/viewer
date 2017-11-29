@@ -15,38 +15,36 @@
 	<text name="estate_owner">
 		(bilinmiyor)
 	</text>
-	<check_box label="Küresel Saati Kullan" name="use_global_time_check"/>
-	<check_box label="Sabit Güneş" name="fixed_sun_check"/>
-	<slider label="Faz" name="sun_hour_slider"/>
-	<check_box label="Kamusal Erişime İzin Ver" name="externally_visible_check"/>
-	<text name="Only Allow">
-		Sadece şu Sakinlere erişim izni verin:
-	</text>
-	<check_box label="Ödeme bilgileri kayıtlı" name="limit_payment" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için ödeme bilgilerinin kayıtlı olması gerekir.  Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
-	<check_box label="18 veya üzeri bir yaşta" name="limit_age_verified" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="Yalnızca aşağıda listelenen sakinlere ve gruplara izin ver" name="estate_restricted_access"/>
+		<radio_item label="Herkes ziyaret edebilir" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="18 yaşından büyük olmalıdır" name="limit_age_verified" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+	<check_box label="Dosyadaki ödeme bilgisine sahip olmalıdır" name="limit_payment" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için ödeme bilgilerinin kayıtlı olması gerekir.  Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+	<check_box label="Parsel sahipleri daha kısıtlayıcı olabilir" name="parcel_access_override"/>
 	<check_box label="Sesli Sohbete İzin Ver" name="voice_chat_check"/>
 	<check_box label="Doğrudan Işınlamaya İzin Ver" name="allow_direct_teleport"/>
 	<button label="Uygula" name="apply_btn"/>
-	<button label="Gayrimenkule İleti Gönder..." name="message_estate_btn"/>
-	<button label="Sakinlerini Gayrimenkulden Çıkar..." name="kick_user_from_estate_btn"/>
 	<text name="estate_manager_label">
 		Gayrimenkul Yöneticileri:
 	</text>
-	<button label="Kaldır..." name="remove_estate_manager_btn"/>
-	<button label="Ekle..." name="add_estate_manager_btn"/>
 	<text name="allow_resident_label">
-		İzin verilen Sakinler:
+		Her zaman izin verilen:
 	</text>
-	<button label="Kaldır..." name="remove_allowed_avatar_btn"/>
+	<button label="Ekle..." name="add_estate_manager_btn"/>
+	<button label="Kaldır..." name="remove_estate_manager_btn"/>
 	<button label="Ekle..." name="add_allowed_avatar_btn"/>
+	<button label="Kaldır..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		İzin verilen Gruplar:
+		Her zaman izin verilen gruplar:
 	</text>
-	<button label="Kaldır..." name="remove_allowed_group_btn"/>
-	<button label="Ekle..." name="add_allowed_group_btn"/>
 	<text name="ban_resident_label">
-		Yasaklı Sakinler:
+		Her zaman engellenen:
 	</text>
-	<button label="Kaldır..." name="remove_banned_avatar_btn"/>
+	<button label="Ekle..." name="add_allowed_group_btn"/>
+	<button label="Kaldır..." name="remove_allowed_group_btn"/>
 	<button label="Ekle..." name="add_banned_avatar_btn"/>
+	<button label="Kaldır..." name="remove_banned_avatar_btn"/>
+	<button label="Gayrimenkule İleti Gönder..." name="message_estate_btn"/>
+	<button label="Sakinlerini Gayrimenkulden Çıkar..." name="kick_user_from_estate_btn"/>
 </panel>

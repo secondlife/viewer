@@ -134,7 +134,11 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 			{
 				break;
 			}
-
+			//skip initial request from external browser before STATE_BROWSER_INIT
+			if (LLStartUp::getStartupState() == STATE_FIRST)
+			{
+				return true;
+			}
 			cur_time = LLTimer::getElapsedSeconds();
 			if (cur_time < last_throttle_time + THROTTLE_PERIOD)
 			{

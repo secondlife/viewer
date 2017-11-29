@@ -15,54 +15,36 @@
 	<text name="estate_owner">
 		(desconocido)
 	</text>
-	<check_box label="Usar el horario global" name="use_global_time_check"/>
-	<button label="?" name="use_global_time_help"/>
-	<check_box label="Fijar el Sol" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Fase" name="sun_hour_slider"/>
-	<check_box label="Permitir el acceso público" name="externally_visible_check"/>
-	<button label="?" name="externally_visible_help"/>
-	<text name="Only Allow">
-		Permitir únicamente el acceso a los Residentes que:
-	</text>
-	<check_box label="Han aportado la información de pago." name="limit_payment" tool_tip="Para poder acceder a este estado los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
-	<check_box label="Son mayores de 18 años" name="limit_age_verified" tool_tip="Para poder acceder a este estado, los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="Permitir únicamente a los residentes y grupos indicados a continuación" name="estate_restricted_access"/>
+		<radio_item label="Cualquiera puede visitar" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="Debe ser mayor de 18" name="limit_age_verified" tool_tip="Para poder acceder a este estado, los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
+	<check_box label="Debe haber información archivada sobre el pago" name="limit_payment" tool_tip="Para poder acceder a este estado los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
+	<check_box label="Los propietarios de parcelas pueden ser más restrictivos" name="parcel_access_override"/>
 	<check_box label="Permitir el chat de voz" name="voice_chat_check"/>
-	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir el teleporte a cualquier punto" name="allow_direct_teleport"/>
-	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="abuse_email_text" width="260">
-		Dirección de correo-e para infracciones:
-	</text>
-	<string name="email_unsupported">
-		Característica no disponible
-	</string>
-	<button label="?" name="abuse_email_address_help"/>
 	<button label="Aplicar" name="apply_btn"/>
-	<button label="Expulsar a un Residente del estado..." name="kick_user_from_estate_btn"/>
-	<button label="Enviar un mensaje al estado..." name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Administradores del estado:
 	</text>
-	<button label="?" name="estate_manager_help"/>
-	<button label="Quitar..." name="remove_estate_manager_btn"/>
-	<button label="Añadir..." name="add_estate_manager_btn"/>
 	<text name="allow_resident_label">
-		Residentes autorizados:
+		Siempre permitido:
 	</text>
-	<button label="?" name="allow_resident_help"/>
-	<button label="Quitar..." name="remove_allowed_avatar_btn"/>
+	<button label="Añadir..." name="add_estate_manager_btn"/>
+	<button label="Quitar..." name="remove_estate_manager_btn"/>
 	<button label="Añadir..." name="add_allowed_avatar_btn"/>
+	<button label="Quitar..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		Grupos autorizados:
+		Grupos siempre permitidos:
 	</text>
-	<button label="?" name="allow_group_help"/>
-	<button label="Quitar..." name="remove_allowed_group_btn"/>
-	<button label="Añadir..." name="add_allowed_group_btn"/>
 	<text name="ban_resident_label">
-		Residentes con el acceso prohibido:
+		Siempre prohibido:
 	</text>
-	<button label="?" name="ban_resident_help" right="476"/>
-	<button label="Quitar..." name="remove_banned_avatar_btn"/>
+	<button label="Añadir..." name="add_allowed_group_btn"/>
+	<button label="Quitar..." name="remove_allowed_group_btn"/>
 	<button label="Añadir..." name="add_banned_avatar_btn"/>
+	<button label="Quitar..." name="remove_banned_avatar_btn"/>
+	<button label="Enviar un mensaje al estado..." name="message_estate_btn"/>
+	<button label="Expulsar a un Residente del estado..." name="kick_user_from_estate_btn"/>
 </panel>

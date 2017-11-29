@@ -15,6 +15,8 @@
 	<button label="Tutto" label_selected="Tutto" name="All"/>
 	<button label="Nulla" label_selected="Nulla" name="None"/>
 	<check_box label="Mostra sempre le cartelle" name="check_show_empty"/>
+	<check_box label="Creato da me" name="check_created_by_me"/>
+	<check_box label="Creato da altri" name="check_created_by_others"/>
 	<check_box label="Dall&apos;ultima sconnessione" name="check_since_logoff"/>
 	<text name="- OR -">
 		- Oppure -

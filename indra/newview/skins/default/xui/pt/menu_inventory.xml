@@ -75,10 +75,12 @@
 	<menu_item_call label="Propriedades" name="Properties"/>
 	<menu_item_call label="Renomear" name="Rename"/>
 	<menu_item_call label="Copiar item UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="Mostrar no Painel Principal" name="Show in Main Panel"/>
 	<menu_item_call label="Cortar" name="Cut"/>
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Colar" name="Paste"/>
 	<menu_item_call label="Colar como link" name="Paste As Link"/>
+	<menu_item_call label="Links trocados" name="Replace Links"/>
 	<menu_item_call label="Apagar" name="Delete"/>
 	<menu_item_call label="Excluir pasta do sistema" name="Delete System Folder"/>
 	<menu_item_call label="Pasta conversa em conferência" name="Conference Chat Folder"/>

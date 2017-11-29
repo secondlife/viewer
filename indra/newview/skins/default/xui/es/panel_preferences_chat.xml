@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat de texto" name="chat">
+	<check_box initial_value="true" label="Auto completar los gestos en el chat cercano" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
 		<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>

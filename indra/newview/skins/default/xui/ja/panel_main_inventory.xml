@@ -12,10 +12,17 @@
 	<text name="ItemcountText">
 		アイテム：
 	</text>
-	<filter_editor label="インベントリをフィルター" name="inventory search editor"/>
+	<filter_editor label="検索用語を入力する" name="inventory search editor"/>
+	<combo_box name="search_type">
+		<item label="名前" name="Name" value="search_by_name"/>
+		<item label="制作者" name="Creator" value="search_by_creator"/>
+		<item label="説明" name="Description" value="search_by_description"/>
+		<item label="UUID" name="UUID" value="search_by_UUID"/>
+	</combo_box>
 	<tab_container name="inventory filter tabs">
 		<inventory_panel label="インベントリ" name="All Items"/>
 		<recent_inventory_panel label="最新" name="Recent Items"/>
+		<inventory_panel label="着用中" name="Worn Items"/>
 	</tab_container>
 	<layout_stack name="bottom_panel">
 		<layout_panel name="options_gear_btn_panel">

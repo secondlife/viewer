@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
+	<check_box initial_value="true" label="近くのチャットでジェスチャーを自動コンプリートする" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
 		<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>

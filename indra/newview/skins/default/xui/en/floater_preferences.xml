@@ -11,6 +11,12 @@
  single_instance="true"
  title="PREFERENCES"
  width="658">
+    <floater.string
+     name="email_unverified_tooltip">
+        Please verify your email to enable IM to Email by visiting
+https://accounts.secondlife.com/change_email/
+    </floater.string>
+ 
    <button
      follows="right|bottom"
      height="23"

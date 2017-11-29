@@ -260,8 +260,7 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		此時無法完成你的請求。
-請到 http://secondlife.com/support 聯絡支援人員獲得幫助。
-如果你無法變更密碼，請致電 (866) 476-9763 （美國）。
+請到 http://support.secondlife.com 聯絡支援人員獲得幫助。
 	</string>
 	<string name="LoginFailedTransformError">
 		登入時的資料不一致。
@@ -695,6 +694,19 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		未知狀態
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		服務無法取得。
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		伺服器發生意料外的困難。
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		無法提供服務，或者上傳逾時。
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		上傳要求發生錯誤。  請參見： 
+http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="texture">
 		材質
@@ -2190,10 +2202,19 @@ http://secondlife.com/viewer-access-faq
 		你為 [OWNER] 管理的全部領地
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		允許居民：（[ALLOWEDAGENTS]，最多 [MAXACCESS]）
+		永遠允許：（[ALLOWEDAGENTS]，最多 [MAXACCESS]）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		允許的群組：（[ALLOWEDGROUPS]，最多 [MAXACCESS]）
+		永遠允許的群組：（[ALLOWEDGROUPS]，最多 [MAXACCESS]）
+	</string>
+	<string name="RegionInfoBannedResidents">
+		永遠封鎖：（[BANNEDAGENTS]，最多可封鎖 [MAXBANNED] 名）
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		永遠允許
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		永遠封鎖
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		地段腳本記憶體
