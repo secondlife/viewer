@@ -6233,7 +6233,7 @@ The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders 
    icon="alertmodal.tga"
    name="ConfirmEmptyTrash"
    type="alertmodal">
-[COUNT] items will be permanently deleted. Are you sure you want to permanently delete the contents of your Trash?
+[COUNT] items and folders will be permanently deleted. Are you sure you want to permanently delete the contents of your Trash?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
