@@ -360,18 +360,16 @@ class WindowsManifest(ViewerManifest):
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
-        vmpdir = os.path.join(pkgdir, "VMP")
-        llbasedir = os.path.join(pkgdir, "lib", "python", "llbase")
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-            # include the compiled launcher scripts so that it gets included in the file_list
-            self.path(src='%s/SL_Launcher.exe' % vmpdir, dst="SL_Launcher.exe")
-
-            #IUM is not normally executed directly, just imported.  No exe needed.
-            self.path2basename(vmpdir,"InstallerUserMessage.py")
+            with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
+                # include the compiled launcher scripts so that it gets included in the file_list
+                self.path('SL_Launcher.exe')
+                #IUM is not normally executed directly, just imported.  No exe needed.
+                self.path("InstallerUserMessage.py")
 
             with self.prefix(src=self.icon_path(), dst="vmp_icons"):
                 self.path("secondlife.ico")
@@ -382,9 +380,9 @@ class WindowsManifest(ViewerManifest):
                 self.path("*.gif")
 
             #before, we only needed llbase at build time.  With VMP, we need it at run time.
-            with self.prefix(dst="llbase"):
-                self.path2basename(llbasedir,"*.py")
-                self.path2basename(llbasedir,"_cllsd.so")
+            with self.prefix(src=os.path.join(pkgdir, "lib", "python", "llbase"), dst="llbase"):
+                self.path("*.py")
+                self.path("_cllsd.so")
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -772,12 +770,6 @@ class DarwinManifest(ViewerManifest):
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
-        vmpdir = os.path.join(pkgdir, "VMP")
-        llbasedir = os.path.join(pkgdir, "lib", "python", "llbase")
-        requestsdir = os.path.join(pkgdir, "lib", "python", "requests")
-        urllib3dir = os.path.join(pkgdir, "lib", "python", "urllib3")
-        chardetdir = os.path.join(pkgdir, "lib", "python", "chardet")
-        idnadir = os.path.join(pkgdir, "lib", "python", "idna")
 
         with self.prefix(src="", dst="Contents"):  # everything goes in Contents
             self.path("Info.plist")
@@ -789,25 +781,20 @@ class DarwinManifest(ViewerManifest):
             # copy additional libs in <bundle>/Contents/MacOS/
             with self.prefix(dst="MacOS"):              
                 #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322, SL-323
-                self.path2basename(vmpdir,"SL_Launcher")
-                self.path2basename(vmpdir,"*.py")
-                # certifi will be imported by requests; this is our custom version to get our ca-bundle.crt 
-                with self.prefix(dst="certifi"):
-                    self.path2basename(os.path.join(vmpdir,"certifi"),"*")
-                # llbase provides our llrest service layer and llsd decoding
-                with self.prefix(dst="llbase"):
-                    self.path2basename(llbasedir,"*.py")
-                    self.path2basename(llbasedir,"_cllsd.so")
-                #requests module needed by llbase/llrest.py
-                #this is only needed on POSIX, because in Windows we compile it into the EXE
-                with self.prefix(dst="requests"):
-                    self.path2basename(requestsdir,"*")
-                with self.prefix(dst="urllib3"):
-                    self.path2basename(urllib3dir,"*")
-                with self.prefix(dst="chardet"):
-                    self.path2basename(chardetdir,"*")
-                with self.prefix(dst="idna"):
-                    self.path2basename(idnadir,"*")
+                with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
+                    self.path("SL_Launcher")
+                    self.path("*.py")
+                    # certifi will be imported by requests; this is our custom version to get our ca-bundle.crt 
+                    self.path("certifi")
+                with self.prefix(src=os.path.join(pkgdir, "lib", "python"), dst=""):
+                    # llbase provides our llrest service layer and llsd decoding
+                    with self.prefix("llbase"):
+                        self.path("*.py")
+                        self.path("_cllsd.so")
+                    #requests module needed by llbase/llrest.py
+                    #this is only needed on POSIX, because in Windows we compile it into the EXE
+                    for pypkg in "chardet", "idna", "requests", "urllib3":
+                        self.path(pypkg)
 
             # most everything goes in the Resources directory
             with self.prefix(src="", dst="Resources"):
@@ -1257,15 +1244,15 @@ class LinuxManifest(ViewerManifest):
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin") 
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-            self.path2basename("../viewer_components/manager","SL_Launcher")
-            self.path2basename("../viewer_components/manager","*.py")
-            with self.prefix(dst="llbase"):
-                self.path2basename("../packages/lib/python/llbase","*.py")
-                self.path2basename("../packages/lib/python/llbase","_cllsd.so")         
+            with self.prefix(src="../viewer_components/manager", dst=""):
+                self.path("SL_Launcher")
+                self.path("*.py")
+            with self.prefix(src=os.path.join("lib", "python", "llbase"), dst="llbase"):
+                self.path("*.py")
+                self.path("_cllsd.so")         
 
-        with self.prefix("res-sdl"):
-            self.path("*")
-            # recurse
+        # recurses, packaged again
+        self.path("res-sdl")
 
         # Get the icons based on the channel type
         icon_path = self.icon_path()
@@ -1276,9 +1263,10 @@ class LinuxManifest(ViewerManifest):
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
         # plugins
-        with self.prefix(src="", dst="bin/llplugin"):
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
-            self.path("../media_plugins/libvlc/libmedia_plugin_libvlc.so", "libmedia_plugin_libvlc.so")
+        with self.prefix(src="../media_plugins", dst="bin/llplugin"):
+            self.path("gstreamer010/libmedia_plugin_gstreamer010.so",
+                      "libmedia_plugin_gstreamer.so")
+            self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
 
         with self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
             self.path( "plugins.dat" )
