@@ -261,9 +261,8 @@ support@secondlife.com.
 Pasifik Saati ile [TIME].
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Talebinizi şu anda tamamlayamıyoruz.
-Lütfen yardım almak için Second Life destek bölümüne başvurun: http://secondlife.com/support
-Eğer parolanızı değiştiremiyorsanız, lütfen şu numarayı arayın: (866) 476-9763.
+		Talebinizi şu anda tamamlayamıyoruz. 
+Lütfen yardım almak için http://support.secondlife.com adresinden Second Life destek bölümüyle iletişime geçin.
 	</string>
 	<string name="LoginFailedTransformError">
 		Oturum açılması sırasında veri tutarsızlığı saptandı.
@@ -700,6 +699,19 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Bilinmeyen durum
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Hizmet ulaşılamaz.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Sunucu beklenmeyen zorluklar yaşıyor.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Hizmet kullanılabilir değil veya karşıya yükleme zaman aşımına ulaşıldı.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Karşıya yükleme talebinde hata. Bu sorunu çözmek için lütfen 
+http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="texture">
 		doku
@@ -2195,10 +2207,19 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		[OWNER] adına yönettiğiniz tüm gayrimenkuller
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		İzin verilen Sakinler: ([ALLOWEDAGENTS], maks [MAXACCESS])
+		Her zaman izin verilen: ([ALLOWEDAGENTS], maks [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		İzin verilen gruplar: ([ALLOWEDGROUPS], maks [MAXACCESS])
+		Her zaman izin verilen gruplar: ([ALLOWEDGROUPS], maks [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Her zaman engellenen: ([BANNEDAGENTS], maks [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Her zaman izin verilen
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Her zaman engellenen
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Parsel Komut Dosyası Belleği

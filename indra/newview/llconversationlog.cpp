@@ -196,8 +196,6 @@ LLConversationLog::LLConversationLog() :
 		keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
 		if (log_mode > 0)
 		{
-			loadFromFile(getFileName());
-
 			enableLogging(log_mode);
 		}
 	}
@@ -483,16 +481,15 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		// examples of two file entries
 		// [1343221177] 0 1 0 John Doe| 7e4ec5be-783f-49f5-71dz-16c58c64c145 4ec62a74-c246-0d25-2af6-846beac2aa55 john.doe|
 		// [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
-
 		fprintf(fp, "[%lld] %d %d %d %s| %s %s %s|\n",
 				(S64)conv_it->getTime().value(),
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
-				     conv_it->getConversationName().c_str(),
+				conv_it->getConversationName().c_str(),
 				participant_id.c_str(),
 				conversation_id.c_str(),
-				conv_it->getHistoryFileName().c_str());
+				LLURI::escape(conv_it->getHistoryFileName()).c_str());
 	}
 	fclose(fp);
 	return true;
@@ -511,6 +508,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		LL_WARNS() << "Couldn't open call log list" << filename << LL_ENDL;
 		return false;
 	}
+	bool purge_required = false;
 
 	char buffer[MAX_STRING];
 	char conv_name_buffer[MAX_STRING];
@@ -546,7 +544,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 			.conversation_name(conv_name_buffer)
 			.participant_id(LLUUID(part_id_buffer))
 			.session_id(LLUUID(conv_id_buffer))
-			.history_filename(history_file_name);
+			.history_filename(LLURI::unescape(history_file_name));
 
 		LLConversation conversation(params);
 
@@ -555,6 +553,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		// being over 30 days old should be purged from the conversation log text file on login.
 		if (conversation.isOlderThan(CONVERSATION_LIFETIME))
 		{
+			purge_required = true;
 			continue;
 		}
 
@@ -562,8 +561,11 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	}
 	fclose(fp);
 
-	LLFile::remove(filename);
-	cache();
+	if(purge_required)
+	{
+		LLFile::remove(filename);
+		cache();
+	}
 
 	notifyObservers();
 	return true;

@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="ミー" name="File">
 		<menu_item_call label="環境設定..." name="Preferences..."/>
+		<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
 		<menu_item_check label="グリッドピッカーを表示する" name="Show Grid Picker"/>
 		<menu_item_call label="[APP_NAME] を終了" name="Quit"/>
 	</menu>

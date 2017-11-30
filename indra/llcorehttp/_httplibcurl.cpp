@@ -40,6 +40,15 @@ namespace
 void check_curl_multi_code(CURLMcode code);
 void check_curl_multi_code(CURLMcode code, int curl_setopt_option);
 
+// This is a template because different 'option' values require different
+// types for 'ARG'. Just pass them through unchanged (by value).
+template <typename ARG>
+void check_curl_multi_setopt(CURLM* handle, CURLMoption option, ARG argument)
+{
+    CURLMcode code = curl_multi_setopt(handle, option, argument);
+    check_curl_multi_code(code, option);
+}
+
 static const char * const LOG_CORE("CoreHttp");
 
 } // end anonymous namespace
@@ -461,46 +470,38 @@ void HttpLibcurl::policyUpdated(int policy_class)
 		
 		HttpPolicyClass & options(policy.getClassOptions(policy_class));
 		CURLM * multi_handle(mMultiHandles[policy_class]);
-		CURLMcode code;
 
 		// Enable policy if stalled
 		policy.stallPolicy(policy_class, false);
 		mDirtyPolicy[policy_class] = false;
-		
+
 		if (options.mPipelining > 1)
 		{
 			// We'll try to do pipelining on this multihandle
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_PIPELINING,
 									 1L);
-			check_curl_multi_code(code, CURLMOPT_PIPELINING);
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_MAX_PIPELINE_LENGTH,
 									 long(options.mPipelining));
-			check_curl_multi_code(code, CURLMOPT_MAX_PIPELINE_LENGTH);
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_MAX_HOST_CONNECTIONS,
 									 long(options.mPerHostConnectionLimit));
-			check_curl_multi_code(code, CURLMOPT_MAX_HOST_CONNECTIONS);
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_MAX_TOTAL_CONNECTIONS,
 									 long(options.mConnectionLimit));
-			check_curl_multi_code(code, CURLMOPT_MAX_TOTAL_CONNECTIONS);
 		}
 		else
 		{
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_PIPELINING,
 									 0L);
-			check_curl_multi_code(code, CURLMOPT_PIPELINING);
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_MAX_HOST_CONNECTIONS,
 									 0L);
-			check_curl_multi_code(code, CURLMOPT_MAX_HOST_CONNECTIONS);
-			code = curl_multi_setopt(multi_handle,
+			check_curl_multi_setopt(multi_handle,
 									 CURLMOPT_MAX_TOTAL_CONNECTIONS,
 									 long(options.mConnectionLimit));
-			check_curl_multi_code(code, CURLMOPT_MAX_TOTAL_CONNECTIONS);
 		}
 	}
 	else if (! mDirtyPolicy[policy_class])

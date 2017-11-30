@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="我自己" name="File">
 		<menu_item_call label="偏好設定…" name="Preferences..."/>
+		<menu_item_call label="關閉視窗" name="Close Window"/>
 		<menu_item_check label="顯示格線挑選器" name="Show Grid Picker"/>
 		<menu_item_call label="退出 [APP_NAME]" name="Quit"/>
 	</menu>

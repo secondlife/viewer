@@ -121,7 +121,7 @@
 			<menu_item_call label="次のパーツまたは面を含める" name="Include Next Part or Face"/>
 			<menu_item_call label="前のパーツまたは面を含める" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="リンクセット..." name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="リージョンオブジェクト" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
@@ -141,7 +141,7 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="パスファインディング" name="Pathfinding">
-			<menu_item_call label="リンクセット..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="リージョンオブジェクト" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="キャラクター..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="表示/テスト..." name="pathfinding_console_menu_item"/>
 			<menu_item_call label="地域の再構築" name="pathfinding_rebake_navmesh_item"/>

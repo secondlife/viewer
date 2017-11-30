@@ -3,6 +3,10 @@
 	<global name="skipnexttime">
 		Больше не показывать
 	</global>
+	<global name="skipnexttimesessiononly">
+		Больше не показывать 
+(в текущей сессии)
+	</global>
 	<global name="alwayschoose">
 		Всегда выбирать эту опцию
 	</global>
@@ -343,7 +347,7 @@
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="Вступить"/>
 	</notification>
 	<notification name="JoinGroupNoCost">
-		Вы вступаете в группу [NAME].
+		Вы вступаете в группу &lt;nolink&gt;[NAME]&lt;/nolink&gt;. 
 Продолжить?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="Вступить"/>
 	</notification>
@@ -356,6 +360,39 @@
 В группе должно быть более одного участника, иначе она будет удалена.
 Пригласите участников в ближайшие 48 часов.
 		<usetemplate canceltext="Отмена" name="okcancelbuttons" notext="Отмена" yestext="Создать группу за L$100"/>
+	</notification>
+	<notification name="JoinGroupInaccessible">
+		Вход в эту группу закрыт для вас.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupError">
+		Ошибка при обработке запроса о членстве в группе.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupErrorReason">
+		Невозможно войти в группу: [reason]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupTrialUser">
+		Извините, тестовые пользователи не могут вступить группы.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupMaxGroups">
+		Вы не можете вступить в &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;: Вы уже являетесь [group_count] членом группы, макс. количество членов может быть только [max_groups]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupClosedEnrollment">
+		Вы не можете вступить в &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;: 
+Приём в группу закрыт.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupSuccess">
+		Вы включены в группу.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupInsufficientFunds">
+		Невозможно передать необходимой суммы L$ [membership_fee] платы за членство.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandBuyPass">
 		За L$[COST] вы можете находиться на этой земле («[PARCEL_NAME]») в течение [TIME] часов.  Купить пропуск?
@@ -378,9 +415,9 @@
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		Вы действительно хотите вернуть все объекты, переданные группе «[NAME]» на этом земельном участке, обратно в инвентарь их прежних владельцев?
+		Вы действительно хотите вернуть все объекты, находящиеся в совместном пользовании с группой &apos;&lt;nolink&gt;[NAME]&lt;/nolink&gt;&apos; на этом земельном участке, обратно в инвентарь их прежних владельцев? 
 
-*ПРЕДУПРЕЖДЕНИЕ* Все непереносимые объекты, предоставленные этой группе, будут удалены!
+*ПРЕДУПРЕЖДЕНИЕ* Все именные объекты, переданные этой группе, будут удалены! 
 
 Объекты: [N]
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -424,7 +461,7 @@
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByGroup">
-		Вернуть все объекты на этом земельном участке, НЕ переданные группе «[NAME]», их владельцам?
+		Вернуть объекты на этом земельном участке, которые НЕ находятся в совместном пользовании с группой &lt;nolink&gt;[NAME]&lt;/nolink&gt; их владельцам? 
 
 Объекты: [N]
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -472,7 +509,7 @@
 		Ошибка при передаче снимка отчета по следующей причине: [REASON]
 	</notification>
 	<notification name="MustAgreeToLogIn">
-		Для входа в [SECOND_LIFE] вы должны принять условия Пользовательского соглашения.
+		Для входа в [SECOND_LIFE] вы должны принять условия конфиденциальности Пользовательского соглашения Second Life.
 	</notification>
 	<notification name="CouldNotPutOnOutfit">
 		Не удалось надеть костюм.
@@ -725,7 +762,7 @@
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="Выкинуть"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
-		Вы исключили аватар [AVATAR_NAME] из группы [GROUP_NAME]
+		Вы исключили аватар [AVATAR_NAME] из группы &lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;
 	</notification>
 	<notification name="AcquireErrorTooManyObjects">
 		ОШИБКА ПРИОБРЕТЕНИЯ: выбрано слишком много объектов.
@@ -1323,18 +1360,18 @@
 Выберите меньшую область и повторите попытку.
 	</notification>
 	<notification name="DeedLandToGroup">
-		После передачи этого участка группе потребуется достаточное количество финансов для поддержки данной земли.
-Стоимость покупки земли не возвращается владельцу. Если переданный участок продается, выручка за нее равномерно распределяется между участниками группы.
+		После передачи этого участка группе потребуется достаточное количество финансов для владения и ухода за этой землей. 
+Сумма покупки земли не возмещается владельцу. При продаже переданного участка её вырученная сумма равномерно распределяется между участниками группы. 
 
-Передать эти [AREA] м² земли группе «[GROUP_NAME]»?
+Передать эти [AREA] м² земли группе &apos;&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;&apos;?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
-		После передачи этого участка группе потребуется достаточное количество финансов для поддержки данной земли.
-Передача будет включать одновременный земельный взнос в группу от жителя «[NAME]».
-Стоимость покупки земли не возвращается владельцу. Если переданный участок продается, выручка за нее равномерно распределяется между участниками группы.
+		После передачи этого участка группе потребуется достаточное количество финансов для владения и ухода за этой землей. 
+Передача будет включать одновременный земельный взнос в группу от &apos;[NAME]&apos;. 
+Сумма покупки земли не возмещается владельцу. При продаже переданного участка её вырученная сумма равномерно распределяется между участниками группы. 
 
-Передать эти [AREA] м² земли группе «[GROUP_NAME]»?
+Передать эти [AREA] м² земли группе &apos;&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;&apos;?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
@@ -1747,7 +1784,7 @@ http://secondlife.com/download.
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="GroupDepart">
-		Вы покинули группу «[group_name]».
+		Вы вышли из группы &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;.
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		Невозможно покинуть группу. Вы не можете покинуть группу, так как вы ее последний владелец. Сначала назначьте владельцем другого участника.
@@ -2017,6 +2054,10 @@ http://secondlife.com/download.
 	<notification name="EstateChangeCovenant">
 		Вы действительно хотите изменить соглашение по землевладению?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelAccessOverride">
+		При снятии этой опции вы можете удалить ограничения, которые владельцы участка добавили для предотвращения провокационных сообщений, сохранения конфиденциальности и защиты несовершеннолетных жителей от материала для взрослых. При необходимости обсудите со своими владельцами участков.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
@@ -2357,7 +2398,17 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
-		<usetemplate ignoretext="Подтверждать перед удалением предметов" name="okcancelignore" notext="Отмена" yestext="OK"/>
+		<form name="form">
+			<ignore name="ignore" text="Подтвердите перед удалением предметов"/>
+			<button name="Yes" text="OK"/>
+			<button name="No" text="Отмена"/>
+		</form>
+	</notification>
+	<notification name="DeleteFilteredItems">
+		Ваш инвентарь в настоящее время обрабатывается и не все предметы, которые вы хотите удалить, 
+
+доступны для обзора. Вы действительно хотите удалить это?
+		<usetemplate ignoretext="Подтвердите перед удалением обработанных предметов" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmUnlink">
 		Это большое выделение с наборами связей. Если разъединить его, повторное соединение может отказаться невозможным. В качестве меры предосторожности попробуйте скопировать наборы связей в инвентарь.
@@ -2435,13 +2486,17 @@ http://secondlife.com/download.
 		Папка «[FOLDERNAME]» является системной. Удаление системных папок может привести к нестабильности.  Действительно удалить эту папку?
 		<usetemplate ignoretext="Подтверждать перед удалением системной папки" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
+	<notification name="PurgeSelectedItems">
+		[COUNT] предмет(ы) будут удалены навсегда. Вы действительно хотите удалить содержимое корзины без возможности восстановления?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmEmptyTrash">
-		Вы действительно хотите необратимо удалить содержимое корзины?
-		<usetemplate ignoretext="Подтверждать перед опорожнением корзины инвентаря" name="okcancelignore" notext="Отмена" yestext="OK"/>
+		Предметы [COUNT] будут удалены навсегда. Вы действительно хотите удалить содержимое корзины без возможности восстановления?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
 		Ваша корзина переполнена. Это может вызвать проблемы при входе.
-		<usetemplate name="okcancelbuttons" notext="Я очищу корзину позже" yestext="Очистить корзину сейчас"/>
+		<usetemplate name="okcancelbuttons" notext="Я очищу корзину позже" yestext="Проверьте папку Корзина"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Вы действительно хотите удалить журнал своих перемещений, веб-страниц и поиска?
@@ -2569,6 +2624,9 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="AddSelfFriend">
 		Вы лучше всех, но нельзя добавить в друзья себя самого.
+	</notification>
+	<notification name="AddSelfRenderExceptions">
+		Вы не можете внести себя в лист исключений визуализации.
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
 		Передача снимков мира и веб-сайта...
@@ -2764,9 +2822,9 @@ http://secondlife.com/download.
 		Принадлежащие жителю «[NAME]» объекты на выбранном земельном участке возвращены владельцу.
 	</notification>
 	<notification name="GroupObjectsReturned">
-		Переданные группе [GROUPNAME] объекты на выбранном земельном участке возвращены в инвентарь владельцев.
-Переносимые переданные объекты возвращены прежним владельцам.
-Непереносимые объекты, переданные группе, удалены.
+		Объекты на выбранном земельном участке, находящиеся в совместном пользовании с группой &lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt; возвращены в инвентарь владельцов. 
+Переданные именные объекты возвращены прежним владельцам. 
+Неименные объекты, переданные группе, удалены.
 	</notification>
 	<notification name="UnOwnedObjectsReturned">
 		Объекты на выбранном земельном участке, НЕ принадлежащие вам, возвращены владельцам.
@@ -3151,7 +3209,7 @@ http://secondlife.com/download.
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
+		&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt;&apos;s „&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; 
 [MESSAGE]
 		<form name="form">
 			<button name="Client_Side_Mute" text="Заблокировать"/>
@@ -3198,7 +3256,7 @@ http://secondlife.com/download.
 		[NAME] предложил(а) инвентарь и был(а) автоматически разблокирован(а).
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME] вступил(а) в голосовой чат с группой [GROUP].
+		[NAME] вступил(а) в голосовой чат с группой [GROUP]. 
 Нажмите кнопку «Принять» для присоединения к чату или «Отклонить» для отказа от приглашения. Нажмите «Заблокировать» для блокировки этого абонента.
 		<form name="form">
 			<button name="Accept" text="Принять"/>
@@ -3307,6 +3365,9 @@ http://secondlife.com/download.
 	<notification name="AppearanceToXMLFailed">
 		Не удалось сохранить внешность в XML.
 	</notification>
+	<notification name="SnapshotToComputerFailed">
+		Не удалось сохранить моментальный снимок на [PATH]: Диск переполнен. Необходимо [NEED_MEMORY] Кбайт, но доступно только  [FREE_MEMORY] Кбайт.
+	</notification>
 	<notification name="PresetNotSaved">
 		Ошибка при сохранении пресета [NAME].
 	</notification>
@@ -3344,9 +3405,14 @@ http://secondlife.com/download.
 	<notification name="ShareNotification">
 		Выберите жителей, чтобы поделиться с ними.
 	</notification>
+	<notification name="MeshUploadErrorDetails">
+		Не удалось передать [LABEL]: [MESSAGE] 
+[DETAILS]см. SecondLife.log для получения более подробной информации
+	</notification>
 	<notification name="MeshUploadError">
-		Не удалось передать [LABEL]: [MESSAGE] [IDENTIFIER]
-[DETAILS]Подробности см. в файле SecondLife.log
+		Не удалось передать [LABEL]: [MESSAGE] 
+
+см. SecondLife.log для получения более подробной информации
 	</notification>
 	<notification name="MeshUploadPermError">
 		Ошибка при запросе разрешений на передачу меша.

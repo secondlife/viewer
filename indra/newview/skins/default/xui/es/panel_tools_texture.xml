@@ -26,6 +26,7 @@
 		<radio_item label="Relieve (normal)" name="Bumpiness (normal)" value="1"/>
 		<radio_item label="Brillantez (especular)" name="Shininess (specular)" value="2"/>
 	</radio_group>
+	<check_box initial_value="false" label="Bloquear repetición" name="checkbox_sync_settings" tool_tip="Ajustar todas las repeticiones de mapas simultáneamente"/>
 	<texture_picker label="Textura" name="texture control" tool_tip="Pulsa para elegir una imagen"/>
 	<text name="label alphamode">
 		Modo alfa

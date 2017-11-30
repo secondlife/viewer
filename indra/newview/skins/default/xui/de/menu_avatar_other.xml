@@ -20,6 +20,7 @@
 		<menu_item_check label="Standard" name="RenderNormally"/>
 		<menu_item_check label="Immer" name="AlwaysRenderFully"/>
 		<menu_item_check label="Nie" name="DoNotRender"/>
+		<menu_item_call label="Ausnahmen..." name="RenderExceptions"/>
 	</context_menu>
 	<menu_item_call label="Partikeleigentümer blockieren" name="Mute Particle"/>
 </context_menu>

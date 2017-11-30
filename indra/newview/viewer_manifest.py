@@ -292,6 +292,10 @@ class ViewerManifest(LLManifest):
 
 
 class WindowsManifest(ViewerManifest):
+    # We want the platform, per se, for every Windows build to be 'win'. The
+    # VMP will concatenate that with the address_size.
+    build_data_json_platform = 'win'
+
     def final_exe(self):
         return self.app_name_oneword()+".exe"
 
@@ -360,7 +364,6 @@ class WindowsManifest(ViewerManifest):
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
             # include the compiled launcher scripts so that it gets included in the file_list
-            self.path(src='%s/download_update.exe' % vmpdir, dst="download_update.exe")
             self.path(src='%s/SL_Launcher.exe' % vmpdir, dst="SL_Launcher.exe")
 
             #IUM is not normally executed directly, just imported.  No exe needed.
@@ -444,6 +447,9 @@ class WindowsManifest(ViewerManifest):
             # Security
             self.path("ssleay32.dll")
             self.path("libeay32.dll")
+
+            # HTTP/2
+            self.path("nghttp2.dll")
 
             # Hunspell
             self.path("libhunspell.dll")
@@ -580,10 +586,10 @@ class WindowsManifest(ViewerManifest):
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
 
-        with self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
-            self.path("libvlc.dll")
-            self.path("libvlccore.dll")
-            self.path("plugins/")
+            with self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins/")
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
@@ -699,7 +705,6 @@ class WindowsManifest(ViewerManifest):
         # note that the enclosing setup exe is signed later, after the makensis makes it.
         # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
         for exe in (
-            "download_update.exe",
             "SL_Launcher.exe",
             ):
             self.sign(exe)
@@ -752,11 +757,9 @@ class Windows_i686_Manifest(WindowsManifest):
     # Although we aren't literally passed ADDRESS_SIZE, we can infer it from
     # the passed 'arch', which is used to select the specific subclass.
     address_size = 32
-    build_data_json_platform = 'win32'
 
 class Windows_x86_64_Manifest(WindowsManifest):
     address_size = 64
-    build_data_json_platform = 'win'
 
 
 class DarwinManifest(ViewerManifest):
@@ -887,10 +890,19 @@ class DarwinManifest(ViewerManifest):
                     or a list containing dst (present). Concatenate these
                     return values to get a list of all libs that are present.
                     """
-                    if self.path(src, dst):
-                        return [dst]
+                    # This was simple before we started needing to pass
+                    # wildcards. Fortunately, self.path() ends up appending a
+                    # (source, dest) pair to self.file_list for every expanded
+                    # file processed. Remember its size before the call.
+                    oldlen = len(self.file_list)
+                    self.path(src, dst)
+                    # The dest appended to self.file_list has been prepended
+                    # with self.get_dst_prefix(). Strip it off again.
+                    added = [os.path.relpath(d, self.get_dst_prefix())
+                             for s, d in self.file_list[oldlen:]]
+                    if not added:
                     print "Skipping %s" % dst
-                    return []
+                    return added
 
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a
@@ -911,6 +923,10 @@ class DarwinManifest(ViewerManifest):
                                 "libexpat.1.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
+                                # libnghttp2.dylib is a symlink to
+                                # libnghttp2.major.dylib, which is a symlink
+                                # to libnghttp2.version.dylib. Get all of them.
+                                "libnghttp2.*dylib",
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 

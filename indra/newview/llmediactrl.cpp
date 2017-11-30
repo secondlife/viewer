@@ -805,44 +805,8 @@ void LLMediaCtrl::draw()
 			F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
 			F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
 
-			LLRect r = getRect();
-			S32 width, height;
-			S32 x_offset = 0;
-			S32 y_offset = 0;
-			
-			if(mStretchToFill)
-			{
-				if(mMaintainAspectRatio)
-				{
-					F32 media_aspect = (F32)(media_plugin->getWidth()) / (F32)(media_plugin->getHeight());
-					F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
-					if(media_aspect > view_aspect)
-					{
-						// max width, adjusted height
-						width = r.getWidth();
-						height = llmin(llmax(ll_round(width / media_aspect), 0), r.getHeight());
-					}
-					else
-					{
-						// max height, adjusted width
-						height = r.getHeight();
-						width = llmin(llmax(ll_round(height * media_aspect), 0), r.getWidth());
-					}
-				}
-				else
-				{
-					width = r.getWidth();
-					height = r.getHeight();
-				}
-			}
-			else
-			{
-				width = llmin(media_plugin->getWidth(), r.getWidth());
-				height = llmin(media_plugin->getHeight(), r.getHeight());
-			}
-			
-			x_offset = (r.getWidth() - width) / 2;
-			y_offset = (r.getHeight() - height) / 2;		
+			S32 x_offset, y_offset, width, height;
+			calcOffsetsAndSize(&x_offset, &y_offset, &width, &height);
 
 			// draw the browser
 			gGL.begin( LLRender::QUADS );
@@ -901,8 +865,56 @@ void LLMediaCtrl::draw()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S32 *height)
+{
+	const LLRect &r = getRect();
+	*x_offset = *y_offset = 0;
+
+	if (mStretchToFill)
+	{
+		if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaPlugin())
+		{
+			F32 media_aspect = (F32)(mMediaSource->getMediaPlugin()->getWidth()) / (F32)(mMediaSource->getMediaPlugin()->getHeight());
+			F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
+			if (media_aspect > view_aspect)
+			{
+				// max width, adjusted height
+				*width = r.getWidth();
+				*height = llmin(llmax(ll_round(*width / media_aspect), 0), r.getHeight());
+			}
+			else
+			{
+				// max height, adjusted width
+				*height = r.getHeight();
+				*width = llmin(llmax(ll_round(*height * media_aspect), 0), r.getWidth());
+			}
+		}
+		else
+		{
+			*width = r.getWidth();
+			*height = r.getHeight();
+		}
+	}
+	else
+	{
+		*width = llmin(mMediaSource->getMediaPlugin()->getWidth(), r.getWidth());
+		*height = llmin(mMediaSource->getMediaPlugin()->getHeight(), r.getHeight());
+	}
+
+	*x_offset = (r.getWidth() - *width) / 2;
+	*y_offset = (r.getHeight() - *height) / 2;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 {
+	S32 x_offset, y_offset, width, height;
+	calcOffsetsAndSize(&x_offset, &y_offset, &width, &height);
+
+	x -= x_offset;
+	y -= y_offset;
+
 	bool coords_opengl = false;
 	
 	if(mMediaSource && mMediaSource->hasMedia())

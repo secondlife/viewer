@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat" name="chat">
+	<check_box initial_value="true" label="Auto completar os gestos em um bate-papo local" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Executar animação de digitação durante o bate-papo" name="play_typing_animation"/>
 		<check_box label="Envie MIs por email quando eu estiver desconectado" name="send_im_to_email"/>
