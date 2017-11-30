@@ -29,6 +29,7 @@
 #define LL_SETTINGS_SKY_H
 
 #include "llsettingsbase.h"
+#include "v4coloru.h"
 
 class LLSettingsSky: public LLSettingsBase
 {
@@ -68,9 +69,7 @@ public:
     LLSettingsSky(const LLSD &data);
     virtual ~LLSettingsSky() { };
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
-    static ptr_t    buildDefaultSky();
-    ptr_t           buildClone();
+    virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const { return std::string("sky"); }
@@ -417,14 +416,17 @@ protected:
 
     virtual validation_list_t getValidationList() const;
 
-    virtual void        updateSettings();
+    virtual void    updateSettings();
 
-    virtual parammapping_t getParameterMap() const;
+    static LLSD     translateLegacySettings(LLSD legacy);
 
 private:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
     static const std::string SETTING_LEGACY_SUN_ANGLE;
+
+    static const F32         NIGHTTIME_ELEVATION;
+    static const F32         NIGHTTIME_ELEVATION_COS;
 
     void        calculateHeavnlyBodyPositions();
     void        calculateLightSettings();
@@ -448,16 +450,6 @@ private:
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
     static mapNameToUniformId_t sNameToUniformMapping;
-};
-
-class LLSettingsVOSky : public LLSettingsSky
-{
-public:
-    LLSettingsVOSky(const LLSD &data);
-protected:
-    LLSettingsVOSky();
-
-    virtual void        applySpecial(void *);
 };
 
 #endif

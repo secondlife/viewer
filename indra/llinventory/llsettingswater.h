@@ -54,9 +54,7 @@ public:
     LLSettingsWater(const LLSD &data);
     virtual ~LLSettingsWater() { };
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
-    static ptr_t    buildDefaultWater();
-    ptr_t           buildClone();
+    virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const { return std::string("water"); }
@@ -203,12 +201,13 @@ public:
 protected:
     LLSettingsWater();
 
-    virtual parammapping_t getParameterMap() const;
-
     virtual validation_list_t getValidationList() const;
+
+    static LLSD         translateLegacySettings(LLSD legacy);
 
     LLVector4           mWaterPlane;
     F32                 mWaterFogKS;
+
 private:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
     static const std::string SETTING_LEGACY_FOG_COLOR;
@@ -222,21 +221,6 @@ private:
     static const std::string SETTING_LEGACY_SCALE_BELOW;
     static const std::string SETTING_LEGACY_WAVE1_DIR;
     static const std::string SETTING_LEGACY_WAVE2_DIR;
-};
-
-class LLSettingsVOWater : public LLSettingsWater
-{
-public:
-    LLSettingsVOWater(const LLSD &data);
-
-protected:
-    LLSettingsVOWater();
-
-    virtual void updateSettings();
-    virtual void applySpecial(void *);
-
-private:
-    static const F32 WATER_FOG_LIGHT_CLAMP;
 
 };
 

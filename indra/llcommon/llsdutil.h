@@ -69,6 +69,19 @@ LL_COMMON_API BOOL compare_llsd_with_template(
 	const LLSD& template_llsd,
 	LLSD& resultant_llsd);
 
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// compare_llsd_with_template with the following differences:
+// (1) bool vs BOOL return types
+// (2) A map with the key value "*" is a special value and maps any key in the
+//     test llsd that doesn't have an explicitly matching key in the template.
+// (3) The element of an array with exactly one element is taken as a template
+//     for *all* the elements of the test array.  If the template array is of
+//     different size, compare_llsd_with_template() semantics apply.
+bool filter_llsd_with_template(
+	const LLSD & llsd_to_test,
+	const LLSD & template_llsd,
+	LLSD & resultant_llsd);
+
 /**
  * Recursively determine whether a given LLSD data block "matches" another
  * LLSD prototype. The returned string is empty() on success, non-empty() on
@@ -419,6 +432,23 @@ private:
 };
 
 } // namespace llsd
+
+
+// Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects 
+// are duplicated, atomic primitives (Boolean, Integer, Real, etc) simply
+// use a shared reference. 
+// Optionally a filter may be specified to control what is duplicated. The 
+// map takes the form "keyname/boolean".
+// If the value is true the value will be duplicated otherwise it will be skipped 
+// when encountered in a map. A key name of "*" can be specified as a wild card
+// and will specify the default behavior.  If no wild card is given and the clone
+// encounters a name not in the filter, that value will be skipped.
+LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
+
+// Creates a shallow copy of a map or array.  If passed any other type of LLSD 
+// object it simply returns that value.  See llsd_clone for a description of 
+// the filter parameter.
+LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
 
 // Specialization for generating a hash value from an LLSD block. 

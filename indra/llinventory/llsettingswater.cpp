@@ -25,22 +25,13 @@
 * $/LicenseInfo$
 */
 
-#include "llviewerprecompiledheaders.h"
-#include "llviewercontrol.h"
 #include "llsettingswater.h"
 #include <algorithm>
 #include <boost/make_shared.hpp>
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"
-
-#include "llglslshader.h"
-#include "llviewershadermgr.h"
-
-#include "llenvironment.h"
-
-#include "llagent.h"
-#include "pipeline.h"
+#include "indra_constants.h"
 
 //=========================================================================
 namespace
@@ -112,92 +103,60 @@ LLSD LLSettingsWater::defaults()
     return dfltsetting;
 }
 
-LLSettingsWater::ptr_t LLSettingsWater::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
+LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 {
     LLSD newsettings(defaults());
 
-    newsettings[SETTING_NAME] = name;
-
-
-    if (oldsettings.has(SETTING_LEGACY_BLUR_MULTIPILER))
+    if (legacy.has(SETTING_LEGACY_BLUR_MULTIPILER))
     {
-        newsettings[SETTING_BLUR_MULTIPILER] = LLSD::Real(oldsettings[SETTING_LEGACY_BLUR_MULTIPILER].asReal());
+        newsettings[SETTING_BLUR_MULTIPILER] = LLSD::Real(legacy[SETTING_LEGACY_BLUR_MULTIPILER].asReal());
     }
-    if (oldsettings.has(SETTING_LEGACY_FOG_COLOR))
+    if (legacy.has(SETTING_LEGACY_FOG_COLOR))
     {
-        newsettings[SETTING_FOG_COLOR] = LLColor3(oldsettings[SETTING_LEGACY_FOG_COLOR]).getValue();
+        newsettings[SETTING_FOG_COLOR] = LLColor3(legacy[SETTING_LEGACY_FOG_COLOR]).getValue();
     }
-    if (oldsettings.has(SETTING_LEGACY_FOG_DENSITY))
+    if (legacy.has(SETTING_LEGACY_FOG_DENSITY))
     {
-        newsettings[SETTING_FOG_DENSITY] = LLSD::Real(oldsettings[SETTING_LEGACY_FOG_DENSITY]);
+        newsettings[SETTING_FOG_DENSITY] = LLSD::Real(legacy[SETTING_LEGACY_FOG_DENSITY]);
     }
-    if (oldsettings.has(SETTING_LEGACY_FOG_MOD))
+    if (legacy.has(SETTING_LEGACY_FOG_MOD))
     {
-        newsettings[SETTING_FOG_MOD] = LLSD::Real(oldsettings[SETTING_LEGACY_FOG_MOD].asReal());
+        newsettings[SETTING_FOG_MOD] = LLSD::Real(legacy[SETTING_LEGACY_FOG_MOD].asReal());
     }
-    if (oldsettings.has(SETTING_LEGACY_FRESNEL_OFFSET))
+    if (legacy.has(SETTING_LEGACY_FRESNEL_OFFSET))
     {
-        newsettings[SETTING_FRESNEL_OFFSET] = LLSD::Real(oldsettings[SETTING_LEGACY_FRESNEL_OFFSET].asReal());
+        newsettings[SETTING_FRESNEL_OFFSET] = LLSD::Real(legacy[SETTING_LEGACY_FRESNEL_OFFSET].asReal());
     }
-    if (oldsettings.has(SETTING_LEGACY_FRESNEL_SCALE))
+    if (legacy.has(SETTING_LEGACY_FRESNEL_SCALE))
     {
-        newsettings[SETTING_FRESNEL_SCALE] = LLSD::Real(oldsettings[SETTING_LEGACY_FRESNEL_SCALE].asReal());
+        newsettings[SETTING_FRESNEL_SCALE] = LLSD::Real(legacy[SETTING_LEGACY_FRESNEL_SCALE].asReal());
     }
-    if (oldsettings.has(SETTING_LEGACY_NORMAL_MAP))
+    if (legacy.has(SETTING_LEGACY_NORMAL_MAP))
     {
-        newsettings[SETTING_NORMAL_MAP] = LLSD::UUID(oldsettings[SETTING_LEGACY_NORMAL_MAP].asUUID());
+        newsettings[SETTING_NORMAL_MAP] = LLSD::UUID(legacy[SETTING_LEGACY_NORMAL_MAP].asUUID());
     }
-    if (oldsettings.has(SETTING_LEGACY_NORMAL_SCALE))
+    if (legacy.has(SETTING_LEGACY_NORMAL_SCALE))
     {
-        newsettings[SETTING_NORMAL_SCALE] = LLVector3(oldsettings[SETTING_LEGACY_NORMAL_SCALE]).getValue();
+        newsettings[SETTING_NORMAL_SCALE] = LLVector3(legacy[SETTING_LEGACY_NORMAL_SCALE]).getValue();
     }
-    if (oldsettings.has(SETTING_LEGACY_SCALE_ABOVE))
+    if (legacy.has(SETTING_LEGACY_SCALE_ABOVE))
     {
-        newsettings[SETTING_SCALE_ABOVE] = LLSD::Real(oldsettings[SETTING_LEGACY_SCALE_ABOVE].asReal());
+        newsettings[SETTING_SCALE_ABOVE] = LLSD::Real(legacy[SETTING_LEGACY_SCALE_ABOVE].asReal());
     }
-    if (oldsettings.has(SETTING_LEGACY_SCALE_BELOW))
+    if (legacy.has(SETTING_LEGACY_SCALE_BELOW))
     {
-        newsettings[SETTING_SCALE_BELOW] = LLSD::Real(oldsettings[SETTING_LEGACY_SCALE_BELOW].asReal());
+        newsettings[SETTING_SCALE_BELOW] = LLSD::Real(legacy[SETTING_LEGACY_SCALE_BELOW].asReal());
     }
-    if (oldsettings.has(SETTING_LEGACY_WAVE1_DIR))
+    if (legacy.has(SETTING_LEGACY_WAVE1_DIR))
     {
-        newsettings[SETTING_WAVE1_DIR] = LLVector2(oldsettings[SETTING_LEGACY_WAVE1_DIR]).getValue();
+        newsettings[SETTING_WAVE1_DIR] = LLVector2(legacy[SETTING_LEGACY_WAVE1_DIR]).getValue();
     }
-    if (oldsettings.has(SETTING_LEGACY_WAVE2_DIR))
+    if (legacy.has(SETTING_LEGACY_WAVE2_DIR))
     {
-        newsettings[SETTING_WAVE2_DIR] = LLVector2(oldsettings[SETTING_LEGACY_WAVE2_DIR]).getValue();
+        newsettings[SETTING_WAVE2_DIR] = LLVector2(legacy[SETTING_LEGACY_WAVE2_DIR]).getValue();
     }
 
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(newsettings);
-
-    if (waterp->validate())
-        return waterp;
-
-    return LLSettingsWater::ptr_t();
-}
-
-LLSettingsWater::ptr_t LLSettingsWater::buildDefaultWater()
-{
-    LLSD settings = LLSettingsWater::defaults();
-
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(settings);
-
-    if (waterp->validate())
-        return waterp;
-
-    return LLSettingsWater::ptr_t();
-}
-
-LLSettingsWater::ptr_t LLSettingsWater::buildClone()
-{
-    LLSD settings = cloneSettings();
-
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsWater>(settings);
-
-    if (waterp->validate())
-        return waterp;
-
-    return LLSettingsWater::ptr_t();
+    return newsettings;
 }
 
 void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F32 blendf) 
@@ -252,89 +211,5 @@ LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const
     }
 
     return validation;
-}
-
-//=========================================================================
-
-LLSettingsWater::parammapping_t LLSettingsWater::getParameterMap() const
-{
-    static parammapping_t param_map;
-
-    if (param_map.empty())
-    {
-        param_map[SETTING_FOG_COLOR] = LLShaderMgr::WATER_FOGCOLOR;
-        param_map[SETTING_FOG_DENSITY] = LLShaderMgr::WATER_FOGDENSITY;
-
-
-    }
-    return param_map;
-}
-
-//=========================================================================
-const F32 LLSettingsVOWater::WATER_FOG_LIGHT_CLAMP(0.3f);
-
-//=========================================================================
-LLSettingsVOWater::LLSettingsVOWater(const LLSD &data):
-    LLSettingsWater(data)
-{
-
-}
-
-LLSettingsVOWater::LLSettingsVOWater() :
-    LLSettingsWater()
-{
-
-}
-
-void LLSettingsVOWater::applySpecial(void *ptarget)
-{
-    LLGLSLShader *shader = (LLGLSLShader *)ptarget;
-
-    shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, getWaterPlane().mV);
-    shader->uniform1f(LLShaderMgr::WATER_FOGKS, getWaterFogKS());
-
-    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLEnvironment::instance().getRotatedLight().mV);
-    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-    shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
-
-
-}
-
-void LLSettingsVOWater::updateSettings()
-{
-    //    LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERVALUES);
-    //    LL_INFOS("WINDLIGHT", "WATER", "EEP") << "Water Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
-
-    // base class clears dirty flag so as to not trigger recursive update
-    LLSettingsBase::updateSettings();
-
-    // only do this if we're dealing with shaders
-    if (gPipeline.canUseVertexShaders())
-    {
-        //transform water plane to eye space
-        glh::vec3f norm(0.f, 0.f, 1.f);
-        glh::vec3f p(0.f, 0.f, LLEnvironment::instance().getWaterHeight() + 0.1f);
-
-        F32 modelView[16];
-        for (U32 i = 0; i < 16; i++)
-        {
-            modelView[i] = (F32)gGLModelView[i];
-        }
-
-        glh::matrix4f mat(modelView);
-        glh::matrix4f invtrans = mat.inverse().transpose();
-        glh::vec3f enorm;
-        glh::vec3f ep;
-        invtrans.mult_matrix_vec(norm, enorm);
-        enorm.normalize();
-        mat.mult_matrix_vec(p, ep);
-
-        mWaterPlane = LLVector4(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
-
-        LLVector4 light_direction = LLEnvironment::instance().getLightDirection();
-
-        mWaterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
-    }
-
 }
 

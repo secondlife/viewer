@@ -29,6 +29,10 @@ set(llinventory_SOURCE_FILES
     llparcel.cpp
     llpermissions.cpp
     llsaleinfo.cpp
+    llsettingsbase.cpp
+    llsettingsdaycycle.cpp
+    llsettingssky.cpp
+    llsettingswater.cpp
     lltransactionflags.cpp
     lluserrelations.cpp
     )
@@ -49,6 +53,10 @@ set(llinventory_HEADER_FILES
     llpermissions.h
     llpermissionsflags.h
     llsaleinfo.h
+    llsettingsbase.h
+    llsettingsdaycycle.h
+    llsettingssky.h
+    llsettingswater.h
     lltransactionflags.h
     lltransactiontypes.h
     lluserrelations.h

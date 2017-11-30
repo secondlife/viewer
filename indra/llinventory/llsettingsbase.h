@@ -32,6 +32,7 @@
 #include <map>
 #include <vector>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/signals2.hpp>
 
 #include "llsd.h"
 #include "llsdutil.h"
@@ -40,6 +41,7 @@
 #include "v4math.h"
 #include "llquaternion.h"
 #include "v4color.h"
+#include "v3color.h"
 
 class LLSettingsBase : 
     public boost::enable_shared_from_this<LLSettingsBase>,
@@ -51,6 +53,8 @@ class LLSettingsBase :
 public:
     static const std::string SETTING_ID;
     static const std::string SETTING_NAME;
+    static const std::string SETTING_HASH;
+    static const std::string SETTING_TYPE;
 
     typedef std::map<std::string, S32>  parammapping_t;
 
@@ -67,10 +71,7 @@ public:
     inline bool isDirty() const { return mDirty; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; }
 
-    inline size_t getHash() const
-    {
-        return boost::hash<LLSD>{}(mSettings);
-    }
+    size_t getHash() const; // Hash will not include Name, ID or a previously stored Hash
 
     inline LLUUID getId() const
     {
@@ -93,10 +94,7 @@ public:
         setDirtyFlag(true);
     }
 
-    inline LLSD getSettings() const
-    {
-        return mSettings;
-    }
+    virtual LLSD getSettings() const;
 
     //---------------------------------------------------------------------
     // 
@@ -152,9 +150,6 @@ public:
             return;
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
-
-    // TODO: This is temporary 
-    virtual void exportSettings(std::string name) const;
 
     virtual void blend(const ptr_t &end, F32 blendf) = 0;
 
@@ -232,7 +227,6 @@ protected:
 
 private:
     bool    mDirty;
-    size_t  mHashValue;
 
     LLSD    combineSDMaps(const LLSD &first, const LLSD &other) const;
 

@@ -25,7 +25,6 @@
 * $/LicenseInfo$
 */
 
-#include "llviewerprecompiledheaders.h"
 #include "llsettingsbase.h"
 
 #include "llmath.h"
@@ -42,21 +41,21 @@ namespace
 //=========================================================================
 const std::string LLSettingsBase::SETTING_ID("id");
 const std::string LLSettingsBase::SETTING_NAME("name");
+const std::string LLSettingsBase::SETTING_HASH("hash");
+const std::string LLSettingsBase::SETTING_TYPE("type");
 
 const F32Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
 
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
-    mDirty(true),
-    mHashValue(0)
+    mDirty(true)
 {
 }
 
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
-    mDirty(true),
-    mHashValue(0)
+    mDirty(true)
 {
 }
 
@@ -245,85 +244,27 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
     return newSettings;
 }
 
+LLSD LLSettingsBase::getSettings() const
+{
+    return mSettings;
+}
+
 LLSD LLSettingsBase::cloneSettings() const
 {
     return combineSDMaps(mSettings, LLSD());
 }
 
-void LLSettingsBase::exportSettings(std::string name) const
-{
-    LLSD exprt = LLSDMap("type", LLSD::String(getSettingType()))
-        ("name", LLSD::String(name))
-        ("settings", mSettings);
+size_t LLSettingsBase::getHash() const
+{   // get a shallow copy of the LLSD filtering out values to not include in the hash
+    LLSD hash_settings = llsd_shallow(getSettings(), 
+        LLSDMap(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false)("*", true));
 
-    std::string path_name = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, name + ".settings");
-
-    // write to file
-    llofstream presetsXML(path_name.c_str());
-    if (presetsXML.is_open())
-    {
-        LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
-        formatter->format(exprt, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
-        presetsXML.close();
-
-        LL_DEBUGS() << "saved preset '" << name << "'; " << mSettings.size() << " settings" << LL_ENDL;
-    }
-    else
-    {
-        LL_WARNS("Presets") << "Cannot open for output preset file " << path_name << LL_ENDL;
-    }
+    return boost::hash<LLSD>{}(hash_settings);
 }
 
 #ifdef VALIDATION_DEBUG
 namespace
 {
-    LLSD clone_llsd(LLSD value)
-    {
-        LLSD clone;
-
-        switch (value.type())
-        {
-//         case LLSD::TypeMap:
-//             newSettings[key_name] = combineSDMaps(value, LLSD());
-//             break;
-        case LLSD::TypeArray:
-            clone = LLSD::emptyArray();
-            for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
-            {
-                clone.append( clone_llsd(*ita) );
-            }
-            break;
-        case LLSD::TypeInteger:
-            clone = LLSD::Integer(value.asInteger());
-            break;
-        case LLSD::TypeReal:
-            clone = LLSD::Real(value.asReal());
-            break;
-        case LLSD::TypeBoolean:
-            clone = LLSD::Boolean(value.asBoolean());
-            break;
-        case LLSD::TypeString:
-            clone = LLSD::String(value.asString());
-            break;
-        case LLSD::TypeUUID:
-            clone = LLSD::UUID(value.asUUID());
-            break;
-        case LLSD::TypeURI:
-            clone = LLSD::URI(value.asURI());
-            break;
-        case LLSD::TypeDate:
-            clone = LLSD::Date(value.asDate());
-            break;
-        //case LLSD::TypeBinary:
-        //    break;
-        //default:
-        //    newSettings[key_name] = value;
-        //    break;
-        }
-
-        return clone;
-    }
-
     bool compare_llsd(LLSD valA, LLSD valB)
     {
         if (valA.type() != valB.type())
@@ -376,14 +317,21 @@ bool LLSettingsBase::validate()
 {
     static Validator  validateName(SETTING_NAME, false, LLSD::TypeString);
     static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
+    static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
+    static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
     validation_list_t validations = getValidationList();
     stringset_t       validated;
     stringset_t       strip;
 
+    if (!mSettings.has(SETTING_TYPE))
+    {
+        mSettings[SETTING_TYPE] = getSettingType();
+    }
+
     // Fields common to all settings.
     if (!validateName.verify(mSettings))
     {
-        LL_WARNS("SETTINGS") << "Unable to validate name." << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Unable to validate Name." << LL_ENDL;
         mIsValid = false;
         return false;
     }
@@ -397,6 +345,22 @@ bool LLSettingsBase::validate()
     }
     validated.insert(validateId.getName());
 
+    if (!validateHash.verify(mSettings))
+    {
+        LL_WARNS("SETTINGS") << "Unable to validate Hash." << LL_ENDL;
+        mIsValid = false;
+        return false;
+    }
+    validated.insert(validateHash.getName());
+
+    if (!validateType.verify(mSettings))
+    {
+        LL_WARNS("SETTINGS") << "Unable to validate Type." << LL_ENDL;
+        mIsValid = false;
+        return false;
+    }
+    validated.insert(validateType.getName());
+
     // Fields for specific settings.
     for (validation_list_t::iterator itv = validations.begin(); itv != validations.end(); ++itv)
     {
@@ -404,13 +368,13 @@ bool LLSettingsBase::validate()
         LLSD oldvalue;
         if (mSettings.has((*itv).getName()))
         {
-            oldvalue = clone_llsd(mSettings[(*itv).getName()]);
+            oldvalue = llsd_clone(mSettings[(*itv).getName()]);
         }
 #endif
 
         if (!(*itv).verify(mSettings))
         {
-            LL_WARNS("SETTINGS") << "Settings LLSD fails validation and could not be corrected!" << LL_ENDL;
+            LL_WARNS("SETTINGS") << "Settings LLSD fails validation and could not be corrected for '" << (*itv).getName() << "'!" << LL_ENDL;
             mIsValid = false;
             return false;
         }
@@ -448,7 +412,7 @@ bool LLSettingsBase::validate()
 //=========================================================================
 bool LLSettingsBase::Validator::verify(LLSD &data)
 {
-    if (!data.has(mName))
+    if (!data.has(mName) || (data.has(mName) && data[mName].isUndefined()))
     {
         if (mRequired)
             LL_WARNS("SETTINGS") << "Missing required setting '" << mName << "'" << LL_ENDL;

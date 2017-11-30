@@ -43,7 +43,9 @@ public:
     static const std::string    SETTING_KEYID;
     static const std::string    SETTING_KEYNAME;
     static const std::string    SETTING_KEYKFRAME;
+    static const std::string    SETTING_KEYHASH;
     static const std::string    SETTING_TRACKS;
+    static const std::string    SETTING_FRAMES;
 
     static const S64            MINIMUM_DAYLENGTH;
     static const S64            MAXIMUM_DAYLENGTH;
@@ -63,18 +65,18 @@ public:
     LLSettingsDay(const LLSD &data);
     virtual ~LLSettingsDay() { };
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
-    static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
-    static ptr_t    buildDefaultDayCycle();
-    ptr_t           buildClone();
+    void                        initialize();
+
+    virtual ptr_t               buildClone() = 0;
+    virtual LLSD                getSettings() const;
 
     //---------------------------------------------------------------------
-    virtual std::string getSettingType() const { return std::string("daycycle"); }
+    virtual std::string         getSettingType() const { return std::string("daycycle"); }
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &other, F32 mix);
+    virtual void                blend(const LLSettingsBase::ptr_t &other, F32 mix);
 
-    static LLSD defaults();
+    static LLSD                 defaults();
 
     //---------------------------------------------------------------------
     S64Seconds getDayLength() const
@@ -105,12 +107,24 @@ public:
         return mBlendedWater;
     }
 
+    virtual LLSettingsSkyPtr_t  getDefaultSky() const = 0;
+    virtual LLSettingsWaterPtr_t getDefaultWater() const = 0;
+
+    virtual LLSettingsSkyPtr_t  buildSky(LLSD) const = 0;
+    virtual LLSettingsWaterPtr_t buildWater(LLSD) const = 0;
+
+    virtual LLSettingsSkyPtr_t  getNamedSky(const std::string &) const = 0;
+    virtual LLSettingsWaterPtr_t getNamedWater(const std::string &) const = 0;
+
+    void    setInitialized(bool value = true) { mInitialized = value; }
 protected:
     LLSettingsDay();
 
     virtual void                updateSettings();
 
     virtual validation_list_t   getValidationList() const;
+
+    bool                        mInitialized;
 
 private:
     LLSettingsBlender::ptr_t    mSkyBlender;    // convert to [] for altitudes 
@@ -121,7 +135,6 @@ private:
 
     CycleList_t                 mDayTracks;
 
-    bool                        mHasParsed;
     F64Seconds                  mLastUpdateTime;
 
     F32                         secondsToKeyframe(S64Seconds seconds);

@@ -44,6 +44,8 @@
 #include "llsdserialize.h"
 #include "lldiriterator.h"
 
+#include "llsettingsvo.h"
+
 #include <boost/make_shared.hpp>
 //=========================================================================
 namespace
@@ -82,15 +84,15 @@ LLEnvironment::LLEnvironment():
 
 void LLEnvironment::initSingleton()
 {
-    LLSettingsSky::ptr_t p_default_sky = LLSettingsSky::buildDefaultSky();
+    LLSettingsSky::ptr_t p_default_sky = LLSettingsVOSky::buildDefaultSky();
     addSky(p_default_sky);
     mCurrentSky = p_default_sky;
 
-    LLSettingsWater::ptr_t p_default_water = LLSettingsWater::buildDefaultWater();
+    LLSettingsWater::ptr_t p_default_water = LLSettingsVOWater::buildDefaultWater();
     addWater(p_default_water);
     mCurrentWater = p_default_water;
 
-    LLSettingsDay::ptr_t p_default_day = LLSettingsDay::buildDefaultDayCycle();
+    LLSettingsDay::ptr_t p_default_day = LLSettingsVODay::buildDefaultDayCycle();
     addDayCycle(p_default_day);
     mCurrentDay.reset();
 
@@ -155,7 +157,7 @@ void LLEnvironment::onLegacyRegionSettings(LLSD data)
     if (data[1].isUndefined())
         regionday = LLEnvironment::findDayCycleByName("Default");
     else
-        regionday = LLSettingsDay::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
+        regionday = LLSettingsVODay::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
 
     setSkyFor(ENV_REGION, LLSettingsSky::ptr_t());
     setWaterFor(ENV_REGION, LLSettingsWater::ptr_t());
@@ -826,7 +828,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsSky::ptr_t sky = LLSettingsSky::buildFromLegacyPreset(name, data);
+                LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addSky(sky);
             }
         }
@@ -845,7 +847,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsSky::ptr_t sky = LLSettingsSky::buildFromLegacyPreset(name, data);
+                LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addSky(sky);
             }
         }
@@ -864,7 +866,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsWater::ptr_t water = LLSettingsWater::buildFromLegacyPreset(name, data);
+                LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addWater(water);
             }
         }
@@ -883,7 +885,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsWater::ptr_t water = LLSettingsWater::buildFromLegacyPreset(name, data);
+                LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addWater(water);
             }
         }
@@ -902,7 +904,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsDay::ptr_t day = LLSettingsDay::buildFromLegacyPreset(name, data);
+                LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addDayCycle(day);
             }
         }
@@ -921,7 +923,7 @@ void LLEnvironment::legacyLoadAllPresets()
             {
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
-                LLSettingsDay::ptr_t day = LLSettingsDay::buildFromLegacyPreset(name, data);
+                LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addDayCycle(day);
             }
         }

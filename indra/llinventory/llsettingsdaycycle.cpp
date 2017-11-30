@@ -25,8 +25,6 @@
 * $/LicenseInfo$
 */
 
-#include "llviewerprecompiledheaders.h"
-#include "llviewercontrol.h"
 #include "llsettingsdaycycle.h"
 #include <algorithm>
 #include <boost/make_shared.hpp>
@@ -34,21 +32,10 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
-#include "llglslshader.h"
-#include "llviewershadermgr.h"
-
-#include "llenvironment.h"
-
-#include "llagent.h"
-#include "pipeline.h"
-
 #include "llsettingssky.h"
 #include "llsettingswater.h"
 
-#include "llenvironment.h"
-
-#include "llworld.h"
-
+#include "llframetimer.h"
 //=========================================================================
 namespace
 {
@@ -113,7 +100,9 @@ const std::string LLSettingsDay::SETTING_DAYLENGTH("day_length");
 const std::string LLSettingsDay::SETTING_KEYID("key_id");
 const std::string LLSettingsDay::SETTING_KEYNAME("key_name");
 const std::string LLSettingsDay::SETTING_KEYKFRAME("key_keyframe");
+const std::string LLSettingsDay::SETTING_KEYHASH("key_hash");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
+const std::string LLSettingsDay::SETTING_FRAMES("frames");
 
 const S64 LLSettingsDay::MINIMUM_DAYLENGTH(  300); // 5 mins
 
@@ -127,120 +116,91 @@ const S32 LLSettingsDay::FRAME_MAX(56);
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
     LLSettingsBase(data),
-    mHasParsed(false)
+    mInitialized(false)
 {
     mDayTracks.resize(TRACK_MAX);
 }
 
 LLSettingsDay::LLSettingsDay() :
     LLSettingsBase(),
-    mHasParsed(false)
+    mInitialized(false)
 {
     mDayTracks.resize(TRACK_MAX);
 }
 
 //=========================================================================
-LLSD LLSettingsDay::defaults()
+LLSD LLSettingsDay::getSettings() const
 {
-    LLSD dfltsetting;
+    LLSD settings(LLSD::emptyMap());
 
-    dfltsetting[SETTING_NAME] = "_default_";
-    dfltsetting[SETTING_DAYLENGTH] = static_cast<S32>(MINIMUM_DAYLENGTH);
-    dfltsetting[SETTING_TRACKS] = LLSDArray(
-        LLSDArray(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_"))
-        (LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_")));
+    if (mSettings.has(SETTING_NAME))
+        settings[SETTING_NAME] = mSettings[SETTING_NAME];
 
-    return dfltsetting;
-}
+    if (mSettings.has(SETTING_ID))
+        settings[SETTING_ID] = mSettings[SETTING_ID];
 
-LLSettingsDay::ptr_t LLSettingsDay::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
-{
-    LLSD newsettings(defaults());
+    std::map<std::string, LLSettingsBase::ptr_t> in_use;
 
-    newsettings[SETTING_NAME] = name;
-    newsettings[SETTING_DAYLENGTH] = static_cast<S32>(MINIMUM_DAYLENGTH);
-
-    LLSD watertrack = LLSDArray( 
-        LLSDMap ( SETTING_KEYKFRAME, LLSD::Real(0.0f) )
-                ( SETTING_KEYNAME, "Default" ));
-
-    LLSD skytrack = LLSD::emptyArray();
-
-    for (LLSD::array_const_iterator it = oldsettings.beginArray(); it != oldsettings.endArray(); ++it)
+    LLSD tracks(LLSD::emptyArray());
+    
+    for (CycleList_t::const_iterator itTrack = mDayTracks.begin(); itTrack != mDayTracks.end(); ++itTrack)
     {
-        LLSD entry = LLSDMap(SETTING_KEYKFRAME, (*it)[0].asReal())
-            (SETTING_KEYNAME, (*it)[1].asString());
-        skytrack.append(entry);
+        LLSD trackout(LLSD::emptyArray());
+
+        for (CycleTrack_t::const_iterator itFrame = (*itTrack).begin(); itFrame != (*itTrack).end(); ++itFrame)
+        {
+            F32 frame = (*itFrame).first;
+            LLSettingsBase::ptr_t data = (*itFrame).second;
+            size_t datahash = data->getHash();
+
+            std::stringstream keyname;
+            keyname << datahash;
+
+            trackout.append(LLSD(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(frame))(SETTING_KEYNAME, keyname.str())));
+            in_use[keyname.str()] = data;
+        }
+        tracks.append(trackout);
     }
+    settings[SETTING_TRACKS] = tracks;
 
-    newsettings[SETTING_TRACKS] = LLSDArray(watertrack)(skytrack);
-
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsDay>(newsettings);
-    dayp->parseFromLLSD(dayp->mSettings);
-
-    if (dayp->validate())
-        return dayp;
-
-    return LLSettingsDay::ptr_t();
-}
-
-LLSettingsDay::ptr_t LLSettingsDay::buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skydefs, LLSD waterdef)
-{
-    LLSettingsWater::ptr_t water = LLSettingsWater::buildFromLegacyPreset("Region", waterdef);
-    LLEnvironment::namedSettingMap_t skys;
-
-    for (LLSD::map_iterator itm = skydefs.beginMap(); itm != skydefs.endMap(); ++itm)
+    LLSD frames(LLSD::emptyMap());
+    for (std::map<std::string, LLSettingsBase::ptr_t>::iterator itFrame = in_use.begin(); itFrame != in_use.end(); ++itFrame)
     {
-        std::string name = (*itm).first;
-        LLSettingsSky::ptr_t sky = LLSettingsSky::buildFromLegacyPreset(name, (*itm).second);
+        LLSD framesettings = llsd_clone((*itFrame).second->getSettings(),
+            LLSDMap("*", true)(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false));
 
-        skys[name] = sky;
-        LL_WARNS("WindlightCaps") << "created region sky '" << name << "'" << LL_ENDL;
+        frames[(*itFrame).first] = framesettings;
     }
+    settings[SETTING_FRAMES] = frames;
 
-    LLSettingsDay::ptr_t dayp = buildFromLegacyPreset("Region (legacy)", daycycle);
+    return settings;
+}
 
-    dayp->setWaterAtKeyframe(water, 0.0f);
+void LLSettingsDay::initialize()
+{
+    LLSD tracks = mSettings[SETTING_TRACKS];
+    LLSD frames = mSettings[SETTING_FRAMES];
 
-    for (LLSD::array_iterator ita = daycycle.beginArray(); ita != daycycle.endArray(); ++ita)
+    std::map<std::string, LLSettingsBase::ptr_t> used;
+
+    for (LLSD::map_const_iterator itFrame = frames.beginMap(); itFrame != frames.endMap(); ++itFrame)
     {
-        F32 frame = (*ita)[0].asReal();
-        std::string name = (*ita)[1].asString();
+        std::string name = (*itFrame).first;
+        LLSD data = (*itFrame).second;
 
-        LLEnvironment::namedSettingMap_t::iterator it = skys.find(name);
-
-        if (it == skys.end())
-            continue;
-        dayp->setSkyAtKeyframe(boost::static_pointer_cast<LLSettingsSky>((*it).second), frame, 1);
-
-        LL_WARNS("WindlightCaps") << "Added '" << name << "' to region day cycle at " << frame << LL_ENDL;
+        if (data[SETTING_TYPE].asString() == "sky")
+        {
+            used[name] = buildSky(data);
+        }
+        else if (data[SETTING_TYPE].asString() == "water")
+        {
+            used[name] = buildWater(data);
+        }
+        else
+        {
+            LL_WARNS("DAYCYCLE") << "Unknown child setting type '" << data[SETTING_TYPE].asString() << "' named '" << name << "'" << LL_ENDL;
+        }
     }
-
-    dayp->mHasParsed = true;
-
-    if (dayp->validate())
-        return dayp;
-
-    return LLSettingsDay::ptr_t();
-}
-
-LLSettingsDay::ptr_t LLSettingsDay::buildDefaultDayCycle()
-{
-    LLSD settings = LLSettingsDay::defaults();
-
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsDay>(settings);
-    dayp->parseFromLLSD(dayp->mSettings);
-
-    if (dayp->validate())
-        return dayp;
-
-    return LLSettingsDay::ptr_t();
-}
-
-void LLSettingsDay::parseFromLLSD(LLSD &data)
-{
-    LLEnvironment &environment(LLEnvironment::instance());
-    LLSD tracks = data[SETTING_TRACKS];
 
     for (S32 i = 0; (i < tracks.size()) && (i < TRACK_MAX); ++i)
     {
@@ -255,30 +215,55 @@ void LLSettingsDay::parseFromLLSD(LLSD &data)
             if ((*it).has(SETTING_KEYNAME))
             {
                 if (i == TRACK_WATER)
-                    setting = environment.findWaterByName((*it)[SETTING_KEYNAME]);
+                {
+                    setting = used[(*it)[SETTING_KEYNAME]];
+                    if (!setting)
+                        setting = getNamedWater((*it)[SETTING_KEYNAME]);
+                    if (setting && setting->getSettingType() != "water")
+                    {
+                        LL_WARNS("DAYCYCLE") << "Water track referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        setting.reset();
+                    }
+                }
                 else
-                    setting = environment.findSkyByName((*it)[SETTING_KEYNAME]);
-            }
-            else if ((*it).has(SETTING_KEYID))
-            {
-
+                {
+                    setting = used[(*it)[SETTING_KEYNAME]];
+                    if (!setting)
+                        setting = getNamedSky((*it)[SETTING_KEYNAME]);
+                    if (setting && setting->getSettingType() != "sky")
+                    {
+                        LL_WARNS("DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        setting.reset();
+                    }
+                }
             }
 
             if (setting)
                 mDayTracks[i][keyframe] = setting;
         }
     }
-    mHasParsed = true;
+
+    // these are no longer needed and just take up space now.
+    mSettings.erase(SETTING_TRACKS);
+    mSettings.erase(SETTING_FRAMES);
+
+    mInitialized = true;
 }
 
 
-LLSettingsDay::ptr_t LLSettingsDay::buildClone()
+//=========================================================================
+LLSD LLSettingsDay::defaults()
 {
-    LLSD settings = cloneSettings();
+    LLSD dfltsetting;
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsDay>(settings);
+    dfltsetting[SETTING_NAME] = "_default_";
+    dfltsetting[SETTING_DAYLENGTH] = static_cast<S32>(MINIMUM_DAYLENGTH);
+    dfltsetting[SETTING_TRACKS] = LLSDArray(
+        LLSDArray(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_"))
+        (LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_")));
+    dfltsetting[SETTING_FRAMES] = LLSD::emptyMap();
 
-    return dayp;
+    return dfltsetting;
 }
 
 void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F32 mix)
@@ -341,8 +326,9 @@ LLSettingsDay::validation_list_t LLSettingsDay::getValidationList() const
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray, 
+        validation.push_back(Validator(SETTING_TRACKS, false, LLSD::TypeArray, 
             &validateDayCycleTrack));
+        validation.push_back(Validator(SETTING_FRAMES, false, LLSD::TypeMap));
         validation.push_back(Validator(SETTING_DAYLENGTH, false, LLSD::TypeInteger,
             boost::bind(&Validator::verifyIntegerRange, _1, 
                 LLSD(LLSDArray(LLSD::Integer(MINIMUM_DAYLENGTH))(LLSD::Integer(MAXIMUM_DAYLENGTH))))));
@@ -371,8 +357,11 @@ void LLSettingsDay::startDayCycle()
 {
     F64Seconds now(LLDate::now().secondsSinceEpoch());
 
-    if (!mHasParsed)
-        parseFromLLSD(mSettings);
+    if (!mInitialized)
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to start day cycle on uninitialized object." << LL_ENDL;
+        return;
+    }
 
     // water
     if (mDayTracks[0].empty())
@@ -391,7 +380,7 @@ void LLSettingsDay::startDayCycle()
 
         F64Seconds timespan = F64Seconds( getDayLength() * get_wrapping_distance((*bounds.first).first, (*bounds.second).first));
 
-        mBlendedWater = LLSettingsWater::buildDefaultWater();
+        mBlendedWater = getDefaultWater();
         mWaterBlender = boost::make_shared<LLSettingsBlender>(mBlendedWater,
             (*bounds.first).second, (*bounds.second).second, timespan);
         mWaterBlender->setOnFinished(boost::bind(&LLSettingsDay::onWaterTransitionDone, this, _1));
@@ -413,7 +402,7 @@ void LLSettingsDay::startDayCycle()
         TrackBound_t bounds = getBoundingEntries(mDayTracks[1], now);
         F64Seconds timespan = F64Seconds(getDayLength() * get_wrapping_distance((*bounds.first).first, (*bounds.second).first));
 
-        mBlendedSky = LLSettingsSky::buildDefaultSky();
+        mBlendedSky = getDefaultSky();
         mSkyBlender = boost::make_shared<LLSettingsBlender>(mBlendedSky,
             (*bounds.first).second, (*bounds.second).second, timespan);
         mSkyBlender->setOnFinished(boost::bind(&LLSettingsDay::onSkyTransitionDone, this, 1, _1));
@@ -432,63 +421,6 @@ void LLSettingsDay::updateSettings()
         mSkyBlender->update(delta);
     if (mWaterBlender)
         mWaterBlender->update(delta);
-
-#if 0
-    //F64Seconds time_now(LLWorld::instance().getSpaceTimeUSec());
-    F64Seconds time_now(LLDate::now().secondsSinceEpoch());
-
-    // base class clears dirty flag so as to not trigger recursive update
-    LLSettingsBase::updateSettings();
-
-    if (!mBlendedWater)
-    {
-        mBlendedWater = LLEnvironment::instance().getCurrentWater()->buildClone();
-        LLEnvironment::instance().selectWater(mBlendedWater);
-    }
-
-    if (!mBlendedSky)
-    {
-        mBlendedSky = LLEnvironment::instance().getCurrentSky()->buildClone();
-        LLEnvironment::instance().selectSky(mBlendedSky);
-    }
-
-
-    if ((time_now < mLastUpdateTime) || ((time_now - mLastUpdateTime) > static_cast<F64Seconds>(0.1)))
-    {
-        F64Seconds daylength = static_cast<F64Seconds>(getDayLength());
-        F32 frame = fmod(time_now.value(), daylength.value()) / daylength.value();
-
-        CycleList_t::iterator itTrack = mDayTracks.begin();
-        TrackBound_t bounds = getBoundingEntries(*itTrack, frame);
-
-        mBlendedWater->replaceSettings((*bounds.first).second->getSettings());
-        if (bounds.first != bounds.second)
-        {
-            F32 blendf = get_wrapping_distance((*bounds.first).first, frame) / get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-
-            mBlendedWater->blend((*bounds.second).second, blendf);
-        }
-
-        ++itTrack;
-        bounds = getBoundingEntries(*itTrack, frame);
-
-        //_WARNS("RIDER") << "Sky blending: frame=" << frame << " start=" << F64Seconds((*bounds.first).first) << " end=" << F64Seconds((*bounds.second).first) << LL_ENDL;
-
-        mBlendedSky->replaceSettings((*bounds.first).second->getSettings());
-        if (bounds.first != bounds.second)
-        {
-            F32 blendf = get_wrapping_distance((*bounds.first).first, frame) / get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-            //_WARNS("RIDER") << "Distance=" << get_wrapping_distance((*bounds.first).first, frame) << "/" << get_wrapping_distance((*bounds.first).first, (*bounds.second).first) << " Blend factor=" << blendf << LL_ENDL;
-
-            mBlendedSky->blend((*bounds.second).second, blendf);
-        }
-
-        mLastUpdateTime = time_now;
-    }
-
-    // Always mark the day cycle as dirty.So that the blend check can be handled.
-    setDirtyFlag(true);
-#endif
 }
 
 //=========================================================================
@@ -590,7 +522,7 @@ void LLSettingsDay::onSkyTransitionDone(S32 track, const LLSettingsBlender::ptr_
     F32 distance = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
     F64Seconds timespan = F64Seconds(distance * getDayLength());
 
-    LL_WARNS("RIDER") << "New sky blender. now=" << now <<
+    LL_DEBUGS("DAYCYCLE") << "New sky blender. now=" << now <<
         " start=" << (*bounds.first).first << " end=" << (*bounds.second).first <<
         " span=" << timespan << LL_ENDL;
 

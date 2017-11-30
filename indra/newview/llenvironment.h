@@ -27,6 +27,7 @@
 #ifndef LL_ENVIRONMENT_H
 #define LL_ENVIRONMENT_H
 
+#include "llsingleton.h"
 #include "llmemory.h"
 #include "llsd.h"
 
@@ -34,6 +35,8 @@
 #include "llsettingssky.h"
 #include "llsettingswater.h"
 #include "llsettingsdaycycle.h"
+
+#include <boost/signals2.hpp>
 
 //-------------------------------------------------------------------------
 class LLViewerCamera;

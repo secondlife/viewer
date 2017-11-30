@@ -532,10 +532,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
-    llsettingsbase.cpp
-    llsettingsdaycycle.cpp
-    llsettingssky.cpp
-    llsettingswater.cpp
+    llsettingsvo.cpp
     llshareavatarhandler.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
@@ -1141,10 +1138,7 @@ set(viewer_HEADER_FILES
     llsecapi.h
     llsechandler_basic.h
     llselectmgr.h
-    llsettingsbase.h
-    llsettingsdaycycle.h
-    llsettingssky.h
-    llsettingswater.h
+    llsettingsvo.h
     llsidepanelappearance.h
     llsidepanelinventory.h
     llsidepanelinventorysubpanel.h
