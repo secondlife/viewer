@@ -430,13 +430,10 @@
 			<panel.string name="estate_override">
 				Часть этих параметров установлена на уровне землевладения
 			</panel.string>
-			<check_box label="Разрешить публичный доступ (снятие флажка приведет к созданию линий запрета)" name="public_access"/>
-			<text name="Only Allow">
-				Разрешить доступ только таким жителям:
-			</text>
-			<check_box label="Зарегистрирована информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Для доступа к этому участку у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
-			<check_box label="18 лет и старше [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Доступ к этому участку имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
-			<check_box label="Разрешить доступ группе: [GROUP]" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>
+			<check_box label="Доступ открыт для всех (При снятия выделения будет создана запись в строке запрета)" name="public_access"/>
+			<check_box label="Должен быть 18 и старше [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Доступ к этому участку имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="Информация о платежах должна быть в файле [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Для доступа к этому участку у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="Разрешить группе [GROUP] без всяких ограничений" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>
 			<check_box label="Продать доступ:" name="PassCheck" tool_tip="Разрешить временный доступ к участку."/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Все" name="Anyone"/>
@@ -444,9 +441,12 @@
 			</combo_box>
 			<spinner label="Цена в L$:" name="PriceSpin"/>
 			<spinner label="Часы доступа:" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(Владелец собственности может ограничить этот выбор)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Всегда разрешено" name="AllowedText">
-					Допущенные жители ([COUNT], макс. [MAX])
+					Всегда разрешено ([COUNT], макс. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
 				<button label="Добавить" name="add_allowed"/>
@@ -454,7 +454,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Бан" name="BanCheck">
-					Забаненные жители ([COUNT], макс. [MAX])
+					Всегда заблокировано ([COUNT], макс. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
 				<button label="Добавить" name="add_banned"/>

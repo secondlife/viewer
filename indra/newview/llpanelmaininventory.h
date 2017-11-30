@@ -91,6 +91,8 @@ public:
 
 	static void newWindow();
 
+	void toggleFindOptions();
+
 protected:
 	//
 	// Misc functions
@@ -98,7 +100,6 @@ protected:
 	void setFilterTextFromFilter();
 	void startSearch();
 	
-	void toggleFindOptions();
 	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
 
 	static BOOL filtersVisible(void* user_data);
@@ -111,7 +112,7 @@ protected:
 
 	const std::string getFilterSubString();
 	void setFilterSubString(const std::string& string);
-	
+
 	// menu callbacks
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
@@ -142,6 +143,7 @@ private:
 	S32							mItemCount;
 	std::string 				mItemCountString;
 	LLComboBox*					mSearchTypeCombo;
+
 
 
 	//////////////////////////////////////////////////////////////////////////////////

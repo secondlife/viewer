@@ -13,5 +13,6 @@
 	<menu_item_call label="Teilen" name="Share"/>
 	<menu_item_call label="Original suchen" name="Find Original"/>
 	<menu_item_call label="Alle Links suchen" name="Find All Links"/>
+	<menu_item_call label="Links ersetzen" name="Replace Links"/>
 	<menu_item_call label="Papierkorb ausleeren" name="empty_trash"/>
 </toggleable_menu>

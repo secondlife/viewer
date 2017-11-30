@@ -6,7 +6,7 @@
 	<text name="Cache:">
 		Кэш:
 	</text>
-	<spinner label="Размер кэша (256 - 9984 МБ)" name="cachesizespinner"/>
+	<spinner label="Размер кэша (256 - 9984 Мбайт)" name="cachesizespinner"/>
 	<text name="text_box5">
 		МБ
 	</text>

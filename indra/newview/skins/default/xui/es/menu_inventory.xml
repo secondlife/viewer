@@ -75,9 +75,11 @@
 	<menu_item_call label="Propiedades" name="Properties"/>
 	<menu_item_call label="Renombrar" name="Rename"/>
 	<menu_item_call label="Copiar la UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="Mostrar en el panel principal" name="Show in Main Panel"/>
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Pegar" name="Paste"/>
 	<menu_item_call label="Pegar como enlace" name="Paste As Link"/>
+	<menu_item_call label="Reemplazar los links" name="Replace Links"/>
 	<menu_item_call label="Borrar" name="Delete"/>
 	<menu_item_call label="Borrar carpeta del sistema" name="Delete System Folder"/>
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>

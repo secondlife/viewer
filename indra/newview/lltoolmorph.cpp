@@ -162,8 +162,16 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 	// Calling LLCharacter version, as we don't want position/height changes to cause the avatar to jump
 	// up and down when we're doing preview renders. -Nyx
 	gAgentAvatarp->LLCharacter::updateVisualParams();
-	gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
-	gAgentAvatarp->updateLOD();
+
+	if (gAgentAvatarp->mDrawable.notNull())
+	{
+		gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
+		gAgentAvatarp->updateLOD();
+	}
+	else
+	{
+		LL_WARNS() << "Attempting to update avatar's geometry, but drawable doesn't exist yet" << LL_ENDL;
+	}
 
 	LLViewerDynamicTexture::preRender(clear_depth);
 }

@@ -435,13 +435,10 @@ los media:
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado
 			</panel.string>
-			<check_box label="Permitir el acceso público (si no seleccionas esta opción, se crearán líneas de prohibición)" name="public_access"/>
-			<text name="Only Allow">
-				Permitir únicamente el acceso a los Residentes que:
-			</text>
-			<check_box label="Han aportado información de pago [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Para poder acceder a esta parcela los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
-			<check_box label="Son mayores de 18 años [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
-			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
+			<check_box label="Cualquiera puede visitar (Si no seleccionas esta opción, se crearán líneas de prohibición)" name="public_access"/>
+			<check_box label="Debe ser mayor de 18 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
+			<check_box label="Debe haber información archivada sobre el pago [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Para poder acceder a esta parcela los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
+			<check_box label="Permitir grupo [GROUP] sin restricciones" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Cualquiera" name="Anyone"/>
@@ -449,9 +446,12 @@ los media:
 			</combo_box>
 			<spinner label="Precio en L$:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(El propietario del Estado puede haber restringido estas opciones)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Always Allow" name="AllowedText">
-					Residentes admitidos ([COUNT], máx. [MAX])
+					Siempre permitido ([COUNT], max [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
 				<button label="Añadir" name="add_allowed"/>
@@ -459,7 +459,7 @@ los media:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Ban" name="BanCheck">
-					Residentes no admitidos ([COUNT], máx. [MAX])
+					Siempre prohibido ([COUNT], max [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
 				<button label="Añadir" name="add_banned"/>

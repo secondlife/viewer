@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text-Chat" name="chat">
+	<check_box initial_value="true" label="Automatische Gestenvervollständigung beim Chat in der Nähe" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
 		<check_box label="IMs per E-Mail zustellen, wenn ich offline bin" name="send_im_to_email"/>

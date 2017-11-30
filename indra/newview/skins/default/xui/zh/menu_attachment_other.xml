@@ -21,6 +21,7 @@
 		<menu_item_check label="預設" name="RenderNormally"/>
 		<menu_item_check label="永遠" name="AlwaysRenderFully"/>
 		<menu_item_check label="絕不" name="DoNotRender"/>
+		<menu_item_call label="例外…" name="RenderExceptions"/>
 	</context_menu>
 	<menu_item_call label="封鎖粒子所有人" name="Mute Particle"/>
 </context_menu>

@@ -2085,7 +2085,17 @@ void LLVOAvatar::updateMeshData()
 			if(!facep->getVertexBuffer())
 			{
 				buff = new LLVertexBufferAvatar();
-				buff->allocateBuffer(num_vertices, num_indices, TRUE);
+				if (!buff->allocateBuffer(num_vertices, num_indices, TRUE))
+				{
+					LL_WARNS() << "Failed to allocate Vertex Buffer for Mesh to "
+						<< num_vertices << " vertices and "
+						<< num_indices << " indices" << LL_ENDL;
+					// Attempt to create a dummy triangle (one vertex, 3 indices, all 0)
+					facep->setSize(1, 3);
+					buff->allocateBuffer(1, 3, true);
+					memset((U8*) buff->getMappedData(), 0, buff->getSize());
+					memset((U8*) buff->getMappedIndices(), 0, buff->getIndicesSize());
+				}
 				facep->setVertexBuffer(buff);
 			}
 			else
@@ -2097,7 +2107,15 @@ void LLVOAvatar::updateMeshData()
 				}
 				else
 				{
-					buff->resizeBuffer(num_vertices, num_indices);
+					if (!buff->resizeBuffer(num_vertices, num_indices))
+					{
+						LL_WARNS() << "Failed to allocate vertex buffer for Mesh, Substituting" << LL_ENDL;
+						// Attempt to create a dummy triangle (one vertex, 3 indices, all 0)
+						facep->setSize(1, 3);
+						buff->resizeBuffer(1, 3);
+						memset((U8*) buff->getMappedData(), 0, buff->getSize());
+						memset((U8*) buff->getMappedIndices(), 0, buff->getIndicesSize());
+					}
 				}
 			}
 			
@@ -2109,20 +2127,24 @@ void LLVOAvatar::updateMeshData()
 				LL_ERRS() << "non-zero geom index: " << facep->getGeomIndex() << " in LLVOAvatar::restoreMeshData" << LL_ENDL;
 			}
 
-			for(S32 k = j ; k < part_index ; k++)
+			if (num_vertices == buff->getNumVerts() && num_indices == buff->getNumIndices())
 			{
-				bool rigid = false;
-				if (k == MESH_ID_EYEBALL_LEFT ||
-					k == MESH_ID_EYEBALL_RIGHT)
-				{ //eyeballs can't have terse updates since they're never rendered with
-					//the hardware skinning shader
-					rigid = true;
-				}
-				
-				LLViewerJoint* mesh = getViewerJoint(k);
-				if (mesh)
+				for(S32 k = j ; k < part_index ; k++)
 				{
-					mesh->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
+					bool rigid = false;
+					if (k == MESH_ID_EYEBALL_LEFT ||
+						k == MESH_ID_EYEBALL_RIGHT)
+					{
+						//eyeballs can't have terse updates since they're never rendered with
+						//the hardware skinning shader
+						rigid = true;
+					}
+				
+					LLViewerJoint* mesh = getViewerJoint(k);
+					if (mesh)
+					{
+						mesh->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
+					}
 				}
 			}
 
@@ -7025,7 +7047,7 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	record["elapsed"] = elapsed;
 	record["completed"] = completed;
 	U32 grid_x(0), grid_y(0);
-	if (getRegion())
+	if (getRegion() && LLWorld::instance().isRegionListed(getRegion()))
 	{
 		record["central_bake_version"] = LLSD::Integer(getRegion()->getCentralBakeVersion());
 		grid_from_region_handle(getRegion()->getHandle(), &grid_x, &grid_y);

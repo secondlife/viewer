@@ -1876,17 +1876,11 @@ void LLItemBridge::buildDisplayName() const
 	{
 		mDisplayName.assign(LLStringUtil::null);
 	}
-	S32 old_length = mSearchableName.length();
-	S32 new_length = mDisplayName.length() + getLabelSuffix().length();
 
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
 	LLStringUtil::toUpper(mSearchableName);
 	
-	if ((old_length > new_length) && getInventoryFilter())
-	{
-		getInventoryFilter()->setModified(LLFolderViewFilter::FILTER_MORE_RESTRICTIVE);
-	}
 	//Name set, so trigger a sort
 	if(mParent)
 	{

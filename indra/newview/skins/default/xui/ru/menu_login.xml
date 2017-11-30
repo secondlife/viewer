@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Я" name="File">
 		<menu_item_call label="Настройки..." name="Preferences..."/>
+		<menu_item_call label="Закрыть окно" name="Close Window"/>
 		<menu_item_check label="Выбор сетки" name="Show Grid Picker"/>
 		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
 	</menu>

@@ -261,9 +261,8 @@ l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com.
 [TIME], heure du Pacifique.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Nous n&apos;avons pas réussi à traiter votre demande.
-Pour obtenir de l&apos;aide, veuillez contacter l&apos;Assistance Second Life à la page suivante : http://secondlife.com/support.
-Si vous ne parvenez pas à changer de mot de passe, veuillez appeler le (866) 476-9763.
+		Impossible de traiter votre demande à l&apos;heure actuelle. 
+Pour obtenir de l&apos;aide, veuillez contacter l&apos;Assistance Second Life à la page suivante : http://support.secondlife.com.
 	</string>
 	<string name="LoginFailedTransformError">
 		Incohérence des données lors de la connexion.
@@ -703,6 +702,19 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Statut inconnu
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Service inaccessible.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Le serveur rencontres des difficultés imprévues.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Services non disponible ou la durée du chargement est dépassée.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Erreur dans la demande de chargement. Veuillez consulter le site : 
+http://secondlife.com/support pour vous aider à résoudre ce problème.
 	</string>
 	<string name="texture">
 		texture
@@ -2198,10 +2210,19 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 		tous les domaines que vous gérez pour [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Résidents autorisés : ([ALLOWEDAGENTS], max. [MAXACCESS])
+		Toujours autorisé : ([ALLOWEDAGENTS], max [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Groupes autorisés : ([ALLOWEDGROUPS], max. [MAXACCESS])
+		Groupes toujours autorisés : [ALLOWEDGROUPS], max [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Toujours interdits : ([BANNEDAGENTS], max. [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Toujours autorisé
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Toujours interdit
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Mémoire des scripts de parcelles

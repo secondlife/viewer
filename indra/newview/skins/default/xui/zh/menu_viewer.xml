@@ -116,7 +116,7 @@
 			<menu_item_call label="包括下一部位或臉" name="Include Next Part or Face"/>
 			<menu_item_call label="包括上一部位或臉" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="聯結集…" name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="地區物件" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="聚焦於所選部位" name="Focus on Selection"/>
 		<menu_item_call label="縮放至所選部位" name="Zoom to Selection"/>
 		<menu label="物件" name="Object">
@@ -136,7 +136,7 @@
 			<menu_item_call label="設定腳本為非執行中" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="尋徑" name="Pathfinding">
-			<menu_item_call label="聯結集…" name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="地區物件" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="角色…" name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="察看 / 測試…" name="pathfinding_console_menu_item"/>
 			<menu_item_call label="重新產出地區" name="pathfinding_rebake_navmesh_item"/>

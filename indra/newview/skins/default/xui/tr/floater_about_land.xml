@@ -430,13 +430,10 @@ Sadece büyük parseller aramada görünür.
 			<panel.string name="estate_override">
 				Bu seçeneklerden biri veya daha fazlası gayrimenkul düzeyinde ayarlanır
 			</panel.string>
-			<check_box label="Kamusal Erişime İzin Ver (Bunun işaretinin kaldırılması yasaklama çizgileri oluşturacaktır)" name="public_access"/>
-			<text name="Only Allow">
-				Sadece şu Sakinlere erişim izni verin:
-			</text>
-			<check_box label="Ödeme bilgileri kayıtlı [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Sakinlerin bu parsele erişebilmesi için ödeme bilgilerinin kayıtlı olması gerekir.  Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
-			<check_box label="18 veya üzeri bir yaşta [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Sakinlerin bu parsele erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
-			<check_box label="Grup Erişimine İzin Ver: [GROUP]" name="GroupCheck" tool_tip="Genel sekmesinde grup ayarla."/>
+			<check_box label="Herkes ziyaret edebilir (Bunun işaretinin kaldırılması yasaklama çizgileri oluşturacaktır)" name="public_access"/>
+			<check_box label="18 yaşından büyük olmalıdır [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Sakinlerin bu parsele erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+			<check_box label="Dosyadaki ödeme bilgisine sahip olmalıdır [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Sakinlerin bu parsele erişebilmesi için ödeme bilgilerinin kayıtlı olması gerekir.  Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+			<check_box label="[GROUP] grubuna kısıtlama olmadan izin ver" name="GroupCheck" tool_tip="Genel sekmesinde grup ayarla."/>
 			<check_box label="Geçiş haklr. şuna sat:" name="PassCheck" tool_tip="Bu parsele geçici erişim verir"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Herkes" name="Anyone"/>
@@ -444,9 +441,12 @@ Sadece büyük parseller aramada görünür.
 			</combo_box>
 			<spinner label="L$ olarak Fiyat:" name="PriceSpin"/>
 			<spinner label="Erişim saatleri:" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(Gayrimenkul sahibi, bu seçimleri kısıtlamış olabilir)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Her Zaman İzin Ver" name="AllowedText">
-					İzin Verilen Sakinler ([COUNT], maks. [MAX])
+					Her zaman izin verilen ([COUNT], maks. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listeli, [MAX] maksimum)"/>
 				<button label="Ekle" name="add_allowed"/>
@@ -454,7 +454,7 @@ Sadece büyük parseller aramada görünür.
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Yasakla" name="BanCheck">
-					Engellenmiş Sakinler ([COUNT], maks. [MAX])
+					Her zaman engellenen ([COUNT], maks. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] listeli, [MAX] maksimum)"/>
 				<button label="Ekle" name="add_banned"/>

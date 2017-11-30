@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="文字聊天" name="chat">
+	<check_box initial_value="true" label="在附近聊天中，自動完成姿勢" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="聊天時呈現打字動作" name="play_typing_animation"/>
 		<check_box label="當我離線時將收到的 IM 訊息郵寄給我" name="send_im_to_email"/>

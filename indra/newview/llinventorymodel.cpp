@@ -2058,11 +2058,6 @@ bool LLInventoryModel::loadSkeleton(
 					// correct contents the next time the viewer opens the folder.
 					tcat->setVersion(NO_VERSION);
 				}
-                else if (tcat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
-                {
-                    // Do not trust stock folders being updated
-                    tcat->setVersion(NO_VERSION);
-                }
 				else
 				{
 					cached_ids.insert(tcat->getUUID());

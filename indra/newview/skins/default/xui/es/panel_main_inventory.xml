@@ -12,10 +12,17 @@
 	<text name="ItemcountText">
 		Ítems:
 	</text>
-	<filter_editor label="Filtrar" name="inventory search editor"/>
+	<filter_editor label="Ingresar texto de búsqueda" name="inventory search editor"/>
+	<combo_box name="search_type">
+		<item label="Nombre" name="Name" value="search_by_name"/>
+		<item label="Creador" name="Creator" value="search_by_creator"/>
+		<item label="Descripción" name="Description" value="search_by_description"/>
+		<item label="UUID" name="UUID" value="search_by_UUID"/>
+	</combo_box>
 	<tab_container name="inventory filter tabs">
 		<inventory_panel label="Todos los ítems" name="All Items"/>
 		<recent_inventory_panel label="Ítems recientes" name="Recent Items"/>
+		<inventory_panel label="(VESTIMENTA)" name="Worn Items"/>
 	</tab_container>
 	<layout_stack name="bottom_panel">
 		<layout_panel name="options_gear_btn_panel">
