@@ -3461,6 +3461,10 @@ void LLVOAvatar::updateDebugText()
         LLVector3 pelvis_pos = mPelvisp->getPosition();
         debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
 
+        S32 is_visible = (S32) isVisible();
+        S32 is_m_visible = (S32) mVisible;
+        debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
+
 		addDebugText(debug_line);
 	}
 
@@ -3681,7 +3685,7 @@ void LLVOAvatar::computeUpdatePeriod()
 	if (mDrawable.notNull()
         && isVisible() 
         && (!isSelf() || visually_muted)
-        && !mIsDummy
+        && (!mIsDummy || isControlAvatar())
         && sUseImpostors
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
@@ -3900,7 +3904,7 @@ void LLVOAvatar::updateTimeStep()
     bool is_pure_dummy = mIsDummy && !isControlAvatar();
 	if (!isSelf() && !is_pure_dummy) // ie, non-self avatars, and animated objects will be affected.
 	{
-        // AXON note that sInstances counts animated objects and
+        // Note that sInstances counts animated objects and
         // standard avatars in the same bucket. Is this desirable?
 		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
 		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
@@ -6162,7 +6166,7 @@ F32 LLVOAvatar::getTimeDilation()
 F32 LLVOAvatar::getPixelArea() const
 {
     // AXON UPDATE FOR CONTROL AVATARS
-	if (mIsDummy)
+	if (mIsDummy && !isControlAvatar())
 	{
 		return 100000.f;
 	}
@@ -7138,9 +7142,14 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 	updateMeshTextures();
 }
 
+// FIXME: We have an mVisible member, set in updateVisibility(), but this
+// function doesn't return it! isVisible() and mVisible are used
+// different places for different purposes. mVisible seems to be more
+// related to whether the actual avatar mesh is shown, and isVisible()
+// to whether anything about the avatar is displayed in the scene.
+// Maybe better naming could make this clearer?
 BOOL LLVOAvatar::isVisible() const
 {
-    // AXON should we flag control avs as invisible?
 	return mDrawable.notNull()
 		&& (!mOrphaned || isSelf())
 		&& (mDrawable->isVisible() || mIsDummy);

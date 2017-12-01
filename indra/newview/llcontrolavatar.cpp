@@ -52,7 +52,7 @@ LLControlAvatar::~LLControlAvatar()
 // virtual
 void LLControlAvatar::initInstance()
 {
-	// AXON - potential optimizations here: avoid creating system
+	// Potential optimizations here: avoid creating system
 	// avatar mesh content since it's not used. For now we just clean some
 	// things up after the fact in releaseMeshData().
     LLVOAvatar::initInstance();
@@ -280,10 +280,11 @@ void LLControlAvatar::updateDebugText()
                 type_string += "-";
             }
         }
-        addDebugText(llformat("CAV obj %d anim %d active %s",
-                              total_linkset_count, animated_volume_count, active_string.c_str()));
+        addDebugText(llformat("CAV obj %d anim %d active %s impost %d",
+                              total_linkset_count, animated_volume_count, active_string.c_str(), (S32) isImpostor()));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
         addDebugText(llformat("tris %d verts %d", total_tris, total_verts));
+        addDebugText(llformat("pxarea %s", LLStringOps::getReadableNumber(getPixelArea()).c_str()));
         std::string region_name = "no region";
         if (mRootVolp->getRegion())
         {
@@ -335,7 +336,7 @@ void LLControlAvatar::updateAnimations()
 {
     if (!mRootVolp)
     {
-        LL_WARNS_ONCE("AXON") << "No root vol" << LL_ENDL;
+        LL_WARNS_ONCE("AnimatedObjects") << "No root vol" << LL_ENDL;
         return;
     }
 
