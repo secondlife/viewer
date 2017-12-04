@@ -220,8 +220,12 @@ public:
 	// Find whichever inventory panel is active / on top.
 	// "Auto_open" determines if we open an inventory panel if none are open.
 	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
-	
-	static void openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL main_panel = FALSE);
+
+	static void openInventoryPanelAndSetSelection(BOOL auto_open,
+													const LLUUID& obj_id,
+													BOOL main_panel = FALSE,
+													BOOL take_keyboard_focus = TAKE_FOCUS_YES,
+													BOOL reset_filter = FALSE);
 
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);

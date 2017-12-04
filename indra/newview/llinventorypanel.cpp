@@ -1364,7 +1364,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 }
 
 //static
-void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL main_panel)
+void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL main_panel, BOOL take_keyboard_focus, BOOL reset_filter)
 {
 	LLInventoryPanel *active_panel;
 	bool in_inbox = (gInventory.isObjectDescendentOf(obj_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX)));
@@ -1379,6 +1379,11 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 	{
 		LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
 
+		if (reset_filter)
+		{
+			reset_inventory_filter();
+		}
+
 		if (in_inbox)
 		{
 			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
@@ -1388,7 +1393,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 
 			if (inventory_panel)
 			{
-				inventory_panel->setSelection(obj_id, TAKE_FOCUS_YES);
+				inventory_panel->setSelection(obj_id, take_keyboard_focus);
 			}
 		}
 		else
@@ -1398,7 +1403,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 			{
 				floater_inventory->setFocus(TRUE);
 			}
-			active_panel->setSelection(obj_id, TAKE_FOCUS_YES);
+			active_panel->setSelection(obj_id, take_keyboard_focus);
 		}
 	}
 }

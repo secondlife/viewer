@@ -4840,26 +4840,32 @@ void on_new_single_inventory_upload_complete(
         gInventory.notifyObservers();
         success = true;
 
+        LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+
         // Show the preview panel for textures and sounds to let
         // user know that the image (or snapshot) arrived intact.
-        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel();
+        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
         if (panel)
         {
-            LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
 
             panel->setSelection(
                 server_response["new_inventory_item"].asUUID(),
                 TAKE_FOCUS_NO);
-
-            // restore keyboard focus
-            gFocusMgr.setKeyboardFocus(focus);
         }
+        else
+        {
+            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, server_response["new_inventory_item"].asUUID(), TRUE, TAKE_FOCUS_NO, TRUE);
+        }
+
+        // restore keyboard focus
+        gFocusMgr.setKeyboardFocus(focus);
     }
     else
     {
         LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
     }
 
+    // Todo: This is mesh repository code, is following code really needed?
     // remove the "Uploading..." message
     LLUploadDialog::modalUploadFinished();
 
