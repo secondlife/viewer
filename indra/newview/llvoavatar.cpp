@@ -670,6 +670,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mCachedMuteListUpdateTime(0),
 	mCachedInMuteList(false),
     mIsControlAvatar(false),
+    mIsUIAvatar(false),
     mEnableDefaultMotions(true)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
@@ -1975,8 +1976,7 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::releaseMeshData()
 {
-	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD ||
-        (mIsDummy && !isControlAvatar()))
+	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD || isUIAvatar())
 	{
 		return;
 	}
@@ -3685,7 +3685,7 @@ void LLVOAvatar::computeUpdatePeriod()
 	if (mDrawable.notNull()
         && isVisible() 
         && (!isSelf() || visually_muted)
-        && (!mIsDummy || isControlAvatar())
+        && !isUIAvatar()
         && sUseImpostors
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
@@ -3901,8 +3901,7 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
 // ------------------------------------------------------------------------
 void LLVOAvatar::updateTimeStep()
 {
-    bool is_pure_dummy = mIsDummy && !isControlAvatar();
-	if (!isSelf() && !is_pure_dummy) // ie, non-self avatars, and animated objects will be affected.
+	if (!isSelf() && !isUIAvatar()) // ie, non-self avatars, and animated objects will be affected.
 	{
         // Note that sInstances counts animated objects and
         // standard avatars in the same bucket. Is this desirable?
@@ -4059,10 +4058,10 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 // LLControlAvatar and mIsDummy is true. Avatar is a purely
 // viewer-side entity with no representation on the simulator.
 //
-// 4) Avatar is a "dummy" avatar used in some areas of the UI, such as
-// when previewing uploaded animations. Class is LLVOAvatar, and
-// mIsDummy is true. Avatar is purely viewer-side with no
-// representation on the simulator.
+// 4) Avatar is a UI avatar used in some areas of the UI, such as when
+// previewing uploaded animations. Class is LLUIAvatar, and mIsDummy
+// is true. Avatar is purely viewer-side with no representation on the
+// simulator.
 //
 //------------------------------------------------------------------------
 BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
@@ -4115,7 +4114,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	//--------------------------------------------------------------------
 	// change animation time quanta based on avatar render load
-    // AXON how should control avs be handled here?
 	//--------------------------------------------------------------------
     // SL-763 the time step quantization does not currently work.
     //updateTimeStep();
@@ -4623,12 +4621,11 @@ U32 LLVOAvatar::renderSkinned()
 		}
 		
 		BOOL first_pass = TRUE;
-        bool is_pure_dummy = mIsDummy && !isControlAvatar();
 		if (!LLDrawPoolAvatar::sSkipOpaque)
 		{
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || is_pure_dummy)
+				if (isTextureVisible(TEX_HEAD_BAKED) || isUIAvatar())
 				{
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
@@ -4638,7 +4635,7 @@ U32 LLVOAvatar::renderSkinned()
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || is_pure_dummy)
+			if (isTextureVisible(TEX_UPPER_BAKED) || isUIAvatar())
 			{
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
@@ -4648,7 +4645,7 @@ U32 LLVOAvatar::renderSkinned()
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || is_pure_dummy)
+			if (isTextureVisible(TEX_LOWER_BAKED) || isUIAvatar())
 			{
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
@@ -4677,7 +4674,7 @@ U32 LLVOAvatar::renderSkinned()
 U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 {
 	U32 num_indices = 0;
-	if( isWearingWearableType( LLWearableType::WT_SKIRT ) && (mIsDummy || isTextureVisible(TEX_SKIRT_BAKED)) )
+	if( isWearingWearableType( LLWearableType::WT_SKIRT ) && (isUIAvatar() || isTextureVisible(TEX_SKIRT_BAKED)) )
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.25f);
 		LLViewerJoint* skirt_mesh = getViewerJoint(MESH_ID_SKIRT);
@@ -4753,9 +4750,7 @@ U32 LLVOAvatar::renderRigid()
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
 
-    bool is_pure_dummy = mIsDummy && !isControlAvatar();
-
-	if (isTextureVisible(TEX_EYES_BAKED)  || is_pure_dummy)
+	if (isTextureVisible(TEX_EYES_BAKED)  || isUIAvatar())
 	{
 		LLViewerJoint* eyeball_left = getViewerJoint(MESH_ID_EYEBALL_LEFT);
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
@@ -6165,8 +6160,7 @@ F32 LLVOAvatar::getTimeDilation()
 //-----------------------------------------------------------------------------
 F32 LLVOAvatar::getPixelArea() const
 {
-    // AXON UPDATE FOR CONTROL AVATARS
-	if (mIsDummy && !isControlAvatar())
+	if (isUIAvatar())
 	{
 		return 100000.f;
 	}

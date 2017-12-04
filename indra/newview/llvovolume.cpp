@@ -3419,18 +3419,6 @@ bool LLVOVolume::isAnimatedObject() const
     LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
     bool root_is_animated_flag = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
     return root_is_animated_flag;
-#if 0
-    if (root_is_animated_flag)
-    {
-        bool root_can_be_animated = root_vol->canBeAnimatedObject();
-        bool this_can_be_animated = (root_vol == this) ? root_can_be_animated : canBeAnimatedObject();
-        if (this_can_be_animated && root_can_be_animated)
-        {
-            return true;
-        }
-    }
-    return false;
-#endif
 }
 
 // Called any time parenting changes for a volume. Update flags and

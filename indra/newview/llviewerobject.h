@@ -706,6 +706,10 @@ public:
 
     virtual bool isAnimatedObject() const;
 
+    // Flags for createObject
+    static const S32 CO_FLAG_CONTROL_AVATAR = 1 << 0;
+    static const S32 CO_FLAG_UI_AVATAR = 1 << 1;
+
 protected:
     LLPointer<LLControlAvatar> mControlAvatar;
 
@@ -718,9 +722,6 @@ protected:
 	// do the update/caching logic. called by saveScript and
 	// updateInventory.
 	void doUpdateInventory(LLPointer<LLViewerInventoryItem>& item, U8 key, bool is_new);
-
-    // Flags for createObject
-    static const S32 CO_FLAG_CONTROL_AVATAR = 1 << 1;
 
 	static LLViewerObject *createObject(const LLUUID &id, LLPCode pcode, LLViewerRegion *regionp, S32 flags = 0);
 

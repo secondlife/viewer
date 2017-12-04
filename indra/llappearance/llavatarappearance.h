@@ -227,7 +227,7 @@ protected:
  **                    RENDERING
  **/
 public:
-	BOOL		mIsDummy; // for special views
+	BOOL		mIsDummy; // for special views and animated object controllers; local to viewer
 
 	//--------------------------------------------------------------------
 	// Morph masks

@@ -70,6 +70,7 @@
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
+#include "lluiavatar.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llviewerinventory.h"
@@ -169,10 +170,16 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 		}
 		else if (flags & CO_FLAG_CONTROL_AVATAR)
 		{
-            LLControlAvatar *avatar = new LLControlAvatar(id, pcode, regionp);
-			avatar->initInstance();
-			res = avatar;
+            LLControlAvatar *control_avatar = new LLControlAvatar(id, pcode, regionp);
+			control_avatar->initInstance();
+			res = control_avatar;
 		}
+        else if (flags & CO_FLAG_UI_AVATAR)
+        {
+            LLUIAvatar *ui_avatar = new LLUIAvatar(id, pcode, regionp);
+            ui_avatar->initInstance();
+            res = ui_avatar;
+        }
 		else
 		{
 			LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 

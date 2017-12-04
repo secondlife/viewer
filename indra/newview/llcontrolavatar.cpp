@@ -40,6 +40,7 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mGlobalScale(1.0f),
     mMarkedForDeath(false)
 {
+    mIsDummy = TRUE;
     mIsControlAvatar = true;
     mEnableDefaultMotions = false;
 }
@@ -56,6 +57,14 @@ void LLControlAvatar::initInstance()
 	// avatar mesh content since it's not used. For now we just clean some
 	// things up after the fact in releaseMeshData().
     LLVOAvatar::initInstance();
+
+    // AXON mSpecialRenderMode here is probably wrong, need to review.
+	mSpecialRenderMode = 1;
+
+	createDrawable(&gPipeline);
+	updateJointLODs();
+	updateGeometry(mDrawable);
+	hideSkirt();
 }
 
 void LLControlAvatar::matchVolumeTransform()
@@ -185,13 +194,6 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
 
     cav->mRootVolp = obj;
-    
-	cav->createDrawable(&gPipeline);
-	cav->mIsDummy = TRUE;
-	cav->mSpecialRenderMode = 1;
-	cav->updateJointLODs();
-	cav->updateGeometry(cav->mDrawable);
-	cav->hideSkirt();
 
     // Sync up position/rotation with object
     cav->matchVolumeTransform();

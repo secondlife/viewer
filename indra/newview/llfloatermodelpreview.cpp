@@ -3451,16 +3451,11 @@ void LLModelPreview::update()
 //-----------------------------------------------------------------------------
 void LLModelPreview::createPreviewAvatar( void )
 {
-	mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer( LL_PCODE_LEGACY_AVATAR, gAgent.getRegion() );
+	mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer( LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), LLViewerObject::CO_FLAG_UI_AVATAR );
 	if ( mPreviewAvatar )
 	{
 		mPreviewAvatar->createDrawable( &gPipeline );
-		mPreviewAvatar->mIsDummy = TRUE;
 		mPreviewAvatar->mSpecialRenderMode = 1;
-		mPreviewAvatar->setPositionAgent( LLVector3::zero );
-		mPreviewAvatar->slamPosition();
-		mPreviewAvatar->updateJointLODs();
-		mPreviewAvatar->updateGeometry( mPreviewAvatar->mDrawable );
 		mPreviewAvatar->startMotion( ANIM_AGENT_STAND );
 		mPreviewAvatar->hideSkirt();
 	}
