@@ -58,9 +58,6 @@ void LLControlAvatar::initInstance()
 	// things up after the fact in releaseMeshData().
     LLVOAvatar::initInstance();
 
-    // AXON mSpecialRenderMode here is probably wrong, need to review.
-	mSpecialRenderMode = 1;
-
 	createDrawable(&gPipeline);
 	updateJointLODs();
 	updateGeometry(mDrawable);
