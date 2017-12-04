@@ -3350,17 +3350,17 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 {
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
-#if 1
-        // AXON debugging
-        LLVOVolume *vol_obj = drawablep->getVOVolume();
-        if (vol_obj && vol_obj->isAnimatedObject() && vol_obj->isRiggedMesh())
+        if (debugLoggingEnabled("AnimatedObjectsLinkset"))
         {
-            std::string vobj_name = llformat("Vol%u", (U32) vol_obj);
-            F32 est_tris = vol_obj->getEstTrianglesMax();
-            LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " markRebuild, tris " << est_tris 
-                                                << " priority " << (S32) priority << " flag " << std::hex << flag << LL_ENDL; 
+            LLVOVolume *vol_obj = drawablep->getVOVolume();
+            if (vol_obj && vol_obj->isAnimatedObject() && vol_obj->isRiggedMesh())
+            {
+                std::string vobj_name = llformat("Vol%u", (U32) vol_obj);
+                F32 est_tris = vol_obj->getEstTrianglesMax();
+                LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " markRebuild, tris " << est_tris 
+                                                    << " priority " << (S32) priority << " flag " << std::hex << flag << LL_ENDL; 
+            }
         }
-#endif
     
 		if (!drawablep->isState(LLDrawable::BUILT))
 		{
