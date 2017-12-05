@@ -1404,7 +1404,12 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
 	LLVoiceClient::getInstance()->keyDown(key, mask);
-	
+
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+	{
+		gAgent.clearAFK();
+	}
+
 	// *NOTE: We want to interpret KEY_RETURN later when it arrives as
 	// a Unicode char, not as a keydown.  Otherwise when client frame
 	// rate is really low, hitting return sends your chat text before
@@ -1418,13 +1423,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
     		return FALSE;
 	}
 
-	BOOL handled = gViewerKeyboard.handleKey(key, mask, repeated);
-	if (!handled || (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME))
-	{
-		gAgent.clearAFK();
-	}
-
-	return handled;
+	return gViewerKeyboard.handleKey(key, mask, repeated);
 }
 
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
