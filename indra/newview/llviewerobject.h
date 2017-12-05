@@ -422,7 +422,7 @@ public:
 	void updateText(); // update text label position
 	virtual void updateDrawable(BOOL force_damped); // force updates on static objects
 
-	bool isOwnerInMuteList();
+	bool isOwnerInMuteList(LLUUID item_id = LLUUID());
 
 	void setDrawableState(U32 state, BOOL recursive = TRUE);
 	void clearDrawableState(U32 state, BOOL recursive = TRUE);

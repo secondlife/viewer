@@ -5118,9 +5118,10 @@ void LLViewerObject::updateText()
 	}
 }
 
-bool LLViewerObject::isOwnerInMuteList()
+bool LLViewerObject::isOwnerInMuteList(LLUUID id)
 {
-	if (isAvatar() || mOwnerID.isNull())
+	LLUUID owner_id = id.isNull() ? mOwnerID : id;
+	if (isAvatar() || owner_id.isNull())
 	{
 		return false;
 	}
@@ -5132,7 +5133,7 @@ bool LLViewerObject::isOwnerInMuteList()
 	}
 	else
 	{
-		muted = LLMuteList::getInstance()->isMuted(mOwnerID);
+		muted = LLMuteList::getInstance()->isMuted(owner_id);
 
 		const F64 SECONDS_BETWEEN_MUTE_UPDATES = 1;
 		mCachedMuteListUpdateTime = now + SECONDS_BETWEEN_MUTE_UPDATES;

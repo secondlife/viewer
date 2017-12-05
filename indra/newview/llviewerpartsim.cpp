@@ -712,7 +712,7 @@ void LLViewerPartSim::updateSimulation()
 				upd = FALSE;
 			}
 
-			if(vobj && vobj->isOwnerInMuteList())
+			if(vobj && vobj->isOwnerInMuteList(mViewerPartSources[i]->getOwnerUUID()))
 			{
 				upd = FALSE;
 			}
