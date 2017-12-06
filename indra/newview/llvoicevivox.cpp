@@ -108,7 +108,7 @@ namespace {
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
     const F32 MINUSCULE_ANGLE_COS = (F32) cos(0.5f * FOUR_DEGREES);
 
-    const F32 SESSION_JOIN_TIMEOUT = 10.0f;
+    const F32 SESSION_JOIN_TIMEOUT = 30.0f;
 
     // Defines the maximum number of times(in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine()
     // which is treated as normal. The is the number of frames to wait for a channel join before giving up.  This was changed 
