@@ -906,8 +906,10 @@ class DarwinManifest(ViewerManifest):
             # our nested launcher_app
             with self.prefix(dst="MacOS"):
                 toplevel_MacOS = self.get_dst_prefix()
-                trampoline = self.put_in_file(
-                    'open "%s"\n' %
+                trampoline = self.put_in_file("""\
+#!/bin/bash
+open "%s"
+""" %
                     # up one directory from MacOS to its sibling Resources directory
                     os.path.join('$(dirname "$0")', os.pardir, 'Resources', launcher_app),
                     "SL_Launcher",      # write this file
