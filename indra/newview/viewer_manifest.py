@@ -32,6 +32,7 @@ import os.path
 import shutil
 import errno
 import json
+import plistlib
 import random
 import re
 import stat
@@ -343,7 +344,7 @@ class ViewerManifest(LLManifest):
         # 'dst' is itself a pathname.
         dstdir = os.path.dirname(dst)
         self.cmakedirs(dstdir)
-        return dstdir, dst
+        return (dstdir, dst)
 
     def _symlinkf(self, src, dst, catch):
         # helper for relsymlinkf() and symlinkf()
@@ -875,9 +876,6 @@ class DarwinManifest(ViewerManifest):
         return True
 
     def construct(self):
-        global plistlib
-        import plistlib                 # only import for Darwin
-
         # These are the names of the top-level application and the embedded
         # applications for the VMP and for the actual viewer, respectively.
         # These names, without the .app suffix, determine the flyover text for
@@ -914,12 +912,8 @@ open "%s"
                     os.path.join('$(dirname "$0")', os.pardir, 'Resources', launcher_app),
                     "SL_Launcher",      # write this file
                     "trampoline")       # flag to add to list of copied files
-                # Script must be executable -- but os.chmod() is pretty low-level:
-                # if we just chmod(stat.S_IEXEC), we end up with NOTHING BUT x!
-                # Have to read the existing permissions bits, then supplement with
-                # x for (user, group, other).
-                os.chmod(trampoline, stat.S_IMODE(os.stat(trampoline).st_mode)
-                         | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+                # Script must be executable
+                self.run_command(["chmod", "+x", trampoline])
 
             # Make a symlink to a nested app Frameworks directory that doesn't
             # yet exist. We shouldn't need this; the only things that need
