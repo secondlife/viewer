@@ -906,7 +906,7 @@ class DarwinManifest(ViewerManifest):
                 toplevel_MacOS = self.get_dst_prefix()
                 trampoline = self.put_in_file("""\
 #!/bin/bash
-open "%s"
+open "%s" --args "$@"
 """ %
                     # up one directory from MacOS to its sibling Resources directory
                     os.path.join('$(dirname "$0")', os.pardir, 'Resources', launcher_app),
