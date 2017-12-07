@@ -880,9 +880,9 @@ class DarwinManifest(ViewerManifest):
         # applications for the VMP and for the actual viewer, respectively.
         # These names, without the .app suffix, determine the flyover text for
         # their corresponding Dock icons.
-        toplevel_app, toplevel_icon = "Second Life.app", "secondlife.icns"
-        launcher_app, launcher_icon = "Launcher.app",    "secondlife.icns"
-        viewer_app,   viewer_icon   = "Viewer.app",      "secondlife.icns"
+        toplevel_app, toplevel_icon = "Second Life.app",          "secondlife.icns"
+        launcher_app, launcher_icon = "Second Life Launcher.app", "secondlife.icns"
+        viewer_app,   viewer_icon   = "Second Life Viewer.app",   "secondlife.icns"
 
         # copy over the build result (this is a no-op if run within the xcode script)
         self.path(os.path.join(self.args['configuration'], toplevel_app), dst="")
