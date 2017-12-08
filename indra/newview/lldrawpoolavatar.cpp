@@ -109,6 +109,32 @@ LLDrawPoolAvatar::LLDrawPoolAvatar() :
 {
 }
 
+LLDrawPoolAvatar::~LLDrawPoolAvatar()
+{
+    if (!isDead())
+    {
+        LL_WARNS() << "Destroying avatar drawpool that still contains faces" << LL_ENDL;
+    }
+}
+
+// virtual
+BOOL LLDrawPoolAvatar::isDead()
+{
+    if (!LLFacePool::isDead())
+    {
+        return FALSE;
+    }
+    
+	for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+    {
+        if (mRiggedFace[i].size() > 0)
+        {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+ 
 //-----------------------------------------------------------------------------
 // instancePool()
 //-----------------------------------------------------------------------------
