@@ -2068,11 +2068,16 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 
 void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 {
+    llassert (facep->isState(LLFace::RIGGED));
+    llassert(getType() == LLDrawPool::POOL_AVATAR);
+    if (facep->getPool() && facep->getPool() != this)
+    {
+        LL_ERRS() << "adding rigged face that's already in another pool" << LL_ENDL;
+    }
 	if (type >= NUM_RIGGED_PASSES)
 	{
 		LL_ERRS() << "Invalid rigged face type." << LL_ENDL;
 	}
-
 	if (facep->getRiggedIndex(type) != -1)
 	{
 		LL_ERRS() << "Tried to add a rigged face that's referenced elsewhere." << LL_ENDL;
@@ -2085,6 +2090,12 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 
 void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 {
+    llassert (facep->isState(LLFace::RIGGED));
+    llassert(getType() == LLDrawPool::POOL_AVATAR);
+    if (facep->getPool() != this)
+    {
+        LL_ERRS() << "Tried to remove a rigged face from the wrong pool" << LL_ENDL;
+    }
 	facep->setPool(NULL);
 
 	for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
