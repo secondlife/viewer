@@ -113,7 +113,7 @@ void LLControlAvatar::setGlobalScale(F32 scale)
     {
         F32 adjust_scale = scale/mGlobalScale;
         LL_INFOS() << "scale " << scale << " adjustment " << adjust_scale << LL_ENDL;
-        // AXON - should we be scaling from the pelvis or the root?
+        // should we be scaling from the pelvis or the root?
         recursiveScaleJoint(mPelvisp,adjust_scale);
         mGlobalScale = scale;
     }
@@ -167,7 +167,10 @@ void LLControlAvatar::updateVolumeGeom()
 
     matchVolumeTransform();
 
-    // AXON testing scale
+    // Initial exploration of allowing scaling skeleton to match root
+    // prim bounding box. If enabled, would probably be controlled by
+    // an additional checkbox and default to off. Not enabled for
+    // initial release.
 
     // What should the scale be? What we really want is the ratio
     // between the scale at which the object was originally designed

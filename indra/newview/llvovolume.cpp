@@ -3357,12 +3357,11 @@ U32 LLVOVolume::getExtendedMeshFlags() const
 
 void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
 {
-    // AXON - the check against isAnySelected() is "empirically
-    // derived": doing rebuildGeom() while in selection trashes the
-    // graphics state of animated objects. Skipping this update is OK
-    // because we get another one on deselect.
 
-	if (!getRootEdit()->isAnySelected() && mDrawable.notNull())
+    // The isAnySelected() check was needed at one point to prevent
+    // graphics problems. These are now believed to be fixed so the
+    // check has been disabled.
+	if (/*!getRootEdit()->isAnySelected() &&*/ mDrawable.notNull())
     {
         // Need to trigger rebuildGeom(), which is where control avatars get created/removed
         getRootEdit()->recursiveMarkForUpdate(TRUE);

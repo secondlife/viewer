@@ -3975,7 +3975,6 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
 		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
 
-        // AXON need to review mInAir calcs for animated objects, if the value even matters.
         LLVector3 normal;
 		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
 		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
@@ -4024,9 +4023,8 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 		//--------------------------------------------------------------------
 		if (!isControlAvatar() && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
 		{
-            // AXON - should we always skip for control avatars?
-            // Rotation fixups for avatars in motion, some may be
-            // relevant.
+            // Rotation fixups for avatars in motion.
+            // Skip for animated objects.
             updateOrientation(agent, speed, delta_time);
 		}
 	}
@@ -6130,8 +6128,7 @@ void LLVOAvatar::getGround(const LLVector3 &in_pos_agent, LLVector3 &out_pos_age
 	LLVector3d z_vec(0.0f, 0.0f, 1.0f);
 	LLVector3d p0_global, p1_global;
 
-    // AXON UPDATE FOR CONTROL AVS?
-	if (mIsDummy)
+	if (isUIAvatar())
 	{
 		outNorm.setVec(z_vec);
 		out_pos_agent = in_pos_agent;
