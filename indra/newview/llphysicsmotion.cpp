@@ -44,7 +44,7 @@ typedef std::map<std::string, std::string> controller_map_t;
 typedef std::map<std::string, F32> default_controller_map_t;
 
 #define MIN_REQUIRED_PIXEL_AREA_AVATAR_PHYSICS_MOTION 0.f
-#define TIME_ITERATION_STEP 0.1f
+#define TIME_ITERATION_STEP 0.05f
 
 inline F64 llsgn(const F64 a)
 {
@@ -549,6 +549,18 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	
 	// Break up the physics into a bunch of iterations so that differing framerates will show
 	// roughly the same behavior.
+	// Explanation/example: Lets assume we have a bouncing object. Said abjects bounces at a
+	// trajectory that has points A>B>C. Object bounces from A to B with specific speed.
+	// It needs time T to move from A to B.
+	// As long as our frame's time significantly smaller then T our motion will be split into
+	// multiple parts. with each part speed will decrease. Object will reach B position (roughly)
+	// and bounce/fall back to A.
+	// But if frame's time (F_T) is larger then T, object will move with same speed for whole F_T
+	// and will jump over point B up to C ending up with increased amplitude. To avoid that we
+	// split F_T into smaller portions so that when frame's time is too long object can virtually
+	// bounce at right (relatively) position.
+	// Note: this doesn't look to be optimal, since it provides only "roughly same" behavior, but
+	// irregularity at higher fps looks to be insignificant so it works good enough for low fps.
 	for (F32 time_iteration = 0; time_iteration <= time_delta; time_iteration += TIME_ITERATION_STEP)
 	{
 		F32 time_iteration_step = TIME_ITERATION_STEP;
