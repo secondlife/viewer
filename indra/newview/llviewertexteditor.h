@@ -71,7 +71,8 @@ public:
 		mObjectID = object_id;
 		mPreviewID = preview_id;
 	}
-	
+	void setNotecardObjectID(const LLUUID& object_id){ mObjectID = object_id;}
+
 	void setASCIIEmbeddedText(const std::string& instr);
 	void setEmbeddedText(const std::string& instr);
 	std::string getEmbeddedText();

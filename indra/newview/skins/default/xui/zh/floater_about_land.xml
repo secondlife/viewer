@@ -430,13 +430,10 @@
 			<panel.string name="estate_override">
 				至少一個選項在領地的層級設定
 			</panel.string>
-			<check_box label="允許公開出入（若未勾選，將設立禁越線）" name="public_access"/>
-			<text name="Only Allow">
-				僅允許符合以下條件的居民進入：
-			</text>
-			<check_box label="已預留付款資料 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="居民必須提供付款資料才能進入這地段。  參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
-			<check_box label="年滿 18 歲 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="居民必須年滿 18 歲才能進入這地段。 參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
-			<check_box label="允許出入的群組：[GROUP]" name="GroupCheck" tool_tip="設定群組於一般頁籤。"/>
+			<check_box label="任何人都可造訪（若未勾選，將設立禁越線）" name="public_access"/>
+			<check_box label="必須滿18歲 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="居民必須年滿 18 歲才能進入這地段。 參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
+			<check_box label="須具備預留的付款資料 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="居民必須提供付款資料才能進入這地段。  參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
+			<check_box label="允許[GROUP]群組，不設限" name="GroupCheck" tool_tip="設定群組於一般頁籤。"/>
 			<check_box label="出售通行權給：" name="PassCheck" tool_tip="允許暫時出入這個地段"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="任何人" name="Anyone"/>
@@ -444,9 +441,12 @@
 			</combo_box>
 			<spinner label="價格（L$）：" name="PriceSpin"/>
 			<spinner label="出入時間：" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				（領地所有人可能對這些選項設限）
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="永遠允許" name="AllowedText">
-					允許的居民（[COUNT]，最多[MAX]）
+					永久允許（[COUNT]，最多[MAX]）
 				</text>
 				<name_list name="AccessList" tool_tip="（已列入 [LISTED]，最多可列 [MAX]）"/>
 				<button label="添加" name="add_allowed"/>
@@ -454,7 +454,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="禁止" name="BanCheck">
-					封鎖的居民（[COUNT]，最多[MAX]）
+					永久封鎖（[COUNT]，最多[MAX]）
 				</text>
 				<name_list name="BannedList" tool_tip="（已列入 [LISTED]，最多可列 [MAX]）"/>
 				<button label="添加" name="add_banned"/>

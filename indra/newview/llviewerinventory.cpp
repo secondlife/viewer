@@ -60,7 +60,9 @@
 #include "llappearancemgr.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
+#include "llpanelmaininventory.h"
 #include "llsidepanelappearance.h"
+#include "llsidepanelinventory.h"
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "lllogininstance.h"
@@ -245,6 +247,20 @@ public:
 		if (params[0].asString() == "show")
 		{
 			LLFloaterSidePanelContainer::showPanel("inventory", LLSD());
+			return true;
+		}
+
+		if (params[0].asString() == "filters")
+		{
+			LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			if (sidepanel_inventory)
+			{
+				LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+				if (main_inventory)
+				{
+					main_inventory->toggleFindOptions();
+				}
+			}
 			return true;
 		}
 

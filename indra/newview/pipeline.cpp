@@ -3903,7 +3903,14 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	
 	//flush particle VB
-	LLVOPartGroup::sVB->flush();
+	if (LLVOPartGroup::sVB)
+	{
+		LLVOPartGroup::sVB->flush();
+	}
+	else
+	{
+		LL_WARNS_ONCE() << "Missing particle buffer" << LL_ENDL;
+	}
 
 	/*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
 

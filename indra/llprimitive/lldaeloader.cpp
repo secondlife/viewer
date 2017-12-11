@@ -862,16 +862,26 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	setLoadState( READING_FILE );
 
 	//no suitable slm exists, load from the .dae file
+
+	// Collada expects file and folder names to be escaped
+	// Note: cdom::nativePathToUri()
+	const char* allowed =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789"
+		"%-._~:\"|\\/";
+	std::string uri_filename = LLURI::escape(filename, allowed);
+
 	DAE dae;
 	domCOLLADA* dom;
 	if (mPreprocessDAE)
 	{
-		dom = dae.openFromMemory(filename, preprocessDAE(filename).c_str());
+		dom = dae.openFromMemory(uri_filename, preprocessDAE(filename).c_str());
 	}
 	else
 	{
 		LL_INFOS() << "Skipping dae preprocessing" << LL_ENDL;
-		dom = dae.open(filename);
+		dom = dae.open(uri_filename);
 	}
 	
 	if (!dom)
@@ -900,7 +910,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	
 	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
 	
-	daeDocument* doc = dae.getDoc(filename);
+	daeDocument* doc = dae.getDoc(uri_filename);
 	if (!doc)
 	{
 		LL_WARNS() << "can't find internal doc" << LL_ENDL;

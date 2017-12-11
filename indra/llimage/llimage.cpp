@@ -1536,7 +1536,7 @@ LLPointer<LLImageRaw> LLImageRaw::scaled(S32 new_width, S32 new_height)
     if ((old_width == new_width) && (old_height == new_height))
     {
         result = new LLImageRaw(old_width, old_height, components);
-        if (!result)
+        if (!result || result->isBufferInvalid())
         {
             LL_WARNS() << "Failed to allocate new image" << LL_ENDL;
             return result;
@@ -1550,7 +1550,7 @@ LLPointer<LLImageRaw> LLImageRaw::scaled(S32 new_width, S32 new_height)
         if (new_data_size > 0)
         {
             result = new LLImageRaw(new_width, new_height, components);
-            if (!result)
+            if (!result || result->isBufferInvalid())
             {
                 LL_WARNS() << "Failed to allocate new image" << LL_ENDL;
                 return result;

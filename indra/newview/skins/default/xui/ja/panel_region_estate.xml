@@ -15,58 +15,34 @@
 	<text name="estate_owner">
 		（不明）
 	</text>
-	<text name="Only Allow">
-		次の住人にのみアクセスを許可：
-	</text>
-	<check_box label="支払情情報が登録されている" name="limit_payment" tool_tip="支払情報が登録されていないと、この不動産にアクセスすることはできません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
-	<check_box label="18 才以上です" name="limit_age_verified" tool_tip="この不動産（エステート）にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="下記の住人とグループのみ許可する" name="estate_restricted_access"/>
+		<radio_item label="誰でも訪問可" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="18 歳以上である必要があります" name="limit_age_verified" tool_tip="この不動産（エステート）にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+	<check_box label="支払情報が登録されている必要があります" name="limit_payment" tool_tip="支払情報が登録されていないと、この不動産にアクセスすることはできません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+	<check_box label="区画所有者" name="parcel_access_override"/>
 	<check_box label="ボイスチャットを許可" name="voice_chat_check"/>
-	<button label="?" name="voice_chat_help"/>
-	<text name="abuse_email_text">
-		嫌がらせに関するメール先:
-	</text>
-	<string name="email_unsupported">
-		サポートされていない機能
-	</string>
-	<button label="?" name="abuse_email_address_help"/>
+	<check_box label="直接テレポートを許可" name="allow_direct_teleport"/>
+	<button label="適用" name="apply_btn"/>
 	<text name="estate_manager_label">
 		不動産マネージャー：
 	</text>
-	<button label="?" name="estate_manager_help"/>
+	<text name="allow_resident_label">
+		常に許可：
+	</text>
 	<button label="追加..." name="add_estate_manager_btn"/>
 	<button label="削除..." name="remove_estate_manager_btn"/>
-	<check_box label="世界時間を使用" name="use_global_time_check"/>
-	<button label="?" name="use_global_time_help"/>
-	<check_box label="太陽固定" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="段階" name="sun_hour_slider"/>
-	<check_box label="パブリックアクセスを許可" name="externally_visible_check"/>
-	<button label="?" name="externally_visible_help"/>
-	<check_box label="直接テレポートを許可" name="allow_direct_teleport"/>
-	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="region_text_lbl">
-		支払い状況によりアクセスを拒否：
-	</text>
-	<check_box label="支払情報登録がないものを拒否" name="deny_anonymous"/>
-	<check_box label="支払情報登録があるものを拒否" name="deny_identified"/>
-	<check_box label="使用されている支払情報を拒否" name="deny_transacted"/>
-	<button label="適用" name="apply_btn"/>
-	<text name="allow_resident_label">
-		許可された住人:
-	</text>
-	<button label="?" name="allow_resident_help"/>
 	<button label="追加..." name="add_allowed_avatar_btn"/>
 	<button label="削除..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		許可されたグループ：
+		グループを常に許可：
 	</text>
-	<button label="?" name="allow_group_help"/>
+	<text name="ban_resident_label">
+		常に禁止：
+	</text>
 	<button label="追加..." name="add_allowed_group_btn"/>
 	<button label="削除..." name="remove_allowed_group_btn"/>
-	<text name="ban_resident_label">
-		禁止された住人:
-	</text>
-	<button label="?" name="ban_resident_help"/>
 	<button label="追加..." name="add_banned_avatar_btn"/>
 	<button label="削除..." name="remove_banned_avatar_btn"/>
 	<button label="メッセージを不動産に送信..." name="message_estate_btn"/>

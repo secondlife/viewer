@@ -5664,7 +5664,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		args["NAME"] = source_slurl;
 		is_name_group = is_source_group;
 		name_id = source_id;
-		if (!reason.empty())
+
+		if (!reason.empty() && !LLMuteList::getInstance()->isMuted(source_id))
 		{
 			message = LLTrans::getString("paid_you_ldollars" + gift_suffix, args);
 		}
@@ -7258,7 +7259,7 @@ void send_places_query(const LLUUID& query_id,
 	gAgent.sendReliableMessage();
 }
 
-
+// Deprecated in favor of cap "UserInfo"
 void process_user_info_reply(LLMessageSystem* msg, void**)
 {
 	LLUUID agent_id;
@@ -7276,7 +7277,8 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	std::string dir_visibility;
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
-	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email);
+    // For Message based user info information the is_verified is assumed to be false.
+	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, false);   
 	LLFloaterSnapshot::setAgentEmail(email);
 }
 

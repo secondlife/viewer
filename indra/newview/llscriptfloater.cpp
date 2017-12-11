@@ -349,8 +349,8 @@ void LLScriptFloater::hideToastsIfNeeded()
 //////////////////////////////////////////////////////////////////////////
 
 LLScriptFloaterManager::LLScriptFloaterManager()
+		: mDialogLimitationsSlot()
 {
-	gSavedSettings.getControl("ScriptDialogLimitations")->getCommitSignal()->connect(boost::bind(&clearScriptNotifications));
 }
 
 void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
@@ -359,6 +359,19 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	{
 		LL_WARNS() << "Invalid notification ID" << LL_ENDL;
 		return;
+	}
+
+	if (!mDialogLimitationsSlot.connected())
+	{
+		LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("ScriptDialogLimitations");
+		if (cntrl_ptr.notNull())
+		{
+			mDialogLimitationsSlot = cntrl_ptr->getCommitSignal()->connect(boost::bind(&clearScriptNotifications));
+		}
+		else
+		{
+			LL_WARNS() << "Unable to set signal on setting 'ScriptDialogLimitations'" << LL_ENDL;
+		}
 	}
 
 	// get scripted Object's ID

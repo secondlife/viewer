@@ -2,6 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Io" name="File">
 		<menu_item_call label="Preferenze..." name="Preferences..."/>
+		<menu_item_call label="Chiudi la finestra" name="Close Window"/>
 		<menu_item_check label="Mostra selettore griglia" name="Show Grid Picker"/>
 		<menu_item_call label="Esci da [APP_NAME]" name="Quit"/>
 	</menu>

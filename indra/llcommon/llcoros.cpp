@@ -40,6 +40,10 @@
 #include "stringize.h"
 #include "llexception.h"
 
+#if LL_WINDOWS
+#include <excpt.h>
+#endif
+
 namespace {
 void no_op() {}
 } // anonymous namespace
@@ -276,6 +280,43 @@ void LLCoros::setStackSize(S32 stacksize)
     mStackSize = stacksize;
 }
 
+#if LL_WINDOWS
+
+static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+{
+    if (code == STATUS_MSC_EXCEPTION)
+    {
+        // C++ exception, go on
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else
+    {
+        // handle it
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+}
+
+void LLCoros::winlevel(const callable_t& callable)
+{
+    __try
+    {
+        callable();
+    }
+    __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        // convert to C++ styled exception
+        // Note: it might be better to use _se_set_translator
+        // if you want exception to inherit full callstack
+        char integer_string[32];
+        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+        throw std::exception(integer_string);
+    }
+}
+
+#endif
+
 // Top-level wrapper around caller's coroutine callable. This function accepts
 // the coroutine library's implicit coro::self& parameter and saves it, but
 // does not pass it down to the caller's callable.
@@ -286,7 +327,11 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     // run the code the caller actually wants in the coroutine
     try
     {
+#if LL_WINDOWS
+        winlevel(callable);
+#else
         callable();
+#endif
     }
     catch (const LLContinueError&)
     {

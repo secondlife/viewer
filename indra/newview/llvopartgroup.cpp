@@ -61,7 +61,15 @@ void LLVOPartGroup::restoreGL()
 	//TODO: optimize out binormal mask here.  Specular and normal coords as well.
 	sVB = new LLVertexBuffer(VERTEX_DATA_MASK | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, GL_STREAM_DRAW_ARB);
 	U32 count = LL_MAX_PARTICLE_COUNT;
-	sVB->allocateBuffer(count*4, count*6, true);
+	if (!sVB->allocateBuffer(count*4, count*6, true))
+	{
+		LL_WARNS() << "Failed to allocate Vertex Buffer to "
+			<< count*4 << " vertices and "
+			<< count * 6 << " indices" << LL_ENDL;
+		// we are likelly to crash at following getTexCoord0Strider(), so unref and return
+		sVB = NULL;
+		return;
+	}
 
 	//indices and texcoords are always the same, set once
 	LLStrider<U16> indicesp;
@@ -764,7 +772,7 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 	addGeometryCount(group, vertex_count, index_count);
 	
 
-	if (vertex_count > 0 && index_count > 0)
+	if (vertex_count > 0 && index_count > 0 && LLVOPartGroup::sVB)
 	{ 
 		group->mBuilt = 1.f;
 		//use one vertex buffer for all groups
