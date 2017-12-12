@@ -1957,7 +1957,11 @@ void LLViewerWindow::initBase()
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
 	MainPanel* main_view = new MainPanel();
-	main_view->buildFromFile("main_view.xml");
+	if (!main_view->buildFromFile("main_view.xml"))
+	{
+		LL_ERRS() << "Failed to initialize viewer: Viewer couldn't process file main_view.xml, "
+				<< "if this problem happens again, please validate your installation." << LL_ENDL;
+	}
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
