@@ -2213,8 +2213,22 @@ std::string LLFolderBridge::getLabelSuffix() const
     {
         return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
     }
-    
-    return LLInvFVBridge::getLabelSuffix();
+    std::string suffix = "";
+    if(mShowDescendantsCount)
+    {
+        LLInventoryModel::cat_array_t cat_array;
+        LLInventoryModel::item_array_t item_array;
+        gInventory.collectDescendents(getUUID(), cat_array, item_array, TRUE);
+        S32 count = item_array.size();
+        if(count > 0)
+        {
+            std::ostringstream oss;
+            oss << count;
+            suffix = " ( " + oss.str() + " Items )";
+        }
+    }
+
+    return LLInvFVBridge::getLabelSuffix() + suffix;
 }
 
 LLFontGL::StyleFlags LLFolderBridge::getLabelStyle() const

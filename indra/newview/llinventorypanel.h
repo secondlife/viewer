@@ -258,6 +258,8 @@ protected:
 	LLHandle<LLFolderView>      mFolderRoot;
 	LLScrollContainer*			mScroller;
 
+	LLUUID						mPreviousSelectedFolder;
+
 	LLFolderViewModelInventory	mInventoryViewModel;
     LLPointer<LLFolderViewGroupedItemBridge> mGroupedItemBridge;
 	Params						mParams;	// stored copy of parameter block
