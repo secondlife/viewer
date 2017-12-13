@@ -68,8 +68,7 @@ private:
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 	void onCursorChangedCallback(dullahan::ECursorType type);
-	void onFileDownloadCallback(std::string filename);
-	const std::string onFileDialogCallback();
+	const std::string onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, const std::string dialog_accept_filter, bool& use_default);
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
@@ -285,30 +284,39 @@ bool MediaPluginCEF::onHTTPAuthCallback(const std::string host, const std::strin
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onFileDownloadCallback(const std::string filename)
+const std::string MediaPluginCEF::onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, std::string dialog_accept_filter, bool& use_default)
 {
-	mAuthOK = false;
+	// do not use the default CEF file picker
+	use_default = false;
 
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download");
-	message.setValue("filename", filename);
+	if (dialog_type == dullahan::FD_OPEN_FILE)
+	{
+		mPickedFile.clear();
 
-	sendMessage(message);
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
+		message.setValueBoolean("blocking_request", true);
+
+		sendMessage(message);
+
+		return mPickedFile;
+	}
+	else if (dialog_type == dullahan::FD_SAVE_FILE)
+	{
+		mAuthOK = false;
+
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download");
+		message.setValue("filename", default_file);
+
+		sendMessage(message);
+
+		return std::string();
+	}
+
+	return std::string();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-const std::string MediaPluginCEF::onFileDialogCallback()
-{
-	mPickedFile.clear();
-
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
-	message.setValueBoolean("blocking_request", true);
-
-	sendMessage(message);
-
-	return mPickedFile;
-}
-
 void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 {
 	std::string name = "";
@@ -341,6 +349,8 @@ void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 	sendMessage(message);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
 void MediaPluginCEF::authResponse(LLPluginMessage &message)
 {
 	mAuthOK = message.getValueBoolean("ok");
@@ -442,8 +452,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnNavigateURLCallback(std::bind(&MediaPluginCEF::onNavigateURLCallback, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-				mCEFLib->setOnFileDownloadCallback(std::bind(&MediaPluginCEF::onFileDownloadCallback, this, std::placeholders::_1));
-				mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialogCallback, this));
+				mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialog, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
 				mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
