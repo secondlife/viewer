@@ -287,6 +287,7 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
         addDebugText(llformat("tris %d verts %d", total_tris, total_verts));
         addDebugText(llformat("pxarea %s", LLStringOps::getReadableNumber(getPixelArea()).c_str()));
+#if 0
         std::string region_name = "no region";
         if (mRootVolp->getRegion())
         {
@@ -300,10 +301,7 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("region %x %s skel %x %s",
                               mRootVolp->getRegion(), region_name.c_str(),
                               getRegion(), skel_region_name.c_str()));
-        //addDebugText(llformat("anim time %.1f (step %f factor %f)", 
-        //                      mMotionController.getAnimTime(),
-        //                      mMotionController.getTimeStep(), 
-        //                      mMotionController.getTimeFactor()));
+#endif
         
     }
     LLVOAvatar::updateDebugText();
