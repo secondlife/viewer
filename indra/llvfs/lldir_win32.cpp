@@ -31,7 +31,10 @@
 #include "lldir_win32.h"
 #include "llerror.h"
 #include "llrand.h"		// for gLindenLabRandomNumber
-#include "shlobj.h"
+#include <shlobj.h>
+#include <Knownfolders.h>
+#include <iostream>
+#include <map>
 
 #include <direct.h>
 #include <errno.h>
@@ -42,30 +45,59 @@
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName);
 
+namespace {
+
+std::string getKnownFolderPath(const std::string& desc, REFKNOWNFOLDERID folderid)
+{
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb762188(v=vs.85).aspx
+    PWSTR wstrptr = 0;
+    HRESULT result = SHGetKnownFolderPath(
+        folderid,
+        KF_FLAG_DEFAULT,            // no flags
+        NULL,                       // current user, no impersonation
+        &wstrptr);
+    if (result == S_OK)
+    {
+        std::string utf8 = utf16str_to_utf8str(llutf16string(wstrptr));
+        // have to free the returned pointer after copying its data
+        CoTaskMemFree(wstrptr);
+        return utf8;
+    }
+
+    // gack, no logging yet!
+    // at least say something to a developer trying to debug this...
+    static std::map<HRESULT, const char*> codes
+    {
+        { E_FAIL, "E_FAIL; known folder does not have a path?" },
+        { E_INVALIDARG, "E_INVALIDARG; not present on system?" }
+    };
+    auto found = codes.find(result);
+    const char* text = (found == codes.end())? "unknown" : found->second;
+    std::cout << "*** SHGetKnownFolderPath(" << desc << ") failed with "
+              << result << " (" << text << ")\n";
+    return {};
+}
+
+} // anonymous namespace
+
 LLDir_Win32::LLDir_Win32()
 {
 	mDirDelimiter = "\\";
 
-	WCHAR w_str[MAX_PATH];
-
 	// Application Data is where user settings go
-	SHGetSpecialFolderPath(NULL, w_str, CSIDL_APPDATA, TRUE);
-
-	mOSUserDir = utf16str_to_utf8str(llutf16string(w_str));
+	mOSUserDir = getKnownFolderPath("RoamingAppData", FOLDERID_RoamingAppData);
 
 	// We want cache files to go on the local disk, even if the
 	// user is on a network with a "roaming profile".
 	//
-	// On XP this is:
-	//   C:\Docments and Settings\James\Local Settings\Application Data
 	// On Vista this is:
 	//   C:\Users\James\AppData\Local
 	//
 	// We used to store the cache in AppData\Roaming, and the installer
 	// cleans up that version on upgrade.  JC
-	SHGetSpecialFolderPath(NULL, w_str, CSIDL_LOCAL_APPDATA, TRUE);
-	mOSCacheDir = utf16str_to_utf8str(llutf16string(w_str));
+	mOSCacheDir = getKnownFolderPath("LocalAppData", FOLDERID_LocalAppData);
 
+	WCHAR w_str[MAX_PATH];
 	if (GetTempPath(MAX_PATH, w_str))
 	{
 		if (wcslen(w_str))	/* Flawfinder: ignore */ 
@@ -73,6 +105,16 @@ LLDir_Win32::LLDir_Win32()
 			w_str[wcslen(w_str)-1] = '\0'; /* Flawfinder: ignore */ // remove trailing slash
 		}
 		mTempDir = utf16str_to_utf8str(llutf16string(w_str));
+
+		if (mOSUserDir.empty())
+		{
+			mOSUserDir = mTempDir;
+		}
+
+		if (mOSCacheDir.empty())
+		{
+			mOSCacheDir = mTempDir;
+		}
 	}
 	else
 	{
