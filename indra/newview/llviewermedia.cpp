@@ -3480,21 +3480,39 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 		case LLViewerMediaObserver::MEDIA_EVENT_PICK_FILE_REQUEST:
 		{
-			// Display a file picker
-			std::string response;
-
 			LLFilePicker& picker = LLFilePicker::instance();
-			if (!picker.getOpenFile(LLFilePicker::FFLOAD_ALL))
+			std::vector<std::string> responses;
+
+			bool pick_multiple_files = plugin->getIsMultipleFilePick();
+			if (pick_multiple_files == false)
 			{
-				// The user didn't pick a file -- the empty response string will indicate this.
+				picker.getOpenFile(LLFilePicker::FFLOAD_ALL);
+
+				std::string filename = picker.getFirstFile();
+				responses.push_back(filename);
 			}
+			else
+			{
+				if (picker.getMultipleOpenFiles())
+				{
+					std::string filename = picker.getFirstFile();
 
-			response = picker.getFirstFile();
+					responses.push_back(filename);
 
-			plugin->sendPickFileResponse(response);
+					while (!filename.empty())
+					{
+						filename = picker.getNextFile();
+
+						if (!filename.empty())
+						{
+							responses.push_back(filename);
+						}
+					}
+				}
+			}
+			plugin->sendPickFileResponse(responses);
 		}
 		break;
-
 
 		case LLViewerMediaObserver::MEDIA_EVENT_AUTH_REQUEST:
 		{

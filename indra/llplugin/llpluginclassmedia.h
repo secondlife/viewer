@@ -176,7 +176,7 @@ public:
 	
 	F64 getCPUUsage();
 	
-	void sendPickFileResponse(const std::string &file);
+	void sendPickFileResponse(const std::vector<std::string> files);
 
 	void sendAuthResponse(bool ok, const std::string &username, const std::string &password);
 
@@ -276,6 +276,9 @@ public:
 	// These are valid during MEDIA_EVENT_AUTH_REQUEST
 	std::string	getAuthURL() const { return mAuthURL; };
 	std::string	getAuthRealm() const { return mAuthRealm; };
+
+	// These are valid during MEDIA_EVENT_PICK_FILE_REQUEST
+	bool getIsMultipleFilePick() const { return mIsMultipleFilePick; }
 
 	// These are valid during MEDIA_EVENT_LINK_HOVERED
 	std::string	getHoverText() const { return mHoverText; };
@@ -435,6 +438,7 @@ protected:
 	std::string		mHoverText;
 	std::string		mHoverLink;
 	std::string     mFileDownloadFilename;
+	bool			mIsMultipleFilePick;
 	
 	/////////////////////////////////////////
 	// media_time class
