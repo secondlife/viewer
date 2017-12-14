@@ -737,7 +737,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 		// build the new object
 		setChanged(GEOMETRY);
 		sVolumeManager->unrefVolume(mVolumep);
-		mVolumep = new LLVolume(volume_params, 0, TRUE, TRUE);
+		mVolumep = new LLVolume(volume_params, 1, TRUE, TRUE);
 		setNumTEs(mVolumep->getNumFaces());
 		return FALSE;
 	}
