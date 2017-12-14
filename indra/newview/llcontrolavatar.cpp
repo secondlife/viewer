@@ -242,6 +242,7 @@ void LLControlAvatar::updateDebugText()
         std::string lod_string;
         S32 total_tris = 0;
         S32 total_verts = 0;
+        S32 est_tris = 0;
         for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
              it != volumes.end(); ++it)
         {
@@ -249,6 +250,7 @@ void LLControlAvatar::updateDebugText()
             S32 verts = 0;
             total_tris += volp->getTriangleCount(&verts);
             total_verts += verts;
+            est_tris += volp->getEstTrianglesMax();
             lod_string += llformat("%d",volp->getLOD());
             if (volp && volp->mDrawable)
             {
@@ -285,7 +287,7 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("CAV obj %d anim %d active %s impost %d",
                               total_linkset_count, animated_volume_count, active_string.c_str(), (S32) isImpostor()));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
-        addDebugText(llformat("tris %d verts %d", total_tris, total_verts));
+        addDebugText(llformat("tris %d (est %d), verts %d", total_tris, est_tris, total_verts));
         addDebugText(llformat("pxarea %s", LLStringOps::getReadableNumber(getPixelArea()).c_str()));
 #if 0
         std::string region_name = "no region";
