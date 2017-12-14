@@ -529,7 +529,7 @@ class LLManifest(object):
         print "Running command:", command
         sys.stdout.flush()
         try:
-            subprocess.check_call(command, shell=True)
+            subprocess.check_call(command)
         except subprocess.CalledProcessError as err:
             raise ManifestError( "Command %s returned non-zero status (%s)"
                                 % (command, err.returncode) )
@@ -545,6 +545,7 @@ class LLManifest(object):
     def put_in_file(self, contents, dst, src=None):
         # write contents as dst
         dst_path = self.dst_path_of(dst)
+        self.cmakedirs(os.path.dirname(dst_path))
         f = open(dst_path, "wb")
         try:
             f.write(contents)
