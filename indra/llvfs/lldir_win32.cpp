@@ -35,6 +35,7 @@
 #include <Knownfolders.h>
 #include <iostream>
 #include <map>
+#include <Objbase.h>                // CoTaskMemFree()
 
 #include <direct.h>
 #include <errno.h>
