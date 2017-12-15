@@ -1727,8 +1727,17 @@ bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U
 	}
 
 	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
-	std::string mesh_string((char*) data, data_size);
-	std::istringstream stream(mesh_string);
+	std::istringstream stream;
+	try
+	{
+		std::string mesh_string((char*)data, data_size);
+		stream.str(mesh_string);
+	}
+	catch (std::bad_alloc)
+	{
+		// out of memory, we won't be able to process this mesh
+		return false;
+	}
 
 	if (volume->unpackVolumeFaces(stream, data_size))
 	{
