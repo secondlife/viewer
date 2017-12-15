@@ -801,7 +801,8 @@ void LLPanelLogin::loadLoginPage()
 	params["login_content_version"] = gSavedSettings.getString("LoginContentVersion");
 
 	// Make an LLURI with this augmented info
-	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
+	std::string url = login_page.scheme().empty()? login_page.authority() : login_page.scheme() + "://" + login_page.authority();
+	LLURI login_uri(LLURI::buildHTTP(url,
 									 login_page.path(),
 									 params));
 
