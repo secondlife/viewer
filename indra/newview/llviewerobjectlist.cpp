@@ -732,9 +732,9 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	S32 num_updates, max_value;
 	if (NUM_BINS - 1 == mCurBin)
 	{
+		// Remainder (mObjects.size() could have changed)
 		num_updates = (S32) mObjects.size() - mCurLazyUpdateIndex;
 		max_value = (S32) mObjects.size();
-		gTextureList.setUpdateStats(TRUE);
 	}
 	else
 	{
@@ -791,10 +791,14 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	mCurLazyUpdateIndex = max_value;
 	if (mCurLazyUpdateIndex == mObjects.size())
 	{
+		// restart
 		mCurLazyUpdateIndex = 0;
+		mCurBin = 0; // keep in sync with index (mObjects.size() could have changed)
 	}
-
-	mCurBin = (mCurBin + 1) % NUM_BINS;
+	else
+	{
+		mCurBin = (mCurBin + 1) % NUM_BINS;
+	}
 
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
