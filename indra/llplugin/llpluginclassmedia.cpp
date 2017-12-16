@@ -1159,7 +1159,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		{
 			mClickURL = message.getValue("uri");
 			mClickTarget = message.getValue("target");
-			mClickUUID = message.getValue("uuid");
+
+			// need a link to have a UUID that identifies it to a system further
+			// upstream - plugin could make it but we have access to LLUUID here
+			// so why don't we use it
+			mClickUUID = LLUUID::generateNewID().asString();
+
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_HREF);
 		}
 		else if(message_name == "click_nofollow")

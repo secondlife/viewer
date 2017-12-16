@@ -38,6 +38,7 @@
 #include "media_plugin_base.h"
 
 #include <functional>
+#include <chrono>
 
 #include "dullahan.h"
 
@@ -64,6 +65,7 @@ private:
 	void onLoadStartCallback();
 	void onRequestExitCallback();
 	void onLoadEndCallback(int httpStatusCode);
+	void onLoadError(int status, const std::string error_text);
 	void onAddressChangeCallback(std::string url);
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
@@ -207,6 +209,21 @@ void MediaPluginCEF::onLoadStartCallback()
 	sendMessage(message);
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onLoadError(int status, const std::string error_text)
+{
+	std::stringstream msg;
+
+	msg << "<b>Loading error!</b>";
+	msg << "<p>";
+	msg << "Message: " << error_text;
+	msg << "<br>";
+	msg << "Code: " << status;
+
+	mCEFLib->showBrowserMessage(msg.str());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginCEF::onRequestExitCallback()
@@ -245,7 +262,6 @@ void MediaPluginCEF::onNavigateURLCallback(std::string url, std::string target)
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
 	message.setValue("uri", url);
 	message.setValue("target", target);
-	message.setValue("uuid", "");	// not used right now
 	sendMessage(message);
 }
 
@@ -462,6 +478,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
+				mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnNavigateURLCallback(std::bind(&MediaPluginCEF::onNavigateURLCallback, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
