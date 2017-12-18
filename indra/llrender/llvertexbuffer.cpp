@@ -1057,10 +1057,12 @@ LLVertexBuffer::~LLVertexBuffer()
 
 	if (mFence)
 	{
+		// Sanity check. We have weird crashes in this destructor (on delete). Yet mFence is disabled.
+		// TODO: mFence was added in scope of SH-2038, but was never enabled, consider removing mFence.
+		LL_ERRS() << "LLVertexBuffer destruction failed" << LL_ENDL;
 		delete mFence;
+		mFence = NULL;
 	}
-	
-	mFence = NULL;
 
 	sVertexCount -= mNumVerts;
 	sIndexCount -= mNumIndices;
