@@ -4407,6 +4407,15 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	{
 		copyVolumeFaces(volume);	
 	}
+    else
+    {
+        bool is_paused = avatar && avatar->areAnimationsPaused();
+		if (is_paused)
+		{
+			return;
+		}
+    }
+
 
 	//build matrix palette
 	static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
