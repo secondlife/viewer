@@ -2204,6 +2204,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>AnimatedObjectsAllowLeftClick</key>
+  <map>
+    <key>Comment</key>
+    <string>Allow left-click interaction with animated objects. Uncertain how much performance impact this will have.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>

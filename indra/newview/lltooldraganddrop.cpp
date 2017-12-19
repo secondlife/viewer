@@ -785,7 +785,7 @@ void LLToolDragAndDrop::dragOrDrop3D( S32 x, S32 y, MASK mask, BOOL drop, EAccep
 	mDrop = drop;
 	if (mDrop)
 	{
-		// don't allow drag and drop onto transparent objects
+		// don't allow drag and drop onto rigged or transparent objects
 		pick(gViewerWindow->pickImmediate(x, y, FALSE, FALSE));
 	}
 	else
