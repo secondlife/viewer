@@ -14,7 +14,7 @@ build_docs = true
 build_Linux_Doxygen = true
 
 # Need viewer-build-variables as well as other shared repositories
-buildscripts_shared_more_NAMEs="build_variables"
+buildscripts_shared_more_NAMEs="build_secrets build_variables"
 
 ################################################################
 ####      Examples of how to set the viewer_channel         ####
