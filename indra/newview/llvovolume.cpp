@@ -2051,148 +2051,28 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 	return res;
 }
 
-bool LLVOVolume::notifyAboutCreatingTexture(LLViewerTexture *texture)
-{
-	// Texture was created, process it and remove from wait list
-
-	std::pair<mmap_UUID_MAP_t::iterator, mmap_UUID_MAP_t::iterator> range = mWaitingTextureInfo.equal_range(texture->getID());
-	if(range.first == range.second) return false;
-
-	bool needs_update = false;
-
-	for(mmap_UUID_MAP_t::iterator range_it = range.first; range_it != range.second; ++range_it)
-	{
-		LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
-		if (cur_material.isNull())
-		{
-			continue;
-		}
-
-		if (LLRender::DIFFUSE_MAP == range_it->second.map
-			&& GL_RGBA != texture->getPrimaryFormat()
-			&& cur_material->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_NONE
-			&& cur_material->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT)
-		{
-			// We have non 32 bit texture with alpha, it is invalid
-
-			cur_material->setDiffuseAlphaInvalid(true);
-			needs_update = true;
-		}
-	}
-
-	//clear wait-list
-	mWaitingTextureInfo.erase(range.first, range.second);
-
-	return needs_update;
-}
-
-bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
-{
-	// Texture was marked as missing, process it and remove from wait list
-
-	std::pair<mmap_UUID_MAP_t::iterator, mmap_UUID_MAP_t::iterator> range = mWaitingTextureInfo.equal_range(texture->getID());
-	if(range.first == range.second) return false;
-	
-	for(mmap_UUID_MAP_t::iterator range_it = range.first; range_it != range.second; ++range_it)
-	{
-		LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
-		if (cur_material.isNull())
-		{
-			continue;
-		}
-
-		switch (range_it->second.map)
-		{
-		case LLRender::DIFFUSE_MAP:
-			{
-				cur_material->setDiffuseAlphaInvalid(true);
-				break;
-			}
-		case LLRender::NORMAL_MAP:
-			{
-				cur_material->setNormalInvalid(true);
-				break;
-			}
-		case LLRender::SPECULAR_MAP:
-			{
-				cur_material->setSpecularInvalid(true);
-				break;
-			}
-		default:
-			break;
-		}
-	}
-
-	//clear wait-list
-	mWaitingTextureInfo.erase(range.first, range.second);
-
-	return true;
-}
-
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
 	LLMaterialPtr pMaterial = const_cast<LLMaterialPtr&>(pMaterialParams);
 
 	if(pMaterialParams)
-	{ //check all of them according to material settings
+	{
+		LLViewerTexture* image = getTEImage(te);
+		LLGLenum image_format = image ? image->getPrimaryFormat() : GL_RGB;
+		LLMaterialPtr current_material = getTEMaterialParams(te);
 
-		LLViewerTexture *img_diffuse = getTEImage(te);
-		LLViewerTexture *img_normal = getTENormalMap(te);
-		LLViewerTexture *img_specular = getTESpecularMap(te);
+		U8 new_diffuse_alpha_mode = pMaterialParams->getDiffuseAlphaMode();
 
-		llassert(NULL != img_diffuse);
-
-		//diffuse
-		if(NULL != img_diffuse)
+		if(new_diffuse_alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
 		{
-			if(0 == img_diffuse->getPrimaryFormat() && !img_diffuse->isMissingAsset())
-			{
-				// Texture information is missing, wait for it
-				mWaitingTextureInfo.insert(mmap_UUID_MAP_t::value_type(img_diffuse->getID(), material_info(LLRender::DIFFUSE_MAP, te)));
-			}
-			else
-			{
-				if(img_diffuse->isMissingAsset())
-				{
-					pMaterial->setDiffuseAlphaInvalid(true);
-				}
-				else if (GL_RGBA != img_diffuse->getPrimaryFormat()
-						&& pMaterialParams->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_NONE
-						&& pMaterialParams->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT)
-				{
-					pMaterial->setDiffuseAlphaInvalid(true);
-				}
-			}
+			new_diffuse_alpha_mode = (GL_RGB == image_format || 0 == image_format ? LLMaterial::DIFFUSE_ALPHA_MODE_NONE : new_diffuse_alpha_mode);
 		}
 
-		//normal
-		if(LLUUID::null != pMaterialParams->getNormalID())
-		{
-			if(img_normal && img_normal->isMissingAsset() && img_normal->getID() == pMaterialParams->getNormalID())
-			{
-				pMaterial->setNormalInvalid(true);
-			}
-			else if(NULL == img_normal || 0 == img_normal->getPrimaryFormat())
-			{
-				// Texture information is missing, wait for it
-				mWaitingTextureInfo.insert(mmap_UUID_MAP_t::value_type(pMaterialParams->getNormalID(), material_info(LLRender::NORMAL_MAP,te)));
-			}
-
-		}
-
-
-		//specular
-		if(LLUUID::null != pMaterialParams->getSpecularID())
-		{
-			if(img_specular && img_specular->isMissingAsset() && img_specular->getID() == pMaterialParams->getSpecularID())
-			{
-				pMaterial->setSpecularInvalid(true);
-			}
-			else if(NULL == img_specular || 0 == img_specular->getPrimaryFormat())
-			{
-				// Texture information is missing, wait for it
-				mWaitingTextureInfo.insert(mmap_UUID_MAP_t::value_type(pMaterialParams->getSpecularID(), material_info(LLRender::SPECULAR_MAP, te)));
-			}
+		if(pMaterialParams->getDiffuseAlphaMode() != new_diffuse_alpha_mode) {
+			//create new material
+			pMaterial = new LLMaterial(pMaterialParams->asLLSD());
+			pMaterial->setDiffuseAlphaMode(new_diffuse_alpha_mode);
+			LLMaterialMgr::getInstance()->put(getID(),te,*pMaterial);
 		}
 	}
 
@@ -4485,7 +4365,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 				}
 
 				draw_info->mAlphaMaskCutoff = mat->getAlphaMaskCutoff() * (1.f / 255.f);
-				draw_info->mDiffuseAlphaMode = mat->isDiffuseAlphaInvalid() ? LLMaterial::DIFFUSE_ALPHA_MODE_NONE : mat->getDiffuseAlphaMode();
+				draw_info->mDiffuseAlphaMode = mat->getDiffuseAlphaMode();
 				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTEOffset());
 				
 		}
@@ -4754,14 +4634,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
-						U8 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-						if (mat && !mat->isDiffuseAlphaInvalid())
-						{
-							alpha_mode = mat->getDiffuseAlphaMode();
-						}
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
+							U8 alpha_mode = mat->getDiffuseAlphaMode();
+
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA &&
 								(alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND ||
 								te->getColor().mV[3] < 0.999f);
@@ -4781,10 +4658,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						{
 							bool fullbright = te->getFullbright();
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA;
-							bool can_be_shiny = alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
-												alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
+							U8 mode = mat->getDiffuseAlphaMode();
+							bool can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
+												mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 							
-							if (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && te->getColor().mV[3] >= 0.999f)
+							if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && te->getColor().mV[3] >= 0.999f)
 							{
 								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT : LLDrawPoolAvatar::RIGGED_SIMPLE);
 							}
@@ -4984,9 +4862,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())
 							{
 								LLMaterial* mat = te->getMaterialParams().get();
-								if (mat->getNormalID().notNull() && !mat->isNormalInvalid())
+								if (mat->getNormalID().notNull())
 								{
-									if (mat->getSpecularID().notNull() && !mat->isSpecularInvalid())
+									if (mat->getSpecularID().notNull())
 									{ //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
 										if (normspec_count < MAX_FACE_COUNT)
 										{
@@ -5001,7 +4879,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 										}
 									}
 								}
-								else if (mat->getSpecularID().notNull() && !mat->isSpecularInvalid())
+								else if (mat->getSpecularID().notNull())
 								{ //has specular map but no normal map, needs texcoord2
 									if (spec_count < MAX_FACE_COUNT)
 									{
@@ -5658,14 +5536,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
 			LLMaterial* mat = te->getMaterialParams().get();
-			U8 diffuse_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-			bool can_be_shiny = true;
 
+			bool can_be_shiny = true;
 			if (mat)
 			{
-				diffuse_mode = mat->isDiffuseAlphaInvalid() ? LLMaterial::DIFFUSE_ALPHA_MODE_NONE : mat->getDiffuseAlphaMode();
-				can_be_shiny = diffuse_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
-						diffuse_mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
+				U8 mode = mat->getDiffuseAlphaMode();
+				can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
+								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
 
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
@@ -5681,7 +5558,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 				//
 				if (te->getFullbright())
 				{
-					if (diffuse_mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
 						if (opaque)
 						{
@@ -5760,7 +5637,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 			}
 			else if (mat)
 			{
-				U8 mode = diffuse_mode;
+				U8 mode = mat->getDiffuseAlphaMode();
 				if (te->getColor().mV[3] < 0.999f)
 				{
 					mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
@@ -5856,7 +5733,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 				}
 				else if (fullbright || bake_sunlight)
 				{ //fullbright
-					if (mat && diffuse_mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+					if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 					}
@@ -5878,7 +5755,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 					else
 					{ //all around simple
 						llassert(mask & LLVertexBuffer::MAP_NORMAL);
-						if (mat && diffuse_mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+						if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 						{ //material alpha mask can be respected in non-deferred
 							registerFace(group, facep, LLRenderPass::PASS_ALPHA_MASK);
 						}

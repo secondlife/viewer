@@ -1818,7 +1818,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 				F32 env = mat->getEnvironmentIntensity()/255.f;
 
-				if (mat->getSpecularID().isNull() || mat->isSpecularInvalid())
+				if (mat->getSpecularID().isNull())
 				{
 					env = te->getShiny()*0.25f;
 					col.set(env,env,env,0);
@@ -1831,7 +1831,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0], col.mV[1], col.mV[2], spec);
 				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env);
 
-				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && !mat->isDiffuseAlphaInvalid())
+				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 				{
 					sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff()/255.f);
 				}

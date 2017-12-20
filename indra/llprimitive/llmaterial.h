@@ -120,13 +120,6 @@ public:
 	void		setAlphaMaskCutoff(U8 cutoff) { mAlphaMaskCutoff = cutoff; }
 
 	bool		isNull() const;
-	bool		isDiffuseAlphaInvalid() const { return mIsDiffuseAlphaInvalid; }
-	void		setDiffuseAlphaInvalid(bool is_invalid) { mIsDiffuseAlphaInvalid = is_invalid; }
-	bool		isNormalInvalid() const { return mIsNormalInvalid; }
-	void		setNormalInvalid(bool is_invalid) { mIsNormalInvalid = is_invalid; }
-	bool		isSpecularInvalid() const { return mIsSpecularInvalid; }
-	void		setSpecularInvalid(bool is_invalid) { mIsSpecularInvalid = is_invalid; }
-
 	static const LLMaterial null;
 
 	bool		operator == (const LLMaterial& rhs) const;
@@ -154,10 +147,6 @@ protected:
 	U8			mEnvironmentIntensity;
 	U8			mDiffuseAlphaMode;
 	U8			mAlphaMaskCutoff;
-
-	bool mIsDiffuseAlphaInvalid;
-	bool mIsNormalInvalid;
-	bool mIsSpecularInvalid;
 };
 
 typedef LLPointer<LLMaterial> LLMaterialPtr;
