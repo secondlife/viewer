@@ -1308,16 +1308,12 @@ BOOL LLVOVolume::calcLOD()
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT) && mDrawable->getFace(0))
     {
-        if (isRootEdit() && getChildren().size()>0)
+        if (isRootEdit())
         {
             S32 total_tris = recursiveGetTriangleCount();
-            setDebugText(llformat("TRIS %d TOTAL %d", getTriangleCount(), total_tris));
+            S32 est_max_tris = recursiveGetEstTrianglesMax();
+            setDebugText(llformat("TRIS SHOWN %d EST %d", total_tris, est_max_tris));
         }
-        else
-        {
-            setDebugText(llformat("TRIS %d", getTriangleCount()));
-        }
-	
     }
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
