@@ -344,6 +344,34 @@ void LLFace::dirtyTexture()
 	gPipeline.markTextured(drawablep);
 }
 
+void LLFace::notifyAboutCreatingTexture(LLViewerTexture *texture)
+{
+	LLDrawable* drawablep = getDrawable();
+	if(mVObjp.notNull() && mVObjp->getVolume())
+	{
+		LLVOVolume *vobj = drawablep->getVOVolume();
+		if(vobj && vobj->notifyAboutCreatingTexture(texture))
+		{
+			gPipeline.markTextured(drawablep);
+			gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME);
+		}
+	}
+}
+
+void LLFace::notifyAboutMissingAsset(LLViewerTexture *texture)
+{
+	LLDrawable* drawablep = getDrawable();
+	if(mVObjp.notNull() && mVObjp->getVolume())
+	{
+		LLVOVolume *vobj = drawablep->getVOVolume();
+		if(vobj && vobj->notifyAboutMissingAsset(texture))
+		{
+			gPipeline.markTextured(drawablep);
+			gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME);
+		}
+	}
+}
+
 void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 {
 	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
