@@ -4409,11 +4409,17 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	}
     else
     {
+#if 1
         bool is_paused = avatar && avatar->areAnimationsPaused();
 		if (is_paused)
 		{
-			return;
+            S32 frames_paused = LLFrameTimer::getFrameCount() - avatar->getMotionController().getPausedFrame();
+            if (frames_paused > 2)
+            {
+                return;
+            }
 		}
+#endif
     }
 
 
