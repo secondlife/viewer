@@ -209,6 +209,8 @@ public:
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
 
+	void updateFolderLabel(const LLUUID& folder_id);
+
 	// DEBUG ONLY:
 	static void dumpSelectionInformation(void* user_data);
 
