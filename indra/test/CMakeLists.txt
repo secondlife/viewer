@@ -73,9 +73,6 @@ if (NOT WINDOWS)
   list(APPEND test_SOURCE_FILES
        llmessagetemplateparser_tut.cpp
        )
-  set(EXTRA_WINDOWS_LIBRARIES "")
-else (NOT WINDOWS)
-  set(EXTRA_WINDOWS_LIBRARIES ole32)
 endif (NOT WINDOWS)
 
 set_source_files_properties(${test_HEADER_FILES}
@@ -99,7 +96,6 @@ target_link_libraries(lltest
     ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
-    ${EXTRA_WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
