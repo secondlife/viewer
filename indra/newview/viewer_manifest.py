@@ -689,10 +689,10 @@ class WindowsManifest(ViewerManifest):
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
-                self.path("libvlc.dll")
-                self.path("libvlccore.dll")
-                self.path("plugins/")
+        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
+            self.path("libvlc.dll")
+            self.path("libvlccore.dll")
+            self.path("plugins/")
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
