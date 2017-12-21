@@ -5046,38 +5046,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			rigged = rigged || (vobj->isAnimatedObject() && vobj->isRiggedMesh() &&
                 vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying);
 
-            if (vobj->isAnimatedObject())
+            vobj->updateControlAvatar();
+            if (vobj->getControlAvatar())
             {
-                if (!vobj->getControlAvatar())
-                {
-                    F32 tri_count = vobj->getRootEdit()->recursiveGetEstTrianglesMax();
-                    if (tri_count <= 0.f)
-                    {
-                        LL_DEBUGS("AnimatedObjects") << vobj_name << " not calling linkControlAvatar(), because no tris" << LL_ENDL;
-                    }
-                    else
-                    {
-                        LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
-                        vobj->linkControlAvatar();
-                    }
-                }
-                if (vobj->getControlAvatar())
-                {
-                    rigged_av = vobj->getControlAvatar();
-                    rigged_av->rebuildAttachmentOverrides();
-                }
+                rigged_av = vobj->getControlAvatar();
+                rigged_av->rebuildAttachmentOverrides();
             }
-            else
-            {
-                // Not animated but has a control avatar - probably
-                // the checkbox has changed since the last rebuild.
-                if (vobj->getControlAvatar())
-                {
-                    LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
-                    vobj->unlinkControlAvatar();
-                }
-            }
-
+            
 			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
 			bool any_rigged_face = false;

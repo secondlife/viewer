@@ -703,6 +703,8 @@ public:
     void linkControlAvatar();
     // Remove any reference to control av for this prim
     void unlinkControlAvatar();
+    // Link or unlink as needed
+    void updateControlAvatar();
 
     virtual bool isAnimatedObject() const;
 

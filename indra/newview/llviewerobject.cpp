@@ -2947,6 +2947,34 @@ LLControlAvatar *LLViewerObject::getControlAvatar() const
     return getRootEdit()->mControlAvatar.get();
 }
 
+void LLViewerObject::updateControlAvatar()
+{
+    LLViewerObject *root = getRootEdit();
+    if (root->isAnimatedObject() && !root->getControlAvatar())
+    {
+        bool any_mesh = root->isMesh();
+        LLViewerObject::const_child_list_t& child_list = root->getChildren();
+        for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+             iter != child_list.end(); ++iter)
+        {
+            const LLViewerObject* child = *iter;
+            any_mesh = any_mesh || child->isMesh();
+        }
+        if (any_mesh)
+        {
+            std::string vobj_name = llformat("Vol%u", (U32) root);
+            LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
+            root->linkControlAvatar();
+        }
+    }
+    if (!root->isAnimatedObject() && root->getControlAvatar())
+    {
+        std::string vobj_name = llformat("Vol%u", (U32) root);
+        LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
+        root->unlinkControlAvatar();
+    }
+}
+
 void LLViewerObject::linkControlAvatar()
 {
     if (!getControlAvatar() && isRootEdit())
