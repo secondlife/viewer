@@ -492,7 +492,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 	LL_INFOS("Credentials") << "Setting authenticator field " << authenticator["type"].asString() << LL_ENDL;
 	if(authenticator.isMap() && 
 	   authenticator.has("secret") && 
-	   (authenticator["secret"].asString().size() > 0))
+	   (authenticator["secret"].asString().size() > 0) && remember)
 	{
 		
 		// This is a MD5 hex digest of a password.
