@@ -299,11 +299,23 @@ void LLPanelLogin::addFavoritesToStartLocation()
 
 	// Load favorites into the combo.
 	std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
+	LLStringUtil::toLower(user_defined_name);
 	std::replace(user_defined_name.begin(), user_defined_name.end(), '.', ' ');
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
 	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
 	mUsernameLength = user_defined_name.length();
 	updateLoginButtons();
+
+	std::string::size_type index = user_defined_name.find(' ');
+	if (index != std::string::npos)
+	{
+		std::string username = user_defined_name.substr(0, index);
+		std::string lastname = user_defined_name.substr(index+1);
+		if (lastname == "resident")
+		{
+			user_defined_name = username;
+		}
+	}
 
 	LLSD fav_llsd;
 	llifstream file;
