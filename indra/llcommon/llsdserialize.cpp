@@ -2217,24 +2217,42 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 
 	//result now points to the decompressed LLSD block
 	{
-		std::string res_str((char*) result, cur_size);
-
-		std::string deprecated_header("<? LLSD/Binary ?>");
-
-		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+		std::istringstream istr;
+		// Since we are using this for meshes, data we are dealing with tend to be large.
+		// So string can potentially fail to allocate, make sure this won't cause problems
+		try
 		{
-			res_str = res_str.substr(deprecated_header.size()+1, cur_size);
+			std::string res_str((char*)result, cur_size);
+
+			std::string deprecated_header("<? LLSD/Binary ?>");
+
+			if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+			{
+				res_str = res_str.substr(deprecated_header.size() + 1, cur_size);
+			}
+			cur_size = res_str.size();
+
+			istr.str(res_str);
 		}
-		cur_size = res_str.size();
-
-		std::istringstream istr(res_str);
-		
-		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
+		catch (std::length_error)
 		{
-			LL_WARNS() << "Failed to unzip LLSD block" << LL_ENDL;
+			LL_DEBUGS("UNZIP") << "String we are creating is too big" << LL_ENDL;
 			free(result);
 			return false;
-		}		
+		}
+		catch (std::bad_alloc)
+		{
+			LL_DEBUGS("UNZIP") << "Failed to allocate for string" << LL_ENDL;
+			free(result);
+			return false;
+		}
+
+		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
+		{
+			LL_WARNS("UNZIP") << "Failed to unzip LLSD block" << LL_ENDL;
+			free(result);
+			return false;
+		}
 	}
 
 	free(result);
