@@ -2121,22 +2121,13 @@ std::string zip_llsd(LLSD& data)
 	deflateEnd(&strm);
 	free(output);
 
-#if 0 //verify results work with unzip_llsd
-	std::istringstream test(result);
-	LLSD test_sd;
-	if (!unzip_llsd(test_sd, test, result.size()))
-	{
-		LL_ERRS() << "Invalid compression result!" << LL_ENDL;
-	}
-#endif
-
 	return result;
 }
 
 //decompress a block of LLSD from provided istream
 // not very efficient -- creats a copy of decompressed LLSD block in memory
 // and deserializes from that copy using LLSDSerialize
-bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
+LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is, S32 size)
 {
 	U8* result = NULL;
 	U32 cur_size = 0;
@@ -2147,7 +2138,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 	U8 *in = new(std::nothrow) U8[size];
 	if (!in)
 	{
-		return false;
+		return ZR_MEM_ERROR;
 	}
 	is.read((char*) in, size); 
 
@@ -2171,7 +2162,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 			inflateEnd(&strm);
 			free(result);
 			delete [] in;
-			return false;
+			return ZR_DATA_ERROR;
 		}
 		
 		switch (ret)
@@ -2183,7 +2174,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 			inflateEnd(&strm);
 			free(result);
 			delete [] in;
-			return false;
+			return ZR_MEM_ERROR;
 			break;
 		}
 
@@ -2198,7 +2189,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 				free(result);
 			}
 			delete[] in;
-			return false;
+			return ZR_MEM_ERROR;
 		}
 		result = new_result;
 		memcpy(result+cur_size, out, have);
@@ -2212,7 +2203,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 	if (ret != Z_STREAM_END)
 	{
 		free(result);
-		return false;
+		return ZR_DATA_ERROR;
 	}
 
 	//result now points to the decompressed LLSD block
@@ -2234,29 +2225,28 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 
 			istr.str(res_str);
 		}
+#ifdef LL_WINDOWS
 		catch (std::length_error)
 		{
-			LL_DEBUGS("UNZIP") << "String we are creating is too big" << LL_ENDL;
 			free(result);
-			return false;
+			return ZR_SIZE_ERROR;
 		}
+#endif
 		catch (std::bad_alloc)
 		{
-			LL_DEBUGS("UNZIP") << "Failed to allocate for string" << LL_ENDL;
 			free(result);
-			return false;
+			return ZR_MEM_ERROR;
 		}
 
 		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
 		{
-			LL_WARNS("UNZIP") << "Failed to unzip LLSD block" << LL_ENDL;
 			free(result);
-			return false;
+			return ZR_PARSE_ERROR;
 		}
 	}
 
 	free(result);
-	return true;
+	return ZR_OK;
 }
 //This unzip function will only work with a gzip header and trailer - while the contents
 //of the actual compressed data is the same for either format (gzip vs zlib ), the headers
