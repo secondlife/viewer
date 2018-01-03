@@ -69,8 +69,8 @@ public:
     void addItem(LLFolderViewItem* item);
 	void draw();
 	
-	void selectItem();
-	void toggleOpen();
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void computeFreshness();
 	void deFreshify();
