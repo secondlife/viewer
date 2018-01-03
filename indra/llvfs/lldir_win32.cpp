@@ -32,10 +32,7 @@
 #include "llerror.h"
 #include "llrand.h"		// for gLindenLabRandomNumber
 #include <shlobj.h>
-#include <Knownfolders.h>
-#include <iostream>
-#include <map>
-#include <Objbase.h>                // CoTaskMemFree()
+#include <fstream>
 
 #include <direct.h>
 #include <errno.h>
@@ -46,47 +43,15 @@
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName);
 
-namespace {
-
-std::string getKnownFolderPath(const std::string& desc, REFKNOWNFOLDERID folderid)
-{
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb762188(v=vs.85).aspx
-    PWSTR wstrptr = 0;
-    HRESULT result = SHGetKnownFolderPath(
-        folderid,
-        KF_FLAG_DEFAULT,            // no flags
-        NULL,                       // current user, no impersonation
-        &wstrptr);
-    if (result == S_OK)
-    {
-        std::string utf8 = utf16str_to_utf8str(llutf16string(wstrptr));
-        // have to free the returned pointer after copying its data
-        CoTaskMemFree(wstrptr);
-        return utf8;
-    }
-
-    // gack, no logging yet!
-    // at least say something to a developer trying to debug this...
-    static std::map<HRESULT, const char*> codes
-    {
-        { E_FAIL, "E_FAIL; known folder does not have a path?" },
-        { E_INVALIDARG, "E_INVALIDARG; not present on system?" }
-    };
-    auto found = codes.find(result);
-    const char* text = (found == codes.end())? "unknown" : found->second;
-    std::cout << "*** SHGetKnownFolderPath(" << desc << ") failed with "
-              << result << " (" << text << ")\n";
-    return {};
-}
-
-} // anonymous namespace
-
 LLDir_Win32::LLDir_Win32()
 {
+	// set this first: used by append() and add() methods
 	mDirDelimiter = "\\";
 
-	// Application Data is where user settings go
-	mOSUserDir = getKnownFolderPath("RoamingAppData", FOLDERID_RoamingAppData);
+	// Application Data is where user settings go. We rely on $APPDATA being
+	// correct; in fact the VMP makes a point of setting it properly, since
+	// Windows itself botches the job for non-ASCII usernames (MAINT-8087).
+	mOSUserDir = ll_safe_string(getenv("APPDATA"));
 
 	// We want cache files to go on the local disk, even if the
 	// user is on a network with a "roaming profile".
@@ -96,7 +61,7 @@ LLDir_Win32::LLDir_Win32()
 	//
 	// We used to store the cache in AppData\Roaming, and the installer
 	// cleans up that version on upgrade.  JC
-	mOSCacheDir = getKnownFolderPath("LocalAppData", FOLDERID_LocalAppData);
+	mOSCacheDir = ll_safe_string(getenv("LOCALAPPDATA"));
 
 	WCHAR w_str[MAX_PATH];
 	if (GetTempPath(MAX_PATH, w_str))
@@ -121,6 +86,38 @@ LLDir_Win32::LLDir_Win32()
 	{
 		mTempDir = mOSUserDir;
 	}
+
+/*==========================================================================*|
+	// Now that we've got mOSUserDir, one way or another, let's see how we did
+	// with our environment variables.
+	{
+		auto report = [this](std::ostream& out){
+			out << "mOSUserDir  = '" << mOSUserDir  << "'\n"
+				<< "mOSCacheDir = '" << mOSCacheDir << "'\n"
+				<< "mTempDir    = '" << mTempDir    << "'" << std::endl;
+		};
+		int res = LLFile::mkdir(mOSUserDir);
+		if (res == -1)
+		{
+			// If we couldn't even create the directory, just blurt to stderr
+			report(std::cerr);
+		}
+		else
+		{
+			// successfully created logdir, plunk a log file there
+			std::string logfilename(add(mOSUserDir, "lldir.log"));
+			std::ofstream logfile(logfilename.c_str());
+			if (! logfile.is_open())
+			{
+				report(std::cerr);
+			}
+			else
+			{
+				report(logfile);
+			}
+		}
+	}
+|*==========================================================================*/
 
 //	fprintf(stderr, "mTempDir = <%s>",mTempDir);
 
@@ -167,7 +164,7 @@ LLDir_Win32::LLDir_Win32()
 	// 'llplugin' need to go somewhere else.
 	// alas... this also gets called during static initialization 
 	// time due to the construction of gDirUtil in lldir.cpp.
-	if(! LLFile::isdir(mAppRODataDir + mDirDelimiter + "skins"))
+	if(! LLFile::isdir(add(mAppRODataDir, "skins")))
 	{
 		// What? No skins in the working dir?
 		// Try the executable's directory.
@@ -176,7 +173,7 @@ LLDir_Win32::LLDir_Win32()
 
 //	LL_INFOS() << "mAppRODataDir = " << mAppRODataDir << LL_ENDL;
 
-	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+	mSkinBaseDir = add(mAppRODataDir, "skins");
 
 	// Build the default cache directory
 	mDefaultCacheDir = buildSLOSCacheDir();
@@ -185,13 +182,10 @@ LLDir_Win32::LLDir_Win32()
 	int res = LLFile::mkdir(mDefaultCacheDir);
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << mDefaultCacheDir << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << mDefaultCacheDir << LL_ENDL;
 	}
 
-	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
+	mLLPluginDir = add(mExecutableDir, "llplugin");
 }
 
 LLDir_Win32::~LLDir_Win32()
@@ -207,52 +201,38 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
 	if (!app_read_only_data_dir.empty())
 	{
 		mAppRODataDir = app_read_only_data_dir;
-		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+		mSkinBaseDir = add(mAppRODataDir, "skins");
 	}
 	mAppName = app_name;
-	mOSUserAppDir = mOSUserDir;
-	mOSUserAppDir += "\\";
-	mOSUserAppDir += app_name;
+	mOSUserAppDir = add(mOSUserDir, app_name);
 
 	int res = LLFile::mkdir(mOSUserAppDir);
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create app user dir " << mOSUserAppDir << LL_ENDL;
-			LL_WARNS() << "Default to base dir" << mOSUserDir << LL_ENDL;
-			mOSUserAppDir = mOSUserDir;
-		}
+		LL_WARNS() << "Couldn't create app user dir " << mOSUserAppDir << LL_ENDL;
+		LL_WARNS() << "Default to base dir" << mOSUserDir << LL_ENDL;
+		mOSUserAppDir = mOSUserDir;
 	}
 	//dumpCurrentDirectories();
 
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_LOGS,""));
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << LL_ENDL;
 	}
-	
+
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SETTINGS,""));
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << LL_ENDL;
 	}
-	
+
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_CACHE,""));
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << LL_ENDL;
 	}
-	
+
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 }
 

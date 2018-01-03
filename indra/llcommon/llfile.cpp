@@ -182,7 +182,14 @@ int	LLFile::mkdir(const std::string& dirname, int perms)
 	int rc = ::mkdir(dirname.c_str(), (mode_t)perms);
 #endif
 	// We often use mkdir() to ensure the existence of a directory that might
-	// already exist. Don't spam the log if it does.
+	// already exist. There is no known case in which we want to call out as
+	// an error the requested directory already existing.
+	if (rc < 0 && errno == EEXIST)
+	{
+		// this is not the error you want, move along
+		return 0;
+	}
+	// anything else might be a problem
 	return warnif("mkdir", dirname, rc, EEXIST);
 }
 
