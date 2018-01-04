@@ -75,10 +75,12 @@
 	<menu_item_call label="Свойства" name="Properties"/>
 	<menu_item_call label="Переименовать" name="Rename"/>
 	<menu_item_call label="Копировать UUID актива" name="Copy Asset UUID"/>
+	<menu_item_call label="Показать на главной панели" name="Show in Main Panel"/>
 	<menu_item_call label="Вырезать" name="Cut"/>
 	<menu_item_call label="Копировать" name="Copy"/>
 	<menu_item_call label="Вставить" name="Paste"/>
 	<menu_item_call label="Вставить как ссылку" name="Paste As Link"/>
+	<menu_item_call label="Заменить ссылки" name="Replace Links"/>
 	<menu_item_call label="Удалить" name="Delete"/>
 	<menu_item_call label="Удалить системную папку" name="Delete System Folder"/>
 	<menu_item_call label="Начать конференцию" name="Conference Chat Folder"/>

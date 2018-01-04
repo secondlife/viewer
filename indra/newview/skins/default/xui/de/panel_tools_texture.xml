@@ -26,6 +26,7 @@
 		<radio_item label="Unebenheit (normal)" name="Bumpiness (normal)" value="1"/>
 		<radio_item label="Glanzlicht (Spiegel)" name="Shininess (specular)" value="2"/>
 	</radio_group>
+	<check_box initial_value="false" label="Aktualisierung sperren" name="checkbox_sync_settings" tool_tip="Alle Kartenaktualisierungen gleichzeitig durchführen"/>
 	<texture_picker label="Textur" name="texture control" tool_tip="Klicken, um ein Bild zu wählen"/>
 	<text name="label alphamode">
 		Alpha-Modus

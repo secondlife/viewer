@@ -74,7 +74,9 @@
      name="agree_list"
      top_delta="15"
      word_wrap="true"
-     width="552">the Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the dispute resolution requirements. 
+     width="552"
+     text_color="LabelTextColor"
+     text_readonly_color="LabelDisabledColor">the Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the dispute resolution requirements. 
     </text>
     <button
      enabled="false"

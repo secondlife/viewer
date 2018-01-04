@@ -6,7 +6,7 @@
 	<text name="Cache:">
 		キャッシュ：
 	</text>
-	<spinner label="キャッシュサイズ（256～9,984MB）" name="cachesizespinner"/>
+	<spinner label="キャッシュサイズ (256 - 9984MB)" name="cachesizespinner"/>
 	<text name="text_box5">
 		MB
 	</text>

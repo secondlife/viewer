@@ -215,6 +215,7 @@ Ansariel Hiller
 	MAINT-7028
 	MAINT-7059
 	MAINT-6519
+	MAINT-7899
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -824,6 +825,7 @@ Kitty Barnett
 	MAINT-6568
 	STORM-2149
 	MAINT-7581
+	MAINT-7081
 Kolor Fall
 Komiko Okamoto
 Korvel Noh

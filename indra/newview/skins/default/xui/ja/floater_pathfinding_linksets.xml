@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="パスファインディングリンクセット">
+<floater name="floater_pathfinding_linksets" title="リージョンオブジェクト">
 	<floater.string name="messaging_get_inprogress">
 		パスファインディングリンクセットを照会中...
 	</floater.string>
@@ -16,7 +16,7 @@
 		パスファインディングリンクセットがありません。
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		[NUM_TOTAL] リンクセット中 [NUM_SELECTED] リンクセットが選択されました。
+		[NUM_TOTAL] 中 [NUM_SELECTED] が選択されました。
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
 		この地域（リージョン）はパスファインディングに対応していません。
@@ -118,7 +118,7 @@
 			<scroll_list.columns label="スクリプト" name="scripted"/>
 			<scroll_list.columns label="負荷" name="land_impact"/>
 			<scroll_list.columns label="距離" name="dist_from_you"/>
-			<scroll_list.columns label="リンクセットの用途" name="linkset_use"/>
+			<scroll_list.columns label="パスファインディング使用" name="linkset_use"/>
 			<scroll_list.columns label="A %" name="a_percent"/>
 			<scroll_list.columns label="B %" name="b_percent"/>
 			<scroll_list.columns label="C %" name="c_percent"/>
@@ -133,7 +133,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_actions">
 		<text name="linksets_actions_label">
-			選択したリンクセットに対するアクション (リンクセットがワールドから削除されると、その属性が失われる場合があります)：
+			選択されたアクション
 		</text>
 		<check_box label="ビーコンを表示" name="show_beacon"/>
 		<button label="取る" name="take_objects"/>
@@ -144,7 +144,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_attributes">
 		<text name="linksets_attributes_label">
-			選択したリンクセットの属性を編集し、ボタンを押して変更を適用します
+			パスファインディング属性を編集する
 		</text>
 		<text name="walkability_coefficients_label">
 			歩行可能性：

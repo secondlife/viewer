@@ -3,6 +3,10 @@
 	<global name="skipnexttime">
 		不再顯示此提醒
 	</global>
+	<global name="skipnexttimesessiononly">
+		不再對我顯示此內容
+(僅限此次)
+	</global>
 	<global name="alwayschoose">
 		總是選取這個選項
 	</global>
@@ -343,7 +347,7 @@
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="加入"/>
 	</notification>
 	<notification name="JoinGroupNoCost">
-		你即將加入 [NAME] 群組。
+		你即將加入&lt;nolink&gt;[NAME]&lt;/nolink&gt;群組。
 你確定要繼續嗎？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="加入"/>
 	</notification>
@@ -356,6 +360,40 @@
 群組需有至少兩位成員，否則將永久被刪除。
 請在 48 小時內邀請成員加入。
 		<usetemplate canceltext="取消" name="okcancelbuttons" notext="取消" yestext="花費 L$100 建立群組"/>
+	</notification>
+	<notification name="JoinGroupInaccessible">
+		這群組不對你開放。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupError">
+		處理你的群組成員請求時出錯。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupErrorReason">
+		無法加入群組：[reason]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupTrialUser">
+		抱歉，試用的使用者無法加入群組。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupMaxGroups">
+		你無法加入「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」：
+你目前已是[group_count]個群組的成員，最多允許[max_groups]個群組
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupClosedEnrollment">
+		你無法加入「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」：
+該群組已不再開放加入。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupSuccess">
+		你已獲加入群組。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="JoinGroupInsufficientFunds">
+		無法轉移所需的L$ [membership_fee]會員費。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="LandBuyPass">
 		花費 L$[COST]，可進入「[PARCEL_NAME]」土地，停留 [TIME] 小時。  購買通行權？
@@ -378,7 +416,7 @@
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		你確定要將和本土地地段的「[NAME]」群組分享的所有物件送返到原所有人的收納區？
+		你確定要將和本土地地段的「&lt;nolink&gt;[NAME]&lt;/nolink&gt;」群組分享的所有物件送返到原所有人的收納區？
 
 警告：這動作將會刪除原先讓渡給這群組的所有不可轉讓物件！
 
@@ -424,7 +462,7 @@
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByGroup">
-		將本地段裡未和 [NAME] 群組分享的物件送返給物主？
+		將本地段裡未和&lt;nolink&gt;[NAME]&lt;/nolink&gt;群組分享的物件送返給物主？
 
 物件：[N]
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
@@ -472,7 +510,7 @@
 		上傳舉報用快照時出問題，原因：[REASON]
 	</notification>
 	<notification name="MustAgreeToLogIn">
-		你必須同意服務條款才可繼續登入 [SECOND_LIFE]。
+		你必須同意Second Life使用條款、隱私政策、服務條款才可繼續登入[SECOND_LIFE]。
 	</notification>
 	<notification name="CouldNotPutOnOutfit">
 		無法穿上裝扮。
@@ -725,7 +763,7 @@
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="踢出"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
-		你已將 [AVATAR_NAME] 由群組 [GROUP_NAME]　中踢出
+		你已將[AVATAR_NAME]由群組&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;中踢出
 	</notification>
 	<notification name="AcquireErrorTooManyObjects">
 		取得錯誤：太多物件被選取。
@@ -1319,7 +1357,7 @@
 		若讓渡此地段，這個群組將必須具備並保持足夠的土地使用信用額度。
 土地收購價將不會退還給所有人。 如果讓渡的地段被售出，售出價將均分給每位群組成員。
 
-是否讓渡這塊 [AREA] 平方公尺的土地給群組「[GROUP_NAME]」？
+是否讓渡這塊[AREA]平方公尺的土地給群組「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
@@ -1327,7 +1365,7 @@
 此一讓渡將同時包括來自 [NAME] 的，給予群組的土地捐獻。
 土地收購價將不會退還給所有人。 如果讓渡的地段被售出，售出價將均分給每位群組成員。
 
-是否讓渡這塊 [AREA] 平方公尺的土地給群組「[GROUP_NAME]」？
+是否讓渡這塊[AREA]平方公尺的土地給群組「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
@@ -1737,7 +1775,7 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="GroupDepart">
-		你已經離開「[group_name]」群組。
+		你已經離開「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」群組。
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		無法離開群組。 你是此群組僅存的所有人，不得離開群組。 請先把所有人職銜指派給另一人。
@@ -2007,6 +2045,10 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="EstateChangeCovenant">
 		你確定要更改領地契約？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="EstateParcelAccessOverride">
+		若不勾選這選項，可能會移除地段所有人為防止惡意騷擾及為維護隱私、保護幼未成年居民不接觸成年限制級內容的限制措施。 若有必要請與地段所有人溝通。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		你所欲前往的地區含有超過你目前偏好的分級的內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
@@ -2347,7 +2389,17 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
-		<usetemplate ignoretext="刪除物品前確認" name="okcancelignore" notext="取消" yestext="確定"/>
+		<form name="form">
+			<ignore name="ignore" text="刪除物品前確認"/>
+			<button name="Yes" text="確定"/>
+			<button name="No" text="取消"/>
+		</form>
+	</notification>
+	<notification name="DeleteFilteredItems">
+		你的收納區目前設有過濾條件，所以你即將刪除的物項並未全部顯示。
+
+你確定要加以刪除？
+		<usetemplate ignoretext="刪除過濾條件物項前，讓我確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmUnlink">
 		這是一組包含聯結集的巨大選取項。 一旦你取消它的聯結，很可能不能再重新聯結。 為防萬一，建議你把聯結集複製到收納區。
@@ -2425,13 +2477,17 @@ SHA1 指紋：[MD5_DIGEST]
 		「[FOLDERNAME]」屬於系統資料夾。 刪除系統資料夾可能導致系統不穩定。  你確定要加以刪除？
 		<usetemplate ignoretext="在我刪除系統資料夾前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="PurgeSelectedItems">
+		[COUNT]個物項將會永久刪除。 你確定你要永久刪除所選的垃圾筒內容？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmEmptyTrash">
-		你確定你要對你垃圾筒中的內容進行刪除？
-		<usetemplate ignoretext="在我清空收納區垃圾筒資料夾前確認" name="okcancelignore" notext="取消" yestext="確定"/>
+		[COUNT]個物項將會永久刪除。 你確定你要永久刪除垃圾筒中的內容？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="TrashIsFull">
 		你的垃圾桶快滿了。 這可能會造成登入的問題。
-		<usetemplate name="okcancelbuttons" notext="我稍後再清空垃圾桶" yestext="現在清空垃圾桶"/>
+		<usetemplate name="okcancelbuttons" notext="我稍後再清空垃圾桶" yestext="檢查垃圾筒資料夾"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		你確定要刪除你的旅行、網頁及搜尋歷史紀錄嗎？
@@ -2559,6 +2615,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="AddSelfFriend">
 		雖然你人很好，你還是不能把自己加為朋友。
+	</notification>
+	<notification name="AddSelfRenderExceptions">
+		你不能把自己加到呈像例外清單裡。
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
 		正在上傳虛擬世界和網站快照…
@@ -2753,7 +2812,7 @@ SHA1 指紋：[MD5_DIGEST]
 		在所選地段上由居民 &apos;[NAME]&apos; 所擁有的物件已被送返其收納區。
 	</notification>
 	<notification name="GroupObjectsReturned">
-		在所選地段上和群組 &apos;[GROUPNAME]&apos; 分享的物件已被送返其所有人的收納區。
+		在所選地段上和群組「&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt;」分享的物件已被送返其所有人的收納區。
 可轉讓的已讓渡物件已送返給前物主。
 讓渡給這個群組的不可轉讓物件已被刪除。
 	</notification>
@@ -3140,7 +3199,7 @@ SHA1 指紋：[MD5_DIGEST]
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME] 的 &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
+		&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt;的「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
 			<button name="Client_Side_Mute" text="封鎖"/>
@@ -3187,7 +3246,7 @@ SHA1 指紋：[MD5_DIGEST]
 		[NAME] 已得知你要贈送收納物件，並已被自動解除封鎖。
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME] 已加入和群組 [GROUP] 的語音聊天通話。
+		[NAME]已加入和群組&lt;nolink&gt;[GROUP]&lt;/nolink&gt;的語音聊天通話。
 點按「接受」加入通話，或「謝絕」邀請。 點按「封鎖」便可封鎖這個發話人。
 		<form name="form">
 			<button name="Accept" text="接受"/>
@@ -3296,6 +3355,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="AppearanceToXMLFailed">
 		將外觀存為XML失敗。
 	</notification>
+	<notification name="SnapshotToComputerFailed">
+		將快照儲存於[PATH]時失敗：磁碟已滿。 需要[NEED_MEMORY]KB的空間，但只剩[FREE_MEMORY]KB空間。
+	</notification>
 	<notification name="PresetNotSaved">
 		儲存預設名稱[NAME]時出錯。
 	</notification>
@@ -3333,9 +3395,14 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ShareNotification">
 		選取要分享的居民。
 	</notification>
-	<notification name="MeshUploadError">
-		[LABEL] 上傳失敗：[MESSAGE] [IDENTIFIER]
+	<notification name="MeshUploadErrorDetails">
+		[LABEL]上傳失敗：[MESSAGE]
 [DETAILS]詳情見 SecondLife.log
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL]上傳失敗：[MESSAGE]
+
+詳情見SecondLife.log
 	</notification>
 	<notification name="MeshUploadPermError">
 		請求網面上傳權限時出錯。

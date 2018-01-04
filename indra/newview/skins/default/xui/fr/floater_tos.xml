@@ -6,13 +6,16 @@
 	<floater.string name="loading_url">
 		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Chargement %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3Eles%20Conditions%20d%27utilisation%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
 	</floater.string>
-	<button label="Continuer" label_selected="Continuer" name="Continue"/>
-	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
-	<check_box label="J&apos;accepte les Conditions d&apos;utilisation et le Règlement sur le respect de la vie privée" name="agree_chk"/>
 	<text name="tos_heading">
-		Veuillez lire attentivement les Conditions d&apos;utilisation et le Règlement sur le respect de la vie privée suivants. Vous devez les accepter pour pouvoir vous connecter à [SECOND_LIFE].
+		Veuillez lire les termes et conditions suivants; la Politique de confidentialité et les Conditions d&apos;utilisation de Second Life, y compris l&apos;utilisation de l&apos;arbitrage et de la renonciation à toute demande de classe ou de groupe pour résoudre les différends. Vous devez les accepter pour pouvoir vous connecter à [SECOND_LIFE].
 	</text>
 	<text name="external_tos_required">
 		Vous devez vous rendre sur https://my.secondlife.com et vous connecter pour accepter les Conditions d’utilisation avant de pouvoir continuer. Merci !
 	</text>
+	<check_box label="J&apos;ai lu et j&apos;accepte" name="agree_chk"/>
+	<text name="agree_list">
+		les termes et conditions; la Politique de confidentialité et les Conditions d&apos;utilisation de Second Life, y compris ls exigences de résolution des différends.
+	</text>
+	<button label="Continuer" label_selected="Continuer" name="Continue"/>
+	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
 </floater>

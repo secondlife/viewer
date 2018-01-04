@@ -912,8 +912,16 @@ public:
 	void			sendReliableMessage();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
-	// IM to Email and Online visibility
+
+// IM to Email and Online visibility
 	void			sendAgentUpdateUserInfo(bool im_to_email, const std::string& directory_visibility);
+
+private:
+    void            requestAgentUserInfoCoro(std::string capurl);
+    void            updateAgentUserInfoCoro(std::string capurl, bool im_via_email, std::string directory_visibility);
+    // DEPRECATED: may be removed when User Info cap propagates 
+    void 			sendAgentUserInfoRequestMessage();
+    void            sendAgentUpdateUserInfoMessage(bool im_via_email, const std::string& directory_visibility);
 
 	//--------------------------------------------------------------------
 	// Receive

@@ -214,12 +214,12 @@ protected:
 	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
-	void	createGLBuffer(U32 size);
-	void	createGLIndices(U32 size);
+	bool	createGLBuffer(U32 size);
+	bool	createGLIndices(U32 size);
 	void 	destroyGLBuffer();
 	void 	destroyGLIndices();
-	void	updateNumVerts(S32 nverts);
-	void	updateNumIndices(S32 nindices); 
+	bool	updateNumVerts(S32 nverts);
+	bool	updateNumIndices(S32 nindices); 
 	void	unmapBuffer();
 		
 public:
@@ -235,8 +235,8 @@ public:
 	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
 	void flush(); //flush pending data to GL memory
 	// allocate buffer
-	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
-	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
+	bool	allocateBuffer(S32 nverts, S32 nindices, bool create);
+	virtual bool resizeBuffer(S32 newnverts, S32 newnindices);
 			
 	// Only call each getVertexPointer, etc, once before calling unmapBuffer()
 	// call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
