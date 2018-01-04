@@ -4997,7 +4997,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	if (!avatarp)
 	{
 		// no agent by this ID...error?
-		LL_WARNS("Messaging") << "Received animation state for unknown avatar" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "Received animation state for unknown avatar " << uuid << LL_ENDL;
 		return;
 	}
 
@@ -5083,23 +5083,25 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 	
 	mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
+    LL_DEBUGS("AnimatedObjects") << "Received animation state for object " << uuid << LL_ENDL;
+    
     LLViewerObject *objp = gObjectList.findObject(uuid);
     if (!objp)
     {
-		LL_WARNS("Messaging") << "Received animation state for unknown object" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "Received animation state for unknown object " << uuid << LL_ENDL;
         return;
     }
     
 	LLVOVolume *volp = dynamic_cast<LLVOVolume*>(objp);
     if (!volp)
     {
-		LL_WARNS("Messaging") << "Received animation state for non-volume object" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "Received animation state for non-volume object " << uuid << LL_ENDL;
         return;
     }
 
     if (!volp->isAnimatedObject())
     {
-		LL_WARNS("Messaging") << "Received animation state for non-animated object" << uuid << LL_ENDL;
+		LL_WARNS("Messaging") << "Received animation state for non-animated object " << uuid << LL_ENDL;
         return;
     }
 

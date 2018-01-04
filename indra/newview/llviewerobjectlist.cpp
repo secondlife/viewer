@@ -531,6 +531,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			// LL_INFOS() << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << LL_ENDL;
 		}
 		objectp = findObject(fullid);
+        LL_DEBUGS("AnimatedObjects") << "processObjectUpdate for uuid " << fullid << " objectp " << objectp << LL_ENDL;
 
 		if(update_cache)
 		{
@@ -606,6 +607,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 #endif
 
 			objectp = createObject(pcode, regionp, fullid, local_id, gMessageSystem->getSender());
+            LL_DEBUGS("AnimatedObjects") << "creating object " << fullid << " result " << objectp << LL_ENDL;
 			if (!objectp)
 			{
 				LL_INFOS() << "createObject failure for object: " << fullid << LL_ENDL;
@@ -1972,6 +1974,8 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 {
 	llassert_always(uuid.notNull());
 
+    LL_DEBUGS("AnimatedObjects") << "createObjectFromCache creating " << uuid << LL_ENDL;
+
 	LLViewerObject *objectp = LLViewerObject::createObject(uuid, pcode, regionp);
 	if (!objectp)
 	{
@@ -2005,6 +2009,7 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 	{
 		fullid = uuid;
 	}
+    LL_DEBUGS("AnimatedObjects") << "createObject creating " << fullid << LL_ENDL;
 
 	LLViewerObject *objectp = LLViewerObject::createObject(fullid, pcode, regionp);
 	if (!objectp)
