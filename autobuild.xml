@@ -3287,9 +3287,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c5e6d9440e3a4a12102dd2bbb703963e</string>
+              <string>8977d9277c4df068e7ab7039fc162594</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2225/4736/vlc_bin-2.2.4.502214-darwin64-502214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/11979/69784/vlc_bin-2.2.4.511601-darwin64-511601.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3311,9 +3311,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc37f7cc77a62891bb9ae46c9e19f95e</string>
+              <string>1deaeb25217e1a6188b2d6ab4ea0b8bb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1219/2834/vlc_bin-2.2.4.501207-windows-501207.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/11980/69791/vlc_bin-2.2.8.511601-windows-511601.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3323,16 +3323,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>148ee599afeba9794de14ca433389504</string>
+              <string>fcbe6a67a34e1fd932751263a7ccec6e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1218/2829/vlc_bin-2.2.4.501207-windows64-501207.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/11981/69796/vlc_bin-2.2.8.511601-windows64-511601.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.2.4.502214</string>
+        <string>2.2.8.511601</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
