@@ -37,6 +37,11 @@
 #include "vlc/vlc.h"
 #include "vlc/libvlc_version.h"
 
+#if LL_WINDOWS
+// needed for waveOut call - see below for description
+#include <mmsystem.h>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 class MediaPluginLibVLC :
@@ -55,6 +60,7 @@ private:
 	void playMedia();
 	void resetVLC();
 	void setVolume(const F64 volume);
+	void setVolumeVLC();
 	void updateTitle(const char* title);
 
 	static void* lock(void* data, void** p_pixels);
@@ -221,6 +227,7 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 	case libvlc_MediaPlayerPlaying:
 		parent->mDuration = (float)(libvlc_media_get_duration(parent->mLibVLCMedia)) / 1000.0f;
 		parent->mVlcStatus = STATUS_PLAYING;
+		parent->setVolumeVLC();
 		break;
 
 	case libvlc_MediaPlayerPaused:
@@ -394,26 +401,56 @@ void MediaPluginLibVLC::updateTitle(const char* title)
 	sendMessage(message);
 }
 
+void MediaPluginLibVLC::setVolumeVLC()
+{
+	if (mLibVLCMediaPlayer)
+	{
+		int vlc_vol = (int)(mCurVolume * 100);
+
+		int result = libvlc_audio_set_volume(mLibVLCMediaPlayer, vlc_vol);
+		if (result == 0)
+		{
+			// volume change was accepted by LibVLC
+		}
+		else
+		{
+			// volume change was NOT accepted by LibVLC and not actioned
+		}
+
+#if LL_WINDOWS
+		// https ://jira.secondlife.com/browse/MAINT-8119
+		// CEF media plugin uses code in media_plugins/cef/windows_volume_catcher.cpp to
+		// set the actual output volume of the plugin process since there is no API in 
+		// CEF to otherwise do this.
+		// There are explicit calls to change the volume in LibVLC but sometimes they
+		// are ignored SLPlugin.exe process volume is set to 0 so you never heard audio
+		// from the VLC media stream.
+		// The right way to solve this is to move the volume catcher stuff out of 
+		// the CEF plugin and into it's own folder under media_plugins and have it referenced
+		// by both CEF and VLC. That's for later. The code there boils down to this so for 
+                // now, as we approach a release, the less risky option is to do it directly vs
+                // calls to volume catcher code.
+		DWORD left_channel = (DWORD)(mCurVolume * 65535.0f);
+		DWORD right_channel = (DWORD)(mCurVolume * 65535.0f);
+		DWORD hw_volume = left_channel << 16 | right_channel;
+		waveOutSetVolume(NULL, hw_volume);
+#endif
+	}
+	else
+	{
+		// volume change was requested but VLC wasn't ready.
+		// that's okay though because we saved the value in mCurVolume and 
+		// the next volume change after the VLC system is initilzied  will set it
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginLibVLC::setVolume(const F64 volume)
 {
 	mCurVolume = volume;
 
-	if (mLibVLCMediaPlayer)
-	{
-		int result = libvlc_audio_set_volume(mLibVLCMediaPlayer, (int)(volume * 100));
-		if (result != 0)
-		{
-			// volume wasn't set but not much to be done here
-		}
-	}
-	else
-	{
-		// volume change was requested but VLC wasn't ready.
-		// that's okay thought because we saved the value in mCurVolume and 
-		// the next volume change after the VLC system is initilzied  will set it
-	}
+	setVolumeVLC();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
