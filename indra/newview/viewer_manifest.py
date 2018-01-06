@@ -491,9 +491,9 @@ class WindowsManifest(ViewerManifest):
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
             with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
-            # include the compiled launcher scripts so that it gets included in the file_list
+                # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SL_Launcher.exe')
-            #IUM is not normally executed directly, just imported.  No exe needed.
+                #IUM is not normally executed directly, just imported.  No exe needed.
                 self.path("InstallerUserMessage.py")
 
             with self.prefix(src=self.icon_path(), dst="vmp_icons"):
@@ -618,16 +618,16 @@ class WindowsManifest(ViewerManifest):
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
         config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
         with self.prefix(src=os.path.join(pkgdir, 'bin', config), dst="llplugin"):
-                self.path("chrome_elf.dll")
-                self.path("d3dcompiler_43.dll")
-                self.path("d3dcompiler_47.dll")
-                self.path("libcef.dll")
-                self.path("libEGL.dll")
-                self.path("libGLESv2.dll")
-                self.path("dullahan_host.exe")
-                self.path("natives_blob.bin")
-                self.path("snapshot_blob.bin")
-                self.path("widevinecdmadapter.dll")
+            self.path("chrome_elf.dll")
+            self.path("d3dcompiler_43.dll")
+            self.path("d3dcompiler_47.dll")
+            self.path("libcef.dll")
+            self.path("libEGL.dll")
+            self.path("libGLESv2.dll")
+            self.path("dullahan_host.exe")
+            self.path("natives_blob.bin")
+            self.path("snapshot_blob.bin")
+            self.path("widevinecdmadapter.dll")
 
         # MSVC DLLs needed for CEF and have to be in same directory as plugin
         with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release'), dst="llplugin"):
@@ -953,7 +953,7 @@ open "%s" --args "$@"
                         "Info.plist")
 
                     # copy VMP libs to MacOS
-            with self.prefix(dst="MacOS"):              
+                    with self.prefix(dst="MacOS"):              
                         #this copies over the python wrapper script,
                         #associated utilities and required libraries, see
                         #SL-321, SL-322, SL-323
@@ -964,13 +964,13 @@ open "%s" --args "$@"
                             # our custom version to get our ca-bundle.crt
                             self.path("certifi")
                         with self.prefix(src=os.path.join(pkgdir, "lib", "python"), dst=""):
-                # llbase provides our llrest service layer and llsd decoding
+                            # llbase provides our llrest service layer and llsd decoding
                             with self.prefix("llbase"):
                                 # (Why is llbase treated specially here? What
                                 # DON'T we want to copy out of lib/python/llbase?)
                                 self.path("*.py")
                                 self.path("_cllsd.so")
-                #requests module needed by llbase/llrest.py
+                            #requests module needed by llbase/llrest.py
                             #this is only needed on POSIX, because in Windows
                             #we compile it into the EXE
                             for pypkg in "chardet", "idna", "requests", "urllib3":
@@ -1041,7 +1041,7 @@ open "%s" --args "$@"
                     with self.prefix(dst="Resources"):
                         # defer cross-platform file copies until we're in the right
                         # nested Resources directory
-                super(DarwinManifest, self).construct()
+                        super(DarwinManifest, self).construct()
 
                         with self.prefix(src=self.icon_path(), dst="") :
                             self.path(viewer_icon)
@@ -1050,130 +1050,130 @@ open "%s" --args "$@"
                             self.path("libndofdev.dylib")
                             self.path("libhunspell-1.3.0.dylib")   
 
-                with self.prefix("cursors_mac"):
-                    self.path("*.tif")
+                        with self.prefix("cursors_mac"):
+                            self.path("*.tif")
 
-                self.path("licenses-mac.txt", dst="licenses.txt")
-                self.path("featuretable_mac.txt")
-                self.path("SecondLife.nib")
-                self.path("ca-bundle.crt")
+                        self.path("licenses-mac.txt", dst="licenses.txt")
+                        self.path("featuretable_mac.txt")
+                        self.path("SecondLife.nib")
+                        self.path("ca-bundle.crt")
 
                         self.path("SecondLife.nib")
 
-                # Translations
-                self.path("English.lproj/language.txt")
-                self.replace_in(src="English.lproj/InfoPlist.strings",
-                                dst="English.lproj/InfoPlist.strings",
-                                searchdict={'%%VERSION%%':'.'.join(self.args['version'])}
-                                )
-                self.path("German.lproj")
-                self.path("Japanese.lproj")
-                self.path("Korean.lproj")
-                self.path("da.lproj")
-                self.path("es.lproj")
-                self.path("fr.lproj")
-                self.path("hu.lproj")
-                self.path("it.lproj")
-                self.path("nl.lproj")
-                self.path("pl.lproj")
-                self.path("pt.lproj")
-                self.path("ru.lproj")
-                self.path("tr.lproj")
-                self.path("uk.lproj")
-                self.path("zh-Hans.lproj")
+                        # Translations
+                        self.path("English.lproj/language.txt")
+                        self.replace_in(src="English.lproj/InfoPlist.strings",
+                                        dst="English.lproj/InfoPlist.strings",
+                                        searchdict={'%%VERSION%%':'.'.join(self.args['version'])}
+                                        )
+                        self.path("German.lproj")
+                        self.path("Japanese.lproj")
+                        self.path("Korean.lproj")
+                        self.path("da.lproj")
+                        self.path("es.lproj")
+                        self.path("fr.lproj")
+                        self.path("hu.lproj")
+                        self.path("it.lproj")
+                        self.path("nl.lproj")
+                        self.path("pl.lproj")
+                        self.path("pt.lproj")
+                        self.path("ru.lproj")
+                        self.path("tr.lproj")
+                        self.path("uk.lproj")
+                        self.path("zh-Hans.lproj")
 
-                def path_optional(src, dst):
-                    """
-                    For a number of our self.path() calls, not only do we want
-                    to deal with the absence of src, we also want to remember
-                    which were present. Return either an empty list (absent)
-                    or a list containing dst (present). Concatenate these
-                    return values to get a list of all libs that are present.
-                    """
-                    # This was simple before we started needing to pass
-                    # wildcards. Fortunately, self.path() ends up appending a
-                    # (source, dest) pair to self.file_list for every expanded
-                    # file processed. Remember its size before the call.
-                    oldlen = len(self.file_list)
-                    self.path(src, dst)
-                    # The dest appended to self.file_list has been prepended
-                    # with self.get_dst_prefix(). Strip it off again.
-                    added = [os.path.relpath(d, self.get_dst_prefix())
-                             for s, d in self.file_list[oldlen:]]
-                    if not added:
-                        print "Skipping %s" % dst
-                    return added
+                        def path_optional(src, dst):
+                            """
+                            For a number of our self.path() calls, not only do we want
+                            to deal with the absence of src, we also want to remember
+                            which were present. Return either an empty list (absent)
+                            or a list containing dst (present). Concatenate these
+                            return values to get a list of all libs that are present.
+                            """
+                            # This was simple before we started needing to pass
+                            # wildcards. Fortunately, self.path() ends up appending a
+                            # (source, dest) pair to self.file_list for every expanded
+                            # file processed. Remember its size before the call.
+                            oldlen = len(self.file_list)
+                            self.path(src, dst)
+                            # The dest appended to self.file_list has been prepended
+                            # with self.get_dst_prefix(). Strip it off again.
+                            added = [os.path.relpath(d, self.get_dst_prefix())
+                                     for s, d in self.file_list[oldlen:]]
+                            if not added:
+                                print "Skipping %s" % dst
+                            return added
 
-                # dylibs is a list of all the .dylib files we expect to need
-                # in our bundled sub-apps. For each of these we'll create a
-                # symlink from sub-app/Contents/Resources to the real .dylib.
-                # Need to get the llcommon dll from any of the build directories as well.
+                        # dylibs is a list of all the .dylib files we expect to need
+                        # in our bundled sub-apps. For each of these we'll create a
+                        # symlink from sub-app/Contents/Resources to the real .dylib.
+                        # Need to get the llcommon dll from any of the build directories as well.
                         libfile_parent = self.get_dst_prefix()
-                libfile = "libllcommon.dylib"
-                dylibs = path_optional(self.find_existing_file(os.path.join(os.pardir,
-                                                               "llcommon",
-                                                               self.args['configuration'],
-                                                               libfile),
-                                                               os.path.join(relpkgdir, libfile)),
-                                       dst=libfile)
+                        libfile = "libllcommon.dylib"
+                        dylibs = path_optional(self.find_existing_file(os.path.join(os.pardir,
+                                                                       "llcommon",
+                                                                       self.args['configuration'],
+                                                                       libfile),
+                                                                       os.path.join(relpkgdir, libfile)),
+                                               dst=libfile)
 
-                for libfile in (
-                                "libapr-1.0.dylib",
-                                "libaprutil-1.0.dylib",
-                                "libcollada14dom.dylib",
-                                "libexpat.1.dylib",
-                                "libexception_handler.dylib",
-                                "libGLOD.dylib",
-                                # libnghttp2.dylib is a symlink to
+                        for libfile in (
+                                        "libapr-1.0.dylib",
+                                        "libaprutil-1.0.dylib",
+                                        "libcollada14dom.dylib",
+                                        "libexpat.1.dylib",
+                                        "libexception_handler.dylib",
+                                        "libGLOD.dylib",
+                                        # libnghttp2.dylib is a symlink to
                                         # libnghttp2.major.dylib, which is a symlink to
                                         # libnghttp2.version.dylib. Get all of them.
-                                "libnghttp2.*dylib",
-                                ):
-                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                                        "libnghttp2.*dylib",
+                                        ):
+                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
-                # SLVoice and vivox lols, no symlinks needed
-                for libfile in (
-                                'libortp.dylib',
-                                'libsndfile.dylib',
-                                'libvivoxoal.dylib',
-                                'libvivoxsdk.dylib',
-                                'libvivoxplatform.dylib',
-                                'SLVoice',
-                                ):
-                    self.path2basename(relpkgdir, libfile)
+                        # SLVoice and vivox lols, no symlinks needed
+                        for libfile in (
+                                        'libortp.dylib',
+                                        'libsndfile.dylib',
+                                        'libvivoxoal.dylib',
+                                        'libvivoxsdk.dylib',
+                                        'libvivoxplatform.dylib',
+                                        'SLVoice',
+                                        ):
+                            self.path2basename(relpkgdir, libfile)
 
-                # dylibs that vary based on configuration
-                if self.args['configuration'].lower() == 'debug':
-                    for libfile in (
-                                "libfmodexL.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
-                else:
-                    for libfile in (
-                                "libfmodex.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                        # dylibs that vary based on configuration
+                        if self.args['configuration'].lower() == 'debug':
+                            for libfile in (
+                                        "libfmodexL.dylib",
+                                        ):
+                                dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
+                        else:
+                            for libfile in (
+                                        "libfmodex.dylib",
+                                        ):
+                                dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
-                # our apps
+                        # our apps
                         executable_path = {}
-                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         # plugin launcher
-                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
-                                         ):
-                    self.path2basename(os.path.join(os.pardir,
-                                                    app_bld_dir, self.args['configuration']),
-                                       app)
+                        for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
+                                                 # plugin launcher
+                                                 (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
+                                                 ):
+                            self.path2basename(os.path.join(os.pardir,
+                                                            app_bld_dir, self.args['configuration']),
+                                               app)
                             executable_path[app] = \
                                 self.dst_path_of(os.path.join(app, "Contents", "MacOS"))
 
-                    # our apps dependencies on shared libs
-                    # for each app, for each dylib we collected in dylibs,
-                    # create a symlink to the real copy of the dylib.
+                            # our apps dependencies on shared libs
+                            # for each app, for each dylib we collected in dylibs,
+                            # create a symlink to the real copy of the dylib.
                             with self.prefix(dst=os.path.join(app, "Contents", "Resources")):
-                    for libfile in dylibs:
+                                for libfile in dylibs:
                                     self.relsymlinkf(os.path.join(libfile_parent, libfile))
 
-                # Dullahan helper apps go inside SLPlugin.app
+                        # Dullahan helper apps go inside SLPlugin.app
                         with self.prefix(dst=os.path.join(
                             "SLPlugin.app", "Contents", "Frameworks")):
 
@@ -1240,10 +1240,10 @@ open "%s" --args "$@"
                                     change_command +
                                     [newpath, self.dst_path_of('DullahanHelper')])
 
-                # SLPlugin plugins
+                        # SLPlugin plugins
                         with self.prefix(dst="llplugin"):
                             dylibexecutable = 'media_plugin_cef.dylib'
-                    self.path2basename("../media_plugins/cef/" + self.args['configuration'],
+                            self.path2basename("../media_plugins/cef/" + self.args['configuration'],
                                                dylibexecutable)
 
                             # Do this install_name_tool *after* media plugin is copied over.
@@ -1260,17 +1260,17 @@ open "%s" --args "$@"
                                 change_command +
                                 [newpath, self.dst_path_of(dylibexecutable)])
 
-                    # copy LibVLC plugin itself
-                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
-                                       "media_plugin_libvlc.dylib")
+                            # copy LibVLC plugin itself
+                            self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
+                                               "media_plugin_libvlc.dylib")
 
-                    # copy LibVLC dynamic libraries
+                            # copy LibVLC dynamic libraries
                             with self.prefix(src=relpkgdir, dst="lib"):
-                        self.path( "libvlc*.dylib*" )
-                    # copy LibVLC plugins folder
+                                self.path( "libvlc*.dylib*" )
+                                # copy LibVLC plugins folder
                                 with self.prefix(src='plugins', dst=""):
-                        self.path( "*.dylib" )
-                        self.path( "plugins.dat" )
+                                    self.path( "*.dylib" )
+                                    self.path( "plugins.dat" )
 
     def package_finish(self):
         global CHANNEL_VENDOR_BASE
