@@ -45,8 +45,11 @@
 #include "lldiriterator.h"
 
 #include "llsettingsvo.h"
+#include "llnotificationsutil.h"
 
 #include <boost/make_shared.hpp>
+
+#define EXPORT_PRESETS 1
 //=========================================================================
 namespace
 {
@@ -75,7 +78,9 @@ LLEnvironment::LLEnvironment():
     mDayCycleByName(),
     mDayCycleById(),
     mUserPrefs(),
-    mSelectedEnvironment(ENV_LOCAL)
+    mSelectedEnvironment(ENV_LOCAL),
+    mDayLength(LLSettingsDay::DEFAULT_DAYLENGTH),
+    mDayOffset(LLSettingsDay::DEFAULT_DAYOFFSET)
 {
     mSetSkys.resize(ENV_END);
     mSetWater.resize(ENV_END);
@@ -146,7 +151,8 @@ void LLEnvironment::onRegionChange()
 
 void LLEnvironment::requestRegionEnvironment()
 {
-    LLEnvironmentRequest::initiate();
+//    LLEnvironmentRequest::initiate();
+    requestRegion();
 }
 
 void LLEnvironment::onLegacyRegionSettings(LLSD data)
@@ -180,6 +186,20 @@ F32 LLEnvironment::getWaterHeight() const
 bool LLEnvironment::getIsDayTime() const
 {
     return mCurrentSky->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
+}
+
+void LLEnvironment::setDayLength(S64Seconds seconds)
+{
+    mDayLength = seconds;
+    if (mCurrentDay)
+        mCurrentDay->setDayLength(mDayLength);
+}
+
+void LLEnvironment::setDayOffset(S64Seconds seconds)
+{
+    mDayOffset = seconds;
+    if (mCurrentDay)
+        mCurrentDay->setDayOffset(seconds);
 }
 
 //-------------------------------------------------------------------------
@@ -455,6 +475,8 @@ void LLEnvironment::selectDayCycle(const LLSettingsDay::ptr_t &daycycle, F32Seco
     }
 
     mCurrentDay = daycycle;
+    mCurrentDay->setDayLength(mDayLength);
+    mCurrentDay->setDayOffset(mDayOffset);
 
     daycycle->startDayCycle();
     selectWater(daycycle->getCurrentWater(), transition);
@@ -740,6 +762,238 @@ LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
     return boost::static_pointer_cast<LLSettingsDay>((*it).second);
 }
 
+
+void LLEnvironment::applyEnvironment(LLSD environment)
+{
+    LL_WARNS("ENVIRONMENT") << "Have environment" << LL_ENDL;
+
+    S32 daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
+    S32 dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
+
+    if (environment.has("day_length"))
+        daylength = environment["day_length"].asInteger();
+    if (environment.has("day_offset"))
+        dayoffset = environment["day_cycle"].asInteger();
+
+    setDayLength(S64Seconds(daylength));
+    setDayOffset(S64Seconds(dayoffset));
+
+    if (environment.has("day_cycle"))
+    {
+        LLSettingsDay::ptr_t pday = LLSettingsVODay::buildFromEnvironmentMessage(environment["day_cycle"]);
+
+        if (pday)
+            selectDayCycle(pday);
+    }
+
+    /*TODO: track_altitudes*/
+}
+
+//=========================================================================
+void LLEnvironment::requestRegion()
+{
+    if (gAgent.getRegionCapability("ExtEnvironment").empty())
+    {
+        LLEnvironmentRequest::initiate();
+        return;
+    }
+
+    requestParcel(LLUUID::null);
+}
+
+void LLEnvironment::updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
+{
+    if (gAgent.getRegionCapability("ExtEnvironment").empty())
+    {
+        LLEnvironmentApply::initiateRequest( LLSettingsVODay::convertToLegacy(pday) );
+        return;
+    }
+
+    updateParcel(LLUUID::null, pday, day_length, day_offset);
+}
+
+void LLEnvironment::resetRegion()
+{
+    resetParcel(LLUUID::null);
+}
+
+void LLEnvironment::requestParcel(const LLUUID &parcel_id)
+{
+    std::string coroname =
+        LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
+        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id));
+
+}
+
+void LLEnvironment::updateParcel(const LLUUID &parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
+{
+    std::string coroname =
+        LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
+        boost::bind(&LLEnvironment::coroUpdateEnvironment, this, parcel_id, pday, day_length, day_offset));
+
+}
+
+void LLEnvironment::resetParcel(const LLUUID &parcel_id)
+{
+    std::string coroname =
+        LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
+        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id));
+
+}
+
+void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ResetEnvironment", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+        return;
+
+    if (!parcel_id.isNull())
+        url += "?parcelid=" + parcel_id.asString();
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    // results that come back may contain the new settings
+
+    LLSD notify;
+
+    LLSD httpResults = result["http_result"];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("WindlightCaps") << "Couldn't retrieve Windlight settings for " << (parcel_id.isNull() ? ("region!") : ("parcel!")) << LL_ENDL;
+
+        std::stringstream msg;
+        msg << status.toString() << " (Code " << status.toTerseString() << ")";
+        notify = LLSD::emptyMap();
+        notify["FAIL_REASON"] = msg.str();
+
+    }
+    else
+    {
+        LLSD environment = result["environment"];
+        if (environment.isDefined())
+        {
+            applyEnvironment(environment);
+        }
+    }
+
+    if (!notify.isUndefined())
+    {
+        LLNotificationsUtil::add("WLRegionApplyFail", notify);
+        //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
+    }
+}
+
+void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ResetEnvironment", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+        return;
+
+    LLSD body(LLSD::emptyMap());
+    body["environment"] = LLSD::emptyMap();
+
+    if (day_length >= 0)
+        body["environment"]["day_length"] = day_length;
+    if (day_offset >= 0)
+        body["environment"]["day_offset"] = day_offset;
+    if (pday)
+        body["environment"]["day_cycle"] = pday->getSettings();
+
+
+    if (!parcel_id.isNull())
+        url += "?parcelid=" + parcel_id.asString();
+
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, url, body);
+    // results that come back may contain the new settings
+
+    LLSD notify;
+
+    LLSD httpResults = result["http_result"];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("WindlightCaps") << "Couldn't update Windlight settings for " << (parcel_id.isNull() ? ("region!") : ("parcel!")) << LL_ENDL;
+
+        std::stringstream msg;
+        msg << status.toString() << " (Code " << status.toTerseString() << ")";
+        notify = LLSD::emptyMap();
+        notify["FAIL_REASON"] = msg.str();
+    }
+    else
+    {
+        LLSD environment = result["environment"];
+        if (environment.isDefined())
+        {
+            applyEnvironment(environment);
+        }
+    }
+
+    if (!notify.isUndefined())
+    {
+        LLNotificationsUtil::add("WLRegionApplyFail", notify);
+        //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
+    }
+}
+
+void LLEnvironment::coroResetEnvironment(LLUUID parcel_id)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ResetEnvironment", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+        return;
+
+    if (!parcel_id.isNull())
+        url += "?parcelid=" + parcel_id.asString();
+
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url);
+    // results that come back may contain the new settings
+
+    LLSD notify; 
+
+    LLSD httpResults = result["http_result"];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("WindlightCaps") << "Couldn't reset Windlight settings in " << (parcel_id.isNull() ? ("region!") : ("parcel!"))  << LL_ENDL;
+
+        std::stringstream msg;
+        msg << status.toString() << " (Code " << status.toTerseString() << ")";
+        notify = LLSD::emptyMap();
+        notify["FAIL_REASON"] = msg.str();
+        
+    }
+    else
+    {
+        LLSD environment = result["environment"];
+        if (environment.isDefined())
+        {
+            applyEnvironment(environment);
+        }        
+    }
+
+    if (!notify.isUndefined())
+    {
+        LLNotificationsUtil::add("WLRegionApplyFail", notify);
+        //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
+    }
+
+}
+
+
 //=========================================================================
 LLEnvironment::UserPrefs::UserPrefs():
     mUseRegionSettings(true),
@@ -906,6 +1160,18 @@ void LLEnvironment::legacyLoadAllPresets()
 
                 LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
                 LLEnvironment::instance().addDayCycle(day);
+
+#ifdef EXPORT_PRESETS
+                std::string exportfile = LLURI::escape(name) + "(new).xml";
+                std::string exportpath = gDirUtilp->add(getSysDir("new"), exportfile);
+
+                LLSD settings = day->getSettings();
+
+                std::ofstream daycyclefile(exportpath);
+                LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
+                formatter->format(settings, daycyclefile, LLSDFormatter::OPTIONS_PRETTY);
+                daycyclefile.close();
+#endif
             }
         }
     }

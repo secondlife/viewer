@@ -96,7 +96,7 @@ LLSettingsSky::LLSettingsSky():
 {
 }
 
-void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F32 blendf) 
+void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
     LLSettingsSky::ptr_t other = boost::static_pointer_cast<LLSettingsSky>(end);
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);

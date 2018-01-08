@@ -151,7 +151,7 @@ public:
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
 
-    virtual void blend(const ptr_t &end, F32 blendf) = 0;
+    virtual void blend(const ptr_t &end, F64 blendf) = 0;
 
     virtual bool validate();
 
@@ -198,8 +198,8 @@ protected:
     typedef std::set<std::string>   stringset_t;
     
     // combining settings objects. Customize for specific setting types
-    virtual void lerpSettings(const LLSettingsBase &other, F32 mix);
-    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, F32 mix) const;
+    virtual void lerpSettings(const LLSettingsBase &other, F64 mix);
+    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, F64 mix) const;
 
     /// when lerping between settings, some may require special handling.  
     /// Get a list of these key to be skipped by the default settings lerp.
@@ -240,10 +240,10 @@ public:
     typedef boost::signals2::signal<void(const ptr_t &)> finish_signal_t;
     typedef boost::signals2::connection     connection_t;
 
-    static const F32Seconds DEFAULT_THRESHOLD;
+    static const F64Seconds DEFAULT_THRESHOLD;
 
     LLSettingsBlender(const LLSettingsBase::ptr_t &target,
-        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F32Seconds seconds) :
+        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds) :
         mTarget(target),
         mInitial(initsetting),
         mFinal(endsetting),
@@ -254,23 +254,34 @@ public:
         mTimeSpent(0.0f)
     {
         mTarget->replaceSettings(mInitial->getSettings());
-        mTimeStart = F32Seconds(LLDate::now().secondsSinceEpoch());
+        mTimeStart = F64Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
     }
 
     ~LLSettingsBlender() {}
+
+    void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 seconds )
+    {
+        mInitial = initsetting;
+        mFinal = endsetting;
+        mSeconds.value(seconds);
+        mTarget->replaceSettings(mInitial->getSettings());
+        mTimeStart.value(LLDate::now().secondsSinceEpoch());
+        mLastUpdate = mTimeStart;
+        mTimeSpent.value(0.0f);
+    }
 
     connection_t setOnFinished(const finish_signal_t::slot_type &onfinished)
     {
         return mOnFinished.connect(onfinished);
     }
 
-    void setUpdateThreshold(F32Seconds threshold)
+    void setUpdateThreshold(F64Seconds threshold)
     {
         mBlendThreshold = threshold;
     }
 
-    F32Seconds getUpdateThreshold() const
+    F64Seconds getUpdateThreshold() const
     {
         return mBlendThreshold;
     }
@@ -290,17 +301,17 @@ public:
         return mFinal;
     }
 
-    void update(F32Seconds time);
+    void update(F64Seconds time);
 private:
     LLSettingsBase::ptr_t   mTarget;
     LLSettingsBase::ptr_t   mInitial;
     LLSettingsBase::ptr_t   mFinal;
-    F32Seconds              mSeconds;
+    F64Seconds              mSeconds;
     finish_signal_t         mOnFinished;
-    F32Seconds              mBlendThreshold;
-    F32Seconds              mLastUpdate;
-    F32Seconds              mTimeSpent;
-    F32Seconds              mTimeStart;
+    F64Seconds              mBlendThreshold;
+    F64Seconds              mLastUpdate;
+    F64Seconds              mTimeSpent;
+    F64Seconds              mTimeStart;
 };
 
 #endif

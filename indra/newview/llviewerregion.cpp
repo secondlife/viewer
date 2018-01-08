@@ -2823,6 +2823,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
+    capabilityNames.append("ExtEnvironment");
 	capabilityNames.append("FacebookConnect");
 	capabilityNames.append("FlickrConnect");
 	capabilityNames.append("TwitterConnect");

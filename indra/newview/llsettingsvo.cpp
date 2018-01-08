@@ -43,6 +43,30 @@
 #include "llenvironment.h"
 #include "llsky.h"
 
+#undef  VERIFY_LEGACY_CONVERSION
+
+//=========================================================================
+namespace 
+{
+LLSD ensureArray4(LLSD in, F32 fill)
+{
+    if (in.size() >= 4)
+        return in;
+    
+    LLSD out(LLSD::emptyArray());
+    
+    for (S32 idx = 0; idx < in.size(); ++idx)
+    {
+        out.append(in[idx]);
+    }
+    
+    while (out.size() < 4)
+    {
+        out.append(LLSD::Real(fill));
+    }
+    return out;
+}
+}
 //=========================================================================
 LLSettingsVOSky::LLSettingsVOSky(const LLSD &data):
     LLSettingsSky(data)
@@ -63,6 +87,18 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     newsettings[SETTING_NAME] = name;
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(newsettings);
+
+#ifdef VERIFY_LEGACY_CONVERSION
+    LLSD oldsettings = LLSettingsVOSky::convertToLegacy(skyp);
+
+    if (!llsd_equals(legacy, oldsettings))
+    {
+        LL_WARNS("SKY") << "Conversion to/from legacy does not match!\n" 
+            << "Old: " << legacy
+            << "new: " << oldsettings << LL_ENDL;
+    }
+
+#endif
 
     if (skyp->validate())
         return skyp;
@@ -93,6 +129,43 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
         return skyp;
 
     return LLSettingsSky::ptr_t();
+}
+
+LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky)
+{
+    LLSD legacy(LLSD::emptyMap());
+    LLSD settings = psky->getSettings();
+    
+    legacy[SETTING_AMBIENT] = ensureArray4(settings[SETTING_AMBIENT], 1.0f);
+    legacy[SETTING_BLUE_DENSITY] = ensureArray4(settings[SETTING_BLUE_DENSITY], 1.0);
+    legacy[SETTING_BLUE_HORIZON] = ensureArray4(settings[SETTING_BLUE_HORIZON], 1.0);
+    legacy[SETTING_CLOUD_COLOR] = ensureArray4(settings[SETTING_CLOUD_COLOR], 1.0);
+    legacy[SETTING_CLOUD_POS_DENSITY1] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);
+    legacy[SETTING_CLOUD_POS_DENSITY2] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
+    legacy[SETTING_CLOUD_SCALE] = LLSDArray(settings[SETTING_CLOUD_SCALE])(LLSD::Real(0.0))(LLSD::Real(0.0))(LLSD::Real(1.0));
+       
+    legacy[SETTING_CLOUD_SCROLL_RATE] = settings[SETTING_CLOUD_SCROLL_RATE];
+    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = LLSDArray(LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())))
+        (LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));
+     
+    legacy[SETTING_CLOUD_SHADOW] = LLSDArray(settings[SETTING_CLOUD_SHADOW].asReal())(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(settings[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(settings[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_GAMMA] = LLSDArray(settings[SETTING_GAMMA])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_GLOW] = ensureArray4(settings[SETTING_GLOW], 1.0);
+    legacy[SETTING_HAZE_DENSITY] = LLSDArray(settings[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_HAZE_HORIZON] = LLSDArray(settings[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_LIGHT_NORMAL] = ensureArray4(psky->getLightDirection().getValue(), 0.0f);
+    legacy[SETTING_MAX_Y] = LLSDArray(settings[SETTING_MAX_Y])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS];
+    legacy[SETTING_SUNLIGHT_COLOR] = ensureArray4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
+    
+    LLSettingsSky::azimalt_t azialt = psky->getSunRotationAzAl();
+
+    legacy[SETTING_LEGACY_EAST_ANGLE] = azialt.first;
+    legacy[SETTING_LEGACY_SUN_ANGLE] = azialt.second;
+    
+    return legacy;    
 }
 
 //-------------------------------------------------------------------------
@@ -176,6 +249,19 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(newsettings);
 
+#ifdef VERIFY_LEGACY_CONVERSION
+    LLSD oldsettings = LLSettingsVOWater::convertToLegacy(waterp);
+
+    if (!llsd_equals(legacy, oldsettings))
+    {
+        LL_WARNS("WATER") << "Conversion to/from legacy does not match!\n"
+            << "Old: " << legacy
+            << "new: " << oldsettings << LL_ENDL;
+    }
+
+#endif
+
+
     if (waterp->validate())
         return waterp;
 
@@ -207,6 +293,28 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
     return LLSettingsWater::ptr_t();
 }
 
+LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
+{
+    LLSD legacy(LLSD::emptyMap());
+    LLSD settings = pwater->getSettings();
+
+    legacy[SETTING_LEGACY_BLUR_MULTIPILER] = settings[SETTING_BLUR_MULTIPILER];
+    legacy[SETTING_LEGACY_FOG_COLOR] = ensureArray4(settings[SETTING_FOG_COLOR], 1.0f);
+    legacy[SETTING_LEGACY_FOG_DENSITY] = settings[SETTING_FOG_DENSITY];
+    legacy[SETTING_LEGACY_FOG_MOD] = settings[SETTING_FOG_MOD];
+    legacy[SETTING_LEGACY_FRESNEL_OFFSET] = settings[SETTING_FRESNEL_OFFSET];
+    legacy[SETTING_LEGACY_FRESNEL_SCALE] = settings[SETTING_FRESNEL_SCALE];
+    legacy[SETTING_LEGACY_NORMAL_MAP] = settings[SETTING_NORMAL_MAP];
+    legacy[SETTING_LEGACY_NORMAL_SCALE] = settings[SETTING_NORMAL_SCALE];
+    legacy[SETTING_LEGACY_SCALE_ABOVE] = settings[SETTING_SCALE_ABOVE];
+    legacy[SETTING_LEGACY_SCALE_BELOW] = settings[SETTING_SCALE_BELOW];
+    legacy[SETTING_LEGACY_WAVE1_DIR] = settings[SETTING_WAVE1_DIR];
+    legacy[SETTING_LEGACY_WAVE2_DIR] = settings[SETTING_WAVE2_DIR];
+    
+    //_WARNS("LAPRAS") << "Legacy water: " << legacy << LL_ENDL;
+    return legacy;
+}
+//-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 void LLSettingsVOWater::applySpecial(void *ptarget)
 {
@@ -303,11 +411,25 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(newsettings);
 
+#ifdef VERIFY_LEGACY_CONVERSION
+    LLSD testsettings = LLSettingsVODay::convertToLegacy(dayp);
+
+    if (!llsd_equals(oldsettings, testsettings))
+    {
+        LL_WARNS("DAYCYCLE") << "Conversion to/from legacy does not match!\n" 
+            << "Old: " << oldsettings
+            << "new: " << testsettings << LL_ENDL;
+    }
+
+#endif
+
     if (dayp->validate())
     {
         dayp->initialize();
         return dayp;
     }
+
+
 
     return LLSettingsDay::ptr_t();
 }
@@ -370,6 +492,20 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
     return LLSettingsDay::ptr_t();
 }
 
+LLSettingsDay::ptr_t LLSettingsVODay::buildFromEnvironmentMessage(LLSD settings)
+{
+    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
+
+    if (dayp->validate())
+    {
+        dayp->initialize();
+        return dayp;
+    }
+
+    return LLSettingsDay::ptr_t();
+}
+
+
 LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
 {
     LLSD settings = cloneSettings();
@@ -377,6 +513,55 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
 
     return dayp;
+}
+
+LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
+{
+    CycleTrack_t &trackwater = pday->getCycleTrack(TRACK_WATER);
+
+    LLSettingsWater::ptr_t pwater;
+    if (!trackwater.empty())
+    {
+        pwater = boost::static_pointer_cast<LLSettingsWater>((*trackwater.begin()).second);
+    }
+
+    if (!pwater)
+        pwater = LLSettingsVOWater::buildDefaultWater();
+    
+    LLSD llsdwater = LLSettingsVOWater::convertToLegacy(pwater);
+    
+    CycleTrack_t &tracksky = pday->getCycleTrack(1);   // first sky track
+    std::map<std::string, LLSettingsSky::ptr_t> skys;
+    
+    LLSD llsdcycle(LLSD::emptyArray());
+    
+    for(CycleTrack_t::iterator it = tracksky.begin(); it != tracksky.end(); ++it)
+    {
+        size_t hash = (*it).second->getHash();
+        std::stringstream name;
+        
+        name << hash;
+        
+        skys[name.str()] = boost::static_pointer_cast<LLSettingsSky>((*it).second);
+        
+        F32 frame = ((tracksky.size() == 1) && (it == tracksky.begin())) ? -1.0f : (*it).first;
+        llsdcycle.append( LLSDArray(LLSD::Real(frame))(name.str()) );
+    }
+    //_WARNS("LAPRAS") << "Cycle created with " << llsdcycle.size() << "entries: " << llsdcycle << LL_ENDL;
+
+    LLSD llsdskylist(LLSD::emptyMap());
+    
+    for (std::map<std::string, LLSettingsSky::ptr_t>::iterator its = skys.begin(); its != skys.end(); ++its)
+    {
+        LLSD llsdsky = LLSettingsVOSky::convertToLegacy((*its).second);
+        llsdsky[SETTING_NAME] = (*its).first;
+        
+        llsdskylist[(*its).first] = llsdsky;
+    }
+
+    //_WARNS("LAPRAS") << "Sky map with " << llsdskylist.size() << " entries created: " << llsdskylist << LL_ENDL;
+    
+    return LLSDArray(LLSD::emptyMap())(llsdcycle)(llsdskylist)(llsdwater);
 }
 
 LLSettingsSkyPtr_t  LLSettingsVODay::getDefaultSky() const

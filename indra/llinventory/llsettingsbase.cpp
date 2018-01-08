@@ -35,7 +35,7 @@
 //=========================================================================
 namespace
 {
-    const F32 BREAK_POINT = 0.5;
+    const F64 BREAK_POINT = 0.5;
 }
 
 //=========================================================================
@@ -44,7 +44,7 @@ const std::string LLSettingsBase::SETTING_NAME("name");
 const std::string LLSettingsBase::SETTING_HASH("hash");
 const std::string LLSettingsBase::SETTING_TYPE("type");
 
-const F32Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
+const F64Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
 
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
@@ -60,7 +60,7 @@ LLSettingsBase::LLSettingsBase(const LLSD setting) :
 }
 
 //=========================================================================
-void LLSettingsBase::lerpSettings(const LLSettingsBase &other, F32 mix) 
+void LLSettingsBase::lerpSettings(const LLSettingsBase &other, F64 mix) 
 {
     mSettings = interpolateSDMap(mSettings, other.mSettings, mix);
     setDirtyFlag(true);
@@ -140,7 +140,7 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
     return newSettings;
 }
 
-LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F32 mix) const
+LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F64 mix) const
 {
     LLSD newSettings;
 
@@ -535,9 +535,9 @@ bool LLSettingsBase::Validator::verifyQuaternionNormal(LLSD &value)
 
 bool LLSettingsBase::Validator::verifyFloatRange(LLSD &value, LLSD range)
 {
-    F32 real = value.asReal();
+    F64 real = value.asReal();
 
-    F32 clampedval = llclamp(LLSD::Real(real), range[0].asReal(), range[1].asReal());
+    F64 clampedval = llclamp(LLSD::Real(real), range[0].asReal(), range[1].asReal());
 
     if (is_approx_equal(clampedval, real))
         return true;
@@ -561,7 +561,7 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 
 //=========================================================================
 
-void LLSettingsBlender::update(F32Seconds timedelta)
+void LLSettingsBlender::update(F64Seconds timedelta)
 {
     mTimeSpent += timedelta;
 
@@ -573,7 +573,7 @@ void LLSettingsBlender::update(F32Seconds timedelta)
         return;
     }
 
-    F32 blendf = fmod(mTimeSpent.value(), mSeconds.value()) / mSeconds.value();
+    F64 blendf = fmod(mTimeSpent.value(), mSeconds.value()) / mSeconds.value();
 
     mTarget->replaceSettings(mInitial->getSettings());
     mTarget->blend(mFinal, blendf);

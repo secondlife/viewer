@@ -42,6 +42,7 @@ public:
     static ptr_t    buildDefaultSky();
     virtual ptr_t   buildClone();
 
+    static LLSD     convertToLegacy(const ptr_t &);
 protected:
     LLSettingsVOSky();
 
@@ -63,6 +64,7 @@ public:
     static ptr_t    buildDefaultWater();
     virtual ptr_t   buildClone();
 
+    static LLSD     convertToLegacy(const ptr_t &);
 protected:
     LLSettingsVOWater();
 
@@ -86,8 +88,11 @@ public:
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
     static ptr_t    buildDefaultDayCycle();
+    static ptr_t    buildFromEnvironmentMessage(LLSD settings);
     virtual ptr_t   buildClone();
 
+    static LLSD     convertToLegacy(const ptr_t &);
+    
     virtual LLSettingsSkyPtr_t      getDefaultSky() const;
     virtual LLSettingsWaterPtr_t    getDefaultWater() const;
     virtual LLSettingsSkyPtr_t      buildSky(LLSD) const;

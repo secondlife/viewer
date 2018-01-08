@@ -104,10 +104,13 @@ const std::string LLSettingsDay::SETTING_KEYHASH("key_hash");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
 const std::string LLSettingsDay::SETTING_FRAMES("frames");
 
-const S64 LLSettingsDay::MINIMUM_DAYLENGTH(  300); // 5 mins
-
-//const S64 LLSettingsDay::MINIMUM_DAYLENGTH( 14400); // 4 hours
+const S64 LLSettingsDay::MINIMUM_DAYLENGTH(   300); // 5 mins
+const S64 LLSettingsDay::DEFAULT_DAYLENGTH( 14400); // 4 hours
 const S64 LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
+
+const S32 LLSettingsDay::MINIMUM_DAYOFFSET(    0);
+const S32 LLSettingsDay::DEFAULT_DAYOFFSET(57600);  // +16 hours == -8 hours (SLT time offset)
+const S32 LLSettingsDay::MAXIMUM_DAYOFFSET(86400);  // 24 hours
 
 const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
@@ -116,14 +119,18 @@ const S32 LLSettingsDay::FRAME_MAX(56);
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
     LLSettingsBase(data),
-    mInitialized(false)
+    mInitialized(false),
+    mDayLength(DEFAULT_DAYLENGTH),
+    mDayOffset(DEFAULT_DAYOFFSET)
 {
     mDayTracks.resize(TRACK_MAX);
 }
 
 LLSettingsDay::LLSettingsDay() :
     LLSettingsBase(),
-    mInitialized(false)
+    mInitialized(false),
+    mDayLength(DEFAULT_DAYLENGTH),
+    mDayOffset(DEFAULT_DAYOFFSET)
 {
     mDayTracks.resize(TRACK_MAX);
 }
@@ -266,7 +273,7 @@ LLSD LLSettingsDay::defaults()
     return dfltsetting;
 }
 
-void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F32 mix)
+void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F64 mix)
 {
     LL_ERRS("DAYCYCLE") << "Day cycles are not blendable!" << LL_ENDL;
 }
@@ -337,19 +344,30 @@ LLSettingsDay::validation_list_t LLSettingsDay::getValidationList() const
     return validation;
 }
 
+LLSettingsDay::CycleTrack_t &LLSettingsDay::getCycleTrack(S32 track)
+{
+    static CycleTrack_t emptyTrack;
+    if (mDayTracks.size() <= track)
+        return emptyTrack;
+
+    return mDayTracks[track];
+}
+
 //=========================================================================
 F32 LLSettingsDay::secondsToKeyframe(S64Seconds seconds)
 {
     S64Seconds daylength = getDayLength();
+    S64Seconds dayoffset = getDayOffset();
 
-    return llclamp(static_cast<F32>(seconds.value() % daylength.value()) / static_cast<F32>(daylength.value()), 0.0f, 1.0f);
+    return llclamp(static_cast<F32>((seconds.value() + dayoffset.value()) % daylength.value()) / static_cast<F32>(daylength.value()), 0.0f, 1.0f);
 }
 
 F64Seconds LLSettingsDay::keyframeToSeconds(F32 keyframe)
 {
     S64Seconds daylength = getDayLength();
+    S64Seconds dayoffset = getDayOffset();
 
-    return F64Seconds(static_cast<S32>(keyframe * static_cast<F32>(daylength.value())));
+    return F64Seconds(static_cast<S64>(keyframe * static_cast<F32>(daylength.value())) - dayoffset.value());
 }
 
 //=========================================================================
@@ -424,13 +442,6 @@ void LLSettingsDay::updateSettings()
 }
 
 //=========================================================================
-void LLSettingsDay::setDayLength(S64Seconds seconds)
-{
-    S32 val = llclamp(seconds.value(), MINIMUM_DAYLENGTH, MAXIMUM_DAYLENGTH);
-
-    setValue(SETTING_DAYLENGTH, val);
-}
-
 LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
 {
     if ((trackno < 1) || (trackno >= TRACK_MAX))

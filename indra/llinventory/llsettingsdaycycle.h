@@ -48,7 +48,12 @@ public:
     static const std::string    SETTING_FRAMES;
 
     static const S64            MINIMUM_DAYLENGTH;
+    static const S64            DEFAULT_DAYLENGTH;
     static const S64            MAXIMUM_DAYLENGTH;
+
+    static const S32            MINIMUM_DAYOFFSET;
+    static const S32            DEFAULT_DAYOFFSET;
+    static const S32            MAXIMUM_DAYOFFSET;
 
     static const S32            TRACK_WATER;
     static const S32            TRACK_MAX;
@@ -74,17 +79,30 @@ public:
     virtual std::string         getSettingType() const { return std::string("daycycle"); }
 
     // Settings status 
-    virtual void                blend(const LLSettingsBase::ptr_t &other, F32 mix);
+    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix);
 
     static LLSD                 defaults();
 
     //---------------------------------------------------------------------
     S64Seconds getDayLength() const
     {
-        return S64Seconds(mSettings[SETTING_DAYLENGTH].asInteger());
+        return mDayLength;
     }
 
-    void setDayLength(S64Seconds seconds);
+    void setDayLength(S64Seconds seconds)
+    {
+        mDayLength = seconds;
+    }
+
+    S64Seconds getDayOffset() const
+    {
+        return mDayOffset;
+    }
+
+    void setDayOffset(S64Seconds seconds)
+    {
+        mDayOffset = seconds;
+    }
 
     KeyframeList_t              getTrackKeyframes(S32 track);
     TimeList_t                  getTrackTimes(S32 track);
@@ -117,6 +135,7 @@ public:
     virtual LLSettingsWaterPtr_t getNamedWater(const std::string &) const = 0;
 
     void    setInitialized(bool value = true) { mInitialized = value; }
+    CycleTrack_t &              getCycleTrack(S32 track);
 protected:
     LLSettingsDay();
 
@@ -136,6 +155,9 @@ private:
     CycleList_t                 mDayTracks;
 
     F64Seconds                  mLastUpdateTime;
+
+    S64Seconds                  mDayLength; 
+    S64Seconds                  mDayOffset;
 
     F32                         secondsToKeyframe(S64Seconds seconds);
     F64Seconds                  keyframeToSeconds(F32 keyframe);

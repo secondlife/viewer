@@ -60,7 +60,7 @@ public:
     virtual std::string getSettingType() const { return std::string("water"); }
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F32 blendf);
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);
 
     static LLSD defaults();
 
@@ -199,16 +199,6 @@ public:
     }
 
 protected:
-    LLSettingsWater();
-
-    virtual validation_list_t getValidationList() const;
-
-    static LLSD         translateLegacySettings(LLSD legacy);
-
-    LLVector4           mWaterPlane;
-    F32                 mWaterFogKS;
-
-private:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
     static const std::string SETTING_LEGACY_FOG_COLOR;
     static const std::string SETTING_LEGACY_FOG_DENSITY;
@@ -221,6 +211,17 @@ private:
     static const std::string SETTING_LEGACY_SCALE_BELOW;
     static const std::string SETTING_LEGACY_WAVE1_DIR;
     static const std::string SETTING_LEGACY_WAVE2_DIR;
+
+    LLSettingsWater();
+
+    virtual validation_list_t getValidationList() const;
+
+    static LLSD         translateLegacySettings(LLSD legacy);
+
+    LLVector4           mWaterPlane;
+    F32                 mWaterFogKS;
+
+private:
 
 };
 

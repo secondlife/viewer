@@ -75,7 +75,7 @@ public:
     virtual std::string getSettingType() const { return std::string("sky"); }
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F32 blendf);
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);
     
     static LLSD defaults();
 
@@ -410,6 +410,10 @@ public:
     }
 
 protected:
+    static const std::string SETTING_LEGACY_EAST_ANGLE;
+    static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
+    static const std::string SETTING_LEGACY_SUN_ANGLE;
+
     LLSettingsSky();
 
     virtual stringset_t getSlerpKeys() const;
@@ -421,10 +425,6 @@ protected:
     static LLSD     translateLegacySettings(LLSD legacy);
 
 private:
-    static const std::string SETTING_LEGACY_EAST_ANGLE;
-    static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
-    static const std::string SETTING_LEGACY_SUN_ANGLE;
-
     static const F32         NIGHTTIME_ELEVATION;
     static const F32         NIGHTTIME_ELEVATION_COS;
 

@@ -181,6 +181,10 @@ public:
     inline LLVector4            getClampedLightDirection() const { return LLVector4(mCurrentSky->getClampedLightDirection(), 0.0f); }
     inline LLVector4            getRotatedLight() const { return mRotatedLight; }
 
+    inline S64Seconds           getDayLength() const { return mDayLength; }
+    void                        setDayLength(S64Seconds seconds);
+    inline S64Seconds           getDayOffset() const { return mDayOffset; }
+    void                        setDayOffset(S64Seconds seconds);
     //-------------------------------------------
     connection_t                setSkyListChange(const change_signal_t::slot_type& cb);
     connection_t                setWaterListChange(const change_signal_t::slot_type& cb);
@@ -189,6 +193,13 @@ public:
     void                        requestRegionEnvironment();
 
     void                        onLegacyRegionSettings(LLSD data);
+
+    void                        requestRegion();
+    void                        updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        resetRegion();
+    void                        requestParcel(const LLUUID &parcel_id);
+    void                        updateParcel(const LLUUID &parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        resetParcel(const LLUUID &parcel_id);
 
 protected:
     virtual void                initSingleton();
@@ -254,6 +265,9 @@ private:
     change_signal_t             mWaterListChange;
     change_signal_t             mDayCycleListChange;
 
+    S64Seconds                  mDayLength;
+    S64Seconds                  mDayOffset;
+
     void onSkyTransitionDone(const LLSettingsBlender::ptr_t &blender);
     void onWaterTransitionDone(const LLSettingsBlender::ptr_t &blender);
 
@@ -277,6 +291,12 @@ private:
     void updateCloudScroll();
 
     void onRegionChange();
+
+    void coroRequestEnvironment(LLUUID parcel_id);
+    void coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset);
+    void coroResetEnvironment(LLUUID parcel_id);
+
+    void applyEnvironment(LLSD environment);
 
     //=========================================================================
     void                        legacyLoadAllPresets();
