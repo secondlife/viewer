@@ -412,7 +412,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				versions[LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER] = LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER_VERSION;
 				message.setValueLLSD("versions", versions);
 
-				std::string plugin_version = "CEF plugin 1.1.3";
+				std::string plugin_version = "CEF plugin 1.2.0";
 				message.setValue("plugin_version", plugin_version);
 				sendMessage(message);
 			}
