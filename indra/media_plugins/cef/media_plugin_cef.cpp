@@ -167,6 +167,10 @@ void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, i
 		{
 			memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
 		}
+		else
+		{
+			mCEFLib->setSize(mWidth, mHeight);
+		}
 		setDirty(0, 0, mWidth, mHeight);
 	}
 }
@@ -412,7 +416,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				versions[LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER] = LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER_VERSION;
 				message.setValueLLSD("versions", versions);
 
-				std::string plugin_version = "CEF plugin 1.2.0";
+				std::string plugin_version = "CEF plugin 1.1.3";
 				message.setValue("plugin_version", plugin_version);
 				sendMessage(message);
 			}
@@ -559,10 +563,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 						mTextureWidth = texture_width;
 						mTextureHeight = texture_height;
+
+						mCEFLib->setSize(mWidth, mHeight);
 					};
 				};
-
-				mCEFLib->setSize(mWidth, mHeight);
 
 				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "size_change_response");
 				message.setValue("name", name);
