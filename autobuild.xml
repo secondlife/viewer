@@ -556,9 +556,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>34687348efb2cd3a6de14a8f80dcbc67</string>
+              <string>a0083438df270a708e70b58117003a72</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12187/71752/dullahan-1.1.987_3.3239.1721.g86eb141-darwin64-511726.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12298/72708/dullahan-1.1.1002_3.3239.1723.g071d1c1-darwin64-511802.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -568,9 +568,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd887ae03c01ad8347ba5ee98735fa0b</string>
+              <string>33b5f85a9f486bad5f40c98c35e67d1b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12188/71758/dullahan-1.1.987_3.3239.1721.g86eb141-windows-511726.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12299/72715/dullahan-1.1.1002_3.3239.1723.g071d1c1-windows-511802.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -580,16 +580,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>613025e264c9ddd47462bc7b57efcb4d</string>
+              <string>b07cd0aa48a03e91462a7cecae1aadbe</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12189/71764/dullahan-1.1.987_3.3239.1721.g86eb141-windows64-511726.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12300/72720/dullahan-1.1.1002_3.3239.1723.g071d1c1-windows64-511802.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.987_3.3239.1721.g86eb141</string>
+        <string>1.1.1002_3.3239.1723.g071d1c1</string>
       </map>
       <key>elfio</key>
       <map>
