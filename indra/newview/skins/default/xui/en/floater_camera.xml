@@ -250,18 +250,15 @@
      name="buttons"
      width="226">
         <button
-         height="23"
-         label=""
+         name="open_prefs_btn"
+         image_overlay="Icon_Gear_Foreground"
+         tool_tip = "Open view preferences"
          layout="topleft"
          left="70"
-         is_toggle="true"
-         image_overlay="Cam_Avatar_Off"
-         image_selected="PushButton_Selected_Press"
-         name="presets_btn"
-         tab_stop="false"
-         tool_tip="Preset Views"
-         top="13" 
-         width="25">
+         height="23"
+         width="28">
+           <button.commit_callback
+             function="Presets.GoViewPrefs" />
         </button>
         <button
          height="23"
@@ -288,17 +285,5 @@
          tool_tip="Camera modes"
          width="25">
         </button>
-
-	<button
-		name="open_prefs_btn"
-		image_overlay="Icon_Gear_Foreground"
-		tool_tip = "Open view preferences"
-		left_pad="45"
-		height="22"
-		width="28">
-	  <button.commit_callback
-		  function="Presets.GoViewPrefs" />
-	</button>
-
     </panel>
 </floater>

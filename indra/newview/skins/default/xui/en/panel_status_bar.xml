@@ -108,7 +108,7 @@
     <icon
      follows="right|top"
      height="16"
-     image_name="Presets_Icon_Camera"
+     image_name="Cam_Avatar_Off"
      left_pad="8"
      top="2"
      name="presets_icon_camera"
