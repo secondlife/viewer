@@ -162,7 +162,8 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 	mPosition(),
 	mCopyrightWarningSeen( FALSE ),
 	mResourceDatap(new LLResourceData()),
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mSnapshotTimer()
 {
 }
 
@@ -245,6 +246,12 @@ LLFloaterReporter::~LLFloaterReporter()
 void LLFloaterReporter::draw()
 {
 	LLFloater::draw();
+	static LLCachedControl<F32> screenshot_delay(gSavedSettings, "AbuseReportScreenshotDelay");
+	if (mSnapshotTimer.getStarted() && mSnapshotTimer.getElapsedTimeF32() > screenshot_delay)
+	{
+		mSnapshotTimer.stop();
+		takeNewSnapshot();
+	}
 }
 
 void LLFloaterReporter::enableControls(BOOL enable)
@@ -877,8 +884,7 @@ void LLFloaterReporter::onOpen(const LLSD& key)
 {
 	childSetEnabled("send_btn", false);
 	//Time delay to avoid UI artifacts. MAINT-7067
-	doAfterInterval(boost::bind(&LLFloaterReporter::takeNewSnapshot,this), gSavedSettings.getF32("AbuseReportScreenshotDelay"));
-
+	mSnapshotTimer.start();
 }
 
 void LLFloaterReporter::onLoadScreenshotDialog(const LLSD& notification, const LLSD& response)
@@ -950,6 +956,7 @@ void LLFloaterReporter::setPosBox(const LLVector3d &pos)
 
 void LLFloaterReporter::onClose(bool app_quitting)
 {
+	mSnapshotTimer.stop();
 	gSavedPerAccountSettings.setBOOL("PreviousScreenshotForReport", app_quitting);
 }
 
