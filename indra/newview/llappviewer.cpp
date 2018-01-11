@@ -3178,8 +3178,14 @@ LLSD LLAppViewer::getViewerInfo() const
 	cef_ver_codec << " / CEF: ";
 	cef_ver_codec << CEF_VERSION;
 
-	cef_ver_codec << " / Chrome: ";
+	cef_ver_codec << " / Chromium: ";
 	cef_ver_codec << CHROME_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << CHROME_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << CHROME_VERSION_BUILD;
+	cef_ver_codec << ".";
+	cef_ver_codec << CHROME_VERSION_PATCH;
 
 	info["LIBCEF_VERSION"] = cef_ver_codec.str();
 #else
