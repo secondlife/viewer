@@ -139,6 +139,7 @@ void LLInboxFolderViewFolder::draw()
 	if (!hasBadgeHolderParent())
 	{
 		addBadgeToParentHolder();
+		setDrawBadgeAtTop(true);
 	}
 
 	setBadgeVisibility(mFresh);
