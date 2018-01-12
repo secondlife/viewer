@@ -191,6 +191,10 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			if (mUsage != GL_DYNAMIC_COPY_ARB)
 			{ //data will be provided by application
 				ret = (U8*) ll_aligned_malloc<64>(size);
+				if (!ret)
+				{
+					LL_ERRS() << "Failed to allocate for LLVBOPool buffer" << LL_ENDL;
+				}
 			}
 		}
 		else
