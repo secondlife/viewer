@@ -388,7 +388,7 @@ void LLViewerObject::markDead()
             if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
             {
                 // This case is needed for indirectly attached mesh objects.
-                av->removeAttachmentOverridesForObject(mesh_id);
+                av->rebuildAttachmentOverrides();
             }
         }
         if (getControlAvatar())
@@ -2989,7 +2989,7 @@ void LLViewerObject::linkControlAvatar()
     }
     if (getControlAvatar())
     {
-        getControlAvatar()->addAttachmentOverridesForObject(this);
+        getControlAvatar()->rebuildAttachmentOverrides();
     }
     else
     {
@@ -3001,7 +3001,7 @@ void LLViewerObject::unlinkControlAvatar()
 {
     if (getControlAvatar())
     {
-        getControlAvatar()->removeAttachmentOverridesForObject(this);
+        getControlAvatar()->rebuildAttachmentOverrides();
     }
     if (isRootEdit())
     {

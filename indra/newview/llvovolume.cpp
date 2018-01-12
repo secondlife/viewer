@@ -1121,6 +1121,14 @@ void LLVOVolume::notifyMeshLoaded()
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
 
+    if (getAvatar() && !isAnimatedObject())
+    {
+        getAvatar()->addAttachmentOverridesForObject(this);
+    }
+    if (getControlAvatar() && isAnimatedObject())
+    {
+        getControlAvatar()->addAttachmentOverridesForObject(this);
+    }
     updateVisualComplexity();
 }
 
@@ -3368,12 +3376,12 @@ void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
         if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
         {
             // Making a rigged mesh into an animated object
-            getAvatarAncestor()->removeAttachmentOverridesForObject(this);
+            getAvatarAncestor()->rebuildAttachmentOverrides();
         }
         else
         {
             // Making an animated object into a rigged mesh
-            getAvatarAncestor()->addAttachmentOverridesForObject(this);
+            getAvatarAncestor()->rebuildAttachmentOverrides();
         }
     }
 }
@@ -3445,7 +3453,7 @@ void LLVOVolume::updateAnimatedObjectStateOnReparent(LLViewerObject *old_parent,
         if (old_volp->getControlAvatar())
         {
             // We have been removed from an animated object, need to do cleanup.
-            old_volp->getControlAvatar()->removeAttachmentOverridesForObject(this);
+            old_volp->getControlAvatar()->rebuildAttachmentOverrides();
         }
     }
 }
@@ -4918,8 +4926,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	group->mBuilt = 1.f;
 	
-	LLVOAvatar *rigged_av = NULL;
-
 	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
     LLViewerObject *vobj = NULL;
     LLVOVolume *vol_obj = NULL;
@@ -4928,14 +4934,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
         vobj = bridge->mDrawable->getVObj();
         vol_obj = dynamic_cast<LLVOVolume*>(vobj);
-		if (bridge->mAvatar.isNull())
-		{
-			if (vobj)
-			{
-				bridge->mAvatar = vobj->getAvatar();
-			}
-		}
-        rigged_av = bridge->mAvatar;
 	}
     if (vol_obj)
     {
@@ -5047,25 +5045,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying);
 
             vobj->updateControlAvatar();
-            if (vobj->getControlAvatar())
-            {
-                rigged_av = vobj->getControlAvatar();
-                rigged_av->rebuildAttachmentOverrides();
-            }
             
 			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
-
 			bool any_rigged_face = false;
-
-            if (rigged && rigged_av)
-            {
-                rigged_av->addAttachmentOverridesForObject(vobj);
-				if (!LLApp::isExiting() && rigged_av->isSelf() && debugLoggingEnabled("AvatarAttachments"))
-                {
-                    bool verbose = true;
-					rigged_av->showAttachmentOverrides(verbose);
-				}
-            }
 
 			//for each face
 			for (S32 i = 0; i < drawablep->getNumFaces(); i++)
