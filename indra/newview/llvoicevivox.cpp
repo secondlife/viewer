@@ -973,7 +973,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     bool connected(false);
     bool giving_up(false);
     int retries = 0;
-    LL_INFOS("Voice") << "Requestiong connection to voice service" << LL_ENDL;
+    LL_INFOS("Voice") << "Requesting connection to voice service" << LL_ENDL;
 
     LLVoiceVivoxStats::getInstance()->establishAttemptStart();
     connectorCreate();
