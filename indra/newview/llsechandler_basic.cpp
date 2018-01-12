@@ -574,6 +574,7 @@ LLBasicCertificateStore::LLBasicCertificateStore(const std::string& filename)
 void LLBasicCertificateStore::load_from_file(const std::string& filename)
 {
     int loaded = 0;
+    int rejected = 0;
 
 	// scan the PEM file extracting each certificate
 	if (LLFile::isfile(filename))
@@ -606,11 +607,13 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
                     catch (LLCertException& cert_exception)
                     {
                         LLSD cert_info(cert_exception.getCertData());
-                        LL_WARNS("SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
+                        LL_DEBUGS("SECAPI_BADCERT","SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
+                        rejected++;
                     }
                     catch (...)
                     {
                         LOG_UNHANDLED_EXCEPTION("creating certificate from the certificate store file");
+                        rejected++;
                     }
                     X509_free(cert_x509);
                     cert_x509 = NULL;
@@ -622,7 +625,7 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
                 LL_WARNS("SECAPI") << "BIO read failed for " << filename << LL_ENDL;
             }
 
-            LL_INFOS("SECAPI") << "loaded " << loaded << " certificates from " << filename << LL_ENDL;
+            LL_INFOS("SECAPI") << "loaded " << loaded << " good certificates (rejected " << rejected << ") from " << filename << LL_ENDL;
         }
         else
         {
