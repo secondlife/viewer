@@ -7,6 +7,7 @@
 	<menu_item_call label="コール" name="Call"/>
 	<menu_item_call label="グループに招待" name="Invite..."/>
 	<menu_item_call label="スケルトンをリセット" name="Reset Skeleton"/>
+	<menu_item_call label="スケルトンとアニメーションをリセット" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="ブロック" name="Avatar Mute"/>
 	<menu_item_call label="報告" name="abuse"/>
 	<menu_item_call label="フリーズ" name="Freeze..."/>
@@ -16,8 +17,11 @@
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<menu_item_call label="支払う" name="Pay..."/>
 	<menu_item_call label="オブジェクトのプロフィール" name="Object Inspect"/>
-	<menu_item_check label="通常表示" name="RenderNormally"/>
-	<menu_item_check label="表示しない" name="DoNotRender"/>
-	<menu_item_check label="完全表示" name="AlwaysRenderFully"/>
+	<context_menu label="アバターを描画" name="Render Avatar">
+		<menu_item_check label="デフォルト" name="RenderNormally"/>
+		<menu_item_check label="常に使用する" name="AlwaysRenderFully"/>
+		<menu_item_check label="使用しない" name="DoNotRender"/>
+		<menu_item_call label="例外…" name="RenderExceptions"/>
+	</context_menu>
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
 </context_menu>

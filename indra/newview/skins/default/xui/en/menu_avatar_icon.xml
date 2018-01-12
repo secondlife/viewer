@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  height="101"
  layout="topleft"
  left="100"
@@ -109,5 +109,43 @@
      name="Mute Text">
        <on_click function="AvatarIcon.Action" parameter="mute_unmute" />
        <on_check function="AvatarIcon.Check" parameter="is_muted" />   
-  </menu_item_check>
-</menu>
+    </menu_item_check>
+    <menu_item_separator layout="topleft" name="Moderator Options Separator"/>
+    <context_menu
+     label="Moderator Options"
+     layout="topleft"
+     name="Moderator Options">
+      <menu_item_check
+       label="Allow text chat"
+       layout="topleft"
+       name="AllowTextChat">
+        <on_check function="AvatarIcon.Check" parameter="is_allowed_text_chat" />
+        <on_click function="AvatarIcon.Action" parameter="toggle_allow_text_chat" />
+        <on_enable function="AvatarIcon.Enable" parameter="can_allow_text_chat" />
+      </menu_item_check>
+      <menu_item_call
+       label="Mute this participant"
+       layout="topleft"
+       name="ModerateVoiceMuteSelected">
+        <on_click function="AvatarIcon.Action" parameter="group_mute" />
+        <on_enable function="AvatarIcon.Enable" parameter="can_mute" />
+        <on_visible function="AvatarIcon.Visible" parameter="show_mute" />
+      </menu_item_call>
+      <menu_item_call
+       label="Unmute this participant"
+       layout="topleft"
+       name="ModerateVoiceUnMuteSelected">
+        <on_click function="AvatarIcon.Action" parameter="group_unmute" />
+        <on_enable function="AvatarIcon.Enable" parameter="can_unmute" />
+        <on_visible function="AvatarIcon.Visible" parameter="show_unmute" />
+      </menu_item_call>
+    </context_menu>
+    <menu_item_separator layout="topleft" name="Group Ban Separator"/>
+    <menu_item_call
+     label="Ban member"
+     layout="topleft"
+     name="BanMember">
+      <on_click function="AvatarIcon.Action" parameter="ban_member" />
+      <on_enable function="AvatarIcon.Enable" parameter="can_ban_member" />
+    </menu_item_call>
+</toggleable_menu>

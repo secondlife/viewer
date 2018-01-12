@@ -61,16 +61,33 @@ OS バージョン：[OS_VERSION]
 	<string name="AboutDriver">
 		Windows グラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		OpenGL バージョン：[OPENGL_VERSION]
-
-J2C デコーダバージョン：[J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		ウィンドウサイズ： [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+フォントサイズの調整： [FONT_SIZE_ADJUSTMENT]pt
+UI スケーリング： [UI_SCALE]
+描画距離：[DRAW_DISTANCE]m
+帯域幅：[NET_BANDWITH]kbit/s
+LOD 係数： [LOD_FACTOR]
+表示品質： [RENDER_QUALITY] / 7
+高度なライティングモデル： [GPU_SHADERS]
+テクスチャメモリ： [TEXTURE_MEMORY]MB
+VFS（キャッシュ）作成時間： [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		J2C デコーダバージョン：[J2C_VERSION]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
-LLCEFLib/CEF バージョン: [LLCEFLIB_VERSION]
-ボイスサーバーバージョン:[VOICE_VERSION]
+LLCEFLib/CEF バージョン： [LLCEFLIB_VERSION]
+LibVLC バージョン： [LIBVLC_VERSION]
+ボイスサーバーバージョン：[VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		パケットロス：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		サーバーのリリースノートの URL を取得中にエラーが発生しました。
@@ -245,8 +262,7 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		現在リクエストを完了することができません。
-Second Life のサポート（http://secondlife.com/support）にお問い合わせください。
-パスワードを変更できない場合には、(866) 476-9763 に電話でお問い合わせください。
+Second Life のサポート（http://support.secondlife.com）にお問い合わせください。
 	</string>
 	<string name="LoginFailedTransformError">
 		ログイン時にデータの不一致が見つかりました。
@@ -687,6 +703,19 @@ support@secondlife.com にお問い合わせください。
 	<string name="AssetErrorUnknownStatus">
 		不明のステータス
 	</string>
+	<string name="AssetUploadServerUnreacheble">
+		サービスがご利用いただけません。
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		サーバーに予期せぬ問題が発生しました。
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		サービスがご利用いただけないか、アップロードがタイムアウトしました。
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		アップロードリクエスト中にエラーが発生しました。問題を解決するには、サポート
+（http://secondlife.com/support）にお問い合わせください。
+	</string>
 	<string name="texture">
 		テクスチャ
 	</string>
@@ -1089,6 +1118,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="TeleportYourAgent">
 		あなたをテレポート
 	</string>
+	<string name="ForceSitAvatar">
+		アバターを強制的に座らせる
+	</string>
 	<string name="NotConnected">
 		接続されていません
 	</string>
@@ -1471,7 +1503,7 @@ support@secondlife.com にお問い合わせください。
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] がエラーを返しています。
 	</string>
 	<string name="InventoryMarketplaceError">
-		この機能は、現在、ベータ版の機能です。参加するには、この [http://goo.gl/forms/FCQ7UXkakz Google form] に名前を追加してください。
+		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Life のサポート (http://support.secondlife.com) にお問い合わせください
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		マーケットプレイスのリストフォルダが空です。
@@ -1937,6 +1969,27 @@ support@secondlife.com にお問い合わせください。
 	<string name="av_render_anyone">
 		あなたのまわりの誰にもあなたが見えない可能性があります。
 	</string>
+	<string name="hud_description_total">
+		ご利用の HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME]（[JNT_NAME] に装着中）
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] はたくさんのテクスチャメモリを使用します
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] には高価なオブジェクトやテクスチャがたくさん含まれています
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] は大きなテクスチャがたくさん含まれています
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] に含まれるオブジェクトが多すぎます
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] に含まれるテクスチャが多すぎます
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] 年
 	</string>
@@ -2096,6 +2149,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="ObjectOutOfRange">
 		スクリプト（オブジェクトが範囲外にあります）
 	</string>
+	<string name="ScriptWasDeleted">
+		スクリプト（インベントリから削除済み）
+	</string>
 	<string name="GodToolsObjectOwnedBy">
 		[OWNER] 所有のオブジェクト「[OBJECT]」
 	</string>
@@ -2153,10 +2209,19 @@ support@secondlife.com にお問い合わせください。
 		あなたが [OWNER] のために管理するすべての不動産
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		許可された住人： （[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
+		常に許可：（[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] ）
+		グループを常に許可：（[ALLOWEDGROUPS]、最大 [MAXACCESS]）
+	</string>
+	<string name="RegionInfoBannedResidents">
+		常に禁止：（[BANNEDAGENTS] 人、最大 [MAXBANNED] 人）
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		常に許可
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		常に禁止
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		区画スクリプトメモリ
@@ -2707,6 +2772,15 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Play Media">
 		メディアを再生/一時停止
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=en-us
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		コマンドラインにエラーが見つかりました。
@@ -4391,7 +4465,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		[AGENT_NAME] とコンファレンスする
 	</string>
 	<string name="inventory_item_offered-im">
-		インベントリアイテムを送りました
+		持ち物アイテム &apos;[ITEM_NAME]&apos; が送られてきました
+	</string>
+	<string name="inventory_folder_offered-im">
+		持ち物フォルダ &apos;[ITEM_NAME]&apos; が送られてきました
 	</string>
 	<string name="share_alert">
 		インベントリからここにアイテムをドラッグします
@@ -4478,15 +4555,24 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		家の配置の設定。
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] は [REASON] のために L$[AMOUNT] を支払いました。
+	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] は L$[AMOUNT] 支払いました：[REASON]
 	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] は L$[AMOUNT] を支払いました。
 	</string>
 	<string name="you_paid_ldollars">
+		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
+	</string>
+	<string name="you_paid_ldollars_gift">
 		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
@@ -4500,6 +4586,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="you_paid_failure_ldollars">
 		[NAME] に [REASON] の代金 L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		[NAME] に L$ [AMOUNT] を支払えませんでした：[REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		L$ [AMOUNT] を支払えませんでした。
@@ -4827,11 +4916,20 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="texture_load_dimensions_error">
 		[WIDTH]*[HEIGHT] 以上の画像は読み込めません
 	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		最大アウトフィット写真サイズは [WIDTH]*[HEIGHT] です。画像のサイズを調整するか、別の画像を使用してください
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		最大アウトフィット写真サイズは [WIDTH]*[HEIGHT] です。別のテクスチャを選択してください
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		写真の寸法を確認できません。写真サイズがピッカーに表示されるまでお待ちください
+	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
 		大変申し訳ございませんが、予期しない問題が発生しました。
 
-	サービスに関する既知の問題については、status.secondlifegrid.net をご覧ください。
+サービスに関する既知の問題については、http://status.secondlifegrid.net をご覧ください。
 問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5292,6 +5390,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Gestures_Label">
 		ジェスチャー
 	</string>
+	<string name="Command_Grid_Status_Label">
+		グリッドステータス
+	</string>
 	<string name="Command_HowTo_Label">
 		ハウツー
 	</string>
@@ -5330,6 +5431,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Profile_Label">
 		プロフィール
+	</string>
+	<string name="Command_Report_Abuse_Label">
+		嫌がらせの報告
 	</string>
 	<string name="Command_Search_Label">
 		検索
@@ -5382,6 +5486,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Gestures_Tooltip">
 		アバターのジェスチャー
 	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		現在のグリッドステータスを表示
+	</string>
 	<string name="Command_HowTo_Tooltip">
 		一般的タスクの実行方法
 	</string>
@@ -5420,6 +5527,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Profile_Tooltip">
 		プロフィールを編集・表示
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		嫌がらせの報告
 	</string>
 	<string name="Command_Search_Tooltip">
 		場所、イベント、人を検索
@@ -5600,6 +5710,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="loading_chat_logs">
 		ロード中...
+	</string>
+	<string name="na">
+		該当なし
 	</string>
 	<string name="preset_combo_label">
 		-空リスト-

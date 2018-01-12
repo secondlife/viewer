@@ -30,7 +30,7 @@
 #include "llinventory.h"
 #include "llframetimer.h"
 #include "llwearable.h"
-#include "llui.h" //for LLDestroyClass
+#include "llinitdestroyclass.h" //for LLDestroyClass
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
@@ -39,6 +39,7 @@ class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
 class LLInventoryCallback;
+class LLAvatarName;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
@@ -158,7 +159,7 @@ public:
 	PermissionMask getPermissionMask() const;
 
 	// callback
-	void onCallingCardNameLookup(const LLUUID& id, const std::string& name, bool is_group);
+	void onCallingCardNameLookup(const LLUUID& id, const LLAvatarName& name);
 
 	// If this is a broken link, try to fix it and any other identical link.
 	BOOL regenerateLink();

@@ -3,6 +3,10 @@
 	<menu_item_call label="穿上 － 取代目前裝扮" name="wear"/>
 	<menu_item_call label="穿上 － 添加到目前裝扮" name="wear_add"/>
 	<menu_item_call label="脫下 － 由目前裝扮移除" name="take_off"/>
+	<menu_item_call label="上傳相片(L$10)" name="upload_photo"/>
+	<menu_item_call label="選擇相片" name="select_photo"/>
+	<menu_item_call label="拍攝快照" name="take_snapshot"/>
+	<menu_item_call label="移除相片" name="remove_photo"/>
 	<menu label="新衣服" name="New Clothes">
 		<menu_item_call label="新襯衫" name="New Shirt"/>
 		<menu_item_call label="新褲子" name="New Pants"/>
@@ -27,4 +31,5 @@
 	<menu_item_call label="摺疊全部資料夾" name="collapse"/>
 	<menu_item_call label="裝扮更名" name="rename"/>
 	<menu_item_call label="刪除裝扮" name="delete_outfit"/>
+	<menu_item_check label="總是由名稱排序資料夾" name="sort_folders_by_name"/>
 </toggleable_menu>

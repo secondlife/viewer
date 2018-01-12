@@ -176,8 +176,13 @@ public:
         virtual bool    wantsKeyUpKeyDown() const;
         virtual bool    wantsReturnKey() const;
 
+        virtual BOOL	acceptsTextInput() const {return TRUE;}
+
 	protected:
 		void convertInputCoords(S32& x, S32& y);
+
+    private:
+		void calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S32 *height);
 
 	private:
 		void onVisibilityChanged ( const LLSD& new_visibility );

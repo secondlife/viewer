@@ -1227,11 +1227,12 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 		return;
 	}
 
+	U32 use_count = 0;
 	for (LLWearableHoldingPattern::found_list_t::iterator iter = getFoundList().begin();
-		 iter != getFoundList().end(); ++iter)
+		iter != getFoundList().end(); ++iter)
 	{
 		LLFoundData& data = *iter;
-		if(wearable->getAssetID() == data.mAssetID)
+		if (wearable->getAssetID() == data.mAssetID)
 		{
 			// Failing this means inventory or asset server are corrupted in a way we don't handle.
 			if ((data.mWearableType >= LLWearableType::WT_COUNT) || (wearable->getType() != data.mWearableType))
@@ -1240,8 +1241,47 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 				break;
 			}
 
-			data.mWearable = wearable;
+			if (use_count == 0)
+			{
+				data.mWearable = wearable;
+				use_count++;
+			}
+			else
+			{
+				LLViewerInventoryItem* wearable_item = gInventory.getItem(data.mItemID);
+				if (wearable_item && wearable_item->isFinished() && wearable_item->getPermissions().allowModifyBy(gAgentID))
+				{
+					// We can't edit and do some other interactions with same asset twice, copy it
+					// Note: can't update incomplete items. Usually attached from previous viewer build, but
+					// consider adding fetch and completion callback
+					LLViewerWearable* new_wearable = LLWearableList::instance().createCopy(wearable, wearable->getName());
+					data.mWearable = new_wearable;
+					data.mAssetID = new_wearable->getAssetID();
+
+					// Update existing inventory item
+					wearable_item->setAssetUUID(new_wearable->getAssetID());
+					wearable_item->setTransactionID(new_wearable->getTransactionID());
+					gInventory.updateItem(wearable_item, LLInventoryObserver::INTERNAL);
+					wearable_item->updateServer(FALSE);
+
+					use_count++;
+				}
+				else
+				{
+					// Note: technically a bug, LLViewerWearable can identify only one item id at a time,
+					// yet we are tying it to multiple items here.
+					// LLViewerWearable need to support more then one item.
+					LL_WARNS() << "Same LLViewerWearable is used by multiple items! " << wearable->getAssetID() << LL_ENDL;
+					data.mWearable = wearable;
+				}
+			}
 		}
+	}
+
+	if (use_count > 1)
+	{
+		LL_WARNS() << "Copying wearable, multiple asset id uses! " << wearable->getAssetID() << LL_ENDL;
+		gInventory.notifyObservers();
 	}
 }
 
@@ -1280,6 +1320,8 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 }
 
 //=========================================================================
+
+const std::string LLAppearanceMgr::sExpectedTextureName = "OutfitPreview";
 
 const LLUUID LLAppearanceMgr::getCOF() const
 {
@@ -1531,7 +1573,14 @@ void LLAppearanceMgr::removeOutfitPhoto(const LLUUID& outfit_id)
     BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
     {
         LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-        if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+        if (linked_item != NULL)
+        {
+            if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            {
+                gInventory.removeItem(outfit_item->getUUID());
+            }
+        }
+        else if (outfit_item->getActualType() == LLAssetType::AT_TEXTURE)
         {
             gInventory.removeItem(outfit_item->getUUID());
         }
@@ -2877,11 +2926,32 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 	removeItemsFromAvatar(ids_to_remove);
 }
 
-void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb)
+class LLUpdateOnCOFLinkRemove : public LLInventoryCallback
 {
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+public:
+	LLUpdateOnCOFLinkRemove(const LLUUID& remove_item_id, LLPointer<LLInventoryCallback> cb = NULL):
+		mItemID(remove_item_id),
+		mCB(cb)
+	{
+	}
 
-	LLInventoryModel::cat_array_t cat_array;
+	/* virtual */ void fire(const LLUUID& item_id)
+	{
+		// just removed cof link, "(wear)" suffix depends on presence of link, so update label
+		gInventory.addChangedMask(LLInventoryObserver::LABEL, mItemID);
+		if (mCB.notNull())
+		{
+			mCB->fire(item_id);
+		}
+	}
+
+private:
+	LLUUID mItemID;
+	LLPointer<LLInventoryCallback> mCB;
+};
+
+void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb)
+{	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(LLAppearanceMgr::getCOF(),
 								  cat_array,
@@ -2892,12 +2962,20 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInve
 		const LLInventoryItem* item = item_array.at(i).get();
 		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
-			bool immediate_delete = false;
 			if (item->getType() == LLAssetType::AT_OBJECT)
 			{
-				immediate_delete = true;
+				// Immediate delete
+				remove_inventory_item(item->getUUID(), cb, true);
+				gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			}
-			remove_inventory_item(item->getUUID(), cb, immediate_delete);
+			else
+			{
+				// Delayed delete
+				// Pointless to update item_id label here since link still exists and first notifyObservers
+				// call will restore (wear) suffix, mark for update after deletion
+				LLPointer<LLUpdateOnCOFLinkRemove> cb_label = new LLUpdateOnCOFLinkRemove(item_id, cb);
+				remove_inventory_item(item->getUUID(), cb_label, false);
+			}
 		}
 	}
 }
@@ -3140,6 +3218,7 @@ void appearance_mgr_update_dirty_state()
 void update_base_outfit_after_ordering()
 {
 	LLAppearanceMgr& app_mgr = LLAppearanceMgr::instance();
+	app_mgr.setOutfitImage(LLUUID());
 	LLInventoryModel::cat_array_t sub_cat_array;
 	LLInventoryModel::item_array_t outfit_item_array;
 	gInventory.collectDescendents(app_mgr.getBaseOutfitUUID(),
@@ -3149,9 +3228,26 @@ void update_base_outfit_after_ordering()
 	BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
 	{
 		LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-		if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+		if (linked_item != NULL)
 		{
-			app_mgr.setOutfitImage(linked_item->getLinkedUUID());
+			if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+			{
+				app_mgr.setOutfitImage(linked_item->getLinkedUUID());
+				if (linked_item->getName() == LLAppearanceMgr::sExpectedTextureName)
+				{
+					// Images with "appropriate" name take priority
+					break;
+				}
+			}
+		}
+		else if (outfit_item->getActualType() == LLAssetType::AT_TEXTURE)
+		{
+			app_mgr.setOutfitImage(outfit_item->getUUID());
+			if (outfit_item->getName() == LLAppearanceMgr::sExpectedTextureName)
+			{
+				// Images with "appropriate" name take priority
+				break;
+			}
 		}
 	}
 
@@ -3410,9 +3506,21 @@ LLSD LLAppearanceMgr::dumpCOF() const
 	return result;
 }
 
+// static
+void LLAppearanceMgr::onIdle(void *)
+{
+    LLAppearanceMgr* mgr = LLAppearanceMgr::getInstance();
+    if (mgr->mRerequestAppearanceBake)
+    {
+        mgr->requestServerAppearanceUpdate();
+    }
+}
+
 void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
-    if (!mOutstandingAppearanceBakeRequest)
+    // Workaround: we shouldn't request update from server prior to uploading all attachments, but it is
+    // complicated to check for pending attachment uploads, so we are just waiting for uploads to complete
+    if (!mOutstandingAppearanceBakeRequest && gAssetStorage->getNumPendingUploads() == 0)
     {
         mRerequestAppearanceBake = false;
         LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
@@ -3420,13 +3528,14 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
     }
     else
     {
+        // Shedule update
         mRerequestAppearanceBake = true;
     }
 }
 
 void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter)
 {
-    mRerequestAppearanceBake = false;
+    BoolSetter outstanding(mOutstandingAppearanceBakeRequest);
     if (!gAgent.getRegion())
     {
         LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
@@ -3458,8 +3567,6 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
     bool bRetry;
     do
     {
-        BoolSetter outstanding(mOutstandingAppearanceBakeRequest);
-        
         // If we have already received an update for this or higher cof version, 
         // put a warning in the log and cancel the request.
         S32 cofVersion = getCOFVersion();
@@ -3571,12 +3678,6 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         }
 
     } while (bRetry);
-
-    if (mRerequestAppearanceBake)
-    {   // A bake request came in while this one was still outstanding.  
-        // Requeue ourself for a later request.
-        requestServerAppearanceUpdate();
-    }
 }
 
 /*static*/
@@ -3942,7 +4043,6 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
 	mOutfitIsDirty(false),
 	mOutfitLocked(false),
-	mInFlightCounter(0),
 	mInFlightTimer(),
 	mIsInUpdateAppearanceFromCOF(false),
     mOutstandingAppearanceBakeRequest(false),
@@ -3957,6 +4057,7 @@ LLAppearanceMgr::LLAppearanceMgr():
 			"OutfitOperationsTimeout")));
 
 	gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
+	gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, NULL); //sheduling appearance update requests
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()

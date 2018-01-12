@@ -15,54 +15,36 @@
 	<text name="estate_owner">
 		(sconosciuto)
 	</text>
-	<check_box label="Usa orario globale" name="use_global_time_check"/>
-	<button label="?" name="use_global_time_help"/>
-	<check_box label="Sole fisso" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Fase" name="sun_hour_slider"/>
-	<check_box label="Permetti accesso pubblico" name="externally_visible_check"/>
-	<button label="?" name="externally_visible_help"/>
-	<text name="Only Allow">
-		Consenti l&apos;accesso solo ai Residenti che:
-	</text>
-	<check_box label="Hanno memorizzato le informazioni per l&apos;addebito" name="limit_payment" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
-	<check_box label="Hanno almeno 18 anni" name="limit_age_verified" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+	<radio_group name="externally_visible_radio">
+		<radio_item label="Consenti solo residenti e gruppi elencati qui sotto" name="estate_restricted_access"/>
+		<radio_item label="Chiunque può visitare" name="estate_public_access"/>
+	</radio_group>
+	<check_box label="È necessario avere più di 18 anni" name="limit_age_verified" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+	<check_box label="È necessario aver registrato le informazioni di pagamento" name="limit_payment" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+	<check_box label="I proprietari dei lotti possono essere più restrittivi" name="parcel_access_override"/>
 	<check_box label="Permetti la chat voice" name="voice_chat_check"/>
-	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permetti teleport diretto" name="allow_direct_teleport"/>
-	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="abuse_email_text" width="230">
-		Indirizzo email per la denuncia di abuso:
-	</text>
-	<string name="email_unsupported">
-		Tipologia non supportata
-	</string>
-	<button label="?" name="abuse_email_address_help"/>
 	<button label="Applica" name="apply_btn"/>
-	<button font="SansSerifSmall" label="Espelli residente dalla proprietà..." name="kick_user_from_estate_btn"/>
-	<button font="SansSerifSmall" label="Manda un messaggio di le proprietà..." name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Manager delle proprietà:
 	</text>
-	<button label="?" name="estate_manager_help"/>
-	<button label="Rimuovi..." name="remove_estate_manager_btn"/>
-	<button label="Aggiungi..." name="add_estate_manager_btn"/>
 	<text name="allow_resident_label">
-		Residenti autorizzati:
+		Sempre consentito:
 	</text>
-	<button label="?" name="allow_resident_help"/>
-	<button label="Rimuovi..." name="remove_allowed_avatar_btn"/>
+	<button label="Aggiungi..." name="add_estate_manager_btn"/>
+	<button label="Rimuovi..." name="remove_estate_manager_btn"/>
 	<button label="Aggiungi..." name="add_allowed_avatar_btn"/>
+	<button label="Rimuovi..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		Gruppi autorizzati:
+		Gruppi sempre consentiti:
 	</text>
-	<button label="?" name="allow_group_help"/>
-	<button label="Rimuovi..." name="remove_allowed_group_btn"/>
-	<button label="Aggiungi..." name="add_allowed_group_btn"/>
 	<text name="ban_resident_label">
-		Residenti bloccati:
+		Sempre escluso:
 	</text>
-	<button label="?" name="ban_resident_help"/>
-	<button label="Rimuovi..." name="remove_banned_avatar_btn"/>
+	<button label="Aggiungi..." name="add_allowed_group_btn"/>
+	<button label="Rimuovi..." name="remove_allowed_group_btn"/>
 	<button label="Aggiungi..." name="add_banned_avatar_btn"/>
+	<button label="Rimuovi..." name="remove_banned_avatar_btn"/>
+	<button font="SansSerifSmall" label="Manda un messaggio di le proprietà..." name="message_estate_btn"/>
+	<button font="SansSerifSmall" label="Espelli residente dalla proprietà..." name="kick_user_from_estate_btn"/>
 </panel>

@@ -41,6 +41,7 @@ class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
 	// *TODO
 	// LLScriptFloaterManager and LLScriptFloater will need some refactoring after we 
 	// know how script notifications should look like.
+	LLSINGLETON(LLScriptFloaterManager);
 public:
 
 	typedef enum e_object_type
@@ -51,6 +52,15 @@ public:
 
 		OBJ_UNKNOWN
 	}EObjectType;
+
+	typedef enum e_limitation_type
+	{
+		SCRIPT_PER_OBJECT = 0,
+		SCRIPT_PER_CHANNEL = 1,
+		SCRIPT_ATTACHMENT_PER_CHANNEL,
+		SCRIPT_HUD_PER_CHANNEL,
+		SCRIPT_HUD_UNCONSTRAINED
+	}ELimitationType;
 
 	/**
 	 * Handles new notifications.
@@ -103,6 +113,11 @@ public:
 
 protected:
 
+	/**
+	 * Removes all script-dialog notifications
+	 */
+	static void clearScriptNotifications();
+
 	typedef std::map<std::string, EObjectType> object_type_map;
 
 	static object_type_map initObjectTypeMap();
@@ -111,6 +126,7 @@ protected:
 	typedef std::map<LLUUID, LLUUID> script_notification_map_t;
 
 	script_notification_map_t::const_iterator findUsingObjectId(const LLUUID& object_id);
+	script_notification_map_t::const_iterator findUsingObjectIdAndChannel(const LLUUID& object_id, S32 im_channel);
 
 private:
 
@@ -123,6 +139,7 @@ private:
 	typedef std::map<LLUUID, FloaterPositionInfo> floater_position_map_t;
 
 	floater_position_map_t mFloaterPositions;
+	boost::signals2::connection mDialogLimitationsSlot;
 };
 
 /**

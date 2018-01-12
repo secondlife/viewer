@@ -30,6 +30,6 @@ Birden çok kelime içeren etiketler için &quot;&quot; kullan
 		<combo_box.item label="Orta Flickr seviyesi" name="ModerateRating"/>
 		<combo_box.item label="Kısıtlı Flickr seviyesi" name="RestrictedRating"/>
 	</combo_box>
-	<button label="Karşıya Yükle" name="post_photo_btn"/>
+	<button label="Paylaş" name="post_photo_btn"/>
 	<button label="İptal" name="cancel_photo_btn"/>
 </panel>

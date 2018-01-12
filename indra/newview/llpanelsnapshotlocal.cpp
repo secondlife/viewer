@@ -168,12 +168,12 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 	if (saved)
 	{
 		mSnapshotFloater->postSave();
-		goBack();
 		floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
 	}
 	else
 	{
 		cancel();
+		floater->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "local")));
 	}
 }
 

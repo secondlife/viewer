@@ -223,6 +223,9 @@ private:
 //
 class LLVOCache : public LLSingleton<LLVOCache>
 {
+	LLSINGLETON(LLVOCache);
+	~LLVOCache() ;
+
 private:
 	struct HeaderEntryInfo
 	{
@@ -234,9 +237,10 @@ private:
 
 	struct HeaderMetaInfo
 	{
-		HeaderMetaInfo() : mVersion(0){}
+		HeaderMetaInfo() : mVersion(0), mAddressSize(0) {}
 
 		U32 mVersion;
+		U32 mAddressSize;
 	};
 
 	struct header_entry_less
@@ -253,13 +257,8 @@ private:
 	};
 	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
-private:
-    friend class LLSingleton<LLVOCache>;
-	LLVOCache() ;
 
 public:
-	~LLVOCache() ;
-
 	void initCache(ELLPath location, U32 size, U32 cache_version) ;
 	void removeCache(ELLPath location, bool started = false) ;
 
@@ -268,6 +267,9 @@ public:
 	void removeEntry(U64 handle) ;
 
 	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
+
+	U32 getCacheEntries() { return mNumEntries; }
+	U32 getCacheEntriesMax() { return mCacheSize; }
 
 private:
 	void setDirNames(ELLPath location);	

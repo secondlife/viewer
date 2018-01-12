@@ -15,6 +15,8 @@
 	<button label="すべて" label_selected="すべて" name="All"/>
 	<button label="なし" label_selected="なし" name="None"/>
 	<check_box label="常にフォルダを表示" name="check_show_empty"/>
+	<check_box label="自作" name="check_created_by_me"/>
+	<check_box label="他のユーザー作成" name="check_created_by_others"/>
 	<check_box label="ログオフ以降" name="check_since_logoff"/>
 	<text name="- OR -">
 		－または－

@@ -444,8 +444,6 @@ void send_stats()
 	
 	LLViewerStats::instance().getRecording().pause();
 
-	body["session_id"] = gAgentSessionID;
-	
 	LLSD &agent = body["agent"];
 	
 	time_t ltime;
@@ -489,7 +487,7 @@ void send_stats()
 	LLSD &system = body["system"];
 	
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
-	system["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	system["os"] = LLOSInfo::instance().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
 	LLUUID::getNodeID(MACAddress);
@@ -585,9 +583,6 @@ void send_stats()
 	misc["string_1"] = llformat("%d", window_size);
 	misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gTextureTimer.getElapsedTimeF32(), gFrameTimeSeconds.value());
 
-// 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
-// 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
-
 	F32 unbaked_time = LLVOAvatar::sUnbakedTime * 1000.f / gFrameTimeSeconds;
 	misc["int_1"] = LLSD::Integer(unbaked_time); // Steve: 1.22
 	F32 grey_time = LLVOAvatar::sGreyTime * 1000.f / gFrameTimeSeconds;
@@ -601,9 +596,13 @@ void send_stats()
 	
 	body["MinimalSkin"] = false;
 
+	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+
+	// The session ID token must never appear in logs
+	body["session_id"] = gAgentSessionID;
+
 	LLViewerStats::getInstance()->addToMessage(body);
 
-	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
     LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
         "Statistics posted to sim", "Failed to post statistics to sim");
 	LLViewerStats::instance().getRecording().resume();

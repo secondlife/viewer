@@ -338,6 +338,8 @@ public:
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
 	LLVOCacheEntry* getCacheEntry(U32 local_id, bool valid = true);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
+	U64 getRegionCacheHitCount() { return mRegionCacheHitCount; }
+	U64 getRegionCacheMissCount() { return mRegionCacheMissCount; }
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 	//update object cache if the object receives a full-update or terse update
@@ -354,7 +356,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
     virtual std::string getDescription() const;
-	std::string getHttpUrl() const { return mHttpUrl ;}
+    std::string getViewerAssetUrl() const { return mViewerAssetUrl; }
 
 	U32 getNumOfVisibleGroups() const;
 	U32 getNumOfActiveCachedObjects() const;
@@ -506,7 +508,7 @@ private:
 	std::string mColoName;
 	std::string mProductSKU;
 	std::string mProductName;
-	std::string mHttpUrl ;
+	std::string mViewerAssetUrl ;
 	
 	// Maps local ids to cache entries.
 	// Regions can have order 10,000 objects, so assume
@@ -534,7 +536,9 @@ private:
 		typedef std::list<CacheMissItem> cache_miss_list_t;
 	};
 	CacheMissItem::cache_miss_list_t   mCacheMissList;
-	
+	U64 mRegionCacheHitCount;
+	U64 mRegionCacheMissCount;
+
 	caps_received_signal_t mCapabilitiesReceivedSignal;		
 	caps_received_signal_t mSimulatorFeaturesReceivedSignal;		
 

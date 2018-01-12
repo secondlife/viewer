@@ -503,7 +503,7 @@ BOOL LLPanelLandGeneral::postBuild()
 	// note: on region change this will not be re checked, should not matter on Agni as
 	// 99% of the time all regions will return the same caps. In case of an erroneous setting
 	// to enabled the floater will just throw an error when trying to get it's cap
-	std::string url = gAgent.getRegion()->getCapability("LandResources");
+	std::string url = gAgent.getRegionCapability("LandResources");
 	if (!url.empty())
 	{
 		if(mBtnScriptLimits)
@@ -2029,7 +2029,6 @@ void LLPanelLandOptions::refresh()
 	else
 	{
 		// something selected, hooray!
-		LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
 		// Display options
 		BOOL can_change_options = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS);
@@ -2045,9 +2044,8 @@ void LLPanelLandOptions::refresh()
 		mCheckGroupObjectEntry	->set( parcel->getAllowGroupObjectEntry() ||  parcel->getAllowAllObjectEntry());
 		mCheckGroupObjectEntry	->setEnabled( can_change_options && !parcel->getAllowAllObjectEntry() );
 		
-		BOOL region_damage = regionp ? regionp->getAllowDamage() : FALSE;
 		mCheckSafe			->set( !parcel->getAllowDamage() );
-		mCheckSafe			->setEnabled( can_change_options && region_damage );
+		mCheckSafe			->setEnabled( can_change_options );
 
 		mCheckFly			->set( parcel->getAllowFly() );
 		mCheckFly			->setEnabled( can_change_options );
@@ -2127,6 +2125,7 @@ void LLPanelLandOptions::refresh()
 			
 			// they can see the checkbox, but its disposition depends on the 
 			// state of the region
+			LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 			if (regionp)
 			{
 				if (regionp->getSimAccess() == SIM_ACCESS_PG)
@@ -2182,17 +2181,8 @@ void LLPanelLandOptions::refreshSearch()
 			&& region
 			&& !(region->getRegionFlag(REGION_FLAGS_BLOCK_PARCEL_SEARCH));
 
-	// There is a bug with this panel whereby the Show Directory bit can be 
-	// slammed off by the Region based on an override.  Since this data is cached
-	// locally the change will not reflect in the panel, which could cause confusion
-	// A workaround for this is to flip the bit off in the locally cached version
-	// when we detect a mismatch case.
-	if(!can_change && parcel->getParcelFlag(PF_SHOW_DIRECTORY))
-	{
-		parcel->setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
-	}
 	BOOL show_directory = parcel->getParcelFlag(PF_SHOW_DIRECTORY);
-	mCheckShowDirectory	->set(show_directory);
+	mCheckShowDirectory->set(show_directory);
 
 	// Set by string in case the order in UI doesn't match the order by index.
 	LLParcel::ECategory cat = parcel->getCategory();
@@ -2433,9 +2423,16 @@ void LLPanelLandAccess::refresh()
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
 		BOOL public_access = !use_access_list;
 		
-		getChild<LLUICtrl>("public_access")->setValue(public_access );
-		getChild<LLUICtrl>("GroupCheck")->setValue(use_group );
-
+        if (parcel->getRegionAllowAccessOverride())
+        {
+            getChild<LLUICtrl>("public_access")->setValue(public_access);
+            getChild<LLUICtrl>("GroupCheck")->setValue(use_group);
+        }
+        else
+        {
+            getChild<LLUICtrl>("public_access")->setValue(TRUE);
+            getChild<LLUICtrl>("GroupCheck")->setValue(FALSE);
+        }
 		std::string group_name;
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name );
@@ -2448,6 +2445,7 @@ void LLPanelLandAccess::refresh()
 			mListAccess->deleteAllItems();
 			S32 count = parcel->mAccessList.size();
 			getChild<LLUICtrl>("AllowedText")->setTextArg("[COUNT]", llformat("%d",count));
+			getChild<LLUICtrl>("AllowedText")->setTextArg("[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
@@ -2495,6 +2493,7 @@ void LLPanelLandAccess::refresh()
 			mListBanned->deleteAllItems();
 			S32 count = parcel->mBanList.size();
 			getChild<LLUICtrl>("BanCheck")->setTextArg("[COUNT]", llformat("%d",count));
+			getChild<LLUICtrl>("BanCheck")->setTextArg("[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
@@ -2609,9 +2608,14 @@ void LLPanelLandAccess::refresh_ui()
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel && !gDisconnected)
 	{
-		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
+        BOOL can_manage_allowed = false;
 		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);
 	
+        if (parcel->getRegionAllowAccessOverride())
+        {   // Estate owner may have disabled allowing the parcel owner from managing access.
+            can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
+        }
+
 		getChildView("public_access")->setEnabled(can_manage_allowed);
 		BOOL public_access = getChild<LLUICtrl>("public_access")->getValue().asBoolean();
 		if (public_access)
@@ -2665,7 +2669,8 @@ void LLPanelLandAccess::refresh_ui()
 		std::string group_name;
 		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
 		{
-			getChildView("GroupCheck")->setEnabled(can_manage_allowed);
+			bool can_allow_groups = !public_access || (public_access && (getChild<LLUICtrl>("limit_payment")->getValue().asBoolean() ^ getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean()));
+			getChildView("GroupCheck")->setEnabled(can_manage_allowed && can_allow_groups);
 		}
 		getChildView("AccessList")->setEnabled(can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();

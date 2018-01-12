@@ -42,6 +42,7 @@
 			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
 			<menu_item_check label="Просмотр..." name="Preview"/>
 			<menu_item_call label="Подписаться..." name="Subscribe"/>
+			<menu_item_call label="Премиум-бонус..." name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="Жесты..." name="Gestures"/>
 		<menu_item_check label="Друзья" name="My Friends"/>
@@ -55,7 +56,8 @@
 		<menu_item_call label="Пункты..." name="Destinations"/>
 		<menu_item_check label="Карта мира" name="World Map"/>
 		<menu_item_check label="Миникарта" name="Mini-Map"/>
-		<menu_item_check label="Поиск" name="Search"/>
+		<menu_item_call label="События" name="Events"/>
+		<menu_item_check label="Поиск..." name="Search"/>
 		<menu_item_call label="Телепортация домой" name="Teleport Home"/>
 		<menu_item_call label="Установить дом здесь" name="Set Home to Here"/>
 		<menu_item_call label="Снимок" name="Take Snapshot"/>
@@ -111,13 +113,13 @@
 		<menu_item_call label="Объединить" name="Link"/>
 		<menu_item_call label="Разъединить" name="Unlink"/>
 		<menu_item_check label="Редактировать объединенные части" name="Edit Linked Parts"/>
-		<menu label="Выбрать объединенные части" name="Select Linked Parts">
-			<menu_item_call label="Выбрать следующую" name="Select Next Part"/>
-			<menu_item_call label="Выбрать предыдущую" name="Select Previous Part"/>
-			<menu_item_call label="Включить следующую" name="Include Next Part"/>
-			<menu_item_call label="Включить предыдущую" name="Include Previous Part"/>
+		<menu label="Выберите элементы" name="Select Elements">
+			<menu_item_call label="Выбрать следующую часть или лицо" name="Select Next Part or Face"/>
+			<menu_item_call label="Выбрать предыдущую часть или лицо" name="Select Previous Part or Face"/>
+			<menu_item_call label="Включить следующую часть или лицо" name="Include Next Part or Face"/>
+			<menu_item_call label="Включить предыдущую часть или лицо" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="Наборы связей..." name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="Объекты региона" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Фокус на выбранном" name="Focus on Selection"/>
 		<menu_item_call label="Приблизить к выбранному" name="Zoom to Selection"/>
 		<menu label="Объект" name="Object">
@@ -126,8 +128,10 @@
 			<menu_item_call label="Взять копию" name="Take Copy"/>
 			<menu_item_call label="Сохранить в контенте объектов" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Вернуть объект" name="Return Object back to Owner"/>
+			<menu_item_call label="Дублировать" name="DuplicateObject"/>
 		</menu>
 		<menu label="Скрипты" name="Scripts">
+			<menu_item_check label="Предупреждения/ошибки скриптов..." name="Script debug"/>
 			<menu_item_call label="Перекомпилировать скрипты (Mono)" name="Mono"/>
 			<menu_item_call label="Перекомпилировать скрипты (LSL)" name="LSL"/>
 			<menu_item_call label="Сброс скриптов" name="Reset Scripts"/>
@@ -135,7 +139,7 @@
 			<menu_item_call label="Остановить скрипты" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Поиск пути" name="Pathfinding">
-			<menu_item_call label="Наборы связей..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Объекты региона" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Персонажи..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Просмотр/тестирование..." name="pathfinding_console_menu_item"/>
 		</menu>
@@ -166,6 +170,7 @@
 	</menu>
 	<menu label="Справка" name="Help">
 		<menu_item_call label="Инструкции..." name="How To"/>
+		<menu_item_call label="Краткое руководство" name="Quickstart"/>
 		<menu_item_call label="База знаний" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Форумы сообщества" name="Community Forums"/>
@@ -365,8 +370,7 @@
 			<menu_item_call label="Вывод кэша региональных объектов" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Интерфейс пользователя" name="UI">
-			<menu_item_call label="Проверка медиабраузера" name="Web Browser Test"/>
-			<menu_item_call label="Браузер для просмотра веб-контента" name="Web Content Browser"/>
+			<menu_item_call label="Браузер для просмотра медиа" name="Media Browser"/>
 			<menu_item_call label="Вывод SelectMgr" name="Dump SelectMgr"/>
 			<menu_item_call label="Вывод инвентаря" name="Dump Inventory"/>
 			<menu_item_call label="Вывод таймеров" name="Dump Timers"/>

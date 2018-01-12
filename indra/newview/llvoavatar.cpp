@@ -118,6 +118,9 @@ extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 const F32 MAX_HOVER_Z = 2.0;
 const F32 MIN_HOVER_Z = -2.0;
 
+const F32 MIN_ATTACHMENT_COMPLEXITY = 0.f;
+const F32 DEFAULT_MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
+
 using namespace LLAvatarAppearanceDefines;
 
 //-----------------------------------------------------------------------------
@@ -724,6 +727,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	{
 	    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
+
+	mVisuallyMuteSetting = LLVOAvatar::VisualMuteSettings(LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(getID()));
 }
 
 std::string LLVOAvatar::avString() const
@@ -2080,7 +2085,17 @@ void LLVOAvatar::updateMeshData()
 			if(!facep->getVertexBuffer())
 			{
 				buff = new LLVertexBufferAvatar();
-				buff->allocateBuffer(num_vertices, num_indices, TRUE);
+				if (!buff->allocateBuffer(num_vertices, num_indices, TRUE))
+				{
+					LL_WARNS() << "Failed to allocate Vertex Buffer for Mesh to "
+						<< num_vertices << " vertices and "
+						<< num_indices << " indices" << LL_ENDL;
+					// Attempt to create a dummy triangle (one vertex, 3 indices, all 0)
+					facep->setSize(1, 3);
+					buff->allocateBuffer(1, 3, true);
+					memset((U8*) buff->getMappedData(), 0, buff->getSize());
+					memset((U8*) buff->getMappedIndices(), 0, buff->getIndicesSize());
+				}
 				facep->setVertexBuffer(buff);
 			}
 			else
@@ -2092,7 +2107,15 @@ void LLVOAvatar::updateMeshData()
 				}
 				else
 				{
-					buff->resizeBuffer(num_vertices, num_indices);
+					if (!buff->resizeBuffer(num_vertices, num_indices))
+					{
+						LL_WARNS() << "Failed to allocate vertex buffer for Mesh, Substituting" << LL_ENDL;
+						// Attempt to create a dummy triangle (one vertex, 3 indices, all 0)
+						facep->setSize(1, 3);
+						buff->resizeBuffer(1, 3);
+						memset((U8*) buff->getMappedData(), 0, buff->getSize());
+						memset((U8*) buff->getMappedIndices(), 0, buff->getIndicesSize());
+					}
 				}
 			}
 			
@@ -2104,20 +2127,24 @@ void LLVOAvatar::updateMeshData()
 				LL_ERRS() << "non-zero geom index: " << facep->getGeomIndex() << " in LLVOAvatar::restoreMeshData" << LL_ENDL;
 			}
 
-			for(S32 k = j ; k < part_index ; k++)
+			if (num_vertices == buff->getNumVerts() && num_indices == buff->getNumIndices())
 			{
-				bool rigid = false;
-				if (k == MESH_ID_EYEBALL_LEFT ||
-					k == MESH_ID_EYEBALL_RIGHT)
-				{ //eyeballs can't have terse updates since they're never rendered with
-					//the hardware skinning shader
-					rigid = true;
-				}
-				
-				LLViewerJoint* mesh = getViewerJoint(k);
-				if (mesh)
+				for(S32 k = j ; k < part_index ; k++)
 				{
-					mesh->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
+					bool rigid = false;
+					if (k == MESH_ID_EYEBALL_LEFT ||
+						k == MESH_ID_EYEBALL_RIGHT)
+					{
+						//eyeballs can't have terse updates since they're never rendered with
+						//the hardware skinning shader
+						rigid = true;
+					}
+				
+					LLViewerJoint* mesh = getViewerJoint(k);
+					if (mesh)
+					{
+						mesh->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
+					}
 				}
 			}
 
@@ -3412,10 +3439,62 @@ void LLVOAvatar::updateDebugText()
 				std::string output;
 				if (motionp->getName().empty())
 				{
+					std::string name;
+					if (gAgent.isGodlikeWithoutAdminMenuFakery() || isSelf())
+					{
+						name = motionp->getID().asString();
+						LLVOAvatar::AnimSourceIterator anim_it = mAnimationSources.begin();
+						for (; anim_it != mAnimationSources.end(); ++anim_it)
+						{
+							if (anim_it->second == motionp->getID())
+							{
+								LLViewerObject* object = gObjectList.findObject(anim_it->first);
+								if (!object)
+								{
+									break;
+								}
+								if (object->isAvatar())
+								{
+									if (mMotionController.mIsSelf)
+									{
+										// Searching inventory by asset id is really long
+										// so just mark as inventory
+										// Also item is likely to be named by LLPreviewAnim
+										name += "(inventory)";
+									}
+								}
+								else
+								{
+									LLViewerInventoryItem* item = NULL;
+									if (!object->isInventoryDirty())
+									{
+										item = object->getInventoryItemByAsset(motionp->getID());
+									}
+									if (item)
+									{
+										name = item->getName();
+									}
+									else if (object->isAttachment())
+									{
+										name += "(" + getAttachmentItemName() + ")";
+									}
+									else
+									{
+										// in-world object, name or content unknown
+										name += "(in-world)";
+									}
+								}
+								break;
+							}
+						}
+					}
+					else
+					{
+						name = LLUUID::null.asString();
+					}
+
 					output = llformat("%s - %d",
-							  gAgent.isGodlikeWithoutAdminMenuFakery() ?
-							  motionp->getID().asString().c_str() :
-							  LLUUID::null.asString().c_str(),
+							  name.c_str(),
 							  (U32)motionp->getPriority());
 				}
 				else
@@ -5225,10 +5304,6 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 			if (use_new_walk_run)
 				result = ANIM_AGENT_FEMALE_RUN_NEW;
 		}
-		else if (id == ANIM_AGENT_SIT)
-		{
-			result = ANIM_AGENT_SIT_FEMALE;
-		}
 	}
 	else
 	{
@@ -6972,7 +7047,7 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	record["elapsed"] = elapsed;
 	record["completed"] = completed;
 	U32 grid_x(0), grid_y(0);
-	if (getRegion())
+	if (getRegion() && LLWorld::instance().isRegionListed(getRegion()))
 	{
 		record["central_bake_version"] = LLSD::Integer(getRegion()->getCentralBakeVersion());
 		grid_from_region_handle(getRegion()->getHandle(), &grid_x, &grid_y);
@@ -7071,7 +7146,9 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-	if (isSelf() || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && gSavedSettings.getBOOL("AlwaysRenderFriends"));
+
+	if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
 		too_complex = false;
 	}
@@ -8371,7 +8448,7 @@ void dump_sequential_xml(const std::string outprefix, const LLSD& content)
 {
 	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-	std::ofstream ofs(fullpath.c_str(), std::ios_base::out);
+	llofstream ofs(fullpath.c_str(), std::ios_base::out);
 	ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
 	LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
 }
@@ -9011,6 +9088,9 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
      * the official viewer for consideration.
      *****************************************************************/
 	static const U32 COMPLEXITY_BODY_PART_COST = 200;
+	static LLCachedControl<F32> max_complexity_setting(gSavedSettings,"MaxAttachmentComplexity");
+	F32 max_attachment_complexity = max_complexity_setting;
+	max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
 
 	// Diagnostic list of all textures on our avatar
 	static std::set<LLUUID> all_textures;
@@ -9056,10 +9136,10 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 						const LLVOVolume* volume = drawable->getVOVolume();
 						if (volume)
 						{
-                            U32 attachment_total_cost = 0;
-                            U32 attachment_volume_cost = 0;
-                            U32 attachment_texture_cost = 0;
-                            U32 attachment_children_cost = 0;
+                            F32 attachment_total_cost = 0;
+                            F32 attachment_volume_cost = 0;
+                            F32 attachment_texture_cost = 0;
+                            F32 attachment_children_cost = 0;
 
 							attachment_volume_cost += volume->getRenderCost(textures);
 
@@ -9083,7 +9163,6 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 								// add the cost of each individual texture in the linkset
 								attachment_texture_cost += volume_texture->second;
 							}
-
                             attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
                             LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
                                                    << " total: " << attachment_total_cost
@@ -9092,7 +9171,8 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                                                    << ", " << volume->numChildren()
                                                    << " children: " << attachment_children_cost
                                                    << LL_ENDL;
-                            cost += attachment_total_cost;
+                            // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
+                            cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
 						}
 					}
 				}
@@ -9229,8 +9309,9 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
     mVisuallyMuteSetting = set;
     mNeedsImpostorUpdate = TRUE;
-}
 
+    LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
+}
 
 void LLVOAvatar::calcMutedAVColor()
 {
@@ -9376,6 +9457,3 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	// non-self avatars don't have wearables
 	return FALSE;
 }
-
-
-

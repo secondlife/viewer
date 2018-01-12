@@ -44,6 +44,7 @@
 			<menu_item_check label="Sin transformación de voz" name="NoVoiceMorphing"/>
 			<menu_item_check label="Probar..." name="Preview"/>
 			<menu_item_call label="Suscribir..." name="Subscribe"/>
+			<menu_item_call label="Ventaja Premium..." name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="Gestos..." name="Gestures"/>
 		<menu_item_check label="Amigos" name="My Friends"/>
@@ -57,7 +58,8 @@
 		<menu_item_call label="Destinos..." name="Destinations"/>
 		<menu_item_check label="Mapa del mundo" name="World Map"/>
 		<menu_item_check label="Minimapa" name="Mini-Map"/>
-		<menu_item_check label="Buscar" name="Search"/>
+		<menu_item_call label="Eventos" name="Events"/>
+		<menu_item_check label="Buscar..." name="Search"/>
 		<menu_item_call label="Teleportar a la Base" name="Teleport Home"/>
 		<menu_item_call label="Fijar mi Base aquí" name="Set Home to Here"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
@@ -113,13 +115,13 @@
 		<menu_item_call label="Enlazar" name="Link"/>
 		<menu_item_call label="Desenlazar" name="Unlink"/>
 		<menu_item_check label="Editar las partes enlazadas" name="Edit Linked Parts"/>
-		<menu label="Seleccionar las partes enlazadas" name="Select Linked Parts">
-			<menu_item_call label="Seleccionar la parte siguiente" name="Select Next Part"/>
-			<menu_item_call label="Seleccionar la parte previa" name="Select Previous Part"/>
-			<menu_item_call label="Incluir la parte siguiente" name="Include Next Part"/>
-			<menu_item_call label="Incluir la parte previa" name="Include Previous Part"/>
+		<menu label="Seleccionar elementos" name="Select Elements">
+			<menu_item_call label="Seleccionar la parte o cara siguiente" name="Select Next Part or Face"/>
+			<menu_item_call label="Seleccionar la parte o cara anterior" name="Select Previous Part or Face"/>
+			<menu_item_call label="Incluir la parte o cara siguiente" name="Include Next Part or Face"/>
+			<menu_item_call label="Incluir la parte o cara anterior" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="Linksets..." name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="Objetos de la región" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Visión en lo seleccionado" name="Focus on Selection"/>
 		<menu_item_call label="Zoom en lo seleccionado" name="Zoom to Selection"/>
 		<menu label="Objeto" name="Object">
@@ -128,8 +130,10 @@
 			<menu_item_call label="Coger una copia" name="Take Copy"/>
 			<menu_item_call label="Guardar una copia del objeto en los contenidos de donde salió" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
+			<menu_item_call label="Duplicar" name="DuplicateObject"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
+			<menu_item_check label="Advertencias/errores de script..." name="Script debug"/>
 			<menu_item_call label="Recompilar los scripts (Mono)" name="Mono"/>
 			<menu_item_call label="Recompilar los scripts (LSL)" name="LSL"/>
 			<menu_item_call label="Reiniciar los scripts" name="Reset Scripts"/>
@@ -137,7 +141,7 @@
 			<menu_item_call label="Configurar scripts como no ejecutándose" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Pathfinding" name="Pathfinding">
-			<menu_item_call label="Linksets..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Objetos de la región" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Personajes..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Ver/probar..." name="pathfinding_console_menu_item"/>
 			<menu_item_call label="Recargar la región" name="pathfinding_rebake_navmesh_item"/>
@@ -169,6 +173,7 @@
 	</menu>
 	<menu label="Ayuda" name="Help">
 		<menu_item_call label="Cómo..." name="How To"/>
+		<menu_item_call label="Guía rápida" name="Quickstart"/>
 		<menu_item_call label="Base de Conocimientos" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Foros comunitarios" name="Community Forums"/>
@@ -332,8 +337,7 @@
 			<menu_item_call label="Volcar la caché de objetos de la región" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
-			<menu_item_call label="Prueba de navegadores de medios" name="Web Browser Test"/>
-			<menu_item_call label="Navegador de contenido web" name="Web Content Browser"/>
+			<menu_item_call label="Navegador de medios" name="Media Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>

@@ -56,12 +56,11 @@ class LLVivoxVoiceClient :	public LLSingleton<LLVivoxVoiceClient>,
 							virtual public LLVoiceModuleInterface,
 							virtual public LLVoiceEffectInterface
 {
+	LLSINGLETON(LLVivoxVoiceClient);
 	LOG_CLASS(LLVivoxVoiceClient);
-public:
-	LLVivoxVoiceClient();	
 	virtual ~LLVivoxVoiceClient();
-	
-	
+
+public:
 	/// @name LLVoiceModuleInterface virtual implementations
 	///  @see LLVoiceModuleInterface
 	//@{
@@ -624,6 +623,7 @@ private:
     bool startAndConnectSession();
     bool endAndDisconnectSession();
 
+    bool callbackEndDaemon(const LLSD& data);
     bool startAndLaunchDaemon();
     bool provisionVoiceAccount();
     bool establishVoiceConnection();
@@ -1027,10 +1027,10 @@ protected:
 
 class LLVivoxSecurity :	public LLSingleton<LLVivoxSecurity>
 {
-  public:
-	LLVivoxSecurity();	
-	virtual ~LLVivoxSecurity();
+    LLSINGLETON(LLVivoxSecurity);
+    virtual ~LLVivoxSecurity();
 
+  public:
     std::string     connectorHandle() { return mConnectorHandle; };
     std::string     accountHandle()    { return mAccountHandle;    };
 

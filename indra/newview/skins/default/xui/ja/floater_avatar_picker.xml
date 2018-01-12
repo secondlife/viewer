@@ -3,6 +3,9 @@
 	<floater.string name="not_found">
 		「[TEXT]」は見つかりませんでした
 	</floater.string>
+	<floater.string name="not_found_text">
+		住人が見つかりませんでした。
+	</floater.string>
 	<floater.string name="no_one_near">
 		近くに誰もいません
 	</floater.string>

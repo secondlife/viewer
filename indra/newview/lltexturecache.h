@@ -46,10 +46,13 @@ class LLTextureCache : public LLWorkerThread
 
 private:
 	// Entries
+	static const U32 sHeaderEncoderStringSize = 32;
 	struct EntriesInfo
 	{
-		EntriesInfo() : mVersion(0.f), mEntries(0) {}
+		EntriesInfo() : mVersion(0.f), mAdressSize(0), mEntries(0) { memset(mEncoderVersion, 0, sHeaderEncoderStringSize); }
 		F32 mVersion;
+		U32 mAdressSize;
+		char mEncoderVersion[sHeaderEncoderStringSize];
 		U32 mEntries;
 	};
 	struct Entry
@@ -156,6 +159,7 @@ private:
 	LLAPRFile* openHeaderEntriesFile(bool readonly, S32 offset);
 	void closeHeaderEntriesFile();
 	void readEntriesHeader();
+	void setEntriesHeader();
 	void writeEntriesHeader();
 	S32 openAndReadEntry(const LLUUID& id, Entry& entry, bool create);
 	bool updateEntry(S32& idx, Entry& entry, S32 new_image_size, S32 new_body_size);
@@ -224,6 +228,8 @@ private:
 
 	// Statics
 	static F32 sHeaderCacheVersion;
+	static U32 sHeaderCacheAddressSize;
+	static std::string sHeaderCacheEncoderVersion;
 	static U32 sCacheMaxEntries;
 	static S64 sCacheMaxTexturesSize;
 };

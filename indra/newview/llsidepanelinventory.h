@@ -57,6 +57,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
+	void selectAllItemsPanel();
 	LLInventoryPanel* getInboxPanel() const { return mInventoryPanelInbox.get(); }
 
 	LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
@@ -81,6 +82,8 @@ public:
 	bool isInboxEnabled() const { return mInboxEnabled; }
 
 	void updateVerbs();
+
+	static void cleanup();
 
 protected:
 	// Tracks highlighted (selected) item in inventory panel.

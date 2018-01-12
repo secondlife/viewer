@@ -29,7 +29,6 @@
 
 #include <list>
 #include <map>
-#include "llenvmanager.h"
 #include "llwlparamset.h"
 #include "llwlanimator.h"
 #include "llwldaycycle.h"
@@ -213,6 +212,8 @@ public:
 /// WindLight parameter manager class - what controls all the wind light shaders
 class LLWLParamManager : public LLSingleton<LLWLParamManager>
 {
+	LLSINGLETON(LLWLParamManager);
+	~LLWLParamManager();
 	LOG_CLASS(LLWLParamManager);
 
 public:
@@ -238,8 +239,13 @@ public:
 	/// apply specified day cycle, setting time to noon by default
 	bool applyDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time = 0.5);
 
+	/// Apply Default.xml map
+	void setDefaultDay();
+
 	/// apply specified fixed sky params
 	bool applySkyParams(const LLSD& params);
+
+	void setDefaultSky();
 
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;
@@ -300,7 +306,7 @@ public:
 	void addAllSkies(LLEnvKey::EScope scope, const LLSD& preset_map);
 
 	/// refresh region-scope presets
-	void refreshRegionPresets();
+	void refreshRegionPresets(const LLSD& region_sky_presets);
 
 	// returns all skies referenced by the current day cycle (in mDay), with their final names
 	// side effect: applies changes to all internal structures!  (trashes all unreferenced skies in scope, keys in day cycle rescoped to scope, etc.)
@@ -375,11 +381,7 @@ private:
 	static std::string getSysDir();
 	static std::string getUserDir();
 
-	friend class LLSingleton<LLWLParamManager>;
 	/*virtual*/ void initSingleton();
-	LLWLParamManager();
-	~LLWLParamManager();
-
 	// list of all the parameters, listed by name
 	std::map<LLWLParamKey, LLWLParamSet> mParamList;
 

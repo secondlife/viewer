@@ -245,6 +245,7 @@
 				</text>
 				<check_box label="Dış katman ağırlığını dahil et" name="upload_skin"/>
 				<check_box label="Eklem konumlarını dahil et" name="upload_joints"/>
+				<check_box label="Eklem konumu tanımlandıysa ölçeği kilitle" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Z kayması (avatarı kaldırmak veya indirmek için):
 				</text>

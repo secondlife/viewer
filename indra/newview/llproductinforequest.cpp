@@ -41,7 +41,7 @@ LLProductInfoRequestManager::LLProductInfoRequestManager():
 
 void LLProductInfoRequestManager::initSingleton()
 {
-	std::string url = gAgent.getRegion()->getCapability("ProductInfoRequest");
+	std::string url = gAgent.getRegionCapability("ProductInfoRequest");
 	if (!url.empty())
 	{
         LLCoros::instance().launch("LLProductInfoRequestManager::getLandDescriptionsCoro",

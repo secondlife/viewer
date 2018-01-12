@@ -254,6 +254,11 @@ inline int round_int(double x)
 }
 #endif // BOGUS_ROUND
 
+inline F64 ll_round(const F64 val)
+{
+	return F64(floor(val + 0.5f));
+}
+
 inline F32 ll_round( F32 val, F32 nearest )
 {
 	return F32(floor(val * (1.0f / nearest) + 0.5f)) * nearest;

@@ -265,9 +265,6 @@ public:
 	// Follow parent chain to the top.
 	bool getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
 
-private:
-	U32 getDescendentsCountRecursive(const LLUUID& id, U32 max_item_limit);
-	
 	//--------------------------------------------------------------------
 	// Find
 	//--------------------------------------------------------------------
@@ -287,6 +284,9 @@ public:
 	//    will search in the user's library folder instead of "My Inventory"
 	const LLUUID findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, 
 												bool create_folder = true);
+	// Returns user specified category for uploads, returns default id if there are no
+	// user specified one or it does not exist, creates default category if it is missing.
+	const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type);
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
@@ -408,6 +408,7 @@ public:
 	/// removeItem() or removeCategory(), whichever is appropriate
 	void removeObject(const LLUUID& object_id);
 
+	// "TrashIsFull" when trash exceeds maximum capacity
 	void checkTrashOverflow();
 
 protected:

@@ -13,14 +13,14 @@
     reuse_instance="true"
     save_rect="false"
     single_instance="true"
-    title="Pathfinding linksets">
+    title="REGION OBJECTS">
   <floater.string name="messaging_initial"></floater.string>
   <floater.string name="messaging_get_inprogress">Querying for pathfinding linksets ...</floater.string>
   <floater.string name="messaging_get_error">Error detected while querying for pathfinding linksets.</floater.string>
   <floater.string name="messaging_set_inprogress">Modifying selected pathfinding linksets ...</floater.string>
   <floater.string name="messaging_set_error">Error detected while modifying selected pathfinding linksets.</floater.string>
   <floater.string name="messaging_complete_none_found">No pathfinding linksets.</floater.string>
-  <floater.string name="messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL].</floater.string>
+  <floater.string name="messaging_complete_available">[NUM_SELECTED] selected out of [NUM_TOTAL].</floater.string>
   <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="linkset_terrain_name">[Terrain]</floater.string>
   <floater.string name="linkset_terrain_description">--</floater.string>
@@ -211,7 +211,7 @@
           name="dist_from_you"
           width="65" />
       <scroll_list.columns
-          label="Linkset use"
+          label="Pathfinding use"
           name="linkset_use"
           width="236" />
       <scroll_list.columns
@@ -290,7 +290,7 @@
       layout="topleft"
       left="0"
       height="67"
-      width="1010">
+      width="1070">
     <text
         name="linksets_actions_label"
         height="13"
@@ -305,7 +305,7 @@
         layout="topleft"
         top_pad="8"
         width="580">
-      Actions on selected linksets (If a linkset is removed from the world, its attributes may be lost):
+      Actions on selected
     </text>
     <check_box
         height="19"
@@ -393,7 +393,7 @@
         left="18"
         top_pad="8"
         width="972">
-      Edit attributes of selected linksets and press the button to apply changes
+      Edit pathfinding attributes
     </text>
     <combo_box
         height="20"

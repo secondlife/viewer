@@ -15,5 +15,11 @@
 	<floater.string name="NotRunning">
 		Läuft nicht
 	</floater.string>
+	<floater.string name="Timeout">
+		Timeout: [OBJECT_NAME]
+	</floater.string>
+	<floater.string name="LoadingObjInv">
+		Inventar wird geladen für: [OBJECT_NAME]
+	</floater.string>
 	<button label="Schließen" label_selected="Schließen" left="215" name="close" width="72"/>
 </floater>

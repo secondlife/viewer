@@ -13,5 +13,6 @@
 	<menu_item_call label="Paylaş" name="Share"/>
 	<menu_item_call label="Orijinali Bul" name="Find Original"/>
 	<menu_item_call label="Tüm Bağlantıları Bul" name="Find All Links"/>
+	<menu_item_call label="Bağlantıları Değiştir" name="Replace Links"/>
 	<menu_item_call label="Çöpü Boşalt" name="empty_trash"/>
 </toggleable_menu>

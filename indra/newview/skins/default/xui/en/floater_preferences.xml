@@ -11,6 +11,12 @@
  single_instance="true"
  title="PREFERENCES"
  width="658">
+    <floater.string
+     name="email_unverified_tooltip">
+        Please verify your email to enable IM to Email by visiting
+https://accounts.secondlife.com/change_email/
+    </floater.string>
+ 
    <button
      follows="right|bottom"
      height="23"
@@ -120,6 +126,13 @@
          layout="topleft"
          help_topic="preferences_advanced1_tab"
          name="advanced1" />
+        <panel
+         class="panel_preference"
+         filename="panel_preferences_uploads.xml"
+         label="Uploads"
+         layout="topleft"
+         help_topic="preferences_uploads_tab"
+         name="uploads" />
     </tab_container>
 
 </floater>

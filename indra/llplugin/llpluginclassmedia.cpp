@@ -224,7 +224,14 @@ void LLPluginClassMedia::idle(void)
 				void *addr = mPlugin->getSharedMemoryAddress(mTextureSharedMemoryName);
 
 				// clear texture memory to avoid random screen visual fuzz from uninitialized texture data
-				memset( addr, 0x00, newsize );
+				if (addr)
+				{
+					memset( addr, 0x00, newsize );
+				}
+				else
+				{
+					LL_WARNS("Plugin") << "Failed to get previously created shared memory address: " << mTextureSharedMemoryName << " size: " << mTextureSharedMemorySize << LL_ENDL;
+				}
 
 				// We could do this to force an update, but textureValid() will still be returning false until the first roundtrip to the plugin,
 				// so it may not be worthwhile.

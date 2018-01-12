@@ -49,7 +49,6 @@
 
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
 #include "lllandmarkactions.h"
 
 #include "llviewerassettype.h"
@@ -61,7 +60,9 @@
 #include "llappearancemgr.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
+#include "llpanelmaininventory.h"
 #include "llsidepanelappearance.h"
+#include "llsidepanelinventory.h"
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "lllogininstance.h"
@@ -94,106 +95,9 @@ void doInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 ///----------------------------------------------------------------------------
 class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
 {
+	LLSINGLETON(LLLocalizedInventoryItemsDictionary);
 public:
 	std::map<std::string, std::string> mInventoryItemsDict;
-
-	LLLocalizedInventoryItemsDictionary()
-	{
-		mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
-		mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
-		mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
-		mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
-		mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
-		mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
-		mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
-		mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
-		mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
-		mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
-		mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
-		mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
-		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
-		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
-		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
-		mInventoryItemsDict["New Physics"]		= LLTrans::getString("New Physics");
-		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
-
-		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
-		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
-		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
-		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
-		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
-
-		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
-		mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
-		mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
-		mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
-		mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
-		mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
-
-		//predefined gestures
-
-		//male
-		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
-		mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
-		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
-		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
-		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
-		mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
-		mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
-		mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
-		mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
-		mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
-		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
-
-		//female
-		mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
-		mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
-		mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
-		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
-		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
-		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
-		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
-		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
-		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
-		mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
-		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
-		mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
-		mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
-		mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
-		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
-		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
-		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
-		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
-
-		//common
-		mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
-		mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
-		mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
-		mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
-		mInventoryItemsDict["/kmb"]						= LLTrans::getString("/kmb");
-		mInventoryItemsDict["/muscle"]					= LLTrans::getString("/muscle");
-		mInventoryItemsDict["/no"]						= LLTrans::getString("/no");
-		mInventoryItemsDict["/no!"]						= LLTrans::getString("/no!");
-		mInventoryItemsDict["/paper"]					= LLTrans::getString("/paper");
-		mInventoryItemsDict["/pointme"]					= LLTrans::getString("/pointme");
-		mInventoryItemsDict["/pointyou"]				= LLTrans::getString("/pointyou");
-		mInventoryItemsDict["/rock"]					= LLTrans::getString("/rock");
-		mInventoryItemsDict["/scissor"]					= LLTrans::getString("/scissor");
-		mInventoryItemsDict["/smoke"]					= LLTrans::getString("/smoke");
-		mInventoryItemsDict["/stretch"]					= LLTrans::getString("/stretch");
-		mInventoryItemsDict["/whistle"]					= LLTrans::getString("/whistle");
-		mInventoryItemsDict["/yes"]						= LLTrans::getString("/yes");
-		mInventoryItemsDict["/yes!"]					= LLTrans::getString("/yes!");
-		mInventoryItemsDict["afk"]						= LLTrans::getString("afk");
-		mInventoryItemsDict["dance1"]					= LLTrans::getString("dance1");
-		mInventoryItemsDict["dance2"]					= LLTrans::getString("dance2");
-		mInventoryItemsDict["dance3"]					= LLTrans::getString("dance3");
-		mInventoryItemsDict["dance4"]					= LLTrans::getString("dance4");
-		mInventoryItemsDict["dance5"]					= LLTrans::getString("dance5");
-		mInventoryItemsDict["dance6"]					= LLTrans::getString("dance6");
-		mInventoryItemsDict["dance7"]					= LLTrans::getString("dance7");
-		mInventoryItemsDict["dance8"]					= LLTrans::getString("dance8");
-	}
 
 	/**
 	 * Finds passed name in dictionary and replaces it with found localized value.
@@ -217,6 +121,103 @@ public:
 	}
 };
 
+LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
+{
+	mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
+	mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
+	mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
+	mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
+	mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
+	mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
+	mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
+	mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
+	mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
+	mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
+	mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
+	mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
+	mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
+	mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
+	mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
+	mInventoryItemsDict["New Physics"]		= LLTrans::getString("New Physics");
+	mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
+
+	mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
+	mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
+	mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+	mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
+	mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
+
+	mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
+	mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
+	mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
+	mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
+	mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
+	mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
+
+	//predefined gestures
+
+	//male
+	mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
+	mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
+	mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
+	mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
+	mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
+	mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
+	mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
+	mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
+	mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
+	mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
+	mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
+
+	//female
+	mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
+	mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
+	mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
+	mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
+	mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
+	mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
+	mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
+	mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
+	mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
+	mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
+	mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
+	mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
+	mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
+	mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
+	mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
+	mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
+	mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
+	mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
+
+	//common
+	mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
+	mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
+	mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
+	mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
+	mInventoryItemsDict["/kmb"]						= LLTrans::getString("/kmb");
+	mInventoryItemsDict["/muscle"]					= LLTrans::getString("/muscle");
+	mInventoryItemsDict["/no"]						= LLTrans::getString("/no");
+	mInventoryItemsDict["/no!"]						= LLTrans::getString("/no!");
+	mInventoryItemsDict["/paper"]					= LLTrans::getString("/paper");
+	mInventoryItemsDict["/pointme"]					= LLTrans::getString("/pointme");
+	mInventoryItemsDict["/pointyou"]				= LLTrans::getString("/pointyou");
+	mInventoryItemsDict["/rock"]					= LLTrans::getString("/rock");
+	mInventoryItemsDict["/scissor"]					= LLTrans::getString("/scissor");
+	mInventoryItemsDict["/smoke"]					= LLTrans::getString("/smoke");
+	mInventoryItemsDict["/stretch"]					= LLTrans::getString("/stretch");
+	mInventoryItemsDict["/whistle"]					= LLTrans::getString("/whistle");
+	mInventoryItemsDict["/yes"]						= LLTrans::getString("/yes");
+	mInventoryItemsDict["/yes!"]					= LLTrans::getString("/yes!");
+	mInventoryItemsDict["afk"]						= LLTrans::getString("afk");
+	mInventoryItemsDict["dance1"]					= LLTrans::getString("dance1");
+	mInventoryItemsDict["dance2"]					= LLTrans::getString("dance2");
+	mInventoryItemsDict["dance3"]					= LLTrans::getString("dance3");
+	mInventoryItemsDict["dance4"]					= LLTrans::getString("dance4");
+	mInventoryItemsDict["dance5"]					= LLTrans::getString("dance5");
+	mInventoryItemsDict["dance6"]					= LLTrans::getString("dance6");
+	mInventoryItemsDict["dance7"]					= LLTrans::getString("dance7");
+	mInventoryItemsDict["dance8"]					= LLTrans::getString("dance8");
+}
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -246,6 +247,20 @@ public:
 		if (params[0].asString() == "show")
 		{
 			LLFloaterSidePanelContainer::showPanel("inventory", LLSD());
+			return true;
+		}
+
+		if (params[0].asString() == "filters")
+		{
+			LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			if (sidepanel_inventory)
+			{
+				LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+				if (main_inventory)
+				{
+					main_inventory->toggleFindOptions();
+				}
+			}
 			return true;
 		}
 
@@ -1127,10 +1142,10 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
 	std::string item_desc = avatar_id.asString();
-	std::string item_name;
-	gCacheName->getFullName(avatar_id, item_name);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(avatar_id, &av_name);
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  parent, LLTransactionID::tnull, item_name, item_desc, LLAssetType::AT_CALLINGCARD,
+						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
 						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
 }
 
@@ -1303,12 +1318,18 @@ void update_inventory_item(
     if (updates.has("asset_id"))
     {
         updates.erase("asset_id");
-        updates["hash_id"] = update_item->getTransactionID();
+        if (update_item->getTransactionID().notNull())
+        {
+            updates["hash_id"] = update_item->getTransactionID();
+        }
     }
     if (updates.has("shadow_id"))
     {
         updates.erase("shadow_id");
-        updates["hash_id"] = update_item->getTransactionID();
+        if (update_item->getTransactionID().notNull())
+        {
+            updates["hash_id"] = update_item->getTransactionID();
+        }
     }
     AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
     AISAPI::UpdateItem(item_id, updates, cr);
@@ -1458,6 +1479,10 @@ void remove_inventory_category(
 	LLPointer<LLViewerInventoryCategory> obj = gInventory.getCategory(cat_id);
 	if(obj)
 	{
+		if (!gInventory.isCategoryComplete(cat_id))
+		{
+			LL_WARNS() << "Removing (purging) incomplete category " << obj->getName() << LL_ENDL;
+		}
 		if(LLFolderType::lookupIsProtectedType(obj->getPreferredType()))
 		{
 			LLNotificationsUtil::add("CannotRemoveProtectedCategories");
@@ -1502,63 +1527,64 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(id);
 	if (cat.notNull())
 	{
-		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
+		if (LLClipboard::instance().hasContents())
 		{
-			// Something on the clipboard is in "cut mode" and needs to be preserved
-			LL_DEBUGS(LOG_INV) << "purge_descendents_of clipboard case " << cat->getName()
-							   << " iterate and purge non hidden items" << LL_ENDL;
-			LLInventoryModel::cat_array_t* categories;
-			LLInventoryModel::item_array_t* items;
-			// Get the list of direct descendants in tha categoy passed as argument
-			gInventory.getDirectDescendentsOf(id, categories, items);
-			std::vector<LLUUID> list_uuids;
-			// Make a unique list with all the UUIDs of the direct descendants (items and categories are not treated differently)
-			// Note: we need to do that shallow copy as purging things will invalidate the categories or items lists
-			for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
+			// Remove items from clipboard or it will remain active even if there is nothing to paste/copy
+			LLInventoryModel::cat_array_t categories;
+			LLInventoryModel::item_array_t items;
+			gInventory.collectDescendents(id, categories, items, TRUE);
+
+			for (LLInventoryModel::cat_array_t::const_iterator it = categories.begin(); it != categories.end(); ++it)
 			{
-				list_uuids.push_back((*it)->getUUID());
-			}
-			for (LLInventoryModel::item_array_t::const_iterator it = items->begin(); it != items->end(); ++it)
-			{
-				list_uuids.push_back((*it)->getUUID());
-			}
-			// Iterate through the list and only purge the UUIDs that are not on the clipboard
-			for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
-			{
-				if (!LLClipboard::instance().isOnClipboard(*it))
+				if (LLClipboard::instance().isOnClipboard((*it)->getUUID()))
 				{
-					remove_inventory_object(*it, NULL);
+					// No sense in removing single items, partial 'paste' will result in confusion only
+					LLClipboard::instance().reset();
+					break;
+				}
+			}
+			if (LLClipboard::instance().hasContents())
+			{
+				for (LLInventoryModel::item_array_t::const_iterator it = items.begin(); it != items.end(); ++it)
+				{
+					if (LLClipboard::instance().isOnClipboard((*it)->getUUID()))
+					{
+						LLClipboard::instance().reset();
+						break;
+					}
 				}
 			}
 		}
-		else
+
+		if (AISAPI::isAvailable())
 		{
-            if (AISAPI::isAvailable())
+			if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
 			{
-                AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
-                AISAPI::PurgeDescendents(id, cr);
+				LL_WARNS() << "Purging not fetched folder: " << cat->getName() << LL_ENDL;
 			}
-			else // no cap
+			AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+			AISAPI::PurgeDescendents(id, cr);
+		}
+		else // no cap
+		{
+			// Fast purge
+			LL_DEBUGS(LOG_INV) << "purge_descendents_of fast case " << cat->getName() << LL_ENDL;
+
+			// send it upstream
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("PurgeInventoryDescendents");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("FolderID", id);
+			gAgent.sendReliableMessage();
+
+			// Update model immediately because there is no callback mechanism.
+			gInventory.onDescendentsPurgedFromServer(id);
+			if (cb)
 			{
-				// Fast purge
-				LL_DEBUGS(LOG_INV) << "purge_descendents_of fast case " << cat->getName() << LL_ENDL;
-
-				// send it upstream
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessage("PurgeInventoryDescendents");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", gAgent.getID());
-				msg->addUUID("SessionID", gAgent.getSessionID());
-				msg->nextBlock("InventoryData");
-				msg->addUUID("FolderID", id);
-				gAgent.sendReliableMessage();
-
-				// Update model immediately because there is no callback mechanism.
-				gInventory.onDescendentsPurgedFromServer(id);
-				if (cb)
-				{
-					cb->fire(id);
-				}
+				cb->fire(id);
 			}
 		}
 	}
@@ -2066,9 +2092,9 @@ PermissionMask LLViewerInventoryItem::getPermissionMask() const
 
 //----------
 
-void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std::string& name, bool is_group)
+void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const LLAvatarName& name)
 {
-	rename(name);
+	rename(name.getUserName());
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, getUUID());
 	gInventory.notifyObservers();
 }

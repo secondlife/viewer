@@ -351,6 +351,8 @@ protected:
 
 	virtual bool removeItemPair(item_pair_t* item_pair, bool rearrange);
 
+	bool addItemPairs(pairs_list_t panel_list, bool rearrange = true);
+
 	/**
 	 * Notify parent about changed size of internal controls with "size_changes" action
 	 * 
@@ -480,6 +482,7 @@ public:
 	 * Sets up new filter string and filters the list.
 	 */
 	void setFilterSubString(const std::string& filter_str);
+	std::string getFilterSubString() { return mFilterSubString; }
 	
 	/**
 	 * Filters the list, rearranges and notifies parent about shape changes.
@@ -502,6 +505,14 @@ protected:
 	 * completely empty list. Value of filter string will be passed as search_term in SLURL.
 	 */
 	void updateNoItemsMessage(const std::string& filter_string);
+
+	/**
+	* Applies visibility acording to action and LLFlatListView settings.
+	*
+	* @param item - item we are changing
+	* @param item - action - parameters to determin visibility from
+	*/
+	void updateItemVisibility(LLPanel* item, const LLSD &action);
 
 private:
 	std::string mNoFilteredItemsMsg;

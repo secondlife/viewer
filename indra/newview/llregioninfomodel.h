@@ -36,6 +36,7 @@ class LLMessageSystem;
  */
 class LLRegionInfoModel : public LLSingleton<LLRegionInfoModel>
 {
+	LLSINGLETON(LLRegionInfoModel);
 	LOG_CLASS(LLRegionInfoModel);
 
 public:
@@ -51,6 +52,8 @@ public:
 	// *TODO: Add getters and make the data private.
 	U8			mSimAccess;
 	U8			mAgentLimit;
+
+	S32			mHardAgentLimit;
 
 	U64			mRegionFlags;
 	U32			mEstateID;
@@ -73,10 +76,8 @@ public:
 	std::string	mSimType;
 
 protected:
-	friend class LLSingleton<LLRegionInfoModel>;
 	friend class LLViewerRegion;
 
-	LLRegionInfoModel();
 
 	/**
 	 * Refresh model with data from the incoming server message.

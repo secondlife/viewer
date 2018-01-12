@@ -34,6 +34,7 @@
 #include "llcoros.h"
 
 class LLSpeakerMgr;
+class LLAvatarName;
 
 // data for a given participant in a voice channel
 class LLSpeaker : public LLRefCount, public LLOldEvents::LLObservable, public LLHandleProvider<LLSpeaker>, public boost::signals2::trackable
@@ -61,7 +62,7 @@ public:
 	~LLSpeaker() {};
 	void lookupName();
 
-	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+	void onNameCache(const LLUUID& id, const LLAvatarName& full_name);
 
 	bool isInVoiceChannel();
 
@@ -341,20 +342,18 @@ protected:
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>
 {
+	LLSINGLETON(LLActiveSpeakerMgr);
 	LOG_CLASS(LLActiveSpeakerMgr);
 
-public:
-	LLActiveSpeakerMgr();
 protected:
 	virtual void updateSpeakerList();
 };
 
 class LLLocalSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLLocalSpeakerMgr>
 {
-	LOG_CLASS(LLLocalSpeakerMgr);
-public:
-	LLLocalSpeakerMgr();
+	LLSINGLETON(LLLocalSpeakerMgr);
 	~LLLocalSpeakerMgr ();
+	LOG_CLASS(LLLocalSpeakerMgr);
 protected:
 	virtual void updateSpeakerList();
 };

@@ -106,6 +106,7 @@ const F32 TELEPORT_EXPIRY_PER_ATTACHMENT = 3.f;
 U32 gRecentFrameCount = 0; // number of 'recent' frames
 LLFrameTimer gRecentFPSTime;
 LLFrameTimer gRecentMemoryTime;
+LLFrameTimer gAssetStorageLogTime;
 
 // Rendering stuff
 void pre_show_depth_buffer();
@@ -226,6 +227,12 @@ void display_stats()
 		LLMemory::logMemoryInfo(TRUE) ;
 		gRecentMemoryTime.reset();
 	}
+    F32 asset_storage_log_freq = gSavedSettings.getF32("AssetStorageLogFrequency");
+    if (asset_storage_log_freq > 0.f && gAssetStorageLogTime.getElapsedTimeF32() >= asset_storage_log_freq)
+    {
+        gAssetStorageLogTime.reset();
+        gAssetStorage->logAssetStorageInfo();
+    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_PICK("Picking");
@@ -434,6 +441,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["requesting"]);
 			gViewerWindow->setProgressString(LLAgent::sTeleportProgressMessages["requesting"]);
+			gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
@@ -511,6 +519,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		}
 		
 		gViewerWindow->setProgressPercent( percent_done );
+		gViewerWindow->setProgressMessage(std::string());
 	}
 	else
 	if (gRestoreGL)
@@ -532,6 +541,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			
 			gViewerWindow->setProgressPercent( percent_done );
 		}
+		gViewerWindow->setProgressMessage(std::string());
 	}
 
 	//////////////////////////

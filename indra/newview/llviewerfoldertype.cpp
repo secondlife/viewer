@@ -103,8 +103,7 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 class LLViewerFolderDictionary : public LLSingleton<LLViewerFolderDictionary>,
 								 public LLDictionary<LLFolderType::EType, ViewerFolderEntry>
 {
-public:
-	LLViewerFolderDictionary();
+	LLSINGLETON(LLViewerFolderDictionary);
 protected:
 	bool initEnsemblesFromFile(); // Reads in ensemble information from foldertypes.xml
 };

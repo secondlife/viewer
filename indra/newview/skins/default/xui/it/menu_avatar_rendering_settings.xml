@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Settings">
+	<menu_item_check label="Impostazione predefinita" name="default"/>
+	<menu_item_check label="Esegui sempre il rendering" name="always_render"/>
+	<menu_item_check label="Non eseguire mai il rendering" name="never_render"/>
+</context_menu>

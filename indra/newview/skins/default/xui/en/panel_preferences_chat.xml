@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
     border="true"
-    has_border="true"
     height="408"
     label="Text Chat"
     layout="topleft"
@@ -9,6 +8,18 @@
     name="chat"
     top="1"
     width="517">
+    
+  <check_box
+      control_name="ChatAutocompleteGestures"
+      height="16"
+      initial_value="true"
+      label="Auto-complete gestures in nearby chat"
+      layout="topleft"
+      top="17"
+      left="13"
+      name="auto_complete_gestures"
+      width="330">
+  </check_box>
 
   <panel
       border="false"
@@ -432,17 +443,15 @@
         top_pad="6"
         name="inventory_offer"
         width="150" />
-
+    <view_border
+        bevel_style="none"
+        height="0"
+        layout="topleft"
+        left="0"
+        name="cost_text_border"
+        top_pad="7"
+        width="492"/>
   </panel>
-
-  <view_border
-      bevel_style="none"
-      height="0"
-      layout="topleft"
-      left="13"
-      name="cost_text_border"
-      top_pad="5"
-      width="495"/>
 
   <panel
       height="50"
@@ -531,7 +540,7 @@
         height="23"
         layout="topleft"
         left_pad="55"
-        max_length="4096"
+        max_length_bytes="4096"
         name="log_path_string"
         top_delta="-5"
         width="185">

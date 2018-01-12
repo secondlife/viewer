@@ -13,5 +13,6 @@
 		<panel label="Gizlilik" name="im"/>
 		<panel label="Ayarlar" name="input"/>
 		<panel label="Gelişmiş" name="advanced1"/>
+		<panel label="Karşıya Yüklemeler" name="uploads"/>
 	</tab_container>
 </floater>

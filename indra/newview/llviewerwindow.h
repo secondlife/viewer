@@ -211,7 +211,7 @@ public:
 	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
 	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
-	/*virtual*/ void handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
+	/*virtual*/ BOOL handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
 
 	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
 	/*virtual*/ void handlePauseWatchdog(LLWindow *window);
@@ -352,7 +352,7 @@ public:
 	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
 	BOOL			isSnapshotLocSet() const { return ! sSnapshotDir.empty(); }
 	void			resetSnapshotLoc() const { sSnapshotDir.clear(); }
-	BOOL		    saveImageNumbered(LLImageFormatted *image, bool force_picker = false);
+	BOOL			saveImageNumbered(LLImageFormatted *image, BOOL force_picker, BOOL& insufficient_memory);
 
 	// Reset the directory where snapshots are saved.
 	// Client will open directory picker on next snapshot save.
@@ -419,6 +419,7 @@ public:
 
 	bool getSystemUIScaleFactorChanged() { return mSystemUIScaleFactorChanged; }
 	static void showSystemUIScaleFactorChanged();
+	static std::string getLastSnapshotDir() { return sSnapshotDir; }
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);

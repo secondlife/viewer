@@ -451,16 +451,32 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 				(group->mBufferUsage != group->mVertexBuffer->getUsage() && LLVertexBuffer::sEnableVBOs))
 			{
 				group->mVertexBuffer = createVertexBuffer(mVertexDataMask, group->mBufferUsage);
-				group->mVertexBuffer->allocateBuffer(vertex_count, index_count, true);
+				if (!group->mVertexBuffer->allocateBuffer(vertex_count, index_count, true))
+				{
+					LL_WARNS() << "Failed to allocate Vertex Buffer on rebuild to "
+						<< vertex_count << " vertices and "
+						<< index_count << " indices" << LL_ENDL;
+					group->mVertexBuffer = NULL;
+					group->mBufferMap.clear();
+				}
 				stop_glerror();
 			}
 			else
 			{
-				group->mVertexBuffer->resizeBuffer(vertex_count, index_count);
+				if (!group->mVertexBuffer->resizeBuffer(vertex_count, index_count))
+				{
+					// Is likely to cause a crash. If this gets triggered find a way to avoid it (don't forget to reset face)
+					LL_WARNS() << "Failed to resize Vertex Buffer on rebuild to "
+						<< vertex_count << " vertices and "
+						<< index_count << " indices" << LL_ENDL;
+					group->mVertexBuffer = NULL;
+					group->mBufferMap.clear();
+				}
 				stop_glerror();
 			}
 		}
 
+		if (group->mVertexBuffer)
 		{
 			LL_RECORD_BLOCK_TIME(FTM_GET_GEOMETRY);
 			getGeometry(group);

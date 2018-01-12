@@ -62,6 +62,9 @@ class LLViewerInventoryItem;
 //--------------------------------------------------------------------------------
 class LLAttachmentsMgr: public LLSingleton<LLAttachmentsMgr>
 {
+    LLSINGLETON(LLAttachmentsMgr);
+	virtual ~LLAttachmentsMgr();
+
 public:
     // Stores info for attachments that will be requested during idle.
 	struct AttachmentsInfo
@@ -71,9 +74,6 @@ public:
 		BOOL mAdd;
 	};
 	typedef std::deque<AttachmentsInfo> attachments_vec_t;
-
-	LLAttachmentsMgr();
-	virtual ~LLAttachmentsMgr();
 
 	void addAttachmentRequest(const LLUUID& item_id,
                               const U8 attachment_pt,

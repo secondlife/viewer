@@ -7,6 +7,7 @@
 	<menu_item_call label="Chiama" name="Call"/>
 	<menu_item_call label="Invita al gruppo" name="Invite..."/>
 	<menu_item_call label="Ripristina scheletro" name="Reset Skeleton"/>
+	<menu_item_call label="Ripristina scheletro e animazioni" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Blocca" name="Avatar Mute"/>
 	<menu_item_call label="Segnala" name="abuse"/>
 	<menu_item_call label="Congela" name="Freeze..."/>
@@ -15,8 +16,11 @@
 	<menu_item_call label="Dump XML" name="Dump XML"/>
 	<menu_item_call label="Zoom avanti" name="Zoom In"/>
 	<menu_item_call label="Paga" name="Pay..."/>
-	<menu_item_check label="Esegui il rendering normalmente" name="RenderNormally"/>
-	<menu_item_check label="Non eseguire il rendering" name="DoNotRender"/>
-	<menu_item_check label="Esegui il rendering completamente" name="AlwaysRenderFully"/>
+	<context_menu label="Rendering avatar" name="Render Avatar">
+		<menu_item_check label="Impostazione predefinita" name="RenderNormally"/>
+		<menu_item_check label="Sempre" name="AlwaysRenderFully"/>
+		<menu_item_check label="Mai" name="DoNotRender"/>
+		<menu_item_call label="Eccezioni..." name="RenderExceptions"/>
+	</context_menu>
 	<menu_item_call label="Blocca proprietario particella" name="Mute Particle"/>
 </context_menu>

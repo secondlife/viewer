@@ -304,7 +304,11 @@ BOOL LLPanelPlaces::postBuild()
 	enable_registrar.add("Places.OverflowMenu.Enable",  boost::bind(&LLPanelPlaces::onOverflowMenuItemEnable, this, _2));
 
 	mPlaceMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_place.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if (!mPlaceMenu)
+	if (mPlaceMenu)
+	{
+		mPlaceMenu->setAlwaysShowMenu(TRUE);
+	}
+	else
 	{
 		LL_WARNS() << "Error loading Place menu" << LL_ENDL;
 	}
@@ -711,6 +715,34 @@ void LLPanelPlaces::onEditButtonClicked()
 	updateVerbs();
 }
 
+class LLUpdateLandmarkParent : public LLInventoryCallback
+{
+public:
+    LLUpdateLandmarkParent(LLPointer<LLViewerInventoryItem> item, LLUUID new_parent) :
+        mItem(item),
+        mNewParentId(new_parent)
+    {};
+    /* virtual */ void fire(const LLUUID& inv_item_id)
+    {
+        LLInventoryModel::update_list_t update;
+        LLInventoryModel::LLCategoryUpdate old_folder(mItem->getParentUUID(), -1);
+        update.push_back(old_folder);
+        LLInventoryModel::LLCategoryUpdate new_folder(mNewParentId, 1);
+        update.push_back(new_folder);
+        gInventory.accountForUpdate(update);
+
+        mItem->setParent(mNewParentId);
+        mItem->updateParentOnServer(FALSE);
+
+        gInventory.updateItem(mItem);
+        gInventory.notifyObservers();
+    }
+
+private:
+    LLPointer<LLViewerInventoryItem> mItem;
+    LLUUID mNewParentId;
+};
+
 void LLPanelPlaces::onSaveButtonClicked()
 {
 	if (!mLandmarkInfo || mItem.isNull())
@@ -726,6 +758,7 @@ void LLPanelPlaces::onSaveButtonClicked()
 
 	LLUUID item_id = mItem->getUUID();
 	LLUUID folder_id = mLandmarkInfo->getLandmarkFolder();
+	bool change_parent = folder_id != mItem->getParentUUID();
 
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(mItem);
 
@@ -734,10 +767,16 @@ void LLPanelPlaces::onSaveButtonClicked()
 	{
 		new_item->rename(current_title_value);
 		new_item->setDescription(current_notes_value);
-		new_item->updateServer(FALSE);
+		LLPointer<LLInventoryCallback> cb;
+		if (change_parent)
+		{
+			cb = new LLUpdateLandmarkParent(new_item, folder_id);
+		}
+		LLInventoryModel::LLCategoryUpdate up(mItem->getParentUUID(), 0);
+		gInventory.accountForUpdate(up);
+		update_inventory_item(new_item, cb);
 	}
-
-	if(folder_id != mItem->getParentUUID())
+	else if (change_parent)
 	{
 		LLInventoryModel::update_list_t update;
 		LLInventoryModel::LLCategoryUpdate old_folder(mItem->getParentUUID(),-1);
@@ -971,7 +1010,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 			 mPlaceInfoType == LANDMARK_TAB_INFO_TYPE)
 	{
 		mLandmarkInfo->setVisible(visible);
-
+		mPlaceProfile->setVisible(FALSE);
 		if (visible)
 		{
 			mLandmarkInfo->resetLocation();
@@ -979,8 +1018,6 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 			LLRect rect = getRect();
 			LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
 			mLandmarkInfo->reshape(new_rect.getWidth(), new_rect.getHeight());
-
-			mPlaceProfile->setVisible(FALSE);
 		}
 		else
 		{

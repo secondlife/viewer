@@ -42,9 +42,10 @@ class LLOutfitUnLockTimer;
 
 class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
+	LLSINGLETON(LLAppearanceMgr);
+	~LLAppearanceMgr();
 	LOG_CLASS(LLAppearanceMgr);
 
-	friend class LLSingleton<LLAppearanceMgr>;
 	friend class LLOutfitUnLockTimer;
 	
 public:
@@ -224,6 +225,7 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
+	static void onIdle(void *);
 	void requestServerAppearanceUpdate();
 
 	void setAppearanceServiceURL(const std::string& url) { mAppearanceServiceURL = url; }
@@ -234,17 +236,12 @@ public:
 	boost::signals2::connection setAttachmentsChangedCallback(attachments_changed_callback_t cb);
 
 
-
 private:
     void serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter);
 
     static void debugAppearanceUpdateCOF(const LLSD& content);
 
 	std::string		mAppearanceServiceURL;
-	
-protected:
-	LLAppearanceMgr();
-	~LLAppearanceMgr();
 
 private:
 
@@ -272,7 +269,6 @@ private:
 	 * to avoid unsynchronized outfit state or performing duplicate operations.
 	 */
 	bool mOutfitLocked;
-	S32  mInFlightCounter;
 	LLTimer mInFlightTimer;
 	static bool mActive;
 
@@ -295,6 +291,9 @@ public:
 	BOOL getIsInCOF(const LLUUID& obj_id) const;
 	// Is this in the COF and can the user delete it from the COF?
 	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
+
+	// Outfits will prioritize textures with such name to use for preview in gallery
+	static const std::string sExpectedTextureName;
 };
 
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback

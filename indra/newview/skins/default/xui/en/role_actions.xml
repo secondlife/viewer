@@ -105,6 +105,9 @@
 		<action description="Always allow &apos;Create Objects&apos;"
 		     longdescription="Members in a Role with this Ability can create objects on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab."
 		     name="land allow create" value="25" />
+		<action description="Ignore landing point"
+		     longdescription="Members in a Role with this Ability can direct teleport to a group-owned parcel, even if a landing point is set in About Land &gt; Options tab."
+		     name="land allow direct teleport" value="26" />
 		<action description="Allow &apos;Set Home to Here&apos; on group land"
 		     longdescription="Members in a Role with this Ability can use World menu &gt; Landmarks &gt; Set Home to Here on a parcel deeded to this group."
 		     name="land allow set home" value="28" />

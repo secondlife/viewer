@@ -1736,6 +1736,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mJumpKey(p.jump_key),
 	mCreateJumpKeys(p.create_jump_keys),
 	mNeedsArrange(FALSE),
+	mAlwaysShowMenu(FALSE),
 	mResetScrollPositionOnShow(true),
 	mShortcutPad(p.shortcut_pad)
 {
@@ -3223,20 +3224,23 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 
 	menu->setVisible( TRUE );
 
-	//Do not show menu if all menu items are disabled
-	BOOL item_enabled = false;
-	for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
-			 itor != menu->getChildList()->end();
-			 ++itor)
+	if(!menu->getAlwaysShowMenu())
 	{
-		LLView *menu_item = (*itor);
-		item_enabled = item_enabled || menu_item->getEnabled();
-	}
+		//Do not show menu if all menu items are disabled
+		BOOL item_enabled = false;
+		for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
+				itor != menu->getChildList()->end();
+				++itor)
+		{
+			LLView *menu_item = (*itor);
+			item_enabled = item_enabled || menu_item->getEnabled();
+		}
 
-	if(!item_enabled)
-	{
-		menu->setVisible( FALSE );
-		return;
+		if(!item_enabled)
+		{
+			menu->setVisible( FALSE );
+			return;
+		}
 	}
 
 	// Save click point for detecting cursor moves before mouse-up.
@@ -3327,6 +3331,7 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		if (getHighlightedItem())
 		{
 			clearHoverItem();
+			LLMenuGL::setKeyboardMode(FALSE);
 		}
 		else
 		{
@@ -3336,6 +3341,12 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 			LLMenuGL::setKeyboardMode(TRUE);
 		}
 		return TRUE;
+	}
+
+	if (result && !getHighlightedItem() && LLMenuGL::sMenuContainer->hasVisibleMenu())
+	{
+		// close menus originating from other menu bars
+		LLMenuGL::sMenuContainer->hideMenus();
 	}
 
 	return result;
@@ -3767,10 +3778,10 @@ BOOL LLMenuHolderGL::hideMenus()
 	{
 		return FALSE;
 	}
+	LLMenuGL::setKeyboardMode(FALSE);
 	BOOL menu_visible = hasVisibleMenu();
 	if (menu_visible)
 	{
-		LLMenuGL::setKeyboardMode(FALSE);
 		// clicked off of menu, hide them all
 		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 		{

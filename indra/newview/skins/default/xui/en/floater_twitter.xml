@@ -20,8 +20,7 @@
      tab_position="top"
      top="7"
      height="457"
-     halign="center"
-     use_highlighting_on_hover="true">
+     halign="center">
      <panel
        filename="panel_twitter_photo.xml"
        class="lltwitterphotopanel"

@@ -43,9 +43,8 @@
 class LLMainLoopRepeater:
 	public LLSingleton<LLMainLoopRepeater>
 {
+	LLSINGLETON(LLMainLoopRepeater);
 public:
-	LLMainLoopRepeater(void);
-	
 	// Start the repeater service.
 	void start(void);
 	

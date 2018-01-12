@@ -7,5 +7,8 @@
 		<menu_button name="plus_btn" tool_tip="Engellenecek bir Sakin veya nesne seç"/>
 		<button name="unblock_btn" tool_tip="Engelleme listesinden Sakini veya nesneyi kaldır"/>
 	</panel>
+	<text name="block_limit">
+		Engelleme listenizde [COUNT] giriş var ve limit [LIMIT].
+	</text>
 	<block_list name="blocked" tool_tip="Şu anda engellenmiş olan Sakinler listesi"/>
 </panel>

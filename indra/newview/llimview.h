@@ -33,6 +33,7 @@
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
+#include "llinitdestroyclass.h"
 
 #include "llcoros.h"
 #include "lleventcoro.h"
@@ -61,6 +62,7 @@ private:
  */
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
+	LLSINGLETON(LLIMModel);
 public:
 
 	struct LLIMSession : public boost::signals2::trackable
@@ -151,7 +153,6 @@ public:
 	};
 	
 
-	LLIMModel();
 
 	/** Session id to session object */
 	std::map<LLUUID, LLIMSession*> mId2SessionMap;
@@ -312,6 +313,7 @@ public:
 
 class LLIMMgr : public LLSingleton<LLIMMgr>
 {
+	LLSINGLETON(LLIMMgr);
 	friend class LLIMModel;
 
 public:
@@ -322,8 +324,6 @@ public:
 		INVITATION_TYPE_IMMEDIATE = 2
 	};
 
-	LLIMMgr();
-	virtual ~LLIMMgr() {};
 
 	// Add a message to a session. The session can keyed to sesion id
 	// or agent id.
@@ -473,7 +473,7 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& name);
 
 	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg);
     //Triggers when a session has already been added

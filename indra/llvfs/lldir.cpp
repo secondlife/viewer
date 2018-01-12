@@ -104,8 +104,13 @@ LLDir::~LLDir()
 std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 {
     //Returns a vector of fullpath filenames.
-    
-    boost::filesystem::path p (dirname);
+
+#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
+    boost::filesystem::path p(utf8str_to_utf16str(dirname));
+#else
+    boost::filesystem::path p(dirname);
+#endif
+
     std::vector<std::string> v;
     
     if (exists(p))
@@ -193,7 +198,12 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
 
 	try
 	{
-	   boost::filesystem::path dir_path(dir_name);
+#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
+		boost::filesystem::path dir_path(utf8str_to_utf16str(dir_name));
+#else
+		boost::filesystem::path dir_path(dir_name);
+#endif
+
 	   if (boost::filesystem::exists (dir_path))
 	   {
 	      if (!boost::filesystem::is_empty (dir_path))
@@ -720,6 +730,15 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 					   << ((constraint == CURRENT_SKIN)? "CURRENT_SKIN" : "ALL_SKINS")
 					   << LL_ENDL;
 
+	// Build results vector.
+	std::vector<std::string> results;
+	// Disallow filenames that may escape subdir
+	if (filename.find("..") != std::string::npos)
+	{
+		LL_WARNS("LLDir") << "Ignoring potentially relative filename '" << filename << "'" << LL_ENDL;
+		return results;
+	}
+
 	// Cache the default language directory for each subdir we've encountered.
 	// A cache entry whose value is the empty string means "not localized,
 	// don't bother checking again."
@@ -784,8 +803,6 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		}
 	}
 
-	// Build results vector.
-	std::vector<std::string> results;
 	// The process we use depends on 'constraint'.
 	if (constraint != CURRENT_SKIN) // meaning ALL_SKINS
 	{

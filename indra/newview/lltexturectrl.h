@@ -278,7 +278,7 @@ public:
 	void setImageID(const LLUUID& image_asset_id, bool set_selection = true);
 	void updateImageStats();
 	const LLUUID&	getAssetID() { return mImageAssetID; }
-	const LLUUID&	findItemID(const LLUUID& asset_id, BOOL copyable_only);
+	const LLUUID&	findItemID(const LLUUID& asset_id, BOOL copyable_only, BOOL ignore_library = FALSE);
 	void			setCanApplyImmediately(BOOL b);
 
 	void			setActive(BOOL active);

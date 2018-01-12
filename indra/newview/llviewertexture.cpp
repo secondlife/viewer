@@ -488,7 +488,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 
 	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
 
-	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(5); //MB
+	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20); //MB Changed to 20 MB per MAINT-6882
 	const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
 
 	bool low_mem = false;
@@ -511,18 +511,17 @@ bool LLViewerTexture::isMemoryForTextureLow()
 			}
 		}
 	}
-#if 0  //ignore nVidia cards
+	//Enabled this branch per MAINT-6882
 	else if (gGLManager.mHasNVXMemInfo)
 	{
 		S32 free_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
 		
-		if(free_memory / 1024 < MIN_FREE_TEXTURE_MEMORY)
+		if ((S32Megabytes)(free_memory / 1024) < MIN_FREE_TEXTURE_MEMORY)
 		{
 			low_mem = true;
 		}
 	}
-#endif	
 
 	return low_mem;
 }
@@ -1397,8 +1396,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 
 						{
 							//make a duplicate in case somebody else is using this raw image
-							mRawImage = mRawImage->duplicate(); 
-							mRawImage->scale(w >> i, h >> i) ;					
+							mRawImage = mRawImage->scaled(w >> i, h >> i);
 						}
 					}
 				}
@@ -1419,10 +1417,16 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		destroyRawImage();
 		return FALSE;
 	}
-	mNeedsCreateTexture	= FALSE;
+	mNeedsCreateTexture = FALSE;
 	if (mRawImage.isNull())
 	{
 		LL_ERRS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
+	}
+	if (mRawImage->isBufferInvalid())
+	{
+		LL_WARNS() << "Can't create a texture: invalid image data" << LL_ENDL;
+		destroyRawImage();
+		return FALSE;
 	}
 // 	LL_INFOS() << llformat("IMAGE Creating (%d) [%d x %d] Bytes: %d ",
 // 						mRawDiscardLevel, 
@@ -1457,9 +1461,17 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 	}
 
 	bool size_okay = true;
-	
-	U32 raw_width = mRawImage->getWidth() << mRawDiscardLevel;
-	U32 raw_height = mRawImage->getHeight() << mRawDiscardLevel;
+
+	S32 discard_level = mRawDiscardLevel;
+	if (mRawDiscardLevel < 0)
+	{
+		LL_DEBUGS() << "Negative raw discard level when creating image: " << mRawDiscardLevel << LL_ENDL;
+		discard_level = 0;
+	}
+
+	U32 raw_width = mRawImage->getWidth() << discard_level;
+	U32 raw_height = mRawImage->getHeight() << discard_level;
+
 	if( raw_width > MAX_IMAGE_SIZE || raw_height > MAX_IMAGE_SIZE )
 	{
 		LL_INFOS() << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << raw_width << "," << raw_height << ")" << LL_ENDL;
@@ -2076,7 +2088,9 @@ bool LLViewerFetchedTexture::updateFetch()
 	{
 		make_request = false;
 	}
-	else if(mCachedRawImage.notNull() && (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
+	else if(mCachedRawImage.notNull() // can be empty
+			&& mCachedRawImageReady
+			&& (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
 	{
 		make_request = false;
 		switchToCachedImage(); //use the cached raw data first
@@ -2898,8 +2912,7 @@ void LLViewerFetchedTexture::setCachedRawImage()
 			
 			{
 				//make a duplicate in case somebody else is using this raw image
-				mRawImage = mRawImage->duplicate(); 
-				mRawImage->scale(w >> i, h >> i) ;
+				mRawImage = mRawImage->scaled(w >> i, h >> i);
 			}
 		}
 		mCachedRawImage = mRawImage;
@@ -3951,7 +3964,7 @@ void LLTexturePipelineTester::updateStablizingTime()
 }
 
 //virtual 
-void LLTexturePipelineTester::compareTestSessions(std::ofstream* os) 
+void LLTexturePipelineTester::compareTestSessions(llofstream* os) 
 {	
 	LLTexturePipelineTester::LLTextureTestSession* base_sessionp = dynamic_cast<LLTexturePipelineTester::LLTextureTestSession*>(mBaseSessionp);
 	LLTexturePipelineTester::LLTextureTestSession* current_sessionp = dynamic_cast<LLTexturePipelineTester::LLTextureTestSession*>(mCurrentSessionp);

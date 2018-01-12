@@ -61,16 +61,33 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="AboutDriver">
 		Версия графического драйвера Windows: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		Версия OpenGL: [OPENGL_VERSION]
-
-Версия декодера J2C: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Размер окна: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Коррекция размера шрифта: [FONT_SIZE_ADJUSTMENT]pt
+Масштаб интерфейса: [UI_SCALE]
+Дальность отрисовки: [DRAW_DISTANCE] м
+Ширина канала: [NET_BANDWITH] кбит/с
+Коэффициент детализации: [LOD_FACTOR]
+Качество визуализации: [RENDER_QUALITY] / 7
+Расширенная модель освещения: [GPU_SHADERS]
+Память текстур: [TEXTURE_MEMORY] МБ
+Время создания VFS (кэш): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		Версия декодера J2C: [J2C_VERSION]
 Версия драйвера звука: [AUDIO_DRIVER_VERSION]
 Версия LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Версия LibVLC: [LIBVLC_VERSION]
 Версия голосового сервера: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Потеряно пакетов: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Ошибка при получении URL-адреса заметок о выпуске сервера.
@@ -244,9 +261,8 @@ support@secondlife.com.
 [TIME] по тихоокеанскому времени.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		В данное время нам не удается выполнить ваш запрос.
-Обратитесь за помощью в службу поддержки Second Life по адресу http://secondlife.com/support.
-Если вам не удается изменить свой пароль, позвоните по телефону (866) 476-9763.
+		В данное время нам не удается выполнить ваш запрос. 
+Обратитесь за помощью в службу поддержки Second Life по адресу http://support.secondlife.com.
 	</string>
 	<string name="LoginFailedTransformError">
 		При входе обнаружена несогласованность данных.
@@ -684,6 +700,19 @@ support@secondlife.com.
 	<string name="AssetErrorUnknownStatus">
 		Неизвестный статус
 	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Услуги недоступны.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Сервер испытывает неожиданные трудности.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Услуги недоступны или превышение времени ожидания при передаче.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Ошибка при запросе на передачу. Для получения помощи в 
+решении этой проблемы пройдите по ссылке http://secondlife.com/support.
+	</string>
 	<string name="texture">
 		текстуру
 	</string>
@@ -1086,6 +1115,9 @@ support@secondlife.com.
 	<string name="TeleportYourAgent">
 		Телепортировать вас
 	</string>
+	<string name="ForceSitAvatar">
+		Заставьте аватар сесть
+	</string>
 	<string name="NotConnected">
 		Нет подключения
 	</string>
@@ -1468,7 +1500,8 @@ support@secondlife.com.
 		[[MARKETPLACE_CREATE_STORE_URL] Магазин] возвращает ошибки.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Это бета-версия функции. Если вы хотите участвовать в ее тестировании, заполните эту [http://goo.gl/forms/FCQ7UXkakz форму Google].
+		Ошибка при открытии списков товаров торгового центра.
+Если данное сообщение повторится, обратитесь за помощью в службу поддержки Second Life на странице http://support.secondlife.com
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Папка списков товаров торгового центра пуста.
@@ -1934,6 +1967,27 @@ support@secondlife.com.
 	<string name="av_render_anyone">
 		Никто из окружающих участников не может отрисовать вас.
 	</string>
+	<string name="hud_description_total">
+		Ваши данные в игре
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (носится на [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] использует большой объем памяти текстур
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] содержит много объемистых объектов и текстур
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] содержит много больших текстур
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] содержит слишком много объектов
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] содержит слишком много текстур
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] год
 	</string>
@@ -2093,6 +2147,9 @@ support@secondlife.com.
 	<string name="ObjectOutOfRange">
 		Скрипт (объект вне области)
 	</string>
+	<string name="ScriptWasDeleted">
+		Скрипт (удален из инвентаря)
+	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Объект [OBJECT] пользователя [OWNER]
 	</string>
@@ -2150,10 +2207,19 @@ support@secondlife.com.
 		все землевладения пользователя [OWNER], которыми вы управляете
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Допущенные жители: ([ALLOWEDAGENTS], не более [MAXACCESS])
+		Разрешено всегда: ([ALLOWEDAGENTS], не более [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Допущенные группы: ([ALLOWEDGROUPS], не более [MAXACCESS])
+		Группы всегда разрешены: ([ALLOWEDGROUPS], не более [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Всегда заблокированы: ([BANNEDAGENTS], не более [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Разрешено всегда
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Всегда заблокированы
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Память под скрипты на участке
@@ -2704,6 +2770,15 @@ support@secondlife.com.
 	</string>
 	<string name="Play Media">
 		Мультимедиа – воспроизведение/пауза
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=ru-ru
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Ошибка при анализе командной строки.
@@ -4385,7 +4460,10 @@ support@secondlife.com.
 		Конференция с жителем [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Предложено пополнить инвентарь
+		Предложен предмет инвентаря «[ITEM_NAME]»
+	</string>
+	<string name="inventory_folder_offered-im">
+		Предложена папка инвентаря «[ITEM_NAME]»
 	</string>
 	<string name="share_alert">
 		Перетаскивайте вещи из инвентаря сюда
@@ -4472,16 +4550,25 @@ support@secondlife.com.
 		Задано положение дома.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		Житель [NAME] заплатил вам L$[AMOUNT] за [REASON].
+	</string>
+	<string name="paid_you_ldollars_gift">
+		Пользователь [NAME] заплатил вам L$[AMOUNT]: [REASON]
 	</string>
 	<string name="paid_you_ldollars_no_reason">
 		Житель [NAME] заплатил вам L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Вы заплатили жителю [NAME] L$[AMOUNT] за [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Вы заплатили пользователю [NAME] L$[AMOUNT]: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Вы заплатили L$[AMOUNT].
@@ -4494,6 +4581,9 @@ support@secondlife.com.
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]: [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Вы не смогли заплатить L$[AMOUNT]
@@ -4821,11 +4911,20 @@ support@secondlife.com.
 	<string name="texture_load_dimensions_error">
 		Нельзя загружать изображения, размер которых превышает [WIDTH]*[HEIGHT]
 	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Максимальный размер фото костюма [WIDTH]*[HEIGHT]. Измените размер или используйте другое изображение
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Максимальный размер фото костюма [WIDTH]*[HEIGHT]. Выберите другую текстуру.
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Невозможно проверить размеры фото. Подождите, пока размеры фото не будут показаны в окне выбора
+	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
 		Несмотря на наши усилия, что-то неожиданно пошло не так.
 
-	Ознакомьтесь с описанием известных проблем в работе этой службы на сайте status.secondlifegrid.net.
+Ознакомьтесь с описанием известных проблем в работе этой службы на сайте http://status.secondlifegrid.net.
         Если проблемы продолжаются, то проверьте подключение к сети и настройки брандмауэра.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5298,6 +5397,9 @@ support@secondlife.com.
 	<string name="Command_Gestures_Label">
 		Жесты
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Состояние сетки
+	</string>
 	<string name="Command_HowTo_Label">
 		Инструкции
 	</string>
@@ -5336,6 +5438,9 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Profile_Label">
 		Профиль
+	</string>
+	<string name="Command_Report_Abuse_Label">
+		Жалоба
 	</string>
 	<string name="Command_Search_Label">
 		Поиск
@@ -5388,6 +5493,9 @@ support@secondlife.com.
 	<string name="Command_Gestures_Tooltip">
 		Жесты для аватара
 	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Показать текущее состояние сетки
+	</string>
 	<string name="Command_HowTo_Tooltip">
 		Выполнение типичных задач
 	</string>
@@ -5426,6 +5534,9 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Редактирование или просмотр вашего профиля
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Жалоба
 	</string>
 	<string name="Command_Search_Tooltip">
 		Поиск мест, событий, людей
@@ -5606,6 +5717,9 @@ support@secondlife.com.
 	</string>
 	<string name="loading_chat_logs">
 		Загрузка...
+	</string>
+	<string name="na">
+		н/д
 	</string>
 	<string name="preset_combo_label">
 		-Пустой список-

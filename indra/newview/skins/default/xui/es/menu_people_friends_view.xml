@@ -4,5 +4,6 @@
 	<menu_item_check label="Ordenar por estatus" name="sort_status"/>
 	<menu_item_check label="Ver los iconos de la gente" name="view_icons"/>
 	<menu_item_check label="Ver permisos concedidos" name="view_permissions"/>
+	<menu_item_check label="Ocultar nombres de usuario" name="view_usernames"/>
 	<menu_item_check label="Ver el registro de conversaciones..." name="view_conversation"/>
 </toggleable_menu>

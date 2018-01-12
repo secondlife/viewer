@@ -618,6 +618,7 @@ char const* const _PREHASH_GroupAccountSummaryRequest = LLMessageStringTable::ge
 char const* const _PREHASH_GroupVoteHistoryRequest = LLMessageStringTable::getInstance()->getString("GroupVoteHistoryRequest");
 char const* const _PREHASH_ParamValue = LLMessageStringTable::getInstance()->getString("ParamValue");
 char const* const _PREHASH_MaxAgents = LLMessageStringTable::getInstance()->getString("MaxAgents");
+char const* const _PREHASH_HardMaxAgents = LLMessageStringTable::getInstance()->getString("HardMaxAgents");
 char const* const _PREHASH_CreateNewOutfitAttachments = LLMessageStringTable::getInstance()->getString("CreateNewOutfitAttachments");
 char const* const _PREHASH_RegionHandle = LLMessageStringTable::getInstance()->getString("RegionHandle");
 char const* const _PREHASH_TeleportProgress = LLMessageStringTable::getInstance()->getString("TeleportProgress");
@@ -1372,6 +1373,9 @@ char const* const _PREHASH_OwnerMask = LLMessageStringTable::getInstance()->getS
 char const* const _PREHASH_TransferInventoryAck = LLMessageStringTable::getInstance()->getString("TransferInventoryAck");
 char const* const _PREHASH_RegionDenyAgeUnverified = LLMessageStringTable::getInstance()->getString("RegionDenyAgeUnverified");
 char const* const _PREHASH_AgeVerificationBlock = LLMessageStringTable::getInstance()->getString("AgeVerificationBlock");
+char const* const _PREHASH_RegionAllowAccessBlock = LLMessageStringTable::getInstance()->getString("RegionAllowAccessBlock");
+char const* const _PREHASH_RegionAllowAccessOverride = LLMessageStringTable::getInstance()->getString("RegionAllowAccessOverride");
+
 char const* const _PREHASH_UCoord = LLMessageStringTable::getInstance()->getString("UCoord");
 char const* const _PREHASH_VCoord = LLMessageStringTable::getInstance()->getString("VCoord");
 char const* const _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getString("FaceIndex");

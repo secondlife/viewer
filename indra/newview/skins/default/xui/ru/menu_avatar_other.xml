@@ -7,6 +7,7 @@
 	<menu_item_call label="Звонок" name="Call"/>
 	<menu_item_call label="Пригласить в группу" name="Invite..."/>
 	<menu_item_call label="Сброс скелета" name="Reset Skeleton"/>
+	<menu_item_call label="Восстановить скелет и анимации" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Заблокировать" name="Avatar Mute"/>
 	<menu_item_call label="Пожаловаться" name="abuse"/>
 	<menu_item_call label="Заморозить" name="Freeze..."/>
@@ -15,8 +16,11 @@
 	<menu_item_call label="Вывод XML" name="Dump XML"/>
 	<menu_item_call label="Приблизить" name="Zoom In"/>
 	<menu_item_call label="Заплатить" name="Pay..."/>
-	<menu_item_check label="Обычная прорисовка" name="RenderNormally"/>
-	<menu_item_check label="Не рисовать" name="DoNotRender"/>
-	<menu_item_check label="Полная прорисовка" name="AlwaysRenderFully"/>
+	<context_menu label="Прорисовать аватар" name="Render Avatar">
+		<menu_item_check label="По умолчанию" name="RenderNormally"/>
+		<menu_item_check label="Всегда" name="AlwaysRenderFully"/>
+		<menu_item_check label="Никогда" name="DoNotRender"/>
+		<menu_item_call label="Исключения..." name="RenderExceptions"/>
+	</context_menu>
 	<menu_item_call label="Блокировать владельца участка" name="Mute Particle"/>
 </context_menu>

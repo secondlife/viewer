@@ -15,5 +15,11 @@
 	<floater.string name="NotRunning">
 		Çalışmıyor
 	</floater.string>
+	<floater.string name="Timeout">
+		Zaman aşımı: [OBJECT_NAME]
+	</floater.string>
+	<floater.string name="LoadingObjInv">
+		Şu öğe için envanter yükleniyor: [OBJECT_NAME]
+	</floater.string>
 	<button label="Kapat" label_selected="Kapat" name="close"/>
 </floater>

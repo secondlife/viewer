@@ -35,9 +35,9 @@ class LLPickInfo;
 class LLToolFace
 :	public LLTool, public LLSingleton<LLToolFace>
 {
-public:
-	LLToolFace();
+	LLSINGLETON(LLToolFace);
 	virtual ~LLToolFace();
+public:
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);

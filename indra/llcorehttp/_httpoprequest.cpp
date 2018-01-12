@@ -140,6 +140,8 @@ HttpOpRequest::HttpOpRequest()
 	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
 	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
+	  mPolicyMinRetryBackoff(HttpTime(HTTP_RETRY_BACKOFF_MIN_DEFAULT)),
+	  mPolicyMaxRetryBackoff(HttpTime(HTTP_RETRY_BACKOFF_MAX_DEFAULT)),
 	  mCallbackSSLVerify(NULL)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
@@ -434,6 +436,9 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 		mPolicyRetryLimit = options->getRetries();
 		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, HTTP_RETRY_COUNT_MIN, HTTP_RETRY_COUNT_MAX);
 		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), HTTP_TRACE_MIN, HTTP_TRACE_MAX));
+
+		mPolicyMinRetryBackoff = llclamp(options->getMinBackoff(), HttpTime(0), HTTP_RETRY_BACKOFF_MAX);
+		mPolicyMaxRetryBackoff = llclamp(options->getMaxBackoff(), mPolicyMinRetryBackoff, HTTP_RETRY_BACKOFF_MAX);
 	}
 }
 
@@ -568,7 +573,17 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
-		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+		if (LLProxy::instanceExists())
+		{
+			// Make sure proxy won't be initialized from here,
+			// it might conflict with LLStartUp::startLLProxy()
+			LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+		}
+		else
+		{
+			LL_WARNS() << "Proxy is not initialized!" << LL_ENDL;
+		}
+
 	}
 	else if (gpolicy.mHttpProxy.size())
 	{

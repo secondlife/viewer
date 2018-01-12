@@ -232,6 +232,7 @@ BOOL LLPanelWearing::postBuild()
 {
 	mAccordionCtrl = getChild<LLAccordionCtrl>("wearables_accordion");
 	mWearablesTab = getChild<LLAccordionCtrlTab>("tab_wearables");
+	mWearablesTab->setIgnoreResizeNotification(true);
 	mAttachmentsTab = getChild<LLAccordionCtrlTab>("tab_temp_attachments");
 	mAttachmentsTab->setDropDownStateChangedCallback(boost::bind(&LLPanelWearing::onAccordionTabStateChanged, this));
 
@@ -415,7 +416,7 @@ bool LLPanelWearing::populateAttachmentsList(bool update)
 void LLPanelWearing::requestAttachmentDetails()
 {
 	LLSD body;
-	std::string url = gAgent.getRegion()->getCapability("AttachmentResources");
+	std::string url = gAgent.getRegionCapability("AttachmentResources");
 	if (!url.empty())
 	{
 		LLCoros::instance().launch("LLPanelWearing::getAttachmentLimitsCoro",

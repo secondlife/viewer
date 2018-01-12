@@ -1197,6 +1197,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
 , mLodsQuery()
+, mLodsWithParsingError()
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
@@ -1261,6 +1262,10 @@ LLModelPreview::~LLModelPreview()
 	// glod.dll!glodShutdown()  + 0x77 bytes	
 	//
 	//glodShutdown();
+	if(mModelLoader)
+	{
+		mModelLoader->shutdown();
+	}
 }
 
 U32 LLModelPreview::calcResourceCost()
@@ -1780,8 +1785,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 			// this is the initial file picking. Close the whole floater
 			// if we don't have a base model to show for high LOD.
 			mFMP->closeFloater(false);
-			mLoading = false;
 		}
+		mLoading = false;
 		return;
 	}
 
@@ -1938,7 +1943,14 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 	{
 		mLoading = false ;
 		mModelLoader = NULL;
+		mLodsWithParsingError.push_back(loaded_lod);
 		return ;
+	}
+
+	mLodsWithParsingError.erase(std::remove(mLodsWithParsingError.begin(), mLodsWithParsingError.end(), loaded_lod), mLodsWithParsingError.end());
+	if(mLodsWithParsingError.empty())
+	{
+		mFMP->childEnable( "calculate_btn" );
 	}
 
 	// Copy determinations about rig so UI will reflect them
@@ -2162,7 +2174,11 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 		if (!mBaseModel.empty())
 		{
 			const std::string& model_name = mBaseModel[0]->getName();
-			mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
+			LLLineEditor* description_form = mFMP->getChild<LLLineEditor>("description_form");
+			if (description_form->getText().empty())
+			{
+				description_form->setText(model_name);
+			}
 		}
 	}
 	refresh();
@@ -2552,13 +2568,21 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 				if (sizes[i*2+1] > 0 && sizes[i*2] > 0)
 				{
-					buff->allocateBuffer(sizes[i*2+1], sizes[i*2], true);
+					if (!buff->allocateBuffer(sizes[i * 2 + 1], sizes[i * 2], true))
+					{
+						// Todo: find a way to stop preview in this case instead of crashing
+						LL_ERRS() << "Failed buffer allocation during preview LOD generation."
+							<< " Vertices: " << sizes[i * 2 + 1]
+							<< " Indices: " << sizes[i * 2] << LL_ENDL;
+					}
 					buff->setBuffer(type_mask);
 					glodFillElements(mObject[base], names[i], GL_UNSIGNED_SHORT, (U8*) buff->getIndicesPointer());
 					stop_gloderror();
 				}
 				else
-				{ //this face was eliminated, create a dummy triangle (one vertex, 3 indices, all 0)
+				{
+					// This face was eliminated or we failed to allocate buffer,
+					// attempt to create a dummy triangle (one vertex, 3 indices, all 0)
 					buff->allocateBuffer(1, 3, true);
 					memset((U8*) buff->getMappedData(), 0, buff->getSize());
 					memset((U8*) buff->getIndicesPointer(), 0, buff->getIndicesSize());
@@ -2687,17 +2711,7 @@ void LLModelPreview::updateStatusMessages()
                 setLoadState( LLModelLoader::ERROR_MATERIALS );
                 mFMP->childDisable( "calculate_btn" );
             }
-
-            int refFaceCnt = 0;
-            int modelFaceCnt = 0;
-
-            if (!lod_model->matchMaterialOrder(model_high_lod, refFaceCnt, modelFaceCnt ) )
-			{
-                setLoadState( LLModelLoader::ERROR_MATERIALS );
-				mFMP->childDisable( "calculate_btn" );
-			}
-
-            if (lod_model)
+            else
 			{
 					//for each model in the lod
 				S32 cur_tris = 0;
@@ -3316,7 +3330,13 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
 			vb = new LLVertexBuffer(mask, 0);
 
-			vb->allocateBuffer(num_vertices, num_indices, TRUE);
+			if (!vb->allocateBuffer(num_vertices, num_indices, TRUE))
+			{
+				// We are likely to crash due this failure, if this happens, find a way to gracefully stop preview
+				LL_WARNS() << "Failed to allocate Vertex Buffer for model preview "
+					<< num_vertices << " vertices and "
+					<< num_indices << " indices" << LL_ENDL;
+			}
 
 			LLStrider<LLVector3> vertex_strider;
 			LLStrider<LLVector3> normal_strider;
@@ -3630,7 +3650,7 @@ BOOL LLModelPreview::render()
 		}
 	}
 
-	if (has_skin_weights)
+	if (has_skin_weights && lodsReady())
 	{ //model has skin weights, enable view options for skin weights and joint positions
 		if (fmp && isLegacyRigValid() )
 		{
@@ -4555,4 +4575,12 @@ void LLFloaterModelPreview::setPermissonsErrorStatus(S32 status, const std::stri
 	LLNotificationsUtil::add("MeshUploadPermError");
 }
 
+bool LLFloaterModelPreview::isModelLoading()
+{
+	if(mModelPreview)
+	{
+		return mModelPreview->mLoading;
+	}
+	return false;
+}
 

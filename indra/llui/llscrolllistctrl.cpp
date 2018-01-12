@@ -345,6 +345,21 @@ S32 LLScrollListCtrl::getItemCount() const
 	return mItemList.size();
 }
 
+BOOL LLScrollListCtrl::hasSelectedItem() const
+{
+	item_list::iterator iter;
+	for (iter = mItemList.begin(); iter < mItemList.end(); )
+	{
+		LLScrollListItem* itemp = *iter;
+		if (itemp && itemp->getSelected())
+		{
+			return TRUE;
+		}
+		iter++;
+	}
+	return FALSE;
+}
+
 // virtual LLScrolListInterface function (was deleteAllItems)
 void LLScrollListCtrl::clearRows()
 {
@@ -1808,6 +1823,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			registrar.add("Url.ShowProfile", boost::bind(&LLScrollListCtrl::showProfile, id, is_group));
 			registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
 			registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));
+			registrar.add("Url.RemoveFriend", boost::bind(&LLScrollListCtrl::removeFriend, id));
 			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
 			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
 			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
@@ -1850,6 +1866,12 @@ void LLScrollListCtrl::addFriend(std::string id)
 	// add resident to friends list
 	std::string slurl = "secondlife:///app/agent/" + id + "/about";
 	LLUrlAction::addFriend(slurl);
+}
+
+void LLScrollListCtrl::removeFriend(std::string id)
+{
+	std::string slurl = "secondlife:///app/agent/" + id + "/about";
+	LLUrlAction::removeFriend(slurl);
 }
 
 void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)

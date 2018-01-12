@@ -52,16 +52,33 @@ Tarjeta gráfica: [GRAPHICS_CARD]
 	<string name="AboutDriver">
 		Versión de Windows Graphics Driver: [GRAPHICS_DRIVER_VERSION]
 	</string>
-	<string name="AboutLibs">
+	<string name="AboutOGL">
 		Versión de OpenGL: [OPENGL_VERSION]
-
-Versión de J2C Decoder: [J2C_VERSION]
+	</string>
+	<string name="AboutSettings">
+		Tamaño de la ventana: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Ajuste de tamaño de fuente: [FONT_SIZE_ADJUSTMENT]pt
+Ajuste de escala de IU: [UI_SCALE]
+Distancia de dibujo: [DRAW_DISTANCE]m
+Ancho de banda: [NET_BANDWITH]kbit/s
+Factor de LOD: [LOD_FACTOR]
+Calidad de renderizado: [RENDER_QUALITY] / 7
+Modelo de iluminación avanzado: [GPU_SHADERS]
+Memoria de textura: [TEXTURE_MEMORY]MB
+Tiempo de creación de VFS (caché): [VFS_TIME]
+	</string>
+	<string name="AboutLibs">
+		Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
 Versión de LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Versión de LibVLC: [LLCEFLIB_VERSION]
 Versión de Voice Server: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="AboutTime">
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Error al obtener la URL de las notas de la versión del servidor.
@@ -235,9 +252,8 @@ support@secondlife.com.
 [HORA] (horario de la costa del Pacífico).
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		En este momento no podemos completar la solicitud.
-Si deseas obtener asistencia, ponte en contacto con el departamento de soporte de Second Life a través de la página http://secondlife.com/support.
-Si no puedes cambiar la contraseña, llama al número (866) 476-9763.
+		En este momento no podemos completar la solicitud. 
+Por favor solicita ayuda al personal de asistencia de Second Life en http://support.secondlife.com.
 	</string>
 	<string name="LoginFailedTransformError">
 		Se han detectado datos incorrectos en el inicio de sesión.
@@ -675,6 +691,19 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="AssetErrorUnknownStatus">
 		Estado desconocido
 	</string>
+	<string name="AssetUploadServerUnreacheble">
+		El servicio no está disponible.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Se detectaron errores inesperados en el servidor.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		El servicio no está disponible o se alcanzó el tiempo de carga máxima.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Error en la solicitud de carga. Por favor, ingresa a 
+http://secondlife.com/support para obtener ayuda sobre cómo solucionar este problema.
+	</string>
 	<string name="texture">
 		la textura
 	</string>
@@ -1074,6 +1103,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="TeleportYourAgent">
 		Teleportarte
 	</string>
+	<string name="ForceSitAvatar">
+		Forzar que el avatar se siente
+	</string>
 	<string name="AgentNameSubst">
 		(Tú)
 	</string>
@@ -1453,7 +1485,8 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		La [[MARKETPLACE_CREATE_STORE_URL] tienda del Mercado] devuelve errores.
 	</string>
 	<string name="InventoryMarketplaceError">
-		Esta función está actualmente en versión beta. Si quieres participar, añade tu nombre a este [http://goo.gl/forms/FCQ7UXkakz Formulario de Google].
+		Se ha producido un error al abrir Artículos del Mercado.
+Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia de Second Life en http://support.secondlife.com
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		Tu carpeta Artículos del mercado está vacía.
@@ -1913,6 +1946,27 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="av_render_anyone">
 		Es posible que ninguno de los que están próximos pueda renderizarte.
 	</string>
+	<string name="hud_description_total">
+		Tu HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (lo llevas en [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] usa mucha memoria de textura
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] contiene muchas texturas y objetos complicados
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] contiene muchas texturas grandes
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] contiene demasiados objetos
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] contiene demasiadas texturas
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] año
 	</string>
@@ -2072,6 +2126,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="ObjectOutOfRange">
 		Script (objeto fuera de rango)
 	</string>
+	<string name="ScriptWasDeleted">
+		Script (eliminado del inventario)
+	</string>
 	<string name="GodToolsObjectOwnedBy">
 		El objeto [OBJECT] es propiedad de [OWNER]
 	</string>
@@ -2129,10 +2186,19 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		todos los estados que administras para [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Resientes autorizados: ([ALLOWEDAGENTS], de un máx. de [MAXACCESS])
+		Siempre permitido: ([ALLOWEDAGENTS], de un máx. de [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Grupos autorizados: ([ALLOWEDGROUPS], de un máx. de [MAXACCESS])
+		Grupos siempre permitidos: ([ALLOWEDGROUPS], de un máx. de [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Siempre prohibido: ([BANNEDAGENTS], de un máx. de [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Siempre permitido
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Siempre prohibido
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria de los scripts de la parcela
@@ -2641,6 +2707,15 @@ Se esperaba .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	</string>
 	<string name="Play Media">
 		Play/Pausa los media
+	</string>
+	<string name="IntelDriverPage">
+		http://www.intel.com/p/en_US/support/detect/graphics
+	</string>
+	<string name="NvidiaDriverPage">
+		http://www.nvidia.com/Download/index.aspx?lang=es
+	</string>
+	<string name="AMDDriverPage">
+		http://support.amd.com/us/Pages/AMDSupportHub.aspx
 	</string>
 	<string name="MBCmdLineError">
 		Ha habido un error analizando la línea de comando.
@@ -4301,7 +4376,10 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Conferencia con [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Ofrecido el item del inventario
+		Ítem del inventario &apos;[ITEM_NAME]&apos; ofrecido
+	</string>
+	<string name="inventory_folder_offered-im">
+		Carpeta del inventario &apos;[ITEM_NAME]&apos; ofrecida
 	</string>
 	<string name="share_alert">
 		Arrastra los ítems desde el invenbtario hasta aquí
@@ -4388,16 +4466,25 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Posición inicial establecida.
 	</string>
 	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
+		https://secondlife.com/destination/voice-island
+	</string>
+	<string name="premium_voice_morphing_url">
+		https://secondlife.com/destination/voice-morphing-premium
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] te ha pagado [AMOUNT] L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] te ha pagado [AMOUNT] L$: [REASON]
 	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] te ha pagado [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Has pagado [AMOUNT] L$ a [NAME] por [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Has pagado [AMOUNT] L$ a [NAME]: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Has pagado[AMOUNT] L$
@@ -4410,6 +4497,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_failure_ldollars">
 		No has pagado a [NAME] [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		No has pagado a [NAME] [AMOUNT] L$: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		No has pagado [AMOUNT] L$.
@@ -4588,7 +4678,7 @@ Denuncia de infracción
 		Varón - Encogimiento de hombros
 	</string>
 	<string name="Male - Stick tougue out">
-		Varón - Sacando la lengua
+		Hombre - Sacando la lengua
 	</string>
 	<string name="Male - Wow">
 		Varón - Admiración
@@ -4737,11 +4827,20 @@ Denuncia de infracción
 	<string name="texture_load_dimensions_error">
 		No se puede subir imágenes mayores de [WIDTH]*[HEIGHT]
 	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		La foto del vestuario puede tener como máx. un tamaño de [WIDTH]*[HEIGHT]. Cambia el tamaño o utiliza otra imagen
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		La foto del vestuario puede tener como máx. un tamaño de [WIDTH]*[HEIGHT]. Selecciona otra textura
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		No se pueden verificar las dimensiones de la foto. Espera hasta que aparezca el tamaño de la foto en el selector
+	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
 		Parece que hay algún problema que ha escapado a nuestros controles.
 
-	Visita status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.
+Visita http://status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.
         Si sigues teniendo problemas, comprueba la configuración de la red y del servidor de seguridad.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -5202,6 +5301,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Gestures_Label">
 		Gestos
 	</string>
+	<string name="Command_Grid_Status_Label">
+		Estado del Grid
+	</string>
 	<string name="Command_HowTo_Label">
 		Cómo
 	</string>
@@ -5240,6 +5342,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Profile_Label">
 		Perfil
+	</string>
+	<string name="Command_Report_Abuse_Label">
+		Denunciar una infracción
 	</string>
 	<string name="Command_Search_Label">
 		Buscar
@@ -5292,6 +5397,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Gestures_Tooltip">
 		Gestos para tu avatar
 	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Mostrar el estado actual del Grid
+	</string>
 	<string name="Command_HowTo_Tooltip">
 		Cómo hacer las tareas habituales
 	</string>
@@ -5330,6 +5438,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Consulta o edita tu perfil
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Denunciar una infracción
 	</string>
 	<string name="Command_Search_Tooltip">
 		Buscar lugares, eventos y personas
@@ -5510,6 +5621,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="loading_chat_logs">
 		Cargando...
+	</string>
+	<string name="na">
+		n/c
 	</string>
 	<string name="preset_combo_label">
 		-Lista vacía-

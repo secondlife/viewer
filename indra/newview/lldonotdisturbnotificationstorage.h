@@ -47,13 +47,13 @@ public:
 
 class LLDoNotDisturbNotificationStorage : public LLSingleton<LLDoNotDisturbNotificationStorage>, public LLNotificationStorage
 {
+	LLSINGLETON(LLDoNotDisturbNotificationStorage);
+	~LLDoNotDisturbNotificationStorage();
+
 	LOG_CLASS(LLDoNotDisturbNotificationStorage);
 public:
     static const char * toastName;
     static const char * offerName;
-
-	LLDoNotDisturbNotificationStorage();
-	~LLDoNotDisturbNotificationStorage();
 
 	void initialize();
     bool getDirty();

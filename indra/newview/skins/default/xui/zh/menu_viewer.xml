@@ -42,6 +42,7 @@
 			<menu_item_check label="沒有變聲效果" name="NoVoiceMorphing"/>
 			<menu_item_check label="預覽……" name="Preview"/>
 			<menu_item_call label="訂閱……" name="Subscribe"/>
+			<menu_item_call label="付費會員獨享…" name="PremiumPerk"/>
 		</menu>
 		<menu_item_check label="姿勢…" name="Gestures"/>
 		<menu_item_check label="朋友" name="My Friends"/>
@@ -55,7 +56,8 @@
 		<menu_item_call label="目的地…" name="Destinations"/>
 		<menu_item_check label="世界地圖" name="World Map"/>
 		<menu_item_check label="迷你地圖" name="Mini-Map"/>
-		<menu_item_check label="搜尋" name="Search"/>
+		<menu_item_call label="活動" name="Events"/>
+		<menu_item_check label="搜尋…" name="Search"/>
 		<menu_item_call label="瞬間傳送回家" name="Teleport Home"/>
 		<menu_item_call label="把這裡設為我的家" name="Set Home to Here"/>
 		<menu_item_call label="快照" name="Take Snapshot"/>
@@ -111,13 +113,13 @@
 		<menu_item_call label="聯結" name="Link"/>
 		<menu_item_call label="取消聯結" name="Unlink"/>
 		<menu_item_check label="編輯聯結部位" name="Edit Linked Parts"/>
-		<menu label="選擇聯結部位" name="Select Linked Parts">
-			<menu_item_call label="選擇下一部位" name="Select Next Part"/>
-			<menu_item_call label="選擇上一部位" name="Select Previous Part"/>
-			<menu_item_call label="包括下一部位" name="Include Next Part"/>
-			<menu_item_call label="包括上一部位" name="Include Previous Part"/>
+		<menu label="選擇元素" name="Select Elements">
+			<menu_item_call label="選擇下一部位或臉" name="Select Next Part or Face"/>
+			<menu_item_call label="選擇上一部位或臉" name="Select Previous Part or Face"/>
+			<menu_item_call label="包括下一部位或臉" name="Include Next Part or Face"/>
+			<menu_item_call label="包括上一部位或臉" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="聯結集…" name="pathfinding_linkset_menu_item"/>
+		<menu_item_call label="地區物件" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="聚焦於所選部位" name="Focus on Selection"/>
 		<menu_item_call label="縮放至所選部位" name="Zoom to Selection"/>
 		<menu label="物件" name="Object">
@@ -126,8 +128,10 @@
 			<menu_item_call label="取得副本" name="Take Copy"/>
 			<menu_item_call label="回存到物件內容" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="退回物件" name="Return Object back to Owner"/>
+			<menu_item_call label="複製" name="DuplicateObject"/>
 		</menu>
 		<menu label="腳本" name="Scripts">
+			<menu_item_check label="腳本警告/錯誤…" name="Script debug"/>
 			<menu_item_call label="重新編譯腳本（Mono）" name="Mono"/>
 			<menu_item_call label="重新編譯腳本（LSL）" name="LSL"/>
 			<menu_item_call label="重設腳本" name="Reset Scripts"/>
@@ -135,7 +139,7 @@
 			<menu_item_call label="設定腳本為非執行中" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="尋徑" name="Pathfinding">
-			<menu_item_call label="聯結集…" name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="地區物件" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="角色…" name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="察看 / 測試…" name="pathfinding_console_menu_item"/>
 			<menu_item_call label="重新產出地區" name="pathfinding_rebake_navmesh_item"/>
@@ -167,6 +171,7 @@
 	</menu>
 	<menu label="幫助" name="Help">
 		<menu_item_call label="簡易教學…" name="How To"/>
+		<menu_item_call label="快速上手" name="Quickstart"/>
 		<menu_item_call label="知識庫" name="Knowledge Base"/>
 		<menu_item_call label="維基" name="Wiki"/>
 		<menu_item_call label="社群論壇" name="Community Forums"/>
@@ -366,8 +371,7 @@
 			<menu_item_call label="傾印地區物件快取" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="使用者界面" name="UI">
-			<menu_item_call label="媒體瀏覽器測試" name="Web Browser Test"/>
-			<menu_item_call label="網頁內容瀏覽器" name="Web Content Browser"/>
+			<menu_item_call label="媒體瀏覽器" name="Media Browser"/>
 			<menu_item_call label="傾印 SelectMgr" name="Dump SelectMgr"/>
 			<menu_item_call label="傾印收納區" name="Dump Inventory"/>
 			<menu_item_call label="傾印碼錶" name="Dump Timers"/>

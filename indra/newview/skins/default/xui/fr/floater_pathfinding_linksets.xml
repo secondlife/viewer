@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="Groupes de liens de recherche de chemin">
+<floater name="floater_pathfinding_linksets" title="OBJETS DES RÉGIONS">
 	<floater.string name="messaging_get_inprogress">
 		Requête relative aux groupes de liens de recherche de chemin en cours...
 	</floater.string>
@@ -16,7 +16,7 @@
 		Aucun groupe de liens de recherche de chemin.
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		[NUM_SELECTED] groupes de liens sélectionnés sur [NUM_TOTAL].
+		[NUM_SELECTED] sélectionnés à partir de [NUM_TOTAL].
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
 		La recherche de chemin n&apos;a pas été activée pour cette région.
@@ -118,7 +118,7 @@
 			<scroll_list.columns label="Scripté" name="scripted"/>
 			<scroll_list.columns label="Impact" name="land_impact"/>
 			<scroll_list.columns label="Distance" name="dist_from_you"/>
-			<scroll_list.columns label="Usage du groupe de liens" name="linkset_use"/>
+			<scroll_list.columns label="Utiliser la recherche de chemin" name="linkset_use"/>
 			<scroll_list.columns label="% A" name="a_percent"/>
 			<scroll_list.columns label="% B" name="b_percent"/>
 			<scroll_list.columns label="% C" name="c_percent"/>
@@ -133,7 +133,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_actions">
 		<text name="linksets_actions_label">
-			Actions sur les groupes de liens sélectionnés (si un groupe de liens est supprimé du monde, ses attributs risquent d’être perdus) :
+			Actions sur les objets sélectionnés
 		</text>
 		<check_box label="Afficher la balise" name="show_beacon"/>
 		<button label="Prendre" name="take_objects"/>
@@ -144,7 +144,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_attributes">
 		<text name="linksets_attributes_label">
-			Modifier les attributs des groupes de liens sélectionnés et appuyer sur le bouton pour appliquer les modifications
+			Modifier les attributs de recherche de chemin
 		</text>
 		<text name="walkability_coefficients_label">
 			Marche possible :

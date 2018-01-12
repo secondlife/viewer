@@ -112,24 +112,16 @@ BOOL LLFloaterScriptLimits::postBuild()
 	}
 
 	// contruct the panels
-	std::string land_url = gAgent.getRegion()->getCapability("LandResources");
-	if (!land_url.empty())
-	{
-		LLPanelScriptLimitsRegionMemory* panel_memory;
-		panel_memory = new LLPanelScriptLimitsRegionMemory;
-		mInfoPanels.push_back(panel_memory);
-		panel_memory->buildFromFile( "panel_script_limits_region_memory.xml");
-		mTab->addTabPanel(panel_memory);
-	}
-	
-	std::string attachment_url = gAgent.getRegion()->getCapability("AttachmentResources");
-	if (!attachment_url.empty())
-	{
-		LLPanelScriptLimitsAttachment* panel_attachments = new LLPanelScriptLimitsAttachment;
-		mInfoPanels.push_back(panel_attachments);
-		panel_attachments->buildFromFile("panel_script_limits_my_avatar.xml");
-		mTab->addTabPanel(panel_attachments);
-	}
+	LLPanelScriptLimitsRegionMemory* panel_memory = new LLPanelScriptLimitsRegionMemory;
+	mInfoPanels.push_back(panel_memory);
+	panel_memory->buildFromFile( "panel_script_limits_region_memory.xml");
+	mTab->addTabPanel(panel_memory);
+
+	LLPanelScriptLimitsAttachment* panel_attachments = new LLPanelScriptLimitsAttachment;
+	mInfoPanels.push_back(panel_attachments);
+	panel_attachments->buildFromFile("panel_script_limits_my_avatar.xml");
+	mTab->addTabPanel(panel_attachments);
+
 	
 	if(mInfoPanels.size() > 0)
 	{
@@ -195,6 +187,8 @@ LLPanelScriptLimitsRegionMemory::~LLPanelScriptLimitsRegionMemory()
 
 BOOL LLPanelScriptLimitsRegionMemory::getLandScriptResources()
 {
+	if (!gAgent.getRegion()) return FALSE;
+
 	LLSD body;
 	std::string url = gAgent.getRegion()->getCapability("LandResources");
 	if (!url.empty())
@@ -391,6 +385,14 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(S32 status, const std::stri
 }
 
 // callback from the name cache with an owner name to add to the list
+void LLPanelScriptLimitsRegionMemory::onAvatarNameCache(
+    const LLUUID& id,
+    const LLAvatarName& av_name)
+{
+    onNameCache(id, av_name.getUserName());
+}
+
+// callback from the name cache with an owner name to add to the list
 void LLPanelScriptLimitsRegionMemory::onNameCache(
 						 const LLUUID& id,
 						 const std::string& full_name)
@@ -503,7 +505,9 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				}
 				else
 				{
-					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
+					LLAvatarName av_name;
+					name_is_cached = LLAvatarNameCache::get(owner_id, &av_name);
+					owner_buf = av_name.getUserName();
 					owner_buf = LLCacheName::buildUsername(owner_buf);
 				}
 				if(!name_is_cached)
@@ -511,9 +515,18 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 					if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 					{
 						names_requested.push_back(owner_id);
-						gCacheName->get(owner_id, is_group_owned,  // username
-							boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
-							    this, _1, _2));
+						if (is_group_owned)
+						{
+							gCacheName->getGroup(owner_id,
+								boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+								    this, _1, _2));
+						}
+						else
+						{
+							LLAvatarNameCache::get(owner_id,
+								boost::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
+								    this, _1, _2));
+						}
 					}
 				}
 			}
@@ -523,6 +536,8 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 
 			LLScrollListCell::Params cell_params;
 			cell_params.font = LLFontGL::getFontSansSerif();
+			// Start out right justifying numeric displays
+			cell_params.font_halign = LLFontGL::RIGHT;
 
 			cell_params.column = "size";
 			cell_params.value = size;
@@ -532,6 +547,8 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			cell_params.value = urls;
 			item_params.columns.add(cell_params);
 
+			cell_params.font_halign = LLFontGL::LEFT;
+			// The rest of the columns are text to left justify them
 			cell_params.column = "name";
 			cell_params.value = name_buf;
 			item_params.columns.add(cell_params);
@@ -546,7 +563,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 
 			cell_params.column = "location";
 			cell_params.value = has_locations
-				? llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z)
+				? llformat("<%0.0f, %0.0f, %0.0f>", location_x, location_y, location_z)
 				: "";
 			item_params.columns.add(cell_params);
 
@@ -623,13 +640,20 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 
 	if((mParcelMemoryUsed >= 0) && (mParcelMemoryMax >= 0))
 	{
-		S32 parcel_memory_available = mParcelMemoryMax - mParcelMemoryUsed;
-
 		LLStringUtil::format_map_t args_parcel_memory;
 		args_parcel_memory["[COUNT]"] = llformat ("%d", mParcelMemoryUsed);
-		args_parcel_memory["[MAX]"] = llformat ("%d", mParcelMemoryMax);
-		args_parcel_memory["[AVAILABLE]"] = llformat ("%d", parcel_memory_available);
-		std::string msg_parcel_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_parcel_memory);
+		std::string translate_message = "ScriptLimitsMemoryUsedSimple";
+
+		if (0 < mParcelMemoryMax)
+		{
+			S32 parcel_memory_available = mParcelMemoryMax - mParcelMemoryUsed;
+
+			args_parcel_memory["[MAX]"] = llformat ("%d", mParcelMemoryMax);
+			args_parcel_memory["[AVAILABLE]"] = llformat ("%d", parcel_memory_available);
+			translate_message = "ScriptLimitsMemoryUsed";
+		}
+
+		std::string msg_parcel_memory = LLTrans::getString(translate_message, args_parcel_memory);
 		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_parcel_memory));
 	}
 
@@ -688,10 +712,9 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 	LLParcel* parcel = instance->getCurrentSelectedParcel();
 	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	
-	LLUUID current_region_id = gAgent.getRegion()->getRegionID();
-
 	if ((region) && (parcel))
 	{
+		LLUUID current_region_id = gAgent.getRegion()->getRegionID();
 		LLVector3 parcel_center = parcel->getCenterpoint();
 		
 		region_id = region->getRegionID();
@@ -952,6 +975,8 @@ void LLPanelScriptLimitsRegionMemory::onClickReturn(void* userdata)
 
 BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 {
+	if (!gAgent.getRegion()) return FALSE;
+
 	LLSD body;
 	std::string url = gAgent.getRegion()->getCapability("AttachmentResources");
 	if (!url.empty())
@@ -1061,10 +1086,12 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			element["columns"][0]["column"] = "size";
 			element["columns"][0]["value"] = llformat("%d", size);
 			element["columns"][0]["font"] = "SANSSERIF";
+			element["columns"][0]["halign"] = LLFontGL::RIGHT;
 
 			element["columns"][1]["column"] = "urls";
 			element["columns"][1]["value"] = llformat("%d", urls);
 			element["columns"][1]["font"] = "SANSSERIF";
+			element["columns"][1]["halign"] = LLFontGL::RIGHT;
 			
 			element["columns"][2]["column"] = "name";
 			element["columns"][2]["value"] = name;
@@ -1151,14 +1178,20 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 
 	if((mAttachmentMemoryUsed >= 0) && (mAttachmentMemoryMax >= 0))
 	{
-		S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
-
 		LLStringUtil::format_map_t args_attachment_memory;
 		args_attachment_memory["[COUNT]"] = llformat ("%d", mAttachmentMemoryUsed);
-		args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
-		args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
-		std::string msg_attachment_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_attachment_memory);
-		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_attachment_memory));
+		std::string translate_message = "ScriptLimitsMemoryUsedSimple";
+
+		if (0 < mAttachmentMemoryMax)
+		{
+			S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
+
+			args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
+			args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
+			translate_message = "ScriptLimitsMemoryUsed";
+		}
+
+		getChild<LLUICtrl>("memory_used")->setValue(LLTrans::getString(translate_message, args_attachment_memory));
 	}
 
 	if((mAttachmentURLsUsed >= 0) && (mAttachmentURLsMax >= 0))

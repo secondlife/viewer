@@ -41,7 +41,7 @@ LLFloaterModelUploadBase::LLFloaterModelUploadBase(const LLSD& key)
 void LLFloaterModelUploadBase::requestAgentUploadPermissions()
 {
 	std::string capability = "MeshUploadFlag";
-	std::string url = gAgent.getRegion()->getCapability(capability);
+	std::string url = gAgent.getRegionCapability(capability);
 
 	if (!url.empty())
 	{
@@ -80,6 +80,7 @@ void LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro(std::string url
     if (!observer)
     { 
         LL_WARNS("MeshUploadFlag") << "Unable to get observer after call to '" << url << "' aborting." << LL_ENDL;
+        return;
     }
 
     if (!status)

@@ -7,6 +7,7 @@
 	<menu_item_call label="Appeler" name="Call"/>
 	<menu_item_call label="Inviter dans le groupe" name="Invite..."/>
 	<menu_item_call label="Réinitialiser le squelette" name="Reset Skeleton"/>
+	<menu_item_call label="Réinitialiser le squelette et les animations" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Ignorer" name="Avatar Mute"/>
 	<menu_item_call label="Signaler" name="abuse"/>
 	<menu_item_call label="Figer" name="Freeze..."/>
@@ -16,8 +17,11 @@
 	<menu_item_call label="Zoomer en avant" name="Zoom In"/>
 	<menu_item_call label="Payer" name="Pay..."/>
 	<menu_item_call label="Profil de l&apos;objet" name="Object Inspect"/>
-	<menu_item_check label="Effectuer le rendu normalement" name="RenderNormally"/>
-	<menu_item_check label="Ne pas effectuer le rendu" name="DoNotRender"/>
-	<menu_item_check label="Effectuer le rendu total" name="AlwaysRenderFully"/>
+	<context_menu label="Effectuer le rendu de l’avatar" name="Render Avatar">
+		<menu_item_check label="Valeur par défaut" name="RenderNormally"/>
+		<menu_item_check label="Toujours" name="AlwaysRenderFully"/>
+		<menu_item_check label="Jamais" name="DoNotRender"/>
+		<menu_item_call label="Exceptions..." name="RenderExceptions"/>
+	</context_menu>
 	<menu_item_call label="Ignorer le propriétaire des particules" name="Mute Particle"/>
 </context_menu>

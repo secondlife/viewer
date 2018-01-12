@@ -15,6 +15,8 @@
 	<button label="全部" label_selected="全部" name="All"/>
 	<button label="無" label_selected="無" name="None"/>
 	<check_box label="固定顯示資料夾" name="check_show_empty"/>
+	<check_box label="我建立的" name="check_created_by_me"/>
+	<check_box label="其他人所建立" name="check_created_by_others"/>
 	<check_box label="自上次登出" name="check_since_logoff"/>
 	<text name="- OR -">
 		- 或 -

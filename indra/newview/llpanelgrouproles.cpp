@@ -494,6 +494,7 @@ void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 	mSearchFilter = filter;
 	LLStringUtil::toLower(mSearchFilter);
 	update(GC_ALL);
+	onFilterChanged();
 }
 
 void LLPanelGroupSubTab::activate()
@@ -1168,9 +1169,9 @@ void LLPanelGroupMembersSubTab::confirmEjectMembers()
 	if (selection_count == 1)
 	{
 		LLSD args;
-		std::string fullname;
-		gCacheName->getFullName(mMembersList->getValue(), fullname);
-		args["AVATAR_NAME"] = fullname;
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(mMembersList->getValue(), &av_name);
+		args["AVATAR_NAME"] = av_name.getUserName();
 		LLSD payload;
 		LLNotificationsUtil::add("EjectGroupMemberWarning",
 				 	 	 	 	 args,
@@ -1231,7 +1232,7 @@ void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, c
 		for (uuid_vec_t::const_iterator i = selected_members.begin(); i != selected_members.end(); ++i)
 		{
 			LLSD args;
-			args["AVATAR_NAME"] = LLSLURL("agent", *i, "displayname").getSLURLString();
+			args["AVATAR_NAME"] = LLSLURL("agent", *i, "completename").getSLURLString();
 			args["GROUP_NAME"] = group_data->mName;
 			
 			LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));
@@ -1862,9 +1863,9 @@ void LLPanelGroupMembersSubTab::confirmBanMembers()
 	if (selection_count == 1)
 	{
 		LLSD args;
-		std::string fullname;
-		gCacheName->getFullName(mMembersList->getValue(), fullname);
-		args["AVATAR_NAME"] = fullname;
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(mMembersList->getValue(), &av_name);
+		args["AVATAR_NAME"] = av_name.getUserName();
 		LLSD payload;
 		LLNotificationsUtil::add("BanGroupMemberWarning",
 				 	 	 	 	 args,
@@ -2471,12 +2472,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 		
 		//////////////////////////////////////////////////////////////////////////
 
-		LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.find(role_id);
-		U64 current_role_powers = GP_NO_POWERS;
-		if (rit != gdatap->mRoles.end())
-		{
-			current_role_powers = ((*rit).second->getRoleData().mRolePowers);
-		}
+		U64 current_role_powers = gdatap->getRolePowers(role_id);
 
 		if(isEnablingAbility)
 		{
@@ -2775,6 +2771,16 @@ void LLPanelGroupActionsSubTab::activate()
 	LLPanelGroupSubTab::activate();
 
 	update(GC_ALL);
+	mActionDescription->clear();
+	mActionList->deselectAllItems();
+	mActionList->deleteAllItems();
+	buildActionsList(mActionList,
+					 GP_ALL_POWERS,
+					 GP_ALL_POWERS,
+					 NULL,
+					 FALSE,
+					 TRUE,
+					 FALSE);
 }
 
 void LLPanelGroupActionsSubTab::deactivate()
@@ -2803,19 +2809,31 @@ void LLPanelGroupActionsSubTab::update(LLGroupChange gc)
 
 	if (mGroupID.isNull()) return;
 
-	mActionList->deselectAllItems();
 	mActionMembers->deleteAllItems();
 	mActionRoles->deleteAllItems();
-	mActionDescription->clear();
 
+	if(mActionList->hasSelectedItem())
+	{
+		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+		if (gdatap && gdatap->isMemberDataComplete() && gdatap->isRoleDataComplete())
+		{
+			handleActionSelect();
+		}
+	}
+}
+
+void LLPanelGroupActionsSubTab::onFilterChanged()
+{
+	mActionDescription->clear();
+	mActionList->deselectAllItems();
 	mActionList->deleteAllItems();
 	buildActionsList(mActionList,
-					 GP_ALL_POWERS,
-					 GP_ALL_POWERS,
-					 NULL,
-					 FALSE,
-					 TRUE,
-					 FALSE);
+		GP_ALL_POWERS,
+		GP_ALL_POWERS,
+		NULL,
+		FALSE,
+		TRUE,
+		FALSE);
 }
 
 void LLPanelGroupActionsSubTab::handleActionSelect()

@@ -350,6 +350,11 @@ void LLInventoryFetchDescendentsObserver::startFetch()
 		if (!cat) continue;
 		if (!isCategoryComplete(cat))
 		{
+			// CHECK IT: isCategoryComplete() checks both version and descendant count but
+			// fetch() only works for Unknown version and doesn't care about descentants,
+			// as result fetch won't start and folder will potentially get stuck as
+			// incomplete in observer.
+			// Likely either both should use only version or both should check descendants.
 			cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
 			mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
 		}
@@ -656,7 +661,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
     }
 }
 
-bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)
+bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash)
 {
 	S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
 	S32 current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
@@ -694,8 +699,15 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 
 	if (can_be_added)
 	{
-		mCategoryMap.insert(category_map_value_t(
-								cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
+		if(init_name_hash)
+		{
+			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
+			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents,item_name_hash)));
+		}
+		else
+		{
+			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
+		}
 	}
 
 	return can_be_added;
@@ -716,6 +728,18 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	, mIsNameHashInitialized(false)
 {
 	mItemNameHash.finalize();
+}
+
+LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
+	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash)
+
+	: mCatID(cat_id)
+	, mCallback(cb)
+	, mVersion(version)
+	, mDescendentsCount(num_descendents)
+	, mIsNameHashInitialized(true)
+	, mItemNameHash(name_hash)
+{
 }
 
 void LLScrollOnRenameObserver::changed(U32 mask)

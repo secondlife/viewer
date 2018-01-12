@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_settings_add.xml">
+	<menu_item_call label="Esegui sempre il rendering di un residente..." name="add_avatar_always_render"/>
+	<menu_item_call label="Non eseguire mai il rendering di un residente..." name="add_avatar_never_render"/>
+</toggleable_menu>

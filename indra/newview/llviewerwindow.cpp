@@ -33,6 +33,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <boost/filesystem.hpp>
 #include <boost/lambda/core.hpp>
 #include <boost/regex.hpp>
 
@@ -208,6 +209,7 @@
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
+#include "llcleanup.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -292,19 +294,19 @@ public:
 
 class RecordToChatConsole : public LLSingleton<RecordToChatConsole>
 {
+	LLSINGLETON(RecordToChatConsole);
 public:
-	RecordToChatConsole()
-		: LLSingleton<RecordToChatConsole>(),
-		mRecorder(new RecordToChatConsoleRecorder())
-	{
-	}
-
 	void startRecorder() { LLError::addRecorder(mRecorder); }
 	void stopRecorder() { LLError::removeRecorder(mRecorder); }
 
 private:
 	LLError::RecorderPtr mRecorder;
 };
+
+RecordToChatConsole::RecordToChatConsole():
+	mRecorder(new RecordToChatConsoleRecorder())
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -1598,17 +1600,20 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
-void LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
+BOOL LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
 {
     if (ui_scale_factor >= MIN_UI_SCALE && ui_scale_factor <= MAX_UI_SCALE)
     {
+        gSavedSettings.setF32("LastSystemUIScaleFactor", ui_scale_factor);
         gSavedSettings.setF32("UIScaleFactor", ui_scale_factor);
         LLViewerWindow::reshape(window_width, window_height);
         mResDirty = true;
+        return TRUE;
     }
     else
     {
         LL_WARNS() << "DPI change caused UI scale to go out of bounds: " << ui_scale_factor << LL_ENDL;
+        return FALSE;
     }
 }
 
@@ -2176,10 +2181,7 @@ void LLViewerWindow::shutdownViews()
 
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
-	if (LLNavigationBar::instanceExists())
-	{
-		delete LLNavigationBar::getInstance();
-	}
+	LLNavigationBar::deleteSingleton();
 	LL_INFOS() << "LLNavigationBar destroyed." << LL_ENDL ;
 	
 	// destroy menus after instantiating navbar above, as it needs
@@ -2215,7 +2217,7 @@ void LLViewerWindow::shutdownGL()
 	// Shutdown GL cleanly.  Order is very important here.
 	//--------------------------------------------------------
 	LLFontGL::destroyDefaultFonts();
-	LLFontManager::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLFontManager);
 	stop_glerror();
 
 	gSky.cleanup();
@@ -2238,7 +2240,7 @@ void LLViewerWindow::shutdownGL()
 	LLWorldMapView::cleanupTextures();
 
 	LLViewerTextureManager::cleanup() ;
-	LLImageGL::cleanupClass() ;
+	SUBSYSTEM_CLEANUP(LLImageGL) ;
 
 	LL_INFOS() << "All textures and llimagegl images are destroyed!" << LL_ENDL ;
 
@@ -2251,7 +2253,7 @@ void LLViewerWindow::shutdownGL()
 
 	gGL.shutdown();
 
-	LLVertexBuffer::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 
 	LL_INFOS() << "LLVertexBuffer cleaned." << LL_ENDL ;
 }
@@ -2723,8 +2725,16 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			return TRUE;
 		}
 
-		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
+		if (gAgent.isInitialized()
+			&& (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE || gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+			&& gMenuBarView
+			&& gMenuBarView->handleAcceleratorKey(key, mask))
+		{
+			LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+			return TRUE;
+		}
+
+		if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 		{
 			LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 			return TRUE;
@@ -2854,8 +2864,16 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// give menus a chance to handle unmodified accelerator keys
-	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-		||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
+	if (gAgent.isInitialized()
+		&& (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE || gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+		&& gMenuBarView
+		&& gMenuBarView->handleAcceleratorKey(key, mask))
+	{
+		LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+		return TRUE;
+	}
+
+	if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 	{
 		return TRUE;
 	}
@@ -4336,8 +4354,10 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picker)
+BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picker, BOOL& insufficient_memory)
 {
+	insufficient_memory = FALSE;
+
 	if (!image)
 	{
 		LL_WARNS() << "No image to save" << LL_ENDL;
@@ -4359,6 +4379,8 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
 	else
 		pick_type = LLFilePicker::FFSAVE_ALL; // ???
 	
+	BOOL is_snapshot_name_loc_set = isSnapshotLocSet();
+
 	// Get a base file location if needed.
 	if (force_picker || !isSnapshotLocSet())
 	{
@@ -4381,6 +4403,22 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
 		LLViewerWindow::sSnapshotDir = gDirUtilp->getDirName(filepath);
 	}
 
+	if(LLViewerWindow::sSnapshotDir.empty())
+	{
+		return FALSE;
+	}
+
+// Check if there is enough free space to save snapshot
+#ifdef LL_WINDOWS
+	boost::filesystem::space_info b_space = boost::filesystem::space(utf8str_to_utf16str(sSnapshotDir));
+#else
+	boost::filesystem::space_info b_space = boost::filesystem::space(sSnapshotDir);
+#endif
+	if (b_space.free < image->getDataSize())
+	{
+		insufficient_memory = TRUE;
+		return FALSE;
+	}
 	// Look for an unused file name
 	std::string filepath;
 	S32 i = 1;
@@ -4391,7 +4429,12 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
 		filepath = sSnapshotDir;
 		filepath += gDirUtilp->getDirDelimiter();
 		filepath += sSnapshotBaseName;
-		filepath += llformat("_%.3d",i);
+
+		if (is_snapshot_name_loc_set)
+		{
+			filepath += llformat("_%.3d",i);
+		}		
+
 		filepath += extension;
 
 		llstat stat_info;

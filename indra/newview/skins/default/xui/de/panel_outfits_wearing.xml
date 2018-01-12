@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
+	<panel.string name="no_attachments">
+		Keine Anhänge getragen.
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="Tragbare Objekte"/>
+		<accordion_tab name="tab_temp_attachments" title="Temporäre Anhänge"/>
+	</accordion>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
+		<menu_button name="options_gear_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
 	</panel>
 </panel>

@@ -41,10 +41,10 @@ class LLViewerMediaFocus :
 	public LLFocusableElement, 
 	public LLSingleton<LLViewerMediaFocus>
 {
-public:
-	LLViewerMediaFocus();
+	LLSINGLETON(LLViewerMediaFocus);
 	~LLViewerMediaFocus();
-	
+
+public:
 	// Set/clear the face that has media focus (takes keyboard input and has the full set of controls)
 	void setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
 	void clearFocus();

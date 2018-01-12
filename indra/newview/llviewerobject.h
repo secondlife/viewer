@@ -178,6 +178,8 @@ public:
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual BOOL	isTempAttachment() const;
 
+	virtual BOOL isHiglightedOrBeacon() const;
+
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
 	
@@ -388,7 +390,7 @@ public:
 
 	 // Create if necessary
 	LLAudioSource *getAudioSource(const LLUUID& owner_id);
-	bool isAudioSource() {return mAudioSourcep != NULL;}
+	BOOL isAudioSource() const {return mAudioSourcep != NULL;}
 
 	U8 getMediaType() const;
 	void setMediaType(U8 media_type);
@@ -573,7 +575,7 @@ public:
 
 public:
 	//counter-translation
-	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE) ;
+	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE,  BOOL skip_avatar_child = FALSE) ;
 	//counter-rotation
 	void resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations, 
 											const std::vector<LLVector3>& positions) ;

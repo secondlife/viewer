@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text Chat" name="chat">
+	<check_box initial_value="true" label="Auto-completamento gesti nella chat vicina" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Simula la battitura tasti quando sei in chat" name="play_typing_animation"/>
 		<check_box label="Quando sono OFF-LINE, spediscimi gli IM in una e-mail" name="send_im_to_email"/>

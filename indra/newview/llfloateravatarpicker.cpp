@@ -496,43 +496,57 @@ void LLFloaterAvatarPicker::find()
 
 	std::string text = getChild<LLUICtrl>("Edit")->getValue().asString();
 
+	size_t separator_index = text.find_first_of(" ._");
+	if (separator_index != text.npos)
+	{
+		std::string first = text.substr(0, separator_index);
+		std::string last = text.substr(separator_index+1, text.npos);
+		LLStringUtil::trim(last);
+		if("Resident" == last)
+		{
+			text = first;
+		}
+	}
+
 	mQueryID.generate();
 
 	std::string url;
 	url.reserve(128); // avoid a memory allocation or two
 
 	LLViewerRegion* region = gAgent.getRegion();
-	url = region->getCapability("AvatarPickerSearch");
-	// Prefer use of capabilities to search on both SLID and display name
-	if (!url.empty())
+	if(region)
 	{
-		// capability urls don't end in '/', but we need one to parse
-		// query parameters correctly
-		if (url.size() > 0 && url[url.size()-1] != '/')
+		url = region->getCapability("AvatarPickerSearch");
+		// Prefer use of capabilities to search on both SLID and display name
+		if (!url.empty())
 		{
-			url += "/";
+			// capability urls don't end in '/', but we need one to parse
+			// query parameters correctly
+			if (url.size() > 0 && url[url.size()-1] != '/')
+			{
+				url += "/";
+			}
+			url += "?page_size=100&names=";
+			std::replace(text.begin(), text.end(), '.', ' ');
+			url += LLURI::escape(text);
+			LL_INFOS() << "avatar picker " << url << LL_ENDL;
+
+            LLCoros::instance().launch("LLFloaterAvatarPicker::findCoro",
+                boost::bind(&LLFloaterAvatarPicker::findCoro, url, mQueryID, getKey().asString()));
 		}
-		url += "?page_size=100&names=";
-		std::replace(text.begin(), text.end(), '.', ' ');
-		url += LLURI::escape(text);
-		LL_INFOS() << "avatar picker " << url << LL_ENDL;
-
-        LLCoros::instance().launch("LLFloaterAvatarPicker::findCoro",
-            boost::bind(&LLFloaterAvatarPicker::findCoro, url, mQueryID, getKey().asString()));
+		else
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("AvatarPickerRequest");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->addUUID("QueryID", mQueryID);	// not used right now
+			msg->nextBlock("Data");
+			msg->addString("Name", text);
+			gAgent.sendReliableMessage();
+		}
 	}
-	else
-	{
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessage("AvatarPickerRequest");
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->addUUID("QueryID", mQueryID);	// not used right now
-		msg->nextBlock("Data");
-		msg->addString("Name", text);
-		gAgent.sendReliableMessage();
-	}
-
 	getChild<LLScrollListCtrl>("SearchResults")->deleteAllItems();
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("searching"));
 	
@@ -737,12 +751,13 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 
 		if (search_results->isEmpty())
 		{
-			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = getChild<LLUICtrl>("Edit")->getValue().asString();
+			std::string name = "'" + getChild<LLUICtrl>("Edit")->getValue().asString() + "'";
 			LLSD item;
 			item["id"] = LLUUID::null;
 			item["columns"][0]["column"] = "name";
-			item["columns"][0]["value"] = getString("not_found", map);
+			item["columns"][0]["value"] = name;
+			item["columns"][1]["column"] = "username";
+			item["columns"][1]["value"] = getString("not_found_text");
 			search_results->addElement(item);
 			search_results->setEnabled(false);
 			getChildView("ok_btn")->setEnabled(false);

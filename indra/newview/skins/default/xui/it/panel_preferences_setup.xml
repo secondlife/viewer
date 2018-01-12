@@ -30,6 +30,7 @@
 		<combo_box.item label="Scarica e installa manualmente gli aggiornamenti" name="Install_manual"/>
 	</combo_box>
 	<check_box label="Disponibile agli aggiornamenti con versioni non rilasciate" name="update_willing_to_test"/>
+	<check_box label="Mostra note di release dopo l&apos;aggiornamento" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
 		Impostazioni proxy:
 	</text>

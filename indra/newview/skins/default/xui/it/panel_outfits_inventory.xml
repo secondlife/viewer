@@ -7,6 +7,7 @@
 		Indossa capi selezionati
 	</panel.string>
 	<tab_container name="appearance_tabs">
+		<panel label="GALLERIA VESTIARIO" name="outfit_gallery_tab"/>
 		<panel label="I MIEI ABITI" name="outfitslist_tab"/>
 		<panel label="INDOSSA" name="cof_tab"/>
 	</tab_container>

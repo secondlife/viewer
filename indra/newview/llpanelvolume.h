@@ -111,7 +111,6 @@ protected:
 	
 
 	LLColor4		mLightSavedColor;
-	LLUUID			mLightSavedTexture;
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;
 

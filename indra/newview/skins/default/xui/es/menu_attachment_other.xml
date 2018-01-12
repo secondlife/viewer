@@ -7,6 +7,7 @@
 	<menu_item_call label="Llamada" name="Call"/>
 	<menu_item_call label="Invitar al grupo" name="Invite..."/>
 	<menu_item_call label="Restablecer esqueleto" name="Reset Skeleton"/>
+	<menu_item_call label="Restablecer esqueleto y animaciones" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="Ignorar" name="Avatar Mute"/>
 	<menu_item_call label="Denunciar" name="abuse"/>
 	<menu_item_call label="Congelar" name="Freeze..."/>
@@ -16,8 +17,11 @@
 	<menu_item_call label="Acercar el zoom" name="Zoom In"/>
 	<menu_item_call label="Pagar" name="Pay..."/>
 	<menu_item_call label="Perfil del objeto" name="Object Inspect"/>
-	<menu_item_check label="Renderizar normalmente" name="RenderNormally"/>
-	<menu_item_check label="No renderizar" name="DoNotRender"/>
-	<menu_item_check label="Renderizar completamente" name="AlwaysRenderFully"/>
+	<context_menu label="Renderizar avatar" name="Render Avatar">
+		<menu_item_check label="Predeterminado" name="RenderNormally"/>
+		<menu_item_check label="Siempre" name="AlwaysRenderFully"/>
+		<menu_item_check label="Nunca" name="DoNotRender"/>
+		<menu_item_call label="Excepciones..." name="RenderExceptions"/>
+	</context_menu>
 	<menu_item_call label="Ignorar al propietario de la partícula" name="Mute Particle"/>
 </context_menu>

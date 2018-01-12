@@ -27,21 +27,21 @@
      tool_tip="Select an object from this list to highlight it in-world"
      top="20">
         <scroll_list.columns
-         dynamic_width="true"
+         relative_width="0.25"
          label="Object Name"
          name="object_name" />
         <scroll_list.columns
-         dynamic_width="true"
+         relative_width="0.25"
          label="Owner Name"
          name="owner_name" />
         <scroll_list.columns
-         dynamic_width="true"
+         relative_width="0.25"
          label="Creator Name"
          name="creator_name" />
         <scroll_list.columns
+         relative_width="0.25"
          label="Creation Date"
-         name="creation_date"
-         width="150" />
+         name="creation_date" />
 		 <scroll_list.commit_callback
 		   function="Inspect.SelectObject" />
     </scroll_list>

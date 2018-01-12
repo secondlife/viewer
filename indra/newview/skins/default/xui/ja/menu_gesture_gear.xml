@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_gesture_gear">
-	<menu_item_call label="お気に入りからの追加・削除" name="activate"/>
+	<menu_item_call label="選択したジェスチャーのアクティベートの有無" name="activate"/>
 	<menu_item_call label="コピー" name="copy_gesture"/>
 	<menu_item_call label="貼り付け" name="paste"/>
 	<menu_item_call label="UUID をコピー" name="copy_uuid"/>

@@ -29,6 +29,7 @@
 #include "llspeakers.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llappviewer.h"
 #include "llimview.h"
 #include "llgroupmgr.h"
@@ -75,13 +76,13 @@ void LLSpeaker::lookupName()
 {
 	if (mDisplayName.empty())
 	{
-		gCacheName->get(mID, false, boost::bind(&LLSpeaker::onNameCache, this, _1, _2, _3));
+		LLAvatarNameCache::get(mID, boost::bind(&LLSpeaker::onNameCache, this, _1, _2)); // todo: can be group???
 	}
 }
 
-void LLSpeaker::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLSpeaker::onNameCache(const LLUUID& id, const LLAvatarName& av_name)
 {
-	mDisplayName = full_name;
+	mDisplayName = av_name.getUserName();
 }
 
 bool LLSpeaker::isInVoiceChannel()
@@ -817,7 +818,7 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);
 	if (!speakerp) return;
 
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	std::string url = gAgent.getRegionCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "mute update";
 	data["session-id"] = getSessionID();
@@ -843,7 +844,7 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 	// do not send voice moderation changes for avatars not in voice channel
 	if (!is_in_voice) return;
 
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	std::string url = gAgent.getRegionCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "mute update";
 	data["session-id"] = getSessionID();
@@ -923,7 +924,7 @@ void LLIMSpeakerMgr::processSessionUpdate(const LLSD& session_update)
 
 void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallow_voice)
 {
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	std::string url = gAgent.getRegionCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "session update";
 	data["session-id"] = session_id;

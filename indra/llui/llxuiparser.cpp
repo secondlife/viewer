@@ -58,10 +58,6 @@ static 	LLInitParam::Parser::parser_inspect_func_map_t sSimpleXUIInspectFuncs;
 
 const char* NO_VALUE_MARKER = "no_value";
 
-#ifdef LL_WINDOWS
-const S32 LINE_NUMBER_HERE = 0;
-#endif
-
 struct MaxOccursValues : public LLInitParam::TypeValuesHelper<U32, MaxOccursValues>
 {
 	static void declareValues()
@@ -1313,22 +1309,14 @@ bool LLXUIParser::writeSDValue(Parser& parser, const void* val_ptr, name_stack_t
 
 void LLXUIParser::parserWarning(const std::string& message)
 {
-#ifdef LL_WINDOWS
-	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
-#else
-	Parser::parserWarning(message);
-#endif
+	std::string warning_msg = llformat("%s:\t%s(%d)", message.c_str(), mCurFileName.c_str(), mCurReadNode->getLineNumber());
+	Parser::parserWarning(warning_msg);
 }
 
 void LLXUIParser::parserError(const std::string& message)
 {
-#ifdef LL_WINDOWS
-    // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
-#else
-	Parser::parserError(message);
-#endif
+	std::string error_msg = llformat("%s:\t%s(%d)", message.c_str(), mCurFileName.c_str(), mCurReadNode->getLineNumber());
+	Parser::parserError(error_msg);
 }
 
 
@@ -1641,22 +1629,14 @@ bool LLSimpleXUIParser::processText()
 
 void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
-#ifdef LL_WINDOWS
-	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
-#else
-	Parser::parserWarning(message);
-#endif
+	std::string warning_msg = llformat("%s:\t%s",  message.c_str(), mCurFileName.c_str());
+	Parser::parserWarning(warning_msg);
 }
 
 void LLSimpleXUIParser::parserError(const std::string& message)
 {
-#ifdef LL_WINDOWS
-        // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
-#else
-	Parser::parserError(message);
-#endif
+	std::string error_msg = llformat("%s:\t%s",  message.c_str(), mCurFileName.c_str());
+	Parser::parserError(error_msg);
 }
 
 bool LLSimpleXUIParser::readFlag(Parser& parser, void* val_ptr)

@@ -153,11 +153,24 @@ BOOL LLPreviewNotecard::canClose()
 	}
 	else
 	{
-		// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-		LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
-								  
+		if(!mSaveDialogShown)
+		{
+			mSaveDialogShown = TRUE;
+			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
+			LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
+		}
 		return FALSE;
 	}
+}
+
+/* virtual */
+void LLPreviewNotecard::setObjectID(const LLUUID& object_id)
+{
+	LLPreview::setObjectID(object_id);
+
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
+	editor->setNotecardObjectID(mObjectUUID);
+	editor->makePristine();
 }
 
 const LLInventoryItem* LLPreviewNotecard::getDragItem()
@@ -639,6 +652,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 
 bool LLPreviewNotecard::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
+	mSaveDialogShown = FALSE;
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{

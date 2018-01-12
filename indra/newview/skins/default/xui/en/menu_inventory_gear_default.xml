@@ -9,6 +9,7 @@
     <menu_item_call
      label="New Inventory Window"
      layout="topleft"
+     shortcut="control|shift|I"
      name="new_window">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
@@ -95,6 +96,9 @@
         <on_click
          function="Inventory.GearDefault.Custom.Action"
          parameter="empty_lostnfound" />
+        <on_enable
+         function="Inventory.GearDefault.Enable"
+         parameter="empty_lostnfound" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
@@ -142,6 +146,14 @@
 			 function="Inventory.GearDefault.Enable"
 			 parameter="find_links" />
         </menu_item_call>
+    <menu_item_call 
+         label="Replace Links"
+         layout="topleft"
+         name="Replace Links">
+            <on_click
+             function="Inventory.GearDefault.Custom.Action"
+             parameter="replace_links" />
+        </menu_item_call>
     <menu_item_separator
      layout="topleft" />
 
@@ -151,6 +163,9 @@
      name="empty_trash">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
+         parameter="empty_trash" />
+        <on_enable
+         function="Inventory.GearDefault.Enable"
          parameter="empty_trash" />
     </menu_item_call>
 </toggleable_menu>

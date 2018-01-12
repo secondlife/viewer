@@ -57,6 +57,11 @@
 			Echtzeit-Streaming
 		</label>
 	</scheme>
+	<scheme name="libvlc">
+		<label name="libvlc_label">
+			Von LibVLC unterstützte Medien
+		</label>
+	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
 			- Keine -
@@ -200,6 +205,11 @@
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
 			Video (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="application/octet-stream">
+		<label name="video/octet-stream">
+			Film
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="video/quicktime">

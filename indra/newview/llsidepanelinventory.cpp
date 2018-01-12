@@ -34,6 +34,7 @@
 #include "llbutton.h"
 #include "lldate.h"
 #include "llfirstuse.h"
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
@@ -695,6 +696,19 @@ LLInventoryPanel *LLSidepanelInventory::getActivePanel()
 	return NULL;
 }
 
+void LLSidepanelInventory::selectAllItemsPanel()
+{
+	if (!getVisible())
+	{
+		return;
+	}
+	if (mInventoryPanel->getVisible())
+	{
+		 mPanelMainInventory->selectAllItemsPanel();
+	}
+
+}
+
 BOOL LLSidepanelInventory::isMainInventoryPanelActive() const
 {
 	return mInventoryPanel->getVisible();
@@ -730,4 +744,17 @@ std::set<LLFolderViewItem*> LLSidepanelInventory::getInboxSelectionList()
 	}
 	
 	return inventory_selected_uuids;
+}
+
+void LLSidepanelInventory::cleanup()
+{
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end();)
+	{
+		LLFloaterSidePanelContainer* iv = dynamic_cast<LLFloaterSidePanelContainer*>(*iter++);
+		if (iv)
+		{
+			iv->cleanup();
+		}
+	}
 }

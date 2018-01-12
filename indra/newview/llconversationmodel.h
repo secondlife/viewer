@@ -70,6 +70,9 @@ public:
 	virtual const std::string& getName() const { return mName; }
 	virtual const std::string& getDisplayName() const { return mName; }
 	virtual const std::string& getSearchableName() const { return mName; }
+	virtual std::string getSearchableDescription() const { return LLStringUtil::null; }
+	virtual std::string getSearchableCreatorName() const { return LLStringUtil::null; }
+	virtual std::string getSearchableUUIDString() const {return LLStringUtil::null;}
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const { return 0; }
 	virtual LLPointer<LLUIImage> getIcon() const { return NULL; }

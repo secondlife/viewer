@@ -71,7 +71,8 @@ public:
 		mObjectID = object_id;
 		mPreviewID = preview_id;
 	}
-	
+	void setNotecardObjectID(const LLUUID& object_id){ mObjectID = object_id;}
+
 	void setASCIIEmbeddedText(const std::string& instr);
 	void setEmbeddedText(const std::string& instr);
 	std::string getEmbeddedText();
@@ -105,7 +106,6 @@ private:
 	void			openEmbeddedTexture( LLInventoryItem* item, llwchar wc );
 	void			openEmbeddedSound( LLInventoryItem* item, llwchar wc );
 	void			openEmbeddedLandmark( LLPointer<LLInventoryItem> item_ptr, llwchar wc );
-	void			openEmbeddedNotecard( LLInventoryItem* item, llwchar wc);
 	void			openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc);
 	void			showCopyToInvDialog( LLInventoryItem* item, llwchar wc );
 	void			showUnsavedAlertDialog( LLInventoryItem* item );

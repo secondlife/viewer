@@ -705,18 +705,21 @@ void LLImageBase::deleteData()
 // virtual
 U8* LLImageBase::allocateData(S32 size)
 {
+	//make this function thread-safe.
+	static const U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16; //256 MB
+	mBadBufferAllocation = false;
+
 	if (size < 0)
 	{
 		size = mWidth * mHeight * mComponents;
 		if (size <= 0)
 		{
-			LL_ERRS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << LL_ENDL;
+			LL_WARNS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << LL_ENDL;
+			mBadBufferAllocation = true;
 		}
-	}
-	
-	//make this function thread-safe.
-	static const U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16 ; //256 MB
-	if (size < 1 || size > MAX_BUFFER_SIZE) 
+	}	
+
+	if (!mBadBufferAllocation && (size < 1 || size > MAX_BUFFER_SIZE))
 	{
 		LL_INFOS() << "width: " << mWidth << " height: " << mHeight << " components: " << mComponents << LL_ENDL ;
 		if(mAllowOverSize)
@@ -725,24 +728,30 @@ U8* LLImageBase::allocateData(S32 size)
 		}
 		else
 		{
-			LL_ERRS() << "LLImageBase::allocateData: bad size: " << size << LL_ENDL;
+			LL_WARNS() << "LLImageBase::allocateData: bad size: " << size << LL_ENDL;
+			mBadBufferAllocation = true;
 		}
 	}
-	if (!mData || size != mDataSize)
+
+	if (!mBadBufferAllocation && (!mData || size != mDataSize))
 	{
 		deleteData(); // virtual
-		mBadBufferAllocation = false ;
 		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
 			LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
-			size = 0 ;
-			mWidth = mHeight = 0 ;
-			mBadBufferAllocation = true ;
+			mBadBufferAllocation = true;
 		}
-		mDataSize = size;
-		claimMem(mDataSize);
 	}
+
+	if (mBadBufferAllocation)
+	{
+		size = 0;
+		mWidth = mHeight = 0;
+		mData = NULL;
+	}
+	mDataSize = size;
+	claimMem(mDataSize);
 
 	return mData;
 }
@@ -791,7 +800,7 @@ U8* LLImageBase::getData()
 	return mData; 
 }
 
-bool LLImageBase::isBufferInvalid()
+bool LLImageBase::isBufferInvalid() const
 {
 	return mBadBufferAllocation || mData == NULL ;
 }
@@ -1427,7 +1436,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 {
     S32 components = getComponents();
-	if (! ((1 == components) || (3 == components) || (4 == components) ))
+    if (components != 1 && components != 3 && components != 4)
     {
         LL_WARNS() << "Invalid getComponents value (" << components << ")" << LL_ENDL;
         return false;
@@ -1501,6 +1510,55 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 	}
 
 	return true ;
+}
+
+LLPointer<LLImageRaw> LLImageRaw::scaled(S32 new_width, S32 new_height)
+{
+    LLPointer<LLImageRaw> result;
+
+    S32 components = getComponents();
+    if (components != 1 && components != 3 && components != 4)
+    {
+        LL_WARNS() << "Invalid getComponents value (" << components << ")" << LL_ENDL;
+        return result;
+    }
+
+    if (isBufferInvalid())
+    {
+        LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+        return result;
+    }
+
+    S32 old_width = getWidth();
+    S32 old_height = getHeight();
+
+    if ((old_width == new_width) && (old_height == new_height))
+    {
+        result = new LLImageRaw(old_width, old_height, components);
+        if (!result || result->isBufferInvalid())
+        {
+            LL_WARNS() << "Failed to allocate new image" << LL_ENDL;
+            return result;
+        }
+        memcpy(result->getData(), getData(), getDataSize());
+    }
+    else
+    {
+        S32 new_data_size = new_width * new_height * components;
+
+        if (new_data_size > 0)
+        {
+            result = new LLImageRaw(new_width, new_height, components);
+            if (!result || result->isBufferInvalid())
+            {
+                LL_WARNS() << "Failed to allocate new image" << LL_ENDL;
+                return result;
+            }
+            bilinear_scale(getData(), old_width, old_height, components, old_width*components, result->getData(), new_width, new_height, components, new_width*components);
+        }
+    }
+
+    return result;
 }
 
 void LLImageRaw::copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step )
@@ -1776,10 +1834,13 @@ static std::string find_file(std::string &name, S8 *codec)
 #endif
 EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 {
-	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
+	if (!exten.empty())
 	{
-		if (exten == file_extensions[i].exten)
-			return file_extensions[i].codec;
+		for (int i = 0; i < (int)(NUM_FILE_EXTENSIONS); i++)
+		{
+			if (exten == file_extensions[i].exten)
+				return file_extensions[i].codec;
+		}
 	}
 	return IMG_CODEC_INVALID;
 }

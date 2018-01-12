@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="Pathfinding-Linksets">
+<floater name="floater_pathfinding_linksets" title="REGIONSOBJEKTE">
 	<floater.string name="messaging_get_inprogress">
 		Pathfinding-Linksets werden abgerufen...
 	</floater.string>
@@ -16,7 +16,7 @@
 		Keine Pathfinding-Linksets.
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		[NUM_SELECTED] Linksets von [NUM_TOTAL] ausgewählt.
+		[NUM_SELECTED] von [NUM_TOTAL] ausgewählt.
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
 		Pathfinding ist in dieser Region nicht aktiviert.
@@ -118,7 +118,7 @@
 			<scroll_list.columns label="Geskriptet" name="scripted"/>
 			<scroll_list.columns label="Belastung" name="land_impact"/>
 			<scroll_list.columns label="Abstand" name="dist_from_you"/>
-			<scroll_list.columns label="Linkset-Nutzung" name="linkset_use"/>
+			<scroll_list.columns label="Pathfinding verwenden" name="linkset_use"/>
 			<scroll_list.columns label="A %" name="a_percent"/>
 			<scroll_list.columns label="B %" name="b_percent"/>
 			<scroll_list.columns label="C %" name="c_percent"/>
@@ -133,7 +133,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_actions">
 		<text name="linksets_actions_label">
-			Aktionen für ausgewählte Linksets (wenn ein Linkset aus der Welt entfernt wird, gehen seine Attribute u. U. verloren):
+			Aktionen für Auswahl
 		</text>
 		<check_box label="Beacon anzeigen" name="show_beacon"/>
 		<button label="Nehmen" name="take_objects"/>
@@ -144,7 +144,7 @@
 	</panel>
 	<panel name="pathfinding_linksets_attributes">
 		<text name="linksets_attributes_label">
-			Bearbeiten Sie die Attribute ausgewählter Linksets und klicken Sie auf die Schaltfläche, um die änderungen zu übernehmen
+			Pathfinding-Attribute bearbeiten
 		</text>
 		<text name="walkability_coefficients_label">
 			Begehbarkeit:
