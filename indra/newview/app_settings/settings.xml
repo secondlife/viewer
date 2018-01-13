@@ -16176,36 +16176,5 @@
       <key>Value</key>
       <string />
     </map>
-    <key>CameraOffsetCustom0</key>
-    <map>
-      <key>Comment</key>
-      <string>Customized camera offset from avatar</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>-3.0</real>
-        <real>0.0</real>
-        <real>0.75</real>
-      </array>
-    </map>
-    <key>FocusOffsetCustom0</key>
-    <map>
-      <key>Comment</key>
-      <string>Custom focus point offset relative to avatar (x-axis is forward)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3D</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
 </map>
 </llsd>
-

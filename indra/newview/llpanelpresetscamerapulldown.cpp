@@ -64,9 +64,9 @@ BOOL LLPanelPresetsCameraPulldown::postBuild()
 	if (presetsMgr)
 	{
 		presetsMgr->setPresetListChangeCameraCallback(boost::bind(&LLPanelPresetsCameraPulldown::populatePanel, this));
-LL_WARNS() << "DBG pulldown" << LL_ENDL;
 		// Make sure there is a default preference file
 		presetsMgr->createMissingDefault(PRESETS_CAMERA);
+
 		presetsMgr->startWatching(PRESETS_CAMERA);
 	}
 

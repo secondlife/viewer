@@ -130,6 +130,20 @@
   <button
     follows="top|left"
     height="23"
+    label="Advanced..."
+    layout="topleft"
+    left_pad="-102"
+    name="PreferencesMoveAdvanced"
+    tool_tip="Adjust camera positioning"
+    width="115">
+    <button.commit_callback
+     function="Floater.Show"
+     parameter="prefs_move_advanced" />
+  </button>  
+
+  <button
+    follows="top|left"
+    height="23"
     label="Save settings as a preset..."
     layout="topleft"
     left="30"

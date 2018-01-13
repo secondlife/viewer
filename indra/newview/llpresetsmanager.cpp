@@ -92,7 +92,6 @@ void LLPresetsManager::startWatching(const std::string& subdirectory)
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
 			std::string ctrl_name = *it;
-LL_WARNS() << "DBG starting watch on " << ctrl_name << LL_ENDL;
 			if (gSavedSettings.controlExists(ctrl_name))
 			{
 				LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(ctrl_name);
@@ -189,23 +188,18 @@ bool LLPresetsManager::isCameraDirty()
 
 void LLPresetsManager::settingChanged()
 {
-LL_WARNS() << "DBG setting changed" << LL_ENDL;
 	setCameraDirty(true);
 }
 
 void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 {
 	names = boost::assign::list_of
-		("CameraOffsetCustom0")
-		("FocusOffsetCustom0")
 		// From panel_preferences_move.xml
 		("CameraAngle")
 		("CameraOffsetScale")
-		("CameraOpacity")
 		("EditCameraMovement")
 		("AppearanceCameraMovement")
 		// From llagentcamera.cpp
-		("RenderFarClip")
 		("CameraOffsetBuild")
 		("CameraPreset")
 		("CameraOffsetRearView")
@@ -246,10 +240,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	else if(PRESETS_CAMERA == subdirectory)
 	{
 		gSavedSettings.setString("PresetGraphicActive", name);
-//		gSavedSettings.setU32("CameraPreset", CAMERA_PRESET_CUSTOM0);
-
-//		gSavedSettings.setVector3d("CameraOffsetCustom0", gAgentCamera.calcCameraPositionTargetGlobal());
-//		gSavedSettings.setVector3d("FocusOffsetCustom0", gAgentCamera.calcFocusPositionTargetGlobal());
 
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
