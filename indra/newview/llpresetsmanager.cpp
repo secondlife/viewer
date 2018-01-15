@@ -40,6 +40,7 @@
 #include "llfloaterreg.h"
 #include "llfeaturemanager.h"
 #include "llagentcamera.h"
+#include "llfile.h"
 
 LLPresetsManager::LLPresetsManager()
 {
@@ -112,20 +113,38 @@ void LLPresetsManager::startWatching(const std::string& subdirectory)
 std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 {
 	std::string presets_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR);
-	std::string full_path;
 
 	if (!gDirUtilp->fileExists(presets_path))
 	{
 		LLFile::mkdir(presets_path);
 	}
 
-	full_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, subdirectory);
-	if (!gDirUtilp->fileExists(full_path))
+	std::string dest_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, subdirectory);
+	if (!gDirUtilp->fileExists(dest_path))
 	{
-		LLFile::mkdir(full_path);
+		LLFile::mkdir(dest_path);
+
+		if (PRESETS_CAMERA == subdirectory)
+		{
+			std::string source_dir = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "Camera");
+			LLDirIterator dir_iter(source_dir, "*.xml");
+			bool found = true;
+			while (found)
+			{
+				std::string file;
+				found = dir_iter.next(file);
+
+				if (found)
+				{
+					std::string source = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "Camera", file);
+					std::string dest = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, "Camera", file);
+					LLFile::copy(source, dest);
+				}
+			}
+		}
 	}
 
-	return full_path;
+	return dest_path;
 }
 
 void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option)
@@ -234,7 +253,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		}
 		else
         {
-			LL_WARNS() << "preferences floater instance not found" << LL_ENDL;
+			LL_WARNS("Presets") << "preferences floater instance not found" << LL_ENDL;
 		}
 	}
 	else if(PRESETS_CAMERA == subdirectory)
@@ -387,7 +406,7 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, std::string n
 	}
     else
     {
-        LL_WARNS() << "failed to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
+        LL_WARNS("Presets") << "failed to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
     }
 }
 
