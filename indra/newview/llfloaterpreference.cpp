@@ -2643,11 +2643,7 @@ void LLPanelPreferenceView::setPresetText()
 	{
 		if (presetsMgr->isCameraDirty() && !preset_camera_active.empty())
 		{
-			gSavedSettings.setString("PresetCameraActive", "");
 			preset_camera_active.clear();
-			// This doesn't seem to cause an infinite recursion.  This trigger is needed to cause the pulldown
-			// panel to update.
-			LLPresetsManager::getInstance()->triggerChangeCameraSignal();
 		}
 	}
 

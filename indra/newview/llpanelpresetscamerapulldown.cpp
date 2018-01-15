@@ -63,11 +63,12 @@ BOOL LLPanelPresetsCameraPulldown::postBuild()
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
 	if (presetsMgr)
 	{
-		presetsMgr->setPresetListChangeCameraCallback(boost::bind(&LLPanelPresetsCameraPulldown::populatePanel, this));
 		// Make sure there is a default preference file
 		presetsMgr->createMissingDefault(PRESETS_CAMERA);
 
 		presetsMgr->startWatching(PRESETS_CAMERA);
+
+		presetsMgr->setPresetListChangeCameraCallback(boost::bind(&LLPanelPresetsCameraPulldown::populatePanel, this));
 	}
 
 	populatePanel();

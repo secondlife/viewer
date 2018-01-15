@@ -208,6 +208,12 @@ bool LLPresetsManager::isCameraDirty()
 void LLPresetsManager::settingChanged()
 {
 	setCameraDirty(true);
+
+	gSavedSettings.setString("PresetCameraActive", "");
+
+// Hack call because this is a static routine
+	LLPresetsManager::getInstance()->triggerChangeCameraSignal();
+
 }
 
 void LLPresetsManager::getControlNames(std::vector<std::string>& names)
