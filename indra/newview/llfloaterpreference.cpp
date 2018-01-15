@@ -790,12 +790,12 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");
 	LLButton* exceptions_btn = findChild<LLButton>("RenderExceptionsButton");
 
-	if (load_btn && save_btn && delete_btn)
+	if (load_btn && save_btn && delete_btn && exceptions_btn)
 	{
 		load_btn->setEnabled(started);
 		save_btn->setEnabled(started);
 		delete_btn->setEnabled(started);
-	exceptions_btn->setEnabled(started);
+		exceptions_btn->setEnabled(started);
 	}
 
 	LLButton* load_camera_btn = findChild<LLButton>("PrefCameraLoadButton");
@@ -2519,18 +2519,24 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 void LLPanelPreference::deletePreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
+	LLFloaterReg::hideInstance("load_pref_preset", subdirectory);
+	LLFloaterReg::hideInstance("save_pref_preset", subdirectory);
 	LLFloaterReg::showInstance("delete_pref_preset", subdirectory);
 }
 
 void LLPanelPreference::savePreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
+	LLFloaterReg::hideInstance("delete_pref_preset", subdirectory);
+	LLFloaterReg::hideInstance("load_pref_preset", subdirectory);
 	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
 }
 
 void LLPanelPreference::loadPreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
+	LLFloaterReg::hideInstance("delete_pref_preset", subdirectory);
+	LLFloaterReg::hideInstance("save_pref_preset", subdirectory);
 	LLFloaterReg::showInstance("load_pref_preset", subdirectory);
 }
 

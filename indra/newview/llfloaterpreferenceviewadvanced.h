@@ -1,5 +1,5 @@
 /** 
- * @file llfloaterpreferencemoveadvanced.h
+ * @file llfloaterpreferenceviewadvanced.h
  * @brief floater for adjusting camera position
  *
  * $LicenseInfo:firstyear=2018&license=viewerlgpl$
@@ -24,19 +24,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERPREFERENCEMOVEADVANCED_H
-#define LLFLOATERPREFERENCEMOVEADVANCED_H
+#ifndef LLFLOATERPREFERENCEVIEWADVANCED_H
+#define LLFLOATERPREFERENCEVIEWADVANCED_H
 
 #include "llcontrol.h"
 #include "llfloater.h"
 
-class LLFloaterPreferenceMoveAdvanced
+class LLFloaterPreferenceViewAdvanced
 :	public LLFloater
 {
 	friend class LLFloaterReg;
 
 public:
-	LLFloaterPreferenceMoveAdvanced(const LLSD& key);
+	LLFloaterPreferenceViewAdvanced(const LLSD& key);
 	virtual BOOL postBuild();
 	virtual void draw();
 
@@ -47,12 +47,12 @@ public:
 	void updateFocusControl(LLVector3d vector3d);
 
 private:
-	virtual ~LLFloaterPreferenceMoveAdvanced();
+	virtual ~LLFloaterPreferenceViewAdvanced();
 
 	LLVector3	mCameraSaved;
 	LLVector3d	mFocusSaved;
 	
 };
 
-#endif //LLFLOATERPREFERENCEMOVEADVANCED_H
+#endif //LLFLOATERPREFERENCEVIEWADVANCED_H
 

@@ -1,5 +1,5 @@
 /** 
- * @file llfloaterpreferencemoveadvanced.cpp
+ * @file llfloaterpreferenceviewadvanced.cpp
  * @brief floater for adjusting camera position
  *
  * $LicenseInfo:firstyear=2018&license=viewerlgpl$
@@ -25,7 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloaterpreferencemoveadvanced.h"
+#include "llfloaterpreferenceviewadvanced.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "lluictrlfactory.h"
@@ -33,24 +33,24 @@
 #include "llviewercontrol.h"
 
 
-LLFloaterPreferenceMoveAdvanced::LLFloaterPreferenceMoveAdvanced(const LLSD& key) 
+LLFloaterPreferenceViewAdvanced::LLFloaterPreferenceViewAdvanced(const LLSD& key) 
 :	LLFloater(key)
 {
-	mCommitCallbackRegistrar.add("Cancel",	boost::bind(&LLFloaterPreferenceMoveAdvanced::onClickCancel, this));
-	mCommitCallbackRegistrar.add("CommitSettings",	boost::bind(&LLFloaterPreferenceMoveAdvanced::onCommitSettings, this));
-	mCommitCallbackRegistrar.add("Ok",	boost::bind(&LLFloaterPreferenceMoveAdvanced::onClickOk, this));
+	mCommitCallbackRegistrar.add("Cancel",	boost::bind(&LLFloaterPreferenceViewAdvanced::onClickCancel, this));
+	mCommitCallbackRegistrar.add("CommitSettings",	boost::bind(&LLFloaterPreferenceViewAdvanced::onCommitSettings, this));
+	mCommitCallbackRegistrar.add("Ok",	boost::bind(&LLFloaterPreferenceViewAdvanced::onClickOk, this));
 
 }
 
-LLFloaterPreferenceMoveAdvanced::~LLFloaterPreferenceMoveAdvanced()
+LLFloaterPreferenceViewAdvanced::~LLFloaterPreferenceViewAdvanced()
 {}
 
-void LLFloaterPreferenceMoveAdvanced::onClickOk()
+void LLFloaterPreferenceViewAdvanced::onClickOk()
 {
 	closeFloater();
 }
 
-void LLFloaterPreferenceMoveAdvanced::onClickCancel()
+void LLFloaterPreferenceViewAdvanced::onClickCancel()
 {
 	gSavedSettings.setVector3("CameraOffsetRearView", mCameraSaved);
 	gSavedSettings.setVector3d("FocusOffsetRearView", mFocusSaved);
@@ -59,7 +59,7 @@ void LLFloaterPreferenceMoveAdvanced::onClickCancel()
 	updateFocusControl(mFocusSaved);
 }
 
-BOOL LLFloaterPreferenceMoveAdvanced::postBuild()
+BOOL LLFloaterPreferenceViewAdvanced::postBuild()
 {
 	mCameraSaved = gSavedSettings.getVector3("CameraOffsetRearView");
 	mFocusSaved = gSavedSettings.getVector3d("FocusOffsetRearView");
@@ -70,7 +70,7 @@ BOOL LLFloaterPreferenceMoveAdvanced::postBuild()
 	return TRUE;
 }
 
-void LLFloaterPreferenceMoveAdvanced::updateCameraControl(LLVector3 vector)
+void LLFloaterPreferenceViewAdvanced::updateCameraControl(LLVector3 vector)
 {
 	LLSpinCtrl* spinnerx = getChild<LLSpinCtrl>("camera_x");
 	LLSpinCtrl* spinnery = getChild<LLSpinCtrl>("camera_y");
@@ -99,7 +99,7 @@ void LLFloaterPreferenceMoveAdvanced::updateCameraControl(LLVector3 vector)
 	}
 }
 
-void LLFloaterPreferenceMoveAdvanced::updateFocusControl(LLVector3d vector3d)
+void LLFloaterPreferenceViewAdvanced::updateFocusControl(LLVector3d vector3d)
 {
 	LLSpinCtrl* spinnerx = getChild<LLSpinCtrl>("focus_x");
 	LLSpinCtrl* spinnery = getChild<LLSpinCtrl>("focus_y");
@@ -128,13 +128,13 @@ void LLFloaterPreferenceMoveAdvanced::updateFocusControl(LLVector3d vector3d)
 	}
 }
 
- void LLFloaterPreferenceMoveAdvanced::draw()
+ void LLFloaterPreferenceViewAdvanced::draw()
 {
 //	updateControl();
 	LLFloater::draw();
 }
 
-void LLFloaterPreferenceMoveAdvanced::onCommitSettings()
+void LLFloaterPreferenceViewAdvanced::onCommitSettings()
 {
 	LLVector3 vector;
 	LLVector3d vector3d;

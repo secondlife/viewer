@@ -138,7 +138,7 @@
     width="115">
     <button.commit_callback
      function="Floater.Show"
-     parameter="prefs_move_advanced" />
+     parameter="prefs_view_advanced" />
   </button>  
 
   <button

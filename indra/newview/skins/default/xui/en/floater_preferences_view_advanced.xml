@@ -2,8 +2,8 @@
 <floater
  height="170"
  layout="topleft"
- name="floaterpreferencesmoveadvanced"
- help_topic="floatermoveadvanced"
+ name="floaterpreferencesviewadvanced"
+ help_topic="floaterviewadvanced"
  title="ADJUST CAMERA VIEW"
  save_rect="true"
  width="280">
