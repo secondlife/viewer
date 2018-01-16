@@ -137,6 +137,7 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 				if (found)
 				{
 					std::string source = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "Camera", file);
+					file = LLURI::escape(file);
 					std::string dest = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, "Camera", file);
 					LLFile::copy(source, dest);
 				}
