@@ -226,13 +226,8 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		("AppearanceCameraMovement")
 		// From llagentcamera.cpp
 		("CameraOffsetBuild")
-		("CameraPreset")
 		("CameraOffsetRearView")
-		("CameraOffsetFrontView")
-		("CameraOffsetGroupView")
 		("FocusOffsetRearView")
-		("FocusOffsetFrontView")
-		("FocusOffsetGroupView")
 		("CameraOffsetScale")
 		("TrackFocusObject");
 }

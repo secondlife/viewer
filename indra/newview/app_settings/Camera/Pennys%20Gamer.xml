@@ -47,9 +47,9 @@
             <string>Vector3</string>
         <key>Value</key>
             <array>
-                <real>-3</real>
-                <real>0</real>
-                <real>0.75</real>
+                <real>-3.0</real>
+                <real>0.0</real>
+                <real>-0.2</real>
             </array>
         </map>
     <key>CameraOffsetScale</key>
@@ -84,9 +84,9 @@
             <string>Vector3D</string>
         <key>Value</key>
             <array>
-                <real>1.0</real>
+                <real>0.9</real>
                 <real>0.0</real>
-                <real>1.0</real>
+                <real>0.2</real>
             </array>
         </map>
     <key>PresetCameraActive</key>
