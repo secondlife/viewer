@@ -34,6 +34,7 @@
 #include "llpermissions.h"
 #include "lltimer.h"
 #include "v3math.h"
+#include "llsettingsdaycycle.h"
 
 // Grid out of which parcels taken is stepped every 4 meters.
 const F32 PARCEL_GRID_STEP_METERS	= 4.f;
@@ -590,7 +591,15 @@ public:
 	BOOL	getPreviouslyGroupOwned() const	{ return mPreviouslyGroupOwned; }
 	BOOL	getSellWithObjects() const		{ return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? TRUE : FALSE; }
 	
-	
+    S64Seconds getDayLength() const                             { return mDayLength; }
+    void setDayLength(S64SecondsImplicit seconds)              { mDayLength = seconds; }
+    S64Seconds getDayOffset() const                             { return mDayOffset; }
+    void setDayOffset(S64SecondsImplicit seconds)              { mDayOffset = seconds; }
+    bool getIsDefaultDayCycle() const                           { return mIsDefaultDayCycle; }
+    void setIsDefaultDayCycle(bool isdefault)                  { mIsDefaultDayCycle = isdefault; }
+    LLSettingsDay::ptr_t getParcelDayCycle() const              { return mDayCycle; }
+    void setParcelDayCycle(const LLSettingsDay::ptr_t &pday)    { mDayCycle = pday; }
+
 protected:
 	LLUUID mID;
 	LLUUID				mOwnerID;
@@ -665,7 +674,11 @@ protected:
 	BOOL				mAllowGroupAVSounds;
 	BOOL				mAllowAnyAVSounds;
 	
-	
+    S64Seconds          mDayLength;
+    S64Seconds          mDayOffset;
+    bool                mIsDefaultDayCycle;
+    LLSettingsDay::ptr_t mDayCycle;
+
 public:
 	// HACK, make private
 	S32					mLocalID;

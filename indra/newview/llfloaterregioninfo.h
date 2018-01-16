@@ -34,6 +34,7 @@
 #include "llhost.h"
 #include "llpanel.h"
 #include "llextendedstatus.h"
+#include "llpanelenvironment.h"
 
 #include "lleventcoro.h"
 
@@ -63,6 +64,7 @@ class LLPanelEstateCovenant;
 class LLPanelExperienceListEditor;
 class LLPanelExperiences;
 class LLPanelRegionExperiences;
+class LLPanelRegionEnvironment;
 
 class LLEventTimer;
 
@@ -115,6 +117,7 @@ protected:
 	LLTabContainer* mTab;
 	typedef std::vector<LLPanelRegionInfo*> info_panels_t;
 	info_panels_t mInfoPanels;
+    LLPanelRegionEnvironment *mEnvironmentPanel;
 	//static S32 sRequestSerial;	// serial # of last EstateOwnerRequest
 	static LLUUID sRequestInvoice;
 };
@@ -409,6 +412,7 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////
 
+#if 0
 class LLPanelEnvironmentInfo : public LLPanelRegionInfo
 {
 	LOG_CLASS(LLPanelEnvironmentInfo);
@@ -468,10 +472,11 @@ private:
 	LLComboBox*		mSkyPresetCombo;
 	LLComboBox*		mDayCyclePresetCombo;
 };
+#endif
 
 class LLPanelRegionExperiences : public LLPanelRegionInfo
 {
-	LOG_CLASS(LLPanelEnvironmentInfo);
+    LOG_CLASS(LLPanelRegionExperiences);
 
 public:
 	LLPanelRegionExperiences(){}

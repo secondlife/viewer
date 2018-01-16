@@ -432,7 +432,6 @@ void LLSettingsDay::updateSettings()
 {
     static LLFrameTimer timer;
 
-
     F64Seconds delta(timer.getElapsedTimeAndResetF32());
 
     if (mSkyBlender)

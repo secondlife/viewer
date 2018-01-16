@@ -78,6 +78,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include "llsettingsdaycycle.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -534,7 +535,9 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mInvisibilityCheckHistory(-1),
 	mPaused(FALSE),
 	mRegionCacheHitCount(0),
-	mRegionCacheMissCount(0)
+	mRegionCacheMissCount(0),
+    mDayLength(LLSettingsDay::DEFAULT_DAYLENGTH),
+    mDayOffset(LLSettingsDay::DEFAULT_DAYOFFSET)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 

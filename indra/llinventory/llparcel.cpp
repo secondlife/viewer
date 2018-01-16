@@ -231,6 +231,11 @@ void LLParcel::init(const LLUUID &owner_id,
 	setAllowGroupAVSounds(TRUE);
 	setAllowAnyAVSounds(TRUE);
 	setHaveNewParcelLimitData(FALSE);
+
+    mDayLength = S64Seconds(LLSettingsDay::DEFAULT_DAYLENGTH);
+    mDayOffset = S64Seconds(LLSettingsDay::DEFAULT_DAYOFFSET);
+    mIsDefaultDayCycle = true;
+    mDayCycle.reset();
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)

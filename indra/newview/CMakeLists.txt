@@ -419,6 +419,7 @@ set(viewer_SOURCE_FILES
     llpanelclassified.cpp
     llpanelcontents.cpp
     llpaneleditwearable.cpp
+    llpanelenvironment.cpp
     llpanelexperiencelisteditor.cpp
     llpanelexperiencelog.cpp
     llpanelexperiencepicker.cpp
@@ -1026,6 +1027,7 @@ set(viewer_HEADER_FILES
     llpanelclassified.h
     llpanelcontents.h
     llpaneleditwearable.h
+    llpanelenvironment.h
     llpanelexperiencelisteditor.h
     llpanelexperiencelog.h
     llpanelexperiencepicker.h

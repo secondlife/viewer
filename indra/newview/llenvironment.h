@@ -99,6 +99,7 @@ public:
     typedef std::pair<std::string, LLUUID>                  name_id_t;
     typedef std::vector<name_id_t>                          list_name_id_t;
     typedef boost::signals2::signal<void()>                 change_signal_t;
+    typedef boost::function<void(const LLSD &)>             environment_apply_fn;
 
     virtual ~LLEnvironment();
 
@@ -233,20 +234,6 @@ private:
     WaterList_t                 mSetWater;
     DayList_t                   mSetDays;
 
-#if 0
-    LLSettingsSky::ptr_t        mRegionFixedSky;
-    LLSettingsWater::ptr_t      mRegionFixedWater;
-    LLSettingsDay::ptr_t        mRegionDay;
-
-    LLSettingsSky::ptr_t        mParcelFixedSky;
-    LLSettingsWater::ptr_t      mParcelFixedWater;
-    LLSettingsDay::ptr_t        mParcelDay;
-
-    LLSettingsSky::ptr_t        mUserSky;
-    LLSettingsWater::ptr_t      mUserWater;
-    LLSettingsDay::ptr_t        mUserDay;
-#endif
-
     namedSettingMap_t           mSkysByName;
     AssetSettingMap_t           mSkysById;
 
@@ -291,10 +278,11 @@ private:
     void updateCloudScroll();
 
     void onRegionChange();
+    void onParcelChange();
 
-    void coroRequestEnvironment(LLUUID parcel_id);
-    void coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset);
-    void coroResetEnvironment(LLUUID parcel_id);
+    void coroRequestEnvironment(LLUUID parcel_id, environment_apply_fn apply);
+    void coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, environment_apply_fn apply);
+    void coroResetEnvironment(LLUUID parcel_id, environment_apply_fn apply);
 
     void applyEnvironment(LLSD environment);
 

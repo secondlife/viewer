@@ -1,149 +1,180 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
 <panel
- border="true"
- follows="top|left"
- height="300"
- label="Environment"
- layout="topleft"
- help_topic="panel_region_environment_tab"
- name="panel_env_info"
- width="530"> 
- <text
-  name="water_settings_title"
-  follows="top|left"
-  height="30"
-  layout="topleft"
-  left="50"
-  top_pad="20"
-  width="430"
-  wrap="true">
-  Select the Water and Sky/Day Cycle Settings you would like all visitors to your region to see.  More info
- </text> 
- <view_border
-  bevel_style="none"
-  follows="top|left"
-  height="237"
-  layout="topleft"
-  left="50"
-  name="border"
-  top="60"
-  width="430"/>
- <radio_group
-  follows="top|left"
-  height="45"
-  layout="topleft"
-  left_delta="10"
-  name="region_settings_radio_group"
-  top_delta="20"
-  width="200">
-  <radio_item
-   label="Use Second Life default"
-   layout="topleft"
-   name="use_sl_default_settings"/>
-  <radio_item
-   label="Use the following settings"
-   layout="topleft"
-   name="use_my_settings"
-   top_pad="20"/>
-  </radio_group>
- <panel
-  follows="top|left"
-  height="150"
-  layout="topleft"
-  left="50"
-  name="user_environment_settings"
-  top_pad="20"
-  width="430">
-   <text
-    name="water_settings_title"
+    border="true"
     follows="top|left"
-    height="16"
+    height="300"
+    label="Environment"
     layout="topleft"
-    left="50"
-    top_pad="0"
-    width="160">
-    Water Setting
-   </text>
-   <combo_box
-    follows="top|left"
-    left_pad="2"
-    name="water_settings_preset_combo"
-    top_delta="-7"
-    width="200">
-    <combo_box.item
-     label="-Select a preset-"
-     name="item0"/>
-   </combo_box>
-   <text
-    name="sky_dayc_settings_title"
-    follows="top|left"
-    height="16"
-    layout="topleft"
-    left="50"
-    top_pad="30"
-    width="100">
-    Sky / Day Cycle
-   </text>
-   <radio_group
-    layout="topleft"
-    left_delta="50"
-    name="sky_dayc_settings_radio_group"
-    top_pad="10"
-    height="50"
-    width="110">
-    <radio_item
-     layout="topleft"
-     label="Fixed sky"
-     name="my_sky_settings"/>
-    <radio_item
-     layout="topleft"
-     label="Day cycle"
-     name="my_dayc_settings"
-     top_pad="25"/>  	
-    </radio_group>
-   <combo_box
-    follows="top|left"
-    left_pad="2"
-    name="sky_settings_preset_combo"
-    top_delta="-7"
-    width="200">
-    <combo_box.item
-     label="-Select a preset-"
-     name="item0"/>
-   </combo_box>
-   <combo_box
-    follows="top|left"
-    name="dayc_settings_preset_combo"
-    top_delta="36"
-    width="200">
-    <combo_box.item
-     label="-Select a preset-"
-     name="item0"/>
-   </combo_box>
- </panel>
- <button
-  follows="left|top"
-  height="23"
-  label="Apply"
-  layout="topleft"
-  right="-160"
-  name="apply_btn"
-  top_pad="10"
-  width="100" />
- <button
-  follows="left|top"
-  height="23"
-  label="Cancel"
-  layout="topleft"
-  left_pad="10"
-  name="cancel_btn"
-  width="100" /> 
- <loading_indicator
-  height="23"
-  left="50"
-  name="progress_indicator"
-  top_delta="0"
-  visible="false"
-  width="23" />
+    help_topic="panel_region_environment_tab"
+    name="panel_env_info"
+    width="530"> 
+    <layout_stack 
+            left="0"
+            top="0"
+            width="420"
+            height="250"
+            follows="left|right|top|bottom"
+            orientation="vertical">
+        <layout_panel 
+                auto_resize="false"
+                user_resize="true"
+                bg_alpha_color="red"
+                min_height="130"
+                background_visible="false">
+            <layout_stack 
+                    left="5"
+                    top="5"
+                    right="-5"
+                    follows="left|right|top|bottom"
+                    orientation="horizontal">
+                <layout_panel 
+                        border="true"
+                        bevel_style="in"
+                        auto_resize="false"
+                        user_resize="false"
+                        width="160"
+                        background_visible="true">
+                    <text follows="top|left"
+                            halign="left"
+                            text_color="white">Environment Source</text>
+                    <radio_group
+                            follows="top|left"
+                            height="45"
+                            layout="topleft"
+                            left_delta="10"
+                            name="environment_select_radio_group"
+                            bottom_delta="50"
+                            max_width="200"
+                            width="200">
+                        <radio_item
+                                label="Default Environment"
+                                layout="topleft"
+                                name="use_default_setting"
+                                height="20"/>
+                        <radio_item
+                                label="Custom Environment"
+                                layout="topleft"
+                                height="20"
+                                name="use_custom_setting"/>
+                    </radio_group>
+                    <button
+                            follows="top|left"
+                            height="23"
+                            label="Edit Custom"
+                            left_delta="30"
+                            bottom_delta="30"
+                            width="100"
+                            name="edit_btn"/>
+
+                </layout_panel>
+                <layout_panel 
+                        border="true"
+                        bevel_style="in"
+                        auto_resize="false"
+                        user_resize="true"
+                        height="11"
+                        width="220"
+                        background_visible="true">
+                    <text follows="top|left|right"
+                            halign="left"
+                            text_color="white">Day Settings</text>
+                    <text
+                            type="string"
+                            length="1"
+                            follows="left|top"
+                            height="12"
+                            layout="topleft"
+                            left_delta="10"
+                            top_pad="10"
+                            width="200">
+                        Day Length (hours)
+                    </text>
+                    <slider
+                            can_edit_text="true"
+                            control_name="DayLengthSLD"
+                            decimal_digits="1"
+                            follows="left|top"
+                            height="20"
+                            increment="0.5"
+                            initial_value="4"
+                            layout="topleft"
+                            left_delta="0"
+                            top_pad="6"
+                            name="day_length_sld"
+                            min_val="4"
+                            max_val="178"
+                            width="200" />
+                    <text
+                            type="string"
+                            length="1"
+                            follows="left|top"
+                            height="12"
+                            layout="topleft"
+                            left_delta="0"
+                            top_pad="10"
+                            width="200">
+                        Day Offset (hours)
+                    </text>
+                    <slider
+                            can_edit_text="true"
+                            control_name="DayOffsetSLD"
+                            decimal_digits="1"
+                            follows="left|top"
+                            height="20"
+                            increment="0.5"
+                            initial_value="-8"
+                            layout="topleft"
+                            left_delta="0"
+                            top_pad="6"
+                            name="day_offset_sld"
+                            min_val="-12"
+                            max_val="12"
+                            width="200" />
+
+                </layout_panel>
+                <layout_panel name="flex"
+                        auto_resize="true"
+                        user_resize="true"
+                        visible="false"
+                        bg_alpha_color="blue"
+                        height="100"
+                        background_visible="true">
+                </layout_panel>
+            </layout_stack>
+        </layout_panel>
+        <layout_panel name="flex"
+                auto_resize="true"
+                user_resize="true"
+                height="11"
+                min_height="0"
+                background_visible="false">
+    <check_box
+        control_name="may_override_chk"
+        height="16"
+        label="Parcel Owners May Override"
+        layout="topleft"
+        left="10"
+        top="10"
+        name="allow_override_chk"
+        width="200" />
+    <button
+        follows="bottom|left"
+        height="23"
+        label="Apply"
+        right="-160"
+        bottom="-30"
+        name="apply_btn"
+        width="100" />
+    <button
+        follows="bottom|left"
+        height="23"
+        label="Cancel"
+        layout="topleft"
+        left_pad="10"
+        name="cancel_btn"
+        width="100" /> 
+                
+        </layout_panel>
+    </layout_stack>
 </panel>

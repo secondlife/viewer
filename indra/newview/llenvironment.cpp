@@ -41,6 +41,9 @@
 
 #include "llviewershadermgr.h"
 
+#include "llparcel.h"
+#include "llviewerparcelmgr.h"
+
 #include "llsdserialize.h"
 #include "lldiriterator.h"
 
@@ -106,6 +109,7 @@ void LLEnvironment::initSingleton()
 
     requestRegionEnvironment();
     gAgent.addRegionChangedCallback(boost::bind(&LLEnvironment::onRegionChange, this));
+    gAgent.addParcelChangedCallback(boost::bind(&LLEnvironment::onParcelChange, this));
 }
 
 LLEnvironment::~LLEnvironment()
@@ -143,10 +147,22 @@ LLEnvironment::connection_t LLEnvironment::setDayCycleListChange(const LLEnviron
     return mDayCycleListChange.connect(cb);
 }
 
-
 void LLEnvironment::onRegionChange()
 {
     requestRegionEnvironment();
+}
+
+void LLEnvironment::onParcelChange()
+{
+    LLUUID parcel_id;
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+    if (parcel)
+    {
+        parcel_id = parcel->getID();
+    }
+
+    requestParcel(parcel_id);
 }
 
 void LLEnvironment::requestRegionEnvironment()
@@ -821,7 +837,8 @@ void LLEnvironment::requestParcel(const LLUUID &parcel_id)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
-        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id));
+        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id, 
+        boost::bind(&LLEnvironment::applyEnvironment, this, _1)));
 
 }
 
@@ -829,7 +846,9 @@ void LLEnvironment::updateParcel(const LLUUID &parcel_id, LLSettingsDay::ptr_t &
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        boost::bind(&LLEnvironment::coroUpdateEnvironment, this, parcel_id, pday, day_length, day_offset));
+        boost::bind(&LLEnvironment::coroUpdateEnvironment, this, parcel_id, 
+        pday, day_length, day_offset,
+        boost::bind(&LLEnvironment::applyEnvironment, this, _1)));
 
 }
 
@@ -837,11 +856,11 @@ void LLEnvironment::resetParcel(const LLUUID &parcel_id)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
-        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id));
-
+        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id,
+        boost::bind(&LLEnvironment::applyEnvironment, this, _1)));
 }
 
-void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id)
+void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id, environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -875,9 +894,9 @@ void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id)
     else
     {
         LLSD environment = result["environment"];
-        if (environment.isDefined())
+        if (environment.isDefined() && !apply.empty())
         {
-            applyEnvironment(environment);
+            apply(environment);
         }
     }
 
@@ -888,7 +907,7 @@ void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id)
     }
 }
 
-void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset)
+void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -932,9 +951,9 @@ void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t
     else
     {
         LLSD environment = result["environment"];
-        if (environment.isDefined())
+        if (environment.isDefined() && !apply.empty())
         {
-            applyEnvironment(environment);
+            apply(environment);
         }
     }
 
@@ -945,7 +964,7 @@ void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t
     }
 }
 
-void LLEnvironment::coroResetEnvironment(LLUUID parcel_id)
+void LLEnvironment::coroResetEnvironment(LLUUID parcel_id, environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -979,10 +998,10 @@ void LLEnvironment::coroResetEnvironment(LLUUID parcel_id)
     else
     {
         LLSD environment = result["environment"];
-        if (environment.isDefined())
+        if (environment.isDefined() && !apply.empty())
         {
-            applyEnvironment(environment);
-        }        
+                apply(environment);
+        }
     }
 
     if (!notify.isUndefined())

@@ -78,6 +78,7 @@
 #include "lltrans.h"
 #include "llpanelexperiencelisteditor.h"
 #include "llpanelexperiencepicker.h"
+#include "llpanelenvironment.h"
 #include "llexperiencecache.h"
 
 #include "llgroupactions.h"
@@ -137,6 +138,32 @@ protected:
 	LLPanelExperienceListEditor* mAllowed;
 	LLPanelExperienceListEditor* mBlocked;
 };
+
+#if 0
+class LLPanelLandEnvironment
+    : public LLPanel
+{
+public:
+    LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
+    // TODO: LAPRAS
+#if 0
+    virtual BOOL postBuild();
+    void refresh();
+
+    void experienceAdded(const LLUUID& id, U32 xp_type, U32 access_type);
+    void experienceRemoved(const LLUUID& id, U32 access_type);
+protected:
+    LLPanelExperienceListEditor* setupList(const char* control_name, U32 xp_type, U32 access_type);
+    void refreshPanel(LLPanelExperienceListEditor* panel, U32 xp_type);
+
+    LLSafeHandle<LLParcelSelection>&	mParcel;
+
+
+    LLPanelExperienceListEditor* mAllowed;
+    LLPanelExperienceListEditor* mBlocked;
+#endif
+};
+#endif
 
 // inserts maturity info(icon and text) into target textbox 
 // names_floater - pointer to floater which contains strings with maturity icons filenames
@@ -277,6 +304,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 	mFactoryMap["land_experiences_panel"] =	LLCallbackMap(createPanelLandExperiences, this);
+    mFactoryMap["land_environment_panel"] = LLCallbackMap(createPanelLandEnvironment, this);
 
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
@@ -384,6 +412,14 @@ void* LLFloaterLand::createPanelLandExperiences(void* data)
 	LLFloaterLand* self = (LLFloaterLand*)data;
 	self->mPanelExperiences = new LLPanelLandExperiences(self->mParcel);
 	return self->mPanelExperiences;
+}
+
+//static 
+void* LLFloaterLand::createPanelLandEnvironment(void* data)
+{
+    LLFloaterLand* self = (LLFloaterLand*)data;
+    self->mPanelEnvironment = new LLPanelEnvironmentInfo(/*self->mParcel*/);
+    return self->mPanelEnvironment;
 }
 
 
