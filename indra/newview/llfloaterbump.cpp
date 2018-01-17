@@ -184,7 +184,7 @@ void LLFloaterBump::onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y)
 
 			std::string mute_msg = (LLMuteList::getInstance()->isMuted(mItemUUID, mNames[mItemUUID])) ? "UnmuteAvatar" : "MuteAvatar";
 			mPopupMenu->getChild<LLUICtrl>("Avatar Mute")->setValue(LLTrans::getString(mute_msg));
-			mPopupMenu->setItemEnabled(std::string("Zoom In"), (BOOL)gObjectList.findObject(mItemUUID));
+			mPopupMenu->setItemEnabled(std::string("Zoom In"), bool(gObjectList.findObject(mItemUUID)));
 
 			((LLContextMenu*)mPopupMenu)->show(x, y);
 			LLMenuGL::showPopup(ctrl, mPopupMenu, x, y);

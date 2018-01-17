@@ -34,13 +34,13 @@ include_directories(SYSTEM
 
 ### media_plugin_cef
 
-if(NOT WORD_SIZE EQUAL 32)
+if(NOT ADDRESS_SIZE EQUAL 32)
   if(WINDOWS)
-    add_definitions(/FIXED:NO)
+    ##add_definitions(/FIXED:NO)
   else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
     add_definitions(-fPIC)
   endif(WINDOWS)
-endif(NOT WORD_SIZE EQUAL 32)
+endif(NOT ADDRESS_SIZE EQUAL 32)
 
 set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
@@ -57,14 +57,12 @@ set (media_plugin_cef_LINK_LIBRARIES
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES})
 
-
 # Select which VolumeCatcher implementation to use
 if (LINUX)
   message(FATAL_ERROR "CEF plugin has been enabled for a Linux compile.\n"
     "  Please create a volume_catcher implementation for this platform.")
-
 elseif (DARWIN)
-  list(APPEND media_plugin_cef_SOURCE_FILES mac_volume_catcher.cpp)
+  list(APPEND media_plugin_cef_SOURCE_FILES mac_volume_catcher_null.cpp)
   find_library(CORESERVICES_LIBRARY CoreServices)
   find_library(AUDIOUNIT_LIBRARY AudioUnit)
   list(APPEND media_plugin_cef_LINK_LIBRARIES
@@ -97,8 +95,8 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_cef
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /LTCG /NODEFAULTLIB:LIBCMT"
-    LINK_FLAGS_DEBUG "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMTD"
+    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099"
+    LINK_FLAGS_DEBUG "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMTD /IGNORE:4099"
     )
 endif (WINDOWS)
 
@@ -112,6 +110,9 @@ if (DARWIN)
     INSTALL_NAME_DIR "@executable_path"
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
   )
+
+  ## turns on C++11 using Cmake
+  target_compile_features(media_plugin_cef PRIVATE cxx_range_for)
 
   add_custom_command(TARGET media_plugin_cef
     POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "@executable_path/Chromium Embedded Framework"

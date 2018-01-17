@@ -87,7 +87,8 @@ public:
         HOR_COPY,
         HOR_MOVE
 	};
-	
+    static std::string methodToString(const EMethod &);
+
 	virtual void stageFromRequest(HttpService *);
 	virtual void stageFromReady(HttpService *);
 	virtual void stageFromActive(HttpService *);
@@ -235,6 +236,7 @@ public:
 	HttpTime			mPolicyMinRetryBackoff; // initial delay between retries (mcs)
 	HttpTime			mPolicyMaxRetryBackoff;
 };  // end class HttpOpRequest
+
 
 
 /// HttpOpRequestCompare isn't an operation but a uniform comparison

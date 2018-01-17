@@ -90,7 +90,7 @@ LONG NTAPI vectoredHandler(PEXCEPTION_POINTERS exception_infop)
 }
 
 // static
-void  LLWinDebug::init()
+void  LLWinDebug::initSingleton()
 {
 	static bool s_first_run = true;
 	// Load the dbghelp dll now, instead of waiting for the crash.
@@ -135,7 +135,7 @@ void  LLWinDebug::init()
 	}
 }
 
-void LLWinDebug::cleanup ()
+void LLWinDebug::cleanupSingleton()
 {
 	gEmergencyMemoryReserve.release();
 }

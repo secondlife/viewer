@@ -14,6 +14,10 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
            set(VIEWER_VERSION_REVISION $ENV{revision})
            message(STATUS "Revision (from environment): ${VIEWER_VERSION_REVISION}")
 
+        elseif (DEFINED ENV{AUTOBUILD_BUILD_ID})
+           set(VIEWER_VERSION_REVISION $ENV{AUTOBUILD_BUILD_ID})
+           message(STATUS "Revision (from autobuild environment): ${VIEWER_VERSION_REVISION}")
+
         else (DEFINED ENV{revision})
           find_program(MERCURIAL
                        NAMES hg
@@ -54,7 +58,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
     endif ("${VIEWER_VERSION_REVISION}" STREQUAL "")
 
     set(VIEWER_CHANNEL_VERSION_DEFINES
-        "LL_VIEWER_CHANNEL=\"${VIEWER_CHANNEL}\""
+        "LL_VIEWER_CHANNEL=${VIEWER_CHANNEL}"
         "LL_VIEWER_VERSION_MAJOR=${VIEWER_VERSION_MAJOR}"
         "LL_VIEWER_VERSION_MINOR=${VIEWER_VERSION_MINOR}"
         "LL_VIEWER_VERSION_PATCH=${VIEWER_VERSION_PATCH}"

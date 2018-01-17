@@ -72,6 +72,9 @@ public:
 	/// reset the channel name used by the viewer.
 	static void resetChannel(const std::string& channel);
 
+    /// return the bit width of an address
+    static const S32 getAddressSize() { return ADDRESS_SIZE; }
+
     typedef enum
     {
         TEST_VIEWER,
