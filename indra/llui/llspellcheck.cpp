@@ -406,10 +406,7 @@ const std::string LLSpellChecker::getDictionaryAppPath()
 const std::string LLSpellChecker::getDictionaryUserPath()
 {
 	std::string dict_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, DICT_DIR, "");
-	if (!gDirUtilp->fileExists(dict_path))
-	{
-		LLFile::mkdir(dict_path);
-	}
+	LLFile::mkdir(dict_path);
 	return dict_path;
 }
 

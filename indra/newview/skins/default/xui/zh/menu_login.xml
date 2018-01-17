@@ -17,7 +17,6 @@
 		<menu_item_call label="[SECOND_LIFE] 部落格" name="Second Life Blogs"/>
 		<menu_item_call label="回報錯誤" name="Report Bug"/>
 		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
-		<menu_item_call label="查詢是否有新版" name="Check for Updates"/>
 	</menu>
 	<menu_item_check label="顯示除錯選單" name="Show Debug Menu"/>
 	<menu label="除錯" name="Debug">

@@ -604,7 +604,9 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
 
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
-	createSpareBrowserMediaSource();
+	// 2017-04-19 Removed CP - this doesn't appear to buy us much and consumes a lot of resources so
+	// removing it for now.
+	//createSpareBrowserMediaSource();
 
 	sAnyMediaShowing = false;
 	sAnyMediaPlaying = false;

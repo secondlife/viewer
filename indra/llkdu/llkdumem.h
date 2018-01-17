@@ -29,26 +29,22 @@
 
 // Support classes for reading and writing from memory buffers in KDU
 #define KDU_NO_THREADS
-// don't *really* want to rebuild KDU so turn off specific warnings for this header
-#if LL_DARWIN
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wself-assign-field"
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include "kdu_image.h"
-#pragma clang diagnostic pop
-#else
-#include "kdu_image.h"
-#endif
+
+#define kdu_xxxx "kdu_image.h"
+#include "include_kdu_xxxx.h"
 
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"
-#include "kdu_compressed.h"
+
+#define kdu_xxxx "kdu_compressed.h"
+#include "include_kdu_xxxx.h"
+
 #include "kdu_sample_processing.h"
 #include "image_local.h"
 #include "stdtypes.h"
 
-class LLKDUMemSource: public kdu_compressed_source
+class LLKDUMemSource: public kdu_core::kdu_compressed_source
 {
 public:
 	LLKDUMemSource(U8 *input_buffer, U32 size)
@@ -62,7 +58,7 @@ public:
 	{
 	}
 
-	int read(kdu_byte *buf, int num_bytes)
+	int read(kdu_core::kdu_byte *buf, int num_bytes)
 	{
 		U32 num_out;
 		num_out = num_bytes;
@@ -87,7 +83,7 @@ private:
 	U32 mCurPos;
 };
 
-class LLKDUMemTarget: public kdu_compressed_target
+class LLKDUMemTarget: public kdu_core::kdu_compressed_target
 {
 public:
 	LLKDUMemTarget(U8 *output_buffer, U32 &output_size, const U32 buffer_size)
@@ -102,7 +98,7 @@ public:
 	{
 	}
 
-	bool write(const kdu_byte *buf, int num_bytes)
+	bool write(const kdu_core::kdu_byte *buf, int num_bytes)
 	{
 		U32 num_out;
 		num_out = num_bytes;
@@ -126,7 +122,7 @@ private:
 	U32 *mOutputSize;
 };
 
-class LLKDUMemIn : public kdu_image_in_base
+class LLKDUMemIn : public kdu_supp::kdu_image_in_base
 {
 public:
 	LLKDUMemIn(const U8 *data,
@@ -134,10 +130,10 @@ public:
 				const U16 rows,
 				const U16 cols,
 				U8 in_num_components,
-				siz_params *siz);
+				kdu_core::siz_params *siz);
 	~LLKDUMemIn();
 
-	bool get(int comp_idx, kdu_line_buf &line, int x_tnum);
+	bool get(int comp_idx, kdu_core::kdu_line_buf &line, int x_tnum);
 
 private:
 	const U8 *mData;
@@ -146,8 +142,8 @@ private:
 	int rows, cols;
 	int alignment_bytes; // Number of 0's at end of each line.
 	int precision[3];
-	image_line_buf *incomplete_lines; // Each "sample" represents a full pixel
-	image_line_buf *free_lines;
+	kd_supp_image_local::image_line_buf *incomplete_lines; // Each "sample" represents a full pixel
+	kd_supp_image_local::image_line_buf *free_lines;
 	int num_unread_rows;
 
 	U32 mCurPos;
