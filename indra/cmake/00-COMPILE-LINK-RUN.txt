@@ -48,8 +48,8 @@ Compilation
                    LL_WINDOWS=1                  "                   "
                    UNICODE                       "                   "
                    _UNICODE                      "                   "
-                   WINVER=0x0501                 "                   "
-                   _WIN32_WINNT=0x0501           "                   "
+                   WINVER=0x0600                 "                   "
+                   _WIN32_WINNT=0x0600           "                   "
                    LL_OS_DRAGDROP_ENABLED=1      "                   "
                    LIB_NDOF=1                    "                   "
 

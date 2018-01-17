@@ -1765,6 +1765,13 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
+   name="RunLauncher"
+   type="alertmodal">
+     Please do not directly run the viewer executable. Update any existing shortcuts to run SL_Launcher instead.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
@@ -3831,143 +3838,12 @@ Finished download of raw terrain file to:
 
   <notification
    icon="alertmodal.tga"
-   name="DownloadWindowsMandatory"
+   name="RequiredUpdate"
    type="alertmodal">
-A new version of [APP_NAME] is available.
-[MESSAGE]
-You must download this update to use [APP_NAME].
+Version [VERSION] is required for login.
+This should have been updated for you but apparently was not.
+Please download from https://secondlife.com/support/downloads/
     <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Quit"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadWindows"
-   type="alertmodal">
-An updated version of [APP_NAME] is available.
-[MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadWindowsReleaseForDownload"
-   type="alertmodal">
-An updated version of [APP_NAME] is available.
-[MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadLinuxMandatory"
-   type="alertmodal">
-A new version of [APP_NAME] is available.
-[MESSAGE]
-You must download this update to use [APP_NAME].
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Quit"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadLinux"
-   type="alertmodal">
-An updated version of [APP_NAME] is available.
-[MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadLinuxReleaseForDownload"
-   type="alertmodal">
-An updated version of [APP_NAME] is available.
-[MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadMacMandatory"
-   type="alertmodal">
-A new version of [APP_NAME] is available.
-[MESSAGE]
-You must download this update to use [APP_NAME].
-
-Download to your Applications folder?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Quit"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadMac"
-   type="alertmodal">
-An updated version of [APP_NAME] is available.
-[MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
-
-Download to your Applications folder?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="DownloadMacReleaseForDownload"
-   type="alertmodal">
-An updated version of [APP_NAME] is available.
-[MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
-
-Download to your Applications folder?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Download"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="FailedUpdateInstall"
-   type="alertmodal">
-An error occurred installing the viewer update.
-Please download and install the latest viewer from
-http://secondlife.com/download.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3975,195 +3851,14 @@ http://secondlife.com/download.
 
   <notification
    icon="alertmodal.tga"
-   name="FailedRequiredUpdateInstall"
+   name="LoginFailedUnknown"
    type="alertmodal">
-We were unable to install a required update. 
-You will be unable to log in until [APP_NAME] has been updated.
-
-Please download and install the latest viewer from
-http://secondlife.com/download.
-  <tag>fail</tag>
+Sorry, login failed for an unrecognized reason.
+If you continue to get this message, please check the [SUPPORT_SITE].
+    <tag>confirm</tag>
     <usetemplate
      name="okbutton"
      yestext="Quit"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="UpdaterServiceNotRunning"
-   type="alertmodal"
-   force_urls_external="true">
-There is a required update for your Second Life Installation.
-
-You may download this update from http://www.secondlife.com/downloads
-or you can install it now.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Quit Second Life"
-     yestext="Download and install now"/>
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="DownloadBackgroundTip"
-   type="notify">
-We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[INFO_URL] Information about this update]
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Later..."
-     yestext="Install now and restart [APP_NAME]"/>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="DownloadBackgroundDialog"
- type="alertmodal">
-We have downloaded an update to your [APP_NAME] installation.
-    Version [VERSION] [[INFO_URL] Information about this update]
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Later..."
-     yestext="Install now and restart [APP_NAME]"/>
-  </notification>
-  
-  <notification
-   icon="alertmodal.tga"
-   name="RequiredUpdateDownloadedVerboseDialog"
-   type="alertmodal"
-   force_urls_external="true">
-We have downloaded a required software update.
-Version [VERSION] [[INFO_URL] Information about this update]
-
-We must restart [APP_NAME] to install the update.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-  
-  <notification
-   icon="alertmodal.tga"
-   name="RequiredUpdateDownloadedDialog"
-   type="alertmodal"
-   force_urls_external="true">
-We must restart [APP_NAME] to install the update.
-[[INFO_URL] Information about this update]
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="OtherChannelDownloadBackgroundTip"
-   type="notify">
-We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] 
-This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
-see [[INFO_URL] for details about this update]
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Later..."
-     yestext="Install now and restart [APP_NAME]"/>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="OtherChannelDownloadBackgroundDialog"
- type="alertmodal">
-We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION]
-This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
-see [[INFO_URL] Information about this update]
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Later..."
-     yestext="Install now and restart [APP_NAME]"/>
-  </notification>
-  
-  <notification
-   icon="alertmodal.tga"
-   name="OtherChannelRequiredUpdateDownloadedVerboseDialog"
-   type="alertmodal"
-   force_urls_external="true">
-We have downloaded a required software update.
-Version [VERSION]
-This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
-see [[INFO_URL] Information about this update]
-
-We must restart [APP_NAME] to install the update.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-  
-  <notification
-   icon="alertmodal.tga"
-   name="OtherChannelRequiredUpdateDownloadedDialog"
-   type="alertmodal"
-   force_urls_external="true">
-We must restart [APP_NAME] to install the update.
-This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
-see [[INFO_URL] Information about this update]
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-  
-  <notification
- icon="alertmodal.tga"
- name="UpdateDownloadInProgress"
- type="alertmodal">
-An update is available!
-It's downloading in the background and we will prompt you to restart your viewer to finish installing it as soon as it's ready.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-  
-  <notification
- icon="alertmodal.tga"
- name="UpdateDownloadComplete"
- type="alertmodal">
-An update was downloaded. It will be installed during restart.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="UpdateCheckError"
- type="alertmodal">
-An error occurred while checking for update.
-Please try again later.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="UpdateViewerUpToDate"
- type="alertmodal">
-Your viewer is up to date!
-If you can't wait to try out the latest features and fixes, check out the Alternate Viewers page. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
   </notification>
 
   <notification
@@ -8867,6 +8562,21 @@ Please check your network and firewall setup.
 We're having trouble connecting to your voice server:
 
 [HOSTID]
+
+Voice communications will not be available.
+Please check your network and firewall setup.
+    <tag>voice</tag>
+  <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoVoiceConnect-GIAB"
+   type="alertmodal">
+We're having trouble connecting to your voice server.
 
 Voice communications will not be available.
 Please check your network and firewall setup.

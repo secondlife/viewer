@@ -31,12 +31,16 @@
 #include "../llviewernetwork.h"
 #include "../lllogininstance.h"
 
+ // Needed for Auth Test
+ #include "../llhasheduniqueid.h"
+
 // STL headers
 // std headers
 // external library headers
 // other Linden headers
 #include "../test/lltut.h"
 #include "llevents.h"
+#include "llnotificationsutil.h"
 
 #if defined(LL_WINDOWS)
 #pragma warning(disable: 4355)      // using 'this' in base-class ctor initializer expr
@@ -107,6 +111,19 @@ void LLCredential::identifierType(std::string &idType)
 
 void LLCredential::authenticatorType(std::string &idType)
 {
+}
+
+LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
+                                           const LLSD& substitutions, 
+                                           const LLSD& payload, 
+                                           boost::function<void (const LLSD&, const LLSD&)> functor)
+{
+    return LLNotificationPtr((LLNotification*)NULL);
+}
+
+LLNotificationPtr LLNotificationsUtil::add(const std::string& name, const LLSD& args)
+{
+    return LLNotificationPtr((LLNotification*)NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -188,40 +205,16 @@ void LLUIColorTable::saveUserSettings(void)const {}
 const std::string &LLVersionInfo::getVersion() { return VIEWERLOGIN_VERSION; }
 const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
 
-//-----------------------------------------------------------------------------
-#include "../llappviewer.h"
-void LLAppViewer::forceQuit(void) {}
-LLAppViewer * LLAppViewer::sInstance = 0;
-
-//-----------------------------------------------------------------------------
-#include "llupdaterservice.h"
-
-std::string const & LLUpdaterService::pumpName(void)
-{
-	static std::string wakka = "wakka wakka wakka";
-	return wakka;
-}
-bool LLUpdaterService::updateReadyToInstall(void) { return false; }
-void LLUpdaterService::initialize(const std::string& channel,
-								  const std::string& version,
-								  const std::string& platform,
-								  const std::string& platform_version,
-								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
-								  const bool&         willing_to_test
-								  ) {}
-
-void LLUpdaterService::setCheckPeriod(unsigned int seconds) {}
-void LLUpdaterService::startChecking(bool install_if_ready) {}
-void LLUpdaterService::stopChecking() {}
-bool LLUpdaterService::isChecking() { return false; }
-LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
-std::string LLUpdaterService::updatedVersion() { return ""; }
-
 bool llHashedUniqueID(unsigned char* id) 
 {
 	memcpy( id, "66666666666666666666666666666666", MD5HEX_STR_SIZE );
 	return true;
 }
+
+//-----------------------------------------------------------------------------
+#include "../llappviewer.h"
+void LLAppViewer::forceQuit(void) {}
+LLAppViewer * LLAppViewer::sInstance = 0;
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"
@@ -339,7 +332,6 @@ namespace tut
 			gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareBOOL("ConnectAsGod", FALSE, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", LLControlVariable::PERSIST_NO);
-			gSavedSettings.declareBOOL("ForceMandatoryUpdate", FALSE, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", LLControlVariable::PERSIST_NO);
@@ -477,5 +469,4 @@ namespace tut
 		logininstance->connect(test_uri, agentCredential);
 		ensure_equals("Default for agree to tos", gLoginCreds["params"]["read_critical"].asBoolean(), false);
 	}
-
 }
