@@ -509,7 +509,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				}
 			}
 		
-			U32 map_tc[] = 
+			static const U32 map_tc[] = 
 			{
 				MAP_TEXCOORD1,
 				MAP_TEXCOORD2,

@@ -545,7 +545,7 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 {
 	// Generate an n-sided "circular" path.
 	// 0 is (1,0), and we go counter-clockwise along a circular path from there.
-	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
+	static const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
 	F32 scale = 0.5f;
 	F32 t, t_step, t_first, t_fraction, ang, ang_step;
 	LLVector4a pt1,pt2;
@@ -1304,7 +1304,7 @@ S32 LLPath::getNumNGonPoints(const LLPathParams& params, S32 sides, F32 startOff
 void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 {
 	// Generates a circular path, starting at (1, 0, 0), counterclockwise along the xz plane.
-	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
+	static const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
 
 	F32 revolutions = params.getRevolutions();
 	F32 skew		= params.getSkew();
@@ -1602,7 +1602,8 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			if (is_sculpted)
 				sides = llmax(sculpt_size, 1);
 			
-			genNGon(params, sides);
+			if (0 < sides)
+				genNGon(params, sides);
 		}
 		break;
 

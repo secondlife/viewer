@@ -582,6 +582,7 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 	return true;
 }
 
+void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value);
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -734,7 +735,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
-    gSavedSettings.getControl("DebugAvatarJoints")->getCommitSignal()->connect(boost::bind(&handleDebugAvatarJointsChanged, _2));
+	gSavedSettings.getControl("DebugAvatarJoints")->getCommitSignal()->connect(boost::bind(&handleDebugAvatarJointsChanged, _2));
+	gSavedSettings.getControl("RenderAutoMuteByteLimit")->getSignal()->connect(boost::bind(&handleRenderAutoMuteByteLimitChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL
