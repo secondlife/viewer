@@ -3400,7 +3400,7 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
             param_block->setFlags(flags);
         }
         parameterChanged(LLNetworkData::PARAMS_EXTENDED_MESH, true);
-        LL_DEBUGS("AnimatedObjects") << (U32) this
+        LL_DEBUGS("AnimatedObjects") << this
                                      << " new flags " << flags << " curr_flags " << curr_flags
                                      << ", calling onSetExtendedMeshFlags()"
                                      << LL_ENDL;
@@ -3919,7 +3919,7 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
         bool was_enabled = (getControlAvatar() != NULL);
         if (enabled != was_enabled)
         {
-            LL_DEBUGS("AnimatedObjects") << (U32) this
+            LL_DEBUGS("AnimatedObjects") << this
                                          << " calling onSetExtendedMeshFlags, enabled " << (U32) enabled
                                          << " was_enabled " << (U32) was_enabled
                                          << " local_origin " << (U32) local_origin
