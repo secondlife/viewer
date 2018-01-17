@@ -17,7 +17,6 @@
 		<menu_item_call label="Блоги [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Сообщить об ошибке" name="Report Bug"/>
 		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
-		<menu_item_call label="Проверить наличие обновлений" name="Check for Updates"/>
 	</menu>
 	<menu_item_check label="Показать меню отладки" name="Show Debug Menu"/>
 	<menu label="Отладка" name="Debug">

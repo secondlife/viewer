@@ -185,41 +185,29 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 	int res = LLFile::mkdir(mOSUserAppDir);
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create app user dir " << mOSUserAppDir << LL_ENDL;
-			LL_WARNS() << "Default to base dir" << mOSUserDir << LL_ENDL;
-			mOSUserAppDir = mOSUserDir;
-		}
+		LL_WARNS() << "Couldn't create app user dir " << mOSUserAppDir << LL_ENDL;
+		LL_WARNS() << "Default to base dir" << mOSUserDir << LL_ENDL;
+		mOSUserAppDir = mOSUserDir;
 	}
 
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_LOGS,""));
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << LL_ENDL;
 	}
 	
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SETTINGS,""));
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << LL_ENDL;
 	}
-	
+
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_CACHE,""));
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << LL_ENDL;
 	}
-	
+
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "ca-bundle.crt");
 }
 

@@ -6,6 +6,7 @@ include(00-Common)
 include(GoogleMock)
 include(CURL)
 include(OpenSSL)
+include(NGHTTP2)
 include(ZLIB)
 include(LLCoreHttp)
 include(LLAddBuildTest)
@@ -30,6 +31,7 @@ set(llcorehttp_SOURCE_FILES
     httpoptions.cpp
     httprequest.cpp
     httpresponse.cpp
+    httpstats.cpp
     _httplibcurl.cpp
     _httpopcancel.cpp
     _httpoperation.cpp
@@ -57,6 +59,7 @@ set(llcorehttp_HEADER_FILES
     httpoptions.h
     httprequest.h
     httpresponse.h
+    httpstats.h
     _httpinternal.h
     _httplibcurl.h
     _httpopcancel.h
@@ -92,6 +95,7 @@ target_link_libraries(
   ${CURL_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
+  ${NGHTTP2_LIBRARIES}
   ${BOOST_THREAD_LIBRARY}
   ${BOOST_SYSTEM_LIBRARY}
   )
@@ -130,6 +134,7 @@ if (LL_TESTS)
       ${CURL_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
+      ${NGHTTP2_LIBRARIES}
       ${BOOST_THREAD_LIBRARY}
       ${BOOST_SYSTEM_LIBRARY}
       )
@@ -137,18 +142,18 @@ if (LL_TESTS)
   # If http_proxy is in the current environment (e.g. to fetch s3-proxy
   # autobuild packages), suppress it for this integration test: it screws up
   # the tests.
-  #LL_ADD_INTEGRATION_TEST(llcorehttp
-  #                        "${llcorehttp_TEST_SOURCE_FILES}"
-  #                        "${test_libs}"
-  #                        "-Dhttp_proxy"
-  #                        ${PYTHON_EXECUTABLE}
-  #                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
-  #                        )
+  LL_ADD_INTEGRATION_TEST(llcorehttp
+                          "${llcorehttp_TEST_SOURCE_FILES}"
+                          "${test_libs}"
+                          "-Dhttp_proxy"
+                          ${PYTHON_EXECUTABLE}
+                          "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
+                          )
 
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LL_TEST_DESTINATION_DIR
-    ${CMAKE_SOURCE_DIR}/../build-darwin-i386/sharedlibs/Resources
+    ${CMAKE_BINARY_DIR}/sharedlibs/Resources
   )
 
   # Create the Contents/Resources directory
@@ -164,21 +169,23 @@ if (DARWIN)
   
   # Copy the required libraries to the package app
   add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libapr-1.0.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libapr-1.0.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libapr-1.0.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libapr-1.0.dylib
   )
   add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libaprutil-1.0.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libaprutil-1.0.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libaprutil-1.0.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libaprutil-1.0.dylib
   )
   add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexception_handler.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexception_handler.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib
   )
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexpat.1.5.2.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexpat.1.5.2.dylib
-  )
+  foreach(expat ${EXPAT_COPY})
+    add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat} ${LL_TEST_DESTINATION_DIR}
+      DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat}
+    )
+  endforeach(expat)
 
 endif (DARWIN)
 
@@ -198,6 +205,7 @@ endif (DARWIN)
       ${CURL_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
+      ${NGHTTP2_LIBRARIES}
       ${BOOST_THREAD_LIBRARY}
       ${BOOST_SYSTEM_LIBRARY}
       )
@@ -214,7 +222,7 @@ endif (DARWIN)
     # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
     set_target_properties(http_texture_load
                           PROPERTIES
-                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE ${TCMALLOC_LINK_FLAGS}"
+                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
                           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
                           LINK_FLAGS_RELEASE ""
                           )

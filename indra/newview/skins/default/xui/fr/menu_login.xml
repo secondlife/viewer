@@ -17,7 +17,6 @@
 		<menu_item_call label="Blogs [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
-		<menu_item_call label="Rechercher des mises à jour" name="Check for Updates"/>
 	</menu>
 	<menu_item_check label="Afficher le menu de débogage" name="Show Debug Menu"/>
 	<menu label="Débogage" name="Debug">

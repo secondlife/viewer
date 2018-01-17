@@ -27,6 +27,30 @@
 #define LLSAFEHANDLE_H
 
 #include "llerror.h"	// *TODO: consider eliminating this
+#include "llsingleton.h"
+
+/*==========================================================================*|
+ ____   ___    _   _  ___ _____   _   _ ____  _____ _
+|  _ \ / _ \  | \ | |/ _ \_   _| | | | / ___|| ____| |
+| | | | | | | |  \| | | | || |   | | | \___ \|  _| | |
+| |_| | |_| | | |\  | |_| || |   | |_| |___) | |___|_|
+|____/ \___/  |_| \_|\___/ |_|    \___/|____/|_____(_)
+
+This handle class is deprecated. Unfortunately it is already in widespread use
+to reference the LLObjectSelection and LLParcelSelection classes, but do not
+apply LLSafeHandle to other classes, or declare new instances.
+
+Instead, use LLPointer or other smart pointer types with appropriate checks
+for NULL. If you're certain the reference cannot (or must not) be NULL,
+consider storing a C++ reference instead -- or use (e.g.) LLCheckedHandle.
+
+When an LLSafeHandle<T> containing NULL is dereferenced, it resolves to a
+canonical "null" T instance. This raises issues about the lifespan of the
+"null" instance. In addition to encouraging sloppy coding practices, it
+potentially masks bugs when code that performs some mutating operation
+inadvertently applies it to the "null" instance. That result might or might
+not ever affect subsequent computations.
+|*==========================================================================*/
 
 // Expands LLPointer to return a pointer to a special instance of class Type instead of NULL.
 // This is useful in instances where operations on NULL pointers are semantically safe and/or
@@ -112,10 +136,6 @@ public:
 		return *this; 
 	}
 
-public:
-	typedef Type* (*NullFunc)();
-	static const NullFunc sNullFunc;
-
 protected:
 	void ref()                             
 	{ 
@@ -150,9 +170,25 @@ protected:
 		}
 	}
 
+	// Define an LLSingleton whose sole purpose is to hold a "null instance"
+	// of the subject Type: the canonical instance to dereference if this
+	// LLSafeHandle actually holds a null pointer. We use LLSingleton
+	// specifically so that the "null instance" can be cleaned up at a well-
+	// defined time, specifically LLSingletonBase::deleteAll().
+	// Of course, as with any LLSingleton, the "null instance" is only
+	// instantiated on demand -- in this case, if you actually try to
+	// dereference an LLSafeHandle containing null.
+	class NullInstanceHolder: public LLSingleton<NullInstanceHolder>
+	{
+		LLSINGLETON_EMPTY_CTOR(NullInstanceHolder);
+		~NullInstanceHolder() {}
+	public:
+		Type mNullInstance;
+	};
+
 	static Type* nonNull(Type* ptr)
 	{
-		return ptr == NULL ? sNullFunc() : ptr;
+		return ptr? ptr : &NullInstanceHolder::instance().mNullInstance;
 	}
 
 protected:

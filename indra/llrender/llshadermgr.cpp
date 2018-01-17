@@ -575,10 +575,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 	//we can't have any lines longer than 1024 characters 
 	//or any shaders longer than 4096 lines... deal - DaveP
-	GLcharARB buff[1024];
-	GLcharARB* text[4096];
-	GLuint count = 0;
-
+    GLcharARB buff[1024];
+    GLcharARB *extra_code_text[1024];
+    GLcharARB *shader_code_text[4096 + LL_ARRAY_SIZE(extra_code_text)] = { NULL };
+    GLuint extra_code_count = 0, shader_code_count = 0;
+    BOOST_STATIC_ASSERT(LL_ARRAY_SIZE(extra_code_text) < LL_ARRAY_SIZE(shader_code_text));
+    
+    
 	S32 major_version = gGLManager.mGLSLVersionMajor;
 	S32 minor_version = gGLManager.mGLSLVersionMinor;
 	
@@ -593,20 +596,20 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 		if (minor_version <= 19)
 		{
-			text[count++] = strdup("#version 110\n");
-			text[count++] = strdup("#define ATTRIBUTE attribute\n");
-			text[count++] = strdup("#define VARYING varying\n");
-			text[count++] = strdup("#define VARYING_FLAT varying\n");
+			shader_code_text[shader_code_count++] = strdup("#version 110\n");
+			extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE attribute\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING varying\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT varying\n");
 		}
 		else if (minor_version <= 29)
 		{
 			//set version to 1.20
-			text[count++] = strdup("#version 120\n");
-			text[count++] = strdup("#define FXAA_GLSL_120 1\n");
-			text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
-			text[count++] = strdup("#define ATTRIBUTE attribute\n");
-			text[count++] = strdup("#define VARYING varying\n");
-			text[count++] = strdup("#define VARYING_FLAT varying\n");
+			shader_code_text[shader_code_count++] = strdup("#version 120\n");
+       		extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_120 1\n");
+			extra_code_text[extra_code_count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
+			extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE attribute\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING varying\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT varying\n");
 		}
 	}
 	else
@@ -614,44 +617,43 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (major_version < 4)
 		{
 			//set version to 1.30
-			text[count++] = strdup("#version 130\n");
-
+			shader_code_text[shader_code_count++] = strdup("#version 130\n");
 			//some implementations of GLSL 1.30 require integer precision be explicitly declared
-			text[count++] = strdup("precision mediump int;\n");
-			text[count++] = strdup("precision highp float;\n");
+			extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
+			extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
 		}
 		else
 		{ //set version to 400
-			text[count++] = strdup("#version 400\n");
+			shader_code_text[shader_code_count++] = strdup("#version 400\n");
 		}
 
-		text[count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
-		text[count++] = strdup("#define FXAA_GLSL_130 1\n");
+		extra_code_text[extra_code_count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
+		extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
 
-		text[count++] = strdup("#define ATTRIBUTE in\n");
+		extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE in\n");
 
 		if (type == GL_VERTEX_SHADER_ARB)
 		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
 			// ("varying" is deprecated after version 1.20)
-			text[count++] = strdup("#define VARYING out\n");
-			text[count++] = strdup("#define VARYING_FLAT flat out\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING out\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT flat out\n");
 		}
 		else
 		{
-			text[count++] = strdup("#define VARYING in\n");
-			text[count++] = strdup("#define VARYING_FLAT flat in\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING in\n");
+			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT flat in\n");
 		}
 
 		//backwards compatibility with legacy texture lookup syntax
-		text[count++] = strdup("#define texture2D texture\n");
-		text[count++] = strdup("#define textureCube texture\n");
-		text[count++] = strdup("#define texture2DLod textureLod\n");
-		text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
+		extra_code_text[extra_code_count++] = strdup("#define texture2D texture\n");
+		extra_code_text[extra_code_count++] = strdup("#define textureCube texture\n");
+		extra_code_text[extra_code_count++] = strdup("#define texture2DLod textureLod\n");
+		extra_code_text[extra_code_count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
 		
 		if (major_version > 1 || minor_version >= 40)
 		{ //GLSL 1.40 replaces texture2DRect et al with texture
-			text[count++] = strdup("#define texture2DRect texture\n");
-			text[count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
+			extra_code_text[extra_code_count++] = strdup("#define texture2DRect texture\n");
+			extra_code_text[extra_code_count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
 		}
 	}
 	
@@ -660,13 +662,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		for (boost::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
 		{
 			std::string define = "#define " + iter->first + " " + iter->second + "\n";
-			text[count++] = (GLcharARB *) strdup(define.c_str());
+			extra_code_text[extra_code_count++] = (GLcharARB *) strdup(define.c_str());
 		}
 	}
 
 	if( gGLManager.mIsATI )
 	{
-		text[ count++ ] = strdup( "#define IS_AMD_CARD 1\n" );
+		extra_code_text[extra_code_count++] = strdup( "#define IS_AMD_CARD 1\n" );
 	}
 	
 	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
@@ -704,28 +706,28 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 		*/
 
-		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 1\n");
+		extra_code_text[extra_code_count++] = strdup("#define HAS_DIFFUSE_LOOKUP 1\n");
 
 		//uniform declartion
 		for (S32 i = 0; i < texture_index_channels; ++i)
 		{
 			std::string decl = llformat("uniform sampler2D tex%d;\n", i);
-			text[count++] = strdup(decl.c_str());
+			extra_code_text[extra_code_count++] = strdup(decl.c_str());
 		}
 
 		if (texture_index_channels > 1)
 		{
-			text[count++] = strdup("VARYING_FLAT int vary_texture_index;\n");
+			extra_code_text[extra_code_count++] = strdup("VARYING_FLAT int vary_texture_index;\n");
 		}
 
-		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
-		text[count++] = strdup("{\n");
+		extra_code_text[extra_code_count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
+		extra_code_text[extra_code_count++] = strdup("{\n");
 		
 		
 		if (texture_index_channels == 1)
 		{ //don't use flow control, that's silly
-			text[count++] = strdup("return texture2D(tex0, texcoord);\n");
-			text[count++] = strdup("}\n");
+			extra_code_text[extra_code_count++] = strdup("return texture2D(tex0, texcoord);\n");
+			extra_code_text[extra_code_count++] = strdup("}\n");
 		}
 		else if (major_version > 1 || minor_version >= 30)
 		{  //switches are supported in GLSL 1.30 and later
@@ -734,27 +736,27 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				for (U32 i = 0; i < texture_index_channels; ++i)
 				{
 					std::string if_string = llformat("\t%sif (vary_texture_index == %d) { return texture2D(tex%d, texcoord); }\n", i > 0 ? "else " : "", i, i); 
-					text[count++] = strdup(if_string.c_str());
+					extra_code_text[extra_code_count++] = strdup(if_string.c_str());
 				}
-				text[count++] = strdup("\treturn vec4(1,0,1,1);\n");
-				text[count++] = strdup("}\n");
+				extra_code_text[extra_code_count++] = strdup("\treturn vec4(1,0,1,1);\n");
+				extra_code_text[extra_code_count++] = strdup("}\n");
 			}
 			else
 			{
-				text[count++] = strdup("\tvec4 ret = vec4(1,0,1,1);\n");
-				text[count++] = strdup("\tswitch (vary_texture_index)\n");
-				text[count++] = strdup("\t{\n");
+				extra_code_text[extra_code_count++] = strdup("\tvec4 ret = vec4(1,0,1,1);\n");
+				extra_code_text[extra_code_count++] = strdup("\tswitch (vary_texture_index)\n");
+				extra_code_text[extra_code_count++] = strdup("\t{\n");
 		
 				//switch body
 				for (S32 i = 0; i < texture_index_channels; ++i)
 				{
 					std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
-					text[count++] = strdup(case_str.c_str());
+					extra_code_text[extra_code_count++] = strdup(case_str.c_str());
 				}
 
-				text[count++] = strdup("\t}\n");
-				text[count++] = strdup("\treturn ret;\n");
-				text[count++] = strdup("}\n");
+				extra_code_text[extra_code_count++] = strdup("\t}\n");
+				extra_code_text[extra_code_count++] = strdup("\treturn ret;\n");
+				extra_code_text[extra_code_count++] = strdup("}\n");
 			}
 		}
 		else
@@ -765,14 +767,89 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 	else
 	{
-		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 0\n");
+		extra_code_text[extra_code_count++] = strdup("#define HAS_DIFFUSE_LOOKUP 0\n");
 	}
 
+    
 	//copy file into memory
-	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
+	enum {
+		  flag_write_to_out_of_extra_block_area = 0x01
+		, flag_extra_block_marker_was_found = 0x02
+	};
+	
+	unsigned char flags = flag_write_to_out_of_extra_block_area;
+	
+	GLuint out_of_extra_block_counter = 0, start_shader_code = shader_code_count, file_lines_count = 0;
+	
+	while(NULL != fgets((char *)buff, 1024, file)
+		  && shader_code_count < (LL_ARRAY_SIZE(shader_code_text) - LL_ARRAY_SIZE(extra_code_text)))
 	{
-		text[count++] = (GLcharARB *)strdup((char *)buff); 
+		file_lines_count++;
+
+		bool extra_block_area_found = NULL != strstr((const char*)buff, "[EXTRA_CODE_HERE]");
+		
+		if(extra_block_area_found && !(flag_extra_block_marker_was_found & flags))
+		{
+			if(!(flag_write_to_out_of_extra_block_area & flags))
+			{
+				//shift
+				for(GLuint to = start_shader_code, from = extra_code_count + start_shader_code;
+					from < shader_code_count; ++to, ++from)
+				{
+					shader_code_text[to] = shader_code_text[from];
+				}
+				
+				shader_code_count -= extra_code_count;
+			}
+		  
+			//copy extra code
+			for(GLuint n = 0; n < extra_code_count
+				&& shader_code_count < (LL_ARRAY_SIZE(shader_code_text) - LL_ARRAY_SIZE(extra_code_text)); ++n)
+			{
+				shader_code_text[shader_code_count++] = extra_code_text[n];
+			}
+			
+			extra_code_count = 0;
+			
+			flags &= ~flag_write_to_out_of_extra_block_area;
+			flags |= flag_extra_block_marker_was_found;
+		}
+        else
+        {
+            shader_code_text[shader_code_count] = (GLcharARB *)strdup((char *)buff);
+		
+            if(flag_write_to_out_of_extra_block_area & flags)
+            {
+                shader_code_text[extra_code_count + start_shader_code + out_of_extra_block_counter]
+                    = shader_code_text[shader_code_count];
+                out_of_extra_block_counter++;
+			
+                if(out_of_extra_block_counter == extra_code_count)
+                {
+                    shader_code_count += extra_code_count;
+                    flags &= ~flag_write_to_out_of_extra_block_area;
+                }
+            }
+		
+            ++shader_code_count;
+		}
+	} //while
+	
+	if(!(flag_extra_block_marker_was_found & flags))
+	{
+		for(GLuint n = start_shader_code; n < extra_code_count + start_shader_code; ++n)
+		{
+			shader_code_text[n] = extra_code_text[n - start_shader_code];
+		}
+		
+		if (file_lines_count < extra_code_count)
+		{
+			shader_code_count += extra_code_count;
+		}
+
+		extra_code_count = 0;
 	}
+
 	fclose(file);
 
 	//create shader object
@@ -787,7 +864,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 	
 	//load source
-	glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
+	glShaderSourceARB(ret, shader_code_count, (const GLcharARB**) shader_code_text, NULL);
 
 	if (gDebugGL)
 	{
@@ -826,9 +903,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 #if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
-				for (GLuint i = 0; i < count; i++)
+				for (GLuint i = 0; i < shader_code_count; i++)
 				{
-					ostr << i << ": " << text[i];
+					ostr << i << ": " << shader_code_text[i];
 
 					if (i % 128 == 0)
 					{ //dump every 128 lines
@@ -843,8 +920,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 #else
 				std::string str;
 				
-				for (GLuint i = 0; i < count; i++) {
-					str.append(text[i]);
+				for (GLuint i = 0; i < shader_code_count; i++) {
+					str.append(shader_code_text[i]);
 					
 					if (i % 128 == 0)
 					{
@@ -853,7 +930,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 					}
 				}
 #endif
-				
+
 				ret = 0;
 			}
 		}
@@ -865,9 +942,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	stop_glerror();
 
 	//free memory
-	for (GLuint i = 0; i < count; i++)
+	for (GLuint i = 0; i < shader_code_count; i++)
 	{
-		free(text[i]);
+		free(shader_code_text[i]);
 	}
 
 	//successfully loaded, save results

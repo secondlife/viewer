@@ -93,7 +93,6 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
-#include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
@@ -125,10 +124,8 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/llceflib.h"
-#if LL_WINDOWS
+#include "cef/dullahan.h"
 #include "vlc/libvlc_version.h"
-#endif // LL_WINDOWS
 #endif // LL_LINUX
 
 // Third party library includes
@@ -270,7 +267,6 @@ static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 // viewer.cpp - these are only used in viewer, should be easily moved.
 
 #if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
 extern void init_apple_menu(const char* product);
 #endif // LL_DARWIN
 
@@ -296,9 +292,7 @@ S32 gLastExecDuration = -1; // (<0 indicates unknown)
 #   define LL_PLATFORM_KEY "mac"
 #elif LL_LINUX
 #   define LL_PLATFORM_KEY "lnx"
-#elif LL_SOLARIS
-#   define LL_PLATFORM_KEY "sol"
-#else
+else
 #   error "Unknown Platform"
 #endif
 const char* gPlatform = LL_PLATFORM_KEY;
@@ -332,10 +326,10 @@ BOOL				gDisconnected = FALSE;
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
-BOOL			gUseWireframe = FALSE;
+bool			gUseWireframe = FALSE;
 
 //use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
+bool			gInitialDeferredModeForWireframe = FALSE;
 
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
@@ -472,8 +466,6 @@ struct SettingsFiles : public LLInitParam::Block<SettingsFiles>
 };
 
 static std::string gWindowTitle;
-
-LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 
 //----------------------------------------------------------------------------
 // Metrics logging control constants
@@ -700,7 +692,6 @@ LLAppViewer::LLAppViewer()
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
 	mFastTimerLogThread(NULL),
-	mUpdater(new LLUpdaterService()),
 	mSettingsLocationList(NULL),
 	mIsFirstRun(false),
 	mMinMicroSecPerFrame(0.f)
@@ -731,17 +722,13 @@ LLAppViewer::LLAppViewer()
 	// OK to write stuff to logs now, we've now crash reported if necessary
 	//
 	
-	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
 	LLLoginInstance::instance().setPlatformInfo(gPlatform, LLOSInfo::instance().getOSVersionString(), LLOSInfo::instance().getOSStringSimple());
 }
 
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::deleteSingleton();
 
-	LLLoginInstance::instance().setUpdaterService(0);
-	
 	destroyMainloopTimeout();
     
 	// If we got to this destructor somehow, the app didn't hang.
@@ -881,14 +868,6 @@ bool LLAppViewer::init()
 	LL_INFOS("InitInfo") << "Notifications initialized." << LL_ENDL ;
 
     writeSystemInfo();
-
-	// Initialize updater service (now that we have an io pump)
-	initUpdater();
-	if(isQuitting())
-	{
-		// Early out here because updater set the quitting flag.
-		return true;
-	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -1096,7 +1075,7 @@ bool LLAppViewer::init()
 			minSpecs += "\n";
 			unsupported = true;
 		}
-		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+		if(gSysMemory.getPhysicalMemoryKB() < minRAM)
 		{
 			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedRAM");
 			minSpecs += "\n";
@@ -1118,6 +1097,19 @@ bool LLAppViewer::init()
 			}
 
 		}
+	}
+
+	char* PARENT = getenv("PARENT");
+	if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
+	{
+		// Don't directly run this executable. Please run the launcher, which
+		// will run the viewer itself.
+		// Naturally we do not consider this bulletproof. The point is to
+		// gently remind a user who *inadvertently* finds him/herself in this
+		// situation to do things the Right Way. Anyone who intentionally
+		// bypasses this mechanism needs no reminder that s/he's shooting
+		// him/herself in the foot.
+		LLNotificationsUtil::add("RunLauncher");
 	}
 
 #if LL_WINDOWS
@@ -2107,19 +2099,14 @@ bool LLAppViewer::cleanup()
 	// realtime, or might throw an exception.
 	LLSingletonBase::cleanupAll();
 
+	// The logging subsystem depends on an LLSingleton. Any logging after
+	// LLSingletonBase::deleteAll() won't be recorded.
+	LL_INFOS() << "Goodbye!" << LL_ENDL;
+
 	// This calls every remaining LLSingleton's deleteSingleton() method.
 	// No class destructor should perform any cleanup that might take
 	// significant realtime, or throw an exception.
-	// LLSingleton machinery includes a last-gasp implicit deleteAll() call,
-	// so this explicit call shouldn't strictly be necessary. However, by the
-	// time the runtime engages that implicit call, it may already have
-	// destroyed things like std::cerr -- so the implicit deleteAll() refrains
-	// from logging anything. Since both cleanupAll() and deleteAll() call
-	// their respective cleanup methods in computed dependency order, it's
-	// probably useful to be able to log that order.
 	LLSingletonBase::deleteAll();
-
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
@@ -2909,224 +2896,6 @@ void LLAppViewer::initStrings()
 	}
 }
 
-namespace {
-    // *TODO - decide if there's a better place for these functions.
-	// do we need a file llupdaterui.cpp or something? -brad
-
-	void apply_update_callback(LLSD const & notification, LLSD const & response)
-	{
-		LL_DEBUGS() << "LLUpdate user response: " << response << LL_ENDL;
-		if(response["OK_okcancelbuttons"].asBoolean())
-		{
-			LL_INFOS() << "LLUpdate restarting viewer" << LL_ENDL;
-			static const bool install_if_ready = true;
-			// *HACK - this lets us launch the installer immediately for now
-			LLUpdaterService().startChecking(install_if_ready);
-		}
-	}
-	
-	void apply_update_ok_callback(LLSD const & notification, LLSD const & response)
-	{
-		LL_INFOS() << "LLUpdate restarting viewer" << LL_ENDL;
-		static const bool install_if_ready = true;
-		// *HACK - this lets us launch the installer immediately for now
-		LLUpdaterService().startChecking(install_if_ready);
-	}
-	
-	void on_update_downloaded(LLSD const & data)
-	{
-		std::string notification_name;
-		void (*apply_callback)(LLSD const &, LLSD const &) = NULL;
-
-		/* Build up the notification name...
-		 * it can be any of these, which are included here for the sake of grep:
-		 *   RequiredUpdateDownloadedDialog
-		 *   RequiredUpdateDownloadedVerboseDialog
-		 *   OtherChannelRequiredUpdateDownloadedDialog
-		 *   OtherChannelRequiredUpdateDownloadedVerbose
-		 *   DownloadBackgroundTip
-		 *   DownloadBackgroundDialog
-		 *   OtherChannelDownloadBackgroundTip
-		 *   OtherChannelDownloadBackgroundDialog
-		 */
-		{
-			LL_DEBUGS("UpdaterService") << "data = ";
-			std::ostringstream data_dump;
-			LLSDSerialize::toNotation(data, data_dump);
-			LL_CONT << data_dump.str() << LL_ENDL;
-		}
-		if(data["channel"].asString() != LLVersionInfo::getChannel())
-		{
-			notification_name.append("OtherChannel");
-		}
-		if(data["required"].asBoolean())
-		{
-			if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
-			{
-				// The user never saw the progress bar.
-				apply_callback = &apply_update_ok_callback;
-				notification_name += "RequiredUpdateDownloadedVerboseDialog";
-			}
-			else if(LLStartUp::getStartupState() < STATE_WORLD_INIT)
-			{
-				// The user is logging in but blocked.
-				apply_callback = &apply_update_ok_callback;
-				notification_name += "RequiredUpdateDownloadedDialog";
-			}
-			else
-			{
-				// The user is already logged in; treat like an optional update.
-				apply_callback = &apply_update_callback;
-				notification_name += "DownloadBackgroundTip";
-			}
-		}
-		else
-		{
-			apply_callback = &apply_update_callback;
-			if(LLStartUp::getStartupState() < STATE_STARTED)
-			{
-				// CHOP-262 we need to use a different notification
-				// method prior to login.
-				notification_name += "DownloadBackgroundDialog";
-			}
-			else
-			{
-				notification_name += "DownloadBackgroundTip";
-			}
-		}
-
-		LLSD substitutions;
-		substitutions["VERSION"] = data["version"];
-		std::string new_channel = data["channel"].asString();
-		substitutions["NEW_CHANNEL"] = new_channel;
-		std::string info_url    = data["info_url"].asString();
-		if ( !info_url.empty() )
-		{
-			substitutions["INFO_URL"] = info_url;
-		}
-		else
-		{
-			LL_WARNS("UpdaterService") << "no info url supplied - defaulting to hard coded release notes pattern" << LL_ENDL;
-
-		// truncate version at the rightmost '.' 
-		std::string version_short(data["version"]);
-		size_t short_length = version_short.rfind('.');
-		if (short_length != std::string::npos)
-		{
-			version_short.resize(short_length);
-		}
-
-		LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
-		relnotes_url.setArg("[VERSION_SHORT]", version_short);
-
-		// *TODO thread the update service's response through to this point
-		std::string const & channel = LLVersionInfo::getChannel();
-		boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
-
-		relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
-		relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
-			substitutions["INFO_URL"] = relnotes_url.getString();
-		}
-
-		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
-	}
-
-	void install_error_callback(LLSD const & notification, LLSD const & response)
-	{
-		LLAppViewer::instance()->forceQuit();
-	}
-	
-	bool notify_update(LLSD const & evt)
-	{
-		std::string notification_name;
-		switch (evt["type"].asInteger())
-		{
-			case LLUpdaterService::DOWNLOAD_COMPLETE:
-				on_update_downloaded(evt);
-				break;
-			case LLUpdaterService::INSTALL_ERROR:
-				if(evt["required"].asBoolean()) {
-					LLNotificationsUtil::add("FailedRequiredUpdateInstall", LLSD(), LLSD(), &install_error_callback);
-				} else {
-					LLNotificationsUtil::add("FailedUpdateInstall");
-				}
-				break;
-			default:
-				break;
-		}
-
-		// let others also handle this event by default
-		return false;
-	}
-	
-	bool on_bandwidth_throttle(LLUpdaterService * updater, LLSD const & evt)
-	{
-		updater->setBandwidthLimit(evt.asInteger() * (1024/8));
-		return false; // Let others receive this event.
-	};
-};
-
-void LLAppViewer::initUpdater()
-{
-	// Initialize the updater service.
-	// Get Channel
-	// Get Version
-
-	/*****************************************************************
-	 * Previously, the url was derived from the settings 
-	 *    UpdaterServiceURL
-	 *    UpdaterServicePath
-	 * it is now obtained from the grid manager.  The settings above
-	 * are no longer used.
-	 *****************************************************************/
-	std::string channel = LLVersionInfo::getChannel();
-	std::string version = LLVersionInfo::getVersion();
-
-	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
-	bool willing_to_test;
-	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
-
-	if (LLVersionInfo::TEST_VIEWER == LLVersionInfo::getViewerMaturity()) 
-	{
-		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
-		willing_to_test = false;
-	}
-	else
-	{
-		willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
-	}
-    unsigned char unique_id[MD5HEX_STR_SIZE];
-	if ( ! llHashedUniqueID(unique_id) )
-	{
-		if ( willing_to_test )
-		{
-			LL_WARNS("UpdaterService") << "Unable to provide a unique id; overriding willing_to_test by sending testno" << LL_ENDL;
-		}
-		willing_to_test = false;
-	}
-
-	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
-	mUpdater->initialize(channel, 
-						 version,
-						 gPlatform,
-						 LLOSInfo::instance().getOSVersionString(),
-						 unique_id,
-						 willing_to_test
-						 );
- 	mUpdater->setCheckPeriod(check_period);
-	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
-	gSavedSettings.getControl("UpdaterMaximumBandwidth")->getSignal()->
-		connect(boost::bind(&on_bandwidth_throttle, mUpdater.get(), _2));
-	if(gSavedSettings.getU32("UpdaterServiceSetting"))
-	{
-		bool install_if_ready = true;
-		mUpdater->startChecking(install_if_ready);
-	}
-
-    LLEventPump & updater_pump = LLEventPumps::instance().obtain(LLUpdaterService::pumpName());
-    updater_pump.listen("notify_update", &notify_update);
-}
-
 //
 // This function decides whether the client machine meets the minimum requirements to
 // run in a maximized window, per the consensus of davep, boa and nyx on 3/30/2011.
@@ -3298,6 +3067,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["CHANNEL"] = LLVersionInfo::getChannel();
+    info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")
     {
@@ -3398,20 +3168,33 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
-#else
-	info["LLCEFLIB_VERSION"] = "Undefined";
+	std::ostringstream cef_ver_codec;
+	cef_ver_codec << "Dullahan: ";
+	cef_ver_codec << DULLAHAN_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_BUILD;
 
+	cef_ver_codec << " / CEF: ";
+	cef_ver_codec << CEF_VERSION;
+
+	cef_ver_codec << " / Chrome: ";
+	cef_ver_codec << CHROME_VERSION_MAJOR;
+
+	info["LIBCEF_VERSION"] = cef_ver_codec.str();
+#else
+	info["LIBCEF_VERSION"] = "Undefined";
 #endif
 
-#if LL_WINDOWS
-	std::ostringstream ver_codec;
-	ver_codec << LIBVLC_VERSION_MAJOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_MINOR;
-	ver_codec << ".";
-	ver_codec << LIBVLC_VERSION_REVISION;
-	info["LIBVLC_VERSION"] = ver_codec.str();
+#if !LL_LINUX
+	std::ostringstream vlc_ver_codec;
+	vlc_ver_codec << LIBVLC_VERSION_MAJOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_MINOR;
+	vlc_ver_codec << ".";
+	vlc_ver_codec << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 #else
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif
@@ -3649,6 +3432,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
 	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
+	gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::getAddressSize();
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 
@@ -3802,11 +3586,10 @@ void LLAppViewer::handleViewerCrash()
 	{
 		gDebugInfo["Dynamic"]["ParcelMediaURL"] = parcel->getMediaURL();
 	}
-	
-	
+
 	gDebugInfo["Dynamic"]["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
-	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = (LLSD::Integer) LLMemory::getCurrentRSS() >> 10;
-	
+	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = LLSD::Integer(LLMemory::getCurrentRSS() / 1024);
+
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["Dynamic"]["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
@@ -4354,10 +4137,7 @@ void dumpVFSCaches()
 	S32 res = LLFile::mkdir("StaticVFSDump");
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
 	}
 	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
 	gStaticVFS->dumpFiles();
@@ -4371,10 +4151,7 @@ void dumpVFSCaches()
 	res = LLFile::mkdir("VFSDump");
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
 	}
 	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
 	gVFS->dumpFiles();
@@ -4386,7 +4163,7 @@ void dumpVFSCaches()
 U32 LLAppViewer::getTextureCacheVersion() 
 {
 	//viewer texture cache version, change if the texture cache format changes.
-	const U32 TEXTURE_CACHE_VERSION = 7;
+	const U32 TEXTURE_CACHE_VERSION = 8;
 
 	return TEXTURE_CACHE_VERSION ;
 }
@@ -4396,7 +4173,7 @@ U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
 	// format changes. JC
-	const U32 INDRA_OBJECT_CACHE_VERSION = 14;
+	const U32 INDRA_OBJECT_CACHE_VERSION = 15;
 
 	return INDRA_OBJECT_CACHE_VERSION;
 }
@@ -5810,142 +5587,6 @@ void LLAppViewer::handleLoginComplete()
 	// we logged in successfully, so save settings on logout
 	LL_INFOS() << "Login successful, per account settings will be saved on log out." << LL_ENDL;
 	mSavePerAccountSettings=true;
-}
-
-void LLAppViewer::launchUpdater()
-{
-		LLSD query_map = LLSD::emptyMap();
-	query_map["os"] = gPlatform;
-
-	// *TODO change userserver to be grid on both viewer and sim, since
-	// userserver no longer exists.
-	query_map["userserver"] = LLGridManager::getInstance()->getGridId();
-	query_map["channel"] = LLVersionInfo::getChannel();
-	// *TODO constantize this guy
-	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
-	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
-	
-	if(LLAppViewer::sUpdaterInfo)
-	{
-		delete LLAppViewer::sUpdaterInfo;
-	}
-	LLAppViewer::sUpdaterInfo = new LLAppViewer::LLUpdaterInfo() ;
-
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLStartUp::getStartSLURL().getSLURLString()); 
-	};
-
-#if LL_WINDOWS
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = gDirUtilp->getTempFilename();
-	if (LLAppViewer::sUpdaterInfo->mUpdateExePath.empty())
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
-
-		// We're hosed, bail
-		LL_WARNS("AppInit") << "LLDir::getTempFilename() failed" << LL_ENDL;
-		return;
-	}
-
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += ".exe";
-
-	std::string updater_source = gDirUtilp->getAppRODataDir();
-	updater_source += gDirUtilp->getDirDelimiter();
-	updater_source += "updater.exe";
-
-	LL_DEBUGS("AppInit") << "Calling CopyFile source: " << updater_source
-			<< " dest: " << LLAppViewer::sUpdaterInfo->mUpdateExePath
-			<< LL_ENDL;
-
-
-	if (!CopyFileA(updater_source.c_str(), LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), FALSE))
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
-
-		LL_WARNS("AppInit") << "Unable to copy the updater!" << LL_ENDL;
-
-		return;
-	}
-
-	LLAppViewer::sUpdaterInfo->mParams << "-url \"" << update_url.asString() << "\"";
-
-	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << " " << LLAppViewer::sUpdaterInfo->mParams.str() << LL_ENDL;
-
-	//Explicitly remove the marker file, otherwise we pass the lock onto the child process and things get weird.
-	LLAppViewer::instance()->removeMarkerFiles(); // In case updater fails
-
-	// *NOTE:Mani The updater is spawned as the last thing before the WinMain exit.
-	// see LLAppViewerWin32.cpp
-	
-#elif LL_DARWIN
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = "'";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += gDirUtilp->getAppRODataDir();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "/mac-updater.app/Contents/MacOS/mac-updater' -url \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += update_url.asString();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -bundleid \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += LL_VERSION_BUNDLE_ID;
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
-
-	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
-
-	// Run the auto-updater.
-	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
-
-#elif (LL_LINUX || LL_SOLARIS) && LL_GTK
-	// we tell the updater where to find the xml containing string
-	// translations which it can use for its own UI
-	std::string xml_strings_file = "strings.xml";
-	std::vector<std::string> xui_path_vec =
-		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_strings_file);
-	std::string xml_search_paths;
-	const char* delim = "";
-	// build comma-delimited list of xml paths to pass to updater
-	BOOST_FOREACH(std::string this_skin_path, xui_path_vec)
-	{
-		// Although we already have the full set of paths with the filename
-		// appended, the linux-updater.bin command-line switches require us to
-		// snip the filename OFF and pass it as a separate switch argument. :-P
-		LL_INFOS() << "Got a XUI path: " << this_skin_path << LL_ENDL;
-		xml_search_paths.append(delim);
-		xml_search_paths.append(gDirUtilp->getDirName(this_skin_path));
-		delim = ",";
-	}
-	// build the overall command-line to run the updater correctly
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = 
-		gDirUtilp->getExecutableDir() + "/" + "linux-updater.bin" + 
-		" --url \"" + update_url.asString() + "\"" +
-		" --name \"" + LLAppViewer::instance()->getSecondLifeTitle() + "\"" +
-		" --dest \"" + gDirUtilp->getAppRODataDir() + "\"" +
-		" --stringsdir \"" + xml_search_paths + "\"" +
-		" --stringsfile \"" + xml_strings_file + "\"";
-
-	LL_INFOS("AppInit") << "Calling updater: " 
-			    << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
-
-	// *TODO: we could use the gdk equivalent to ensure the updater
-	// gets started on the same screen.
-	GError *error = NULL;
-	if (!g_spawn_command_line_async(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), &error))
-	{
-		LL_ERRS() << "Failed to launch updater: "
-		       << error->message
-		       << LL_ENDL;
-	}
-	if (error) {
-		g_error_free(error);
-	}
-#else
-	OSMessageBox(LLTrans::getString("MBNoAutoUpdate"), LLStringUtil::null, OSMB_OK);
-#endif
-
-	// *REMOVE:Mani - Saving for reference...
-	// LLAppViewer::instance()->forceQuit();
 }
 
 //virtual
