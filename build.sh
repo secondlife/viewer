@@ -107,6 +107,7 @@ pre_build()
          fi
     fi
 
+    "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DUNATTENDED:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
