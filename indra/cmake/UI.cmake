@@ -32,9 +32,9 @@ if (USESYSTEMLIBS)
     add_definitions(${${pkg}_CFLAGS_OTHERS})
   endforeach(pkg)
 else (USESYSTEMLIBS)
-  if (LINUX OR WINDOWS)
+  if (LINUX)
     use_prebuilt_binary(gtk-atk-pango-glib)
-  endif (LINUX OR WINDOWS)
+  endif (LINUX)
 
   if (LINUX)
     set(UI_LIBRARIES

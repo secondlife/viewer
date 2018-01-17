@@ -38,7 +38,8 @@
 
 #include "lltimer.h"
 #include "llthread.h"
-
+#include "llexception.h"
+#include "llmemory.h"
 
 namespace
 {
@@ -293,22 +294,42 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 	ELoopSpeed loop(REQUEST_SLEEP);
 	while (! mExitRequested)
 	{
-		loop = processRequestQueue(loop);
+        try
+        {
+		    loop = processRequestQueue(loop);
 
-		// Process ready queue issuing new requests as needed
-		ELoopSpeed new_loop = mPolicy->processReadyQueue();
-		loop = (std::min)(loop, new_loop);
+		    // Process ready queue issuing new requests as needed
+		    ELoopSpeed new_loop = mPolicy->processReadyQueue();
+		    loop = (std::min)(loop, new_loop);
 		
-		// Give libcurl some cycles
-		new_loop = mTransport->processTransport();
-		loop = (std::min)(loop, new_loop);
+		    // Give libcurl some cycles
+		    new_loop = mTransport->processTransport();
+		    loop = (std::min)(loop, new_loop);
 		
-		// Determine whether to spin, sleep briefly or sleep for next request
-		if (REQUEST_SLEEP != loop)
-		{
-			ms_sleep(HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS);
-		}
-	}
+		    // Determine whether to spin, sleep briefly or sleep for next request
+		    if (REQUEST_SLEEP != loop)
+		    {
+			    ms_sleep(HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS);
+		    }
+        }
+        catch (const LLContinueError&)
+        {
+            LOG_UNHANDLED_EXCEPTION("");
+        }
+        catch (std::bad_alloc)
+        {
+            LLMemory::logMemoryInfo(TRUE);
+
+            //output possible call stacks to log file.
+            LLError::LLCallStacks::print();
+
+            LL_ERRS() << "Bad memory allocation in HttpService::threadRun()!" << LL_ENDL;
+        }
+        catch (...)
+        {
+            CRASH_ON_UNHANDLED_EXCEPTION("");
+        }
+    }
 
 	shutdown();
 	sState = STOPPED;

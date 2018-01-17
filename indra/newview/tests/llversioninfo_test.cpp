@@ -29,6 +29,15 @@
 
 #include "../llversioninfo.h"
 
+ #include <iostream>
+
+// LL_VIEWER_CHANNEL is a macro defined on the compiler command line. The
+// macro expands to the string name of the channel, but without quotes. We
+// need to turn it into a quoted string. This macro trick does that.
+#define stringize_inner(x) #x
+#define stringize_outer(x) stringize_inner(x)
+#define ll_viewer_channel stringize_outer(LL_VIEWER_CHANNEL)
+
 namespace tut
 {
     struct versioninfo
@@ -50,7 +59,7 @@ namespace tut
 			mShortVersion = stream.str();
 			stream.str("");
 
-			stream << LL_VIEWER_CHANNEL
+			stream << ll_viewer_channel
 				   << " "
 				   << mVersion;
 			mVersionAndChannel = stream.str();
@@ -74,7 +83,9 @@ namespace tut
 
 	template<> template<>
 	void versioninfo_object_t::test<1>()
-	{
+	{   
+		std::cout << "What we parsed from CMake: " << LL_VIEWER_VERSION_BUILD << std::endl;
+		std::cout << "What we get from llversioninfo: " << LLVersionInfo::getBuild() << std::endl;
 		ensure_equals("Major version", 
 					  LLVersionInfo::getMajor(), 
 					  LL_VIEWER_VERSION_MAJOR);
@@ -89,7 +100,7 @@ namespace tut
 					  LL_VIEWER_VERSION_BUILD);
 		ensure_equals("Channel version", 
 					  LLVersionInfo::getChannel(), 
-					  LL_VIEWER_CHANNEL);
+					  ll_viewer_channel);
 		ensure_equals("Version String", 
 					  LLVersionInfo::getVersion(), 
 					  mVersion);
