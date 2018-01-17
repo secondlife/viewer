@@ -1328,6 +1328,10 @@ bool LLAppViewer::frame()
 		{
 			ret = doFrame();
 		}
+		catch (const LLContinueError&)
+		{
+			LOG_UNHANDLED_EXCEPTION("");
+		}
 		catch (std::bad_alloc)
 		{
 			LLMemory::logMemoryInfo(TRUE);
@@ -1341,7 +1345,14 @@ bool LLAppViewer::frame()
 	}
 	else
 	{ 
-		ret = doFrame();
+		try
+		{
+			ret = doFrame();
+		}
+		catch (const LLContinueError&)
+		{
+			LOG_UNHANDLED_EXCEPTION("");
+		}
 	}
 
 	return ret;
