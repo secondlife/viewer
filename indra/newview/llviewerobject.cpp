@@ -2962,14 +2962,14 @@ void LLViewerObject::updateControlAvatar()
         }
         if (any_mesh)
         {
-            std::string vobj_name = llformat("Vol%u", (U32) root);
+            std::string vobj_name = llformat("Vol%p", root);
             LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
             root->linkControlAvatar();
         }
     }
     if (!root->isAnimatedObject() && root->getControlAvatar())
     {
-        std::string vobj_name = llformat("Vol%u", (U32) root);
+        std::string vobj_name = llformat("Vol%p", root);
         LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
         root->unlinkControlAvatar();
     }

@@ -1356,7 +1356,7 @@ BOOL LLVOVolume::updateLOD()
         {
             if (isAnimatedObject() && isRiggedMesh())
             {
-                std::string vobj_name = llformat("Vol%u", (U32) this);
+                std::string vobj_name = llformat("Vol%p", this);
                 F32 est_tris = getEstTrianglesMax();
                 LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " updateLOD to " << getLOD() << ", tris " << est_tris << LL_ENDL; 
             }
@@ -4066,7 +4066,7 @@ void LLVOVolume::markForUpdate(BOOL priority)
     {
         if (isAnimatedObject() && isRiggedMesh())
         {
-            std::string vobj_name = llformat("Vol%u", (U32) this);
+            std::string vobj_name = llformat("Vol%p", this);
             F32 est_tris = getEstTrianglesMax();
             LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " markForUpdate, tris " << est_tris << LL_ENDL; 
         }
@@ -5003,7 +5003,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				continue;
 			}
 
-            std::string vobj_name = llformat("Vol%u", (U32) vobj);
+            std::string vobj_name = llformat("Vol%p", vobj);
 
 			if (vobj->isMesh() &&
 				((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
@@ -5533,7 +5533,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                 {
                     if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
                     {
-                        std::string vobj_name = llformat("Vol%u", (U32) vobj);
+                        std::string vobj_name = llformat("Vol%p", vobj);
                         F32 est_tris = vobj->getEstTrianglesMax();
                         LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL; 
                     }
