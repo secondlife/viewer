@@ -747,6 +747,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				mCookiesEnabled = message_in.getValueBoolean("enable");
 			}
+			else if (message_name == "clear_cookies")
+			{
+				mCEFLib->deleteAllCookies();
+			}
 			else if (message_name == "set_user_agent")
 			{
 				mUserAgentSubtring = message_in.getValue("user_agent");

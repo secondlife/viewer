@@ -1179,13 +1179,6 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mStatusCode = message.getValueS32("status_code");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_ERROR_PAGE);
 		}
-		else if(message_name == "cookie_set")
-		{
-			if(mOwner)
-			{
-				mOwner->handleCookieSet(this, message.getValue("cookie"));
-			}
-		}
 		else if(message_name == "close_request")
 		{
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLOSE_REQUEST);
@@ -1300,16 +1293,9 @@ void LLPluginClassMedia::clear_cookies()
 	sendMessage(message);
 }
 
-void LLPluginClassMedia::set_cookies(const std::string &cookies)
+void LLPluginClassMedia::cookies_enabled(bool enable)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_cookies");
-	message.setValue("cookies", cookies);
-	sendMessage(message);
-}
-
-void LLPluginClassMedia::enable_cookies(bool enable)
-{
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "enable_cookies");
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookies_enabled");
 	message.setValueBoolean("enable", enable);
 	sendMessage(message);
 }

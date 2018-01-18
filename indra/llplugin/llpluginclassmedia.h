@@ -210,7 +210,7 @@ public:
 	void clear_cache();
 	void clear_cookies();
 	void set_cookies(const std::string &cookies);
-	void enable_cookies(bool enable);
+	void cookies_enabled(bool enable);
 	void proxy_setup(bool enable, const std::string &host = LLStringUtil::null, int port = 0);
 	void browse_stop();
 	void browse_reload(bool ignore_cache = false);
