@@ -76,8 +76,8 @@ Texturspeicher: [TEXTURE_MEMORY] MB
 Erstellungszeit VFS (Cache): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		J2C Decoderversion: [J2C_VERSION]
-Audio treiberversion: [AUDIO_DRIVER_VERSION]
+		J2C-Decoderversion: [J2C_VERSION]
+Audiotreiberversion: [AUDIO_DRIVER_VERSION]
 [LIBCEF_VERSION]
 LibVLC-Version: [LIBVLC_VERSION]
 Voice-Server-Version: [VOICE_VERSION]
