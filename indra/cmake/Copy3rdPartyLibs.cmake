@@ -20,9 +20,18 @@ if(WINDOWS)
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice.exe
-        vivoxsdk.dll
-        ortp.dll
         )
+    if (ADDRESS_SIZE EQUAL 64)
+        list(APPEND vivox_files
+            vivoxsdk_64.dll
+            ortp_64.dll
+            )
+    else (ADDRESS_SIZE EQUAL 64)
+        list(APPEND vivox_files
+            vivoxsdk.dll
+            ortp.dll
+            )
+    endif (ADDRESS_SIZE EQUAL 64)
 
     #*******************************
     # Misc shared libs 
