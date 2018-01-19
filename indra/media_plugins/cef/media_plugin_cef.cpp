@@ -38,6 +38,7 @@
 #include "media_plugin_base.h"
 
 #include <functional>
+#include <chrono>
 
 #include "dullahan.h"
 
@@ -64,12 +65,12 @@ private:
 	void onLoadStartCallback();
 	void onRequestExitCallback();
 	void onLoadEndCallback(int httpStatusCode);
+	void onLoadError(int status, const std::string error_text);
 	void onAddressChangeCallback(std::string url);
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 	void onCursorChangedCallback(dullahan::ECursorType type);
-	void onFileDownloadCallback(std::string filename);
-	const std::string onFileDialogCallback();
+	const std::vector<std::string> onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, const std::string dialog_accept_filter, bool& use_default);
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
@@ -95,7 +96,7 @@ private:
 	bool mCanPaste;
 	std::string mCachePath;
 	std::string mCookiePath;
-	std::string mPickedFile;
+	std::vector<std::string> mPickedFiles;
 	VolumeCatcher mVolumeCatcher;
 	F32 mCurVolume;
 	dullahan* mCEFLib;
@@ -115,7 +116,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCookiesEnabled = true;
 	mPluginsEnabled = false;
 	mJavascriptEnabled = true;
-	mDisableGPU = true;
+	mDisableGPU = false;
 	mUserAgentSubtring = "";
 	mAuthUsername = "";
 	mAuthPassword = "";
@@ -125,7 +126,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCanPaste = false;
 	mCachePath = "";
 	mCookiePath = "";
-	mPickedFile = "";
+	mPickedFiles.clear();
 	mCurVolume = 0.0;
 
 	mCEFLib = new dullahan();
@@ -165,6 +166,10 @@ void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, i
 		if (mWidth == width && mHeight == height)
 		{
 			memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
+		}
+		else
+		{
+			mCEFLib->setSize(mWidth, mHeight);
 		}
 		setDirty(0, 0, mWidth, mHeight);
 	}
@@ -208,6 +213,21 @@ void MediaPluginCEF::onLoadStartCallback()
 	sendMessage(message);
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onLoadError(int status, const std::string error_text)
+{
+	std::stringstream msg;
+
+	msg << "<b>Loading error!</b>";
+	msg << "<p>";
+	msg << "Message: " << error_text;
+	msg << "<br>";
+	msg << "Code: " << status;
+
+	mCEFLib->showBrowserMessage(msg.str());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginCEF::onRequestExitCallback()
@@ -246,7 +266,6 @@ void MediaPluginCEF::onNavigateURLCallback(std::string url, std::string target)
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
 	message.setValue("uri", url);
 	message.setValue("target", target);
-	message.setValue("uuid", "");	// not used right now
 	sendMessage(message);
 }
 
@@ -285,30 +304,52 @@ bool MediaPluginCEF::onHTTPAuthCallback(const std::string host, const std::strin
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onFileDownloadCallback(const std::string filename)
+const std::vector<std::string> MediaPluginCEF::onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, std::string dialog_accept_filter, bool& use_default)
 {
-	mAuthOK = false;
+	// do not use the default CEF file picker
+	use_default = false;
 
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download");
-	message.setValue("filename", filename);
+	if (dialog_type == dullahan::FD_OPEN_FILE)
+	{
+		mPickedFiles.clear();
 
-	sendMessage(message);
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
+		message.setValueBoolean("blocking_request", true);
+		message.setValueBoolean("multiple_files", false);
+
+		sendMessage(message);
+
+		return mPickedFiles;
+	}
+	else if (dialog_type == dullahan::FD_OPEN_MULTIPLE_FILES)
+	{
+		mPickedFiles.clear();
+
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
+		message.setValueBoolean("blocking_request", true);
+		message.setValueBoolean("multiple_files", true);
+
+		sendMessage(message);
+
+		return mPickedFiles;
+	}
+	else if (dialog_type == dullahan::FD_SAVE_FILE)
+	{
+		mAuthOK = false;
+
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download");
+		message.setValue("filename", default_file);
+
+		sendMessage(message);
+
+		return std::vector<std::string>();
+	}
+
+	return std::vector<std::string>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-const std::string MediaPluginCEF::onFileDialogCallback()
-{
-	mPickedFile.clear();
-
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
-	message.setValueBoolean("blocking_request", true);
-
-	sendMessage(message);
-
-	return mPickedFile;
-}
-
 void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 {
 	std::string name = "";
@@ -341,6 +382,8 @@ void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 	sendMessage(message);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
 void MediaPluginCEF::authResponse(LLPluginMessage &message)
 {
 	mAuthOK = message.getValueBoolean("ok");
@@ -439,11 +482,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
+				mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnNavigateURLCallback(std::bind(&MediaPluginCEF::onNavigateURLCallback, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-				mCEFLib->setOnFileDownloadCallback(std::bind(&MediaPluginCEF::onFileDownloadCallback, this, std::placeholders::_1));
-				mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialogCallback, this));
+				mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialog, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
 				mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
@@ -520,10 +563,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 						mTextureWidth = texture_width;
 						mTextureHeight = texture_height;
+
+						mCEFLib->setSize(mWidth, mHeight);
 					};
 				};
-
-				mCEFLib->setSize(mWidth, mHeight);
 
 				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "size_change_response");
 				message.setValue("name", name);
@@ -650,7 +693,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			if (message_name == "pick_file_response")
 			{
-				mPickedFile = message_in.getValue("file");
+				LLSD file_list_llsd = message_in.getValueLLSD("file_list");
+
+				LLSD::array_const_iterator iter = file_list_llsd.beginArray();
+				LLSD::array_const_iterator end = file_list_llsd.endArray();
+				for (; iter != end; ++iter)
+				{
+					mPickedFiles.push_back(((*iter).asString()));
+				}
 			}
 			if (message_name == "auth_response")
 			{
@@ -696,6 +746,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "cookies_enabled")
 			{
 				mCookiesEnabled = message_in.getValueBoolean("enable");
+			}
+			else if (message_name == "clear_cookies")
+			{
+				mCEFLib->deleteAllCookies();
 			}
 			else if (message_name == "set_user_agent")
 			{

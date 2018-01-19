@@ -8,14 +8,14 @@
  help_topic="floater_about"
  save_rect="true"
  title="ABOUT [CAPITALIZED_APP_NAME]"
- width="470">
+ width="500">
   
   <tab_container
     follows="all" 
     top="25"
     left="10"
     height="405" 
-    width="450" 
+    width="480" 
     name="about_tab"
     tab_position="top">
     <panel
@@ -33,7 +33,7 @@
        max_length="65536"
        name="support_editor"
        top="5"
-       width="435"
+       width="465"
        word_wrap="true" />
       <button
         follows="left|top" 
@@ -56,7 +56,7 @@
           left="5"
           name="linden_intro"
           top="10"
-          width="435"
+          width="465"
           wrap="true">
 Second Life is brought to you by the Lindens, 
 with open source contributions from:
@@ -71,7 +71,7 @@ with open source contributions from:
        max_length="65536"
        name="contrib_names"
        top_pad="10"
-       width="435"
+       width="465"
        word_wrap="true">
 Dummy Name replaced at run time
       </text_editor>
@@ -91,7 +91,7 @@ Dummy Name replaced at run time
        max_length="65536"
        name="licenses_editor"
        top="5"
-       width="435"
+       width="465"
        word_wrap="true">
         3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
         APR Copyright (C) 2011 The Apache Software Foundation
