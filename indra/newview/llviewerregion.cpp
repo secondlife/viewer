@@ -2966,6 +2966,17 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 		mImpl->mCapabilities[name] = url;
 		if(name == "ViewerAsset")
 		{
+			/*==============================================================*/
+			// The following inserted lines are a hack for testing MAINT-7081,
+			// which is why the indentation and formatting are left ugly.
+			const char* VIEWERASSET = getenv("VIEWERASSET");
+			if (VIEWERASSET)
+			{
+				mImpl->mCapabilities[name] = VIEWERASSET;
+				mViewerAssetUrl = VIEWERASSET;
+			}
+			else
+			/*==============================================================*/
 			mViewerAssetUrl = url;
 		}
 	}
@@ -2979,6 +2990,17 @@ void LLViewerRegion::setCapabilityDebug(const std::string& name, const std::stri
 		mImpl->mSecondCapabilitiesTracker[name] = url;
 		if(name == "ViewerAsset")
 		{
+			/*==============================================================*/
+			// The following inserted lines are a hack for testing MAINT-7081,
+			// which is why the indentation and formatting are left ugly.
+			const char* VIEWERASSET = getenv("VIEWERASSET");
+			if (VIEWERASSET)
+			{
+				mImpl->mSecondCapabilitiesTracker[name] = VIEWERASSET;
+				mViewerAssetUrl = VIEWERASSET;
+			}
+			else
+			/*==============================================================*/
 			mViewerAssetUrl = url;
 		}
 	}

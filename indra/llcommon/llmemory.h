@@ -138,7 +138,6 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
 
-#if !LL_USE_TCMALLOC
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
 #if defined(LL_WINDOWS)
@@ -186,13 +185,6 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 	return ret;
 #endif
 }
-
-#else // USE_TCMALLOC
-// ll_aligned_foo_16 are not needed with tcmalloc
-#define ll_aligned_malloc_16 malloc
-#define ll_aligned_realloc_16(a,b,c) realloc(a,b)
-#define ll_aligned_free_16 free
-#endif // USE_TCMALLOC
 
 inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
 {
@@ -342,13 +334,9 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 class LL_COMMON_API LLMemory
 {
 public:
-	static void initClass();
-	static void cleanupClass();
-	static void freeReserve();
 	// Return the resident set size of the current process, in bytes.
 	// Return value is zero if not known.
 	static U64 getCurrentRSS();
-	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
 	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
@@ -359,7 +347,6 @@ public:
 	static U32Kilobytes getMaxMemKB() ;
 	static U32Kilobytes getAllocatedMemKB() ;
 private:
-	static char* reserveMem;
 	static U32Kilobytes sAvailPhysicalMemInKB ;
 	static U32Kilobytes sMaxPhysicalMemInKB ;
 	static U32Kilobytes sAllocatedMemInKB;
@@ -423,7 +410,7 @@ public:
 		{
 			bool operator()(const LLMemoryBlock* const& lhs, const LLMemoryBlock* const& rhs)
 			{
-				return (U32)lhs->getBuffer() < (U32)rhs->getBuffer();
+				return (uintptr_t)lhs->getBuffer() < (uintptr_t)rhs->getBuffer();
 			}
 		};
 	};
@@ -454,7 +441,7 @@ public:
 		void dump() ;
 
 	private:
-		U32 getPageIndex(U32 addr) ;
+		U32 getPageIndex(uintptr_t addr) ;
 		U32 getBlockLevel(U32 size) ;
 		U16 getPageLevel(U32 size) ;
 		LLMemoryBlock* addBlock(U32 blk_idx) ;

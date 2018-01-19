@@ -114,14 +114,10 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 {
 	std::string presets_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR);
 
-	if (!gDirUtilp->fileExists(presets_path))
-	{
-		LLFile::mkdir(presets_path);
-	}
+	LLFile::mkdir(presets_path);
 
 	std::string dest_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, subdirectory);
 	if (!gDirUtilp->fileExists(dest_path))
-	{
 		LLFile::mkdir(dest_path);
 
 		if (PRESETS_CAMERA == subdirectory)
@@ -143,7 +139,6 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 				}
 			}
 		}
-	}
 
 	return dest_path;
 }
@@ -262,6 +257,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	{
 		gSavedSettings.setString("PresetGraphicActive", name);
 
+		name_list.clear();
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
 	}

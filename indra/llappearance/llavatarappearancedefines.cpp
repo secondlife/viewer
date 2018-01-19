@@ -265,4 +265,3 @@ LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIn
 {
 	return getInstance()->getTexture(index)->mWearableType;
 }
-

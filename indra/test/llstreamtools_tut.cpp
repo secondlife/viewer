@@ -149,10 +149,9 @@ namespace tut
 
 		is.clear();
 		is.str(str = "#    \r\n  #  SecondLife is a 3D World. ##");
-		skip_comments_and_emptyspace(is);
-		is.get(arr, 255, '\0');
-		expected_result = "";
-		ensure_equals("skip_comments_and_emptyspace: skip comment - 2", arr, expected_result);
+		ensure("should not be good()", ! skip_comments_and_emptyspace(is));
+		ensure("should be at eof()", is.eof());
+		// don't get(): given bad state, we can't rely on results
 
 		is.clear();
 		is.str(str = " \r\n  SecondLife is a 3D World. ##");
@@ -164,14 +163,12 @@ namespace tut
 		is.clear();
 		is.str(str = "");
 		ret = skip_comments_and_emptyspace(is);
-		is.get(arr, 255, '\0');
-		ensure("skip_comments_and_emptyspace: empty string", ret == false);
+		ensure("skip_comments_and_emptyspace: empty string", ! ret);
 
 		is.clear();
 		is.str(str = "  \r\n  \t # SecondLife is a 3D World");
 		ret = skip_comments_and_emptyspace(is);
-		is.get(arr, 255, '\0');
-		ensure("skip_comments_and_emptyspace: space newline comment empty", ret == false);
+		ensure("skip_comments_and_emptyspace: space newline comment empty", ! ret);
 	}
 	
 	//testcases for skip_line()
