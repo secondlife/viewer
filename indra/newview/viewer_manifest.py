@@ -76,6 +76,9 @@ class ViewerManifest(LLManifest):
                 contributor_names = self.extract_names(contributions_path)
                 self.put_in_file(contributor_names, "contributors.txt", src=contributions_path)
 
+                # ... and the default camera position settings
+                self.path("camera")
+
                 # ... and the entire windlight directory
                 self.path("windlight")
 
