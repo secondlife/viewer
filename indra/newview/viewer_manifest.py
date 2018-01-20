@@ -578,6 +578,16 @@ class WindowsManifest(ViewerManifest):
             # Hunspell
             self.path("libhunspell.dll")
 
+            # BugSplat
+            if(self.address_size == 64):
+                self.path("BsSndRpt64.exe")
+                self.path("BugSplat64.dll")
+                self.path("BugSplatRc64.dll")
+            else:
+                self.path("BsSndRpt.exe")
+                self.path("BugSplat.dll")
+                self.path("BugSplatRc.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -586,7 +596,6 @@ class WindowsManifest(ViewerManifest):
                     self.path('libtcmalloc_minimal.dll')
             except:
                 print "Skipping libtcmalloc_minimal.dll"
-
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -689,10 +698,10 @@ class WindowsManifest(ViewerManifest):
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
 
-        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
-            self.path("libvlc.dll")
-            self.path("libvlccore.dll")
-            self.path("plugins/")
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins/")
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
