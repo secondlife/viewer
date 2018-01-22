@@ -1034,8 +1034,11 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	{  //no exact match found, get closest point
 		const F32 epsilon = 1e-5f;
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
-		weight_map::iterator iter_down = ++iter_up;
-
+		weight_map::iterator iter_down = iter_up;
+		if (iter_up != mSkinWeights.end())
+		{
+			iter_down = ++iter_up;
+		}
 		weight_map::iterator best = iter_up;
 
 		F32 min_dist = (iter->first - pos).magVec();
