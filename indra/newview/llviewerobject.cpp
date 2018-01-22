@@ -879,7 +879,16 @@ void LLViewerObject::addChild(LLViewerObject *childp)
 	if(childp->setParent(this))
 	{
 		mChildList.push_back(childp);
+        childp->afterReparent();
 	}
+}
+
+void LLViewerObject::onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent)
+{
+}
+
+void LLViewerObject::afterReparent()
+{
 }
 
 void LLViewerObject::removeChild(LLViewerObject *childp)
@@ -2990,6 +2999,7 @@ void LLViewerObject::linkControlAvatar()
     if (getControlAvatar())
     {
         getControlAvatar()->rebuildAttachmentOverrides();
+        getControlAvatar()->updateAnimations();
     }
     else
     {

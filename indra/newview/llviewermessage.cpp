@@ -5116,42 +5116,6 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	LL_DEBUGS("AnimatedObjects") << "processing object animation requests, num_blocks " << num_blocks << LL_ENDL;
 
-#if 1 
-    // Here we go into skinned mode once, the first time we get an
-    // animation request, and then stay there. This is probably the
-    // normally desired behavior.
-    if (!avatarp->mPlaying)
-    {
-        avatarp->mPlaying = true;
-        if (!avatarp->mRootVolp->isAnySelected())
-        {
-            avatarp->updateVolumeGeom();
-            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
-        }
-    }
-#else// AXON REMOVE BEFORE RELEASE?
-    // In this block we switch back into static mode when no animations are
-    // playing. This is mostly useful for debugging.
-    if (num_blocks > 0 && !avatarp->mPlaying)
-    {
-        avatarp->mPlaying = true;
-        if (!avatarp->mRootVolp->isAnySelected())
-        {
-            avatarp->updateVolumeGeom();
-            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
-        }
-    }
-    else if (num_blocks == 0 && avatarp->mPlaying)
-    {
-        avatarp->mPlaying = false;
-        if (!avatarp->mRootVolp->isAnySelected())
-        {
-            avatarp->updateVolumeGeom();
-            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
-        }
-    }
-#endif
-
 	volp->mObjectSignaledAnimations.clear();
 	
     for( S32 i = 0; i < num_blocks; i++ )

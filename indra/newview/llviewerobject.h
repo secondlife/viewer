@@ -259,6 +259,8 @@ public:
 	*/
 
 	virtual BOOL setParent(LLViewerObject* parent);
+    virtual void onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
+    virtual void afterReparent();
 	virtual void addChild(LLViewerObject *childp);
 	virtual void removeChild(LLViewerObject *childp);
 	const_child_list_t& getChildren() const { 	return mChildList; }

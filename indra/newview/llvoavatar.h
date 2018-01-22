@@ -246,6 +246,8 @@ private: //aligned members
 	// Updates
 	//--------------------------------------------------------------------
 public:
+    void			updateAppearanceMessageDebugText();
+	void 			updateAnimationDebugText();
 	virtual void	updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
     void			updateFootstepSounds();
