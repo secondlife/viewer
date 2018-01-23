@@ -1006,7 +1006,13 @@ F32 gpu_benchmark()
 
 	//make a dummy triangle to draw with
 	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
-	buff->allocateBuffer(3, 0, true);
+
+	if (!buff->allocateBuffer(3, 0, true))
+	{
+		LL_WARNS() << "Failed to allocate buffer during benchmark." << LL_ENDL;
+		// abandon the benchmark test
+		return -1.f;
+	}
 
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector2> tc;
