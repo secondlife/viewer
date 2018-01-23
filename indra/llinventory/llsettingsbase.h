@@ -155,7 +155,6 @@ public:
 
     virtual bool validate();
 
-protected:
     class Validator
     {
     public:
@@ -192,8 +191,13 @@ protected:
     };
     typedef std::vector<Validator> validation_list_t;
 
+    static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
+protected:
+
     LLSettingsBase();
     LLSettingsBase(const LLSD setting);
+
+    static LLSD settingValidation(LLSD settings);
 
     typedef std::set<std::string>   stringset_t;
     

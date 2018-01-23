@@ -409,6 +409,9 @@ public:
         return mTotalAmbient;
     }
 
+    virtual validation_list_t getValidationList() const;
+    static validation_list_t validationList();
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -417,8 +420,6 @@ protected:
     LLSettingsSky();
 
     virtual stringset_t getSlerpKeys() const;
-
-    virtual validation_list_t getValidationList() const;
 
     virtual void    updateSettings();
 

@@ -54,6 +54,23 @@ public:
     static const F32Seconds     TRANSITION_DEFAULT;
     static const F32Seconds     TRANSITION_SLOW;
 
+    struct EnvironmentInfo
+    {
+        EnvironmentInfo();
+
+        typedef boost::shared_ptr<EnvironmentInfo>  ptr_t;
+
+        LLUUID          mParcelId;
+        S64Seconds      mDayLength;
+        S64Seconds      mDayOffset;
+        LLSD            mDaycycleData;
+        LLSD            mAltitudes;
+        bool            mIsDefault;
+
+        static ptr_t    extract(LLSD);
+
+    };
+
     enum EnvSelection_t
     {
         ENV_LOCAL,
@@ -99,7 +116,7 @@ public:
     typedef std::pair<std::string, LLUUID>                  name_id_t;
     typedef std::vector<name_id_t>                          list_name_id_t;
     typedef boost::signals2::signal<void()>                 change_signal_t;
-    typedef boost::function<void(const LLSD &)>             environment_apply_fn;
+    typedef boost::function<void(S32, EnvironmentInfo::ptr_t)>     environment_apply_fn;
 
     virtual ~LLEnvironment();
 
@@ -198,9 +215,11 @@ public:
     void                        requestRegion();
     void                        updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
     void                        resetRegion();
-    void                        requestParcel(const LLUUID &parcel_id);
-    void                        updateParcel(const LLUUID &parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
-    void                        resetParcel(const LLUUID &parcel_id);
+    void                        requestParcel(S32 parcel_id);
+    void                        updateParcel(S32 parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        resetParcel(S32 parcel_id);
+
+    void                        selectAgentEnvironment();
 
 protected:
     virtual void                initSingleton();
@@ -280,11 +299,11 @@ private:
     void onRegionChange();
     void onParcelChange();
 
-    void coroRequestEnvironment(LLUUID parcel_id, environment_apply_fn apply);
-    void coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, environment_apply_fn apply);
-    void coroResetEnvironment(LLUUID parcel_id, environment_apply_fn apply);
+    void coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
+    void coroUpdateEnvironment(S32 parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, environment_apply_fn apply);
+    void coroResetEnvironment(S32 parcel_id, environment_apply_fn apply);
 
-    void applyEnvironment(LLSD environment);
+    void recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
 
     //=========================================================================
     void                        legacyLoadAllPresets();

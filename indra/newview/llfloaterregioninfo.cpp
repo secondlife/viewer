@@ -95,6 +95,7 @@
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
 #include "llcorehttputil.h"
+#include "llenvironment.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -174,6 +175,24 @@ void unpack_request_params(
 	}
 }
 */
+
+class LLPanelRegionEnvironment : public LLPanelEnvironmentInfo
+{
+public:
+    LLPanelRegionEnvironment();
+
+    void refresh();
+
+    bool refreshFromRegion(LLViewerRegion* region);
+
+    virtual BOOL postBuild();
+
+protected:
+    virtual void doApply();
+
+private:
+    LLViewerRegion * mLastRegion;
+};
 
 
 
@@ -3345,24 +3364,21 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 }
 
 //=========================================================================
-class LLPanelRegionEnvironment : public LLPanelEnvironmentInfo
-{
-public:
-    LLPanelRegionEnvironment();
-
-    void refresh();
-
-    bool refreshFromRegion(LLViewerRegion* region);
-
-private:
-    LLViewerRegion * mLastRegion;
-};
-
 LLPanelRegionEnvironment::LLPanelRegionEnvironment():
     LLPanelEnvironmentInfo(),
     mLastRegion(NULL)
 {
 }
+
+
+BOOL LLPanelRegionEnvironment::postBuild()
+{
+    if (!LLPanelEnvironmentInfo::postBuild())
+        return FALSE;
+
+    return TRUE;
+}
+
 
 void LLPanelRegionEnvironment::refresh()
 {
@@ -3374,12 +3390,50 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
     BOOL owner_or_god = gAgent.isGodlike() || (region && (region->getOwner() == gAgent.getID()));
     BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
 
-    mDayLengthSlider->setValue(region->getDayLength().value());
-    mDayOffsetSlider->setValue(region->getDayOffset().value());
+    F64Hours daylength;
+    F64Hours dayoffset;
 
+    daylength = region->getDayLength();
+    dayoffset = region->getDayOffset();
+
+    if (dayoffset.value() > 12.0)
+        dayoffset = dayoffset - F32Hours(24.0f);
+
+    mDayLengthSlider->setValue(daylength.value());
+    mDayOffsetSlider->setValue(dayoffset.value());
     
+    mRegionSettingsRadioGroup->setSelectedIndex(region->getIsDefaultDayCycle() ? 0 : 1);
 
     setControlsEnabled(owner_or_god_or_manager);
     mLastRegion = region;
+
+    if (region->getRegionDayCycle())
+        mEditingDayCycle = region->getRegionDayCycle()->buildClone();
+
     return true;
+}
+
+void LLPanelRegionEnvironment::doApply()
+{
+    if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
+    {
+        LLEnvironment::instance().resetRegion();
+    }
+    else
+    {
+        S64Seconds daylength;
+        F32Hours   dayoffset_h;
+
+        daylength = F32Hours(mDayLengthSlider->getValueF32());
+        dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
+
+        if (dayoffset_h.value() < 0)
+        {
+            dayoffset_h = F32Hours(24.0f) + dayoffset_h;
+        }
+
+        S64Seconds dayoffset_s = dayoffset_h;
+
+        LLEnvironment::instance().updateRegion(mEditingDayCycle, daylength.value(), dayoffset_s.value());
+    }
 }

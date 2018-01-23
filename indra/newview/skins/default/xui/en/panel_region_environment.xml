@@ -10,8 +10,8 @@
     name="panel_env_info"
     width="530"> 
     <layout_stack 
-            left="0"
-            top="0"
+            left_offset="0"
+            top_offset="0"
             width="420"
             height="250"
             follows="left|right|top|bottom"
@@ -23,9 +23,9 @@
                 min_height="130"
                 background_visible="false">
             <layout_stack 
-                    left="5"
-                    top="5"
-                    right="-5"
+                    left_offset="5"
+                    top_offset="5"
+                    right_offset="-5"
                     follows="left|right|top|bottom"
                     orientation="horizontal">
                 <layout_panel 
@@ -59,11 +59,11 @@
                                 name="use_custom_setting"/>
                     </radio_group>
                     <button
-                            follows="top|left"
+                            follows="top|right"
                             height="23"
                             label="Edit Custom"
-                            left_delta="30"
-                            bottom_delta="30"
+                            right_offset="30"
+                            bottom_offset="30"
                             width="100"
                             name="edit_btn"/>
 
@@ -143,10 +143,10 @@
                 </layout_panel>
             </layout_stack>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel 
                 auto_resize="true"
                 user_resize="true"
-                height="11"
+                height="21"
                 min_height="0"
                 background_visible="false">
     <check_box
@@ -154,20 +154,20 @@
         height="16"
         label="Parcel Owners May Override"
         layout="topleft"
-        left="10"
-        top="10"
+        left_offset="10"
+        top_offset="10"
         name="allow_override_chk"
         width="200" />
     <button
-        follows="bottom|left"
+        follows="top|left"
         height="23"
         label="Apply"
-        right="-160"
-        bottom="-30"
+        left_offset="160"
+        top_offset="60"
         name="apply_btn"
         width="100" />
     <button
-        follows="bottom|left"
+        follows="top|left"
         height="23"
         label="Cancel"
         layout="topleft"

@@ -67,8 +67,7 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 class LLParcel;
 class LLPanelLandExperiences;
-//class LLPanelLandEnvironment;
-class LLPanelEnvironmentInfo;
+class LLPanelLandEnvironment;
 
 class LLFloaterLand
 :	public LLFloater
@@ -122,7 +121,7 @@ protected:
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandCovenant*	mPanelCovenant;
 	LLPanelLandExperiences*	mPanelExperiences;
-    LLPanelEnvironmentInfo *mPanelEnvironment;
+    LLPanelLandEnvironment *mPanelEnvironment;
 
 	LLSafeHandle<LLParcelSelection>	mParcel;
 

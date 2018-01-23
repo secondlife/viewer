@@ -169,6 +169,11 @@ void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
 
 LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const
 {
+    return LLSettingsWater::validationList();
+}
+
+LLSettingsWater::validation_list_t LLSettingsWater::validationList()
+{
     static validation_list_t validation;
 
     if (validation.empty())

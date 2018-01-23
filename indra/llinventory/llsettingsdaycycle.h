@@ -61,7 +61,7 @@ public:
 
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
-    typedef boost::shared_ptr<LLSettingsDay>   ptr_t;
+    typedef boost::shared_ptr<LLSettingsDay>        ptr_t;
     typedef std::vector<S64Seconds>                 TimeList_t;
     typedef std::vector<F32>                        KeyframeList_t;
     typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
@@ -70,7 +70,7 @@ public:
     LLSettingsDay(const LLSD &data);
     virtual ~LLSettingsDay() { };
 
-    void                        initialize();
+    bool                        initialize();
 
     virtual ptr_t               buildClone() = 0;
     virtual LLSD                getSettings() const;
@@ -136,12 +136,13 @@ public:
 
     void    setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
+
+    virtual validation_list_t   getValidationList() const;
+    static validation_list_t    validationList();
 protected:
     LLSettingsDay();
 
     virtual void                updateSettings();
-
-    virtual validation_list_t   getValidationList() const;
 
     bool                        mInitialized;
 

@@ -139,31 +139,21 @@ protected:
 	LLPanelExperienceListEditor* mBlocked;
 };
 
-#if 0
+
 class LLPanelLandEnvironment
-    : public LLPanel
+    : public LLPanelEnvironmentInfo
 {
 public:
     LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
-    // TODO: LAPRAS
-#if 0
+    
     virtual BOOL postBuild();
     void refresh();
 
-    void experienceAdded(const LLUUID& id, U32 xp_type, U32 access_type);
-    void experienceRemoved(const LLUUID& id, U32 access_type);
 protected:
-    LLPanelExperienceListEditor* setupList(const char* control_name, U32 xp_type, U32 access_type);
-    void refreshPanel(LLPanelExperienceListEditor* panel, U32 xp_type);
 
     LLSafeHandle<LLParcelSelection>&	mParcel;
 
-
-    LLPanelExperienceListEditor* mAllowed;
-    LLPanelExperienceListEditor* mBlocked;
-#endif
 };
-#endif
 
 // inserts maturity info(icon and text) into target textbox 
 // names_floater - pointer to floater which contains strings with maturity icons filenames
@@ -346,6 +336,7 @@ void LLFloaterLand::refresh()
 	mPanelAccess->refresh();
 	mPanelCovenant->refresh();
 	mPanelExperiences->refresh();
+    mPanelEnvironment->refresh();
 }
 
 
@@ -418,7 +409,7 @@ void* LLFloaterLand::createPanelLandExperiences(void* data)
 void* LLFloaterLand::createPanelLandEnvironment(void* data)
 {
     LLFloaterLand* self = (LLFloaterLand*)data;
-    self->mPanelEnvironment = new LLPanelEnvironmentInfo(/*self->mParcel*/);
+    self->mPanelEnvironment = new LLPanelLandEnvironment(self->mParcel);
     return self->mPanelEnvironment;
 }
 
@@ -3246,4 +3237,65 @@ void LLPanelLandExperiences::refresh()
 {
 	refreshPanel(mAllowed, EXPERIENCE_KEY_TYPE_ALLOWED);
 	refreshPanel(mBlocked, EXPERIENCE_KEY_TYPE_BLOCKED);
+}
+
+//=========================================================================
+
+LLPanelLandEnvironment::LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp):
+    LLPanelEnvironmentInfo(),
+    mParcel(parcelp)
+{
+}
+
+BOOL LLPanelLandEnvironment::postBuild()
+{
+    if (!LLPanelEnvironmentInfo::postBuild())
+        return FALSE;
+
+    mAllowOverRide->setVisible(FALSE);
+    return TRUE;
+}
+
+void LLPanelLandEnvironment::refresh()
+{
+    LLParcel* parcel = mParcel->getParcel();
+    if (!parcel)
+    {
+        mRegionSettingsRadioGroup->setEnabled(FALSE);
+        mDayLengthSlider->setEnabled(FALSE);
+        mDayOffsetSlider->setEnabled(FALSE);
+        mAllowOverRide->setEnabled(FALSE);
+
+        return;
+    }
+
+    //BOOL owner_or_god = gAgent.isGodlike() || (parcel owner or group)
+    BOOL owner_or_god = true;
+    //BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+
+    F64Hours daylength;
+    F64Hours dayoffset;
+
+    daylength = parcel->getDayLength();
+    dayoffset = parcel->getDayOffset();
+
+    if (dayoffset.value() > 12.0)
+        dayoffset = dayoffset - F32Hours(24.0f);
+
+    mDayLengthSlider->setValue(daylength.value());
+    mDayOffsetSlider->setValue(dayoffset.value());
+
+    mRegionSettingsRadioGroup->setSelectedIndex(parcel->getUsesDefaultDayCycle() ? 0 : 1);
+
+    setControlsEnabled(owner_or_god);
+
+    if (!parcel->getUsesDefaultDayCycle())
+        mEditingDayCycle = parcel->getParcelDayCycle()->buildClone();
+    else
+    {
+        LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+        if (regionp)
+            mEditingDayCycle = regionp->getRegionDayCycle()->buildClone();
+    }
+
 }

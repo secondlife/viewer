@@ -183,7 +183,7 @@ LLSD LLSettingsDay::getSettings() const
     return settings;
 }
 
-void LLSettingsDay::initialize()
+bool LLSettingsDay::initialize()
 {
     LLSD tracks = mSettings[SETTING_TRACKS];
     LLSD frames = mSettings[SETTING_FRAMES];
@@ -194,20 +194,31 @@ void LLSettingsDay::initialize()
     {
         std::string name = (*itFrame).first;
         LLSD data = (*itFrame).second;
+        LLSettingsBase::ptr_t keyframe;
 
         if (data[SETTING_TYPE].asString() == "sky")
         {
-            used[name] = buildSky(data);
+            keyframe = buildSky(data);
         }
         else if (data[SETTING_TYPE].asString() == "water")
         {
-            used[name] = buildWater(data);
+            keyframe = buildWater(data);
         }
         else
         {
             LL_WARNS("DAYCYCLE") << "Unknown child setting type '" << data[SETTING_TYPE].asString() << "' named '" << name << "'" << LL_ENDL;
         }
+        if (!keyframe)
+        {
+            LL_WARNS("DAYCYCLE") << "Invalid frame data" << LL_ENDL;
+            continue;
+        }
+
+        used[name] = keyframe;
     }
+
+    bool haswater(false);
+    bool hassky(false);
 
     for (S32 i = 0; (i < tracks.size()) && (i < TRACK_MAX); ++i)
     {
@@ -246,15 +257,27 @@ void LLSettingsDay::initialize()
             }
 
             if (setting)
+            {
+                if (i == TRACK_WATER)
+                    haswater |= true;
+                else
+                    hassky |= true;
                 mDayTracks[i][keyframe] = setting;
+            }
         }
     }
 
+    if (!haswater || !hassky)
+    {
+        LL_WARNS("DAYCYCLE") << "Must have at least one water and one sky frame!" << LL_ENDL;
+        return false;
+    }
     // these are no longer needed and just take up space now.
     mSettings.erase(SETTING_TRACKS);
     mSettings.erase(SETTING_FRAMES);
 
     mInitialized = true;
+    return true;
 }
 
 
@@ -288,11 +311,14 @@ namespace
             value.erase(value.size() - 1);
         }
 
+        S32 framecount(0);
+
         for (LLSD::array_iterator track = value.beginArray(); track != value.endArray(); ++track)
         {
             S32 index = 0;
             while (index < (*track).size())
             {
+                ++framecount;
                 if (index >= LLSettingsDay::FRAME_MAX)
                 {
                     (*track).erase(index);
@@ -323,22 +349,100 @@ namespace
             }
 
         }
+
+        framecount -= value[0].size();
+
+        if (value[0].size() < 1)
+        {
+            LL_WARNS("SETTINGS") << "Missing water track" << LL_ENDL;
+            return false;
+        }
+
+        if (framecount < 1)
+        {
+            LL_WARNS("SETTINGS") << "Missing sky tracks" << LL_ENDL;
+            return false;
+        }
+        return true;
+    }
+
+    bool validateDayCycleFrames(LLSD &value)
+    {
+        bool hasSky(false);
+        bool hasWater(false);
+
+        for (LLSD::map_iterator itf = value.beginMap(); itf != value.endMap(); ++itf)
+        {
+            LLSD frame = (*itf).second;
+
+            std::string ftype = frame[LLSettingsBase::SETTING_TYPE];
+            if (ftype == "sky")
+            {
+                LLSettingsSky::validation_list_t valid_sky = LLSettingsSky::validationList();
+                LLSD res_sky = LLSettingsSky::settingValidation(frame, valid_sky);
+                LL_WARNS("SETTINGS") << "'" << (*itf).first << "' res=" << res_sky << LL_ENDL;
+                //_WARNS("SETTINGS") << "success=" << res_sky["success"].asBoolean() << "(" << res_sky["success"].asInteger() << ") res=" << res_sky << LL_ENDL;
+                
+                if (res_sky["success"].asInteger() == 0)
+                {
+                    LL_WARNS("SETTINGS") << "Sky setting named '" << (*itf).first << "' validation failed!: " << res_sky << LL_ENDL;
+                    LL_WARNS("SETTINGS") << "Sky: " << frame << LL_ENDL;
+                    continue;
+                }
+                hasSky |= true;
+            }
+            else if (ftype == "water")
+            {
+                LLSettingsWater::validation_list_t valid_h2o = LLSettingsWater::validationList();
+                LLSD res_h2o = LLSettingsWater::settingValidation(frame, valid_h2o);
+                LL_WARNS("SETTINGS") << "'" << (*itf).first << "' res=" << res_h2o << LL_ENDL;
+                //_WARNS("SETTINGS") << "success=" << res_h2o["success"].asBoolean() << LL_ENDL;
+                if (res_h2o["success"].asInteger() == 0)
+                {
+                    LL_WARNS("SETTINGS") << "Water setting named '" << (*itf).first << "' validation failed!: " << res_h2o << LL_ENDL;
+                    LL_WARNS("SETTINGS") << "Water: " << frame << LL_ENDL;
+                    continue;
+                }
+                hasWater |= true;
+            }
+            else
+            {
+                LL_WARNS("SETTINGS") << "Unknown settings block of type '" << ftype << "' named '" << (*itf).first << "'" << LL_ENDL;
+                return false;
+            }
+        }
+
+        if (!hasSky)
+        {
+            LL_WARNS("SETTINGS") << "No skies defined." << LL_ENDL;
+            return false;
+        }
+
+        if (!hasWater)
+        {
+            LL_WARNS("SETTINGS") << "No waters defined." << LL_ENDL;
+            return false;
+        }
+
         return true;
     }
 }
 
 LLSettingsDay::validation_list_t LLSettingsDay::getValidationList() const
 {
+    return LLSettingsDay::validationList();
+}
+
+LLSettingsDay::validation_list_t LLSettingsDay::validationList()
+{
     static validation_list_t validation;
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_TRACKS, false, LLSD::TypeArray, 
+        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray, 
             &validateDayCycleTrack));
-        validation.push_back(Validator(SETTING_FRAMES, false, LLSD::TypeMap));
-        validation.push_back(Validator(SETTING_DAYLENGTH, false, LLSD::TypeInteger,
-            boost::bind(&Validator::verifyIntegerRange, _1, 
-                LLSD(LLSDArray(LLSD::Integer(MINIMUM_DAYLENGTH))(LLSD::Integer(MAXIMUM_DAYLENGTH))))));
+        validation.push_back(Validator(SETTING_FRAMES, true, LLSD::TypeMap, 
+            &validateDayCycleFrames));
     }
 
     return validation;

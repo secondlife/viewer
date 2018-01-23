@@ -146,6 +146,11 @@ LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const
 
 LLSettingsSky::validation_list_t LLSettingsSky::getValidationList() const
 {
+    return LLSettingsSky::validationList();
+}
+
+LLSettingsSky::validation_list_t LLSettingsSky::validationList()
+{
     static validation_list_t validation;
 
     if (validation.empty())

@@ -595,8 +595,8 @@ public:
     void setDayLength(S64SecondsImplicit seconds)              { mDayLength = seconds; }
     S64Seconds getDayOffset() const                             { return mDayOffset; }
     void setDayOffset(S64SecondsImplicit seconds)              { mDayOffset = seconds; }
-    bool getIsDefaultDayCycle() const                           { return mIsDefaultDayCycle; }
-    void setIsDefaultDayCycle(bool isdefault)                  { mIsDefaultDayCycle = isdefault; }
+    bool getUsesDefaultDayCycle() const                         { return mIsDefaultDayCycle; }
+    void setUsesDefaultDayCycle(bool isdefault)                { mIsDefaultDayCycle = isdefault; }
     LLSettingsDay::ptr_t getParcelDayCycle() const              { return mDayCycle; }
     void setParcelDayCycle(const LLSettingsDay::ptr_t &pday)    { mDayCycle = pday; }
 

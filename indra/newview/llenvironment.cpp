@@ -52,7 +52,7 @@
 
 #include <boost/make_shared.hpp>
 
-#define EXPORT_PRESETS 1
+//define EXPORT_PRESETS 1
 //=========================================================================
 namespace
 {
@@ -154,12 +154,12 @@ void LLEnvironment::onRegionChange()
 
 void LLEnvironment::onParcelChange()
 {
-    LLUUID parcel_id;
+    S32 parcel_id(INVALID_PARCEL_ID);
     LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
 
     if (parcel)
     {
-        parcel_id = parcel->getID();
+        parcel_id = parcel->getLocalID();
     }
 
     requestParcel(parcel_id);
@@ -167,7 +167,6 @@ void LLEnvironment::onParcelChange()
 
 void LLEnvironment::requestRegionEnvironment()
 {
-//    LLEnvironmentRequest::initiate();
     requestRegion();
 }
 
@@ -242,7 +241,6 @@ void LLEnvironment::update(const LLViewerCamera * cam)
         mCurrentSky->update();
     if (mCurrentWater)
         mCurrentWater->update();
-
 
     F32 camYaw = cam->getYaw();
 
@@ -485,7 +483,7 @@ void LLEnvironment::selectDayCycle(const std::string &name, F32Seconds transitio
 
 void LLEnvironment::selectDayCycle(const LLSettingsDay::ptr_t &daycycle, F32Seconds transition)
 {
-    if (!daycycle)
+    if (!daycycle || (daycycle == mCurrentDay))
     {
         return;
     }
@@ -779,30 +777,81 @@ LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
 }
 
 
-void LLEnvironment::applyEnvironment(LLSD environment)
+void LLEnvironment::selectAgentEnvironment()
+{
+    S64Seconds day_length(LLSettingsDay::DEFAULT_DAYLENGTH);
+    S64Seconds day_offset(LLSettingsDay::DEFAULT_DAYOFFSET);
+    LLSettingsDay::ptr_t pday;
+
+    // TODO: First test if agent has local environment set.
+
+    LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    LLViewerRegion *pRegion = gAgent.getRegion();
+
+    if (!parcel || parcel->getUsesDefaultDayCycle() || !parcel->getParcelDayCycle())
+    {
+        day_length = pRegion->getDayLength();
+        day_offset = pRegion->getDayOffset();
+        pday = pRegion->getRegionDayCycle();
+    }
+    else
+    {
+        day_length = parcel->getDayLength();
+        day_offset = parcel->getDayOffset();
+        pday = parcel->getParcelDayCycle();
+    }
+
+    if (getDayLength() != day_length)
+        setDayLength(day_length);
+
+    if (getDayOffset() != day_offset)
+        setDayOffset(day_offset);
+
+    if (pday)
+        selectDayCycle(pday);
+    
+}
+
+void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo)
 {
     LL_WARNS("ENVIRONMENT") << "Have environment" << LL_ENDL;
 
-    S32 daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
-    S32 dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
-
-    if (environment.has("day_length"))
-        daylength = environment["day_length"].asInteger();
-    if (environment.has("day_offset"))
-        dayoffset = environment["day_cycle"].asInteger();
-
-    setDayLength(S64Seconds(daylength));
-    setDayOffset(S64Seconds(dayoffset));
-
-    if (environment.has("day_cycle"))
+    if (parcel_id == INVALID_PARCEL_ID)
     {
-        LLSettingsDay::ptr_t pday = LLSettingsVODay::buildFromEnvironmentMessage(environment["day_cycle"]);
+        LLViewerRegion *pRegion = gAgent.getRegion();
 
-        if (pday)
-            selectDayCycle(pday);
+        if (pRegion)
+        {
+            pRegion->setDayLength(envinfo->mDayLength);
+            pRegion->setDayOffset(envinfo->mDayOffset);
+            pRegion->setIsDefaultDayCycle(envinfo->mIsDefault);
+            pRegion->setRegionDayCycle(LLSettingsVODay::buildFromEnvironmentMessage(envinfo->mDaycycleData));
+
+            /*TODO: track_altitudes*/
+        }
+    }
+    else
+    {
+        LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+        if (parcel->getLocalID() == parcel_id)
+        {
+            parcel->setDayLength(envinfo->mDayLength);
+            parcel->setDayOffset(envinfo->mDayOffset);
+            parcel->setUsesDefaultDayCycle(envinfo->mIsDefault);
+
+            LLSettingsDay::ptr_t pday;
+            if (!envinfo->mIsDefault)
+            {
+                pday = LLSettingsVODay::buildFromEnvironmentMessage(envinfo->mDaycycleData);
+            }
+            parcel->setParcelDayCycle(pday);
+
+            // select parcel day
+        }
     }
 
-    /*TODO: track_altitudes*/
+    selectAgentEnvironment();
 }
 
 //=========================================================================
@@ -814,7 +863,7 @@ void LLEnvironment::requestRegion()
         return;
     }
 
-    requestParcel(LLUUID::null);
+    requestParcel(INVALID_PARCEL_ID);
 }
 
 void LLEnvironment::updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
@@ -825,42 +874,45 @@ void LLEnvironment::updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32
         return;
     }
 
-    updateParcel(LLUUID::null, pday, day_length, day_offset);
+    updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset);
 }
 
 void LLEnvironment::resetRegion()
 {
-    resetParcel(LLUUID::null);
+    resetParcel(INVALID_PARCEL_ID);
 }
 
-void LLEnvironment::requestParcel(const LLUUID &parcel_id)
+void LLEnvironment::requestParcel(S32 parcel_id)
 {
+    environment_apply_fn apply = boost::bind(&LLEnvironment::recordEnvironment, this, _1, _2);
+
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
-        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id, 
-        boost::bind(&LLEnvironment::applyEnvironment, this, _1)));
+        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id, apply));
 
 }
 
-void LLEnvironment::updateParcel(const LLUUID &parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
+void LLEnvironment::updateParcel(S32 parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
 {
+    environment_apply_fn apply = boost::bind(&LLEnvironment::recordEnvironment, this, _1, _2);
+
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         boost::bind(&LLEnvironment::coroUpdateEnvironment, this, parcel_id, 
-        pday, day_length, day_offset,
-        boost::bind(&LLEnvironment::applyEnvironment, this, _1)));
+        pday, day_length, day_offset, apply));
 
 }
 
-void LLEnvironment::resetParcel(const LLUUID &parcel_id)
+void LLEnvironment::resetParcel(S32 parcel_id)
 {
+    environment_apply_fn apply = boost::bind(&LLEnvironment::recordEnvironment, this, _1, _2);
+
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
-        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id,
-        boost::bind(&LLEnvironment::applyEnvironment, this, _1)));
+        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id, apply));
 }
 
-void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id, environment_apply_fn apply)
+void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -871,8 +923,17 @@ void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id, environment_apply_f
     if (url.empty())
         return;
 
-    if (!parcel_id.isNull())
-        url += "?parcelid=" + parcel_id.asString();
+    LL_WARNS("LAPRAS") << "Requesting for parcel_id=" << parcel_id << LL_ENDL;
+
+    if (parcel_id != INVALID_PARCEL_ID)
+    {
+        std::stringstream query;
+
+        query << "?parcelid=" << parcel_id;
+        url += query.str();
+    }
+
+    LL_WARNS("LAPRAS") << "url=" << url << LL_ENDL;
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
     // results that come back may contain the new settings
@@ -883,7 +944,7 @@ void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id, environment_apply_f
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        LL_WARNS("WindlightCaps") << "Couldn't retrieve Windlight settings for " << (parcel_id.isNull() ? ("region!") : ("parcel!")) << LL_ENDL;
+        LL_WARNS("WindlightCaps") << "Couldn't retrieve Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         std::stringstream msg;
         msg << status.toString() << " (Code " << status.toTerseString() << ")";
@@ -896,7 +957,8 @@ void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id, environment_apply_f
         LLSD environment = result["environment"];
         if (environment.isDefined() && !apply.empty())
         {
-            apply(environment);
+            EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+            apply(parcel_id, envinfo);
         }
     }
 
@@ -907,7 +969,7 @@ void LLEnvironment::coroRequestEnvironment(LLUUID parcel_id, environment_apply_f
     }
 }
 
-void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, environment_apply_fn apply)
+void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, LLEnvironment::environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -928,9 +990,17 @@ void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t
     if (pday)
         body["environment"]["day_cycle"] = pday->getSettings();
 
+    LL_WARNS("LAPRAS") << "Body = " << body << LL_ENDL;
 
-    if (!parcel_id.isNull())
-        url += "?parcelid=" + parcel_id.asString();
+    if (parcel_id != INVALID_PARCEL_ID)
+    {
+        std::stringstream query;
+
+        query << "?parcelid=" << parcel_id;
+        url += query.str();
+    }
+
+    LL_WARNS("LAPRAS") << "url=" << url << LL_ENDL;
 
     LLSD result = httpAdapter->putAndSuspend(httpRequest, url, body);
     // results that come back may contain the new settings
@@ -941,7 +1011,7 @@ void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        LL_WARNS("WindlightCaps") << "Couldn't update Windlight settings for " << (parcel_id.isNull() ? ("region!") : ("parcel!")) << LL_ENDL;
+        LL_WARNS("WindlightCaps") << "Couldn't update Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         std::stringstream msg;
         msg << status.toString() << " (Code " << status.toTerseString() << ")";
@@ -953,7 +1023,8 @@ void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t
         LLSD environment = result["environment"];
         if (environment.isDefined() && !apply.empty())
         {
-            apply(environment);
+            EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+            apply(parcel_id, envinfo);
         }
     }
 
@@ -964,7 +1035,7 @@ void LLEnvironment::coroUpdateEnvironment(LLUUID parcel_id, LLSettingsDay::ptr_t
     }
 }
 
-void LLEnvironment::coroResetEnvironment(LLUUID parcel_id, environment_apply_fn apply)
+void LLEnvironment::coroResetEnvironment(S32 parcel_id, environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -975,8 +1046,15 @@ void LLEnvironment::coroResetEnvironment(LLUUID parcel_id, environment_apply_fn 
     if (url.empty())
         return;
 
-    if (!parcel_id.isNull())
-        url += "?parcelid=" + parcel_id.asString();
+    if (parcel_id != INVALID_PARCEL_ID)
+    {
+        std::stringstream query;
+
+        query << "?parcelid=" << parcel_id;
+        url += query.str();
+    }
+
+    LL_WARNS("LAPRAS") << "url=" << url << LL_ENDL;
 
     LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url);
     // results that come back may contain the new settings
@@ -987,7 +1065,7 @@ void LLEnvironment::coroResetEnvironment(LLUUID parcel_id, environment_apply_fn 
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        LL_WARNS("WindlightCaps") << "Couldn't reset Windlight settings in " << (parcel_id.isNull() ? ("region!") : ("parcel!"))  << LL_ENDL;
+        LL_WARNS("WindlightCaps") << "Couldn't reset Windlight settings in " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!"))  << LL_ENDL;
 
         std::stringstream msg;
         msg << status.toString() << " (Code " << status.toTerseString() << ")";
@@ -1000,7 +1078,8 @@ void LLEnvironment::coroResetEnvironment(LLUUID parcel_id, environment_apply_fn 
         LLSD environment = result["environment"];
         if (environment.isDefined() && !apply.empty())
         {
-                apply(environment);
+            EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+            apply(parcel_id, envinfo);
         }
     }
 
@@ -1048,6 +1127,36 @@ void LLEnvironment::UserPrefs::store()
         gSavedSettings.setBOOL("UseEnvironmentFromRegion", getUseRegionSettings());
         gSavedSettings.setBOOL("UseDayCycle", getUseDayCycle());
     }
+}
+
+LLEnvironment::EnvironmentInfo::EnvironmentInfo():
+    mParcelId(),
+    mDayLength(LLSettingsDay::DEFAULT_DAYLENGTH),
+    mDayOffset(LLSettingsDay::DEFAULT_DAYOFFSET),
+    mDaycycleData(),
+    mAltitudes(),
+    mIsDefault(false)
+{
+}
+
+LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LLSD environment)
+{
+    ptr_t pinfo = boost::make_shared<EnvironmentInfo>();
+
+    if (environment.has("parcel_id"))
+        pinfo->mParcelId = environment["parcel_id"].asUUID();
+    if (environment.has("day_length"))
+        pinfo->mDayLength = S64Seconds(environment["day_length"].asInteger());
+    if (environment.has("day_offset"))
+        pinfo->mDayOffset = S64Seconds(environment["day_offset"].asInteger());
+    if (environment.has("day_cycle"))
+        pinfo->mDaycycleData = environment["day_cycle"];
+    if (environment.has("is_default"))
+        pinfo->mIsDefault = environment["is_default"].asBoolean();
+    if (environment.has("track_altitudes"))
+        pinfo->mAltitudes = environment["track_altitudes"];
+
+    return pinfo;
 }
 
 //=========================================================================

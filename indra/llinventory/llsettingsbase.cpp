@@ -315,49 +315,65 @@ namespace
 
 bool LLSettingsBase::validate()
 {
-    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString);
-    static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
-    static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
-    static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
     validation_list_t validations = getValidationList();
-    stringset_t       validated;
-    stringset_t       strip;
 
     if (!mSettings.has(SETTING_TYPE))
     {
         mSettings[SETTING_TYPE] = getSettingType();
     }
 
-    // Fields common to all settings.
-    if (!validateName.verify(mSettings))
+    LLSD result = LLSettingsBase::settingValidation(mSettings, validations);
+
+    if (result["errors"].size() > 0)
     {
-        LL_WARNS("SETTINGS") << "Unable to validate Name." << LL_ENDL;
-        mIsValid = false;
-        return false;
+        LL_WARNS("SETTINGS") << "Validation errors: " << result["errors"] << LL_ENDL;
+    }
+    if (result["warnings"].size() > 0)
+    {
+        LL_WARNS("SETTINGS") << "Validation warnings: " << result["errors"] << LL_ENDL;
+    }
+
+    return result["success"].asBoolean();
+}
+
+LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &validations)
+{
+    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString);
+    static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
+    static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
+    static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
+    stringset_t       validated;
+    stringset_t       strip;
+    bool              isValid(true);
+    LLSD              errors(LLSD::emptyArray());
+    LLSD              warnings(LLSD::emptyArray());
+
+    // Fields common to all settings.
+    if (!validateName.verify(settings))
+    {
+        errors.append( LLSD::String("Unable to validate 'name'.") );
+        isValid = false;
     }
     validated.insert(validateName.getName());
 
-    if (!validateId.verify(mSettings))
+    if (!validateId.verify(settings))
     {
-        LL_WARNS("SETTINGS") << "Unable to validate Id." << LL_ENDL;
-        mIsValid = false;
-        return false;
+        errors.append( LLSD::String("Unable to validate 'id'.") );
+        isValid = false;
     }
     validated.insert(validateId.getName());
 
-    if (!validateHash.verify(mSettings))
+    if (!validateHash.verify(settings))
     {
-        LL_WARNS("SETTINGS") << "Unable to validate Hash." << LL_ENDL;
-        mIsValid = false;
-        return false;
+        errors.append( LLSD::String("Unable to validate 'hash'.") );
+        isValid = false;
     }
     validated.insert(validateHash.getName());
 
-    if (!validateType.verify(mSettings))
+    if (!validateType.verify(settings))
     {
-        LL_WARNS("SETTINGS") << "Unable to validate Type." << LL_ENDL;
-        mIsValid = false;
-        return false;
+        errors.append( LLSD::String("Unable to validate 'type'.") );
+        isValid = false;
     }
     validated.insert(validateType.getName());
 
@@ -366,47 +382,54 @@ bool LLSettingsBase::validate()
     {
 #ifdef VALIDATION_DEBUG
         LLSD oldvalue;
-        if (mSettings.has((*itv).getName()))
+        if (settings.has((*itv).getName()))
         {
             oldvalue = llsd_clone(mSettings[(*itv).getName()]);
         }
 #endif
 
-        if (!(*itv).verify(mSettings))
+        if (!(*itv).verify(settings))
         {
-            LL_WARNS("SETTINGS") << "Settings LLSD fails validation and could not be corrected for '" << (*itv).getName() << "'!" << LL_ENDL;
-            mIsValid = false;
-            return false;
+            std::stringstream errtext;
+
+            errtext << "Settings LLSD fails validation and could not be corrected for '" << (*itv).getName() << "'!";
+            errors.append( errtext.str() );
+            isValid = false;
         }
         validated.insert((*itv).getName());
 
 #ifdef VALIDATION_DEBUG
         if (!oldvalue.isUndefined())
         {
-            if (!compare_llsd(mSettings[(*itv).getName()], oldvalue))
+            if (!compare_llsd(settings[(*itv).getName()], oldvalue))
             {
-                LL_WARNS("SETTINGS") << "Setting '" << (*itv).getName() << "' was changed: " << oldvalue << " -> " << mSettings[(*itv).getName()] << LL_ENDL;
+                LL_WARNS("SETTINGS") << "Setting '" << (*itv).getName() << "' was changed: " << oldvalue << " -> " << settings[(*itv).getName()] << LL_ENDL;
             }
         }
 #endif
     }
 
     // strip extra entries
-    for (LLSD::map_iterator itm = mSettings.beginMap(); itm != mSettings.endMap(); ++itm)
+    for (LLSD::map_const_iterator itm = settings.beginMap(); itm != settings.endMap(); ++itm)
     {
         if (validated.find((*itm).first) == validated.end())
         {
-            LL_WARNS("SETTINGS") << "Stripping setting '" << (*itm).first << "'" << LL_ENDL;
+            std::stringstream warntext;
+
+            warntext << "Stripping setting '" << (*itm).first << "'";
+            warnings.append( warntext.str() );
             strip.insert((*itm).first);
         }
     }
 
     for (stringset_t::iterator its = strip.begin(); its != strip.end(); ++its)
     {
-        mSettings.erase(*its);
+        settings.erase(*its);
     }
 
-    return true;
+    return LLSDMap("success", LLSD::Boolean(isValid))
+        ("errors", errors)
+        ("warnings", warnings);
 }
 
 //=========================================================================

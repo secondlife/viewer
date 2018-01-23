@@ -86,6 +86,14 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
 
     newsettings[SETTING_NAME] = name;
 
+    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+    LLSD results = LLSettingsSky::settingValidation(newsettings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsSky::ptr_t();
+    }
+
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
@@ -100,10 +108,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
 
 #endif
 
-    if (skyp->validate())
-        return skyp;
-
-    return LLSettingsSky::ptr_t();
+    return skyp;
 }
 
 LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
@@ -111,24 +116,32 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     LLSD settings = LLSettingsSky::defaults();
     settings[SETTING_NAME] = std::string("_default_");
 
+    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+    LLSD results = LLSettingsSky::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsSky::ptr_t();
+    }
 
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
-    if (skyp->validate())
-        return skyp;
-
-    return LLSettingsSky::ptr_t();
+    return skyp;
 }
 
 LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
 {
     LLSD settings = cloneSettings();
 
+    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+    LLSD results = LLSettingsSky::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsSky::ptr_t();
+    }
+
     LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
-
-    if (skyp->validate())
-        return skyp;
-
-    return LLSettingsSky::ptr_t();
+    return skyp;
 }
 
 LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky)
@@ -246,6 +259,13 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
     LLSD newsettings(LLSettingsWater::translateLegacySettings(legacy));
 
     newsettings[SETTING_NAME] = name; 
+    LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
+    LLSD results = LLSettingsWater::settingValidation(newsettings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsWater::ptr_t();
+    }
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(newsettings);
 
@@ -260,12 +280,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
     }
 
 #endif
-
-
-    if (waterp->validate())
-        return waterp;
-
-    return LLSettingsWater::ptr_t();
+    return waterp;
 }
 
 LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
@@ -273,24 +288,33 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     LLSD settings = LLSettingsWater::defaults();
     settings[SETTING_NAME] = std::string("_default_");
 
+    LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
+    LLSD results = LLSettingsWater::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsWater::ptr_t();
+    }
+
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
 
-    if (waterp->validate())
-        return waterp;
-
-    return LLSettingsWater::ptr_t();
+    return waterp;
 }
 
 LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
 {
     LLSD settings = cloneSettings();
+    LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
+    LLSD results = LLSettingsWater::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsWater::ptr_t();
+    }
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
 
-    if (waterp->validate())
-        return waterp;
-
-    return LLSettingsWater::ptr_t();
+    return waterp;
 }
 
 LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
@@ -409,6 +433,15 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
     newsettings[SETTING_TRACKS] = LLSDArray(watertrack)(skytrack);
 
+    LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
+    LLSD results = LLSettingsDay::settingValidation(newsettings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsDay::ptr_t();
+    }
+
+
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
@@ -423,26 +456,33 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
 #endif
 
-    if (dayp->validate())
-    {
-        dayp->initialize();
-        return dayp;
-    }
+    dayp->initialize();
 
-
-
-    return LLSettingsDay::ptr_t();
+    return dayp;
 }
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skydefs, LLSD waterdef)
 {
     LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset("Region", waterdef);
+
+    if (!water)
+    {
+        LL_WARNS("WindlightCaps") << "Water construction failed." << LL_ENDL;
+        return LLSettingsDay::ptr_t();
+    }
+
     LLEnvironment::namedSettingMap_t skys;
 
     for (LLSD::map_iterator itm = skydefs.beginMap(); itm != skydefs.endMap(); ++itm)
     {
         std::string name = (*itm).first;
         LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, (*itm).second);
+
+        if (!sky)
+        {
+            LL_WARNS("WindlightCaps") << "Sky construction failed." << LL_ENDL;
+            return LLSettingsDay::ptr_t();
+        }
 
         skys[name] = sky;
         LL_WARNS("WindlightCaps") << "created region sky '" << name << "'" << LL_ENDL;
@@ -468,12 +508,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
 
     dayp->setInitialized();
 
-    if (dayp->validate())
-    {
-        return dayp;
-    }
-
-    return LLSettingsDay::ptr_t();
+    return dayp;
 }
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
@@ -481,34 +516,49 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
     LLSD settings = LLSettingsDay::defaults();
     settings[SETTING_NAME] = std::string("_default_");
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
-
-    if (dayp->validate())
+    LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
+    LLSD results = LLSettingsDay::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
     {
-        dayp->initialize();
-        return dayp;
+        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsDay::ptr_t();
     }
 
-    return LLSettingsDay::ptr_t();
+    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
+
+    dayp->initialize();
+    return dayp;
 }
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromEnvironmentMessage(LLSD settings)
 {
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
-
-    if (dayp->validate())
+    LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
+    LLSD results = LLSettingsDay::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
     {
-        dayp->initialize();
-        return dayp;
+        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsDay::ptr_t();
     }
 
-    return LLSettingsDay::ptr_t();
+    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
+
+    dayp->initialize();
+    return dayp;
 }
 
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
 {
     LLSD settings = cloneSettings();
+
+    LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
+    LLSD results = LLSettingsDay::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsDay::ptr_t();
+    }
+
 
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
 

@@ -198,6 +198,9 @@ public:
         return mWaterFogKS;
     }
 
+    virtual validation_list_t getValidationList() const;
+    static validation_list_t validationList();
+
 protected:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
     static const std::string SETTING_LEGACY_FOG_COLOR;
@@ -213,8 +216,6 @@ protected:
     static const std::string SETTING_LEGACY_WAVE2_DIR;
 
     LLSettingsWater();
-
-    virtual validation_list_t getValidationList() const;
 
     static LLSD         translateLegacySettings(LLSD legacy);
 
