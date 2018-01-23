@@ -4134,10 +4134,7 @@ void dumpVFSCaches()
 	S32 res = LLFile::mkdir("StaticVFSDump");
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
 	}
 	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
 	gStaticVFS->dumpFiles();
@@ -4151,10 +4148,7 @@ void dumpVFSCaches()
 	res = LLFile::mkdir("VFSDump");
 	if (res == -1)
 	{
-		if (errno != EEXIST)
-		{
-			LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
 	}
 	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
 	gVFS->dumpFiles();

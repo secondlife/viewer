@@ -12332,7 +12332,7 @@
     <key>UpdaterMaximumBandwidth</key>
     <map>
       <key>Comment</key>
-      <string>Maximum allowable downstream bandwidth for updater service (kilo bits per second)</string>
+      <string>Obsolete: this parameter is no longer used.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
