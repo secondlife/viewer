@@ -957,14 +957,21 @@ F32 gpu_benchmark()
 		~TextureHolder()
 		{
 			// unbind
-			texUnit->unbind(LLTexUnit::TT_TEXTURE);
+			if (texUnit)
+			{
+				texUnit->unbind(LLTexUnit::TT_TEXTURE);
+			}
 			// ensure that we delete these textures regardless of how we exit
 			LLImageGL::deleteTextures(source.size(), &source[0]);
 		}
 
-		void bind(U32 index)
+		bool bind(U32 index)
 		{
-			texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
+			if (texUnit) // should always be there with dummy (-1), but just in case
+			{
+				return texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
+			}
+			return false;
 		}
 
 	private:
@@ -992,13 +999,27 @@ F32 gpu_benchmark()
 	LLGLDepthTest depth(GL_FALSE);
 
 	for (U32 i = 0; i < count; ++i)
-	{ //allocate render targets and textures
-		dest[i].allocate(res,res,GL_RGBA,false, false, LLTexUnit::TT_TEXTURE, true);
+	{
+		//allocate render targets and textures
+		if (!dest[i].allocate(res, res, GL_RGBA, false, false, LLTexUnit::TT_TEXTURE, true))
+		{
+			LL_WARNS() << "Failed to allocate render target." << LL_ENDL;
+			// abandon the benchmark test
+			delete[] pixels;
+			return -1.f;
+		}
 		dest[i].bindTarget();
 		dest[i].clear();
 		dest[i].flush();
 
-		texHolder.bind(i);
+		if (!texHolder.bind(i))
+		{
+			// can use a dummy value mDummyTexUnit = new LLTexUnit(-1);
+			LL_WARNS() << "Failed to bind tex unit." << LL_ENDL;
+			// abandon the benchmark test
+			delete[] pixels;
+			return -1.f;
+		}
 		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 
