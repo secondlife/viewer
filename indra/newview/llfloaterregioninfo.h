@@ -412,67 +412,6 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////
 
-#if 0
-class LLPanelEnvironmentInfo : public LLPanelRegionInfo
-{
-	LOG_CLASS(LLPanelEnvironmentInfo);
-
-public:
-	LLPanelEnvironmentInfo();
-
-	// LLPanel
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	// LLView
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
-
-	// LLPanelRegionInfo
-	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
-
-private:
-	void refresh();
-	void setControlsEnabled(bool enabled);
-	void setApplyProgress(bool started);
-	void setDirty(bool dirty);
-
-	void sendRegionSunUpdate();
-	void fixEstateSun();
-
-	void populateWaterPresetsList();
-	void populateSkyPresetsList();
-	void populateDayCyclesList();
-
-	bool getSelectedWaterParams(LLSD& water_params);
-	bool getSelectedSkyParams(LLSD& sky_params, std::string& preset_name);
-	bool getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sky_map, short& scope);
-
-	void onSwitchRegionSettings();
-	void onSwitchDayCycle();
-
-	void onSelectWaterPreset();
-	void onSelectSkyPreset();
-	void onSelectDayCycle();
-
-	void onBtnApply();
-	void onBtnCancel();
-
-	void onRegionSettingschange();
-	void onRegionSettingsApplied(bool ok);
-
-	/// New environment settings that are being applied to the region.
-//	LLEnvironmentSettings	mNewRegionSettings;
-
-	bool			mEnableEditing;
-
-	LLRadioGroup*	mRegionSettingsRadioGroup;
-	LLRadioGroup*	mDayCycleSettingsRadioGroup;
-
-	LLComboBox*		mWaterPresetCombo;
-	LLComboBox*		mSkyPresetCombo;
-	LLComboBox*		mDayCyclePresetCombo;
-};
-#endif
 
 class LLPanelRegionExperiences : public LLPanelRegionInfo
 {

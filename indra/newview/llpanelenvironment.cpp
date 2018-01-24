@@ -37,6 +37,10 @@
 #include "llslurl.h"
 #include "lllayoutstack.h"
 
+#include "llfloater.h"
+#include "llfloaterreg.h"
+#include "llfloatereditextdaycycle.h"
+
 static LLPanelInjector<LLPanelEnvironmentInfo> register_environment_panel("environment_panel");
 
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
@@ -329,7 +333,11 @@ void LLPanelEnvironmentInfo::setDirty(bool dirty)
 void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
 {
     bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
-    getChild<LLView>("user_environment_settings")->setEnabled(!use_defaults);
+    
+    getChild<LLView>("edit_btn")->setEnabled(!use_defaults);
+
+    mDayLengthSlider->setEnabled(!use_defaults);
+    mDayOffsetSlider->setEnabled(!use_defaults);
 
     setDirty(true);
 }
@@ -352,8 +360,25 @@ void LLPanelEnvironmentInfo::onBtnCancel()
 
 void LLPanelEnvironmentInfo::onBtnEdit()
 {
+    LLFloaterEditExtDayCycle *dayeditor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance("env_edit_extdaycycle");
+
+    if (dayeditor)
+    {
+        dayeditor->setEditCommitSignal(boost::bind(&LLPanelEnvironmentInfo::onEditiCommited, this, _1));
+        dayeditor->openFloater();
+    }
 }
 
+void LLPanelEnvironmentInfo::onEditiCommited(LLSettingsDay::ptr_t newday)
+{
+    doEditCommited(newday);
+}
+
+void LLPanelEnvironmentInfo::doEditCommited(LLSettingsDay::ptr_t &newday)
+{
+    mEditingDayCycle = newday;
+    /*TODO pure virtual*/
+}
 
 // void LLPanelEnvironmentInfo::onRegionSettingschange()
 // {

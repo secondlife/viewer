@@ -28,6 +28,8 @@
 #define LL_LLFLOATEREDITEXTDAYCYCLE_H
 
 #include "llfloater.h"
+#include "llsettingsdaycycle.h"
+#include <boost/signals2.hpp>
 
 class LLCheckBoxCtrl;
 class LLComboBox;
@@ -43,90 +45,92 @@ class LLFloaterEditExtDayCycle : public LLFloater
 	LOG_CLASS(LLFloaterEditExtDayCycle);
 
 public:
+    typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)>            edit_commit_signal_t;
+    typedef boost::signals2::connection     connection_t;
+
 	LLFloaterEditExtDayCycle(const LLSD &key);
 
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
-	/*virtual*/ void	onClose(bool app_quitting);
-	/*virtual*/ void	draw();
+    BOOL	postBuild();
+ 	void	onOpen(const LLSD& key);
+ 	void	onClose(bool app_quitting);
+
+    void    onVisibilityChange(BOOL new_visibility);
+
+// 	/*virtual*/ void	draw();
+    connection_t setEditCommitSignal(edit_commit_signal_t::slot_type cb);
 
 private:
 
-	/// sync the time slider with day cycle structure
-	void syncTimeSlider();
-
-	// 	makes sure key slider has what's in day cycle
-	void loadTrack();
-
-	/// makes sure day cycle data structure has what's in menu
-	void applyTrack();
-
-	/// refresh the sky presets combobox
-	void refreshSkyPresetsList();
-
-	/// refresh the day cycle combobox
-	void refreshDayCyclesList();
-
-	/// add a slider to the track
-//	void addSliderKey(F32 time, LLWLParamKey keyframe);
-
-	void initCallbacks();
-//	LLWLParamKey getSelectedDayCycle();
-	bool isNewDay() const;
-	void dumpTrack();
-	void enableEditing(bool enable);
-	void reset();
-	void saveRegionDayCycle();
-
-	void setApplyProgress(bool started);
-	bool getApplyProgress() const;
-
-	void onTimeSliderMoved();	/// time slider moved
-	void onKeyTimeMoved();		/// a key frame moved
-	void onKeyTimeChanged();	/// a key frame's time changed
-	void onKeyPresetChanged();	/// sky preset selected
-	void onAddKey();			/// new key added on slider
-	void onDeleteKey();			/// a key frame deleted
-
-	void onRegionSettingsChange();
-	void onRegionChange();
-	void onRegionSettingsApplied(bool success);
-	void onRegionInfoUpdate();
-
-	void onDayCycleNameEdited();
-	void onDayCycleSelected();
-	void onBtnSave();
-	void onBtnCancel();
-
-	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
-	void onSaveConfirmed();
-
-	void onDayCycleListChange();
-	void onSkyPresetListChange();
-
-	static std::string getRegionName();
-
-	/// convenience class for holding keyframes mapped to sliders
-// 	struct SliderKey
-// 	{
-// 	public:
-// 		SliderKey(LLWLParamKey kf, F32 t) : keyframe(kf), time(t) {}
-// 		SliderKey() : keyframe(), time(0.f) {} // Don't use this default constructor
+// 	/// sync the time slider with day cycle structure
+// 	void syncTimeSlider();
 // 
-// 		LLWLParamKey keyframe;
-// 		F32 time;
-// 	};
+// 	// 	makes sure key slider has what's in day cycle
+// 	void loadTrack();
+// 
+// 	/// makes sure day cycle data structure has what's in menu
+// 	void applyTrack();
+// 
+// 	/// refresh the sky presets combobox
+    void refreshSkyPresetsList();
 
-	static const F32 sHoursPerDay;
+    void onDayPresetChanged();	/// sky preset selected
 
-	LLLineEditor*		mDayCycleNameEditor;
-	LLComboBox*			mDayCyclesCombo;
-	LLMultiSliderCtrl*	mTimeSlider;
-	LLMultiSliderCtrl*	mKeysSlider;
-	LLComboBox*			mSkyPresetsCombo;
-	LLTimeCtrl*			mTimeCtrl;
-	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
-	LLButton*			mSaveButton;
+    void onBtnSave();
+    void onBtnCancel();
+
+// 	/// refresh the day cycle combobox
+// 	void refreshDayCyclesList();
+// 
+// 	/// add a slider to the track
+// //	void addSliderKey(F32 time, LLWLParamKey keyframe);
+// 
+// 	void initCallbacks();
+// //	LLWLParamKey getSelectedDayCycle();
+// 	bool isNewDay() const;
+// 	void dumpTrack();
+// 	void enableEditing(bool enable);
+// 	void reset();
+// 	void saveRegionDayCycle();
+// 
+// 	void setApplyProgress(bool started);
+// 	bool getApplyProgress() const;
+// 
+// 	void onTimeSliderMoved();	/// time slider moved
+// 	void onKeyTimeMoved();		/// a key frame moved
+// 	void onKeyTimeChanged();	/// a key frame's time changed
+// 	void onAddKey();			/// new key added on slider
+// 	void onDeleteKey();			/// a key frame deleted
+// 
+// 	void onRegionSettingsChange();
+// 	void onRegionChange();
+// 	void onRegionSettingsApplied(bool success);
+// 	void onRegionInfoUpdate();
+// 
+// 	void onDayCycleNameEdited();
+// 	void onDayCycleSelected();
+// 
+// 	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
+// 	void onSaveConfirmed();
+// 
+// 	void onDayCycleListChange();
+// 	void onSkyPresetListChange();
+// 
+// 	static std::string getRegionName();
+
+    LLSettingsDay::ptr_t    mSavedDay;
+    LLSettingsDay::ptr_t    mEditDay;
+
+    LLComboBox*			mDayPresetsCombo;
+    LLButton*			mSaveButton;
+    LLButton*			mCancelButton;
+
+    edit_commit_signal_t    mCommitSignal;
+
+//	LLComboBox*			mDayCyclesCombo;
+// 	LLMultiSliderCtrl*	mTimeSlider;
+// 	LLMultiSliderCtrl*	mKeysSlider;
+    // 	LLTimeCtrl*			mTimeCtrl;
+// 	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
 
 	// map of sliders to parameters
 //	std::map<std::string, SliderKey> mSliderToKey;

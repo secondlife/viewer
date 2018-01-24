@@ -270,6 +270,8 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_MOON; // gMoonTextureID;   // These two are returned by the login... wow!
     dfltsetting[SETTING_SUN_TEXUTUREID]     = IMG_SUN;  // gSunTextureID;
 
+    dfltsetting[SETTING_TYPE] = "sky";
+
     return dfltsetting;
 }
 

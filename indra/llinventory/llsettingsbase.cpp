@@ -251,7 +251,7 @@ LLSD LLSettingsBase::getSettings() const
 
 LLSD LLSettingsBase::cloneSettings() const
 {
-    return combineSDMaps(mSettings, LLSD());
+    return combineSDMaps(getSettings(), LLSD());
 }
 
 size_t LLSettingsBase::getHash() const

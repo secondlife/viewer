@@ -84,25 +84,6 @@ public:
     static LLSD                 defaults();
 
     //---------------------------------------------------------------------
-    S64Seconds getDayLength() const
-    {
-        return mDayLength;
-    }
-
-    void setDayLength(S64Seconds seconds)
-    {
-        mDayLength = seconds;
-    }
-
-    S64Seconds getDayOffset() const
-    {
-        return mDayOffset;
-    }
-
-    void setDayOffset(S64Seconds seconds)
-    {
-        mDayOffset = seconds;
-    }
 
     KeyframeList_t              getTrackKeyframes(S32 track);
     TimeList_t                  getTrackTimes(S32 track);
@@ -139,6 +120,12 @@ public:
 
     virtual validation_list_t   getValidationList() const;
     static validation_list_t    validationList();
+
+    S64Seconds                  getDayLength() const { return mDayLength; }
+    void                        setDayLength(S64Seconds val ) { mDayLength = val; }
+    S64Seconds                  getDayOffset() const { return mDayOffset; }
+    void                        setDayOffset(S64Seconds val) { mDayOffset = val; }
+
 protected:
     LLSettingsDay();
 
@@ -157,8 +144,8 @@ private:
 
     F64Seconds                  mLastUpdateTime;
 
-    S64Seconds                  mDayLength; 
-    S64Seconds                  mDayOffset;
+    S64Seconds mDayLength;
+    S64Seconds mDayOffset;
 
     F32                         secondsToKeyframe(S64Seconds seconds);
     F64Seconds                  keyframeToSeconds(F32 keyframe);

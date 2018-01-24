@@ -263,8 +263,8 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
     LLSD results = LLSettingsWater::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
-        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsWater::ptr_t();
+        LL_WARNS("SETTINGS") << "Water setting validation failed!: " << results << LL_ENDL;
+        return LLSettingsWater::ptr_t();
     }
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(newsettings);
@@ -292,8 +292,8 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     LLSD results = LLSettingsWater::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
-        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsWater::ptr_t();
+        LL_WARNS("SETTINGS") << "Water setting validation failed!: " << results << LL_ENDL;
+        return LLSettingsWater::ptr_t();
     }
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
@@ -308,8 +308,8 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
     LLSD results = LLSettingsWater::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
-        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsWater::ptr_t();
+        LL_WARNS("SETTINGS") << "Water setting validation failed!: " << results << LL_ENDL;
+        return LLSettingsWater::ptr_t();
     }
 
     LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
@@ -414,31 +414,48 @@ LLSettingsVODay::LLSettingsVODay():
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
 {
     LLSD newsettings(defaults());
+    std::set<std::string> framenames;
 
     newsettings[SETTING_NAME] = name;
-    newsettings[SETTING_DAYLENGTH] = static_cast<S32>(MINIMUM_DAYLENGTH);
 
     LLSD watertrack = LLSDArray(
         LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))
-        (SETTING_KEYNAME, "Default"));
+        (SETTING_KEYNAME, "water:Default"));
 
     LLSD skytrack = LLSD::emptyArray();
 
     for (LLSD::array_const_iterator it = oldsettings.beginArray(); it != oldsettings.endArray(); ++it)
     {
+        std::string framename = (*it)[1].asString();
         LLSD entry = LLSDMap(SETTING_KEYKFRAME, (*it)[0].asReal())
-            (SETTING_KEYNAME, (*it)[1].asString());
+            (SETTING_KEYNAME, "sky:" + framename);
+        framenames.insert(framename);
         skytrack.append(entry);
     }
 
     newsettings[SETTING_TRACKS] = LLSDArray(watertrack)(skytrack);
 
+    LLSD frames(LLSD::emptyMap());
+
+    {
+        LLSettingsWater::ptr_t pwater = LLEnvironment::instance().findWaterByName("Default");
+        frames["water:Default"] = pwater->getSettings();
+    }
+
+    for (std::set<std::string>::iterator itn = framenames.begin(); itn != framenames.end(); ++itn)
+    {
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName(*itn);
+        frames["sky:" + (*itn)] = psky->getSettings();
+    }
+
+    newsettings[SETTING_FRAMES] = frames;
+
     LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
     LLSD results = LLSettingsDay::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
-        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsDay::ptr_t();
+        LL_WARNS("SETTINGS") << "Day setting validation failed!: " << results << LL_ENDL;
+        return LLSettingsDay::ptr_t();
     }
 
 
@@ -463,51 +480,55 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skydefs, LLSD waterdef)
 {
-    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset("Region", waterdef);
-
-    if (!water)
-    {
-        LL_WARNS("WindlightCaps") << "Water construction failed." << LL_ENDL;
-        return LLSettingsDay::ptr_t();
-    }
-
-    LLEnvironment::namedSettingMap_t skys;
+    LLSD frames(LLSD::emptyMap());
 
     for (LLSD::map_iterator itm = skydefs.beginMap(); itm != skydefs.endMap(); ++itm)
     {
-        std::string name = (*itm).first;
-        LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, (*itm).second);
+        LLSD newsettings = LLSettingsSky::translateLegacySettings((*itm).second);
+        std::string newname = "sky:" + (*itm).first;
 
-        if (!sky)
-        {
-            LL_WARNS("WindlightCaps") << "Sky construction failed." << LL_ENDL;
-            return LLSettingsDay::ptr_t();
-        }
+        newsettings[SETTING_NAME] = newname;
+        frames[newname] = newsettings;
 
-        skys[name] = sky;
-        LL_WARNS("WindlightCaps") << "created region sky '" << name << "'" << LL_ENDL;
+        LL_WARNS("SETTINGS") << "created region sky '" << newname << "'" << LL_ENDL;
     }
 
-    LLSettingsDay::ptr_t dayp = buildFromLegacyPreset("Region (legacy)", daycycle);
+    LLSD watersettings = LLSettingsWater::translateLegacySettings(waterdef);
+    std::string watername = "water:"+ watersettings[SETTING_NAME].asString();
+    watersettings[SETTING_NAME] = watername;
+    frames[watername] = watersettings;
 
-    dayp->setWaterAtKeyframe(water, 0.0f);
+    LLSD watertrack = LLSDArray(
+            LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))
+            (SETTING_KEYNAME, watername));
 
-    for (LLSD::array_iterator ita = daycycle.beginArray(); ita != daycycle.endArray(); ++ita)
+    LLSD skytrack(LLSD::emptyArray());
+    for (LLSD::array_const_iterator it = daycycle.beginArray(); it != daycycle.endArray(); ++it)
     {
-        F32 frame = (*ita)[0].asReal();
-        std::string name = (*ita)[1].asString();
-
-        LLEnvironment::namedSettingMap_t::iterator it = skys.find(name);
-
-        if (it == skys.end())
-            continue;
-        dayp->setSkyAtKeyframe(boost::static_pointer_cast<LLSettingsSky>((*it).second), frame, 1);
-
-        LL_WARNS("WindlightCaps") << "Added '" << name << "' to region day cycle at " << frame << LL_ENDL;
+        LLSD entry = LLSDMap(SETTING_KEYKFRAME, (*it)[0].asReal())
+            (SETTING_KEYNAME, "sky:" + (*it)[1].asString());
+        skytrack.append(entry);
     }
 
-    dayp->setInitialized();
+    LLSD newsettings = LLSDMap
+        ( SETTING_NAME, "Region (legacy)" )
+        ( SETTING_TRACKS, LLSDArray(watertrack)(skytrack))
+        ( SETTING_FRAMES, frames );
 
+    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+    LLSD results = LLSettingsDay::settingValidation(newsettings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Day setting validation failed!:" << results << LL_ENDL;
+        LLSettingsDay::ptr_t();
+    }
+
+    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(newsettings);
+    
+    if (dayp)
+    {
+        dayp->setInitialized();
+    }
     return dayp;
 }
 
@@ -555,13 +576,13 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
     LLSD results = LLSettingsDay::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
-        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
         LLSettingsDay::ptr_t();
     }
 
-
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
 
+    dayp->initialize();
     return dayp;
 }
 

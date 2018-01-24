@@ -63,7 +63,10 @@ protected:
     void onBtnCancel();
     void onBtnEdit();
 
+    void onEditiCommited(LLSettingsDay::ptr_t newday);
+
     virtual void doApply(); // = 0;
+    virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
 
     /// New environment settings that are being applied to the region.
     //	LLEnvironmentSettings	mNewRegionSettings;

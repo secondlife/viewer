@@ -412,6 +412,8 @@ public:
     virtual validation_list_t getValidationList() const;
     static validation_list_t validationList();
 
+    static LLSD     translateLegacySettings(LLSD legacy);
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -422,8 +424,6 @@ protected:
     virtual stringset_t getSlerpKeys() const;
 
     virtual void    updateSettings();
-
-    static LLSD     translateLegacySettings(LLSD legacy);
 
 private:
     static const F32         NIGHTTIME_ELEVATION;

@@ -201,6 +201,8 @@ public:
     virtual validation_list_t getValidationList() const;
     static validation_list_t validationList();
 
+    static LLSD         translateLegacySettings(LLSD legacy);
+
 protected:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
     static const std::string SETTING_LEGACY_FOG_COLOR;
@@ -216,8 +218,6 @@ protected:
     static const std::string SETTING_LEGACY_WAVE2_DIR;
 
     LLSettingsWater();
-
-    static LLSD         translateLegacySettings(LLSD legacy);
 
     LLVector4           mWaterPlane;
     F32                 mWaterFogKS;

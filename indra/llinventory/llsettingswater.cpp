@@ -100,6 +100,8 @@ LLSD LLSettingsWater::defaults()
     dfltsetting[SETTING_WAVE1_DIR] = LLVector2(1.04999f, -0.42000f).getValue();
     dfltsetting[SETTING_WAVE2_DIR] = LLVector2(1.10999f, -1.16000f).getValue();
 
+    dfltsetting[SETTING_TYPE] = "water";
+
     return dfltsetting;
 }
 

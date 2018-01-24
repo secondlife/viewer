@@ -190,6 +190,8 @@ public:
 protected:
     virtual void doApply();
 
+    virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
+
 private:
     LLViewerRegion * mLastRegion;
 };
@@ -3436,4 +3438,9 @@ void LLPanelRegionEnvironment::doApply()
 
         LLEnvironment::instance().updateRegion(mEditingDayCycle, daylength.value(), dayoffset_s.value());
     }
+}
+
+void LLPanelRegionEnvironment::doEditCommited(LLSettingsDay::ptr_t &newday)
+{
+    mEditingDayCycle = newday;
 }
