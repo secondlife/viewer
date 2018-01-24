@@ -82,6 +82,7 @@
 #include "llexperiencecache.h"
 
 #include "llgroupactions.h"
+#include "llenvironment.h"
 
 const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
 
@@ -144,16 +145,20 @@ class LLPanelLandEnvironment
     : public LLPanelEnvironmentInfo
 {
 public:
-    LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
+                    LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
     
-    virtual BOOL postBuild();
-    void refresh();
+    virtual BOOL    postBuild();
+    virtual void    refresh();
 
 protected:
+
+    virtual void    doApply();
+
 
     LLSafeHandle<LLParcelSelection>&	mParcel;
 
 };
+
 
 // inserts maturity info(icon and text) into target textbox 
 // names_floater - pointer to floater which contains strings with maturity icons filenames
@@ -3258,6 +3263,8 @@ BOOL LLPanelLandEnvironment::postBuild()
 
 void LLPanelLandEnvironment::refresh()
 {
+    /*TODO: if legacy don't do any of this.*/
+
     LLParcel* parcel = mParcel->getParcel();
     if (!parcel)
     {
@@ -3298,4 +3305,36 @@ void LLPanelLandEnvironment::refresh()
             mEditingDayCycle = regionp->getRegionDayCycle()->buildClone();
     }
 
+}
+
+void LLPanelLandEnvironment::doApply()
+{
+    LLParcel* parcel = mParcel->getParcel();
+    if (!parcel)
+    {
+        LL_WARNS("PARCEL") << "Could not get parcel." << LL_ENDL;
+    }
+    S32 parcel_id = parcel->getLocalID();
+
+    if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
+    {
+        LLEnvironment::instance().resetParcel(parcel_id);
+    }
+    else
+    {
+        S64Seconds daylength;
+        F32Hours   dayoffset_h;
+
+        daylength = F32Hours(mDayLengthSlider->getValueF32());
+        dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
+
+        if (dayoffset_h.value() < 0)
+        {
+            dayoffset_h = F32Hours(24.0f) + dayoffset_h;
+        }
+
+        S64Seconds dayoffset_s = dayoffset_h;
+
+        LLEnvironment::instance().updateParcel(parcel_id, mEditingDayCycle, daylength.value(), dayoffset_s.value());
+    }
 }

@@ -520,7 +520,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     if (!results["success"].asBoolean())
     {
         LL_WARNS("SETTINGS") << "Day setting validation failed!:" << results << LL_ENDL;
-        LLSettingsDay::ptr_t();
+        return LLSettingsDay::ptr_t();
     }
 
     LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(newsettings);

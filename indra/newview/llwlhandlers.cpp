@@ -104,6 +104,8 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
+    LL_WARNS("WindlightCaps") << "Using legacy Windlight caps." << LL_ENDL;
+
     if (requestId != LLEnvironmentRequest::sLastRequest)
     {
         LL_INFOS("WindlightCaps") << "Got superseded by another responder; ignoring..." << LL_ENDL;
@@ -120,7 +122,7 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
         return;
     }
     result = result["content"];
-    LL_INFOS("WindlightCaps") << "Received region windlight settings" << LL_ENDL;
+    LL_INFOS("WindlightCaps") << "Received region legacy  windlight settings" << LL_ENDL;
 
     LLUUID regionId;
     if (gAgent.getRegion())

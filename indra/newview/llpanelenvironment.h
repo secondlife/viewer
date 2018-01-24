@@ -37,8 +37,6 @@ class LLViewerRegion;
 
 class LLPanelEnvironmentInfo : public LLPanel
 {
-    LOG_CLASS(LLPanelEnvironmentInfo);
-
 public:
     LLPanelEnvironmentInfo();
 
@@ -53,6 +51,8 @@ public:
     virtual void refresh();
 
 protected:
+    LOG_CLASS(LLPanelEnvironmentInfo);
+
     void setControlsEnabled(bool enabled);
     void setApplyProgress(bool started);
     void setDirty(bool dirty);
@@ -65,7 +65,7 @@ protected:
 
     void onEditiCommited(LLSettingsDay::ptr_t newday);
 
-    virtual void doApply(); // = 0;
+    virtual void doApply() = 0;
     virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
 
     /// New environment settings that are being applied to the region.

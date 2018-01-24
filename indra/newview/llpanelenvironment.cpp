@@ -41,7 +41,7 @@
 #include "llfloaterreg.h"
 #include "llfloatereditextdaycycle.h"
 
-static LLPanelInjector<LLPanelEnvironmentInfo> register_environment_panel("environment_panel");
+//static LLPanelInjector<LLPanelEnvironmentInfo> register_environment_panel("environment_panel");
 
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
     mEnableEditing(false),
@@ -346,10 +346,6 @@ void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
 void LLPanelEnvironmentInfo::onBtnApply()
 {
     doApply();
-}
-
-void LLPanelEnvironmentInfo::doApply()
-{
 }
 
 void LLPanelEnvironmentInfo::onBtnCancel()
