@@ -3305,8 +3305,8 @@ std::string LLAppViewer::getShortViewerInfoString() const
 	std::ostringstream support;
 	LLSD info(getViewerInfo());
 
-	support << LLTrans::getString("APP_NAME") << " " << info["VIEWER_VERSION_STR"].asString();
-	support << " (" << info["CHANNEL"].asString() << ")";
+	support << info["CHANNEL"].asString() << " ";
+	support << info["VIEWER_VERSION_STR"].asString() << " (" << info["ADDRESS_SIZE"].asString() << "bit)";
 	if (info.has("BUILD_CONFIG"))
 	{
 		support << "\n" << "Build Configuration " << info["BUILD_CONFIG"].asString();
