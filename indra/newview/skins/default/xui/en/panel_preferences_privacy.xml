@@ -19,7 +19,7 @@
       follows="left|top"
       height="23"
       label="Clear History"
-      tool_tip="Clear login image, last location, teleport history, web, and texture cache"
+      tool_tip="Clear login image, last location, teleport history, and texture cache"
       layout="topleft"
       left="30"
       name="clear_cache"
@@ -41,7 +41,7 @@
       top_delta="3"
       text_color="LtGray_50"
       width="300">
-    (Locations, images, web, search history)
+    (Locations, images, search history)
   </text>
 
   <check_box
