@@ -127,7 +127,7 @@
 	   top_delta="0"
        width="31" />
 	<panel
-     height="154"
+     height="159"
      layout="topleft"
 	 follows="top|left"
      left="0"
@@ -250,7 +250,7 @@
      left="0"
      name="panel_container"
      default_panel_name="panel_snapshot_options"
-     top_pad="10"
+     top_pad="5"
      width="215">
       <panel
        class="llpanelsnapshotoptions"
