@@ -99,6 +99,7 @@
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
 #include "llskinningutil.h"
+#include "llhasheduniqueid.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
