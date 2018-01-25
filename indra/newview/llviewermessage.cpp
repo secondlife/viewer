@@ -2628,7 +2628,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// The group notice packet does not have an AgentID.  Obtain one from the name cache.
 			// If last name is "Resident" strip it out so the cache name lookup works.
-			U32 index = original_name.find(" Resident");
+			std::string::size_type index = original_name.find(" Resident");
 			if (index != std::string::npos)
 			{
 				original_name = original_name.substr(0, index);
@@ -4231,7 +4231,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		LLVector3 beacon_dir(agent_pos.mV[VX] - (F32)fmod(beacon_pos.mdV[VX], 256.0), agent_pos.mV[VY] - (F32)fmod(beacon_pos.mdV[VY], 256.0), 0);
 		if (beacon_dir.magVecSquared() < 25.f)
 		{
-			LLTracker::stopTracking(NULL);
+			LLTracker::stopTracking(false);
 		}
 		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() && look_at.isExactlyZero())
 		{
@@ -5669,7 +5669,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		args["NAME"] = source_slurl;
 		is_name_group = is_source_group;
 		name_id = source_id;
-		if (!reason.empty())
+
+		if (!reason.empty() && !LLMuteList::getInstance()->isMuted(source_id))
 		{
 			message = LLTrans::getString("paid_you_ldollars" + gift_suffix, args);
 		}
@@ -7263,7 +7264,7 @@ void send_places_query(const LLUUID& query_id,
 	gAgent.sendReliableMessage();
 }
 
-
+// Deprecated in favor of cap "UserInfo"
 void process_user_info_reply(LLMessageSystem* msg, void**)
 {
 	LLUUID agent_id;
@@ -7281,7 +7282,8 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	std::string dir_visibility;
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
-	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email);
+    // For Message based user info information the is_verified is assumed to be false.
+	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, false);   
 	LLFloaterSnapshot::setAgentEmail(email);
 }
 

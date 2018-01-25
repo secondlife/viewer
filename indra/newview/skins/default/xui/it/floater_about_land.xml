@@ -440,13 +440,10 @@ Media:
 			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale
 			</panel.string>
-			<check_box label="Consenti l&apos;accesso pubblico (se si rimuove la selezione vengono create linee di espulsione)" name="public_access"/>
-			<text name="Only Allow">
-				Consenti l&apos;accesso solo ai Residenti che:
-			</text>
-			<check_box label="Hanno informazioni di pagamento in archivio [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Per poter visitare questo lotto i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
-			<check_box label="Hanno almeno 18 anni [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Per poter visitare questo lotto i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
-			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
+			<check_box label="Chiunque può visitare (Se si rimuove la selezione vengono create linee di espulsione)" name="public_access"/>
+			<check_box label="È necessario avere più di 18 anni [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Per poter visitare questo lotto i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="È necessario aver registrato le informazioni di pagamento [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Per poter visitare questo lotto i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="Consenti gruppo [GRUPPO] senza restrizioni" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Chiunque" name="Anyone"/>
@@ -454,9 +451,12 @@ Media:
 			</combo_box>
 			<spinner label="Prezzo in L$:" name="PriceSpin"/>
 			<spinner label="Ore di accesso:" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(Può essere che il proprietario immobiliare abbia limitato queste scelte)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Consenti sempre" name="AllowedText">
-					Residenti consentiti ([COUNT], max [MAX])
+					Sempre consentiti ([COUNT], max [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] in lista, [MAX] max)"/>
 				<button label="Aggiungi" name="add_allowed"/>
@@ -464,7 +464,7 @@ Media:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Espelli" name="BanCheck">
-					Residenti espulsi ([COUNT], max [MAX])
+					Sempre esclusi ([COUNT], max [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] in lista, [MAX] max)"/>
 				<button label="Aggiungi" name="add_banned"/>

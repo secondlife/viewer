@@ -17,6 +17,8 @@ build-darwin-*
 build-vc80/
 build-vc100/
 build-vc120/
+build-vc120-32/
+build-vc120-64/
 indra/build-vc[0-9]*
 indra/CMakeFiles
 indra/lib/mono/1.0/*.dll

@@ -3,6 +3,9 @@
 	<floater.string name="not_found">
 		No se ha encontrado &apos;[TEXT]&apos;
 	</floater.string>
+	<floater.string name="not_found_text">
+		No se ha encontrado el residente.
+	</floater.string>
 	<floater.string name="no_one_near">
 		No hay nadie cerca
 	</floater.string>

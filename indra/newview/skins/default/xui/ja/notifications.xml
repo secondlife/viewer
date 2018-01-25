@@ -3,6 +3,10 @@
 	<global name="skipnexttime">
 		今後は表示しない
 	</global>
+	<global name="skipnexttimesessiononly">
+		以後、これを表示しない
+（現セッションで）
+	</global>
 	<global name="alwayschoose">
 		常にこのオプションを選択
 	</global>
@@ -350,7 +354,7 @@
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="参加"/>
 	</notification>
 	<notification name="JoinGroupNoCost">
-		[NAME] というグループに入ろうとしています。
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; というグループに入ろうとしています。
 続けますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="参加"/>
 	</notification>
@@ -363,6 +367,40 @@ L$ が不足しているのでこのグループに参加することができ�
 一人ではグループにならないので、永久に削除されてしまいます。
 48 時間以内にメンバーを勧誘し、入会してもらってください。
 		<usetemplate canceltext="キャンセル" name="okcancelbuttons" notext="キャンセル" yestext="L$100 でグループを作成"/>
+	</notification>
+	<notification name="JoinGroupInaccessible">
+		あなたはグループに参加することはできません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupError">
+		グループ参加リクエスト中にエラーが発生しました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupErrorReason">
+		グループに参加できません： [reason]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupTrialUser">
+		申し訳ありませんが、トライアルユーザーはグループに参加できません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupMaxGroups">
+		「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」に参加できません:
+既に [group_count] グループのメンバーになっています。参加できるのは最大 [max_groups] グループまでです。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupClosedEnrollment">
+		「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」に参加できません:
+このグループは現在、参加が制限されています。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupSuccess">
+		このユーザーグループに追加されました
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="JoinGroupInsufficientFunds">
+		会員料金として必要な L$ [membership_fee] を送金することができません。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandBuyPass">
 		L$ [COST] で [TIME] 時間 [PARCEL_NAME] に入ることができます。
@@ -388,12 +426,11 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		この区画のグループ [NAME] 共有のすべてのオブジェクトを、以前の所有者のインベントリに戻そうとしています。
-操作を続行しますか？
+		グループ「&lt;nolink&gt;[NAME]&lt;/nolink&gt;」と共有するこのにある区画のすべてのオブジェクトを前のオーナーのインベントリに返却しますか？
 
-*警告* これにより、
-グループに譲渡された「再販・プレゼント不可」のオブジェクトは削除されます！
-オブジェクト： [N]
+*注意*この操作をすると、グループに譲渡された譲渡禁止のオブジェクトを削除することになります。
+
+オブジェクト: [N]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsOwnedByUser">
@@ -441,9 +478,9 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByGroup">
-		この土地の区画上のオブジェクトのうち、グループ [NAME] との間で共有していないオブジェクトを所有者に返却しますか？
+		グループ &lt;nolink&gt;[NAME]&lt;/nolink&gt; と共有されていない、この区画にあるオブジェクトを前のオーナーに返却しますか？
 
-オブジェクト： [N]
+オブジェクト: [N]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="UnableToDisableOutsideScripts">
@@ -490,7 +527,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		次の理由で、レポートのスクリーンショットのアップロード時に問題が起こりました。 [REASON]
 	</notification>
 	<notification name="MustAgreeToLogIn">
-		[SECOND_LIFE] へのログインを続けるには、利用規約に同意してください。
+		[SECOND_LIFE] へのログインを続けるには、Second Life の利用規約、プライバシーポリシー、およびサービス規約に同意する必要があります。
 	</notification>
 	<notification name="CouldNotPutOnOutfit">
 		アウトフィットを装着できません。
@@ -742,7 +779,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
-		[GROUP_NAME] から [AVATAR_NAME] を追放しました
+		&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt; から [AVATAR_NAME] を追放しました
 	</notification>
 	<notification name="AcquireErrorTooManyObjects">
 		取得エラー：選択したオブジェクトの数が多すぎます。
@@ -1349,20 +1386,18 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 選択する面積を小さくしてもう一度試してください。
 	</notification>
 	<notification name="DeedLandToGroup">
-		この区画の譲渡に際しては、
-このグループが十分な土地クレジットを保有および維持している必要があります。
-土地の購入価格は、所有者に返金されません。譲渡された区画が売れると、売上金額はグループメンバーに均等に分配されます。
+		この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。
+土地の購入価格は所有者に返金されません。譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
 
-この [AREA] 平方メートルの土地を、グループ
-「 [GROUP_NAME] 」に譲渡しますか？
+この [AREA] m² の土地を「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」というグループに譲渡しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
 		この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。
-譲渡には同時に [NAME] からグループへの土地の貢献が含まれます。
-土地の購入価格は所有者に返金されません。譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
+譲渡には同時に [NAME] からグループへの土地の貢献が含まれます。土地の購入価格は所有者に返金されません。
+譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
 
-この [AREA] m² の土地を [GROUP_NAME] というグループに譲渡しますか？
+この [AREA] m² の土地を「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」というグループに譲渡しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
@@ -1778,7 +1813,7 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="GroupDepart">
-		グループ &apos;[group_name]&apos; を抜けました。
+		グループ「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」を抜けました。
 	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
@@ -2051,6 +2086,10 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 	<notification name="EstateChangeCovenant">
 		不動産約款を変更しようとしています。続けますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelAccessOverride">
+		このオプションをオフにすると、嫌がらせの防止やプライバシーの維持、18 才以下の住人を Adult コンテンツから守るために区画所有者が加えた制限が解除される可能性があります。必要に応じて区画所有者と相談してください。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		訪問しようとしている地域（リージョン）には現在の環境設定を超えるコンテンツが含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
@@ -2396,7 +2435,17 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
-		<usetemplate ignoretext="アイテムを削除する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
+		<form name="form">
+			<ignore name="ignore" text="アイテムを削除する前の確認"/>
+			<button name="Yes" text="OK"/>
+			<button name="No" text="キャンセル"/>
+		</form>
+	</notification>
+	<notification name="DeleteFilteredItems">
+		あなたのインベントリには現在フィルターがかけられているため、削除しようとしているアイテムによっては表示されないことがあります。
+
+これらのアイテムを削除しますか？
+		<usetemplate ignoretext="フィルリングされたアイテムを削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmUnlink">
 		これは、リンクセットによる広範囲の選択です。リンクを解除すると、もう一度リンクできなくなる可能性があります。そのような場合に備えて、リンクセットを自分の持ち物にコピーできます。
@@ -2477,13 +2526,17 @@ Linden Lab
 		「 [FOLDERNAME] 」 は、システムフォルダです。 システムフォルダを削除すると不安定になることがあります。  続けますか？
 		<usetemplate ignoretext="システムフォルダを削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
+	<notification name="PurgeSelectedItems">
+		[COUNT] アイテムが完全に削除されます。ごみ箱内の選択した項目をすべて削除しますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmEmptyTrash">
-		ごみ箱の中身をすべて削除しますか？
-		<usetemplate ignoretext="インベントリのごみ箱フォルダを空にする前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
+		[COUNT] アイテムが完全に削除されます。ごみ箱の項目をすべて削除しますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
 		ゴミ箱があふれています。これはログイン時に問題を引き起こします。
-		<usetemplate name="okcancelbuttons" notext="後でゴミ箱を空にする" yestext="今すぐゴミ箱を空にする"/>
+		<usetemplate name="okcancelbuttons" notext="後でゴミ箱を空にする" yestext="ごみ箱フォルダーを確認する"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		トラベル、Web、検索の履歴をすべて削除しますか？
@@ -2612,6 +2665,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
+	</notification>
+	<notification name="AddSelfRenderExceptions">
+		あなた自身をレンダリングの例外リストに加えることはできません。
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
 		インワールドと Web サイトのスナップショットをアップロード中です...
@@ -2808,9 +2864,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		「 [NAME] 」という名前の住人が所有する、選択した区画上のオブジェクトは、本人に返却されました。
 	</notification>
 	<notification name="GroupObjectsReturned">
-		選択した区画上の、[GROUPNAME] というグループと共有していたオブジェクトは、それぞれの所有者のインベントリに返却されました。
-譲渡されていた「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されました。
-グループに譲渡されていた「再販・プレゼント不可」のオブジェクトは、削除されました。
+		グループ &lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt; と共有する、選択した区画にあるオブジェクトは、オブジェクトのオーナーのインベントリに返却されました。
+譲渡済みの譲渡可能なオブジェクトが前のオーナーに返却されました。
+グループに譲渡された譲渡禁止のオブジェクトは削除されました。
 	</notification>
 	<notification name="UnOwnedObjectsReturned">
 		選択した土地の区画上の、あなたの所有物では「なかった」オブジェクトは、本来の所有者に返却されました。
@@ -3195,7 +3251,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
+		&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt; の 「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」 
 [MESSAGE]
 		<form name="form">
 			<button name="Client_Side_Mute" text="ブロック"/>
@@ -3242,8 +3298,8 @@ M キーを押して変更します。
 		[NAME] はインベントリを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME] は [GROUP] のボイスチャットコールに参加しました。
-受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
+		[NAME] は &lt;nolink&gt;[GROUP]&lt;/nolink&gt; のボイスチャットコールに参加しました。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。ブロックをクリックすると、この発信者をブロックします。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="拒否"/>
@@ -3348,6 +3404,9 @@ M キーを押して変更します。
 	<notification name="AppearanceToXMLFailed">
 		外観を XML に保存できませんでした。
 	</notification>
+	<notification name="SnapshotToComputerFailed">
+		スナップショットを [PATH] に保存できませんでした:ディスクの空き容量が不足しています。[NEED_MEMORY]KB が必要ですが、[FREE_MEMORY]KB しかありません。
+	</notification>
 	<notification name="PresetNotSaved">
 		プリセット [NAME] の保存エラー。
 	</notification>
@@ -3385,9 +3444,14 @@ M キーを押して変更します。
 	<notification name="ShareNotification">
 		共有する住人を選択します。
 	</notification>
+	<notification name="MeshUploadErrorDetails">
+		[LABEL] をアップロードできませんでした： [MESSAGE] 
+[DETAILS]詳しくは、SecondLife.log をご覧ください。
+	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] をアップロードできませんでした：[MESSAGE] [IDENTIFIER]
-[DETAILS] 詳しくは、SecondLife.log をご覧ください。
+		[LABEL] をアップロードできませんでした： [MESSAGE] 
+
+詳しくは、SecondLife.log をご覧ください
 	</notification>
 	<notification name="MeshUploadPermError">
 		メッシュのアップロード許可をリクエスト中にエラーが発生しました。

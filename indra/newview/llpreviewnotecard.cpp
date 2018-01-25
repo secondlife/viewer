@@ -163,6 +163,16 @@ BOOL LLPreviewNotecard::canClose()
 	}
 }
 
+/* virtual */
+void LLPreviewNotecard::setObjectID(const LLUUID& object_id)
+{
+	LLPreview::setObjectID(object_id);
+
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
+	editor->setNotecardObjectID(mObjectUUID);
+	editor->makePristine();
+}
+
 const LLInventoryItem* LLPreviewNotecard::getDragItem()
 {
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");

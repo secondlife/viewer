@@ -433,13 +433,10 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene
 			</panel.string>
-			<check_box label="Öffentlichen Zugang gestatten (bei Deaktivierung dieser Option werden Bannlinien generiert)" name="public_access"/>
-			<text name="Only Allow" width="400">
-				Zugang nur Einwohnern gestatten, die:
-			</text>
-			<check_box label="Zahlungsinformationen hinterlegt haben [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
-			<check_box label="Sind mindestens 18 Jahre alt [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diese Parzelle betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
-			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
+			<check_box label="Alle Besucher sind zugelassen (Bei Deaktivierung dieser Option werden Bannlinien generiert)" name="public_access"/>
+			<check_box label="Muss 18+ sein [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diese Parzelle betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
+			<check_box label="Muss über Zahlungsinfo in Datei [ESTATE_PAYMENT_LIMIT] verfügen" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+			<check_box label="Gruppe [GROUP] ohne Beschränkungen zulassen" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
 			<check_box label="Pässe verkaufen an:" name="PassCheck" tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Jeden" name="Anyone"/>
@@ -447,9 +444,12 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</combo_box>
 			<spinner label="Preis in L$:" name="PriceSpin"/>
 			<spinner label="Online-Zeit:" name="HoursSpin"/>
+			<text name="OwnerLimited">
+				(Der Grundbesitzer kann diese Auswahl eingeschränkt haben)
+			</text>
 			<panel name="Allowed_layout_panel">
 				<text label="Immer erlauben" name="AllowedText">
-					Zulässige Einwohner ([COUNT], max. [MAX])
+					Immer zulässig ([COUNT], max. [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] aufgeführt, [MAX] max)"/>
 				<button label="Hinzufügen" name="add_allowed"/>
@@ -457,7 +457,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Verbannen" name="BanCheck">
-					Verbannte Einwohner ([COUNT], max. [MAX])
+					Immer verbannt ([COUNT], max. [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] aufgeführt, [MAX] max)"/>
 				<button label="Hinzufügen" name="add_banned"/>

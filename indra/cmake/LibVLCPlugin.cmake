@@ -18,6 +18,10 @@ if (WINDOWS)
         libvlccore.lib
     )
 elseif (DARWIN)
+    set(VLC_PLUGIN_LIBRARIES
+        libvlc.dylib
+        libvlccore.dylib
+    )
 elseif (LINUX)
     # Specify a full path to make sure we get a static link
     set(VLC_PLUGIN_LIBRARIES

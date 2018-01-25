@@ -26,6 +26,7 @@
 		<radio_item label="凹凸度（正交）" name="Bumpiness (normal)" value="1"/>
 		<radio_item label="閃亮度（鏡反光）" name="Shininess (specular)" value="2"/>
 	</radio_group>
+	<check_box initial_value="false" label="鎖住重覆" name="checkbox_sync_settings" tool_tip="同時調整所有映射的重覆"/>
 	<texture_picker label="材質" name="texture control" tool_tip="點按以挑選圖片"/>
 	<text name="label alphamode">
 		半透明模式

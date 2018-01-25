@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Avatar Icon Menu">
+<toggleable_menu name="Avatar Icon Menu">
 	<menu_item_call label="Ver el perfil" name="Show Profile"/>
 	<menu_item_call label="Enviar un MI..." name="Send IM"/>
 	<menu_item_call label="Petición de teleporte" name="Request Teleport"/>
 	<menu_item_call label="Añadir como amigo..." name="Add Friend"/>
 	<menu_item_call label="Quitar de los amigos..." name="Remove Friend"/>
-</menu>
+	<context_menu label="Opciones del moderador" name="Moderator Options">
+		<menu_item_check label="Permitir el chat de texto" name="AllowTextChat"/>
+		<menu_item_call label="Silenciar a este participante" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Quitar el silencio a este participante" name="ModerateVoiceUnMuteSelected"/>
+	</context_menu>
+	<menu_item_call label="Expulsar a miembro" name="BanMember"/>
+</toggleable_menu>

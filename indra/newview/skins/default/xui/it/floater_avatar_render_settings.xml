@@ -7,5 +7,6 @@
 	<name_list name="render_settings_list">
 		<name_list.columns label="Nome" name="name"/>
 		<name_list.columns label="Impostazione di rendering" name="setting"/>
+		<name_list.columns label="Data aggiunta" name="timestamp"/>
 	</name_list>
 </floater>

@@ -1485,15 +1485,34 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 		{
 			buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
 		}
-		buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
+
+		if (!buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true))
+		{
+			LL_WARNS("LLDrawPoolAvatar") << "Failed to allocate Vertex Buffer to "
+				<< vol_face.mNumVertices << " vertices and "
+				<< vol_face.mNumIndices << " indices" << LL_ENDL;
+			// allocate dummy triangle
+			buffer->allocateBuffer(1, 3, true);
+			memset((U8*)buffer->getMappedData(), 0, buffer->getSize());
+			memset((U8*)buffer->getMappedIndices(), 0, buffer->getIndicesSize());
+		}
 	}
 	else
 	{
         //resize existing buffer
-		buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices);
+		if(!buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices))
+		{
+			LL_WARNS("LLDrawPoolAvatar") << "Failed to resize Vertex Buffer to "
+				<< vol_face.mNumVertices << " vertices and "
+				<< vol_face.mNumIndices << " indices" << LL_ENDL;
+			// allocate dummy triangle
+			buffer->resizeBuffer(1, 3);
+			memset((U8*)buffer->getMappedData(), 0, buffer->getSize());
+			memset((U8*)buffer->getMappedIndices(), 0, buffer->getIndicesSize());
+		}
 	}
 
-	face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
+	face->setSize(buffer->getNumVerts(), buffer->getNumIndices());
 	face->setVertexBuffer(buffer);
 
 	U16 offset = 0;
@@ -1592,6 +1611,14 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 			//just rebuild this face
 			getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
 		}
+	}
+
+	if (buffer.isNull() ||
+		buffer->getNumVerts() != vol_face.mNumVertices ||
+		buffer->getNumIndices() != vol_face.mNumIndices)
+	{
+		// Allocation failed
+		return;
 	}
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())

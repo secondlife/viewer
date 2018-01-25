@@ -187,6 +187,9 @@ private:
     bool cleanup(const LLSD&);
     struct CoroData;
     static void no_cleanup(CoroData*);
+#if LL_WINDOWS
+    static void winlevel(const callable_t& callable);
+#endif
     static void toplevel(coro::self& self, CoroData* data, const callable_t& callable);
     static CoroData& get_CoroData(const std::string& caller);
 

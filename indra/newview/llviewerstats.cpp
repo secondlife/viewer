@@ -307,7 +307,8 @@ U32Bytes				gTotalWorldData,
 U32								gSimPingCount = 0;
 U32Bits				gObjectData;
 F32Milliseconds		gAvgSimPing(0.f);
-U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {U32Bytes(0)};
+// rely on default initialization
+U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY];
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -444,8 +445,6 @@ void send_stats()
 	
 	LLViewerStats::instance().getRecording().pause();
 
-	body["session_id"] = gAgentSessionID;
-	
 	LLSD &agent = body["agent"];
 	
 	time_t ltime;
@@ -491,6 +490,7 @@ void send_stats()
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
 	system["os"] = LLOSInfo::instance().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
+	system["address_size"] = ADDRESS_SIZE;
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
 	LLUUID::getNodeID(MACAddress);
 	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",
@@ -598,9 +598,13 @@ void send_stats()
 	
 	body["MinimalSkin"] = false;
 
+	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+
+	// The session ID token must never appear in logs
+	body["session_id"] = gAgentSessionID;
+
 	LLViewerStats::getInstance()->addToMessage(body);
 
-	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
     LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
         "Statistics posted to sim", "Failed to post statistics to sim");
 	LLViewerStats::instance().getRecording().resume();

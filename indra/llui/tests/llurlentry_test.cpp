@@ -28,7 +28,7 @@
 #include "linden_common.h"
 #include "../llurlentry.h"
 #include "../lluictrl.h"
-#include "llurlentry_stub.cpp"
+//#include "llurlentry_stub.cpp"
 #include "lltut.h"
 #include "../lluicolortable.h"
 #include "../llrender/lluiimage.h"
@@ -49,6 +49,7 @@
 // 
 // }
 
+/*==========================================================================*|
 typedef std::map<std::string, LLControlGroup*> settings_map_t;
 settings_map_t LLUI::sSettingGroups;
 
@@ -83,6 +84,7 @@ S32 LLUIImage::getHeight() const
 {
 	return 0;
 }
+|*==========================================================================*/
 
 namespace tut
 {

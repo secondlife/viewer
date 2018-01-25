@@ -2214,7 +2214,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mesgsys->getSender());
 		if (cdp)
 		{
-			F32 ping_delay = 0.5f * time_dilation * ( ((F32)cdp->getPingDelay().valueInUnits<LLUnits::Seconds>()) + gFrameDTClamped);
+			// Note: delay is U32 and usually less then second,
+			// converting it into seconds with valueInUnits will result in 0
+			F32 ping_delay = 0.5f * time_dilation * ( ((F32)cdp->getPingDelay().value()) * 0.001f + gFrameDTClamped);
 			LLVector3 diff = getVelocity() * ping_delay; 
 			new_pos_parent += diff;
 		}
@@ -6284,18 +6286,18 @@ BOOL	LLViewerObject::isTempAttachment() const
 
 BOOL LLViewerObject::isHiglightedOrBeacon() const
 {
-	if (LLFloaterReg::instanceVisible("beacons") && (gPipeline.getRenderBeacons(NULL) || gPipeline.getRenderHighlights(NULL)))
+	if (LLFloaterReg::instanceVisible("beacons") && (gPipeline.getRenderBeacons() || gPipeline.getRenderHighlights()))
 	{
 		BOOL has_media = (getMediaType() == LLViewerObject::MEDIA_SET);
 		BOOL is_scripted = !isAvatar() && !getParent() && flagScripted();
 		BOOL is_physical = !isAvatar() && flagUsePhysics();
 
-		return (isParticleSource() && gPipeline.getRenderParticleBeacons(NULL))
-				|| (isAudioSource() && gPipeline.getRenderSoundBeacons(NULL))
-				|| (has_media && gPipeline.getRenderMOAPBeacons(NULL))
-				|| (is_scripted && gPipeline.getRenderScriptedBeacons(NULL))
-				|| (is_scripted && flagHandleTouch() && gPipeline.getRenderScriptedTouchBeacons(NULL))
-				|| (is_physical && gPipeline.getRenderPhysicalBeacons(NULL));
+		return (isParticleSource() && gPipeline.getRenderParticleBeacons())
+				|| (isAudioSource() && gPipeline.getRenderSoundBeacons())
+				|| (has_media && gPipeline.getRenderMOAPBeacons())
+				|| (is_scripted && gPipeline.getRenderScriptedBeacons())
+				|| (is_scripted && flagHandleTouch() && gPipeline.getRenderScriptedTouchBeacons())
+				|| (is_physical && gPipeline.getRenderPhysicalBeacons());
 	}
 	return FALSE;
 }

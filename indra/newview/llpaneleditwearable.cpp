@@ -129,9 +129,9 @@ public:
                 WearableEntry(LLWearableType::EType type,
                                           const std::string &title,
                                           const std::string &desc_title,
-                                          U8 num_color_swatches,  // number of 'color_swatches'
-                                          U8 num_texture_pickers, // number of 'texture_pickers'
-                                          U8 num_subparts, ... ); // number of subparts followed by a list of ETextureIndex and ESubparts
+                                          const texture_vec_t& color_swatches,  // 'color_swatches'
+                                          const texture_vec_t& texture_pickers, // 'texture_pickers'
+                                          const subpart_vec_t& subparts); // subparts
 
 
                 const LLWearableType::EType mWearableType;
@@ -226,56 +226,38 @@ LLEditWearableDictionary::Wearables::Wearables()
         // note the subpart that is listed first is treated as "default", regardless of what order is in enum.
         // Please match the order presented in XUI. -Nyx
         // this will affect what camera angle is shown when first editing a wearable
-        addEntry(LLWearableType::WT_SHAPE,              new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,  SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,        SUBPART_SHAPE_EYES,     SUBPART_SHAPE_EARS,     SUBPART_SHAPE_NOSE,     SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS));
-        addEntry(LLWearableType::WT_SKIN,               new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
-        addEntry(LLWearableType::WT_HAIR,               new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,       SUBPART_HAIR_STYLE,     SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
-        addEntry(LLWearableType::WT_EYES,               new WearableEntry(LLWearableType::WT_EYES,"edit_eyes_title","eyes_desc_text",0,1,1, TEX_EYES_IRIS, SUBPART_EYES));
-        addEntry(LLWearableType::WT_SHIRT,              new WearableEntry(LLWearableType::WT_SHIRT,"edit_shirt_title","shirt_desc_text",1,1,1, TEX_UPPER_SHIRT, TEX_UPPER_SHIRT, SUBPART_SHIRT));
-        addEntry(LLWearableType::WT_PANTS,              new WearableEntry(LLWearableType::WT_PANTS,"edit_pants_title","pants_desc_text",1,1,1, TEX_LOWER_PANTS, TEX_LOWER_PANTS, SUBPART_PANTS));
-        addEntry(LLWearableType::WT_SHOES,              new WearableEntry(LLWearableType::WT_SHOES,"edit_shoes_title","shoes_desc_text",1,1,1, TEX_LOWER_SHOES, TEX_LOWER_SHOES, SUBPART_SHOES));
-        addEntry(LLWearableType::WT_SOCKS,              new WearableEntry(LLWearableType::WT_SOCKS,"edit_socks_title","socks_desc_text",1,1,1, TEX_LOWER_SOCKS, TEX_LOWER_SOCKS, SUBPART_SOCKS));
-        addEntry(LLWearableType::WT_JACKET,     new WearableEntry(LLWearableType::WT_JACKET,"edit_jacket_title","jacket_desc_text",1,2,1, TEX_UPPER_JACKET, TEX_UPPER_JACKET, TEX_LOWER_JACKET, SUBPART_JACKET));
-        addEntry(LLWearableType::WT_GLOVES,     new WearableEntry(LLWearableType::WT_GLOVES,"edit_gloves_title","gloves_desc_text",1,1,1, TEX_UPPER_GLOVES, TEX_UPPER_GLOVES, SUBPART_GLOVES));
-        addEntry(LLWearableType::WT_UNDERSHIRT, new WearableEntry(LLWearableType::WT_UNDERSHIRT,"edit_undershirt_title","undershirt_desc_text",1,1,1, TEX_UPPER_UNDERSHIRT, TEX_UPPER_UNDERSHIRT, SUBPART_UNDERSHIRT));
-        addEntry(LLWearableType::WT_UNDERPANTS, new WearableEntry(LLWearableType::WT_UNDERPANTS,"edit_underpants_title","underpants_desc_text",1,1,1, TEX_LOWER_UNDERPANTS, TEX_LOWER_UNDERPANTS, SUBPART_UNDERPANTS));
-        addEntry(LLWearableType::WT_SKIRT,              new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
-        addEntry(LLWearableType::WT_ALPHA,              new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
-        addEntry(LLWearableType::WT_TATTOO,     new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",1,3,1, TEX_HEAD_TATTOO, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
-        addEntry(LLWearableType::WT_PHYSICS,    new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text",0,0,7, SUBPART_PHYSICS_BREASTS_UPDOWN, SUBPART_PHYSICS_BREASTS_INOUT, SUBPART_PHYSICS_BREASTS_LEFTRIGHT, SUBPART_PHYSICS_BELLY_UPDOWN, SUBPART_PHYSICS_BUTT_UPDOWN, SUBPART_PHYSICS_BUTT_LEFTRIGHT, SUBPART_PHYSICS_ADVANCED));
+        addEntry(LLWearableType::WT_SHAPE,              new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text", texture_vec_t(), texture_vec_t(), subpart_vec_t{SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,        SUBPART_SHAPE_EYES,     SUBPART_SHAPE_EARS,     SUBPART_SHAPE_NOSE,     SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS}));
+        addEntry(LLWearableType::WT_SKIN,               new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text", texture_vec_t(), texture_vec_t{TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT}, subpart_vec_t{SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL}));
+        addEntry(LLWearableType::WT_HAIR,               new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text", texture_vec_t(), texture_vec_t{TEX_HAIR}, subpart_vec_t{SUBPART_HAIR_COLOR,       SUBPART_HAIR_STYLE,     SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL}));
+        addEntry(LLWearableType::WT_EYES,               new WearableEntry(LLWearableType::WT_EYES,"edit_eyes_title","eyes_desc_text", texture_vec_t(), texture_vec_t{TEX_EYES_IRIS}, subpart_vec_t{SUBPART_EYES}));
+        addEntry(LLWearableType::WT_SHIRT,              new WearableEntry(LLWearableType::WT_SHIRT,"edit_shirt_title","shirt_desc_text", texture_vec_t{TEX_UPPER_SHIRT}, texture_vec_t{TEX_UPPER_SHIRT}, subpart_vec_t{SUBPART_SHIRT}));
+        addEntry(LLWearableType::WT_PANTS,              new WearableEntry(LLWearableType::WT_PANTS,"edit_pants_title","pants_desc_text", texture_vec_t{TEX_LOWER_PANTS}, texture_vec_t{TEX_LOWER_PANTS}, subpart_vec_t{SUBPART_PANTS}));
+        addEntry(LLWearableType::WT_SHOES,              new WearableEntry(LLWearableType::WT_SHOES,"edit_shoes_title","shoes_desc_text", texture_vec_t{TEX_LOWER_SHOES}, texture_vec_t{TEX_LOWER_SHOES}, subpart_vec_t{SUBPART_SHOES}));
+        addEntry(LLWearableType::WT_SOCKS,              new WearableEntry(LLWearableType::WT_SOCKS,"edit_socks_title","socks_desc_text", texture_vec_t{TEX_LOWER_SOCKS}, texture_vec_t{TEX_LOWER_SOCKS}, subpart_vec_t{SUBPART_SOCKS}));
+        addEntry(LLWearableType::WT_JACKET,     new WearableEntry(LLWearableType::WT_JACKET,"edit_jacket_title","jacket_desc_text", texture_vec_t{TEX_UPPER_JACKET}, texture_vec_t{TEX_UPPER_JACKET, TEX_LOWER_JACKET}, subpart_vec_t{SUBPART_JACKET}));
+        addEntry(LLWearableType::WT_GLOVES,     new WearableEntry(LLWearableType::WT_GLOVES,"edit_gloves_title","gloves_desc_text", texture_vec_t{TEX_UPPER_GLOVES}, texture_vec_t{TEX_UPPER_GLOVES}, subpart_vec_t{SUBPART_GLOVES}));
+        addEntry(LLWearableType::WT_UNDERSHIRT, new WearableEntry(LLWearableType::WT_UNDERSHIRT,"edit_undershirt_title","undershirt_desc_text", texture_vec_t{TEX_UPPER_UNDERSHIRT}, texture_vec_t{TEX_UPPER_UNDERSHIRT}, subpart_vec_t{SUBPART_UNDERSHIRT}));
+        addEntry(LLWearableType::WT_UNDERPANTS, new WearableEntry(LLWearableType::WT_UNDERPANTS,"edit_underpants_title","underpants_desc_text", texture_vec_t{TEX_LOWER_UNDERPANTS}, texture_vec_t{TEX_LOWER_UNDERPANTS}, subpart_vec_t{SUBPART_UNDERPANTS}));
+        addEntry(LLWearableType::WT_SKIRT,              new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text", texture_vec_t{TEX_SKIRT}, texture_vec_t{TEX_SKIRT}, subpart_vec_t{SUBPART_SKIRT}));
+        addEntry(LLWearableType::WT_ALPHA,              new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text", texture_vec_t(), texture_vec_t{TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA}, subpart_vec_t{SUBPART_ALPHA}));
+        addEntry(LLWearableType::WT_TATTOO,     new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text", texture_vec_t{TEX_HEAD_TATTOO}, texture_vec_t{TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO}, subpart_vec_t{SUBPART_TATTOO}));
+        addEntry(LLWearableType::WT_PHYSICS,    new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text", texture_vec_t(), texture_vec_t(), subpart_vec_t{SUBPART_PHYSICS_BREASTS_UPDOWN, SUBPART_PHYSICS_BREASTS_INOUT, SUBPART_PHYSICS_BREASTS_LEFTRIGHT, SUBPART_PHYSICS_BELLY_UPDOWN, SUBPART_PHYSICS_BUTT_UPDOWN, SUBPART_PHYSICS_BUTT_LEFTRIGHT, SUBPART_PHYSICS_ADVANCED}));
 }
 
 LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
                                           const std::string &title,
                                           const std::string &desc_title,
-                                          U8 num_color_swatches,
-                                          U8 num_texture_pickers,
-                                          U8 num_subparts, ... ) :
+                                          const texture_vec_t& color_swatches,
+                                          const texture_vec_t& texture_pickers,
+                                          const subpart_vec_t& subparts) :
         LLDictionaryEntry(title),
         mWearableType(type),
         mTitle(title),
-        mDescTitle(desc_title)
-{
-        va_list argp;
-        va_start(argp, num_subparts);
-
-        for (U8 i = 0; i < num_color_swatches; ++i)
-        {
-                ETextureIndex index = (ETextureIndex)va_arg(argp,int);
-                mColorSwatchCtrls.push_back(index);
-        }
-
-        for (U8 i = 0; i < num_texture_pickers; ++i)
-        {
-                ETextureIndex index = (ETextureIndex)va_arg(argp,int);
-                mTextureCtrls.push_back(index);
-        }
-
-        for (U8 i = 0; i < num_subparts; ++i)
-        {
-                ESubpart part = (ESubpart)va_arg(argp,int);
-                mSubparts.push_back(part);
-        }
-}
+        mDescTitle(desc_title),
+        mSubparts(subparts),
+        mColorSwatchCtrls(color_swatches),
+        mTextureCtrls(texture_pickers)
+{}
 
 LLEditWearableDictionary::Subparts::Subparts()
 {

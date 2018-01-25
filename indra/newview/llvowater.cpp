@@ -155,14 +155,22 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	if (!buff || !buff->isWriteable())
 	{
 		buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
-		buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
+		{
+			LL_WARNS() << "Failed to allocate Vertex Buffer on water update to "
+				<< face->getGeomCount() << " vertices and "
+				<< face->getIndicesCount() << " indices" << LL_ENDL;
+		}
 		face->setIndicesIndex(0);
 		face->setGeomIndex(0);
 		face->setVertexBuffer(buff);
 	}
 	else
 	{
-		buff->resizeBuffer(face->getGeomCount(), face->getIndicesCount());
+		if (!buff->resizeBuffer(face->getGeomCount(), face->getIndicesCount()))
+		{
+			LL_WARNS() << "Failed to resize Vertex Buffer" << LL_ENDL;
+		}
 	}
 		
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);

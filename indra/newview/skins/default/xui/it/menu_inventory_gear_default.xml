@@ -13,5 +13,6 @@
 	<menu_item_call label="Condividi" name="Share"/>
 	<menu_item_call label="Trova originale" name="Find Original"/>
 	<menu_item_call label="Trova tutti i link" name="Find All Links"/>
+	<menu_item_call label="Sostituisci link" name="Replace Links"/>
 	<menu_item_call label="Svuota cestino" name="empty_trash"/>
 </toggleable_menu>

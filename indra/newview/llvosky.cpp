@@ -283,7 +283,7 @@ void LLSkyTex::create(const F32 brightness)
 			S32 offset = basic_offset * sComponents;
 			U32* pix = (U32*)(data + offset);
 			LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
-			*pix = temp.mAll;
+			*pix = temp.asRGBA();
 		}
 	}
 	createGLImage(sCurrent);
@@ -1462,7 +1462,12 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	{
 		facep->setSize(4, 6);	
 		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
-		buff->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount(), TRUE);
+		if (!buff->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount(), TRUE))
+		{
+			LL_WARNS() << "Failed to allocate Vertex Buffer for vosky to "
+				<< facep->getGeomCount() << " vertices and "
+				<< facep->getIndicesCount() << " indices" << LL_ENDL;
+		}
 		facep->setGeomIndex(0);
 		facep->setIndicesIndex(0);
 		facep->setVertexBuffer(buff);
@@ -1869,7 +1874,12 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	{
 		face->setSize(quads * 4, quads * 6);
 		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
-		buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
+		{
+			LL_WARNS() << "Failed to allocate Vertex Buffer for vosky to "
+				<< face->getGeomCount() << " vertices and "
+				<< face->getIndicesCount() << " indices" << LL_ENDL;
+		}
 		face->setIndicesIndex(0);
 		face->setGeomIndex(0);
 		face->setVertexBuffer(buff);

@@ -6,13 +6,16 @@
 	<floater.string name="loading_url">
 		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Wird geladen %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3EServicebedingungen%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
 	</floater.string>
-	<button label="Weiter" label_selected="Weiter" name="Continue"/>
-	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
-	<check_box label="Ich stimme den Servicebedingungen und Datenschutzbestimmungen zu." name="agree_chk"/>
 	<text name="tos_heading">
-		Lesen Sie die folgenden Servicebedingungen und Datenbestimmungen sorgfältig durch. Sie müssen den Servicebedingungen zustimmen, um sich bei [SECOND_LIFE] anmelden zu können.
+		Bitte lesen Sie die Allgemeinen Geschäftsbedingungen, die Datenschutzrichtlinie und die Servicebedingungen von Second Life inklusive der Anforderungen zur Anwendung von Schiedsverfahren sowie zum Verzicht auf jegliche Klassen- oder Gruppenansprüche zur Beilegung von Streitigkeiten. Um sich weiterhin bei [SECOND_LIFE] anmelden zu können, müssen Sie diese Bedingungen akzeptieren.
 	</text>
 	<text name="external_tos_required">
 		Sie müssen sich unter https://my.secondlife.com anmelden und die Servicebedingungen akzeptieren, bevor Sie fortfahren können. Vielen Dank!
 	</text>
+	<check_box label="Ich habe die" name="agree_chk"/>
+	<text name="agree_list">
+		Allgemeinen Geschäftsbedingungen, die Datenschutzrichtlinie sowie die Servicebedingungen inklusive der Anforderungen zur Streitschlichtung gelesen und akzeptiere diese.
+	</text>
+	<button label="Weiter" label_selected="Weiter" name="Continue"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
 </floater>

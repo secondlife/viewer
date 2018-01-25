@@ -131,7 +131,7 @@ class LLColor4
 		friend const LLColor4& operator*=(LLColor4 &a, const LLColor4 &b); // Doesn't multiply alpha! (for lighting)
 
 		// conversion
-		operator const LLColor4U() const;
+		operator LLColor4U() const;
 
 		// Basic color values.
 		static LLColor4 red;

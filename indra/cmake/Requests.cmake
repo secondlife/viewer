@@ -1,0 +1,7 @@
+if (DARWIN)
+   include (Prebuilt)
+   use_prebuilt_binary(requests)
+   use_prebuilt_binary(urllib3)
+   use_prebuilt_binary(chardet)
+   use_prebuilt_binary(idna)
+endif (DARWIN)

@@ -47,7 +47,9 @@
 #include "llfloatercamera.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterperms.h"
+#include "llfloaterpreference.h"
 #include "llfloaterreg.h"
+#include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
@@ -4334,14 +4336,144 @@ void LLAgent::sendAgentDataUpdateRequest()
 
 void LLAgent::sendAgentUserInfoRequest()
 {
-	if(getID().isNull())
-		return; // not logged in
-	gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
-	sendReliableMessage();
+    std::string cap;
+
+    if (getID().isNull())
+        return; // not logged in
+
+    if (mRegionp)
+        cap = mRegionp->getCapability("UserInfo");
+
+    if (!cap.empty())
+    {
+        LLCoros::instance().launch("requestAgentUserInfoCoro",
+            boost::bind(&LLAgent::requestAgentUserInfoCoro, this, cap));
+    }
+    else
+    { 
+        sendAgentUserInfoRequestMessage();
+    }
 }
+
+void LLAgent::requestAgentUserInfoCoro(std::string capurl)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAgentUserInfoCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    httpOpts->setFollowRedirects(true);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, capurl, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("UserInfo") << "Failed to get user information." << LL_ENDL;
+        return;
+    }
+    else if (!result["success"].asBoolean())
+    {
+        LL_WARNS("UserInfo") << "Failed to get user information: " << result["message"] << LL_ENDL;
+        return;
+    }
+
+    bool im_via_email;
+    bool is_verified_email;
+    std::string email;
+    std::string dir_visibility;
+
+    im_via_email = result["im_via_email"].asBoolean();
+    is_verified_email = result["is_verified"].asBoolean();
+    email = result["email"].asString();
+    dir_visibility = result["directory_visibility"].asString();
+
+    // TODO: This should probably be changed.  I'm not entirely comfortable 
+    // having LLAgent interact directly with the UI in this way.
+    LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, is_verified_email);
+    LLFloaterSnapshot::setAgentEmail(email);
+}
+
+void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility)
+{
+    std::string cap;
+
+    if (getID().isNull())
+        return; // not logged in
+
+    if (mRegionp)
+        cap = mRegionp->getCapability("UserInfo");
+
+    if (!cap.empty())
+    {
+        LLCoros::instance().launch("updateAgentUserInfoCoro",
+            boost::bind(&LLAgent::updateAgentUserInfoCoro, this, cap, im_via_email, directory_visibility));
+    }
+    else
+    {
+        sendAgentUpdateUserInfoMessage(im_via_email, directory_visibility);
+    }
+}
+
+
+void LLAgent::updateAgentUserInfoCoro(std::string capurl, bool im_via_email, std::string directory_visibility)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAgentUserInfoCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    httpOpts->setFollowRedirects(true);
+    LLSD body(LLSDMap
+        ("dir_visibility",  LLSD::String(directory_visibility))
+        ("im_via_email",    LLSD::Boolean(im_via_email)));
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, capurl, body, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("UserInfo") << "Failed to set user information." << LL_ENDL;
+    }
+    else if (!result["success"].asBoolean())
+    {
+        LL_WARNS("UserInfo") << "Failed to set user information: " << result["message"] << LL_ENDL;
+    }
+}
+
+// deprecated:
+// May be removed when UserInfo cap propagates to all simhosts in grid
+void LLAgent::sendAgentUserInfoRequestMessage()
+{
+    gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
+    sendReliableMessage();
+}
+
+void LLAgent::sendAgentUpdateUserInfoMessage(bool im_via_email, const std::string& directory_visibility)
+{
+    gMessageSystem->newMessageFast(_PREHASH_UpdateUserInfo);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
+    gMessageSystem->nextBlockFast(_PREHASH_UserData);
+    gMessageSystem->addBOOLFast(_PREHASH_IMViaEMail, im_via_email);
+    gMessageSystem->addString("DirectoryVisibility", directory_visibility);
+    gAgent.sendReliableMessage();
+
+}
+// end deprecated
+//------
 
 void LLAgent::observeFriends()
 {
@@ -4408,18 +4540,6 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 const void LLAgent::getTeleportSourceSLURL(LLSLURL& slurl) const
 {
 	slurl = *mTeleportSourceSLURL;
-}
-
-void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )
-{
-	gMessageSystem->newMessageFast(_PREHASH_UpdateUserInfo);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_UserData);
-	gMessageSystem->addBOOLFast(_PREHASH_IMViaEMail, im_via_email);
-	gMessageSystem->addString("DirectoryVisibility", directory_visibility);
-	gAgent.sendReliableMessage();
 }
 
 // static

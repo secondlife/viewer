@@ -38,7 +38,7 @@
 		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -79,7 +79,7 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="AboutLibs">
 		Версия декодера J2C: [J2C_VERSION]
 Версия драйвера звука: [AUDIO_DRIVER_VERSION]
-Версия LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Версия CEF: [LIBCEF_VERSION]
 Версия LibVLC: [LIBVLC_VERSION]
 Версия голосового сервера: [VOICE_VERSION]
 	</string>
@@ -261,9 +261,8 @@ support@secondlife.com.
 [TIME] по тихоокеанскому времени.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		В данное время нам не удается выполнить ваш запрос.
-Обратитесь за помощью в службу поддержки Second Life по адресу http://secondlife.com/support.
-Если вам не удается изменить свой пароль, позвоните по телефону (866) 476-9763.
+		В данное время нам не удается выполнить ваш запрос. 
+Обратитесь за помощью в службу поддержки Second Life по адресу http://support.secondlife.com.
 	</string>
 	<string name="LoginFailedTransformError">
 		При входе обнаружена несогласованность данных.
@@ -700,6 +699,19 @@ support@secondlife.com.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Неизвестный статус
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Услуги недоступны.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Сервер испытывает неожиданные трудности.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Услуги недоступны или превышение времени ожидания при передаче.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Ошибка при запросе на передачу. Для получения помощи в 
+решении этой проблемы пройдите по ссылке http://secondlife.com/support.
 	</string>
 	<string name="texture">
 		текстуру
@@ -2195,10 +2207,19 @@ support@secondlife.com.
 		все землевладения пользователя [OWNER], которыми вы управляете
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Допущенные жители: ([ALLOWEDAGENTS], не более [MAXACCESS])
+		Разрешено всегда: ([ALLOWEDAGENTS], не более [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Допущенные группы: ([ALLOWEDGROUPS], не более [MAXACCESS])
+		Группы всегда разрешены: ([ALLOWEDGROUPS], не более [MAXACCESS])
+	</string>
+	<string name="RegionInfoBannedResidents">
+		Всегда заблокированы: ([BANNEDAGENTS], не более [MAXBANNED])
+	</string>
+	<string name="RegionInfoListTypeAllowedAgents">
+		Разрешено всегда
+	</string>
+	<string name="RegionInfoListTypeBannedAgents">
+		Всегда заблокированы
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Память под скрипты на участке
