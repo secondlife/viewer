@@ -515,7 +515,9 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
         ( SETTING_TRACKS, LLSDArray(watertrack)(skytrack))
         ( SETTING_FRAMES, frames );
 
-    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+    LL_WARNS("LAPRAS") << "newsettings=" << newsettings << LL_ENDL;
+
+    LLSettingsSky::validation_list_t validations = LLSettingsDay::validationList();
     LLSD results = LLSettingsDay::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
@@ -527,7 +529,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     
     if (dayp)
     {
-        dayp->setInitialized();
+        dayp->initialize();
     }
     return dayp;
 }

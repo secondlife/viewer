@@ -60,12 +60,16 @@ public:
 
         typedef boost::shared_ptr<EnvironmentInfo>  ptr_t;
 
-        LLUUID          mParcelId;
+        S32             mParcelId;
+        LLUUID          mRegionId;
         S64Seconds      mDayLength;
         S64Seconds      mDayOffset;
+        size_t          mDayHash;
         LLSD            mDaycycleData;
         LLSD            mAltitudes;
         bool            mIsDefault;
+        bool            mIsRegion;
+
 
         static ptr_t    extract(LLSD);
 
@@ -296,7 +300,6 @@ private:
 
     void updateCloudScroll();
 
-    void onRegionChange();
     void onParcelChange();
 
     void coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
