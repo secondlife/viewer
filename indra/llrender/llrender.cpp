@@ -49,6 +49,7 @@ U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 U32 LLTexUnit::sWhiteTexture = 0;
 bool LLRender::sGLCoreProfile = false;
+bool LLRender::sNsightDebugSupport = false;
 
 static const U32 LL_NUM_TEXTURE_LAYERS = 32; 
 static const U32 LL_NUM_LIGHT_UNITS = 8;
@@ -2005,7 +2006,7 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
 	}
 
 	if( mCount > 0 ) // ND: Guard against crashes if mCount is zero, yes it can happen
-		mVerticesp[mCount] = mVerticesp[mCount-1];
+	mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count)

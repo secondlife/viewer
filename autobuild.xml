@@ -1254,7 +1254,7 @@
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
+        </map>
           <key>linux64</key>
           <map>
             <key>archive</key>

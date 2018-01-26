@@ -614,7 +614,7 @@ public:
 
  			if (last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
 			{
- 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", last_frame_recording.getMin(LLPipeline::sStatBatchSize), last_frame_recording.getMax(LLPipeline::sStatBatchSize), last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
+                addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
 			}
             ypos += y_inc;
 
@@ -731,7 +731,8 @@ public:
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
 		}
-		if (gSavedSettings.getBOOL("DebugShowColor"))
+        // disable use of glReadPixels which messes up nVidia nSight graphics debugging
+        if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
 		{
 			U8 color[4];
 			LLCoordGL coord = gViewerWindow->getCurrentMouse();
@@ -4434,7 +4435,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 
 		if (is_snapshot_name_loc_set)
 		{
-			filepath += llformat("_%.3d",i);
+		filepath += llformat("_%.3d",i);
 		}		
 
 		filepath += extension;
@@ -4721,7 +4722,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					{
 						LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 					}
-				
+                    // disable use of glReadPixels when doing nVidia nSight graphics debugging
+                    if (!LLRender::sNsightDebugSupport)
+                    {
 					if (type == LLSnapshotModel::SNAPSHOT_TYPE_COLOR)
 					{
 						glReadPixels(
@@ -4755,6 +4758,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 						}
 					}
 				}
+			}
 			}
 			output_buffer_offset_x += subimage_x_offset;
 			stop_glerror();

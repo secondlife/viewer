@@ -582,6 +582,7 @@ static void settings_to_globals()
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
+    LLRender::sNsightDebugSupport = gSavedSettings.getBOOL("RenderNsightDebugSupport");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
@@ -1377,12 +1378,19 @@ bool LLAppViewer::frame()
 	//LLPrivateMemoryPoolTester::destroy() ;
 
 	LL_RECORD_BLOCK_TIME(FTM_FRAME);
-	LLTrace::BlockTimer::processTimes();
-	LLTrace::get_frame_recording().nextPeriod();
+
+    if (LLTrace::get_thread_recorder().notNull())
+    {
+        LLTrace::BlockTimer::processTimes();
+	    LLTrace::get_frame_recording().nextPeriod();
+    }
 
     doPerFrameStatsLogging();
     
-	LLTrace::get_thread_recorder()->pullFromChildren();
+    if (LLTrace::get_thread_recorder().notNull())
+    {
+	    LLTrace::get_thread_recorder()->pullFromChildren();
+    }
 
 	//clear call stack records
 	LL_CLEAR_CALLSTACKS();
@@ -4194,8 +4202,8 @@ void dumpVFSCaches()
 	S32 res = LLFile::mkdir("StaticVFSDump");
 	if (res == -1)
 	{
-		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
-	}
+			LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
+		}
 	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
 	gStaticVFS->dumpFiles();
 	SetCurrentDirectory(w_str);
@@ -4208,8 +4216,8 @@ void dumpVFSCaches()
 	res = LLFile::mkdir("VFSDump");
 	if (res == -1)
 	{
-		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
-	}
+			LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
+		}
 	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
 	gVFS->dumpFiles();
 	SetCurrentDirectory(w_str);
