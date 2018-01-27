@@ -96,6 +96,8 @@ private:
 	bool mCanPaste;
 	std::string mCachePath;
 	std::string mCookiePath;
+	std::string mCefLogFile;
+	bool mCefLogVerbose;
 	std::vector<std::string> mPickedFiles;
 	VolumeCatcher mVolumeCatcher;
 	F32 mCurVolume;
@@ -126,6 +128,8 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCanPaste = false;
 	mCachePath = "";
 	mCookiePath = "";
+	mCefLogFile = "";
+	mCefLogVerbose = false;
 	mPickedFiles.clear();
 	mCurVolume = 0.0;
 
@@ -511,6 +515,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.plugins_enabled = mPluginsEnabled;
 				settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
 				settings.webgl_enabled = true;
+				settings.log_file = mCefLogFile;
+				settings.log_verbose = mCefLogVerbose;
 
 				std::vector<std::string> custom_schemes(1, "secondlife");
 				mCEFLib->setCustomSchemes(custom_schemes);
@@ -540,8 +546,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				std::string user_data_path_cache = message_in.getValue("cache_path");
 				std::string user_data_path_cookies = message_in.getValue("cookies_path");
+
 				mCachePath = user_data_path_cache + "cef_cache";
 				mCookiePath = user_data_path_cookies + "cef_cookies";
+				mCefLogFile = message_in.getValue("cef_log_file");
+				mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
 			}
 			else if (message_name == "size_change")
 			{
