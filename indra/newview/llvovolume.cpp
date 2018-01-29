@@ -83,6 +83,7 @@
 #include "llanimationstates.h"
 #include "llinventorytype.h"
 #include "llviewerinventory.h"
+#include "llcallstack.h"
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -308,6 +309,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 										  U32 block_num, EObjectUpdateType update_type,
 										  LLDataPacker *dp)
 {
+	 	
 	LLColor4U color;
 	const S32 teDirtyBits = (TEM_CHANGE_TEXTURE|TEM_CHANGE_COLOR|TEM_CHANGE_MEDIA);
 
@@ -321,6 +323,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		sculpt_id = sculpt_params->getSculptTexture();
 		sculpt_type = sculpt_params->getSculptType();
+
+        LL_DEBUGS("AnimatedObjects") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
+        dumpStack("AnimatedObjectsStack");
 	}
 
 	if (!dp)
