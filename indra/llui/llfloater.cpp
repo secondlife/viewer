@@ -1,5 +1,4 @@
 /** 
-
  * @file llfloater.cpp
  * @brief LLFloater base class
  *
@@ -63,8 +62,6 @@
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
-
-extern LLControlGroup gSavedSettings;
 
 namespace LLInitParam
 {
@@ -1833,7 +1830,7 @@ void LLFloater::onClickCloseBtn(bool app_quitting)
 // virtual
 void LLFloater::draw()
 {
-	F32 alpha = getCurrentTransparency();
+	const F32 alpha = getCurrentTransparency();
 
 	// draw background
 	if( isBackgroundVisible() )
@@ -1848,16 +1845,6 @@ void LLFloater::draw()
 		LLUIImage* image = NULL;
 		LLColor4 color;
 		LLColor4 overlay_color;
-		std::string help_topic;
-		if (this->findHelpTopic(help_topic))
-		{
-			if("camera_floater" == help_topic)
-			{
-				alpha = llmin(LLCachedControl<F32>(gSavedSettings, "CameraOpacity"),
-                              LLCachedControl<F32>(gSavedSettings, "ActiveFloaterTransparency"));
-			}
-		}
-
 		if (isBackgroundOpaque())
 		{
 			// NOTE: image may not be set
