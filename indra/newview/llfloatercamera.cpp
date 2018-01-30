@@ -387,7 +387,7 @@ void LLFloaterCamera::onViewButtonClick(const LLSD& user_data)
 		// grab the 'view' panel from the preferences floater and
 		// bring it the front!
 		LLTabContainer* tabcontainer = prefsfloater->getChild<LLTabContainer>("pref core");
-		LLPanel* graphicspanel = prefsfloater->getChild<LLPanel>("move");
+		LLPanel* graphicspanel = prefsfloater->getChild<LLPanel>("view");
 		if (tabcontainer && graphicspanel)
 		{
 			tabcontainer->selectTabPanel(graphicspanel);
