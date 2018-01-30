@@ -130,7 +130,12 @@ void LLFloaterPreferenceViewAdvanced::updateFocusControl(LLVector3d vector3d)
 
  void LLFloaterPreferenceViewAdvanced::draw()
 {
-//	updateControl();
+	static LLCachedControl<LLVector3> camera(gSavedSettings, "CameraOffsetRearView");
+	static LLCachedControl<LLVector3d> focus(gSavedSettings, "FocusOffsetRearView");
+
+	updateCameraControl(camera);
+	updateFocusControl(focus);
+
 	LLFloater::draw();
 }
 
