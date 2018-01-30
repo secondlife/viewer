@@ -537,7 +537,11 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
 
     mAttribute.clear();
     U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
+#if LL_RELEASE_WITH_DEBUG_INFO
+    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, { -1, NULL });
+#else
     mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, -1);
+#endif
     
     if (res)
     { //read back channel locations
@@ -551,7 +555,11 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
             S32 index = glGetAttribLocationARB(mProgramObject, (const GLcharARB *)name);
             if (index != -1)
             {
+#if LL_RELEASE_WITH_DEBUG_INFO
+                mAttribute[i] = { index, name };
+#else
                 mAttribute[i] = index;
+#endif
                 mAttributeMask |= 1 << i;
                 LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
