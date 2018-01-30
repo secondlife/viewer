@@ -740,16 +740,6 @@ public:
 			ypos += y_inc;
 		}
 
-		if (gSavedSettings.getBOOL("DebugShowPrivateMem"))
-		{
-			LLPrivateMemoryPoolManager::getInstance()->updateStatistics() ;
-			addText(xpos, ypos, llformat("Total Reserved(KB): %d", LLPrivateMemoryPoolManager::getInstance()->mTotalReservedSize / 1024));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("Total Allocated(KB): %d", LLPrivateMemoryPoolManager::getInstance()->mTotalAllocatedSize / 1024));
-			ypos += y_inc;
-		}
-
 		// only display these messages if we are actually rendering beacons at this moment
 		if (LLPipeline::getRenderBeacons() && LLFloaterReg::instanceVisible("beacons"))
 		{
