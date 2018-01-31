@@ -8392,29 +8392,34 @@ class LLWorldEnvSettings : public view_listener_t
 		if (tod == "sunrise")
 		{
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Sunrise");
-            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
 		}
 		else if (tod == "noon")
 		{
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Midday");
-            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
         }
 		else if (tod == "sunset")
 		{
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Sunset");
-            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
         }
 		else if (tod == "midnight")
 		{
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName("Midnight");
-            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, psky);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
         }
 		else
 		{
-            LLEnvironment::instance().clearUserSettings();
-		}
+            LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+        }
     
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().updateEnvironment();
 		return true;
 	}
 };
@@ -8426,7 +8431,7 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		bool result = false;
 		std::string tod = userdata.asString();
 
-        LLSettingsSky::ptr_t sky = LLEnvironment::instance().getSkyFor(LLEnvironment::ENV_LOCAL);
+        LLSettingsSky::ptr_t sky = LLEnvironment::instance().getEnvironmentFixedSky(LLEnvironment::ENV_LOCAL);
 
 		if (!sky)
 		{

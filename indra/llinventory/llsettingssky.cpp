@@ -265,7 +265,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
     dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
-    dfltsetting[SETTING_BLOOM_TEXTUREID]    = LLUUID::null;
+    dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
     dfltsetting[SETTING_CLOUD_TEXTUREID]    = LLUUID::null;
     dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_MOON; // gMoonTextureID;   // These two are returned by the login... wow!
     dfltsetting[SETTING_SUN_TEXUTUREID]     = IMG_SUN;  // gSunTextureID;

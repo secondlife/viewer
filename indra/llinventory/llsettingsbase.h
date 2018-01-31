@@ -253,7 +253,6 @@ public:
         mFinal(endsetting),
         mSeconds(seconds),
         mOnFinished(),
-        mBlendThreshold(DEFAULT_THRESHOLD),
         mLastUpdate(0.0f),
         mTimeSpent(0.0f)
     {
@@ -264,11 +263,11 @@ public:
 
     ~LLSettingsBlender() {}
 
-    void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 seconds )
+    void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds )
     {
         mInitial = initsetting;
         mFinal = endsetting;
-        mSeconds.value(seconds);
+        mSeconds = seconds;
         mTarget->replaceSettings(mInitial->getSettings());
         mTimeStart.value(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
@@ -278,16 +277,6 @@ public:
     connection_t setOnFinished(const finish_signal_t::slot_type &onfinished)
     {
         return mOnFinished.connect(onfinished);
-    }
-
-    void setUpdateThreshold(F64Seconds threshold)
-    {
-        mBlendThreshold = threshold;
-    }
-
-    F64Seconds getUpdateThreshold() const
-    {
-        return mBlendThreshold;
     }
 
     LLSettingsBase::ptr_t getTarget() const
@@ -306,13 +295,13 @@ public:
     }
 
     void update(F64Seconds time);
+
 private:
     LLSettingsBase::ptr_t   mTarget;
     LLSettingsBase::ptr_t   mInitial;
     LLSettingsBase::ptr_t   mFinal;
     F64Seconds              mSeconds;
     finish_signal_t         mOnFinished;
-    F64Seconds              mBlendThreshold;
     F64Seconds              mLastUpdate;
     F64Seconds              mTimeSpent;
     F64Seconds              mTimeStart;

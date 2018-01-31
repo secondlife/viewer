@@ -3283,8 +3283,19 @@ void LLPanelLandEnvironment::refresh()
     F64Hours daylength;
     F64Hours dayoffset;
 
-    daylength = parcel->getDayLength();
-    dayoffset = parcel->getDayOffset();
+    LLEnvironment::EnvSelection_t env = LLEnvironment::ENV_PARCEL;
+
+    if (!LLEnvironment::instance().hasEnvironment(env))
+        env = LLEnvironment::ENV_REGION;
+
+    daylength = LLEnvironment::instance().getEnvironmentDayLength(env);
+    dayoffset = LLEnvironment::instance().getEnvironmentDayOffset(env);
+
+    LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(env);
+
+    mEditingDayCycle = pday->buildClone();
+
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditingDayCycle, daylength, dayoffset);
 
     if (dayoffset.value() > 12.0)
         dayoffset = dayoffset - F32Hours(24.0f);
@@ -3292,18 +3303,10 @@ void LLPanelLandEnvironment::refresh()
     mDayLengthSlider->setValue(daylength.value());
     mDayOffsetSlider->setValue(dayoffset.value());
 
-    mRegionSettingsRadioGroup->setSelectedIndex(parcel->getUsesDefaultDayCycle() ? 0 : 1);
+    //mRegionSettingsRadioGroup->setSelectedIndex(parcel->getUsesDefaultDayCycle() ? 0 : 1);
+    mRegionSettingsRadioGroup->setSelectedIndex(1);
 
     setControlsEnabled(owner_or_god);
-
-    if (!parcel->getUsesDefaultDayCycle())
-        mEditingDayCycle = parcel->getParcelDayCycle()->buildClone();
-    else
-    {
-        LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-        if (regionp)
-            mEditingDayCycle = regionp->getRegionDayCycle()->buildClone();
-    }
 
 }
 

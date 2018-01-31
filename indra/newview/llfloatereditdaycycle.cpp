@@ -114,7 +114,8 @@ void LLFloaterEditDayCycle::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+        LLEnvironment::instance().updateEnvironment();
 	}
 }
 

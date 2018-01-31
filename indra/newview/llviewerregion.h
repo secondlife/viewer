@@ -390,17 +390,6 @@ public:
 
     static BOOL isNewObjectCreationThrottleDisabled() { return sNewObjectCreationThrottle < 0; }
 
-    S64Seconds  getDayLength() const                        { return mDayLength; }
-    void        setDayLength(S64SecondsImplicit seconds)   { mDayLength = seconds; }
-    S64Seconds  getDayOffset() const                        { return mDayOffset; }
-    void        setDayOffset(S64SecondsImplicit seconds)   { mDayOffset = seconds; }
-    bool        getIsDefaultDayCycle() const                { return mIsDefaultDayCycle; }
-    void        setIsDefaultDayCycle(bool isdefault)       { mIsDefaultDayCycle = isdefault; }
-    LLSettingsDay::ptr_t getRegionDayCycle() const          { return mDayCycle; }
-    void        setRegionDayCycle(const LLSettingsDay::ptr_t &pday) { mDayCycle = pday; }
-    size_t      getRegionDayCycleHash() const               { return mDayCycleHash; }
-    void        setRegionDayCycleHash(size_t hash)          { mDayCycleHash = hash; }
-
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
@@ -539,12 +528,6 @@ private:
 
 	typedef std::map<U32, std::vector<U32> > orphan_list_t;
 	orphan_list_t mOrphanMap;
-
-    S64Seconds            mDayLength;
-    S64Seconds            mDayOffset;
-    bool                  mIsDefaultDayCycle;
-    LLSettingsDay::ptr_t  mDayCycle;
-    size_t                mDayCycleHash;
 
 	class CacheMissItem
 	{

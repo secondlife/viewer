@@ -535,9 +535,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mInvisibilityCheckHistory(-1),
 	mPaused(FALSE),
 	mRegionCacheHitCount(0),
-	mRegionCacheMissCount(0),
-    mDayLength(LLSettingsDay::DEFAULT_DAYLENGTH),
-    mDayOffset(LLSettingsDay::DEFAULT_DAYOFFSET)
+	mRegionCacheMissCount(0)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 

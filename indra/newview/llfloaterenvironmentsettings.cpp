@@ -84,7 +84,7 @@ void LLFloaterEnvironmentSettings::onOpen(const LLSD& key)
 void LLFloaterEnvironmentSettings::onClose(bool app_quitting)
 {
     if (!app_quitting)
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().updateEnvironment();
 }
 
 
@@ -124,23 +124,24 @@ void LLFloaterEnvironmentSettings::onBtnOK()
 {
     bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 
+    LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
     if (use_region_settings)
     {
-        LLEnvironment::instance().clearUserSettings();
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_PARCEL);
     }
     else
     {
-        LLEnvironment::instance().clearUserSettings();
-
         bool use_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
 
         if (!use_fixed_sky)
         {
+
             std::string day_cycle = mDayCyclePresetCombo->getValue().asString();
             LLSettingsDay::ptr_t day = LLEnvironment::instance().findDayCycleByName(day_cycle);
             if (day)
             {
-                LLEnvironment::instance().setDayFor(LLEnvironment::ENV_LOCAL, day);
+                LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, day, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
             }
         }
         else
@@ -151,9 +152,9 @@ void LLFloaterEnvironmentSettings::onBtnOK()
             LLSettingsSky::ptr_t sky = LLEnvironment::instance().findSkyByName(sky_preset);
             LLSettingsWater::ptr_t water = LLEnvironment::instance().findWaterByName(water_preset);
 
-            LLEnvironment::instance().setSkyFor(LLEnvironment::ENV_LOCAL, sky);
-            LLEnvironment::instance().setWaterFor(LLEnvironment::ENV_LOCAL, water);
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::fixedEnvironment_t(sky, water));
         }
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
     }
 
 #if 0
@@ -183,11 +184,12 @@ void LLFloaterEnvironmentSettings::onBtnCancel()
 
 void LLFloaterEnvironmentSettings::refresh()
 {
-    LLSettingsDay::ptr_t day = LLEnvironment::instance().getChosenDay();
-    LLSettingsSky::ptr_t sky = LLEnvironment::instance().getChosenSky();
-    LLSettingsWater::ptr_t water = LLEnvironment::instance().getChosenWater();
+    LLEnvironment::fixedEnvironment_t fixed = LLEnvironment::instance().getEnvironmentFixed(LLEnvironment::ENV_EDIT);
 
-    
+    LLSettingsDay::ptr_t day = LLEnvironment::instance().getEnvironmentDay(LLEnvironment::ENV_EDIT);
+    LLSettingsSky::ptr_t sky = fixed.first;
+    LLSettingsWater::ptr_t water = fixed.second;
+
     bool use_region_settings = true;
 	bool use_fixed_sky		   = !day;
 
@@ -239,18 +241,18 @@ void LLFloaterEnvironmentSettings::apply()
 		{
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName(sky_preset);
             if (psky)
-                LLEnvironment::instance().selectSky(psky, LLEnvironment::TRANSITION_FAST);
-		}
+                LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, psky);
+        }
 		else
 		{
             LLSettingsDay::ptr_t pday = LLEnvironment::instance().findDayCycleByName(day_cycle);
             if (pday)
-                LLEnvironment::instance().selectDayCycle(pday, LLEnvironment::TRANSITION_FAST);
-		}
+                LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, pday, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+        }
 
         LLSettingsWater::ptr_t pwater = LLEnvironment::instance().findWaterByName(water_preset);
         if (pwater)
-            LLEnvironment::instance().selectWater(pwater, LLEnvironment::TRANSITION_FAST);
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, pwater);
 	}
 }
 

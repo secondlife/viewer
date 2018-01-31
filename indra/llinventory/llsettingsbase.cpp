@@ -592,12 +592,12 @@ void LLSettingsBlender::update(F64Seconds timedelta)
     {
         LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
         mOnFinished(shared_from_this());
-        mOnFinished.disconnect_all_slots(); // prevent from firing more than once.
         return;
     }
 
     F64 blendf = fmod(mTimeSpent.value(), mSeconds.value()) / mSeconds.value();
 
+    //_WARNS("LAPRAS") << "blending at " << (blendf * 100.0f) << "%" << LL_ENDL;
     mTarget->replaceSettings(mInitial->getSettings());
     mTarget->blend(mFinal, blendf);
 }

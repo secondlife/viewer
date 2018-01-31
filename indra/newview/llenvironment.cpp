@@ -83,28 +83,26 @@ LLEnvironment::LLEnvironment():
     mDayCycleByName(),
     mDayCycleById(),
     mUserPrefs(),
-    mSelectedEnvironment(ENV_LOCAL),
-    mDayLength(LLSettingsDay::DEFAULT_DAYLENGTH),
-    mDayOffset(LLSettingsDay::DEFAULT_DAYOFFSET)
+    mSelectedEnvironment(LLEnvironment::ENV_LOCAL)
 {
-    mSetSkys.resize(ENV_END);
-    mSetWater.resize(ENV_END);
-    mSetDays.resize(ENV_END);
 }
 
 void LLEnvironment::initSingleton()
 {
     LLSettingsSky::ptr_t p_default_sky = LLSettingsVOSky::buildDefaultSky();
     addSky(p_default_sky);
-    mCurrentSky = p_default_sky;
 
     LLSettingsWater::ptr_t p_default_water = LLSettingsVOWater::buildDefaultWater();
     addWater(p_default_water);
-    mCurrentWater = p_default_water;
 
     LLSettingsDay::ptr_t p_default_day = LLSettingsVODay::buildDefaultDayCycle();
     addDayCycle(p_default_day);
-    mCurrentDay.reset();
+
+    mCurrentEnvironment = boost::make_shared<DayInstance>();
+    mCurrentEnvironment->setSky(p_default_sky);
+    mCurrentEnvironment->setWater(p_default_water);
+
+    mEnvironments[ENV_DEFAULT] = mCurrentEnvironment;
 
     // LEGACY!
     legacyLoadAllPresets();
@@ -181,17 +179,16 @@ void LLEnvironment::onLegacyRegionSettings(LLSD data)
     else
         regionday = LLSettingsVODay::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
 
-    setSkyFor(ENV_REGION, LLSettingsSky::ptr_t());
-    setWaterFor(ENV_REGION, LLSettingsWater::ptr_t());
-    setDayFor(ENV_REGION, regionday);
+    clearEnvironment(ENV_PARCEL);
+    setEnvironment(ENV_REGION, regionday, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
 
-    applyChosenEnvironment();
+    updateEnvironment();
 }
 
 //-------------------------------------------------------------------------
 F32 LLEnvironment::getCamHeight() const
 {
-    return (mCurrentSky->getDomeOffset() * mCurrentSky->getDomeRadius());
+    return (mCurrentEnvironment->getSky()->getDomeOffset() * mCurrentEnvironment->getSky()->getDomeRadius());
 }
 
 F32 LLEnvironment::getWaterHeight() const
@@ -201,21 +198,191 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsDayTime() const
 {
-    return mCurrentSky->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
+    return mCurrentEnvironment->getSky()->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
 }
 
-void LLEnvironment::setDayLength(S64Seconds seconds)
+//-------------------------------------------------------------------------
+void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, F64Seconds transition)
 {
-    mDayLength = seconds;
-    if (mCurrentDay)
-        mCurrentDay->setDayLength(mDayLength);
+    mSelectedEnvironment = env;
+    updateEnvironment(transition);
 }
 
-void LLEnvironment::setDayOffset(S64Seconds seconds)
+bool LLEnvironment::hasEnvironment(LLEnvironment::EnvSelection_t env)
 {
-    mDayOffset = seconds;
-    if (mCurrentDay)
-        mCurrentDay->setDayOffset(seconds);
+    if ((env < ENV_EDIT) || (env >= ENV_DEFAULT) || (!mEnvironments[env]))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnvironment::EnvSelection_t env, bool create /*= false*/)
+{
+    DayInstance::ptr_t environment = mEnvironments[env];
+    if (!environment && create)
+    {
+        environment = boost::make_shared<DayInstance>();
+        mEnvironments[env] = environment;
+    }
+
+    return environment;
+}
+
+
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset)
+{
+    if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
+    {   
+        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection." << LL_ENDL;
+        return;
+    }
+
+    DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
+
+    environment->clear();
+    environment->setDay(pday, daylength, dayoffset);
+    environment->animate();
+    /*TODO: readjust environment*/
+}
+
+
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironment::fixedEnvironment_t fixed)
+{
+    if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection." << LL_ENDL;
+        return;
+    }
+
+    DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
+
+    environment->clear();
+    environment->setSky((fixed.first) ? fixed.first : mEnvironments[ENV_DEFAULT]->getSky());
+    environment->setWater((fixed.second) ? fixed.second : mEnvironments[ENV_DEFAULT]->getWater());
+
+    /*TODO: readjust environment*/
+}
+
+
+void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
+{
+    if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection." << LL_ENDL;
+        return;
+    }
+
+    mEnvironments[env].reset();
+    /*TODO: readjust environment*/
+}
+
+LLSettingsDay::ptr_t LLEnvironment::getEnvironmentDay(LLEnvironment::EnvSelection_t env)
+{
+    if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        return LLSettingsDay::ptr_t();
+    }
+
+    DayInstance::ptr_t environment = getEnvironmentInstance(env);
+
+    if (environment)
+        return environment->getDayCycle();
+
+    return LLSettingsDay::ptr_t();
+}
+
+S64Seconds LLEnvironment::getEnvironmentDayLength(EnvSelection_t env)
+{
+    if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        return S64Seconds(0);
+    }
+
+    DayInstance::ptr_t environment = getEnvironmentInstance(env);
+
+    if (environment)
+        return environment->getDayLength();
+
+    return S64Seconds(0);
+}
+
+S64Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env)
+{
+    if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        return S64Seconds(0);
+    }
+
+    DayInstance::ptr_t environment = getEnvironmentInstance(env);
+    if (environment)
+        return environment->getDayOffset();
+
+    return S64Seconds(0);
+}
+
+
+LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironment::EnvSelection_t env)
+{
+    if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        return fixedEnvironment_t();
+    }
+
+    DayInstance::ptr_t environment = getEnvironmentInstance(env);
+
+    if (environment)
+        return fixedEnvironment_t(environment->getSky(), environment->getWater());
+
+    return fixedEnvironment_t();
+}
+
+LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance()
+{
+    for (S32 idx = mSelectedEnvironment; idx < ENV_DEFAULT; ++idx)
+    {
+        if (mEnvironments[idx])
+            return mEnvironments[idx];
+    }
+
+    return mEnvironments[ENV_DEFAULT];
+}
+
+
+void LLEnvironment::updateEnvironment(F64Seconds transition)
+{
+    DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
+
+    if (mCurrentEnvironment != pinstance)
+    {
+        LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
+        LLSettingsWater::ptr_t pwater = mCurrentEnvironment->getWater();
+
+        LLSettingsSky::ptr_t ptargetsky = psky->buildClone();
+        LLSettingsWater::ptr_t ptargetwater = pwater->buildClone();
+            
+        LLSettingsBlender::ptr_t skyblend = boost::make_shared<LLSettingsBlender>(ptargetsky, psky, pinstance->getSky(), transition);
+        skyblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, true));
+        LLSettingsBlender::ptr_t waterblend = boost::make_shared<LLSettingsBlender>(ptargetwater, pwater, pinstance->getWater(), transition);
+        waterblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, false));
+
+        pinstance->setBlenders(skyblend, waterblend);
+
+        mCurrentEnvironment = pinstance;
+
+        mCurrentEnvironment->animate();
+    }
+}
+
+void LLEnvironment::onTransitionDone(const LLSettingsBlender::ptr_t &blender, bool isSky)
+{
+    /*TODO: Test for both sky and water*/
+    mCurrentEnvironment->animate();
 }
 
 //-------------------------------------------------------------------------
@@ -227,21 +394,28 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     F32Seconds delta(timer.getElapsedTimeAndResetF32());
 
-    if (mBlenderSky)
-        mBlenderSky->update(delta);
-    if (mBlenderWater)
-        mBlenderWater->update(delta);
+    for (InstanceArray_t::iterator it = mEnvironments.begin(); it != mEnvironments.end(); ++it)
+    {
+        if (*it)
+            (*it)->update(delta);
+    }
 
     // update clouds, sun, and general
     updateCloudScroll();
 
-    if (mCurrentDay)
-        mCurrentDay->update();
-
-    if (mCurrentSky)
-        mCurrentSky->update();
-    if (mCurrentWater)
-        mCurrentWater->update();
+//     if (mBlenderSky)
+//         mBlenderSky->update(delta);
+//     if (mBlenderWater)
+//         mBlenderWater->update(delta);
+// 
+// 
+//     if (mCurrentDay)
+//         mCurrentDay->update();
+// 
+//     if (mCurrentEnvironment->getSky())
+//         mCurrentEnvironment->getSky()->update();
+//     if (mCurrentEnvironment->getWater())
+//         mCurrentEnvironment->getWater()->update();
 
     F32 camYaw = cam->getYaw();
 
@@ -277,10 +451,11 @@ void LLEnvironment::updateCloudScroll()
 
     F64 delta_t = s_cloud_timer.getElapsedTimeAndResetF64();
     
-    LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentSky->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
-    mCloudScrollDelta += cloud_delta;
-
-
+    if (mCurrentEnvironment->getSky())
+    {
+        LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentEnvironment->getSky()->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
+        mCloudScrollDelta += cloud_delta;
+    }
 
 }
 
@@ -352,11 +527,10 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
 
 void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 {
-
     if (gPipeline.canUseWindLightShaders())
     {
-        updateGLVariablesForSettings(shader, mCurrentSky);
-        updateGLVariablesForSettings(shader, mCurrentWater);
+        updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
+        updateGLVariablesForSettings(shader, mCurrentEnvironment->getWater());
     }
 
     if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
@@ -374,236 +548,7 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
     }
 
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, getSceneLightStrength());
-
-
 }
-//--------------------------------------------------------------------------
-void LLEnvironment::selectSky(const std::string &name, F32Seconds transition)
-{
-    LLSettingsSky::ptr_t next_sky = findSkyByName(name);
-    if (!next_sky)
-    {
-        LL_WARNS("ENVIRONMENT") << "Unable to select sky with unknown name '" << name << "'" << LL_ENDL;
-        return;
-    }
-
-    selectSky(next_sky, transition);
-}
-
-void LLEnvironment::selectSky(const LLSettingsSky::ptr_t &sky, F32Seconds transition)
-{
-    if (!sky)
-    {
-        mCurrentSky = mSelectedSky;
-        mBlenderSky.reset();
-        return;
-    }
-    mSelectedSky = sky;
-    if (fabs(transition.value()) <= F_ALMOST_ZERO)
-    {
-        mBlenderSky.reset();
-        mCurrentSky = sky;
-        mCurrentSky->setDirtyFlag(true);
-        mSelectedSky = sky;
-    }
-    else
-    {
-        LLSettingsSky::ptr_t skytarget = mCurrentSky->buildClone();
-
-        mBlenderSky = boost::make_shared<LLSettingsBlender>( skytarget, mCurrentSky, sky, transition );
-        mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::onSkyTransitionDone, this, _1));
-        mCurrentSky = skytarget;
-        mSelectedSky = sky;
-    }
-}
-
-void LLEnvironment::onSkyTransitionDone(const LLSettingsBlender::ptr_t &blender)
-{
-    mCurrentSky = mSelectedSky;
-    mBlenderSky.reset();
-}
-
-void LLEnvironment::selectWater(const std::string &name, F32Seconds transition)
-{
-    LLSettingsWater::ptr_t next_water = findWaterByName(name);
-
-    if (!next_water)
-    {
-        LL_WARNS("ENVIRONMENT") << "Unable to select water with unknown name '" << name << "'" << LL_ENDL;
-        return;
-    }
-
-    selectWater(next_water, transition);
-}
-
-void LLEnvironment::selectWater(const LLSettingsWater::ptr_t &water, F32Seconds transition)
-{
-    if (!water)
-    {
-        mCurrentWater = mSelectedWater;
-        mBlenderWater.reset();
-        return;
-    }
-    mSelectedWater = water;
-    if (fabs(transition.value()) <= F_ALMOST_ZERO)
-    {
-        mBlenderWater.reset();
-        mCurrentWater = water;
-        mCurrentWater->setDirtyFlag(true);
-        mSelectedWater = water;
-    }
-    else
-    {
-        LLSettingsWater::ptr_t watertarget = mCurrentWater->buildClone();
-
-        mBlenderWater = boost::make_shared<LLSettingsBlender>(watertarget, mCurrentWater, water, transition);
-        mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::onWaterTransitionDone, this, _1));
-        mCurrentWater = watertarget;
-        mSelectedWater = water;
-    }
-}
-
-void LLEnvironment::onWaterTransitionDone(const LLSettingsBlender::ptr_t &blender)
-{
-    mCurrentWater = mSelectedWater;
-    mBlenderWater.reset();
-}
-
-void LLEnvironment::selectDayCycle(const std::string &name, F32Seconds transition)
-{
-    LLSettingsDay::ptr_t next_daycycle = findDayCycleByName(name);
-
-    if (!next_daycycle)
-    {
-        LL_WARNS("ENVIRONMENT") << "Unable to select daycycle with unknown name '" << name << "'" << LL_ENDL;
-        return;
-    }
-
-    selectDayCycle(next_daycycle, transition);
-}
-
-void LLEnvironment::selectDayCycle(const LLSettingsDay::ptr_t &daycycle, F32Seconds transition)
-{
-    if (!daycycle || (daycycle == mCurrentDay))
-    {
-        return;
-    }
-
-    mCurrentDay = daycycle;
-    mCurrentDay->setDayLength(mDayLength);
-    mCurrentDay->setDayOffset(mDayOffset);
-
-    daycycle->startDayCycle();
-    selectWater(daycycle->getCurrentWater(), transition);
-    selectSky(daycycle->getCurrentSky(), transition);
-}
-
-
-void LLEnvironment::setSelectedEnvironment(EnvSelection_t env)
-{
-    if (env == mSelectedEnvironment)
-    {   // No action to take
-        return;
-    }
-
-    mSelectedEnvironment = env;
-    applyChosenEnvironment();
-}
-
-void LLEnvironment::applyChosenEnvironment()
-{
-    mSelectedSky.reset();
-    mSelectedWater.reset();
-    mSelectedDay.reset();
-
-    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
-    {
-        if (mSetDays[idx] && !mSelectedSky && !mSelectedWater)
-            selectDayCycle(mSetDays[idx]);
-        if (mSetSkys[idx] && !mSelectedSky)
-            selectSky(mSetSkys[idx]);
-        if (mSetWater[idx] && !mSelectedWater)
-            selectWater(mSetWater[idx]);
-        if (mSelectedSky && mSelectedWater)
-            return;
-    }
-
-    if (!mSelectedSky)
-        selectSky("Default");
-    if (!mSelectedWater)
-        selectWater("Default");
-}
-
-LLSettingsSky::ptr_t LLEnvironment::getChosenSky() const
-{
-    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
-    {
-        if (mSetSkys[idx])
-            return mSetSkys[idx];
-    }
-
-    return LLSettingsSky::ptr_t();
-}
-
-LLSettingsWater::ptr_t LLEnvironment::getChosenWater() const
-{
-    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
-    {
-        if (mSetWater[idx])
-            return mSetWater[idx];
-    }
-
-    return LLSettingsWater::ptr_t();
-}
-
-LLSettingsDay::ptr_t LLEnvironment::getChosenDay() const
-{
-    for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
-    {
-        if (mSetDays[idx])
-           return mSetDays[idx];
-    }
-
-    return LLSettingsDay::ptr_t();
-}
-
-void LLEnvironment::setSkyFor(EnvSelection_t env, const LLSettingsSky::ptr_t &sky)
-{
-    mSetSkys[env] = sky;
-}
-
-LLSettingsSky::ptr_t LLEnvironment::getSkyFor(EnvSelection_t env) const
-{
-    return mSetSkys[env];
-}
-
-void LLEnvironment::setWaterFor(EnvSelection_t env, const LLSettingsWater::ptr_t &water)
-{
-    mSetWater[env] = water;
-}
-
-LLSettingsWater::ptr_t LLEnvironment::getWaterFor(EnvSelection_t env) const
-{
-    return mSetWater[env];
-}
-
-void LLEnvironment::setDayFor(EnvSelection_t env, const LLSettingsDay::ptr_t &day)
-{
-    mSetDays[env] = day;
-}
-
-LLSettingsDay::ptr_t LLEnvironment::getDayFor(EnvSelection_t env) const
-{
-    return mSetDays[env];
-}
-
-void  LLEnvironment::clearUserSettings()
-{
-    mSetSkys[ENV_LOCAL].reset();
-    mSetWater[ENV_LOCAL].reset();
-    mSetDays[ENV_LOCAL].reset();
-}
-
 
 LLEnvironment::list_name_id_t LLEnvironment::getSkyList() const
 {
@@ -778,42 +723,6 @@ LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
 }
 
 
-void LLEnvironment::selectAgentEnvironment()
-{
-    S64Seconds day_length(LLSettingsDay::DEFAULT_DAYLENGTH);
-    S64Seconds day_offset(LLSettingsDay::DEFAULT_DAYOFFSET);
-    LLSettingsDay::ptr_t pday;
-
-    // TODO: Test if editing environment has been set.
-
-    // TODO: Test if agent has local environment set.
-
-    LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
-    LLViewerRegion *pRegion = gAgent.getRegion();
-
-    if (!parcel || parcel->getUsesDefaultDayCycle() || !parcel->getParcelDayCycle())
-    {
-        day_length = pRegion->getDayLength();
-        day_offset = pRegion->getDayOffset();
-        pday = pRegion->getRegionDayCycle();
-    }
-    else
-    {
-        day_length = parcel->getDayLength();
-        day_offset = parcel->getDayOffset();
-        pday = parcel->getParcelDayCycle();
-    }
-
-    if (getDayLength() != day_length)
-        setDayLength(day_length);
-
-    if (getDayOffset() != day_offset)
-        setDayOffset(day_offset);
-
-    if (pday)
-        selectDayCycle(pday);
-}
-
 void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo)
 {
     LL_WARNS("ENVIRONMENT") << "Have environment" << LL_ENDL;
@@ -824,48 +733,65 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
 
     if (envinfo->mParcelId == INVALID_PARCEL_ID)
     {   // the returned info applies to an entire region.
-        LLViewerRegion *pRegion = gAgent.getRegion();
-
-        pRegion->setDayLength(envinfo->mDayLength);
-        pRegion->setDayOffset(envinfo->mDayOffset);
-        pRegion->setIsDefaultDayCycle(envinfo->mIsDefault);
-        if (pRegion->getRegionDayCycleHash() != envinfo->mDayHash)
-        {
-            pRegion->setRegionDayCycle(pday);
-            pRegion->setRegionDayCycleHash(envinfo->mDayHash);
-        }
-
+        LL_WARNS("LAPRAS") << "Setting Region environment" << LL_ENDL;
+        setEnvironment(ENV_REGION, pday, envinfo->mDayLength, envinfo->mDayOffset);
         if (parcel_id != INVALID_PARCEL_ID)
-        {   // We requested a parcel environment but got back the region's. If this is the parcel we are in
-            // clear it out.
-            LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
-
-            if (parcel->getLocalID() == parcel_id)
-            {
-                parcel->clearParcelDayCycleInfo();
-            }
+        {
+            LL_WARNS("LAPRAS") << "Had requested parcel environment #" << parcel_id << " but got region." << LL_ENDL;
+            clearEnvironment(ENV_PARCEL);
         }
+//         LLViewerRegion *pRegion = gAgent.getRegion();
+// 
+//         pRegion->setDayLength(envinfo->mDayLength);
+//         pRegion->setDayOffset(envinfo->mDayOffset);
+//         pRegion->setIsDefaultDayCycle(envinfo->mIsDefault);
+//         if (pRegion->getRegionDayCycleHash() != envinfo->mDayHash)
+//         {
+//             pRegion->setRegionDayCycle(pday);
+//             pRegion->setRegionDayCycleHash(envinfo->mDayHash);
+//         }
+// 
+//         if (parcel_id != INVALID_PARCEL_ID)
+//         {   // We requested a parcel environment but got back the region's. If this is the parcel we are in
+//             // clear it out.
+//             LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
+// 
+//             if (parcel->getLocalID() == parcel_id)
+//             {
+//                 parcel->clearParcelDayCycleInfo();
+//             }
+//         }
     }
     else
     {
         LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
 
-        if (parcel->getLocalID() == parcel_id)
+        LL_WARNS("LAPRAS") << "Have parcel environment #" << envinfo->mParcelId << LL_ENDL;
+        if (parcel && (parcel->getLocalID() != parcel_id))
         {
-            parcel->setDayLength(envinfo->mDayLength);
-            parcel->setDayOffset(envinfo->mDayOffset);
-            parcel->setUsesDefaultDayCycle(envinfo->mIsDefault);
-            if (parcel->getParcelDayCycleHash() != envinfo->mDayHash)
-            {
-                parcel->setParcelDayCycle(pday);
-                parcel->setParcelDayCycleHash(envinfo->mDayHash);
-            }
-
+            LL_WARNS("ENVIRONMENT") << "Requested parcel #" << parcel_id << " agent is on " << parcel->getLocalID() << LL_ENDL;
+            return;
         }
+
+        setEnvironment(ENV_PARCEL, pday, envinfo->mDayLength, envinfo->mDayOffset);
+//         LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
+// 
+//         if (parcel->getLocalID() == parcel_id)
+//         {
+//             parcel->setDayLength(envinfo->mDayLength);
+//             parcel->setDayOffset(envinfo->mDayOffset);
+//             parcel->setUsesDefaultDayCycle(envinfo->mIsDefault);
+//             if (parcel->getParcelDayCycleHash() != envinfo->mDayHash)
+//             {
+//                 parcel->setParcelDayCycle(pday);
+//                 parcel->setParcelDayCycleHash(envinfo->mDayHash);
+//             }
+// 
+//         }
     }
     
     /*TODO: track_altitudes*/
-    selectAgentEnvironment();
+    updateEnvironment();
 }
 
 //=========================================================================
@@ -1336,4 +1262,251 @@ void LLEnvironment::legacyLoadAllPresets()
             }
         }
     }
+}
+
+//=========================================================================
+namespace
+{
+    inline F32 get_wrapping_distance(F32 begin, F32 end)
+    {
+        if (begin < end)
+        {
+            return end - begin;
+        }
+        else if (begin > end)
+        {
+            return 1.0 - (begin - end);
+        }
+
+        return 0;
+    }
+
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    {
+        if (collection.empty())
+            return collection.end();
+
+        LLSettingsDay::CycleTrack_t::iterator it = collection.upper_bound(key);
+
+        if (it == collection.end())
+        {   // wrap around
+            it = collection.begin();
+        }
+
+        return it;
+    }
+
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    {
+        if (collection.empty())
+            return collection.end();
+
+        LLSettingsDay::CycleTrack_t::iterator it = collection.lower_bound(key);
+
+        if (it == collection.end())
+        {   // all keyframes are lower, take the last one.
+            --it; // we know the range is not empty
+        }
+        else if ((*it).first > key)
+        {   // the keyframe we are interested in is smaller than the found.
+            if (it == collection.begin())
+                it = collection.end();
+            --it;
+        }
+
+        return it;
+    }
+
+    LLSettingsDay::TrackBound_t get_bounding_entries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)
+    {
+        return LLSettingsDay::TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
+    }
+
+}
+//=========================================================================
+
+
+LLEnvironment::DayInstance::DayInstance() :
+    mDayCycle(),
+    mSky(),
+    mWater(),
+    mDayLength(LLSettingsDay::DEFAULT_DAYLENGTH),
+    mDayOffset(LLSettingsDay::DEFAULT_DAYOFFSET),
+    mBlenderSky(),
+    mBlenderWater(),
+    mInitialized(false),
+    mType(TYPE_INVALID)
+{ }
+
+void LLEnvironment::DayInstance::update(F64Seconds delta)
+{
+    if (!mInitialized)
+        initialize();
+
+    if (mBlenderSky)
+        mBlenderSky->update(delta);
+    if (mBlenderWater)
+        mBlenderWater->update(delta);
+
+    if (mSky)
+        mSky->update();
+    if (mWater)
+        mWater->update();
+}
+
+void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset)
+{
+    if (mType == TYPE_FIXED)
+        LL_WARNS("ENVIRONMENT") << "Fixed day instance changed to Cycled" << LL_ENDL;
+    mType = TYPE_CYCLED;
+    mInitialized = false;
+
+    mDayCycle = pday;
+    mDayLength = daylength;
+    mDayOffset = dayoffset;
+
+    mBlenderSky.reset();
+    mBlenderWater.reset();
+
+    mSky = LLSettingsVOSky::buildDefaultSky();
+    mWater = LLSettingsVOWater::buildDefaultWater();
+
+    animate();
+}
+
+
+void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
+{
+    if (mType == TYPE_CYCLED)
+        LL_WARNS("ENVIRONMENT") << "Cycled day instance changed to FIXED" << LL_ENDL;
+    mType = TYPE_FIXED;
+    mInitialized = false;
+
+    mSky = psky;
+    mBlenderSky.reset();
+}
+
+void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
+{
+    if (mType == TYPE_CYCLED)
+        LL_WARNS("ENVIRONMENT") << "Cycled day instance changed to FIXED" << LL_ENDL;
+    mType = TYPE_FIXED;
+    mInitialized = false;
+
+    mWater = pwater;
+    mBlenderWater.reset();
+}
+
+void LLEnvironment::DayInstance::initialize()
+{
+    mInitialized = true;
+
+    if (!mWater)
+        mWater = LLSettingsVOWater::buildDefaultWater();
+    if (!mSky)
+        mSky = LLSettingsVOSky::buildDefaultSky();
+}
+
+void LLEnvironment::DayInstance::clear()
+{
+    mType = TYPE_INVALID;
+    mDayCycle.reset();
+    mSky.reset();
+    mWater.reset();
+    mDayLength = LLSettingsDay::DEFAULT_DAYLENGTH;
+    mDayOffset = LLSettingsDay::DEFAULT_DAYOFFSET;
+    mBlenderSky.reset();
+    mBlenderWater.reset();
+}
+
+void LLEnvironment::DayInstance::setBlenders(const LLSettingsBlender::ptr_t &skyblend, const LLSettingsBlender::ptr_t &waterblend)
+{
+    mBlenderSky = skyblend;
+    mBlenderWater = waterblend;
+}
+
+F64 LLEnvironment::DayInstance::secondsToKeyframe(S64Seconds seconds)
+{
+    F64 frame = static_cast<F64>(seconds.value() % mDayLength.value()) / static_cast<F64>(mDayLength.value());
+
+    return llclamp(frame, 0.0, 1.0);
+}
+
+void LLEnvironment::DayInstance::animate()
+{
+    F64Seconds now(LLDate::now().secondsSinceEpoch());
+
+    now += mDayOffset;
+
+    if (!mDayCycle)
+        return;
+
+    LLSettingsDay::CycleTrack_t &wtrack = mDayCycle->getCycleTrack(0);
+
+    if (wtrack.empty())
+    {
+        mWater.reset();
+        mBlenderWater.reset();
+    }
+    else if (wtrack.size() == 1)
+    {
+        mWater = boost::static_pointer_cast<LLSettingsWater>((*(wtrack.begin())).second);
+        mBlenderWater.reset();
+    }
+    else
+    {
+        LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, secondsToKeyframe(now));
+        F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+
+        mWater = boost::static_pointer_cast<LLSettingsVOWater>((*bounds.first).second)->buildClone();
+        mBlenderWater = boost::make_shared<LLSettingsBlender>(mWater,
+            (*bounds.first).second, (*bounds.second).second, timespan);
+        mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::DayInstance::onTrackTransitionDone, this, 0, _1));
+    }
+
+    // Day track 1 only for the moment
+    // sky
+    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(1);
+
+    if (track.empty())
+    {
+        mSky.reset();
+        mBlenderSky.reset();
+    }
+    else if (track.size() == 1)
+    {
+        mSky = boost::static_pointer_cast<LLSettingsSky>((*(track.begin())).second);
+        mBlenderSky.reset();
+    }
+    else
+    {
+        LLSettingsDay::TrackBound_t bounds = get_bounding_entries(track, secondsToKeyframe(now));
+        F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+
+        mSky = boost::static_pointer_cast<LLSettingsVOSky>((*bounds.first).second)->buildClone();
+        mBlenderSky = boost::make_shared<LLSettingsBlender>(mSky,
+            (*bounds.first).second, (*bounds.second).second, timespan);
+        mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::DayInstance::onTrackTransitionDone, this, 1, _1));
+    }
+}
+
+void LLEnvironment::DayInstance::onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t &blender)
+{
+    LL_WARNS("LAPRAS") << "onTrackTransitionDone for " << trackno << LL_ENDL;
+    F64Seconds now(LLDate::now().secondsSinceEpoch());
+
+    now += mDayOffset;
+
+    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(trackno);
+
+    LLSettingsDay::TrackBound_t bounds = get_bounding_entries(track, secondsToKeyframe(now));
+
+    F32 distance = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+    F64Seconds timespan = mDayLength * distance;
+
+    LL_WARNS("LAPRAS") << "New sky blender. now=" << now <<
+        " start=" << (*bounds.first).first << " end=" << (*bounds.second).first <<
+        " span=" << timespan << LL_ENDL;
+
+    blender->reset((*bounds.first).second, (*bounds.second).second, timespan);
 }

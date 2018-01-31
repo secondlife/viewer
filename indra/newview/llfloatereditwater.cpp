@@ -111,7 +111,8 @@ void LLFloaterEditWater::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
 	}
 }
 
@@ -428,7 +429,8 @@ void LLFloaterEditWater::onWaterPresetSelected()
     }
 
     pwater = pwater->buildClone();
-    LLEnvironment::instance().selectWater(pwater, LLEnvironment::TRANSITION_FAST);
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, pwater);
+    mEditSettings = pwater;
 
     syncControls();
     enableEditing(true);
@@ -460,7 +462,7 @@ void LLFloaterEditWater::onSaveConfirmed()
 	if (mMakeDefaultCheckBox->getEnabled() && mMakeDefaultCheckBox->getValue())
 	{
 		LL_DEBUGS("Windlight") << name << " is now the new preferred water preset" << LL_ENDL;
-		LLEnvironment::instance().setUserWater(mEditSettings);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditSettings);
 	}
 
 	closeFloater();
@@ -469,7 +471,7 @@ void LLFloaterEditWater::onSaveConfirmed()
 void LLFloaterEditWater::onBtnSave()
 {
     LLEnvironment::instance().addWater(mEditSettings);
-    LLEnvironment::instance().setUserWater(mEditSettings);
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditSettings);
 
     closeFloater();
 }

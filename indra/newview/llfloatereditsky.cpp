@@ -125,7 +125,8 @@ void LLFloaterEditSky::onClose(bool app_quitting)
 {
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
 	}
 }
 
@@ -644,7 +645,8 @@ void LLFloaterEditSky::onSkyPresetSelected()
     }
 
     psky = psky->buildClone();
-    LLEnvironment::instance().selectSky(psky, LLEnvironment::TRANSITION_FAST);
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, psky);
+    mEditSettings = psky;
 
     syncControls();
     enableEditing(true);
@@ -677,7 +679,7 @@ void LLFloaterEditSky::onSaveConfirmed()
     if (mMakeDefaultCheckBox->getEnabled() && mMakeDefaultCheckBox->getValue())
     {
         LL_DEBUGS("Windlight") << name << " is now the new preferred sky preset" << LL_ENDL;
-        LLEnvironment::instance().setUserSky(mEditSettings);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditSettings);
     }
 
     closeFloater();
@@ -686,7 +688,7 @@ void LLFloaterEditSky::onSaveConfirmed()
 void LLFloaterEditSky::onBtnSave()
 {
     LLEnvironment::instance().addSky(mEditSettings);
-    LLEnvironment::instance().setUserSky(mEditSettings);
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditSettings);
 
     closeFloater();
 }

@@ -231,12 +231,6 @@ void LLParcel::init(const LLUUID &owner_id,
 	setAllowGroupAVSounds(TRUE);
 	setAllowAnyAVSounds(TRUE);
 	setHaveNewParcelLimitData(FALSE);
-
-    mDayLength = S64Seconds(LLSettingsDay::DEFAULT_DAYLENGTH);
-    mDayOffset = S64Seconds(LLSettingsDay::DEFAULT_DAYOFFSET);
-    mIsDefaultDayCycle = true;
-    mDayCycle.reset();
-    mDayCycleHash = 0;
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
@@ -1272,13 +1266,4 @@ U32 LLParcel::countExperienceKeyType( U32 type )
 		boost::begin(mExperienceKeys | boost::adaptors::map_values), 
 		boost::end(mExperienceKeys | boost::adaptors::map_values), 
 		std::bind2nd(std::equal_to<U32>(), type));
-}
-
-void LLParcel::clearParcelDayCycleInfo()
-{
-    mDayLength = S64Seconds(LLSettingsDay::DEFAULT_DAYLENGTH);
-    mDayOffset = S64Seconds(LLSettingsDay::DEFAULT_DAYOFFSET);
-    mIsDefaultDayCycle = true;
-    mDayCycle.reset();
-    mDayCycleHash = 0;
 }

@@ -98,7 +98,8 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 	if (!app_quitting) // there's no point to change environment if we're quitting
 	{
         /* TODO: don't restore this environment.  We may have gotten here from land or region. */
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+        LLEnvironment::instance().updateEnvironment();
 	}
 }
 
@@ -106,12 +107,13 @@ void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
 {
     if (new_visibility)
     {
-        LLEnvironment::instance().selectDayCycle(mEditDay, LLEnvironment::TRANSITION_FAST);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditDay, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
     }
     else
     {
         /* TODO: don't restore this environment.  We may have gotten here from land or region. */
-        LLEnvironment::instance().applyChosenEnvironment();
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
     }
 }
 
@@ -125,7 +127,7 @@ void LLFloaterEditExtDayCycle::onDayPresetChanged()
     if (pday)
     {
         pday = pday->buildClone();
-        LLEnvironment::instance().selectDayCycle(pday, LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, pday, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
         mEditDay = pday;
     }
 

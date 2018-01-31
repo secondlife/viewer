@@ -590,18 +590,6 @@ public:
 	LLUUID	getPreviousOwnerID() const		{ return mPreviousOwnerID; }
 	BOOL	getPreviouslyGroupOwned() const	{ return mPreviouslyGroupOwned; }
 	BOOL	getSellWithObjects() const		{ return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? TRUE : FALSE; }
-	
-    S64Seconds  getDayLength() const                             { return mDayLength; }
-    void        setDayLength(S64SecondsImplicit seconds)        { mDayLength = seconds; }
-    S64Seconds  getDayOffset() const                             { return mDayOffset; }
-    void        setDayOffset(S64SecondsImplicit seconds)        { mDayOffset = seconds; }
-    bool        getUsesDefaultDayCycle() const                   { return mIsDefaultDayCycle; }
-    void        setUsesDefaultDayCycle(bool isdefault)          { mIsDefaultDayCycle = isdefault; }
-    LLSettingsDay::ptr_t getParcelDayCycle() const               { return mDayCycle; }
-    void        setParcelDayCycle(const LLSettingsDay::ptr_t &pday) { mDayCycle = pday; }
-    size_t      getParcelDayCycleHash() const                    { return mDayCycleHash; }
-    void        setParcelDayCycleHash(size_t hash)               { mDayCycleHash = hash; }
-    void        clearParcelDayCycleInfo();
 
 protected:
 	LLUUID mID;
@@ -677,11 +665,7 @@ protected:
 	BOOL				mAllowGroupAVSounds;
 	BOOL				mAllowAnyAVSounds;
 	
-    S64Seconds          mDayLength;
-    S64Seconds          mDayOffset;
     bool                mIsDefaultDayCycle;
-    LLSettingsDay::ptr_t mDayCycle;
-    size_t              mDayCycleHash;
 
 public:
 	// HACK, make private

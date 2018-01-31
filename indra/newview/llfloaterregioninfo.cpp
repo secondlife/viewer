@@ -3395,22 +3395,25 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
     F64Hours daylength;
     F64Hours dayoffset;
 
-    daylength = region->getDayLength();
-    dayoffset = region->getDayOffset();
+    daylength = LLEnvironment::instance().getEnvironmentDayLength(LLEnvironment::ENV_REGION);
+    dayoffset = LLEnvironment::instance().getEnvironmentDayOffset(LLEnvironment::ENV_REGION);
 
     if (dayoffset.value() > 12.0)
-        dayoffset = dayoffset - F32Hours(24.0f);
+        dayoffset = dayoffset - F64Hours(24.0f);
 
     mDayLengthSlider->setValue(daylength.value());
     mDayOffsetSlider->setValue(dayoffset.value());
     
-    mRegionSettingsRadioGroup->setSelectedIndex(region->getIsDefaultDayCycle() ? 0 : 1);
+    //mRegionSettingsRadioGroup->setSelectedIndex(region->getIsDefaultDayCycle() ? 0 : 1);
+    mRegionSettingsRadioGroup->setSelectedIndex(1);
 
     setControlsEnabled(owner_or_god_or_manager);
     mLastRegion = region;
 
-    if (region->getRegionDayCycle())
-        mEditingDayCycle = region->getRegionDayCycle()->buildClone();
+    LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(LLEnvironment::ENV_REGION);
+
+    if (pday)
+        mEditingDayCycle = pday->buildClone();
 
     return true;
 }
