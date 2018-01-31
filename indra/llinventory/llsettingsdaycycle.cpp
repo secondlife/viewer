@@ -42,20 +42,6 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
 
-    inline F32 get_wrapping_distance(F32 begin, F32 end)
-    {
-        if (begin < end)
-        {
-            return end - begin;
-        }
-        else if (begin > end)
-        {
-            return 1.0 - (begin - end);
-        }
-
-        return 0;
-    }
-
     LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, F32 key)
     {
         if (collection.empty())
