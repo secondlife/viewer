@@ -130,7 +130,7 @@ public:
 private:
 	typedef std::map<std::string, LLTransTemplate > template_map_t;
 	static template_map_t sStringTemplates;
-	static template_map_t LLTrans::sDefaultStringTemplates;
+	static template_map_t sDefaultStringTemplates;
 	static LLStringUtil::format_map_t sDefaultArgs;
 };
 
