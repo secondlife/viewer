@@ -51,6 +51,7 @@
 
 // File constants
 static const int MAX_HDR_LEN = 20;
+static const S32 UNZIP_LLSD_MAX_DEPTH = 96;
 static const char LEGACY_NON_HEADER[] = "<llsd>";
 const std::string LLSD_BINARY_HEADER("LLSD/Binary");
 const std::string LLSD_XML_HEADER("LLSD/XML");
@@ -317,11 +318,11 @@ LLSDParser::LLSDParser()
 LLSDParser::~LLSDParser()
 { }
 
-S32 LLSDParser::parse(std::istream& istr, LLSD& data, S32 max_bytes)
+S32 LLSDParser::parse(std::istream& istr, LLSD& data, S32 max_bytes, S32 max_depth)
 {
 	mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
 	mMaxBytesLeft = max_bytes;
-	return doParse(istr, data);
+	return doParse(istr, data, max_depth);
 }
 
 
@@ -403,7 +404,7 @@ LLSDNotationParser::~LLSDNotationParser()
 { }
 
 // virtual
-S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
+S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) const
 {
 	// map: { string:object, string:object }
 	// array: [ object, object, object ]
@@ -418,6 +419,10 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 	// binary: b##"ff3120ab1" | b(size)"raw data"
 	char c;
 	c = istr.peek();
+	if (max_depth == 0)
+	{
+		return PARSE_FAILURE;
+	}
 	while(isspace(c))
 	{
 		// pop the whitespace.
@@ -434,7 +439,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 	{
 	case '{':
 	{
-		S32 child_count = parseMap(istr, data);
+		S32 child_count = parseMap(istr, data, max_depth - 1);
 		if((child_count == PARSE_FAILURE) || data.isUndefined())
 		{
 			parse_count = PARSE_FAILURE;
@@ -453,7 +458,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 
 	case '[':
 	{
-		S32 child_count = parseArray(istr, data);
+		S32 child_count = parseArray(istr, data, max_depth - 1);
 		if((child_count == PARSE_FAILURE) || data.isUndefined())
 		{
 			parse_count = PARSE_FAILURE;
@@ -658,7 +663,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 	return parse_count;
 }
 
-S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map) const
+S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) const
 {
 	// map: { string:object, string:object }
 	map = LLSD::emptyMap();
@@ -693,7 +698,7 @@ S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map) const
 				}
 				putback(istr, c);
 				LLSD child;
-				S32 count = doParse(istr, child);
+				S32 count = doParse(istr, child, max_depth);
 				if(count > 0)
 				{
 					// There must be a value for every key, thus
@@ -718,7 +723,7 @@ S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map) const
 	return parse_count;
 }
 
-S32 LLSDNotationParser::parseArray(std::istream& istr, LLSD& array) const
+S32 LLSDNotationParser::parseArray(std::istream& istr, LLSD& array, S32 max_depth) const
 {
 	// array: [ object, object, object ]
 	array = LLSD::emptyArray();
@@ -737,7 +742,7 @@ S32 LLSDNotationParser::parseArray(std::istream& istr, LLSD& array) const
 				continue;
 			}
 			putback(istr, c);
-			S32 count = doParse(istr, child);
+			S32 count = doParse(istr, child, max_depth);
 			if(PARSE_FAILURE == count)
 			{
 				return PARSE_FAILURE;
@@ -869,7 +874,7 @@ LLSDBinaryParser::~LLSDBinaryParser()
 }
 
 // virtual
-S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
+S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) const
 {
 /**
  * Undefined: '!'<br>
@@ -893,12 +898,16 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 	{
 		return 0;
 	}
+	if (max_depth == 0)
+	{
+		return PARSE_FAILURE;
+	}
 	S32 parse_count = 1;
 	switch(c)
 	{
 	case '{':
 	{
-		S32 child_count = parseMap(istr, data);
+		S32 child_count = parseMap(istr, data, max_depth - 1);
 		if((child_count == PARSE_FAILURE) || data.isUndefined())
 		{
 			parse_count = PARSE_FAILURE;
@@ -917,7 +926,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 
 	case '[':
 	{
-		S32 child_count = parseArray(istr, data);
+		S32 child_count = parseArray(istr, data, max_depth - 1);
 		if((child_count == PARSE_FAILURE) || data.isUndefined())
 		{
 			parse_count = PARSE_FAILURE;
@@ -1098,7 +1107,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 	return parse_count;
 }
 
-S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map) const
+S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) const
 {
 	map = LLSD::emptyMap();
 	U32 value_nbo = 0;
@@ -1128,7 +1137,7 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map) const
 		}
 		}
 		LLSD child;
-		S32 child_count = doParse(istr, child);
+		S32 child_count = doParse(istr, child, max_depth);
 		if(child_count > 0)
 		{
 			// There must be a value for every key, thus child_count
@@ -1152,7 +1161,7 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map) const
 	return parse_count;
 }
 
-S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array) const
+S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array, S32 max_depth) const
 {
 	array = LLSD::emptyArray();
 	U32 value_nbo = 0;
@@ -1168,7 +1177,7 @@ S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array) const
 	while((c != ']') && (count < size) && istr.good())
 	{
 		LLSD child;
-		S32 child_count = doParse(istr, child);
+		S32 child_count = doParse(istr, child, max_depth);
 		if(PARSE_FAILURE == child_count)
 		{
 			return PARSE_FAILURE;
@@ -2238,7 +2247,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
 			return ZR_MEM_ERROR;
 		}
 
-		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
+		if (!LLSDSerialize::fromBinary(data, istr, cur_size, UNZIP_LLSD_MAX_DEPTH))
 		{
 			free(result);
 			return ZR_PARSE_ERROR;
