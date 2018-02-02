@@ -324,8 +324,8 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 		sculpt_id = sculpt_params->getSculptTexture();
 		sculpt_type = sculpt_params->getSculptType();
 
-        LL_DEBUGS("AnimatedObjects") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
-        dumpStack("AnimatedObjectsStack");
+        LL_DEBUGS("ObjectUpdate") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
+        dumpStack("ObjectUpdateStack");
 	}
 
 	if (!dp)
@@ -3467,11 +3467,25 @@ void LLVOVolume::onReparent(LLViewerObject *old_parent, LLViewerObject *new_pare
 // virtual
 void LLVOVolume::afterReparent()
 {
-    // If this succeeds now, it's because the new parent is an animated object
+    {
+        LL_DEBUGS("AnimatedObjects") << "new child added for parent " 
+            << ((LLViewerObject*)getParent())->getID() << LL_ENDL;
+    }
+                                                                                             
     if (isAnimatedObject() && getControlAvatar())
     {
-        getControlAvatar()->addAttachmentOverridesForObject(this);
+        LL_DEBUGS("AnimatedObjects") << "adding attachment overrides, parent is animated object" 
+            << ((LLViewerObject*)getParent())->getID() << LL_ENDL;
+        //getControlAvatar()->addAttachmentOverridesForObject(this);
+        getControlAvatar()->rebuildAttachmentOverrides();
         getControlAvatar()->updateAnimations();
+    }
+    else
+    {
+        LL_DEBUGS("AnimatedObjects") << "not adding overrides, parent: " 
+                                     << ((LLViewerObject*)getParent())->getID() 
+                                     << " isAnimated: "  << isAnimatedObject() << " cav "
+                                     << getControlAvatar() << LL_ENDL;
     }
 }
 

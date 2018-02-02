@@ -143,8 +143,8 @@ static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
-    LL_DEBUGS("AnimatedObjects") << "creating " << id << LL_ENDL;
-    dumpStack("AnimatedObjectsStack");
+    LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
     
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
@@ -1111,8 +1111,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
 
-    LL_DEBUGS("AnimatedObjects") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
-    dumpStack("AnimatedObjectsStack");
+    LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
 
 	U32 retval = 0x0;
 	
@@ -3002,6 +3002,9 @@ void LLViewerObject::linkControlAvatar()
             return;
         }
         mControlAvatar = LLControlAvatar::createControlAvatar(volp);
+        LL_DEBUGS("AnimatedObjects") << volp->getID() 
+                                     << " created control av for " 
+                                     << (S32) (1+volp->numChildren()) << " prims" << LL_ENDL;
     }
     if (getControlAvatar())
     {

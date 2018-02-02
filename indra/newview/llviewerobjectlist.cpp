@@ -242,9 +242,9 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	}
 
 	// ignore returned flags
-    LL_DEBUGS("AnimatedObjects") << "uuid " << objectp->mID << " calling processUpdateMessage " 
-                                 << objectp << " just_created " << just_created << " from_cache " << from_cache << " msg " << msg << LL_ENDL;
-    dumpStack("AnimatedObjectsStack");
+    LL_DEBUGS("ObjectUpdate") << "uuid " << objectp->mID << " calling processUpdateMessage " 
+                              << objectp << " just_created " << just_created << " from_cache " << from_cache << " msg " << msg << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
 	 	
 	objectp->processUpdateMessage(msg, user_data, i, update_type, dpp);
 		
@@ -358,8 +358,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	{
 		objectp = createObjectFromCache(pcode, regionp, fullid, entry->getLocalID());
 
-        LL_DEBUGS("AnimatedObjects") << "uuid " << fullid << " created objectp " << objectp << LL_ENDL;
-        dumpStack("AnimatedObjectsStack");
+        LL_DEBUGS("ObjectUpdate") << "uuid " << fullid << " created objectp " << objectp << LL_ENDL;
+        dumpStack("ObjectUpdateStack");
 	 	
 		if (!objectp)
 		{
@@ -479,7 +479,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			compressed_dp.reset();
 
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
-            LL_DEBUGS("AnimatedObjects") << "got binary data from message to compressed_dpbuffer" << LL_ENDL;
+            LL_DEBUGS("ObjectUpdate") << "got binary data from message to compressed_dpbuffer" << LL_ENDL;
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
 
@@ -531,7 +531,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
             else
             {
-                LL_DEBUGS("AnimatedObjects") << "Non-full, non-compressed update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
+                LL_DEBUGS("ObjectUpdate") << "Non-full, non-compressed update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
             }
 		}
 		else // OUT_FULL only?
@@ -541,18 +541,18 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 			msg_size += sizeof(LLUUID);
 			msg_size += sizeof(U32);
-			LL_DEBUGS("AnimatedObjects") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
+			LL_DEBUGS("ObjectUpdate") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
 		}
 		objectp = findObject(fullid);
 
         if (compressed)
         {
-            LL_DEBUGS("AnimatedObjects") << "uuid " << fullid << " received compressed data from message (earlier in function)" << LL_ENDL;
+            LL_DEBUGS("ObjectUpdate") << "uuid " << fullid << " received compressed data from message (earlier in function)" << LL_ENDL;
         }
-        LL_DEBUGS("AnimatedObjects") << "uuid " << fullid << " objectp " << objectp 
+        LL_DEBUGS("ObjectUpdate") << "uuid " << fullid << " objectp " << objectp 
                                      << " update_cache " << (S32) update_cache << " compressed " << compressed
                                      << " update_type "  << update_type << LL_ENDL;
-        dumpStack("AnimatedObjectsStack");
+        dumpStack("ObjectUpdateStack");
         
 		if(update_cache)
 		{
@@ -629,8 +629,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 			objectp = createObject(pcode, regionp, fullid, local_id, gMessageSystem->getSender());
 
-            LL_DEBUGS("AnimatedObjects") << "creating object " << fullid << " result " << objectp << LL_ENDL;
-            dumpStack("AnimatedObjectsStack");
+            LL_DEBUGS("ObjectUpdate") << "creating object " << fullid << " result " << objectp << LL_ENDL;
+            dumpStack("ObjectUpdateStack");
 
 			if (!objectp)
 			{
@@ -727,15 +727,15 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
 		msg_size += sizeof(U32) * 2;
 
-        LL_DEBUGS("AnimatedObjects") << "got probe for id " << id << " crc " << crc << LL_ENDL;
-        dumpStack("AnimatedObjectsStack");
+        LL_DEBUGS("ObjectUpdate") << "got probe for id " << id << " crc " << crc << LL_ENDL;
+        dumpStack("ObjectUpdateStack");
 
 		// Lookup data packer and add this id to cache miss lists if necessary.
 		U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
 		if(!regionp->probeCache(id, crc, flags, cache_miss_type))
 		{
 			// Cache Miss.
-            LL_DEBUGS("AnimatedObjects") << "cache miss for id " << id << " crc " << crc << " miss type " << (S32) cache_miss_type << LL_ENDL;
+            LL_DEBUGS("ObjectUpdate") << "cache miss for id " << id << " crc " << crc << " miss type " << (S32) cache_miss_type << LL_ENDL;
 
 			recorder.cacheMissEvent(id, update_type, cache_miss_type, msg_size);
 
@@ -1292,6 +1292,9 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	// Cleanup any references we have to this object
 	// Remove from object map so noone can look it up.
 
+    LL_DEBUGS("ObjectUpdate") << " dereferencing id " << objectp->mID << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
+    
 	mUUIDObjectMap.erase(objectp->mID);
 	
 	//if (objectp->getRegion())
@@ -2003,8 +2006,8 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 {
 	llassert_always(uuid.notNull());
 
-    LL_DEBUGS("AnimatedObjects") << "creating " << uuid << " local_id " << local_id << LL_ENDL;
-    dumpStack("AnimatedObjectsStack");
+    LL_DEBUGS("ObjectUpdate") << "creating " << uuid << " local_id " << local_id << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
     
 	LLViewerObject *objectp = LLViewerObject::createObject(uuid, pcode, regionp);
 	if (!objectp)
@@ -2040,8 +2043,8 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 		fullid = uuid;
 	}
 
-    LL_DEBUGS("AnimatedObjects") << "createObject creating " << fullid << LL_ENDL;
-    dumpStack("AnimatedObjectsStack");
+    LL_DEBUGS("ObjectUpdate") << "createObject creating " << fullid << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
 
 	LLViewerObject *objectp = LLViewerObject::createObject(fullid, pcode, regionp);
 	if (!objectp)

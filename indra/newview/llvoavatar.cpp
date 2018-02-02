@@ -1890,7 +1890,7 @@ void LLVOAvatar::resetVisualParams()
 void LLVOAvatar::resetSkeleton(bool reset_animations)
 {
     LL_DEBUGS("Avatar") << avString() << " reset starts" << LL_ENDL;
-    if (!mLastProcessedAppearance)
+    if (!isControlAvatar() && !mLastProcessedAppearance)
     {
         LL_WARNS() << "Can't reset avatar; no appearance message has been received yet." << LL_ENDL;
         return;
@@ -1944,8 +1944,11 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     }
 
     // Reset tweakable params to preserved state
-    bool slam_params = true;
-    applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+    if (mLastProcessedAppearance)
+    {
+        bool slam_params = true;
+        applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+    }
     updateVisualParams();
 
     // Restore attachment pos overrides
@@ -5820,6 +5823,9 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 {
     LLScopedContextString str("rebuildAttachmentOverrides " + getFullname());
 
+    LL_DEBUGS("AnimatedObjects") << "rebuilding" << LL_ENDL;
+    dumpStack("AnimatedObjectsStack");
+    
     clearAttachmentOverrides();
 
     // Handle the case that we're resetting the skeleton of an animated object.
@@ -5829,6 +5835,8 @@ void LLVOAvatar::rebuildAttachmentOverrides()
         LLVOVolume *volp = control_av->mRootVolp;
         if (volp)
         {
+            LL_DEBUGS("Avatar") << volp->getID() << " adding attachment overrides for root vol, prim count " 
+                                << (S32) (1+volp->numChildren()) << LL_ENDL;
             addAttachmentOverridesForObject(volp);
         }
     }
@@ -5869,6 +5877,9 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 
     LLScopedContextString str("addAttachmentOverridesForObject " + vo->getAvatar()->getFullname());
     
+    LL_DEBUGS("AnimatedObjects") << "adding" << LL_ENDL;
+    dumpStack("AnimatedObjectsStack");
+    
 	// Process all children
 	LLViewerObject::const_child_list_t& children = vo->getChildren();
 	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
@@ -5885,6 +5896,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 	{
 		return;
 	}
+
+    LL_DEBUGS("AnimatedObjects") << "trying to add attachment overrides for root object " << root_object->getID() << " prim is " << vobj << LL_ENDL;
 	if (vobj->isMesh() &&
 		((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
 	{
@@ -5904,6 +5917,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 		{					
 			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 			const LLUUID& mesh_id = pSkinData->mMeshID;
+            LLViewerObject *root_object = (LLViewerObject*)vobj->getRoot();
+            LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id << " to root object " << root_object->getID() << LL_ENDL;
 			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
 			if ( fullRig )
 			{								
@@ -9135,6 +9150,7 @@ void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 	LLViewerObject::updateRegion(regionp);
 }
 
+// virtual
 std::string LLVOAvatar::getFullname() const
 {
 	std::string name;

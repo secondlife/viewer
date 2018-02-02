@@ -70,6 +70,8 @@ public:
 
 	virtual void	updateDebugText();
 
+    virtual std::string getFullname() const;
+
     bool mPlaying;
 
     F32 mGlobalScale;

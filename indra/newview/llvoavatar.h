@@ -926,7 +926,7 @@ private:
  **/
 
 public:
-	std::string		getFullname() const; // Returns "FirstName LastName"
+	virtual std::string	getFullname() const; // Returns "FirstName LastName"
 	std::string		avString() const; // Frequently used string in log messages "Avatar '<full name'"
 protected:
 	static void		getAnimLabels(std::vector<std::string>* labels);

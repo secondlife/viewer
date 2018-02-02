@@ -414,3 +414,16 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
 		
 	return hit;
 }
+
+// virtual
+std::string LLControlAvatar::getFullname() const
+{
+    if (mRootVolp)
+    {
+        return "AO_" + mRootVolp->getID().getString();
+    }
+    else
+    {
+        return "AO_no_root_vol";
+    }
+}
