@@ -2525,7 +2525,9 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
 			LL_WARNS("MediaOnAPrim") << "FAILED to bounce back URL \"" << url << "\" -- unloading impl" << LL_ENDL;
 			impl->setMediaFailed(true);
 		}
-		else {
+		// Make sure we are not bouncing to url we came from
+		else if (impl->getCurrentMediaURL() != url) 
+		{
 			// Okay, navigate now
             LL_INFOS("MediaOnAPrim") << "bouncing back to URL: " << url << LL_ENDL;
             impl->navigateTo(url, "", false, true);
