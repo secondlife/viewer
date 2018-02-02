@@ -91,6 +91,8 @@ private:
 
 	/*virtual*/ BOOL postBuild();
 
+	F32 getCurrentTransparency();
+
 	void onViewButtonClick(const LLSD& user_data);
 
 	ECameraControlMode determineMode();

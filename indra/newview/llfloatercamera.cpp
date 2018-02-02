@@ -378,6 +378,15 @@ BOOL LLFloaterCamera::postBuild()
 	return LLFloater::postBuild();
 }
 
+F32	LLFloaterCamera::getCurrentTransparency()
+{
+
+	static LLCachedControl<F32> camera_opacity(gSavedSettings, "CameraOpacity");
+	static LLCachedControl<F32> active_floater_transparency(gSavedSettings, "ActiveFloaterTransparency");
+	return llmin(camera_opacity(), active_floater_transparency());
+
+}
+
 void LLFloaterCamera::onViewButtonClick(const LLSD& user_data)
 {
 	// bring up the prefs floater
