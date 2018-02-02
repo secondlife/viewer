@@ -70,62 +70,18 @@ BOOL LLFloaterPreferenceViewAdvanced::postBuild()
 	return TRUE;
 }
 
-void LLFloaterPreferenceViewAdvanced::updateCameraControl(LLVector3 vector)
+void LLFloaterPreferenceViewAdvanced::updateCameraControl(const LLVector3& vector)
 {
-	LLSpinCtrl* spinnerx = getChild<LLSpinCtrl>("camera_x");
-	LLSpinCtrl* spinnery = getChild<LLSpinCtrl>("camera_y");
-	LLSpinCtrl* spinnerz = getChild<LLSpinCtrl>("camera_z");
-
-	if (!spinnerx || !spinnery || !spinnerz)
-	{
-		LL_WARNS() << "Could not find all desired UI camera elements"
-			<< LL_ENDL;
-		return;
-	}
-
-	if (!spinnerx->hasFocus())
-	{
-		spinnerx->setValue(vector[VX]);
-	}
-
-	if (!spinnery->hasFocus())
-	{
-		spinnery->setValue(vector[VY]);
-	}
-
-	if (!spinnerz->hasFocus())
-	{
-		spinnerz->setValue(vector[VZ]);
-	}
+	getChild<LLSpinCtrl>("camera_x")->setValue(vector[VX]);
+	getChild<LLSpinCtrl>("camera_y")->setValue(vector[VY]);
+	getChild<LLSpinCtrl>("camera_z")->setValue(vector[VZ]);
 }
 
-void LLFloaterPreferenceViewAdvanced::updateFocusControl(LLVector3d vector3d)
+void LLFloaterPreferenceViewAdvanced::updateFocusControl(const LLVector3d& vector3d)
 {
-	LLSpinCtrl* spinnerx = getChild<LLSpinCtrl>("focus_x");
-	LLSpinCtrl* spinnery = getChild<LLSpinCtrl>("focus_y");
-	LLSpinCtrl* spinnerz = getChild<LLSpinCtrl>("focus_z");
-
-	if (!spinnerx || !spinnery || !spinnerz)
-	{
-		LL_WARNS() << "Could not find all desired UI focus elements"
-			<< LL_ENDL;
-		return;
-	}
-
-	if (!spinnerx->hasFocus())
-	{
-		spinnerx->setValue(vector3d[VX]);
-	}
-
-	if (!spinnery->hasFocus())
-	{
-		spinnery->setValue(vector3d[VY]);
-	}
-
-	if (!spinnerz->hasFocus())
-	{
-		spinnerz->setValue(vector3d[VZ]);
-	}
+	getChild<LLSpinCtrl>("focus_x")->setValue(vector3d[VX]);
+	getChild<LLSpinCtrl>("focus_y")->setValue(vector3d[VY]);
+	getChild<LLSpinCtrl>("focus_z")->setValue(vector3d[VZ]);
 }
 
  void LLFloaterPreferenceViewAdvanced::draw()

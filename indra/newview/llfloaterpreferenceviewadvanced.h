@@ -43,8 +43,8 @@ public:
 	void onCommitSettings();
 	void onClickCancel();
 	void onClickOk();
-	void updateCameraControl(LLVector3 vector);
-	void updateFocusControl(LLVector3d vector3d);
+	void updateCameraControl(const LLVector3& vector);
+	void updateFocusControl(const LLVector3d& vector3d);
 
 private:
 	virtual ~LLFloaterPreferenceViewAdvanced();
