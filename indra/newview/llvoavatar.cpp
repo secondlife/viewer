@@ -5897,6 +5897,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 		return;
 	}
 
+	LLViewerObject *root_object = (LLViewerObject*)vobj->getRoot();
     LL_DEBUGS("AnimatedObjects") << "trying to add attachment overrides for root object " << root_object->getID() << " prim is " << vobj << LL_ENDL;
 	if (vobj->isMesh() &&
 		((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
@@ -5917,7 +5918,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 		{					
 			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 			const LLUUID& mesh_id = pSkinData->mMeshID;
-            LLViewerObject *root_object = (LLViewerObject*)vobj->getRoot();
+
             LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id << " to root object " << root_object->getID() << LL_ENDL;
 			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
 			if ( fullRig )
