@@ -661,9 +661,6 @@ void LLViewerPartSim::updateSimulation()
 {
 	static LLFrameTimer update_timer;
 
-	//reset VBO cursor
-	LLVOPartGroup::sVBSlotCursor = 0;
-
 	const F32 dt = llmin(update_timer.getElapsedTimeAndResetF32(), 0.1f);
 
  	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES)))
