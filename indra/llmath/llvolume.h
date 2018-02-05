@@ -903,7 +903,7 @@ public:
 	};
 
 	void optimize(F32 angle_cutoff = 2.f);
-	void cacheOptimize();
+	bool cacheOptimize();
 
 	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
 
@@ -1063,7 +1063,7 @@ public:
 	void copyVolumeFaces(const LLVolume* volume);
 	void copyFacesTo(std::vector<LLVolumeFace> &faces) const;
 	void copyFacesFrom(const std::vector<LLVolumeFace> &faces);
-	void cacheOptimize();
+	bool cacheOptimize();
 
 private:
 	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
