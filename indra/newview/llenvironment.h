@@ -220,8 +220,9 @@ private:
         typedef boost::shared_ptr<DayInstance> ptr_t;
 
                                     DayInstance();
+        virtual                     ~DayInstance() { };
 
-        void                        update(F64Seconds);
+        virtual void                update(F64Seconds);
 
         void                        setDay(const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset);
         void                        setSky(const LLSettingsSky::ptr_t &psky);
@@ -238,11 +239,11 @@ private:
         S64Seconds                  getDayLength() const    { return mDayLength; }
         S64Seconds                  getDayOffset() const    { return mDayOffset; }
 
-        void                        animate();
+        virtual void                animate();
 
         void                        setBlenders(const LLSettingsBlender::ptr_t &skyblend, const LLSettingsBlender::ptr_t &waterblend);
 
-    private:
+    protected:
         LLSettingsDay::ptr_t        mDayCycle;
         LLSettingsSky::ptr_t        mSky;
         LLSettingsWater::ptr_t      mWater;
@@ -256,13 +257,30 @@ private:
         LLSettingsBlender::ptr_t    mBlenderSky;
         LLSettingsBlender::ptr_t    mBlenderWater;
 
-
         F64                         secondsToKeyframe(S64Seconds seconds);
 
-        void                        onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t &blender);
+        void                        onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t blender);
     };
     typedef std::array<DayInstance::ptr_t, ENV_END> InstanceArray_t;
 
+
+    class DayTransition : public DayInstance
+    {
+    public:
+                                    DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, S64Seconds time);
+        virtual                     ~DayTransition() { };
+
+        virtual void                update(F64Seconds);
+        virtual void                animate();
+
+    protected:
+        LLSettingsSky::ptr_t        mStartSky;
+        LLSettingsWater::ptr_t      mStartWater;
+        DayInstance::ptr_t          mNextInstance;
+        S64Seconds                  mTransitionTime;
+
+        void                        onTransitonDone(S32 trackno, const LLSettingsBlender::ptr_t blender);
+    };
 
     static const F32            SUN_DELTA_YAW;
     static const F32            NIGHTTIME_ELEVATION_COS;
@@ -282,8 +300,6 @@ private:
 
     LLSettingsBlender::ptr_t    mBlenderSky;
     LLSettingsBlender::ptr_t    mBlenderWater;
-
-    LLSettingsDay::ptr_t        mCurrentDay;
 
     typedef std::vector<LLSettingsSky::ptr_t> SkyList_t;
     typedef std::vector<LLSettingsWater::ptr_t> WaterList_t;
@@ -338,7 +354,7 @@ private:
 
     void recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
 
-    void onTransitionDone(const LLSettingsBlender::ptr_t &, bool isSky);
+    void onTransitionDone(const LLSettingsBlender::ptr_t, bool isSky);
     //=========================================================================
     void                        legacyLoadAllPresets();
     LLSD                        legacyLoadPreset(const std::string& path);

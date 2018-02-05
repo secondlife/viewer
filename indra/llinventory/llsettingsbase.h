@@ -241,7 +241,7 @@ class LLSettingsBlender : public boost::enable_shared_from_this<LLSettingsBlende
 {
 public:
     typedef boost::shared_ptr<LLSettingsBlender>      ptr_t;
-    typedef boost::signals2::signal<void(const ptr_t &)> finish_signal_t;
+    typedef boost::signals2::signal<void(const ptr_t )> finish_signal_t;
     typedef boost::signals2::connection     connection_t;
 
     static const F64Seconds DEFAULT_THRESHOLD;

@@ -360,26 +360,33 @@ void LLEnvironment::updateEnvironment(F64Seconds transition)
 
     if (mCurrentEnvironment != pinstance)
     {
-        LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
-        LLSettingsWater::ptr_t pwater = mCurrentEnvironment->getWater();
+        DayInstance::ptr_t trans = boost::make_shared<DayTransition>(
+            mCurrentEnvironment->getSky(), mCurrentEnvironment->getWater(), pinstance, transition);
 
-        LLSettingsSky::ptr_t ptargetsky = psky->buildClone();
-        LLSettingsWater::ptr_t ptargetwater = pwater->buildClone();
-            
-        LLSettingsBlender::ptr_t skyblend = boost::make_shared<LLSettingsBlender>(ptargetsky, psky, pinstance->getSky(), transition);
-        skyblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, true));
-        LLSettingsBlender::ptr_t waterblend = boost::make_shared<LLSettingsBlender>(ptargetwater, pwater, pinstance->getWater(), transition);
-        waterblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, false));
+        trans->animate();
 
-        pinstance->setBlenders(skyblend, waterblend);
-
-        mCurrentEnvironment = pinstance;
-
-        mCurrentEnvironment->animate();
+        mCurrentEnvironment = trans;
+// 
+//         LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
+//         LLSettingsWater::ptr_t pwater = mCurrentEnvironment->getWater();
+// 
+//         LLSettingsSky::ptr_t ptargetsky = psky->buildClone();
+//         LLSettingsWater::ptr_t ptargetwater = pwater->buildClone();
+//             
+//         LLSettingsBlender::ptr_t skyblend = boost::make_shared<LLSettingsBlender>(ptargetsky, psky, pinstance->getSky(), transition);
+//         skyblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, true));
+//         LLSettingsBlender::ptr_t waterblend = boost::make_shared<LLSettingsBlender>(ptargetwater, pwater, pinstance->getWater(), transition);
+//         waterblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, false));
+// 
+//         pinstance->setBlenders(skyblend, waterblend);
+// 
+//         mCurrentEnvironment = pinstance;
+// 
+//         mCurrentEnvironment->animate();
     }
 }
 
-void LLEnvironment::onTransitionDone(const LLSettingsBlender::ptr_t &blender, bool isSky)
+void LLEnvironment::onTransitionDone(const LLSettingsBlender::ptr_t blender, bool isSky)
 {
     /*TODO: Test for both sky and water*/
     mCurrentEnvironment->animate();
@@ -394,28 +401,15 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     F32Seconds delta(timer.getElapsedTimeAndResetF32());
 
-    for (InstanceArray_t::iterator it = mEnvironments.begin(); it != mEnvironments.end(); ++it)
-    {
-        if (*it)
-            (*it)->update(delta);
-    }
+//     for (InstanceArray_t::reverse_iterator it = mEnvironments.rbegin(); it != mEnvironments.rend(); ++it)
+//     {
+//         if (*it)
+//             (*it)->update(delta);
+//     }
+    mCurrentEnvironment->update(delta);
 
     // update clouds, sun, and general
     updateCloudScroll();
-
-//     if (mBlenderSky)
-//         mBlenderSky->update(delta);
-//     if (mBlenderWater)
-//         mBlenderWater->update(delta);
-// 
-// 
-//     if (mCurrentDay)
-//         mCurrentDay->update();
-// 
-//     if (mCurrentEnvironment->getSky())
-//         mCurrentEnvironment->getSky()->update();
-//     if (mCurrentEnvironment->getWater())
-//         mCurrentEnvironment->getWater()->update();
 
     F32 camYaw = cam->getYaw();
 
@@ -1348,10 +1342,10 @@ void LLEnvironment::DayInstance::update(F64Seconds delta)
     if (mBlenderWater)
         mBlenderWater->update(delta);
 
-    if (mSky)
-        mSky->update();
-    if (mWater)
-        mWater->update();
+//     if (mSky)
+//         mSky->update();
+//     if (mWater)
+//         mWater->update();
 }
 
 void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset)
@@ -1490,7 +1484,7 @@ void LLEnvironment::DayInstance::animate()
     }
 }
 
-void LLEnvironment::DayInstance::onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t &blender)
+void LLEnvironment::DayInstance::onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t blender)
 {
     LL_WARNS("LAPRAS") << "onTrackTransitionDone for " << trackno << LL_ENDL;
     F64Seconds now(LLDate::now().secondsSinceEpoch());
@@ -1509,4 +1503,49 @@ void LLEnvironment::DayInstance::onTrackTransitionDone(S32 trackno, const LLSett
         " span=" << timespan << LL_ENDL;
 
     blender->reset((*bounds.first).second, (*bounds.second).second, timespan);
+}
+
+//-------------------------------------------------------------------------
+LLEnvironment::DayTransition::DayTransition(const LLSettingsSky::ptr_t &skystart,
+    const LLSettingsWater::ptr_t &waterstart, LLEnvironment::DayInstance::ptr_t &end, S64Seconds time) :
+    DayInstance(),
+    mStartSky(skystart),
+    mStartWater(waterstart),
+    mNextInstance(end),
+    mTransitionTime(time)
+{
+    
+}
+
+void LLEnvironment::DayTransition::update(F64Seconds delta)
+{
+    mNextInstance->update(delta);
+    DayInstance::update(delta);
+}
+
+void LLEnvironment::DayTransition::animate() 
+{
+    mNextInstance->animate();
+
+    mWater = mStartWater->buildClone();
+    mBlenderWater = boost::make_shared<LLSettingsBlender>(mWater, mStartWater, mNextInstance->getWater(), mTransitionTime);
+    mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::DayTransition::onTransitonDone, this, LLSettingsDay::TRACK_WATER, _1));
+
+    mSky = mStartSky->buildClone();
+    mBlenderSky = boost::make_shared<LLSettingsBlender>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
+    mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::DayTransition::onTransitonDone, this, LLSettingsDay::TRACK_MAX, _1));
+}
+
+
+void LLEnvironment::DayTransition::onTransitonDone(S32 trackno, const LLSettingsBlender::ptr_t blender)
+{
+    if (trackno == LLSettingsDay::TRACK_WATER)
+        mBlenderWater.reset();
+    else
+        mBlenderSky.reset();
+
+    if (!mBlenderSky && !mBlenderWater)
+    {
+        LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
+    }
 }
