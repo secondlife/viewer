@@ -62,7 +62,7 @@ public:
     static const std::string SETTING_SUN_ROTATION;
     static const std::string SETTING_SUN_TEXUTUREID;
 
-    typedef boost::shared_ptr<LLSettingsSky> ptr_t;
+    typedef std::shared_ptr<LLSettingsSky> ptr_t;
     typedef std::pair<F32, F32> azimalt_t;
 
     //---------------------------------------------------------------------

@@ -48,7 +48,7 @@ public:
 
     static const LLUUID DEFAULT_WATER_NORMAL_ID;
 
-    typedef boost::shared_ptr<LLSettingsWater> ptr_t;
+    typedef std::shared_ptr<LLSettingsWater> ptr_t;
 
     //---------------------------------------------------------------------
     LLSettingsWater(const LLSD &data);

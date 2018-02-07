@@ -94,7 +94,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
         LLSettingsSky::ptr_t();
     }
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(newsettings);
+    LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
     LLSD oldsettings = LLSettingsVOSky::convertToLegacy(skyp);
@@ -124,7 +124,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
         LLSettingsSky::ptr_t();
     }
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
+    LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(settings);
     return skyp;
 }
 
@@ -140,7 +140,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
         LLSettingsSky::ptr_t();
     }
 
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
+    LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(settings);
     return skyp;
 }
 
@@ -267,7 +267,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
         return LLSettingsWater::ptr_t();
     }
 
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(newsettings);
+    LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
     LLSD oldsettings = LLSettingsVOWater::convertToLegacy(waterp);
@@ -296,7 +296,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
         return LLSettingsWater::ptr_t();
     }
 
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
+    LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(settings);
 
     return waterp;
 }
@@ -312,7 +312,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
         return LLSettingsWater::ptr_t();
     }
 
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
+    LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(settings);
 
     return waterp;
 }
@@ -459,7 +459,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
     }
 
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(newsettings);
+    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
     LLSD testsettings = LLSettingsVODay::convertToLegacy(dayp);
@@ -525,7 +525,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
         return LLSettingsDay::ptr_t();
     }
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(newsettings);
+    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(newsettings);
     
     if (dayp)
     {
@@ -547,7 +547,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
         LLSettingsDay::ptr_t();
     }
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
+    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
 
     dayp->initialize();
     return dayp;
@@ -563,7 +563,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromEnvironmentMessage(LLSD settings)
         LLSettingsDay::ptr_t();
     }
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
+    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
 
     dayp->initialize();
     return dayp;
@@ -582,7 +582,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
         LLSettingsDay::ptr_t();
     }
 
-    LLSettingsDay::ptr_t dayp = boost::make_shared<LLSettingsVODay>(settings);
+    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
 
     dayp->initialize();
     return dayp;
@@ -595,7 +595,7 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
     LLSettingsWater::ptr_t pwater;
     if (!trackwater.empty())
     {
-        pwater = boost::static_pointer_cast<LLSettingsWater>((*trackwater.begin()).second);
+        pwater = std::static_pointer_cast<LLSettingsWater>((*trackwater.begin()).second);
     }
 
     if (!pwater)
@@ -615,7 +615,7 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
         
         name << hash;
         
-        skys[name.str()] = boost::static_pointer_cast<LLSettingsSky>((*it).second);
+        skys[name.str()] = std::static_pointer_cast<LLSettingsSky>((*it).second);
         
         F32 frame = ((tracksky.size() == 1) && (it == tracksky.begin())) ? -1.0f : (*it).first;
         llsdcycle.append( LLSDArray(LLSD::Real(frame))(name.str()) );
@@ -649,7 +649,7 @@ LLSettingsWaterPtr_t LLSettingsVODay::getDefaultWater() const
 
 LLSettingsSkyPtr_t LLSettingsVODay::buildSky(LLSD settings) const
 {
-    LLSettingsSky::ptr_t skyp = boost::make_shared<LLSettingsVOSky>(settings);
+    LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(settings);
 
     if (skyp->validate())
         return skyp;
@@ -659,7 +659,7 @@ LLSettingsSkyPtr_t LLSettingsVODay::buildSky(LLSD settings) const
 
 LLSettingsWaterPtr_t LLSettingsVODay::buildWater(LLSD settings) const
 {
-    LLSettingsWater::ptr_t waterp = boost::make_shared<LLSettingsVOWater>(settings);
+    LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(settings);
 
     if (waterp->validate())
         return waterp;

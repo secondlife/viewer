@@ -31,7 +31,6 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/signals2.hpp>
 
 #include "llsd.h"
@@ -44,7 +43,7 @@
 #include "v3color.h"
 
 class LLSettingsBase : 
-    public boost::enable_shared_from_this<LLSettingsBase>,
+    public std::enable_shared_from_this<LLSettingsBase>,
     private boost::noncopyable
 {
     friend class LLEnvironment;
@@ -58,7 +57,7 @@ public:
 
     typedef std::map<std::string, S32>  parammapping_t;
 
-    typedef boost::shared_ptr<LLSettingsBase> ptr_t;
+    typedef std::shared_ptr<LLSettingsBase> ptr_t;
 
     virtual ~LLSettingsBase() { };
 
@@ -237,10 +236,10 @@ private:
 };
 
 
-class LLSettingsBlender : public boost::enable_shared_from_this<LLSettingsBlender>
+class LLSettingsBlender : public std::enable_shared_from_this<LLSettingsBlender>
 {
 public:
-    typedef boost::shared_ptr<LLSettingsBlender>      ptr_t;
+    typedef std::shared_ptr<LLSettingsBlender>      ptr_t;
     typedef boost::signals2::signal<void(const ptr_t )> finish_signal_t;
     typedef boost::signals2::connection     connection_t;
 

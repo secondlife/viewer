@@ -33,8 +33,8 @@
 class LLSettingsWater;
 class LLSettingsSky;
 
-typedef boost::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
-typedef boost::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
+typedef std::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
+typedef std::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
 
 class LLSettingsDay : public LLSettingsBase
 {
@@ -60,7 +60,7 @@ public:
 
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
-    typedef boost::shared_ptr<LLSettingsDay>        ptr_t;
+    typedef std::shared_ptr<LLSettingsDay>        ptr_t;
     typedef std::vector<F32>                        KeyframeList_t;
     typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 

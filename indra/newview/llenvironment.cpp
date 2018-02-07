@@ -98,7 +98,7 @@ void LLEnvironment::initSingleton()
     LLSettingsDay::ptr_t p_default_day = LLSettingsVODay::buildDefaultDayCycle();
     addDayCycle(p_default_day);
 
-    mCurrentEnvironment = boost::make_shared<DayInstance>();
+    mCurrentEnvironment = std::make_shared<DayInstance>();
     mCurrentEnvironment->setSky(p_default_sky);
     mCurrentEnvironment->setWater(p_default_water);
 
@@ -221,9 +221,10 @@ bool LLEnvironment::hasEnvironment(LLEnvironment::EnvSelection_t env)
 LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnvironment::EnvSelection_t env, bool create /*= false*/)
 {
     DayInstance::ptr_t environment = mEnvironments[env];
-    if (!environment && create)
+//    if (!environment && create)
+    if (create)
     {
-        environment = boost::make_shared<DayInstance>();
+        environment = std::make_shared<DayInstance>();
         mEnvironments[env] = environment;
     }
 
@@ -360,7 +361,7 @@ void LLEnvironment::updateEnvironment(F64Seconds transition)
 
     if (mCurrentEnvironment != pinstance)
     {
-        DayInstance::ptr_t trans = boost::make_shared<DayTransition>(
+        DayInstance::ptr_t trans = std::make_shared<DayTransition>(
             mCurrentEnvironment->getSky(), mCurrentEnvironment->getWater(), pinstance, transition);
 
         trans->animate();
@@ -373,9 +374,9 @@ void LLEnvironment::updateEnvironment(F64Seconds transition)
 //         LLSettingsSky::ptr_t ptargetsky = psky->buildClone();
 //         LLSettingsWater::ptr_t ptargetwater = pwater->buildClone();
 //             
-//         LLSettingsBlender::ptr_t skyblend = boost::make_shared<LLSettingsBlender>(ptargetsky, psky, pinstance->getSky(), transition);
+//         LLSettingsBlender::ptr_t skyblend = std::make_shared<LLSettingsBlender>(ptargetsky, psky, pinstance->getSky(), transition);
 //         skyblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, true));
-//         LLSettingsBlender::ptr_t waterblend = boost::make_shared<LLSettingsBlender>(ptargetwater, pwater, pinstance->getWater(), transition);
+//         LLSettingsBlender::ptr_t waterblend = std::make_shared<LLSettingsBlender>(ptargetwater, pwater, pinstance->getWater(), transition);
 //         waterblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, false));
 // 
 //         pinstance->setBlenders(skyblend, waterblend);
@@ -687,7 +688,7 @@ LLSettingsSky::ptr_t LLEnvironment::findSkyByName(std::string name) const
         return LLSettingsSky::ptr_t();
     }
 
-    return boost::static_pointer_cast<LLSettingsSky>((*it).second);
+    return std::static_pointer_cast<LLSettingsSky>((*it).second);
 }
 
 LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
@@ -700,7 +701,7 @@ LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
         return LLSettingsWater::ptr_t();
     }
 
-    return boost::static_pointer_cast<LLSettingsWater>((*it).second);
+    return std::static_pointer_cast<LLSettingsWater>((*it).second);
 }
 
 LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
@@ -713,7 +714,7 @@ LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
         return LLSettingsDay::ptr_t();
     }
 
-    return boost::static_pointer_cast<LLSettingsDay>((*it).second);
+    return std::static_pointer_cast<LLSettingsDay>((*it).second);
 }
 
 
@@ -1071,7 +1072,7 @@ LLEnvironment::EnvironmentInfo::EnvironmentInfo():
 
 LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LLSD environment)
 {
-    ptr_t pinfo = boost::make_shared<EnvironmentInfo>();
+    ptr_t pinfo = std::make_shared<EnvironmentInfo>();
 
     if (environment.has("parcel_id"))
         pinfo->mParcelId = environment["parcel_id"].asInteger();
@@ -1444,7 +1445,7 @@ void LLEnvironment::DayInstance::animate()
     }
     else if (wtrack.size() == 1)
     {
-        mWater = boost::static_pointer_cast<LLSettingsWater>((*(wtrack.begin())).second);
+        mWater = std::static_pointer_cast<LLSettingsWater>((*(wtrack.begin())).second);
         mBlenderWater.reset();
     }
     else
@@ -1452,8 +1453,8 @@ void LLEnvironment::DayInstance::animate()
         LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, secondsToKeyframe(now));
         F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
-        mWater = boost::static_pointer_cast<LLSettingsVOWater>((*bounds.first).second)->buildClone();
-        mBlenderWater = boost::make_shared<LLSettingsBlender>(mWater,
+        mWater = std::static_pointer_cast<LLSettingsVOWater>((*bounds.first).second)->buildClone();
+        mBlenderWater = std::make_shared<LLSettingsBlender>(mWater,
             (*bounds.first).second, (*bounds.second).second, timespan);
         mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::DayInstance::onTrackTransitionDone, this, 0, _1));
     }
@@ -1469,7 +1470,7 @@ void LLEnvironment::DayInstance::animate()
     }
     else if (track.size() == 1)
     {
-        mSky = boost::static_pointer_cast<LLSettingsSky>((*(track.begin())).second);
+        mSky = std::static_pointer_cast<LLSettingsSky>((*(track.begin())).second);
         mBlenderSky.reset();
     }
     else
@@ -1477,8 +1478,8 @@ void LLEnvironment::DayInstance::animate()
         LLSettingsDay::TrackBound_t bounds = get_bounding_entries(track, secondsToKeyframe(now));
         F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
-        mSky = boost::static_pointer_cast<LLSettingsVOSky>((*bounds.first).second)->buildClone();
-        mBlenderSky = boost::make_shared<LLSettingsBlender>(mSky,
+        mSky = std::static_pointer_cast<LLSettingsVOSky>((*bounds.first).second)->buildClone();
+        mBlenderSky = std::make_shared<LLSettingsBlender>(mSky,
             (*bounds.first).second, (*bounds.second).second, timespan);
         mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::DayInstance::onTrackTransitionDone, this, 1, _1));
     }
@@ -1528,11 +1529,11 @@ void LLEnvironment::DayTransition::animate()
     mNextInstance->animate();
 
     mWater = mStartWater->buildClone();
-    mBlenderWater = boost::make_shared<LLSettingsBlender>(mWater, mStartWater, mNextInstance->getWater(), mTransitionTime);
+    mBlenderWater = std::make_shared<LLSettingsBlender>(mWater, mStartWater, mNextInstance->getWater(), mTransitionTime);
     mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::DayTransition::onTransitonDone, this, LLSettingsDay::TRACK_WATER, _1));
 
     mSky = mStartSky->buildClone();
-    mBlenderSky = boost::make_shared<LLSettingsBlender>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
+    mBlenderSky = std::make_shared<LLSettingsBlender>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
     mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::DayTransition::onTransitonDone, this, LLSettingsDay::TRACK_MAX, _1));
 }
 

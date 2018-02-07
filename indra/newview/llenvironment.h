@@ -58,7 +58,7 @@ public:
     {
         EnvironmentInfo();
 
-        typedef boost::shared_ptr<EnvironmentInfo>  ptr_t;
+        typedef std::shared_ptr<EnvironmentInfo>  ptr_t;
 
         S32             mParcelId;
         LLUUID          mRegionId;
@@ -217,7 +217,7 @@ private:
             TYPE_FIXED,
             TYPE_CYCLED
         };
-        typedef boost::shared_ptr<DayInstance> ptr_t;
+        typedef std::shared_ptr<DayInstance> ptr_t;
 
                                     DayInstance();
         virtual                     ~DayInstance() { };
