@@ -1200,7 +1200,7 @@ void LLVOVolume::sculpt()
 				mSculptTexture->updateBindStatsForTester() ;
 			}
 		}
-		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
+		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, mSculptTexture->isMissingAsset());
 
 		//notify rebuild any other VOVolumes that reference this sculpty volume
 		for (S32 i = 0; i < mSculptTexture->getNumVolumes(); ++i)
