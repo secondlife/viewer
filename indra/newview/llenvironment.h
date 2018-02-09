@@ -124,7 +124,7 @@ public:
     typedef std::pair<std::string, LLUUID>                  name_id_t;
     typedef std::vector<name_id_t>                          list_name_id_t;
     typedef boost::signals2::signal<void()>                 change_signal_t;
-    typedef boost::function<void(S32, EnvironmentInfo::ptr_t)>     environment_apply_fn;
+    typedef std::function<void(S32, EnvironmentInfo::ptr_t)>     environment_apply_fn;
 
     virtual ~LLEnvironment();
 
@@ -278,8 +278,6 @@ private:
         LLSettingsWater::ptr_t      mStartWater;
         DayInstance::ptr_t          mNextInstance;
         S64Seconds                  mTransitionTime;
-
-        void                        onTransitonDone(S32 trackno, const LLSettingsBlender::ptr_t blender);
     };
 
     static const F32            SUN_DELTA_YAW;

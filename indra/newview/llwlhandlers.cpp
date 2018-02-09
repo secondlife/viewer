@@ -52,7 +52,7 @@ bool LLEnvironmentRequest::initiate()
 	if (!cur_region->capabilitiesReceived())
 	{
 		LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
-		cur_region->setCapabilitiesReceivedCallback(boost::bind(&LLEnvironmentRequest::onRegionCapsReceived, _1));
+        cur_region->setCapabilitiesReceivedCallback([](LLUUID region_id) { LLEnvironmentRequest::onRegionCapsReceived(region_id); });
 		return false;
 	}
 
@@ -85,7 +85,7 @@ bool LLEnvironmentRequest::doRequest()
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentRequest::environmentRequestCoro",
-        boost::bind(&LLEnvironmentRequest::environmentRequestCoro, url));
+        [url]() { LLEnvironmentRequest::environmentRequestCoro(url); });
 
     LL_INFOS("WindlightCaps") << "Requesting region windlight settings via " << url << LL_ENDL;
     return true;
@@ -178,7 +178,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentApply::environmentApplyCoro",
-        boost::bind(&LLEnvironmentApply::environmentApplyCoro, url, content));
+        [url, content]() { LLEnvironmentApply::environmentApplyCoro(url, content); });
 	return true;
 }
 

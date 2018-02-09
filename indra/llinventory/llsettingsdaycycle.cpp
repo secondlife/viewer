@@ -131,20 +131,20 @@ LLSD LLSettingsDay::getSettings() const
 
     LLSD tracks(LLSD::emptyArray());
     
-    for (CycleList_t::const_iterator itTrack = mDayTracks.begin(); itTrack != mDayTracks.end(); ++itTrack)
+    for (auto &track: mDayTracks)
     {
         LLSD trackout(LLSD::emptyArray());
 
-        for (CycleTrack_t::const_iterator itFrame = (*itTrack).begin(); itFrame != (*itTrack).end(); ++itFrame)
+        for (auto &frame: track)
         {
-            F32 frame = (*itFrame).first;
-            LLSettingsBase::ptr_t data = (*itFrame).second;
+            F32 frame_time = frame.first;
+            LLSettingsBase::ptr_t data = frame.second;
             size_t datahash = data->getHash();
 
             std::stringstream keyname;
             keyname << datahash;
 
-            trackout.append(LLSD(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(frame))(SETTING_KEYNAME, keyname.str())));
+            trackout.append(LLSD(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(frame_time))(SETTING_KEYNAME, keyname.str())));
             in_use[keyname.str()] = data;
         }
         tracks.append(trackout);
@@ -152,12 +152,12 @@ LLSD LLSettingsDay::getSettings() const
     settings[SETTING_TRACKS] = tracks;
 
     LLSD frames(LLSD::emptyMap());
-    for (std::map<std::string, LLSettingsBase::ptr_t>::iterator itFrame = in_use.begin(); itFrame != in_use.end(); ++itFrame)
+    for (auto &used_frame: in_use)
     {
-        LLSD framesettings = llsd_clone((*itFrame).second->getSettings(),
+        LLSD framesettings = llsd_clone(used_frame.second->getSettings(),
             LLSDMap("*", true)(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false));
 
-        frames[(*itFrame).first] = framesettings;
+        frames[used_frame.first] = framesettings;
     }
     settings[SETTING_FRAMES] = frames;
 
@@ -465,9 +465,9 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
 
     keyframes.reserve(track.size());
 
-    for (CycleTrack_t::iterator it = track.begin(); it != track.end(); ++it)
+    for (auto &frame: track)
     {
-        keyframes.push_back((*it).first);
+        keyframes.push_back(frame.first);
     }
 
     return keyframes;

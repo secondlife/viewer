@@ -262,57 +262,6 @@ size_t LLSettingsBase::getHash() const
     return boost::hash<LLSD>{}(hash_settings);
 }
 
-#ifdef VALIDATION_DEBUG
-namespace
-{
-    bool compare_llsd(LLSD valA, LLSD valB)
-    {
-        if (valA.type() != valB.type())
-            return false;
-
-        switch (valA.type())
-        {
-        //         case LLSD::TypeMap:
-        //             newSettings[key_name] = combineSDMaps(value, LLSD());
-        //             break;
-        case LLSD::TypeArray:
-            if (valA.size() != valB.size())
-                return false;
-
-            for (S32 idx = 0; idx < valA.size(); ++idx)
-            {
-                if (!compare_llsd(valA[idx], valB[idx]))
-                    return false;
-            }
-            return true;
-
-        case LLSD::TypeInteger:
-            return valA.asInteger() == valB.asInteger();
-
-        case LLSD::TypeReal:
-            return is_approx_equal(valA.asReal(), valB.asReal());
-
-        case LLSD::TypeBoolean:
-            return valA.asBoolean() == valB.asBoolean();
-
-        case LLSD::TypeString:
-            return valA.asString() == valB.asString();
-
-        case LLSD::TypeUUID:
-            return valA.asUUID() == valB.asUUID();
-
-        case LLSD::TypeURI:
-            return valA.asString() == valB.asString();
-
-        case LLSD::TypeDate:
-            return valA.asDate() == valB.asDate();
-        }
-
-        return true;
-    }
-}
-#endif
-
 bool LLSettingsBase::validate()
 {
     validation_list_t validations = getValidationList();
@@ -378,35 +327,17 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
     validated.insert(validateType.getName());
 
     // Fields for specific settings.
-    for (validation_list_t::iterator itv = validations.begin(); itv != validations.end(); ++itv)
+    for (auto &test: validations)
     {
-#ifdef VALIDATION_DEBUG
-        LLSD oldvalue;
-        if (settings.has((*itv).getName()))
-        {
-            oldvalue = llsd_clone(mSettings[(*itv).getName()]);
-        }
-#endif
-
-        if (!(*itv).verify(settings))
+        if (!test.verify(settings))
         {
             std::stringstream errtext;
 
-            errtext << "Settings LLSD fails validation and could not be corrected for '" << (*itv).getName() << "'!";
+            errtext << "Settings LLSD fails validation and could not be corrected for '" << test.getName() << "'!";
             errors.append( errtext.str() );
             isValid = false;
         }
-        validated.insert((*itv).getName());
-
-#ifdef VALIDATION_DEBUG
-        if (!oldvalue.isUndefined())
-        {
-            if (!compare_llsd(settings[(*itv).getName()], oldvalue))
-            {
-                LL_WARNS("SETTINGS") << "Setting '" << (*itv).getName() << "' was changed: " << oldvalue << " -> " << settings[(*itv).getName()] << LL_ENDL;
-            }
-        }
-#endif
+        validated.insert(test.getName());
     }
 
     // strip extra entries
@@ -422,9 +353,9 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         }
     }
 
-    for (stringset_t::iterator its = strip.begin(); its != strip.end(); ++its)
+    for (const std::string &its: strip)
     {
-        settings.erase(*its);
+        settings.erase(its);
     }
 
     return LLSDMap("success", LLSD::Boolean(isValid))

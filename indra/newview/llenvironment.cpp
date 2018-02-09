@@ -367,23 +367,6 @@ void LLEnvironment::updateEnvironment(F64Seconds transition)
         trans->animate();
 
         mCurrentEnvironment = trans;
-// 
-//         LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
-//         LLSettingsWater::ptr_t pwater = mCurrentEnvironment->getWater();
-// 
-//         LLSettingsSky::ptr_t ptargetsky = psky->buildClone();
-//         LLSettingsWater::ptr_t ptargetwater = pwater->buildClone();
-//             
-//         LLSettingsBlender::ptr_t skyblend = std::make_shared<LLSettingsBlender>(ptargetsky, psky, pinstance->getSky(), transition);
-//         skyblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, true));
-//         LLSettingsBlender::ptr_t waterblend = std::make_shared<LLSettingsBlender>(ptargetwater, pwater, pinstance->getWater(), transition);
-//         waterblend->setOnFinished(boost::bind(&LLEnvironment::onTransitionDone, this, _1, false));
-// 
-//         pinstance->setBlenders(skyblend, waterblend);
-// 
-//         mCurrentEnvironment = pinstance;
-// 
-//         mCurrentEnvironment->animate();
     }
 }
 
@@ -402,11 +385,6 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     F32Seconds delta(timer.getElapsedTimeAndResetF32());
 
-//     for (InstanceArray_t::reverse_iterator it = mEnvironments.rbegin(); it != mEnvironments.rend(); ++it)
-//     {
-//         if (*it)
-//             (*it)->update(delta);
-//     }
     mCurrentEnvironment->update(delta);
 
     // update clouds, sun, and general
@@ -460,28 +438,28 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
 
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
     LLSettingsBase::parammapping_t params = psetting->getParameterMap();
-    for (LLSettingsBase::parammapping_t::iterator it = params.begin(); it != params.end(); ++it)
+    for (auto &it: params)
     {
-        if (!psetting->mSettings.has((*it).first))
+        if (!psetting->mSettings.has(it.first))
             continue;
 
-        LLSD value = psetting->mSettings[(*it).first];
+        LLSD value = psetting->mSettings[it.first];
         LLSD::Type setting_type = value.type();
 
         stop_glerror();
         switch (setting_type)
         {
         case LLSD::TypeInteger:
-            shader->uniform1i((*it).second, value.asInteger());
+            shader->uniform1i(it.second, value.asInteger());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
         case LLSD::TypeReal:
-            shader->uniform1f((*it).second, value.asReal());
+            shader->uniform1f(it.second, value.asReal());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
         case LLSD::TypeBoolean:
-            shader->uniform1i((*it).second, value.asBoolean() ? 1 : 0);
+            shader->uniform1i(it.second, value.asBoolean() ? 1 : 0);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
@@ -489,7 +467,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         {
             LLVector4 vect4(value);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform4fv((*it).second, 1, vect4.mV);
+            shader->uniform4fv(it.second, 1, vect4.mV);
 
             break;
         }
@@ -551,9 +529,9 @@ LLEnvironment::list_name_id_t LLEnvironment::getSkyList() const
 
     list.reserve(mSkysByName.size());
 
-    for (namedSettingMap_t::const_iterator it = mSkysByName.begin(); it != mSkysByName.end(); ++it)
+    for (auto &it: mSkysByName)
     {
-        list.push_back(std::vector<name_id_t>::value_type((*it).second->getName(), (*it).second->getId()));
+        list.push_back(std::vector<name_id_t>::value_type(it.second->getName(), it.second->getId()));
     }
 
     return list;
@@ -565,9 +543,9 @@ LLEnvironment::list_name_id_t LLEnvironment::getWaterList() const
 
     list.reserve(mWaterByName.size());
 
-    for (namedSettingMap_t::const_iterator it = mWaterByName.begin(); it != mWaterByName.end(); ++it)
+    for (auto &it : mWaterByName)
     {
-        list.push_back(std::vector<name_id_t>::value_type((*it).second->getName(), (*it).second->getId()));
+        list.push_back(std::vector<name_id_t>::value_type(it.second->getName(), it.second->getId()));
     }
 
     return list;
@@ -579,9 +557,9 @@ LLEnvironment::list_name_id_t LLEnvironment::getDayCycleList() const
 
     list.reserve(mDayCycleByName.size());
 
-    for (namedSettingMap_t::const_iterator it = mDayCycleByName.begin(); it != mDayCycleByName.end(); ++it)
+    for (auto &it: mDayCycleByName)
     {
-        list.push_back(std::vector<name_id_t>::value_type((*it).second->getName(), (*it).second->getId()));
+        list.push_back(std::vector<name_id_t>::value_type(it.second->getName(), it.second->getId()));
     }
 
     return list;
@@ -593,8 +571,7 @@ void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
 
     LL_WARNS("RIDER") << "Adding sky as '" << name << "'" << LL_ENDL;
 
-    std::pair<namedSettingMap_t::iterator, bool> result;
-    result = mSkysByName.insert(namedSettingMap_t::value_type(name, sky));
+    auto result = mSkysByName.insert(namedSettingMap_t::value_type(name, sky)); // auto should be: std::pair<namedSettingMap_t::iterator, bool> 
 
     if (!result.second)
         (*(result.first)).second = sky;
@@ -603,7 +580,7 @@ void LLEnvironment::addSky(const LLSettingsSky::ptr_t &sky)
 
 void LLEnvironment::removeSky(const std::string &name)
 {
-    namedSettingMap_t::iterator it = mSkysByName.find(name);
+    auto it = mSkysByName.find(name);
     if (it != mSkysByName.end())
         mSkysByName.erase(it);
     mSkyListChange();
@@ -622,8 +599,7 @@ void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
 
     LL_WARNS("RIDER") << "Adding water as '" << name << "'" << LL_ENDL;
 
-    std::pair<namedSettingMap_t::iterator, bool> result;
-    result = mWaterByName.insert(namedSettingMap_t::value_type(name, water));
+    auto result = mWaterByName.insert(namedSettingMap_t::value_type(name, water));
 
     if (!result.second)
         (*(result.first)).second = water;
@@ -633,7 +609,7 @@ void LLEnvironment::addWater(const LLSettingsWater::ptr_t &water)
 
 void LLEnvironment::removeWater(const std::string &name)
 {
-    namedSettingMap_t::iterator it = mWaterByName.find(name);
+    auto it = mWaterByName.find(name);
     if (it != mWaterByName.end())
         mWaterByName.erase(it);
     mWaterListChange();
@@ -652,8 +628,7 @@ void LLEnvironment::addDayCycle(const LLSettingsDay::ptr_t &daycycle)
 
     LL_WARNS("RIDER") << "Adding daycycle as '" << name << "'" << LL_ENDL;
 
-    std::pair<namedSettingMap_t::iterator, bool> result;
-    result = mDayCycleByName.insert(namedSettingMap_t::value_type(name, daycycle));
+    auto result = mDayCycleByName.insert(namedSettingMap_t::value_type(name, daycycle));
 
     if (!result.second)
         (*(result.first)).second = daycycle;
@@ -664,7 +639,7 @@ void LLEnvironment::addDayCycle(const LLSettingsDay::ptr_t &daycycle)
 
 void LLEnvironment::removeDayCycle(const std::string &name)
 {
-    namedSettingMap_t::iterator it = mDayCycleByName.find(name);
+    auto it = mDayCycleByName.find(name);
     if (it != mDayCycleByName.end())
         mDayCycleByName.erase(it);
     mDayCycleListChange();
@@ -680,7 +655,7 @@ void LLEnvironment::clearAllDayCycles()
 
 LLSettingsSky::ptr_t LLEnvironment::findSkyByName(std::string name) const
 {
-    namedSettingMap_t::const_iterator it = mSkysByName.find(name);
+    auto it = mSkysByName.find(name);
 
     if (it == mSkysByName.end())
     {
@@ -693,7 +668,7 @@ LLSettingsSky::ptr_t LLEnvironment::findSkyByName(std::string name) const
 
 LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
 {
-    namedSettingMap_t::const_iterator it = mWaterByName.find(name);
+    auto it = mWaterByName.find(name);
 
     if (it == mWaterByName.end())
     {
@@ -706,7 +681,7 @@ LLSettingsWater::ptr_t LLEnvironment::findWaterByName(std::string name) const
 
 LLSettingsDay::ptr_t LLEnvironment::findDayCycleByName(std::string name) const
 {
-    namedSettingMap_t::const_iterator it = mDayCycleByName.find(name);
+    auto it = mDayCycleByName.find(name);
 
     if (it == mDayCycleByName.end())
     {
@@ -735,27 +710,6 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
             LL_WARNS("LAPRAS") << "Had requested parcel environment #" << parcel_id << " but got region." << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
         }
-//         LLViewerRegion *pRegion = gAgent.getRegion();
-// 
-//         pRegion->setDayLength(envinfo->mDayLength);
-//         pRegion->setDayOffset(envinfo->mDayOffset);
-//         pRegion->setIsDefaultDayCycle(envinfo->mIsDefault);
-//         if (pRegion->getRegionDayCycleHash() != envinfo->mDayHash)
-//         {
-//             pRegion->setRegionDayCycle(pday);
-//             pRegion->setRegionDayCycleHash(envinfo->mDayHash);
-//         }
-// 
-//         if (parcel_id != INVALID_PARCEL_ID)
-//         {   // We requested a parcel environment but got back the region's. If this is the parcel we are in
-//             // clear it out.
-//             LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
-// 
-//             if (parcel->getLocalID() == parcel_id)
-//             {
-//                 parcel->clearParcelDayCycleInfo();
-//             }
-//         }
     }
     else
     {
@@ -769,20 +723,6 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         }
 
         setEnvironment(ENV_PARCEL, pday, envinfo->mDayLength, envinfo->mDayOffset);
-//         LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
-// 
-//         if (parcel->getLocalID() == parcel_id)
-//         {
-//             parcel->setDayLength(envinfo->mDayLength);
-//             parcel->setDayOffset(envinfo->mDayOffset);
-//             parcel->setUsesDefaultDayCycle(envinfo->mIsDefault);
-//             if (parcel->getParcelDayCycleHash() != envinfo->mDayHash)
-//             {
-//                 parcel->setParcelDayCycle(pday);
-//                 parcel->setParcelDayCycleHash(envinfo->mDayHash);
-//             }
-// 
-//         }
     }
     
     /*TODO: track_altitudes*/
@@ -819,32 +759,27 @@ void LLEnvironment::resetRegion()
 
 void LLEnvironment::requestParcel(S32 parcel_id)
 {
-    environment_apply_fn apply = boost::bind(&LLEnvironment::recordEnvironment, this, _1, _2);
-
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
-        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id, apply));
-
+        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id,
+        [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }));
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
 {
-    environment_apply_fn apply = boost::bind(&LLEnvironment::recordEnvironment, this, _1, _2);
-
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         boost::bind(&LLEnvironment::coroUpdateEnvironment, this, parcel_id, 
-        pday, day_length, day_offset, apply));
-
+        pday, day_length, day_offset, 
+        [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }));
 }
 
 void LLEnvironment::resetParcel(S32 parcel_id)
 {
-    environment_apply_fn apply = boost::bind(&LLEnvironment::recordEnvironment, this, _1, _2);
-
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
-        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id, apply));
+        boost::bind(&LLEnvironment::coroResetEnvironment, this, parcel_id, 
+        [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }));
 }
 
 void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environment_apply_fn apply)
@@ -890,7 +825,7 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     else
     {
         LLSD environment = result["environment"];
-        if (environment.isDefined() && !apply.empty())
+        if (environment.isDefined() && apply)
         {
             EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
             apply(parcel_id, envinfo);
@@ -953,7 +888,7 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, LLSettingsDay::ptr_t pd
     else
     {
         LLSD environment = result["environment"];
-        if (environment.isDefined() && !apply.empty())
+        if (environment.isDefined() && apply)
         {
             EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
             apply(parcel_id, envinfo);
@@ -1004,7 +939,7 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, environment_apply_fn app
     else
     {
         LLSD environment = result["environment"];
-        if (environment.isDefined() && !apply.empty())
+        if (environment.isDefined() && apply)
         {
             EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
             apply(parcel_id, envinfo);
@@ -1456,7 +1391,10 @@ void LLEnvironment::DayInstance::animate()
         mWater = std::static_pointer_cast<LLSettingsVOWater>((*bounds.first).second)->buildClone();
         mBlenderWater = std::make_shared<LLSettingsBlender>(mWater,
             (*bounds.first).second, (*bounds.second).second, timespan);
-        mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::DayInstance::onTrackTransitionDone, this, 0, _1));
+        mBlenderWater->setOnFinished(
+            [this](LLSettingsBlender::ptr_t blender) { onTrackTransitionDone(0, blender); });
+
+        
     }
 
     // Day track 1 only for the moment
@@ -1481,7 +1419,8 @@ void LLEnvironment::DayInstance::animate()
         mSky = std::static_pointer_cast<LLSettingsVOSky>((*bounds.first).second)->buildClone();
         mBlenderSky = std::make_shared<LLSettingsBlender>(mSky,
             (*bounds.first).second, (*bounds.second).second, timespan);
-        mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::DayInstance::onTrackTransitionDone, this, 1, _1));
+        mBlenderSky->setOnFinished(
+            [this](LLSettingsBlender::ptr_t blender) { onTrackTransitionDone(1, blender); });
     }
 }
 
@@ -1530,23 +1469,21 @@ void LLEnvironment::DayTransition::animate()
 
     mWater = mStartWater->buildClone();
     mBlenderWater = std::make_shared<LLSettingsBlender>(mWater, mStartWater, mNextInstance->getWater(), mTransitionTime);
-    mBlenderWater->setOnFinished(boost::bind(&LLEnvironment::DayTransition::onTransitonDone, this, LLSettingsDay::TRACK_WATER, _1));
+    mBlenderWater->setOnFinished(
+        [this](LLSettingsBlender::ptr_t blender) { 
+            mBlenderWater.reset();
+
+            if (!mBlenderSky && !mBlenderWater)
+                LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
+    });
 
     mSky = mStartSky->buildClone();
     mBlenderSky = std::make_shared<LLSettingsBlender>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
-    mBlenderSky->setOnFinished(boost::bind(&LLEnvironment::DayTransition::onTransitonDone, this, LLSettingsDay::TRACK_MAX, _1));
-}
-
-
-void LLEnvironment::DayTransition::onTransitonDone(S32 trackno, const LLSettingsBlender::ptr_t blender)
-{
-    if (trackno == LLSettingsDay::TRACK_WATER)
-        mBlenderWater.reset();
-    else
+    mBlenderSky->setOnFinished(
+        [this](LLSettingsBlender::ptr_t blender) {
         mBlenderSky.reset();
 
-    if (!mBlenderSky && !mBlenderWater)
-    {
-        LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
-    }
+        if (!mBlenderSky && !mBlenderWater)
+            LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
+    });
 }
