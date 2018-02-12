@@ -3345,9 +3345,6 @@ M キーを押して変更します。
 	<notification name="VoiceChannelJoinFailed">
 		[VOICE_CHANNEL_NAME] への接続に失敗しました。あとで再度お試しください。  「近くのボイスチャット」に再接続されます。
 	</notification>
-	<notification name="VoiceLoginRetry">
-		ボイスチャンネルを作成しています。1 分ほどかかります。
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。期限を延長・更新するには[[URL]こちらをクリック]してください。
 	</notification>

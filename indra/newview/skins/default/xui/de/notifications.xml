@@ -3317,9 +3317,6 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &a
 	<notification name="VoiceChannelJoinFailed">
 		Verbindung zu [VOICE_CHANNEL_NAME] nicht möglich. Bitte versuchen Sie es später.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Wir erstellen einen Voice-Kanal für Sie. Bitte warten Sie einen Moment.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Ein oder mehrere Ihrer Voice-Morph-Abos ist/sind abgelaufen.
 [[URL] Hier klicken], um Ihr Abo zu erneuern.
