@@ -3474,9 +3474,16 @@ void LLVOVolume::afterReparent()
                                                                                              
     if (isAnimatedObject() && getControlAvatar())
     {
-        LL_DEBUGS("AnimatedObjects") << "adding attachment overrides, parent is animated object" 
+        LL_DEBUGS("AnimatedObjects") << "adding attachment overrides, parent is animated object " 
             << ((LLViewerObject*)getParent())->getID() << LL_ENDL;
-        //getControlAvatar()->addAttachmentOverridesForObject(this);
+
+        // MAINT-8239 - doing a full rebuild whenever parent is set
+        // makes the joint overrides load more robustly. In theory,
+        // addAttachmentOverrides should be sufficient, but in
+        // practice doing a full rebuild helps compensate for
+        // notifyMeshLoaded() not being called reliably enough.
+        
+        // was: getControlAvatar()->addAttachmentOverridesForObject(this);
         getControlAvatar()->rebuildAttachmentOverrides();
         getControlAvatar()->updateAnimations();
     }
