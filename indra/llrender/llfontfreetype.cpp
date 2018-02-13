@@ -199,6 +199,7 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 	else
 	{
 		delete pFileStream;
+		pFileStream = NULL;
 		return FALSE;
 	}
 #else
@@ -214,6 +215,8 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 		pFileStream->close();
 		delete pFileStream;
 		delete pFtStream;
+		pFileStream = NULL;
+		pFtStream = NULL;
 #endif
 		return FALSE;
 	}
@@ -229,13 +232,15 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 
 	if (error)
 	{
+		// Clean up freetype libs.
+		FT_Done_Face(mFTFace);
 #ifdef LL_WINDOWS
 		pFileStream->close();
 		delete pFileStream;
 		delete pFtStream;
+		pFileStream = NULL;
+		pFtStream = NULL;
 #endif
-		// Clean up freetype libs.
-		FT_Done_Face(mFTFace);
 		mFTFace = NULL;
 		return FALSE;
 	}
