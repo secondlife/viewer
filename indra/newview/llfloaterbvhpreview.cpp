@@ -293,7 +293,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		loaderp->serialize(dp);
 		dp.reset();
 		LL_INFOS("BVH") << "Deserializing motionp" << LL_ENDL;
-		BOOL success = motionp && motionp->deserialize(dp);
+		BOOL success = motionp && motionp->deserialize(dp, mMotionID);
 		LL_INFOS("BVH") << "Done" << LL_ENDL;
 
 		delete []buffer;

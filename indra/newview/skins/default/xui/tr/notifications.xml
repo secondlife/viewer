@@ -3303,9 +3303,6 @@ Sohbete katılmak için Kabul Et&apos;i, daveti geri çevirmek için ise Reddet&
 	<notification name="VoiceChannelJoinFailed">
 		[VOICE_CHANNEL_NAME] ile bağlantı kurulamadı, lütfen daha sonra tekrar deneyin. Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Sizin için bir ses kanalı oluşturuyoruz. Bu işlem bir dakika kadar sürebilir.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Abone olduğunuz Ses Şekillerinden birinin ya da daha fazlasının süresi dolmuş.
 Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
