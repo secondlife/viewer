@@ -43,6 +43,7 @@
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llfloaterimcontainer.h"
+#include "llimprocessing.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
@@ -546,27 +547,6 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 	base->appendWidget(params," ",false);
 	
 	return true;
-}
-
-void request_initial_instant_messages()
-{
-	static BOOL requested = FALSE;
-	if (!requested
-		&& gMessageSystem
-		&& LLMuteList::getInstance()->isLoaded()
-		&& isAgentAvatarValid())
-	{
-		// Auto-accepted inventory items may require the avatar object
-		// to build a correct name.  Likewise, inventory offers from
-		// muted avatars require the mute list to properly mute.
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_RetrieveInstantMessages);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		gAgent.sendReliableMessage();
-		requested = TRUE;
-	}
 }
 
 // Use these strictly for things that are constructed at startup,
@@ -4623,7 +4603,7 @@ void LLAppViewer::idle()
 
 	// Must wait until both have avatar object and mute list, so poll
 	// here.
-	request_initial_instant_messages();
+	LLIMProcessing::requestOfflineMessages();
 
 	///////////////////////////////////
 	//
