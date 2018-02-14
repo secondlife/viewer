@@ -1587,9 +1587,14 @@ void LLPanelObject::sendRotation(BOOL btn_down)
 		{
 			rotation = rotation * ~mRootObject->getRotationRegion();
 		}
+
+		// To include avatars into movements and rotation
+		// If false, all children are selected anyway - move avatar
+		// If true, not all children are selected - save positions
+		bool individual_selection = gSavedSettings.getBOOL("EditLinkedParts");
 		std::vector<LLVector3>& child_positions = mObject->mUnselectedChildrenPositions ;
 		std::vector<LLQuaternion> child_rotations;
-		if (mObject->isRootEdit())
+		if (mObject->isRootEdit() && individual_selection)
 		{
 			mObject->saveUnselectedChildrenRotation(child_rotations) ;
 			mObject->saveUnselectedChildrenPosition(child_positions) ;			
@@ -1599,8 +1604,8 @@ void LLPanelObject::sendRotation(BOOL btn_down)
 		LLManip::rebuild(mObject) ;
 
 		// for individually selected roots, we need to counterrotate all the children
-		if (mObject->isRootEdit())
-		{			
+		if (mObject->isRootEdit() && individual_selection)
+		{
 			mObject->resetChildrenRotationAndPosition(child_rotations, child_positions) ;			
 		}
 
