@@ -1630,12 +1630,12 @@ BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 
 BOOL LLLineEditor::canDoDelete() const
 {
-	return ( !mReadOnly && mText.length() > 0 && (!mPassDelete || (hasSelection() || (getCursor() < mText.length()))) );
+	return ( !mReadOnly && (!mPassDelete || (hasSelection() || (getCursor() < mText.length()))) );
 }
 
 void LLLineEditor::doDelete()
 {
-	if (canDoDelete())
+	if (canDoDelete() && mText.length() > 0)
 	{
 		// Prepare for possible rollback
 		LLLineEditorRollback rollback( this );
