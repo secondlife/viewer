@@ -350,6 +350,25 @@ void LLMaterialMgr::remove(const LLUUID& object_id, const U8 te)
 	put(object_id, te, LLMaterial::null);
 }
 
+void LLMaterialMgr::setLocalMaterial(const LLUUID& region_id, LLMaterialPtr material_ptr)
+{
+	LLUUID uuid;
+	uuid.generate();
+	LLMaterialID material_id(uuid);
+	while (mMaterials.end() != mMaterials.find(material_id)) 
+	{ //probability that this loop will executed is very, very low (one in a billion chance)
+		uuid.generate();
+		material_id.set(uuid.mData);
+	}	
+
+	LL_DEBUGS("Materials") << "region " << region_id << "new local material id " << material_id << LL_ENDL;
+	mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, material_ptr));
+
+	setMaterialCallbacks(material_id, material_ptr);
+
+	mGetPending.erase(pending_material_t(region_id, material_id));
+}
+
 const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data)
 {
 	LL_DEBUGS("Materials") << "region " << region_id << " material id " << material_id << LL_ENDL;
@@ -362,17 +381,26 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 		itMaterial = ret.first;
 	}
 
+	setMaterialCallbacks(material_id, itMaterial->second);
+
+	mGetPending.erase(pending_material_t(region_id, material_id));
+
+	return itMaterial->second;
+}
+
+void LLMaterialMgr::setMaterialCallbacks(const LLMaterialID& material_id, const LLMaterialPtr material_ptr)
+{
 	TEMaterialPair te_mat_pair;
 	te_mat_pair.materialID = material_id;
 
 	U32 i = 0;
-	while (i < LLTEContents::MAX_TES)
+	while (i < LLTEContents::MAX_TES && !mGetTECallbacks.empty())
 	{
 		te_mat_pair.te = i++;
 		get_callback_te_map_t::iterator itCallbackTE = mGetTECallbacks.find(te_mat_pair);
 		if (itCallbackTE != mGetTECallbacks.end())
 		{
-			(*itCallbackTE->second)(material_id, itMaterial->second, te_mat_pair.te);
+			(*itCallbackTE->second)(material_id, material_ptr, te_mat_pair.te);
 			delete itCallbackTE->second;
 			mGetTECallbacks.erase(itCallbackTE);
 		}
@@ -381,15 +409,11 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 	get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
 	if (itCallback != mGetCallbacks.end())
 	{
-		(*itCallback->second)(material_id, itMaterial->second);
+		(*itCallback->second)(material_id, material_ptr);
 
 		delete itCallback->second;
 		mGetCallbacks.erase(itCallback);
 	}
-
-	mGetPending.erase(pending_material_t(region_id, material_id));
-
-	return itMaterial->second;
 }
 
 void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUID& region_id)
