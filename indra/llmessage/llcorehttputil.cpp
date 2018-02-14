@@ -84,7 +84,7 @@ void logMessageSuccess(std::string logAuth, std::string url, std::string message
 
 void logMessageFail(std::string logAuth, std::string url, std::string message)
 {
-    LL_WARNS("CoreHTTP") << logAuth << " Failure '" << message << "' for " << url << LL_ENDL;
+    LL_INFOS("CoreHTTP") << logAuth << " Possible failure '" << message << "' for " << url << LL_ENDL;
 }
 
 //=========================================================================
@@ -279,10 +279,11 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         result = LLSD::emptyMap();
         LLCore::HttpStatus::type_enum_t errType = status.getType();
 
-        LL_WARNS("CoreHTTP")
-            << " Error[" << status.toTerseString() << "] cannot "<< response->getRequestMethod() 
-            << " to url '" << response->getRequestURL()
-            << "' because " << status.toString() << LL_ENDL;
+        LL_INFOS()
+            << "Possible failure [" << status.toTerseString() << "] cannot "<< response->getRequestMethod() 
+            << " url '" << response->getRequestURL()
+            << "' because " << status.toString() 
+            << LL_ENDL;
         if ((errType >= 400) && (errType < 500))
         {
             LLSD body = this->parseBody(response, parseSuccess);

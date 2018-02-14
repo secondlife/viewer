@@ -3293,9 +3293,6 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="VoiceChannelJoinFailed">
 		無法連通 [VOICE_CHANNEL_NAME],，請稍候再試。  現在你將重新連通到附近的語音聊天。
 	</notification>
-	<notification name="VoiceLoginRetry">
-		我們正為你建立語音頻道。 這至多可能需時一分鐘。
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		至少一個你訂用的變聲效果已經過期。
 [[URL] 點按這裡] 繼續訂用。

@@ -3303,9 +3303,6 @@ Pulsa Aceptar o Rehusar para coger o no la llamada. Pulsa Ignorar para ignorar a
 	<notification name="VoiceChannelJoinFailed">
 		Fallo al conectar a [VOICE_CHANNEL_NAME]; por favor, inténtalo más tarde.  Vas a ser reconectado al chat de voz.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Estamos creando un canal de voz para ti. Se puede tardar hasta un minuto.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Una o más de las transformaciones de voz a las que estás suscrito han caducado.
 [Pulsa aquí [URL]] para renovar la suscripción.

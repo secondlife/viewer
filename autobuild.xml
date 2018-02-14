@@ -2213,6 +2213,35 @@
         <key>version</key>
         <string>0.9.3.506286</string>
       </map>
+      <key>llca</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2016, Linden Research, Inc.; data provided by the Mozilla NSS Project.
+      </string>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/ca-license.txt</string>
+        <key>name</key>
+        <string>llca</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>dd008981cac7ede93efa6cefe4ee61a0</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12484/73813/llca-201801172118.511910-common-511910.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>201801172118.511910</string>
+      </map>
       <key>llphysicsextensions_source</key>
       <map>
         <key>copyright</key>
@@ -2991,9 +3020,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c2f921001a8ee29b826a45181465735</string>
+              <string>511a9c3fd4b6c76a8a737d06bba1c291</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-slvoice/rev/314209/arch/Darwin/installer/slvoice-4.6.0017.21209.314209-darwin-314209.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/330003/arch/Darwin/installer/slvoice-4.9.0002.27586.330003-darwin-330003.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -3003,9 +3032,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c9b0d816cf14bebba138ea6f9f463553</string>
+              <string>b1b0134bc55f55a7c1a04ee78d70c64d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/614/1294/slvoice-4.6.0017.21209.500605-darwin64-500605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12438/73598/slvoice-4.9.0002.27586.511884-darwin64-511884.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3015,9 +3044,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5832a68562c3409a56a3583d101864b</string>
+              <string>785c86999b56e1838cefb430f674cba7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-slvoice/rev/314209/arch/Linux/installer/slvoice-3.2.0002.10426.314209-linux-314209.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-426-slvoice/rev/330003/arch/Linux/installer/slvoice-3.2.0002.10426.330003-linux-330003.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -3039,9 +3068,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3ce62e3696f26a1e09e0c769280e5608</string>
+              <string>ec50c31efce74bdedee470b5388aeeec</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/616/1300/slvoice-4.6.0017.21209.500605-windows-500605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12434/73576/slvoice-4.9.0002.27586.511884-windows-511884.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3051,16 +3080,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>61c41dd565e2caa38bd0056970094749</string>
+              <string>4bf45d641bf5b2bd6b2cc39edcb01a6e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/615/1297/slvoice-4.6.0017.21209.500605-windows64-500605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12433/73570/slvoice-4.9.0002.27586.511884-windows64-511884.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.6.0017.21209.500605</string>
+        <string>4.9.0002.27586.511884</string>
       </map>
       <key>tut</key>
       <map>
