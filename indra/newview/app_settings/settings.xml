@@ -8635,7 +8635,7 @@
   <map>
     <key>Comment</key>
     <string>
-      Disable features which prevent nVidia nSight from being usable with SL
+      Disable features which prevent nVidia nSight from being usable with SL. Requires restart.
     </string>
     <key>Persist</key>
     <integer>1</integer>
