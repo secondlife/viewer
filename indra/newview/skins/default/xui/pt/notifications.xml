@@ -3292,9 +3292,6 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 	<notification name="VoiceChannelJoinFailed">
 		Falha de conexão com [VOICE_CHANNEL_NAME]. Tente novamente mais tarde.   Agora você será reconectado ao bate-papo local.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Estamos criando uma canal de voz para você. Isto pode levar até um minuto.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Um ou mais serviços de distorção de voz que você assinou veceu.
 [[URL] Clique aqui] para renovar o serviço.

@@ -455,7 +455,7 @@ LLThreadSafeRefCount::~LLThreadSafeRefCount()
 { 
     if (mRef != 0)
     {
-        LL_ERRS() << "deleting non-zero reference" << LL_ENDL;
+		LL_ERRS() << "deleting referenced object mRef = " << mRef << LL_ENDL;
     }
 }
 
