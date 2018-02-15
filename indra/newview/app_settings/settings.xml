@@ -8631,7 +8631,19 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
+  <key>RenderNsightDebugSupport</key>
+  <map>
+    <key>Comment</key>
+    <string>
+      Disable features which prevent nVidia nSight from being usable with SL
+    </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderLocalLights</key>
   <map>
     <key>Comment</key>

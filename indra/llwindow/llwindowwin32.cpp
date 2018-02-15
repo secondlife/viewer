@@ -1549,7 +1549,10 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 					(LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << LL_ENDL;
 				done = true;
 
-				if (LLRender::sGLCoreProfile)
+			// force sNoFixedFunction iff we're trying to use nsight debugging which does not support many legacy API uses
+
+				// nSight doesn't support use of legacy API funcs in the fixed function pipe
+				if (LLRender::sGLCoreProfile || LLRender::sNsightDebugSupport)
 				{
 					LLGLSLShader::sNoFixedFunction = true;
 				}

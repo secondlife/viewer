@@ -583,6 +583,7 @@ static void settings_to_globals()
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
+	LLRender::sNsightDebugSupport = gSavedSettings.getBOOL("RenderNsightDebugSupport");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
@@ -1100,6 +1101,7 @@ bool LLAppViewer::init()
 		}
 	}
 
+#if LL_RELEASE_FOR_DOWNLOAD
 	char* PARENT = getenv("PARENT");
 	if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
 	{
@@ -1112,6 +1114,7 @@ bool LLAppViewer::init()
 		// him/herself in the foot.
 		LLNotificationsUtil::add("RunLauncher");
 	}
+#endif
 
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())

@@ -731,7 +731,8 @@ public:
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
 		}
-		if (gSavedSettings.getBOOL("DebugShowColor"))
+		// disable use of glReadPixels which messes up nVidia nSight graphics debugging
+		if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
 		{
 			U8 color[4];
 			LLCoordGL coord = gViewerWindow->getCurrentMouse();
@@ -4717,36 +4718,39 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					{
 						LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 					}
-				
-					if (type == LLSnapshotModel::SNAPSHOT_TYPE_COLOR)
+					// disable use of glReadPixels when doing nVidia nSight graphics debugging
+					if (!LLRender::sNsightDebugSupport)
 					{
-						glReadPixels(
+						if (type == LLSnapshotModel::SNAPSHOT_TYPE_COLOR)
+						{
+							glReadPixels(
 									 subimage_x_offset, out_y + subimage_y_offset,
 									 read_width, 1,
 									 GL_RGB, GL_UNSIGNED_BYTE,
 									 raw->getData() + output_buffer_offset
 									 );
-					}
-					else // LLSnapshotModel::SNAPSHOT_TYPE_DEPTH
-					{
-						LLPointer<LLImageRaw> depth_line_buffer = new LLImageRaw(read_width, 1, sizeof(GL_FLOAT)); // need to store floating point values
-						glReadPixels(
-									 subimage_x_offset, out_y + subimage_y_offset,
-									 read_width, 1,
-									 GL_DEPTH_COMPONENT, GL_FLOAT,
-									 depth_line_buffer->getData()// current output pixel is beginning of buffer...
-									 );
-
-						for (S32 i = 0; i < (S32)read_width; i++)
+						}
+						else // LLSnapshotModel::SNAPSHOT_TYPE_DEPTH
 						{
-							F32 depth_float = *(F32*)(depth_line_buffer->getData() + (i * sizeof(F32)));
-					
-							F32 linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float * depth_conversion_factor_2));
-							U8 depth_byte = F32_to_U8(linear_depth_float, LLViewerCamera::getInstance()->getNear(), LLViewerCamera::getInstance()->getFar());
-							// write converted scanline out to result image
-							for (S32 j = 0; j < raw->getComponents(); j++)
+							LLPointer<LLImageRaw> depth_line_buffer = new LLImageRaw(read_width, 1, sizeof(GL_FLOAT)); // need to store floating point values
+							glReadPixels(
+										 subimage_x_offset, out_y + subimage_y_offset,
+										 read_width, 1,
+										 GL_DEPTH_COMPONENT, GL_FLOAT,
+										 depth_line_buffer->getData()// current output pixel is beginning of buffer...
+										 );
+
+							for (S32 i = 0; i < (S32)read_width; i++)
 							{
-								*(raw->getData() + output_buffer_offset + (i * raw->getComponents()) + j) = depth_byte;
+								F32 depth_float = *(F32*)(depth_line_buffer->getData() + (i * sizeof(F32)));
+					
+								F32 linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float * depth_conversion_factor_2));
+								U8 depth_byte = F32_to_U8(linear_depth_float, LLViewerCamera::getInstance()->getNear(), LLViewerCamera::getInstance()->getFar());
+								// write converted scanline out to result image
+								for (S32 j = 0; j < raw->getComponents(); j++)
+								{
+									*(raw->getData() + output_buffer_offset + (i * raw->getComponents()) + j) = depth_byte;
+								}
 							}
 						}
 					}
