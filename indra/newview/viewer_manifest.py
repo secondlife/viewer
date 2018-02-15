@@ -595,6 +595,9 @@ class WindowsManifest(ViewerManifest):
         self.path("featuretable.txt")
         self.path("ca-bundle.crt")
 
+        with self.prefix(src=pkgdir,dst="app_settings"):
+            self.path("ca-bundle.crt")
+
         # Media plugins - CEF
         with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_cef.dll")
@@ -1051,6 +1054,9 @@ open "%s" --args "$@"
                         self.path("featuretable_mac.txt")
                         self.path("SecondLife.nib")
                         self.path("ca-bundle.crt")
+
+                        with self.prefix(src=pkgdir,dst="app_settings"):
+                            self.path("ca-bundle.crt")
 
                         self.path("SecondLife.nib")
 
@@ -1509,6 +1515,9 @@ class LinuxManifest(ViewerManifest):
 
         self.path("featuretable_linux.txt")
         self.path("ca-bundle.crt")
+
+        with self.prefix(src=pkgdir,dst="app_settings"):
+            self.path("ca-bundle.crt")
 
     def package_finish(self):
         installer_name = self.installer_base_name()
