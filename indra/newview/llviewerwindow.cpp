@@ -614,7 +614,7 @@ public:
 
  			if (last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
 			{
- 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", last_frame_recording.getMin(LLPipeline::sStatBatchSize), last_frame_recording.getMax(LLPipeline::sStatBatchSize), last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
+                addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
 			}
             ypos += y_inc;
 
