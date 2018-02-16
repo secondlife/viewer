@@ -583,6 +583,7 @@ static void settings_to_globals()
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
+	LLRender::sNsightDebugSupport = gSavedSettings.getBOOL("RenderNsightDebugSupport");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");

@@ -438,7 +438,8 @@ public:
 	static U32 sUICalls;
 	static U32 sUIVerts;
 	static bool sGLCoreProfile;
-	
+	static bool sNsightDebugSupport;
+
 private:
 	friend class LLLightState;
 
