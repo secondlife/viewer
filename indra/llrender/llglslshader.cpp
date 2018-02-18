@@ -401,6 +401,11 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     mDefines["OLD_SELECT"] = "1";
 #endif
     
+    if (mExtraLinkObject)
+    {
+        attachObject(mExtraLinkObject);
+    }
+
     //compile new source
     vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
     for ( ; fileIter != mShaderFiles.end(); fileIter++ )

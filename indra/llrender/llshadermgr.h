@@ -221,6 +221,17 @@ public:
 		
 		SHINY_ORIGIN,
         DISPLAY_GAMMA,
+
+        INSCATTER_RT,
+        SUN_SIZE,
+        FOG_COLOR,
+
+        // precomputed textures from libatmosphere
+        TRANSMITTANCE_TEX,
+        SCATTER_TEX,
+        ILLUMINANCE_TEX,
+        SINGLE_MIE_SCATTER_TEX,
+
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

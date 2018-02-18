@@ -397,7 +397,9 @@ void main()
 	float da = dot(norm.xyz, sun_dir.xyz);
 
 	float final_da = max(0.0,da);
-          final_da = min(final_da, 1.0f);
+              final_da = min(final_da, 1.0f);
+
+// why an ad hoc gamma boost here? srgb_to_linear instead?
 	      final_da = pow(final_da, 1.0/1.3);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);

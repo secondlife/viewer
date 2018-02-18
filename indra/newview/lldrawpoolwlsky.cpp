@@ -42,6 +42,7 @@
 #include "llrender.h"
 
 #include "llenvironment.h" 
+#include "llatmosphere.h"
 
 LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
@@ -125,38 +126,51 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 
 void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) const
 {
-	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+    llassert_always(NULL != shader);
 
-	llassert_always(NULL != shader);
+    static LLStaticHashedString sCamPosLocal("camPosLocal");
 
-	gGL.pushMatrix();
+    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
-	//chop off translation
-	if (LLPipeline::sReflectionRender && origin.mV[2] > 256.f)
-	{
-		gGL.translatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
-	}
-	else
-	{
-		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
-	}
+    if (gPipeline.useAdvancedAtmospherics())
+    {
+        // Draw WL Sky	w/ normal cam pos (where you are) for adv atmo sky
+        sky_shader->uniform3f(sCamPosLocal, origin.mV[0], origin.mV[1], origin.mV[2]);
+
+//  TBD replace this with a FS tri pass, there's little point to the tess when you have fragment shaders...
+
+        gSky.mVOWLSkyp->drawDome();
+    }
+    else
+    {
+	    gGL.pushMatrix();
+
+	    //chop off translation
+	    if (LLPipeline::sReflectionRender && origin.mV[2] > 256.f)
+	    {
+		    gGL.translatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
+	    }
+	    else
+	    {
+		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+	    }
 		
 
-	// the windlight sky dome works most conveniently in a coordinate system
-	// where Y is up, so permute our basis vectors accordingly.
-	gGL.rotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
+	    // the windlight sky dome works most conveniently in a coordinate system
+	    // where Y is up, so permute our basis vectors accordingly.
+	    gGL.rotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
 
-	gGL.scalef(0.333f, 0.333f, 0.333f);
+	    gGL.scalef(0.333f, 0.333f, 0.333f);
 
-	gGL.translatef(0.f,-camHeightLocal, 0.f);
+	    gGL.translatef(0.f,-camHeightLocal, 0.f);
 	
-	// Draw WL Sky	
-	static LLStaticHashedString sCamPosLocal("camPosLocal");
-	shader->uniform3f(sCamPosLocal, 0.f, camHeightLocal, 0.f);
+	    // Draw WL Sky
+	    shader->uniform3f(sCamPosLocal, 0.f, camHeightLocal, 0.f);
 
-	gSky.mVOWLSkyp->drawDome();
+        gSky.mVOWLSkyp->drawDome();
 
-	gGL.popMatrix();
+	    gGL.popMatrix();
+    }
 }
 
 void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
@@ -166,6 +180,33 @@ void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
 		LLGLDisable blend(GL_BLEND);
 
 		sky_shader->bind();
+
+        if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders() && gAtmosphere)
+        {
+            // bind precomputed textures necessary for calculating sun and sky luminance
+            sky_shader->bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
+            sky_shader->bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
+            sky_shader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getSingleMieScattering());
+
+            static float sunSize = (float)cos(0.0005);
+
+            sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
+
+            static LLVector3 solDir(0.7f, 0.2f, 0.2f);
+
+            //neither of these appear to track with the env settings, would the real sun please stand up.
+            //sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, gPipeline.mTransformedSunDir.mV);
+            //sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, gSky.mVOSkyp->getSun().getDirection().mV);
+            solDir.normalize();
+
+            sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, solDir.mV);
+
+            // clouds are rendered along with sky in adv atmo
+            if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
+            {
+                sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, sCloudNoiseTexture);
+            }
+        }
 
 		/// Render the skydome
 		renderDome(camHeightLocal, sky_shader);	
@@ -190,8 +231,9 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// *NOTE: we divide by two here and GL_ALPHA_SCALE by two below to avoid
 	// clamping and allow the star_alpha param to brighten the stars.
 	LLColor4 star_alpha(LLColor4::black);
+
     // *LAPRAS
-    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 2.f;
+    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
 
 	// If start_brightness is not set, exit
 	if( star_alpha.mV[3] < 0.001 )
@@ -322,8 +364,10 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 	renderSkyHaze(camHeightLocal);
 
-	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	gGL.pushMatrix();
+    if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
+    {
+	    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	    gGL.pushMatrix();
 
 		
 		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
@@ -340,13 +384,12 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 		
 		gDeferredStarProgram.unbind();
 
-	gGL.popMatrix();
+	    gGL.popMatrix();
+    }
 
 	renderSkyClouds(camHeightLocal);
-
-	gGL.setColorMask(true, true);
-	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
+    
+    gGL.setColorMask(true, true);
 }
 
 void LLDrawPoolWLSky::render(S32 pass)
@@ -367,8 +410,10 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 	renderSkyHaze(camHeightLocal);
 
-	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	gGL.pushMatrix();
+    if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
+    {
+	    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	    gGL.pushMatrix();
 
 		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
@@ -380,9 +425,9 @@ void LLDrawPoolWLSky::render(S32 pass)
 		renderHeavenlyBodies();
 
 		renderStars();
-		
 
-	gGL.popMatrix();
+	    gGL.popMatrix();
+    }
 
 	renderSkyClouds(camHeightLocal);
 

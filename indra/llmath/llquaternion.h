@@ -84,7 +84,8 @@ public:
 	const LLQuaternion&	set(const F32 *q);						// Sets Quaternion to normalize(quat[VX], quat[VY], quat[VZ], quat[VW])
 	const LLQuaternion&	set(const LLMatrix3 &mat);				// Sets Quaternion to mat2quat(mat)
 	const LLQuaternion&	set(const LLMatrix4 &mat);				// Sets Quaternion to mat2quat(mat)
-
+    const LLQuaternion& setFromAzimuthAndAltitude(F32 azimuth, F32 altitude);
+    
 	const LLQuaternion&	setAngleAxis(F32 angle, F32 x, F32 y, F32 z);	// Sets Quaternion to axis_angle2quat(angle, x, y, z)
 	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector3 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
 	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector4 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
@@ -105,6 +106,7 @@ public:
 	void		getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const;	// returns rotation in radians about axis x,y,z
 	void		getAngleAxis(F32* angle, LLVector3 &vec) const;
 	void		getEulerAngles(F32 *roll, F32* pitch, F32 *yaw) const;
+    void        getAzimuthAndAltitude(F32 &azimuth, F32 &altitude);
 
 	F32	normalize();	// Normalizes Quaternion and returns magnitude
 	F32	normQuat();		// deprecated

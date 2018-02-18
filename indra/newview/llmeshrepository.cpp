@@ -2507,7 +2507,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 		{
 			ms_sleep(sleep_time);
 			sleep_time = llmin(250U, sleep_time + sleep_time);
-			mHttpRequest->update(0);
+		    mHttpRequest->update(0);
 		}
 		if (isDiscarded())
 		{

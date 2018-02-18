@@ -205,6 +205,7 @@
 #include "llfloateroutfitsnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
+#include "llatmosphere.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -1097,6 +1098,7 @@ bool LLAppViewer::init()
 		}
 	}
 
+#if LL_RELEASE_FOR_DOWNLOAD
 	char* PARENT = getenv("PARENT");
 	if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
 	{
@@ -1109,6 +1111,7 @@ bool LLAppViewer::init()
 		// him/herself in the foot.
 		LLNotificationsUtil::add("RunLauncher");
 	}
+#endif
 
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
@@ -1470,7 +1473,7 @@ bool LLAppViewer::frame()
 					LLAppViewer::getImageDecodeThread()->pause();
 				}
 			}
-			
+		
 			if (mRandomizeFramerate)
 			{
 				ms_sleep(rand() % 200);
@@ -1641,6 +1644,8 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+    LLAtmosphere::cleanupClass();
+
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 

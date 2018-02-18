@@ -352,10 +352,9 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 }
 
 //----------------------------------------------------------------------------
-
 LLImageGL::LLImageGL(BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+    mSaveData(0), mExternalTexture(FALSE)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -365,7 +364,7 @@ LLImageGL::LLImageGL(BOOL usemipmaps)
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+    mSaveData(0), mExternalTexture(FALSE)
 {
 	llassert( components <= 4 );
 	init(usemipmaps);
@@ -376,7 +375,7 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+    mSaveData(0), mExternalTexture(FALSE)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -386,12 +385,36 @@ LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 	createGLTexture(0, imageraw); 
 }
 
+LLImageGL::LLImageGL(
+    LLGLuint texName,
+    U32 components,
+    LLGLenum target,
+    LLGLint  formatInternal,
+    LLGLenum formatPrimary,
+    LLGLenum formatType,
+    LLTexUnit::eTextureAddressMode addressMode)
+    : LLTrace::MemTrackable<LLImageGL>("LLImageGL"), mSaveData(0), mExternalTexture(TRUE)
+{
+    init(false);
+    mTexName = texName;
+    mTarget = target;
+    mComponents = components;
+    mAddressMode = addressMode;
+    mFormatType = formatType;
+    mFormatInternal = formatInternal;
+    mFormatPrimary = formatPrimary;
+}
+
+
 LLImageGL::~LLImageGL()
 {
-	LLImageGL::cleanup();
-	sImageList.erase(this);
-	freePickMask();
-	sCount--;
+    if (!mExternalTexture)
+    {
+	    LLImageGL::cleanup();
+	    sImageList.erase(this);
+	    freePickMask();
+	    sCount--;
+    }
 }
 
 void LLImageGL::init(BOOL usemipmaps)

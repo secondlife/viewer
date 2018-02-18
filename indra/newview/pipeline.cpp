@@ -381,6 +381,7 @@ bool	LLPipeline::sRenderBump = true;
 bool	LLPipeline::sBakeSunlight = false;
 bool	LLPipeline::sNoAlpha = false;
 bool	LLPipeline::sUseTriStrips = true;
+bool	LLPipeline::sUseAdvancedAtmospherics = true;
 bool	LLPipeline::sUseFarClip = true;
 bool	LLPipeline::sShadowRender = false;
 bool	LLPipeline::sWaterReflections = false;
@@ -480,6 +481,7 @@ void LLPipeline::init()
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	sUseAdvancedAtmospherics = gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
@@ -981,7 +983,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 0; i < 4; i++)
 			{
 				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
-				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
+				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;                
 			}
 		}
 		else
@@ -992,6 +994,13 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 				mShadowOcclusion[i].release();
 			}
 		}
+
+// for EEP atmospherics
+		bool allocated_inscatter = mInscatter.allocate(resX >> 2, resY >> 2, GL_RGBA16F_ARB, FALSE, FALSE, LLTexUnit::TT_TEXTURE);
+        	if (!allocated_inscatter)
+        	{
+        	    return false;
+        	}
 
 		U32 width = (U32) (resX*scale);
 		U32 height = width;
@@ -1229,6 +1238,8 @@ void LLPipeline::releaseScreenBuffers()
 		mShadow[i].release();
 		mShadowOcclusion[i].release();
 	}
+
+	mInscatter.release();
 }
 
 
@@ -2643,6 +2654,65 @@ void LLPipeline::markOccluder(LLSpatialGroup* group)
 				parent->setOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
 			}
 		}
+	}
+}
+
+void LLPipeline::downsampleMinMaxDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space)
+{
+	LLGLSLShader* last_shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	LLGLSLShader* shader = NULL;
+
+	if (scratch_space)
+	{
+		scratch_space->copyContents(source,
+			0, 0, source.getWidth(), source.getHeight(),
+			0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	}
+
+	dest.bindTarget();
+	dest.clear(GL_COLOR_BUFFER_BIT); // dest should be an RG16F target
+
+	LLStrider<LLVector3> vert;
+	mDeferredVB->getVertexStrider(vert);
+	LLStrider<LLVector2> tc0;
+
+	vert[0].set(-1, 1, 0);
+	vert[1].set(-1, -3, 0);
+	vert[2].set(3, 1, 0);
+
+	if (source.getUsage() == LLTexUnit::TT_RECT_TEXTURE)
+	{
+		shader = &gDownsampleMinMaxDepthRectProgram;
+		shader->bind();
+		shader->uniform2f(sDelta, 1.f, 1.f);
+		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, source.getWidth(), source.getHeight());
+	}
+	else
+	{
+		shader = &gDownsampleMinMaxDepthRectProgram;
+		shader->bind();
+		shader->uniform2f(sDelta, 1.f / source.getWidth(), 1.f / source.getHeight());
+		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, 1.f, 1.f);
+	}
+
+	gGL.getTexUnit(0)->bind(scratch_space ? scratch_space : &source, TRUE);
+
+	{
+		LLGLDepthTest depth(GL_FALSE, GL_FALSE, GL_ALWAYS);
+		mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+		mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+	}
+
+	dest.flush();
+
+	if (last_shader)
+	{
+		last_shader->bind();
+	}
+	else
+	{
+		shader->unbind();
 	}
 }
 
@@ -8282,6 +8352,21 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 		}
 	}
 
+    channel = shader.enableTexture(LLShaderMgr::INSCATTER_RT, LLTexUnit::TT_TEXTURE);
+    stop_glerror();
+    if (channel > -1)
+    {
+        stop_glerror();
+        gGL.getTexUnit(channel)->bind(&mInscatter, TRUE);
+        gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+        gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+        stop_glerror();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_ALWAYS);
+        stop_glerror();
+    }
+
 	stop_glerror();
 
 	F32 mat[16*6];
@@ -9095,6 +9180,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 					}
 				}
 
+// pretty sure this doesn't work as expected since the shaders using 'shadow_ofset' all declare it as a single uniform float, no array or vec
 				gDeferredSunProgram.uniform3fv(LLShaderMgr::DEFERRED_SHADOW_OFFSET, slice, offset);
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
@@ -9911,9 +9997,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 						}
 						else
 						{
-						renderGeom(camera);
-					}
-				}	
+						    renderGeom(camera);
+					    }
+				    }	
 				}	
 
 				if (LLPipeline::sRenderDeferred && materials_in_water)
@@ -10412,23 +10498,25 @@ bool LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 			
 		for (U32 j = 0; j < 3; ++j)
 		{
-			if (p[j] < ext[0].mV[j] ||
-				p[j] > ext[1].mV[j])
+			if (p[j] < ext[0].mV[j] || p[j] > ext[1].mV[j])
 			{
 				found = false;
 				break;
 			}
 		}
-				
-		for (U32 j = 0; j < LLCamera::AGENT_PLANE_NO_USER_CLIP_NUM; ++j)
+		
+		if (found) // don't bother testing user clip planes if we're already rejected...
 		{
-			const LLPlane& cp = camera.getAgentPlane(j);
-			F32 dist = cp.dist(pp[i]);
-			if (dist > 0.05f) //point is above some plane, not contained
-			{
-				found = false;
-				break;
-			}
+		    for (U32 j = 0; j < LLCamera::AGENT_PLANE_NO_USER_CLIP_NUM; ++j)
+		    {
+			    const LLPlane& cp = camera.getAgentPlane(j);
+			    F32 dist = cp.dist(pp[i]);
+			    if (dist > 0.05f) //point is above some plane, not contained
+			    {
+				    found = false;
+				    break;
+			    }
+		    }
 		}
 
 		if (found)
@@ -11959,3 +12047,7 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 	}
 }
 
+bool LLPipeline::useAdvancedAtmospherics() const
+{
+    return sUseAdvancedAtmospherics;
+}

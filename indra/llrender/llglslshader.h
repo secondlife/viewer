@@ -205,6 +205,8 @@ public:
 	bool mTextureStateFetched;
     magmin_filter_t mTextureMagMinFilter;
 
+    GLhandleARB mExtraLinkObject = 0;
+
 private:
 	void unloadInternal();
 

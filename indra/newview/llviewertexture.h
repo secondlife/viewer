@@ -225,8 +225,8 @@ public:
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
-	static S32 sMinLargeImageSize ;
-	static S32 sMaxSmallImageSize ;
+	static U32 sMinLargeImageSize ;
+	static U32 sMaxSmallImageSize ;
 	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
 	static F32  sCurrentTime ;
 

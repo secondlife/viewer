@@ -39,6 +39,8 @@ public:
 	static const U32 STAR_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
 		LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0;
 
+    static const U32 ADV_ATMO_SKY_VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX;
+
 	LLDrawPoolWLSky(void);
 	/*virtual*/ ~LLDrawPoolWLSky();
 

@@ -49,6 +49,7 @@ U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 U32 LLTexUnit::sWhiteTexture = 0;
 bool LLRender::sGLCoreProfile = false;
+bool LLRender::sNsightDebugSupport = false;
 
 static const U32 LL_NUM_TEXTURE_LAYERS = 32; 
 static const U32 LL_NUM_LIGHT_UNITS = 8;
@@ -58,7 +59,8 @@ static const GLenum sGLTextureType[] =
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
 	GL_TEXTURE_CUBE_MAP_ARB,
-	GL_TEXTURE_2D_MULTISAMPLE
+	GL_TEXTURE_2D_MULTISAMPLE,
+    GL_TEXTURE_3D
 };
 
 static const GLint sGLAddressMode[] =

@@ -168,6 +168,9 @@ public:
 	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
 	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 
+	// Downsample depth buffer with gather and find local min/max depth values. Writes to a 16F RG render target.
+	void		downsampleMinMaxDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
+
 	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
@@ -541,6 +544,8 @@ public:
 
 	void updateCamera(bool reset = false);
 	
+	bool useAdvancedAtmospherics() const;
+
 	LLVector3				mFlyCamPosition;
 	LLQuaternion			mFlyCamRotation;
 
@@ -568,6 +573,7 @@ public:
 	static bool				sBakeSunlight;
 	static bool				sNoAlpha;
 	static bool				sUseTriStrips;
+	static bool				sUseAdvancedAtmospherics;
 	static bool				sUseFarClip;
 	static bool				sShadowRender;
 	static bool				sWaterReflections;
@@ -614,12 +620,13 @@ public:
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
 	LLRenderTarget			mShadowOcclusion[6];
-	std::vector<LLVector3>	mShadowFrustPoints[4];
-	LLVector4				mShadowError;
-	LLVector4				mShadowFOV;
-	LLVector3				mShadowFrustOrigin[4];
-	LLCamera				mShadowCamera[8];
-	LLVector3				mShadowExtents[4][2];
+	LLRenderTarget			mInscatter;
+	std::vector<LLVector3>		mShadowFrustPoints[4];
+	LLVector4			mShadowError;
+	LLVector4			mShadowFOV;
+	LLVector3			mShadowFrustOrigin[4];
+	LLCamera			mShadowCamera[8];
+	LLVector3			mShadowExtents[4][2];
 	glh::matrix4f			mSunShadowMatrix[6];
 	glh::matrix4f			mShadowModelview[6];
 	glh::matrix4f			mShadowProjection[6];

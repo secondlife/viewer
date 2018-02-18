@@ -44,6 +44,7 @@
 #include "lljoint.h"
 #include "llskinningutil.h"
 #include "llenvironment.h"
+#include "llatmosphere.h"
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
@@ -92,6 +93,8 @@ LLGLSLShader	gDebugProgram;
 LLGLSLShader	gClipProgram;
 LLGLSLShader	gDownsampleDepthProgram;
 LLGLSLShader	gDownsampleDepthRectProgram;
+LLGLSLShader	gDownsampleMinMaxDepthRectProgram;
+LLGLSLShader	gInscatterRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
 LLGLSLShader	gBenchmarkProgram;
 
@@ -474,7 +477,7 @@ void LLViewerShaderMgr::setShaders()
 		S32 env_class = 2;
 		S32 obj_class = 2;
 		S32 effect_class = 2;
-		S32 wl_class = 2;
+		S32 wl_class = 3;
 		S32 water_class = 2;
 		S32 deferred_class = 0;
 		S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
@@ -498,14 +501,13 @@ void LLViewerShaderMgr::setShaders()
 			{ //no shadows
 				deferred_class = 1;
 			}
-
-			//make sure hardware skinning is enabled
-			//gSavedSettings.setBOOL("RenderAvatarVP", TRUE);
-			
-			//make sure atmospheric shaders are enabled
-			//gSavedSettings.setBOOL("WindLightUseAtmosShaders", TRUE);
 		}
 
+        // clamp to WL class 2 if we have disabled adv atmo (class 3)
+        if (!gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
+        {
+            wl_class = llmin(wl_class, 2);
+        }
 
 		if (!(LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders")
 			  && gSavedSettings.getBOOL("WindLightUseAtmosShaders")))
@@ -515,7 +517,6 @@ void LLViewerShaderMgr::setShaders()
 			wl_class = 1;
 		}
 
-		
 		// Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
 		if (mVertexShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull())
 		{
@@ -543,6 +544,7 @@ void LLViewerShaderMgr::setShaders()
 
 			// Load all shaders to set max levels
 			loaded = loadShadersEnvironment();
+			llassert(loaded);
 
 			if (loaded)
 			{
@@ -579,14 +581,10 @@ void LLViewerShaderMgr::setShaders()
 				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
 				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
 					BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
-					S32 avatar_class = 1;
-				
-					// cloth is a class3 shader
-					if(avatar_cloth)
-					{
-						avatar_class = 3;
-					}
 
+					// cloth is a class3 shader
+					S32 avatar_class = avatar_cloth ? 3 : 1;
+				
 					// Set the actual level
 					mVertexShaderLevel[SHADER_AVATAR] = avatar_class;
 					loadShadersAvatar();
@@ -699,6 +697,8 @@ void LLViewerShaderMgr::unloadShaders()
 	gClipProgram.unload();
 	gDownsampleDepthProgram.unload();
 	gDownsampleDepthRectProgram.unload();
+	gDownsampleMinMaxDepthRectProgram.unload();
+    gInscatterRectProgram.unload();
 	gBenchmarkProgram.unload();
 	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
@@ -1954,15 +1954,19 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredWLSkyProgram.mName = "Deferred Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
-		gDeferredWLSkyProgram.mShaderFiles.clear();
+        gDeferredWLSkyProgram.mShaderFiles.clear();
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+        gDeferredWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+        {
+            gDeferredWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
+        }
 		success = gDeferredWLSkyProgram.createShader(NULL, NULL);
 	}
 
-	if (success)
+    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
 	{
 		gDeferredWLCloudProgram.mName = "Deferred Windlight Cloud Program";
 		gDeferredWLCloudProgram.mShaderFiles.clear();
@@ -3267,16 +3271,6 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 
 	if (success)
 	{
-		gDownsampleDepthRectProgram.mName = "DownsampleDepthRect Shader";
-		gDownsampleDepthRectProgram.mShaderFiles.clear();
-		gDownsampleDepthRectProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthV.glsl", GL_VERTEX_SHADER_ARB));
-		gDownsampleDepthRectProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthRectF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDownsampleDepthRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
-		success = gDownsampleDepthRectProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
 		gAlphaMaskProgram.mName = "Alpha Mask Shader";
 		gAlphaMaskProgram.mShaderFiles.clear();
 		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskV.glsl", GL_VERTEX_SHADER_ARB));
@@ -3302,8 +3296,42 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 	{
 		gWLSkyProgram.unload();
 		gWLCloudProgram.unload();
+		gDownsampleMinMaxDepthRectProgram.unload();
+        gInscatterRectProgram.unload();
 		return TRUE;
 	}
+
+    if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+    {
+        // Prepare precomputed atmospherics textures using libatmosphere
+        LLAtmosphere::initClass();
+    }
+
+	// this shader uses gather so it can't live with the other basic shaders safely
+	if (success)
+	{
+		gDownsampleMinMaxDepthRectProgram.mName = "DownsampleMinMaxDepthRect Shader";
+		gDownsampleMinMaxDepthRectProgram.mShaderFiles.clear();
+		gDownsampleMinMaxDepthRectProgram.mShaderFiles.push_back(make_pair("windlight/downsampleMinMaxDepthV.glsl", GL_VERTEX_SHADER_ARB));
+		gDownsampleMinMaxDepthRectProgram.mShaderFiles.push_back(make_pair("windlight/downsampleMinMaxDepthRectF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDownsampleMinMaxDepthRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
+		success = gDownsampleMinMaxDepthRectProgram.createShader(NULL, NULL);
+	}
+
+    // this shader uses gather so it can't live with the other basic shaders safely
+    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3))
+    {
+        gInscatterRectProgram.mName = "Inscatter Shader";
+        gInscatterRectProgram.mShaderFiles.clear();
+        gInscatterRectProgram.mShaderFiles.push_back(make_pair("windlight/atmoV.glsl", GL_VERTEX_SHADER_ARB));
+        gInscatterRectProgram.mShaderFiles.push_back(make_pair("windlight/atmoF.glsl", GL_FRAGMENT_SHADER_ARB));
+        gInscatterRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];       
+        llassert(gAtmosphere != nullptr);
+        gInscatterRectProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
+        success = gInscatterRectProgram.createShader(NULL, NULL);
+    }
+
+    llassert(success);
 
 	if (success)
 	{
@@ -3314,10 +3342,16 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+        {
+            gWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
+        }
 		success = gWLSkyProgram.createShader(NULL, NULL);
 	}
 
-	if (success)
+    llassert(success);
+
+    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
 	{
 		gWLCloudProgram.mName = "Windlight Cloud Program";
 		//gWLCloudProgram.mFeatures.hasGamma = true;

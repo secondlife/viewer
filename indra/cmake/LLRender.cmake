@@ -3,6 +3,7 @@
 include(Variables)
 include(FreeType)
 include(GLH)
+include(Atmosphere)
 
 set(LLRENDER_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llrender

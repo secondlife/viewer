@@ -512,16 +512,16 @@ static std::string get_object_log(GLhandleARB ret)
 void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& filename) 
 {
 	std::string log = get_object_log(ret);
+    std::string fname = filename;
+    if (filename.empty())
+    {
+        fname = "unknown shader file";
+    }
 
-	if (log.length() > 0 || warns)
+	if (log.length() > 0)
 	{
-        LL_DEBUGS("ShaderLoading") << "Shader loading ";
-        
-		if (!filename.empty())
-		{
-            LL_CONT << "From " << filename << ":\n";
-		}
-        LL_CONT << log << LL_ENDL;
+        LL_INFOS() << "Shader loading from " << fname << ":\n" << LL_ENDL;
+        LL_INFOS() << log << LL_ENDL;
 	}
  }
 
@@ -1114,7 +1114,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("specularMap");
 	mReservedUniforms.push_back("bumpMap");
 	mReservedUniforms.push_back("environmentMap");
-	mReservedUniforms.push_back("cloude_noise_texture");
+	mReservedUniforms.push_back("cloud_noise_texture");
 	mReservedUniforms.push_back("fullbright");
 	mReservedUniforms.push_back("lightnorm");
 	mReservedUniforms.push_back("sunlight_color");
@@ -1267,6 +1267,16 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 	mReservedUniforms.push_back("origin");
 	mReservedUniforms.push_back("display_gamma");
+
+    mReservedUniforms.push_back("inscatter");
+    mReservedUniforms.push_back("sun_size");
+    mReservedUniforms.push_back("fog_color");
+
+    mReservedUniforms.push_back("transmittance_texture");
+    mReservedUniforms.push_back("scattering_texture");
+    mReservedUniforms.push_back("irradiance_texture");
+    mReservedUniforms.push_back("single_mie_scattering_texture");
+
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
 	std::set<std::string> dupe_check;
