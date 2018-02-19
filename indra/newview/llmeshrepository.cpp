@@ -1618,7 +1618,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 
 				if (!zero)
 				{ //attempt to parse
-					if (lodReceived(mesh_params, lod, buffer, size))
+					if (lodReceived(mesh_params, lod, buffer, size) == MESH_OK)
 					{
 						delete[] buffer;
 						return true;
@@ -1734,11 +1734,11 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	return true;
 }
 
-bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
+EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
 	if (data == NULL || data_size == 0)
 	{
-		return false;
+		return MESH_NO_DATA;
 	}
 
 	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
@@ -1751,7 +1751,7 @@ bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U
 	catch (std::bad_alloc)
 	{
 		// out of memory, we won't be able to process this mesh
-		return false;
+		return MESH_OUT_OF_MEMORY;
 	}
 
 	if (volume->unpackVolumeFaces(stream, data_size))
@@ -1763,11 +1763,11 @@ bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U
 				LLMutexLock lock(mMutex);
 				mLoadedQ.push(mesh);
 			}
-			return true;
+			return MESH_OK;
 		}
 	}
 
-	return false;
+	return MESH_UNKNOWN;
 }
 
 bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
@@ -2952,6 +2952,11 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 				body->read(body_offset, (char *) data, data_size - body_offset);
 				LLMeshRepository::sBytesReceived += data_size;
 			}
+			else
+			{
+				LL_WARNS(LOG_MESH) << "Failed to allocate " << data_size - body_offset << " memory for mesh response" << LL_ENDL;
+				processFailure(LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_BAD_ALLOC));
+			}
 		}
 
 		processData(body, body_offset, data, data_size - body_offset);
@@ -3127,27 +3132,43 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
 								   U8 * data, S32 data_size)
 {
 	if ((!MESH_LOD_PROCESS_FAILED)
-		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
-		&& gMeshRepo.mThread->lodReceived(mMeshParams, mLOD, data, data_size))
+		&& ((data != NULL) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
 	{
-		// good fetch from sim, write to VFS for caching
-		LLVFile file(gVFS, mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLVFile::WRITE);
-
-		S32 offset = mOffset;
-		S32 size = mRequestedBytes;
-
-		if (file.getSize() >= offset+size)
+		EMeshProcessingResult result = gMeshRepo.mThread->lodReceived(mMeshParams, mLOD, data, data_size);
+		if (result == MESH_OK)
 		{
-			file.seek(offset);
-			file.write(data, size);
-			LLMeshRepository::sCacheBytesWritten += size;
-			++LLMeshRepository::sCacheWrites;
+			// good fetch from sim, write to VFS for caching
+			LLVFile file(gVFS, mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLVFile::WRITE);
+
+			S32 offset = mOffset;
+			S32 size = mRequestedBytes;
+
+			if (file.getSize() >= offset+size)
+			{
+				file.seek(offset);
+				file.write(data, size);
+				LLMeshRepository::sCacheBytesWritten += size;
+				++LLMeshRepository::sCacheWrites;
+			}
+		}
+		else
+		{
+			LL_WARNS(LOG_MESH) << "Error during mesh LOD processing.  ID:  " << mMeshParams.getSculptID()
+							   << ", Reason: " << result
+							   << " LOD: " << mLOD
+							   << " Data size: " << data_size
+							   << " Not retrying."
+							   << LL_ENDL;
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, mLOD));
 		}
 	}
 	else
 	{
 		LL_WARNS(LOG_MESH) << "Error during mesh LOD processing.  ID:  " << mMeshParams.getSculptID()
 						   << ", Unknown reason.  Not retrying."
+						   << " LOD: " << mLOD
+						   << " Data size: " << data_size
 						   << LL_ENDL;
 		LLMutexLock lock(gMeshRepo.mThread->mMutex);
 		gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, mLOD));

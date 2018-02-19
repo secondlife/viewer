@@ -2323,7 +2323,10 @@ U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize, std::istream& is, S32
 		U8* new_result = (U8*) realloc(result, cur_size + have);
 		if (new_result == NULL)
 		{
-			LL_WARNS() << "Failed to unzip LLSD NavMesh block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
+			LL_WARNS() << "Failed to unzip LLSD NavMesh block: can't reallocate memory, current size: " << cur_size
+				<< " bytes; requested " << cur_size + have
+				<< " bytes; total syze: ." << size << " bytes."
+				<< LL_ENDL;
 			inflateEnd(&strm);
 			if (result)
 			{
