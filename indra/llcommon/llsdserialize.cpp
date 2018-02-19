@@ -2262,13 +2262,24 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
 //and trailers are different for the formats.
 U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize, std::istream& is, S32 size )
 {
+	if (size == 0)
+	{
+		LL_WARNS() << "No data to unzip." << LL_ENDL;
+		return NULL;
+	}
+
 	U8* result = NULL;
 	U32 cur_size = 0;
 	z_stream strm;
 		
 	const U32 CHUNK = 0x4000;
 
-	U8 *in = new U8[size];
+	U8 *in = new(std::nothrow) U8[size];
+	if (in == NULL)
+	{
+		LL_WARNS() << "Memory allocation failure." << LL_ENDL;
+		return NULL;
+	}
 	is.read((char*) in, size); 
 
 	U8 out[CHUNK];
