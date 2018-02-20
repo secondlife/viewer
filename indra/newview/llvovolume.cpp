@@ -2198,7 +2198,7 @@ bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
 	//setup new materials
 	for(map_te_material::const_iterator it = new_material.begin(), end = new_material.end(); it != end; ++it)
 	{
-		LLMaterialMgr::getInstance()->put(getID(), it->first, *it->second);
+		LLMaterialMgr::getInstance()->setLocalMaterial(getRegion()->getRegionID(), it->second);
 		LLViewerObject::setTEMaterialParams(it->first, it->second);
 	}
 
@@ -2301,7 +2301,7 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 
 		if(new_material) {
 			pMaterial = new_material;
-			LLMaterialMgr::getInstance()->put(getID(),te,*pMaterial);
+			LLMaterialMgr::getInstance()->setLocalMaterial(getRegion()->getRegionID(), pMaterial);
 		}
 	}
 
