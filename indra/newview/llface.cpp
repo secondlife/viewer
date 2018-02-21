@@ -831,6 +831,9 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		min = face.mExtents[0];
 		max = face.mExtents[1];
 		
+        LL_DEBUGS("RiggedBox") << "updating extents for face " << f << " starting extents " << mExtents[0] << ", " << mExtents[1] << LL_ENDL;
+        LL_DEBUGS("RiggedBox") << "updating extents for face " << f << " starting vf extents " << face.mExtents[0] << ", " << face.mExtents[1] << " num verts " << face.mNumVertices << LL_ENDL;
+
 		llassert(less_than_max_mag(min));
 		llassert(less_than_max_mag(max));
 
@@ -859,6 +862,14 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		v[6] = min;
 		v[7] = max;
 
+        // MAINT-8264 - stray vertices, especially in low LODs, cause bounding box errors.
+		if (face.mNumVertices < 3) 
+        {
+            LL_DEBUGS("RiggedBox") << "skipping face " << f << ", bad num vertices " 
+                                   << face.mNumVertices << " " << face.mNumIndices << " " << face.mWeights << LL_ENDL;
+            return FALSE;
+        }
+        
 		for (U32 i = 0; i < 6; ++i)
 		{
 			v[i].setSelectWithMask(mask[i], min, max);
@@ -866,10 +877,13 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 
 		LLVector4a tv[8];
 
+        LL_DEBUGS("RiggedBox") << "updating extents for face " << f << " mat is " << mat_vert << LL_ENDL;
+
 		//transform bounding box into drawable space
 		for (U32 i = 0; i < 8; ++i)
 		{
 			mat_vert.affineTransform(v[i], tv[i]);
+            LL_DEBUGS("RiggedBox") << "updating extents for face " << f << " i " << i << " v and tv " << v[i] << ", " << tv[i] << LL_ENDL;
 		}
 	
 		//find bounding box
@@ -883,6 +897,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			newMin.setMin(newMin, tv[i]);
 			newMax.setMax(newMax, tv[i]);
 		}
+        LL_DEBUGS("RiggedBox") << "updating extents for face " << f << " bbox gave extents " << mExtents[0] << ", " << mExtents[1] << LL_ENDL;
 
 		if (!mDrawablep->isActive())
 		{	// Shift position for region
@@ -890,8 +905,10 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
 			newMin.add(offset);
 			newMax.add(offset);
+            LL_DEBUGS("RiggedBox") << "updating extents for face " << f << " not active, added offset " << offset << LL_ENDL;
 		}
 
+        LL_DEBUGS("RiggedBox") << "updated extents for face " << f << " to " << mExtents[0] << ", " << mExtents[1] << LL_ENDL;
 		LLVector4a t;
 		t.setAdd(newMin,newMax);
 		t.mul(0.5f);

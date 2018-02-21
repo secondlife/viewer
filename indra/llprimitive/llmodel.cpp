@@ -276,6 +276,7 @@ void LLModel::normalizeVolumeFaces()
 			// We shrink the extents so
 			// that they fall within
 			// the unit cube.
+			// VFExtents change
 			face.mExtents[0].add(trans);
 			face.mExtents[0].mul(scale);
 

@@ -176,4 +176,10 @@ inline void matMul(const LLMatrix4a &a, const LLMatrix4a &b, LLMatrix4a &res)
     res.mMatrix[3] = row3;
 }
 
+inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
+{
+    s << "[" << m.mMatrix[0] << ", " << m.mMatrix[1] << ", " << m.mMatrix[2] << ", " << m.mMatrix[3] << "]";
+    return s;
+} 
+
 #endif

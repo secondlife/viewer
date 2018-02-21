@@ -2636,6 +2636,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 
 			//calculate bounding box
+			// VFExtents change
 			LLVector4a& min = face.mExtents[0];
 			LLVector4a& max = face.mExtents[1];
 
@@ -4721,6 +4722,7 @@ LLVolumeFace::~LLVolumeFace()
 {
 	ll_aligned_free_16(mExtents);
 	mExtents = NULL;
+	mCenter = NULL;
 
 	freeData();
 }
@@ -5496,7 +5498,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 	// S32 i;
 	S32	grid_size = (profile.size()-1)/4;
-
+	// VFExtents change
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];
 
@@ -5773,7 +5775,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	
 	LLVector2 cuv;
 	LLVector2 min_uv, max_uv;
-
+	// VFExtents change
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];
 
@@ -6398,14 +6400,17 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 		if (offset == 0 && i == 0)
 		{ //initialize bounding box
+			// VFExtents change
 			mExtents[0] = mExtents[1] = dst_pos[i];
 		}
 		else
 		{
 			//stretch bounding box
+			// VFExtents change
 			update_min_max(mExtents[0], mExtents[1], dst_pos[i]);
 		}
 	}
+    LL_DEBUGS("RiggedBox") << "appendFace got extents " << mExtents[0] << ", " << mExtents[1] << " from dst_pos " << LL_ENDL;
 
 
 	new_count = mNumIndices + face.mNumIndices;
@@ -6568,7 +6573,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	{
 		update_min_max(face_min, face_max, *cur_pos++);
 	}
-
+	// VFExtents change
 	mExtents[0] = face_min;
 	mExtents[1] = face_max;
 

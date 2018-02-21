@@ -1515,14 +1515,22 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
 
-	//	bool rigged = false;
+    if (getRiggedVolume())
+    {
+        updateRiggedVolume(TRUE);
+    }
+    
 	LLVolume* volume = mRiggedVolume;
 	if (!volume)
 	{
 		volume = getVolume();
 	}
 
-	// There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
+    if (getRiggedVolume())
+    {
+        LL_DEBUGS("RiggedBox") << "rebuilding box, volume face count " << getVolume()->getNumVolumeFaces() << " drawable face count " << mDrawable->getNumFaces() << LL_ENDL;
+    }
+    // There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
 	for (S32 i = 0;
 		 i < getVolume()->getNumVolumeFaces() && i < mDrawable->getNumFaces() && i < getNumTEs();
 		 i++)
@@ -1532,12 +1540,18 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		{
 			continue;
 		}
-		res &= face->genVolumeBBoxes(*volume, i,
-										mRelativeXform, 
-										(mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
+
+        BOOL face_res = face->genVolumeBBoxes(*volume, i,
+                                              mRelativeXform, 
+                                              (mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
+        res &= face_res; // note that this result is never used
 		
 		if (rebuild)
 		{
+            if (getRiggedVolume())
+            {
+                LL_DEBUGS("RiggedBox") << "rebuilding box, face " << i << " extents " << face->mExtents[0] << ", " << face->mExtents[1] << LL_ENDL;
+            }
 			if (i == 0)
 			{
 				min = face->mExtents[0];
@@ -1545,6 +1559,11 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 			}
 			else
 			{
+                if (!face_res)
+                {
+                    // MAINT-8264 - ignore bboxes of ill-formed faces.
+                    continue;
+                }
 				min.setMin(min, face->mExtents[0]);
 				max.setMax(max, face->mExtents[1]);
 			}
@@ -1553,6 +1572,10 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 	
 	if (rebuild)
 	{
+        if (getRiggedVolume())
+        {
+            LL_DEBUGS("RiggedBox") << "rebuilding got extents " << min << ", " << max << LL_ENDL;
+        }
 		mDrawable->setSpatialExtents(min,max);
 		min.add(max);
 		min.mul(0.5f);
@@ -4512,6 +4535,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				}
 
 				//update bounding box
+				// VFExtents change
 				LLVector4a& min = dst_face.mExtents[0];
 				LLVector4a& max = dst_face.mExtents[1];
 
@@ -4528,6 +4552,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 					min.setMin(min, pos[j]);
 					max.setMax(max, pos[j]);
 				}
+
                 box_min.setMin(min,box_min);
                 box_max.setMax(max,box_max);
 
@@ -5065,6 +5090,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                                 << " is_animated " << vobj->isAnimatedObject()
                                                 << " can_animate " << vobj->canBeAnimatedObject() 
                                                 << " cav " << vobj->getControlAvatar() 
+                                                << " lod " << vobj->getLOD()
+                                                << " drawable rigged " << (drawablep->isState(LLDrawable::RIGGED))
+                                                << " drawable state " << drawablep->getState()
                                                 << " playing " << (U32) (vobj->getControlAvatar() ? vobj->getControlAvatar()->mPlaying : false)
                                                 << " frame " << LLFrameTimer::getFrameCount()
                                                 << LL_ENDL;

@@ -51,6 +51,7 @@
 #include "llviewerwindow.h"
 #include "llvocache.h"
 #include "llcontrolavatar.h"
+#include "llcallstack.h"
 
 const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
 const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
@@ -1086,7 +1087,8 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 	llassert(!groupp || (LLSpatialGroup*)groupp->hasElement(this));
 
 	if (cur_groupp != groupp && getVOVolume())
-	{ //NULL out vertex buffer references for volumes on spatial group change to maintain
+	{
+		//NULL out vertex buffer references for volumes on spatial group change to maintain
 		//requirement that every face vertex buffer is either NULL or points to a vertex buffer
 		//contained by its drawable's spatial group
 		for (S32 i = 0; i < getNumFaces(); ++i)
