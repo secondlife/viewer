@@ -133,7 +133,7 @@ public:
 	void       setGLTextureCreated (bool initialized);
 	void       setCategory(S32 category) ;
     void       setTexName(LLGLuint); // for forcing w/ externally created textures only
-    void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
+    void       setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
 	LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
 	S32        getMaxDiscardLevel() const;

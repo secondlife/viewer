@@ -333,7 +333,7 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         {
             std::stringstream errtext;
 
-            errtext << "Settings LLSD fails validation and could not be corrected for '" << test.getName() << "'!";
+            errtext << "Settings LLSD fails validation and could not be corrected for '" << test.getName() << "'!\n";
             errors.append( errtext.str() );
             isValid = false;
         }

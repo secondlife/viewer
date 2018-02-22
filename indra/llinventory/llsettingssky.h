@@ -60,7 +60,24 @@ public:
     static const std::string SETTING_STAR_BRIGHTNESS;
     static const std::string SETTING_SUNLIGHT_COLOR;
     static const std::string SETTING_SUN_ROTATION;
-    static const std::string SETTING_SUN_TEXUTUREID;
+    static const std::string SETTING_SUN_TEXTUREID;
+
+    static const std::string SETTING_PLANET_RADIUS;
+    static const std::string SETTING_SKY_BOTTOM_RADIUS;
+    static const std::string SETTING_SKY_TOP_RADIUS;
+    static const std::string SETTING_SUN_ARC_RADIANS;
+
+    static const std::string SETTING_RAYLEIGH_CONFIG;
+    static const std::string SETTING_MIE_CONFIG;
+    static const std::string SETTING_ABSORPTION_CONFIG;
+
+    static const std::string KEY_DENSITY_PROFILE;
+        static const std::string SETTING_DENSITY_PROFILE_WIDTH;
+        static const std::string SETTING_DENSITY_PROFILE_EXP_TERM;
+        static const std::string SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR;
+        static const std::string SETTING_DENSITY_PROFILE_LINEAR_TERM;
+        static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
+        static const std::string SETTING_MIE_ANISOTROPY_FACTOR;
 
     typedef std::shared_ptr<LLSettingsSky> ptr_t;
     typedef std::pair<F32, F32> azimalt_t;
@@ -345,7 +362,7 @@ public:
 
     LLUUID getSunTextureId() const
     {
-        return mSettings[SETTING_SUN_TEXUTUREID].asUUID();
+        return mSettings[SETTING_SUN_TEXTUREID].asUUID();
     }
 
     // Internal/calculated settings
@@ -414,6 +431,8 @@ public:
 
     static LLSD     translateLegacySettings(LLSD legacy);
 
+    static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -423,9 +442,14 @@ protected:
 
     virtual stringset_t getSlerpKeys() const;
 
-    virtual void    updateSettings();
+    virtual void    updateSettings();    
 
 private:
+    // validations for structured sections of sky settings data
+    static validation_list_t rayleighValidationList();
+    static validation_list_t absorptionValidationList();
+    static validation_list_t mieValidationList();
+
     static const F32         NIGHTTIME_ELEVATION;
     static const F32         NIGHTTIME_ELEVATION_COS;
 

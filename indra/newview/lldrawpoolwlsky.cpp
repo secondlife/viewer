@@ -186,7 +186,7 @@ void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
             // bind precomputed textures necessary for calculating sun and sky luminance
             sky_shader->bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
             sky_shader->bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
-            sky_shader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getSingleMieScattering());
+            sky_shader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
 
             static float sunSize = (float)cos(0.0005);
 

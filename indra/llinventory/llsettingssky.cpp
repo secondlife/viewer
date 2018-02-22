@@ -79,11 +79,27 @@ const std::string LLSettingsSky::SETTING_MOON_TEXTUREID("moon_id");
 const std::string LLSettingsSky::SETTING_STAR_BRIGHTNESS("star_brightness");
 const std::string LLSettingsSky::SETTING_SUNLIGHT_COLOR("sunlight_color");
 const std::string LLSettingsSky::SETTING_SUN_ROTATION("sun_rotation");
-const std::string LLSettingsSky::SETTING_SUN_TEXUTUREID("sun_id");
+const std::string LLSettingsSky::SETTING_SUN_TEXTUREID("sun_id");
 
 const std::string LLSettingsSky::SETTING_LEGACY_EAST_ANGLE("east_angle");
 const std::string LLSettingsSky::SETTING_LEGACY_ENABLE_CLOUD_SCROLL("enable_cloud_scroll");
 const std::string LLSettingsSky::SETTING_LEGACY_SUN_ANGLE("sun_angle");
+
+// these are new settings for the advanced atmospherics model
+const std::string LLSettingsSky::SETTING_PLANET_RADIUS("planet_radius");
+const std::string LLSettingsSky::SETTING_SKY_BOTTOM_RADIUS("sky_bottom_radius");
+const std::string LLSettingsSky::SETTING_SKY_TOP_RADIUS("sky_top_radius");
+const std::string LLSettingsSky::SETTING_RAYLEIGH_CONFIG("rayleigh");
+const std::string LLSettingsSky::SETTING_MIE_CONFIG("mie");
+const std::string LLSettingsSky::SETTING_ABSORPTION_CONFIG("absorption");
+const std::string LLSettingsSky::KEY_DENSITY_PROFILE("density");
+const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH("width");
+const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM("exp_term");
+const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR("exp_scale");
+const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_term");
+const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
+const std::string LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR("anisotropy");
+const std::string LLSettingsSky::SETTING_SUN_ARC_RADIANS("sun_arc_radians");
 
 //=========================================================================
 LLSettingsSky::LLSettingsSky(const LLSD &data) :
@@ -142,6 +158,78 @@ LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const
     }
 
     return slepSet;
+}
+
+LLSettingsSky::validation_list_t LLSettingsSky::rayleighValidationList()
+{
+    static validation_list_t rayleighValidation;
+    if (rayleighValidation.empty())
+    {
+        rayleighValidation.push_back(Validator(SETTING_DENSITY_PROFILE_WIDTH,      true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(32768.0f)))));
+
+        rayleighValidation.push_back(Validator(SETTING_DENSITY_PROFILE_EXP_TERM,   true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+        
+        rayleighValidation.push_back(Validator(SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-1.0f)(1.0f)))));
+
+        rayleighValidation.push_back(Validator(SETTING_DENSITY_PROFILE_LINEAR_TERM, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+
+        rayleighValidation.push_back(Validator(SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+    }
+    return rayleighValidation;
+}
+
+LLSettingsSky::validation_list_t LLSettingsSky::absorptionValidationList()
+{
+    static validation_list_t absorptionValidation;
+    if (absorptionValidation.empty())
+    {
+        absorptionValidation.push_back(Validator(SETTING_DENSITY_PROFILE_WIDTH,      true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(32768.0f)))));
+
+        absorptionValidation.push_back(Validator(SETTING_DENSITY_PROFILE_EXP_TERM,   true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+        
+        absorptionValidation.push_back(Validator(SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-1.0f)(1.0f)))));
+
+        absorptionValidation.push_back(Validator(SETTING_DENSITY_PROFILE_LINEAR_TERM, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+
+        absorptionValidation.push_back(Validator(SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+    }
+    return absorptionValidation;
+}
+
+LLSettingsSky::validation_list_t LLSettingsSky::mieValidationList()
+{
+    static validation_list_t mieValidation;
+    if (mieValidation.empty())
+    {
+        mieValidation.push_back(Validator(SETTING_DENSITY_PROFILE_WIDTH,      true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(32768.0f)))));
+
+        mieValidation.push_back(Validator(SETTING_DENSITY_PROFILE_EXP_TERM,   true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+        
+        mieValidation.push_back(Validator(SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-1.0f)(1.0f)))));
+
+        mieValidation.push_back(Validator(SETTING_DENSITY_PROFILE_LINEAR_TERM, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+
+        mieValidation.push_back(Validator(SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
+        mieValidation.push_back(Validator(SETTING_MIE_ANISOTROPY_FACTOR, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+    }
+    return mieValidation;
 }
 
 LLSettingsSky::validation_list_t LLSettingsSky::getValidationList() const
@@ -224,7 +312,19 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         validation.push_back(Validator(SETTING_SUN_ROTATION,        true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
-        validation.push_back(Validator(SETTING_SUN_TEXUTUREID,      false, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_SUN_TEXTUREID,      false, LLSD::TypeUUID));
+
+        validation.push_back(Validator(SETTING_PLANET_RADIUS,       true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1000.0f)(32768.0f)))));
+
+        validation.push_back(Validator(SETTING_SKY_BOTTOM_RADIUS,   true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1000.0f)(32768.0f)))));
+
+        validation.push_back(Validator(SETTING_SKY_TOP_RADIUS,       true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1000.0f)(32768.0f)))));
+
+        validation.push_back(Validator(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.1f)))));
     }
 
     return validation;
@@ -268,12 +368,193 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
     dfltsetting[SETTING_CLOUD_TEXTUREID]    = LLUUID::null;
     dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_MOON; // gMoonTextureID;   // These two are returned by the login... wow!
-    dfltsetting[SETTING_SUN_TEXUTUREID]     = IMG_SUN;  // gSunTextureID;
+    dfltsetting[SETTING_SUN_TEXTUREID]      = IMG_SUN;  // gSunTextureID;
 
     dfltsetting[SETTING_TYPE] = "sky";
 
+    // defaults are for earth...
+    dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
+    dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
+    dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
+    dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;
+
+    LLSD dflt_rayleigh;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+
+    dfltsetting[SETTING_RAYLEIGH_CONFIG]    = dflt_rayleigh;
+
+    LLSD dflt_mie;
+    dflt_mie[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_mie[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_mie[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
+    dflt_mie[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_mie[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_mie[SETTING_MIE_ANISOTROPY_FACTOR]            = 0.9f;
+
+    dfltsetting[SETTING_MIE_CONFIG] = dflt_mie;
+
+    // absorption (ozone) has two linear ramping zones
+    LLSD dflt_absorption_a;
+    dflt_absorption_a[SETTING_DENSITY_PROFILE_WIDTH]            = 25000.0f; // 0 -> the entire atmosphere
+    dflt_absorption_a[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
+    dflt_absorption_a[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
+    dflt_absorption_a[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 25000.0f;
+    dflt_absorption_a[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = -2.0f / 3.0f;
+
+    LLSD dflt_absorption_b;
+    dflt_absorption_b[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> remainder of the atmosphere
+    dflt_absorption_b[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
+    dflt_absorption_b[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
+    dflt_absorption_b[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 15000.0f;
+    dflt_absorption_b[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 8.0f  / 3.0f;
+
+    LLSD wtf;
+    wtf.append(dflt_absorption_a);
+    wtf.append(dflt_absorption_b);
+
+    dfltsetting[SETTING_ABSORPTION_CONFIG] = wtf;
+
     return dfltsetting;
 }
+
+#pragma optimize("", off)
+
+LLSD LLSettingsSky::settingValidation(LLSD &settingsIn, validation_list_t &validations)
+{
+    // Make a copy we can safely modify
+    LLSD settings = settingsIn;
+
+    validation_list_t& rayleighValidations   = rayleighValidationList();
+    validation_list_t& absorptionValidations = absorptionValidationList();
+    validation_list_t& mieValidations        = mieValidationList();
+
+    bool isValid = true;
+
+    LLSD& rayleighConfigs   = settings[SETTING_RAYLEIGH_CONFIG];
+    LLSD& mieConfigs        = settings[SETTING_MIE_CONFIG];
+    LLSD& absorptionConfigs = settings[SETTING_ABSORPTION_CONFIG];
+
+// this is an attempt to handle a single defined layer (w/o array elem)
+// but also handle an array of density profiles if they are specified thus.
+    if (rayleighConfigs.isArray())
+    {
+        for (LLSD::array_iterator it = rayleighConfigs.beginArray(); it != rayleighConfigs.endArray(); ++it)
+        {
+            LLSD rayleighResults = LLSettingsBase::settingValidation(*it, rayleighValidations);
+            if (!rayleighResults["success"].asBoolean())
+            {
+                LL_WARNS("SETTINGS") << "Sky Rayleigh Density Profile setting validation failed!\n" << rayleighResults << LL_ENDL;
+                LLSettingsSky::ptr_t();
+                isValid = false;
+            }
+        }
+    }
+    else
+    {
+        LLSD rayleighResults = LLSettingsBase::settingValidation(rayleighConfigs, rayleighValidations);
+        if (!rayleighResults["success"].asBoolean())
+        {
+            LL_WARNS("SETTINGS") << "Sky Rayleigh Density Profile setting validation failed!\n" << rayleighResults << LL_ENDL;
+            LLSettingsSky::ptr_t();
+            isValid = false;
+        }
+    }
+
+    if (mieConfigs.isArray())
+    {
+        for (LLSD::array_iterator it = mieConfigs.beginArray(); it != mieConfigs.endArray(); ++it)
+        {
+            LLSD mieResults = LLSettingsBase::settingValidation(*it, mieValidations);
+            if (!mieResults["success"].asBoolean())
+            {
+                LL_WARNS("SETTINGS") << "Sky Mie Density Profile setting validation failed!\n" << mieResults << LL_ENDL;
+                LLSettingsSky::ptr_t();
+                isValid = false;
+            }
+        }
+    }
+    else
+    {
+        LLSD mieResults = LLSettingsBase::settingValidation(mieConfigs, mieValidations);
+        if (!mieResults["success"].asBoolean())
+        {
+            LL_WARNS("SETTINGS") << "Sky Mie Density Profile setting validation failed!\n" << mieResults << LL_ENDL;
+            LLSettingsSky::ptr_t();
+            isValid = false;
+        }
+    }
+
+    if (absorptionConfigs.isArray())
+    {
+        for (LLSD::array_iterator it = absorptionConfigs.beginArray(); it != absorptionConfigs.endArray(); ++it)
+        {
+            LLSD absorptionResults = LLSettingsBase::settingValidation(*it, absorptionValidations);
+            if (!absorptionResults["success"].asBoolean())
+            {
+                LL_WARNS("SETTINGS") << "Sky Absorption Density Profile setting validation failed!\n" << absorptionResults << LL_ENDL;
+                LLSettingsSky::ptr_t();
+                isValid = false;
+            }
+        }
+    }
+    else
+    {
+        LLSD absorptionResults = LLSettingsBase::settingValidation(absorptionConfigs, absorptionValidations);
+        if (!absorptionResults["success"].asBoolean())
+        {
+            LL_WARNS("SETTINGS") << "Sky Absorption Density Profile setting validation failed!\n" << absorptionResults << LL_ENDL;
+            LLSettingsSky::ptr_t();
+            isValid = false;
+        }
+    }
+
+#if 0
+    LLSD& rayleigh   = settings[SETTING_RAYLEIGH_CONFIG];
+    LLSD& absorption = settings[SETTING_ABSORPTION_CONFIG];
+    LLSD& mie        = settings[SETTING_MIE_CONFIG];
+    LLSD rayleighResults   = LLSettingsBase::settingValidation(rayleigh, rayleighValidations);
+    LLSD absorptionResults = LLSettingsBase::settingValidation(absorption, absorptionValidations);
+    LLSD mieResults        = LLSettingsBase::settingValidation(mie, mieValidations);
+
+    if (!rayleighResults["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky Rayleigh Density Profile setting validation failed!\n" << rayleighResults << LL_ENDL;
+        LLSettingsSky::ptr_t();
+        isValid = false;
+    }
+
+    if (!absorptionResults["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky Absorption Density Profile setting validation failed!\n" << absorptionResults << LL_ENDL;
+        LLSettingsSky::ptr_t();
+        isValid = false;
+    }
+
+    if (!mieResults["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky Mie Density Profile setting validation failed!\n" << mieResults << LL_ENDL;
+        LLSettingsSky::ptr_t();
+        isValid = false;
+    }
+#endif
+
+    settings.erase(SETTING_RAYLEIGH_CONFIG);
+    settings.erase(SETTING_ABSORPTION_CONFIG);
+    settings.erase(SETTING_MIE_CONFIG);
+
+    if (isValid)
+    {
+        return LLSettingsBase::settingValidation(settings, validations);
+    }
+
+    return LLSDMap("success", LLSD::Boolean(false));
+}
+
+#pragma optimize("", on)
 
 LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
 {

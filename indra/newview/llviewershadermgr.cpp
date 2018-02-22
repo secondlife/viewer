@@ -3308,7 +3308,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
     }
 
 	// this shader uses gather so it can't live with the other basic shaders safely
-	if (success)
+	if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3))
 	{
 		gDownsampleMinMaxDepthRectProgram.mName = "DownsampleMinMaxDepthRect Shader";
 		gDownsampleMinMaxDepthRectProgram.mShaderFiles.clear();
@@ -3331,8 +3331,6 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         success = gInscatterRectProgram.createShader(NULL, NULL);
     }
 
-    llassert(success);
-
 	if (success)
 	{
 		gWLSkyProgram.mName = "Windlight Sky Shader";
@@ -3348,8 +3346,6 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         }
 		success = gWLSkyProgram.createShader(NULL, NULL);
 	}
-
-    llassert(success);
 
     if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
 	{

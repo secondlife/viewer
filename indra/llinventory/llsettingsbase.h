@@ -191,6 +191,7 @@ public:
     typedef std::vector<Validator> validation_list_t;
 
     static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
+
 protected:
 
     LLSettingsBase();

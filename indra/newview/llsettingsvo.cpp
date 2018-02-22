@@ -117,6 +117,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     settings[SETTING_NAME] = std::string("_default_");
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+
     LLSD results = LLSettingsSky::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
