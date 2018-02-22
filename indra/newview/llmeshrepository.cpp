@@ -836,6 +836,12 @@ LLMeshRepoThread::~LLMeshRepoThread()
 	mHttpRequestSet.clear();
     mHttpHeaders.reset();
 
+    while (!mDecompositionQ.empty())
+    {
+        delete mDecompositionQ.front();
+        mDecompositionQ.pop_front();
+    }
+
     delete mHttpRequest;
 	mHttpRequest = NULL;
 	delete mMutex;
@@ -1941,6 +1947,9 @@ LLMeshUploadThread::~LLMeshUploadThread()
 {
 	delete mHttpRequest;
 	mHttpRequest = NULL;
+	delete mMutex;
+	mMutex = NULL;
+
 }
 
 LLMeshUploadThread::DecompRequest::DecompRequest(LLModel* mdl, LLModel* base_model, LLMeshUploadThread* thread)
@@ -3321,6 +3330,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 
 LLMeshRepository::LLMeshRepository()
 : mMeshMutex(NULL),
+  mDecompThread(NULL),
   mMeshThreadCount(0),
   mThread(NULL)
 {
@@ -3350,6 +3360,8 @@ void LLMeshRepository::init()
 void LLMeshRepository::shutdown()
 {
 	LL_INFOS(LOG_MESH) << "Shutting down mesh repository." << LL_ENDL;
+	llassert(mThread != NULL);
+	llassert(mThread->mSignal != NULL);
 
 	metrics_teleport_started_signal.disconnect();
 
