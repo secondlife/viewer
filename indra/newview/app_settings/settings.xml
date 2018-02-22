@@ -10415,17 +10415,6 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
-	<key>RenderForceVolumeLOD</key>
-    <map>
-      <key>Comment</key>
-      <string>Override for all volume LODs</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
 	<key>RenderVolumeLODFactor</key>
     <map>
       <key>Comment</key>
