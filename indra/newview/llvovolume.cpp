@@ -1517,7 +1517,12 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
     if (getRiggedVolume())
     {
-        updateRiggedVolume(TRUE);
+        // MAINT-8264 - better to use the existing call in calling
+        // func LLVOVolume::updateGeometry() if we can detect when
+        // updates needed, set REBUILD_RIGGED accordingly.
+
+        // Without the flag, this will remove unused rigged volumes, which we are not currently very aggressive about.
+        updateRiggedVolume();
     }
     
 	LLVolume* volume = mRiggedVolume;
