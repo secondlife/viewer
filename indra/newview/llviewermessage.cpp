@@ -5116,6 +5116,16 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	LL_DEBUGS("AnimatedObjects") << "processing object animation requests, num_blocks " << num_blocks << LL_ENDL;
 
+    if (!avatarp->mPlaying)
+    {
+        avatarp->mPlaying = true;
+        if (!avatarp->mRootVolp->isAnySelected())
+        {
+            avatarp->updateVolumeGeom();
+            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+        }
+    }
+        
 	volp->mObjectSignaledAnimations.clear();
 	
     for( S32 i = 0; i < num_blocks; i++ )
