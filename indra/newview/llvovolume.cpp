@@ -1282,11 +1282,21 @@ BOOL LLVOVolume::calcLOD()
 
 		distance = avatar->mDrawable->mDistanceWRTCamera;
 		radius = avatar->getBinRadius();
+        if (distance <= 0.f || radius <= 0.f)
+        {
+            LL_DEBUGS("CalcLOD") << "avatar distance/radius uninitialized, skipping" << LL_ENDL;
+            return FALSE;
+        }
 	}
 	else
 	{
 		distance = mDrawable->mDistanceWRTCamera;
 		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
+        if (distance <= 0.f || radius <= 0.f)
+        {
+            LL_DEBUGS("CalcLOD") << "non-avatar distance/radius uninitialized, skipping" << LL_ENDL;
+            return FALSE;
+        }
 	}
 	
 	//hold onto unmodified distance for debugging
@@ -1328,6 +1338,13 @@ BOOL LLVOVolume::calcLOD()
 
 	if (cur_detail != mLOD)
 	{
+        LL_DEBUGS("CalcLOD") << "new LOD " << cur_detail << " change from " << mLOD 
+                             << " distance " << distance << " radius " << radius << " rampDist " << rampDist
+                             << " drawable rigged? " << (mDrawable ? (S32) mDrawable->isState(LLDrawable::RIGGED) : (S32) -1)
+							 << " mRiggedVolume " << (void*)getRiggedVolume()
+                             << " distanceWRTCamera " << (mDrawable ? mDrawable->mDistanceWRTCamera : -1.f)
+                             << LL_ENDL;
+        
 		mAppAngle = ll_round((F32) atan2( mDrawable->getRadius(), mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
 		mLOD = cur_detail;		
 
