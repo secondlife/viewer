@@ -62,6 +62,24 @@ const LLUUID CATEGORIZE_LOST_AND_FOUND_ID(std::string("00000000-0000-0000-0000-0
 
 const U64 TOXIC_ASSET_LIFETIME = (120 * 1000000);       // microseconds
 
+namespace
+{
+    template<typename T, typename... U>
+    bool operator == (const std::function<T(U...)> &a, const std::function <T(U...)> &b)
+    {
+        typedef T(fnType)(U...);
+
+        auto fnPtrA = a.target<T(*)(U...)>();
+        auto fnPtrB = b.target<T(*)(U...)>();
+        if (fnPtrA && fnPtrB)
+            return (*fnPtrA == *fnPtrB);
+        else if (!fnPtrA && !fnPtrB)
+            return true;
+        return false;
+    }
+
+}
+
 ///----------------------------------------------------------------------------
 /// LLAssetInfo
 ///----------------------------------------------------------------------------
@@ -160,7 +178,7 @@ void LLAssetInfo::setFromNameValue( const LLNameValue& nv )
 LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetType::EType type)
     : mUUID(uuid),
       mType(type),
-      mDownCallback(NULL),
+      mDownCallback(),
       mUserData(NULL),
       mHost(),
       mIsTemp(FALSE),
@@ -191,7 +209,7 @@ LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
 
 LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
     :   LLBaseDownloadRequest(uuid, type),
-        mUpCallback( NULL ),
+        mUpCallback(),
         mInfoCallback( NULL ),
         mIsLocal(FALSE),
         mIsUserWaiting(FALSE),
@@ -496,7 +514,11 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
     BOOL exists = mVFS->getExists(uuid, type);
     LLVFile file(mVFS, uuid, type);
     U32 size = exists ? file.getSize() : 0;
-    
+
+// LAPRAS TESTING
+//     if (type == LLAssetType::AT_SETTINGS)
+//         size = 0;
+
     if (size > 0)
     {
         // we've already got the file
@@ -1326,9 +1348,13 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
          iter != mPendingDownloads.end();  )
     {
         LLAssetRequest* tmp = *iter++;
+
+        //void(*const* cbptr)(LLVFS *, const LLUUID &, LLAssetType::EType, void *, S32, LLExtStat) 
+        auto cbptr = tmp->mDownCallback.target<void(*)(LLVFS *, const LLUUID &, LLAssetType::EType, void *, S32, LLExtStat)>();
+
         if (type == tmp->getType() && 
             uuid == tmp->getUUID() &&
-            legacyGetDataCallback == tmp->mDownCallback &&
+            (cbptr && (*cbptr == legacyGetDataCallback)) &&
             callback == ((LLLegacyAssetRequest *)tmp->mUserData)->mDownCallback &&
             user_data == ((LLLegacyAssetRequest *)tmp->mUserData)->mUserData)
         {

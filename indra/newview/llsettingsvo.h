@@ -33,10 +33,55 @@
 #include "llsettingswater.h"
 #include "llsettingsdaycycle.h"
 
+#include "llsdserialize.h"
+
+#include "llextendedstatus.h"
+
+//=========================================================================
+class LLSettingsVOBase : public LLSettingsBase
+{
+public:
+#if 0
+    static void     storeAsAsset(const LLSettingsBase::ptr_t &settings);
+#endif
+
+    static void     createInventoryItem(const LLSettingsBase::ptr_t &settings);
+    
+    static void     uploadSettingsAsset(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id);
+    static void     uploadSettingsAsset(const LLSettingsBase::ptr_t &settings, LLUUID object_id, LLUUID inv_item_id);
+
+
+    static bool     exportFile(const LLSettingsBase::ptr_t &settings, const std::string &filename, LLSDSerialize::ELLSD_Serialize format = LLSDSerialize::LLSD_NOTATION);
+    static LLSettingsBase::ptr_t importFile(const std::string &filename);
+
+private:
+    struct SettingsSaveData
+    {
+        typedef std::shared_ptr<SettingsSaveData> ptr_t;
+        std::string             mType;
+        std::string             mTempFile;
+        LLSettingsBase::ptr_t   mSettings;
+        LLTransactionID         mTransId;
+    };
+
+    LLSettingsVOBase() {}
+
+    static void     onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings);
+
+#if 0
+    static void     onSaveNewAssetComplete(const LLUUID& new_asset_id, const SettingsSaveData::ptr_t &savedata, S32 status, LLExtStat ext_status);
+#endif
+    static void     onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings);
+    static void     onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings);
+};
+
+//=========================================================================
 class LLSettingsVOSky : public LLSettingsSky
 {
 public:
     LLSettingsVOSky(const LLSD &data);
+
+    static ptr_t    buildSky(LLSD settings);
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildDefaultSky();
@@ -46,9 +91,9 @@ public:
 protected:
     LLSettingsVOSky();
 
-    virtual void updateSettings();
+    virtual void    updateSettings();
 
-    virtual void        applySpecial(void *);
+    virtual void    applySpecial(void *);
 
     virtual parammapping_t getParameterMap() const;
 
@@ -60,6 +105,8 @@ class LLSettingsVOWater : public LLSettingsWater
 public:
     LLSettingsVOWater(const LLSD &data);
 
+    static ptr_t    buildWater(LLSD settings);
+
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildDefaultWater();
     virtual ptr_t   buildClone();
@@ -68,8 +115,8 @@ public:
 protected:
     LLSettingsVOWater();
 
-    virtual void updateSettings();
-    virtual void applySpecial(void *);
+    virtual void    updateSettings();
+    virtual void    applySpecial(void *);
 
     virtual parammapping_t getParameterMap() const;
 
@@ -84,6 +131,8 @@ class LLSettingsVODay : public LLSettingsDay
 {
 public:
     LLSettingsVODay(const LLSD &data);
+
+    static ptr_t    buildDay(LLSD settings);
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);

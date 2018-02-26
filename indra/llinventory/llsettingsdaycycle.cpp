@@ -273,6 +273,7 @@ LLSD LLSettingsDay::defaults()
         (LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_")));
     dfltsetting[SETTING_FRAMES] = LLSD::emptyMap();
 
+    dfltsetting[SETTING_TYPE] = "daycycle";
     return dfltsetting;
 }
 

@@ -54,6 +54,10 @@ public:
  	void	onOpen(const LLSD& key);
  	void	onClose(bool app_quitting);
 
+
+    /*TEMP*/
+    void    onUpload();
+
     void    onVisibilityChange(BOOL new_visibility);
 
 // 	/*virtual*/ void	draw();
@@ -123,6 +127,7 @@ private:
     LLComboBox*			mDayPresetsCombo;
     LLButton*			mSaveButton;
     LLButton*			mCancelButton;
+    LLButton*           mUploadButton;
 
     edit_commit_signal_t    mCommitSignal;
 

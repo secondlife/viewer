@@ -39,6 +39,14 @@ namespace
 }
 
 //=========================================================================
+std::ostream &::operator <<(std::ostream& os, LLSettingsBase &settings)
+{
+    LLSDSerialize::serialize(settings.getSettings(), os, LLSDSerialize::LLSD_NOTATION);
+
+    return os;
+}
+
+//=========================================================================
 const std::string LLSettingsBase::SETTING_ID("id");
 const std::string LLSettingsBase::SETTING_NAME("name");
 const std::string LLSettingsBase::SETTING_HASH("hash");
@@ -49,13 +57,15 @@ const F64Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
-    mDirty(true)
+    mDirty(true),
+    mAssetID()
 {
 }
 
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
-    mDirty(true)
+    mDirty(true),
+    mAssetID()
 {
 }
 
@@ -368,8 +378,14 @@ bool LLSettingsBase::Validator::verify(LLSD &data)
 {
     if (!data.has(mName) || (data.has(mName) && data[mName].isUndefined()))
     {
+        if (!mDefault.isUndefined())
+        {
+            LL_INFOS("SETTINGS") << "Inserting missing default for '" << mName << "'." << LL_ENDL;
+            data[mName] = mDefault;
+            return true;
+        }
         if (mRequired)
-            LL_WARNS("SETTINGS") << "Missing required setting '" << mName << "'" << LL_ENDL;
+            LL_WARNS("SETTINGS") << "Missing required setting '" << mName << "' with no default." << LL_ENDL;
         return !mRequired;
     }
 
@@ -514,7 +530,6 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 }
 
 //=========================================================================
-
 void LLSettingsBlender::update(F64Seconds timedelta)
 {
     mTimeSpent += timedelta;

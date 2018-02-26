@@ -72,7 +72,9 @@ public:
     virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
-    virtual std::string getSettingType() const { return std::string("sky"); }
+    virtual std::string getSettingType() const override { return std::string("sky"); }
+    virtual LLSettingsType getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
+
 
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);

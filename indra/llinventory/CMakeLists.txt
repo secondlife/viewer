@@ -45,6 +45,7 @@ set(llinventory_HEADER_FILES
     llfoldertype.h
     llinventory.h
     llinventorydefines.h
+    llinventorysettings.h
     llinventorytype.h
     lllandmark.h
     llnotecard.h

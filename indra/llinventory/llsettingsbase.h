@@ -42,12 +42,16 @@
 #include "v4color.h"
 #include "v3color.h"
 
+#include "llinventorysettings.h"
+
 class LLSettingsBase : 
     public std::enable_shared_from_this<LLSettingsBase>,
     private boost::noncopyable
 {
     friend class LLEnvironment;
     friend class LLSettingsDay;
+
+    friend std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings);
 
 public:
     static const std::string SETTING_ID;
@@ -63,6 +67,8 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const = 0;
+
+    virtual LLSettingsType getSettingTypeValue() const = 0;
 
     //---------------------------------------------------------------------
     // Settings status 
@@ -143,27 +149,28 @@ public:
     // Note this method is marked const but may modify the settings object.
     // (note the internal const cast).  This is so that it may be called without
     // special consideration from getters.
-    inline void update() const
+    inline void     update() const
     {
         if (!mDirty)
             return;
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
 
-    virtual void blend(const ptr_t &end, F64 blendf) = 0;
+    virtual void    blend(const ptr_t &end, F64 blendf) = 0;
 
-    virtual bool validate();
+    virtual bool    validate();
 
     class Validator
     {
     public:
         typedef boost::function<bool(LLSD &)> verify_pr;
 
-        Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr()) :
+        Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr(), LLSD defval = LLSD())  :
             mName(name),
             mRequired(required),
             mType(type),
-            mVerify(verify)
+            mVerify(verify),
+            mDefault(defval)
         {   }
 
         std::string getName() const { return mName; }
@@ -187,6 +194,7 @@ public:
         bool        mRequired;
         LLSD::Type  mType;
         verify_pr   mVerify;
+        LLSD        mDefault;
     };
     typedef std::vector<Validator> validation_list_t;
 
@@ -223,15 +231,16 @@ protected:
 
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 
-    LLSD    mSettings;
-    bool    mIsValid;
+    LLSD        mSettings;
+    bool        mIsValid;
+    LLAssetID   mAssetID;
 
-    LLSD    cloneSettings() const;
+    LLSD        cloneSettings() const;
 
 private:
-    bool    mDirty;
+    bool        mDirty;
 
-    LLSD    combineSDMaps(const LLSD &first, const LLSD &other) const;
+    LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
 
 };
 
