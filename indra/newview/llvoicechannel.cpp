@@ -145,19 +145,9 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 	switch(type)
 	{
 	case STATUS_LOGIN_RETRY:
-		//mLoginNotificationHandle = LLNotifyBox::showXml("VoiceLoginRetry")->getHandle();
-		LLNotificationsUtil::add("VoiceLoginRetry");
+        // no user notice
 		break;
 	case STATUS_LOGGED_IN:
-		//if (!mLoginNotificationHandle.isDead())
-		//{
-		//	LLNotifyBox* notifyp = (LLNotifyBox*)mLoginNotificationHandle.get();
-		//	if (notifyp)
-		//	{
-		//		notifyp->close();
-		//	}
-		//	mLoginNotificationHandle.markDead();
-		//}
 		break;
 	case STATUS_LEFT_CHANNEL:
 		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)

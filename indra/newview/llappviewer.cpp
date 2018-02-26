@@ -2181,8 +2181,9 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	//
 	// Set up logging defaults for the viewer
 	//
-	LLError::initForApplication(
-				gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
+                                ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
+                                );
 	LLError::setFatalFunction(errorCallback);
 	//LLError::setTimeFunction(getRuntime);
 

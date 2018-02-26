@@ -2016,11 +2016,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->ignore_ssl_cert_errors(true);
 		}
 
-		// the correct way to deal with certs it to load ours from CA.pem and append them to the ones
+		// the correct way to deal with certs it to load ours from ca-bundle.crt and append them to the ones
 		// Qt/WebKit loads from your system location.
-		// Note: This needs the new CA.pem file with the Equifax Secure Certificate Authority
-		// cert at the bottom: (MIIDIDCCAomgAwIBAgIENd70zzANBg)
-		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "ca-bundle.crt" );
 		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
