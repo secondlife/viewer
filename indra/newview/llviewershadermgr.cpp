@@ -3288,8 +3288,10 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 	return TRUE;
 }
 
+#pragma optimize("", off)
+
 BOOL LLViewerShaderMgr::loadShadersWindLight()
-{	
+{
 	BOOL success = TRUE;
 
 	if (mVertexShaderLevel[SHADER_WINDLIGHT] < 2)
@@ -3308,7 +3310,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
     }
 
 	// this shader uses gather so it can't live with the other basic shaders safely
-	if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3))
+	/*if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3))
 	{
 		gDownsampleMinMaxDepthRectProgram.mName = "DownsampleMinMaxDepthRect Shader";
 		gDownsampleMinMaxDepthRectProgram.mShaderFiles.clear();
@@ -3316,22 +3318,22 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gDownsampleMinMaxDepthRectProgram.mShaderFiles.push_back(make_pair("windlight/downsampleMinMaxDepthRectF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDownsampleMinMaxDepthRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		success = gDownsampleMinMaxDepthRectProgram.createShader(NULL, NULL);
-	}
+	}*/
 
     // this shader uses gather so it can't live with the other basic shaders safely
     if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3))
     {
         gInscatterRectProgram.mName = "Inscatter Shader";
         gInscatterRectProgram.mShaderFiles.clear();
-        gInscatterRectProgram.mShaderFiles.push_back(make_pair("windlight/atmoV.glsl", GL_VERTEX_SHADER_ARB));
-        gInscatterRectProgram.mShaderFiles.push_back(make_pair("windlight/atmoF.glsl", GL_FRAGMENT_SHADER_ARB));
+        gInscatterRectProgram.mShaderFiles.push_back(make_pair("windlight/advancedAtmoV.glsl", GL_VERTEX_SHADER_ARB));
+        gInscatterRectProgram.mShaderFiles.push_back(make_pair("windlight/advancedAtmoF.glsl", GL_FRAGMENT_SHADER_ARB));
         gInscatterRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];       
         llassert(gAtmosphere != nullptr);
         gInscatterRectProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
         success = gInscatterRectProgram.createShader(NULL, NULL);
     }
 
-	if (success)
+	if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
 	{
 		gWLSkyProgram.mName = "Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
@@ -3340,10 +3342,6 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
-        {
-            gWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
-        }
 		success = gWLSkyProgram.createShader(NULL, NULL);
 	}
 
@@ -3361,6 +3359,9 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 
 	return success;
 }
+
+#pragma optimize("", on)
+
 
 BOOL LLViewerShaderMgr::loadTransformShaders()
 {

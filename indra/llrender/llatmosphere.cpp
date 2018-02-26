@@ -167,18 +167,21 @@ LLAtmosphere::LLAtmosphere()
     m_scattering     = new LLGLTexture;
     m_mie_scattering = new LLGLTexture;
 
+    m_transmittance->generateGLTexture();
     m_transmittance->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
     m_transmittance->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
     m_transmittance->setExplicitFormat(GL_RGB16F, GL_RGB, GL_FLOAT);
     m_transmittance->setTexName(m_textures.transmittance_texture);
     m_transmittance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
 
+    m_scattering->generateGLTexture();
     m_scattering->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
     m_scattering->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
     m_scattering->setExplicitFormat(GL_RGB16F, GL_RGB, GL_FLOAT);
     m_scattering->setTexName(m_textures.transmittance_texture);
     m_scattering->setTarget(GL_TEXTURE_3D, LLTexUnit::TT_TEXTURE_3D);
 
+    m_mie_scattering->generateGLTexture();
     m_mie_scattering->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
     m_mie_scattering->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
     m_mie_scattering->setExplicitFormat(GL_RGB16F, GL_RGB, GL_FLOAT);
