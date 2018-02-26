@@ -1539,6 +1539,8 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		volume = getVolume();
 	}
 
+    bool any_valid_boxes = false;
+    
     if (getRiggedVolume())
     {
         LL_DEBUGS("RiggedBox") << "rebuilding box, volume face count " << getVolume()->getNumVolumeFaces() << " drawable face count " << mDrawable->getNumFaces() << LL_ENDL;
@@ -1559,44 +1561,52 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
                                               (mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
         res &= face_res; // note that this result is never used
 		
+        // MAINT-8264 - ignore bboxes of ill-formed faces.
+        if (!face_res)
+        {
+            continue;
+        }
 		if (rebuild)
 		{
             if (getRiggedVolume())
             {
                 LL_DEBUGS("RiggedBox") << "rebuilding box, face " << i << " extents " << face->mExtents[0] << ", " << face->mExtents[1] << LL_ENDL;
             }
-			if (i == 0)
+			if (!any_valid_boxes)
 			{
 				min = face->mExtents[0];
 				max = face->mExtents[1];
+                any_valid_boxes = true;
 			}
 			else
 			{
-                if (!face_res)
-                {
-                    // MAINT-8264 - ignore bboxes of ill-formed faces.
-                    continue;
-                }
 				min.setMin(min, face->mExtents[0]);
 				max.setMax(max, face->mExtents[1]);
 			}
 		}
 	}
-	
-	if (rebuild)
-	{
-        if (getRiggedVolume())
-        {
-            LL_DEBUGS("RiggedBox") << "rebuilding got extents " << min << ", " << max << LL_ENDL;
-        }
-		mDrawable->setSpatialExtents(min,max);
-		min.add(max);
-		min.mul(0.5f);
-		mDrawable->setPositionGroup(min);	
-	}
 
-	updateRadius();
-	mDrawable->movePartition();
+    if (any_valid_boxes)
+    {
+        if (rebuild)
+        {
+            if (getRiggedVolume())
+            {
+                LL_DEBUGS("RiggedBox") << "rebuilding got extents " << min << ", " << max << LL_ENDL;
+            }
+            mDrawable->setSpatialExtents(min,max);
+            min.add(max);
+            min.mul(0.5f);
+            mDrawable->setPositionGroup(min);	
+        }
+
+        updateRadius();
+        mDrawable->movePartition();
+    }
+    else
+    {
+        LL_DEBUGS("RiggedBox") << "genBBoxes failed to find any valid face boxes" << LL_ENDL;
+    }
 				
 	return res;
 }
