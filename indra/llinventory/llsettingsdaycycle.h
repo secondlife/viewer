@@ -76,10 +76,10 @@ public:
 
 
     //---------------------------------------------------------------------
-    virtual std::string         getSettingType() const { return std::string("daycycle"); }
+    virtual std::string         getSettingType() const override { return std::string("daycycle"); }
 
     // Settings status 
-    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix);
+    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix) override;
 
     static LLSD                 defaults();
 
