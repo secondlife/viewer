@@ -90,8 +90,12 @@ F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
-S32 LLVOVolume::mRenderComplexity_last = 0;
-S32 LLVOVolume::mRenderComplexity_current = 0;
+
+F32 LLVOVolume::sRenderComplexityMax = 1.0f;	   // max render complexity over all vovolumes
+F32 LLVOVolume::sRenderComplexityMaxArctan = 1.0f; // max render complexity over all vovolumes, arctan version
+F32 LLVOVolume::sRenderComplexityMaxLast = 0.0f;	   // last max render complexity over all vovolumes
+F32 LLVOVolume::sRenderComplexityMaxLastArctan = 0.0f; // last max render complexity over all vovolumes, arctan version
+
 LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
@@ -224,6 +228,12 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mLastFetchedMediaVersion = -1;
 	mIndexInTex = 0;
 	mMDCImplCount = 0;
+
+    mRenderComplexity_last = 0;
+    mRenderComplexity_current = 0;
+
+    mRenderComplexity_lastArctan = 0;
+    mRenderComplexity_currentArctan = 0;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -3785,6 +3795,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 		mRenderComplexity_current = (S32)shame;
 	}
 
+    if (mRenderComplexity_current > sRenderComplexityMax)
+    {
+        sRenderComplexityMax = mRenderComplexity_current;
+    }
+
     if (sdp)
     {
         (*sdp)["alpha"] = (LLSD::Integer) alpha;
@@ -3805,6 +3820,403 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
     }
     
 	return (U32)shame;
+}
+
+U32 LLVOVolume::getRenderCost_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp) const
+{
+    /*****************************************************************
+    * This calculation should not be modified by third party viewers,
+    * since it is used to limit rendering and should be uniform for
+    * everyone. If you have suggested improvements, submit them to
+    * the official viewer for consideration.
+    *****************************************************************/
+
+    // Get access to params we'll need at various points.  
+    // Skip if this is object doesn't have a volume (e.g. is an avatar).
+    BOOL has_volume = (getVolume() != NULL);
+    LLVolumeParams volume_params;
+    LLPathParams path_params;
+    LLProfileParams profile_params;
+
+    U32 num_triangles = 0;
+
+    // per-prim costs
+    static const U32 ARC_PARTICLE_COST   = 1; // determined experimentally
+    static const U32 ARC_PARTICLE_MAX    = 2048; // default values
+    static const U32 ARC_TEXTURE_COST    = 16; // multiplier for texture resolution - performance tested
+    static const U32 ARC_LIGHT_COST      = 1024; // static cost for light-producing prims 
+    static const U32 ARC_MEDIA_FACE_COST = 2048; // static cost per media-enabled face 
+
+    // per-prim multipliers
+    static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
+    static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
+    static const F32 ARC_FLEXI_MULT = 5; // tested based on performance
+    static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
+    static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
+    static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
+    static const F32 ARC_MULTI_MODE_MULT = 2.0f;
+    static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
+    static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
+    static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
+
+    // FIXME ARCTAN these are placeholder values based on NO TESTING WHATSOEVER.
+    // Must be updated with test values once we have them.
+    static const F32 ARC_SPECMAP_MULT   = 2.0f;
+    static const F32 ARC_NORMALMAP_MULT = 2.0f;
+
+    F32 shame = 0;
+
+    U32 invisi = 0;
+    U32 shiny = 0;
+    U32 glow = 0;
+    U32 alpha = 0;
+    U32 alpha_mask = 0;
+    U32 full_bright = 0;
+    U32 flexi = 0;
+    U32 animtex = 0;
+    U32 particles = 0;
+    U32 bump = 0;
+    U32 planar = 0;
+    U32 weighted_mesh = 0;
+    U32 produces_light = 0;
+    U32 media_faces = 0;
+    U32 materials = 0;
+    U32 specmap = 0;
+    U32 normalmap = 0;
+
+    const LLDrawable* drawablep = mDrawable;
+    U32 num_faces = drawablep->getNumFaces();
+
+    if (has_volume)
+    {
+        volume_params = getVolume()->getParams();
+        // ARC FIXME not used
+        path_params = volume_params.getPathParams();
+        // ARC FIXME not used
+        profile_params = volume_params.getProfileParams();
+
+        F32 weighted_triangles = -1.0;
+        getStreamingCost_(NULL, NULL, &weighted_triangles, sdp);
+
+        if (weighted_triangles > 0.0)
+        {
+            num_triangles = (U32)(weighted_triangles);
+        }
+    }
+
+    if (num_triangles == 0)
+    {
+        num_triangles = 4;
+    }
+
+    if (sdp)
+    {
+        (*sdp)["isMesh"] = (LLSD::Boolean) isMesh();
+        (*sdp)["weighted_triangles"] = (LLSD::Integer) num_triangles;
+    }
+
+    if (isSculpted())
+    {
+        if (isMesh())
+        {
+            if (sdp)
+            {
+                (*sdp)["LOD"] = getLOD();
+            }
+
+            // base cost is dependent on mesh complexity
+            // note that 3 is the highest LOD as of the time of this coding.
+            S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
+            if (size > 0)
+            {
+                if (gMeshRepo.getSkinInfo(volume_params.getSculptID(), this))
+                {
+                    // weighted attachment - 1 point for every 3 bytes
+                    weighted_mesh = 1;
+                }
+
+            }
+            else
+            {
+                // something went wrong - user should know their content isn't render-free
+                return 0;
+            }
+        }
+        else
+        {
+            const LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+            LLUUID sculpt_id = sculpt_params->getSculptTexture();
+            if (textures.find(sculpt_id) == textures.end())
+            {
+                LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
+                if (texture)
+                {
+                    S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+                    textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
+                }
+            }
+        }
+    }
+
+    if (isFlexible())
+    {
+        flexi = 1;
+    }
+    if (isParticleSource())
+    {
+        particles = 1;
+    }
+
+    if (getIsLight())
+    {
+        produces_light = 1;
+    }
+
+    for (S32 i = 0; i < num_faces; ++i)
+    {
+        const LLFace* face = drawablep->getFace(i);
+        if (!face) continue;
+        const LLTextureEntry* te = face->getTextureEntry();
+        const LLViewerTexture* img = face->getTexture();
+
+        LLMaterial* mat = NULL;
+        if (te)
+        {
+            mat = te->getMaterialParams();
+        }
+        if (mat)
+        {
+            materials = 1;
+            if (mat->getNormalID().notNull())
+            {
+                normalmap++;
+                LLUUID normal_id = mat->getNormalID();
+                if (material_textures.find(normal_id) == material_textures.end())
+                {
+                    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(normal_id);
+                    if (texture)
+                    {
+                        S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+                        material_textures.insert(texture_cost_t::value_type(normal_id, texture_cost));
+                    }
+                }
+            }
+            if (mat->getSpecularID().notNull())
+            {
+                specmap++;
+                LLUUID spec_id = mat->getNormalID();
+                if (material_textures.find(spec_id) == material_textures.end())
+                {
+                    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(spec_id);
+                    if (texture)
+                    {
+                        S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+                        material_textures.insert(texture_cost_t::value_type(spec_id, texture_cost));
+                    }
+                }
+            }
+        }
+
+        if (img)
+        {
+            if (textures.find(img->getID()) == textures.end())
+            {
+                S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
+                textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
+            }
+        }
+
+        if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
+        {
+            alpha++;
+        }
+        else if ((face->getPoolType() == LLDrawPool::POOL_ALPHA_MASK) || (face->getPoolType() == LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK))
+        {
+            alpha_mask++;
+        }
+        else if (face->getPoolType() == LLDrawPool::POOL_FULLBRIGHT)
+        {
+            full_bright++;
+        }
+        else if (img && img->getPrimaryFormat() == GL_ALPHA)
+        {
+            invisi++;
+        }
+        if (face->hasMedia())
+        {
+            media_faces++;
+        }
+
+        if (te)
+        {
+            if (te->getBumpmap() || te->getBumpShiny() || te->getBumpShinyFullbright())
+            {
+                bump++;
+            }
+            if (te->getShiny() || te->getBumpShiny() || te->getBumpShinyFullbright())
+            {
+                shiny++;
+            }
+            if (te->getFullbright() || te->getBumpShinyFullbright())
+            {
+                full_bright++;
+            }
+            if (te->getGlow() > 0.f)
+            {
+                glow++;
+            }
+            if (face->mTextureMatrix != NULL)
+            {
+                animtex++;
+            }
+            if (te->getTexGen())
+            {
+                planar++;
+            }
+        }
+    }
+
+    // shame currently has the "base" cost of 1 point per 15 triangles, min 2.
+    shame = num_triangles  * 5.f;
+    shame = shame < 2.f ? 2.f : shame;
+
+    U32 pain_count = 0;
+
+    // multiply by per-face modifiers
+    if (planar)
+    {
+        shame += planar * ARC_PLANAR_COST;
+        pain_count++;
+    }
+
+    if (animtex)
+    {
+        shame += animtex * ARC_ANIM_TEX_COST;
+        pain_count++;
+    }
+
+    if (alpha)
+    {
+        shame += alpha * ARC_ALPHA_COST;
+        pain_count++;
+    }
+
+    if (invisi)
+    {
+        shame += invisi * ARC_INVISI_COST;
+        pain_count++;
+    }
+
+    if (glow)
+    {
+        shame += glow * ARC_GLOW_MULT;
+        pain_count++;
+    }
+
+    if (bump)
+    {
+        shame += bump * ARC_BUMP_MULT;
+        pain_count++;
+    }
+
+    if (shiny)
+    {
+        shame += shiny * ARC_SHINY_MULT;
+        pain_count++;
+    }
+
+    if (pain_count > 3)
+    {
+        shame += pain_count * ARC_MULTI_MODE_MULT; // penalize using different pools for different pieces of avatar to account for extra overhead
+    }
+
+    // multiply shame by multipliers
+    if (weighted_mesh)
+    {
+        shame *= weighted_mesh * ARC_WEIGHTED_MESH;
+    }
+
+    if (flexi)
+    {
+        shame *= flexi * ARC_FLEXI_MULT;
+    }
+
+
+    // add additional costs
+    if (particles)
+    {
+        const LLPartSysData *part_sys_data = &(mPartSourcep->mPartSysData);
+        const LLPartData *part_data = &(part_sys_data->mPartData);
+        U32 num_particles = (U32)(part_sys_data->mBurstPartCount * llceil(part_data->mMaxAge / part_sys_data->mBurstRate));
+        // tanstaafl
+        //num_particles = num_particles > ARC_PARTICLE_MAX ? ARC_PARTICLE_MAX : num_particles;
+        F32 part_size = (llmax(part_data->mStartScale[0], part_data->mEndScale[0]) + llmax(part_data->mStartScale[1], part_data->mEndScale[1])) / 2.f;
+        shame += num_particles * part_size * ARC_PARTICLE_COST;
+
+        if (sdp)
+        {
+            (*sdp)["num_particles"] = (LLSD::Integer) num_particles;
+            (*sdp)["part_size"] = (LLSD::Real) part_size;
+        }
+    }
+
+    if (produces_light)
+    {
+        shame += ARC_LIGHT_COST;
+    }
+
+    if (media_faces)
+    {
+        shame += media_faces * ARC_MEDIA_FACE_COST;
+    }
+
+    if (specmap)
+    {
+        shame += specmap * ARC_SPECMAP_MULT;
+    }
+
+    if (normalmap)
+    {
+        shame += normalmap * ARC_NORMALMAP_MULT;
+    }
+
+    U32 texture_passes_required  = textures.size() / 8;
+        texture_passes_required += material_textures.size() / 4;
+
+    // extra penalty for using too many textures
+    shame += texture_passes_required * 256.0f;
+
+    if (shame > mRenderComplexity_currentArctan)
+    {
+        mRenderComplexity_currentArctan = (S32)shame;
+    }
+
+    if (mRenderComplexity_currentArctan > sRenderComplexityMaxArctan)
+    {
+        sRenderComplexityMaxArctan = mRenderComplexity_currentArctan;
+    }
+
+    if (sdp)
+    {
+        (*sdp)["alpha_"] = (LLSD::Integer) alpha;
+        (*sdp)["animtex_"] = (LLSD::Integer) animtex;
+        (*sdp)["bump_"] = (LLSD::Integer) bump;
+        (*sdp)["flexi_"] = (LLSD::Integer) flexi;
+        (*sdp)["glow_"] = (LLSD::Integer) glow;
+        (*sdp)["invisi_"] = (LLSD::Integer) invisi;
+        (*sdp)["media_faces_"] = (LLSD::Integer) media_faces;
+        (*sdp)["particles_"] = (LLSD::Integer) particles;
+        (*sdp)["planar_"] = (LLSD::Integer) animtex;
+        (*sdp)["produces_light_"] = (LLSD::Integer) produces_light;
+        (*sdp)["shiny_"] = (LLSD::Integer) shiny;
+        (*sdp)["materials_"] = (LLSD::Integer) materials;
+        (*sdp)["specmap_"] = (LLSD::Integer) specmap;
+        (*sdp)["normalmap_"] = (LLSD::Integer) normalmap;
+        (*sdp)["weighted_mesh_"] = (LLSD::Integer) weighted_mesh;
+        (*sdp)["arctan_"] = (LLSD::Integer)shame;
+    }
+
+    return (U32)shame;
 }
 
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
@@ -3846,11 +4258,62 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 	}	
 }
 
-//static 
+// ARCtan version
+F32 LLVOVolume::getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
+{
+    F32 radius = getScale().length()*0.5f;
+
+    if (sdp)
+    {
+        (*sdp)["lodAtDistance"] = LLSD::emptyMap();
+        F32 test_radius = 0.0;
+        S32 lod = getLODAtDistance(test_radius);
+        (*sdp)["lodAtDistance"][lod] = test_radius;
+        while (lod>0)
+        {
+            test_radius += 4;
+            lod = getLODAtDistance(test_radius);
+            (*sdp)["lodAtDistance"][lod] = test_radius;
+        }
+        (*sdp)["lodAtDistance"][lod] = test_radius;
+    }
+
+    if (isMesh())
+    {
+        return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value, sdp);
+    }
+    else
+    {
+        LLVolume* volume = getVolume();
+        S32 count;
+        LLVolume::getTriangleCount(volume->getParams(), count);
+
+        LLSD header;
+        header["lowest_lod"]["size"] = count * 10;
+        header["low_lod"]["size"]    = count * 10;
+        header["medium_lod"]["size"] = count * 10;
+        header["high_lod"]["size"]   = count * 10;
+
+        return LLMeshRepository::getStreamingCost(header, radius, NULL, NULL, -1, unscaled_value, sdp);
+    }
+}
+
+void LLVOVolume::updateRenderComplexityMax()
+{
+    sRenderComplexityMaxLast = sRenderComplexityMax;
+	sRenderComplexityMax = 0;
+
+    sRenderComplexityMaxLastArctan = sRenderComplexityMaxArctan;
+	sRenderComplexityMaxArctan = 0;
+}
+
 void LLVOVolume::updateRenderComplexity()
 {
 	mRenderComplexity_last = mRenderComplexity_current;
 	mRenderComplexity_current = 0;
+
+    mRenderComplexity_lastArctan = mRenderComplexity_currentArctan;
+	mRenderComplexity_currentArctan = 0;
 }
 
 LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures, LLVOVolume::texture_cost_t& material_textures) const
@@ -3861,7 +4324,10 @@ LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures, LLVOVolume::
     sd["TriangleCount_Low"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_LOW);
     sd["TriangleCount_Medium"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_MEDIUM);
     sd["TriangleCount_HIGH"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_HIGH);
+
     getRenderCost(textures, material_textures, &sd);
+    getRenderCost_(textures, material_textures, &sd);
+
     return sd;
 }
 

@@ -919,7 +919,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 	fetchPhysicsFlags();
 
 	// update max computed render cost
-	LLVOVolume::updateRenderComplexity();
+	LLVOVolume::updateRenderComplexityMax();
 
 	// compute all sorts of time-based stats
 	// don't factor frames that were paused into the stats

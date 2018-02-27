@@ -686,6 +686,7 @@ public:
 			{
 				LLVOAvatar* avatar = av_iter->second;
 
+                avatar->calculateUpdateRenderComplexity_(); // Make sure the numbers are up-to-date
 				avatar->calculateUpdateRenderComplexity(); // Make sure the numbers are up-to-date
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);

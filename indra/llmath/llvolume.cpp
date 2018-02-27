@@ -3626,6 +3626,15 @@ void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts)
 	}
 }
 
+void LLVolume::getTriangleCount(const LLVolumeParams& params, S32& count)
+{ //attempt to approximate the number of triangles that will result from generating a volume LoD set for the 
+    //supplied LLVolumeParams -- inaccurate, but a close enough approximation for determining streaming cost
+    count = 0;
+    S32 path_points    = LLPath::getNumPoints(params.getPathParams(), 4.0f);
+    S32 profile_points = LLProfile::getNumPoints(params.getProfileParams(), false, 4.0f);
+    count = (profile_points * path_points * 2);
+    count += profile_points * 2;
+}
 
 S32 LLVolume::getNumTriangles(S32* vcount) const
 {

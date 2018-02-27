@@ -132,9 +132,21 @@ public:
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
 				typedef std::map<LLUUID, S32> texture_cost_t;
                 U32 	getRenderCost(texture_cost_t &textures,texture_cost_t &material_textures, LLSD *sdp = NULL) const;
+
+                // ARCtan version
+                U32 	getRenderCost_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp = NULL) const;
+
     /*virtual*/	F32		getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp = NULL) const;
 				F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL)
     					{ return getStreamingCost(bytes, visible_bytes, NULL); }
+
+
+                // ARCtan version
+                F32		getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp = NULL) const;
+                F32		getStreamingCost_(S32* bytes = NULL, S32* visible_bytes = NULL)
+                {
+                    return getStreamingCost_(bytes, visible_bytes, NULL);
+                }
 
     LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures) const;
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
@@ -337,8 +349,11 @@ protected:
 	void updateTEData();
 
 	// stats tracking for render complexity
-	static S32 mRenderComplexity_last;
-	static S32 mRenderComplexity_current;
+	mutable S32 mRenderComplexity_last;
+	mutable S32 mRenderComplexity_current;
+
+    mutable S32 mRenderComplexity_lastArctan;
+	mutable S32 mRenderComplexity_currentArctan;
 
 	void requestMediaDataUpdate(bool isNew);
 	void cleanUpMediaImpls();
@@ -350,8 +365,11 @@ private:
 
 public:
 
-	static S32 getRenderComplexityMax() {return mRenderComplexity_last;}
-	static void updateRenderComplexity();
+	S32 getRenderComplexity() {return mRenderComplexity_last;}
+	void updateRenderComplexity();
+
+    static S32 getRenderComplexityMax() {return sRenderComplexityMax;}
+	static void updateRenderComplexityMax();
 
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
@@ -384,6 +402,12 @@ public:
 	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
 	static F32 sLODFactor;				// LOD scale factor
 	static F32 sDistanceFactor;			// LOD distance factor
+
+    static F32 sRenderComplexityMax;	   // max render complexity over all vovolumes
+    static F32 sRenderComplexityMaxArctan; // max render complexity over all vovolumes, arctan version
+
+    static F32 sRenderComplexityMaxLast;	   // last max render complexity over all vovolumes
+    static F32 sRenderComplexityMaxLastArctan; // last max render complexity over all vovolumes, arctan version
 
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;

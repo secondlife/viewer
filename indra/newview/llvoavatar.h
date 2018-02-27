@@ -260,6 +260,7 @@ public:
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderComplexity();
 	void			calculateUpdateRenderComplexity();
+    void			calculateUpdateRenderComplexity_(); // ARCtan version
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	
@@ -437,9 +438,10 @@ public:
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
 	U32  		mVisualComplexity;
+    U32  		mVisualComplexityArctan;
 	bool 		mVisualComplexityStale;
 	U32         mReportedVisualComplexity; // from other viewers through the simulator
-
+    U32         mReportedVisualComplexityArctan;
 
 	bool		mCachedInMuteList;
 	F64			mCachedMuteListUpdateTime;

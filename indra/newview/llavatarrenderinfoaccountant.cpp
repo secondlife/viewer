@@ -203,6 +203,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
             !avatar->isDead() &&								// Not dead yet
             avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
         {
+            avatar->calculateUpdateRenderComplexity_();			// Make sure the ARCtan numbers are up-to-date (must be first...)
             avatar->calculateUpdateRenderComplexity();			// Make sure the numbers are up-to-date
 
             LLSD info = LLSD::emptyMap();
