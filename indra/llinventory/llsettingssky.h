@@ -77,7 +77,7 @@ public:
 
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
     
     static LLSD defaults();
 
@@ -411,7 +411,7 @@ public:
         return mTotalAmbient;
     }
 
-    virtual validation_list_t getValidationList() const;
+    virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
     static LLSD     translateLegacySettings(LLSD legacy);
@@ -425,7 +425,7 @@ protected:
 
     virtual stringset_t getSlerpKeys() const;
 
-    virtual void    updateSettings();
+    virtual void    updateSettings() override;
 
 private:
     static const F32         NIGHTTIME_ELEVATION;
