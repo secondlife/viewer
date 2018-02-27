@@ -305,7 +305,7 @@ LLSettingsBase::ptr_t LLSettingsVOBase::importFile(const std::string &filename)
     catch (const std::ios_base::failure &e)
     {
         LL_WARNS("SETTINGS") << "Unable to save settings to file '" << filename << "': " << e.what() << LL_ENDL;
-        return false;
+        return LLSettingsBase::ptr_t();
     }
 
     std::string settingtype = settings[SETTING_NAME].asString();
