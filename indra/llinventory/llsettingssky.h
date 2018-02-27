@@ -423,7 +423,7 @@ protected:
 
     LLSettingsSky();
 
-    virtual stringset_t getSlerpKeys() const;
+    virtual stringset_t getSlerpKeys() const override;
 
     virtual void    updateSettings() override;
 
