@@ -64,19 +64,37 @@ const U64 TOXIC_ASSET_LIFETIME = (120 * 1000000);       // microseconds
 
 namespace
 {
-    template<typename T, typename... U>
-    bool operator == (const std::function<T(U...)> &a, const std::function <T(U...)> &b)
+    bool operator == (const LLAssetStorage::LLGetAssetCallback &lhs, const LLAssetStorage::LLGetAssetCallback &rhs)
     {
-        typedef T(fnType)(U...);
-
-        auto fnPtrA = a.target<T(*)(U...)>();
-        auto fnPtrB = b.target<T(*)(U...)>();
-        if (fnPtrA && fnPtrB)
-            return (*fnPtrA == *fnPtrB);
-        else if (!fnPtrA && !fnPtrB)
+        auto fnPtrLhs = lhs.target<LLAssetStorage::LLGetAssetCallback>();
+        auto fnPtrRhs = rhs.target<LLAssetStorage::LLGetAssetCallback>();
+        if (fnPtrLhs && fnPtrRhs)
+            return (*fnPtrLhs == *fnPtrRhs);
+        else if (!fnPtrLhs && !fnPtrRhs)
             return true;
         return false;
     }
+
+// Rider: This is the general case of the operator declared above. The code compares the callback 
+// passed into the LLAssetStorage functions to determine if there are duplicated requests for an 
+// asset.  Unfortunately std::function does not provide a direct way to compare two variables so 
+// we define the operator here. 
+// XCode is not very happy with the variadic temples in use below so we will just define the specific 
+// case of comparing two LLGetAssetCallback objects since that is all we really use.
+// 
+//     template<typename T, typename... U>
+//     bool operator == (const std::function<T(U...)> &a, const std::function <T(U...)> &b)
+//     {
+//         typedef T(fnType)(U...);
+// 
+//         auto fnPtrA = a.target<T(*)(U...)>();
+//         auto fnPtrB = b.target<T(*)(U...)>();
+//         if (fnPtrA && fnPtrB)
+//             return (*fnPtrA == *fnPtrB);
+//         else if (!fnPtrA && !fnPtrB)
+//             return true;
+//         return false;
+//     }
 
 }
 
@@ -467,7 +485,7 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
 // IW - uuid is passed by value to avoid side effects, please don't re-add &    
 void LLAssetStorage::getAssetData(const LLUUID uuid,
                                   LLAssetType::EType type, 
-                                  LLGetAssetCallback callback, 
+                                  LLAssetStorage::LLGetAssetCallback callback,
                                   void *user_data, 
                                   BOOL is_priority)
 {
