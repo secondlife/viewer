@@ -651,14 +651,16 @@ void LLViewerTexture::init(bool firstinit)
 	mAdditionalDecodePriority = 0.f;	
 	mParcelMedia = NULL;
 	
-	mNumVolumes = 0;
+	memset(&mNumVolumes, 0, sizeof(U32)* LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mFaceList[LLRender::DIFFUSE_MAP].clear();
 	mFaceList[LLRender::NORMAL_MAP].clear();
 	mFaceList[LLRender::SPECULAR_MAP].clear();
 	mNumFaces[LLRender::DIFFUSE_MAP] = 
 	mNumFaces[LLRender::NORMAL_MAP] = 
 	mNumFaces[LLRender::SPECULAR_MAP] = 0;
-	mVolumeList.clear();
+	
+	mVolumeList[LLRender::LIGHT_TEX].clear();
+	mVolumeList[LLRender::SCULPT_TEX].clear();
 }
 
 //virtual 
@@ -674,7 +676,8 @@ void LLViewerTexture::cleanup()
 	mFaceList[LLRender::DIFFUSE_MAP].clear();
 	mFaceList[LLRender::NORMAL_MAP].clear();
 	mFaceList[LLRender::SPECULAR_MAP].clear();
-	mVolumeList.clear();
+	mVolumeList[LLRender::LIGHT_TEX].clear();
+	mVolumeList[LLRender::SCULPT_TEX].clear();
 }
 
 void LLViewerTexture::notifyAboutCreatingTexture()
@@ -891,40 +894,40 @@ S32 LLViewerTexture::getNumFaces(U32 ch) const
 
 
 //virtual
-void LLViewerTexture::addVolume(LLVOVolume* volumep) 
+void LLViewerTexture::addVolume(U32 ch, LLVOVolume* volumep)
 {
-	if( mNumVolumes >= mVolumeList.size())
+	if (mNumVolumes[ch] >= mVolumeList[ch].size())
 	{
-		mVolumeList.resize(2 * mNumVolumes + 1);		
+		mVolumeList[ch].resize(2 * mNumVolumes[ch] + 1);
 	}
-	mVolumeList[mNumVolumes] = volumep;
-	volumep->setIndexInTex(mNumVolumes);
-	mNumVolumes++;
+	mVolumeList[ch][mNumVolumes[ch]] = volumep;
+	volumep->setIndexInTex(ch, mNumVolumes[ch]);
+	mNumVolumes[ch]++;
 	mLastVolumeListUpdateTimer.reset();
 }
 
 //virtual
-void LLViewerTexture::removeVolume(LLVOVolume* volumep) 
+void LLViewerTexture::removeVolume(U32 ch, LLVOVolume* volumep)
 {
-	if(mNumVolumes > 1)
+	if (mNumVolumes[ch] > 1)
 	{
-		S32 index = volumep->getIndexInTex(); 
-		llassert(index < mVolumeList.size());
-		llassert(index < mNumVolumes);
-		mVolumeList[index] = mVolumeList[--mNumVolumes];
-		mVolumeList[index]->setIndexInTex(index);
+		S32 index = volumep->getIndexInTex(ch); 
+		llassert(index < mVolumeList[ch].size());
+		llassert(index < mNumVolumes[ch]);
+		mVolumeList[ch][index] = mVolumeList[ch][--mNumVolumes[ch]];
+		mVolumeList[ch][index]->setIndexInTex(ch, index);
 	}
 	else 
 	{
-		mVolumeList.clear();
-		mNumVolumes = 0;
+		mVolumeList[ch].clear();
+		mNumVolumes[ch] = 0;
 	}
 	mLastVolumeListUpdateTimer.reset();
 }
 
-S32 LLViewerTexture::getNumVolumes() const
+S32 LLViewerTexture::getNumVolumes(U32 ch) const
 {
-	return mNumVolumes;
+	return mNumVolumes[ch];
 }
 
 void LLViewerTexture::reorganizeFaceList()
@@ -955,9 +958,13 @@ void LLViewerTexture::reorganizeVolumeList()
 	static const F32 MAX_WAIT_TIME = 20.f; // seconds
 	static const U32 MAX_EXTRA_BUFFER_SIZE = 4;
 
-	if(mNumVolumes + MAX_EXTRA_BUFFER_SIZE > mVolumeList.size())
+
+	for (U32 i = 0; i < LLRender::NUM_VOLUME_TEXTURE_CHANNELS; ++i)
 	{
-		return;
+		if (mNumVolumes[i] + MAX_EXTRA_BUFFER_SIZE > mVolumeList[i].size())
+		{
+			return;
+		}
 	}
 
 	if(mLastVolumeListUpdateTimer.getElapsedTimeF32() < MAX_WAIT_TIME)
@@ -966,7 +973,10 @@ void LLViewerTexture::reorganizeVolumeList()
 	}
 
 	mLastVolumeListUpdateTimer.reset();
-	mVolumeList.erase(mVolumeList.begin() + mNumVolumes, mVolumeList.end());
+	for (U32 i = 0; i < LLRender::NUM_VOLUME_TEXTURE_CHANNELS; ++i)
+	{
+		mVolumeList[i].erase(mVolumeList[i].begin() + mNumVolumes[i], mVolumeList[i].end());
+	}
 }
 
 //virtual

@@ -269,6 +269,13 @@ public:
 		SPECULAR_MAP,
 		NUM_TEXTURE_CHANNELS,
 	};
+
+	enum eVolumeTexIndex
+	{
+		LIGHT_TEX = 0,
+		SCULPT_TEX,
+		NUM_VOLUME_TEXTURE_CHANNELS,
+	};
 	
 	typedef enum {
 		TRIANGLES = 0,
