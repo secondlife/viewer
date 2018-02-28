@@ -39,6 +39,8 @@
 #include "llspinctrl.h"
 #include "lltimectrl.h"
 
+#include "llsettingsvo.h"
+
 // newview
 #include "llagent.h"
 #include "llregioninfomodel.h"
@@ -73,12 +75,14 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 // 	mTimeCtrl = getChild<LLTimeCtrl>("time");
  	mSaveButton = getChild<LLButton>("save_btn");
     mCancelButton = getChild<LLButton>("cancel_btn");
+    mUploadButton = getChild<LLButton>("upload_btn");
 // 	mMakeDefaultCheckBox = getChild<LLCheckBoxCtrl>("make_default_cb");
 
 
     mDayPresetsCombo->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onDayPresetChanged, this));
     mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onBtnSave, this));
     mCancelButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onBtnCancel, this));
+    mUploadButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onUpload, this));
 
 	//initCallbacks();
 
@@ -90,6 +94,9 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 {
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
+    LLEnvironment::instance().updateEnvironment();
+
     refreshSkyPresetsList();
 }
 
@@ -101,6 +108,65 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
         LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
         LLEnvironment::instance().updateEnvironment();
 	}
+}
+
+
+void LLFloaterEditExtDayCycle::onUpload()
+{
+    LLSettingsVOBase::createInventoryItem( mEditDay );
+
+#if 0
+    LLSettingsVOBase::storeAsAsset(mEditDay);
+
+    LLTransactionID tid;
+    tid.generate();
+    LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+
+    const std::string filename = asset_id_to_filename(mAssetID, LL_PATH_CACHE);
+    if (!exportFile(filename))
+    {
+        std::string buffer = llformat("Unable to save '%s' to wearable file.", mName.c_str());
+        LL_WARNS() << buffer << LL_ENDL;
+
+        LLSD args;
+        args["NAME"] = mName;
+        LLNotificationsUtil::add("CannotSaveWearableOutOfSpace", args);
+        return;
+    }
+
+    if (gSavedSettings.getBOOL("LogWearableAssetSave"))
+    {
+        const std::string log_filename = asset_id_to_filename(mAssetID, LL_PATH_LOGS);
+        exportFile(log_filename);
+    }
+
+    // save it out to database
+    if (gAssetStorage)
+    {
+        /*
+        std::string url = gAgent.getRegion()->getCapability("NewAgentInventory");
+        if (!url.empty())
+        {
+        LL_INFOS() << "Update Agent Inventory via capability" << LL_ENDL;
+        LLSD body;
+        body["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetToFolderType(getAssetType()));
+        body["asset_type"] = LLAssetType::lookup(getAssetType());
+        body["inventory_type"] = LLInventoryType::lookup(LLInventoryType::IT_WEARABLE);
+        body["name"] = getName();
+        body["description"] = getDescription();
+        LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(body, filename));
+        }
+        else
+        {
+        }
+        */
+        LLWearableSaveData* data = new LLWearableSaveData;
+        data->mType = mType;
+        gAssetStorage->storeAssetData(filename, mTransactionID, getAssetType(),
+            &LLViewerWearable::onSaveNewAssetComplete,
+            (void*)data);
+    }
+#endif
 }
 
 void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)

@@ -28,6 +28,7 @@
 #ifndef LL_LLASSETSTORAGE_H
 #define LL_LLASSETSTORAGE_H
 #include <string>
+#include <functional>
 
 #include "lluuid.h"
 #include "lltimer.h"
@@ -58,6 +59,14 @@ const int LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE = -3;
 const int LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE = -4;
 const int LL_ERR_INSUFFICIENT_PERMISSIONS = -5;
 const int LL_ERR_PRICE_MISMATCH = -23018;
+
+// *TODO: these typedefs are passed into the VFS via a legacy C function pointer
+// future project would be to convert these to C++ callables (std::function<>) so that 
+// we can use bind and remove the userData parameter.
+// 
+typedef std::function<void(LLVFS *vfs, const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)> LLGetAssetCallback;
+typedef std::function<void(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)> LLStoreAssetCallback;
+
 
 class LLAssetInfo
 {
@@ -110,7 +119,8 @@ protected:
     LLAssetType::EType mType;
 
 public:
-    void(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
+    LLGetAssetCallback mDownCallback;
+//    void(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
 
     void	*mUserData;
     LLHost  mHost;
@@ -131,7 +141,8 @@ public:
 
     virtual LLBaseDownloadRequest* getCopy();
 
-	void	(*mUpCallback)(const LLUUID&, void *, S32, LLExtStat);
+    LLStoreAssetCallback mUpCallback;
+//	void	(*mUpCallback)(const LLUUID&, void *, S32, LLExtStat);
 	void	(*mInfoCallback)(LLAssetInfo *, void *, S32);
 
 	BOOL	mIsLocal;
@@ -182,12 +193,7 @@ protected:
 // Map of known bad assets
 typedef std::map<LLUUID,U64,lluuid_less> toxic_asset_map_t;
 
-// *TODO: these typedefs are passed into the VFS via a legacy C function pointer
-// future project would be to convert these to C++ callables (std::function<>) so that 
-// we can use bind and remove the userData parameter.
-// 
-typedef void (*LLGetAssetCallback)(LLVFS *vfs, const LLUUID &asset_id,
-                                   LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status);
+
 
 class LLAssetStorage
 {
@@ -195,7 +201,8 @@ public:
 	// VFS member is public because static child methods need it :(
 	LLVFS *mVFS;
 	LLVFS *mStaticVFS;
-	typedef void (*LLStoreAssetCallback)(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status);
+    typedef ::LLStoreAssetCallback LLStoreAssetCallback;
+    typedef ::LLGetAssetCallback LLGetAssetCallback;
 
 	enum ERequestType
 	{
@@ -377,8 +384,8 @@ protected:
 	void _cleanupRequests(BOOL all, S32 error);
 	void _callUploadCallbacks(const LLUUID &uuid, const LLAssetType::EType asset_type, BOOL success, LLExtStat ext_status);
 
-	virtual void _queueDataRequest(const LLUUID& uuid, LLAssetType::EType type,
-								   void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+	virtual void _queueDataRequest(const LLUUID& uuid, LLAssetType::EType type, LLGetAssetCallback callback,
+//								   void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
 								   void *user_data, BOOL duplicate,
 								   BOOL is_priority) = 0;
 
@@ -424,7 +431,7 @@ class LLLegacyAssetRequest
 {
 public:
 	void	(*mDownCallback)(const char *, const LLUUID&, void *, S32, LLExtStat);
-	LLAssetStorage::LLStoreAssetCallback mUpCallback;
+	LLStoreAssetCallback mUpCallback;
 
 	void	*mUserData;
 };

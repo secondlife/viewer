@@ -124,10 +124,11 @@ public:
         AT_RESERVED_3 = 52,
         AT_RESERVED_4 = 53,
         AT_RESERVED_5 = 54,
+        AT_RESERVED_6 = 55,
 
-        AT_SETTINGS = 55,   // Collection of settings
+        AT_SETTINGS = 56,   // Collection of settings
             
-		AT_COUNT = 56,
+		AT_COUNT = 57,
 
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |

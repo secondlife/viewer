@@ -504,7 +504,7 @@ void LLFriendCardsManager::syncFriendsFolder()
 							  gAgentID.asString(),
 							  LLAssetType::AT_CALLINGCARD,
 							  LLInventoryType::IT_CALLINGCARD,
-							  NOT_WEARABLE,
+                              NO_INV_SUBTYPE,
 							  PERM_MOVE | PERM_TRANSFER,
 							  NULL);
 	}

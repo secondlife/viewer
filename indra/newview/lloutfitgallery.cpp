@@ -1219,7 +1219,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
             checkRemovePhoto(outfit_id);
             std::string upload_pending_name = outfit_id.asString();
             std::string upload_pending_desc = "";
-            LLAssetStorage::LLStoreAssetCallback callback = NULL;
+            LLAssetStorage::LLStoreAssetCallback callback;
             LLUUID photo_id = upload_new_resource(filename, // file
                 upload_pending_name,
                 upload_pending_desc,

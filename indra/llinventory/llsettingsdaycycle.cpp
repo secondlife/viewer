@@ -290,6 +290,8 @@ LLSD LLSettingsDay::defaults()
 
     dfltsetting[SETTING_FRAMES] = frames;
 
+    dfltsetting[SETTING_TYPE] = "daycycle";
+
     return dfltsetting;
 }
 
@@ -297,8 +299,6 @@ void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F64 mix)
 {
     LL_ERRS("DAYCYCLE") << "Day cycles are not blendable!" << LL_ENDL;
 }
-
-#pragma optimize("", off)
 
 namespace
 {
@@ -431,7 +431,6 @@ namespace
     }
 }
 
-#pragma optimize("", on)
 LLSettingsDay::validation_list_t LLSettingsDay::getValidationList() const
 {
     return LLSettingsDay::validationList();

@@ -32,6 +32,7 @@
 #include "pipeline.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <boost/make_shared.hpp>
 #include "lltrace.h"
 #include "llfasttimer.h"
@@ -40,8 +41,20 @@
 #include "llglslshader.h"
 #include "llviewershadermgr.h"
 
+#include "llagent.h"
+#include "llassettype.h"
+#include "llnotificationsutil.h"
+
+#include "llviewerregion.h"
+#include "llviewerassetupload.h"
+#include "llviewerinventory.h"
+
 #include "llenvironment.h"
 #include "llsky.h"
+
+#include "llpermissions.h"
+
+#include "llinventorymodel.h"
 
 #undef  VERIFY_LEGACY_CONVERSION
 
@@ -66,7 +79,257 @@ LLSD ensureArray4(LLSD in, F32 fill)
     }
     return out;
 }
+
+
+//-------------------------------------------------------------------------
+class LLSettingsInventoryCB : public LLInventoryCallback
+{
+public:
+    typedef std::function<void(const LLUUID &)> callback_t;
+
+    LLSettingsInventoryCB(callback_t cbfn) :
+        mCbfn(cbfn)
+    { }
+
+    void fire(const LLUUID& inv_item) override  { if (mCbfn) mCbfn(inv_item); }
+
+private:
+    callback_t  mCbfn;
+};
+
 }
+
+
+//=========================================================================
+#if 0
+void LLSettingsVOBase::storeAsAsset(const LLSettingsBase::ptr_t &settings)
+{
+    LLTransactionID tid;
+    tid.generate();
+
+    LLAssetID aid(tid.makeAssetID(gAgent.getSecureSessionID()));
+
+    const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, aid.asString()) + ".setting";
+
+    if (!exportFile(settings, filename))
+    {
+        LL_WARNS("SETTINGS") << "Unable to save settings file named '" << filename << "'." << LL_ENDL;
+
+        LLSD args;
+        args["NAME"] = aid.asString() + "setting";
+        LLNotificationsUtil::add("CannotSaveWearableOutOfSpace", args);
+        return;
+    }
+
+    SettingsSaveData::ptr_t psave = std::make_shared<SettingsSaveData>();
+    psave->mType = settings->getSettingType();
+    psave->mSettings = settings;
+    psave->mTempFile = filename;
+    psave->mTransId = tid;
+
+    gAssetStorage->storeAssetData(filename, tid, LLAssetType::AT_SETTINGS,
+        [psave](const LLUUID &assetId, void *, S32 status, LLExtStat extstat) {
+            onSaveNewAssetComplete(assetId, psave, status, extstat);
+        },
+        nullptr);
+
+}
+
+void testingOnGotAsset(LLVFS *vfs, const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)
+{
+    LL_WARNS("SETTINGS") << "Got back stored setting with id '" << asset_id << "' status is " << status << ":" << ext_status << LL_ENDL;
+}
+
+
+void LLSettingsVOBase::onSaveNewAssetComplete(const LLUUID& new_asset_id, const LLSettingsVOBase::SettingsSaveData::ptr_t &savedata, 
+        S32 status, LLExtStat ext_status)
+{
+    if (!status)
+    {
+        // Success
+        LL_INFOS("SETTINGS") << "Saved setting of type '" << savedata->mType << "' as " << new_asset_id << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS("SETTINGS") << "Unable to save '" << savedata->mType << "' to central asset store." << LL_ENDL;
+        LLSD args;
+        args["NAME"] = savedata->mType;
+        LLNotificationsUtil::add("CannotSaveToAssetStore", args);
+    }
+
+    gAssetStorage->getAssetData(new_asset_id, LLAssetType::AT_SETTINGS, &testingOnGotAsset, nullptr);
+
+    std::remove(savedata->mTempFile.c_str());
+}
+#endif
+
+
+void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings)
+{
+    LLTransactionID tid;
+    LLUUID          parentFolder = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+    U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
+
+    tid.generate();
+
+    LLPointer<LLInventoryCallback> cb = new LLSettingsInventoryCB([settings](const LLUUID &inventoryId) {
+            LLSettingsVOBase::onInventoryItemCreated(inventoryId, settings);
+        });
+
+    create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
+        parentFolder, tid,
+        settings->getName(), "new settings collection.",
+        settings->getSettingTypeValue(), nextOwnerPerm, cb);
+}
+
+void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings)
+{
+    // We need to update some inventory stuff here.... maybe.
+    uploadSettingsAsset(settings, inventoryId);
+}
+
+
+void LLSettingsVOBase::uploadSettingsAsset(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id)
+{
+    const LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+    {
+        LL_WARNS("SETTINGS") << "Not connected to a region, cannot save setting." << LL_ENDL;
+        return;
+    }
+
+    std::string agent_url(region->getCapability("UpdateSettingsAgentInventory"));
+
+    if (agent_url.empty())
+    {
+        LL_WARNS("SETTINGS") << "Region does not support settings inventory objects." << LL_ENDL;
+        return;
+    }
+
+    std::stringstream buffer; 
+    LLSD settingdata(settings->getSettings());
+    LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
+
+    LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(inv_item_id, LLAssetType::AT_SETTINGS, buffer.str(), 
+        [settings](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response) {
+            LLSettingsVOBase::onAgentAssetUploadComplete(itemId, newAssetId, newItemId, response, settings);
+        });
+
+    LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
+}
+
+void LLSettingsVOBase::uploadSettingsAsset(const LLSettingsBase::ptr_t &settings, LLUUID object_id, LLUUID inv_item_id)
+{
+    const LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+    {
+        LL_WARNS("SETTINGS") << "Not connected to a region, cannot save setting." << LL_ENDL;
+        return;
+    }
+
+    std::string agent_url(region->getCapability("UpdateSettingsAgentInventory"));
+
+    if (agent_url.empty())
+    {
+        LL_WARNS("SETTINGS") << "Region does not support settings inventory objects." << LL_ENDL;
+        return;
+    }
+
+    std::stringstream buffer;
+    LLSD settingdata(settings->getSettings());
+    LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
+
+    LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(object_id, inv_item_id, LLAssetType::AT_SETTINGS, buffer.str(),
+        [settings](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) {
+        LLSettingsVOBase::onTaskAssetUploadComplete(itemId, taskId, newAssetId, response, settings);
+    });
+
+    LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
+}
+
+void LLSettingsVOBase::onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings)
+{
+    LL_WARNS("SETTINGS") << "Upload to inventory complete!" << LL_ENDL;
+}
+
+void LLSettingsVOBase::onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings)
+{
+    LL_WARNS("SETTINGS") << "Upload to task complete!" << LL_ENDL;
+}
+
+bool LLSettingsVOBase::exportFile(const LLSettingsBase::ptr_t &settings, const std::string &filename, LLSDSerialize::ELLSD_Serialize format)
+{
+    try
+    {
+        std::ofstream file(filename, std::ios::out | std::ios::trunc);
+        file.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+
+        if (!file)
+        {
+            LL_WARNS("SETTINGS") << "Unable to open '" << filename << "' for writing." << LL_ENDL;
+            return false;
+        }
+
+        LLSDSerialize::serialize(settings->getSettings(), file, format);
+    }
+    catch (const std::ios_base::failure &e)
+    {
+        LL_WARNS("SETTINGS") << "Unable to save settings to file '" << filename << "': " << e.what() << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+LLSettingsBase::ptr_t LLSettingsVOBase::importFile(const std::string &filename)
+{
+    LLSD settings;
+
+    try
+    {
+        std::ifstream file(filename, std::ios::in);
+        file.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+
+        if (!file)
+        {
+            LL_WARNS("SETTINGS") << "Unable to open '" << filename << "' for reading." << LL_ENDL;
+            return LLSettingsBase::ptr_t();
+        }
+
+        if (!LLSDSerialize::deserialize(settings, file, -1))
+        {
+            LL_WARNS("SETTINGS") << "Unable to deserialize settings from '" << filename << "'" << LL_ENDL;
+            return LLSettingsBase::ptr_t();
+        }
+    }
+    catch (const std::ios_base::failure &e)
+    {
+        LL_WARNS("SETTINGS") << "Unable to save settings to file '" << filename << "': " << e.what() << LL_ENDL;
+        return false;
+    }
+
+    std::string settingtype = settings[SETTING_NAME].asString();
+
+    LLSettingsBase::ptr_t psetting;
+
+    if (settingtype == "water")
+    {
+        return LLSettingsVOWater::buildWater(settings);
+    }
+    else if (settingtype == "sky")
+    {
+        return LLSettingsVOSky::buildSky(settings);
+    }
+    else if (settingtype == "daycycle")
+    {
+        return LLSettingsVODay::buildDay(settings);
+    }
+
+    LL_WARNS("SETTINGS") << "Unable to determine settings type for '" << filename << "'." << LL_ENDL;
+    return LLSettingsBase::ptr_t();
+}
+
+
 //=========================================================================
 LLSettingsVOSky::LLSettingsVOSky(const LLSD &data):
     LLSettingsSky(data)
@@ -79,6 +342,20 @@ LLSettingsVOSky::LLSettingsVOSky():
 }
 
 //-------------------------------------------------------------------------
+LLSettingsSky::ptr_t LLSettingsVOSky::buildSky(LLSD settings)
+{
+    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+    LLSD results = LLSettingsSky::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsSky::ptr_t();
+    }
+
+    return std::make_shared<LLSettingsVOSky>(settings);
+}
+
+
 LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &name, const LLSD &legacy)
 {
 
@@ -117,7 +394,6 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     settings[SETTING_NAME] = std::string("_default_");
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
-
     LLSD results = LLSettingsSky::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
@@ -259,6 +535,19 @@ LLSettingsVOWater::LLSettingsVOWater() :
     LLSettingsWater()
 {
 
+}
+
+LLSettingsWater::ptr_t LLSettingsVOWater::buildWater(LLSD settings)
+{
+    LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
+    LLSD results = LLSettingsWater::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Water setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsWater::ptr_t();
+    }
+
+    return std::make_shared<LLSettingsVOWater>(settings);
 }
 
 //-------------------------------------------------------------------------
@@ -417,6 +706,23 @@ LLSettingsVODay::LLSettingsVODay(const LLSD &data):
 LLSettingsVODay::LLSettingsVODay():
     LLSettingsDay()
 {}
+
+LLSettingsDay::ptr_t LLSettingsVODay::buildDay(LLSD settings)
+{
+    LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
+    LLSD results = LLSettingsDay::settingValidation(settings, validations);
+    if (!results["success"].asBoolean())
+    {
+        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
+        LLSettingsDay::ptr_t();
+    }
+
+    LLSettingsDay::ptr_t pday = std::make_shared<LLSettingsVODay>(settings);
+    if (pday)
+        pday->initialize();
+
+    return pday;
+}
 
 //-------------------------------------------------------------------------
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)

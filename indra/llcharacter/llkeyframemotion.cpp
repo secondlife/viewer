@@ -596,7 +596,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 
 	LLDataPackerBinaryBuffer dp(anim_data, anim_file_size);
 
-	if (!deserialize(dp))
+	if (!deserialize(dp, getID()))
 	{
 		LL_WARNS() << "Failed to decode asset for animation " << getName() << ":" << getID() << LL_ENDL;
 		mAssetStatus = ASSET_FETCH_FAILED;
@@ -1221,7 +1221,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 //-----------------------------------------------------------------------------
 // deserialize()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
+BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 {
 	BOOL old_version = FALSE;
 	mJointMotionList = new LLKeyframeMotion::JointMotionList;
@@ -1235,13 +1235,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 	if (!dp.unpackU16(version, "version"))
 	{
-		LL_WARNS() << "can't read version number" << LL_ENDL;
+		LL_WARNS() << "can't read version number for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if (!dp.unpackU16(sub_version, "sub_version"))
 	{
-		LL_WARNS() << "can't read sub version number" << LL_ENDL;
+		LL_WARNS() << "can't read sub version number for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1252,16 +1252,19 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	else if (version != KEYFRAME_MOTION_VERSION || sub_version != KEYFRAME_MOTION_SUBVERSION)
 	{
 #if LL_RELEASE
-		LL_WARNS() << "Bad animation version " << version << "." << sub_version << LL_ENDL;
+		LL_WARNS() << "Bad animation version " << version << "." << sub_version 
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 #else
-		LL_ERRS() << "Bad animation version " << version << "." << sub_version << LL_ENDL;
+		LL_ERRS() << "Bad animation version " << version << "." << sub_version
+                  << " for animation " << asset_id << LL_ENDL;
 #endif
 	}
 
 	if (!dp.unpackS32(temp_priority, "base_priority"))
 	{
-		LL_WARNS() << "can't read animation base_priority" << LL_ENDL;
+		LL_WARNS() << "can't read animation base_priority"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 	mJointMotionList->mBasePriority = (LLJoint::JointPriority) temp_priority;
@@ -1273,7 +1276,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	}
 	else if (mJointMotionList->mBasePriority < LLJoint::USE_MOTION_PRIORITY)
 	{
-		LL_WARNS() << "bad animation base_priority " << mJointMotionList->mBasePriority << LL_ENDL;
+		LL_WARNS() << "bad animation base_priority " << mJointMotionList->mBasePriority
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1282,14 +1286,16 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	//-------------------------------------------------------------------------
 	if (!dp.unpackF32(mJointMotionList->mDuration, "duration"))
 	{
-		LL_WARNS() << "can't read duration" << LL_ENDL;
+		LL_WARNS() << "can't read duration"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 	
 	if (mJointMotionList->mDuration > MAX_ANIM_DURATION ||
 	    !llfinite(mJointMotionList->mDuration))
 	{
-		LL_WARNS() << "invalid animation duration" << LL_ENDL;
+		LL_WARNS() << "invalid animation duration"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1298,13 +1304,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	//-------------------------------------------------------------------------
 	if (!dp.unpackString(mJointMotionList->mEmoteName, "emote_name"))
 	{
-		LL_WARNS() << "can't read optional_emote_animation" << LL_ENDL;
+		LL_WARNS() << "can't read optional_emote_animation"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if(mJointMotionList->mEmoteName==mID.asString())
 	{
-		LL_WARNS() << "Malformed animation mEmoteName==mID" << LL_ENDL;
+		LL_WARNS() << "Malformed animation mEmoteName==mID"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1314,20 +1322,23 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	if (!dp.unpackF32(mJointMotionList->mLoopInPoint, "loop_in_point") ||
 	    !llfinite(mJointMotionList->mLoopInPoint))
 	{
-		LL_WARNS() << "can't read loop point" << LL_ENDL;
+		LL_WARNS() << "can't read loop point"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if (!dp.unpackF32(mJointMotionList->mLoopOutPoint, "loop_out_point") ||
 	    !llfinite(mJointMotionList->mLoopOutPoint))
 	{
-		LL_WARNS() << "can't read loop point" << LL_ENDL;
+		LL_WARNS() << "can't read loop point"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if (!dp.unpackS32(mJointMotionList->mLoop, "loop"))
 	{
-		LL_WARNS() << "can't read loop" << LL_ENDL;
+		LL_WARNS() << "can't read loop"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1337,14 +1348,16 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	if (!dp.unpackF32(mJointMotionList->mEaseInDuration, "ease_in_duration") ||
 	    !llfinite(mJointMotionList->mEaseInDuration))
 	{
-		LL_WARNS() << "can't read easeIn" << LL_ENDL;
+		LL_WARNS() << "can't read easeIn"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if (!dp.unpackF32(mJointMotionList->mEaseOutDuration, "ease_out_duration") ||
 	    !llfinite(mJointMotionList->mEaseOutDuration))
 	{
-		LL_WARNS() << "can't read easeOut" << LL_ENDL;
+		LL_WARNS() << "can't read easeOut"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1354,13 +1367,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	U32 word;
 	if (!dp.unpackU32(word, "hand_pose"))
 	{
-		LL_WARNS() << "can't read hand pose" << LL_ENDL;
+		LL_WARNS() << "can't read hand pose"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 	
 	if(word > LLHandMotion::NUM_HAND_POSES)
 	{
-		LL_WARNS() << "invalid LLHandMotion::eHandPose index: " << word << LL_ENDL;
+		LL_WARNS() << "invalid LLHandMotion::eHandPose index: " << word
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 	
@@ -1372,18 +1387,21 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	U32 num_motions = 0;
 	if (!dp.unpackU32(num_motions, "num_joints"))
 	{
-		LL_WARNS() << "can't read number of joints" << LL_ENDL;
+		LL_WARNS() << "can't read number of joints"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if (num_motions == 0)
 	{
-		LL_WARNS() << "no joints in animation" << LL_ENDL;
+		LL_WARNS() << "no joints"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 	else if (num_motions > LL_CHARACTER_MAX_ANIMATED_JOINTS)
 	{
-		LL_WARNS() << "too many joints in animation" << LL_ENDL;
+		LL_WARNS() << "too many joints"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1404,13 +1422,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		std::string joint_name;
 		if (!dp.unpackString(joint_name, "joint_name"))
 		{
-			LL_WARNS() << "can't read joint name" << LL_ENDL;
+			LL_WARNS() << "can't read joint name"
+                       << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
 
 		if (joint_name == "mScreen" || joint_name == "mRoot")
 		{
-			LL_WARNS() << "attempted to animate special " << joint_name << " joint" << LL_ENDL;
+			LL_WARNS() << "attempted to animate special " << joint_name << " joint"
+                       << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
 				
@@ -1424,14 +1444,17 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 //			LL_INFOS() << "  joint: " << joint_name << LL_ENDL;
             if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
             {
-                LL_WARNS() << "Joint will be omitted from animation: joint_num " << joint_num << " is outside of legal range [0-"
-                           << LL_CHARACTER_MAX_ANIMATED_JOINTS << ") for joint " << joint->getName() << LL_ENDL;
+                LL_WARNS() << "Joint will be omitted from animation: joint_num " << joint_num 
+                           << " is outside of legal range [0-"
+                           << LL_CHARACTER_MAX_ANIMATED_JOINTS << ") for joint " << joint->getName()
+                           << " for animation " << asset_id << LL_ENDL;
                 joint = NULL;
             }
 		}
 		else
 		{
-			LL_WARNS() << "joint not found: " << joint_name << LL_ENDL;
+			LL_WARNS() << "invalid joint name: " << joint_name
+                       << " for animation " << asset_id << LL_ENDL;
 			//return FALSE;
 		}
 
@@ -1448,13 +1471,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		S32 joint_priority;
 		if (!dp.unpackS32(joint_priority, "joint_priority"))
 		{
-			LL_WARNS() << "can't read joint priority." << LL_ENDL;
+			LL_WARNS() << "can't read joint priority."
+                       << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
 
 		if (joint_priority < LLJoint::USE_MOTION_PRIORITY)
 		{
-			LL_WARNS() << "joint priority unknown - too low." << LL_ENDL;
+			LL_WARNS() << "joint priority unknown - too low."
+                       << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
 		
@@ -1472,7 +1497,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		//---------------------------------------------------------------------
 		if (!dp.unpackS32(joint_motion->mRotationCurve.mNumKeys, "num_rot_keys") || joint_motion->mRotationCurve.mNumKeys < 0)
 		{
-			LL_WARNS() << "can't read number of rotation keys" << LL_ENDL;
+			LL_WARNS() << "can't read number of rotation keys"
+                       << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
 
@@ -1497,7 +1523,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				if (!dp.unpackF32(time, "time") ||
 				    !llfinite(time))
 				{
-					LL_WARNS() << "can't read rotation key (" << k << ")" << LL_ENDL;
+					LL_WARNS() << "can't read rotation key (" << k << ")"
+                               << " for animation " << asset_id << LL_ENDL;
 					return FALSE;
 				}
 
@@ -1506,7 +1533,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			{
 				if (!dp.unpackU16(time_short, "time"))
 				{
-					LL_WARNS() << "can't read rotation key (" << k << ")" << LL_ENDL;
+					LL_WARNS() << "can't read rotation key (" << k << ")"
+                               << " for animation " << asset_id << LL_ENDL;
 					return FALSE;
 				}
 
@@ -1514,7 +1542,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				
 				if (time < 0 || time > mJointMotionList->mDuration)
 				{
-					LL_WARNS() << "invalid frame time" << LL_ENDL;
+					LL_WARNS() << "invalid frame time"
+                               << " for animation " << asset_id << LL_ENDL;
 					return FALSE;
 				}
 			}
@@ -1548,13 +1577,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 			if( !(rot_key.mRotation.isFinite()) )
 			{
-				LL_WARNS() << "non-finite angle in rotation key" << LL_ENDL;
+				LL_WARNS() << "non-finite angle in rotation key"
+                           << " for animation " << asset_id << LL_ENDL;
 				success = FALSE;
 			}
 			
 			if (!success)
 			{
-				LL_WARNS() << "can't read rotation key (" << k << ")" << LL_ENDL;
+				LL_WARNS() << "can't read rotation key (" << k << ")"
+                           << " for animation " << asset_id << LL_ENDL;
 				return FALSE;
 			}
 
@@ -1566,7 +1597,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		//---------------------------------------------------------------------
 		if (!dp.unpackS32(joint_motion->mPositionCurve.mNumKeys, "num_pos_keys") || joint_motion->mPositionCurve.mNumKeys < 0)
 		{
-			LL_WARNS() << "can't read number of position keys" << LL_ENDL;
+			LL_WARNS() << "can't read number of position keys"
+                       << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
 
@@ -1591,7 +1623,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				if (!dp.unpackF32(pos_key.mTime, "time") ||
 				    !llfinite(pos_key.mTime))
 				{
-					LL_WARNS() << "can't read position key (" << k << ")" << LL_ENDL;
+					LL_WARNS() << "can't read position key (" << k << ")"
+                               << " for animation " << asset_id << LL_ENDL;
 					return FALSE;
 				}
 			}
@@ -1599,7 +1632,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			{
 				if (!dp.unpackU16(time_short, "time"))
 				{
-					LL_WARNS() << "can't read position key (" << k << ")" << LL_ENDL;
+					LL_WARNS() << "can't read position key (" << k << ")"
+                               << " for animation " << asset_id << LL_ENDL;
 					return FALSE;
 				}
 
@@ -1633,13 +1667,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			
 			if( !(pos_key.mPosition.isFinite()) )
 			{
-				LL_WARNS() << "non-finite position in key" << LL_ENDL;
+				LL_WARNS() << "non-finite position in key"
+                           << " for animation " << asset_id << LL_ENDL;
 				success = FALSE;
 			}
 			
 			if (!success)
 			{
-				LL_WARNS() << "can't read position key (" << k << ")" << LL_ENDL;
+				LL_WARNS() << "can't read position key (" << k << ")"
+                           << " for animation " << asset_id << LL_ENDL;
 				return FALSE;
 			}
 			
@@ -1660,13 +1696,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	S32 num_constraints = 0;
 	if (!dp.unpackS32(num_constraints, "num_constraints"))
 	{
-		LL_WARNS() << "can't read number of constraints" << LL_ENDL;
+		LL_WARNS() << "can't read number of constraints"
+                   << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 	}
 
 	if (num_constraints > MAX_CONSTRAINTS || num_constraints < 0)
 	{
-		LL_WARNS() << "Bad number of constraints... ignoring: " << num_constraints << LL_ENDL;
+		LL_WARNS() << "Bad number of constraints... ignoring: " << num_constraints
+                   << " for animation " << asset_id << LL_ENDL;
 	}
 	else
 	{
@@ -1682,7 +1720,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 			if (!dp.unpackU8(byte, "chain_length"))
 			{
-				LL_WARNS() << "can't read constraint chain length" << LL_ENDL;
+				LL_WARNS() << "can't read constraint chain length"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1690,21 +1729,24 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 			if((U32)constraintp->mChainLength > mJointMotionList->getNumJointMotions())
 			{
-				LL_WARNS() << "invalid constraint chain length" << LL_ENDL;
+				LL_WARNS() << "invalid constraint chain length"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 
 			if (!dp.unpackU8(byte, "constraint_type"))
 			{
-				LL_WARNS() << "can't read constraint type" << LL_ENDL;
+				LL_WARNS() << "can't read constraint type"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 			
 			if( byte >= NUM_CONSTRAINT_TYPES )
 			{
-				LL_WARNS() << "invalid constraint type" << LL_ENDL;
+				LL_WARNS() << "invalid constraint type"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1714,7 +1756,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			U8 bin_data[BIN_DATA_LENGTH+1];
 			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "source_volume"))
 			{
-				LL_WARNS() << "can't read source volume name" << LL_ENDL;
+				LL_WARNS() << "can't read source volume name"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1725,21 +1768,24 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 			if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
 			{
-				LL_WARNS() << "can't read constraint source offset" << LL_ENDL;
+				LL_WARNS() << "can't read constraint source offset"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 			
 			if( !(constraintp->mSourceConstraintOffset.isFinite()) )
 			{
-				LL_WARNS() << "non-finite constraint source offset" << LL_ENDL;
+				LL_WARNS() << "non-finite constraint source offset"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 			
 			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "target_volume"))
 			{
-				LL_WARNS() << "can't read target volume name" << LL_ENDL;
+				LL_WARNS() << "can't read target volume name"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1759,28 +1805,32 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 			if (!dp.unpackVector3(constraintp->mTargetConstraintOffset, "target_offset"))
 			{
-				LL_WARNS() << "can't read constraint target offset" << LL_ENDL;
+				LL_WARNS() << "can't read constraint target offset"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 
 			if( !(constraintp->mTargetConstraintOffset.isFinite()) )
 			{
-				LL_WARNS() << "non-finite constraint target offset" << LL_ENDL;
+				LL_WARNS() << "non-finite constraint target offset"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 			
 			if (!dp.unpackVector3(constraintp->mTargetConstraintDir, "target_dir"))
 			{
-				LL_WARNS() << "can't read constraint target direction" << LL_ENDL;
+				LL_WARNS() << "can't read constraint target direction"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 
 			if( !(constraintp->mTargetConstraintDir.isFinite()) )
 			{
-				LL_WARNS() << "non-finite constraint target direction" << LL_ENDL;
+				LL_WARNS() << "non-finite constraint target direction"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1793,28 +1843,32 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 			if (!dp.unpackF32(constraintp->mEaseInStartTime, "ease_in_start") || !llfinite(constraintp->mEaseInStartTime))
 			{
-				LL_WARNS() << "can't read constraint ease in start time" << LL_ENDL;
+				LL_WARNS() << "can't read constraint ease in start time"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 
 			if (!dp.unpackF32(constraintp->mEaseInStopTime, "ease_in_stop") || !llfinite(constraintp->mEaseInStopTime))
 			{
-				LL_WARNS() << "can't read constraint ease in stop time" << LL_ENDL;
+				LL_WARNS() << "can't read constraint ease in stop time"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 
 			if (!dp.unpackF32(constraintp->mEaseOutStartTime, "ease_out_start") || !llfinite(constraintp->mEaseOutStartTime))
 			{
-				LL_WARNS() << "can't read constraint ease out start time" << LL_ENDL;
+				LL_WARNS() << "can't read constraint ease out start time"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
 
 			if (!dp.unpackF32(constraintp->mEaseOutStopTime, "ease_out_stop") || !llfinite(constraintp->mEaseOutStopTime))
 			{
-				LL_WARNS() << "can't read constraint ease out stop time" << LL_ENDL;
+				LL_WARNS() << "can't read constraint ease out stop time"
+                           << " for animation " << asset_id << LL_ENDL;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1835,7 +1889,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				if (!parent)
 				{
 					LL_WARNS() << "Joint with no parent: " << joint->getName()
-							<< " Emote: " << mJointMotionList->mEmoteName << LL_ENDL;
+                               << " Emote: " << mJointMotionList->mEmoteName
+                               << " for animation " << asset_id << LL_ENDL;
 					return FALSE;
 				}
 				joint = parent;
@@ -1846,7 +1901,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 					
 					if ( !constraint_joint )
 					{
-						LL_WARNS() << "Invalid joint " << j << LL_ENDL;
+						LL_WARNS() << "Invalid joint " << j
+                                   << " for animation " << asset_id << LL_ENDL;
 						return FALSE;
 					}
 					
@@ -1858,7 +1914,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				}
 				if (constraintp->mJointStateIndices[i] < 0 )
 				{
-					LL_WARNS() << "No joint index for constraint " << i << LL_ENDL;
+					LL_WARNS() << "No joint index for constraint " << i
+                               << " for animation " << asset_id << LL_ENDL;
 					delete constraintp;
 					return FALSE;
 				}
@@ -2262,7 +2319,7 @@ void LLKeyframeMotion::onLoadComplete(LLVFS *vfs,
 			LL_DEBUGS("Animation") << "Loading keyframe data for: " << motionp->getName() << ":" << motionp->getID() << " (" << size << " bytes)" << LL_ENDL;
 			
 			LLDataPackerBinaryBuffer dp(buffer, size);
-			if (motionp->deserialize(dp))
+			if (motionp->deserialize(dp, asset_uuid))
 			{
 				motionp->mAssetStatus = ASSET_LOADED;
 			}

@@ -24,8 +24,8 @@
                 border="false"
                 auto_resize="false"
                 user_resize="true"
-                height="30"
-                min_height="30"
+                height="45"
+                min_height="45"
                 background_visible="false">
             <!-- This layout_panel is for loading legacy presets -->
             <text
@@ -34,8 +34,7 @@
                     height="10"
                     layout="topleft"
                     name="label"
-                    top_offset="20"
-                    left_offset="10"
+                    top_delta="70"
                     width="120">
                 Preset Name:
             </text>
@@ -138,6 +137,15 @@
                     name="cancel_btn"
                     width="100" /> 
 
+            <button
+                    follows="top|right"
+                    height="23"
+                    label="Upload"
+                    layout="topleft"
+                    left_pad="10"
+                    name="upload_btn"
+                    width="100" /> 
+                    
         </layout_panel>
     </layout_stack>
 

@@ -36,8 +36,8 @@
 class LLSettingsSky: public LLSettingsBase
 {
 public:
-
     static const std::string SETTING_AMBIENT;
+    static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_BLUE_DENSITY;
     static const std::string SETTING_BLUE_HORIZON;
     static const std::string SETTING_DENSITY_MULTIPLIER;
@@ -92,7 +92,9 @@ public:
     virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
-    virtual std::string getSettingType() const { return std::string("sky"); }
+    virtual std::string getSettingType() const override { return std::string("sky"); }
+    virtual LLSettingsType getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
+
 
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);
@@ -114,6 +116,11 @@ public:
     void setAmbientColor(const LLColor3 &val)
     {
         setValue(SETTING_AMBIENT, val);
+    }
+
+    LLUUID getBloomTextureId() const
+    {
+        return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
     }
 
     LLColor3 getBlueDensity() const
@@ -448,7 +455,7 @@ protected:
 
     virtual stringset_t getSlerpKeys() const;
 
-    virtual void    updateSettings();    
+    virtual void    updateSettings();
 
 private:
     // validations for structured sections of sky settings data

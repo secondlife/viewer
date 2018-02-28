@@ -881,8 +881,100 @@ void LLViewerObjectList::renderObjectBeacons()
 }
 
 
+//-----------------------------------------------------------------------------
+// gpu_benchmark() helper classes
+//-----------------------------------------------------------------------------
+
+// This struct is used to ensure that once we call initProfile(), it will
+// definitely be matched by a corresponding call to finishProfile(). It's
+// a struct rather than a class simply because every member is public.
+struct ShaderProfileHelper
+{
+	ShaderProfileHelper()
+	{
+		LLGLSLShader::initProfile();
+	}
+	~ShaderProfileHelper()
+	{
+		LLGLSLShader::finishProfile(false);
+	}
+};
+
+// This helper class is used to ensure that each generateTextures() call
+// is matched by a corresponding deleteTextures() call. It also handles
+// the bindManual() calls using those textures.
+class TextureHolder
+{
+public:
+	TextureHolder(U32 unit, U32 size) :
+		texUnit(gGL.getTexUnit(unit)),
+		source(size)			// preallocate vector
+	{
+		// takes (count, pointer)
+		// &vector[0] gets pointer to contiguous array
+		LLImageGL::generateTextures(source.size(), &source[0]);
+	}
+
+	~TextureHolder()
+	{
+		// unbind
+		if (texUnit)
+		{
+			texUnit->unbind(LLTexUnit::TT_TEXTURE);
+		}
+		// ensure that we delete these textures regardless of how we exit
+		LLImageGL::deleteTextures(source.size(), &source[0]);
+	}
+
+	bool bind(U32 index)
+	{
+		if (texUnit) // should always be there with dummy (-1), but just in case
+		{
+			return texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
+		}
+		return false;
+	}
+
+private:
+	// capture which LLTexUnit we're going to use
+	LLTexUnit* texUnit;
+
+	// use std::vector for implicit resource management
+	std::vector<U32> source;
+};
+
+class ShaderBinder
+{
+public:
+	ShaderBinder(LLGLSLShader& shader) :
+		mShader(shader)
+	{
+		mShader.bind();
+	}
+	~ShaderBinder()
+	{
+		mShader.unbind();
+	}
+
+private:
+	LLGLSLShader& mShader;
+};
+
+
+//-----------------------------------------------------------------------------
+// gpu_benchmark()
+//-----------------------------------------------------------------------------
 F32 gpu_benchmark()
 {
+#if LL_WINDOWS
+	if (gGLManager.mIsIntel
+		&& std::string::npos != LLOSInfo::instance().getOSStringSimple().find("Microsoft Windows 8")) // or 8.1
+	{ // don't run benchmark on Windows 8/8.1 based PCs with Intel GPU (MAINT-8197)
+		LL_WARNS() << "Skipping gpu_benchmark() for Intel graphics on Windows 8." << LL_ENDL;
+		return -1.f;
+	}
+#endif
+
 	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
 	{ // don't bother benchmarking the fixed function
       // or venerable drivers which don't support accurate timing anyway
@@ -922,59 +1014,9 @@ F32 gpu_benchmark()
 
 	//number of samples to take
 	const S32 samples = 64;
-
-	// This struct is used to ensure that once we call initProfile(), it will
-	// definitely be matched by a corresponding call to finishProfile(). It's
-	// a struct rather than a class simply because every member is public.
-	struct ShaderProfileHelper
-	{
-		ShaderProfileHelper()
-		{
-			LLGLSLShader::initProfile();
-		}
-		~ShaderProfileHelper()
-		{
-			LLGLSLShader::finishProfile(false);
-		}
-	};
+		
 	ShaderProfileHelper initProfile;
-
-	// This helper class is used to ensure that each generateTextures() call
-	// is matched by a corresponding deleteTextures() call. It also handles
-	// the bindManual() calls using those textures.
-	class TextureHolder
-	{
-	public:
-		TextureHolder(U32 unit, U32 size):
-			texUnit(gGL.getTexUnit(unit)),
-			source(size)			// preallocate vector
-		{
-			// takes (count, pointer)
-			// &vector[0] gets pointer to contiguous array
-			LLImageGL::generateTextures(source.size(), &source[0]);
-		}
-
-		~TextureHolder()
-		{
-			// unbind
-			texUnit->unbind(LLTexUnit::TT_TEXTURE);
-			// ensure that we delete these textures regardless of how we exit
-			LLImageGL::deleteTextures(source.size(), &source[0]);
-		}
-
-		void bind(U32 index)
-		{
-			texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
-		}
-
-	private:
-		// capture which LLTexUnit we're going to use
-		LLTexUnit* texUnit;
-
-		// use std::vector for implicit resource management
-		std::vector<U32> source;
-	};
-
+	
 	std::vector<LLRenderTarget> dest(count);
 	TextureHolder texHolder(0, count);
 	std::vector<F32> results;
@@ -987,18 +1029,31 @@ F32 gpu_benchmark()
 		pixels[i] = (U8) ll_rand(255);
 	}
 	
-
 	gGL.setColorMask(true, true);
 	LLGLDepthTest depth(GL_FALSE);
 
 	for (U32 i = 0; i < count; ++i)
-	{ //allocate render targets and textures
-		dest[i].allocate(res,res,GL_RGBA,false, false, LLTexUnit::TT_TEXTURE, true);
+	{
+		//allocate render targets and textures
+		if (!dest[i].allocate(res, res, GL_RGBA, false, false, LLTexUnit::TT_TEXTURE, true))
+		{
+			LL_WARNS() << "Failed to allocate render target." << LL_ENDL;
+			// abandon the benchmark test
+			delete[] pixels;
+			return -1.f;
+		}
 		dest[i].bindTarget();
 		dest[i].clear();
 		dest[i].flush();
 
-		texHolder.bind(i);
+		if (!texHolder.bind(i))
+		{
+			// can use a dummy value mDummyTexUnit = new LLTexUnit(-1);
+			LL_WARNS() << "Failed to bind tex unit." << LL_ENDL;
+			// abandon the benchmark test
+			delete[] pixels;
+			return -1.f;
+		}
 		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 
@@ -1006,7 +1061,13 @@ F32 gpu_benchmark()
 
 	//make a dummy triangle to draw with
 	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
-	buff->allocateBuffer(3, 0, true);
+
+	if (!buff->allocateBuffer(3, 0, true))
+	{
+		LL_WARNS() << "Failed to allocate buffer during benchmark." << LL_ENDL;
+		// abandon the benchmark test
+		return -1.f;
+	}
 
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector2> tc;
@@ -1029,22 +1090,6 @@ F32 gpu_benchmark()
 	buff->flush();
 
 	// ensure matched pair of bind() and unbind() calls
-	class ShaderBinder
-	{
-	public:
-		ShaderBinder(LLGLSLShader& shader):
-			mShader(shader)
-		{
-			mShader.bind();
-		}
-		~ShaderBinder()
-		{
-			mShader.unbind();
-		}
-
-	private:
-		LLGLSLShader& mShader;
-	};
 	ShaderBinder binder(gBenchmarkProgram);
 
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -1103,4 +1148,3 @@ F32 gpu_benchmark()
 
 	return gbps;
 }
-

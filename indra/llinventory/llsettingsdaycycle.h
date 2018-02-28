@@ -72,6 +72,8 @@ public:
 
     virtual ptr_t               buildClone() = 0;
     virtual LLSD                getSettings() const;
+    virtual LLSettingsType      getSettingTypeValue() const override { return LLSettingsType::ST_DAYCYCLE; }
+
 
     //---------------------------------------------------------------------
     virtual std::string         getSettingType() const { return std::string("daycycle"); }

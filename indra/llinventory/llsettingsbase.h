@@ -42,12 +42,16 @@
 #include "v4color.h"
 #include "v3color.h"
 
+#include "llinventorysettings.h"
+
 class LLSettingsBase : 
     public std::enable_shared_from_this<LLSettingsBase>,
     private boost::noncopyable
 {
     friend class LLEnvironment;
     friend class LLSettingsDay;
+
+    friend std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings);
 
 public:
     static const std::string SETTING_ID;
@@ -63,6 +67,8 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const = 0;
+
+    virtual LLSettingsType getSettingTypeValue() const = 0;
 
     //---------------------------------------------------------------------
     // Settings status 
@@ -159,11 +165,12 @@ public:
     public:
         typedef boost::function<bool(LLSD &)> verify_pr;
 
-        Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr()) :
+        Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr(), LLSD defval = LLSD())  :
             mName(name),
             mRequired(required),
             mType(type),
-            mVerify(verify)
+            mVerify(verify),
+            mDefault(defval)
         {   }
 
         std::string getName() const { return mName; }
@@ -187,11 +194,11 @@ public:
         bool        mRequired;
         LLSD::Type  mType;
         verify_pr   mVerify;
+        LLSD        mDefault;
     };
     typedef std::vector<Validator> validation_list_t;
 
     static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
-
 protected:
 
     LLSettingsBase();
@@ -226,6 +233,7 @@ protected:
 
     LLSD    mSettings;
     bool    mIsValid;
+    LLAssetID   mAssetID;
 
     LLSD    cloneSettings() const;
 
