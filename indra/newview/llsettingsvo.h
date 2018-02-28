@@ -85,17 +85,17 @@ public:
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildDefaultSky();
-    virtual ptr_t   buildClone();
+    virtual ptr_t   buildClone() override;
 
     static LLSD     convertToLegacy(const ptr_t &);
 protected:
     LLSettingsVOSky();
 
-    virtual void    updateSettings();
+    virtual void    updateSettings() override;
 
-    virtual void    applySpecial(void *);
+    virtual void    applySpecial(void *) override;
 
-    virtual parammapping_t getParameterMap() const;
+    virtual parammapping_t getParameterMap() const override;
 
 };
 
@@ -109,16 +109,16 @@ public:
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildDefaultWater();
-    virtual ptr_t   buildClone();
+    virtual ptr_t   buildClone() override;
 
     static LLSD     convertToLegacy(const ptr_t &);
 protected:
     LLSettingsVOWater();
 
-    virtual void    updateSettings();
-    virtual void    applySpecial(void *);
+    virtual void    updateSettings() override;
+    virtual void    applySpecial(void *) override;
 
-    virtual parammapping_t getParameterMap() const;
+    virtual parammapping_t getParameterMap() const override;
 
 
 private:
@@ -138,16 +138,16 @@ public:
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
-    virtual ptr_t   buildClone();
+    virtual ptr_t   buildClone() override;
 
     static LLSD     convertToLegacy(const ptr_t &);
     
-    virtual LLSettingsSkyPtr_t      getDefaultSky() const;
-    virtual LLSettingsWaterPtr_t    getDefaultWater() const;
-    virtual LLSettingsSkyPtr_t      buildSky(LLSD) const;
-    virtual LLSettingsWaterPtr_t    buildWater(LLSD) const;
-    virtual LLSettingsSkyPtr_t      getNamedSky(const std::string &) const;
-    virtual LLSettingsWaterPtr_t    getNamedWater(const std::string &) const;
+    virtual LLSettingsSkyPtr_t      getDefaultSky() const override;
+    virtual LLSettingsWaterPtr_t    getDefaultWater() const override;
+    virtual LLSettingsSkyPtr_t      buildSky(LLSD) const override;
+    virtual LLSettingsWaterPtr_t    buildWater(LLSD) const override;
+    virtual LLSettingsSkyPtr_t      getNamedSky(const std::string &) const override;
+    virtual LLSettingsWaterPtr_t    getNamedWater(const std::string &) const override;
 
 protected:
     LLSettingsVODay();

@@ -52,6 +52,8 @@ public:
     static const std::string SETTING_CLOUD_SCROLL_RATE;
     static const std::string SETTING_CLOUD_SHADOW;
     static const std::string SETTING_CLOUD_TEXTUREID;
+    static const std::string SETTING_DENSITY_MULTIPLIER;
+    static const std::string SETTING_DISTANCE_MULTIPLIER;
     static const std::string SETTING_DOME_OFFSET;
     static const std::string SETTING_DOME_RADIUS;
     static const std::string SETTING_GAMMA;
@@ -97,7 +99,7 @@ public:
 
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
     
     static LLSD defaults();
 
@@ -439,12 +441,10 @@ public:
         return mTotalAmbient;
     }
 
-    virtual validation_list_t getValidationList() const;
+    virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
     static LLSD     translateLegacySettings(LLSD legacy);
-
-    static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -453,9 +453,9 @@ protected:
 
     LLSettingsSky();
 
-    virtual stringset_t getSlerpKeys() const;
+    virtual stringset_t getSlerpKeys() const override;
 
-    virtual void    updateSettings();
+    virtual void    updateSettings() override;
 
 private:
     // validations for structured sections of sky settings data

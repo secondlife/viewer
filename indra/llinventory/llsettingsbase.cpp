@@ -39,7 +39,7 @@ namespace
 }
 
 //=========================================================================
-std::ostream &::operator <<(std::ostream& os, LLSettingsBase &settings)
+std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings)
 {
     LLSDSerialize::serialize(settings.getSettings(), os, LLSDSerialize::LLSD_NOTATION);
 

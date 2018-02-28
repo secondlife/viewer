@@ -71,15 +71,15 @@ public:
     bool                        initialize();
 
     virtual ptr_t               buildClone() = 0;
-    virtual LLSD                getSettings() const;
+    virtual LLSD                getSettings() const override;
     virtual LLSettingsType      getSettingTypeValue() const override { return LLSettingsType::ST_DAYCYCLE; }
 
 
     //---------------------------------------------------------------------
-    virtual std::string         getSettingType() const { return std::string("daycycle"); }
+    virtual std::string         getSettingType() const override { return std::string("daycycle"); }
 
     // Settings status 
-    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix);
+    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix) override;
 
     static LLSD                 defaults();
 
@@ -104,13 +104,13 @@ public:
     void    setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
 
-    virtual validation_list_t   getValidationList() const;
+    virtual validation_list_t   getValidationList() const override;
     static validation_list_t    validationList();
 
 protected:
     LLSettingsDay();
 
-    virtual void                updateSettings();
+    virtual void                updateSettings() override;
 
     bool                        mInitialized;
 

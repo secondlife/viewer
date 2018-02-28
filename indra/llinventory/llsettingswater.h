@@ -61,7 +61,7 @@ public:
     virtual LLSettingsType  getSettingTypeValue() const override { return LLSettingsType::ST_WATER; }
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf);
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
 
     static LLSD defaults();
 
@@ -199,7 +199,7 @@ public:
         return mWaterFogKS;
     }
 
-    virtual validation_list_t getValidationList() const;
+    virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
     static LLSD         translateLegacySettings(LLSD legacy);
