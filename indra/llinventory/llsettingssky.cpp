@@ -443,8 +443,6 @@ LLSD LLSettingsSky::defaults()
     return dfltsetting;
 }
 
-#pragma optimize("", off)
-
 LLSD LLSettingsSky::settingValidation(LLSD &settingsIn, validation_list_t &validations)
 {
     // Make a copy we can safely modify
@@ -575,8 +573,6 @@ LLSD LLSettingsSky::settingValidation(LLSD &settingsIn, validation_list_t &valid
 
     return LLSDMap("success", LLSD::Boolean(false));
 }
-
-#pragma optimize("", on)
 
 LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
 {

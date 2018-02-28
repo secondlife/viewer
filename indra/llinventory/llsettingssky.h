@@ -44,7 +44,6 @@ public:
     static const std::string SETTING_DISTANCE_MULTIPLIER;
     static const std::string SETTING_HAZE_DENSITY;
     static const std::string SETTING_HAZE_HORIZON;
-    static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_CLOUD_COLOR;
     static const std::string SETTING_CLOUD_POS_DENSITY1;
     static const std::string SETTING_CLOUD_POS_DENSITY2;
@@ -52,8 +51,6 @@ public:
     static const std::string SETTING_CLOUD_SCROLL_RATE;
     static const std::string SETTING_CLOUD_SHADOW;
     static const std::string SETTING_CLOUD_TEXTUREID;
-    static const std::string SETTING_DENSITY_MULTIPLIER;
-    static const std::string SETTING_DISTANCE_MULTIPLIER;
     static const std::string SETTING_DOME_OFFSET;
     static const std::string SETTING_DOME_RADIUS;
     static const std::string SETTING_GAMMA;
@@ -118,11 +115,6 @@ public:
     void setAmbientColor(const LLColor3 &val)
     {
         setValue(SETTING_AMBIENT, val);
-    }
-
-    LLUUID getBloomTextureId() const
-    {
-        return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
     }
 
     LLColor3 getBlueDensity() const
@@ -444,7 +436,8 @@ public:
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
-    static LLSD     translateLegacySettings(LLSD legacy);
+    static LLSD translateLegacySettings(LLSD legacy);
+    static LLSD settingValidation(LLSD &settingsIn, validation_list_t &validations);
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
