@@ -33,9 +33,7 @@ in vec3 view_dir;
 
 uniform vec3 cameraPosLocal;
 uniform vec3 sun_direction;
-uniform vec2 sun_size;
 
-uniform sampler2D cloud_noise_texture;
 uniform sampler2D transmittance_texture;
 uniform sampler3D scattering_texture;
 uniform sampler3D mie_scattering_texture;

@@ -268,10 +268,27 @@ LLSD LLSettingsDay::defaults()
     LLSD dfltsetting;
 
     dfltsetting[SETTING_NAME] = "_default_";
-    dfltsetting[SETTING_TRACKS] = LLSDArray(
-        LLSDArray(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_"))
-        (LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))(SETTING_KEYNAME, "_default_")));
-    dfltsetting[SETTING_FRAMES] = LLSD::emptyMap();
+
+    LLSD waterTrack;
+    waterTrack[SETTING_KEYKFRAME] = 0.0f;
+    waterTrack[SETTING_KEYNAME]   = "_default_";
+
+    LLSD skyTrack;
+    skyTrack[SETTING_KEYKFRAME] = 0.0f;
+    skyTrack[SETTING_KEYNAME]   = "_default_";
+
+    LLSD tracks;
+    tracks.append(LLSDArray(waterTrack));
+    tracks.append(LLSDArray(skyTrack));
+
+    dfltsetting[SETTING_TRACKS] = tracks;
+
+    LLSD frames(LLSD::emptyMap());
+
+    frames["water:_defaults_"] = LLSettingsWater::defaults();
+    frames["sky:_defaults_"] = LLSettingsSky::defaults();
+
+    dfltsetting[SETTING_FRAMES] = frames;
 
     return dfltsetting;
 }
@@ -280,6 +297,8 @@ void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F64 mix)
 {
     LL_ERRS("DAYCYCLE") << "Day cycles are not blendable!" << LL_ENDL;
 }
+
+#pragma optimize("", off)
 
 namespace
 {
@@ -298,6 +317,8 @@ namespace
             S32 index = 0;
             while (index < (*track).size())
             {
+                LLSD& elem = (*track)[index];
+
                 ++framecount;
                 if (index >= LLSettingsDay::FRAME_MAX)
                 {
@@ -305,40 +326,46 @@ namespace
                     continue;
                 }
 
-                if (!(*track)[index].has(LLSettingsDay::SETTING_KEYKFRAME) ||
-                        !(*track)[index][LLSettingsDay::SETTING_KEYKFRAME].isReal())
+                if (!elem.has(LLSettingsDay::SETTING_KEYKFRAME))
                 {
                     (*track).erase(index);
                     continue;
                 }
 
-                if (!(*track)[index].has(LLSettingsDay::SETTING_KEYNAME) &&
-                    !(*track)[index].has(LLSettingsDay::SETTING_KEYID))
+                if (!elem[LLSettingsDay::SETTING_KEYKFRAME].isReal())
                 {
                     (*track).erase(index);
                     continue;
                 }
 
-                F32 frame = (*track)[index][LLSettingsDay::SETTING_KEYKFRAME].asReal();
+                if (!elem.has(LLSettingsDay::SETTING_KEYNAME) &&
+                    !elem.has(LLSettingsDay::SETTING_KEYID))
+                {
+                    (*track).erase(index);
+                    continue;
+                }
+
+                F32 frame = elem[LLSettingsDay::SETTING_KEYKFRAME].asReal();
                 if ((frame < 0.0) || (frame > 1.0))
                 {
                     frame = llclamp(frame, 0.0f, 1.0f);
-                    (*track)[index][LLSettingsDay::SETTING_KEYKFRAME] = frame;
+                    elem[LLSettingsDay::SETTING_KEYKFRAME] = frame;
                 }
                 ++index;
             }
 
         }
 
-        framecount -= value[0].size();
+        int waterTracks = value[0].size();
+        int skyTracks   = framecount - waterTracks;
 
-        if (value[0].size() < 1)
+        if (waterTracks < 1)
         {
             LL_WARNS("SETTINGS") << "Missing water track" << LL_ENDL;
             return false;
         }
 
-        if (framecount < 1)
+        if (skyTracks < 1)
         {
             LL_WARNS("SETTINGS") << "Missing sky tracks" << LL_ENDL;
             return false;
@@ -404,6 +431,7 @@ namespace
     }
 }
 
+#pragma optimize("", on)
 LLSettingsDay::validation_list_t LLSettingsDay::getValidationList() const
 {
     return LLSettingsDay::validationList();

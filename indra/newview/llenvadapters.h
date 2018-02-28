@@ -31,6 +31,7 @@
 #include "v3color.h"
 #include "v4math.h"
 #include "llsettingsbase.h"
+#include "llsettingssky.h"
 
 class WLColorControl 
 {
@@ -364,25 +365,27 @@ public:
     WLFloatControl  mWLGamma;
 
     /// Atmospherics
+#if SUPPORT_LEGACY_ATMOSPHERICS
+    WLColorControl  mAmbient;
     WLColorControl  mBlueHorizon;
     WLFloatControl  mHazeDensity;
     WLColorControl  mBlueDensity;
     WLFloatControl  mDensityMult;
+    WLFloatControl  mDistanceMult;
     WLFloatControl  mHazeHorizon;
     WLFloatControl  mMaxAlt;
+#endif
 
     /// Lighting
     WLColorControl  mLightnorm;
-    WLColorControl  mSunlight;
-    WLColorControl  mAmbient;
+    WLColorControl  mSunlight;    
     WLColorControl  mGlow;
 
     /// Clouds
     WLColorControl  mCloudColor;
     WLColorControl  mCloudMain;
     WLFloatControl  mCloudCoverage;
-    WLColorControl  mCloudDetail;
-    WLFloatControl  mDistanceMult;
+    WLColorControl  mCloudDetail;    
     WLFloatControl  mCloudScale;
 };
 

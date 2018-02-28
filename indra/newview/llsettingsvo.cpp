@@ -150,25 +150,27 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky)
     LLSD legacy(LLSD::emptyMap());
     LLSD settings = psky->getSettings();
     
+// These will need to be inferred from new settings' density profiles
+#if SUPPORT_LEGACY_ATMOSPHERICS
     legacy[SETTING_AMBIENT] = ensureArray4(settings[SETTING_AMBIENT], 1.0f);
     legacy[SETTING_BLUE_DENSITY] = ensureArray4(settings[SETTING_BLUE_DENSITY], 1.0);
     legacy[SETTING_BLUE_HORIZON] = ensureArray4(settings[SETTING_BLUE_HORIZON], 1.0);
+    legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(settings[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(settings[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_HAZE_DENSITY] = LLSDArray(settings[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_HAZE_HORIZON] = LLSDArray(settings[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
+#endif
+
     legacy[SETTING_CLOUD_COLOR] = ensureArray4(settings[SETTING_CLOUD_COLOR], 1.0);
     legacy[SETTING_CLOUD_POS_DENSITY1] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);
     legacy[SETTING_CLOUD_POS_DENSITY2] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
-    legacy[SETTING_CLOUD_SCALE] = LLSDArray(settings[SETTING_CLOUD_SCALE])(LLSD::Real(0.0))(LLSD::Real(0.0))(LLSD::Real(1.0));
-       
+    legacy[SETTING_CLOUD_SCALE] = LLSDArray(settings[SETTING_CLOUD_SCALE])(LLSD::Real(0.0))(LLSD::Real(0.0))(LLSD::Real(1.0));       
     legacy[SETTING_CLOUD_SCROLL_RATE] = settings[SETTING_CLOUD_SCROLL_RATE];
     legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = LLSDArray(LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())))
-        (LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));
-     
-    legacy[SETTING_CLOUD_SHADOW] = LLSDArray(settings[SETTING_CLOUD_SHADOW].asReal())(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(settings[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(settings[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+        (LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));     
+    legacy[SETTING_CLOUD_SHADOW] = LLSDArray(settings[SETTING_CLOUD_SHADOW].asReal())(0.0f)(0.0f)(1.0f);    
     legacy[SETTING_GAMMA] = LLSDArray(settings[SETTING_GAMMA])(0.0f)(0.0f)(1.0f);
     legacy[SETTING_GLOW] = ensureArray4(settings[SETTING_GLOW], 1.0);
-    legacy[SETTING_HAZE_DENSITY] = LLSDArray(settings[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_HAZE_HORIZON] = LLSDArray(settings[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
     legacy[SETTING_LIGHT_NORMAL] = ensureArray4(psky->getLightDirection().getValue(), 0.0f);
     legacy[SETTING_MAX_Y] = LLSDArray(settings[SETTING_MAX_Y])(0.0f)(0.0f)(1.0f);
     legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS];
@@ -218,21 +220,26 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
 
     if (param_map.empty())
     {
+#if SUPPORT_LEGACY_ATMOSPHERICS
         param_map[SETTING_AMBIENT] = LLShaderMgr::AMBIENT;
         param_map[SETTING_BLUE_DENSITY] = LLShaderMgr::BLUE_DENSITY;
         param_map[SETTING_BLUE_HORIZON] = LLShaderMgr::BLUE_HORIZON;
-        param_map[SETTING_CLOUD_COLOR] = LLShaderMgr::CLOUD_COLOR;
-
-        param_map[SETTING_CLOUD_POS_DENSITY2] = LLShaderMgr::CLOUD_POS_DENSITY2;
-        param_map[SETTING_CLOUD_SCALE] = LLShaderMgr::CLOUD_SCALE;
-        param_map[SETTING_CLOUD_SHADOW] = LLShaderMgr::CLOUD_SHADOW;
-        param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
-        param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
-        param_map[SETTING_GLOW] = LLShaderMgr::GLOW;
         param_map[SETTING_HAZE_DENSITY] = LLShaderMgr::HAZE_DENSITY;
         param_map[SETTING_HAZE_HORIZON] = LLShaderMgr::HAZE_HORIZON;
+        param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
+        param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
+#endif
+
+        param_map[SETTING_CLOUD_COLOR] = LLShaderMgr::CLOUD_COLOR;
+        param_map[SETTING_CLOUD_POS_DENSITY2] = LLShaderMgr::CLOUD_POS_DENSITY2;
+        param_map[SETTING_CLOUD_SCALE] = LLShaderMgr::CLOUD_SCALE;
+        param_map[SETTING_CLOUD_SHADOW] = LLShaderMgr::CLOUD_SHADOW;       
+        param_map[SETTING_GLOW] = LLShaderMgr::GLOW;        
         param_map[SETTING_MAX_Y] = LLShaderMgr::MAX_Y;
         param_map[SETTING_SUNLIGHT_COLOR] = LLShaderMgr::SUNLIGHT_COLOR;
+
+// AdvancedAtmospherics TODO
+// Provide mappings for new shader params here
     }
 
     return param_map;

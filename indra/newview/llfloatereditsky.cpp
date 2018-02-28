@@ -152,20 +152,21 @@ void LLFloaterEditSky::initCallbacks(void)
 	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditSky::onRegionInfoUpdate, this));
 
 	//-------------------------------------------------------------------------
+#if SUPPORT_LEGACY_ATMOSPHERICS
+    // ambient
+    getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mAmbient));
 
-	// blue horizon
+	// blue horizon/density
 	getChild<LLUICtrl>("WLBlueHorizon")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mBlueHorizon));
+    getChild<LLUICtrl>("WLBlueDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mBlueDensity));
 
 	// haze density, horizon, mult, and altitude
     getChild<LLUICtrl>("WLHazeDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mHazeDensity));
     getChild<LLUICtrl>("WLHazeHorizon")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mHazeHorizon));
     getChild<LLUICtrl>("WLDensityMult")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mDensityMult));
+    getChild<LLUICtrl>("WLDistanceMult")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mDistanceMult));
     getChild<LLUICtrl>("WLMaxAltitude")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mMaxAlt));
-
-	// blue density
-    getChild<LLUICtrl>("WLBlueDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mBlueDensity));
-
-	// Lighting
+#endif
 
 	// sunlight
     getChild<LLUICtrl>("WLSunlight")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mSunlight));
@@ -173,9 +174,6 @@ void LLFloaterEditSky::initCallbacks(void)
 	// glow
     getChild<LLUICtrl>("WLGlowR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onGlowRMoved, this, _1, &mSkyAdapter->mGlow));
     getChild<LLUICtrl>("WLGlowB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onGlowBMoved, this, _1, &mSkyAdapter->mGlow));
-
-	// ambient
-    getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mAmbient));
 
 	// time of day
 //     getChild<LLUICtrl>("WLSunPos")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &mSkyAdapter->mLightnorm));     // multi-slider
@@ -204,7 +202,7 @@ void LLFloaterEditSky::initCallbacks(void)
     getChild<LLUICtrl>("WLCloudScale")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mCloudScale));
 	getChild<LLUICtrl>("WLCloudScrollX")->setCommitCallback(boost::bind(&LLFloaterEditSky::onCloudScrollXMoved, this, _1));
 	getChild<LLUICtrl>("WLCloudScrollY")->setCommitCallback(boost::bind(&LLFloaterEditSky::onCloudScrollYMoved, this, _1));
-    getChild<LLUICtrl>("WLDistanceMult")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mDistanceMult));
+    
 
 	// Dome
     getChild<LLUICtrl>("WLGamma")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mWLGamma));
@@ -223,9 +221,16 @@ void LLFloaterEditSky::syncControls()
     mSkyPresetNameEditor->setText(name);
     mSkyPresetCombo->setValue(name);
 
-	// blue horizon
+#if SUPPORT_LEGACY_ATMOSPHERICS
+    // ambient
+    mSkyAdapter->mAmbient.setColor3( psky->getAmbientColor() );
+	setColorSwatch("WLAmbient", mSkyAdapter->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
+
+	// blue horizon / density
 	mSkyAdapter->mBlueHorizon.setColor3( psky->getBlueHorizon() );
 	setColorSwatch("WLBlueHorizon", mSkyAdapter->mBlueHorizon, WL_BLUE_HORIZON_DENSITY_SCALE);
+    mSkyAdapter->mBlueDensity.setColor3( psky->getBlueDensity() );
+	setColorSwatch("WLBlueDensity", mSkyAdapter->mBlueDensity, WL_BLUE_HORIZON_DENSITY_SCALE);
 
 	// haze density, horizon, mult, and altitude
     mSkyAdapter->mHazeDensity = psky->getHazeDensity();
@@ -235,11 +240,10 @@ void LLFloaterEditSky::syncControls()
     mSkyAdapter->mDensityMult = psky->getDensityMultiplier();
 	childSetValue("WLDensityMult", ((F32) mSkyAdapter->mDensityMult) * mSkyAdapter->mDensityMult.getMult());
     mSkyAdapter->mMaxAlt = psky->getMaxY();
+    mSkyAdapter->mDistanceMult = psky->getDistanceMultiplier();
+	childSetValue("WLDistanceMult", (F32) mSkyAdapter->mDistanceMult);
 	childSetValue("WLMaxAltitude", (F32) mSkyAdapter->mMaxAlt);
-
-	// blue density
-    mSkyAdapter->mBlueDensity.setColor3( psky->getBlueDensity() );
-	setColorSwatch("WLBlueDensity", mSkyAdapter->mBlueDensity, WL_BLUE_HORIZON_DENSITY_SCALE);
+#endif
 
 	// Lighting
 
@@ -252,9 +256,7 @@ void LLFloaterEditSky::syncControls()
 	childSetValue("WLGlowR", 2 - mSkyAdapter->mGlow.getRed() / 20.0f);
 	childSetValue("WLGlowB", -mSkyAdapter->mGlow.getBlue() / 5.0f);
 
-	// ambient
-    mSkyAdapter->mAmbient.setColor3( psky->getAmbientColor() );
-	setColorSwatch("WLAmbient", mSkyAdapter->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
+	
 
 //     LLSettingsSky::azimalt_t azal = psky->getSunRotationAzAl();
 // 
@@ -303,9 +305,6 @@ void LLFloaterEditSky::syncControls()
 	// *HACK cloud scrolling is off my an additive of 10
 	childSetValue("WLCloudScrollX", scroll_rate[0] - 10.0f);
 	childSetValue("WLCloudScrollY", scroll_rate[1] - 10.0f);
-
-    mSkyAdapter->mDistanceMult = psky->getDistanceMultiplier();
-	childSetValue("WLDistanceMult", (F32) mSkyAdapter->mDistanceMult);
 
 	// Tweak extras
 

@@ -397,6 +397,7 @@ void LLVOSky::init()
 
 	calcAtmospherics();
 
+#if SUPPORT_LEGACY_ATMOSPHERICS
 	// Initialize the cached normalized direction vectors
 	for (S32 side = 0; side < 6; ++side)
 	{
@@ -412,6 +413,7 @@ void LLVOSky::init()
 		mSkyTex[i].create(1.0f);
 		mShinyTex[i].create(1.0f);
 	}
+#endif
 
 	initCubeMap();
 	mInitialized = true;
@@ -494,6 +496,7 @@ void LLVOSky::restoreGL()
 
 }
 
+#if SUPPORT_LEGACY_ATMOSPHERICS
 void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 {
 	S32 tile_x = tile % NUM_TILES_X;
@@ -816,6 +819,7 @@ LLColor3 LLVOSky::calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor, 
 	return res;
 }
 
+
 LLColor3 LLVOSky::createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient)
 {
 	return componentMult(diffuse, sundiffuse) * 4.0f +
@@ -826,7 +830,7 @@ LLColor3 LLVOSky::createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLC
 {
 	return (componentMult(ambient, sundiffuse) + sunambient) * 0.8f;
 }
-
+#endif
 
 void LLVOSky::calcAtmospherics(void)
 {
@@ -878,6 +882,7 @@ BOOL LLVOSky::updateSky()
 		return TRUE;
 	}
 
+#if SUPPORT_LEGACY_ATMOSPHERICS
 	static S32 next_frame = 0;
 	const S32 total_no_tiles = 6 * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
@@ -927,6 +932,7 @@ BOOL LLVOSky::updateSky()
                     if (mForceUpdate)
 					{
 						updateFog(LLViewerCamera::getInstance()->getFar());
+
 						for (int side = 0; side < 6; side++) 
 						{
 							for (int tile = 0; tile < NUM_TILES; tile++) 
@@ -995,6 +1001,8 @@ BOOL LLVOSky::updateSky()
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	}
+#endif
+
 	return TRUE;
 }
 
@@ -1856,6 +1864,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
 void LLVOSky::updateFog(const F32 distance)
 {
+
+#if SUPPORT_LEGACY_ATMOSPHERICS
 	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG))
 	{
 		if (!LLGLSLShader::sNoFixedFunction)
@@ -2000,6 +2010,9 @@ void LLVOSky::updateFog(const F32 distance)
 		glHint(GL_FOG_HINT, GL_NICEST);
 	}
 	stop_glerror();
+
+#endif
+
 }
 
 

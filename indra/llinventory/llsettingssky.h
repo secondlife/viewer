@@ -31,13 +31,20 @@
 #include "llsettingsbase.h"
 #include "v4coloru.h"
 
+#define SUPPORT_LEGACY_ATMOSPHERICS 1
+
 class LLSettingsSky: public LLSettingsBase
 {
 public:
+
     static const std::string SETTING_AMBIENT;
-    static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_BLUE_DENSITY;
     static const std::string SETTING_BLUE_HORIZON;
+    static const std::string SETTING_DENSITY_MULTIPLIER;
+    static const std::string SETTING_DISTANCE_MULTIPLIER;
+    static const std::string SETTING_HAZE_DENSITY;
+    static const std::string SETTING_HAZE_HORIZON;
+    static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_CLOUD_COLOR;
     static const std::string SETTING_CLOUD_POS_DENSITY1;
     static const std::string SETTING_CLOUD_POS_DENSITY2;
@@ -45,14 +52,10 @@ public:
     static const std::string SETTING_CLOUD_SCROLL_RATE;
     static const std::string SETTING_CLOUD_SHADOW;
     static const std::string SETTING_CLOUD_TEXTUREID;
-    static const std::string SETTING_DENSITY_MULTIPLIER;
-    static const std::string SETTING_DISTANCE_MULTIPLIER;
     static const std::string SETTING_DOME_OFFSET;
     static const std::string SETTING_DOME_RADIUS;
     static const std::string SETTING_GAMMA;
-    static const std::string SETTING_GLOW;
-    static const std::string SETTING_HAZE_DENSITY;
-    static const std::string SETTING_HAZE_HORIZON;
+    static const std::string SETTING_GLOW;    
     static const std::string SETTING_LIGHT_NORMAL;
     static const std::string SETTING_MAX_Y;
     static const std::string SETTING_MOON_ROTATION;
@@ -96,7 +99,13 @@ public:
     
     static LLSD defaults();
 
+    LLUUID getBloomTextureId() const
+    {
+        return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
+    }
+
     //---------------------------------------------------------------------
+#if SUPPORT_LEGACY_ATMOSPHERICS
     LLColor3 getAmbientColor() const
     {
         return LLColor3(mSettings[SETTING_AMBIENT]);
@@ -105,11 +114,6 @@ public:
     void setAmbientColor(const LLColor3 &val)
     {
         setValue(SETTING_AMBIENT, val);
-    }
-
-    LLUUID getBloomTextureId() const
-    {
-        return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
     }
 
     LLColor3 getBlueDensity() const
@@ -131,6 +135,47 @@ public:
     {
         setValue(SETTING_BLUE_HORIZON, val);
     }
+
+    F32 getDensityMultiplier() const
+    {
+        return mSettings[SETTING_DENSITY_MULTIPLIER].asReal();
+    }
+
+    void setDensityMultiplier(F32 val)
+    {
+        setValue(SETTING_DENSITY_MULTIPLIER, val);
+    }
+
+    F32 getDistanceMultiplier() const
+    {
+        return mSettings[SETTING_DISTANCE_MULTIPLIER].asReal();
+    }
+
+    void setDistanceMultiplier(F32 val)
+    {
+        setValue(SETTING_DISTANCE_MULTIPLIER, val);
+    }
+
+    F32 getHazeDensity() const
+    {
+        return mSettings[SETTING_HAZE_DENSITY].asReal();
+    }
+
+    void setHazeDensity(F32 val)
+    {
+        setValue(SETTING_HAZE_DENSITY, val);
+    }
+
+    F32 getHazeHorizon() const
+    {
+        return mSettings[SETTING_HAZE_HORIZON].asReal();
+    }
+
+    void setHazeHorizon(F32 val)
+    {
+        setValue(SETTING_HAZE_HORIZON, val);
+    }
+#endif
 
     LLColor3 getCloudColor() const
     {
@@ -209,26 +254,7 @@ public:
         setValue(SETTING_CLOUD_SHADOW, val);
     }
 
-    F32 getDensityMultiplier() const
-    {
-        return mSettings[SETTING_DENSITY_MULTIPLIER].asReal();
-    }
-
-    void setDensityMultiplier(F32 val)
-    {
-        setValue(SETTING_DENSITY_MULTIPLIER, val);
-    }
-
-    F32 getDistanceMultiplier() const
-    {
-        return mSettings[SETTING_DISTANCE_MULTIPLIER].asReal();
-    }
-
-    void setDistanceMultiplier(F32 val)
-    {
-        setValue(SETTING_DISTANCE_MULTIPLIER, val);
-    }
-
+    
     F32 getDomeOffset() const
     {
         return DOME_OFFSET;
@@ -260,26 +286,6 @@ public:
     void setGlow(const LLColor3 &val)
     {
         setValue(SETTING_GLOW, val);
-    }
-
-    F32 getHazeDensity() const
-    {
-        return mSettings[SETTING_HAZE_DENSITY].asReal();
-    }
-
-    void setHazeDensity(F32 val)
-    {
-        setValue(SETTING_HAZE_DENSITY, val);
-    }
-
-    F32 getHazeHorizon() const
-    {
-        return mSettings[SETTING_HAZE_HORIZON].asReal();
-    }
-
-    void setHazeHorizon(F32 val)
-    {
-        setValue(SETTING_HAZE_HORIZON, val);
     }
 
     LLVector3 getLightNormal() const
@@ -449,6 +455,10 @@ private:
     static validation_list_t rayleighValidationList();
     static validation_list_t absorptionValidationList();
     static validation_list_t mieValidationList();
+
+    static LLSD rayleighConfigDefault();
+    static LLSD absorptionConfigDefault();
+    static LLSD mieConfigDefault();
 
     static const F32         NIGHTTIME_ELEVATION;
     static const F32         NIGHTTIME_ELEVATION_COS;

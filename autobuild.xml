@@ -59,21 +59,57 @@
         <string>libatmosphere</string>
         <key>platforms</key>
         <map>
+          <key>darwin</key>
+          <map>
+          <key>archive</key>
+          <map>
+            <key>hash</key>
+            <string>3950f04d10efd9596093e45f2a265ce1</string>
+            <key>url</key>
+            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14058/88070/libatmosphere-1.0.0.100-darwin-512856.tar.bz2</string>
+          </map>
+          <key>name</key>
+          <string>windows64</string>
+        </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9901421858f72005b1afeacc6d0480bf</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14057/88064/libatmosphere-1.0.0.100-darwin64-512856.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>61532e0f9ec8212964df6944a92a71b4</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14060/88090/libatmosphere-1.0.0.100-windows-512856.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>b6fa628aafcdd006d17e799825fbeb91</string>
+	            <string>6b80692f7fc15ce9348eeee03efb1e24</string>
               <key>url</key>
-	      <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13879/86217/libatmosphere-1.0.0.100-windows64-512753.tar.bz2</string>
+	            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14059/88084/libatmosphere-1.0.0.100-windows64-512856.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.0.512753</string>
+        <string>1.0.0.512856</string>
       </map>
       <key>apr_suite</key>
       <map>

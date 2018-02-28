@@ -1,5 +1,5 @@
 /** 
- * @file WLSkyF.glsl
+ * @file advancedAtmoF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,37 +29,43 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-/////////////////////////////////////////////////////////////////////////
-// The fragment shader for the sky
-/////////////////////////////////////////////////////////////////////////
+in vec3 view_dir;
 
-VARYING vec4 vary_HazeColor;
+uniform vec3 cameraPosLocal;
+uniform vec3 sun_direction;
+uniform vec2 sun_size;
 
 uniform sampler2D cloud_noise_texture;
-uniform vec4 gamma;
+uniform sampler2D transmittance_texture;
+uniform sampler3D scattering_texture;
+uniform sampler3D mie_scattering_texture;
 
-/// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
-}
+vec3 GetSolarLuminance();
+vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 sun_dir, out vec3 transmittance);
+vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 sun_dir, out vec3 transmittance);
+vec3 GetSunAndSkyIlluminance(vec3 pos, vec3 norm, vec3 sun_dir, out vec3 sky_irradiance);
 
 void main()
 {
-	// Potential Fill-rate optimization.  Add cloud calculation 
-	// back in and output alpha of 0 (so that alpha culling kills 
-	// the fragment) if the sky wouldn't show up because the clouds 
-	// are fully opaque.
+    vec3 view_direction = normalize(view_dir);
 
-	vec4 color;
-	color = vary_HazeColor;
-	color *= 2.;
+    vec3 camPos = cameraPosLocal;
+    vec3 transmittance;
+    vec3 radiance = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
 
-	/// Gamma correct for WL (soft clip effect).
-	frag_color.rgb = scaleSoftClip(color.rgb);
-	frag_color.a = 1.0;
+    radiance *= transmittance;
+
+    // If the view ray intersects the Sun, add the Sun radiance.
+    if (dot(view_direction, sun_direction) >= sun_size.y)
+    {
+        radiance = radiance + transmittance * GetSolarLuminance();
+    }
+
+    vec3 color = vec3(1.0) - exp(-radiance);
+    color = pow(color, vec3(1.0 / 2.2));
+
+    frag_color.rgb = color;
+ 
+    frag_color.a = 1.0;
 }
 

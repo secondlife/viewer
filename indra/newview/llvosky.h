@@ -34,7 +34,7 @@
 #include "llviewerobject.h"
 #include "llframetimer.h"
 #include "v3colorutil.h"
-
+#include "llsettingssky.h"
 
 //////////////////////////////////
 //
@@ -382,6 +382,8 @@ class LLVOSky : public LLStaticViewerObject
 	
 public:
 	void calcAtmospherics(void);
+
+#if SUPPORT_LEGACY_ATMOSPHERICS
 	LLColor3 createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
 	LLColor3 createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
 
@@ -392,8 +394,17 @@ public:
 	LLColor3 calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor,	LLColor3 & vary_CloudColorSun, 
 							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
 							LLVector2 vary_HorizontalProjection[2]);
+    LLColor4 calcSkyColorInDir(const LLVector3& dir, bool isShiny = false);
 
-public:
+    LLColor3 calcRadianceAtPoint(const LLVector3& pos) const
+	{
+		F32 radiance = mBrightnessScaleGuess * mSun.getIntensity();
+		return LLColor3(radiance, radiance, radiance);
+	}
+    void initSkyTextureDirs(const S32 side, const S32 tile);
+	void createSkyTexture(const S32 side, const S32 tile);
+#endif
+
 	enum
 	{
 		FACE_SIDE0,
@@ -428,17 +439,6 @@ public:
 	/*virtual*/ void updateTextures();
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
-
-	void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(const S32 side, const S32 tile);
-
-	LLColor4 calcSkyColorInDir(const LLVector3& dir, bool isShiny = false);
-	
-	LLColor3 calcRadianceAtPoint(const LLVector3& pos) const
-	{
-		F32 radiance = mBrightnessScaleGuess * mSun.getIntensity();
-		return LLColor3(radiance, radiance, radiance);
-	}
 
 	const LLHeavenBody& getSun() const						{ return mSun; }
 	const LLHeavenBody& getMoon() const						{ return mMoon; }

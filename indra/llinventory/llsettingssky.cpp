@@ -54,9 +54,14 @@ const F32 LLSettingsSky::NIGHTTIME_ELEVATION_COS((F32)sin(NIGHTTIME_ELEVATION*DE
 
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
-const std::string LLSettingsSky::SETTING_BLOOM_TEXTUREID("bloom_id");
 const std::string LLSettingsSky::SETTING_BLUE_DENSITY("blue_density");
 const std::string LLSettingsSky::SETTING_BLUE_HORIZON("blue_horizon");
+const std::string LLSettingsSky::SETTING_DENSITY_MULTIPLIER("density_multiplier");
+const std::string LLSettingsSky::SETTING_DISTANCE_MULTIPLIER("distance_multiplier");
+const std::string LLSettingsSky::SETTING_HAZE_DENSITY("haze_density");
+const std::string LLSettingsSky::SETTING_HAZE_HORIZON("haze_horizon");
+
+const std::string LLSettingsSky::SETTING_BLOOM_TEXTUREID("bloom_id");
 const std::string LLSettingsSky::SETTING_CLOUD_COLOR("cloud_color");
 const std::string LLSettingsSky::SETTING_CLOUD_POS_DENSITY1("cloud_pos_density1");
 const std::string LLSettingsSky::SETTING_CLOUD_POS_DENSITY2("cloud_pos_density2");
@@ -64,14 +69,12 @@ const std::string LLSettingsSky::SETTING_CLOUD_SCALE("cloud_scale");
 const std::string LLSettingsSky::SETTING_CLOUD_SCROLL_RATE("cloud_scroll_rate");
 const std::string LLSettingsSky::SETTING_CLOUD_SHADOW("cloud_shadow");
 const std::string LLSettingsSky::SETTING_CLOUD_TEXTUREID("cloud_id");
-const std::string LLSettingsSky::SETTING_DENSITY_MULTIPLIER("density_multiplier");
-const std::string LLSettingsSky::SETTING_DISTANCE_MULTIPLIER("distance_multiplier");
+
 const std::string LLSettingsSky::SETTING_DOME_OFFSET("dome_offset");
 const std::string LLSettingsSky::SETTING_DOME_RADIUS("dome_radius");
 const std::string LLSettingsSky::SETTING_GAMMA("gamma");
 const std::string LLSettingsSky::SETTING_GLOW("glow");
-const std::string LLSettingsSky::SETTING_HAZE_DENSITY("haze_density");
-const std::string LLSettingsSky::SETTING_HAZE_HORIZON("haze_horizon");
+
 const std::string LLSettingsSky::SETTING_LIGHT_NORMAL("lightnorm");
 const std::string LLSettingsSky::SETTING_MAX_Y("max_y");
 const std::string LLSettingsSky::SETTING_MOON_ROTATION("moon_rotation");
@@ -246,12 +249,12 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         // copy constructor for LLSDArray.  Directly binding the LLSDArray as 
         // a parameter without first wrapping it in a pure LLSD object will result 
         // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
-        
+
+#if SUPPORT_LEGACY_ATMOSPHERICS        
         validation.push_back(Validator(SETTING_AMBIENT, true, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
-        validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_BLUE_DENSITY,        true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
@@ -260,6 +263,18 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
+        validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+        validation.push_back(Validator(SETTING_HAZE_DENSITY,        true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
+        validation.push_back(Validator(SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
+#endif
+
+        validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
@@ -281,10 +296,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_CLOUD_SHADOW,        true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_CLOUD_TEXTUREID,     false, LLSD::TypeUUID));
-        validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
-        validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+
         validation.push_back(Validator(SETTING_DOME_OFFSET,         false, LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_DOME_RADIUS,         false, LLSD::TypeReal,  
@@ -295,10 +307,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.2f)("*")(-2.5f)("*")),
                 LLSD(LLSDArray(20.0f)("*")(0.0f)("*")))));
-        validation.push_back(Validator(SETTING_HAZE_DENSITY,        true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
-        validation.push_back(Validator(SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        
         validation.push_back(Validator(SETTING_LIGHT_NORMAL,        false, LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorNormalized, _1, 3)));
         validation.push_back(Validator(SETTING_MAX_Y,               true,  LLSD::TypeReal,  
@@ -330,6 +339,51 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
     return validation;
 }
 
+LLSD LLSettingsSky::rayleighConfigDefault()
+{
+    LLSD dflt_rayleigh;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_rayleigh[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    return dflt_rayleigh;
+}
+
+LLSD LLSettingsSky::absorptionConfigDefault()
+{
+// absorption (ozone) has two linear ramping zones
+    LLSD dflt_absorption_layer_a;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_WIDTH]            = 25000.0f; // 0 -> the entire atmosphere
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 25000.0f;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = -2.0f / 3.0f;
+
+    LLSD dflt_absorption_layer_b;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> remainder of the atmosphere
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 15000.0f;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 8.0f  / 3.0f;
+
+    LLSD dflt_absorption;
+    dflt_absorption.append(dflt_absorption_layer_a);
+    dflt_absorption.append(dflt_absorption_layer_b);
+    return dflt_absorption;
+}
+
+LLSD LLSettingsSky::mieConfigDefault()
+{
+    LLSD dflt_mie;
+    dflt_mie[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_mie[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_mie[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
+    dflt_mie[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_mie[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_mie[SETTING_MIE_ANISOTROPY_FACTOR]            = 0.9f;
+    return dflt_mie;
+}
 
 LLSD LLSettingsSky::defaults()
 {
@@ -341,23 +395,28 @@ LLSD LLSettingsSky::defaults()
     LLQuaternion moonquat = ~sunquat;
 
     // Magic constants copied form dfltsetting.xml 
+#if SUPPORT_LEGACY_ATMOSPHERICS
     dfltsetting[SETTING_AMBIENT]            = LLColor4::white.getValue();
     dfltsetting[SETTING_BLUE_DENSITY]       = LLColor4(0.2447, 0.4487, 0.7599, 0.0).getValue();
     dfltsetting[SETTING_BLUE_HORIZON]       = LLColor4(0.4954, 0.4954, 0.6399, 0.0).getValue();
+    dfltsetting[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(0.0001);
+    dfltsetting[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(0.8000);
+    dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
+    dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
+#endif
+
     dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
     dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(10.1999)(10.0109);
     dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
-    dfltsetting[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(0.0001);
-    dfltsetting[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(0.8000);
+    
     dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
     dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
     dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
     dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();
-    dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
-    dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
+    
     dfltsetting[SETTING_LIGHT_NORMAL]       = LLVector3(0.0000, 0.9126, -0.4086).getValue();
     dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
     dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
@@ -377,46 +436,9 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
     dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
     dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;
-
-    LLSD dflt_rayleigh;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
-
-    dfltsetting[SETTING_RAYLEIGH_CONFIG]    = dflt_rayleigh;
-
-    LLSD dflt_mie;
-    dflt_mie[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
-    dflt_mie[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
-    dflt_mie[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
-    dflt_mie[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
-    dflt_mie[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
-    dflt_mie[SETTING_MIE_ANISOTROPY_FACTOR]            = 0.9f;
-
-    dfltsetting[SETTING_MIE_CONFIG] = dflt_mie;
-
-    // absorption (ozone) has two linear ramping zones
-    LLSD dflt_absorption_a;
-    dflt_absorption_a[SETTING_DENSITY_PROFILE_WIDTH]            = 25000.0f; // 0 -> the entire atmosphere
-    dflt_absorption_a[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
-    dflt_absorption_a[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
-    dflt_absorption_a[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 25000.0f;
-    dflt_absorption_a[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = -2.0f / 3.0f;
-
-    LLSD dflt_absorption_b;
-    dflt_absorption_b[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> remainder of the atmosphere
-    dflt_absorption_b[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
-    dflt_absorption_b[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
-    dflt_absorption_b[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 15000.0f;
-    dflt_absorption_b[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 8.0f  / 3.0f;
-
-    LLSD wtf;
-    wtf.append(dflt_absorption_a);
-    wtf.append(dflt_absorption_b);
-
-    dfltsetting[SETTING_ABSORPTION_CONFIG] = wtf;
+    dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
+    dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
+    dfltsetting[SETTING_ABSORPTION_CONFIG]  = absorptionConfigDefault();
 
     return dfltsetting;
 }
@@ -560,6 +582,9 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
 {
     LLSD newsettings(defaults());
 
+// AdvancedAtmospherics TODO
+// These need to be translated into density profile info in the new settings format...
+#if SUPPORT_LEGACY_ATMOSPHERICS
     if (legacy.has(SETTING_AMBIENT))
     {
         newsettings[SETTING_AMBIENT] = LLColor3(legacy[SETTING_AMBIENT]).getValue();
@@ -572,6 +597,39 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_BLUE_HORIZON] = LLColor3(legacy[SETTING_BLUE_HORIZON]).getValue();
     }
+    if (legacy.has(SETTING_DENSITY_MULTIPLIER))
+    {
+        newsettings[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(legacy[SETTING_DENSITY_MULTIPLIER][0].asReal());
+    }
+    if (legacy.has(SETTING_DISTANCE_MULTIPLIER))
+    {
+        newsettings[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(legacy[SETTING_DISTANCE_MULTIPLIER][0].asReal());
+    }
+    if (legacy.has(SETTING_HAZE_DENSITY))
+    {
+        newsettings[SETTING_HAZE_DENSITY] = LLSD::Real(legacy[SETTING_HAZE_DENSITY][0].asReal());
+    }
+    if (legacy.has(SETTING_HAZE_HORIZON))
+    {
+        newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
+    }
+#endif
+
+    if (!legacy.has(SETTING_RAYLEIGH_CONFIG))
+    {
+        newsettings[SETTING_RAYLEIGH_CONFIG] = rayleighConfigDefault();
+    }
+
+    if (!legacy.has(SETTING_ABSORPTION_CONFIG))
+    {
+        newsettings[SETTING_ABSORPTION_CONFIG] = absorptionConfigDefault();
+    }
+
+    if (!legacy.has(SETTING_MIE_CONFIG))
+    {
+        newsettings[SETTING_MIE_CONFIG] = mieConfigDefault();
+    }
+
     if (legacy.has(SETTING_CLOUD_COLOR))
     {
         newsettings[SETTING_CLOUD_COLOR] = LLColor3(legacy[SETTING_CLOUD_COLOR]).getValue();
@@ -607,14 +665,8 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_CLOUD_SHADOW] = LLSD::Real(legacy[SETTING_CLOUD_SHADOW][0].asReal());
     }
-    if (legacy.has(SETTING_DENSITY_MULTIPLIER))
-    {
-        newsettings[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(legacy[SETTING_DENSITY_MULTIPLIER][0].asReal());
-    }
-    if (legacy.has(SETTING_DISTANCE_MULTIPLIER))
-    {
-        newsettings[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(legacy[SETTING_DISTANCE_MULTIPLIER][0].asReal());
-    }
+    
+
     if (legacy.has(SETTING_GAMMA))
     {
         newsettings[SETTING_GAMMA] = legacy[SETTING_GAMMA][0].asReal();
@@ -623,14 +675,7 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_GLOW] = LLColor3(legacy[SETTING_GLOW]).getValue();
     }
-    if (legacy.has(SETTING_HAZE_DENSITY))
-    {
-        newsettings[SETTING_HAZE_DENSITY] = LLSD::Real(legacy[SETTING_HAZE_DENSITY][0].asReal());
-    }
-    if (legacy.has(SETTING_HAZE_HORIZON))
-    {
-        newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
-    }
+    
     if (legacy.has(SETTING_LIGHT_NORMAL))
     {
         newsettings[SETTING_LIGHT_NORMAL] = LLVector3(legacy[SETTING_LIGHT_NORMAL]).getValue();
@@ -647,6 +692,44 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_SUNLIGHT_COLOR] = LLColor4(legacy[SETTING_SUNLIGHT_COLOR]).getValue();
     }
+
+    if (legacy.has(SETTING_PLANET_RADIUS))
+    {
+        newsettings[SETTING_PLANET_RADIUS] = LLSD::Real(legacy[SETTING_PLANET_RADIUS].asReal());
+    }
+    else
+    {
+        newsettings[SETTING_PLANET_RADIUS] = 6360.0f;
+    }
+
+    if (legacy.has(SETTING_SKY_BOTTOM_RADIUS))
+    {
+        newsettings[SETTING_SKY_BOTTOM_RADIUS] = LLSD::Real(legacy[SETTING_SKY_BOTTOM_RADIUS].asReal());
+    }
+    else
+    {
+        newsettings[SETTING_SKY_BOTTOM_RADIUS] = 6360.0f;
+    }
+
+    if (legacy.has(SETTING_SKY_TOP_RADIUS))
+    {
+        newsettings[SETTING_SKY_TOP_RADIUS] = LLSD::Real(legacy[SETTING_SKY_TOP_RADIUS].asReal());
+    }
+    else
+    {
+        newsettings[SETTING_SKY_TOP_RADIUS] = 6420.0f;
+    }
+
+    if (legacy.has(SETTING_SUN_ARC_RADIANS))
+    {
+        newsettings[SETTING_SUN_ARC_RADIANS] = LLSD::Real(legacy[SETTING_SUN_ARC_RADIANS].asReal());
+    }
+    else
+    {
+        newsettings[SETTING_SUN_ARC_RADIANS] = 0.00935f / 2.0f;
+    }
+
+    
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
     {   // convert the east and sun angles into a quaternion.
@@ -716,6 +799,8 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 
 void LLSettingsSky::calculateLightSettings()
 {
+
+#if SUPPORT_LEGACY_ATMOSPHERICS
     LLColor3 vary_HazeColor;
     LLColor3 vary_SunlightColor;
     LLColor3 vary_AmbientColor;
@@ -804,6 +889,8 @@ void LLSettingsSky::calculateLightSettings()
 
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(0);
+#endif
+
 }
 
 
