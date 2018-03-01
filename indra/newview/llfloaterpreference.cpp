@@ -1304,7 +1304,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	BOOL shaders = ctrl_shader_enable->get();
 	if (shaders)
 	{
-		terrain_detail->setValue(1);
 		terrain_detail->setEnabled(FALSE);
 		terrain_text->setEnabled(FALSE);
 	}

@@ -224,7 +224,7 @@ void LLBadge::draw()
 	{
 		LLView* owner_view = mOwner.get();
 
-		if (owner_view)
+		if (owner_view && owner_view->isInVisibleChain())
 		{
 			//
 			// Calculate badge size based on label text
