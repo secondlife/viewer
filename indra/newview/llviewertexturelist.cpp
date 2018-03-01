@@ -61,8 +61,6 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
-
-#include "llvoavatarself.h"
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -505,15 +503,12 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	// If the image is not found, creates new image and
 	// enqueues a request for transmission
 	
-	LLPointer<LLViewerFetchedTexture> imagep = NULL;
-
 	if (image_id.isNull())
 	{
 		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}
 	
-	imagep = imagep.isNull() ? findImage(image_id, get_element_type(boost_priority)) : imagep;
-	
+	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id, get_element_type(boost_priority));
 	if (!imagep.isNull())
 	{
 		LLViewerFetchedTexture *texture = imagep.get();
@@ -1346,9 +1341,9 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 // Returns min setting for TextureMemory (in MB)
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 {
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped();
+	U32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB();
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
-	return (system_ram > S32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
+	return (system_ram > U32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
 }
 
 //static
@@ -1391,7 +1386,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
 	}
 
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped(); // In MB
+	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB(); // In MB
 	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
 	if (get_recommended)
 		max_texmem = llmin(max_texmem, system_ram/2);
