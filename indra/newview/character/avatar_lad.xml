@@ -8923,8 +8923,8 @@
   <!-- =========================================================== -->
   <layer_set
     body_region="hair"
-    width="1024"
-    height="1024"
+    width="512"
+    height="512"
     clear_alpha="false">
     <layer
       name="base"
@@ -8953,8 +8953,8 @@
 
   <layer_set
     body_region="head"
-    width="1024"
-    height="1024">
+    width="512"
+    height="512">
     <layer
        name="head bump base"
        fixed_color = "128,128,128,255"
@@ -10031,8 +10031,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="upper_body"
-   width="1024"
-   height="1024">
+   width="512"
+   height="512">
     <layer
      name="base_upperbody bump"
      render_pass="bump"
@@ -11282,8 +11282,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="lower_body"
-   width="1024"
-   height="1024">
+   width="512"
+   height="512">
     <layer
        name="lower body bump base"
        fixed_color = "128,128,128,255"
@@ -12241,8 +12241,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="skirt"
-   width="1024"
-   height="1024"
+   width="512"
+   height="512"
    clear_alpha="false">
     <layer
      name="skirt_fabric"

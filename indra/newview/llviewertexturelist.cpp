@@ -61,6 +61,8 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
+
+#include "llvoavatarself.h"
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -503,12 +505,15 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	// If the image is not found, creates new image and
 	// enqueues a request for transmission
 	
+	LLPointer<LLViewerFetchedTexture> imagep = NULL;
+
 	if (image_id.isNull())
 	{
 		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}
 	
-	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id, get_element_type(boost_priority));
+	imagep = imagep.isNull() ? findImage(image_id, get_element_type(boost_priority)) : imagep;
+	
 	if (!imagep.isNull())
 	{
 		LLViewerFetchedTexture *texture = imagep.get();

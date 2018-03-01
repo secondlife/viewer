@@ -2224,6 +2224,8 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		{
 			result->setIsMissingAsset(false);
 		}
+		
+		result->setBakedTextureIndex(te);
 	}
 	return result;
 }
@@ -7413,6 +7415,9 @@ void LLVOAvatar::updateMeshTextures()
 		removeMissingBakedTextures();	// May call back into this function if anything is removed
 		call_remove_missing = true;
 	}
+
+	
+
 }
 
 // virtual
@@ -8189,6 +8194,45 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 	}
 
 	updateMeshTextures();
+
+	//refresh bakes on any attached objects
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+		iter != mAttachmentPoints.end();
+		++iter)
+	{
+		LLViewerJointAttachment* attachment = iter->second;
+
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			attachment_iter != attachment->mAttachedObjects.end();
+			++attachment_iter)
+		{
+			LLViewerObject* attached_object = (*attachment_iter);
+
+			const U32 MAX_TES = 32;
+
+			S32 last_face_index = llmin((U32)attached_object->getNumTEs(), MAX_TES) - 1;
+
+			if (last_face_index > -1)
+			{
+				S8 face_index;
+				for (face_index = 0; face_index <= last_face_index; face_index++)
+				{
+					LLViewerTexture* viewer_texture = attached_object->getTEImage((U8)face_index);
+
+					if (viewer_texture && ( (viewer_texture->getType() == LLViewerTexture::FETCHED_TEXTURE) || (viewer_texture->getType() == LLViewerTexture::LOD_TEXTURE) ))
+					{
+						LLViewerFetchedTexture* fetched_texture = dynamic_cast<LLViewerFetchedTexture*>(viewer_texture);
+						if (fetched_texture->getFTType() == FTT_SERVER_BAKE)
+						{
+							const LLUUID new_id = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::localTextureIndexToMagicId((LLAvatarAppearanceDefines::ETextureIndex)fetched_texture->getBakedTextureIndex());
+							attached_object->setTETexture(face_index, new_id);
+						}
+
+					}
+				}
+			}
+		}
+	}
 }
 
 // static

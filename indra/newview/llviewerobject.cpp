@@ -4358,31 +4358,119 @@ void LLViewerObject::sendTEUpdate() const
 
 	// TODO send media type
 
+
+	const U32 MAX_TES = 32;
+
+	LLUUID texture_id[MAX_TES];
+	S32 last_face_index = llmin((U32)getNumTEs(), MAX_TES) - 1;
+
+	if (last_face_index > -1)
+	{
+		S8 face_index;
+		for (face_index = 0; face_index <= last_face_index; face_index++)
+		{
+			LLTextureEntry* entry = getTE((U8)face_index);
+			texture_id[face_index] = entry->getID();
+
+			LLViewerFetchedTexture* fetched_texture = gTextureList.findImage(entry->getID(), TEX_LIST_STANDARD);
+			if (fetched_texture && fetched_texture->getFTType() == FTT_SERVER_BAKE)
+			{
+				const LLUUID new_id = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::localTextureIndexToMagicId((LLAvatarAppearanceDefines::ETextureIndex)fetched_texture->getBakedTextureIndex());
+				entry->setID(new_id.notNull() ? new_id : IMG_DEFAULT_AVATAR);
+			}
+		}
+	}
+
 	packTEMessage(msg);
+
+	if (last_face_index > -1)
+	{
+		S8 face_index;
+		for (face_index = 0; face_index <= last_face_index; face_index++)
+		{
+			LLTextureEntry* entry = getTE((U8)face_index);
+			entry->setID(texture_id[face_index]);
+		}
+	}
 
 	LLViewerRegion *regionp = getRegion();
 	msg->sendReliable( regionp->getHost() );
 }
 
+LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
+{
+	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
+	{
+		return NULL;
+	}
+
+	LLVOAvatar* avatar = getAvatar();
+	if (avatar)
+	{
+		LLAvatarAppearanceDefines::ETextureIndex texIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::assetIdToBakedTextureIndex(id));
+		return avatar->getBakedTextureImage(texIndex, avatar->getTE(texIndex)->getID());
+	}
+
+	return NULL;
+}
+
+LLTextureEntry* LLViewerObject::getBakedTextureEntryForMagicId(const LLUUID& id)
+{
+	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
+	{
+		return NULL;
+	}
+
+	LLVOAvatar* avatar = getAvatar();
+	if (avatar)
+	{
+		LLAvatarAppearanceDefines::ETextureIndex texIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::assetIdToBakedTextureIndex(id));
+		return avatar->getTE(texIndex);
+	}
+
+	return NULL;
+}
+
 void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 {
-	LLPrimitive::setTE(te, texture_entry);
+	const LLTextureEntry* baked_entry = getBakedTextureEntryForMagicId(texture_entry.getID());
+	if (baked_entry)
+	{
+		LLPrimitive::setTE(te, *baked_entry);
+
+		const LLUUID& image_id = baked_entry->getID();
+		mTEImages[te] = getBakedTextureForMagicId(image_id);
+	}
+	else
+	{
+		LLPrimitive::setTE(te, texture_entry);
 
 		const LLUUID& image_id = getTE(te)->getID();
 		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	
-	if (getTE(te)->getMaterialParams().notNull())
-	{
-		const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
-		mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-		
-		const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
-		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+
+		if (getTE(te)->getMaterialParams().notNull())
+		{
+			const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
+			mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+
+			const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
+			mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		}
 	}
+	
 }
 
 void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 {
+	if (imagep)
+	{
+		LLViewerTexture* baked_texture = getBakedTextureForMagicId(imagep->getID());
+		if (baked_texture)
+		{
+			imagep = baked_texture;
+		}
+	}
+
 	if (mTEImages[te] != imagep)
 	{
 		mTEImages[te] = imagep;
@@ -4397,6 +4485,15 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 
 S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 {
+	if (image)
+	{
+		LLViewerTexture* baked_texture = getBakedTextureForMagicId(image->getID());
+		if (baked_texture)
+		{
+			image = baked_texture;
+		}
+	}
+
 	const LLUUID& uuid = image->getID();
 	S32 retval = 0;
 	if (uuid != getTE(te)->getID() ||
@@ -4492,9 +4589,18 @@ void LLViewerObject::changeTESpecularMap(S32 index, LLViewerTexture* new_image)
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
 	// Invalid host == get from the agent's sim
-	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(
-		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost());
-	return setTETextureCore(te,image);
+
+	LLViewerTexture* baked_texture = getBakedTextureForMagicId(uuid);
+	if (baked_texture)
+	{
+		return setTETextureCore(te, baked_texture);
+	}
+	else
+	{
+		LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(
+			uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost());
+		return setTETextureCore(te, image);
+	}
 }
 
 S32 LLViewerObject::setTENormalMap(const U8 te, const LLUUID& uuid)

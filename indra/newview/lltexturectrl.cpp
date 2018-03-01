@@ -404,6 +404,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterTexturePicker::onTextureSelect, this, _1));
 	
+	getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
+	getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setCommitCallback(onHideBaseMeshRegionCheck, this);
+	
+
 	return TRUE;
 }
 
@@ -760,22 +764,25 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	bool mode = (self->mModeSelector->getSelectedIndex() == 0);
+	int mode = self->mModeSelector->getSelectedIndex();
 
-	self->getChild<LLButton>("Default")->setVisible(mode);
-	self->getChild<LLButton>("Blank")->setVisible(mode);
-	self->getChild<LLButton>("None")->setVisible(mode);
-	self->getChild<LLButton>("Pipette")->setVisible(mode);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode);
+	self->getChild<LLButton>("Default")->setVisible(mode == 0);
+	self->getChild<LLButton>("Blank")->setVisible(mode == 0);
+	self->getChild<LLButton>("None")->setVisible(mode == 0);
+	self->getChild<LLButton>("Pipette")->setVisible(mode == 0);
+	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode == 0);
+	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode == 0);
 
 	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
 	  no idea under which conditions the above is even shown, needs testing. */
 
-	self->getChild<LLButton>("l_add_btn")->setVisible(!mode);
-	self->getChild<LLButton>("l_rem_btn")->setVisible(!mode);
-	self->getChild<LLButton>("l_upl_btn")->setVisible(!mode);
-	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(!mode);
+	self->getChild<LLButton>("l_add_btn")->setVisible(mode == 1);
+	self->getChild<LLButton>("l_rem_btn")->setVisible(mode == 1);
+	self->getChild<LLButton>("l_upl_btn")->setVisible(mode == 1);
+	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(mode == 1);
+
+	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(mode == 2);
+	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(false);// mode == 2);
 }
 
 // static
@@ -894,6 +901,59 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 
 	picker->updateFilterPermMask();
 	picker->commitIfImmediateSet();
+}
+
+//static
+void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)user_data;
+	LLComboBox* combo_box = (LLComboBox*)ctrl;
+
+	S8 type = combo_box->getValue().asInteger();
+	
+	LLUUID imageID = LLUUID::null;
+	if (type == 0)
+	{
+		imageID = IMG_USE_BAKED_HEAD;
+	}
+	else if (type == 1)
+	{
+		imageID = IMG_USE_BAKED_UPPER;
+	}
+	else if (type == 2)
+	{
+		imageID = IMG_USE_BAKED_LOWER;
+	}
+	else if (type == 3)
+	{
+		imageID = IMG_USE_BAKED_EYES;
+	}
+	else if (type == 4)
+	{
+		imageID = IMG_USE_BAKED_SKIRT;
+	}
+	else if (type == 5)
+	{
+		imageID = IMG_USE_BAKED_HAIR;
+	}
+
+	if (imageID.notNull())
+	{
+		self->setCanApply(true, true);
+		self->setImageID(imageID);
+		self->commitIfImmediateSet();
+	}
+	else
+	{
+		onBtnCancel(self);
+	}
+}
+
+//static
+void LLFloaterTexturePicker::onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *user_data)
+{
+	//LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
+	//LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
 }
 
 void LLFloaterTexturePicker::updateFilterPermMask()

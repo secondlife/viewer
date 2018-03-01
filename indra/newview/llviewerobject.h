@@ -566,6 +566,10 @@ public:
 	friend class LLViewerObjectList;
 	friend class LLViewerMediaList;
 
+private:
+	LLViewerTexture* getBakedTextureForMagicId(const LLUUID& id);
+	LLTextureEntry*  getBakedTextureEntryForMagicId(const LLUUID& id);
+
 public:
 	static void unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
 	static void unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
