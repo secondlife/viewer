@@ -1178,7 +1178,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     int incoming_folder_depth = get_folder_levels(inv_cat);
     // Compute the nested folders level we're inserting ourselves in
     // Note: add 1 when inserting under a listing folder as we need to take the root listing folder in the count
-    int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 0);
+    int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 1);
 
     // Get the version folder: that's where the folders and items counts start from
     const LLViewerInventoryCategory * version_folder = (insertion_point_folder_depth >= 2 ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);

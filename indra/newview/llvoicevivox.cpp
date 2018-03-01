@@ -887,13 +887,8 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 bool LLVivoxVoiceClient::provisionVoiceAccount()
 {
     LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
-    while (!gAgent.getRegion())
-    {
-        // *TODO* Set up a call back on agent that sends a message to a pump we can use to wake up.
-        llcoro::suspend();
-    }
 
-    while (!gAgent.getRegion()->capabilitiesReceived())
+    while (!gAgent.getRegion() || !gAgent.getRegion()->capabilitiesReceived())
     {
         // *TODO* Pump a message for wake up.
         llcoro::suspend();

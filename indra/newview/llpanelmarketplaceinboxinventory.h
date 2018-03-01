@@ -46,6 +46,7 @@ public:
 	~LLInboxInventoryPanel();
 
 	// virtual
+	void initFromParams(const LLInventoryPanel::Params&);
 	LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 };
@@ -68,8 +69,8 @@ public:
     void addItem(LLFolderViewItem* item);
 	void draw();
 	
-	void selectItem();
-	void toggleOpen();
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void computeFreshness();
 	void deFreshify();
