@@ -52,12 +52,11 @@ struct apr_dso_handle_t;
  * APR_SUCCESS.
  * @return Returns <code>true</code> if status is an error condition.
  */
-bool LL_COMMON_API ll_apr_warn_status(apr_status_t status);
-/// There's a whole other APR error-message function if you pass a DSO handle.
-bool LL_COMMON_API ll_apr_warn_status(apr_status_t status, apr_dso_handle_t* handle);
+#define ll_apr_warn_status(status) _ll_apr_warn_status(status, __FILE__, __LINE__)
+bool LL_COMMON_API _ll_apr_warn_status(apr_status_t status, const char* file, int line);
 
-void LL_COMMON_API ll_apr_assert_status(apr_status_t status);
-void LL_COMMON_API ll_apr_assert_status(apr_status_t status, apr_dso_handle_t* handle);
+#define ll_apr_assert_status(status) _ll_apr_assert_status(status, __FILE__, __LINE__)
+void LL_COMMON_API _ll_apr_assert_status(apr_status_t status, const char* file, int line);
 
 extern "C" LL_COMMON_API apr_pool_t* gAPRPoolp; // Global APR memory pool
 

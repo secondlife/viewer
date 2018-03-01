@@ -157,9 +157,19 @@ void LLAppCoreHttp::init()
 	}
 
 	// Point to our certs or SSH/https: will fail on connect
-	status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
-														LLCore::HttpRequest::GLOBAL_POLICY_ID,
-														gDirUtilp->getCAFile(), NULL);
+    std::string ca_file = gDirUtilp->getCAFile();
+    if ( LLFile::isfile(ca_file) )
+    {
+        LL_DEBUGS("Init") << "Setting CA File to " << ca_file << LL_ENDL;
+        status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+                                                            LLCore::HttpRequest::GLOBAL_POLICY_ID,
+                                                            ca_file, NULL);
+    }
+    else
+    {
+        LL_ERRS("Init") << "Missing CA File; should be at " << ca_file << LL_ENDL;
+    }
+    
 	if (! status)
 	{
 		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  " << status.toString()
@@ -540,9 +550,8 @@ LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url,
 		// error codes.  Should be refactored with login refactoring, perhaps.
 		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_CACERT);
 		result.setMessage(cert_exception.what());
-		LLPointer<LLCertificate> cert = cert_exception.getCert();
-		cert->ref(); // adding an extra ref here
-		result.setErrorData(cert.get());
+		LLSD certdata = cert_exception.getCertData();
+		result.setErrorData(certdata);
 		// We should probably have a more generic way of passing information
 		// back to the error handlers.
 	}
@@ -550,9 +559,8 @@ LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url,
 	{
 		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_PEER_CERTIFICATE);
 		result.setMessage(cert_exception.what());
-		LLPointer<LLCertificate> cert = cert_exception.getCert();
-		cert->ref(); // adding an extra ref here
-		result.setErrorData(cert.get());
+		LLSD certdata = cert_exception.getCertData();
+		result.setErrorData(certdata);
 	}
 	catch (...)
 	{
