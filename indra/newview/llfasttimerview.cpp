@@ -796,13 +796,13 @@ LLSD LLFastTimerView::analyzePerformanceLogDefault(std::istream& is)
 	for(stats_map_t::iterator it = time_stats.begin(); it != time_stats.end(); ++it)
 	{
 		std::string label = it->first;
-		ret[label]["TotalTime"] = time_stats[label].mSum;
+		ret[label]["TotalTime"] = time_stats[label].getSum();
 		ret[label]["MeanTime"] = time_stats[label].getMean();
 		ret[label]["MaxTime"] = time_stats[label].getMaxValue();
 		ret[label]["MinTime"] = time_stats[label].getMinValue();
 		ret[label]["StdDevTime"] = time_stats[label].getStdDev();
 		
-		ret[label]["Samples"] = sample_stats[label].mSum;
+        ret[label]["Samples"] = sample_stats[label].getSum();
 		ret[label]["MaxSamples"] = sample_stats[label].getMaxValue();
 		ret[label]["MinSamples"] = sample_stats[label].getMinValue();
 		ret[label]["StdDevSamples"] = sample_stats[label].getStdDev();

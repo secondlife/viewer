@@ -64,6 +64,8 @@
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
 
+#include <vector>
+
 // Height of the yellow selection highlight posts for land
 const F32 PARCEL_POST_HEIGHT = 0.666f;
 
@@ -921,14 +923,60 @@ F32 gpu_benchmark()
 	//number of samples to take
 	const S32 samples = 64;
 
-	if (gGLManager.mHasTimerQuery)
+	// This struct is used to ensure that once we call initProfile(), it will
+	// definitely be matched by a corresponding call to finishProfile(). It's
+	// a struct rather than a class simply because every member is public.
+	struct ShaderProfileHelper
 	{
-		LLGLSLShader::initProfile();
-	}
+		ShaderProfileHelper()
+		{
+			LLGLSLShader::initProfile();
+		}
+		~ShaderProfileHelper()
+		{
+			LLGLSLShader::finishProfile(false);
+		}
+	};
+	ShaderProfileHelper initProfile;
 
-	LLRenderTarget dest[count];
-	U32 source[count];
-	LLImageGL::generateTextures(count, source);
+	// This helper class is used to ensure that each generateTextures() call
+	// is matched by a corresponding deleteTextures() call. It also handles
+	// the bindManual() calls using those textures.
+	class TextureHolder
+	{
+	public:
+		TextureHolder(U32 unit, U32 size):
+			texUnit(gGL.getTexUnit(unit)),
+			source(size)			// preallocate vector
+		{
+			// takes (count, pointer)
+			// &vector[0] gets pointer to contiguous array
+			LLImageGL::generateTextures(source.size(), &source[0]);
+		}
+
+		~TextureHolder()
+		{
+			// unbind
+			texUnit->unbind(LLTexUnit::TT_TEXTURE);
+			// ensure that we delete these textures regardless of how we exit
+			LLImageGL::deleteTextures(source.size(), &source[0]);
+		}
+
+		void bind(U32 index)
+		{
+			texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
+		}
+
+	private:
+		// capture which LLTexUnit we're going to use
+		LLTexUnit* texUnit;
+
+		// use std::vector for implicit resource management
+		std::vector<U32> source;
+	};
+
+	std::vector<LLRenderTarget> dest(count);
+	TextureHolder texHolder(0, count);
 	std::vector<F32> results;
 
 	//build a random texture
@@ -950,7 +998,7 @@ F32 gpu_benchmark()
 		dest[i].clear();
 		dest[i].flush();
 
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
+		texHolder.bind(i);
 		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 
@@ -963,17 +1011,41 @@ F32 gpu_benchmark()
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector2> tc;
 
-	buff->getVertexStrider(v);
-	
-	v[0].set(-1,1,0);
-	v[1].set(-1,-3,0);
-	v[2].set(3,1,0);
+	if (! buff->getVertexStrider(v))
+	{
+		LL_WARNS() << "GL LLVertexBuffer::getVertexStrider() returned false, "
+				   << "buff->getMappedData() is"
+				   << (buff->getMappedData()? " not" : "")
+				   << " NULL" << LL_ENDL;
+		// abandon the benchmark test
+		return -1.f;
+	}
+
+	// generate dummy triangle
+	v[0].set(-1, 1, 0);
+	v[1].set(-1, -3, 0);
+	v[2].set(3, 1, 0);
 
 	buff->flush();
 
-	gBenchmarkProgram.bind();
-	
-	bool busted_finish = false;
+	// ensure matched pair of bind() and unbind() calls
+	class ShaderBinder
+	{
+	public:
+		ShaderBinder(LLGLSLShader& shader):
+			mShader(shader)
+		{
+			mShader.bind();
+		}
+		~ShaderBinder()
+		{
+			mShader.unbind();
+		}
+
+	private:
+		LLGLSLShader& mShader;
+	};
+	ShaderBinder binder(gBenchmarkProgram);
 
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
@@ -986,24 +1058,13 @@ F32 gpu_benchmark()
 		for (U32 i = 0; i < count; ++i)
 		{
 			dest[i].bindTarget();
-			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
+			texHolder.bind(i);
 			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
 			dest[i].flush();
 		}
-		
+
 		//wait for current batch of copies to finish
-		if (busted_finish)
-		{
-			//read a pixel off the last target since some drivers seem to ignore glFinish
-			dest[count-1].bindTarget();
-			U32 pixel = 0;
-			glReadPixels(0,0,1,1,GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
-			dest[count-1].flush();
-		}
-		else
-		{
-			glFinish();
-		}
+		glFinish();
 
 		F32 time = timer.getElapsedTimeF32();
 
@@ -1011,29 +1072,10 @@ F32 gpu_benchmark()
 		{ 
 			//store result in gigabytes per second
 			F32 gb = (F32) ((F64) (res*res*8*count))/(1000000000);
-
 			F32 gbps = gb/time;
-
-			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
-			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
-				busted_finish = true;
-				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
-			}
-			else
-			{
-				results.push_back(gbps);
-			}		
+			results.push_back(gbps);
 		}
 	}
-
-	gBenchmarkProgram.unbind();
-
-	if (gGLManager.mHasTimerQuery)
-	{
-		LLGLSLShader::finishProfile(false);
-	}
-
-	LLImageGL::deleteTextures(count, source);
 
 	std::sort(results.begin(), results.end());
 
@@ -1046,7 +1088,7 @@ F32 gpu_benchmark()
     { 
         LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
         //OSX is probably lying, discard result
-        gbps = -1.f;
+        return -1.f;
     }
 #endif
 

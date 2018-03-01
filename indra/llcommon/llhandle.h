@@ -28,6 +28,7 @@
 #define LLHANDLE_H
 
 #include "llpointer.h"
+#include "llrefcount.h"
 #include "llexception.h"
 #include <stdexcept>
 #include <boost/type_traits/is_convertible.hpp>

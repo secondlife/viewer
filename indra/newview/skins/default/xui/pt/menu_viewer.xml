@@ -184,7 +184,6 @@
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
 		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
-		<menu_item_call label="Verificar atualizações" name="Check for Updates"/>
 	</menu>
 	<menu label="Avançado" name="Advanced">
 		<menu_item_call label="Recarregar texturas" name="Rebake Texture"/>

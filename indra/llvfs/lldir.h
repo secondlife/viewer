@@ -202,9 +202,28 @@ class LLDir
 	/// Append specified @a name to @a destpath, separated by getDirDelimiter()
 	/// if both are non-empty.
 	void append(std::string& destpath, const std::string& name) const;
-	/// Append specified @a name to @a path, separated by getDirDelimiter()
-	/// if both are non-empty. Return result, leaving @a path unmodified.
-	std::string add(const std::string& path, const std::string& name) const;
+	/// Variadic form: append @a name0 and @a name1 and arbitrary other @a
+	/// names to @a destpath, separated by getDirDelimiter() as needed.
+	template <typename... NAMES>
+	void append(std::string& destpath, const std::string& name0, const std::string& name1,
+				const NAMES& ... names) const
+	{
+		// In a typical recursion case, we'd accept (destpath, name0, names).
+		// We accept (destpath, name0, name1, names) because it's important to
+		// delegate the two-argument case to the non-template implementation.
+		append(destpath, name0);
+		append(destpath, name1, names...);
+	}
+
+	/// Append specified @a names to @a path, separated by getDirDelimiter()
+	/// as needed. Return result, leaving @a path unmodified.
+	template <typename... NAMES>
+	std::string add(const std::string& path, const NAMES& ... names) const
+	{
+		std::string destpath(path);
+		append(destpath, names...);
+		return destpath;
+	}
 
 protected:
 	// Does an add() or append() call need a directory delimiter?

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # This is the custom build script for the viewer
 #
@@ -18,7 +18,7 @@
 
 build_dir_Darwin()
 {
-  echo build-darwin-i386
+  echo build-darwin-x86_64
 }
 
 build_dir_Linux()
@@ -28,7 +28,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc120
+  echo build-vc120-${AUTOBUILD_ADDRSIZE}
 }
 
 viewer_channel_suffix()
@@ -47,8 +47,8 @@ viewer_channel_suffix()
 installer_Darwin()
 {
   local package_name="$1"
-  local package_dir="$(build_dir_Darwin ${last_built_variant:-Release})/newview/"
-  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i386\\.dmg\$"
+  local package_dir="$(build_dir_Darwin)/newview/"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_x86_64\\.dmg\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
   # even if someone makes a qualified name that duplicates the last word of the base name
@@ -59,7 +59,7 @@ installer_Darwin()
 installer_Linux()
 {
   local package_name="$1"
-  local package_dir="$(build_dir_Linux ${last_built_variant:-Release})/newview/"
+  local package_dir="$(build_dir_Linux)/newview/"
   local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
@@ -95,14 +95,28 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
+    # nat 2016-12-20: disable HAVOK on Mac until we get a 64-bit Mac build.
+    RELEASE_CRASH_REPORTING=ON
+    HAVOK=ON
+    SIGNING=()
+    if [ "$arch" == "Darwin" ]
+    then
+         if [ "$variant" == "Release" ]
+         then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
+                       "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+         fi
+    fi
+
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DUNATTENDED:BOOL=ON \
-     -DRELEASE_CRASH_REPORTING:BOOL=ON \
-     -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
+     -DHAVOK:BOOL="$HAVOK" \
+     -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
+     -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
 
   end_section "Configure $variant"
@@ -112,21 +126,21 @@ package_llphysicsextensions_tpv()
 {
   begin_section "PhysicsExtensions_TPV"
   tpv_status=0
-  if [ "$variant" = "Release" ]
+  # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
+  if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
   then 
-      llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv
+      test -r  "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml" || fatal "No llphysicsextensions_tpv autobuild configuration found"
+      tpvconfig=$(native_path "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml")
+      "$autobuild" build --quiet --config-file "$tpvconfig" -c Tpv || fatal "failed to build llphysicsextensions_tpv"
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
+      "$autobuild" package --quiet --config-file "$tpvconfig" --results-file "$(native_path $PKGTMP)" || fatal "failed to package llphysicsextensions_tpv"
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
       then
-          cat "${PKGTMP}" >> "$build_log"
-          eval $(cat "${PKGTMP}") # sets autobuild_package_{name,filename,md5}
-          autobuild_package_filename="$(shell_path "${autobuild_package_filename}")"
+          . "${PKGTMP}" # sets autobuild_package_{name,filename,md5}
           echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
       fi
   else
@@ -142,10 +156,14 @@ build()
   local variant="$1"
   if $build_viewer
   then
+    begin_section "autobuild $variant"
     "$autobuild" build --no-configure -c $variant || fatal "failed building $variant"
+    echo true >"$build_dir"/build_ok
+    end_section "autobuild $variant"
     
+    begin_section "extensions $variant"
     # Run build extensions
-    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]
+    if [ -d ${build_dir}/packages/build-extensions ]
     then
         for extension in ${build_dir}/packages/build-extensions/*.sh
         do
@@ -157,10 +175,10 @@ build()
 
     # *TODO: Make this a build extension.
     package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+    end_section "extensions $variant"
 
-    echo true >"$build_dir"/build_ok
   else
-      echo "Skipping build due to configuration build_viewer=${build_viewer}"
+      record_event "Skipping build due to configuration build_viewer=${build_viewer}"
       echo true >"$build_dir"/build_ok
   fi
 }
@@ -176,13 +194,9 @@ then
     exit 1
 fi
 
-# Check to see if we're skipping the platform
-if ! eval '$build_'"$arch"
-then
-    record_event "building on architecture $arch is disabled"
-    pass
-fi
+initialize_build # provided by master buildscripts build.sh
 
+begin_section "autobuild initialize"
 # ensure AUTOBUILD is in native path form for child processes
 AUTOBUILD="$(native_path "$AUTOBUILD")"
 # set "$autobuild" to cygwin path form for use locally in this script
@@ -194,7 +208,17 @@ then
 fi
 
 # load autobuild provided shell functions and variables
-eval "$("$autobuild" --quiet source_environment)"
+"$autobuild" --quiet source_environment > "$build_log_dir/source_environment"
+PYTHONPATH="$BUILDSCRIPTS_SHARED/packages/lib/python:$PYTHONPATH"
+begin_section "dump source environment commands"
+cat "$build_log_dir/source_environment"
+end_section "dump source environment commands"
+
+begin_section "execute source environment commands"
+. "$build_log_dir/source_environment"
+end_section "execute source environment commands"
+
+end_section "autobuild initialize"
 
 # something about the additional_packages mechanism messes up buildscripts results.py on Linux
 # since we don't care about those packages on Linux, just zero it out, yes - a HACK
@@ -203,10 +227,9 @@ then
     export additional_packages=
 fi
 
-# dump environment variables for debugging
-begin_section "Environment"
-env|sort
-end_section "Environment"
+python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}"
+
+initialize_version # provided by buildscripts build.sh; sets version id
 
 # Now run the build
 succeeded=true
@@ -214,9 +237,6 @@ build_processes=
 last_built_variant=
 for variant in $variants
 do
-  eval '$build_'"$variant" || continue
-  eval '$build_'"$arch"_"$variant" || continue
-
   # Only the last built arch is available for upload
   last_built_variant="$variant"
 
@@ -232,6 +252,9 @@ do
   then
       begin_section "Build $variant"
       build "$variant" "$build_dir"
+      end_section "Build $variant"
+
+      begin_section "post-build $variant"
       if `cat "$build_dir/build_ok"`
       then
           case "$variant" in
@@ -239,10 +262,11 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  upload_item docs "$build_dir/autobuild-package.xml" text/xml
+                  python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml \
+                      || fatal "Upload of autobuild metadata failed"
                   if [ "$arch" != "Linux" ]
                   then
-                      record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
+                      record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
                   else
                       record_event "TBD - no dependency graph for linux (probable python version dependency)"
                   fi
@@ -250,17 +274,25 @@ do
               else
                   record_event "no autobuild metadata at '$build_dir/autobuild-package.xml'"
               fi
+              if [ -r "$build_dir/newview/viewer_version.txt" ]
+              then
+                  begin_section "Viewer Version"
+                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$(<"$build_dir/newview/viewer_version.txt")" --mimetype inline-text \
+                      || fatal "Upload of viewer version failed"
+                  end_section "Viewer Version"
+              fi
               ;;
             Doxygen)
               if [ -r "$build_dir/doxygen_warnings.log" ]
               then
                   record_event "Doxygen warnings generated; see doxygen_warnings.log"
-                  upload_item log "$build_dir/doxygen_warnings.log" text/plain
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Log" "$build_dir/doxygen_warnings.log" --mimetype text/plain ## TBD
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
+                      || fatal "Upload of doxygen tarball failed"
               fi
               ;;
             *)
@@ -270,7 +302,8 @@ do
       else
           record_failure "Build of \"$variant\" failed."
       fi
-      end_section "Build $variant"
+      end_section "post-build $variant"
+
   else
       record_event "configure for $variant failed: build skipped"
   fi
@@ -290,7 +323,7 @@ then
     if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
     then
       begin_section "Build Viewer Debian Package"
-      have_private_repo=false
+
       # mangle the changelog
       dch --force-bad-version \
           --distribution unstable \
@@ -320,11 +353,14 @@ then
       # upload debian package and create repository
       begin_section "Upload Debian Repository"
       for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
-        upload_item debian $deb_file binary/octet-stream
+        deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
+        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" $deb_file \
+            || fatal "Upload of debian $deb_pkg failed"
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
-        upload_item debian_private $deb_file binary/octet-stream
-        have_private_repo=true
+        deb_pkg=$(basename "$deb_file" | sed 's,_.*,,')
+        python_cmd "$helpers/codeticket.py" addoutput "Debian $deb_pkg" "$deb_file" --private \
+            || fatal "Upload of debian $deb_pkg failed"
       done
 
       create_deb_repo
@@ -336,14 +372,6 @@ then
           mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed
         fi
       done
-
-      if [ $have_private_repo = true ]; then
-        eval "$python_command \"$redirect\" '\${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html'"\
-            >"$build_log_dir/private.html" || fatal generating redirect
-        upload_item global_redirect "$build_log_dir/private.html" text/html
-        
-      fi
-
       end_section "Upload Debian Repository"
       
     else
@@ -359,18 +387,17 @@ if $succeeded
 then
   if $build_viewer
   then
-    begin_section Upload Installer
+    begin_section "Uploads"
     # Upload installer
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
-      record_event "??? mystery event $package // $build_coverity"
+      fatal "No installer found from `pwd`"
       succeeded=$build_coverity
     else
       # Upload base package.
-      upload_item installer "$package" binary/octet-stream
-      upload_item quicklink "$package" binary/octet-stream
-      [ -f $build_dir/summary.json ] && upload_item installer $build_dir/summary.json text/plain
+      python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
+          || fatal "Upload of installer failed"
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -378,32 +405,44 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          upload_item installer "$package" binary/octet-stream
-          upload_item quicklink "$package" binary/octet-stream
+          python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
+              || fatal "Upload of installer $package_id failed"
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
       done
 
-      case "$last_built_variant" in
-      Release)
-        # Upload crash reporter files
-        for symbolfile in $symbolfiles
-        do
-          upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
-        done
+      if [ "$last_built_variant" = "Release" ]
+      then
+          # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
+          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
+          then
+              # Upload crash reporter file
+              # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt
+              case "$arch" in
+                  CYGWIN)
+                      symbolfile="$build_dir/newview/Release/secondlife-symbols-windows-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                      ;;
+                  Darwin)
+                      symbolfile="$build_dir/newview/Release/secondlife-symbols-darwin-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                      ;;
+                  Linux)
+                      symbolfile="$build_dir/newview/Release/secondlife-symbols-linux-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+                      ;;
+              esac
+              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbolfile" \
+                  || fatal "Upload of symbolfile failed"
+          fi
 
-        # Upload the llphysicsextensions_tpv package, if one was produced
-        # *TODO: Make this an upload-extension
-        if [ -r "$build_dir/llphysicsextensions_package" ]
-        then
-            llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-            upload_item private_artifact "$llphysicsextensions_package" binary/octet-stream
-        fi
-        ;;
-      *)
-        ;;
-      esac
+          # Upload the llphysicsextensions_tpv package, if one was produced
+          # *TODO: Make this an upload-extension
+          if [ -r "$build_dir/llphysicsextensions_package" ]
+          then
+              llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
+              python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
+                  || fatal "Upload of physics extensions package failed"
+          fi
+      fi
 
       # Run upload extensions
       if [ -d ${build_dir}/packages/upload-extensions ]; then
@@ -414,7 +453,7 @@ then
           done
       fi
     fi
-    end_section Upload Installer
+    end_section "Uploads"
   else
     record_event "skipping upload of installer"
   fi
