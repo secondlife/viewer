@@ -1692,11 +1692,11 @@
           <key>darwin</key>
           <map>
             <key>archive</key>
-            <map>
+            <map>              
               <key>hash</key>
-              <string>7b769c4284bdbd5fce536395d1eab695</string>
+              <string>903faab8ef3fc219045d92235022068f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4054/11304/kdu-7.9.1.504041-darwin-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14220/89068/kdu-7.A.3.512941-darwin-512941.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1705,10 +1705,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
-              <string>a48db5cf79a4631090bfc968572d9953</string>
+              <key>hash</key>              
+              <string>44d8a88266b043518d3db25f736d1ac5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4052/11292/kdu-7.9.1.504041-darwin64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14219/89070/kdu-7.A.3.512941-darwin64-512941.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1717,10 +1717,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
-              <string>ed952c0cb86329e63a8db190953962d8</string>
+              <key>hash</key>              
+              <string>7f0dc594ff19e4188337b7a0bbf77b66</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Linux/installer/kdu-7.2.296932-linux-296932.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14218/89084/kdu-7.A.3.512941-linux-512941.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1730,9 +1730,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99b0b22f87cebdd02c4cc954a7b3b465</string>
+              <string>be7e262d48bce12fa9d38f11b8507bcf</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4053/11298/kdu-7.9.1.504041-linux64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14217/89078/kdu-7.A.3.512941-linux64-512941.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1742,9 +1742,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3ff5982b3b5f02738044432dd77a2c1</string>
+              <string>2a9f868bd03478db0be4326aeb5991ca</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4055/11310/kdu-7.9.1.504041-windows-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14222/89096/kdu-7.A.3.512941-windows-512941.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1752,18 +1752,18 @@
           <key>windows64</key>
           <map>
             <key>archive</key>
-            <map>
+            <map>              
               <key>hash</key>
-              <string>3010fa35f412b36296342b07de06f1ca</string>
+              <string>95cb2b9135f5d29e6260f9abf63c6964</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4056/11316/kdu-7.9.1.504041-windows64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14221/89090/kdu-7.A.3.512941-windows64-512941.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.9.1.504041</string>
+        <string>7.A.3.512747</string>
       </map>
       <key>libhunspell</key>
       <map>
