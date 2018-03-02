@@ -129,50 +129,32 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 
     sThreadID = threadp->mID;
 
-    try
+    // Run the user supplied function
+    do 
     {
-        // Run the user supplied function
-        do 
+        try
         {
-            try
-            {
-                threadp->run();
-            }
-            catch (const LLContinueError &e)
-            {
-                LL_WARNS("THREAD") << "ContinueException on thread '" << threadp->mName <<
-                    "' reentering run(). Error what is: '" << e.what() << "'" << LL_ENDL;
-                //output possible call stacks to log file.
-                LLError::LLCallStacks::print();
+            threadp->run();
+        }
+        catch (const LLContinueError &e)
+        {
+            LL_WARNS("THREAD") << "ContinueException on thread '" << threadp->mName <<
+                "' reentering run(). Error what is: '" << e.what() << "'" << LL_ENDL;
+            //output possible call stacks to log file.
+            LLError::LLCallStacks::print();
 
-                LOG_UNHANDLED_EXCEPTION("LLThread");
-                continue;
-            }
-            break;
+            LOG_UNHANDLED_EXCEPTION("LLThread");
+            continue;
+        }
+        break;
 
-        } while (true);
+    } while (true);
 
-        //LL_INFOS() << "LLThread::staticRun() Exiting: " << threadp->mName << LL_ENDL;
+    //LL_INFOS() << "LLThread::staticRun() Exiting: " << threadp->mName << LL_ENDL;
 
-        // We're done with the run function, this thread is done executing now.
-        //NB: we are using this flag to sync across threads...we really need memory barriers here
-        threadp->mStatus = STOPPED;
-    }
-    catch (std::bad_alloc)
-    {
-        threadp->mStatus = CRASHED;
-        LLMemory::logMemoryInfo(TRUE);
-
-        //output possible call stacks to log file.
-        LLError::LLCallStacks::print();
-
-        LL_ERRS("THREAD") << "Bad memory allocation in LLThread::staticRun() named '" << threadp->mName << "'!" << LL_ENDL;
-    }
-    catch (...)
-    {
-        threadp->mStatus = CRASHED;
-        CRASH_ON_UNHANDLED_EXCEPTION("LLThread");
-    }
+    // We're done with the run function, this thread is done executing now.
+    //NB: we are using this flag to sync across threads...we really need memory barriers here
+    threadp->mStatus = STOPPED;
 
     delete threadp->mRecorder;
     threadp->mRecorder = NULL;

@@ -196,7 +196,7 @@ void LLPanelMediaSettingsGeneral::draw()
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
+void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable, bool update_preview)
 {	
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
 	self->mAutoLoop->clear();
@@ -217,7 +217,10 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->mHeightPixels ->setEnabled(editable);
 	self->mHomeURL ->setEnabled(editable);
 	self->mWidthPixels ->setEnabled(editable);
-	self->updateMediaPreview();
+	if (update_preview)
+	{
+		self->updateMediaPreview();
+	}
 }
 
 // static

@@ -316,14 +316,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 				updateAdd(localmute);
 				notifyObservers();
 				notifyObserversDetailed(localmute);
-				if(!(localmute.mFlags & LLMute::flagParticles))
-				{
-					//Kill all particle systems owned by muted task
-					if(localmute.mType == LLMute::AGENT || localmute.mType == LLMute::OBJECT)
-					{
-						LLViewerPartSim::getInstance()->clearParticlesByOwnerID(localmute.mID);
-					}
-				}
+
 				//mute local lights that are attached to the avatar
 				LLVOAvatar *avatarp = find_avatar(localmute.mID);
 				if (avatarp)

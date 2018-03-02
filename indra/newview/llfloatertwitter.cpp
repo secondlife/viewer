@@ -404,13 +404,12 @@ void LLTwitterPhotoPanel::clearAndClose()
 void LLTwitterPhotoPanel::updateStatusTextLength(BOOL restore_old_status_text)
 {
 	bool add_location = mLocationCheckbox->getValue().asBoolean();
-	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
 
 	// Restrict the status text length to Twitter's character limit
 	LLTextEditor* status_text_box = dynamic_cast<LLTextEditor*>(mStatusTextBox);
 	if (status_text_box)
 	{
-		int max_status_length = 140 - (add_location ? 40 : 0) - (add_photo ? 40 : 0);
+		int max_status_length = 280 - (add_location ? 40 : 0);
 		status_text_box->setMaxTextLength(max_status_length);
 		if (restore_old_status_text)
 		{
