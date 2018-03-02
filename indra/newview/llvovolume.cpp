@@ -3842,7 +3842,7 @@ U32 LLVOVolume::getRenderCost_(texture_cost_t &textures, texture_cost_t &materia
 
     // per-prim costs
     static const U32 ARC_PARTICLE_COST   = 1; // determined experimentally
-    static const U32 ARC_PARTICLE_MAX    = 2048; // default values
+    //static const U32 ARC_PARTICLE_MAX    = 2048; // default values
     static const U32 ARC_TEXTURE_COST    = 16; // multiplier for texture resolution - performance tested
     static const U32 ARC_LIGHT_COST      = 1024; // static cost for light-producing prims 
     static const U32 ARC_MEDIA_FACE_COST = 2048; // static cost per media-enabled face 
