@@ -437,7 +437,6 @@ public:
     static validation_list_t validationList();
 
     static LLSD translateLegacySettings(LLSD legacy);
-    static LLSD settingValidation(LLSD &settingsIn, validation_list_t &validations);
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -451,11 +450,6 @@ protected:
     virtual void    updateSettings() override;
 
 private:
-    // validations for structured sections of sky settings data
-    static validation_list_t rayleighValidationList();
-    static validation_list_t absorptionValidationList();
-    static validation_list_t mieValidationList();
-
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();

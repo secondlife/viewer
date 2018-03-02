@@ -345,7 +345,9 @@ LLSettingsVOSky::LLSettingsVOSky():
 LLSettingsSky::ptr_t LLSettingsVOSky::buildSky(LLSD settings)
 {
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
-    LLSD results = LLSettingsSky::settingValidation(settings, validations);
+
+    LLSD results = LLSettingsBase::settingValidation(settings, validations);
+
     if (!results["success"].asBoolean())
     {
         LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
@@ -364,7 +366,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     newsettings[SETTING_NAME] = name;
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
-    LLSD results = LLSettingsSky::settingValidation(newsettings, validations);
+    LLSD results = LLSettingsBase::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
         LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
@@ -394,7 +396,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     settings[SETTING_NAME] = std::string("_default_");
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
-    LLSD results = LLSettingsSky::settingValidation(settings, validations);
+    LLSD results = LLSettingsBase::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
         LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
@@ -410,7 +412,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
     LLSD settings = cloneSettings();
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
-    LLSD results = LLSettingsSky::settingValidation(settings, validations);
+    LLSD results = LLSettingsBase::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
     {
         LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;

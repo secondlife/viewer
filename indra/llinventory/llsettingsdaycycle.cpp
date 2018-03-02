@@ -386,7 +386,7 @@ namespace
             if (ftype == "sky")
             {
                 LLSettingsSky::validation_list_t valid_sky = LLSettingsSky::validationList();
-                LLSD res_sky = LLSettingsSky::settingValidation(frame, valid_sky);
+                LLSD res_sky = LLSettingsBase::settingValidation(frame, valid_sky);
                 
                 if (res_sky["success"].asInteger() == 0)
                 {
@@ -399,7 +399,7 @@ namespace
             else if (ftype == "water")
             {
                 LLSettingsWater::validation_list_t valid_h2o = LLSettingsWater::validationList();
-                LLSD res_h2o = LLSettingsWater::settingValidation(frame, valid_h2o);
+                LLSD res_h2o = LLSettingsBase::settingValidation(frame, valid_h2o);
                 if (res_h2o["success"].asInteger() == 0)
                 {
                     LL_WARNS("SETTINGS") << "Water setting named '" << (*itf).first << "' validation failed!: " << res_h2o << LL_ENDL;
