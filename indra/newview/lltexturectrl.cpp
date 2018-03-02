@@ -32,6 +32,7 @@
 #include "llrender.h"
 #include "llagent.h"
 #include "llviewertexturelist.h"
+#include "llselectmgr.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llbutton.h"
@@ -406,8 +407,8 @@ BOOL LLFloaterTexturePicker::postBuild()
 	
 	getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
 	getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setCommitCallback(onHideBaseMeshRegionCheck, this);
-	
 
+	setBakeTextureEnabled(FALSE);
 	return TRUE;
 }
 
@@ -482,7 +483,24 @@ void LLFloaterTexturePicker::draw()
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
 		{
-			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
+			LLPointer<LLViewerFetchedTexture> texture = NULL;
+
+			if ((mImageAssetID == IMG_USE_BAKED_EYES) || (mImageAssetID == IMG_USE_BAKED_HAIR) || (mImageAssetID == IMG_USE_BAKED_HEAD) || (mImageAssetID == IMG_USE_BAKED_LOWER) || (mImageAssetID == IMG_USE_BAKED_SKIRT) || (mImageAssetID == IMG_USE_BAKED_UPPER))
+			{
+				if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+				{
+					LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+					LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+					texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+				}
+			}
+
+			if (texture.isNull())
+			{
+				texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
+			}
+
+			mTexturep = texture;
 			mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 		}
 
@@ -783,6 +801,39 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 
 	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(mode == 2);
 	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(false);// mode == 2);
+
+	if (mode == 2)
+	{
+		S8 val = -1;
+
+		LLUUID imageID = self->mImageAssetID;
+		if (imageID == IMG_USE_BAKED_HEAD)
+		{
+			val = 0;
+		}
+		else if (imageID == IMG_USE_BAKED_UPPER)
+		{
+			val = 1;
+		}
+		else if (imageID == IMG_USE_BAKED_LOWER)
+		{
+			val = 2;
+		}
+		else if (imageID == IMG_USE_BAKED_EYES)
+		{
+			val = 3;
+		}
+		else if (imageID == IMG_USE_BAKED_SKIRT)
+		{
+			val = 4;
+		}
+		else if (imageID == IMG_USE_BAKED_HAIR)
+		{
+			val = 5;
+		}
+
+		self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setSelectedByValue(val, TRUE);
+	}
 }
 
 // static
@@ -945,7 +996,9 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 	}
 	else
 	{
-		onBtnCancel(self);
+		self->setCanApply(true, true);
+		self->setImageID(self->mOriginalImageAssetID);
+		self->commitIfImmediateSet();
 	}
 }
 
@@ -1011,6 +1064,11 @@ void LLFloaterTexturePicker::setLocalTextureEnabled(BOOL enabled)
 	mModeSelector->setIndexEnabled(1,enabled);
 }
 
+void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
+{
+	mModeSelector->setIndexEnabled(2, enabled);
+}
+
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 {
 	LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
@@ -1059,7 +1117,8 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
-	mFallbackImage(p.fallback_image)
+	mFallbackImage(p.fallback_image),
+	mBakeTextureEnabled(FALSE)
 {
 
 	// Default of defaults is white image for diff tex
@@ -1256,6 +1315,8 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		if (root_floater)
 			root_floater->addDependentFloater(floaterp);
 		floaterp->openFloater();
+
+		texture_floaterp->setBakeTextureEnabled(mBakeTextureEnabled);
 	}
 
 	if (take_focus)
@@ -1473,7 +1534,22 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES,LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		LLPointer<LLViewerFetchedTexture> texture = NULL;
+
+		if ((mImageAssetID == IMG_USE_BAKED_EYES) || (mImageAssetID == IMG_USE_BAKED_HAIR) || (mImageAssetID == IMG_USE_BAKED_HEAD) || (mImageAssetID == IMG_USE_BAKED_LOWER) || (mImageAssetID == IMG_USE_BAKED_SKIRT) || (mImageAssetID == IMG_USE_BAKED_UPPER))
+		{
+			if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+			{
+				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+				LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+				texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+			}
+		}
+
+		if (texture.isNull())
+		{
+			texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		}
 		
 		texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 		texture->forceToSaveRawImage(0) ;

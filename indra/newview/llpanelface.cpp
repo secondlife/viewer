@@ -867,41 +867,52 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			}
 
 			updateAlphaControls();
-			
-				if(texture_ctrl)
-				{
+
+			if (texture_ctrl)
+			{
 				if (identical_diffuse)
 				{
-					texture_ctrl->setTentative( FALSE );
-					texture_ctrl->setEnabled( editable );
-					texture_ctrl->setImageAssetID( id );
+					texture_ctrl->setTentative(FALSE);
+					texture_ctrl->setEnabled(editable);
+					texture_ctrl->setImageAssetID(id);
 					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
+
+					if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+					{
+						texture_ctrl->setBakeTextureEnabled(objectp->isAttachment());
+					}
 				}
 				else if (id.isNull())
-					{
-						// None selected
-						texture_ctrl->setTentative( FALSE );
-						texture_ctrl->setEnabled( FALSE );
-						texture_ctrl->setImageAssetID( LLUUID::null );
-					getChildView("combobox alphamode")->setEnabled( FALSE );
-					getChildView("label alphamode")->setEnabled( FALSE );
-					getChildView("maskcutoff")->setEnabled( FALSE);
-					getChildView("label maskcutoff")->setEnabled( FALSE );
-					}
-					else
-					{
-						// Tentative: multiple selected with different textures
-						texture_ctrl->setTentative( TRUE );
-						texture_ctrl->setEnabled( editable );
-						texture_ctrl->setImageAssetID( id );
+				{
+					// None selected
+					texture_ctrl->setTentative(FALSE);
+					texture_ctrl->setEnabled(FALSE);
+					texture_ctrl->setImageAssetID(LLUUID::null);
+					getChildView("combobox alphamode")->setEnabled(FALSE);
+					getChildView("label alphamode")->setEnabled(FALSE);
+					getChildView("maskcutoff")->setEnabled(FALSE);
+					getChildView("label maskcutoff")->setEnabled(FALSE);
+				}
+				else
+				{
+					// Tentative: multiple selected with different textures
+					texture_ctrl->setTentative(TRUE);
+					texture_ctrl->setEnabled(editable);
+					texture_ctrl->setImageAssetID(id);
 					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
+
+					if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+					{
+						texture_ctrl->setBakeTextureEnabled(objectp->isAttachment());
+					}
 				}
+				
 			}
 
 			if (shinytexture_ctrl)
@@ -2467,6 +2478,15 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 	{
 		LLUUID get(LLViewerObject* object, S32 te_index)
 		{
+			LLTextureEntry *te = object->getTE(te_index);
+			if (te)
+			{
+				if ((te->getID() == IMG_USE_BAKED_EYES) || (te->getID() == IMG_USE_BAKED_HAIR) || (te->getID() == IMG_USE_BAKED_HEAD) || (te->getID() == IMG_USE_BAKED_LOWER) || (te->getID() == IMG_USE_BAKED_SKIRT) || (te->getID() == IMG_USE_BAKED_UPPER))
+				{
+					return te->getID();
+				}
+			}
+
 			LLUUID id;
 			LLViewerTexture* image = object->getTEImage(te_index);
 			if (image)
@@ -2476,7 +2496,6 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 
 			if (!id.isNull() && LLViewerMedia::textureHasMedia(id))
 			{
-				LLTextureEntry *te = object->getTE(te_index);
 				if (te)
 				{
 					LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_STANDARD) : NULL;

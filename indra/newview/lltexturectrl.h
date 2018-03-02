@@ -198,6 +198,8 @@ public:
 
 	LLViewerFetchedTexture* getTexture() { return mTexturep; }
 
+	void setBakeTextureEnabled(BOOL enabled) { mBakeTextureEnabled = enabled; }
+
 private:
 	BOOL allowDrop(LLInventoryItem* item);
 	BOOL doDrop(LLInventoryItem* item);
@@ -233,6 +235,7 @@ private:
 	BOOL					 	mShowLoadingPlaceholder;
 	std::string				 	mLoadingPlaceholderString;
 	S32						 	mLabelWidth;
+	BOOL						mBakeTextureEnabled;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -326,6 +329,7 @@ public:
 	static void		onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *userdata);
 
 	void 			setLocalTextureEnabled(BOOL enabled);
+	void 			setBakeTextureEnabled(BOOL enabled);
 
 protected:
 	LLPointer<LLViewerTexture> mTexturep;
@@ -366,6 +370,7 @@ private:
 	bool mCanApply;
 	bool mCanPreview;
 	bool mPreviewSettingChanged;
+
 
 	texture_selected_callback mTextureSelectedCallback;
 	floater_close_callback mOnFloaterCloseCallback;

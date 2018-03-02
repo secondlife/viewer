@@ -1647,6 +1647,15 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// * Can just apply the texture and be done with it.
 				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 			}
+
+			if (objectp->isAttachment())
+			{
+				LLVOAvatar* avatar = objectp->getAvatar();
+				if (avatar)
+				{
+					avatar->updateMeshVisibility();
+				}
+			}
 			return true;
 		}
 	};
@@ -1846,6 +1855,15 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					else
 					{
 						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+
+						if (object->isAttachment())
+						{
+							LLVOAvatar* avatar = object->getAvatar();
+							if (avatar)
+							{
+								avatar->updateMeshVisibility();
+							}
+						}
 					}
 				}
 			}

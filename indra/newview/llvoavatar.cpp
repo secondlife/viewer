@@ -2225,7 +2225,6 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 			result->setIsMissingAsset(false);
 		}
 		
-		result->setBakedTextureIndex(te);
 	}
 	return result;
 }
@@ -7198,6 +7197,83 @@ void LLVOAvatar::debugColorizeSubMeshes(U32 i, const LLColor4& color)
 	}
 }
 
+
+//-----------------------------------------------------------------------------
+// updateMeshVisibility()
+// Hide the mesh joints if attachments are using baked textures
+//-----------------------------------------------------------------------------
+void LLVOAvatar::updateMeshVisibility()
+{
+	bool bake_flag[BAKED_NUM_INDICES];
+	memset(bake_flag, 0, BAKED_NUM_INDICES*sizeof(bool));
+
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+		iter != mAttachmentPoints.end();
+		++iter)
+	{
+		LLViewerJointAttachment* attachment = iter->second;
+		if (attachment)
+		{
+			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+				attachment_iter != attachment->mAttachedObjects.end();
+				++attachment_iter)
+			{
+				LLViewerObject *objectp = (*attachment_iter);
+				if (objectp)
+				{
+					for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
+					{
+						LLTextureEntry* tex_entry = objectp->getTE(face_index);
+						bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
+						bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
+						bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
+						bake_flag[BAKED_LOWER] |= (tex_entry->getID() == IMG_USE_BAKED_LOWER);
+						bake_flag[BAKED_UPPER] |= (tex_entry->getID() == IMG_USE_BAKED_UPPER);
+						bake_flag[BAKED_SKIRT] |= (tex_entry->getID() == IMG_USE_BAKED_SKIRT);
+					}
+				}
+			}
+		}
+	}
+
+	for (S32 i = 0; i < mMeshLOD.size(); i++)
+	{
+		LLAvatarJoint* joint = mMeshLOD[i];
+		if (i == MESH_ID_HAIR && bake_flag[BAKED_HAIR])
+		{
+			joint->setVisible(!bake_flag[BAKED_HAIR], TRUE);
+		}
+		else if (i == MESH_ID_HEAD)
+		{
+			joint->setVisible(!bake_flag[BAKED_HEAD], TRUE);
+		}
+		else if (i == MESH_ID_SKIRT)
+		{
+			joint->setVisible(!bake_flag[BAKED_SKIRT], TRUE);
+		}
+		else if (i == MESH_ID_UPPER_BODY)
+		{
+			joint->setVisible(!bake_flag[BAKED_UPPER], TRUE);
+		}
+		else if (i == MESH_ID_LOWER_BODY)
+		{
+			joint->setVisible(!bake_flag[BAKED_LOWER], TRUE);
+		}
+		else if (i == MESH_ID_EYEBALL_LEFT)
+		{
+			joint->setVisible(!bake_flag[BAKED_EYES], TRUE);
+		}
+		else if (i == MESH_ID_EYEBALL_RIGHT)
+		{
+			joint->setVisible(!bake_flag[BAKED_EYES], TRUE);
+		}
+		else if (i == MESH_ID_EYELASH)
+		{
+			joint->setVisible(!bake_flag[BAKED_EYES], TRUE);
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // updateMeshTextures()
 // Uses the current TE values to set the meshes' and layersets' textures.
@@ -8217,22 +8293,17 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 				S8 face_index;
 				for (face_index = 0; face_index <= last_face_index; face_index++)
 				{
-					LLViewerTexture* viewer_texture = attached_object->getTEImage((U8)face_index);
-
-					if (viewer_texture && ( (viewer_texture->getType() == LLViewerTexture::FETCHED_TEXTURE) || (viewer_texture->getType() == LLViewerTexture::LOD_TEXTURE) ))
+					LLTextureEntry* texEntry = attached_object->getTE(face_index);
+					if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
 					{
-						LLViewerFetchedTexture* fetched_texture = dynamic_cast<LLViewerFetchedTexture*>(viewer_texture);
-						if (fetched_texture->getFTType() == FTT_SERVER_BAKE)
-						{
-							const LLUUID new_id = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::localTextureIndexToMagicId((LLAvatarAppearanceDefines::ETextureIndex)fetched_texture->getBakedTextureIndex());
-							attached_object->setTETexture(face_index, new_id);
-						}
-
+						attached_object->setTEImage(face_index, LLViewerTextureManager::getFetchedTexture(texEntry->getID(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 					}
 				}
 			}
 		}
 	}
+
+	updateMeshVisibility();
 }
 
 // static
