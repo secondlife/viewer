@@ -383,7 +383,7 @@ class LLVOSky : public LLStaticViewerObject
 public:
 	void calcAtmospherics(void);
 
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
 	LLColor3 createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
 	LLColor3 createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
 
@@ -403,7 +403,6 @@ public:
 	}
     void initSkyTextureDirs(const S32 side, const S32 tile);
 	void createSkyTexture(const S32 side, const S32 tile);
-#endif
 
 	enum
 	{

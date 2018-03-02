@@ -351,7 +351,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         // a parameter without first wrapping it in a pure LLSD object will result 
         // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
 
-#if SUPPORT_LEGACY_ATMOSPHERICS        
+// LEGACY_ATMOSPHERICS
         validation.push_back(Validator(SETTING_AMBIENT, true, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
@@ -372,8 +372,6 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
         validation.push_back(Validator(SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
-
-#endif
 
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray, 
@@ -497,7 +495,7 @@ LLSD LLSettingsSky::defaults()
     LLQuaternion moonquat = ~sunquat;
 
     // Magic constants copied form dfltsetting.xml 
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     dfltsetting[SETTING_AMBIENT]            = LLColor4::white.getValue();
     dfltsetting[SETTING_BLUE_DENSITY]       = LLColor4(0.2447, 0.4487, 0.7599, 0.0).getValue();
     dfltsetting[SETTING_BLUE_HORIZON]       = LLColor4(0.4954, 0.4954, 0.6399, 0.0).getValue();
@@ -505,7 +503,6 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(0.8000);
     dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
     dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
-#endif
 
     dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
@@ -554,7 +551,7 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
 
 // AdvancedAtmospherics TODO
 // These need to be translated into density profile info in the new settings format...
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     if (legacy.has(SETTING_AMBIENT))
     {
         newsettings[SETTING_AMBIENT] = LLColor3(legacy[SETTING_AMBIENT]).getValue();
@@ -583,7 +580,6 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
     }
-#endif
 
     if (!legacy.has(SETTING_RAYLEIGH_CONFIG))
     {
@@ -770,7 +766,7 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 void LLSettingsSky::calculateLightSettings()
 {
 
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     LLColor3 vary_HazeColor;
     LLColor3 vary_SunlightColor;
     LLColor3 vary_AmbientColor;
@@ -859,8 +855,6 @@ void LLSettingsSky::calculateLightSettings()
 
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(0);
-#endif
-
 }
 
 

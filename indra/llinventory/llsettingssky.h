@@ -31,8 +31,6 @@
 #include "llsettingsbase.h"
 #include "v4coloru.h"
 
-#define SUPPORT_LEGACY_ATMOSPHERICS 1
-
 class LLSettingsSky: public LLSettingsBase
 {
 public:
@@ -106,7 +104,7 @@ public:
     }
 
     //---------------------------------------------------------------------
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     LLColor3 getAmbientColor() const
     {
         return LLColor3(mSettings[SETTING_AMBIENT]);
@@ -176,7 +174,6 @@ public:
     {
         setValue(SETTING_HAZE_HORIZON, val);
     }
-#endif
 
     LLColor3 getCloudColor() const
     {

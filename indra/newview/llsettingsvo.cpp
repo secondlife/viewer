@@ -429,7 +429,7 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky)
     LLSD settings = psky->getSettings();
     
 // These will need to be inferred from new settings' density profiles
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     legacy[SETTING_AMBIENT] = ensureArray4(settings[SETTING_AMBIENT], 1.0f);
     legacy[SETTING_BLUE_DENSITY] = ensureArray4(settings[SETTING_BLUE_DENSITY], 1.0);
     legacy[SETTING_BLUE_HORIZON] = ensureArray4(settings[SETTING_BLUE_HORIZON], 1.0);
@@ -437,7 +437,6 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky)
     legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(settings[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
     legacy[SETTING_HAZE_DENSITY] = LLSDArray(settings[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
     legacy[SETTING_HAZE_HORIZON] = LLSDArray(settings[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
-#endif
 
     legacy[SETTING_CLOUD_COLOR] = ensureArray4(settings[SETTING_CLOUD_COLOR], 1.0);
     legacy[SETTING_CLOUD_POS_DENSITY1] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);
@@ -498,7 +497,7 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
 
     if (param_map.empty())
     {
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
         param_map[SETTING_AMBIENT] = LLShaderMgr::AMBIENT;
         param_map[SETTING_BLUE_DENSITY] = LLShaderMgr::BLUE_DENSITY;
         param_map[SETTING_BLUE_HORIZON] = LLShaderMgr::BLUE_HORIZON;
@@ -506,7 +505,6 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
         param_map[SETTING_HAZE_HORIZON] = LLShaderMgr::HAZE_HORIZON;
         param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
         param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
-#endif
 
         param_map[SETTING_CLOUD_COLOR] = LLShaderMgr::CLOUD_COLOR;
         param_map[SETTING_CLOUD_POS_DENSITY2] = LLShaderMgr::CLOUD_POS_DENSITY2;

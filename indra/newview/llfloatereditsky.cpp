@@ -152,7 +152,7 @@ void LLFloaterEditSky::initCallbacks(void)
 	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditSky::onRegionInfoUpdate, this));
 
 	//-------------------------------------------------------------------------
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     // ambient
     getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mAmbient));
 
@@ -166,7 +166,6 @@ void LLFloaterEditSky::initCallbacks(void)
     getChild<LLUICtrl>("WLDensityMult")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mDensityMult));
     getChild<LLUICtrl>("WLDistanceMult")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mDistanceMult));
     getChild<LLUICtrl>("WLMaxAltitude")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &mSkyAdapter->mMaxAlt));
-#endif
 
 	// sunlight
     getChild<LLUICtrl>("WLSunlight")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &mSkyAdapter->mSunlight));
@@ -221,7 +220,7 @@ void LLFloaterEditSky::syncControls()
     mSkyPresetNameEditor->setText(name);
     mSkyPresetCombo->setValue(name);
 
-#if SUPPORT_LEGACY_ATMOSPHERICS
+// LEGACY_ATMOSPHERICS
     // ambient
     mSkyAdapter->mAmbient.setColor3( psky->getAmbientColor() );
 	setColorSwatch("WLAmbient", mSkyAdapter->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
@@ -243,7 +242,6 @@ void LLFloaterEditSky::syncControls()
     mSkyAdapter->mDistanceMult = psky->getDistanceMultiplier();
 	childSetValue("WLDistanceMult", (F32) mSkyAdapter->mDistanceMult);
 	childSetValue("WLMaxAltitude", (F32) mSkyAdapter->mMaxAlt);
-#endif
 
 	// Lighting
 
