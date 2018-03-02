@@ -265,6 +265,8 @@ public:
 	void			updateVisualComplexity();
 	
 	U32				getVisualComplexity() const		{ return mVisualComplexity;	};		// Numbers calculated here by rendering AV
+    U32				getVisualComplexityArctan() const		{ return mVisualComplexityArctan;	};		// Numbers calculated here by rendering AV w/ Arctan adjustments
+
 	F32				getAttachmentSurfaceArea() const { return mAttachmentSurfaceArea; };		// estimated surface area of attachments
     void            addAttachmentArea(F32 delta_area);
     void            subtractAttachmentArea(F32 delta_area);

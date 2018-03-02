@@ -7088,6 +7088,31 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
             inst->mFrameDataStale = false;
         }
     }
+
+    LLSD extraFrameData;
+
+    LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
+    U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
+    U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
+    U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
+    U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
+
+    extraFrameData["DrawCalls"]          = (LLSD::Integer)drawcalls;
+    extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
+    extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
+    extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
+    extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
+    extraFrameData["VertexBufferMapped"] = (LLSD::Integer)LLVertexBuffer::sMappedCount;
+    extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)LLVertexBuffer::sBindCount;
+    extraFrameData["VertexBufferSets"]   = (LLSD::Integer)LLVertexBuffer::sSetCount;
+    extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
+    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+    extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
+    extraFrameData["TexMatrixOps"]          = (LLSD::Integer)gPipeline.mTextureMatrixOps;
+
+    result["ExtraFrameData"] = extraFrameData;
 	return result;
 }
 
@@ -7100,6 +7125,7 @@ LLSD LLVOAvatar::getFrameData() const
 	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
     av_sd["RezStatus"] = (LLSD::String) viz_string;
     av_sd["ARCCalculated"] = (LLSD::Integer) getVisualComplexity();
+    av_sd["ARCCalculated2"] = (LLSD::Integer) getVisualComplexityArctan();
     av_sd["ARCReported"] = (LLSD::Integer) getReportedVisualComplexity();
     av_sd["AttachmentSurfaceArea"] = (LLSD::Real) getAttachmentSurfaceArea();
     if (isSelf())
@@ -9711,17 +9737,6 @@ void LLVOAvatar::calculateUpdateRenderComplexity_()
                                       << LL_ENDL;
         }
 		mVisualComplexityArctan = cost;
-
-        /*static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
-
-        if (isSelf() && show_my_complexity_changes)
-        {
-            // Avatar complexity
-            LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-
-            // HUD complexity
-            LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
-        }*/
     }
 }
 

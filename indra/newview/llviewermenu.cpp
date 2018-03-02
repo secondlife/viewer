@@ -801,23 +801,31 @@ class LLAdvancedToggleRenderType : public view_listener_t
 	}
 };
 
+class LLAdvancedToggleWorldRenderTypes : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        LLPipeline::toggleWorldRenderTypes();
+		return true;
+	}
+};
+
 
 class LLAdvancedCheckRenderType : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		U32 render_type = render_type_from_string( userdata.asString() );
-		bool new_value = false;
-
-		if ( render_type != 0 )
-		{
-			new_value = LLPipeline::hasRenderTypeControl( render_type );
-		}
-
-		return new_value;
+        return LLPipeline::checkWorldRenderTypes();
 	}
 };
 
+class LLAdvancedCheckWorldRenderTypes : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLPipeline::checkWorldRenderTypes();
+	}
+};
 
 /////////////
 // FEATURE //
@@ -8881,6 +8889,8 @@ void initialize_menus()
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
 	view_listener_t::addMenu(new LLAdvancedCheckRenderType(), "Advanced.CheckRenderType");
+    view_listener_t::addMenu(new LLAdvancedToggleWorldRenderTypes(), "Advanced.ToggleWorldRenderTypes");
+    view_listener_t::addMenu(new LLAdvancedCheckWorldRenderTypes(), "Advanced.CheckWorldRenderTypes");
 
 	//// Advanced > Render > Features
 	view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");

@@ -116,6 +116,8 @@
 #include "llprogressview.h"
 #include "llcleanup.h"
 
+#pragma optimize("", off)
+
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
 //#define DEBUG_INDICES
@@ -522,12 +524,6 @@ void LLPipeline::init()
 	else
 	{
 		setAllRenderTypes(); // By default, all rendering types start enabled
-		// Don't turn on ground when this is set
-		// Mac Books with intel 950s need this
-		if(!gSavedSettings.getBOOL("RenderGround"))
-		{
-			toggleRenderType(RENDER_TYPE_GROUND);
-		}
 	}
 
 	// make sure RenderPerformanceTest persists (hackity hack hack)
@@ -6813,6 +6809,56 @@ void LLPipeline::toggleRenderType(U32 type)
 	{
 		gPipeline.mRenderTypeEnabled[LLPipeline::RENDER_TYPE_VOIDWATER] = !gPipeline.mRenderTypeEnabled[LLPipeline::RENDER_TYPE_VOIDWATER];
 	}
+}
+
+//static
+void LLPipeline::toggleWorldRenderTypes()
+{
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_WATER);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_VOIDWATER);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_GROUND);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_TERRAIN);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_GRASS);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_TREE);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_SKY);
+    LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_WL_SKY);    
+}
+
+bool LLPipeline::checkWorldRenderTypes()
+{
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GROUND))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GRASS))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TREE))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
+    {
+        return true;
+    }
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WL_SKY))
+    {
+        return true;
+    }
+    return false;
 }
 
 //static

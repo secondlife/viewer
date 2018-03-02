@@ -690,11 +690,12 @@ public:
 				avatar->calculateUpdateRenderComplexity(); // Make sure the numbers are up-to-date
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
-				addText(xpos, ypos, llformat("%s : %s, complexity %d, area %.2f",
+				addText(xpos, ypos, llformat("%s : %s, complexity %d, area %.2f -- %d",
 					trunc_name.c_str(),
                     LLVOAvatar::rezStatusToString(avatar->getRezzedStatus()).c_str(),
 					avatar->getVisualComplexity(),
-					avatar->getAttachmentSurfaceArea()));
+					avatar->getAttachmentSurfaceArea(),
+                    avatar->getVisualComplexityArctan()));
 				ypos += y_inc;
 				av_iter++;
 			}
