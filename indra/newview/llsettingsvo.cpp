@@ -331,13 +331,15 @@ LLSettingsBase::ptr_t LLSettingsVOBase::importFile(const std::string &filename)
 
 
 //=========================================================================
-LLSettingsVOSky::LLSettingsVOSky(const LLSD &data):
-    LLSettingsSky(data)
+LLSettingsVOSky::LLSettingsVOSky(const LLSD &data, bool isAdvanced)
+: LLSettingsSky(data)
+, m_isAdvanced(isAdvanced)
 {
 }
 
-LLSettingsVOSky::LLSettingsVOSky():
-    LLSettingsSky()
+LLSettingsVOSky::LLSettingsVOSky()
+: LLSettingsSky()
+, m_isAdvanced(false)
 {
 }
 
@@ -354,7 +356,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildSky(LLSD settings)
         LLSettingsSky::ptr_t();
     }
 
-    return std::make_shared<LLSettingsVOSky>(settings);
+    return std::make_shared<LLSettingsVOSky>(settings, true);
 }
 
 
@@ -376,7 +378,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
-    LLSD oldsettings = LLSettingsVOSky::convertToLegacy(skyp);
+    LLSD oldsettings = LLSettingsVOSky::convertToLegacy(skyp, isAdvanced());
 
     if (!llsd_equals(legacy, oldsettings))
     {
@@ -423,7 +425,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
     return skyp;
 }
 
-LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky)
+LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isAdvanced)
 {
     LLSD legacy(LLSD::emptyMap());
     LLSD settings = psky->getSettings();
@@ -940,7 +942,7 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
     
     for (std::map<std::string, LLSettingsSky::ptr_t>::iterator its = skys.begin(); its != skys.end(); ++its)
     {
-        LLSD llsdsky = LLSettingsVOSky::convertToLegacy((*its).second);
+        LLSD llsdsky = LLSettingsVOSky::convertToLegacy((*its).second, false);
         llsdsky[SETTING_NAME] = (*its).first;
         
         llsdskylist[(*its).first] = llsdsky;

@@ -354,6 +354,60 @@ private:
     std::string mName;
 };
 
+class LLDensityProfileSettingsAdapter
+{
+public:
+    LLDensityProfileSettingsAdapter(const std::string& config, int layerIndex = 0)
+    : mConfig(config)
+    , mLayerIndex(layerIndex)
+    , mLayerWidth(1.0f, LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH)
+    , mExpTerm(1.0f, LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM)
+    , mExpScale(1.0f, LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR)
+    , mLinTerm(1.0f, LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM)
+    , mConstantTerm(1.0f, LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM)
+    {}
+
+protected:
+    std::string     mConfig;
+    int             mLayerIndex;
+    WLFloatControl  mLayerWidth; // 0.0 -> to top of atmosphere, however big that may be.
+    WLFloatControl  mExpTerm;
+    WLFloatControl  mExpScale;
+    WLFloatControl  mLinTerm;
+    WLFloatControl  mConstantTerm;
+};
+
+class LLRayleighDensityProfileSettingsAdapter : public LLDensityProfileSettingsAdapter
+{
+public:
+    LLRayleighDensityProfileSettingsAdapter(int layerIndex = 0)
+    : LLDensityProfileSettingsAdapter(LLSettingsSky::SETTING_RAYLEIGH_CONFIG, layerIndex)
+    {
+    }
+};
+
+class LLMieDensityProfileSettingsAdapter : public LLDensityProfileSettingsAdapter
+{
+public:
+    LLMieDensityProfileSettingsAdapter(int layerIndex = 0)
+    : LLDensityProfileSettingsAdapter(LLSettingsSky::SETTING_MIE_CONFIG, layerIndex)
+    , mAnisotropy(0.8f, LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR)
+    {
+    }
+
+protected:
+    WLFloatControl  mAnisotropy;
+};
+
+class LLAbsorptionDensityProfileSettingsAdapter : public LLDensityProfileSettingsAdapter
+{
+public:
+    LLAbsorptionDensityProfileSettingsAdapter(int layerIndex = 0)
+    : LLDensityProfileSettingsAdapter(LLSettingsSky::SETTING_ABSORPTION_CONFIG, layerIndex)
+    {
+    }
+};
+
 //-------------------------------------------------------------------------
 class LLSkySettingsAdapter
 {

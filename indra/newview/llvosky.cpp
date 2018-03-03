@@ -665,8 +665,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	LLColor3 light_atten =
-		(blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
+	LLColor3 light_atten = (blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
 
 	// Calculate relative weights
 	LLColor3 temp2(0.f, 0.f, 0.f);
@@ -704,9 +703,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 
 
 	// Haze color above cloud
-	vary_HazeColor = (blue_horizon * blue_weight * (sunlight + ambient)
-				+ componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + ambient)
-			 );	
+	vary_HazeColor = (blue_horizon * blue_weight * (sunlight + ambient) + componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + ambient));	
 
 	// Increase ambient when there are more clouds
 	LLColor3 tmpAmbient = ambient + (LLColor3::white - ambient) * cloud_shadow * 0.5f;
@@ -715,9 +712,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 	sunlight *= (1.f - cloud_shadow);
 
 	// Haze color below cloud
-	LLColor3 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient)
-				+ componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + tmpAmbient)
-			 );	
+	LLColor3 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient) + componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + tmpAmbient));	
 
 	// Final atmosphere additive
 	componentMultBy(vary_HazeColor, LLColor3::white - temp1);
@@ -731,8 +726,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 	temp1 = componentSqrt(temp1);	//less atmos opacity (more transparency) below clouds
 
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
-	vary_HazeColor +=
-		componentMult(additiveColorBelowCloud - vary_HazeColor, LLColor3::white - componentSqrt(temp1));
+	vary_HazeColor += componentMult(additiveColorBelowCloud - vary_HazeColor, LLColor3::white - componentSqrt(temp1));
 		
 	if (Pn[1] < 0.f)
 	{

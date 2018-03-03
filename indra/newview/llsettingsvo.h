@@ -79,7 +79,7 @@ private:
 class LLSettingsVOSky : public LLSettingsSky
 {
 public:
-    LLSettingsVOSky(const LLSD &data);
+    LLSettingsVOSky(const LLSD &data, bool advanced = false);
 
     static ptr_t    buildSky(LLSD settings);
 
@@ -87,7 +87,10 @@ public:
     static ptr_t    buildDefaultSky();
     virtual ptr_t   buildClone() override;
 
-    static LLSD     convertToLegacy(const ptr_t &);
+    static LLSD     convertToLegacy(const ptr_t &, bool isAdvanced);
+
+    bool isAdvanced() const { return  m_isAdvanced; }
+
 protected:
     LLSettingsVOSky();
 
@@ -97,6 +100,7 @@ protected:
 
     virtual parammapping_t getParameterMap() const override;
 
+    bool m_isAdvanced = false;
 };
 
 //=========================================================================

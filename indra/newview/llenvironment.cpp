@@ -1157,7 +1157,15 @@ void LLEnvironment::legacyLoadAllPresets()
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
                 LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
-                LLEnvironment::instance().addDayCycle(day);
+                if (day->validate())
+                {
+                    LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
+                    LLEnvironment::instance().addDayCycle(day);
+                }
+                else
+                {
+                    LL_WARNS() << "Day Cycle " << name << " was not valid. Ignoring." << LL_ENDL;
+                }
 
 #ifdef EXPORT_PRESETS
                 std::string exportfile = LLURI::escape(name) + "(new).xml";

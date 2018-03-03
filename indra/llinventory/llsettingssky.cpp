@@ -32,6 +32,8 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#pragma optimize("", off)
+
 //=========================================================================
 namespace
 {
@@ -190,9 +192,20 @@ bool validateRayleighLayers(LLSD &value)
         for (LLSD::array_iterator itf = value.beginArray(); itf != value.endArray(); ++itf)
         {
             LLSD& layerConfig = (*itf);
-            if (!validateRayleighLayers(layerConfig))
+            if (layerConfig.type() == LLSD::Type::TypeMap)
             {
-                allGood = false;
+                if (!validateRayleighLayers(layerConfig))
+                {
+                    allGood = false;
+                }
+            }
+            else if (layerConfig.type() == LLSD::Type::TypeArray)
+            {
+                return validateRayleighLayers(layerConfig);
+            }
+            else
+            {
+                return LLSettingsBase::settingValidation(value, rayleighValidations);
             }
         }
         return allGood;
@@ -221,9 +234,20 @@ bool validateAbsorptionLayers(LLSD &value)
         for (LLSD::array_iterator itf = value.beginArray(); itf != value.endArray(); ++itf)
         {
             LLSD& layerConfig = (*itf);
-            if (!validateAbsorptionLayers(layerConfig))
+            if (layerConfig.type() == LLSD::Type::TypeMap)
             {
-                allGood = false;
+                if (!validateAbsorptionLayers(layerConfig))
+                {
+                    allGood = false;
+                }
+            }
+            else if (layerConfig.type() == LLSD::Type::TypeArray)
+            {
+                return validateAbsorptionLayers(layerConfig);
+            }
+            else
+            {
+                return LLSettingsBase::settingValidation(value, absorptionValidations);
             }
         }
         return allGood;
@@ -252,9 +276,20 @@ bool validateMieLayers(LLSD &value)
         for (LLSD::array_iterator itf = value.beginArray(); itf != value.endArray(); ++itf)
         {
             LLSD& layerConfig = (*itf);
-            if (!validateMieLayers(layerConfig))
+            if (layerConfig.type() == LLSD::Type::TypeMap)
             {
-                allGood = false;
+                if (!validateMieLayers(layerConfig))
+                {
+                    allGood = false;
+                }
+            }
+            else if (layerConfig.type() == LLSD::Type::TypeArray)
+            {
+                return validateMieLayers(layerConfig);
+            }
+            else
+            {
+                return LLSettingsBase::settingValidation(value, mieValidations);
             }
         }
         return allGood;
@@ -779,6 +814,7 @@ void LLSettingsSky::calculateLightSettings()
         LLColor3    blue_horizon = getBlueHorizon();
         F32         haze_density = getHazeDensity();
         F32         haze_horizon = getHazeHorizon();
+
         F32         density_multiplier = getDensityMultiplier();
         F32         max_y = getMaxY();
         F32         cloud_shadow = getCloudShadow();
@@ -786,8 +822,7 @@ void LLSettingsSky::calculateLightSettings()
 
         // Sunlight attenuation effect (hue and brightness) due to atmosphere
         // this is used later for sunlight modulation at various altitudes
-        LLColor3 light_atten =
-            (blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
+        LLColor3 light_atten = (blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
 
         // Calculate relative weights
         LLColor3 temp2(0.f, 0.f, 0.f);
