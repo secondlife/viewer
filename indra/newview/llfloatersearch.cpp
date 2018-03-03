@@ -100,6 +100,7 @@ LLFloaterSearch::LLFloaterSearch(const Params& key) :
 	mCategoryPaths["events"]       = "search/events";
 	mCategoryPaths["groups"]       = "search/groups";
 	mCategoryPaths["wiki"]         = "search/wiki";
+	mCategoryPaths["land"]         = "land";
 	mCategoryPaths["destinations"] = "destinations";
 	mCategoryPaths["classifieds"]  = "classifieds";
 }

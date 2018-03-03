@@ -205,7 +205,7 @@ void LLInspectGroup::nameUpdatedCallback(
 {
 	if (id == mGroupID)
 	{
-		getChild<LLUICtrl>("group_name")->setValue( LLSD(name) );
+		getChild<LLUICtrl>("group_name")->setValue(LLSD("<nolink>" + name + "</nolink>"));
 	}
 	
 	// Otherwise possibly a request for an older inspector, ignore it

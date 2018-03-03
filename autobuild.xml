@@ -1692,7 +1692,7 @@
           <key>darwin</key>
           <map>
             <key>archive</key>
-            <map>              
+            <map>
               <key>hash</key>
               <string>f7e439bce290629ba1c3142c64828dea</string>
               <key>url</key>
@@ -1705,7 +1705,7 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>              
+              <key>hash</key>
               <string>348da9aaf4f1f139229f2002b8711591</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14311/90624/kdu-7.A.3.512987-darwin64-512987.tar.bz2</string>
@@ -1717,7 +1717,7 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>              
+              <key>hash</key>
               <string>c5d4a4408860e3ecfd638d018736085e</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14309/90633/kdu-7.A.3.512987-linux-512987.tar.bz2</string>
@@ -1752,7 +1752,7 @@
           <key>windows64</key>
           <map>
             <key>archive</key>
-            <map>              
+            <map>
               <key>hash</key>
               <string>d891baa6da8033c2229502301b10beca</string>
               <key>url</key>
@@ -1763,7 +1763,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>7.A.3.512747</string>
+        <string>7.A.3.512987</string>
       </map>
       <key>libhunspell</key>
       <map>
@@ -3260,9 +3260,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c4d56d3e942169661a598035a9fbd533</string>
+              <string>f1248b6692dcbb1a42db87ca8d9fed93</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12112/71187/viewer_manager-1.0.511688-darwin64-511688.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13982/87166/viewer_manager-1.0.512801-darwin64-512801.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3284,9 +3284,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>61f324d880eaa303669b99e28e6cf64c</string>
+              <string>c174ecc0893f8c193571b1dc80b823ad</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12113/71193/viewer_manager-1.0.511688-windows-511688.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13983/87172/viewer_manager-1.0.512801-windows-512801.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3297,7 +3297,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.511688</string>
+        <string>1.0.512801</string>
       </map>
       <key>vlc-bin</key>
       <map>

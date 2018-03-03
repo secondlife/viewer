@@ -59,7 +59,7 @@ public:
 
 	void setParent( LLFloaterMediaSettings* parent );
 	static void initValues( void* userdata, const LLSD& media_settings ,bool editable);
-	static void clearValues( void* userdata, bool editable);
+	static void clearValues( void* userdata, bool editable, bool update_preview = true);
 	
 	// Navigates the current selected face to the Home URL.
 	// If 'only_if_current_is_empty' is "true", it only performs
