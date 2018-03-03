@@ -374,8 +374,6 @@ void LLGLSLShader::unloadInternal()
     stop_glerror();
 }
 
-#pragma optimize("", off)
-
 BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
                                 std::vector<LLStaticHashedString> * uniforms,
                                 U32 varying_count,
@@ -491,8 +489,6 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 
     return success;
 }
-
-#pragma optimize("", on)
 
 BOOL LLGLSLShader::attachObject(std::string object)
 {

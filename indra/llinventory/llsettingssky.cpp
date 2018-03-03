@@ -32,8 +32,6 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
-#pragma optimize("", off)
-
 //=========================================================================
 namespace
 {

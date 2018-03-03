@@ -3288,8 +3288,6 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 	return TRUE;
 }
 
-#pragma optimize("", off)
-
 BOOL LLViewerShaderMgr::loadShadersWindLight()
 {
 	BOOL success = TRUE;
@@ -3359,9 +3357,6 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 
 	return success;
 }
-
-#pragma optimize("", on)
-
 
 BOOL LLViewerShaderMgr::loadTransformShaders()
 {
