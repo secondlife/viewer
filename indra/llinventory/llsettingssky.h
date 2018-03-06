@@ -90,7 +90,7 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const override { return std::string("sky"); }
-    virtual LLSettingsType getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
+    virtual LLSettingsType::type_e getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
 
 
     // Settings status 
@@ -104,7 +104,6 @@ public:
     }
 
     //---------------------------------------------------------------------
-// LEGACY_ATMOSPHERICS
     LLColor3 getAmbientColor() const
     {
         return LLColor3(mSettings[SETTING_AMBIENT]);
@@ -433,7 +432,7 @@ public:
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
-    static LLSD translateLegacySettings(LLSD legacy);
+    static LLSD     translateLegacySettings(LLSD legacy);
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;

@@ -1410,6 +1410,14 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			//LL_WARNS() << LLAssetType::lookup(asset_type) << " asset type is unhandled for uuid " << uuid << LL_ENDL;
 			break;
 
+        case LLAssetType::AT_SETTINGS:
+            if (inv_type != LLInventoryType::IT_SETTINGS)
+            {
+                LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
+            }
+            new_listener = new LLSettingsBridge(inventory, root, uuid, LLSettingsType::fromInventoryFlags(flags));
+            break;
+
 		default:
 			LL_INFOS() << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
@@ -6837,6 +6845,48 @@ void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
+// +=================================================+
+// |        LLSettingsBridge                             |
+// +=================================================+
+
+LLSettingsBridge::LLSettingsBridge(LLInventoryPanel* inventory,
+        LLFolderView* root,
+        const LLUUID& uuid,
+        LLSettingsType::type_e settings_type):
+    LLItemBridge(inventory, root, uuid),
+    mSettingsType(settings_type)
+{
+}
+
+LLUIImagePtr LLSettingsBridge::getIcon() const
+{
+    return LLInventoryIcon::getIcon(LLAssetType::AT_SETTINGS, LLInventoryType::IT_SETTINGS, mSettingsType, FALSE);
+}
+
+void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action)
+{
+    LLItemBridge::performAction(model, action);
+}
+
+void LLSettingsBridge::openItem()
+{
+    LLItemBridge::openItem();
+}
+
+void LLSettingsBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    LLItemBridge::buildContextMenu(menu, flags);
+}
+
+std::string LLSettingsBridge::getLabelSuffix() const
+{
+    return LLItemBridge::getLabelSuffix();
+}
+
+BOOL LLSettingsBridge::renameItem(const std::string& new_name)
+{
+    return LLItemBridge::renameItem(new_name);
+}
 
 // +=================================================+
 // |        LLLinkBridge                             |

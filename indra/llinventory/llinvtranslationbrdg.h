@@ -1,11 +1,10 @@
 /**
-* @file llinventorysettings.h
-* @author optional
-* @brief A base class for asset based settings groups.
+* @file llinvtranslationbrdg.h
+* @brief Translation adapter for inventory.
 *
-* $LicenseInfo:2011&license=viewerlgpl$
+* $LicenseInfo:firstyear=2002&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2017, Linden Research, Inc.
+* Copyright (C) 2010, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -25,31 +24,18 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_INVENTORY_SETTINGS_H
-#define LL_INVENTORY_SETTINGS_H
+#ifndef LL_TRANSLATIONBRDG_H
+#define LL_TRANSLATIONBRDG_H
 
-#include "llinventorytype.h"
-#include "llinvtranslationbrdg.h"
-
-class LLSettingsType
+class LLTranslationBridge
 {
 public:
-    enum type_e
-    {
-        ST_SKY = 0,
-        ST_WATER = 1,
-        ST_DAYCYCLE = 2,
+    typedef std::shared_ptr<LLTranslationBridge>    ptr_t;
 
-        ST_INVALID = 255,
-        ST_NONE = -1
-    };
+    // clang needs this to be happy
+    virtual ~LLTranslationBridge() {}
 
-    static type_e fromInventoryFlags(U32 flags);
-    static LLInventoryType::EIconName getIconName(type_e type);
-
-    static void initClass(LLTranslationBridge::ptr_t &trans);
-    static void cleanupClass();
+    virtual std::string getString(const std::string &xml_desc) = 0;
 };
-
 
 #endif

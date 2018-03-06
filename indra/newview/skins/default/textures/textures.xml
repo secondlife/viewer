@@ -323,6 +323,12 @@ with the same filename but different name
   <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
   <texture name="Inv_Link" file_name="icons/Inv_Link.png" preload="false" />
+
+  <texture name="Inv_Settings" file_name="icons/Inv_Settings.png" preload="false" />
+  <texture name="Inv_SettingsSky" file_name="icons/Inv_SettingsSky.png" preload="false" />
+  <texture name="Inv_SettingsWater" file_name="icons/Inv_SettingsWater.png" preload="false" />
+  <texture name="Inv_SettingsDay" file_name="icons/Inv_SettingsDay.png" preload="false" />
+
   <texture name="Inv_Invalid" file_name="icons/Inv_Invalid.png" preload="false" />
   <texture name="Inv_VersionFolderClosed" file_name="icons/Inv_VersionFolderClosed.png" preload="false" />
   <texture name="Inv_VersionFolderOpen" file_name="icons/Inv_VersionFolderOpen.png" preload="false" />

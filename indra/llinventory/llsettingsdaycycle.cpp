@@ -127,6 +127,8 @@ LLSD LLSettingsDay::getSettings() const
     if (mSettings.has(SETTING_ID))
         settings[SETTING_ID] = mSettings[SETTING_ID];
 
+    settings[SETTING_TYPE] = getSettingType();
+
     std::map<std::string, LLSettingsBase::ptr_t> in_use;
 
     LLSD tracks(LLSD::emptyArray());

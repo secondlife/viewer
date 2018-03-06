@@ -72,7 +72,7 @@ public:
 
     virtual ptr_t               buildClone() = 0;
     virtual LLSD                getSettings() const override;
-    virtual LLSettingsType      getSettingTypeValue() const override { return LLSettingsType::ST_DAYCYCLE; }
+    virtual LLSettingsType::type_e  getSettingTypeValue() const override { return LLSettingsType::ST_DAYCYCLE; }
 
 
     //---------------------------------------------------------------------

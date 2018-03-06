@@ -68,7 +68,7 @@ public:
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const = 0;
 
-    virtual LLSettingsType getSettingTypeValue() const = 0;
+    virtual LLSettingsType::type_e getSettingTypeValue() const = 0;
 
     //---------------------------------------------------------------------
     // Settings status 
@@ -149,16 +149,16 @@ public:
     // Note this method is marked const but may modify the settings object.
     // (note the internal const cast).  This is so that it may be called without
     // special consideration from getters.
-    inline void update() const
+    inline void     update() const
     {
         if (!mDirty)
             return;
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
 
-    virtual void blend(const ptr_t &end, F64 blendf) = 0;
+    virtual void    blend(const ptr_t &end, F64 blendf) = 0;
 
-    virtual bool validate();
+    virtual bool    validate();
 
     class Validator
     {
@@ -231,16 +231,16 @@ protected:
 
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 
-    LLSD    mSettings;
-    bool    mIsValid;
+    LLSD        mSettings;
+    bool        mIsValid;
     LLAssetID   mAssetID;
 
-    LLSD    cloneSettings() const;
+    LLSD        cloneSettings() const;
 
 private:
-    bool    mDirty;
+    bool        mDirty;
 
-    LLSD    combineSDMaps(const LLSD &first, const LLSD &other) const;
+    LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
 
 };
 

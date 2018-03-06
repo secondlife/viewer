@@ -29,17 +29,17 @@
 #include "llinventorytype.h"
 #include "llinventorydefines.h"
 
-static LLTranslationBridge* sTrans = NULL;
+static LLTranslationBridge::ptr_t sTrans = NULL;
 
 // static
-void LLWearableType::initClass(LLTranslationBridge* trans)
+void LLWearableType::initClass(LLTranslationBridge::ptr_t &trans)
 {
 	sTrans = trans;
 }
 
 void LLWearableType::cleanupClass()
 {
-	delete sTrans;
+	sTrans.reset();
 }
 
 struct WearableEntry : public LLDictionaryEntry
@@ -172,6 +172,6 @@ BOOL LLWearableType::getAllowMultiwear(LLWearableType::EType type)
 // static
 LLWearableType::EType LLWearableType::inventoryFlagsToWearableType(U32 flags)
 {
-    return  (LLWearableType::EType)(flags & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+    return  (LLWearableType::EType)(flags & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK);
 }
 
