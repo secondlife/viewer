@@ -50,7 +50,7 @@ public:
     LLGLTexture* getScattering() const;
     LLGLTexture* getMieScattering() const;
 
-    GLuint getAtmosphericShaderForLink() const;
+    GLhandleARB getAtmosphericShaderForLink() const;
 
 protected:    
     LLAtmosphere(const LLAtmosphere& rhs)

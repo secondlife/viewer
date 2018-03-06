@@ -215,7 +215,7 @@ LLGLTexture* LLAtmosphere::getMieScattering() const
     return m_mie_scattering;
 }
 
-GLuint LLAtmosphere::getAtmosphericShaderForLink() const
+GLhandleARB LLAtmosphere::getAtmosphericShaderForLink() const
 {
     return m_model ? m_model->GetShader() : 0;
 }
