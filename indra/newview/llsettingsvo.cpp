@@ -451,7 +451,6 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     LLSD legacy(LLSD::emptyMap());
     LLSD settings = psky->getSettings();
     
-// LEGACY_ATMOSPHERICS
     convertAtmosphericsToLegacy(legacy, settings);
 
     legacy[SETTING_CLOUD_COLOR] = ensureArray4(settings[SETTING_CLOUD_COLOR], 1.0);

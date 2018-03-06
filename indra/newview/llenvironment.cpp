@@ -1143,7 +1143,7 @@ void LLEnvironment::legacyLoadAllPresets()
         }
     }
 
-    // System water
+    // System Days
     {
         dir = getSysDir("days");
         LLDirIterator dir_iter(dir, "*.xml");
@@ -1157,7 +1157,7 @@ void LLEnvironment::legacyLoadAllPresets()
                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
 
                 LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
-                if (day->validate())
+                /*if (day->validate())
                 {
                     LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
                     LLEnvironment::instance().addDayCycle(day);
@@ -1165,8 +1165,9 @@ void LLEnvironment::legacyLoadAllPresets()
                 else
                 {
                     LL_WARNS() << "Day Cycle " << name << " was not valid. Ignoring." << LL_ENDL;
-                }
-
+                }*/
+                LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
+                LLEnvironment::instance().addDayCycle(day);
 #ifdef EXPORT_PRESETS
                 std::string exportfile = LLURI::escape(name) + "(new).xml";
                 std::string exportpath = gDirUtilp->add(getSysDir("new"), exportfile);
@@ -1182,7 +1183,7 @@ void LLEnvironment::legacyLoadAllPresets()
         }
     }
 
-    // User water
+    // User Days
     {
         dir = getUserDir("days");
         LLDirIterator dir_iter(dir, "*.xml");
