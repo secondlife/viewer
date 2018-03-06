@@ -73,7 +73,7 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const override { return std::string("sky"); }
-    virtual LLSettingsType getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
+    virtual LLSettingsType::type_e getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
 
 
     // Settings status 

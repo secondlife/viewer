@@ -203,7 +203,6 @@ bool LLInventoryType::cannotRestrictPermissions(LLInventoryType::EType type)
 	{
 		case IT_CALLINGCARD:
 		case IT_LANDMARK:
-        case IT_SETTINGS:
 			return true;
 		default:
 			return false;

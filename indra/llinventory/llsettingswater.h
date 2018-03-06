@@ -58,7 +58,7 @@ public:
 
     //---------------------------------------------------------------------
     virtual std::string     getSettingType() const override { return std::string("water"); }
-    virtual LLSettingsType  getSettingTypeValue() const override { return LLSettingsType::ST_WATER; }
+    virtual LLSettingsType::type_e  getSettingTypeValue() const override { return LLSettingsType::ST_WATER; }
 
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;

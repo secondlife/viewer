@@ -48,6 +48,7 @@ public:
 
 protected:
 	static LLInventoryType::EIconName assignWearableIcon(U32 misc_flag);
+    static LLInventoryType::EIconName assignSettingsIcon(U32 misc_flag);
 };
 #endif // LL_LLINVENTORYICON_H
 

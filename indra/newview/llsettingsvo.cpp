@@ -1,5 +1,5 @@
 /**
-* @file llsettingsvo.cpp
+* @file llvo.cpp
 * @author Rider Linden
 * @brief Subclasses for viewer specific settings behaviors.
 *
@@ -167,7 +167,7 @@ void LLSettingsVOBase::onSaveNewAssetComplete(const LLUUID& new_asset_id, const 
 void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings)
 {
     LLTransactionID tid;
-    LLUUID          parentFolder = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+    LLUUID          parentFolder; //= gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
     U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
 
     tid.generate();
@@ -237,6 +237,9 @@ void LLSettingsVOBase::uploadSettingsAsset(const LLSettingsBase::ptr_t &settings
 
     std::stringstream buffer;
     LLSD settingdata(settings->getSettings());
+
+    LL_WARNS("LAPRAS") << "Sending '" << settingdata << "' for asset." << LL_ENDL;
+
     LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
 
     LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(object_id, inv_item_id, LLAssetType::AT_SETTINGS, buffer.str(),
@@ -765,7 +768,6 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
         return LLSettingsDay::ptr_t();
     }
 
-
     LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(newsettings);
 
 #ifdef VERIFY_LEGACY_CONVERSION
@@ -820,7 +822,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     LLSD newsettings = LLSDMap
         ( SETTING_NAME, "Region (legacy)" )
         ( SETTING_TRACKS, LLSDArray(watertrack)(skytrack))
-        ( SETTING_FRAMES, frames );
+        ( SETTING_FRAMES, frames )
+        ( SETTING_TYPE, "daycycle" );
 
     LL_WARNS("LAPRAS") << "newsettings=" << newsettings << LL_ENDL;
 

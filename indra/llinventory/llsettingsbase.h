@@ -68,7 +68,7 @@ public:
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const = 0;
 
-    virtual LLSettingsType getSettingTypeValue() const = 0;
+    virtual LLSettingsType::type_e getSettingTypeValue() const = 0;
 
     //---------------------------------------------------------------------
     // Settings status 

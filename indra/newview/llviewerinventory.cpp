@@ -1166,7 +1166,7 @@ void create_inventory_settings(const LLUUID& agent_id, const LLUUID& session_id,
     const LLUUID& parent, const LLTransactionID& transaction_id,
     const std::string& name,
     const std::string& desc, 
-    LLSettingsType settype,
+    LLSettingsType::type_e settype,
     U32 next_owner_perm,
     LLPointer<LLInventoryCallback> cb)
 {

@@ -23,6 +23,7 @@ set(llinventory_SOURCE_FILES
     llfoldertype.cpp
     llinventory.cpp
     llinventorydefines.cpp
+    llinventorysettings.cpp
     llinventorytype.cpp
     lllandmark.cpp
     llnotecard.cpp
@@ -47,6 +48,7 @@ set(llinventory_HEADER_FILES
     llinventorydefines.h
     llinventorysettings.h
     llinventorytype.h
+    llinvtranslationbrdg.h
     lllandmark.h
     llnotecard.h
     llparcel.h
