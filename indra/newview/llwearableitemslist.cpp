@@ -645,7 +645,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 		setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
 	}
 	mWornIndicationEnabled = p.worn_indication_enabled;
-	setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	setNoItemsCommentText(LLTrans::getString("NoneFound"));
 }
 
 // virtual

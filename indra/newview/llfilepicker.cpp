@@ -341,7 +341,7 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 					dirname = filename + "\\";
 				else
 					mFiles.push_back(dirname + filename);
-				tptrw += filename.size();
+				tptrw += wcslen(tptrw);
 			}
 		}
 	}
