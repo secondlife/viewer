@@ -66,7 +66,7 @@ class LLSettingsDictionary : public LLSingleton<LLSettingsDictionary>,
 {
     LLSINGLETON(LLSettingsDictionary);
 
-    void initSingleton() override;
+    void initSingleton();
 };
 
 LLSettingsDictionary::LLSettingsDictionary() 
