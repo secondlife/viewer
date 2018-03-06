@@ -718,6 +718,7 @@ void LLViewerTexture::setBoostLevel(S32 level)
 	{
 		mBoostLevel = level;
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE && 
+			mBoostLevel != LLViewerTexture::BOOST_ALM && 
 			mBoostLevel != LLViewerTexture::BOOST_SELECTED && 
 			mBoostLevel != LLViewerTexture::BOOST_ICON)
 		{
@@ -1557,6 +1558,10 @@ void LLViewerFetchedTexture::processTextureStats()
 		{
 			mDesiredDiscardLevel = 0;
 		}
+		else if (!LLPipeline::sRenderDeferred && mBoostLevel == LLGLTexture::BOOST_ALM)
+		{
+			mDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
+		}
         else if (mDontDiscard && mBoostLevel == LLGLTexture::BOOST_ICON)
         {
             if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
@@ -1824,8 +1829,9 @@ void LLViewerFetchedTexture::updateVirtualSize()
 			{
 				if(drawable->isRecentlyVisible())
 				{
-					if (getBoostLevel() == LLViewerTexture::BOOST_NONE && 
-						drawable->getVObj() && drawable->getVObj()->isSelected())
+					if ((getBoostLevel() == LLViewerTexture::BOOST_NONE || getBoostLevel() == LLViewerTexture::BOOST_ALM)
+						&& drawable->getVObj()
+						&& drawable->getVObj()->isSelected())
 					{
 						setBoostLevel(LLViewerTexture::BOOST_SELECTED);
 					}
@@ -1842,6 +1848,7 @@ void LLViewerFetchedTexture::updateVirtualSize()
 	if (getBoostLevel() ==  LLViewerTexture::BOOST_SELECTED && 
 		gFrameTimeSeconds - mSelectedTime > SELECTION_RESET_TIME)
 	{
+		// Could have been BOOST_ALM, but if user was working with this texture, better keep it as NONE
 		setBoostLevel(LLViewerTexture::BOOST_NONE);
 	}
 
@@ -2115,7 +2122,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		// Load the texture progressively: we try not to rush to the desired discard too fast.
 		// If the camera is not moving, we do not tweak the discard level notch by notch but go to the desired discard with larger boosted steps
 		// This mitigates the "textures stay blurry" problem when loading while not killing the texture memory while moving around
-		S32 delta_level = (mBoostLevel > LLGLTexture::BOOST_NONE) ? 2 : 1; 
+		S32 delta_level = (mBoostLevel > LLGLTexture::BOOST_ALM) ? 2 : 1; 
 		if (current_discard < 0)
 		{
 			desired_discard = llmax(desired_discard, getMaxDiscardLevel() - delta_level);
@@ -3126,6 +3133,10 @@ void LLViewerLODTexture::processTextureStats()
 		mDesiredDiscardLevel = 0;
 		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
 			mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+	}
+	else if (!LLPipeline::sRenderDeferred && mBoostLevel == LLGLTexture::BOOST_ALM)
+	{
+		mDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
 	}
 	else if (mBoostLevel < LLGLTexture::BOOST_HIGH && mMaxVirtualSize <= 10.f)
 	{

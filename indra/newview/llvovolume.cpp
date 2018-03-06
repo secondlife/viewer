@@ -830,7 +830,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	{
 		LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 		LLUUID id = params->getLightTexture();
-		mLightTexture = LLViewerTextureManager::getFetchedTexture(id);
+		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
 		if (mLightTexture.notNull())
 		{
 			F32 rad = getLightRadius();
@@ -3088,7 +3088,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 	{
 		if (mLightTexture.isNull() || id != mLightTexture->getID())
 		{
-			mLightTexture = LLViewerTextureManager::getFetchedTexture(id);
+			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
 		}
 	}
 	else
