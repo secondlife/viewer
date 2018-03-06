@@ -616,17 +616,17 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
 
     if (!legacy.has(SETTING_RAYLEIGH_CONFIG))
     {
-        newsettings[SETTING_RAYLEIGH_CONFIG] = rayleighConfigDefault();
+        newsettings[SETTING_RAYLEIGH_CONFIG].append(rayleighConfigDefault());
     }
 
     if (!legacy.has(SETTING_ABSORPTION_CONFIG))
     {
-        newsettings[SETTING_ABSORPTION_CONFIG] = absorptionConfigDefault();
+        newsettings[SETTING_ABSORPTION_CONFIG].append(absorptionConfigDefault());
     }
 
     if (!legacy.has(SETTING_MIE_CONFIG))
     {
-        newsettings[SETTING_MIE_CONFIG] = mieConfigDefault();
+        newsettings[SETTING_MIE_CONFIG].append(mieConfigDefault());
     }
 
     if (legacy.has(SETTING_CLOUD_COLOR))
@@ -727,8 +727,6 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_SUN_ARC_RADIANS] = 0.00935f / 2.0f;
     }
-
-    
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
     {   // convert the east and sun angles into a quaternion.

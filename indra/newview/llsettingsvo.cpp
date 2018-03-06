@@ -425,13 +425,10 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
     return skyp;
 }
 
-LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isAdvanced)
+void LLSettingsVOSky::convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings)
 {
-    LLSD legacy(LLSD::emptyMap());
-    LLSD settings = psky->getSettings();
-    
-// These will need to be inferred from new settings' density profiles
 // LEGACY_ATMOSPHERICS
+    // These will need to be inferred from new settings' density profiles
     legacy[SETTING_AMBIENT] = ensureArray4(settings[SETTING_AMBIENT], 1.0f);
     legacy[SETTING_BLUE_DENSITY] = ensureArray4(settings[SETTING_BLUE_DENSITY], 1.0);
     legacy[SETTING_BLUE_HORIZON] = ensureArray4(settings[SETTING_BLUE_HORIZON], 1.0);
@@ -439,6 +436,23 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(settings[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
     legacy[SETTING_HAZE_DENSITY] = LLSDArray(settings[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
     legacy[SETTING_HAZE_HORIZON] = LLSDArray(settings[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
+
+    //legacy[SETTING_AMBIENT]             = LLColor4::black.getValue();
+    //legacy[SETTING_BLUE_DENSITY]        = LLColor4(0.2447, 0.4487, 0.7599, 0.0).getValue();
+    //legacy[SETTING_BLUE_HORIZON]        = LLColor4(0.4954, 0.4954, 0.6399, 0.0).getValue();
+    //legacy[SETTING_HAZE_DENSITY]        = LLSDArray(0.6999f)(0.0f)(0.0f)(1.0f);
+    //legacy[SETTING_HAZE_HORIZON]        = LLSDArray(0.1899f)(0.0f)(0.0f)(1.0f);
+    //legacy[SETTING_DENSITY_MULTIPLIER]  = LLSDArray(0.0001f)(0.0f)(0.0f)(1.0f);LLSD::Real(0.0001);
+    //legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(0.8f)(0.0f)(0.0f)(1.0f);    
+}
+
+LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isAdvanced)
+{
+    LLSD legacy(LLSD::emptyMap());
+    LLSD settings = psky->getSettings();
+    
+// LEGACY_ATMOSPHERICS
+    convertAtmosphericsToLegacy(legacy, settings);
 
     legacy[SETTING_CLOUD_COLOR] = ensureArray4(settings[SETTING_CLOUD_COLOR], 1.0);
     legacy[SETTING_CLOUD_POS_DENSITY1] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);

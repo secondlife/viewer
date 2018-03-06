@@ -94,6 +94,9 @@ public:
 protected:
     LLSettingsVOSky();
 
+    // Interpret new settings in terms of old atmospherics params
+    static void convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings);
+
     virtual void    updateSettings() override;
 
     virtual void    applySpecial(void *) override;
