@@ -526,15 +526,6 @@ LLSD LLSettingsSky::defaults()
     LLQuaternion moonquat = ~sunquat;
 
     // Magic constants copied form dfltsetting.xml 
-// LEGACY_ATMOSPHERICS
-    dfltsetting[SETTING_AMBIENT]            = LLColor4::white.getValue();
-    dfltsetting[SETTING_BLUE_DENSITY]       = LLColor4(0.2447, 0.4487, 0.7599, 0.0).getValue();
-    dfltsetting[SETTING_BLUE_HORIZON]       = LLColor4(0.4954, 0.4954, 0.6399, 0.0).getValue();
-    dfltsetting[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(0.0001);
-    dfltsetting[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(0.8000);
-    dfltsetting[SETTING_HAZE_DENSITY]       = LLSD::Real(0.6999);
-    dfltsetting[SETTING_HAZE_HORIZON]       = LLSD::Real(0.1899);
-
     dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
     dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
