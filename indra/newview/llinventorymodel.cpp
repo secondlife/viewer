@@ -617,6 +617,11 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		return LLUUID::null;
 	}
 
+	if (!gMessageSystem)
+	{
+		return LLUUID::null;
+	}
+
 	// Add the category to the internal representation
 	LLPointer<LLViewerInventoryCategory> cat =
 		new LLViewerInventoryCategory(id, parent_id, preferred_type, name, gAgent.getID());

@@ -369,19 +369,28 @@ bool LLImageJ2C::loadAndValidate(const std::string &filename)
 	else
 	{
 		U8 *data = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), file_size);
-		apr_size_t bytes_read = file_size;
-		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
-		infile.close() ;
-
-		if (s != APR_SUCCESS || (S32)bytes_read != file_size)
+		if (!data)
 		{
-			FREE_MEM(LLImageBase::getPrivatePool(), data);
-			setLastError("Unable to read entire file");
+			infile.close();
+			setLastError("Out of memory", filename);
 			res = false;
 		}
 		else
 		{
-			res = validate(data, file_size);
+			apr_size_t bytes_read = file_size;
+			apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
+			infile.close();
+
+			if (s != APR_SUCCESS || (S32)bytes_read != file_size)
+			{
+				FREE_MEM(LLImageBase::getPrivatePool(), data);
+				setLastError("Unable to read entire file");
+				res = false;
+			}
+			else
+			{
+				res = validate(data, file_size);
+			}
 		}
 	}
 	
