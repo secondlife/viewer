@@ -230,13 +230,7 @@ class LLCubeMap;
 
 class LLVOSky : public LLStaticViewerObject
 {
-	
-public:
-	void calcAtmospherics(void);
-
-    void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(const S32 side, const S32 tile);
-
+public:	
 	enum
 	{
 		FACE_SIDE0,
@@ -249,7 +243,6 @@ public:
 		FACE_MOON, // was 7
 		FACE_BLOOM, // was 8
 		FACE_REFLECTION, // was 10
-		FACE_DUMMY, //for an ATI bug --bao
 		FACE_COUNT
 	};
 	
@@ -342,6 +335,11 @@ public:
 
 protected:
 	~LLVOSky();
+
+	void updateDirections(void);
+
+	void initSkyTextureDirs(const S32 side, const S32 tile);
+	void createSkyTexture(const S32 side, const S32 tile);
 
 	LLPointer<LLViewerFetchedTexture> mSunTexturep;
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep;

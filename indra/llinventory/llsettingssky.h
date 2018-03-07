@@ -455,6 +455,9 @@ private:
 
     void        calculateHeavnlyBodyPositions();
     void        calculateLightSettings();
+    LLColor3    getLightAttenuation(F32 distance) const;
+    LLColor3    getLightTransmittance() const;
+    LLColor3    gammaCorrect(const LLColor3& in) const;
 
     LLVector3   mSunDirection;
     LLVector3   mMoonDirection;

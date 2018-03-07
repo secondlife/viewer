@@ -336,7 +336,7 @@ LLVOSky::~LLVOSky()
 
 void LLVOSky::init()
 {
-	calcAtmospherics();
+	updateDirections();
 
 	// Initialize the cached normalized direction vectors
 	for (S32 side = 0; side < 6; ++side)
@@ -408,7 +408,7 @@ void LLVOSky::restoreGL()
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	calcAtmospherics();
+	updateDirections();
 
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap
 	    && LLCubeMap::sUseCubeMaps)
@@ -486,7 +486,7 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::calcAtmospherics(void)
+void LLVOSky::updateDirections(void)
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
@@ -508,8 +508,6 @@ void LLVOSky::calcAtmospherics(void)
 	// between sunlight and point lights in windlight to normalize point lights.
 	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
     LLEnvironment::instance().setSceneLightStrength(2.0f * (1.0f + sun_dynamic_range * dp));
-
-    m_legacyAtmospherics.calc();
 }
 
 void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
@@ -541,7 +539,7 @@ BOOL LLVOSky::updateSky()
 	const S32 total_no_tiles = 6 * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
 
-	if (mUpdateTimer.getElapsedTimeF32() > 0.001f)
+	if (mUpdateTimer.getElapsedTimeF32() > 0.025f)
 	{
 		mUpdateTimer.reset();
 		const S32 frame = next_frame;
@@ -553,7 +551,7 @@ BOOL LLVOSky::updateSky()
 		// sInterpVal = (F32)next_frame / cycle_frame_no;
 		LLSkyTex::setInterpVal( mInterpVal );
 		LLHeavenBody::setInterpVal( mInterpVal );
-		calcAtmospherics();
+		updateDirections();
 
 		if (mForceUpdate || total_no_tiles == frame)
 		{
@@ -595,8 +593,6 @@ BOOL LLVOSky::updateSky()
 							}
 						}
 
-						calcAtmospherics();
-
 						for (int side = 0; side < 6; side++) 
 						{
 							LLImageRaw* raw1 = mSkyTex[side].getImageRaw(TRUE);
@@ -610,44 +606,32 @@ BOOL LLVOSky::updateSky()
 							mShinyTex[side].createGLImage(mShinyTex[side].getWhich(FALSE));
 						}
 						next_frame = 0;	
+
+                        // update the sky texture
+			            for (S32 i = 0; i < 6; ++i)
+			            {
+				            mSkyTex[i].create(1.0f);
+				            mShinyTex[i].create(1.0f);
+			            }
+
+                        // update the environment map
+			            if (mCubeMap)
+			            {
+				            std::vector<LLPointer<LLImageRaw> > images;
+				            images.reserve(6);
+				            for (S32 side = 0; side < 6; side++)
+				            {
+					            images.push_back(mShinyTex[side].getImageRaw(TRUE));
+				            }
+				            mCubeMap->init(images);
+				            gGL.getTexUnit(0)->disable();
+			            }
 					}
 				}
 			}
 
-			/// *TODO really, sky texture and env map should be shared on a single texture
-			/// I'll let Brad take this at some point
-
-			// update the sky texture
-			for (S32 i = 0; i < 6; ++i)
-			{
-				mSkyTex[i].create(1.0f);
-				mShinyTex[i].create(1.0f);
-			}
-			
-			// update the environment map
-			if (mCubeMap)
-			{
-				std::vector<LLPointer<LLImageRaw> > images;
-				images.reserve(6);
-				for (S32 side = 0; side < 6; side++)
-				{
-					images.push_back(mShinyTex[side].getImageRaw(TRUE));
-				}
-				mCubeMap->init(images);
-				gGL.getTexUnit(0)->disable();
-			}
-
 			gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-			// *TODO: decide whether we need to update the stars vertex buffer in LLVOWLSky -Brad.
-			//gPipeline.markRebuild(gSky.mVOWLSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-
 			mForceUpdate = FALSE;
-		}
-		else
-		{
-			const S32 side = frame / NUM_TILES;
-			const S32 tile = frame % NUM_TILES;
-			createSkyTexture(side, tile);
 		}
 	}
 
@@ -1405,7 +1389,7 @@ void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_an
 	mMoon.renewDirection();
 	mLastLightingDirection = mSun.getDirection();
 
-	calcAtmospherics();
+	updateDirections();
 
 	if ( !mInitialized )
 	{
@@ -1439,7 +1423,8 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_di
 	mSun.setDirection(sun_direction);
 
 	mMoon.setDirection(moon_dir);
-	calcAtmospherics();
+	updateDirections();
+
 	if (dp < 0.995f) { //the sun jumped a great deal, update immediately
 		mForceUpdate = TRUE;
 	}

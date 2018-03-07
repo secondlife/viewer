@@ -200,7 +200,6 @@ void LLAtmospherics::init()
 {
    	const F32 haze_int = color_intens(mHaze.calcSigSca(0));
 	mHazeConcentration = haze_int / (color_intens(mHaze.calcAirSca(0)) + haze_int);
-	calc();
 	mInitialized = true;
 }
 
@@ -443,11 +442,6 @@ LLColor3 LLAtmospherics::calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& va
 	}
 #	endif // LL_RELEASE_FOR_DOWNLOAD
 	return res;
-}
-
-void LLAtmospherics::calc()
-{
-
 }
 
 void LLAtmospherics::updateFog(const F32 distance, LLVector3& tosun)
