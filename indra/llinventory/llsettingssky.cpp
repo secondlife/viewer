@@ -383,29 +383,27 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         // copy constructor for LLSDArray.  Directly binding the LLSDArray as 
         // a parameter without first wrapping it in a pure LLSD object will result 
         // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
-
-// LEGACY_ATMOSPHERICS
-        validation.push_back(Validator(SETTING_AMBIENT, true, LLSD::TypeArray,
+        validation.push_back(Validator(SETTING_BLUE_DENSITY,        false,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        validation.push_back(Validator(SETTING_BLUE_HORIZON,        false,  LLSD::TypeArray, 
+            boost::bind(&Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        validation.push_back(Validator(SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
+        validation.push_back(Validator(SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_AMBIENT, false, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
-        validation.push_back(Validator(SETTING_BLUE_DENSITY,        true,  LLSD::TypeArray, 
-            boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
-        validation.push_back(Validator(SETTING_BLUE_HORIZON,        true,  LLSD::TypeArray, 
-            boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
-        validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  true,  LLSD::TypeReal,  
+        validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
-        validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
-        validation.push_back(Validator(SETTING_HAZE_DENSITY,        true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
-        validation.push_back(Validator(SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,  
 
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
@@ -614,21 +612,6 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
         newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
     }
 
-    if (!legacy.has(SETTING_RAYLEIGH_CONFIG))
-    {
-        newsettings[SETTING_RAYLEIGH_CONFIG].append(rayleighConfigDefault());
-    }
-
-    if (!legacy.has(SETTING_ABSORPTION_CONFIG))
-    {
-        newsettings[SETTING_ABSORPTION_CONFIG].append(absorptionConfigDefault());
-    }
-
-    if (!legacy.has(SETTING_MIE_CONFIG))
-    {
-        newsettings[SETTING_MIE_CONFIG].append(mieConfigDefault());
-    }
-
     if (legacy.has(SETTING_CLOUD_COLOR))
     {
         newsettings[SETTING_CLOUD_COLOR] = LLColor3(legacy[SETTING_CLOUD_COLOR]).getValue();
@@ -696,36 +679,20 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
     {
         newsettings[SETTING_PLANET_RADIUS] = LLSD::Real(legacy[SETTING_PLANET_RADIUS].asReal());
     }
-    else
-    {
-        newsettings[SETTING_PLANET_RADIUS] = 6360.0f;
-    }
 
     if (legacy.has(SETTING_SKY_BOTTOM_RADIUS))
     {
         newsettings[SETTING_SKY_BOTTOM_RADIUS] = LLSD::Real(legacy[SETTING_SKY_BOTTOM_RADIUS].asReal());
-    }
-    else
-    {
-        newsettings[SETTING_SKY_BOTTOM_RADIUS] = 6360.0f;
     }
 
     if (legacy.has(SETTING_SKY_TOP_RADIUS))
     {
         newsettings[SETTING_SKY_TOP_RADIUS] = LLSD::Real(legacy[SETTING_SKY_TOP_RADIUS].asReal());
     }
-    else
-    {
-        newsettings[SETTING_SKY_TOP_RADIUS] = 6420.0f;
-    }
 
     if (legacy.has(SETTING_SUN_ARC_RADIANS))
     {
         newsettings[SETTING_SUN_ARC_RADIANS] = LLSD::Real(legacy[SETTING_SUN_ARC_RADIANS].asReal());
-    }
-    else
-    {
-        newsettings[SETTING_SUN_ARC_RADIANS] = 0.00935f / 2.0f;
     }
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))

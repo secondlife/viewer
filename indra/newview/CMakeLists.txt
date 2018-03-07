@@ -365,6 +365,7 @@ set(viewer_SOURCE_FILES
     lljoystickbutton.cpp
     lllandmarkactions.cpp
     lllandmarklist.cpp
+    lllegacyatmospherics.cpp
     lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp

@@ -418,17 +418,6 @@ public:
 
     WLFloatControl  mWLGamma;
 
-    /// Atmospherics
-// LEGACY_ATMOSPHERICS
-    WLColorControl  mAmbient;
-    WLColorControl  mBlueHorizon;
-    WLFloatControl  mHazeDensity;
-    WLColorControl  mBlueDensity;
-    WLFloatControl  mDensityMult;
-    WLFloatControl  mDistanceMult;
-    WLFloatControl  mHazeHorizon;
-    WLFloatControl  mMaxAlt;
-
     /// Lighting
     WLColorControl  mLightnorm;
     WLColorControl  mSunlight;    

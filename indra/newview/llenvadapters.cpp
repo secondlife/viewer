@@ -33,16 +33,6 @@
 
 LLSkySettingsAdapter::LLSkySettingsAdapter():
     mWLGamma(1.0f, LLSettingsSky::SETTING_GAMMA),
-
-// LEGACY_ATMOSPHERICS
-    mAmbient(LLColor4(0.5f, 0.75f, 1.0f, 1.19f), LLSettingsSky::SETTING_AMBIENT, "WLAmbient"),
-    mBlueHorizon(LLColor4(0.25f, 0.25f, 1.0f, 1.0f), LLSettingsSky::SETTING_BLUE_HORIZON, "WLBlueHorizon"),
-    mBlueDensity(LLColor4(0.25f, 0.25f, 0.25f, 1.0f), LLSettingsSky::SETTING_BLUE_DENSITY, "WLBlueDensity"),
-    mHazeDensity(1.0f, LLSettingsSky::SETTING_HAZE_DENSITY),
-    mHazeHorizon(1.0f, LLSettingsSky::SETTING_HAZE_HORIZON),    
-    mDensityMult(1.0f, LLSettingsSky::SETTING_DENSITY_MULTIPLIER, 1000),
-    mDistanceMult(1.0f, LLSettingsSky::SETTING_DISTANCE_MULTIPLIER),
-    mMaxAlt(4000.0f, LLSettingsSky::SETTING_MAX_Y),
     
     // Lighting
     mLightnorm(LLColor4(0.f, 0.707f, -0.707f, 1.f), LLSettingsSky::SETTING_LIGHT_NORMAL),

@@ -35,36 +35,12 @@
 #include "llframetimer.h"
 #include "v3colorutil.h"
 #include "llsettingssky.h"
+#include "lllegacyatmospherics.h"
 
-//////////////////////////////////
-//
-// Lots of constants
-//
-// Will clean these up at some point...
-//
-
-const F32 HORIZON_DIST			= 1024.0f;
 const F32 SKY_BOX_MULT			= 16.0f;
-const F32 HEAVENLY_BODY_DIST		= HORIZON_DIST - 10.f;
+const F32 HEAVENLY_BODY_DIST	= HORIZON_DIST - 10.f;
 const F32 HEAVENLY_BODY_FACTOR	= 0.1f;
 const F32 HEAVENLY_BODY_SCALE	= HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR;
-const F32 EARTH_RADIUS			= 6.4e6f;       // exact radius = 6.37 x 10^6 m
-const F32 ATM_EXP_FALLOFF		= 0.000126f;
-const F32 ATM_SEA_LEVEL_NDENS	= 2.55e25f;
-// Somewhat arbitrary:
-const F32 ATM_HEIGHT			= 100000.f;
-
-const F32 FIRST_STEP = 5000.f;
-const F32 INV_FIRST_STEP = 1.f/FIRST_STEP;
-const S32 NO_STEPS = 15;
-const F32 INV_NO_STEPS = 1.f/NO_STEPS;
-
-
-// constants used in calculation of scattering coeff of clear air
-const F32 sigma		= 0.035f;
-const F32 fsigma	= (6.f + 3.f * sigma) / (6.f-7.f*sigma);
-const F64 Ndens		= 2.55e25;
-const F64 Ndens2	= Ndens*Ndens;
 
 // HACK: Allow server to change sun and moon IDs.
 // I can't figure out how to pass the appropriate
@@ -72,24 +48,8 @@ const F64 Ndens2	= Ndens*Ndens;
 extern LLUUID gSunTextureID;
 extern LLUUID gMoonTextureID;
 
-
-LL_FORCE_INLINE LLColor3 color_div(const LLColor3 &col1, const LLColor3 &col2)
-{
-	return LLColor3( 
-		col1.mV[0] / col2.mV[0],
-		col1.mV[1] / col2.mV[1],
-		col1.mV[2] / col2.mV[2] );
-}
-
-LLColor3 color_norm(const LLColor3 &col);
-BOOL clip_quad_to_horizon(F32& t_left, F32& t_right, LLVector3 v_clipped[4],
-						  const LLVector3 v_corner[4], const F32 cos_max_angle);
-F32 clip_side_to_horizon(const LLVector3& v0, const LLVector3& v1, const F32 cos_max_angle);
-
-
 class LLFace;
 class LLHaze;
-
 
 class LLSkyTex
 {
@@ -258,115 +218,6 @@ public:
 	void setV(const LLVector3& v)						{ mV = v; }
 };
 
-
-LL_FORCE_INLINE LLColor3 refr_ind_calc(const LLColor3 &wave_length)
-{
-	LLColor3 refr_ind;
-	for (S32 i = 0; i < 3; ++i)
-	{
-		const F32 wl2 = wave_length.mV[i] * wave_length.mV[i] * 1e-6f;
-		refr_ind.mV[i] = 6.43e3f + ( 2.95e6f / ( 146.0f - 1.f/wl2 ) ) + ( 2.55e4f / ( 41.0f - 1.f/wl2 ) );
-		refr_ind.mV[i] *= 1.0e-8f;
-		refr_ind.mV[i] += 1.f;
-	}
-	return refr_ind;
-}
-
-
-class LLHaze
-{
-public:
-	LLHaze() : mG(0), mFalloff(1), mAbsCoef(0.f) {mSigSca.setToBlack();}
-	LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2.f) : 
-			mG(g), mSigSca(0.25f/F_PI * sca), mFalloff(fo), mAbsCoef(0.f)
-	{
-		mAbsCoef = color_intens(mSigSca) / sAirScaIntense;
-	}
-
-	LLHaze(const F32 g, const F32 sca, const F32 fo = 2.f) : mG(g),
-			mSigSca(0.25f/F_PI * LLColor3(sca, sca, sca)), mFalloff(fo)
-	{
-		mAbsCoef = 0.01f * sca / sAirScaAvg;
-	}
-
-	F32 getG() const				{ return mG; }
-
-	void setG(const F32 g)
-	{
-		mG = g;
-	}
-
-	const LLColor3& getSigSca() const // sea level
-	{
-		return mSigSca;
-	} 
-
-	void setSigSca(const LLColor3& s)
-	{
-		mSigSca = s;
-		mAbsCoef = 0.01f * color_intens(mSigSca) / sAirScaIntense;
-	}
-
-	void setSigSca(const F32 s0, const F32 s1, const F32 s2)
-	{
-		mSigSca = sAirScaAvg * LLColor3 (s0, s1, s2);
-		mAbsCoef = 0.01f * (s0 + s1 + s2) / 3;
-	}
-
-	F32 getFalloff() const
-	{
-		return mFalloff;
-	}
-
-	void setFalloff(const F32 fo)
-	{
-		mFalloff = fo;
-	}
-
-	F32 getAbsCoef() const
-	{
-		return mAbsCoef;
-	}
-
-	inline static F32 calcFalloff(const F32 h)
-	{
-		return (h <= 0) ? 1.0f : (F32)LL_FAST_EXP(-ATM_EXP_FALLOFF * h);
-	}
-
-	inline LLColor3 calcSigSca(const F32 h) const
-	{
-		return calcFalloff(h * mFalloff) * mSigSca;
-	}
-
-	inline void calcSigSca(const F32 h, LLColor3 &result) const
-	{
-		result = mSigSca;
-		result *= calcFalloff(h * mFalloff);
-	}
-
-	LLColor3 calcSigExt(const F32 h) const
-	{
-		return calcFalloff(h * mFalloff) * (1 + mAbsCoef) * mSigSca;
-	}
-
-	F32 calcPhase(const F32 cos_theta) const;
-
-	static inline LLColor3 calcAirSca(const F32 h);
-	static inline void calcAirSca(const F32 h, LLColor3 &result);
-
-private:
-	static LLColor3 const sAirScaSeaLevel;
-	static F32 const sAirScaIntense;
-	static F32 const sAirScaAvg;
-
-protected:
-	F32			mG;
-	LLColor3	mSigSca;
-	F32			mFalloff;	// 1 - slow, >1 - faster
-	F32			mAbsCoef;
-};
-
-
 class LLCubeMap;
 
 // turn on floating point precision
@@ -383,24 +234,6 @@ class LLVOSky : public LLStaticViewerObject
 public:
 	void calcAtmospherics(void);
 
-// LEGACY_ATMOSPHERICS
-	LLColor3 createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
-	LLColor3 createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
-
-	void calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLColor3 & vary_CloudColorSun, 
-							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
-							LLVector2 vary_HorizontalProjection[2]);
-
-	LLColor3 calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor,	LLColor3 & vary_CloudColorSun, 
-							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
-							LLVector2 vary_HorizontalProjection[2]);
-    LLColor4 calcSkyColorInDir(const LLVector3& dir, bool isShiny = false);
-
-    LLColor3 calcRadianceAtPoint(const LLVector3& pos) const
-	{
-		F32 radiance = mBrightnessScaleGuess * mSun.getIntensity();
-		return LLColor3(radiance, radiance, radiance);
-	}
     void initSkyTextureDirs(const S32 side, const S32 tile);
 	void createSkyTexture(const S32 side, const S32 tile);
 
@@ -453,8 +286,6 @@ public:
     LLColor4 getSunAmbientColor() const;
     LLColor4 getMoonAmbientColor() const;
     LLColor4 getTotalAmbientColor() const;
-	LLColor4 getFogColor() const							{ return mFogColor; }
-	LLColor4 getGLFogColor() const							{ return mGLFogCol; }
 	
 	BOOL isSameFace(S32 idx, const LLFace* face) const { return mFace[idx] == face; }
 
@@ -476,16 +307,18 @@ public:
 	void updateReflectionGeometry(LLDrawable *drawable, F32 H, const LLHeavenBody& HB);
 
 	
-	const LLHaze& getHaze() const						{ return mHaze; }
-	LLHaze&	getHaze()									{ return mHaze; }
-	F32 getHazeConcentration() const					{ return mHazeConcentration; }
-	void setHaze(const LLHaze& h)						{ mHaze = h; }
 	F32 getWorldScale() const							{ return mWorldScale; }
 	void setWorldScale(const F32 s)						{ mWorldScale = s; }
 	void updateFog(const F32 distance);
-	void setFogRatio(const F32 fog_ratio)				{ mFogRatio = fog_ratio; }
+
+    void setFogRatio(const F32 fog_ratio)               { m_legacyAtmospherics.setFogRatio(fog_ratio); }
+    F32  getFogRatio() const                            { return m_legacyAtmospherics.getFogRatio(); }
+
+    LLColor4 getFogColor() const                        { return m_legacyAtmospherics.getFogColor(); }
+    LLColor4 getGLFogColor() const                      { return m_legacyAtmospherics.getGLFogColor(); }
+
     LLColor4U getFadeColor() const;
-    F32 getFogRatio() const								{ return mFogRatio; }
+
 	void setCloudDensity(F32 cloud_density)				{ mCloudDensity = cloud_density; }
 	void setWind ( const LLVector3& wind )				{ mWind = wind.length(); }
 
@@ -532,8 +365,6 @@ protected:
 	LLColor3			mBrightestPointNew;
 	F32					mBrightnessScaleGuess;
 	LLColor3			mBrightestPointGuess;
-	LLHaze				mHaze;
-	F32					mHazeConcentration;
 	BOOL				mWeatherChange;
 	F32					mCloudDensity;
 	F32					mWind;
@@ -545,53 +376,16 @@ protected:
 	F32					mAmbientScale;
 	LLColor3			mNightColorShift;
 	F32					mInterpVal;
-
-	LLColor4			mFogColor;
-	LLColor4			mGLFogCol;
-	
-	F32					mFogRatio;
 	F32					mWorldScale;
 
-	LLPointer<LLCubeMap>	mCubeMap;					// Cube map for the environment
-	S32					mDrawRefl;
+	LLPointer<LLCubeMap> mCubeMap;					// Cube map for the environment
+	S32					 mDrawRefl;
 
 	LLFrameTimer		mUpdateTimer;
 
-public:
-	//by bao
-	//fake vertex buffer updating
-	//to guarantee at least updating one VBO buffer every frame
-	//to work around the bug caused by ATI card --> DEV-3855
-	//
-	void createDummyVertexBuffer() ;
-	void updateDummyVertexBuffer() ;
+	BOOL                mHeavenlyBodyUpdated ;
 
-	BOOL mHeavenlyBodyUpdated ;
+    LLAtmospherics      m_legacyAtmospherics;
 };
-
-// turn it off
-#if LL_MSVC && __MSVC_VER__ < 8
-#pragma optimize("p", off)		
-#endif
-
-// Utility functions
-F32 azimuth(const LLVector3 &v);
-F32 color_norm_pow(LLColor3& col, F32 e, BOOL postmultiply = FALSE);
-
-
-/* Proportion of light that is scattered into 'path' from 'in' over distance dt. */
-/* assumes that vectors 'path' and 'in' are normalized. Scattering coef / 2pi */
-
-inline LLColor3 LLHaze::calcAirSca(const F32 h)
-{
-	return calcFalloff(h) * sAirScaSeaLevel;
-}
-
-inline void LLHaze::calcAirSca(const F32 h, LLColor3 &result)
-{
-	result = sAirScaSeaLevel;
-	result *= calcFalloff(h);
-}
-
 
 #endif
