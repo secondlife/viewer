@@ -917,12 +917,22 @@ namespace
         LLVector3 body_al(0.f, body_vector[1], body_vector[2]);
         
         if (fabs(body_az.normalize()) > 0.001)
+        {
             azimuth = angle_between(DUE_EAST, body_az);
+            if (body_az[1] < 0.0f)
+                azimuth = F_TWO_PI - azimuth;
+        }
         else
             azimuth = 0.0f;
 
         if (fabs(body_al.normalize()) > 0.001)
+        {
             altitude = angle_between(DUE_EAST, body_al);
+            if (body_al[2] < 0.0f)
+            {
+                altitude = F_TWO_PI - altitude;
+            }
+        }
         else
             altitude = 0.0f;
     }
