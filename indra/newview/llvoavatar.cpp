@@ -7366,13 +7366,11 @@ void LLVOAvatar::updateMeshTextures()
 			debugColorizeSubMeshes(i,LLColor4::blue);
 		}
 	}
-	static LLUUID default_alpha_uuid = LLUUID(gSavedSettings.getString("UIImgDefaultAlphaUUID"));
-	bool hair_alpha_exists = (getImage(TEX_HAIR_ALPHA, 0) && getImage(TEX_HAIR_ALPHA, 0)->getID() != default_alpha_uuid);
 
 	// set texture and color of hair manually if we are not using a baked image.
 	// This can happen while loading hair for yourself, or for clients that did not
 	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
-	if (!is_layer_baked[BAKED_HAIR] || (isEditingAppearance() && !hair_alpha_exists))
+	if (!is_layer_baked[BAKED_HAIR])
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
