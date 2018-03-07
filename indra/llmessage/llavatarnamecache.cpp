@@ -769,7 +769,7 @@ LLUUID LLAvatarNameCache::findIdByName(const std::string& name)
 
     // Legacy method
     LLUUID id;
-    if (gCacheName->getUUID(name, id))
+    if (gCacheName && gCacheName->getUUID(name, id))
     {
         return id;
     }

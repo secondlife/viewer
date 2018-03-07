@@ -2329,7 +2329,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="InventoryMarketplaceListingsNoItems">
         Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
-
+	<string name="InventoryItemsCount">( [ITEMS_COUNT] Items )</string>
 	<string name="Marketplace Validation Log"></string>
 	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
 	<string name="Marketplace Validation Error Mixed Stock">: Error: all items in a stock folder must be no-copy and of the same type</string>
