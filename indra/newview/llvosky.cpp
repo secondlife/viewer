@@ -1430,6 +1430,10 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_di
 	}
 }
 
+LLVector3 LLVOSky::getLightDirection() const
+{
+    return LLEnvironment::instance().getCurrentSky()->getLightDirection(); 
+}
 
 LLColor4U LLVOSky::getFadeColor() const
 { 

@@ -303,7 +303,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	LLColor3 light_atten = (blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
+	LLColor3 light_atten = psky->getLightAttenuation(psky->getMaxY());
 
 	// Calculate relative weights
 	LLColor3 temp2(0.f, 0.f, 0.f);

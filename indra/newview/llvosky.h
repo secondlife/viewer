@@ -274,6 +274,7 @@ public:
 	const LLVector3& getToMoonLast() const					{ return mMoon.getDirectionCached(); }
 	BOOL isSunUp() const									{ return mSun.getDirectionCached().mV[2] > -0.05f; }
 
+    LLVector3 getLightDirection() const;
     LLColor3 getSunDiffuseColor() const;
     LLColor3 getMoonDiffuseColor() const;
     LLColor4 getSunAmbientColor() const;

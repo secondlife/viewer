@@ -32,6 +32,8 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#pragma optimize("", off)
+
 //=========================================================================
 namespace
 {
@@ -574,10 +576,7 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
 // AdvancedAtmospherics TODO
 // These need to be translated into density profile info in the new settings format...
 // LEGACY_ATMOSPHERICS
-    if (legacy.has(SETTING_AMBIENT))
-    {
-        newsettings[SETTING_AMBIENT] = LLColor3(legacy[SETTING_AMBIENT]).getValue();
-    }
+    
     if (legacy.has(SETTING_BLUE_DENSITY))
     {
         newsettings[SETTING_BLUE_DENSITY] = LLColor3(legacy[SETTING_BLUE_DENSITY]).getValue();
@@ -603,6 +602,10 @@ LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
         newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
     }
 
+    if (legacy.has(SETTING_AMBIENT))
+    {
+        newsettings[SETTING_AMBIENT] = LLColor3(legacy[SETTING_AMBIENT]).getValue();
+    }
     if (legacy.has(SETTING_CLOUD_COLOR))
     {
         newsettings[SETTING_CLOUD_COLOR] = LLColor3(legacy[SETTING_CLOUD_COLOR]).getValue();
@@ -756,6 +759,7 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 // this is used later for sunlight modulation at various altitudes
 LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 {
+// LEGACY_ATMOSPHERICS
     LLColor3    blue_density = getBlueDensity();
     F32         haze_density = getHazeDensity();
     F32         density_multiplier = getDensityMultiplier();        
@@ -766,6 +770,7 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 
 LLColor3 LLSettingsSky::getLightTransmittance() const
 {
+// LEGACY_ATMOSPHERICS
     LLColor3    blue_density = getBlueDensity();
     F32         haze_density = getHazeDensity();
     F32         density_multiplier = getDensityMultiplier();
@@ -788,41 +793,40 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
 
 void LLSettingsSky::calculateLightSettings()
 {
-// LEGACY_ATMOSPHERICS
-        // Initialize temp variables
-        LLColor3    sunlight = getSunlightColor();
-        LLColor3    ambient = getAmbientColor();
-        F32         cloud_shadow = getCloudShadow();
-        LLVector3   lightnorm = getLightDirection();
+    // Initialize temp variables
+    LLColor3    sunlight = getSunlightColor();
+    LLColor3    ambient = getAmbientColor();
+    F32         cloud_shadow = getCloudShadow();
+    LLVector3   lightnorm = getLightDirection();
 
-        // Sunlight attenuation effect (hue and brightness) due to atmosphere
-        // this is used later for sunlight modulation at various altitudes
+    // Sunlight attenuation effect (hue and brightness) due to atmosphere
+    // this is used later for sunlight modulation at various altitudes
     F32      max_y = getMaxY();
     LLColor3 light_atten = getLightAttenuation(max_y);
     LLColor3 light_transmittance = getLightTransmittance();
         
-        // Compute sunlight from P & lightnorm (for long rays like sky)
-        /// USE only lightnorm.
-        // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+    // Compute sunlight from P & lightnorm (for long rays like sky)
+    /// USE only lightnorm.
+    // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
 
-        // and vary_sunlight will work properly with moon light
-        F32 lighty = lightnorm[1];
-        if (lighty < NIGHTTIME_ELEVATION_COS)
-        {
-            lighty = -lighty;
-        }
+    // and vary_sunlight will work properly with moon light
+    F32 lighty = lightnorm[1];
+    if (lighty < NIGHTTIME_ELEVATION_COS)
+    {
+        lighty = -lighty;
+    }
 
     lighty = llmax(0.f, lighty);
     if(lighty > 0.f)
-        {
+    {
         lighty = 1.f / lighty;
-        }
+    }
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
 
-        //increase ambient when there are more clouds
-        LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
+    //increase ambient when there are more clouds
+    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
 
-        //brightness of surface both sunlight and ambient
+    //brightness of surface both sunlight and ambient
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 

@@ -179,18 +179,12 @@ protected:
 
 class LLCubeMap;
 
-// turn on floating point precision
-// in vs2003 for this class.  Otherwise
-// black dots go everywhere from 7:10 - 8:50
-#if LL_MSVC && __MSVC_VER__ < 8
-#pragma optimize("p", on)       
-#endif
-
 class AtmosphericsVars
 {
 public:
     AtmosphericsVars()
     : hazeColor(0,0,0)
+    , hazeColorBelowCloud(0,0,0)
     , cloudColorSun(0,0,0)
     , cloudColorAmbient(0,0,0)
     , cloudDensity(0.0f)
@@ -200,6 +194,7 @@ public:
     }
 
     LLColor3  hazeColor;
+    LLColor3  hazeColorBelowCloud;
 	LLColor3  cloudColorSun;
 	LLColor3  cloudColorAmbient;
 	F32       cloudDensity;
@@ -234,6 +229,7 @@ protected:
 
     void     calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars);
     LLColor3 calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& vars);
+    LLColor3 getHazeColor(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, F32 costheta, F32 cloud_shadow);
 
     LLHaze              mHaze;
     F32                 mHazeConcentration;

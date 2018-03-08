@@ -597,7 +597,7 @@ public:
 			addText(xpos, ypos, llformat("%d Unique Textures", LLImageGL::sUniqueCount));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%d Render Calls", last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
+			addText(xpos, ypos, llformat("%d Render Calls", (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
             ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
@@ -612,9 +612,9 @@ public:
 			gPipeline.mTextureMatrixOps = 0;
 			gPipeline.mMatrixOpCount = 0;
 
- 			if (last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
+ 			if ((U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
 			{
- 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", last_frame_recording.getMin(LLPipeline::sStatBatchSize), last_frame_recording.getMax(LLPipeline::sStatBatchSize), last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
+ 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
 			}
             ypos += y_inc;
 

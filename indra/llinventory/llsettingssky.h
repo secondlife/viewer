@@ -114,14 +114,10 @@ public:
         setValue(SETTING_AMBIENT, val);
     }
 
+// LEGACY_ATMOSPHERICS
     LLColor3 getBlueDensity() const
     {
         return LLColor3(mSettings[SETTING_BLUE_DENSITY]);
-    }
-
-    void setBlueDensity(const LLColor3 &val)
-    {
-        setValue(SETTING_BLUE_DENSITY, val);
     }
 
     LLColor3 getBlueHorizon() const
@@ -129,39 +125,9 @@ public:
         return LLColor3(mSettings[SETTING_BLUE_HORIZON]);
     }
 
-    void setBlueHorizon(const LLColor3 &val)
-    {
-        setValue(SETTING_BLUE_HORIZON, val);
-    }
-
-    F32 getDensityMultiplier() const
-    {
-        return mSettings[SETTING_DENSITY_MULTIPLIER].asReal();
-    }
-
-    void setDensityMultiplier(F32 val)
-    {
-        setValue(SETTING_DENSITY_MULTIPLIER, val);
-    }
-
-    F32 getDistanceMultiplier() const
-    {
-        return mSettings[SETTING_DISTANCE_MULTIPLIER].asReal();
-    }
-
-    void setDistanceMultiplier(F32 val)
-    {
-        setValue(SETTING_DISTANCE_MULTIPLIER, val);
-    }
-
     F32 getHazeDensity() const
     {
         return mSettings[SETTING_HAZE_DENSITY].asReal();
-    }
-
-    void setHazeDensity(F32 val)
-    {
-        setValue(SETTING_HAZE_DENSITY, val);
     }
 
     F32 getHazeHorizon() const
@@ -169,9 +135,14 @@ public:
         return mSettings[SETTING_HAZE_HORIZON].asReal();
     }
 
-    void setHazeHorizon(F32 val)
+    F32 getDensityMultiplier() const
     {
-        setValue(SETTING_HAZE_HORIZON, val);
+        return mSettings[SETTING_DENSITY_MULTIPLIER].asReal();
+    }
+
+    F32 getDistanceMultiplier() const
+    {
+        return mSettings[SETTING_DISTANCE_MULTIPLIER].asReal();
     }
 
     LLColor3 getCloudColor() const
@@ -434,6 +405,10 @@ public:
 
     static LLSD     translateLegacySettings(LLSD legacy);
 
+    LLColor3 getLightAttenuation(F32 distance) const;
+    LLColor3 getLightTransmittance() const;
+    LLColor3 gammaCorrect(const LLColor3& in) const;
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -455,9 +430,6 @@ private:
 
     void        calculateHeavnlyBodyPositions();
     void        calculateLightSettings();
-    LLColor3    getLightAttenuation(F32 distance) const;
-    LLColor3    getLightTransmittance() const;
-    LLColor3    gammaCorrect(const LLColor3& in) const;
 
     LLVector3   mSunDirection;
     LLVector3   mMoonDirection;
