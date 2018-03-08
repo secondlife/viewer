@@ -257,9 +257,15 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLVector3 &dir, bool isShiny)
 
 void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 {
+// LEGACY_ATMOSPHERICS
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    LLColor3    blue_density = psky->getBlueDensity();
+    LLColor3    blue_density = psky->getBlueDensity();    
+    LLColor3 blue_horizon = psky->getBlueHorizon();
+    F32 haze_density = psky->getHazeDensity();
+    F32 haze_horizon = psky->getHazeHorizon();
+    F32 density_multiplier = psky->getDensityMultiplier();
+
     F32         max_y = psky->getMaxY();
     LLVector3   lightnorm = psky->getLightNormal();
 
@@ -294,10 +300,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	// Initialize temp variables
 	LLColor3 sunlight = psky->getSunlightColor();
     LLColor3 ambient = psky->getAmbientColor();
-    LLColor3 blue_horizon = psky->getBlueHorizon();
-    F32 haze_density = psky->getHazeDensity();
-    F32 haze_horizon = psky->getHazeHorizon();
-    F32 density_multiplier = psky->getDensityMultiplier();
+    
     LLColor3 glow = psky->getGlow();
     F32 cloud_shadow = psky->getCloudShadow();
 
@@ -307,7 +310,8 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 
 	// Calculate relative weights
 	LLColor3 temp2(0.f, 0.f, 0.f);
-	LLColor3 temp1 = blue_density + smear(haze_density);
+	LLColor3 temp1 = psky->getLightTransmittance();
+
 	LLColor3 blue_weight = componentDiv(blue_density, temp1);
 	LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
 
@@ -350,7 +354,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	sunlight *= (1.f - cloud_shadow);
 
 	// Haze color below cloud
-	LLColor3 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient) + componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + tmpAmbient));	
+	vars.hazeColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient) + componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + tmpAmbient));	
 
 	// Final atmosphere additive
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
@@ -364,8 +368,8 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	temp1 = componentSqrt(temp1);	//less atmos opacity (more transparency) below clouds
 
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
-	vars.hazeColor += componentMult(additiveColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
-		
+	vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
+
 	if (Pn[1] < 0.f)
 	{
 		// Eric's original: 
@@ -390,27 +394,23 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 LLColor3 LLAtmospherics::calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& vars)
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-    F32 gamma = psky->getGamma();
+    
 
 	LLColor3 res;
 	LLColor3 color0 = vars.hazeColor;
 	
 	if (!gPipeline.canUseWindLightShaders())
 	{
-		LLColor3 color1 = color0 * 2.0f;
-		color1 = smear(1.f) - componentSaturate(color1);
-		componentPow(color1, gamma);
-		res = smear(1.f) - color1;
+		res = psky->gammaCorrect(color0 * 2.0f);
 	} 
 	else 
 	{
 		res = color0;
 	}
 
-#	ifndef LL_RELEASE_FOR_DOWNLOAD
-
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+    F32 gamma = psky->getGamma();
 	LLColor3 color2 = 2.f * color0;
-
 	LLColor3 color3 = LLColor3(1.f, 1.f, 1.f) - componentSaturate(color2);
 	componentPow(color3, gamma);
 	color3 = LLColor3(1.f, 1.f, 1.f) - color3;
@@ -440,7 +440,7 @@ LLColor3 LLAtmospherics::calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& va
 			res = vars.hazeColor;
 			break;
 	}
-#	endif // LL_RELEASE_FOR_DOWNLOAD
+#endif // LL_RELEASE_FOR_DOWNLOAD
 	return res;
 }
 

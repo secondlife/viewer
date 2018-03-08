@@ -108,8 +108,35 @@ const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR("exp_s
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_term");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
 
+const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");
+
 namespace
 {
+
+LLSettingsSky::validation_list_t legacyHazeValidationList()
+{
+    static LLSettingsBase::validation_list_t legacyHazeValidation;
+    if (legacyHazeValidation.empty())
+    {
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_DENSITY,        true,  LLSD::TypeArray, 
+            boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_HORIZON,        true,  LLSD::TypeArray, 
+            boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_DENSITY,        true,  LLSD::TypeReal,  
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  true,  LLSD::TypeReal,  
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, true,  LLSD::TypeReal,
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+    }
+    return legacyHazeValidation;
+}
 
 LLSettingsSky::validation_list_t rayleighValidationList()
 {
@@ -181,6 +208,24 @@ LLSettingsSky::validation_list_t mieValidationList()
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
     }
     return mieValidation;
+}
+
+bool validateLegacyHaze(LLSD &value)
+{
+    LLSettingsSky::validation_list_t legacyHazeValidations = legacyHazeValidationList();
+    llassert(value.type() == LLSD::Type::TypeMap);
+    LLSD result = LLSettingsBase::settingValidation(value, legacyHazeValidations);
+    if (result["errors"].size() > 0)
+    {
+        LL_WARNS("SETTINGS") << "Legacy Haze Config Validation errors: " << result["errors"] << LL_ENDL;
+        return false;
+    }
+    if (result["warnings"].size() > 0)
+    {
+        LL_WARNS("SETTINGS") << "Legacy Haze Config Validation warnings: " << result["errors"] << LL_ENDL;
+        return false;
+    }
+    return true;
 }
 
 bool validateRayleighLayers(LLSD &value)
@@ -404,8 +449,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
         validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,  
-
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+
+
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
@@ -470,6 +516,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
         validation.push_back(Validator(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers));
+        validation.push_back(Validator(SETTING_LEGACY_HAZE, false, LLSD::TypeMap, &validateLegacyHaze));
     }
     return validation;
 }
@@ -569,14 +616,45 @@ LLSD LLSettingsSky::defaults()
     return dfltsetting;
 }
 
-LLSD LLSettingsSky::translateLegacySettings(LLSD legacy)
+LLSD LLSettingsSky::translateLegacyHazeSettings(const LLSD& legacy)
 {
-    LLSD newsettings(defaults());
+    LLSD legacyhazesettings;
 
 // AdvancedAtmospherics TODO
 // These need to be translated into density profile info in the new settings format...
-// LEGACY_ATMOSPHERICS
-    
+// LEGACY_ATMOSPHERICS    
+    if (legacy.has(SETTING_BLUE_DENSITY))
+    {
+        legacyhazesettings[SETTING_BLUE_DENSITY] = LLColor3(legacy[SETTING_BLUE_DENSITY]).getValue();
+    }
+    if (legacy.has(SETTING_BLUE_HORIZON))
+    {
+        legacyhazesettings[SETTING_BLUE_HORIZON] = LLColor3(legacy[SETTING_BLUE_HORIZON]).getValue();
+    }
+    if (legacy.has(SETTING_DENSITY_MULTIPLIER))
+    {
+        legacyhazesettings[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(legacy[SETTING_DENSITY_MULTIPLIER][0].asReal());
+    }
+    if (legacy.has(SETTING_DISTANCE_MULTIPLIER))
+    {
+        legacyhazesettings[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(legacy[SETTING_DISTANCE_MULTIPLIER][0].asReal());
+    }
+    if (legacy.has(SETTING_HAZE_DENSITY))
+    {
+        legacyhazesettings[SETTING_HAZE_DENSITY] = LLSD::Real(legacy[SETTING_HAZE_DENSITY][0].asReal());
+    }
+    if (legacy.has(SETTING_HAZE_HORIZON))
+    {
+        legacyhazesettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
+    }
+
+    return legacyhazesettings;
+}
+
+LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
+{
+    LLSD newsettings(defaults());
+
     if (legacy.has(SETTING_BLUE_DENSITY))
     {
         newsettings[SETTING_BLUE_DENSITY] = LLColor3(legacy[SETTING_BLUE_DENSITY]).getValue();

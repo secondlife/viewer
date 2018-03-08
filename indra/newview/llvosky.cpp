@@ -555,77 +555,77 @@ BOOL LLVOSky::updateSky()
 
 		if (mForceUpdate || total_no_tiles == frame)
 		{
-			LLSkyTex::stepCurrent();
+		LLSkyTex::stepCurrent();
 			
-			const static F32 LIGHT_DIRECTION_THRESHOLD = (F32) cos(DEG_TO_RAD * 1.f);
-			const static F32 COLOR_CHANGE_THRESHOLD = 0.01f;
+		const static F32 LIGHT_DIRECTION_THRESHOLD = (F32) cos(DEG_TO_RAD * 1.f);
+		const static F32 COLOR_CHANGE_THRESHOLD = 0.01f;
 
-			LLVector3 direction = mSun.getDirection();
-			direction.normalize();
-			const F32 dot_lighting = direction * mLastLightingDirection;
+		LLVector3 direction = mSun.getDirection();
+		direction.normalize();
+		const F32 dot_lighting = direction * mLastLightingDirection;
 
-			LLColor3 delta_color;
-			delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
-							   mLastTotalAmbient.mV[1] - total_ambient.mV[1],
-                               mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
+		LLColor3 delta_color;
+		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
+							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
+                            mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
 
-			if ( mForceUpdate 
-				 || (((dot_lighting < LIGHT_DIRECTION_THRESHOLD)
-				 || (delta_color.length() > COLOR_CHANGE_THRESHOLD)
-				 || !mInitialized)
-				&& !direction.isExactlyZero()))
+		if ( mForceUpdate 
+				|| (((dot_lighting < LIGHT_DIRECTION_THRESHOLD)
+				|| (delta_color.length() > COLOR_CHANGE_THRESHOLD)
+				|| !mInitialized)
+			&& !direction.isExactlyZero()))
+		{
+			mLastLightingDirection = direction;
+            mLastTotalAmbient = total_ambient;
+			mInitialized = TRUE;
+
+			if (mCubeMap)
 			{
-				mLastLightingDirection = direction;
-                mLastTotalAmbient = total_ambient;
-				mInitialized = TRUE;
-
-				if (mCubeMap)
-				{
                     if (mForceUpdate)
 					{
-						updateFog(LLViewerCamera::getInstance()->getFar());
+				updateFog(LLViewerCamera::getInstance()->getFar());
 
-						for (int side = 0; side < 6; side++) 
-						{
-							for (int tile = 0; tile < NUM_TILES; tile++) 
-							{
-								createSkyTexture(side, tile);
-							}
-						}
+				for (int side = 0; side < 6; side++) 
+				{
+					for (int tile = 0; tile < NUM_TILES; tile++) 
+					{
+						createSkyTexture(side, tile);
+					}
+				}
 
-						for (int side = 0; side < 6; side++) 
-						{
-							LLImageRaw* raw1 = mSkyTex[side].getImageRaw(TRUE);
-							LLImageRaw* raw2 = mSkyTex[side].getImageRaw(FALSE);
-							raw2->copy(raw1);
-							mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
+				for (int side = 0; side < 6; side++) 
+				{
+					LLImageRaw* raw1 = mSkyTex[side].getImageRaw(TRUE);
+					LLImageRaw* raw2 = mSkyTex[side].getImageRaw(FALSE);
+					raw2->copy(raw1);
+					mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
 
-							raw1 = mShinyTex[side].getImageRaw(TRUE);
-							raw2 = mShinyTex[side].getImageRaw(FALSE);
-							raw2->copy(raw1);
-							mShinyTex[side].createGLImage(mShinyTex[side].getWhich(FALSE));
-						}
-						next_frame = 0;	
+					raw1 = mShinyTex[side].getImageRaw(TRUE);
+					raw2 = mShinyTex[side].getImageRaw(FALSE);
+					raw2->copy(raw1);
+					mShinyTex[side].createGLImage(mShinyTex[side].getWhich(FALSE));
+				}
+				next_frame = 0;	
 
-                        // update the sky texture
-			            for (S32 i = 0; i < 6; ++i)
-			            {
-				            mSkyTex[i].create(1.0f);
-				            mShinyTex[i].create(1.0f);
-			            }
+                // update the sky texture
+			    for (S32 i = 0; i < 6; ++i)
+			    {
+				    mSkyTex[i].create(1.0f);
+				    mShinyTex[i].create(1.0f);
+			    }
 
-                        // update the environment map
+                // update the environment map
 			            if (mCubeMap)
 			            {
-				            std::vector<LLPointer<LLImageRaw> > images;
-				            images.reserve(6);
-				            for (S32 side = 0; side < 6; side++)
-				            {
-					            images.push_back(mShinyTex[side].getImageRaw(TRUE));
-				            }
-				            mCubeMap->init(images);
-				            gGL.getTexUnit(0)->disable();
-			            }
+				std::vector<LLPointer<LLImageRaw> > images;
+				images.reserve(6);
+				for (S32 side = 0; side < 6; side++)
+				{
+					images.push_back(mShinyTex[side].getImageRaw(TRUE));
+				}
+				mCubeMap->init(images);
+				gGL.getTexUnit(0)->disable();
+			}
 					}
 				}
 			}

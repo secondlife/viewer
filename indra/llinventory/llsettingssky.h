@@ -79,6 +79,8 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
         static const std::string SETTING_MIE_ANISOTROPY_FACTOR;
 
+    static const std::string SETTING_LEGACY_HAZE;
+
     typedef std::shared_ptr<LLSettingsSky> ptr_t;
     typedef std::pair<F32, F32> azimalt_t;
 
@@ -403,7 +405,8 @@ public:
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
-    static LLSD     translateLegacySettings(LLSD legacy);
+    static LLSD translateLegacySettings(const LLSD& legacy);
+    static LLSD translateLegacyHazeSettings(const LLSD& legacy);
 
     LLColor3 getLightAttenuation(F32 distance) const;
     LLColor3 getLightTransmittance() const;
