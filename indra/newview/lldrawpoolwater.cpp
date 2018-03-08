@@ -609,8 +609,8 @@ void LLDrawPoolWater::shade()
 		
 	if (screentex > -1)
 	{
-		shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getFogColor().mV);
-        shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getFogDensity());
+		shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
+        shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getWaterFogDensity());
 		gPipeline.mWaterDis.bindTexture(0, screentex);
 	}
 	
@@ -620,8 +620,8 @@ void LLDrawPoolWater::shade()
 
 	if (mVertexShaderLevel == 1)
 	{
-        LLColor4 fog_color(pwater->getFogColor(), 0.f);
-        fog_color[3] = pwater->getFogDensity();
+        LLColor4 fog_color(pwater->getWaterFogColor(), 0.f);
+        fog_color[3] = pwater->getWaterFogDensity();
         shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, fog_color.mV);
 	}
 

@@ -920,7 +920,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				gPipeline.mScreen.bindTarget();
 				if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
 				{
-					const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getFogColor();
+					const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
 					glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 				}
 				gPipeline.mScreen.clear();

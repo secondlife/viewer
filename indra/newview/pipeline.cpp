@@ -10043,7 +10043,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			
-			LLColor3 col = LLEnvironment::instance().getCurrentWater()->getFogColor();
+			LLColor3 col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
 			glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 			mWaterDis.bindTarget();
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;

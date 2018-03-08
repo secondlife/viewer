@@ -307,7 +307,7 @@ public:
     void setFogRatio(const F32 fog_ratio)               { m_legacyAtmospherics.setFogRatio(fog_ratio); }
     F32  getFogRatio() const                            { return m_legacyAtmospherics.getFogRatio(); }
 
-    LLColor4 getFogColor() const                        { return m_legacyAtmospherics.getFogColor(); }
+    LLColor4 getSkyFogColor() const                        { return m_legacyAtmospherics.getFogColor(); }
     LLColor4 getGLFogColor() const                      { return m_legacyAtmospherics.getGLFogColor(); }
 
     LLColor4U getFadeColor() const;

@@ -377,11 +377,11 @@ void LLSky::setSunPhase(const F32 phase)
 //////////////////////////////////////////////////////////////////////
 
 
-LLColor4 LLSky::getFogColor() const
+LLColor4 LLSky::getSkyFogColor() const
 {
 	if (mVOSkyp)
 	{
-		return mVOSkyp->getFogColor();
+		return mVOSkyp->getSkyFogColor();
 	}
 
 	return LLColor4(1.f, 1.f, 1.f, 1.f);

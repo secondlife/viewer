@@ -1254,7 +1254,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
         const F32 attenuation = min_attenuation
             + cos_angle_of_view * (max_attenuation - min_attenuation);
 
-        LLColor4 hb_refl_col = (1 - attenuation) * hb_col + attenuation * getFogColor();
+        LLColor4 hb_refl_col = (1 - attenuation) * hb_col + attenuation * getSkyFogColor();
         face->setFaceColor(hb_refl_col);
 
         LLVector3 v_far[2];

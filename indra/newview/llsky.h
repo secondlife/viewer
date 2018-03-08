@@ -54,7 +54,7 @@ public:
 
 	void setSunDirection(const LLVector3 &sun_direction, const LLVector3 &moon_direction);
 
-	LLColor4 getFogColor() const;
+	LLColor4 getSkyFogColor() const;
 
 	void setCloudDensityAtAgent(F32 cloud_density);
 	void setWind(const LLVector3& wind);

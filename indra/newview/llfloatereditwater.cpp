@@ -184,10 +184,10 @@ void LLFloaterEditWater::syncControls()
     mWaterPresetCombo->setValue(name);
 
 	//getChild<LLUICtrl>("WaterGlow")->setValue(col.mV[3]);
-    getChild<LLColorSwatchCtrl>("WaterFogColor")->set(LLColor4(pwater->getFogColor()));
+    getChild<LLColorSwatchCtrl>("WaterFogColor")->set(LLColor4(pwater->getWaterFogColor()));
 
 	// fog and wavelets
-    mWaterAdapter->mFogDensity = pwater->getFogDensity();
+    mWaterAdapter->mFogDensity = pwater->getWaterFogDensity();
     getChild<LLUICtrl>("WaterFogDensity")->setValue(mWaterAdapter->mFogDensity.getExp());
 
     mWaterAdapter->mUnderWaterFogMod = pwater->getFogMod();

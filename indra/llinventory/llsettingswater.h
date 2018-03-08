@@ -76,22 +76,22 @@ public:
         setValue(SETTING_BLUR_MULTIPILER, val);
     }
 
-    LLColor3 getFogColor() const
+    LLColor3 getWaterFogColor() const
     {
         return LLColor3(mSettings[SETTING_FOG_COLOR]);
     }
 
-    void setFogColor(LLColor3 val)
+    void setWaterFogColor(LLColor3 val)
     {
         setValue(SETTING_FOG_COLOR, val);
     }
 
-    F32 getFogDensity() const
+    F32 getWaterFogDensity() const
     {
         return mSettings[SETTING_FOG_DENSITY].asReal();
     }
 
-    void setFogDensity(F32 val)
+    void setWaterFogDensity(F32 val)
     {
         setValue(SETTING_FOG_DENSITY, val);
     }
