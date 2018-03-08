@@ -789,40 +789,40 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
 void LLSettingsSky::calculateLightSettings()
 {
 // LEGACY_ATMOSPHERICS
-    // Initialize temp variables
-    LLColor3    sunlight = getSunlightColor();
-    LLColor3    ambient  = getAmbientColor();
-    F32         cloud_shadow = getCloudShadow();
-    LLVector3   lightnorm = getLightDirection();
+        // Initialize temp variables
+        LLColor3    sunlight = getSunlightColor();
+        LLColor3    ambient = getAmbientColor();
+        F32         cloud_shadow = getCloudShadow();
+        LLVector3   lightnorm = getLightDirection();
 
-    // Sunlight attenuation effect (hue and brightness) due to atmosphere
-    // this is used later for sunlight modulation at various altitudes
+        // Sunlight attenuation effect (hue and brightness) due to atmosphere
+        // this is used later for sunlight modulation at various altitudes
     F32      max_y = getMaxY();
     LLColor3 light_atten = getLightAttenuation(max_y);
     LLColor3 light_transmittance = getLightTransmittance();
         
-    // Compute sunlight from P & lightnorm (for long rays like sky)
-    /// USE only lightnorm.
-    // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+        // Compute sunlight from P & lightnorm (for long rays like sky)
+        /// USE only lightnorm.
+        // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
 
-    // and vary_sunlight will work properly with moon light
-    F32 lighty = lightnorm[1];
-    if (lighty < NIGHTTIME_ELEVATION_COS)
-    {
-        lighty = -lighty;
-    }
+        // and vary_sunlight will work properly with moon light
+        F32 lighty = lightnorm[1];
+        if (lighty < NIGHTTIME_ELEVATION_COS)
+        {
+            lighty = -lighty;
+        }
 
     lighty = llmax(0.f, lighty);
     if(lighty > 0.f)
-    {
+        {
         lighty = 1.f / lighty;
-    }
+        }
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
 
-    //increase ambient when there are more clouds
-    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
+        //increase ambient when there are more clouds
+        LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
 
-    //brightness of surface both sunlight and ambient
+        //brightness of surface both sunlight and ambient
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
@@ -862,12 +862,22 @@ namespace
         LLVector3 body_al(0.f, body_vector[1], body_vector[2]);
         
         if (fabs(body_az.normalize()) > 0.001)
+        {
             azimuth = angle_between(DUE_EAST, body_az);
+            if (body_az[1] < 0.0f)
+                azimuth = F_TWO_PI - azimuth;
+        }
         else
             azimuth = 0.0f;
 
         if (fabs(body_al.normalize()) > 0.001)
+        {
             altitude = angle_between(DUE_EAST, body_al);
+            if (body_al[2] < 0.0f)
+            {
+                altitude = F_TWO_PI - altitude;
+            }
+        }
         else
             altitude = 0.0f;
     }
