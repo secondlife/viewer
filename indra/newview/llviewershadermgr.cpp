@@ -3331,7 +3331,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         success = gInscatterRectProgram.createShader(NULL, NULL);
     }
 
-	if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+	if (success)
 	{
 		gWLSkyProgram.mName = "Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
@@ -3340,10 +3340,12 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		if (gAtmosphere != nullptr)
+		gWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
 		success = gWLSkyProgram.createShader(NULL, NULL);
 	}
 
-    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+	if (success)
 	{
 		gWLCloudProgram.mName = "Windlight Cloud Program";
 		//gWLCloudProgram.mFeatures.hasGamma = true;
@@ -3352,6 +3354,8 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		if (gAtmosphere != nullptr)
+		gWLCloudProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
 		success = gWLCloudProgram.createShader(NULL, NULL);
 	}
 

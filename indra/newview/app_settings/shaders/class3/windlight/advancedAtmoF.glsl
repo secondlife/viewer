@@ -33,6 +33,7 @@ in vec3 view_dir;
 
 uniform vec3 cameraPosLocal;
 uniform vec3 sun_direction;
+uniform float sun_size;
 
 uniform sampler2D transmittance_texture;
 uniform sampler3D scattering_texture;
@@ -54,7 +55,7 @@ void main()
     radiance *= transmittance;
 
     // If the view ray intersects the Sun, add the Sun radiance.
-    if (dot(view_direction, sun_direction) >= sun_size.y)
+    if (dot(view_direction, sun_direction) >= sun_size)
     {
         radiance = radiance + transmittance * GetSolarLuminance();
     }
