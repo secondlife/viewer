@@ -88,9 +88,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>226ab55f8020fc3749b75418cc3cc2ce</string>
+              <string>738c6399c0c9e939f59998b15bb8cdeb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14657/93975/libatmosphere-1.0.0.100-windows64-513164.tar.bz2</string>              
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14661/93999/libatmosphere-1.0.0.100-windows-513164.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -100,9 +100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	            <string>270b62e46a004efb822032fa083d2735</string>
+	            <string>226ab55f8020fc3749b75418cc3cc2ce</string>
               <key>url</key>
-	            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14537/92963/libatmosphere-1.0.0.100-windows64-513092.tar.bz2</string>              
+	            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14657/93975/libatmosphere-1.0.0.100-windows64-513164.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
