@@ -3032,9 +3032,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1b0134bc55f55a7c1a04ee78d70c64d</string>
+              <string>9967239f089286df6602ecdc286d0e5e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12438/73598/slvoice-4.9.0002.27586.511884-darwin64-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14696/94164/slvoice-4.9.0002.29501.513182-darwin64-513182.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3068,9 +3068,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec50c31efce74bdedee470b5388aeeec</string>
+              <string>2bc9ec543ec9caaf1bf9b3975e6309ae</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12434/73576/slvoice-4.9.0002.27586.511884-windows-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14697/94170/slvoice-4.9.0002.29501.513182-windows-513182.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3080,16 +3080,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4bf45d641bf5b2bd6b2cc39edcb01a6e</string>
+              <string>c591df530ba802e1cf50119f4248a952</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12433/73570/slvoice-4.9.0002.27586.511884-windows64-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14698/94176/slvoice-4.9.0002.29501.513182-windows64-513182.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.27586.511884</string>
+        <string>4.9.0002.29501.513182</string>
       </map>
       <key>tut</key>
       <map>
