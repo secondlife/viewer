@@ -22,6 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+/*[EXTRA_CODE_HERE]*/
  
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];

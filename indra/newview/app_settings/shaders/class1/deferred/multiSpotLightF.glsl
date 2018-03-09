@@ -30,13 +30,13 @@
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
 
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
-
-/*[EXTRA_CODE_HERE]*/
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;

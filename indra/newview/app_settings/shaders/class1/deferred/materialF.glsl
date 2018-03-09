@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
  
+/*[EXTRA_CODE_HERE]*/
+
 #define DIFFUSE_ALPHA_MODE_IGNORE	0
 #define DIFFUSE_ALPHA_MODE_BLEND	1
 #define DIFFUSE_ALPHA_MODE_MASK		2
