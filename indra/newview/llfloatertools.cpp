@@ -1317,7 +1317,6 @@ void LLFloaterTools::getMediaState()
 	
 	std::string multi_media_info_str = LLTrans::getString("Multiple Media");
 	std::string media_title = "";
-	mNeedMediaTitle = false;
 	// update UI depending on whether "object" (prim or face) has media
 	// and whether or not you are allowed to edit it.
 	
@@ -1335,17 +1334,12 @@ void LLFloaterTools::getMediaState()
 			{
 				// initial media title is the media URL (until we get the name)
 				media_title = media_data_get.getHomeURL();
-
-				// kick off a navigate and flag that we need to update the title
-				navigateToTitleMedia( media_data_get.getHomeURL() );
-				mNeedMediaTitle = true;
 			}
 			// else all faces might be empty. 
 		}
 		else // there' re Different Medias' been set on on the faces.
 		{
 			media_title = multi_media_info_str;
-			mNeedMediaTitle = false;
 		}
 		
 		getChildView("media_tex")->setEnabled(bool_has_media && editable);
@@ -1362,7 +1356,6 @@ void LLFloaterTools::getMediaState()
 		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia)
 		{
 			media_title = multi_media_info_str;
-			mNeedMediaTitle = false;
 		}
 		else
 		{
@@ -1371,10 +1364,6 @@ void LLFloaterTools::getMediaState()
 			{
 				// initial media title is the media URL (until we get the name)
 				media_title = media_data_get.getHomeURL();
-
-				// kick off a navigate and flag that we need to update the title
-				navigateToTitleMedia( media_data_get.getHomeURL() );
-				mNeedMediaTitle = true;
 			}
 		}
 		
@@ -1383,6 +1372,8 @@ void LLFloaterTools::getMediaState()
 		getChildView("delete_media")->setEnabled(TRUE);
 		getChildView("add_media")->setEnabled(editable);
 	}
+
+	navigateToTitleMedia(media_title);
 	media_info->setText(media_title);
 	
 	// load values for media settings
@@ -1472,16 +1463,31 @@ void LLFloaterTools::clearMediaSettings()
 //
 void LLFloaterTools::navigateToTitleMedia( const std::string url )
 {
-	if ( mTitleMedia )
+	std::string multi_media_info_str = LLTrans::getString("Multiple Media");
+	if (url.empty() || multi_media_info_str == url)
+	{
+		// nothing to show
+		mNeedMediaTitle = false;
+	}
+	else if (mTitleMedia)
 	{
 		LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
-		if ( media_plugin )
+
+		if ( media_plugin ) // Shouldn't this be after navigateTo creates plugin?
 		{
 			// if it's a movie, we don't want to hear it
 			media_plugin->setVolume( 0 );
 		};
-		mTitleMedia->navigateTo( url );
-	};
+
+		// check if url changed or if we need a new media source
+		if (mTitleMedia->getCurrentNavUrl() != url || media_plugin == NULL)
+		{
+			mTitleMedia->navigateTo( url );
+		}
+
+		// flag that we need to update the title (even if no request were made)
+		mNeedMediaTitle = true;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

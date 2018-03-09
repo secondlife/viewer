@@ -500,11 +500,6 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	// ...and clean up any media impls
 	cleanUpMediaImpls();
 
-    if (getAvatar())
-    {
-        // ARCTAN
-        getAvatar()->updateVisualComplexity();
-    }
 	return retval;
 }
 
@@ -633,7 +628,7 @@ void LLVOVolume::updateTextures()
 		if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
 		{ //delete vertex buffer to free up some VRAM
 			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
-			if (group)
+			if (group && (group->mVertexBuffer.notNull() || !group->mBufferMap.empty() || !group->mDrawMap.empty()))
 			{
 				group->destroyGL(true);
 
@@ -1335,7 +1330,7 @@ BOOL LLVOVolume::calcLOD()
 	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-                                  ll_round(radius, 0.01f));
+									ll_round(radius, 0.01f));
 
 
 #if 0
@@ -1371,7 +1366,9 @@ BOOL LLVOVolume::calcLOD()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
-		setDebugText(llformat("%.2f:%.2f, LOD %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
+		//setDebugText(llformat("%.2f:%.2f, %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
+
+		setDebugText(llformat("%d", mDrawable->getFace(0)->getTextureIndex()));
 	}
 
 	if (cur_detail != mLOD)
@@ -1403,7 +1400,7 @@ BOOL LLVOVolume::updateLOD()
             LLVOAvatar* avatar = getAvatar(); 
             avatar->mFrameDataStale = true;
         }
-    }
+	}
 	else
 	{
 		F32 new_radius = getBinRadius();
@@ -3512,9 +3509,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 	if (has_volume)
 	{
 		volume_params = getVolume()->getParams();
-        // ARC FIXME not used
 		path_params = volume_params.getPathParams();
-        // ARC FIXME not used
 		profile_params = volume_params.getProfileParams();
 
 		F32 weighted_triangles = -1.0;

@@ -37,6 +37,7 @@
 #include "llviewerregion.h"
 #include "llvopartgroup.h"
 #include "llworld.h"
+#include "llmutelist.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "llvoavatarself.h"
@@ -711,6 +712,11 @@ void LLViewerPartSim::updateSimulation()
 				upd = FALSE;
 			}
 
+			if(vobj && vobj->isOwnerInMuteList(mViewerPartSources[i]->getOwnerUUID()))
+			{
+				upd = FALSE;
+			}
+
 			if (upd && vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
 			{
 				if(vobj->getAvatar() && vobj->getAvatar()->isTooComplex())
@@ -750,7 +756,7 @@ void LLViewerPartSim::updateSimulation()
 		LLViewerObject* vobj = mViewerPartGroups[i]->mVOPartGroupp;
 
 		S32 visirate = 1;
-		if (vobj)
+		if (vobj && !vobj->isDead() && vobj->mDrawable && !vobj->mDrawable->isDead())
 		{
 			LLSpatialGroup* group = vobj->mDrawable->getSpatialGroup();
 			if (group && !group->isVisible()) // && !group->isState(LLSpatialGroup::OBJECT_DIRTY))
@@ -761,7 +767,7 @@ void LLViewerPartSim::updateSimulation()
 
 		if ((LLDrawable::getCurrentFrame()+mViewerPartGroups[i]->mID)%visirate == 0)
 		{
-			if (vobj)
+			if (vobj && !vobj->isDead())
 			{
 				gPipeline.markRebuild(vobj->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 			}

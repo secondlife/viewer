@@ -56,6 +56,8 @@ LL_COMMON_API char* ll_print_sd(const LLSD& sd);
 LL_COMMON_API char* ll_pretty_print_sd_ptr(const LLSD* sd);
 LL_COMMON_API char* ll_pretty_print_sd(const LLSD& sd);
 
+LL_COMMON_API std::string ll_stream_notation_sd(const LLSD& sd);
+
 //compares the structure of an LLSD to a template LLSD and stores the
 //"valid" values in a 3rd LLSD. Default values
 //are pulled from the template.  Extra keys/values in the test
