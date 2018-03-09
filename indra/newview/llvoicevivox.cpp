@@ -731,6 +731,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     if (!voiceEnabled())
     {
         // Voice is locked out, we must not launch the vivox daemon.
+        LL_WARNS("Voice") << "voice disabled; not starting daemon" << LL_ENDL;
         return false;
     }
 
@@ -889,12 +890,14 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
     while (!gAgent.getRegion())
     {
+        LL_DEBUGS("Voice") << "no region for voice provisioning; waiting " << LL_ENDL;
         // *TODO* Set up a call back on agent that sends a message to a pump we can use to wake up.
         llcoro::suspend();
     }
 
     while (!gAgent.getRegion()->capabilitiesReceived())
     {
+        LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
         // *TODO* Pump a message for wake up.
         llcoro::suspend();
     }
@@ -1279,17 +1282,30 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
         LLSD voice_credentials = result["voice_credentials"];
         if (voice_credentials.has("channel_uri"))
         {
+            LL_DEBUGS("Voice") << "got voice channel uri" << LL_ENDL;
             uri = voice_credentials["channel_uri"].asString();
         }
+        else
+        {
+            LL_WARNS("Voice") << "No voice channel uri" << LL_ENDL;
+        }
+        
         if (voice_credentials.has("channel_credentials"))
         {
+            LL_DEBUGS("Voice") << "got voice channel credentials" << LL_ENDL;
             credentials =
                 voice_credentials["channel_credentials"].asString();
         }
-    }
+        else
+        {
+            LL_WARNS("Voice") << "No voice channel credentials" << LL_ENDL;
 
-    if (!uri.empty())
-        LL_INFOS("Voice") << "Voice URI is " << uri << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_WARNS("Voice") << "No voice credentials" << LL_ENDL;
+    }
 
     // set the spatial channel.  If no voice credentials or uri are 
     // available, then we simply drop out of voice spatially.
@@ -1633,8 +1649,10 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         if (mRelogRequested)
         {
+            LL_DEBUGS("Voice") << "Relog Requested, restarting provisioning" << LL_ENDL;
             if (!provisionVoiceAccount())
             {
+                LL_WARNS("Voice") << "provisioning voice failed; giving up" << LL_ENDL;
                 giveUp();
                 return false;
             }
