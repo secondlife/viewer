@@ -1692,7 +1692,7 @@
           <key>darwin</key>
           <map>
             <key>archive</key>
-            <map>
+            <map>              
               <key>hash</key>
               <string>f7e439bce290629ba1c3142c64828dea</string>
               <key>url</key>
@@ -1705,7 +1705,7 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
+              <key>hash</key>              
               <string>348da9aaf4f1f139229f2002b8711591</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14311/90624/kdu-7.A.3.512987-darwin64-512987.tar.bz2</string>
@@ -1717,7 +1717,7 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
+              <key>hash</key>              
               <string>c5d4a4408860e3ecfd638d018736085e</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/14309/90633/kdu-7.A.3.512987-linux-512987.tar.bz2</string>
@@ -1752,7 +1752,7 @@
           <key>windows64</key>
           <map>
             <key>archive</key>
-            <map>
+            <map>              
               <key>hash</key>
               <string>d891baa6da8033c2229502301b10beca</string>
               <key>url</key>
