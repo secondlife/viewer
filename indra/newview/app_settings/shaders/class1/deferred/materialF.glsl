@@ -33,6 +33,10 @@
 uniform float emissive_brightness;
 uniform float display_gamma;
 
+#ifdef WATER_FOG
+vec4 applyWaterFogView(vec3 pos, vec4 color);
+#endif
+
 vec3 srgb_to_linear(vec3 cs)
 {
 	vec3 low_range = cs / vec3(12.92);
@@ -153,52 +157,6 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-#ifdef WATER_FOG
-uniform vec4 waterPlane;
-uniform vec4 waterFogColor;
-uniform float waterFogDensity;
-uniform float waterFogKS;
-
-vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
-{
-	//normalize view vector
-	vec3 view = normalize(pos);
-	float es = -(dot(view, waterPlane.xyz));
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
-	
-	//get object depth
-	float depth = length(pos - int_v);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	
-	color.rgb = color.rgb * D + kc.rgb * L;
-	color.a = kc.a + color.a;
-	
-	return color;
-}
-#endif
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -773,7 +731,7 @@ void main()
 	col.rgb = linear_to_srgb(col.rgb);
 
 #ifdef WATER_FOG
-	vec4 temp = applyWaterFogDeferred(pos, vec4(col.rgb, al));
+	vec4 temp = applyWaterFogView(pos, vec4(col.rgb, al));
 	col.rgb = temp.rgb;
 	al = temp.a;
 #endif

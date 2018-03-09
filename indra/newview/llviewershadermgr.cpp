@@ -1350,6 +1350,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
 			gDeferredMaterialWaterProgram[i].addPermutation("WATER_FOG","1");
 
+            gDeferredMaterialWaterProgram[i].mFeatures.hasWaterFog = true;
+
 			if (has_skin)
 			{
 				gDeferredMaterialWaterProgram[i].mFeatures.hasObjectSkinning = true;
@@ -1566,6 +1568,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaWaterProgram.mFeatures.hasLighting = false;
 		gDeferredAlphaWaterProgram.mFeatures.isAlphaLighting = true;
 		gDeferredAlphaWaterProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+        gDeferredAlphaWaterProgram.mFeatures.hasWaterFog = true;
 		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
 		{
 			gDeferredAlphaWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
@@ -1640,6 +1643,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightWaterProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightWaterProgram.mFeatures.hasTransport = true;
+        gDeferredFullbrightWaterProgram.mFeatures.hasWaterFog = true;
 		gDeferredFullbrightWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightWaterProgram.mShaderFiles.clear();
 		gDeferredFullbrightWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER_ARB));
@@ -1656,6 +1660,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasTransport = true;
+        gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasWaterFog = true;
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.clear();
 		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER_ARB));
@@ -1780,6 +1785,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredSoftenWaterProgram.addPermutation("WATER_FOG", "1");
 		gDeferredSoftenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+        gDeferredSoftenWaterProgram.mFeatures.hasWaterFog = true;
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled

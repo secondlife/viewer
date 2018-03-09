@@ -33,10 +33,10 @@ uniform float waterFogKS;
 
 vec3 getPositionEye();
 
-vec4 applyWaterFog(vec4 color)
+vec4 applyWaterFogView(vec3 pos, vec4 color)
 {
+	vec3 view = normalize(pos);
 	//normalize view vector
-	vec3 view = normalize(getPositionEye());
 	float es = -(dot(view, waterPlane.xyz));
 
 	//find intersection point with water plane and eye vector
@@ -47,7 +47,7 @@ vec4 applyWaterFog(vec4 color)
 	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
 	
 	//get object depth
-	float depth = length(getPositionEye() - int_v);
+	float depth = length(pos - int_v);
 		
 	//get "thickness" of water
 	float l = max(depth, 0.1);
@@ -70,5 +70,11 @@ vec4 applyWaterFog(vec4 color)
 	color.a = kc.a + color.a;
 	
 	return color;
+}
+
+vec4 applyWaterFog(vec4 color)
+{
+	//normalize view vector
+        return applyWaterFogView(getPositionEye(), color);
 }
 
