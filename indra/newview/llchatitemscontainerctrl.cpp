@@ -242,27 +242,28 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
 	S32 chars_in_line = mMsgText->getRect().getWidth() / messageFont->getWidth("c");
 	S32 max_lines = notification["available_height"].asInteger() / (mMsgText->getTextPixelHeight() + 4);
-	S32 new_line_chars = std::count(messageText.begin(), messageText.end(), '\n');
-	S32 lines_count = (messageText.size() - new_line_chars) / chars_in_line + new_line_chars + 1;
+	int lines = 0;
+	int chars = 0;
 
-	//Remove excessive chars if message is not fit in available height. MAINT-6891
-	if(lines_count > max_lines)
+	//Remove excessive chars if message does not fit in available height. MAINT-6891
+	std::string::iterator it;
+	for (it = messageText.begin(); it < messageText.end() && lines < max_lines; it++)
 	{
-		while(lines_count > max_lines)
+		if (*it == '\n')
+			++lines;
+		else
+			++chars;
+
+		if (chars >= chars_in_line)
 		{
-			std::size_t nl_pos = messageText.rfind('\n');
-			if (nl_pos != std::string::npos)
-			{
-				nl_pos = nl_pos > messageText.length() - chars_in_line? nl_pos : messageText.length() - chars_in_line;
-				messageText.erase(messageText.begin() + nl_pos, messageText.end());
-			}
-			else
-			{
-				messageText.erase(messageText.end() - chars_in_line, messageText.end());
-			}
-			new_line_chars = std::count(messageText.begin(), messageText.end(), '\n');
-			lines_count = (messageText.size() - new_line_chars) / chars_in_line + new_line_chars;
+			chars = 0;
+			++lines;
 		}
+	}
+
+	if (it < messageText.end())
+	{
+		messageText.erase(it, messageText.end());
 		messageText += " ...";
 	}
 

@@ -291,37 +291,20 @@ void LLScopedLock::unlock()
 
 //---------------------------------------------------------------------
 
-bool ll_apr_warn_status(apr_status_t status)
+bool _ll_apr_warn_status(apr_status_t status, const char* file, int line)
 {
 	if(APR_SUCCESS == status) return false;
 #if !LL_LINUX
 	char buf[MAX_STRING];	/* Flawfinder: ignore */
 	apr_strerror(status, buf, sizeof(buf));
-	LL_WARNS("APR") << "APR: " << buf << LL_ENDL;
+	LL_WARNS("APR") << "APR: " << file << ":" << line << " " << buf << LL_ENDL;
 #endif
 	return true;
 }
 
-bool ll_apr_warn_status(apr_status_t status, apr_dso_handle_t *handle)
+void _ll_apr_assert_status(apr_status_t status, const char* file, int line)
 {
-    bool result = ll_apr_warn_status(status);
-    // Despite observed truncation of actual Mac dylib load errors, increasing
-    // this buffer to more than MAX_STRING doesn't help: it appears that APR
-    // stores the output in a fixed 255-character internal buffer. (*sigh*)
-    char buf[MAX_STRING];           /* Flawfinder: ignore */
-    apr_dso_error(handle, buf, sizeof(buf));
-    LL_WARNS("APR") << "APR: " << buf << LL_ENDL;
-    return result;
-}
-
-void ll_apr_assert_status(apr_status_t status)
-{
-	llassert(! ll_apr_warn_status(status));
-}
-
-void ll_apr_assert_status(apr_status_t status, apr_dso_handle_t *handle)
-{
-    llassert(! ll_apr_warn_status(status, handle));
+	llassert(! _ll_apr_warn_status(status, file, line));
 }
 
 //---------------------------------------------------------------------

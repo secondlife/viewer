@@ -871,7 +871,7 @@ private:
 	 */
 	bool isSelectionChanged()
 	{	
-		LLInventoryPanel* active_panel = dynamic_cast<LLInventoryPanel*>(mActivePanel.get());
+		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
 
 		if (NULL == active_panel)
 		{
@@ -880,18 +880,18 @@ private:
 
 		// get selected items (without destination folder)
 		selected_items_t selected_items;
-
-        if (LLInventoryPanel::getActiveInventoryPanel() &&
+ 		
+if (LLInventoryPanel::getActiveInventoryPanel() &&
             LLInventoryPanel::getActiveInventoryPanel()->getRootFolder())
         {
             std::set<LLFolderViewItem*> selection =
-                LLInventoryPanel::getActiveInventoryPanel()->getRootFolder()->getSelectionList();
-            for (std::set<LLFolderViewItem*>::iterator it = selection.begin(),    end_it = selection.end();
-                 it != end_it;
-                 ++it)
-            {
-                selected_items.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
-            }
+                LLInventoryPanel::getActiveInventoryPanel()->getRootFolder()->getSelectionList(); 		
+		for (std::set<LLFolderViewItem*>::iterator it = selection.begin(),    end_it = selection.end();
+			it != end_it;
+			++it)
+		{
+			selected_items.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+		}
         }
 		selected_items.erase(mMoveIntoFolderID);
 

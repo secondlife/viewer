@@ -995,7 +995,8 @@ void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
     // Reset selection if the outfit is selected.
     if (category_id == mSelectedOutfitUUID)
     {
-        signalSelectionOutfitUUID(LLUUID::null);
+        mSelectedOutfitUUID = LLUUID::null;
+        signalSelectionOutfitUUID(mSelectedOutfitUUID);
     }
 }
 

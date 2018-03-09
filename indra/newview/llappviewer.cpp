@@ -1383,15 +1383,15 @@ bool LLAppViewer::frame()
 
     if (LLTrace::get_thread_recorder().notNull())
     {
-        LLTrace::BlockTimer::processTimes();
-	    LLTrace::get_frame_recording().nextPeriod();
+	LLTrace::BlockTimer::processTimes();
+	LLTrace::get_frame_recording().nextPeriod();
     }
 
     doPerFrameStatsLogging();
     
     if (LLTrace::get_thread_recorder().notNull())
     {
-	    LLTrace::get_thread_recorder()->pullFromChildren();
+	LLTrace::get_thread_recorder()->pullFromChildren();
     }
 
 	//clear call stack records
@@ -2245,8 +2245,9 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	//
 	// Set up logging defaults for the viewer
 	//
-	LLError::initForApplication(
-				gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
+                                ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
+                                );
 	LLError::setFatalFunction(errorCallback);
 	//LLError::setTimeFunction(getRuntime);
 
@@ -4204,8 +4205,8 @@ void dumpVFSCaches()
 	S32 res = LLFile::mkdir("StaticVFSDump");
 	if (res == -1)
 	{
-			LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
+	}
 	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
 	gStaticVFS->dumpFiles();
 	SetCurrentDirectory(w_str);
@@ -4218,8 +4219,8 @@ void dumpVFSCaches()
 	res = LLFile::mkdir("VFSDump");
 	if (res == -1)
 	{
-			LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
+	}
 	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
 	gVFS->dumpFiles();
 	SetCurrentDirectory(w_str);

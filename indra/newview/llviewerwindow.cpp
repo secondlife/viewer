@@ -2267,6 +2267,7 @@ void LLViewerWindow::shutdownGL()
 LLViewerWindow::~LLViewerWindow()
 {
 	LL_INFOS() << "Destroying Window" << LL_ENDL;
+	gDebugWindowProc = TRUE; // event catching, at this point it shouldn't output at all
 	destroyWindow();
 
 	delete mDebugText;
@@ -4437,7 +4438,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 
 		if (is_snapshot_name_loc_set)
 		{
-		filepath += llformat("_%.3d",i);
+			filepath += llformat("_%.3d",i);
 		}		
 
 		filepath += extension;
@@ -4446,7 +4447,8 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 		err = LLFile::stat( filepath, &stat_info );
 		i++;
 	}
-	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
+	while( -1 != err  // Search until the file is not found (i.e., stat() gives an error).
+			&& is_snapshot_name_loc_set); // Or stop if we are rewriting.
 
 	LL_INFOS() << "Saving snapshot to " << filepath << LL_ENDL;
 	return image->save(filepath);

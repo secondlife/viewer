@@ -2806,9 +2806,6 @@ Wybierz Zablokuj żeby wyciszyć tą osobę.
 	<notification name="VoiceChannelJoinFailed">
 		Brak połączenia z [VOICE_CHANNEL_NAME], spróbuj później. Przełączanie do rozmowy w czacie lokalnym.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Tworzymy kanał głosu dla Ciebie. To może potrwać minutę.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Subskrypcja jednego lub więcej Przekształceń Głosu wygasła.
 [[URL] Kliknij tutaj] oby odnowić subskrypcję.

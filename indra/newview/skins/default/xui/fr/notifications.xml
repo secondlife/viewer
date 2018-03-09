@@ -3304,9 +3304,6 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 	<notification name="VoiceChannelJoinFailed">
 		Échec de la connexion avec [VOICE_CHANNEL_NAME], veuillez réessayer ultérieurement.  Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Nous sommes en train de créer un canal vocal pour vous. Veuillez patienter quelques instants.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Au moins l&apos;un des effets de voix auxquels vous êtes abonné a expiré.
 [[URL] Cliquez ici] pour renouveler votre abonnement.
