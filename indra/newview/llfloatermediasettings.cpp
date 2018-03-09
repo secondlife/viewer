@@ -171,8 +171,12 @@ void LLFloaterMediaSettings::onClose(bool app_quitting)
 void LLFloaterMediaSettings::initValues( const LLSD& media_settings, bool editable )
 {
 	if (sInstance->hasFocus()) return;
-	
-	sInstance->clearValues(editable);
+
+	// Clear values
+	sInstance->mPanelMediaSettingsGeneral->clearValues(sInstance->mPanelMediaSettingsGeneral, editable, false /*don't update preview*/);
+	sInstance->mPanelMediaSettingsSecurity->clearValues(sInstance->mPanelMediaSettingsSecurity,	editable);
+	sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions,  editable);
+
 	// update all panels with values from simulator
 	sInstance->mPanelMediaSettingsGeneral->
 		initValues( sInstance->mPanelMediaSettingsGeneral, media_settings, editable );

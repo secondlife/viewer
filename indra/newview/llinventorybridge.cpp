@@ -43,6 +43,7 @@
 #include "llfloatermarketplacelistings.h"
 #include "llfloateroutfitphotopreview.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llsidepanelinventory.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
 #include "llfriendcard.h"
@@ -1828,11 +1829,24 @@ void LLItemBridge::gotoItem()
 	LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
 	{
-		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
-		if (active_panel)
+		const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
+		if (gInventory.isObjectDescendentOf(obj->getLinkedUUID(), inbox_id))
 		{
-			active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+			LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			if (sidepanel_inventory && sidepanel_inventory->getInboxPanel())
+			{
+				sidepanel_inventory->getInboxPanel()->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+			}
 		}
+		else
+		{
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			if (active_panel)
+			{
+				active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+			}
+		}
+
 	}
 }
 
@@ -2199,8 +2213,24 @@ std::string LLFolderBridge::getLabelSuffix() const
     {
         return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
     }
-    
-    return LLInvFVBridge::getLabelSuffix();
+    std::string suffix = "";
+    if(mShowDescendantsCount)
+    {
+        LLInventoryModel::cat_array_t cat_array;
+        LLInventoryModel::item_array_t item_array;
+        gInventory.collectDescendents(getUUID(), cat_array, item_array, TRUE);
+        S32 count = item_array.size();
+        if(count > 0)
+        {
+            std::ostringstream oss;
+            oss << count;
+            LLStringUtil::format_map_t args;
+            args["[ITEMS_COUNT]"] = oss.str();
+            suffix = " " + LLTrans::getString("InventoryItemsCount", args);
+        }
+    }
+
+    return LLInvFVBridge::getLabelSuffix() + suffix;
 }
 
 LLFontGL::StyleFlags LLFolderBridge::getLabelStyle() const

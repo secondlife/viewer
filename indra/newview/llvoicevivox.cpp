@@ -888,14 +888,9 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 bool LLVivoxVoiceClient::provisionVoiceAccount()
 {
     LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
-    while (!gAgent.getRegion())
-    {
         LL_DEBUGS("Voice") << "no region for voice provisioning; waiting " << LL_ENDL;
-        // *TODO* Set up a call back on agent that sends a message to a pump we can use to wake up.
-        llcoro::suspend();
-    }
 
-    while (!gAgent.getRegion()->capabilitiesReceived())
+    while (!gAgent.getRegion() || !gAgent.getRegion()->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
         // *TODO* Pump a message for wake up.

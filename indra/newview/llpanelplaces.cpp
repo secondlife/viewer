@@ -395,11 +395,16 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 			mPlaceInfoType = key_type;
 			mPosGlobal.setZero();
 			mItem = NULL;
+			mRegionId.setNull();
 			togglePlaceInfoPanel(TRUE);
 
 			if (mPlaceInfoType == AGENT_INFO_TYPE)
 			{
 				mPlaceProfile->setInfoType(LLPanelPlaceInfo::AGENT);
+				if (gAgent.getRegion())
+				{
+					mRegionId = gAgent.getRegion()->getRegionID();
+				}
 			}
 			else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
 			{
@@ -471,6 +476,8 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
 	if (!parcel_mgr)
 		return;
+
+	mParcelLocalId = parcel_mgr->getAgentParcel()->getLocalID();
 
 	// Start using LLViewerParcelMgr for land selection if
 	// information about nearby land is requested.
@@ -828,10 +835,21 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	{
 		menu = mPlaceMenu;
 
+		bool landmark_item_enabled = false;
+		LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+		if (is_agent_place_info_visible
+			&& gAgent.getRegion()
+			&& mRegionId == gAgent.getRegion()->getRegionID()
+			&& parcel_mgr
+			&& parcel_mgr->getAgentParcel()->getLocalID() == mParcelLocalId)
+		{
+			// Floater still shows location identical to agent's position
+			landmark_item_enabled = !LLLandmarkActions::landmarkAlreadyExists();
+		}
+
 		// Enable adding a landmark only for agent current parcel and if
 		// there is no landmark already pointing to that parcel in agent's inventory.
-		menu->getChild<LLMenuItemCallGL>("landmark")->setEnabled(is_agent_place_info_visible &&
-																 !LLLandmarkActions::landmarkAlreadyExists());
+		menu->getChild<LLMenuItemCallGL>("landmark")->setEnabled(landmark_item_enabled);
 		// STORM-411
 		// Creating landmarks for remote locations is impossible.
 		// So hide menu item "Make a Landmark" in "Teleport History Profile" panel.

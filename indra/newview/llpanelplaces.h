@@ -146,6 +146,10 @@ private:
 	// Information type currently shown in Place Information panel
 	std::string					mPlaceInfoType;
 
+	// Region and parcel ids, to detect location changes in case of AGENT_INFO_TYPE
+	LLUUID						mRegionId;
+	S32							mParcelLocalId;
+
 	bool						isLandmarkEditModeOn;
 
 	// Holds info whether "My Landmarks" and "Teleport History" tabs have been created.
