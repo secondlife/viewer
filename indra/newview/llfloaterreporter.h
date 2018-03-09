@@ -83,7 +83,8 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
-	virtual void draw();
+
+	static void onIdle(void* user_data);
 	
 	void setReportType(EReportType type) { mReportType = type; }
 	

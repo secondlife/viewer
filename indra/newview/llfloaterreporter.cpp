@@ -162,9 +162,9 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 	mPosition(),
 	mCopyrightWarningSeen( FALSE ),
 	mResourceDatap(new LLResourceData()),
-	mAvatarNameCacheConnection(),
-	mSnapshotTimer()
+	mAvatarNameCacheConnection()
 {
+	gIdleCallbacks.addFunction(onIdle, this);
 }
 
 // virtual
@@ -225,6 +225,7 @@ LLFloaterReporter::~LLFloaterReporter()
 	{
 		mAvatarNameCacheConnection.disconnect();
 	}
+	gIdleCallbacks.deleteFunction(onIdle, this);
 
 	// child views automatically deleted
 	mObjectID 		= LLUUID::null;
@@ -242,15 +243,17 @@ LLFloaterReporter::~LLFloaterReporter()
 	delete mResourceDatap;
 }
 
-// virtual
-void LLFloaterReporter::draw()
+void LLFloaterReporter::onIdle(void* user_data)
 {
-	LLFloater::draw();
-	static LLCachedControl<F32> screenshot_delay(gSavedSettings, "AbuseReportScreenshotDelay");
-	if (mSnapshotTimer.getStarted() && mSnapshotTimer.getElapsedTimeF32() > screenshot_delay)
+	LLFloaterReporter* floater_reporter = (LLFloaterReporter*)user_data;
+	if (floater_reporter)
 	{
-		mSnapshotTimer.stop();
-		takeNewSnapshot();
+		static LLCachedControl<F32> screenshot_delay(gSavedSettings, "AbuseReportScreenshotDelay");
+		if (floater_reporter->mSnapshotTimer.getStarted() && floater_reporter->mSnapshotTimer.getElapsedTimeF32() > screenshot_delay)
+		{
+			floater_reporter->mSnapshotTimer.stop();
+			floater_reporter->takeNewSnapshot();
+		}
 	}
 }
 
