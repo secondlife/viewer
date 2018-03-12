@@ -61,11 +61,7 @@ VARYING vec4 view;
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
+vec2 encode_normal(vec3 n);
 
 vec4 applyWaterFog(vec4 color, vec3 viewVec)
 {

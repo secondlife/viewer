@@ -213,6 +213,22 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
+    if (features->encodesNormal)
+	{
+		if (!shader->attachObject("environment/encodeNormF.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
+    if (features->decodesNormal)
+	{
+		if (!shader->attachObject("environment/decodeNormF.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	if (features->hasAtmospherics)
 	{
 		if (!shader->attachObject("windlight/atmosphericsF.glsl"))

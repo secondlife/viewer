@@ -49,6 +49,8 @@ public:
 	bool hasAtmospherics;
 	bool hasGamma;
 	bool hasSrgb;
+    bool encodesNormal;
+    bool decodesNormal;
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;

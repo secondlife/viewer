@@ -70,17 +70,7 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
+vec3 decode_normal (vec2 enc);
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 

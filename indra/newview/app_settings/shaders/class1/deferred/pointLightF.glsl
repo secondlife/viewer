@@ -56,16 +56,7 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 uniform vec4 viewport;
 
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
+vec3 decode_normal (vec2 enc);
 
 vec4 getPosition(vec2 pos_screen)
 {

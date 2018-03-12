@@ -70,12 +70,7 @@ VARYING vec4 view;
 VARYING vec4 vary_position;
 
 vec3 srgb_to_linear(vec3 cs);
-
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
+vec2 encode_normal(vec3 n);
 
 void main() 
 {
