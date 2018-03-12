@@ -104,7 +104,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
-vec3 encode_normal (vec2 enc);
+vec2 encode_normal (vec3 n);
 vec3 decode_normal (vec2 enc);
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
