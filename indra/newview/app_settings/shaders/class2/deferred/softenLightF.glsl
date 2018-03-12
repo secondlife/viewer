@@ -70,19 +70,18 @@ uniform mat3 ssao_effect_mat;
 uniform vec3 sun_dir;
 VARYING vec2 vary_fragcoord;
 
-vec3 vary_PositionEye;
-
-vec3 vary_SunlitColor;
-vec3 vary_AmblitColor;
-vec3 vary_AdditiveColor;
-vec3 vary_AtmosAttenuation;
-
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
+
+vec3 atmosFragAmbient(vec3 l, vec3 ambient);
+vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
+vec3 scaleFragSoftClip(vec3 l);
+vec3 atmosFragAffectDirectionalLight(float intensity, vec3 sunlit);
+void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
@@ -102,242 +101,10 @@ vec4 getPosition(vec2 pos_screen)
 	return getPosition_d(pos_screen, depth);
 }
 
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
-vec3 getSunlitColor()
-{
-	return vary_SunlitColor;
-}
-vec3 getAmblitColor()
-{
-	return vary_AmblitColor;
-}
-vec3 getAdditiveColor()
-{
-	return vary_AdditiveColor;
-}
-vec3 getAtmosAttenuation()
-{
-	return vary_AtmosAttenuation;
-}
-
-void setPositionEye(vec3 v)
-{
-	vary_PositionEye = v;
-}
-
-void setSunlitColor(vec3 v)
-{
-	vary_SunlitColor = v;
-}
-
-void setAmblitColor(vec3 v)
-{
-	vary_AmblitColor = v;
-}
-
-void setAdditiveColor(vec3 v)
-{
-	vary_AdditiveColor = v;
-}
-
-void setAtmosAttenuation(vec3 v)
-{
-	vary_AtmosAttenuation = v;
-}
-
-void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
-
-	vec3 P = inPositionEye;
-	setPositionEye(P);
-	
-	vec3 tmpLightnorm = lightnorm.xyz;
-
-	vec3 Pn = normalize(P);
-	float Plen = length(P);
-
-	vec4 temp1 = vec4(0);
-	vec3 temp2 = vec3(0);
-	vec4 blue_weight;
-	vec4 haze_weight;
-	vec4 sunlight = sunlight_color;
-	vec4 light_atten;
-
-	//sunlight attenuation effect (hue and brightness) due to atmosphere
-	//this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
-		//I had thought blue_density and haze_density should have equal weighting,
-		//but attenuation due to haze_density tends to seem too strong
-
-	temp1 = blue_density + vec4(haze_density);
-	blue_weight = blue_density / temp1;
-	haze_weight = vec4(haze_density) / temp1;
-
-	//(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
-	temp2.y = max(0.0, tmpLightnorm.y);
-	temp2.y = 1. / temp2.y;
-	sunlight *= exp( - light_atten * temp2.y);
-
-	// main atmospheric scattering line integral
-	temp2.z = Plen * density_multiplier;
-
-	// Transparency (-> temp1)
-	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier in a variable because the ati
-	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
-
-	//final atmosphere attenuation factor
-	setAtmosAttenuation(temp1.rgb);
-	
-	//compute haze glow
-	//(can use temp2.x as temp because we haven't used it yet)
-	temp2.x = dot(Pn, tmpLightnorm.xyz);
-	temp2.x = 1. - temp2.x;
-		//temp2.x is 0 at the sun and increases away from sun
-	temp2.x = max(temp2.x, .03);	//was glow.y
-		//set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-	temp2.x *= glow.x;
-		//higher glow.x gives dimmer glow (because next step is 1 / "angle")
-	temp2.x = pow(temp2.x, glow.z);
-		//glow.z should be negative, so we're doing a sort of (1 / "angle") function
-
-	//add "minimum anti-solar illumination"
-	temp2.x += .25;
-	
-	//increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
-	
-	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
-	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
-	 * // The following line of code performs the equivalent of:
-	 * float ambAlpha = tmpAmbient.a;
-	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
-	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
-	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
-	 */
-	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
-
-	//haze color
-	setAdditiveColor(
-		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
-	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
-		  + tmpAmbient)));
-
-	//brightness of surface both sunlight and ambient
-	setSunlitColor(vec3(sunlight * .5));
-	setAmblitColor(vec3(tmpAmbient * .25));
-	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
-}
 
 #ifdef WATER_FOG
-uniform vec4 waterPlane;
-uniform vec4 waterFogColor;
-uniform float waterFogDensity;
-uniform float waterFogKS;
-
-vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
-{
-	//normalize view vector
-	vec3 view = normalize(pos);
-	float es = -(dot(view, waterPlane.xyz));
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
-	
-	//get object depth
-	float depth = length(pos - int_v);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	
-	color.rgb = color.rgb * D + kc.rgb * L;
-	color.a = kc.a + color.a;
-	
-	return color;
-}
+vec4 applyWaterFogDeferred(vec3 pos, vec4 color);
 #endif
-
-vec3 atmosLighting(vec3 light)
-{
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor();
-	return (2.0 * light);
-}
-
-vec3 atmosTransport(vec3 light) {
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor() * 2.0;
-	return light;
-}
-
-vec3 fullbrightAtmosTransport(vec3 light) {
-	float brightness = dot(light.rgb, vec3(0.33333));
-
-	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
-}
-
-
-
-vec3 atmosGetDiffuseSunlightColor()
-{
-	return getSunlitColor();
-}
-
-vec3 scaleDownLight(vec3 light)
-{
-	return (light / scene_light_strength );
-}
-
-vec3 scaleUpLight(vec3 light)
-{
-	return (light * scene_light_strength);
-}
-
-vec3 atmosAmbient(vec3 light)
-{
-	return getAmblitColor() + light / 2.0;
-}
-
-vec3 atmosAffectDirectionalLight(float lightIntensity)
-{
-	return getSunlitColor() * lightIntensity;
-}
-
-vec3 scaleSoftClip(vec3 light)
-{
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
-}
-
-
-vec3 fullbrightScaleSoftClip(vec3 light)
-{
-	//soft clip effect:
-	return light;
-}
 
 void main() 
 {
@@ -372,8 +139,13 @@ void main()
 		
 
 		float ambocc = scol_ambocc.g;
+
+                vec3 sunlit;
+                vec3 amblit;
+                vec3 additive;
+                vec3 atten;
 	
-		calcAtmospherics(pos.xyz, ambocc);
+		calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 	
 		col = atmosAmbient(vec3(0));
 		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
@@ -383,7 +155,7 @@ void main()
 
 		col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, scol), 0.0));
+		col += atmosFragAffectDirectionalLight(max(min(da, scol), 0.0), sunlit);
 	
 		col *= diffuse.rgb;
 	
@@ -419,8 +191,8 @@ void main()
 						
 		if (norm.w < 0.5)
 		{
-			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+			col = mix(atmosFragLighting(col, additive, atten), fullbrightFragAtmosTransport(col, atten, additive), diffuse.a);
+			col = mix(scaleFragSoftClip(col), fullbrightFragScaleSoftClip(col), diffuse.a);
 		}
 
 		#ifdef WATER_FOG

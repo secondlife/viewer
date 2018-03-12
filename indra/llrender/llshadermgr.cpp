@@ -98,7 +98,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-	if (features->calculatesLighting || features->atmosphericHelpers)
+	if (features->calculatesLighting || features->calculatesAtmospherics)
 	{
 		if (!shader->attachObject("windlight/atmosphericsHelpersV.glsl"))
 		{
@@ -189,6 +189,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			}
 		}
 		else if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
+    if (features->calculatesLighting || features->calculatesAtmospherics)
+	{
+		if (!shader->attachObject("windlight/atmosphericsHelpersF.glsl"))
 		{
 			return FALSE;
 		}

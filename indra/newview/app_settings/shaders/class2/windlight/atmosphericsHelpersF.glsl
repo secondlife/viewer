@@ -1,9 +1,9 @@
-/** 
- * @file gammaF.glsl
+/**
+ * @file atmosphericsHelpersV.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2005, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,28 +22,28 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+// Output variables
 
-uniform vec4 gamma;
+uniform float scene_light_strength;
 
-vec3 getAtmosAttenuation();
-
-/// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
-}
-
-vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 atten)
+vec3 atmosFragAmbient(vec3 light, vec3 amblit)
 {
-	return mix(scaleSoftClip(light.rgb), light.rgb, atten);
+	return amblit + light / 2.0;
 }
 
-vec3 fullbrightScaleSoftClip(vec3 light) {
-	return fullbrightScaleSoftClipFrag(light.rgb, getAtmosAttenuation());
+vec3 atmosFragAffectDirectionalLight(float lightIntensity, vec3 sunlit)
+{
+	return sunlit * lightIntensity;
+}
+
+vec3 scaleDownLightFrag(vec3 light)
+{
+	return (light / scene_light_strength );
+}
+
+vec3 scaleUpLightFrag(vec3 light)
+{
+	return (light * scene_light_strength);
 }
 
