@@ -48,6 +48,7 @@ public:
 	bool hasObjectSkinning;
 	bool hasAtmospherics;
 	bool hasGamma;
+	bool hasSrgb;
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;

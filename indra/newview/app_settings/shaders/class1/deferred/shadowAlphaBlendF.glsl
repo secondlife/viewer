@@ -1,9 +1,9 @@
 /** 
- * @file srgb.glsl
+ * @file shadowAlphaMaskF.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,32 +23,33 @@
  * $/LicenseInfo$
  */
 
-vec3 srgb_to_linear(vec3 cs)
+/*[EXTRA_CODE_HERE]*/
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
+
+uniform sampler2D diffuseMap;
+
+#if !DEPTH_CLAMP
+VARYING float pos_zd2;
+#endif
+
+VARYING float pos_w;
+
+VARYING float target_pos_x;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
+void main() 
 {
-	vec3 low_range = cs / vec3(12.92);
-	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+	float alpha = diffuseLookup(vary_texcoord0.xy).a * vertex_color.a;
 
-	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
-
-	vec3 result;
-	result.r = lte.r ? low_range.r : high_range.r;
-	result.g = lte.g ? low_range.g : high_range.g;
-	result.b = lte.b ? low_range.b : high_range.b;
-    return result;
+	frag_color = vec4(alpha, alpha, alpha, 1);
+	
+#if !DEPTH_CLAMP
+	gl_FragDepth = max(pos_zd2/pos_w+0.5, 0.0);
+#endif
 }
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	cl = clamp(cl, vec3(0), vec3(1));
-	vec3 low_range  = cl * 12.92;
-	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-
-	bvec3 lt = lessThan(cl,vec3(0.0031308));
-
-	vec3 result;
-	result.r = lt.r ? low_range.r : high_range.r;
-	result.g = lt.g ? low_range.g : high_range.g;
-	result.b = lt.b ? low_range.b : high_range.b;
-	return result;
-}
-

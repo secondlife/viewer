@@ -41,6 +41,8 @@
 #define UNIFORM_ERRS LL_ERRS("Shader")
 #endif
 
+#pragma optimize("", off)
+
 // Lots of STL stuff in here, using namespace std to keep things more readable
 using std::vector;
 using std::pair;
@@ -202,7 +204,15 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			return FALSE;
 		}
 	}
-	
+
+	if (features->hasSrgb)
+	{
+		if (!shader->attachObject("environment/srgbF.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	if (features->hasAtmospherics)
 	{
 		if (!shader->attachObject("windlight/atmosphericsF.glsl"))

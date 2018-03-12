@@ -1,9 +1,9 @@
 /** 
- * @file impostorF.glsl
+ * @file shadowAlphaMaskV.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,40 +23,45 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
+uniform float shadow_target_width;
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+
+#if !DEPTH_CLAMP
+VARYING float pos_zd2;
 #endif
 
-uniform float minimum_alpha;
+VARYING float pos_w;
 
-
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
-uniform sampler2D specularMap;
-
+VARYING float target_pos_x;
+VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-vec3 linear_to_srgb(vec3 cl);
+void passTextureIndex();
 
-void main() 
+void main()
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+	//transform vertex
+	vec4 pre_pos = vec4(position.xyz, 1.0);
+	vec4 pos = modelview_projection_matrix * pre_pos;
+	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
 
-	if (col.a < minimum_alpha)
-	{
-		discard;
-	}
+	pos_w = pos.w;
 
-	vec4 norm = texture2D(normalMap,   vary_texcoord0.xy);
-	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
+#if !DEPTH_CLAMP
+	pos_zd2 = pos.z * 0.5;
+	
+	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
+#else
+	gl_Position = pos;
+#endif
+	
+	passTextureIndex();
 
-	col.rgb = linear_to_srgb(col.rgb);
-
-	frag_data[0] = vec4(col.rgb, 0.0);
-	frag_data[1] = spec;
-	frag_data[2] = vec4(norm.xy,0,0);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	vertex_color = diffuse_color;
 }

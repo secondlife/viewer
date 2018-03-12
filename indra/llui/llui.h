@@ -33,7 +33,6 @@
 #include "llcontrol.h"
 #include "llcoord.h"
 #include "llcontrol.h"
-#include "llglslshader.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llrender2dutils.h"
@@ -48,7 +47,6 @@
 
 // for initparam specialization
 #include "llfontgl.h"
-
 
 class LLUUID;
 class LLWindow;
