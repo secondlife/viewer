@@ -41,8 +41,6 @@
 #define UNIFORM_ERRS LL_ERRS("Shader")
 #endif
 
-#pragma optimize("", off)
-
 // Lots of STL stuff in here, using namespace std to keep things more readable
 using std::vector;
 using std::pair;
