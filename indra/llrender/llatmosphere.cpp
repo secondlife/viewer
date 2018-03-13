@@ -72,16 +72,12 @@ const double kDobsonUnit = 2.687e20;
 // 300 Dobson units of ozone - for this we divide 300 DU by the integral of
 // the ozone density profile defined below, which is equal to 15km).
 const double kMaxOzoneNumberDensity = 300.0 * kDobsonUnit / 15000.0;
-const double kSunAngularRadius = 0.00935 / 2.0;
-const double kBottomRadius = 6360000.0;
-const double kTopRadius = 6420000.0;
 const double kRayleigh = 1.24062e-6;
 const double kRayleighScaleHeight = 8000.0;
 const double kMieScaleHeight = 1200.0;
 const double kMieAngstromAlpha = 0.0;
 const double kMieAngstromBeta = 5.328e-3;
 const double kMieSingleScatteringAlbedo = 0.9;
-const double kMiePhaseFunctionG = 0.8;
 const double max_sun_zenith_angle = F_PI * 2.0 / 3.0;
 
 AtmosphericModelSettings::AtmosphericModelSettings()
