@@ -440,12 +440,24 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
     LLSettingsBase::parammapping_t params = psetting->getParameterMap();
     for (auto &it: params)
     {
-        if (!psetting->mSettings.has(it.first))
+        LLSD value;
+        
+        bool found_in_settings = psetting->mSettings.has(it.first);
+        bool found_in_legacy_settings = !found_in_settings && psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first);
+
+        if (!found_in_settings && !found_in_legacy_settings)
             continue;
 
-        LLSD value = psetting->mSettings[it.first];
-        LLSD::Type setting_type = value.type();
+        if (found_in_settings)
+        {
+            value = psetting->mSettings[it.first];
+        }
+        else if (found_in_legacy_settings)
+        {
+            value = psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE][it.first];
+        }
 
+        LLSD::Type setting_type = value.type();
         stop_glerror();
         switch (setting_type)
         {

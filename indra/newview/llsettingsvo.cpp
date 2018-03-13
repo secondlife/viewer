@@ -431,13 +431,18 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
 void LLSettingsVOSky::convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings)
 {
     // These will need to be inferred from new settings' density profiles
-    legacy[SETTING_AMBIENT] = ensureArray4(settings[SETTING_AMBIENT], 1.0f);
-    legacy[SETTING_BLUE_DENSITY] = ensureArray4(settings[SETTING_BLUE_DENSITY], 1.0);
-    legacy[SETTING_BLUE_HORIZON] = ensureArray4(settings[SETTING_BLUE_HORIZON], 1.0);
-    legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(settings[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(settings[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_HAZE_DENSITY] = LLSDArray(settings[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_HAZE_HORIZON] = LLSDArray(settings[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
+    if (settings.has(SETTING_LEGACY_HAZE))
+    {
+        LLSD legacyhaze = settings[SETTING_LEGACY_HAZE];
+
+        legacy[SETTING_AMBIENT] = ensureArray4(legacyhaze[SETTING_AMBIENT], 1.0f);
+        legacy[SETTING_BLUE_DENSITY] = ensureArray4(legacyhaze[SETTING_BLUE_DENSITY], 1.0);
+        legacy[SETTING_BLUE_HORIZON] = ensureArray4(legacyhaze[SETTING_BLUE_HORIZON], 1.0);
+        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_HAZE_DENSITY] = LLSDArray(legacyhaze[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_HAZE_HORIZON] = LLSDArray(legacyhaze[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
+    }
 }
 
 LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isAdvanced)

@@ -116,37 +116,6 @@ public:
         setValue(SETTING_AMBIENT, val);
     }
 
-// LEGACY_ATMOSPHERICS
-    LLColor3 getBlueDensity() const
-    {
-        return LLColor3(mSettings[SETTING_BLUE_DENSITY]);
-    }
-
-    LLColor3 getBlueHorizon() const
-    {
-        return LLColor3(mSettings[SETTING_BLUE_HORIZON]);
-    }
-
-    F32 getHazeDensity() const
-    {
-        return mSettings[SETTING_HAZE_DENSITY].asReal();
-    }
-
-    F32 getHazeHorizon() const
-    {
-        return mSettings[SETTING_HAZE_HORIZON].asReal();
-    }
-
-    F32 getDensityMultiplier() const
-    {
-        return mSettings[SETTING_DENSITY_MULTIPLIER].asReal();
-    }
-
-    F32 getDistanceMultiplier() const
-    {
-        return mSettings[SETTING_DISTANCE_MULTIPLIER].asReal();
-    }
-
     LLColor3 getCloudColor() const
     {
         return LLColor3(mSettings[SETTING_CLOUD_COLOR]);
@@ -411,6 +380,14 @@ public:
     LLColor3 getLightAttenuation(F32 distance) const;
     LLColor3 getLightTransmittance() const;
     LLColor3 gammaCorrect(const LLColor3& in) const;
+
+// LEGACY_ATMOSPHERICS
+    LLColor3 getBlueDensity() const;
+    LLColor3 getBlueHorizon() const;
+    F32 getHazeDensity() const;
+    F32 getHazeHorizon() const;
+    F32 getDensityMultiplier() const;
+    F32 getDistanceMultiplier() const;
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;

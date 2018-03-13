@@ -653,29 +653,13 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 {
     LLSD newsettings(defaults());
 
-    if (legacy.has(SETTING_BLUE_DENSITY))
+    // Move legacy haze parameters to an inner map
+    // allowing backward compat and simple conversion to legacy format
+    LLSD legacyhazesettings;
+    legacyhazesettings = translateLegacyHazeSettings(legacy);
+    if (legacyhazesettings.size() > 0)
     {
-        newsettings[SETTING_BLUE_DENSITY] = LLColor3(legacy[SETTING_BLUE_DENSITY]).getValue();
-    }
-    if (legacy.has(SETTING_BLUE_HORIZON))
-    {
-        newsettings[SETTING_BLUE_HORIZON] = LLColor3(legacy[SETTING_BLUE_HORIZON]).getValue();
-    }
-    if (legacy.has(SETTING_DENSITY_MULTIPLIER))
-    {
-        newsettings[SETTING_DENSITY_MULTIPLIER] = LLSD::Real(legacy[SETTING_DENSITY_MULTIPLIER][0].asReal());
-    }
-    if (legacy.has(SETTING_DISTANCE_MULTIPLIER))
-    {
-        newsettings[SETTING_DISTANCE_MULTIPLIER] = LLSD::Real(legacy[SETTING_DISTANCE_MULTIPLIER][0].asReal());
-    }
-    if (legacy.has(SETTING_HAZE_DENSITY))
-    {
-        newsettings[SETTING_HAZE_DENSITY] = LLSD::Real(legacy[SETTING_HAZE_DENSITY][0].asReal());
-    }
-    if (legacy.has(SETTING_HAZE_HORIZON))
-    {
-        newsettings[SETTING_HAZE_HORIZON] = LLSD::Real(legacy[SETTING_HAZE_HORIZON][0].asReal());
+        newsettings[SETTING_LEGACY_HAZE] = legacyhazesettings;
     }
 
     if (legacy.has(SETTING_AMBIENT))
@@ -831,6 +815,60 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
     }
 }
 
+LLColor3 LLSettingsSky::getBlueDensity() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_BLUE_DENSITY))
+    {
+        return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_DENSITY]);
+    }
+    return LLColor3(0.2447f, 0.4487f, 0.7599f);
+}
+
+LLColor3 LLSettingsSky::getBlueHorizon() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_BLUE_DENSITY))
+    {
+        return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_HORIZON]);
+    }
+    return LLColor3(0.4954f, 0.4954f, 0.6399f);
+}
+
+F32 LLSettingsSky::getHazeDensity() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_HAZE_DENSITY))
+    {
+        return mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_DENSITY].asReal();
+    }
+    return 0.7f;
+}
+
+F32 LLSettingsSky::getHazeHorizon() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_HAZE_HORIZON))
+    {
+        return mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_HORIZON].asReal();
+    }
+    return 0.19f;
+}
+
+F32 LLSettingsSky::getDensityMultiplier() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_DENSITY_MULTIPLIER))
+    {
+        return mSettings[SETTING_LEGACY_HAZE][SETTING_DENSITY_MULTIPLIER].asReal();
+    }
+    return 0.0001f;
+}
+
+F32 LLSettingsSky::getDistanceMultiplier() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_DISTANCE_MULTIPLIER))
+    {
+        return mSettings[SETTING_LEGACY_HAZE][SETTING_DISTANCE_MULTIPLIER].asReal();
+    }
+    return 0.8f;
+}
+
 // Sunlight attenuation effect (hue and brightness) due to atmosphere
 // this is used later for sunlight modulation at various altitudes
 LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
@@ -838,7 +876,7 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 // LEGACY_ATMOSPHERICS
     LLColor3    blue_density = getBlueDensity();
     F32         haze_density = getHazeDensity();
-    F32         density_multiplier = getDensityMultiplier();        
+    F32         density_multiplier = getDensityMultiplier();
     LLColor3    density = (blue_density * 1.0 + smear(haze_density * 0.25f));
     LLColor3    light_atten = density * density_multiplier * distance;
     return light_atten;
