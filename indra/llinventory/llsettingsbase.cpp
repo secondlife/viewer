@@ -207,6 +207,11 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
                     LLQuaternion q = slerp(mix, LLQuaternion(value), LLQuaternion(other_value));
                     newvalue = q.getValue();
                 }
+                else if (value[0].type() == LLSD::TypeMap)
+                {
+                    // TODO
+                    // determine if lerping between maps is both feasible and reasonable
+                }
                 else
                 {   // TODO: We could expand this to inspect the type and do a deep lerp based on type. 
                     // for now assume a heterogeneous array of reals. 
@@ -214,7 +219,6 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
 
                     for (size_t i = 0; i < len; ++i)
                     {
-
                         newvalue[i] = lerp(value[i].asReal(), other_value[i].asReal(), mix);
                     }
                 }

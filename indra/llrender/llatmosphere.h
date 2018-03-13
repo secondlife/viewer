@@ -31,6 +31,36 @@
 #include "llgltexture.h"
 #include "libatmosphere/model.h"
 
+typedef std::vector<atmosphere::DensityProfileLayer> DensityProfile;
+
+class AtmosphericModelSettings
+{
+public:
+    AtmosphericModelSettings();
+
+    AtmosphericModelSettings(
+        DensityProfile& rayleighProfile,
+        DensityProfile& mieProfile,
+        DensityProfile& absorptionProfile);
+
+    AtmosphericModelSettings(
+        F32             skyBottomRadius,
+        F32             skyTopRadius,
+        DensityProfile& rayleighProfile,
+        DensityProfile& mieProfile,
+        DensityProfile& absorptionProfile,
+        F32             sunArcRadians,
+        F32             mieAniso);
+
+    F32             m_skyBottomRadius;
+    F32             m_skyTopRadius;
+    DensityProfile  m_rayleighProfile;
+    DensityProfile  m_mieProfile;
+    DensityProfile  m_absorptionProfile;
+    F32             m_sunArcRadians;
+    F32             m_mieAnisotropy;
+};
+
 class LLAtmosphere
 {
 public:
@@ -46,11 +76,13 @@ public:
         return *this;
     }
 
-    LLGLTexture* getTransmittance() const;
-    LLGLTexture* getScattering() const;
-    LLGLTexture* getMieScattering() const;
+    LLGLTexture* getTransmittance();
+    LLGLTexture* getScattering();
+    LLGLTexture* getMieScattering();
 
     GLhandleARB getAtmosphericShaderForLink() const;
+
+    bool configureAtmosphericModel(AtmosphericModelSettings& settings);
 
 protected:    
     LLAtmosphere(const LLAtmosphere& rhs)
@@ -64,7 +96,15 @@ protected:
 
     LLPointer<LLGLTexture> m_transmittance;
     LLPointer<LLGLTexture> m_scattering;
-    LLPointer<LLGLTexture> m_mie_scattering;
+    LLPointer<LLGLTexture> m_mie_scatter_texture;
+
+    std::vector<double> m_wavelengths;
+    std::vector<double> m_solar_irradiance;
+    std::vector<double> m_rayleigh_scattering;
+    std::vector<double> m_mie_scattering;
+    std::vector<double> m_mie_extinction;
+    std::vector<double> m_absorption_extinction;
+    std::vector<double> m_ground_albedo;
 };
 
 extern LLAtmosphere* gAtmosphere;

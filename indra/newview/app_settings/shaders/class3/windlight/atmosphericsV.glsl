@@ -49,7 +49,7 @@ uniform float distance_multiplier;
 uniform float max_y;
 uniform vec4 glow;
 
-void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
+void calcAtmospherics(vec3 inPositionEye) {
 
 	vec3 P = inPositionEye;
 	setPositionEye(P);
@@ -118,7 +118,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
 	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
 	 */
-	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
+	//tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
 
 	//haze color
 	setAdditiveColor(

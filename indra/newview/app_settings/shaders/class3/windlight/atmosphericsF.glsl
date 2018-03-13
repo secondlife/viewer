@@ -22,9 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+vec3 getAdditiveColor();
+vec3 getAtmosAttenuation();
 
 uniform sampler2D cloudMap;
+uniform vec4 gamma;
 uniform vec4 cloud_pos_density1;
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
@@ -41,26 +44,29 @@ uniform vec4 glow;
 uniform float scene_light_strength;
 uniform mat3 ssao_effect_mat;
 
-vec3 getAdditiveColor();
-vec3 getAtmosAttenuation();
-vec3 getAdditiveColor();
-vec3 getAtmosAttenuation();
-void setPositionEye(vec3);
-vec3 getPositionEye();
-vec3 getSunlitColor();
-vec3 getAmblitColor();
-vec3 getAdditiveColor();
-vec3 getAtmosAttenuation();
-void setPositionEye(vec3 v);
-void setSunlitColor(vec3 v);
-void setAmblitColor(vec3 v);
-void setAdditiveColor(vec3 v);
-void setAtmosAttenuation(vec3 v);
+vec3 scaleFragSoftClip(vec3 light)
+{
+	//soft clip effect:
+	light = 1. - clamp(light, vec3(0.), vec3(1.));
+	light = 1. - pow(light, gamma.xxx);
+	return light;
+}
 
-void calcFragAtmospherics(vec3 inPositionEye, float ambFactor) {
+vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
+{
+	light *= atten.r;
+	light += additive;
+	return (2.0 * light);
+}
+
+vec3 atmosLighting(vec3 light)
+{
+    return atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
+}
+
+void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {
 
 	vec3 P = inPositionEye;
-	setPositionEye(P);
 	
 	vec3 tmpLightnorm = lightnorm.xyz;
 
@@ -98,7 +104,7 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor) {
 	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
 
 	//final atmosphere attenuation factor
-	setAtmosAttenuation(temp1.rgb);
+	atten = temp1.rgb;
 	
 	//compute haze glow
 	//(can use temp2.x as temp because we haven't used it yet)
@@ -129,20 +135,14 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor) {
 	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
 
 	//haze color
-	setAdditiveColor(
+        additive =
 		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
-	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
-		  + tmpAmbient)));
+     	          + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
+		  + tmpAmbient));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(vec3(sunlight * .5));
-	setAmblitColor(vec3(tmpAmbient * .25));
-	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
+	sunlit = vec3(sunlight * .5);
+	amblit = vec3(tmpAmbient * .25);
+	additive *= vec3(1.0 - temp1);
 }
 
-vec3 atmosLighting(vec3 light)
-{
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor();
-	return (2.0 * light);
-}

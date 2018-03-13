@@ -49,16 +49,16 @@ void main()
 {
     vec3 view_direction = normalize(view_dir);
 
-    vec3 camPos = cameraPosLocal;
+    vec3 camPos = cameraPosLocal + vec3(0, 0, 6360.0f);
     vec3 transmittance;
     vec3 radiance = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
 
-    radiance *= transmittance;
+    //radiance *= transmittance;
 
     // If the view ray intersects the Sun, add the Sun radiance.
     if (dot(view_direction, sun_direction) >= sun_size.y)
     {
-        radiance = radiance + transmittance * GetSolarLuminance();
+        radiance = radiance + (transmittance * GetSolarLuminance());
     }
 
     vec3 color = vec3(1.0) - exp(-radiance);

@@ -1319,6 +1319,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedAlphaProgram.mFeatures.encodesNormal = true;
         gDeferredSkinnedAlphaProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredSkinnedAlphaProgram.mFeatures.hasAtmospherics = true;
+        gDeferredSkinnedAlphaProgram.mFeatures.hasTransport = true;
+        gDeferredSkinnedAlphaProgram.mFeatures.hasGamma = true;
 
 		gDeferredSkinnedAlphaProgram.mShaderFiles.clear();
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));

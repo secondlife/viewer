@@ -66,6 +66,7 @@ public:
     static const std::string SETTING_SKY_BOTTOM_RADIUS;
     static const std::string SETTING_SKY_TOP_RADIUS;
     static const std::string SETTING_SUN_ARC_RADIANS;
+    static const std::string SETTING_MIE_ANISOTROPY_FACTOR;
 
     static const std::string SETTING_RAYLEIGH_CONFIG;
     static const std::string SETTING_MIE_CONFIG;
@@ -77,7 +78,7 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR;
         static const std::string SETTING_DENSITY_PROFILE_LINEAR_TERM;
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
-        static const std::string SETTING_MIE_ANISOTROPY_FACTOR;
+        
 
     static const std::string SETTING_LEGACY_HAZE;
 
@@ -99,6 +100,46 @@ public:
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
     
     static LLSD defaults();
+
+    F32 getPlanetRadius() const
+    {
+        return mSettings[SETTING_PLANET_RADIUS].asReal();
+    }
+
+    F32 getSkyBottomRadius() const
+    {
+        return mSettings[SETTING_SKY_BOTTOM_RADIUS].asReal();
+    }
+
+    F32 getSkyTopRadius() const
+    {
+        return mSettings[SETTING_SKY_TOP_RADIUS].asReal();
+    }
+
+    F32 getSunArcRadians() const
+    {
+        return mSettings[SETTING_SUN_ARC_RADIANS].asReal();
+    }
+
+    F32 getMieAnisotropy() const
+    {
+        return mSettings[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
+    }
+    
+    LLSD getRayleighConfigs() const
+    {
+        return mSettings[SETTING_RAYLEIGH_CONFIG];
+    }
+
+    LLSD getMieConfigs() const
+    {
+        return mSettings[SETTING_MIE_CONFIG];
+    }
+
+    LLSD getAbsorptionConfigs() const
+    {
+        return mSettings[SETTING_ABSORPTION_CONFIG];
+    }
 
     LLUUID getBloomTextureId() const
     {

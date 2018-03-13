@@ -33,21 +33,30 @@ vec3 getAtmosAttenuation();
 uniform sampler2D cloudMap;
 uniform vec4 cloud_pos_density1;
 
-vec3 atmosTransport(vec3 light) {
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor() * 2.0;
+vec3 atmosFragTransport(vec3 light, vec3 atten, vec3 additive) {
+	light *= atten.r;
+	light += additive * 2.0;
 	return light;
 }
 
-vec3 fullbrightAtmosTransport(vec3 light) {
+vec3 fullbrightFragAtmosTransport(vec3 light, vec3 atten, vec3 additive) {
 	float brightness = dot(light.rgb, vec3(0.33333));
+	return mix(atmosFragTransport(light.rgb, atten, additive), light.rgb + additive.rgb, brightness * brightness);
+}
 
-	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
+vec3 fullbrightFragShinyAtmosTransport(vec3 light, vec3 atten, vec3 additive) {
+	float brightness = dot(light.rgb, vec3(0.33333));
+	return mix(atmosFragTransport(light.rgb, atten, additive), (light.rgb + additive.rgb) * (2.0 - brightness), brightness * brightness);
+}
+
+vec3 atmosTransport(vec3 light) {
+     return atmosFragTransport(light, getAtmosAttenuation(), getAdditiveColor());
+}
+
+vec3 fullbrightAtmosTransport(vec3 light) {
+     return fullbrightFragAtmosTransport(light, getAtmosAttenuation(), getAdditiveColor());
 }
 
 vec3 fullbrightShinyAtmosTransport(vec3 light) {
-	float brightness = dot(light.rgb, vec3(0.33333));
-
-	return mix(atmosTransport(light.rgb), (light.rgb + getAdditiveColor().rgb) * (2.0 - brightness), brightness * brightness);
+    return fullbrightFragShinyAtmosTransport(light, getAtmosAttenuation(), getAdditiveColor());
 }
-

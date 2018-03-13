@@ -41,6 +41,7 @@
 //-------------------------------------------------------------------------
 class LLViewerCamera;
 class LLGLSLShader;
+class AtmosphericModelSettings;
 
 //-------------------------------------------------------------------------
 class LLEnvironment : public LLSingleton<LLEnvironment>
@@ -136,6 +137,8 @@ public:
 
     LLSettingsSky::ptr_t        getCurrentSky() const { return mCurrentEnvironment->getSky(); }
     LLSettingsWater::ptr_t      getCurrentWater() const { return mCurrentEnvironment->getWater(); }
+
+    static void getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky);
 
     void                        update(const LLViewerCamera * cam);
 

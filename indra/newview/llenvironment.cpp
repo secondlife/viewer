@@ -54,6 +54,8 @@
 
 #include <boost/make_shared.hpp>
 
+#include "llatmosphere.h"
+
 //define EXPORT_PRESETS 1
 //=========================================================================
 namespace
@@ -135,6 +137,55 @@ bool LLEnvironment::canEdit() const
     return true;
 }
 
+void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky)
+{
+    settingsOut.m_skyBottomRadius   = psky->getSkyBottomRadius();
+    settingsOut.m_skyTopRadius      = psky->getSkyTopRadius();
+    settingsOut.m_sunArcRadians     = psky->getSunArcRadians();
+    settingsOut.m_mieAnisotropy     = psky->getMieAnisotropy();
+
+    LLSD rayleigh = psky->getRayleighConfigs();
+    settingsOut.m_rayleighProfile.clear();
+    for (LLSD::array_iterator itf = rayleigh.beginArray(); itf != rayleigh.endArray(); ++itf)
+    {
+        atmosphere::DensityProfileLayer layer;
+        LLSD& layerConfig = (*itf);
+        layer.constant_term     = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
+        layer.exp_scale         = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+        layer.exp_term          = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+        layer.linear_term       = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+        layer.width             = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+        settingsOut.m_rayleighProfile.push_back(layer);
+    }
+
+    LLSD mie = psky->getMieConfigs();
+    settingsOut.m_mieProfile.clear();
+    for (LLSD::array_iterator itf = mie.beginArray(); itf != mie.endArray(); ++itf)
+    {
+        atmosphere::DensityProfileLayer layer;
+        LLSD& layerConfig = (*itf);
+        layer.constant_term     = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
+        layer.exp_scale         = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+        layer.exp_term          = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+        layer.linear_term       = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+        layer.width             = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+        settingsOut.m_mieProfile.push_back(layer);
+    }
+
+    LLSD absorption = psky->getAbsorptionConfigs();
+    settingsOut.m_absorptionProfile.clear();
+    for (LLSD::array_iterator itf = absorption.beginArray(); itf != absorption.endArray(); ++itf)
+    {
+        atmosphere::DensityProfileLayer layer;
+        LLSD& layerConfig = (*itf);
+        layer.constant_term     = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
+        layer.exp_scale         = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+        layer.exp_term          = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+        layer.linear_term       = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+        layer.width             = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+        settingsOut.m_absorptionProfile.push_back(layer);
+    }
+}
 
 LLEnvironment::connection_t LLEnvironment::setSkyListChange(const LLEnvironment::change_signal_t::slot_type& cb)
 {
@@ -1326,6 +1377,7 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, S64Sec
 }
 
 
+
 void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 {
     if (mType == TYPE_CYCLED)
@@ -1335,6 +1387,13 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 
     mSky = psky;
     mBlenderSky.reset();
+
+    if (gAtmosphere)
+    {
+        AtmosphericModelSettings settings;
+        LLEnvironment::getAtmosphericModelSettings(settings, psky);
+        gAtmosphere->configureAtmosphericModel(settings);
+    }
 }
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)

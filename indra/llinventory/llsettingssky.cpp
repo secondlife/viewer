@@ -200,10 +200,7 @@ LLSettingsSky::validation_list_t mieValidationList()
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
 
         mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
-
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, true,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));        
     }
     return mieValidation;
 }
@@ -511,6 +508,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.1f)))));
 
+        validation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, true,  LLSD::TypeReal,  
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
         validation.push_back(Validator(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers));
@@ -522,11 +522,13 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 LLSD LLSettingsSky::rayleighConfigDefault()
 {
     LLSD dflt_rayleigh;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
-    dflt_rayleigh[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    LLSD dflt_rayleigh_layer;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_rayleigh.append(dflt_rayleigh_layer);
     return dflt_rayleigh;
 }
 
@@ -556,12 +558,13 @@ LLSD LLSettingsSky::absorptionConfigDefault()
 LLSD LLSettingsSky::mieConfigDefault()
 {
     LLSD dflt_mie;
-    dflt_mie[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
-    dflt_mie[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
-    dflt_mie[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
-    dflt_mie[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
-    dflt_mie[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
-    dflt_mie[SETTING_MIE_ANISOTROPY_FACTOR]            = 0.9f;
+    LLSD dflt_mie_layer;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_mie.append(dflt_mie_layer);
     return dflt_mie;
 }
 
@@ -600,16 +603,15 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_TYPE] = "sky";
 
     // defaults are for earth...
-    dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
-    dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
-    dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
-    dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;
+    dfltsetting[SETTING_PLANET_RADIUS]          = 6360.0f;
+    dfltsetting[SETTING_SKY_BOTTOM_RADIUS]      = 6360.0f;
+    dfltsetting[SETTING_SKY_TOP_RADIUS]         = 6420.0f;
+    dfltsetting[SETTING_SUN_ARC_RADIANS]        = 0.00935f / 2.0f;
+    dfltsetting[SETTING_MIE_ANISOTROPY_FACTOR]  = 0.8f;
 
-    // These are technically capable of handling multiple layers of density config
-    // and so are expected to be an array, but we make an array of size 1 w/ each default density config
-    dfltsetting[SETTING_RAYLEIGH_CONFIG].append(rayleighConfigDefault());
-    dfltsetting[SETTING_MIE_CONFIG].append(mieConfigDefault());
-    dfltsetting[SETTING_ABSORPTION_CONFIG].append(absorptionConfigDefault());
+    dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
+    dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
+    dfltsetting[SETTING_ABSORPTION_CONFIG]  = absorptionConfigDefault();
 
     return dfltsetting;
 }
