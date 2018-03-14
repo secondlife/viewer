@@ -526,6 +526,7 @@ void LLPanelNearByMedia::removeListItem(const LLUUID &id)
 	if (NULL == mMediaList) return;
 	
 	mMediaList->deleteSingleItem(mMediaList->getItemIndex(id));
+	mMediaList->updateLayout();
 }
 
 void LLPanelNearByMedia::refreshParcelItems()
