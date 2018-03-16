@@ -1154,7 +1154,7 @@ bool idle_startup()
 
 						}
 					}
-					else 
+					else if (!message.empty())
 					{
 						// This wasn't a certificate error, so throw up the normal
 						// notificatioin message.
