@@ -59,7 +59,6 @@
 #include "llfloatergridstatus.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
-#include "llimageworker.h"
 
 #include "llloginflags.h"
 #include "llmd5.h"
@@ -297,8 +296,6 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 
 void update_texture_fetch()
 {
-	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
-	LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 	gTextureList.updateImages(0.10f);
 }

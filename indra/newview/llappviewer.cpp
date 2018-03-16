@@ -93,7 +93,6 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
-#include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
@@ -149,7 +148,6 @@
 #include "llworkerthread.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
-#include "llimageworker.h"
 #include "llevents.h"
 
 // The files below handle dependencies from cleanup.
@@ -665,7 +663,6 @@ bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
 // The single viewer app.
 LLAppViewer* LLAppViewer::sInstance = NULL;
 LLTextureCache* LLAppViewer::sTextureCache = NULL; 
-LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL; 
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL; 
 
 std::string getRuntime()
@@ -1099,6 +1096,7 @@ bool LLAppViewer::init()
 		}
 	}
 
+#if LL_RELEASE_FOR_DOWNLOAD
 	char* PARENT = getenv("PARENT");
 	if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
 	{
@@ -1111,6 +1109,7 @@ bool LLAppViewer::init()
 		// him/herself in the foot.
 		LLNotificationsUtil::add("RunLauncher");
 	}
+#endif
 
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
@@ -1303,6 +1302,7 @@ static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_FETCH("Texture Fetch");
 static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
@@ -1467,9 +1467,6 @@ bool LLAppViewer::frame()
 				if (milliseconds_to_sleep > 0)
 				{
 					ms_sleep(milliseconds_to_sleep);
-					// also pause worker threads during this wait period
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
 				}
 			}
 			
@@ -1514,27 +1511,10 @@ bool LLAppViewer::frame()
 			}
 			gMeshRepo.update() ;
 			
-			if(!total_work_pending) //pause texture fetching threads if nothing to process.
-			{
-				LLAppViewer::getTextureCache()->pause();
-				LLAppViewer::getImageDecodeThread()->pause();
-				LLAppViewer::getTextureFetch()->pause(); 
-			}
 			if(!total_io_pending) //pause file threads if nothing to process.
 			{
 				LLVFSThread::sLocal->pause(); 
 				LLLFSThread::sLocal->pause(); 
-			}									
-
-			//texture fetching debugger
-			if(LLTextureFetchDebugger::isEnabled())
-			{
-				LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
-					LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
-				if(tex_fetch_debugger_instance)
-				{
-					tex_fetch_debugger_instance->idle() ;				
-				}
 			}
 
 			resumeMainloopTimeout();
@@ -1612,15 +1592,7 @@ S32 LLAppViewer::updateTextureThreads(F32 max_time)
 {
 	S32 work_pending = 0;
 	{
-		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE);
- 		work_pending += LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
-	}
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DECODE);
-	 	work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
-	}
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DECODE);
+		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH);
 	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
 	}
 	return work_pending;
@@ -1954,8 +1926,6 @@ bool LLAppViewer::cleanup()
 	while(1)
 	{
 		S32 pending = 0;
-		pending += LLAppViewer::getTextureCache()->update(1); // unpauses the worker thread
-		pending += LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
@@ -1975,11 +1945,6 @@ bool LLAppViewer::cleanup()
 	// shotdown all worker threads before deleting them in case of co-dependencies
 	mAppCoreHttp.requestStop();
 	sTextureFetch->shutdown();
-	sTextureCache->shutdown();	
-	sImageDecodeThread->shutdown();
-	
-	sTextureFetch->shutDownTextureCacheThread() ;
-	sTextureFetch->shutDownImageDecodeThread() ;
 
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();
@@ -1990,12 +1955,12 @@ bool LLAppViewer::cleanup()
 	SUBSYSTEM_CLEANUP(LLFilePickerThread);
 
 	//MUST happen AFTER SUBSYSTEM_CLEANUP(LLCurl)
+    delete sTextureFetch;
+    sTextureFetch = NULL;
+
 	delete sTextureCache;
     sTextureCache = NULL;
-	delete sTextureFetch;
-    sTextureFetch = NULL;
-	delete sImageDecodeThread;
-    sImageDecodeThread = NULL;
+	
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
 
@@ -2143,12 +2108,8 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
-	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-													sImageDecodeThread,
-													enable_threads && true,
-													app_metrics_qa_mode);	
+	LLAppViewer::sTextureCache = new LLTextureCache();
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), app_metrics_qa_mode);	
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
@@ -4163,7 +4124,7 @@ void dumpVFSCaches()
 U32 LLAppViewer::getTextureCacheVersion() 
 {
 	//viewer texture cache version, change if the texture cache format changes.
-	const U32 TEXTURE_CACHE_VERSION = 8;
+	const U32 TEXTURE_CACHE_VERSION = 9;
 
 	return TEXTURE_CACHE_VERSION ;
 }
@@ -4182,13 +4143,12 @@ bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
-	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
+
 	LLVOCache::getInstance()->setReadOnly(read_only);
 
-	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion()) 
 	{
-		texture_cache_mismatch = true;
+		mPurgeCache = true;
 		if(!read_only) 
 		{
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
@@ -4204,8 +4164,6 @@ bool LLAppViewer::initCache()
 			LL_INFOS("AppCache") << "Startup cache purge requested: " << (gSavedSettings.getBOOL("PurgeCacheOnStartup") ? "ALWAYS" : "ONCE") << LL_ENDL;
 			gSavedSettings.setBOOL("PurgeCacheOnNextStartup", false);
 			mPurgeCache = true;
-			// STORM-1141 force purgeAllTextures to get called to prevent a crash here. -brad
-			texture_cache_mismatch = true;
 		}
 	
 		// We have moved the location of the cache directory over time.
@@ -4252,7 +4210,7 @@ bool LLAppViewer::initCache()
 	S64 vfs_size = llmin((S64)((cache_size * 2) / 10), MAX_VFS_SIZE);
 	S64 texture_cache_size = cache_size - vfs_size;
 
-	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
+	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, mPurgeCache);
 	texture_cache_size -= extra;
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
@@ -4419,7 +4377,7 @@ void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
 void LLAppViewer::purgeCache()
 {
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
-	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
+	LLAppViewer::getTextureCache()->purge();
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
 	std::string browser_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
 	if (LLFile::isdir(browser_cache))
@@ -4434,7 +4392,7 @@ void LLAppViewer::purgeCache()
 void LLAppViewer::purgeCacheImmediate()
 {
 	LL_INFOS("AppCache") << "Purging Object Cache and Texture Cache immediately..." << LL_ENDL;
-	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE, false);
+	LLAppViewer::getTextureCache()->purge();
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE, true);
 }
 

@@ -26,9 +26,7 @@
 
 #include "linden_common.h"
 
-#include "llimageworker.h"
 #include "llimage.h"
-
 #include "llmath.h"
 #include "v4coloru.h"
 
@@ -1850,6 +1848,26 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 	}
 	return IMG_CODEC_INVALID;
 }
+
+std::string LLImageBase::getExtensionFromCodec(EImageCodec codec)
+{
+    switch (codec)
+    {
+        case IMG_CODEC_INVALID:
+        case IMG_CODEC_EOF:
+        default:
+            return std::string();
+
+	    case IMG_CODEC_RGB:  return ".rgb";
+	    case IMG_CODEC_J2C:  return ".j2c";
+	    case IMG_CODEC_BMP:  return ".bmp";
+	    case IMG_CODEC_TGA:  return ".tga";
+	    case IMG_CODEC_JPEG: return ".jpg";
+	    case IMG_CODEC_DXT:  return ".dds";
+	    case IMG_CODEC_PNG:  return ".png";
+    }
+}
+
 #if 0
 bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip_only)
 {

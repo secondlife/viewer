@@ -51,7 +51,6 @@
 #include "llappviewer.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
-#include "llimageworker.h"
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"

@@ -73,7 +73,14 @@ bool LLImagePNG::updateData()
 		return false;
 	}
 
+    setFullWidth(infop.mWidth);
+    setFullHeight(infop.mHeight);
 	setSize(infop.mWidth, infop.mHeight, infop.mComponents);
+
+    if (!(getWidth() * getHeight() * getComponents()))
+    {
+        return false;
+    }
 
 	return true;
 }

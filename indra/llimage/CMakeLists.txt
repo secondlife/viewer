@@ -32,7 +32,6 @@ set(llimage_SOURCE_FILES
     llimagejpeg.cpp
     llimagepng.cpp
     llimagetga.cpp
-    llimageworker.cpp
     llpngwrapper.cpp
     )
 
@@ -48,7 +47,6 @@ set(llimage_HEADER_FILES
     llimagejpeg.h
     llimagepng.h
     llimagetga.h
-    llimageworker.h
     llmapimagetype.h
     llpngwrapper.h
     )

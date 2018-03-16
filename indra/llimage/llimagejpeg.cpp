@@ -109,6 +109,8 @@ bool LLImageJPEG::updateData()
 		jpeg_read_header( &cinfo, true );
 
 		// Data set by jpeg_read_header
+        setFullWidth(cinfo.image_width);
+        setFullHeight(cinfo.image_height);
 		setSize(cinfo.image_width, cinfo.image_height, 3); // Force to 3 components (RGB)
 
 		/*
@@ -134,6 +136,11 @@ bool LLImageJPEG::updateData()
 	////////////////////////////////////////
 	// Step 4: Release JPEG decompression object 
 	jpeg_destroy_decompress(&cinfo);
+
+    if (!(getWidth() * getHeight() * getComponents()))
+    {
+        return false;
+    }
 
 	return true;
 }

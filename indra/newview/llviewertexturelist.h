@@ -140,11 +140,10 @@ public:
 	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
 	
 private:
-	void updateImagesDecodePriorities();
-	F32  updateImagesCreateTextures(F32 max_time);
+	void updateImagesDecodePriorities();	
 	F32  updateImagesFetchTextures(F32 max_time);
+    F32  updateImagesCreateTextures(F32 max_time);
 	void updateImagesUpdateStats();
-	F32  updateImagesLoadingFastCache(F32 max_time);
 
 	void addImage(LLViewerFetchedTexture *image, ETexListType tex_type);
 	void deleteImage(LLViewerFetchedTexture *image);
@@ -202,7 +201,6 @@ public:
 	image_list_t mLoadingStreamList;
 	image_list_t mCreateTextureList;
 	image_list_t mCallbackList;
-	image_list_t mFastCacheList;
 
 	// Note: just raw pointers because they are never referenced, just compared against
 	std::set<LLViewerFetchedTexture*> mDirtyTextureList;

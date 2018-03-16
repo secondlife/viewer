@@ -108,10 +108,14 @@ bool LLImageJ2C::updateData()
 	bool res = true;
 	resetLastError();
 
-	// Check to make sure that this instance has been initialized with data
-	if (!getData() || (getDataSize() < 16))
+	if (!getData())
 	{
-		setLastError("LLImageJ2C uninitialized");
+		setLastError("LLImageJ2C uninitialized.");
+		res = false;
+	}
+	else if (getDataSize() < 16)
+	{
+		setLastError("LLImageJ2C did not have enough data to parse JPEG header.");
 		res = false;
 	}
 	else 
@@ -131,6 +135,12 @@ bool LLImageJ2C::updateData()
 	{
 		LLImage::setLastError(mLastError);
 	}
+
+    if (!(getWidth() * getHeight() * getComponents()))
+    {
+        res = false;
+    }
+
 	return res;
 }
 

@@ -318,7 +318,14 @@ bool LLImageTGA::updateData()
 		setLastError("Unable to load file. Unknown pixel size.");
 		return false;
 	}
+    setFullWidth(width);
+    setFullHeight(height);
 	setSize(width, height, components);
+
+    if (!(getWidth() * getHeight() * getComponents()))
+    {
+        return false;
+    }
 	
 	return true;
 }

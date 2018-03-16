@@ -124,7 +124,6 @@
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
-#include "llimageworker.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
@@ -5048,8 +5047,6 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		LL_INFOS() << "Shutting down GL..." << LL_ENDL;
 
 		// Pause texture decode threads (will get unpaused during main loop)
-		LLAppViewer::getTextureCache()->pause();
-		LLAppViewer::getImageDecodeThread()->pause();
 		LLAppViewer::getTextureFetch()->pause();
 				
 		gSky.destroyGL();

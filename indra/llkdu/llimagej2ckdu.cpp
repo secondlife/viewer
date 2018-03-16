@@ -822,6 +822,8 @@ bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 	try
 	{
 		setupCodeStream(base, false, MODE_FAST);
+        base.setFullWidth(base.getWidth() << base.getDiscardLevel());
+        base.setFullHeight(base.getHeight() << base.getDiscardLevel());
 		return true;
 	}
 	catch (const KDUError& msg)

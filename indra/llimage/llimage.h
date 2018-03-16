@@ -134,8 +134,14 @@ public:
 	virtual void dump();
 	virtual void sanityCheck();
 
+    // dimensions actually present
 	U16 getWidth() const		{ return mWidth; }
 	U16 getHeight() const		{ return mHeight; }
+
+    // dimensions for best discard level
+    U16 getFullWidth() const	{ return mFullWidth; }
+	U16 getFullHeight() const   { return mFullHeight; }
+
 	S8	getComponents() const	{ return mComponents; }
 	S32 getDataSize() const		{ return mDataSize; }
 
@@ -160,12 +166,16 @@ public:
 	static F32 calc_download_priority(F32 virtual_size, F32 visible_area, S32 bytes_sent);
 
 	static EImageCodec getCodecFromExtension(const std::string& exten);
-	
+	static std::string getExtensionFromCodec(EImageCodec codec);
+
 	static void createPrivatePool() ;
 	static void destroyPrivatePool() ;
 	static LLPrivateMemoryPool* getPrivatePool() {return sPrivatePoolp;}
 
 	//static LLTrace::MemStatHandle sMemStat;
+
+    void setFullWidth(U16 fullWidth) { mFullWidth = fullWidth; }
+    void setFullHeight(U16 fullHeight) { mFullHeight = fullHeight; }
 
 private:
 	U8 *mData;
@@ -173,6 +183,9 @@ private:
 
 	U16 mWidth;
 	U16 mHeight;
+
+    U16 mFullWidth  = 0;
+	U16 mFullHeight = 0;
 
 	S8 mComponents;
 

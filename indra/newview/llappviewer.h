@@ -52,7 +52,6 @@ class LLCommandLineParser;
 class LLFrameTimer;
 class LLPumpIO;
 class LLTextureCache;
-class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLViewerJoystick;
@@ -111,9 +110,7 @@ public:
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
     void checkForCrash();
     
-	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
-	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
 	static U32 getTextureCacheVersion() ;
@@ -272,7 +269,6 @@ private:
 
 	// Thread objects.
 	static LLTextureCache* sTextureCache; 
-	static LLImageDecodeThread* sImageDecodeThread; 
 	static LLTextureFetch* sTextureFetch;
 
 	S32 mNumSessions;

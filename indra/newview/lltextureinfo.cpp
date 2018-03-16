@@ -152,7 +152,7 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 		break;
 	}
 
-	if (mLoggingEnabled)
+	/*if (mLoggingEnabled)
 	{
 		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog", false);
 		static LLCachedControl<bool> log_to_simulator(gSavedSettings, "LogTextureDownloadsToSimulator", false);
@@ -227,7 +227,7 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 				resetTextureStatistics();
 			}
 		}
-	}
+	}*/
 
 	mTextures.erase(id);
 }

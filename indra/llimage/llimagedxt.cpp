@@ -210,11 +210,18 @@ bool LLImageDXT::updateData()
 		LL_ERRS() << "LLImageDXT: not enough data" << LL_ENDL;
 	}
 	S32 ncomponents = formatComponents(mFileFormat);
+    setFullWidth(width);
+    setFullHeight(height);
 	setSize(width, height, ncomponents);
 
 	S32 discard = calcDiscardLevelBytes(data_size);
 	discard = llmin(discard, miplevelmax);
 	setDiscardLevel(discard);
+
+    if (!(getWidth() * getHeight() * getComponents()))
+    {
+        return false;
+    }
 
 	return true;
 }

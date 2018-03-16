@@ -243,7 +243,10 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 		llassert_always(mNumActiveRef > 0) ;
 	}
 
-	llassert(mNumTotalRef <= (FULL_VOLATILE_APR_POOL << 2)) ;
+	if (mNumTotalRef > (FULL_VOLATILE_APR_POOL << 2))
+    {
+        LL_WARNS() << "LLVolatileAPRPool has " << mNumTotalRef << " total refs > " << (FULL_VOLATILE_APR_POOL << 2) << LL_ENDL;
+    }
 }
 
 BOOL LLVolatileAPRPool::isFull()

@@ -413,9 +413,6 @@ public:
 	void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
 
 	void        forceToDeleteRequest();
-	void        loadFromFastCache();
-	void        setInFastCacheList(bool in_list) { mInFastCacheList = in_list; }
-	bool        isInFastCacheList() { return mInFastCacheList; }
 
 	/*virtual*/bool  isActiveFetching(); //is actively in fetching by the fetching pipeline.
 
@@ -439,7 +436,6 @@ private:
 	BOOL  mFullyLoaded;
 	BOOL  mInDebug;
 	BOOL  mUnremovable;
-	BOOL  mInFastCacheList;
 	BOOL  mForceCallbackFetch;
 
 protected:		
