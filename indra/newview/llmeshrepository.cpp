@@ -1118,19 +1118,27 @@ void LLMeshRepoThread::constructUrl(LLUUID mesh_id, std::string * url)
 	
 	if (gAgent.getRegion())
 	{
-		LLMutexLock lock(mMutex);
-        res_url = mGetMeshCapability;
-	}
+		{
+			LLMutexLock lock(mMutex);
+			res_url = mGetMeshCapability;
+		}
 
-	if (! res_url.empty())
-	{
-		res_url += "/?mesh_id=";
-		res_url += mesh_id.asString().c_str();
+		if (!res_url.empty())
+		{
+			res_url += "/?mesh_id=";
+			res_url += mesh_id.asString().c_str();
+		}
+		else
+		{
+			LL_WARNS_ONCE(LOG_MESH) << "Current region does not have ViewerAsset capability!  Cannot load meshes. Region id: "
+									<< gAgent.getRegion()->getRegionID() << LL_ENDL;
+			LL_DEBUGS_ONCE(LOG_MESH) << "Cannot load mesh " << mesh_id << " due to missing capability." << LL_ENDL;
+		}
 	}
 	else
 	{
-		LL_WARNS_ONCE(LOG_MESH) << "Current region does not have ViewerAsset capability!  Cannot load "
-								<< mesh_id << ".mesh" << LL_ENDL;
+		LL_WARNS_ONCE(LOG_MESH) << "Current region is not loaded so there is no capability to load from! Cannot load meshes." << LL_ENDL;
+		LL_DEBUGS_ONCE(LOG_MESH) << "Cannot load mesh " << mesh_id << " due to missing capability." << LL_ENDL;
 	}
 
 	*url = res_url;
