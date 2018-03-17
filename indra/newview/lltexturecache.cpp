@@ -31,7 +31,9 @@
 #include "llimage.h"
 #include "llsdserialize.h"
 
-static const U32 ADDED_ENTRIES_BEFORE_FLUSH_TO_DISK = 2;//32;
+// This controls how often we update the on-disk data for the cache
+// with contents of the in-memory map of cached texture data.
+static const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 8;
 
 const std::string LLTextureCache::CACHE_ENTRY_ID("id");
 const std::string LLTextureCache::CACHE_ENTRY_CODEC("codec");
@@ -90,7 +92,17 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
     }
 
     std::string filename = getTextureFileName(id, EImageCodec(image->getCodec()));
-	S32 bytes_written = LLAPRFile::writeEx(filename, image->getData(), 0, image->getDataSize());
+
+    LLFILE* f = LLFile::fopen(filename, "wb");
+    if (!f)
+    {
+        LL_WARNS() << "Failed to write complete file while caching texture " << filename << LL_ENDL;
+        return false;
+    }
+
+	S32 bytes_written = fwrite((const char*)image->getData(), 1, image->getDataSize(), f);
+
+    fclose(f);
 
     if (bytes_written != image->getDataSize())
     {
@@ -99,7 +111,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
     }
 
     // if we've added enough entries, do our lazy flush to disk
-    if (++mAddedEntries > ADDED_ENTRIES_BEFORE_FLUSH_TO_DISK)
+    if (++mAddedEntries > NEW_ENTRIES_PER_FLUSH_TO_DISK)
     {
         if (writeCacheContentsFile())
         {
@@ -129,19 +141,34 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id)
 
     CachedTextureInfo& info = iter->second;
 
-    U8* data = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), info.mImageEncodedSize);
+    char* data = ALLOCATE_MEM(LLImageBase::getPrivatePool(), info.mImageEncodedSize);
 
     std::string filename = getTextureFileName(id, EImageCodec(info.mCodec));
-    S32 bytes_read = LLAPRFile::readEx(filename, data, 0, info.mImageEncodedSize);
+    
+    LLFILE* f = LLFile::fopen(filename, "rb");
+    if (!f)
+    {
+        LL_WARNS() << "Failed to open cached texture " << id << " removing from cache." << LL_ENDL;
+        remove(id);
+        writeCacheContentsFile();
+        return LLPointer<LLImageFormatted>();
+    }
+
+    size_t bytes_read = fread(data, 1, info.mImageEncodedSize, f);
+
+    fclose(f);
+
     if (bytes_read != info.mImageEncodedSize)
     {
+        LL_WARNS() << "Failed to read cached texture " << id << " removing from cache." << LL_ENDL;
         FREE_MEM(LLImageBase::getPrivatePool(), data);
         remove(id);
-        return false;
+        writeCacheContentsFile();
+        return LLPointer<LLImageFormatted>();
     }
 
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(info.mCodec);
-    image->setData(data, bytes_read);
+    image->setData((U8*)data, bytes_read);
     if (!image->updateData())
     {
         LL_WARNS() << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;

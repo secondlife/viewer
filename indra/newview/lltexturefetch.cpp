@@ -1189,10 +1189,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	            mLoaded = TRUE;
                 mCacheReadTimer.reset();
             }			
-            else
-            {
-                setState(LOAD_FROM_NETWORK);
-            }
+            else if(!mUrl.empty() && mCanUseHTTP)
+		    {
+			    setState(WAIT_HTTP_RESOURCE);
+		    }
+		    else
+		    {
+			    setState(LOAD_FROM_NETWORK);
+		    }
 		}
 		else if(!mUrl.empty() && mCanUseHTTP)
 		{
@@ -1238,11 +1242,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return true;
 			}
 			// need more data
-			else
-			{
-				LL_DEBUGS(LOG_TXT) << mID << ": Not in Cache" << LL_ENDL;
-				setState(LOAD_FROM_NETWORK);
-			}
+			else if(!mUrl.empty() && mCanUseHTTP)
+		    {
+			    setState(WAIT_HTTP_RESOURCE);
+		    }
+		    else
+		    {
+			    setState(LOAD_FROM_NETWORK);
+		    }
 			
 			// fall through
 		}
@@ -1268,8 +1275,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		static LLCachedControl<bool> use_http(gSavedSettings, "ImagePipelineUseHTTP", true);
 
 // 		if (mHost.isInvalid()) get_url = false;
-        bool wtfo = use_http;
-		if (wtfo && mCanUseHTTP && mUrl.empty())//get http url.
+		if (use_http && mCanUseHTTP && mUrl.empty())//get http url.
 		{
 			LLViewerRegion* region = NULL;
 			if (mHost.isInvalid())
@@ -1481,8 +1487,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		mHttpHandle = LLCORE_HTTP_HANDLE_INVALID;
 
-		if (mUrl.empty())
-		{
+		llassert(!mUrl.empty());
+		/*{
 			// *FIXME:  This should not be reachable except it has become
 			// so after some recent 'work'.  Need to track this down
 			// and illuminate the unenlightened.
@@ -1491,7 +1497,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			resetFormattedData();
 			releaseHttpSemaphore();
 			return true; // failed
-		}
+		}*/
 		
 		mRequestedTimer.reset();
 		mLoaded = FALSE;
@@ -2040,13 +2046,7 @@ void LLTextureFetchWorker::removeFromCache()
 // Locks:  Mw
 bool LLTextureFetchWorker::processSimulatorPackets()
 {
-	if (mFormattedImage.isNull() || mRequestedSize < 0)
-	{
-		// not sure how we got here, but not a valid state, abort!
-		llassert_always(mDecodeHandle == 0);
-		mFormattedImage = NULL;
-		return true;
-	}
+    llassert_always(mFormattedImage.notNull() && mRequestedSize >= 0);
 	
 	if (mLastPacket >= mFirstPacket)
 	{
@@ -2453,9 +2453,10 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	}
 	else
 	{
-		// If the requester knows nothing about the file, we fetch the equivalent of what we'd find in the fastcache data
+		// If the requester knows nothing about the file, fetch enough to parse the header
+		// and determine how many discard levels are actually available
 		desired_size = 1 << 12;
-        desired_discard = MAX_DISCARD_LEVEL - 1;
+		desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? MAX_DISCARD_LEVEL - 1 : desired_discard;
 	}
 
 	if (worker)
@@ -3011,8 +3012,8 @@ void LLTextureFetch::sendRequestListToSimulators()
 			 iter2 != iter1->second.end(); ++iter2)
 		{
 			LLTextureFetchWorker* req = *iter2;
-			if (gMessageSystem)
-			{
+		if (gMessageSystem)
+        {
 				if (req->mSentRequest != LLTextureFetchWorker::SENT_SIM)
 				{
 					// Initialize packet data based on data read from cache
@@ -3061,9 +3062,10 @@ void LLTextureFetch::sendRequestListToSimulators()
 					gMessageSystem->sendSemiReliable(host, NULL, NULL);
 					sim_request_count = 0;
 				}
-			}
-		}
-		if (gMessageSystem && sim_request_count > 0 && sim_request_count < IMAGES_PER_REQUEST)
+		    }
+        }
+
+		if (gMessageSystem && sim_request_count > 0 && sim_request_count <= IMAGES_PER_REQUEST)
 		{
 // 			LL_INFOS(LOG_TXT) << "REQUESTING " << sim_request_count << " IMAGES FROM HOST: " << host.getIPString() << LL_ENDL;
 			gMessageSystem->sendSemiReliable(host, NULL, NULL);
