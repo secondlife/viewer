@@ -1831,8 +1831,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			// If we're in a local cache or we didn't actually receive any new data,
 			// or we failed to load anything, skip
-			//setState(DONE);
-            mState = DONE;
+			setState(DONE);
 			return false;
 		}
 

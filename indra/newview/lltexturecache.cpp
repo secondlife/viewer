@@ -76,8 +76,18 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
     {
 	    LLMutexLock lock(&mMutex);
 
-        map_t::iterator iter;
-        llassert((iter = mMap.find(id)) == mMap.end()); // sanity check dups
+#if LL_DEBUG
+        map_t::iterator iter = mMap.find(id);
+        // Insure that this is a unique addition or the added image is exactly the same
+        llassert((iter == mMap.end())
+            || (iter->second.mCachedHeight == image->getHeight()
+             && iter->second.mCachedWidth == image->getWidth()
+             && iter->second.mDiscardLevel == image->getDiscardLevel()
+             && iter->second.mFullHeight == image->getFullHeight()
+             && iter->second.mFullWidth == image->getFullWidth()
+             && iter->second.mImageEncodedSize == image->getDataSize()
+             && iter->second.mCodec == image->getCodec()));
+#endif
 
         CachedTextureInfo info;
         info.mID                = id;
