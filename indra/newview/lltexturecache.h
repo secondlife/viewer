@@ -81,7 +81,6 @@ private:
     LLMutex     mMutex;
     ELLPath     mCacheLoc;
     std::string mTexturesDirName;
-    F32         mHeaderCacheVersion;	
 	map_t       mMap;
     U32         mAddedEntries = 0;
 };
