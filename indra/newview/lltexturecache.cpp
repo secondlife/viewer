@@ -229,7 +229,7 @@ bool LLTextureCache::writeCacheContentsFile()
         return false;
     }
 
-    std::string filename = mTexturesDirName + "cache.contents";
+    std::string filename = mTexturesDirName + ".contents";
     llofstream out;
     out.open(filename);
     if (!out.is_open())
@@ -256,7 +256,7 @@ bool LLTextureCache::readCacheContentsFile()
 {
 	LLMutexLock lock(&mMutex);
 
-    std::string filename = mTexturesDirName + "cache.contents";
+    std::string filename = mTexturesDirName + ".contents";
     
 	llifstream file;
 	file.open(filename.c_str());

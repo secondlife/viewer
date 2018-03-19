@@ -1076,7 +1076,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == INIT)
 	{		
-		mRawImage = NULL ;
+ 		mRawImage = NULL ;
 		mRequestedDiscard = -1;
 		mLoadedDiscard = -1;
 		mDecodedDiscard = -1;
@@ -1103,7 +1103,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mInCache = FALSE;
 		mDesiredSize = llmax(mDesiredSize, 1 << 12); // min desired size is TEXTURE_CACHE_ENTRY_SIZE
 		LL_DEBUGS(LOG_TXT) << mID << ": Priority: " << llformat("%8.0f",mImagePriority)
-						   << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
+						    << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
 
 		// fall through
 	}
@@ -1128,11 +1128,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
             if (mFormattedImage.notNull())
             {
                 mCacheReadCount += mFormattedImage.notNull();
-		        mFileSize = mFormattedImage->getDataSize();
-		        mImageCodec = mFormattedImage->getCodec();
+                mFileSize = mFormattedImage->getDataSize();
+                mDesiredSize = mFileSize;
+                mImageCodec = mFormattedImage->getCodec();
                 mHaveAllData = TRUE;
-	            mLoaded = TRUE;
-			    mCacheReadTimer.reset();
+                mLoaded = TRUE;
+                mCacheReadTimer.reset();
             }
             else
             {
@@ -1146,8 +1147,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                     if (mFileSize)
                     {
                         U8* data       = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), mFileSize);	
-	                    S32 bytes_read = LLAPRFile::readEx(filename, data, 0, mFileSize);
-
+                        S32 bytes_read = LLAPRFile::readEx(filename, data, 0, mFileSize);
                         if (bytes_read == mFileSize)
                         {
                             mFormattedImage = LLImageFormatted::createFromType(mImageCodec);
@@ -1161,6 +1161,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                             mFormattedImage->setDiscardLevel(0);
                             mImageCodec = mFormattedImage->getCodec();
                             mHaveAllData = TRUE;
+                            mDesiredSize = mFileSize;
                             mLoaded = TRUE;
                             setState(CACHE_POST);
                         }
@@ -1380,17 +1381,19 @@ bool LLTextureFetchWorker::doWork(S32 param)
 								  << ", should be >=0" << LL_ENDL;
 			}
 
-            if (!mFormattedImage->updateData())
-            {
-                LL_WARNS(LOG_TXT) << mID << " failed to parse header data." << LL_ENDL;
-                setState(DONE);
-                return false;
-            }
+			if (!mFormattedImage->updateData())
+			{
+				LL_WARNS(LOG_TXT) << mID << " failed to parse header data." << LL_ENDL;
+				setState(DONE);
+				return false;
+			}
 
 			setState(DECODE_IMAGE);
 
-            // don't bother caching anything but discard level 0...
-			mWriteToCacheState = mLoadedDiscard == 0 ? SHOULD_WRITE : mWriteToCacheState;
+			if (mLoadedDiscard == 0)
+			{
+			    mWriteToCacheState = SHOULD_WRITE;
+			}
 
 			recordTextureDone(false, byte_count);
 		}
@@ -1708,6 +1711,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			if (mHaveAllData) //the image file is fully loaded.
 			{
 				mFileSize = total_size;
+				mDesiredSize = total_size;
 			}
 			else //the file size is unknown.
 			{
@@ -1744,8 +1748,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			setState(DECODE_IMAGE);
 			if (mWriteToCacheState != NOT_WRITE)
 			{
-				mWriteToCacheState = mLoadedDiscard == 0 ? SHOULD_WRITE : mWriteToCacheState;
+				if (mLoadedDiscard == 0)
+				{
+			        	mWriteToCacheState = SHOULD_WRITE;
+				}
 			}
+
 			releaseHttpSemaphore();
 			return false;
 		}
@@ -1803,11 +1811,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard << " All Data: " << mHaveAllData << LL_ENDL;
 
         mFormattedImage->decode(mRawImage, 1.0f);
+
+        mDecodedDiscard = mHaveAllData ? 0 : mFormattedImage->getDiscardLevel();
+
         if (mNeedsAux)
         {
 		    mFormattedImage->decodeChannels(mAuxImage, 1.0f, 4, 4);
         }
-		mDecodedDiscard = mFormattedImage->getDiscardLevel();
+		
 	    mDecoded = mRawImage.notNull() && (!mNeedsAux || mAuxImage.notNull());
         setState(WRITE_TO_CACHE);
 
@@ -1845,7 +1856,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DONE)
 	{
-		if (mDecodedDiscard >= 0 && mDesiredDiscard < mDecodedDiscard)
+		if (mDecodedDiscard > 0 && mDesiredDiscard < mDecodedDiscard)
 		{
 			// More data was requested, return to INIT
 			setState(INIT);
@@ -2442,7 +2453,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		// (calcDataSizeJ2C() below makes assumptions about how the image
 		// was compressed - this code ensures that when we request the entire image,
 		// we really do get it.)
-		desired_size = MAX_IMAGE_DATA_SIZE;
+		//desired_size = MAX_IMAGE_DATA_SIZE;
+        desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard) * 2;
 	}
 	else if (w*h*c > 0)
 	{
@@ -2455,8 +2467,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	{
 		// If the requester knows nothing about the file, fetch enough to parse the header
 		// and determine how many discard levels are actually available
-		desired_size = 1 << 12;
-		desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? MAX_DISCARD_LEVEL - 1 : desired_discard;
+		desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, 0) * 2;
+		desired_discard = 0;//(desired_discard >= MAX_DISCARD_LEVEL) ? MAX_DISCARD_LEVEL - 1 : desired_discard;
 	}
 
 	if (worker)
@@ -3160,19 +3172,6 @@ bool LLTextureFetchWorker::insertPacket(S32 index, U8* data, S32 size)
 
 void LLTextureFetchWorker::setState(e_state new_state)
 {
-	if (mFTType == FTT_SERVER_BAKE)
-	{
-	// NOTE: turning on these log statements is a reliable way to get
-	// blurry images fairly frequently. Presumably this is an
-	// indication of some subtle timing or locking issue.
-
-//		LL_INFOS(LOG_TXT) << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << LL_ENDL;
-	}
-    if (new_state == DONE)
-    {
-        int q = 0;
-        q++;
-    }
 	mState = new_state;
 }
 
