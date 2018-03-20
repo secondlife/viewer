@@ -159,6 +159,12 @@ BOOL LLInboxFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	return LLFolderViewFolder::handleDoubleClick(x, y, mask);
 }
 
+void LLInboxFolderViewFolder::selectItem()
+{
+	deFreshify();
+	LLFolderViewFolder::selectItem();
+}
+
 void LLInboxFolderViewFolder::computeFreshness()
 {
 	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
