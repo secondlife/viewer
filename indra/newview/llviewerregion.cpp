@@ -290,6 +290,13 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             continue;
         }
 
+        if (!result.isMap() || result.has("error"))
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Malformed response" << LL_ENDL;
+            // setup for retry.
+            continue;
+        }
+
         LLSD httpResults = result["http_result"];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         if (!status)
