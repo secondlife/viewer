@@ -1694,9 +1694,9 @@
             <key>archive</key>
             <map>              
               <key>hash</key>
-              <string>60626d4769c042205367bbdaab73ebcc</string>
+              <string>3855bd40f950e3c22739ae8f3ee2afc9</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15237/98374/kdu-7.10.4.513508-darwin-513508.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15258/98444/kdu-7.10.4.513518-darwin-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1706,9 +1706,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>              
-              <string>ba83b6644e466c618c8982202115eb91</string>
+              <string>d1521becaf21bf7233173722af63f57d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15236/98368/kdu-7.10.4.513508-darwin64-513508.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1718,9 +1718,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>              
-              <string>f27222e363037e1ddd68af06b80384e1</string>
+              <string>43d7a6a69a54534a736f132e9c81795b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15235/98386/kdu-7.10.4.513508-linux-513508.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1730,9 +1730,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8f7a887be03ead80336ae71dd1493ab</string>
+              <string>a705a665810a71e7b0114a97ae9a2224</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15234/98381/kdu-7.10.4.513508-linux64-513508.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15256/98457/kdu-7.10.4.513518-linux64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1742,9 +1742,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4cb5505436f6bd84f1f1d4ea63a40f1b</string>
+              <string>0e5b37a03a3f873d15142473b193ec5f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15239/98398/kdu-7.10.4.513508-windows-513508.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15259/98463/kdu-7.10.4.513518-windows-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1754,16 +1754,16 @@
             <key>archive</key>
             <map>              
               <key>hash</key>
-              <string>c66c7e2bc3fb296c276f2af4167c7932</string>
+              <string>da3b1ea90797b189d80ab5d50fdf05d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15238/98392/kdu-7.10.4.513508-windows64-513508.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.A.4.513508</string>
+        <string>7.A.4.513518</string>
       </map>
       <key>libhunspell</key>
       <map>
