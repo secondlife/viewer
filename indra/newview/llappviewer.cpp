@@ -1399,7 +1399,8 @@ bool LLAppViewer::doFrame()
 			// Scan keyboard for movement keys.  Command keys and typing
 			// are handled by windows callbacks.  Don't do this until we're
 			// done initializing.  JC
-			if ((gHeadlessClient || gViewerWindow->getWindow()->getVisible())
+			if (gViewerWindow
+				&& (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
 				&& gViewerWindow->getActive()
 				&& !gViewerWindow->getWindow()->getMinimized()
 				&& LLStartUp::getStartupState() == STATE_STARTED
