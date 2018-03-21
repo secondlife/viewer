@@ -880,10 +880,21 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 
-					if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+					bool allAttachments = true;
+					for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
+						iter != LLSelectMgr::getInstance()->getSelection()->end();iter++)
 					{
-						texture_ctrl->setBakeTextureEnabled(objectp->isAttachment());
+						LLSelectNode* node = *iter;
+						LLViewerObject* object = node->getObject();
+						if (!object->isAttachment())
+						{
+							allAttachments = false;
+							break;
+						}
 					}
+
+					texture_ctrl->setBakeTextureEnabled(allAttachments);
+					
 				}
 				else if (id.isNull())
 				{
@@ -895,6 +906,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("label alphamode")->setEnabled(FALSE);
 					getChildView("maskcutoff")->setEnabled(FALSE);
 					getChildView("label maskcutoff")->setEnabled(FALSE);
+
+					texture_ctrl->setBakeTextureEnabled(false);
 				}
 				else
 				{
@@ -907,10 +920,20 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 
-					if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+					bool allAttachments = true;
+					for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
+						iter != LLSelectMgr::getInstance()->getSelection()->end();iter++)
 					{
-						texture_ctrl->setBakeTextureEnabled(objectp->isAttachment());
+						LLSelectNode* node = *iter;
+						LLViewerObject* object = node->getObject();
+						if (!object->isAttachment())
+						{
+							allAttachments = false;
+							break;
+						}
 					}
+
+					texture_ctrl->setBakeTextureEnabled(allAttachments);
 				}
 				
 			}
