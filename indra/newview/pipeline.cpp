@@ -4819,8 +4819,6 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 	gGL.loadMatrix(gGLModelView);
 }
 
-#pragma optimize("", off)
-
 void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode, U32 render_pass_type)
 {
 	assertInitialized();
@@ -4850,8 +4848,6 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode, U32 re
 		ms_sleep(16);
 	}
 }
-
-#pragma optimize("", on)
 
 void LLPipeline::renderPhysicsDisplay()
 {
