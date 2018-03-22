@@ -235,7 +235,7 @@ LLAvatarJointCollisionVolume::LLAvatarJointCollisionVolume()
 }
 
 /*virtual*/
-U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLAvatarJointCollisionVolume::render(U32 render_pass_type, F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 {
 	LL_ERRS() << "Cannot call render() on LLAvatarJointCollisionVolume" << LL_ENDL;
 	return 0;

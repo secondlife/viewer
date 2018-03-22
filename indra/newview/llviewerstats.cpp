@@ -64,6 +64,8 @@
 #include "llcorehttputil.h"
 #include "llvoicevivox.h"
 
+#pragma optimize("", off)
+
 namespace LLStatViewer
 {
 
@@ -92,11 +94,113 @@ LLTrace::CountStatHandle<>	FPS("FPS", "Frames rendered"),
 							TEX_REBAKES("texrebakes", "Number of times avatar textures have been forced to rebake"),
 							NUM_NEW_OBJECTS("numnewobjectsstat", "Number of objects in scene that were not previously in cache");
 
-LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > 
-							TRIANGLES_DRAWN("trianglesdrawnstat");
+LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN("trianglesdrawnstat");
+LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
+LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE[LLRenderPass::NUM_RENDER_TYPES] = 
+{
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_stub"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_simple"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_ground"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_fullbright"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_bump"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_materials"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_terrain"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_sky"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_wl_sky"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_tree"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_alpha_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_fullbright_alpha_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_grass"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_invisible"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_avatar"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_voidwater"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_water"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_glow"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_alpha"),   
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_simple"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_grass"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_fullbright"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_invisible"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_invisishiny"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_fullbright_shiny"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_shiny"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_bump"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_postbump"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_alpha"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_alpha_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_alpha_emissive"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_blend"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_emissive"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_blend"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_emissive"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_blend"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_emissive"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_glow"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_alpha"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_alpha_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_fullbright_alpha_mask"),
+   LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_alpha_invisible")
+};
 
-LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
-							TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
+LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[LLRenderPass::NUM_RENDER_TYPES] = 
+{
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_stub_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_simple_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_ground_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_fullbright_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_bump_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_materials_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_terrain_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_sky_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_wl_sky_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_tree_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_alpha_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_fullbright_alpha_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_grass_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_invisible_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_avatar_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_voidwater_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_water_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_glow_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pool_alpha_perframestat"),   
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_simple_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_grass_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_fullbright_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_invisible_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_invisishiny_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_fullbright_shiny_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_shiny_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_bump_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_postbump_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_alpha_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_alpha_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_material_alpha_emissive_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_blend_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_specmap_emissive_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_blend_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normmap_emissive_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_blend_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_normspec_emissive_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_glow_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_alpha_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_alpha_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_fullbright_alpha_mask_perframestat"),
+   LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> >("trianglesdrawnperframestat_pass_alpha_invisible_perframestat")
+};
 
 LLTrace::CountStatHandle<F64Kilobytes >	
 							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
@@ -340,7 +444,16 @@ void update_statistics()
 
 	LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
 
-	record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN));
+    auto sum = last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN);
+    U32 val = sum.value();
+	record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, val);
+
+    for (U32 i = LLRenderPass::POOL_SIMPLE; i < LLRenderPass::NUM_RENDER_TYPES; i++)
+    {
+        auto sum = last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE[i]);
+        U32 val = sum.value();
+        record(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i], val);
+    }
 
 	sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());

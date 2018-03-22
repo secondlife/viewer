@@ -256,7 +256,7 @@ void LLDrawPoolWater::render(S32 pass)
 			continue;
 		}
 		gGL.getTexUnit(0)->bind(face->getTexture());
-		face->renderIndexed();
+		face->renderIndexed(LLRenderPass::POOL_WATER);
 	}
 
 	// Now, disable texture coord generation on texture state 1
@@ -302,7 +302,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 			if (face->getGeomCount() > 0)
 			{					
-				face->renderIndexed();
+				face->renderIndexed(LLRenderPass::POOL_WATER);
 			}
 		}
 
@@ -422,7 +422,7 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 			continue;
 		}
 
-		face->renderIndexed();
+		face->renderIndexed(LLRenderPass::POOL_WATER);
 	}
 
 	stop_glerror();
@@ -464,7 +464,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 	gGL.getTexUnit(0)->bind(mHBTex[dr]);
 
 	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
-	face->renderIndexed();
+	face->renderIndexed(LLRenderPass::POOL_WATER);
 }
 
 void LLDrawPoolWater::shade()
@@ -682,16 +682,16 @@ void LLDrawPoolWater::shade()
 			if (water->getUseTexture() || !water->getIsEdgePatch())
 			{
 				sNeedsDistortionUpdate = TRUE;
-				face->renderIndexed();
+				face->renderIndexed(LLRenderPass::POOL_WATER);
 			}
 			else if (gGLManager.mHasDepthClamp || deferred_render)
 			{
-				face->renderIndexed();
+				face->renderIndexed(LLRenderPass::POOL_WATER);
 			}
 			else
 			{
 				LLGLSquashToFarClip far_clip(glh_get_current_projection());
-				face->renderIndexed();
+				face->renderIndexed(LLRenderPass::POOL_WATER);
 			}
 		}
 	}

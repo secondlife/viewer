@@ -400,7 +400,7 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL t
 	{
 		LLDrawInfo *pparams = *k;
 		if (pparams) {
-			pushBatch(*pparams, mask, texture);
+			pushBatch(*pparams, mask, type, texture);
 		}
 	}
 }
@@ -417,7 +417,7 @@ void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_text
 		LLDrawInfo* pparams = *i;
 		if (pparams) 
 		{
-			pushBatch(*pparams, mask, texture, batch_textures);
+			pushBatch(*pparams, mask, type, texture, batch_textures);
 		}
 	}
 }
@@ -438,7 +438,7 @@ void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_
 				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, pparams->mAlphaMaskCutoff);
 			}
 			
-			pushBatch(*pparams, mask, texture, batch_textures);
+			pushBatch(*pparams, mask, type, texture, batch_textures);
 		}
 	}
 }
@@ -458,7 +458,7 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	}
 }
 
-void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
+void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type, BOOL texture, BOOL batch_textures)
 {
 	applyModelMatrix(params);
 
@@ -507,7 +507,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, render_pass_type);
 	}
 
 	if (tex_setup)

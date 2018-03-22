@@ -1332,7 +1332,37 @@ void LLAppViewer::doPerFrameStatsLogging()
         static bool first_frame = true;
         // Output per-frame performance data
         LL_RECORD_BLOCK_TIME(FTM_FRAME_DATA_LOGGING);
-        if (LLTrace::BlockTimer::sExtendedLogging)
+        if (LLTrace::BlockTimer::sArctanLogging)
+        {
+            if (LLStartUp::getStartupState() >= STATE_STARTED)
+            {
+                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
+                if (avatar_sd.size()>0)
+                {
+                    LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
+                }
+
+                if (first_frame)
+                {
+                    LLSD session_sd;
+                    unsigned char unique_id[MD5HEX_STR_SIZE];
+                    if (!llHashedUniqueID(unique_id) )
+                    {
+                        LL_WARNS_ONCE() << "Failed to get a unique host id; cannot uniquely identify this machine." << LL_ENDL;
+                    }
+                    // Even if llHashedUniqueID fails, it zeroes the id string, so we have something.
+                    session_sd["UniqueHostID"] = (LLSD::String) (char*) unique_id; 
+                    session_sd["UniqueSessionUUID"] = (LLSD::String) g_unique_session_id.asString(); 
+                    session_sd["Platform"] = (LLSD::String) gPlatform;
+					session_sd["OSVersion"] = (LLSD::String) LLOSInfo::instance().getOSVersionString();
+                    session_sd["DebugInfo"] = gDebugInfo;
+                    LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
+                    first_frame = false;
+                }                
+                LLTrace::BlockTimer::logStatsArctan();
+            }
+        }
+        else if (LLTrace::BlockTimer::sExtendedLogging)
         {
             if (LLStartUp::getStartupState() >= STATE_STARTED)
             {
@@ -1353,11 +1383,7 @@ void LLAppViewer::doPerFrameStatsLogging()
                     LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
                     first_frame = false;
                 }
-                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
-                if (avatar_sd.size()>0)
-                {
-                    LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
-                }
+                
                 LLSD startup_sd = (LLSD::String) LLStartUp::getStartupStateString();
                 LLTrace::BlockTimer::pushLogExtraRecord("StartupState", startup_sd);
                 LLTrace::BlockTimer::logStatsExtended();
@@ -2678,7 +2704,13 @@ bool LLAppViewer::initConfiguration()
 	{
 		LLTrace::BlockTimer::sLog = true;
 		LLTrace::BlockTimer::sLogName = std::string("performance");		
-        if (gSavedSettings.getString("PerformanceLogFormat")=="extended")
+        if (gSavedSettings.getString("PerformanceLogFormat")=="arctan")
+        {
+            LLTrace::BlockTimer::sArctanLogging = true;
+            g_unique_session_id.generate();
+            LLTrace::BlockTimer::sLogName += "_" + g_unique_session_id.asString();
+        }
+        else if (gSavedSettings.getString("PerformanceLogFormat")=="extended")
         {
             LLTrace::BlockTimer::sExtendedLogging = true;
             g_unique_session_id.generate();

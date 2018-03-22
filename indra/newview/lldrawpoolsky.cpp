@@ -138,7 +138,7 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 	llassert(mSkyTex);
 	mSkyTex[side].bindTexture(TRUE);
 	
-	face.renderIndexed();
+	face.renderIndexed(LLRenderPass::POOL_SKY);
 
 	if (LLSkyTex::doInterpolate())
 	{
@@ -146,7 +146,7 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 		LLGLEnable blend(GL_BLEND);
 		mSkyTex[side].bindTexture(FALSE);
 		gGL.diffuseColor4f(1, 1, 1, LLSkyTex::getInterpVal()); // lighting is disabled
-		face.renderIndexed();
+		face.renderIndexed(LLRenderPass::POOL_SKY);
 	}
 }
 

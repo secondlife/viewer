@@ -190,6 +190,7 @@ public:
 	// call this once a frame to periodically log timers
 	static void logStats();
 	static void logStatsExtended();
+    static void logStatsArctan();
 
 	// dumps current cumulative frame stats to log
 	// call nextFrame() to reset timers
@@ -223,6 +224,7 @@ public:
 	static bool				sMetricLog,
 							sLog;	
     static bool				sExtendedLogging;
+    static bool				sArctanLogging;
 	static U64				sClockResolution;
     static LLSD             sExtraLogRecords;
 

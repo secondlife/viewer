@@ -336,6 +336,7 @@ public:
 	static S32 sCount;
 	static S32 sGLCount;
 	static S32 sMappedCount;
+    static S32 sMappedCountLast;
 	static bool sMapped;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
@@ -355,6 +356,8 @@ public:
 	static U32 sIndexCount;
 	static U32 sBindCount;
 	static U32 sSetCount;
+	static U32 sBindCountLast;
+	static U32 sSetCountLast;
 };
 
 

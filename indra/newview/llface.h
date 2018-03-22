@@ -129,10 +129,10 @@ public:
 	void            setIndexInTex(U32 ch, S32 index) { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);  mIndexInTex[ch] = index ;}
 
 	void			renderSetColor() const;
-	S32				renderElements(const U16 *index_array) const;
-	S32				renderIndexed ();
-	S32				renderIndexed (U32 mask);
-	S32				pushVertices(const U16* index_array) const;
+	S32				renderElements(const U16 *index_array, U32 render_pass_type) const;
+	S32				renderIndexed (U32 render_pass_type);
+	S32				renderIndexed (U32 mask, U32 render_pass_type);
+	S32				pushVertices(const U16* index_array, U32 render_pass_type) const;
 	
 	void			setWorldMatrix(const LLMatrix4& mat);
 	const LLTextureEntry* getTextureEntry()	const { return mVObjp->getTE(mTEOffset); }

@@ -2545,17 +2545,17 @@ void LLFace::renderSetColor() const
 	}
 }
 
-S32 LLFace::pushVertices(const U16* index_array) const
+S32 LLFace::pushVertices(const U16* index_array, U32 render_pass_type) const
 {
 	if (mIndicesCount)
 	{
-		U32 render_type = LLRender::TRIANGLES;
+		U32 render_geom_mode = LLRender::TRIANGLES;
 		if (mDrawInfo)
 		{
-			render_type = mDrawInfo->mDrawMode;
+			render_geom_mode = mDrawInfo->mDrawMode;
 		}
-		mVertexBuffer->drawRange(render_type, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
-		gPipeline.addTrianglesDrawn(mIndicesCount, render_type);
+		mVertexBuffer->drawRange(render_geom_mode, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
+		gPipeline.addTrianglesDrawn(mIndicesCount, render_geom_mode, render_pass_type);
 	}
 
 	return mIndicesCount;
@@ -2566,36 +2566,36 @@ const LLMatrix4& LLFace::getRenderMatrix() const
 	return mDrawablep->getRenderMatrix();
 }
 
-S32 LLFace::renderElements(const U16 *index_array) const
+S32 LLFace::renderElements(const U16 *index_array, U32 render_pass_type) const
 {
 	S32 ret = 0;
 	
 	if (isState(GLOBAL))
 	{	
-		ret = pushVertices(index_array);
+		ret = pushVertices(index_array, render_pass_type);
 	}
 	else
 	{
 		gGL.pushMatrix();
 		gGL.multMatrix((float*)getRenderMatrix().mMatrix);
-		ret = pushVertices(index_array);
+		ret = pushVertices(index_array, render_pass_type);
 		gGL.popMatrix();
 	}
 	
 	return ret;
 }
 
-S32 LLFace::renderIndexed()
+S32 LLFace::renderIndexed(U32 render_pass_type)
 {
 	if(mDrawablep.isNull() || mDrawPoolp == NULL)
 	{
 		return 0;
 	}
 	
-	return renderIndexed(mDrawPoolp->getVertexDataMask());
+	return renderIndexed(mDrawPoolp->getVertexDataMask(), render_pass_type);
 }
 
-S32 LLFace::renderIndexed(U32 mask)
+S32 LLFace::renderIndexed(U32 mask, U32 render_pass_type)
 {
 	if (mVertexBuffer.isNull())
 	{
@@ -2604,7 +2604,7 @@ S32 LLFace::renderIndexed(U32 mask)
 
 	mVertexBuffer->setBuffer(mask);
 	U16* index_array = (U16*) mVertexBuffer->getIndicesPointer();
-	return renderElements(index_array);
+	return renderElements(index_array, render_pass_type);
 }
 
 //============================================================================

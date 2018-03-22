@@ -133,10 +133,10 @@ void LLDrawPoolGlow::render(S32 pass)
 	}
 }
 
-void LLDrawPoolGlow::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
+void LLDrawPoolGlow::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type, BOOL texture, BOOL batch_textures)
 {
 	//gGL.diffuseColor4ubv(params.mGlowColor.mV);
-	LLRenderPass::pushBatch(params, mask, texture, batch_textures);
+	LLRenderPass::pushBatch(params, mask, render_pass_type, texture, batch_textures);
 }
 
 

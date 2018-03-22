@@ -124,7 +124,7 @@ void LLDrawPoolTree::render(S32 pass)
 
 			buff->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
 			buff->drawRange(LLRender::TRIANGLES, 0, buff->getNumVerts()-1, buff->getNumIndices(), 0); 
-			gPipeline.addTrianglesDrawn(buff->getNumIndices());
+			gPipeline.addTrianglesDrawn(buff->getNumIndices(), LLRender::TRIANGLES, LLPipeline::RENDER_TYPE_TREE);
 		}
 	}
 }

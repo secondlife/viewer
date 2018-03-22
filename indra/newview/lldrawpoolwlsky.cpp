@@ -293,7 +293,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		
-		face->renderIndexed();
+		face->renderIndexed(LLRenderPass::POOL_WL_SKY);
 
 		if (gPipeline.canUseVertexShaders())
 		{

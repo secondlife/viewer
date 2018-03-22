@@ -147,7 +147,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
 		mShader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, params.mFullbright ? 1.f : 0.f);
 
-		pushBatch(params, mask, TRUE);
+		pushBatch(params, mask, type, TRUE);
 	}
 }
 
@@ -161,7 +161,7 @@ void LLDrawPoolMaterials::bindNormalMap(LLViewerTexture* tex)
 	mShader->bindTexture(LLShaderMgr::BUMP_MAP, tex);
 }
 
-void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
+void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type, BOOL texture, BOOL batch_textures)
 {
 	applyModelMatrix(params);
 	
@@ -213,7 +213,7 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 	}
 	params.mVertexBuffer->setBuffer(mask);
 	params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, render_pass_type);
 	if (tex_setup)
 	{
 		gGL.getTexUnit(0)->activate();

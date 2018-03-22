@@ -4819,12 +4819,13 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 	gGL.loadMatrix(gGLModelView);
 }
 
+#pragma optimize("", off)
 
-void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
+void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode, U32 render_pass_type)
 {
 	assertInitialized();
 	S32 count = 0;
-	if (render_type == LLRender::TRIANGLE_STRIP)
+	if (render_geom_mode == LLRender::TRIANGLE_STRIP)
 	{
 		count = index_count-2;
 	}
@@ -4834,7 +4835,14 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 	}
 
 	record(sStatBatchSize, count);
+
 	add(LLStatViewer::TRIANGLES_DRAWN, LLUnits::Triangles::fromValue(count));
+
+    if (render_pass_type != LLPipeline::END_RENDER_TYPES)
+    {
+        llassert(render_pass_type < LLRenderPass::NUM_RENDER_TYPES);
+        add(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE[render_pass_type], LLUnits::Triangles::fromValue(count));
+    }
 
 	if (LLPipeline::sRenderFrameTest)
 	{
@@ -4842,6 +4850,8 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 		ms_sleep(16);
 	}
 }
+
+#pragma optimize("", on)
 
 void LLPipeline::renderPhysicsDisplay()
 {

@@ -357,7 +357,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 				}
 				params.mVertexBuffer->setBuffer(mask);
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, LLPipeline::RENDER_TYPE_PASS_ALPHA);
 			}
 		}
 	}
@@ -587,7 +587,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
                 
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, LLPipeline::RENDER_TYPE_PASS_ALPHA);
 				}
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
@@ -605,7 +605,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					
 					// do the actual drawing, again
 					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, LLPipeline::RENDER_TYPE_PASS_ALPHA);
 
 					// restore our alpha blend mode
 					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);

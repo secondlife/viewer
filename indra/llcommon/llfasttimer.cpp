@@ -143,6 +143,7 @@ BlockTimer::~BlockTimer()
 bool        BlockTimer::sLog             = false;
 std::string BlockTimer::sLogName         = "";
 bool        BlockTimer::sExtendedLogging = false;
+bool        BlockTimer::sArctanLogging   = false;
 bool        BlockTimer::sMetricLog       = false;
 LLSD        BlockTimer::sExtraLogRecords;
 
@@ -484,6 +485,52 @@ void BlockTimer::logStats()
 }
 
 // static
+void BlockTimer::logStatsArctan()
+{
+    // get ready for next frame
+    if (sLog)
+    {   //output current frame counts to performance log
+        LLSD sd;
+        {
+            for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
+                end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
+                it != end_it; 
+            ++it)
+            {
+                BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
+
+                const std::string& name = timer.getName();
+                if (name != "Frame")
+                {
+                    continue;
+                }
+
+                LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+                F32 time_val = frame_recording.getLastRecording().getSum(timer).value();  
+                sd[timer.getName()]["Time"] = (LLSD::Real) time_val;
+            }
+        }
+
+        LLSD sdtop;
+        sdtop["Timers"] = sd;
+        
+        if (sExtraLogRecords.size() > 0)
+        {
+            for (LLSD::map_const_iterator it=sExtraLogRecords.beginMap(); it != sExtraLogRecords.endMap(); ++it)
+            {
+                sdtop[it->first] = it->second;
+            }
+            sExtraLogRecords.clear();
+        }
+        
+        {
+            LLMutexLock lock(sLogLock);
+            sLogQueue.push(sdtop);
+        }
+    }
+}
+
+// static
 void BlockTimer::logStatsExtended()
 {
     // get ready for next frame
@@ -517,14 +564,13 @@ void BlockTimer::logStatsExtended()
                 static F32 negligible_time = 0.0001;
                 if (call_count == 0 || time_val > negligible_time)
                 {
-#if 0
                     const std::string& name = timer.getName();
                     // ARCTAN terser form
-                    if (name != "Frame" && name != "Render" && name != "UI")
+                    if (name != "Frame" && name != "Render")
                     {
                         continue;
                     }
-#endif
+
                     sd[timer.getName()]["Time"] = (LLSD::Real) time_val;
                     sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
 
@@ -624,7 +670,7 @@ void BlockTimer::writeLog(std::ostream& os)
 //static
 void BlockTimer::writeHeader(std::ostream& os)
 {
-    if (sExtendedLogging)
+    if (sExtendedLogging || sArctanLogging)
     {
         os << "<linden_frame_timer>\n";
     }
@@ -633,7 +679,7 @@ void BlockTimer::writeHeader(std::ostream& os)
 //static
 void BlockTimer::writeFooter(std::ostream& os)
 {
-    if (sExtendedLogging)
+    if (sExtendedLogging || sArctanLogging)
     {
         os << "</linden_frame_timer>\n";
     }

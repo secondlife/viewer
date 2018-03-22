@@ -96,7 +96,7 @@ public:
 	void setMeshesToChildren();
 
 	// LLViewerJoint interface
-	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE ) = 0;
+	virtual U32 render(U32 render_pass_type, F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE ) = 0;
 	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
 	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
 	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
@@ -128,7 +128,7 @@ public:
 	virtual ~LLAvatarJointCollisionVolume() {};
 
 	/*virtual*/ BOOL inheritScale() { return TRUE; }
-	/*virtual*/ U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
+	/*virtual*/ U32 render(U32 render_pass_type, F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
 
 	void renderCollision();
 

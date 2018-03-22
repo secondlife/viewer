@@ -4438,7 +4438,7 @@ U32 LLVOAvatar::renderSkinned()
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
 					{
-						num_indices += head_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
+						num_indices += head_mesh->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, TRUE, mIsDummy);
 					}
 					first_pass = FALSE;
 				}
@@ -4448,7 +4448,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
 				{
-					num_indices += upper_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+					num_indices += upper_mesh->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
@@ -4458,7 +4458,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
 				{
-					num_indices += lower_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+					num_indices += lower_mesh->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
@@ -4488,7 +4488,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		LLViewerJoint* skirt_mesh = getViewerJoint(MESH_ID_SKIRT);
 		if (skirt_mesh)
 		{
-			num_indices += skirt_mesh->render(mAdjustedPixelArea, FALSE);
+			num_indices += skirt_mesh->render(LLRenderPass::POOL_ALPHA, mAdjustedPixelArea, FALSE);
 		}
 		first_pass = FALSE;
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
@@ -4506,7 +4506,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			LLViewerJoint* eyelash_mesh = getViewerJoint(MESH_ID_EYELASH);
 			if (eyelash_mesh)
 			{
-				num_indices += eyelash_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += eyelash_mesh->render(LLRenderPass::POOL_ALPHA, mAdjustedPixelArea, first_pass, mIsDummy);
 			}
 			first_pass = FALSE;
 		}
@@ -4518,7 +4518,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
 			if (hair_mesh)
 			{
-				num_indices += hair_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += hair_mesh->render(LLRenderPass::POOL_ALPHA, mAdjustedPixelArea, first_pass, mIsDummy);
 			}
 			first_pass = FALSE;
 		}
@@ -4567,11 +4567,11 @@ U32 LLVOAvatar::renderRigid()
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
 		if (eyeball_left)
 		{
-			num_indices += eyeball_left->render(mAdjustedPixelArea, TRUE, mIsDummy);
+			num_indices += eyeball_left->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, TRUE, mIsDummy);
 		}
 		if(eyeball_right)
 		{
-			num_indices += eyeball_right->render(mAdjustedPixelArea, TRUE, mIsDummy);
+			num_indices += eyeball_right->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, TRUE, mIsDummy);
 		}
 	}
 
@@ -7076,22 +7076,27 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
         gAgentAvatarp->mFrameDataStale = false;
     }
 
-    result["Other"] = LLSD::emptyArray();
-	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		 iter != LLCharacter::sInstances.end(); ++iter)
-	{
-		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-        if (!inst->isSelf() && inst->mFrameDataStale)
-        {
-            LLSD avatar_record = inst->getFrameData();
-            result["Other"].append(avatar_record);
-            inst->mFrameDataStale = false;
+    if (LLCharacter::sInstances.size() > 1)
+    {
+        result["Other"] = LLSD::emptyArray();
+	    for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		     iter != LLCharacter::sInstances.end(); ++iter)
+	    {
+		    LLVOAvatar* inst = (LLVOAvatar*) *iter;
+            if (!inst->isSelf() && inst->mFrameDataStale)
+            {
+                LLSD avatar_record = inst->getFrameData();
+                result["Other"].append(avatar_record);
+                inst->mFrameDataStale = false;
+            }
         }
     }
 
     LLSD extraFrameData;
 
     LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+    
+    U32 triangles = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME).value();
 
     U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
     U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
@@ -7102,15 +7107,30 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
     extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
     extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
     extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
+    extraFrameData["TrianglesDrawn"]     = (LLSD::Integer)triangles;
+
+    for (U32 i = LLRenderPass::POOL_SIMPLE; i < LLRenderPass::NUM_RENDER_TYPES; i++)
+    {
+        U32 val = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i]).value();     
+        extraFrameData[LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i].getName()] = (LLSD::Integer)val;
+    }
+
     extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
-    extraFrameData["VertexBufferMapped"] = (LLSD::Integer)LLVertexBuffer::sMappedCount;
-    extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)LLVertexBuffer::sBindCount;
-    extraFrameData["VertexBufferSets"]   = (LLSD::Integer)LLVertexBuffer::sSetCount;
+    extraFrameData["VertexBufferMapped"] = (LLSD::Integer)(LLVertexBuffer::sMappedCount - LLVertexBuffer::sMappedCountLast);
+    extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)(LLVertexBuffer::sBindCount   - LLVertexBuffer::sBindCountLast);
+    extraFrameData["VertexBufferSets"]   = (LLSD::Integer)(LLVertexBuffer::sSetCount    - LLVertexBuffer::sSetCountLast);
+
+    LLVertexBuffer::sMappedCountLast = LLVertexBuffer::sMappedCount;
+    LLVertexBuffer::sBindCountLast   = LLVertexBuffer::sBindCount;
+    LLVertexBuffer::sSetCountLast    = LLVertexBuffer::sSetCount;
+
     extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
     extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
     extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
     extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
-    extraFrameData["TexMatrixOps"]          = (LLSD::Integer)gPipeline.mTextureMatrixOps;
+    extraFrameData["TexMatrixOps"]       = (LLSD::Integer)gPipeline.mTextureMatrixOps;
+
+    
 
     result["ExtraFrameData"] = extraFrameData;
 	return result;

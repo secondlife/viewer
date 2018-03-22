@@ -80,7 +80,7 @@ void LLDrawPoolGround::render(S32 pass)
 	gPipeline.disableLights();
 
 	LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
-	facep->renderIndexed();
+	facep->renderIndexed(LLRenderPass::POOL_GROUND);
 	
 	gGL.popMatrix();
 }
