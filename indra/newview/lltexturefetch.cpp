@@ -508,7 +508,6 @@ private:
 	BOOL mInCache;
 	bool mCanUseHTTP;
 	bool mCanUseNET; //can get from asset server.
-	S32 mRetryAttempt;
 	S32 mActiveCount;
 	LLCore::HttpStatus mGetStatus;
 	std::string mGetReason;
@@ -840,7 +839,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mInLocalCache(FALSE),
 	  mInCache(FALSE),
 	  mCanUseHTTP(true),
-	  mRetryAttempt(0),
 	  mActiveCount(0),
 	  mWorkMutex(NULL),
 	  mFirstPacket(0),
