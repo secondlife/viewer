@@ -30,6 +30,7 @@
 #include "llapr.h"
 #include "llimage.h"
 #include "llsdserialize.h"
+#include "llviewercontrol.h"
 
 // This controls how often we update the on-disk data for the cache
 // with contents of the in-memory map of cached texture data.
@@ -68,7 +69,27 @@ bool LLTextureCache::initCache(ELLPath loc, bool purgeCache)
 
     LLFile::mkdir(mTexturesDirName);
 
+    // Convert settings in MB to bytes
+    U32 cacheSizeMB = gSavedSettings.getU32("CacheSize");
+
+    mUsageMax = U64(cacheSizeMB) << 20;
+
     return readCacheContentsFile();
+}
+
+U32 LLTextureCache::getEntryCount()
+{
+    return mMap.size();
+}
+
+U64 LLTextureCache::getMaxUsage()
+{
+    return mUsageMax ? mUsageMax : (1 << 28);
+}
+
+U64 LLTextureCache::getUsage()
+{
+    return mUsage;
 }
 
 bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
@@ -98,7 +119,19 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         info.mFullWidth         = image->getFullWidth();
         info.mImageEncodedSize  = image->getDataSize();
         info.mCodec             = image->getCodec();
+
+        while (mUsageMax && ((mUsage + info.mImageEncodedSize) > mUsageMax))
+        {
+            if (!evict(info.mImageEncodedSize))
+            {
+                LL_WARNS() << "Failed to evict textures from cache. Exceeding max usage." << LL_ENDL;
+                break;
+            }
+        }
+
         mMap.insert(std::make_pair(id, info));
+
+        mUsage += info.mImageEncodedSize;
     }
 
     std::string filename = getTextureFileName(id, EImageCodec(image->getCodec()));
@@ -132,10 +165,45 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
 	return true;
 }
 
+bool LLTextureCache::evict(U64 spaceRequired)
+{
+    std::vector<LLUUID> evictees;
+    U64 spaceReclaimed = 0;
+    for (map_t::const_reverse_iterator iter = mMap.rbegin(); iter != mMap.rend(); iter++)
+	{
+        const CachedTextureInfo& info = iter->second;
+        evictees.push_back(iter->first);
+        spaceReclaimed += info.mImageEncodedSize;
+        if (spaceReclaimed >= spaceRequired)
+        {
+            break;
+        }
+    }
+
+    for (LLUUID& id : evictees)
+    {
+        map_t::iterator iter = mMap.find(id);
+        if (iter != mMap.end())
+        {
+            mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
+        }
+        mMap.erase(id);
+    }
+
+    return ((mUsage + spaceRequired) < mUsageMax);
+}
+
 bool LLTextureCache::remove(const LLUUID& id)
 {
     LLMutexLock lock(&mMutex);
-    mMap.erase(id);
+
+    map_t::iterator iter = mMap.find(id);
+    if (iter != mMap.end())
+    {
+        mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
+        mMap.erase(id);
+    }
+    
     return true;
 }
 

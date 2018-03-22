@@ -1955,11 +1955,11 @@ bool LLAppViewer::cleanup()
 	SUBSYSTEM_CLEANUP(LLFilePickerThread);
 
 	//MUST happen AFTER SUBSYSTEM_CLEANUP(LLCurl)
-    delete sTextureFetch;
-    sTextureFetch = NULL;
+	delete sTextureFetch;
+	sTextureFetch = NULL;
 
 	delete sTextureCache;
-    sTextureCache = NULL;
+	sTextureCache = NULL;
 	
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;

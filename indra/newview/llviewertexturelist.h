@@ -140,9 +140,9 @@ public:
 	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
 	
 private:
-	void updateImagesDecodePriorities();	
+	void updateImagesDecodePriorities();
+	F32  updateImagesCreateTextures(F32 max_time);
 	F32  updateImagesFetchTextures(F32 max_time);
-    F32  updateImagesCreateTextures(F32 max_time);
 	void updateImagesUpdateStats();
 
 	void addImage(LLViewerFetchedTexture *image, ETexListType tex_type);

@@ -70,11 +70,16 @@ public:
 
     void purge();
 
+    U32 getEntryCount();
+    U64 getMaxUsage();
+    U64 getUsage();
+
 private:
     typedef std::map<LLUUID, CachedTextureInfo> map_t;
 
 	std::string getTextureFileName(const LLUUID& id, EImageCodec codec);
 
+    bool evict(U64 spaceRequired);
 	bool writeCacheContentsFile();
     bool readCacheContentsFile();
 
@@ -83,5 +88,7 @@ private:
     std::string mTexturesDirName;
 	map_t       mMap;
     U32         mAddedEntries = 0;
+    U64         mUsageMax = 0; // 0 -> unlimited
+    U64         mUsage    = 0;
 };
 #endif // LL_LLTEXTURECACHE_H
