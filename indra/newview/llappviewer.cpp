@@ -959,10 +959,11 @@ bool LLAppViewer::init()
 
 	if (!initCache())
 	{
+		LL_WARNS("InitInfo") << "Failed to init cache" << LL_ENDL;
 		std::ostringstream msg;
 		msg << LLTrans::getString("MBUnableToAccessFile");
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
-		return 1;
+		return 0;
 	}
 	LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
 
@@ -1431,7 +1432,7 @@ bool LLAppViewer::doFrame()
 
 			// Render scene.
 			// *TODO: Should we run display() even during gHeadlessClient?  DK 2011-02-18
-			if (!LLApp::isExiting() && !gHeadlessClient)
+			if (!LLApp::isExiting() && !gHeadlessClient && gViewerWindow)
 			{
 				pingMainloopTimeout("Main:Display");
 				gGLActive = TRUE;
