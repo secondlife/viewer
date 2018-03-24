@@ -1440,7 +1440,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
     if (!status) // success = httpResults["success"].asBoolean();
     {
-        LL_WARNS() << "Error requesting offline messages via capability " << url << ", Status: " << status.toString() << "\nFalling back to legacy method." << LL_ENDL;
+        LL_WARNS("Messaging") << "Error requesting offline messages via capability " << url << ", Status: " << status.toString() << "\nFalling back to legacy method." << LL_ENDL;
 
         requestOfflineMessagesLegacy();
         return;
@@ -1450,10 +1450,11 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
     if (!contents.size())
     {
-        LL_WARNS() << "No contents received for offline messages via capability " << url << LL_ENDL;
+        LL_WARNS("Messaging") << "No contents received for offline messages via capability " << url << LL_ENDL;
         return;
     }
 
+    // Todo: once dirtsim-369 releases, remove one of the map/array options
     LLSD messages;
     if (contents.isArray())
     {
@@ -1465,15 +1466,23 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
     }
     else
     {
-        LL_WARNS() << "Invalid offline message content received via capability " << url << LL_ENDL;
+        LL_WARNS("Messaging") << "Invalid offline message content received via capability " << url << LL_ENDL;
         return;
     }
 
     if (!messages.isArray())
     {
-        LL_WARNS() << "Invalid offline message content received via capability " << url << LL_ENDL;
+        LL_WARNS("Messaging") << "Invalid offline message content received via capability " << url << LL_ENDL;
         return;
     }
+
+    if (messages.emptyArray())
+    {
+        // Nothing to process
+        return;
+    }
+
+    LL_INFOS("Messaging") << "Processing offline messages." << LL_ENDL;
 
     std::vector<U8> data;
     S32 binary_bucket_size = 0;
@@ -1487,10 +1496,21 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         LLVector3 position(message_data["local_x"].asReal(), message_data["local_y"].asReal(), message_data["local_z"].asReal());
         data = message_data["binary_bucket"].asBinary();
         binary_bucket_size = data.size(); // message_data["count"] == data.size() - 1 due to ('\0')
-        U32 parent_estate_id = message_data.has("parent_estate_id") ? message_data["ParentEstateID"].asInteger() : 1; // 1 - IMMainland
+        U32 parent_estate_id = message_data.has("parent_estate_id") ? message_data["parent_estate_id"].asInteger() : 1; // 1 - IMMainland
+
+        // Todo: once dirtsim-369 releases, remove one of the int/str options
+        BOOL from_group;
+        if (message_data["from_group"].isInteger())
+        {
+            from_group = message_data["from_group"].asInteger();
+        }
+        else
+        {
+            from_group = message_data["from_group"].asString() == "Y";
+        }
 
         LLIMProcessing::processNewMessage(message_data["from_agent_id"].asUUID(),
-            message_data["from_group"].asInteger(), // BOOL
+            from_group,
             message_data["to_agent_id"].asUUID(),
             IM_OFFLINE,
             (EInstantMessage)message_data["dialog"].asInteger(),
@@ -1509,6 +1529,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
 void LLIMProcessing::requestOfflineMessagesLegacy()
 {
+    LL_INFOS("Messaging") << "Requesting offline messages (Legacy)." << LL_ENDL;
+
     LLMessageSystem* msg = gMessageSystem;
     msg->newMessageFast(_PREHASH_RetrieveInstantMessages);
     msg->nextBlockFast(_PREHASH_AgentData);
