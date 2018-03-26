@@ -1825,9 +1825,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		
 		mDecoded = mRawImage.notNull() && (!mNeedsAux || mAuxImage.notNull());
-                setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		setState(WRITE_TO_CACHE);
-                return false;
 	}
 
 	if (mState == WRITE_TO_CACHE)
@@ -1852,6 +1850,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			++mCacheWriteCount;
 			mWritten = TRUE;
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			setState(DONE);
 		}
 
@@ -2856,8 +2855,7 @@ void LLTextureFetch::commonUpdate()
 
 // Threads:  Tmain
 
-//virtual
-S32 LLTextureFetch::update(F32 max_time_ms)
+void LLTextureFetch::updateMaxBandwidth()
 {
 	static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS", 500.0);
 
@@ -2870,7 +2868,11 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 
 		mNetworkQueueMutex.unlock();									// -Mfnq
 	}
+}
 
+//virtual
+S32 LLTextureFetch::update(F32 max_time_ms)
+{
 	S32 res = LLWorkerThread::update(max_time_ms);
 	
 	if (!mDebugPause)
@@ -2888,6 +2890,11 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 	{
 		commonUpdate();
 	}
+
+    if (mTextureCache)
+    {
+        mTextureCache->writeCacheContentsFile();
+    }
 
 	return res;
 }
@@ -2914,17 +2921,6 @@ void LLTextureFetch::endThread()
 void LLTextureFetch::threadedUpdate()
 {
 	llassert_always(mHttpRequest);
-
-#if 0
-	// Limit update frequency
-	const F32 PROCESS_TIME = 0.05f; 
-	static LLFrameTimer process_timer;
-	if (process_timer.getElapsedTimeF32() < PROCESS_TIME)
-	{
-		return;
-	}
-	process_timer.reset();
-#endif
 	
 	commonUpdate();
 	
@@ -2949,11 +2945,11 @@ void LLTextureFetch::threadedUpdate()
 void LLTextureFetch::sendRequestListToSimulators()
 {
 	// All requests
-	const F32 REQUEST_DELTA_TIME = 0.10f; // 10 fps
+	const F32 REQUEST_DELTA_TIME = 0.25f; // 4 fps
 	
 	// Sim requests
-	const S32 IMAGES_PER_REQUEST = 50;
-	const F32 SIM_LAZY_FLUSH_TIMEOUT = 10.0f; // temp
+	const S32 IMAGES_PER_REQUEST = 128;
+	const F32 SIM_LAZY_FLUSH_TIMEOUT = 2.0f; // temp
 	const F32 MIN_REQUEST_TIME = 1.0f;
 	const F32 MIN_DELTA_PRIORITY = 1000.f;
 

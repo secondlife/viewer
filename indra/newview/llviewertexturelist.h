@@ -51,14 +51,6 @@ class LLImageJ2C;
 class LLMessageSystem;
 class LLTextureView;
 
-typedef	void (*LLImageCallback)(BOOL success,
-								LLViewerFetchedTexture *src_vi,
-								LLImageRaw* src,
-								LLImageRaw* src_aux,
-								S32 discard_level,
-								BOOL final,
-								void* userdata);
-
 enum ETexListType
 {
     TEX_LIST_STANDARD = 0,

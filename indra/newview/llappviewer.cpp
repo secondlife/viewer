@@ -1593,6 +1593,7 @@ S32 LLAppViewer::updateTextureThreads(F32 max_time)
 	S32 work_pending = 0;
 	{
 		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH);
+        LLAppViewer::instance()->getTextureFetch()->updateMaxBandwidth();
 	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
 	}
 	return work_pending;
@@ -1926,7 +1927,8 @@ bool LLAppViewer::cleanup()
 	while(1)
 	{
 		S32 pending = 0;
-		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
+        // why continuing fetching during shutdown?!
+		//pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
 		F64 idle_time = idleTimer.getElapsedTimeF64();

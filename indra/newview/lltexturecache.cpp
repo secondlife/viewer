@@ -153,16 +153,9 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         return false;
     }
 
-    // if we've added enough entries, do our lazy flush to disk
-    if (++mAddedEntries > NEW_ENTRIES_PER_FLUSH_TO_DISK)
-    {
-        if (writeCacheContentsFile())
-        {
-            mAddedEntries = 0;
-        }
-    }
+    ++mAddedEntries;
 
-	return true;
+    return true;
 }
 
 bool LLTextureCache::evict(U64 spaceRequired)
@@ -228,7 +221,7 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id)
     {
         LL_WARNS() << "Failed to open cached texture " << id << " removing from cache." << LL_ENDL;
         remove(id);
-        writeCacheContentsFile();
+        mAddedEntries++;
         return LLPointer<LLImageFormatted>();
     }
 
@@ -241,7 +234,7 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id)
         LL_WARNS() << "Failed to read cached texture " << id << " removing from cache." << LL_ENDL;
         FREE_MEM(LLImageBase::getPrivatePool(), data);
         remove(id);
-        writeCacheContentsFile();
+        mAddedEntries++;
         return LLPointer<LLImageFormatted>();
     }
 
@@ -251,7 +244,7 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id)
     {
         LL_WARNS() << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;
         remove(id);
-        writeCacheContentsFile();
+        mAddedEntries++;
         return LLPointer<LLImageFormatted>();
     }
 
@@ -279,6 +272,11 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec cod
 
 bool LLTextureCache::writeCacheContentsFile()
 {
+    if (!mAddedEntries)
+    {
+        return false;
+    }
+
     LLSD contents;
     S32 entries = 0;
 
@@ -325,6 +323,8 @@ bool LLTextureCache::writeCacheContentsFile()
         LL_WARNS() << "Failed to serialize texture cache content entries." << LL_ENDL;
         return false;
     }
+
+    mAddedEntries = 0;
 
     return true;
 }

@@ -5547,7 +5547,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>9</integer>
     </map>
     <key>LocalFileSystemBrowsingEnabled</key>
     <map>
@@ -12085,7 +12085,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.2</real>
+      <real>0.5</real>
     </map>
     <key>TextureCameraMotionBoost</key>
     <map>
@@ -12307,7 +12307,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>500.0</real>
+      <real>2048.0</real>
     </map>
     <key>UpdaterMaximumBandwidth</key>
     <map>

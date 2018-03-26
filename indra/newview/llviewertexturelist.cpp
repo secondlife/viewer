@@ -999,8 +999,6 @@ void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debu
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
-	if (gGLManager.mIsDisabled) return 0.0f;
-	
 	//
 	// Create GL textures for all textures that need them (images which have been
 	// decoded, but haven't been pushed into GL).
@@ -1167,6 +1165,9 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		imagep->updateFetch();
 	}
 	// Run threads
+
+    LLAppViewer::instance()->getTextureFetch()->updateMaxBandwidth();
+
 	S32 fetch_pending = 0;
 	while (1)
 	{
@@ -1176,6 +1177,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 			break;
 		}
 	}
+
 	// Update fetch again
 	for (image_priority_list_t::iterator iter = mImageList.begin();
 		 iter != mImageList.end(); )
@@ -1183,10 +1185,15 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		LLViewerFetchedTexture* imagep = *iter++;
 		imagep->updateFetch();
 	}
-	max_time -= timer.getElapsedTimeF32();
-	max_time = llmax(max_time, .001f);
-	F32 create_time = updateImagesCreateTextures(max_time);
-	
+
+    F32 create_time = 0.0f;
+    if (!gGLManager.mIsDisabled)
+    {
+	    max_time -= timer.getElapsedTimeF32();
+	    max_time = llmax(max_time, .001f);
+	    create_time = updateImagesCreateTextures(max_time);
+	}
+
 	LL_DEBUGS("ViewerImages") << "decodeAllImages() took " << timer.getElapsedTimeF32() << " seconds. " 
 	<< " fetch_pending " << fetch_pending
 	<< " create_time " << create_time
