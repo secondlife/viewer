@@ -95,6 +95,7 @@
 #include "llviewershadermgr.h"
 #include "llpanelface.h"
 #include "llglheaders.h"
+#include "llinventoryobserver.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
