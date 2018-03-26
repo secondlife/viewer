@@ -1800,6 +1800,12 @@ bool LLAppViewer::cleanup()
 		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
 
+    sTextureFetch->shutdown();
+	delete sTextureFetch;
+	sTextureFetch = NULL;
+	delete sTextureCache;
+	sTextureCache = NULL;
+
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 	
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
@@ -1946,7 +1952,6 @@ bool LLAppViewer::cleanup()
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
 	mAppCoreHttp.requestStop();
-	sTextureFetch->shutdown();
 
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();
@@ -1955,13 +1960,6 @@ bool LLAppViewer::cleanup()
 	mAppCoreHttp.cleanup();
 
 	SUBSYSTEM_CLEANUP(LLFilePickerThread);
-
-	//MUST happen AFTER SUBSYSTEM_CLEANUP(LLCurl)
-	delete sTextureFetch;
-	sTextureFetch = NULL;
-
-	delete sTextureCache;
-	sTextureCache = NULL;
 	
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;

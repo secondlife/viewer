@@ -1171,7 +1171,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 	S32 fetch_pending = 0;
 	while (1)
 	{
-		fetch_pending = LLAppViewer::instance()->getTextureFetch()->update(1); // unpauses the texture fetch thread
+		fetch_pending = LLAppViewer::instance()->getTextureFetch()->update(max_time * 0.25f); // unpauses the texture fetch thread
 		if (fetch_pending == 0 || timer.getElapsedTimeF32() > max_time)
 		{
 			break;
@@ -1194,10 +1194,9 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 	    create_time = updateImagesCreateTextures(max_time);
 	}
 
-	LL_DEBUGS("ViewerImages") << "decodeAllImages() took " << timer.getElapsedTimeF32() << " seconds. " 
-	<< " fetch_pending " << fetch_pending
-	<< " create_time " << create_time
-	<< LL_ENDL;
+    F32 elapsed = timer.getElapsedTimeF32();
+	LL_INFOS("Texture") << "decodeAllImages() took " << elapsed << " seconds." << LL_ENDL;
+    LL_INFOS("Texture") << "Fetch_pending :" << fetch_pending << "\n Create_time :" << create_time << LL_ENDL;
 }
 
 
@@ -1856,7 +1855,7 @@ bool LLUIImageList::initFromFile()
 		NUM_PASSES
 	};
 
-	for (S32 cur_pass = PASS_DECODE_NOW; cur_pass < NUM_PASSES; cur_pass++)
+	//for (S32 cur_pass = PASS_DECODE_NOW; cur_pass < NUM_PASSES; cur_pass++)
 	{
 		for (std::map<std::string, UIImageDeclaration>::const_iterator image_it = merged_declarations.begin();
 			image_it != merged_declarations.end();
@@ -1866,17 +1865,17 @@ bool LLUIImageList::initFromFile()
 			std::string file_name = image.file_name.isProvided() ? image.file_name() : image.name();
 
 			// load high priority textures on first pass (to kick off decode)
-			enum e_decode_pass decode_pass = image.preload ? PASS_DECODE_NOW : PASS_DECODE_LATER;
+			/*enum e_decode_pass decode_pass = image.preload ? PASS_DECODE_NOW : PASS_DECODE_LATER;
 			if (decode_pass != cur_pass)
 			{
 				continue;
-			}
+			}*/
 			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip, image.scale_type);
 		}
 
-		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))
+		if (/*cur_pass == PASS_DECODE_NOW &&*/ !gSavedSettings.getBOOL("NoPreload"))
 		{
-			gTextureList.decodeAllImages(10.f); // decode preloaded images
+			gTextureList.decodeAllImages(4.f); // decode preloaded images
 		}
 	}
 	return true;

@@ -97,8 +97,7 @@ HttpService::~HttpService()
 				// Failed to join, expect problems ahead so do a hard termination.
 				mThread->cancel();
 
-				LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems."
-								   << LL_ENDL;
+				LL_WARNS_ONCE(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems." << LL_ENDL;
 			}
 		}
 	}

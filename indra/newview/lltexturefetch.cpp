@@ -1172,7 +1172,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 						}
 						else
 						{
-							LL_WARNS() << "Failed to load local image " << filename << LL_ENDL;
+							LL_WARNS(LOG_TXT) << "Failed to load local image " << filename << LL_ENDL;
 							FREE_MEM(LLImageBase::getPrivatePool(), data);	                    
 							setState(DONE);
 							return false;
@@ -1275,7 +1275,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else
 			{
-				//LL_INFOS(LOG_TXT) << mID << " waiting to retry for " << wait_seconds << " seconds" << LL_ENDL;
+				LL_INFOS(LOG_TXT) << mID << " waiting to retry for " << wait_seconds << " seconds" << LL_ENDL;
 				return false;
 			}
 		}
@@ -2530,6 +2530,9 @@ void LLTextureFetch::addToNetworkQueue(LLTextureFetchWorker* worker)
 	bool in_request_map = (mRequestMap.find(worker->mID) != mRequestMap.end()) ;
 	unlockQueue();														// -Mfq
 
+    // we should not be here if we're not in the map...
+    llassert(in_request_map);
+
 	LLMutexLock lock(&mNetworkQueueMutex);								// +Mfnq		
 	if (in_request_map)
 	{
@@ -2977,6 +2980,10 @@ void LLTextureFetch::sendRequestListToSimulators()
 				mNetworkQueue.erase(curiter);
 				continue; // paranoia
 			}
+
+            llassert((req->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK)
+                  || (req->mState == LLTextureFetchWorker::LOAD_FROM_SIMULATOR));
+
 			if ((req->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK) &&
 				(req->mState != LLTextureFetchWorker::LOAD_FROM_SIMULATOR))
 			{
@@ -3069,8 +3076,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 				sim_request_count++;
 				if (sim_request_count >= IMAGES_PER_REQUEST)
 				{
-// 					LL_INFOS(LOG_TXT) << "REQUESTING " << sim_request_count << " IMAGES FROM HOST: " << host.getIPString() << LL_ENDL;
-
+                    LL_INFOS(LOG_TXT) << "REQUESTING " << sim_request_count << " IMAGES FROM HOST: " << host.getIPString() << LL_ENDL;
 					gMessageSystem->sendSemiReliable(host, NULL, NULL);
 					sim_request_count = 0;
 				}
@@ -3079,7 +3085,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 
 		if (gMessageSystem && sim_request_count > 0 && sim_request_count <= IMAGES_PER_REQUEST)
 		{
-// 			LL_INFOS(LOG_TXT) << "REQUESTING " << sim_request_count << " IMAGES FROM HOST: " << host.getIPString() << LL_ENDL;
+            LL_INFOS(LOG_TXT) << "REQUESTING " << sim_request_count << " IMAGES FROM HOST: " << host.getIPString() << LL_ENDL;
 			gMessageSystem->sendSemiReliable(host, NULL, NULL);
 			sim_request_count = 0;
 		}
@@ -3115,7 +3121,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 					gMessageSystem->addF32Fast(_PREHASH_DownloadPriority, 0);
 					gMessageSystem->addU32Fast(_PREHASH_Packet, 0);
 					gMessageSystem->addU8Fast(_PREHASH_Type, 0);
-// 				LL_INFOS(LOG_TXT) << "CANCELING IMAGE REQUEST: " << (*iter2) << LL_ENDL;
+                    LL_INFOS(LOG_TXT) << "CANCELING IMAGE REQUEST: " << (*iter2) << LL_ENDL;
 
 					request_count++;
 					if (request_count >= IMAGES_PER_REQUEST)
@@ -3186,26 +3192,26 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	
 	if (!worker)
 	{
-// 		LL_WARNS(LOG_TXT) << "Received header for non active worker: " << id << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "Received header for non active worker: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (worker->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK ||
 			 worker->mSentRequest != LLTextureFetchWorker::SENT_SIM)
 	{
-// 		LL_WARNS(LOG_TXT) << "receiveImageHeader for worker: " << id
-// 				<< " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState]
-// 				<< " sent: " << worker->mSentRequest << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "receiveImageHeader for worker: " << id
+            << " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState]
+            << " sent: " << worker->mSentRequest << LL_ENDL;
 		res = false;
 	}
 	else if (worker->mLastPacket != -1)
 	{
 		// check to see if we've gotten this packet before
-// 		LL_WARNS(LOG_TXT) << "Received duplicate header for: " << id << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "Received duplicate header for: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (!data_size)
 	{
-// 		LL_WARNS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
 		res = false;
 	}
 	if (!res)
@@ -3245,19 +3251,21 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 
 	++mPacketCount;
 	
+    llassert(worker && worker->mLastPacket != -1);
+
 	if (!worker)
 	{
-// 		LL_WARNS(LOG_TXT) << "Received packet " << packet_num << " for non active worker: " << id << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "Received packet " << packet_num << " for non active worker: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (worker->mLastPacket == -1)
 	{
-// 		LL_WARNS(LOG_TXT) << "Received packet " << packet_num << " before header for: " << id << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "Received packet " << packet_num << " before header for: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (!data_size)
 	{
-// 		LL_WARNS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
 		res = false;
 	}
 	if (!res)

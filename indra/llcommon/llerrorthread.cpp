@@ -109,7 +109,7 @@ void LLErrorThread::run()
 	LL_INFOS() << "thread_error - Waiting for an error" << LL_ENDL;
 
 	S32 counter = 0;
-	while (! (LLApp::isError() || LLApp::isStopped()))
+	while (!(LLApp::isError() || LLApp::isStopped() || LLApp::isQuitting()))
 	{
 		ms_sleep(10);
 		counter++;

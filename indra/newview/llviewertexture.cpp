@@ -2038,7 +2038,14 @@ bool LLViewerFetchedTexture::updateFetch()
 		const F32 FETCH_IDLE_TIME = 5.f;
 		if (mLastPacketTimer.getElapsedTimeF32() > FETCH_IDLE_TIME)
 		{
- 			LL_DEBUGS("Texture") << "exceeded idle time " << FETCH_IDLE_TIME << ", deleting request: " << getID() << LL_ENDL;
+            if (mIsFetched || mCachedRawImage.notNull())
+            {
+                LL_DEBUGS("Texture") << " deleting finished request: " << getID() << LL_ENDL;
+            }
+            else
+            {
+ 			    LL_DEBUGS("Texture") << "exceeded idle time " << FETCH_IDLE_TIME << ", deleting request: " << getID() << LL_ENDL;
+            }
 			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
 			mHasFetcher = FALSE;
 		}
