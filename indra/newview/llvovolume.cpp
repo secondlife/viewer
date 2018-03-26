@@ -3905,6 +3905,15 @@ F32 LLVOVolume::getEstTrianglesMax() const
     return 0.f;
 }
 
+F32 LLVOVolume::getEstTrianglesStreamingCost() const
+{
+	if (isMesh() && getVolume())
+	{
+		return gMeshRepo.getEstTrianglesStreamingCost(getVolume()->getParams().getSculptID());
+	}
+    return 0.f;
+}
+
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
 {
 	F32 radius = getScale().length()*0.5f;

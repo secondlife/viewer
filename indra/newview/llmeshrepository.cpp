@@ -4062,9 +4062,14 @@ void LLMeshRepository::uploadError(LLSD& args)
 	mUploadErrorQ.push(args);
 }
 
-F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
+bool LLMeshRepository::getLODSizes(LLUUID mesh_id, std::vector<S32>& lod_byte_sizes, std::vector<F32>& lod_tri_counts)
 {
-    F32 triangles_max = 0.f;
+    lod_byte_sizes.resize(4);
+    lod_tri_counts.resize(4);
+
+    std::fill(lod_byte_sizes.begin(), lod_byte_sizes.end(), 0);
+    std::fill(lod_tri_counts.begin(), lod_tri_counts.end(), 0.f);
+    
     if (mThread && mesh_id.notNull())
     {
         LLMutexLock lock(mThread->mHeaderMutex);
@@ -4076,22 +4081,93 @@ F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
                 || !header.has("lowest_lod")
                 || (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION))
             {
-                return 0.f;
+                return false;
             }
 
             S32 bytes_high = header["high_lod"]["size"].asInteger();
             S32 bytes_med = header["medium_lod"]["size"].asInteger();
+            if (bytes_med == 0)
+            {
+                bytes_med = bytes_high;
+            }
             S32 bytes_low = header["low_lod"]["size"].asInteger();
+            if (bytes_low == 0)
+            {
+                bytes_low = bytes_med;
+            }
             S32 bytes_lowest = header["lowest_lod"]["size"].asInteger();
-            S32 bytes_max = llmax(bytes_high, bytes_med, bytes_low, bytes_lowest);
+            if (bytes_lowest == 0)
+            {
+                bytes_lowest = bytes_low;
+            }
+            lod_byte_sizes[0] = bytes_high;
+            lod_byte_sizes[1] = bytes_med;
+            lod_byte_sizes[2] = bytes_low;
+            lod_byte_sizes[3] = bytes_lowest;
 
             F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
             F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
             F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
-            triangles_max = llmax((F32) bytes_max-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+
+            for (S32 i=0; i<4; i++)
+            {
+                lod_tri_counts[i] = llmax((F32) lod_byte_sizes[i]-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle; 
+            }
+
+            return true;
         }
     }
-    return triangles_max;
+    return false;
+}
+
+F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
+{
+    std::vector<S32> lod_byte_sizes;
+    std::vector<F32> lod_tri_counts;
+    bool succ = getLODSizes(mesh_id, lod_byte_sizes, lod_tri_counts);
+    if (!succ)
+    {
+        return 0.f;
+    }
+    
+    return llmax(lod_tri_counts[0], lod_tri_counts[1], lod_tri_counts[2], lod_tri_counts[3]);
+}
+
+F32 LLMeshRepository::getEstTrianglesStreamingCost(LLUUID mesh_id)
+{
+    std::vector<S32> lod_byte_sizes;
+    std::vector<F32> tris_by_lod;
+    bool succ = getLODSizes(mesh_id, lod_byte_sizes, tris_by_lod);
+
+    if (!succ)
+    {
+        LL_DEBUGS("StreamingCost") << "couldn't get tris_by_lod" << LL_ENDL;
+        return 0.f;
+    }
+
+    LL_DEBUGS("StreamingCost") << "tris_by_lod: "
+                               << tris_by_lod[0] << ", "
+                               << tris_by_lod[1] << ", "
+                               << tris_by_lod[2] << ", "
+                               << tris_by_lod[3] << LL_ENDL;
+
+    F32 charged_tris = tris_by_lod[0];
+    F32 allowed_tris = tris_by_lod[0];
+    const F32 ENFORCE_FLOOR = 64.0f;
+    for (S32 i=1; i<4; i++)
+    {
+        // How many tris can we have in this LOD without affecting land impact?
+        // - normally an LOD should be at most half the size of the previous one.
+        // - once we reach a floor of ENFORCE_FLOOR, don't require LODs to get any smaller.
+        allowed_tris = llclamp(allowed_tris/2.0f,ENFORCE_FLOOR,tris_by_lod[i]);
+        F32 excess_tris = tris_by_lod[i]-allowed_tris;
+        if (excess_tris>0.f)
+        {
+            LL_DEBUGS("StreamingCost") << "excess tris in lod[" << i << "] " << excess_tris << " allowed " << allowed_tris <<  LL_ENDL;
+            charged_tris += excess_tris;
+        }
+    }
+    return charged_tris;
 }
 
 F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
@@ -4203,7 +4279,7 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 	F32 weighted_avg = triangles_high*high_area +
 					   triangles_mid*mid_area +
 					   triangles_low*low_area +
-					  triangles_lowest*lowest_area;
+					   triangles_lowest*lowest_area;
 
 	if (unscaled_value)
 	{

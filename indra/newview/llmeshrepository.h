@@ -472,8 +472,10 @@ public:
 	
 	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
 
+    bool getLODSizes(LLUUID mesh_id, std::vector<S32>& lod_byte_sizes, std::vector<F32>& lod_tri_counts);
     // Estimated triangle count of the largest LOD
     F32 getEstTrianglesMax(LLUUID mesh_id);
+    F32 getEstTrianglesStreamingCost(LLUUID mesh_id);
 	F32 getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
