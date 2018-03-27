@@ -42,6 +42,7 @@
 #include "llnotificationmanager.h"
 #include "llpanelgroup.h"
 #include "llregionhandle.h"
+#include "llsdserialize.h"
 #include "llslurl.h"
 #include "llstring.h"
 #include "lltoastnotifypanel.h"
@@ -420,7 +421,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     LLVector3 position,
     U8 *binary_bucket,
     S32 binary_bucket_size,
-    LLHost &sender)
+    LLHost &sender,
+    LLUUID aux_id)
 {
     LLChat chat;
     std::string buffer;
@@ -614,53 +616,76 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         case IM_GROUP_NOTICE_REQUESTED:
         {
             LL_INFOS("Messaging") << "Received IM_GROUP_NOTICE message." << LL_ENDL;
-            // Read the binary bucket for more information.
-            struct notice_bucket_header_t
-            {
-                U8 has_inventory;
-                U8 asset_type;
-                LLUUID group_id;
-            };
-            struct notice_bucket_full_t
-            {
-                struct notice_bucket_header_t header;
-                U8 item_name[DB_INV_ITEM_NAME_BUF_SIZE];
-            }*notice_bin_bucket;
 
-            // Make sure the binary bucket is big enough to hold the header 
-            // and a null terminated item name.
-            if ((binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
-                || (binary_bucket[binary_bucket_size - 1] != '\0'))
+            LLUUID agent_id = from_id;
+            U8 has_inventory;
+            U8 asset_type = 0;
+            LLUUID group_id;
+            std::string item_name;
+
+            if (aux_id.notNull())
             {
-                LL_WARNS("Messaging") << "Malformed group notice binary bucket" << LL_ENDL;
+                // aux_id contains group id, binary bucket contains name and asset type
+                group_id = aux_id;
+                has_inventory = binary_bucket_size > 1 ? TRUE : FALSE;
+                from_group = TRUE; // inaccurate value correction
+                if (has_inventory)
+                {
+                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+
+                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+                    boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
+                    tokenizer tokens(str_bucket, sep);
+                    tokenizer::iterator iter = tokens.begin();
+
+                    asset_type = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
+                    iter++; // wearable type if applicable, otherwise asset type
+                    item_name = std::string((*(iter++)).c_str());
+                    // Note There is more elements in 'tokens' ...
+
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        LL_WARNS() << *(iter++) << LL_ENDL;
+                        iter++;
+                    }
+                }
+            }
+            else
+            {
+                // All info is in binary bucket, read it for more information.
+                struct notice_bucket_header_t
+                {
+                    U8 has_inventory;
+                    U8 asset_type;
+                    LLUUID group_id;
+                };
+                struct notice_bucket_full_t
+                {
+                    struct notice_bucket_header_t header;
+                    U8 item_name[DB_INV_ITEM_NAME_BUF_SIZE];
+                }*notice_bin_bucket;
+
+                // Make sure the binary bucket is big enough to hold the header 
+                // and a null terminated item name.
+                if ((binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
+                    || (binary_bucket[binary_bucket_size - 1] != '\0'))
+                {
+                    LL_WARNS("Messaging") << "Malformed group notice binary bucket" << LL_ENDL;
+                    break;
+                }
+
+                notice_bin_bucket = (struct notice_bucket_full_t*) &binary_bucket[0];
+                has_inventory = notice_bin_bucket->header.has_inventory;
+                asset_type = notice_bin_bucket->header.asset_type;
+                group_id = notice_bin_bucket->header.group_id;
+                item_name = ll_safe_string((const char*)notice_bin_bucket->item_name);
+            }
+
+            if (agent_id.notNull() && LLMuteList::getInstance()->isMuted(agent_id))
+            {
                 break;
             }
-
-            // The group notice packet does not have an AgentID.  Obtain one from the name cache.
-            // If last name is "Resident" strip it out so the cache name lookup works.
-            S32 index = original_name.find(" Resident");
-            if (index != std::string::npos)
-            {
-                original_name = original_name.substr(0, index);
-            }
-
-            std::string legacy_name = gCacheName->buildLegacyName(original_name);
-            LLUUID agent_id = LLAvatarNameCache::findIdByName(legacy_name);
-
-            if (agent_id.isNull())
-            {
-                LL_WARNS("Messaging") << "buildLegacyName returned null while processing " << original_name << LL_ENDL;
-            }
-            else if (LLMuteList::getInstance()->isMuted(agent_id))
-            {
-                break;
-            }
-
-            notice_bin_bucket = (struct notice_bucket_full_t*) &binary_bucket[0];
-            U8 has_inventory = notice_bin_bucket->header.has_inventory;
-            U8 asset_type = notice_bin_bucket->header.asset_type;
-            LLUUID group_id = notice_bin_bucket->header.group_id;
-            std::string item_name = ll_safe_string((const char*)notice_bin_bucket->item_name);
 
             // If there is inventory, give the user the inventory offer.
             LLOfferInfo* info = NULL;
@@ -1493,9 +1518,10 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
     for (; i != iEnd; ++i)
     {
         const LLSD &message_data(*i);
+
         LLVector3 position(message_data["local_x"].asReal(), message_data["local_y"].asReal(), message_data["local_z"].asReal());
         data = message_data["binary_bucket"].asBinary();
-        binary_bucket_size = data.size(); // message_data["count"] == data.size() - 1 due to ('\0')
+        binary_bucket_size = data.size(); // message_data["count"] always 0
         U32 parent_estate_id = message_data.has("parent_estate_id") ? message_data["parent_estate_id"].asInteger() : 1; // 1 - IMMainland
 
         // Todo: once dirtsim-369 releases, remove one of the int/str options
@@ -1514,7 +1540,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             message_data["to_agent_id"].asUUID(),
             IM_OFFLINE,
             (EInstantMessage)message_data["dialog"].asInteger(),
-            message_data["session_id"].asUUID(),
+            LLUUID::null, // session id, fix this for friendship offers to work
             message_data["timestamp"].asInteger(),
             message_data["from_agent_name"].asString(),
             message_data["message"].asString(),
@@ -1523,7 +1549,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             position,
             &data[0],
             binary_bucket_size,
-            sender);
+            sender,
+            message_data["asset_id"].asUUID()); // not necessarily an asset
     }
 }
 
