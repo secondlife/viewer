@@ -8395,8 +8395,28 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 					}
 				}
 			}
+
+			LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+				iter != child_list.end(); ++iter)
+			{
+				LLViewerObject* objectp = *iter;
+				if (objectp)
+				{
+					for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
+					{
+						LLTextureEntry* texEntry = objectp->getTE(face_index);
+						if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
+						{
+							objectp->setTEImage(face_index, LLViewerTextureManager::getFetchedTexture(texEntry->getID(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+						}
+					}
+				}
+			}
 		}
 	}
+
+	updateMeshVisibility();
 
 }
 
