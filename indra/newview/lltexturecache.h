@@ -74,7 +74,7 @@ public:
     U64 getMaxUsage();
     U64 getUsage();
 
-    bool writeCacheContentsFile();
+    bool writeCacheContentsFile(bool force_immediate_write);
     bool readCacheContentsFile();
 
 private:

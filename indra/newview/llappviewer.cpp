@@ -1415,26 +1415,11 @@ bool LLAppViewer::frame()
 				pingMainloopTimeout("Main:Display");
 				gGLActive = TRUE;
 
-				static U64 last_call = 0;
-				if (!gTeleportDisplay)
-				{
-					// Frame/draw throttling
-					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
-					if (elapsed_time < mMinMicroSecPerFrame)
-					{
-						LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-						// llclamp for when time function gets funky
-						U64 sleep_time = llclamp(mMinMicroSecPerFrame - elapsed_time, (U64)1, (U64)1e6);
-						micro_sleep(sleep_time, 0);
-					}
-				}
-				last_call = LLTimer::getTotalTime();
-
 				display();
 
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
-					LLFloaterOutfitSnapshot::update();
+				LLFloaterOutfitSnapshot::update();
 				gGLActive = FALSE;
 			}
 		}
@@ -1444,9 +1429,7 @@ bool LLAppViewer::frame()
 		pauseMainloopTimeout();
 
 		// Sleep and run background threads
-		{
-			LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-			
+		{						
 			// yield some time to the os based on command line option
 			static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime", -1);
 			if(yield_time >= 0)
@@ -1459,6 +1442,8 @@ bool LLAppViewer::frame()
 			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
 					|| !gFocusMgr.getAppHasFocus())
 			{
+                LL_RECORD_BLOCK_TIME(FTM_SLEEP);
+
 				// Sleep if we're not rendering, or the window is minimized.
 				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
 				S32 milliseconds_to_sleep = llclamp((S32)s_bacground_yeild_time, 0, 1000);
@@ -1472,13 +1457,15 @@ bool LLAppViewer::frame()
 			
 			if (mRandomizeFramerate)
 			{
+                LL_RECORD_BLOCK_TIME(FTM_SLEEP);
 				ms_sleep(rand() % 200);
 			}
 
 			if (mPeriodicSlowFrame
 				&& (gFrameCount % 10 == 0))
 			{
-				LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;
+                LL_RECORD_BLOCK_TIME(FTM_SLEEP);
+				LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;                
 				ms_sleep(500);
 			}
 
@@ -1502,6 +1489,7 @@ bool LLAppViewer::frame()
 
 				if (io_pending > 1000)
 				{
+                    LL_RECORD_BLOCK_TIME(FTM_VFS);
 					ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
 				}
 
@@ -1509,6 +1497,7 @@ bool LLAppViewer::frame()
 				total_io_pending += io_pending ;
 
 			}
+
 			gMeshRepo.update() ;
 			
 			if(!total_io_pending) //pause file threads if nothing to process.

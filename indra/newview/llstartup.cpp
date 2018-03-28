@@ -296,8 +296,8 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 
 void update_texture_fetch()
 {
-	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
-	gTextureList.updateImages(0.10f);
+	LLAppViewer::getTextureFetch()->update(4); // unpauses the texture fetch thread
+	gTextureList.updateImages(0.004f);
 }
 
 void set_flags_and_update_appearance()

@@ -2820,11 +2820,17 @@ bool LLTextureFetch::runCondition()
 			  && (mRequestQueue.empty() && mIdleThread));		// From base class
 }
 
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_FETCH_WORKER_THREADS("TexFetch Workers");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_FETCH_COMMON("TexFetch Common");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_FETCH_WRITE_CACHE("TexFetch WriteCache");
+
 //////////////////////////////////////////////////////////////////////////////
 
 // Threads:  Ttf
 void LLTextureFetch::commonUpdate()
 {
+    LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH_COMMON);
+
 	// Update low/high water levels based on pipelining.  We pick
 	// up setting eventually, so the semaphore/request level can
 	// fall outside the [0..HIGH_WATER] range.  Expect that.
@@ -2876,8 +2882,14 @@ void LLTextureFetch::updateMaxBandwidth()
 //virtual
 S32 LLTextureFetch::update(F32 max_time_ms)
 {
-	S32 res = LLWorkerThread::update(max_time_ms);
-	
+	S32 res = 0;
+
+
+    {
+        LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH_WORKER_THREADS);
+        res = LLWorkerThread::update(max_time_ms);
+	}
+
 	if (!mDebugPause)
 	{
 		// this is the startup state when send_complete_agent_movement() message is sent.
@@ -2896,7 +2908,8 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 
     if (mTextureCache)
     {
-        mTextureCache->writeCacheContentsFile();
+        LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH_WRITE_CACHE);
+        mTextureCache->writeCacheContentsFile(false);
     }
 
 	return res;

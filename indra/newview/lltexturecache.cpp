@@ -34,7 +34,7 @@
 
 // This controls how often we update the on-disk data for the cache
 // with contents of the in-memory map of cached texture data.
-static const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 8;
+static const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 32;
 
 const std::string LLTextureCache::CACHE_ENTRY_ID("id");
 const std::string LLTextureCache::CACHE_ENTRY_CODEC("codec");
@@ -53,7 +53,7 @@ LLTextureCache::LLTextureCache()
 
 LLTextureCache::~LLTextureCache()
 {
-	writeCacheContentsFile();
+	writeCacheContentsFile(true);
 }
 
 bool LLTextureCache::initCache(ELLPath loc, bool purgeCache)
@@ -270,9 +270,9 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec cod
 	return filename;
 }
 
-bool LLTextureCache::writeCacheContentsFile()
+bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
 {
-    if (!mAddedEntries)
+    if (!force_immediate_write && (mAddedEntries < NEW_ENTRIES_PER_FLUSH_TO_DISK))
     {
         return false;
     }
