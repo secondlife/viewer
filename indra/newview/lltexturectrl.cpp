@@ -962,7 +962,7 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 
 	S8 type = combo_box->getValue().asInteger();
 	
-	LLUUID imageID = LLUUID::null;
+	LLUUID imageID = self->mDefaultImageAssetID;
 	if (type == 0)
 	{
 		imageID = IMG_USE_BAKED_HEAD;
@@ -988,34 +988,22 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 		imageID = IMG_USE_BAKED_HAIR;
 	}
 
-	if (imageID.notNull())
+	self->setImageID(imageID);
+	self->mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+
+	if (!self->mPreviewSettingChanged)
 	{
-		self->setImageID(imageID);
-		self->mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-
-		if (!self->mPreviewSettingChanged)
-		{
-			self->mCanPreview = gSavedSettings.getBOOL("TextureLivePreview");
-		}
-		else
-		{
-			self->mPreviewSettingChanged = false;
-		}
-
-		if (self->mCanPreview)
-		{
-			// only commit intentional selections, not implicit ones
-			self->commitIfImmediateSet();
-		}
+		self->mCanPreview = gSavedSettings.getBOOL("TextureLivePreview");
 	}
 	else
 	{
-		self->setCanApply(true, true);
-		self->setImageID(self->mDefaultImageAssetID);
-		if (self->mCanPreview)
-		{
-			self->commitIfImmediateSet();
-		}
+		self->mPreviewSettingChanged = false;
+	}
+
+	if (self->mCanPreview)
+	{
+		// only commit intentional selections, not implicit ones
+		self->commitIfImmediateSet();
 	}
 }
 
