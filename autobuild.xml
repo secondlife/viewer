@@ -2716,9 +2716,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7013e1f0b6a877090622fd73ec72cbc</string>
+              <string>e971c5a2abec137b5acba215f0795f00</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1114/2576/openjpeg-1.5.1.501102-darwin64-501102.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13637/84630/openjpeg-2.3.0.230-darwin64-512617.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2752,9 +2752,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8a7f0be5647e07235d205ac00805fb78</string>
+              <string>a4b7ac72338ba1909818fec6cd9cb1ce</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1116/2586/openjpeg-1.5.1.501102-windows-501102.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13639/84642/openjpeg-2.3.0.230-windows-512617.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2764,9 +2764,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>398544058036bc27097fcff208934d11</string>
+              <string>a4723ccb896009d8e8e8f0eb7aca9728</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1115/2581/openjpeg-1.5.1.501102-windows64-501102.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13868/86169/openjpeg-2.3.0.230-windows64-512746.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

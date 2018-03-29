@@ -545,7 +545,7 @@ class WindowsManifest(ViewerManifest):
                 print "Skipping fmodex audio library(assuming other audio engine)"
 
             # For textures
-            self.path("openjpeg.dll")
+            self.path("openjp2.dll")
 
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
@@ -1578,7 +1578,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdirectfb-1.*.so.*")
             self.path("libfusion-1.*.so.*")
             self.path("libdirect-1.*.so.*")
-            self.path("libopenjpeg.so*")
+            self.path("libopenjp2.so*")
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5*")

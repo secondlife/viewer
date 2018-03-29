@@ -60,6 +60,7 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
+
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -650,34 +651,34 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 		count = mImageList.erase(image) ;
 		if(count != 1) 
 	{
-			LL_INFOS() << "Image  " << image->getID() 
+			LL_DEBUGS("Texture") << "Image  " << image->getID() 
 				<< " had mInImageList set but mImageList.erase() returned " << count
 				<< LL_ENDL;
 		}
 	}
 	else
 	{	// Something is wrong, image is expected in list or callers should check first
-		LL_INFOS() << "Calling removeImageFromList() for " << image->getID() 
+		LL_DEBUGS("Texture") << "Calling removeImageFromList() for " << image->getID() 
 			<< " but doesn't have mInImageList set"
 			<< " ref count is " << image->getNumRefs()
 			<< LL_ENDL;
 		uuid_map_t::iterator iter = mUUIDMap.find(LLTextureKey(image->getID(), (ETexListType)image->getTextureListType()));
 		if(iter == mUUIDMap.end())
 		{
-			LL_INFOS() << "Image  " << image->getID() << " is also not in mUUIDMap!" << LL_ENDL ;
+			LL_DEBUGS("Texture") << "Image  " << image->getID() << " is also not in mUUIDMap!" << LL_ENDL ;
 		}
 		else if (iter->second != image)
 		{
-			LL_INFOS() << "Image  " << image->getID() << " was in mUUIDMap but with different pointer" << LL_ENDL ;
+			LL_DEBUGS("Texture") << "Image  " << image->getID() << " was in mUUIDMap but with different pointer" << LL_ENDL ;
 	}
 		else
 	{
-			LL_INFOS() << "Image  " << image->getID() << " was in mUUIDMap with same pointer" << LL_ENDL ;
+			LL_DEBUGS("Texture") << "Image  " << image->getID() << " was in mUUIDMap with same pointer" << LL_ENDL ;
 		}
 		count = mImageList.erase(image) ;
 		if(count != 0) 
 		{	// it was in the list already?
-			LL_WARNS() << "Image  " << image->getID() 
+			LL_WARNS("Texture") << "Image  " << image->getID() 
 				<< " had mInImageList false but mImageList.erase() returned " << count
 				<< LL_ENDL;
 		}
@@ -699,7 +700,7 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image, ETexListTy
 	LLViewerFetchedTexture *image = findImage(key);
 	if (image)
 	{
-		LL_INFOS() << "Image with ID " << image_id << " already in list" << LL_ENDL;
+		LL_DEBUGS("Texture") << "Image with ID " << image_id << " already in list" << LL_ENDL;
 	}
 	sNumImages++;
 
@@ -1056,7 +1057,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
 	static const bool SKIP_LOW_PRIO = gSavedSettings.getBOOL("TextureFetchUpdateSkipLowPriority");          // default: false
 
-	size_t max_priority_count = llmin((S32) ((MAX_HIGH_PRIO_COUNT << 3)*gFrameIntervalSeconds.value())+1, MAX_HIGH_PRIO_COUNT);
+	size_t max_priority_count = llmin((S32)(MAX_HIGH_PRIO_COUNT  * max_time) + 1, MAX_HIGH_PRIO_COUNT);
 	max_priority_count = llmin(max_priority_count, mImageList.size());
 	
 	size_t total_update_count = mUUIDMap.size();
@@ -1075,7 +1076,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
         total_update_count--;
 	}
 
-    size_t max_update_count = llmin((S32) ((MAX_UPDATE_COUNT << 3)*gFrameIntervalSeconds.value())+1, MAX_UPDATE_COUNT);
+    size_t max_update_count = llmin((S32)(MAX_UPDATE_COUNT * max_time) + 1, MAX_UPDATE_COUNT);
 	max_update_count = llmin(max_update_count, total_update_count);	
 
 	// MAX_UPDATE_COUNT cycled entries
@@ -1253,13 +1254,13 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	if (compressedImage.isNull())
 	{
 		image->setLastError("Couldn't convert the image to jpeg2000.");
-		LL_INFOS() << "Couldn't convert to j2c, file : " << filename << LL_ENDL;
+		LL_WARNS("Texture") << "Couldn't convert to j2c, file : " << filename << LL_ENDL;
 		return FALSE;
 	}
 	if (!compressedImage->save(out_filename))
 	{
 		image->setLastError("Couldn't create the jpeg2000 image for upload.");
-		LL_INFOS() << "Couldn't create output file : " << out_filename << LL_ENDL;
+		LL_WARNS("Texture") << "Couldn't create output file : " << out_filename << LL_ENDL;
 		return FALSE;
 	}
 	// Test to see if the encode and save worked
@@ -1267,7 +1268,7 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	if (!integrity_test->loadAndValidate( out_filename ))
 	{
 		image->setLastError("The created jpeg2000 image is corrupt.");
-		LL_INFOS() << "Image file : " << out_filename << " is corrupt" << LL_ENDL;
+		LL_WARNS("Texture") << "Image file : " << out_filename << " is corrupt" << LL_ENDL;
 		return FALSE;
 	}
 	return TRUE;
@@ -1292,13 +1293,13 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 		// Read the blocks and precincts size settings
 		S32 block_size = gSavedSettings.getS32("Jpeg2000BlocksSize");
 		S32 precinct_size = gSavedSettings.getS32("Jpeg2000PrecinctsSize");
-		LL_INFOS() << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << LL_ENDL;
+		LL_DEBUGS("Texture") << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << LL_ENDL;
 		compressedImage->initEncode(*raw_image, block_size, precinct_size, 0);
 	}
 	
 	if (!compressedImage->encode(raw_image, 0.0f))
 	{
-		LL_INFOS() << "convertToUploadFile : encode returns with error!!" << LL_ENDL;
+		LL_ERRS("Texture") << "convertToUploadFile : encode returns with error!!" << LL_ENDL;
 		// Clear up the pointer so we don't leak that one
 		compressedImage = NULL;
 	}
@@ -1355,7 +1356,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 	}
 
 	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB(); // In MB
-	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
+	LL_INFOS("Texture") << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
 	if (get_recommended)
 		max_texmem = llmin(max_texmem, system_ram/2);
 	else
@@ -1419,8 +1420,8 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 		mMaxTotalTextureMemInMegaBytes = system_ram - min_non_texture_mem ;
 	}
 	
-	LL_INFOS() << "Total Video Memory set to: " << vb_mem << " MB" << LL_ENDL;
-	LL_INFOS() << "Available Texture Memory set to: " << (vb_mem - fb_mem) << " MB" << LL_ENDL;
+	LL_INFOS("Texture") << "Total Video Memory set to: " << vb_mem << " MB" << LL_ENDL;
+	LL_INFOS("Texture") << "Available Texture Memory set to: " << (vb_mem - fb_mem) << " MB" << LL_ENDL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

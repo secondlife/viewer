@@ -697,9 +697,7 @@ void LLViewerTexture::dump()
 {
 	LLGLTexture::dump();
 
-	LL_INFOS() << "LLViewerTexture"
-			<< " mID " << mID
-			<< LL_ENDL;
+	LL_INFOS() << "LLViewerTexture" << " mID " << mID << LL_ENDL;
 }
 
 void LLViewerTexture::setBoostLevel(S32 level)
@@ -1376,10 +1374,10 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		destroyRawImage();
 		return FALSE;
 	}
-// 	LL_INFOS() << llformat("IMAGE Creating (%d) [%d x %d] Bytes: %d ",
-// 						mRawDiscardLevel, 
-// 						mRawImage->getWidth(), mRawImage->getHeight(),mRawImage->getDataSize())
-// 			<< mID.getString() << LL_ENDL;
+    LL_DEBUGS("Texture") << llformat("IMAGE Creating (%d) [%d x %d] Bytes: %d ",
+ 						mRawDiscardLevel, 
+ 						mRawImage->getWidth(), mRawImage->getHeight(),mRawImage->getDataSize())
+ 			<< mID.getString() << LL_ENDL;
 	BOOL res = TRUE;
 
 	// store original size only for locally-sourced images
@@ -1419,14 +1417,14 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 
 	if( mFullWidth > MAX_IMAGE_SIZE || mFullHeight > MAX_IMAGE_SIZE )
 	{
-        	LL_INFOS() << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << mFullWidth << "," << mFullHeight << ")" << LL_ENDL;
+        LL_WARNS("Texture") << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << mFullWidth << "," << mFullHeight << ")" << LL_ENDL;
 		size_okay = false;
 	}
 	
 	if (!LLImageGL::checkSize(mRawImage->getWidth(), mRawImage->getHeight()))
 	{
 		// A non power-of-two image was uploaded (through a non standard client)
-		LL_INFOS() << "Non power of two width or height: (" << mRawImage->getWidth() << "," << mRawImage->getHeight() << ")" << LL_ENDL;
+		LL_WARNS("Texture") << "Non power of two width or height: (" << mRawImage->getWidth() << "," << mRawImage->getHeight() << ")" << LL_ENDL;
 		size_okay = false;
 	}
 	
@@ -1922,12 +1920,6 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 		else
 		{
-// 			// Useful debugging code for undesired deprioritization of textures.
-// 			if (decode_priority <= 0.0f && desired_discard >= 0 && desired_discard < current_discard)
-// 			{
-// 				LL_INFOS() << "Calling updateRequestPriority() with decode_priority = 0.0f" << LL_ENDL;
-// 				calcDecodePriority();
-// 			}
 			static const F32 MAX_HOLD_TIME = 5.0f; //seconds to wait before canceling fecthing if decode_priority is 0.f.
 			if(decode_priority > 0.0f || mStopFetchingTimer.getElapsedTimeF32() > MAX_HOLD_TIME)
 			{
@@ -2121,7 +2113,7 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 	}
 	else
 	{
-		LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
+		LL_DEBUGS("Texture") << mID << ": un-flagging missing asset" << LL_ENDL;
 	}
 	mIsMissingAsset = is_missing;
 }
@@ -2348,9 +2340,9 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 		if (mFTType == FTT_SERVER_BAKE)
 		{
 			//output some debug info
-			LL_INFOS() << "baked texture: " << mID << "clears all call backs due to inactivity." << LL_ENDL;
-			LL_INFOS() << mUrl << LL_ENDL;
-			LL_INFOS() << "current discard: " << getDiscardLevel() << " current discard for fetch: " << getCurrentDiscardLevelForFetching() <<
+			LL_DEBUGS("Texture") << "baked texture: " << mID << "clears all call backs due to inactivity." << LL_ENDL;
+			LL_DEBUGS("Texture") << mUrl << LL_ENDL;
+			LL_DEBUGS("Texture") << "current discard: " << getDiscardLevel() << " current discard for fetch: " << getCurrentDiscardLevelForFetching() <<
 				" Desired discard: " << getDesiredDiscardLevel() << "decode Pri: " << getDecodePriority() << LL_ENDL;
 		}
 
@@ -2365,8 +2357,8 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 		if (mFTType == FTT_SERVER_BAKE)
 		{
 			//output some debug info
-			LL_INFOS() << "baked texture: " << mID << "is missing." << LL_ENDL;
-			LL_INFOS() << mUrl << LL_ENDL;
+			LL_DEBUGS("Texture") << "baked texture: " << mID << "is missing." << LL_ENDL;
+			LL_DEBUGS("Texture") << mUrl << LL_ENDL;
 		}
 
 		for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
@@ -2489,7 +2481,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 	if (run_raw_callbacks && mIsRawImageValid && (mRawDiscardLevel <= getMaxDiscardLevel()))
 	{
 		// Do callbacks which require raw image data.
-		//LL_INFOS() << "doLoadedCallbacks raw for " << getID() << LL_ENDL;
+		//LL_DEBUGS(LOG_TXT) << "doLoadedCallbacks raw for " << getID() << LL_ENDL;
 
 		// Call each party interested in the raw data.
 		for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
@@ -2510,8 +2502,8 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 					LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
 				}
 				BOOL final = mRawDiscardLevel <= entryp->mDesiredDiscard ? TRUE : FALSE;
-				//LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
-				//LL_INFOS() << mRawImage->getWidth() << "x" << mRawImage->getHeight() << LL_ENDL;
+				//LL_DEBUGS(LOG_TXT) << "Running callback for " << getID() << LL_ENDL;
+				//LL_DEBUGS(LOG_TXT) << mRawImage->getWidth() << "x" << mRawImage->getHeight() << LL_ENDL;
 				entryp->mLastUsedDiscard = mRawDiscardLevel;
 				entryp->mCallback(TRUE, this, mRawImage, mAuxRawImage, mRawDiscardLevel, final, entryp->mUserData);
 				if (final)
@@ -2529,7 +2521,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 	//
 	if (run_gl_callbacks && (gl_discard <= getMaxDiscardLevel()))
 	{
-		//LL_INFOS() << "doLoadedCallbacks GL for " << getID() << LL_ENDL;
+		//LL_DEBUGS(LOG_TXT) << "doLoadedCallbacks GL for " << getID() << LL_ENDL;
 
 		// Call the callbacks interested in GL data.
 		for(callback_list_t::iterator iter = mLoadedCallbackList.begin();

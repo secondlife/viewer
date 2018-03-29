@@ -34,7 +34,7 @@
 
 // This controls how often we update the on-disk data for the cache
 // with contents of the in-memory map of cached texture data.
-static const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 32;
+static const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 4;
 
 const std::string LLTextureCache::CACHE_ENTRY_ID("id");
 const std::string LLTextureCache::CACHE_ENTRY_CODEC("codec");
@@ -61,13 +61,13 @@ bool LLTextureCache::initCache(ELLPath loc, bool purgeCache)
     mCacheLoc        = loc;
     mTexturesDirName = gDirUtilp->getExpandedFilename(loc, TEXTURE_CACHE_DIR_NAME);
 	
+    LLFile::mkdir(mTexturesDirName);
+
     if (purgeCache)
     {
         purge();
         return true;
     }
-
-    LLFile::mkdir(mTexturesDirName);
 
     // Convert settings in MB to bytes
     U32 cacheSizeMB = gSavedSettings.getU32("CacheSize");

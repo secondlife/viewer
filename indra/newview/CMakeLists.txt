@@ -1734,9 +1734,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/libcollada14dom22.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libcollada14dom22.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/libcollada14dom22-d.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/openjp2.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjp2.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcr100.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcp100.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr100.dll

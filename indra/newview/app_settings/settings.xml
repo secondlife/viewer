@@ -12173,7 +12173,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>32</integer>
+      <integer>256</integer>
     </map>
     <key>TextureFetchUpdateMaxMediumPriority</key>
     <map>
@@ -12195,7 +12195,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>32</integer>
+      <integer>128</integer>
     </map>
     <key>TextureFetchUpdatePriorityThreshold</key>
     <map>

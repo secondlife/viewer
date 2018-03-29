@@ -154,7 +154,6 @@ public:
 	void enableOverSize() {mAllowOverSize = true ;}
 	void disableOverSize() {mAllowOverSize = false; }
 
-protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
 	void setDataAndSize(U8 *data, S32 size);
 	
