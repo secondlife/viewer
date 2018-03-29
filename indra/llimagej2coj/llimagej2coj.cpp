@@ -397,7 +397,7 @@ public:
         }
         comment_text = comment_text_in ? strdup(comment_text_in) : nullptr;
 
-        parameters.cp_comment = comment_text ? comment_text : "";
+        parameters.cp_comment = comment_text ? comment_text : (char*)"no comment";
         llassert(parameters.cp_comment);        
     }
 
@@ -440,7 +440,7 @@ public:
         parameters.prog_order = OPJ_RLCP;
         parameters.cp_disto_alloc = 1;
 
-	    opj_setup_encoder(encoder, &parameters, image);
+        opj_setup_encoder(encoder, &parameters, image);
 
         opj_set_info_handler(encoder, opj_info, this);
         opj_set_warning_handler(encoder, opj_warn, this);
@@ -627,12 +627,11 @@ public:
 
 private:
     opj_cparameters_t   parameters;
-	opj_event_mgr_t     event_mgr;
-	opj_image_t*        image           = nullptr;
-	opj_codec_t*        encoder         = nullptr;
-	opj_stream_t*       stream          = nullptr;
+    opj_event_mgr_t     event_mgr;
+    opj_image_t*        image           = nullptr;
+    opj_codec_t*        encoder         = nullptr;
+    opj_stream_t*       stream          = nullptr;
     char*               comment_text    = nullptr;
-    OPJ_BYTE*           stream_storage  = nullptr;
 };
 
 // Factory function: see declaration in llimagej2c.cpp
