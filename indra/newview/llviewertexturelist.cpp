@@ -1057,7 +1057,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
 	static const bool SKIP_LOW_PRIO = gSavedSettings.getBOOL("TextureFetchUpdateSkipLowPriority");          // default: false
 
-	size_t max_priority_count = llmin((S32)(MAX_HIGH_PRIO_COUNT  * max_time) + 1, MAX_HIGH_PRIO_COUNT);
+	size_t max_priority_count = MAX_HIGH_PRIO_COUNT;
 	max_priority_count = llmin(max_priority_count, mImageList.size());
 	
 	size_t total_update_count = mUUIDMap.size();
@@ -1076,7 +1076,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
         total_update_count--;
 	}
 
-    size_t max_update_count = llmin((S32)(MAX_UPDATE_COUNT * max_time) + 1, MAX_UPDATE_COUNT);
+    size_t max_update_count = MAX_UPDATE_COUNT;
 	max_update_count = llmin(max_update_count, total_update_count);	
 
 	// MAX_UPDATE_COUNT cycled entries
