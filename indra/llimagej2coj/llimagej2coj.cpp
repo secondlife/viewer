@@ -122,7 +122,7 @@ static OPJ_SIZE_T opj_read(void * buffer, OPJ_SIZE_T bytes, void* user_data)
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
     OPJ_SIZE_T remainder = (jpeg_codec->size - jpeg_codec->offset);
     OPJ_SIZE_T to_read   = llclamp(U32(bytes), U32(0), U32(remainder));
-    memcpy_s(buffer, bytes, jpeg_codec->buffer + jpeg_codec->offset, to_read);
+    memcpy(buffer, jpeg_codec->buffer + jpeg_codec->offset, to_read);
     return to_read;
 }
 
@@ -135,13 +135,13 @@ static OPJ_SIZE_T opj_write(void * buffer, OPJ_SIZE_T bytes, void* user_data)
     {
         OPJ_SIZE_T new_size = jpeg_codec->size + (bytes - remainder);
         U8* new_buffer = (U8*)malloc(new_size);
-        memcpy_s(new_buffer, new_size, jpeg_codec->buffer, jpeg_codec->offset);
+        memcpy(new_buffer, jpeg_codec->buffer, jpeg_codec->offset);
         U8* old_buffer = jpeg_codec->buffer;
         jpeg_codec->buffer = new_buffer;
         free(old_buffer);
         jpeg_codec->size = new_size;            
     }
-    memcpy_s(jpeg_codec->buffer + jpeg_codec->offset, jpeg_codec->size, buffer, bytes);
+    memcpy(jpeg_codec->buffer + jpeg_codec->offset, buffer, bytes);
     jpeg_codec->offset += bytes;
     return bytes;
 }
