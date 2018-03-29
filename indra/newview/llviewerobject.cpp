@@ -4368,11 +4368,6 @@ void LLViewerObject::sendTEUpdate() const
 
 LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 {
-	if (!isAttachment())
-	{
-		return NULL;
-	}
-
 	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
 	{
 		return NULL;
@@ -4382,7 +4377,19 @@ LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 	if (avatar)
 	{
 		LLAvatarAppearanceDefines::ETextureIndex texIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::assetIdToBakedTextureIndex(id));
-		return avatar->getBakedTextureImage(texIndex, avatar->getTE(texIndex)->getID());
+		LLViewerTexture* bakedTexture = avatar->getBakedTextureImage(texIndex, avatar->getTE(texIndex)->getID());
+		if (bakedTexture == NULL || bakedTexture->isMissingAsset())
+		{
+			return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		}
+		else
+		{
+			return bakedTexture;
+		}
+	}
+	else
+	{
+		return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	}
 
 	return NULL;
@@ -4431,6 +4438,20 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 
 		const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
 		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	}
+}
+
+void LLViewerObject::refreshBakeTexture()
+{
+	for (int face_index = 0; face_index < getNumTEs(); face_index++)
+	{
+		LLTextureEntry* tex_entry = getTE(face_index);
+		if (tex_entry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(tex_entry->getID()))
+		{
+			const LLUUID& image_id = tex_entry->getID();
+			LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
+			changeTEImage(face_index, bakedTexture);
+		}
 	}
 }
 

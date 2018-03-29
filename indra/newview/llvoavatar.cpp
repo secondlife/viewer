@@ -6430,22 +6430,8 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 		LLSelectMgr::getInstance()->updatePointAt();
 	}
 
-	const U32 MAX_TES = 32;
+	viewer_object->refreshBakeTexture();
 
-	S32 last_face_index = llmin((U32)viewer_object->getNumTEs(), MAX_TES) - 1;
-
-	if (last_face_index > -1)
-	{
-		S8 face_index;
-		for (face_index = 0; face_index <= last_face_index; face_index++)
-		{
-			LLTextureEntry* texEntry = viewer_object->getTE(face_index);
-			if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
-			{
-				viewer_object->setTEImage(face_index, viewer_object->getBakedTextureForMagicId(texEntry->getID()));
-			}
-		}
-	}
 
 	LLViewerObject::const_child_list_t& child_list = viewer_object->getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -6454,17 +6440,9 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 		LLViewerObject* objectp = *iter;
 		if (objectp)
 		{
-			for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
-			{
-				LLTextureEntry* tex_entry = objectp->getTE(face_index);
-				if (tex_entry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(tex_entry->getID()))
-				{
-					objectp->setTEImage(face_index, viewer_object->getBakedTextureForMagicId(tex_entry->getID()));
-				}
-			}
+			objectp->refreshBakeTexture();
 		}
 	}
-
 
 	updateMeshVisibility();
 
@@ -6619,39 +6597,16 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 			cleanupAttachedMesh(viewer_object);
 
 			attachment->removeObject(viewer_object);
-
-			const U32 MAX_TES = 32;
-
-			S32 last_face_index = llmin((U32)viewer_object->getNumTEs(), MAX_TES) - 1;
-
-			if (last_face_index > -1)
-			{
-				S8 face_index;
-				for (face_index = 0; face_index <= last_face_index; face_index++)
-				{
-					LLTextureEntry* texEntry = viewer_object->getTE(face_index);
-					if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
-					{
-						viewer_object->setTEImage(face_index, LLViewerTextureManager::getFetchedTexture(texEntry->getID(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
-					}
-				}
-			}
-
+			viewer_object->refreshBakeTexture();
+			
 			LLViewerObject::const_child_list_t& child_list = viewer_object->getChildren();
-			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-				iter != child_list.end(); ++iter)
+			for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
+				iter1 != child_list.end(); ++iter1)
 			{
-				LLViewerObject* objectp = *iter;
+				LLViewerObject* objectp = *iter1;
 				if (objectp)
 				{
-					for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
-					{
-						LLTextureEntry* texEntry = viewer_object->getTE(face_index);
-						if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
-						{
-							objectp->setTEImage(face_index, LLViewerTextureManager::getFetchedTexture(texEntry->getID(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
-						}
-					}
+					objectp->refreshBakeTexture();
 				}
 			}
 
@@ -7309,15 +7264,15 @@ void LLVOAvatar::updateMeshVisibility()
 				}
 
 				LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
-				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					iter != child_list.end(); ++iter)
+				for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
+					iter1 != child_list.end(); ++iter1)
 				{
-					LLViewerObject* objectp = *iter;
-					if (objectp)
+					LLViewerObject* objectchild = *iter1;
+					if (objectchild)
 					{
-						for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
+						for (int face_index = 0; face_index < objectchild->getNumTEs(); face_index++)
 						{
-							LLTextureEntry* tex_entry = objectp->getTE(face_index);
+							LLTextureEntry* tex_entry = objectchild->getTE(face_index);
 							bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
 							bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
 							bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
@@ -7330,6 +7285,8 @@ void LLVOAvatar::updateMeshVisibility()
 			}
 		}
 	}
+
+	LL_INFOS() << "head " << bake_flag[BAKED_HEAD] << "eyes " << bake_flag[BAKED_EYES] << "hair " << bake_flag[BAKED_HAIR] << "lower " << bake_flag[BAKED_LOWER] << "upper " << bake_flag[BAKED_UPPER] << "skirt " << bake_flag[BAKED_SKIRT] << LL_ENDL;
 
 	for (S32 i = 0; i < mMeshLOD.size(); i++)
 	{
@@ -8378,23 +8335,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 			++attachment_iter)
 		{
 			LLViewerObject* attached_object = (*attachment_iter);
-
-			const U32 MAX_TES = 32;
-
-			S32 last_face_index = llmin((U32)attached_object->getNumTEs(), MAX_TES) - 1;
-
-			if (last_face_index > -1)
-			{
-				S8 face_index;
-				for (face_index = 0; face_index <= last_face_index; face_index++)
-				{
-					LLTextureEntry* texEntry = attached_object->getTE(face_index);
-					if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
-					{
-						attached_object->setTEImage(face_index, LLViewerTextureManager::getFetchedTexture(texEntry->getID(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
-					}
-				}
-			}
+			attached_object->refreshBakeTexture();
 
 			LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
 			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -8403,14 +8344,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 				LLViewerObject* objectp = *iter;
 				if (objectp)
 				{
-					for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
-					{
-						LLTextureEntry* texEntry = objectp->getTE(face_index);
-						if (texEntry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texEntry->getID()))
-						{
-							objectp->setTEImage(face_index, LLViewerTextureManager::getFetchedTexture(texEntry->getID(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
-						}
-					}
+					objectp->refreshBakeTexture();
 				}
 			}
 		}
