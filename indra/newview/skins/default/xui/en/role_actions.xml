@@ -6,7 +6,7 @@
 		<action description="Invite People to this Group"
 		     longdescription="Invite People to this Group using the &apos;Invite&apos; button in the Roles section &gt; Members tab."
 		     name="member invite" value="1" />
-		<action description="Eject Members from this Group"
+		<action description="Eject Members belonging to the 'Everyone' role from this Group"
 		     longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability."
 		     name="member eject" value="2" />
     <action description="Manage ban list"

@@ -821,8 +821,12 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 	mMembersList 		= parent->getChild<LLNameListCtrl>("member_list", recurse);
 	mAssignedRolesList	= parent->getChild<LLScrollListCtrl>("member_assigned_roles", recurse);
 	mAllowedActionsList	= parent->getChild<LLScrollListCtrl>("member_allowed_actions", recurse);
+	mActionDescription = parent->getChild<LLTextEditor>("member_action_description", recurse);
 
-	if (!mMembersList || !mAssignedRolesList || !mAllowedActionsList) return FALSE;
+	if (!mMembersList || !mAssignedRolesList || !mAllowedActionsList || !mActionDescription) return FALSE;
+
+	mAllowedActionsList->setCommitOnSelectionChange(TRUE);
+	mAllowedActionsList->setCommitCallback(boost::bind(&LLPanelGroupMembersSubTab::updateActionDescription, this));
 
 	// We want to be notified whenever a member is selected.
 	mMembersList->setCommitOnSelectionChange(TRUE);
@@ -889,6 +893,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 
 	mAssignedRolesList->deleteAllItems();
 	mAllowedActionsList->deleteAllItems();
+	mActionDescription->clear();
 	
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
@@ -1386,6 +1391,7 @@ void LLPanelGroupMembersSubTab::activate()
 			update(GC_MEMBER_DATA);
 		}
 	}
+	mActionDescription->clear();
 }
 
 void LLPanelGroupMembersSubTab::deactivate()
@@ -1894,6 +1900,23 @@ bool LLPanelGroupMembersSubTab::handleBanCallback(const LLSD& notification, cons
 	return false;
 }
 
+void LLPanelGroupMembersSubTab::updateActionDescription()
+{
+	mActionDescription->setText(std::string());
+	LLScrollListItem* action_item = mAllowedActionsList->getFirstSelected();
+	if (!action_item || !mAllowedActionsList->getCanSelect())
+	{
+		return;
+	}
+
+	LLRoleAction* rap = (LLRoleAction*)action_item->getUserdata();
+	if (rap)
+	{
+		std::string desc = rap->mLongDescription.empty() ? rap->mDescription : rap->mLongDescription;
+		mActionDescription->setText(desc);
+	}
+}
+
 void LLPanelGroupMembersSubTab::handleBanMember()
 {
 	LLGroupMgrGroupData* gdatap	= LLGroupMgr::getInstance()->getGroupData(mGroupID);
@@ -1964,6 +1987,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRolesList 		= parent->getChild<LLScrollListCtrl>("role_list", recurse);
 	mAssignedMembersList	= parent->getChild<LLNameListCtrl>("role_assigned_members", recurse);
 	mAllowedActionsList	= parent->getChild<LLScrollListCtrl>("role_allowed_actions", recurse);
+	mActionDescription	= parent->getChild<LLTextEditor>("role_action_description", recurse);
 
 	mRoleName = parent->getChild<LLLineEditor>("role_name", recurse);
 	mRoleTitle = parent->getChild<LLLineEditor>("role_title", recurse);
@@ -1971,7 +1995,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 
 	mMemberVisibleCheck = parent->getChild<LLCheckBoxCtrl>("role_visible_in_list", recurse);
 
-	if (!mRolesList || !mAssignedMembersList || !mAllowedActionsList
+	if (!mRolesList || !mAssignedMembersList || !mAllowedActionsList || !mActionDescription
 		|| !mRoleName || !mRoleTitle || !mRoleDescription || !mMemberVisibleCheck)
 	{
 		LL_WARNS() << "ARG! element not found." << LL_ENDL;
@@ -2004,6 +2028,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mMemberVisibleCheck->setCommitCallback(onMemberVisibilityChange, this);
 
 	mAllowedActionsList->setCommitOnSelectionChange(TRUE);
+	mAllowedActionsList->setCommitCallback(boost::bind(&LLPanelGroupRolesSubTab::updateActionDescription, this));
 
 	mRoleName->setCommitOnFocusLost(TRUE);
 	mRoleName->setKeystrokeCallback(onPropertiesKey, this);
@@ -2023,6 +2048,7 @@ void LLPanelGroupRolesSubTab::activate()
 {
 	LLPanelGroupSubTab::activate();
 
+	mActionDescription->clear();
 	mRolesList->deselectAllItems();
 	mAssignedMembersList->deleteAllItems();
 	mAllowedActionsList->deleteAllItems();
@@ -2704,6 +2730,23 @@ void LLPanelGroupRolesSubTab::saveRoleChanges(bool select_saved_role)
 		item->setSelected(select_saved_role);
 
 		mHasRoleChange = FALSE;
+	}
+}
+
+void LLPanelGroupRolesSubTab::updateActionDescription()
+{
+	mActionDescription->setText(std::string());
+	LLScrollListItem* action_item = mAllowedActionsList->getFirstSelected();
+	if (!action_item || !mAllowedActionsList->getCanSelect())
+	{
+		return;
+	}
+
+	LLRoleAction* rap = (LLRoleAction*)action_item->getUserdata();
+	if (rap)
+	{
+		std::string desc = rap->mLongDescription.empty() ? rap->mDescription : rap->mLongDescription;
+		mActionDescription->setText(desc);
 	}
 }
 
