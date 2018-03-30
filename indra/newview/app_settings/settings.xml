@@ -12339,7 +12339,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>500.0</real>
+      <real>3000.0</real>
     </map>
     <key>UpdaterMaximumBandwidth</key>
     <map>

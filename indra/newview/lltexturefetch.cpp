@@ -3082,7 +3082,7 @@ void LLTextureFetch::commonUpdate()
 //virtual
 S32 LLTextureFetch::update(F32 max_time_ms)
 {
-	static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS", 500.0);
+	static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS", 3000.0);
 
 	{
 		mNetworkQueueMutex.lock();										// +Mfnq
