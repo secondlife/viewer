@@ -7291,7 +7291,7 @@ void LLVOAvatar::updateMeshVisibility()
 	for (S32 i = 0; i < mMeshLOD.size(); i++)
 	{
 		LLAvatarJoint* joint = mMeshLOD[i];
-		if (i == MESH_ID_HAIR && bake_flag[BAKED_HAIR])
+		if (i == MESH_ID_HAIR)
 		{
 			joint->setVisible(!bake_flag[BAKED_HAIR], TRUE);
 		}
