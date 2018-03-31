@@ -59,7 +59,7 @@ public:
 
 	struct CompareVOCacheEntry
 	{
-		bool operator()(const LLVOCacheEntry* const& lhs, const LLVOCacheEntry* const& rhs)
+		bool operator()(const LLVOCacheEntry* const& lhs, const LLVOCacheEntry* const& rhs) const
 		{
 			F32 lpa = lhs->getSceneContribution();
 			F32 rpa = rhs->getSceneContribution();
