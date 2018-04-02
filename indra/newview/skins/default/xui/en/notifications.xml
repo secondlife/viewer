@@ -10202,7 +10202,7 @@ Unable to create requested object. The region is full.
    name="CantCreateAnimatedObjectTooLarge"
    type="notify">
    <tag>fail</tag>
-Unable to create requested animated object because it exceeds the size limit.
+Unable to create requested animated object because it exceeds the rigged triangle limit.
   </notification>
 
   <notification
@@ -10346,7 +10346,7 @@ Operation would cause the number of attached animated objects to exceed the limi
    name="NoPermsLinkAnimatedObjectTooLarge"
    type="notify">
    <tag>fail</tag>
-Can't link these objects because the resulting animated object would exceed the size limit.
+Can't link these objects because the resulting animated object would exceed the rigged triangle limit.
   </notification>
 
   <notification
@@ -10354,7 +10354,15 @@ Can't link these objects because the resulting animated object would exceed the 
    name="NoPermsSetFlagAnimatedObjectTooLarge"
    type="notify">
    <tag>fail</tag>
-Can't make this object into an animated object because it would exceed the size limit.
+Can't make this object into an animated object because it would exceed the rigged triangle limit.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantChangeAnimatedObjectStateInsufficientLand"
+   type="notify">
+   <tag>fail</tag>
+Can't change animated object state for this object because it would cause parcel limit to be exceeded.
   </notification>
 
   <notification

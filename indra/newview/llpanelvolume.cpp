@@ -365,6 +365,18 @@ void LLPanelVolume::getState( )
     if (root_volobjp && root_volobjp == volobjp)
     {
         enabled_animated_object_box = single_root_volume && root_volobjp && root_volobjp->canBeAnimatedObject() && editable; 
+#if 0
+        if (!enabled_animated_object_box)
+        {
+            LL_INFOS() << "not enabled: srv " << single_root_volume << " root_volobjp " << (bool) root_volobjp << LL_ENDL;
+            if (root_volobjp)
+            {
+                LL_INFOS() << " cba " << root_volobjp->canBeAnimatedObject()
+                           << " editable " << editable << " permModify() " << root_volobjp->permModify()
+                           << " ispermenf " << root_volobjp->isPermanentEnforced() << LL_ENDL;
+            }
+        }
+#endif
         if (enabled_animated_object_box && !is_animated_mesh && 
             root_volobjp->isAttachment() && !gAgentAvatarp->canAttachMoreAnimatedObjects())
         {
