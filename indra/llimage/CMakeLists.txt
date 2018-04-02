@@ -73,14 +73,3 @@ target_link_libraries(llimage
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
     )
-
-# Add tests
-if (LL_TESTS)
-  SET(llimage_TEST_SOURCE_FILES
-    llimageworker.cpp
-    )
-  LL_ADD_PROJECT_UNIT_TESTS(llimage "${llimage_TEST_SOURCE_FILES}")
-endif (LL_TESTS)
-
-
-
