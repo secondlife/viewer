@@ -34,7 +34,6 @@
 #include "llerror.h"
 #include "lllfsthread.h"
 #include "llui.h"
-#include "llimageworker.h"
 #include "llrender.h"
 
 #include "lltooltip.h"
