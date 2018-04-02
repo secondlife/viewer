@@ -42,8 +42,6 @@
 #include "m4math.h"					// LLMatrix4
 #include "llframetimer.h"
 
-#include "llsettingsdaycycle.h"
-
 // Surface id's
 #define LAND  1
 #define WATER 2
@@ -73,322 +71,320 @@ class LLViewerRegionImpl;
 class LLViewerOctreeGroup;
 class LLVOCachePartition;
 
-class LLViewerRegion : public LLCapabilityProvider // implements this interface
+class LLViewerRegion: public LLCapabilityProvider // implements this interface
 {
 public:
-    //MUST MATCH THE ORDER OF DECLARATION IN CONSTRUCTOR
-    typedef enum
-    {
-        PARTITION_HUD = 0,
-        PARTITION_TERRAIN,
-        PARTITION_VOIDWATER,
-        PARTITION_WATER,
-        PARTITION_TREE,
-        PARTITION_PARTICLE,
-        PARTITION_GRASS,
-        PARTITION_VOLUME,
-        PARTITION_BRIDGE,
-        PARTITION_HUD_PARTICLE,
-        PARTITION_VO_CACHE,
-        PARTITION_NONE,
-        NUM_PARTITIONS
-    } eObjectPartitions;
+	//MUST MATCH THE ORDER OF DECLARATION IN CONSTRUCTOR
+	typedef enum 
+	{
+		PARTITION_HUD=0,
+		PARTITION_TERRAIN,
+		PARTITION_VOIDWATER,
+		PARTITION_WATER,
+		PARTITION_TREE,
+		PARTITION_PARTICLE,
+		PARTITION_GRASS,
+		PARTITION_VOLUME,
+		PARTITION_BRIDGE,
+		PARTITION_HUD_PARTICLE,
+		PARTITION_VO_CACHE,
+		PARTITION_NONE,
+		NUM_PARTITIONS
+	} eObjectPartitions;
 
-    typedef boost::signals2::signal<void(const LLUUID& region_id)> caps_received_signal_t;
+	typedef boost::signals2::signal<void(const LLUUID& region_id)> caps_received_signal_t;
 
-    LLViewerRegion(const U64 &handle,
-        const LLHost &host,
-        const U32 surface_grid_width,
-        const U32 patch_grid_width,
-        const F32 region_width_meters);
-    ~LLViewerRegion();
+	LLViewerRegion(const U64 &handle,
+				   const LLHost &host,
+				   const U32 surface_grid_width,
+				   const U32 patch_grid_width,
+				   const F32 region_width_meters);
+	~LLViewerRegion();
 
-    // Call this after you have the region name and handle.
-    void loadObjectCache();
-    void saveObjectCache();
+	// Call this after you have the region name and handle.
+	void loadObjectCache();
+	void saveObjectCache();
 
-    void sendMessage(); // Send the current message to this region's simulator
-    void sendReliableMessage(); // Send the current message to this region's simulator
+	void sendMessage(); // Send the current message to this region's simulator
+	void sendReliableMessage(); // Send the current message to this region's simulator
 
-    void setOriginGlobal(const LLVector3d &origin);
-    //void setAgentOffset(const LLVector3d &offset);
-    void updateRenderMatrix();
+	void setOriginGlobal(const LLVector3d &origin);
+	//void setAgentOffset(const LLVector3d &offset);
+	void updateRenderMatrix();
 
-    void setAllowDamage(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DAMAGE, b); }
-    void setAllowLandmark(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_LANDMARK, b); }
-    void setAllowSetHome(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_SET_HOME, b); }
-    void setResetHomeOnTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_RESET_HOME_ON_TELEPORT, b); }
-    void setSunFixed(BOOL b) { setRegionFlag(REGION_FLAGS_SUN_FIXED, b); }
-    //void setBlockFly(BOOL b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }		Never used
-    void setAllowDirectTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT, b); }
+	void setAllowDamage(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DAMAGE, b); }
+	void setAllowLandmark(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_LANDMARK, b); }
+	void setAllowSetHome(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_SET_HOME, b); }
+	void setResetHomeOnTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_RESET_HOME_ON_TELEPORT, b); }
+	void setSunFixed(BOOL b) { setRegionFlag(REGION_FLAGS_SUN_FIXED, b); }
+	//void setBlockFly(BOOL b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }		Never used
+	void setAllowDirectTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT, b); }
 
 
-    inline BOOL getAllowDamage()			const;
-    inline BOOL getAllowLandmark()			const;
-    inline BOOL getAllowSetHome()			const;
-    inline BOOL getResetHomeOnTeleport()	const;
-    inline BOOL getSunFixed()				const;
-    inline BOOL getBlockFly()				const;
-    inline BOOL getAllowDirectTeleport()	const;
-    inline BOOL isPrelude()					const;
-    inline BOOL getAllowTerraform() 		const;
-    inline BOOL getRestrictPushObject()		const;
-    inline BOOL getReleaseNotesRequested()		const;
+	inline BOOL getAllowDamage()			const;
+	inline BOOL getAllowLandmark()			const;
+	inline BOOL getAllowSetHome()			const;
+	inline BOOL getResetHomeOnTeleport()	const;
+	inline BOOL getSunFixed()				const;
+	inline BOOL getBlockFly()				const;
+	inline BOOL getAllowDirectTeleport()	const;
+	inline BOOL isPrelude()					const;
+	inline BOOL getAllowTerraform() 		const;
+	inline BOOL getRestrictPushObject()		const;
+	inline BOOL getReleaseNotesRequested()		const;
 
-    bool isAlive(); // can become false if circuit disconnects
+	bool isAlive(); // can become false if circuit disconnects
 
-    void setWaterHeight(F32 water_level);
-    F32 getWaterHeight() const;
+	void setWaterHeight(F32 water_level);
+	F32 getWaterHeight() const;
 
-    BOOL isVoiceEnabled() const;
+	BOOL isVoiceEnabled() const;
 
-    void setBillableFactor(F32 billable_factor) { mBillableFactor = billable_factor; }
-    F32 getBillableFactor() 		const 	{ return mBillableFactor; }
+	void setBillableFactor(F32 billable_factor) { mBillableFactor = billable_factor; }
+	F32 getBillableFactor() 		const 	{ return mBillableFactor; }
 
-    // Maximum number of primitives allowed, regardless of object
-    // bonus factor.
-    U32 getMaxTasks() const { return mMaxTasks; }
-    void setMaxTasks(U32 max_tasks) { mMaxTasks = max_tasks; }
+	// Maximum number of primitives allowed, regardless of object
+	// bonus factor.
+	U32 getMaxTasks() const { return mMaxTasks; }
+	void setMaxTasks(U32 max_tasks) { mMaxTasks = max_tasks; }
 
-    // Draw lines in the dirt showing ownership. Return number of 
-    // vertices drawn.
-    S32 renderPropertyLines();
+	// Draw lines in the dirt showing ownership. Return number of 
+	// vertices drawn.
+	S32 renderPropertyLines();
 
-    // Call this whenever you change the height data in the region.
-    // (Automatically called by LLSurfacePatch's update routine)
-    void dirtyHeights();
+	// Call this whenever you change the height data in the region.
+	// (Automatically called by LLSurfacePatch's update routine)
+	void dirtyHeights();
 
-    LLViewerParcelOverlay *getParcelOverlay() const
-    {
-        return mParcelOverlay;
-    }
+	LLViewerParcelOverlay *getParcelOverlay() const
+			{ return mParcelOverlay; }
 
-    inline void setRegionFlag(U64 flag, BOOL on);
-    inline BOOL getRegionFlag(U64 flag) const;
-    void setRegionFlags(U64 flags);
-    U64 getRegionFlags() const					{ return mRegionFlags; }
+	inline void setRegionFlag(U64 flag, BOOL on);
+	inline BOOL getRegionFlag(U64 flag) const;
+	void setRegionFlags(U64 flags);
+	U64 getRegionFlags() const					{ return mRegionFlags; }
 
-    inline void setRegionProtocol(U64 protocol, BOOL on);
-    BOOL getRegionProtocol(U64 protocol) const;
-    void setRegionProtocols(U64 protocols)			{ mRegionProtocols = protocols; }
-    U64 getRegionProtocols() const					{ return mRegionProtocols; }
+	inline void setRegionProtocol(U64 protocol, BOOL on);
+	BOOL getRegionProtocol(U64 protocol) const;
+	void setRegionProtocols(U64 protocols)			{ mRegionProtocols = protocols; }
+	U64 getRegionProtocols() const					{ return mRegionProtocols; }
 
-    void setTimeDilation(F32 time_dilation);
-    F32  getTimeDilation() const				{ return mTimeDilation; }
+	void setTimeDilation(F32 time_dilation);
+	F32  getTimeDilation() const				{ return mTimeDilation; }
 
-    // Origin height is at zero.
-    const LLVector3d &getOriginGlobal() const;
-    LLVector3 getOriginAgent() const;
+	// Origin height is at zero.
+	const LLVector3d &getOriginGlobal() const;
+	LLVector3 getOriginAgent() const;
 
-    // Center is at the height of the water table.
-    const LLVector3d &getCenterGlobal() const;
-    LLVector3 getCenterAgent() const;
+	// Center is at the height of the water table.
+	const LLVector3d &getCenterGlobal() const;
+	LLVector3 getCenterAgent() const;
 
-    void setRegionNameAndZone(const std::string& name_and_zone);
-    const std::string& getName() const				{ return mName; }
-    const std::string& getZoning() const			{ return mZoning; }
+	void setRegionNameAndZone(const std::string& name_and_zone);
+	const std::string& getName() const				{ return mName; }
+	const std::string& getZoning() const			{ return mZoning; }
 
-    void setOwner(const LLUUID& owner_id);
-    const LLUUID& getOwner() const;
+	void setOwner(const LLUUID& owner_id);
+	const LLUUID& getOwner() const;
 
-    // Is the current agent on the estate manager list for this region?
-    void setIsEstateManager(BOOL b) { mIsEstateManager = b; }
-    BOOL isEstateManager() const { return mIsEstateManager; }
-    BOOL canManageEstate() const;
+	// Is the current agent on the estate manager list for this region?
+	void setIsEstateManager(BOOL b) { mIsEstateManager = b; }
+	BOOL isEstateManager() const { return mIsEstateManager; }
+	BOOL canManageEstate() const;
 
-    void setSimAccess(U8 sim_access)			{ mSimAccess = sim_access; }
-    U8 getSimAccess() const						{ return mSimAccess; }
-    const std::string getSimAccessString() const;
+	void setSimAccess(U8 sim_access)			{ mSimAccess = sim_access; }
+	U8 getSimAccess() const						{ return mSimAccess; }
+	const std::string getSimAccessString() const;
+	
+	// Homestead-related getters; there are no setters as nobody should be
+	// setting them other than the individual message handler which is a member
+	S32 getSimClassID()                    const { return mClassID; }
+	S32 getSimCPURatio()                   const { return mCPURatio; }
+	const std::string& getSimColoName()    const { return mColoName; }
+	const std::string& getSimProductSKU()  const { return mProductSKU; }
+	std::string getLocalizedSimProductName() const;
 
-    // Homestead-related getters; there are no setters as nobody should be
-    // setting them other than the individual message handler which is a member
-    S32 getSimClassID()                    const { return mClassID; }
-    S32 getSimCPURatio()                   const { return mCPURatio; }
-    const std::string& getSimColoName()    const { return mColoName; }
-    const std::string& getSimProductSKU()  const { return mProductSKU; }
-    std::string getLocalizedSimProductName() const;
+	// Returns "Sandbox", "Expensive", etc.
+	static std::string regionFlagsToString(U64 flags);
 
-    // Returns "Sandbox", "Expensive", etc.
-    static std::string regionFlagsToString(U64 flags);
+	// Returns translated version of "Mature", "PG", "Adult", etc.
+	static std::string accessToString(U8 sim_access);
 
-    // Returns translated version of "Mature", "PG", "Adult", etc.
-    static std::string accessToString(U8 sim_access);
+	// Returns "M", "PG", "A" etc.
+	static std::string accessToShortString(U8 sim_access);
+	static U8          shortStringToAccess(const std::string &sim_access);
 
-    // Returns "M", "PG", "A" etc.
-    static std::string accessToShortString(U8 sim_access);
-    static U8          shortStringToAccess(const std::string &sim_access);
+	// Return access icon name
+	static std::string getAccessIcon(U8 sim_access);
+	
+	// helper function which just makes sure all interested parties
+	// can process the message.
+	static void processRegionInfo(LLMessageSystem* msg, void**);
 
-    // Return access icon name
-    static std::string getAccessIcon(U8 sim_access);
+	//check if the viewer camera is static
+	static BOOL isViewerCameraStatic();
+	static void calcNewObjectCreationThrottle();
 
-    // helper function which just makes sure all interested parties
-    // can process the message.
-    static void processRegionInfo(LLMessageSystem* msg, void**);
+	void setCacheID(const LLUUID& id);
 
-    //check if the viewer camera is static
-    static BOOL isViewerCameraStatic();
-    static void calcNewObjectCreationThrottle();
+	F32	getWidth() const						{ return mWidth; }
 
-    void setCacheID(const LLUUID& id);
+	void idleUpdate(F32 max_update_time);
+	void lightIdleUpdate();
+	bool addVisibleGroup(LLViewerOctreeGroup* group);
+	void addVisibleChildCacheEntry(LLVOCacheEntry* parent, LLVOCacheEntry* child);
+	void addActiveCacheEntry(LLVOCacheEntry* entry);
+	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	
+	void killCacheEntry(U32 local_id); //physically delete the cache entry	
 
-    F32	getWidth() const						{ return mWidth; }
+	// Like idleUpdate, but forces everything to complete regardless of
+	// how long it takes.
+	void forceUpdate();
 
-    void idleUpdate(F32 max_update_time);
-    void lightIdleUpdate();
-    bool addVisibleGroup(LLViewerOctreeGroup* group);
-    void addVisibleChildCacheEntry(LLVOCacheEntry* parent, LLVOCacheEntry* child);
-    void addActiveCacheEntry(LLVOCacheEntry* entry);
-    void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);
-    void killCacheEntry(U32 local_id); //physically delete the cache entry	
+	void connectNeighbor(LLViewerRegion *neighborp, U32 direction);
 
-    // Like idleUpdate, but forces everything to complete regardless of
-    // how long it takes.
-    void forceUpdate();
+	void updateNetStats();
 
-    void connectNeighbor(LLViewerRegion *neighborp, U32 direction);
+	U32	getPacketsLost() const;
 
-    void updateNetStats();
+	S32 getHttpResponderID() const;
 
-    U32	getPacketsLost() const;
-
-    S32 getHttpResponderID() const;
-
-    // Get/set named capability URLs for this region.
-    void setSeedCapability(const std::string& url);
-    S32 getNumSeedCapRetries();
-    void setCapability(const std::string& name, const std::string& url);
-    void setCapabilityDebug(const std::string& name, const std::string& url);
-    bool isCapabilityAvailable(const std::string& name) const;
-    // implements LLCapabilityProvider
+	// Get/set named capability URLs for this region.
+	void setSeedCapability(const std::string& url);
+	S32 getNumSeedCapRetries();
+	void setCapability(const std::string& name, const std::string& url);
+	void setCapabilityDebug(const std::string& name, const std::string& url);
+	bool isCapabilityAvailable(const std::string& name) const;
+	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
     std::string getCapabilityDebug(const std::string& name) const;
 
 
-    // has region received its final (not seed) capability list?
-    bool capabilitiesReceived() const;
-    void setCapabilitiesReceived(bool received);
-    boost::signals2::connection setCapabilitiesReceivedCallback(const caps_received_signal_t::slot_type& cb);
+	// has region received its final (not seed) capability list?
+	bool capabilitiesReceived() const;
+	void setCapabilitiesReceived(bool received);
+	boost::signals2::connection setCapabilitiesReceivedCallback(const caps_received_signal_t::slot_type& cb);
 
-    static bool isSpecialCapabilityName(const std::string &name);
-    void logActiveCapabilities() const;
+	static bool isSpecialCapabilityName(const std::string &name);
+	void logActiveCapabilities() const;
 
     /// implements LLCapabilityProvider
-    /*virtual*/ const LLHost& getHost() const;
-    const U64 		&getHandle() const 			{ return mHandle; }
+	/*virtual*/ const LLHost& getHost() const;
+	const U64 		&getHandle() const 			{ return mHandle; }
 
-    LLSurface		&getLand() const;
+	LLSurface		&getLand() const;
 
-    // set and get the region id
-    const LLUUID& getRegionID() const;
-    void setRegionID(const LLUUID& region_id);
+	// set and get the region id
+	const LLUUID& getRegionID() const;
+	void setRegionID(const LLUUID& region_id);
 
-    BOOL pointInRegionGlobal(const LLVector3d &point_global) const;
-    LLVector3	getPosRegionFromGlobal(const LLVector3d &point_global) const;
-    LLVector3	getPosRegionFromAgent(const LLVector3 &agent_pos) const;
-    LLVector3	getPosAgentFromRegion(const LLVector3 &region_pos) const;
-    LLVector3d	getPosGlobalFromRegion(const LLVector3 &offset) const;
+	BOOL pointInRegionGlobal(const LLVector3d &point_global) const;
+	LLVector3	getPosRegionFromGlobal(const LLVector3d &point_global) const;
+	LLVector3	getPosRegionFromAgent(const LLVector3 &agent_pos) const;
+	LLVector3	getPosAgentFromRegion(const LLVector3 &region_pos) const;
+	LLVector3d	getPosGlobalFromRegion(const LLVector3 &offset) const;
 
-    LLVLComposition *getComposition() const;
-    F32 getCompositionXY(const S32 x, const S32 y) const;
+	LLVLComposition *getComposition() const;
+	F32 getCompositionXY(const S32 x, const S32 y) const;
 
-    BOOL isOwnedSelf(const LLVector3& pos);
+	BOOL isOwnedSelf(const LLVector3& pos);
 
-    // Owned by a group you belong to?  (officer OR member)
-    BOOL isOwnedGroup(const LLVector3& pos);
+	// Owned by a group you belong to?  (officer OR member)
+	BOOL isOwnedGroup(const LLVector3& pos);
 
-    // deal with map object updates in the world.
-    void updateCoarseLocations(LLMessageSystem* msg);
+	// deal with map object updates in the world.
+	void updateCoarseLocations(LLMessageSystem* msg);
 
-    F32 getLandHeightRegion(const LLVector3& region_pos);
+	F32 getLandHeightRegion(const LLVector3& region_pos);
 
-    U8 getCentralBakeVersion() { return mCentralBakeVersion; }
+	U8 getCentralBakeVersion() { return mCentralBakeVersion; }
 
-    void getInfo(LLSD& info);
+	void getInfo(LLSD& info);
+	
+	bool meshRezEnabled() const;
+	bool meshUploadEnabled() const;
 
-    bool meshRezEnabled() const;
-    bool meshUploadEnabled() const;
+	// has region received its simulator features list? Requires an additional query after caps received.
+	void setSimulatorFeaturesReceived(bool);
+	bool simulatorFeaturesReceived() const;
+	boost::signals2::connection setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb);
+	
+	void getSimulatorFeatures(LLSD& info) const;	
+	void setSimulatorFeatures(const LLSD& info);
 
-    // has region received its simulator features list? Requires an additional query after caps received.
-    void setSimulatorFeaturesReceived(bool);
-    bool simulatorFeaturesReceived() const;
-    boost::signals2::connection setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb);
+	
+	bool dynamicPathfindingEnabled() const;
 
-    void getSimulatorFeatures(LLSD& info) const;
-    void setSimulatorFeatures(const LLSD& info);
+	bool avatarHoverHeightEnabled() const;
 
+	typedef enum
+	{
+		CACHE_MISS_TYPE_FULL = 0,
+		CACHE_MISS_TYPE_CRC,
+		CACHE_MISS_TYPE_NONE
+	} eCacheMissType;
 
-    bool dynamicPathfindingEnabled() const;
+	typedef enum
+	{
+		CACHE_UPDATE_DUPE = 0,
+		CACHE_UPDATE_CHANGED,
+		CACHE_UPDATE_ADDED,
+		CACHE_UPDATE_REPLACED
+	} eCacheUpdateResult;
 
-    bool avatarHoverHeightEnabled() const;
+	// handle a full update message
+	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);	
+	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
+	LLVOCacheEntry* getCacheEntry(U32 local_id, bool valid = true);
+	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
+	U64 getRegionCacheHitCount() { return mRegionCacheHitCount; }
+	U64 getRegionCacheMissCount() { return mRegionCacheMissCount; }
+	void requestCacheMisses();
+	void addCacheMissFull(const U32 local_id);
+	//update object cache if the object receives a full-update or terse update
+	LLViewerObject* updateCacheEntry(U32 local_id, LLViewerObject* objectp, U32 update_type);
+	void findOrphans(U32 parent_id);
+	void clearCachedVisibleObjects();
+	void dumpCache();
 
-    typedef enum
-    {
-        CACHE_MISS_TYPE_FULL = 0,
-        CACHE_MISS_TYPE_CRC,
-        CACHE_MISS_TYPE_NONE
-    } eCacheMissType;
+	void unpackRegionHandshake();
 
-    typedef enum
-    {
-        CACHE_UPDATE_DUPE = 0,
-        CACHE_UPDATE_CHANGED,
-        CACHE_UPDATE_ADDED,
-        CACHE_UPDATE_REPLACED
-    } eCacheUpdateResult;
+	void calculateCenterGlobal();
+	void calculateCameraDistance();
 
-    // handle a full update message
-    eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
-    eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);
-    LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
-    LLVOCacheEntry* getCacheEntry(U32 local_id, bool valid = true);
-    bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
-    U64 getRegionCacheHitCount() { return mRegionCacheHitCount; }
-    U64 getRegionCacheMissCount() { return mRegionCacheMissCount; }
-    void requestCacheMisses();
-    void addCacheMissFull(const U32 local_id);
-    //update object cache if the object receives a full-update or terse update
-    LLViewerObject* updateCacheEntry(U32 local_id, LLViewerObject* objectp, U32 update_type);
-    void findOrphans(U32 parent_id);
-    void clearCachedVisibleObjects();
-    void dumpCache();
-
-    void unpackRegionHandshake();
-
-    void calculateCenterGlobal();
-    void calculateCameraDistance();
-
-    friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
+	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
     virtual std::string getDescription() const;
     std::string getViewerAssetUrl() const { return mViewerAssetUrl; }
 
-    U32 getNumOfVisibleGroups() const;
-    U32 getNumOfActiveCachedObjects() const;
-    LLSpatialPartition* getSpatialPartition(U32 type);
-    LLVOCachePartition* getVOCachePartition();
+	U32 getNumOfVisibleGroups() const;
+	U32 getNumOfActiveCachedObjects() const;
+	LLSpatialPartition* getSpatialPartition(U32 type);
+	LLVOCachePartition* getVOCachePartition();
 
-    bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
-    bool childrenObjectReturnable(const std::vector<LLBBox>& boxes) const;
-    bool objectsCrossParcel(const std::vector<LLBBox>& boxes) const;
+	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
+	bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
+	bool objectsCrossParcel(const std::vector<LLBBox>& boxes) const;
 
-    void getNeighboringRegions(std::vector<LLViewerRegion*>& uniqueRegions);
-    void getNeighboringRegionsStatus(std::vector<S32>& regions);
-    const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
-    LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
+	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	void getNeighboringRegionsStatus( std::vector<S32>& regions );
+	const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
+	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
 
-    // implements the materials capability throttle
-    bool materialsCapThrottled() const { return !mMaterialsCapThrottleTimer.hasExpired(); }
-    void resetMaterialsCapThrottle();
+	// implements the materials capability throttle
+	bool materialsCapThrottled() const { return !mMaterialsCapThrottleTimer.hasExpired(); }
+	void resetMaterialsCapThrottle();
+	
+	U32 getMaxMaterialsPerTransaction() const;
 
-    U32 getMaxMaterialsPerTransaction() const;
+	void removeFromCreatedList(U32 local_id);
+	void addToCreatedList(U32 local_id);	
 
-    void removeFromCreatedList(U32 local_id);
-    void addToCreatedList(U32 local_id);
+	BOOL isPaused() const {return mPaused;}
+	S32  getLastUpdate() const {return mLastUpdate;}
 
-    BOOL isPaused() const { return mPaused; }
-    S32  getLastUpdate() const { return mLastUpdate; }
-
-    static BOOL isNewObjectCreationThrottleDisabled() { return sNewObjectCreationThrottle < 0; }
+	static BOOL isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
@@ -444,7 +440,7 @@ public:
 
 	struct CompareRegionByLastUpdate
 	{
-		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs)
+		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs) const
 		{
 			S32 lpa = lhs->getLastUpdate();
 			S32 rpa = rhs->getLastUpdate();
