@@ -4,10 +4,10 @@
 	     description="These Abilities include powers to add and remove group Members, and allow new Members to join without an invitation."
 	     name="Membership">
 		<action description="Invite People to this Group"
-		     longdescription="Invite People to this Group using the &apos;Invite&apos; button in the Roles section &gt; Members tab."
+		     longdescription="Invite People to this Group using the &apos;Invite&apos; button in the Roles &amp; Members section &gt; Members tab."
 		     name="member invite" value="1" />
 		<action description="Eject Members belonging to the 'Everyone' role from this Group"
-		     longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability."
+		     longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles &amp; Members section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability."
 		     name="member eject" value="2" />
     <action description="Manage ban list"
          longdescription="Allows the group member to ban / un-ban Residents from this group."
@@ -21,25 +21,25 @@
 	     description="These Abilities include powers to add, remove, and change group Roles, add and remove Members in Roles, and assign Abilities to Roles."
 	     name="Roles">
 		<action description="Create new Roles"
-		     longdescription="Create new Roles in the Roles section &gt; Roles tab."
+		     longdescription="Create new Roles in the Roles &amp; Members section &gt; Roles tab."
 		     name="role create" value="4" />
 		<action description="Delete Roles"
-		     longdescription="Delete Roles in the Roles section &gt; Roles tab."
+		     longdescription="Delete Roles in the Roles &amp; Members section &gt; Roles tab."
 		     name="role delete" value="5" />
 		<action description="Change Role names, titles, descriptions, and whether Role members are publicly revealed"
-		     longdescription="Change Role names, titles, descriptions, and whether Role members are publicly revealed. This is done at the bottom of the the Roles section &gt; Roles tab after selecting a Role."
+		     longdescription="Change Role names, titles, descriptions, and whether Role members are publicly revealed. This is done at the bottom of the the Roles &amp; Members section &gt; Roles tab after selecting a Role."
 		     name="role properties" value="6" />
 		<action description="Assign Members to Assigner&apos;s Roles"
-		     longdescription="Assign Members to Roles in the list of Assigned Roles (Roles section &gt; Members tab). A Member with this Ability can only add Members to a Role that the assigner is already in."
+		     longdescription="Assign Members to Roles in the list of Assigned Roles (Roles &amp; Members section &gt; Members tab). A Member with this Ability can only add Members to a Role that the assigner is already in."
 		     name="role assign member limited" value="7" />
 		<action description="Assign Members to Any Role"
-		     longdescription="Assign Members to Any Role in the list of Assigned Roles (Roles section &gt; Members tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--to Roles that have more powers than they currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
+		     longdescription="Assign Members to Any Role in the list of Assigned Roles (Roles &amp; Members section &gt; Members tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--to Roles that have more powers than they currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
 		     name="role assign member" value="8" />
 		<action description="Remove Members from Roles"
-		     longdescription="Remove Members from Roles in the list of Assigned Roles (Roles section &gt; Members tab). Owners can&apos;t be removed."
+		     longdescription="Remove Members from Roles in the list of Assigned Roles (Roles &amp; Members section &gt; Members tab). Owners can&apos;t be removed."
 		     name="role remove member" value="9" />
 		<action description="Assign and Remove Abilities in Roles"
-		     longdescription="Assign and Remove Abilities for each Role in the list of Allowed Abilities (Roles section &gt; Roles tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--all Abilities, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
+		     longdescription="Assign and Remove Abilities for each Role in the list of Allowed Abilities (Roles &amp; Members section &gt; Roles tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--all Abilities, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
 		     name="role change actions" value="10" />
 	</action_set>
 	<action_set
