@@ -1393,7 +1393,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>256</integer>
+      <integer>1024</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
@@ -2055,7 +2055,7 @@
       <key>Comment</key>
       <string>Size (in bytes) for each coroutine stack</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
@@ -16190,4 +16190,3 @@
     </map>
 </map>
 </llsd>
-
