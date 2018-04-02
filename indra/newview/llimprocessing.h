@@ -47,7 +47,8 @@ public:
         LLVector3 position,
         U8 *binary_bucket,
         S32 binary_bucket_size,
-        LLHost &sender);
+        LLHost &sender,
+        LLUUID aux_id = LLUUID::null);
 
     // Either receives list of offline messages from 'ReadOfflineMsgs' capability
     // or uses legacy method
