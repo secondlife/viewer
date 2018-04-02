@@ -34,6 +34,7 @@
 #include "llerror.h"
 #include "lllfsthread.h"
 #include "llui.h"
+#include "llimageworker.h"
 #include "llrender.h"
 
 #include "lltooltip.h"
@@ -239,9 +240,9 @@ void LLTextureBar::draw()
 		{ "REQ", LLColor4::yellow },// SEND_HTTP_REQ
 		{ "HTP", LLColor4::green },	// WAIT_HTTP_REQ
 		{ "DEC", LLColor4::yellow },// DECODE_IMAGE
-		{ "DEU", LLColor4::green }, // DECODE_IMAGE_UPDATE
+		{ "DEC", LLColor4::green }, // DECODE_IMAGE_UPDATE
 		{ "WRT", LLColor4::purple },// WRITE_TO_CACHE
-		{ "WWT", LLColor4::orange },// WAIT_ON_WRITE
+		{ "WRT", LLColor4::orange },// WAIT_ON_WRITE
 		{ "END", LLColor4::red },   // DONE
 #define LAST_STATE 14
 		{ "CRE", LLColor4::magenta }, // LAST_STATE+1
@@ -504,8 +505,8 @@ void LLGLTexMemBar::draw()
 	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
 	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	U64 cache_usage = LLAppViewer::getTextureCache()->getUsage() >> 20;
-	U64 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage() >> 20;
+	F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
+	F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32Bytes total_texture_downloaded = gTotalTextureData;
@@ -562,13 +563,15 @@ void LLGLTexMemBar::draw()
 
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
 					gTextureList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
+					LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
 					LLLFSThread::sLocal->getPending(),
 					LLImageRaw::sRawImageCount,
 					LLAppViewer::getTextureFetch()->getNumHTTPRequests(),
+					LLAppViewer::getImageDecodeThread()->getPending(), 
 					gTextureList.mCreateTextureList.size());
 
 	x_right = 550.0;
@@ -733,7 +736,7 @@ LLTextureView::~LLTextureView()
 typedef std::pair<F32,LLViewerFetchedTexture*> decode_pair_t;
 struct compare_decode_pair
 {
-	bool operator()(const decode_pair_t& a, const decode_pair_t& b)
+	bool operator()(const decode_pair_t& a, const decode_pair_t& b) const
 	{
 		return a.first > b.first;
 	}
