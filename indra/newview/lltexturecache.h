@@ -45,6 +45,7 @@ struct CachedTextureInfo
     U32     mCachedHeight;
     U32     mFullWidth;
     U32     mFullHeight;
+    U32     mLastAccess; // epoch time for LRU
 };
 
 class LLTextureCache
