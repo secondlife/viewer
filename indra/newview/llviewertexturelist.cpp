@@ -1051,7 +1051,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	LLTimer image_op_timer;
 	
 	// Update fetch for N images each frame
-	static const S32 MAX_HIGH_PRIO_COUNT = gSavedSettings.getS32("TextureFetchUpdateHighPriority");         // default: 32
+	static const S32 MAX_HIGH_PRIO_COUNT = gSavedSettings.getS32("TextureFetchUpdateHighPriority");         // default: 64
 	static const S32 MAX_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMaxMediumPriority");       // default: 256
 	static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinMediumPriority");       // default: 32
 	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
@@ -1069,12 +1069,15 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	image_priority_list_t::iterator iter1 = mImageList.begin();
 	while(update_counter > 0)
 	{
-		entries.push_back(*iter1);
-		
+		entries.push_back(*iter1);		
 		++iter1;
 		update_counter--;
         total_update_count--;
 	}
+
+    F32 elapsed_time = image_op_timer.getElapsedTimeF32();
+
+    F32 elapsed_time_a = elapsed_time;
 
     size_t max_update_count = MAX_UPDATE_COUNT;
 	max_update_count = llmin(max_update_count, total_update_count);	
@@ -1107,13 +1110,13 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     }
 
     
-    F32 elapsed_time = image_op_timer.getElapsedTimeF32();
+    elapsed_time = image_op_timer.getElapsedTimeF32();
 
     // if we hit this, we've taken the entire timeslice budget before
     // we even got around to doing any work...	
     if (elapsed_time >= max_time)
     {
-        LL_WARNS("Texture") << "updateImagesFetchTextures took all of " << max_time << " before doing any fetch work." << LL_ENDL;
+        LL_WARNS("Texture") << "updateImagesFetchTextures took " << elapsed_time << " of " << max_time << " before doing any fetch work with " << elapsed_time_a << " in high prio " << LL_ENDL;
     }
 
 	S32 fetch_count = 0;

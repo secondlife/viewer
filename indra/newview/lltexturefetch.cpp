@@ -2414,9 +2414,6 @@ void LLTextureFetch::addToNetworkQueue(LLTextureFetchWorker* worker)
 	bool in_request_map = (mRequestMap.find(worker->mID) != mRequestMap.end()) ;
 	unlockQueue();														// -Mfq
 
-    // we should not be here if we're not in the map...
-    llassert(in_request_map);
-
 	LLMutexLock lock(&mNetworkQueueMutex);								// +Mfnq		
 	if (in_request_map)
 	{
@@ -2793,7 +2790,7 @@ S32 LLTextureFetch::update(F32 max_time_ms)
     if (mTextureCache)
     {
         LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH_WRITE_CACHE);
-        mTextureCache->writeCacheContentsFile(false);
+        mTextureCache->updateCacheContentsFile(false);
     }
 
 	return res;

@@ -1430,42 +1430,18 @@ bool LLAppViewer::frame()
 
 		// Sleep and run background threads
 		{						
-			// yield some time to the os based on command line option
-			static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime", -1);
-			if(yield_time >= 0)
-			{
-				LL_RECORD_BLOCK_TIME(FTM_YIELD);
-				ms_sleep(yield_time);
-			}
-
-			// yield cooperatively when not running as foreground window
-			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
-					|| !gFocusMgr.getAppHasFocus())
-			{
-                LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-
-				// Sleep if we're not rendering, or the window is minimized.
-				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
-				S32 milliseconds_to_sleep = llclamp((S32)s_bacground_yeild_time, 0, 1000);
-				// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
-				// of equal priority on Windows
-				if (milliseconds_to_sleep > 0)
-				{
-					ms_sleep(milliseconds_to_sleep);
-				}
-			}
-			
 			if (mRandomizeFramerate)
 			{
+                U32 rand_sleep = rand() % 200;
+                LL_INFOS() << "Randomize frame rate - sleeping " << rand_sleep << " ms" << LL_ENDL;
                 LL_RECORD_BLOCK_TIME(FTM_SLEEP);
 				ms_sleep(rand() % 200);
 			}
 
-			if (mPeriodicSlowFrame
-				&& (gFrameCount % 10 == 0))
+			if (mPeriodicSlowFrame && (gFrameCount % 10 == 0))
 			{
-                LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-				LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;                
+                LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;
+                LL_RECORD_BLOCK_TIME(FTM_SLEEP);				
 				ms_sleep(500);
 			}
 
@@ -1474,23 +1450,21 @@ bool LLAppViewer::frame()
 			{
 				S32 work_pending = 0;
 				S32 io_pending = 0;
-				F32 max_time = llmin(gFrameIntervalSeconds.value() *10.f, 1.f);
 
-				work_pending += updateTextureThreads(max_time);
+                // estimate 1/10th of last frame and clamp between 1 and 10ms
+				U32 max_time_ms = llclamp(U32(gFrameIntervalSeconds.value() * 100.0f), U32(1), U32(10));
 
+				work_pending += updateTextureThreads(max_time_ms);
+
+                U32 ms = 1;
 				{
 					LL_RECORD_BLOCK_TIME(FTM_VFS);
- 					io_pending += LLVFSThread::updateClass(1);
-				}
-				{
-					LL_RECORD_BLOCK_TIME(FTM_LFS);
- 					io_pending += LLLFSThread::updateClass(1);
+ 					io_pending += LLVFSThread::updateClass(ms);
 				}
 
-				if (io_pending > 1000)
 				{
-                    LL_RECORD_BLOCK_TIME(FTM_VFS);
-					ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
+					LL_RECORD_BLOCK_TIME(FTM_LFS);
+ 					io_pending += LLLFSThread::updateClass(ms);
 				}
 
 				total_work_pending += work_pending ;
@@ -1577,13 +1551,13 @@ bool LLAppViewer::frame()
 	return ! LLApp::isRunning();
 }
 
-S32 LLAppViewer::updateTextureThreads(F32 max_time)
+S32 LLAppViewer::updateTextureThreads(U32 max_time_ms)
 {
 	S32 work_pending = 0;
 	{
 		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH);
         LLAppViewer::instance()->getTextureFetch()->updateMaxBandwidth();
-	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
+	 	work_pending += LLAppViewer::getTextureFetch()->update(F32(max_time_ms)); // unpauses the texture fetch thread
 	}
 	return work_pending;
 }

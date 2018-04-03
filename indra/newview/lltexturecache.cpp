@@ -27,10 +27,10 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lltexturecache.h"
-#include "llapr.h"
 #include "llimage.h"
 #include "llsdserialize.h"
 #include "llviewercontrol.h"
+#include "llcoros.h"
 
 // This controls how often we update the on-disk data for the cache
 // with contents of the in-memory map of cached texture data.
@@ -119,6 +119,17 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         info.mFullWidth         = image->getFullWidth();
         info.mImageEncodedSize  = image->getDataSize();
         info.mCodec             = image->getCodec();
+
+        LLSD entry;
+        entry[CACHE_ENTRY_ID]            = info.mID;
+        entry[CACHE_ENTRY_CODEC]         = LLSD::Integer(info.mCodec);
+        entry[CACHE_ENTRY_ENCODED_SIZE]  = LLSD::Integer(info.mImageEncodedSize);
+        entry[CACHE_ENTRY_DISCARD_LEVEL] = LLSD::Integer(info.mDiscardLevel);
+        entry[CACHE_ENTRY_CACHED_WIDTH]  = LLSD::Integer(info.mCachedWidth);
+        entry[CACHE_ENTRY_CACHED_HEIGHT] = LLSD::Integer(info.mCachedHeight);
+        entry[CACHE_ENTRY_FULL_WIDTH]    = LLSD::Integer(info.mFullWidth);
+        entry[CACHE_ENTRY_FULL_HEIGHT]   = LLSD::Integer(info.mFullHeight);
+        mEntries[info.mID.asString()]    = entry;
 
         U32 iterations = 0;
         while (mUsageMax && ((mUsage + info.mImageEncodedSize) > mUsageMax) && (iterations++ < 256))
@@ -211,6 +222,7 @@ bool LLTextureCache::evict(U64 spaceRequired)
             mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
         }
         mMap.erase(id);
+        mEntries.erase(id.asString());
         mAddedEntries++; // signal requirement to update on-disk rep to capture removed entry
     }
 
@@ -226,6 +238,7 @@ bool LLTextureCache::remove(const LLUUID& id)
     {
         mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
         mMap.erase(id);
+        mEntries.erase(id.asString());
         mAddedEntries++; // signal requirement to update on-disk rep to capture removed entry
     }
     
@@ -303,36 +316,13 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec cod
 	return filename;
 }
 
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE_IO("TexCache IO");
+
 bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
 {
-    if (!force_immediate_write && (mAddedEntries < NEW_ENTRIES_PER_FLUSH_TO_DISK))
-    {
-        return false;
-    }
+    LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE_IO);
 
-    LLSD contents;
-    S32 entries = 0;
-
-    {
-        LLMutexLock lock(&mMutex);        
-        for (map_t::const_iterator iter = mMap.begin(); iter != mMap.end(); iter++)
-	    {
-            const CachedTextureInfo& info = iter->second;
-            LLSD entry;
-            entry[CACHE_ENTRY_ID]            = info.mID;
-            entry[CACHE_ENTRY_CODEC]         = LLSD::Integer(info.mCodec);
-            entry[CACHE_ENTRY_ENCODED_SIZE]  = LLSD::Integer(info.mImageEncodedSize);
-            entry[CACHE_ENTRY_DISCARD_LEVEL] = LLSD::Integer(info.mDiscardLevel);
-            entry[CACHE_ENTRY_CACHED_WIDTH]  = LLSD::Integer(info.mCachedWidth);
-            entry[CACHE_ENTRY_CACHED_HEIGHT] = LLSD::Integer(info.mCachedHeight);
-            entry[CACHE_ENTRY_FULL_WIDTH]    = LLSD::Integer(info.mFullWidth);
-            entry[CACHE_ENTRY_FULL_HEIGHT]   = LLSD::Integer(info.mFullHeight);
-            contents[info.mID.asString()] = entry;
-            entries++;
-        }
-    }
-
-    if (!contents.size())
+    if (!mEntries.size())
     {
         LL_WARNS() << "No texture cache contents file to write." << LL_ENDL;
         return false;
@@ -347,7 +337,7 @@ bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
         return false;
     }
 
-    S32 entriesSerialized = LLSDSerialize::toPrettyNotation(contents, out);
+    S32 entriesSerialized = LLSDSerialize::toPrettyNotation(mEntries, out);
 
     out.close();
 
@@ -358,6 +348,18 @@ bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
     }
 
     mAddedEntries = 0;
+
+    return true;
+}
+
+bool LLTextureCache::updateCacheContentsFile(bool force_immediate_write)
+{
+    if (!force_immediate_write && (mAddedEntries < NEW_ENTRIES_PER_FLUSH_TO_DISK))
+    {
+        return false;
+    }
+
+    std::string name = LLCoros::instance().launch("TexCacheWrite", boost::bind(&LLTextureCache::writeCacheContentsFile, this, force_immediate_write));
 
     return true;
 }
@@ -379,7 +381,7 @@ bool LLTextureCache::readCacheContentsFile()
 	}
 
     LLSD llsd;
-	LLSDSerialize::fromNotation(llsd, file, (1 << 29));
+	LLSDSerialize::fromNotation(mEntries, file, (1 << 29));
 
     if (!llsd.size())
     {
@@ -387,7 +389,7 @@ bool LLTextureCache::readCacheContentsFile()
 		return false;
 	}
 
-    for (LLSD::map_const_iterator iter = llsd.beginMap(); iter != llsd.endMap(); ++iter)
+    for (LLSD::map_const_iterator iter = mEntries.beginMap(); iter != mEntries.endMap(); ++iter)
     {
         CachedTextureInfo info;
         info.mID                = iter->second[CACHE_ENTRY_ID].asUUID();

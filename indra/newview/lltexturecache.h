@@ -75,17 +75,20 @@ public:
     U64 getMaxUsage();
     U64 getUsage();
 
-    bool writeCacheContentsFile(bool force_immediate_write);
+    bool updateCacheContentsFile(bool force_immediate_write);    
     bool readCacheContentsFile();
 
 private:
     typedef std::map<LLUUID, CachedTextureInfo> map_t;
+
+    bool writeCacheContentsFile(bool force_immediate_write);
 
 	std::string getTextureFileName(const LLUUID& id, EImageCodec codec);
 
     bool evict(U64 spaceRequired);
 	
     LLMutex     mMutex;
+    LLSD        mEntries;
     ELLPath     mCacheLoc;
     std::string mTexturesDirName;
 	map_t       mMap;

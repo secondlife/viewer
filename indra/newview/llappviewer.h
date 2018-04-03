@@ -189,7 +189,7 @@ public:
 
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
-	S32  updateTextureThreads(F32 max_time);
+	S32  updateTextureThreads(U32 max_time_ms);
 	
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);

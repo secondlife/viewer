@@ -832,7 +832,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>40</integer>
+      <integer>2</integer>
     </map>
     <key>BottomPanelNew</key>
     <map>
@@ -12173,7 +12173,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>256</integer>
+      <integer>64</integer>
     </map>
     <key>TextureFetchUpdateMaxMediumPriority</key>
     <map>
