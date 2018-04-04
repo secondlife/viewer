@@ -56,8 +56,6 @@
 #include "llvoavatarself.h"
 #include "lltexlayer.h"
 
-#pragma optimize("", off)
-
 extern F32 texmem_lower_bound_scale;
 
 LLTextureView *gTextureView = NULL;
