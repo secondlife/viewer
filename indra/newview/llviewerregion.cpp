@@ -2876,7 +2876,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
-	capabilityNames.append("ReadOfflineMsgs");
+	//capabilityNames.append("ReadOfflineMsgs");
 	capabilityNames.append("RemoteParcelRequest");
 	capabilityNames.append("RenderMaterials");
 	capabilityNames.append("RequestTextureDownload");
