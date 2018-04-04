@@ -56,6 +56,8 @@
 #include "llvoavatarself.h"
 #include "lltexlayer.h"
 
+#pragma optimize("", off)
+
 extern F32 texmem_lower_bound_scale;
 
 LLTextureView *gTextureView = NULL;
@@ -529,6 +531,25 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
+    LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
+
+    F64 cacheHits     = recording.getSampleCount(LLTextureFetch::sCacheHit);
+    F64 cacheAttempts = recording.getSampleCount(LLTextureFetch::sCacheAttempt);
+
+	F32 cacheHitRate = (cacheAttempts > 0.0) ? F32((cacheHits / cacheAttempts) * 100.0f) : 0.0f;
+
+    U32 cacheReadLatMin = U32(recording.getMin(LLTextureFetch::sCacheReadLatency).value() * 1000.0f);
+    U32 cacheReadLatMed = U32(recording.getMean(LLTextureFetch::sCacheReadLatency).value() * 1000.0f);
+    U32 cacheReadLatMax = U32(recording.getMax(LLTextureFetch::sCacheReadLatency).value() * 1000.0f);
+
+    U32 texDecodeLatMin = U32(recording.getMin(LLTextureFetch::sTexDecodeLatency).value() * 1000.0f);
+    U32 texDecodeLatMed = U32(recording.getMean(LLTextureFetch::sTexDecodeLatency).value() * 1000.0f);
+    U32 texDecodeLatMax = U32(recording.getMax(LLTextureFetch::sTexDecodeLatency).value() * 1000.0f);
+
+    U32 texFetchLatMin = U32(recording.getMin(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
+    U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
+    U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
+
 	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
 					total_mem.value(),
 					max_total_mem.value(),
@@ -541,7 +562,7 @@ void LLGLTexMemBar::draw()
 					cache_max_usage);
 	//, cache_entries, cache_max_entries
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*5,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	U32 cache_read(0U), cache_write(0U), res_wait(0U);
@@ -556,6 +577,21 @@ void LLGLTexMemBar::draw()
 					cache_read,
 					cache_write,
 					res_wait);
+
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*5,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+
+    text = llformat("CacheHitRate: %3.2f Read: %d/%d/%d Decode: %d/%d/%d Fetch: %d/%d/%d",
+                    cacheHitRate,
+                    cacheReadLatMin,
+                    cacheReadLatMed,
+                    cacheReadLatMax,
+                    texDecodeLatMin,
+                    texDecodeLatMed,
+                    texDecodeLatMax,
+                    texFetchLatMin,
+                    texFetchLatMed,
+                    texFetchLatMax);
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*4,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
@@ -637,7 +673,7 @@ BOOL LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
 LLRect LLGLTexMemBar::getRequiredRect()
 {
 	LLRect rect;
-	rect.mTop = 68; //LLFontGL::getFontMonospace()->getLineHeight() * 6;
+	rect.mTop = 78; //LLFontGL::getFontMonospace()->getLineHeight() * 6;
 	return rect;
 }
 

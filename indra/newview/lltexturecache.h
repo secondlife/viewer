@@ -59,6 +59,7 @@ public:
     static const std::string CACHE_ENTRY_CACHED_HEIGHT;
     static const std::string CACHE_ENTRY_FULL_WIDTH;
     static const std::string CACHE_ENTRY_FULL_HEIGHT;
+    static const std::string CACHE_ENTRY_LAST_ACCESS;
 
 	LLTextureCache();
 	~LLTextureCache();

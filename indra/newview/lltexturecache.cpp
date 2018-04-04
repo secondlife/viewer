@@ -44,6 +44,7 @@ const std::string LLTextureCache::CACHE_ENTRY_CACHED_WIDTH("cached_width");
 const std::string LLTextureCache::CACHE_ENTRY_CACHED_HEIGHT("cached_height");
 const std::string LLTextureCache::CACHE_ENTRY_FULL_WIDTH("full_width");
 const std::string LLTextureCache::CACHE_ENTRY_FULL_HEIGHT("full_height");
+const std::string LLTextureCache::CACHE_ENTRY_LAST_ACCESS("last_access");
 
 const std::string TEXTURE_CACHE_DIR_NAME("texturecache");
 
@@ -119,6 +120,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         info.mFullWidth         = image->getFullWidth();
         info.mImageEncodedSize  = image->getDataSize();
         info.mCodec             = image->getCodec();
+        info.mLastAccess        = time(nullptr);
 
         LLSD entry;
         entry[CACHE_ENTRY_ID]            = info.mID;
@@ -129,6 +131,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         entry[CACHE_ENTRY_CACHED_HEIGHT] = LLSD::Integer(info.mCachedHeight);
         entry[CACHE_ENTRY_FULL_WIDTH]    = LLSD::Integer(info.mFullWidth);
         entry[CACHE_ENTRY_FULL_HEIGHT]   = LLSD::Integer(info.mFullHeight);
+        entry[CACHE_ENTRY_LAST_ACCESS]   = LLSD::Integer(info.mLastAccess);
         mEntries[info.mID.asString()]    = entry;
 
         U32 iterations = 0;
@@ -380,10 +383,9 @@ bool LLTextureCache::readCacheContentsFile()
 		return false;
 	}
 
-    LLSD llsd;
 	LLSDSerialize::fromNotation(mEntries, file, (1 << 29));
 
-    if (!llsd.size())
+    if (!mEntries.size())
     {
         LL_WARNS() << "No data in texture cache contents file." << LL_ENDL;
 		return false;
@@ -400,6 +402,7 @@ bool LLTextureCache::readCacheContentsFile()
         info.mFullHeight        = iter->second[CACHE_ENTRY_FULL_WIDTH].asInteger();
         info.mFullWidth         = iter->second[CACHE_ENTRY_FULL_HEIGHT].asInteger();
         info.mDiscardLevel      = iter->second[CACHE_ENTRY_DISCARD_LEVEL].asInteger();
+        info.mLastAccess        = iter->second[CACHE_ENTRY_LAST_ACCESS].asInteger();
 
         if (info.mID.isNull())
         {
