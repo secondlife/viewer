@@ -603,7 +603,7 @@ void LLGLTexMemBar::draw()
 					LLLFSThread::sLocal->getPending(),
 					LLImageRaw::sRawImageCount,
 					LLAppViewer::getTextureFetch()->getNumHTTPRequests(),
-					gTextureList.mCreateTextureList.size());
+					gTextureList.mCreateTextures.size());
 
 	x_right = 550.0;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,

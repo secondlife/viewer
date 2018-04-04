@@ -189,10 +189,10 @@ private:
 	{ return getImage(image_id, f_type, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }	
 
 public:
-	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;	
-	image_list_t mLoadingStreamList;
-	image_list_t mCreateTextureList;
-	image_list_t mCallbackList;
+	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_set_t;	
+    typedef std::vector<LLPointer<LLViewerFetchedTexture> > image_list_t;	
+	image_list_t mCreateTextures;
+	image_set_t  mCallbackSet;
 
 	// Note: just raw pointers because they are never referenced, just compared against
 	std::set<LLViewerFetchedTexture*> mDirtyTextureList;

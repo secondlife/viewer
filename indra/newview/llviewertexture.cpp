@@ -1350,7 +1350,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 		}
 #endif
 		mNeedsCreateTexture = TRUE;
-		gTextureList.mCreateTextureList.insert(this);
+		gTextureList.mCreateTextures.push_back(this);
 	}	
 	return;
 }
@@ -2128,7 +2128,7 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 	if (mLoadedCallbackList.empty())
 	{
 		// Put in list to call this->doLoadedCallbacks() periodically
-		gTextureList.mCallbackList.insert(this);
+		gTextureList.mCallbackSet.insert(this);
 		mLoadedCallbackDesiredDiscardLevel = (S8)discard_level;
 	}
 	else
@@ -2191,7 +2191,7 @@ void LLViewerFetchedTexture::clearCallbackEntryList()
 		iter = mLoadedCallbackList.erase(iter);
 		delete entryp;
 	}
-	gTextureList.mCallbackList.erase(this);
+	gTextureList.mCallbackSet.erase(this);
 		
 	mLoadedCallbackDesiredDiscardLevel = S8_MAX;
 	if(needsToSaveRawImage())
@@ -2239,7 +2239,7 @@ void LLViewerFetchedTexture::deleteCallbackEntry(const LLLoadedCallbackEntry::so
 	if (mLoadedCallbackList.empty())
 	{
 		// If we have no callbacks, take us off of the image callback list.
-		gTextureList.mCallbackList.erase(this);
+		gTextureList.mCallbackSet.erase(this);
 		
 		if(needsToSaveRawImage())
 		{
@@ -2373,7 +2373,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 		mLoadedCallbackList.clear();
 
 		// Remove ourself from the global list of textures with callbacks
-		gTextureList.mCallbackList.erase(this);
+		gTextureList.mCallbackSet.erase(this);
 		return false;
 	}	
 
@@ -2553,7 +2553,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 	//
 	if (mLoadedCallbackList.empty())
 	{
-		gTextureList.mCallbackList.erase(this);
+		gTextureList.mCallbackSet.erase(this);
 	}
 	else if(!res && mForceCallbackFetch && sCurrentTime - mLastCallBackActiveTime > MAX_IDLE_WAIT_TIME && !mIsFetching)
 	{
@@ -2687,7 +2687,7 @@ void LLViewerFetchedTexture::switchToCachedImage()
 
 		mIsRawImageValid = TRUE;
 		mRawDiscardLevel = mCachedRawDiscardLevel;
-		gTextureList.mCreateTextureList.insert(this);
+		gTextureList.mCreateTextures.push_back(this);
 		mNeedsCreateTexture = TRUE;		
 	}
 }

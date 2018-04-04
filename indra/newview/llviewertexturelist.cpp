@@ -320,11 +320,10 @@ void LLViewerTextureList::shutdown()
 	//
 	// Clean up "loaded" callbacks.
 	//
-	mCallbackList.clear();
+	mCallbackSet.clear();
 	
 	// Flush all of the references
-	mLoadingStreamList.clear();
-	mCreateTextureList.clear();
+	mCreateTextures.clear();
 	
 	mUUIDMap.clear();
 	
@@ -716,7 +715,7 @@ void LLViewerTextureList::deleteImage(LLViewerFetchedTexture *image)
 	{
 		if (image->hasCallbacks())
 		{
-			mCallbackList.erase(image);
+			mCallbackSet.erase(image);
 		}
 		LLTextureKey key(image->getID(), (ETexListType)image->getTextureListType());
 		llverify(mUUIDMap.erase(key) == 1);
@@ -802,8 +801,8 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMAGE_CALLBACKS);
 		bool didone = false;
-		for (image_list_t::iterator iter = mCallbackList.begin();
-			iter != mCallbackList.end(); )
+		for (image_set_t::iterator iter = mCallbackSet.begin();
+			iter != mCallbackSet.end(); )
 		{
 			//trigger loaded callbacks on local textures immediately
 			LLViewerFetchedTexture* image = *iter++;
@@ -1008,23 +1007,14 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 	// Create GL textures for all textures that need them (images which have been
 	// decoded, but haven't been pushed into GL).
 	//
-		
 	LLTimer create_timer;
-	image_list_t::iterator enditer = mCreateTextureList.begin();
-	for (image_list_t::iterator iter = mCreateTextureList.begin();
-		 iter != mCreateTextureList.end();)
+	for (LLViewerFetchedTexture *imagep : mCreateTextures)
 	{
-		image_list_t::iterator curiter = iter++;
-		enditer = iter;
-		LLViewerFetchedTexture *imagep = *curiter;
 		imagep->createTexture();
-		if (create_timer.getElapsedTimeF32() > max_time)
-		{
-			break;
-		}
 	}
-	mCreateTextureList.erase(mCreateTextureList.begin(), enditer);
-	return create_timer.getElapsedTimeF32();
+    F32 elapsed = create_timer.getElapsedTimeF32();
+	mCreateTextures.clear();
+	return elapsed;
 }
 
 void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
