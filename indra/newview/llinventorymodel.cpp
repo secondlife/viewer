@@ -931,8 +931,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		{
 			// item with null parent will end in random location and then in Lost&Found,
 			// either move to default folder as if it is new item or don't move at all
-			LL_DEBUGS(LOG_INV) << "Update attempts to reparent item to null folder. Resorting!" << LL_ENDL;
-			new_parent_id = findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(new_item->getType()));
+			LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+				<< " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
+				<< ". New name: " << item->getName()
+				<< "." << LL_ENDL;
+			new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 			update_parent_on_server = true;
 		}
 
@@ -948,6 +951,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			item_array = get_ptr_in_map(mParentChildItemTree, new_parent_id);
 			if(item_array)
 			{
+				if (update_parent_on_server)
+				{
+					LLInventoryModel::LLCategoryUpdate update(new_parent_id, 1);
+					gInventory.accountForUpdate(update);
+				}
 				item_array->push_back(old_item);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
@@ -959,9 +967,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		old_item->copyViewerItem(item);
 		if (update_parent_on_server)
 		{
-			LLInventoryModel::LLCategoryUpdate update(new_parent_id, 1);
-			gInventory.accountForUpdate(update);
-			// Update on server or item will end up in Lost&Found
+			// Parent id at server is null, so update server even if item already is in the same folder
 			old_item->setParent(new_parent_id);
 			new_item->updateParentOnServer(FALSE);
 		}
