@@ -3012,6 +3012,7 @@ void LLViewerObject::linkControlAvatar()
     {
         getControlAvatar()->rebuildAttachmentOverrides();
         getControlAvatar()->updateAnimations();
+        getControlAvatar()->mPlaying = true;
     }
     else
     {
