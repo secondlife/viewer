@@ -5794,6 +5794,8 @@ void LLVOAvatar::clearAttachmentOverrides()
 {
     LLScopedContextString str("clearAttachmentOverrides " + getFullname());
 
+    mActiveOverrideMeshes.clear();
+    
     for (S32 i=0; i<LL_CHARACTER_MAX_ANIMATED_JOINTS; i++)
     {
         LLJoint *pJoint = getJoint(i);
@@ -5920,10 +5922,24 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 			const LLUUID& mesh_id = pSkinData->mMeshID;
 
-            LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id << " to root object " << root_object->getID() << LL_ENDL;
+            bool mesh_overrides_loaded = (mActiveOverrideMeshes.find(mesh_id) != mActiveOverrideMeshes.end());
+            if (mesh_overrides_loaded)
+            {
+                LL_DEBUGS("AnimatedObjects") << "skipping add attachment overrides for " << mesh_id 
+                                             << " to root object " << root_object->getID()
+                                             << ", already loaded"
+                                             << LL_ENDL;
+            }
+            else
+            {
+                LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id 
+                                             << " to root object " << root_object->getID() << LL_ENDL;
+            }
 			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
-			if ( fullRig )
+			if ( fullRig && !mesh_overrides_loaded )
 			{								
+                mActiveOverrideMeshes.insert(mesh_id);
+                
 				for ( int i=0; i<jointCnt; ++i )
 				{
 					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
@@ -6127,6 +6143,8 @@ void LLVOAvatar::removeAttachmentOverridesForObject(LLViewerObject *vo)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::removeAttachmentOverridesForObject(const LLUUID& mesh_id)
 {	
+    mActiveOverrideMeshes.erase(mesh_id);
+
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
 	avatar_joint_list_t::iterator end  = mSkeleton.end();

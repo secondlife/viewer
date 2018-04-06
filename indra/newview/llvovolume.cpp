@@ -3530,7 +3530,7 @@ void LLVOVolume::afterReparent()
         // notifyMeshLoaded() not being called reliably enough.
         
         // was: getControlAvatar()->addAttachmentOverridesForObject(this);
-        getControlAvatar()->rebuildAttachmentOverrides();
+        //getControlAvatar()->rebuildAttachmentOverrides();
         getControlAvatar()->updateAnimations();
     }
     else
@@ -5152,6 +5152,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
+            if (vobj->isRiggedMesh() && vobj->getAvatar())
+            {
+                vobj->getAvatar()->addAttachmentOverridesForObject(vobj);
+            }
+            
             // Standard rigged mesh attachments: 
 			bool rigged = !vobj->isAnimatedObject() && vobj->isRiggedMesh() && vobj->isAttachment();
             // Animated objects. Have to check for isRiggedMesh() to

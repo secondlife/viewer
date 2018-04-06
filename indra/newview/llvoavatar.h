@@ -214,7 +214,9 @@ public:
     void                    showAttachmentOverrides(bool verbose = false) const;
     void                    getAttachmentOverrideNames(std::set<std::string>& pos_names, 
                                                        std::set<std::string>& scale_names) const;
-	
+
+    std::set<LLUUID>		mActiveOverrideMeshes;
+    
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
 	/*virtual*/ F32				getTimeDilation();
