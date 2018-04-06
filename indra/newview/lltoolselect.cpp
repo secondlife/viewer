@@ -194,7 +194,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			{
 				LLQuaternion target_rot;
 				target_rot.shortestArc(LLVector3::x_axis, selection_dir);
-				gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(), "", &target_rot, NULL, NULL, 1.f, SELECTION_ROTATION_TRESHOLD);
+				gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(), "", &target_rot, NULL, NULL, llmax(1.f, gAgentAvatarp->getPelvisToFoot()), SELECTION_ROTATION_TRESHOLD);
 			}
 		}
 
