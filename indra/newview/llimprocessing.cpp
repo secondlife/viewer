@@ -647,7 +647,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         {
             LL_INFOS("Messaging") << "Received IM_GROUP_NOTICE message." << LL_ENDL;
 
-            LLUUID agent_id = from_id;
+            LLUUID agent_id;
             U8 has_inventory;
             U8 asset_type = 0;
             LLUUID group_id;
@@ -710,6 +710,29 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 asset_type = notice_bin_bucket->header.asset_type;
                 group_id = notice_bin_bucket->header.group_id;
                 item_name = ll_safe_string((const char*)notice_bin_bucket->item_name);
+            }
+
+            if (group_id != from_id)
+            {
+                agent_id = from_id;
+            }
+            else
+            {
+                S32 index = original_name.find(" Resident");
+                if (index != std::string::npos)
+                {
+                    original_name = original_name.substr(0, index);
+                }
+
+                // The group notice packet does not have an AgentID.  Obtain one from the name cache.
+                // If last name is "Resident" strip it out so the cache name lookup works.
+                std::string legacy_name = gCacheName->buildLegacyName(original_name);
+                agent_id = LLAvatarNameCache::findIdByName(legacy_name);
+
+                if (agent_id.isNull())
+                {
+                    LL_WARNS("Messaging") << "buildLegacyName returned null while processing " << original_name << LL_ENDL;
+                }
             }
 
             if (agent_id.notNull() && LLMuteList::getInstance()->isMuted(agent_id))
