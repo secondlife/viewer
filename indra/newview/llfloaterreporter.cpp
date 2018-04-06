@@ -228,7 +228,7 @@ BOOL LLFloaterReporter::postBuild()
 				cap_url += "?lc=";
 				cap_url += lang;
 			}
-			LLCoros::instance().launch("LLIMProcessing::requestOfflineMessagesCoro",
+			LLCoros::instance().launch("LLFloaterReporter::requestAbuseCategoriesCoro",
 				boost::bind(LLFloaterReporter::requestAbuseCategoriesCoro, cap_url, this->getHandle()));
 		}
 	}
