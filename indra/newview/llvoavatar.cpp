@@ -9493,7 +9493,6 @@ void LLVOAvatar::accountRenderComplexityForObject(
                 F32 attachment_volume_cost = 0;
                 F32 attachment_texture_cost = 0;
                 F32 attachment_children_cost = 0;
-                // AXON placeholder value, will revisit in testing.
                 const F32 animated_object_attachment_surcharge = 1000;
 
                 if (attached_object->isAnimatedObject())

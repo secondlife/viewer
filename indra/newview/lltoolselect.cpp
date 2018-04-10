@@ -63,8 +63,7 @@ LLToolSelect::LLToolSelect( LLToolComposite* composite )
 BOOL LLToolSelect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// do immediate pick query
-    // AXON experimental feature
-    BOOL pick_rigged = gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	mPick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
 
 	// Pass mousedown to agent

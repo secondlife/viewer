@@ -112,8 +112,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseDownX = x;
 	mMouseDownY = y;
     LLTimer pick_timer;
-    // AXON experimental feature
-    BOOL pick_rigged = gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	//left mouse down always picks transparent (but see handleMouseUp)
 	mPick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
     LL_INFOS() << "pick_rigged is " << (S32) pick_rigged << " pick time elapsed " << pick_timer.getElapsedTimeF32() << LL_ENDL;
@@ -544,8 +543,7 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-    // AXON experimental feature
-    BOOL pick_rigged = gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
