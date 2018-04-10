@@ -11031,7 +11031,7 @@ An internal error prevented us from properly updating your viewer.  The L$ balan
    name="LargePrimAgentIntersect"
    type="notify">
    <tag>fail</tag>
-Cannot create large prims that intersect other players.  Please re-try when other players have moved.
+Cannot create large prims that intersect other residents.  Please re-try when other residents have moved.
   </notification>
   
   <notification
