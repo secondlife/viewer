@@ -45,7 +45,7 @@ std::map< std::string, std::string > gString;
 typedef std::pair< std::string, int > count_string_t;
 std::map< count_string_t, std::string > gCountString;
 
-std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args)
+std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
 {
 	std::string text = gString[xml_desc];
 	LLStringUtil::format(text, args);

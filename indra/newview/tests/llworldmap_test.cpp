@@ -66,7 +66,7 @@ void LLWorldMipmap::equalizeBoostLevels() { }
 LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return NULL; }
 
 // Stub other stuff
-std::string LLTrans::getString(const std::string &, const LLStringUtil::format_map_t& ) { return std::string("test_trans"); }
+std::string LLTrans::getString(const std::string &, const LLStringUtil::format_map_t&, bool def_string) { return std::string("test_trans"); }
 void LLUIString::updateResult() const { }
 void LLUIString::setArg(const std::string& , const std::string& ) { }
 void LLUIString::assign(const std::string& ) { }
