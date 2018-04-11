@@ -1253,7 +1253,9 @@ BOOL LLVOVolume::calcLOD()
 		}
 
 		distance = avatar->mDrawable->mDistanceWRTCamera;
-		radius = avatar->getBinRadius();
+
+        LLRiggedVolume* riggedVolume = getRiggedVolume();
+        radius = riggedVolume ? (riggedVolume->mRiggedExtents.getLength3().getF32() * 0.5f) : avatar->getBinRadius();
 	}
 	else
 	{
@@ -4187,6 +4189,9 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
     LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
 
+    LLVector4a riggedMin;
+    LLVector4a riggedMax;
+
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
 		const LLVolumeFace& vol_face = volume->getVolumeFace(i);
@@ -4244,6 +4249,9 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				delete dst_face.mOctree;
 				dst_face.mOctree = NULL;
 
+                riggedMin.setMin(riggedMin, dst_face.mExtents[0]);
+                riggedMax.setMax(riggedMax, dst_face.mExtents[1]);
+
 				LLVector4a size;
 				size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
 				size.splat(size.getLength3().getF32()*0.5f);
@@ -4252,6 +4260,8 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			}
 		}
 	}
+
+    mRiggedExtents.setSub(riggedMax, riggedMin);
 }
 
 U32 LLVOVolume::getPartitionType() const

@@ -62,6 +62,8 @@ public:
 	}
 
 	void update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* src_volume);
+
+    LLVector4a mRiggedExtents;
 };
 
 // Base class for implementations of the volume - Primitive, Flexible Object, etc.
