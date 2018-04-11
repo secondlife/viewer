@@ -3546,20 +3546,10 @@ F32 LLViewerObject::getBinRadius()
 {
 	if (mDrawable.notNull())
 	{
-        if (mDrawable->isState(LLDrawable::RIGGED))
-        {
-            LLVOVolume* voVol = mDrawable->getVOVolume();
-            LLRiggedVolume* riggedVolume = voVol ? voVol->getRiggedVolume() : nullptr;
-            if (riggedVolume)
-            {
-		        return riggedVolume->mRiggedExtents.getLength3().getF32() * 0.5f;
-            }
-        }
-
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a diff;
 		diff.setSub(ext[1], ext[0]);
-		return diff.getLength3().getF32() * 0.5f;
+		return diff.getLength3().getF32();
 	}
 	
 	return getScale().magVec();
