@@ -40,7 +40,6 @@
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
-#include "llplugincookiestore.h"
 #include "llslurl.h"
 #include "lltrans.h"
 #include "llsnapshotlivepreview.h"
@@ -660,16 +659,11 @@ void LLFlickrAccountPanel::showConnectedLayout()
 void LLFlickrAccountPanel::onConnect()
 {
 	LLFlickrConnect::instance().checkConnectionToFlickr(true);
-
-	//Clear only the flickr browser cookies so that the flickr login screen appears
-	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".flickr.com"); 
 }
 
 void LLFlickrAccountPanel::onDisconnect()
 {
 	LLFlickrConnect::instance().disconnectFromFlickr();
-
-	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".flickr.com"); 
 }
 
 ////////////////////////
