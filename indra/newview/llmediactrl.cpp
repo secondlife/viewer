@@ -1022,7 +1022,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			// try as slurl first
 			if (!LLURLDispatcher::dispatch(url, "clicked", NULL, mTrusted))
 			{
-				LLWeb::loadURL(url, target, std::string());
+				LLWeb::loadURL(url, target, uuid);
 			}
 
 			// CP: removing this code because we no longer support popups so this breaks the flow.
