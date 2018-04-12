@@ -422,6 +422,8 @@ public:
 	void updateText(); // update text label position
 	virtual void updateDrawable(BOOL force_damped); // force updates on static objects
 
+	bool isOwnerInMuteList(LLUUID item_id = LLUUID());
+
 	void setDrawableState(U32 state, BOOL recursive = TRUE);
 	void clearDrawableState(U32 state, BOOL recursive = TRUE);
 	BOOL isDrawableState(U32 state, BOOL recursive = TRUE) const;
@@ -822,6 +824,9 @@ private:
 
 	static BOOL sVelocityInterpolate;
 	static BOOL sPingInterpolate;
+
+	bool mCachedOwnerInMuteList;
+	F64 mCachedMuteListUpdateTime;
 
 	//--------------------------------------------------------------------
 	// For objects that are attachments

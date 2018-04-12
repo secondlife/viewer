@@ -3303,9 +3303,6 @@ http://secondlife.com/download.
 	<notification name="VoiceChannelJoinFailed">
 		Не удалось подключиться к [VOICE_CHANNEL_NAME], повторите попытку позже.  Будет установлено подключение к локальному голосовому чату.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Создается голосовой канал для вас. Создание займет не больше минуты.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		Истек срок действия одного или нескольких типов изменения голоса, на которые вы подписаны.
 [[URL] Щелкните здесь], чтобы обновить подписку.

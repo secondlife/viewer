@@ -1566,9 +1566,6 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 	<notification name="VoiceChannelJoinFailed">
 		Det lykkedes ikke at forbinde til [VOICE_CHANNEL_NAME], prøv venligst igen senere.  Du vil nu blive koblet til almindelig voice-chat.
 	</notification>
-	<notification name="VoiceLoginRetry">
-		Vi laver en stemmekanal til dig. Det kan tage op til et minut.
-	</notification>
 	<notification name="VoiceEffectsExpired">
 		En eller flere af dine stemme &quot;morphs&quot; er udløbet.
 [[URL] Click here] for at forny dit abbonnement.

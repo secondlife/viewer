@@ -41,7 +41,6 @@
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
-#include "llplugincookiestore.h"
 #include "llslurl.h"
 #include "lltrans.h"
 #include "llsnapshotlivepreview.h"
@@ -404,13 +403,12 @@ void LLTwitterPhotoPanel::clearAndClose()
 void LLTwitterPhotoPanel::updateStatusTextLength(BOOL restore_old_status_text)
 {
 	bool add_location = mLocationCheckbox->getValue().asBoolean();
-	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
 
 	// Restrict the status text length to Twitter's character limit
 	LLTextEditor* status_text_box = dynamic_cast<LLTextEditor*>(mStatusTextBox);
 	if (status_text_box)
 	{
-		int max_status_length = 140 - (add_location ? 40 : 0) - (add_photo ? 40 : 0);
+		int max_status_length = 280 - (add_location ? 40 : 0);
 		status_text_box->setMaxTextLength(max_status_length);
 		if (restore_old_status_text)
 		{
@@ -684,16 +682,11 @@ void LLTwitterAccountPanel::showConnectedLayout()
 void LLTwitterAccountPanel::onConnect()
 {
 	LLTwitterConnect::instance().checkConnectionToTwitter(true);
-
-	//Clear only the twitter browser cookies so that the twitter login screen appears
-	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".twitter.com"); 
 }
 
 void LLTwitterAccountPanel::onDisconnect()
 {
 	LLTwitterConnect::instance().disconnectFromTwitter();
-
-	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".twitter.com"); 
 }
 
 ////////////////////////

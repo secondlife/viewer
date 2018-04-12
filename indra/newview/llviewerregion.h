@@ -440,7 +440,7 @@ public:
 
 	struct CompareRegionByLastUpdate
 	{
-		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs)
+		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs) const
 		{
 			S32 lpa = lhs->getLastUpdate();
 			S32 rpa = rhs->getLastUpdate();

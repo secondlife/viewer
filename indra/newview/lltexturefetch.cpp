@@ -1760,7 +1760,17 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mRequestedSize -= src_offset;			// Make requested values reflect useful part
 				mRequestedOffset += src_offset;
 			}
-			
+
+			U8 * buffer = (U8 *)ALLOCATE_MEM(LLImageBase::getPrivatePool(), total_size);
+			if (!buffer)
+			{
+				// abort. If we have no space for packet, we have not enough space to decode image
+				setState(DONE);
+				LL_WARNS(LOG_TXT) << mID << " abort: out of memory" << LL_ENDL;
+				releaseHttpSemaphore();
+				return true;
+			}
+
 			if (mFormattedImage.isNull())
 			{
 				// For now, create formatted image based on extension
@@ -1780,10 +1790,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				mFileSize = total_size + 1 ; //flag the file is not fully loaded.
 			}
-			
-			U8 * buffer = (U8 *) ALLOCATE_MEM(LLImageBase::getPrivatePool(), total_size);
+
 			if (cur_size > 0)
 			{
+				// Copy previously collected data into buffer
 				memcpy(buffer, mFormattedImage->getData(), cur_size);
 			}
 			mHttpBufferArray->read(src_offset, (char *) buffer + cur_size, append_size);

@@ -410,9 +410,10 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	std::istringstream content_stream(content_string);
 
 	LLSD response_data;
-	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_stream, content_binary.size());
+	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
-		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
 		return;
 	}
 
@@ -452,9 +453,10 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	std::istringstream content_stream(content_string);
 
 	LLSD response_data;
-	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_stream, content_binary.size());
+	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
-		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
 		return;
 	}
 
@@ -520,9 +522,10 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	std::istringstream content_stream(content_string);
 
 	LLSD response_data;
-	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_stream, content_binary.size());
+	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
-		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
 		return;
 	}
 	else

@@ -47,7 +47,6 @@
      top="20"
      width="500">
         <panel
-         border="none"
          height="150"
          label="Search"
          layout="topleft"
@@ -108,7 +107,6 @@
           </scroll_list>
         </panel>
         <panel
-         border="none"
          height="150"
          label="Friends"
          layout="topleft"
@@ -144,7 +142,6 @@
             <scroll_list
              follows="all"
              height="120"
-             border="false"
              layout="topleft"
              left="0"
              name="Friends"
@@ -154,7 +151,6 @@
         </panel>
 
         <panel
-         border="none"
          height="150"
          label="Near Me"
          layout="topleft"
@@ -213,7 +209,6 @@
              draw_heading="true"
              follows="all"
              height="100"
-             border="false"
              layout="topleft"
              left="0"
              name="NearMe"

@@ -750,7 +750,7 @@ void LLFavoritesBarCtrl::updateButtons()
 		return;
 	}
 
-	if(mGetPrevItems)
+	if(mGetPrevItems && gInventory.isCategoryComplete(mFavoriteFolderId))
 	{
 	    for (LLInventoryModel::item_array_t::iterator it = mItems.begin(); it != mItems.end(); it++)
 	    {

@@ -1750,8 +1750,10 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 		case MAP_ITEM_LAND_FOR_SALE:
 		case MAP_ITEM_LAND_FOR_SALE_ADULT:
 			{
+				LLVector3d pos_global = viewPosToGlobal(x, y);
+				LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromPosGlobal(pos_global);
 				LLFloaterReg::hideInstance("world_map");
-				LLFloaterReg::showInstance("search", LLSD().with("category", "destinations").with("query", id));
+				LLFloaterReg::showInstance("search", LLSD().with("category", "land").with("query", info->getName()));
 				break;
 			}
 		case MAP_ITEM_CLASSIFIED:

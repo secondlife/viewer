@@ -736,7 +736,7 @@ LLTextureView::~LLTextureView()
 typedef std::pair<F32,LLViewerFetchedTexture*> decode_pair_t;
 struct compare_decode_pair
 {
-	bool operator()(const decode_pair_t& a, const decode_pair_t& b)
+	bool operator()(const decode_pair_t& a, const decode_pair_t& b) const
 	{
 		return a.first > b.first;
 	}
