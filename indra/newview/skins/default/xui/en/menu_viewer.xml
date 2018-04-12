@@ -1687,154 +1687,154 @@
         </menu>-->
 
         </menu>
-      <menu
+        <menu
          create_jump_keys="true"
          label="Rendering Types"
          name="Rendering Types"
          tear_off="true">
-        <menu_item_check
-         label="Simple"
-         name="Rendering Type Simple"
-         shortcut="control|alt|shift|1">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="simple" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="simple" />
-        </menu_item_check>
-        <menu_item_check
-         label="Alpha"
-         name="Rendering Type Alpha"
-         shortcut="control|alt|shift|2">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="alpha" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="alpha" />
-        </menu_item_check>
-        <menu_item_check
-         label="Tree"
-         name="Rendering Type Tree"
-         shortcut="control|alt|shift|3">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="tree" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="tree" />
-        </menu_item_check>
-        <menu_item_check
-         label="Avatars"
-         name="Rendering Type Character"
-         shortcut="control|alt|shift|4">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="character" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="character" />
-        </menu_item_check>
-        <menu_item_check
-         label="Surface Patch"
-         name="Rendering Type Surface Patch"
-         shortcut="control|alt|shift|5">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="surfacePatch" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="surfacePatch" />
-        </menu_item_check>
-        <menu_item_check
-         label="Sky"
-         name="Rendering Type Sky"
-         shortcut="control|alt|shift|6">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="sky" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="sky" />
-        </menu_item_check>
-        <menu_item_check
-         label="Water"
-         name="Rendering Type Water"
-         shortcut="control|alt|shift|7">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="water" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="water" />
-        </menu_item_check>
-        <menu_item_check
-         label="Ground"
-         name="Rendering Type Ground"
-         shortcut="control|alt|shift|8">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="ground" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="ground" />
-        </menu_item_check>
-        <menu_item_check
-         label="Volume"
-         name="Rendering Type Volume"
-         shortcut="control|alt|shift|9">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="volume" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="volume" />
-        </menu_item_check>
-        <menu_item_check
-         label="Grass"
-         name="Rendering Type Grass"
-         shortcut="control|alt|shift|0">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="grass" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="grass" />
-        </menu_item_check>
-        <menu_item_check
-         label="Clouds"
-         name="Rendering Type Clouds"
-         shortcut="control|alt|shift|-">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="clouds" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="clouds" />
-        </menu_item_check>
-        <menu_item_check
-         label="Particles"
-         name="Rendering Type Particles"
-         shortcut="control|alt|shift|=">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="particles" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="particles" />
-        </menu_item_check>
-        <menu_item_check
-         label="Bump"
-         name="Rendering Type Bump"
-         shortcut="control|alt|shift|\">
-          <menu_item_check.on_check
-           function="Advanced.CheckRenderType"
-           parameter="bump" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleRenderType"
-           parameter="bump" />
-        </menu_item_check>
+            <menu_item_check
+             label="Simple"
+             name="Rendering Type Simple"
+             shortcut="control|alt|shift|1">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="simple" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="simple" />
+            </menu_item_check>
+            <menu_item_check
+             label="Alpha"
+             name="Rendering Type Alpha"
+             shortcut="control|alt|shift|2">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="alpha" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="alpha" />
+            </menu_item_check>
+            <menu_item_check
+             label="Tree"
+             name="Rendering Type Tree"
+             shortcut="control|alt|shift|3">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="tree" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="tree" />
+            </menu_item_check>
+            <menu_item_check
+             label="Avatars"
+             name="Rendering Type Character"
+             shortcut="control|alt|shift|4">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="character" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="character" />
+            </menu_item_check>
+            <menu_item_check
+             label="Surface Patch"
+             name="Rendering Type Surface Patch"
+             shortcut="control|alt|shift|5">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="surfacePatch" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="surfacePatch" />
+            </menu_item_check>
+            <menu_item_check
+             label="Sky"
+             name="Rendering Type Sky"
+             shortcut="control|alt|shift|6">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="sky" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="sky" />
+            </menu_item_check>
+            <menu_item_check
+             label="Water"
+             name="Rendering Type Water"
+             shortcut="control|alt|shift|7">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="water" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="water" />
+            </menu_item_check>
+            <menu_item_check
+             label="Ground"
+             name="Rendering Type Ground"
+             shortcut="control|alt|shift|8">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="ground" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="ground" />
+            </menu_item_check>
+            <menu_item_check
+             label="Volume"
+             name="Rendering Type Volume"
+             shortcut="control|alt|shift|9">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="volume" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="volume" />
+            </menu_item_check>
+            <menu_item_check
+             label="Grass"
+             name="Rendering Type Grass"
+             shortcut="control|alt|shift|0">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="grass" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="grass" />
+            </menu_item_check>
+            <menu_item_check
+             label="Clouds"
+             name="Rendering Type Clouds"
+             shortcut="control|alt|shift|-">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="clouds" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="clouds" />
+            </menu_item_check>
+            <menu_item_check
+             label="Particles"
+             name="Rendering Type Particles"
+             shortcut="control|alt|shift|=">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="particles" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="particles" />
+            </menu_item_check>
+            <menu_item_check
+             label="Bump"
+             name="Rendering Type Bump"
+             shortcut="control|alt|shift|\">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="bump" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="bump" />
+            </menu_item_check>
         <menu_item_check
              label="All World"
              name="Rendering Type Set World"
@@ -3193,7 +3193,7 @@
            shortcut="control|alt|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="http://google.com"/>
+             parameter="http://duckduckgo.com"/>
           </menu_item_call>
           <menu_item_call
            label="FB Connect Test"
