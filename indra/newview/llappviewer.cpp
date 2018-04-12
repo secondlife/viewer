@@ -1419,7 +1419,7 @@ bool LLAppViewer::frame()
 
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
-				LLFloaterOutfitSnapshot::update();
+					LLFloaterOutfitSnapshot::update();
 				gGLActive = FALSE;
 			}
 		}
@@ -1431,16 +1431,16 @@ bool LLAppViewer::frame()
 		// Sleep and run background threads
 		{						
 			if (mRandomizeFramerate)
-			{
+		{
                 U32 rand_sleep = rand() % 200;
                 LL_INFOS() << "Randomize frame rate - sleeping " << rand_sleep << " ms" << LL_ENDL;
-                LL_RECORD_BLOCK_TIME(FTM_SLEEP);
+			LL_RECORD_BLOCK_TIME(FTM_SLEEP);
 				ms_sleep(rand() % 200);
 			}
 
 			if (mPeriodicSlowFrame && (gFrameCount % 10 == 0))
 			{
-                LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;
+				LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;
                 LL_RECORD_BLOCK_TIME(FTM_SLEEP);				
 				ms_sleep(500);
 			}
@@ -1882,8 +1882,6 @@ bool LLAppViewer::cleanup()
 
 	LLAvatarIconIDCache::getInstance()->save();
 	
-	LLViewerMedia::saveCookieFile();
-
 	// Stop the plugin read thread if it's running.
 	LLPluginProcessParent::setUseReadThread(false);
 
@@ -3103,8 +3101,14 @@ LLSD LLAppViewer::getViewerInfo() const
 	cef_ver_codec << " / CEF: ";
 	cef_ver_codec << CEF_VERSION;
 
-	cef_ver_codec << " / Chrome: ";
+	cef_ver_codec << " / Chromium: ";
 	cef_ver_codec << CHROME_VERSION_MAJOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << CHROME_VERSION_MINOR;
+	cef_ver_codec << ".";
+	cef_ver_codec << CHROME_VERSION_BUILD;
+	cef_ver_codec << ".";
+	cef_ver_codec << CHROME_VERSION_PATCH;
 
 	info["LIBCEF_VERSION"] = cef_ver_codec.str();
 #else
