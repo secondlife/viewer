@@ -41,7 +41,6 @@
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
-#include "llplugincookiestore.h"
 #include "llslurl.h"
 #include "lltrans.h"
 #include "llsnapshotlivepreview.h"
@@ -683,16 +682,11 @@ void LLTwitterAccountPanel::showConnectedLayout()
 void LLTwitterAccountPanel::onConnect()
 {
 	LLTwitterConnect::instance().checkConnectionToTwitter(true);
-
-	//Clear only the twitter browser cookies so that the twitter login screen appears
-	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".twitter.com"); 
 }
 
 void LLTwitterAccountPanel::onDisconnect()
 {
 	LLTwitterConnect::instance().disconnectFromTwitter();
-
-	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".twitter.com"); 
 }
 
 ////////////////////////
