@@ -3427,12 +3427,12 @@ void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
         if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
         {
             // Making a rigged mesh into an animated object
-            getAvatarAncestor()->rebuildAttachmentOverrides();
+            getAvatarAncestor()->updateAttachmentOverrides();
         }
         else
         {
             // Making an animated object into a rigged mesh
-            getAvatarAncestor()->rebuildAttachmentOverrides();
+            getAvatarAncestor()->updateAttachmentOverrides();
         }
     }
 }
@@ -3501,7 +3501,7 @@ void LLVOVolume::onReparent(LLViewerObject *old_parent, LLViewerObject *new_pare
         if (old_volp->getControlAvatar())
         {
             // We have been removed from an animated object, need to do cleanup.
-            old_volp->getControlAvatar()->rebuildAttachmentOverrides();
+            old_volp->getControlAvatar()->updateAttachmentOverrides();
             old_volp->getControlAvatar()->updateAnimations();
         }
     }
@@ -3919,8 +3919,8 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 	F32 radius = getScale().length()*0.5f;
 
     // AXON make sure this is consistent with the final simulator-side values.
-    const F32 ANIMATED_OBJECT_BASE_COST = 15.0f; // placeholder
-    const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f; //placeholder
+    const F32 ANIMATED_OBJECT_BASE_COST = 15.0f;
+    const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f;
 
     F32 linkset_base_cost = 0.f;
     if (isAnimatedObject() && isRootEdit())
@@ -5152,9 +5152,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
-            if (vobj->isRiggedMesh() && vobj->getAvatar())
+            if (vobj->isRiggedMesh() &&
+                ((vobj->isAnimatedObject() && vobj->getControlAvatar()) ||
+                 (!vobj->isAnimatedObject() && vobj->getAvatar())))
             {
-                vobj->getAvatar()->addAttachmentOverridesForObject(vobj);
+                vobj->getAvatar()->addAttachmentOverridesForObject(vobj, NULL, false);
             }
             
             // Standard rigged mesh attachments: 

@@ -742,8 +742,15 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 std::string LLVOAvatar::avString() const
 {
-	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	return " Avatar '" + getFullname() + "' " + viz_string + " ";
+    if (isControlAvatar())
+    {
+        return getFullname();
+    }
+    else
+    {
+        std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
+        return " Avatar '" + getFullname() + "' " + viz_string + " ";
+    }
 }
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
@@ -1952,7 +1959,7 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     updateVisualParams();
 
     // Restore attachment pos overrides
-    rebuildAttachmentOverrides();
+    updateAttachmentOverrides();
 
     // Animations
     if (reset_animations)
@@ -5867,9 +5874,134 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 }
 
 //-----------------------------------------------------------------------------
+// updateAttachmentOverrides
+//
+// This is intended to give the same results as
+// rebuildAttachmentOverrides(), while avoiding redundant work.
+// -----------------------------------------------------------------------------
+void LLVOAvatar::updateAttachmentOverrides()
+{
+    const bool paranoid_checking = false; 	// AXON remove when testing done
+
+    if (paranoid_checking)
+    {
+        //dumpArchetypeXML(getFullname() + "_paranoid_before");
+    }
+
+    LLScopedContextString str("updateAttachmentOverrides " + getFullname());
+
+    LL_DEBUGS("AnimatedObjects") << "updating" << LL_ENDL;
+    dumpStack("AnimatedObjectsStack");
+
+    std::set<LLUUID> meshes_seen;
+    
+    // Handle the case that we're updating the skeleton of an animated object.
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    if (control_av)
+    {
+        LLVOVolume *volp = control_av->mRootVolp;
+        if (volp)
+        {
+            LL_DEBUGS("Avatar") << volp->getID() << " adding attachment overrides for root vol, prim count " 
+                                << (S32) (1+volp->numChildren()) << LL_ENDL;
+            addAttachmentOverridesForObject(volp, &meshes_seen);
+        }
+    }
+
+    // Attached objects
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		LLViewerJointAttachment *attachment_pt = (*iter).second;
+        if (attachment_pt)
+        {
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
+				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
+            {
+                LLViewerObject *vo = *at_it;
+                // Attached animated objects affect joints in their control
+                // avs, not the avs to which they are attached.
+                if (!vo->isAnimatedObject())
+                {
+                    addAttachmentOverridesForObject(vo, &meshes_seen);
+                }
+            }
+        }
+    }
+    // Remove meshes that are no longer present on the skeleton
+
+	// have to work with a copy because removeAttachmentOverrides() will change mActiveOverrideMeshes.
+    std::set<LLUUID> active_override_meshes = mActiveOverrideMeshes; 
+    for (std::set<LLUUID>::iterator it = active_override_meshes.begin(); it != active_override_meshes.end(); ++it)
+    {
+        if (meshes_seen.find(*it) == meshes_seen.end())
+        {
+            removeAttachmentOverridesForObject(*it);
+        }
+    }
+
+
+    if (paranoid_checking)
+    {
+        std::vector<LLVector3OverrideMap> pos_overrides_by_joint;
+        std::vector<LLVector3OverrideMap> scale_overrides_by_joint;
+        LLVector3OverrideMap pelvis_fixups;
+
+        // Capture snapshot of override state after update
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLVector3OverrideMap pos_overrides;
+            LLJoint *joint = getJoint(joint_num);
+            if (joint)
+            {
+                pos_overrides_by_joint.push_back(joint->m_attachmentPosOverrides);
+                scale_overrides_by_joint.push_back(joint->m_attachmentScaleOverrides);
+            }
+            else
+            {
+                // No joint, use default constructed empty maps
+                pos_overrides_by_joint.push_back(LLVector3OverrideMap());
+                scale_overrides_by_joint.push_back(LLVector3OverrideMap());
+            }
+        }
+        pelvis_fixups = mPelvisFixups;
+        //dumpArchetypeXML(getFullname() + "_paranoid_updated");
+
+        // Rebuild and compare
+        rebuildAttachmentOverrides();
+        //dumpArchetypeXML(getFullname() + "_paranoid_rebuilt");
+        bool mismatched = false;
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLJoint *joint = getJoint(joint_num);
+            if (joint)
+            {
+                if (pos_overrides_by_joint[joint_num] != joint->m_attachmentPosOverrides)
+                {
+                    mismatched = true;
+                }
+                if (scale_overrides_by_joint[joint_num] != joint->m_attachmentScaleOverrides)
+                {
+                    mismatched = true;
+                }
+            }
+        }
+        if (pelvis_fixups != mPelvisFixups)
+        {
+            mismatched = true;
+        }
+        if (mismatched)
+        {
+            LL_WARNS() << "MISMATCHED ATTACHMENT OVERRIDES, compare paranoid log files" << LL_ENDL;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 // addAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
-void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
+void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen, bool recursive)
 {
     if (vo->getAvatar() != this && vo->getAvatarAncestor() != this)
     {
@@ -5883,13 +6015,16 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
     dumpStack("AnimatedObjectsStack");
     
 	// Process all children
-	LLViewerObject::const_child_list_t& children = vo->getChildren();
-	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-		 it != children.end(); ++it)
-	{
-		LLViewerObject *childp = *it;
-		addAttachmentOverridesForObject(childp);
-	}
+    if (recursive)
+    {
+        LLViewerObject::const_child_list_t& children = vo->getChildren();
+        for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+             it != children.end(); ++it)
+        {
+            LLViewerObject *childp = *it;
+            addAttachmentOverridesForObject(childp, meshes_seen, true);
+        }
+    }
 
 	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
 	bool pelvisGotSet = false;
@@ -5922,6 +6057,10 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 			const LLUUID& mesh_id = pSkinData->mMeshID;
 
+            if (meshes_seen)
+            {
+                meshes_seen->insert(mesh_id);
+            }
             bool mesh_overrides_loaded = (mActiveOverrideMeshes.find(mesh_id) != mActiveOverrideMeshes.end());
             if (mesh_overrides_loaded)
             {
@@ -6151,15 +6290,17 @@ void LLVOAvatar::removeAttachmentOverridesForObject(const LLUUID& mesh_id)
 
 	LLJoint* pJointPelvis = getJoint("mPelvis");
 	
-	for (; iter != end; ++iter)
-	{
-		LLJoint* pJoint = (*iter);
+    const std::string av_string = avString();
+
+    for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+    {
+        LLJoint *pJoint = getJoint(joint_num);
 		//Reset joints except for pelvis
 		if ( pJoint )
 		{			
             bool dummy; // unused
-			pJoint->removeAttachmentPosOverride(mesh_id, avString(),dummy);
-			pJoint->removeAttachmentScaleOverride(mesh_id, avString());
+			pJoint->removeAttachmentPosOverride(mesh_id, av_string, dummy);
+			pJoint->removeAttachmentScaleOverride(mesh_id, av_string);
 		}		
 		if ( pJoint && pJoint == pJointPelvis)
 		{
@@ -6730,7 +6871,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 
     if (!viewer_object->isAnimatedObject())
     {
-        rebuildAttachmentOverrides();
+        updateAttachmentOverrides();
     }
 
 	updateVisualComplexity();
@@ -6939,7 +7080,7 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 			attachment->removeObject(viewer_object);
             if (!is_animated_object)
             {
-                rebuildAttachmentOverrides();
+                updateAttachmentOverrides();
             }
 			LL_DEBUGS() << "Detaching object " << viewer_object->mID << " from " << attachment->getName() << LL_ENDL;
 			return TRUE;
