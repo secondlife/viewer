@@ -31,6 +31,9 @@
 
 #include "llpluginclassmedia.h"
 #include "llpluginmessageclasses.h"
+#include "llcontrol.h"
+
+extern LLControlGroup gSavedSettings;    
 
 static int LOW_PRIORITY_TEXTURE_SIZE_DEFAULT = 256;
 
@@ -792,15 +795,22 @@ F64 LLPluginClassMedia::getCPUUsage()
 	return result;
 }
 
-void LLPluginClassMedia::sendPickFileResponse(const std::string &file)
+void LLPluginClassMedia::sendPickFileResponse(const std::vector<std::string> files)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file_response");
-	message.setValue("file", file);
 	if(mPlugin && mPlugin->isBlocked())
 	{
 		// If the plugin sent a blocking pick-file request, the response should unblock it.
 		message.setValueBoolean("blocking_response", true);
 	}
+
+	LLSD file_list = LLSD::emptyArray();
+	for (std::vector<std::string>::const_iterator in_iter = files.begin(); in_iter != files.end(); ++in_iter)
+	{
+		file_list.append(LLSD::String(*in_iter));
+	}
+	message.setValueLLSD("file_list", file_list);
+
 	sendMessage(message);
 }
 
@@ -836,11 +846,17 @@ void LLPluginClassMedia::paste()
 	sendMessage(message);
 }
 
-void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path_cache, const std::string &user_data_path_cookies)
+void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path_cache,
+										 const std::string &user_data_path_cookies,
+										 const std::string &user_data_path_cef_log)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_user_data_path");
 	message.setValue("cache_path", user_data_path_cache);
 	message.setValue("cookies_path", user_data_path_cookies);
+	message.setValue("cef_log_file", user_data_path_cef_log);
+
+	bool cef_verbose_log = gSavedSettings.getBOOL("CefVerboseLog");
+	message.setValueBoolean("cef_verbose_log", cef_verbose_log);
 	sendMessage(message);
 }
 
@@ -1090,6 +1106,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		}
 		else if(message_name == "pick_file")
 		{
+			mIsMultipleFilePick = message.getValueBoolean("multiple_files");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PICK_FILE_REQUEST);
 		}
 		else if(message_name == "auth_request")
@@ -1151,7 +1168,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		{
 			mClickURL = message.getValue("uri");
 			mClickTarget = message.getValue("target");
-			mClickUUID = message.getValue("uuid");
+
+			// need a link to have a UUID that identifies it to a system further
+			// upstream - plugin could make it but we have access to LLUUID here
+			// so why don't we use it
+			mClickUUID = LLUUID::generateNewID().asString();
+
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_HREF);
 		}
 		else if(message_name == "click_nofollow")
@@ -1165,13 +1187,6 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		{
 			mStatusCode = message.getValueS32("status_code");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_ERROR_PAGE);
-		}
-		else if(message_name == "cookie_set")
-		{
-			if(mOwner)
-			{
-				mOwner->handleCookieSet(this, message.getValue("cookie"));
-			}
 		}
 		else if(message_name == "close_request")
 		{
@@ -1287,16 +1302,9 @@ void LLPluginClassMedia::clear_cookies()
 	sendMessage(message);
 }
 
-void LLPluginClassMedia::set_cookies(const std::string &cookies)
+void LLPluginClassMedia::cookies_enabled(bool enable)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_cookies");
-	message.setValue("cookies", cookies);
-	sendMessage(message);
-}
-
-void LLPluginClassMedia::enable_cookies(bool enable)
-{
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "enable_cookies");
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookies_enabled");
 	message.setValueBoolean("enable", enable);
 	sendMessage(message);
 }
