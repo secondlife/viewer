@@ -64,6 +64,7 @@ class LLPanelEstateCovenant;
 class LLPanelExperienceListEditor;
 class LLPanelExperiences;
 class LLPanelRegionExperiences;
+class LLPanelEstateAccess;
 
 class LLEventTimer;
 class LLEnvironmentSettings;
@@ -92,6 +93,7 @@ public:
 	//static void incrementSerial() { sRequestSerial++; }
 
 	static LLPanelEstateInfo* getPanelEstate();
+	static LLPanelEstateAccess* getPanelAccess();
 	static LLPanelEstateCovenant* getPanelCovenant();
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 	static LLPanelRegionExperiences* getPanelExperiences();
@@ -281,34 +283,10 @@ public:
 	void onClickEditDayCycle();
 	void onClickEditDayCycleHelp();
 
-	void onClickAddAllowedAgent();
-	void onClickRemoveAllowedAgent();
-	void onClickAddAllowedGroup();
-	void onClickRemoveAllowedGroup();
-	void onClickAddBannedAgent();
-	void onClickRemoveBannedAgent();
-	void onClickAddEstateManager();
-	void onClickRemoveEstateManager();
 	void onClickKickUser();
 
-	// Group picker callback is different, can't use core methods below
-	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
-	void addAllowedGroup2(LLUUID id);
 
-	// Core methods for all above add/remove button clicks
-	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
-	static bool accessAddCore2(const LLSD& notification, const LLSD& response);
-	static void accessAddCore3(const uuid_vec_t& ids, void* data);
-
-	static void accessRemoveCore(U32 operation_flag, const std::string& dialog_name, const std::string& list_ctrl_name);
-	static bool accessRemoveCore2(const LLSD& notification, const LLSD& response);
-
-	// used for both add and remove operations
-	static bool accessCoreConfirm(const LLSD& notification, const LLSD& response);
 	bool kickUserConfirm(const LLSD& notification, const LLSD& response);
-
-	// Send the actual EstateOwnerRequest "estateaccessdelta" message
-	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
 	void onKickUserCommit(const uuid_vec_t& ids);
 	static void onClickMessageEstate(void* data);
@@ -345,7 +323,6 @@ protected:
 	void commitEstateAccess();
 	void commitEstateManagers();
 	
-	void clearAccessLists();
 	BOOL checkSunHourSlider(LLUICtrl* child_ctrl);
 
 	U32 mEstateID;
@@ -505,6 +482,48 @@ private:
 	LLPanelExperienceListEditor* mAllowed;
 	LLPanelExperienceListEditor* mBlocked;
 	LLUUID mDefaultExperience;
+};
+
+
+class LLPanelEstateAccess : public LLPanelRegionInfo
+{
+	LOG_CLASS(LLPanelEnvironmentInfo);
+
+public:
+	virtual BOOL postBuild();
+	virtual void updateChild(LLUICtrl* child_ctrl);
+
+	void updateControls(LLViewerRegion* region);
+
+	void onClickAddAllowedAgent();
+	void onClickRemoveAllowedAgent();
+	void onClickAddAllowedGroup();
+	void onClickRemoveAllowedGroup();
+	void onClickAddBannedAgent();
+	void onClickRemoveBannedAgent();
+	void onClickAddEstateManager();
+	void onClickRemoveEstateManager();
+
+	// Group picker callback is different, can't use core methods below
+	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
+	void addAllowedGroup2(LLUUID id);
+
+	// Core methods for all above add/remove button clicks
+	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
+	static bool accessAddCore2(const LLSD& notification, const LLSD& response);
+	static void accessAddCore3(const uuid_vec_t& ids, void* data);
+
+	static void accessRemoveCore(U32 operation_flag, const std::string& dialog_name, const std::string& list_ctrl_name);
+	static bool accessRemoveCore2(const LLSD& notification, const LLSD& response);
+
+	// used for both add and remove operations
+	static bool accessCoreConfirm(const LLSD& notification, const LLSD& response);
+
+	// Send the actual EstateOwnerRequest "estateaccessdelta" message
+	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
+
+
+	void clearAccessLists();
 };
 
 #endif
