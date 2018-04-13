@@ -3662,10 +3662,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration</string>
@@ -3722,10 +3718,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration</string>
