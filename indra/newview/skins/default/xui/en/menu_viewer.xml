@@ -3173,7 +3173,7 @@
            shortcut="control|alt|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="http://google.com"/>
+             parameter="http://duckduckgo.com"/>
           </menu_item_call>
           <menu_item_call
            label="FB Connect Test"

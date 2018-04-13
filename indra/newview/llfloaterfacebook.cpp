@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llfloaterfacebook.cpp
 * @brief Implementation of llfloaterfacebook
 * @author Gilbert@lindenlab.com
@@ -41,7 +41,6 @@
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
-#include "llplugincookiestore.h"
 #include "llslurl.h"
 #include "lltrans.h"
 #include "llsnapshotlivepreview.h"
@@ -296,16 +295,11 @@ void LLFacebookStatusPanel::showConnectedLayout()
 void LLFacebookStatusPanel::onConnect()
 {
     LLFacebookConnect::instance().checkConnectionToFacebook(true);
-
-    //Clear only the facebook browser cookies so that the facebook login screen appears
-    LLViewerMedia::getCookieStore()->removeCookiesByDomain(".facebook.com");
 }
 
 void LLFacebookStatusPanel::onDisconnect()
 {
     LLFacebookConnect::instance().disconnectFromFacebook();
-
-    LLViewerMedia::getCookieStore()->removeCookiesByDomain(".facebook.com");
 }
 
 void LLFacebookStatusPanel::clearAndClose()
@@ -810,7 +804,7 @@ void LLFacebookCheckinPanel::sendCheckin()
     LLAgentUI::buildSLURL(slurl);
     std::string slurl_string = slurl.getSLURLString();
 
-    // Use a valid http:// URL if the scheme is secondlife:// 
+    // Use a valid http:// URL if the scheme is secondlife://
     LLURI slurl_uri(slurl_string);
     if (slurl_uri.scheme() == LLSLURL::SLURL_SECONDLIFE_SCHEME)
     {
