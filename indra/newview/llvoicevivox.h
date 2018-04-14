@@ -432,10 +432,10 @@ protected:
 	//----------------------------------
 	// devices
 	void clearCaptureDevices();
-	void addCaptureDevice(const std::string& name);
+	void addCaptureDevice(const std::string& display_name, const std::string& device_name);
 	void clearRenderDevices();
 	void setDevicesListUpdated(bool state);
-	void addRenderDevice(const std::string& name);	
+	void addRenderDevice(const std::string& display_name, const std::string& device_name);	
 	void buildSetAudioDevices(std::ostringstream &stream);
 	
 	void getCaptureDevicesSendMessage();

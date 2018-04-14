@@ -38,7 +38,8 @@
 
 // Library includes (after viewer)
 #include "lluictrlfactory.h"
-
+#include "llmemorystream.h"
+#include "llsdserialize.h"
 
 static LLPanelInjector<LLPanelVoiceDeviceSettings> t_panel_group_general("panel_voice_device_settings");
 static const std::string DEFAULT_DEVICE("Default");
@@ -244,7 +245,14 @@ void LLPanelVoiceDeviceSettings::refresh()
 				iter != LLVoiceClient::getInstance()->getCaptureDevices().end();
 				iter++)
 			{
-				mCtrlInputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
+                // the devices in the list are serialized as an LLSD map
+                // deserialize to separate the display and device names
+                std::string device_names(*iter);
+                size_t len = device_names.size();
+                LLMemoryStream device_stream((U8*)device_names.c_str(), len);
+                LLSD device = LLSDSerialize::fromNotation(device_stream, len);
+
+				mCtrlInputDevices->add(getLocalizedDeviceName(device["display"]), device["device"], ADD_BOTTOM);
 			}
 
 			// Fix invalid input audio device preference.
@@ -264,7 +272,14 @@ void LLPanelVoiceDeviceSettings::refresh()
 			for(iter= LLVoiceClient::getInstance()->getRenderDevices().begin(); 
 				iter !=  LLVoiceClient::getInstance()->getRenderDevices().end(); iter++)
 			{
-				mCtrlOutputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
+                // the devices in the list are serialized as an LLSD map
+                // deserialize to separate the display and device names
+                std::string device_names(*iter);
+                size_t len = device_names.size();
+                LLMemoryStream device_stream((U8*)device_names.c_str(), len);
+                LLSD device = LLSDSerialize::fromNotation(device_stream, len);
+
+                mCtrlOutputDevices->add(getLocalizedDeviceName(device["display"]), device["display"], ADD_BOTTOM);
 			}
 
 			// Fix invalid output audio device preference.
