@@ -283,7 +283,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mDevicesListUpdated(false),
 
 	mAreaVoiceDisabled(false),
-	mAudioSession(),
+	mAudioSession(), // TBD - should be NULL
 	mAudioSessionChanged(false),
 	mNextAudioSession(),
 
@@ -713,6 +713,7 @@ bool LLVivoxVoiceClient::endAndDisconnectSession()
 
 bool LLVivoxVoiceClient::callbackEndDaemon(const LLSD& data)
 {
+    LL_DEBUGS("Voice") << LL_ENDL;
     if (!LLAppViewer::isExiting())
     {
         terminateAudioSession(false);
@@ -1253,6 +1254,10 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
         // state.  If the cap request is still pending,
         // the responder will check to see if we've moved
         // to a new session and won't change any state.
+        LL_DEBUGS("Voice") << "terminate requested " << mSessionTerminateRequested
+                           << " enabled " << mVoiceEnabled
+                           << " initialized " << mIsInitialized
+                           << LL_ENDL;
         terminateAudioSession(true);
         return false;
     }
@@ -1360,7 +1365,10 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
 
     if (!mVoiceEnabled && mIsInitialized)
     {
-        LL_DEBUGS("Voice") << "Voice no longer enabled. Exiting." << LL_ENDL;
+        LL_DEBUGS("Voice") << "Voice no longer enabled. Exiting"
+                           << " enabled " << mVoiceEnabled
+                           << " initialized " << mIsInitialized
+                           << LL_ENDL;
         mIsJoiningSession = false;
         // User bailed out during connect -- jump straight to teardown.
         terminateAudioSession(true);
@@ -1667,6 +1675,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
         if (mSessionTerminateRequested)
         {
+            LL_DEBUGS("Voice") << "terminate requested " << LL_ENDL;
             terminateAudioSession(true);
         }
         // if a relog has been requested then addAndJoineSession 
@@ -1769,6 +1778,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
     }
 
     mIsInChannel = false;
+    LL_DEBUGS("Voice") << "terminating at end of runSession" << LL_ENDL;
     terminateAudioSession(true);
 
     return true;
