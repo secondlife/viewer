@@ -1336,7 +1336,7 @@ void LLAppViewer::doPerFrameStatsLogging()
         {
             if (LLStartUp::getStartupState() >= STATE_STARTED)
             {
-                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
+                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData(first_frame);
                 if (avatar_sd.size()>0)
                 {
                     LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);

@@ -7067,13 +7067,57 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 }
 
 //static
-LLSD LLVOAvatar::getAllAvatarsFrameData()
+// first_frame allows paring down LLSD which will be identical frame to frame...
+LLSD LLVOAvatar::getAllAvatarsFrameData(bool first_frame)
 {
     LLSD result;
     if (gAgentAvatarp && gAgentAvatarp->mFrameDataStale)
     {
-        result["Self"] = gAgentAvatarp->getFrameData();
+        result["Self"] = gAgentAvatarp->getFrameData(first_frame);
         gAgentAvatarp->mFrameDataStale = false;
+
+        LLSD extraFrameData;
+        LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
+        U32 triangles = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME).value();
+
+        U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
+        U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
+        U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
+        U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
+
+        extraFrameData["DrawCalls"]          = (LLSD::Integer)drawcalls;
+        extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
+        extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
+        extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
+        extraFrameData["TrianglesDrawn"]     = (LLSD::Integer)triangles;
+
+        for (U32 i = LLRenderPass::POOL_SIMPLE; i < LLRenderPass::NUM_RENDER_TYPES; i++)
+        {
+            U32 val = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i]).value();     
+            if (val) // skip recording lots of zeroes...
+            {
+                extraFrameData[LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i].getName()] = (LLSD::Integer)val;
+            }
+        }
+
+        extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
+        extraFrameData["VertexBufferMapped"] = (LLSD::Integer)(LLVertexBuffer::sMappedCount - LLVertexBuffer::sMappedCountLast);
+        extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)(LLVertexBuffer::sBindCount   - LLVertexBuffer::sBindCountLast);
+        extraFrameData["VertexBufferSets"]   = (LLSD::Integer)(LLVertexBuffer::sSetCount    - LLVertexBuffer::sSetCountLast);
+
+        LLVertexBuffer::sMappedCountLast = LLVertexBuffer::sMappedCount;
+        LLVertexBuffer::sBindCountLast   = LLVertexBuffer::sBindCount;
+        LLVertexBuffer::sSetCountLast    = LLVertexBuffer::sSetCount;
+
+        extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
+        extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+        extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+        extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
+        extraFrameData["TexMatrixOps"]       = (LLSD::Integer)gPipeline.mTextureMatrixOps;
+
+
+        result["ExtraFrameData"] = extraFrameData;
     }
 
     if (LLCharacter::sInstances.size() > 1)
@@ -7085,58 +7129,17 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
 		    LLVOAvatar* inst = (LLVOAvatar*) *iter;
             if (!inst->isSelf() && inst->mFrameDataStale)
             {
-                LLSD avatar_record = inst->getFrameData();
+                LLSD avatar_record = inst->getFrameData(first_frame);
                 result["Other"].append(avatar_record);
                 inst->mFrameDataStale = false;
             }
         }
     }
 
-    LLSD extraFrameData;
-
-    LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
-    
-    U32 triangles = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME).value();
-
-    U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
-    U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
-    U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
-    U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
-
-    extraFrameData["DrawCalls"]          = (LLSD::Integer)drawcalls;
-    extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
-    extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
-    extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
-    extraFrameData["TrianglesDrawn"]     = (LLSD::Integer)triangles;
-
-    for (U32 i = LLRenderPass::POOL_SIMPLE; i < LLRenderPass::NUM_RENDER_TYPES; i++)
-    {
-        U32 val = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i]).value();     
-        extraFrameData[LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i].getName()] = (LLSD::Integer)val;
-    }
-
-    extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
-    extraFrameData["VertexBufferMapped"] = (LLSD::Integer)(LLVertexBuffer::sMappedCount - LLVertexBuffer::sMappedCountLast);
-    extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)(LLVertexBuffer::sBindCount   - LLVertexBuffer::sBindCountLast);
-    extraFrameData["VertexBufferSets"]   = (LLSD::Integer)(LLVertexBuffer::sSetCount    - LLVertexBuffer::sSetCountLast);
-
-    LLVertexBuffer::sMappedCountLast = LLVertexBuffer::sMappedCount;
-    LLVertexBuffer::sBindCountLast   = LLVertexBuffer::sBindCount;
-    LLVertexBuffer::sSetCountLast    = LLVertexBuffer::sSetCount;
-
-    extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
-    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
-    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
-    extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
-    extraFrameData["TexMatrixOps"]       = (LLSD::Integer)gPipeline.mTextureMatrixOps;
-
-    
-
-    result["ExtraFrameData"] = extraFrameData;
 	return result;
 }
 
-LLSD LLVOAvatar::getFrameData() const
+LLSD LLVOAvatar::getFrameData(bool first_frame) const
 {
     LLSD av_sd;
     av_sd["Name"] = (LLSD::String) getFullname();
@@ -7168,104 +7171,109 @@ LLSD LLVOAvatar::getFrameData() const
             }
         }
     }
-    LLSD av_attachments = LLSD::emptyArray();
 
-    LLVOVolume::texture_cost_t textures;
-    LLVOVolume::texture_cost_t material_textures;
-
-    // For each attached volume (top level or child), generate an LLSD record 
-    for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
-         attachment_point != mAttachmentPoints.end();
-         ++attachment_point)
+    if (first_frame)
     {
-        LLViewerJointAttachment* attachment = attachment_point->second;
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-             attachment_iter != attachment->mAttachedObjects.end();
-             ++attachment_iter)
-        {
-            const LLViewerObject* attached_object = (*attachment_iter);
-            if (attached_object && !attached_object->isHUDAttachment())
-            {
-                const LLDrawable* drawable = attached_object->mDrawable;
-                if (drawable)
-                {
-                    const LLVOVolume* volume = drawable->getVOVolume();
-                    if (volume)
-                    {
-                        LLSD attachment_sd = volume->getFrameData(textures, material_textures);
-                        av_attachments.append(attachment_sd);
 
-                        const_child_list_t children = volume->getChildren();
-                        for (const_child_list_t::const_iterator child_iter = children.begin();
-                             child_iter != children.end();
-                             ++child_iter)
+        LLSD av_attachments = LLSD::emptyArray();
+
+        LLVOVolume::texture_cost_t textures;
+        LLVOVolume::texture_cost_t material_textures;
+
+        // For each attached volume (top level or child), generate an LLSD record 
+        for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+             attachment_point != mAttachmentPoints.end();
+             ++attachment_point)
+        {
+            LLViewerJointAttachment* attachment = attachment_point->second;
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                 attachment_iter != attachment->mAttachedObjects.end();
+                 ++attachment_iter)
+            {
+                const LLViewerObject* attached_object = (*attachment_iter);
+                if (attached_object && !attached_object->isHUDAttachment())
+                {
+                    const LLDrawable* drawable = attached_object->mDrawable;
+                    if (drawable)
+                    {
+                        const LLVOVolume* volume = drawable->getVOVolume();
+                        if (volume)
                         {
-                            LLViewerObject* child_obj = *child_iter;
-                            LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
-                            if (child)
+                            LLSD attachment_sd = volume->getFrameData(textures, material_textures, first_frame);
+                            av_attachments.append(attachment_sd);
+
+                            const_child_list_t children = volume->getChildren();
+                            for (const_child_list_t::const_iterator child_iter = children.begin();
+                                 child_iter != children.end();
+                                 ++child_iter)
                             {
-                                LLSD attachment_sd = child->getFrameData(textures, material_textures);
-                                av_attachments.append(attachment_sd);
+                                LLViewerObject* child_obj = *child_iter;
+                                LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+                                if (child)
+                                {
+                                    LLSD attachment_sd = child->getFrameData(textures, material_textures, first_frame);
+                                    av_attachments.append(attachment_sd);
+                                }
                             }
-                        }
                         
+                        }
                     }
                 }
             }
+
         }
 
-    }
-    av_sd["Attachments"] = av_attachments;
+        av_sd["Attachments"] = av_attachments;
 
-    S32 texture_missing = 0;
-    S32 texture_count = 0;
-    F32 texture_mpixels = 0;
-    S32 material_texture_missing = 0;
-    S32 material_texture_count = 0;
-    F32 material_texture_mpixels = 0;
+        S32 texture_missing = 0;
+        S32 texture_count = 0;
+        F32 texture_mpixels = 0;
+        S32 material_texture_missing = 0;
+        S32 material_texture_count = 0;
+        F32 material_texture_mpixels = 0;
 
-    for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-         volume_texture != textures.end();
-         ++volume_texture)
-    {
-        LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
-        if (texture)
-        {
-            texture_count++;
-            texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
-        }
-        else
-        {
-            texture_missing++;
-        }
-    }
-    for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
-         volume_texture != material_textures.end();
-         ++volume_texture)
-    {
-        // Only count textures not already accounted for above
-        if (textures.find(volume_texture->first) == textures.end())
+        for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+             volume_texture != textures.end();
+             ++volume_texture)
         {
             LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
             if (texture)
             {
-                material_texture_count++;
-                material_texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
+                texture_count++;
+                texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
             }
             else
             {
-                material_texture_missing++;
+                texture_missing++;
             }
         }
-    }
+        for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
+             volume_texture != material_textures.end();
+             ++volume_texture)
+        {
+            // Only count textures not already accounted for above
+            if (textures.find(volume_texture->first) == textures.end())
+            {
+                LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+                if (texture)
+                {
+                    material_texture_count++;
+                    material_texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
+                }
+                else
+                {
+                    material_texture_missing++;
+                }
+            }
+        }
 
-	LLSD av_attachment_textures;
-    av_sd["AttachmentTextures"]["texture_count"] = texture_count;
-    av_sd["AttachmentTextures"]["texture_mpixels"] = texture_mpixels;
-    av_sd["AttachmentTextures"]["texture_missing"] = texture_missing;
-    av_sd["AttachmentTextures"]["material_texture_count"] = material_texture_count;
-    av_sd["AttachmentTextures"]["material_texture_mpixels"] = material_texture_mpixels;
-    av_sd["AttachmentTextures"]["material_texture_missing"] = material_texture_missing;
+        av_sd["AttachmentTextures"]["texture_count"] = texture_count;
+        av_sd["AttachmentTextures"]["texture_mpixels"] = texture_mpixels;
+        av_sd["AttachmentTextures"]["texture_missing"] = texture_missing;
+        av_sd["AttachmentTextures"]["material_texture_count"] = material_texture_count;
+        av_sd["AttachmentTextures"]["material_texture_mpixels"] = material_texture_mpixels;
+        av_sd["AttachmentTextures"]["material_texture_missing"] = material_texture_missing;
+    }
 
     return av_sd;
 }
