@@ -135,18 +135,35 @@ void LLFilePickerThread::getFile()
 //virtual 
 void LLFilePickerThread::run()
 {
-	LLFilePicker picker;
 #if LL_WINDOWS
-	if (picker.getOpenFile(mFilter, false))
-	{
-		mFile = picker.getFirstFile();
-	}
+	bool blocking = false;
 #else
-	if (picker.getOpenFile(mFilter, true))
-	{
-		mFile = picker.getFirstFile();
-	}
+	bool blocking = true; // modal
 #endif
+
+	LLFilePicker picker;
+
+	if (mIsSaveDialog)
+	{
+		if (picker.getSaveFile(mSaveFilter, mProposedName, blocking))
+		{
+			mResponses.push_back(picker.getFirstFile());
+		}
+	}
+	else
+	{
+		bool result = mIsGetMultiple ? picker.getMultipleOpenFiles(mLoadFilter, blocking) : picker.getOpenFile(mLoadFilter, blocking);
+		if (result)
+		{
+			std::string filename = picker.getFirstFile(); // consider copying mFiles directly
+			do
+			{
+				mResponses.push_back(filename);
+				filename = picker.getNextFile();
+			}
+			while (mIsGetMultiple && !filename.empty());
+		}
+	}
 
 	{
 		LLMutexLock lock(sMutex);
@@ -179,7 +196,7 @@ void LLFilePickerThread::clearDead()
 		while (!sDeadQ.empty())
 		{
 			LLFilePickerThread* thread = sDeadQ.front();
-			thread->notify(thread->mFile);
+			thread->notify(thread->mResponses);
 			delete thread;
 			sDeadQ.pop();
 		}

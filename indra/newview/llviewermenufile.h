@@ -81,21 +81,29 @@ public:
 	static void cleanupClass();
 	static void clearDead();
 
-	std::string mFile; 
+	std::vector<std::string> mResponses;
+	std::string mProposedName;
 
-	LLFilePicker::ELoadFilter mFilter;
+	LLFilePicker::ELoadFilter mLoadFilter;
+	LLFilePicker::ESaveFilter mSaveFilter;
+	bool mIsSaveDialog;
+	bool mIsGetMultiple;
 
-	LLFilePickerThread(LLFilePicker::ELoadFilter filter)
-		: LLThread("file picker"), mFilter(filter)
+	LLFilePickerThread(LLFilePicker::ELoadFilter filter, bool get_multiple = false)
+		: LLThread("file picker"), mLoadFilter(filter), mIsSaveDialog(false), mIsGetMultiple(get_multiple)
 	{
+	}
 
+	LLFilePickerThread(LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+		: LLThread("file picker"), mSaveFilter(filter), mIsSaveDialog(true), mProposedName(proposed_name)
+	{
 	}
 
 	void getFile();
 
 	virtual void run();
 
-	virtual void notify(const std::string& filename) = 0;
+	virtual void notify(const std::vector<std::string>& filenames) = 0;
 };
 
 
