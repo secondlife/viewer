@@ -4155,12 +4155,6 @@ bool LLAppViewer::initCache()
 		gSavedSettings.setString("CacheLocation", "");
 		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
-	
-	if (mPurgeCache && !read_only)
-	{
-		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
-		purgeCache();
-	}
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
 	
@@ -4179,8 +4173,6 @@ bool LLAppViewer::initCache()
 
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, mPurgeCache);
 	texture_cache_size -= extra;
-
-	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 	
@@ -4321,19 +4313,25 @@ bool LLAppViewer::initCache()
 	{
 		return false;
 	}
-	else
+
+    if (mPurgeCache && !read_only)
 	{
-		LLVFile::initClass();
+		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
+		purgeCache();
+	}
+
+    LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
+
+	LLVFile::initClass();
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-		if (gSavedSettings.getBOOL("DumpVFSCaches"))
-		{
-			dumpVFSCaches();
-		}
+	if (gSavedSettings.getBOOL("DumpVFSCaches"))
+	{
+		dumpVFSCaches();
+	}
 #endif
 		
-		return true;
-	}
+    return true;
 }
 
 void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
@@ -4353,6 +4351,18 @@ void LLAppViewer::purgeCache()
 		gDirUtilp->deleteDirAndContents(browser_cache);
 	}
 	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*");
+
+    // Force new salt to avoid issues with Windows recycling the file we purge
+    // and making our creation times look wrong
+    U32 new_salt = rand();
+    gSavedSettings.setU32("VFSSalt", new_salt);
+
+    std::string vfs_db_file    = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", new_salt);
+    std::string vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", new_salt);
+
+    // Purge VFS index/DB files so they get created and properly reflect
+    // the time when the cache was cleared MAINT-8551
+    gVFS->purge(vfs_db_file, vfs_index_file);
 }
 
 //purge cache immediately, do not wait until the next login.

@@ -129,7 +129,11 @@ public:
 	void dumpFiles();
 	time_t creationTime();
 
+    bool purge(const std::string& new_db_file, const std::string& new_index_file);
+
 protected:
+    bool create(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash);
+
 	void removeFileBlock(LLVFSFileBlock *fileblock);
 	
 	void eraseBlockLength(LLVFSBlock *block);
@@ -170,6 +174,7 @@ protected:
 	std::string mIndexFilename;
 	std::string mDataFilename;
 	BOOL mReadOnly;
+    U32 mPresizeBytes = 0;
 
 	EVFSValid mValid;
 

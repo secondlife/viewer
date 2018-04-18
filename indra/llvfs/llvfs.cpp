@@ -228,14 +228,38 @@ struct LLVFSFileBlock_less
 
 const S32 LLVFSFileBlock::SERIAL_SIZE = 34;
      
+std::string ErrorToString(EVFSValid e)
+{
+    switch (e)
+    {        
+	    case VFSVALID_OK:                       return "VFS file A-okay!";
+	    case VFSVALID_BAD_CORRUPT:              return "VFS file is corrupt.";
+	    case VFSVALID_BAD_CANNOT_OPEN_READONLY: return "Cannot Open VFS file as readonly.";
+	    case VFSVALID_BAD_CANNOT_CREATE:        return "Cannot Create VFS file.";
+
+        case VFSVALID_UNKNOWN:
+        default:
+	        break;
+    }
+    return "VFS file unknown error.";
+}
 
 LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)
 :	mRemoveAfterCrash(remove_after_crash),
 	mDataFP(NULL),
 	mIndexFP(NULL)
 {
-	mDataMutex = new LLMutex(0);
+    mDataMutex = new LLMutex(0);
+    bool created = create(index_filename, data_filename, read_only, presize, remove_after_crash);
+    if (!created)
+    {
+        LL_ERRS("VFS") << "VFS init failed with " << ErrorToString(mValid) << LL_ENDL;
+    }
+    llassert(created);
+}
 
+bool LLVFS::create(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)
+{
 	S32 i;
 	for (i = 0; i < VFSLOCK_COUNT; i++)
 	{
@@ -258,7 +282,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 		{
 			LL_WARNS("VFS") << "Can't find " << mDataFilename << " to open read-only VFS" << LL_ENDL;
 			mValid = VFSVALID_BAD_CANNOT_OPEN_READONLY;
-			return;
+			return false;
 		}
 
 		mDataFP = openAndLock(mDataFilename, "w+b", FALSE);
@@ -273,7 +297,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 			LL_WARNS("VFS") << "Couldn't open vfs data file " 
 				<< mDataFilename << LL_ENDL;
 			mValid = VFSVALID_BAD_CANNOT_CREATE;
-			return;
+			return false;
 		}
 
 		if (presize)
@@ -304,7 +328,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 			{
 				LL_WARNS("VFS") << "Can't open VFS data file in crash recovery" << LL_ENDL;
 				mValid = VFSVALID_BAD_CANNOT_CREATE;
-				return;
+				return false;
 			}
 
 			if (presize)
@@ -378,7 +402,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 					<< LL_ENDL;
 
 				mValid = VFSVALID_BAD_CORRUPT;
-				return;
+				return false;
 			}
 			else
 			{
@@ -488,7 +512,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 						<< LL_ENDL;
 
 					mValid = VFSVALID_BAD_CORRUPT;
-					return;
+					return false;
 				}
 
 				// we don't want to add empty blocks to the list...
@@ -518,7 +542,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 		{
 			LL_WARNS("VFS") << "Can't find " << mIndexFilename << " to open read-only VFS" << LL_ENDL;
 			mValid = VFSVALID_BAD_CANNOT_OPEN_READONLY;
-			return;
+			return false;
 		}
     
 	
@@ -532,7 +556,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 			LLFile::remove( mDataFilename );
 			
 			mValid = VFSVALID_BAD_CANNOT_CREATE;
-			return;
+			return false;
 		}
 	
 		// no index file, start from scratch w/ 1GB allocation
@@ -556,6 +580,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 	LL_INFOS("VFS") << "Using VFS data file " << mDataFilename << LL_ENDL;
 
 	mValid = VFSVALID_OK;
+    return true;
 }
     
 LLVFS::~LLVFS()
@@ -636,6 +661,9 @@ LLVFS * LLVFS::createLLVFS(const std::string& index_filename,
 
 void LLVFS::presizeDataFile(const U32 size)
 {
+    // record requested presize so purge can do the same presizing as necessary
+    mPresizeBytes = size;
+
 	if (!mDataFP)
 	{
 		LL_ERRS() << "LLVFS::presizeDataFile() with no data file open" << LL_ENDL;
@@ -653,7 +681,7 @@ void LLVFS::presizeDataFile(const U32 size)
 
 	if (tmp)
 	{
-		LL_INFOS() << "Pre-sized VFS data file to " << ftell(mDataFP) << " bytes" << LL_ENDL;
+		LL_INFOS() << "Pre-sized VFS data file to " << ftell(mDataFP) << " bytes" << LL_ENDL;        
 	}
 	else
 	{
@@ -2123,6 +2151,17 @@ time_t LLVFS::creationTime()
         return data_file_stat.st_ctime;
     }
     return 0;
+}
+
+bool LLVFS::purge(const std::string& new_db_file, const std::string& new_index_file)
+{
+    unlockAndClose(mDataFP);
+    unlockAndClose(mIndexFP);
+	mDataFP  = NULL;
+    mIndexFP = NULL;
+    LLFile::remove(mDataFilename);    
+    LLFile::remove(mIndexFilename);   
+    return create(new_index_file, new_db_file,mReadOnly, mPresizeBytes, mRemoveAfterCrash);
 }
 
 //============================================================================
