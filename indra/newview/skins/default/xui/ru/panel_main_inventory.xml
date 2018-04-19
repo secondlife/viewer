@@ -4,7 +4,7 @@
 		Выборка [ITEM_COUNT] предметов и [CATEGORY_COUNT] папок ... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] предметов(а) и [CATEGORY_COUNT] папки(ок) ... [FILTER]
+		[ITEM_COUNT] предметов(а) и [CATEGORY_COUNT] папки(ок) [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
 		Выборка [ITEM_COUNT] предметов и [CATEGORY_COUNT] папок [FILTER]
