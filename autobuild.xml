@@ -556,9 +556,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bbdea742f2a89bcd6360e61e01d6be93</string>
+              <string>118987b1a5b56214cfdbd0c763e180da</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8207/32592/dullahan-1.1.820_3.3071.1637.gcb6cf75-darwin64-508196.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15127/97748/dullahan-1.1.1080_3.3325.1750.gaabe4c4-darwin64-513449.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -568,9 +568,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31e11a74e0d3f1e5e4036cb5fea8d944</string>
+              <string>2ecc71350b30a1057091b9cd7af18b1c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8209/32599/dullahan-1.1.820_3.3071.1634.g9cc59c8-windows-508196.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15128/97755/dullahan-1.1.1080_3.3325.1750.gaabe4c4-windows-513449.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -580,16 +580,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f965d244e7921c06ee79b68a4abcea3b</string>
+              <string>2ed3e49388514dafb907c59a209d580e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8208/32602/dullahan-1.1.820_3.3071.1634.g9cc59c8-windows64-508196.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15129/97760/dullahan-1.1.1080_3.3325.1750.gaabe4c4-windows64-513449.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.820_3.3071.1634.g9cc59c8</string>
+        <string>1.1.1080_3.3325.1750.gaabe4c4</string>
       </map>
       <key>elfio</key>
       <map>
@@ -3260,9 +3260,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f1248b6692dcbb1a42db87ca8d9fed93</string>
+              <string>4aefe12a3825d1b4b8370986d84792a2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13982/87166/viewer_manager-1.0.512801-darwin64-512801.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15295/98583/viewer_manager-1.0.513540-darwin64-513540.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3284,9 +3284,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c174ecc0893f8c193571b1dc80b823ad</string>
+              <string>db96bc8a83e6577d31657586100bfc35</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13983/87172/viewer_manager-1.0.512801-windows-512801.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15298/98589/viewer_manager-1.0.513540-windows-513540.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3297,7 +3297,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.512801</string>
+        <string>1.0.513540</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -3316,9 +3316,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c5e6d9440e3a4a12102dd2bbb703963e</string>
+              <string>e5635e173c75dc0675b48ab5f5e4868b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/2225/4736/vlc_bin-2.2.4.502214-darwin64-502214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12143/71451/vlc_bin-2.2.8.511703-darwin64-511703.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3340,9 +3340,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc37f7cc77a62891bb9ae46c9e19f95e</string>
+              <string>add560654a53cb1c554044a4fac3c718</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1219/2834/vlc_bin-2.2.4.501207-windows-501207.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12144/71458/vlc_bin-2.2.8.511703-windows-511703.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3352,16 +3352,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>148ee599afeba9794de14ca433389504</string>
+              <string>94bf04b49acc1e1bf2c06e2232f8a083</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1218/2829/vlc_bin-2.2.4.501207-windows64-501207.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12145/71463/vlc_bin-2.2.8.511703-windows64-511703.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.2.4.502214</string>
+        <string>2.2.8.511703</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
