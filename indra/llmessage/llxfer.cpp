@@ -99,7 +99,22 @@ void LLXfer::cleanup ()
 
 S32 LLXfer::startSend (U64 xfer_id, const LLHost &remote_host)
 {
-	LL_WARNS() << "undifferentiated LLXfer::startSend for " << getFileName() << LL_ENDL;
+	LL_WARNS("Xfer") << "unexpected call to base class LLXfer::startSend for " << getFileName() << LL_ENDL;
+	return (-1);
+}
+
+///////////////////////////////////////////////////////////
+
+void LLXfer::closeFileHandle()
+{
+	LL_WARNS("Xfer") << "unexpected call to base class LLXfer::closeFileHandle for " << getFileName() << LL_ENDL;
+}
+
+///////////////////////////////////////////////////////////
+
+S32 LLXfer::reopenFileHandle()
+{
+	LL_WARNS("Xfer") << "unexpected call to base class LLXfer::reopenFileHandle for " << getFileName() << LL_ENDL;
 	return (-1);
 }
 
@@ -127,14 +142,14 @@ S32 LLXfer::receiveData (char *datap, S32 data_size)
 	S32 retval = 0;
 
 	if (((S32) mBufferLength + data_size) > getMaxBufferSize())
-	{
+	{	// Write existing data to disk if it's larger than the buffer size
 		retval = flush();
 	}
 
 	if (!retval)
 	{
 		if (datap != NULL)
-		{
+		{	// Append new data to mBuffer
 			memcpy(&mBuffer[mBufferLength],datap,data_size);	/*Flawfinder: ignore*/
 			mBufferLength += data_size;
 		}
@@ -248,7 +263,12 @@ void LLXfer::sendPacket(S32 packet_num)
 		gMessageSystem->nextBlockFast(_PREHASH_DataPacket);
 		gMessageSystem->addBinaryDataFast(_PREHASH_Data, &fdata_buf,fdata_size);
 			
-		gMessageSystem->sendMessage(mRemoteHost);
+		S32 sent_something = gMessageSystem->sendMessage(mRemoteHost);
+		if (sent_something == 0)
+		{
+			abort(LL_ERR_CIRCUIT_GONE);
+			return;
+		}
 
 		ACKTimer.reset();
 		mWaitingForACK = TRUE;
@@ -326,12 +346,15 @@ void LLXfer::abort (S32 result_code)
 	LL_INFOS() << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
 			<< " - error: " << result_code << LL_ENDL;
 
-	gMessageSystem->newMessageFast(_PREHASH_AbortXfer);
-	gMessageSystem->nextBlockFast(_PREHASH_XferID);
-	gMessageSystem->addU64Fast(_PREHASH_ID, mID);
-	gMessageSystem->addS32Fast(_PREHASH_Result, result_code);
-	
-	gMessageSystem->sendMessage(mRemoteHost);
+	if (result_code != LL_ERR_CIRCUIT_GONE)
+	{
+		gMessageSystem->newMessageFast(_PREHASH_AbortXfer);
+		gMessageSystem->nextBlockFast(_PREHASH_XferID);
+		gMessageSystem->addU64Fast(_PREHASH_ID, mID);
+		gMessageSystem->addS32Fast(_PREHASH_Result, result_code);
+
+		gMessageSystem->sendMessage(mRemoteHost);
+	}
 
 	mStatus = e_LL_XFER_ABORTED;
 }

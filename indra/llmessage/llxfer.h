@@ -62,7 +62,7 @@ class LLXfer
 	S32 mXferSize;
 
 	char *mBuffer;
-	U32 mBufferLength;
+	U32 mBufferLength;			// Size of valid data, not actual allocated buffer size
 	U32 mBufferStartOffset;
 	BOOL mBufferContainsEOF;
 
@@ -90,7 +90,9 @@ class LLXfer
 	void init(S32 chunk_size);
 	virtual void cleanup();
 
-	virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
+	virtual S32 startSend(U64 xfer_id, const LLHost &remote_host);
+	virtual void closeFileHandle();
+	virtual S32 reopenFileHandle();
 	virtual void sendPacket(S32 packet_num);
 	virtual void sendNextPacket();
 	virtual void resendLastPacket();
