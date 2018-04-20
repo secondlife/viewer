@@ -1946,6 +1946,10 @@ void LLViewerWindow::initBase()
 
 	// Create global views
 
+	// Login screen and main_view.xml need edit menus for preferences and browser
+	LL_DEBUGS("AppInit") << "initializing edit menu" << LL_ENDL;
+	initialize_edit_menu();
+
 	// Create the floater view at the start so that other views can add children to it. 
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
