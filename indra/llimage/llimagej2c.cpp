@@ -308,16 +308,26 @@ S32 LLImageJ2C::calcDataSize(S32 discard_level)
 	if ( mAreaUsedForDataSizeCalcs != (getHeight() * getWidth()) 
 		|| (mDataSizes[0] == 0))
 	{
-		mAreaUsedForDataSizeCalcs = getHeight() * getWidth();
-		
-		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
-		while ( level >= 0 )
-		{
-			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
-			level--;
-		}
+		mAreaUsedForDataSizeCalcs = getHeight() * getWidth();		
+		updateDataSizes();
 	}
 	return mDataSizes[discard_level];
+}
+
+void LLImageJ2C::updateDataSizes()
+{
+    S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
+	while ( level >= 0 )
+	{
+		mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
+		level--;
+	}
+}
+
+S32* LLImageJ2C::getDataSizes()
+{
+    updateDataSizes();    
+    return mDataSizes;
 }
 
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)

@@ -43,6 +43,8 @@ class LLImageJ2C : public LLImageFormatted
 protected:
 	virtual ~LLImageJ2C();
 
+    void updateDataSizes();
+
 public:
 	LLImageJ2C();
 
@@ -73,6 +75,8 @@ public:
 	void setReversible(const bool reversible); // Use non-lossy?
 	void setMaxBytes(S32 max_bytes);
 	S32 getMaxBytes() const { return mMaxBytes; }
+
+    S32* getDataSizes();
 
 	static S32 calcHeaderSizeJ2C();
 	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = DEFAULT_COMPRESSION_RATE);

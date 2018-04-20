@@ -60,6 +60,9 @@
 #include "llvovolume.h"
 #include "llviewermedia.h"
 #include "lltexturecache.h"
+
+#pragma optimize("", off)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
@@ -1055,7 +1058,9 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mRequestedDownloadPriority = 0.f;
 	mFullyLoaded = FALSE;
 	mCanUseHTTP = true;
-	mDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
+
+    setDesiredDiscardLevel(MAX_DISCARD_LEVEL + 1);
+
 	mMinDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
 	
 	mDecodingAux = FALSE;
@@ -1305,50 +1310,6 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	}
 	else
 	{	
-#if DOWNSAMPLE_LARGE_IMAGES
-		//
-		//if mRequestedDiscardLevel > mDesiredDiscardLevel, we assume the required image res keep going up,
-		//so do not scale down the over qualified image.
-		//Note: scaling down image is expensensive. Do it only when very necessary.
-		//
-		if(mRequestedDiscardLevel <= mDesiredDiscardLevel && !mForceToSaveRawImage)
-		{
-			S32 w = mFullWidth >> mRawDiscardLevel;
-			S32 h = mFullHeight >> mRawDiscardLevel;
-
-			//if big image, do not load extra data
-			//scale it down to size >= LLViewerTexture::sMinLargeImageSize
-			if(w * h > LLViewerTexture::sMinLargeImageSize)
-			{
-				S32 d_level = llmin(mRequestedDiscardLevel, (S32)mDesiredDiscardLevel) - mRawDiscardLevel;
-				
-				if(d_level > 0)
-				{
-					S32 i = 0;
-					while((d_level > 0) && ((w >> i) * (h >> i) > LLViewerTexture::sMinLargeImageSize))
-					{
-						i++;
-						d_level--;
-					}
-					if(i > 0)
-					{
-						mRawDiscardLevel += i;
-						if(mRawDiscardLevel >= getDiscardLevel() && getDiscardLevel() > 0)
-						{
-							mNeedsCreateTexture = FALSE;
-							destroyRawImage();
-							return;
-						}
-
-						{
-							//make a duplicate in case somebody else is using this raw image
-							mRawImage = mRawImage->scaled(w >> i, h >> i);
-						}
-					}
-				}
-			}
-		}
-#endif
 		mNeedsCreateTexture = TRUE;
 		gTextureList.mCreateTextures.push_back(this);
 	}	
@@ -1476,7 +1437,8 @@ void LLViewerFetchedTexture::processTextureStats()
 	{		
 		if(mDesiredDiscardLevel > mMinDesiredDiscardLevel)//need to load more
 		{
-			mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+			S32 desiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+            setDesiredDiscardLevel(desiredDiscardLevel);
 			mFullyLoaded = FALSE;
 		}
 	}
@@ -1488,22 +1450,23 @@ void LLViewerFetchedTexture::processTextureStats()
 		
 		if (textures_fullres)
 		{
-			mDesiredDiscardLevel = 0;
+			setDesiredDiscardLevel(0);
 		}
         else if (mDontDiscard && mBoostLevel == LLGLTexture::BOOST_ICON)
         {
             if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
             {
-                mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+                setDesiredDiscardLevel(1); // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
             }
             else
             {
-                mDesiredDiscardLevel = 0;
+                setDesiredDiscardLevel(0);
             }
         }
 		else if(!mFullWidth || !mFullHeight)
 		{
-			mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel);
+			S32 desiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel);
+            setDesiredDiscardLevel(desiredDiscardLevel);
 		}
 		else
 		{	
@@ -1511,19 +1474,20 @@ void LLViewerFetchedTexture::processTextureStats()
 			{
 				if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
 				{
-					mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+					setDesiredDiscardLevel(1); // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
 				}
 				else
 				{
-					mDesiredDiscardLevel = 0;
+					setDesiredDiscardLevel(0);
 				}
 			}
 			else if(mKnownDrawSizeChanged)//known draw size is set
 			{			
-				mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
-													 log((F32)mFullHeight / mKnownDrawHeight) / log_2);
-				mDesiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel());
-				mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+				S32 desiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
+											     log((F32)mFullHeight / mKnownDrawHeight) / log_2);
+				desiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel());
+				desiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+                setDesiredDiscardLevel(desiredDiscardLevel);
 			}
 			mKnownDrawSizeChanged = FALSE;
 		
@@ -1536,7 +1500,8 @@ void LLViewerFetchedTexture::processTextureStats()
 
 	if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0) //force to refetch the texture.
 	{
-		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
+		S32 desiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
+        setDesiredDiscardLevel(desiredDiscardLevel);
 		if(getDiscardLevel() < 0 || getDiscardLevel() > mDesiredDiscardLevel)
 		{
 			mFullyLoaded = FALSE;
@@ -1598,7 +1563,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	{
 		// priority range = 100,000 - 500,000
 		S32 desired_discard = mDesiredDiscardLevel;
-		if (!isJustBound() && mCachedRawImageReady)
+		/*if (!isJustBound() && mCachedRawImageReady)
 		{
 			if(mBoostLevel < BOOST_HIGH)
 			{
@@ -1610,7 +1575,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 				// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
 				desired_discard = cur_discard;
 			}
-		}
+		}*/
 
 		S32 ddiscard = cur_discard - desired_discard;
 		ddiscard = llclamp(ddiscard, -1, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
@@ -1673,6 +1638,16 @@ void LLViewerFetchedTexture::setAdditionalDecodePriority(F32 priority)
 	{
 		mAdditionalDecodePriority = priority;
 	}
+}
+
+void LLViewerFetchedTexture::setDesiredDiscardLevel(S32 discard)
+{
+    if (discard > 0 && discard < MAX_DISCARD_LEVEL)
+    {
+        int q = 0;
+        q++;
+    }
+    mDesiredDiscardLevel = discard;
 }
 
 void LLViewerFetchedTexture::updateVirtualSize() 
@@ -1752,7 +1727,7 @@ bool LLViewerFetchedTexture::setDebugFetching(S32 debug_level)
 	}
 	mInDebug = TRUE;
 
-	mDesiredDiscardLevel = debug_level;	
+	setDesiredDiscardLevel(debug_level);	
 
 	return true;
 }
@@ -1962,11 +1937,22 @@ bool LLViewerFetchedTexture::updateFetch()
 		S32 delta_level = (mBoostLevel > LLGLTexture::BOOST_NONE) ? 2 : 1; 
 		if (current_discard < 0)
 		{
-			desired_discard = llmax(desired_discard, getMaxDiscardLevel() - delta_level);
+			desired_discard = llmin(desired_discard, getMaxDiscardLevel() - delta_level);
+
+            if (desired_discard > 0 && desired_discard < getMaxDiscardLevel())
+            {
+                int q = 0;
+                q++;
+            }
 		}
 		else if (LLViewerTexture::sCameraMovingBias < sCameraMotionThreshold)
 		{
-			desired_discard = llmax(desired_discard, current_discard - sCameraMotionBoost);
+			desired_discard = llmin(desired_discard, current_discard - sCameraMotionBoost);
+            if (desired_discard > 0 && desired_discard < getMaxDiscardLevel())
+            {
+                int q = 0;
+                q++;
+            }
 		}
         else
         {
@@ -2074,7 +2060,7 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 		
 	resetTextureStats();
 
-	mDesiredDiscardLevel = getMaxDiscardLevel() + 1;
+	setDesiredDiscardLevel(getMaxDiscardLevel() + 1);
 }
 
 void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
@@ -2932,23 +2918,26 @@ void LLViewerLODTexture::processTextureStats()
 	
 	if (textures_fullres)
 	{
-		mDesiredDiscardLevel = 0;
+        setDesiredDiscardLevel(0);
 	}
 	// Generate the request priority and render priority
 	else if (mDontDiscard || !mUseMipMaps)
 	{
-		mDesiredDiscardLevel = 0;
+		setDesiredDiscardLevel(0);
 		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
-			mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+        {
+            setDesiredDiscardLevel(1); // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+        }
 	}
 	else if (mBoostLevel < LLGLTexture::BOOST_HIGH && mMaxVirtualSize <= 10.f)
 	{
 		// If the image has not been significantly visible in a while, we don't want it
-		mDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel, (S8)(MAX_DISCARD_LEVEL + 1));
+		S32 desiredDiscardLevel = llmin(mMinDesiredDiscardLevel, (S8)(MAX_DISCARD_LEVEL + 1));
+        setDesiredDiscardLevel(desiredDiscardLevel);
 	}
 	else if (!mFullWidth  || !mFullHeight)
 	{
-		mDesiredDiscardLevel = 	getMaxDiscardLevel();
+        setDesiredDiscardLevel(getMaxDiscardLevel());
 	}
 	else
 	{
@@ -3005,9 +2994,11 @@ void LLViewerLODTexture::processTextureStats()
 		discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
 		
 		// Can't go higher than the max discard level
-		mDesiredDiscardLevel = llmin(getMaxDiscardLevel() + 1, (S32)discard_level);
+		S32 desiredDiscardLevel = llmin(getMaxDiscardLevel() + 1, (S32)discard_level);
 		// Clamp to min desired discard
-		mDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel, mDesiredDiscardLevel);
+		desiredDiscardLevel = llmin(mMinDesiredDiscardLevel, mDesiredDiscardLevel);
+
+        setDesiredDiscardLevel(desiredDiscardLevel);
 
 		//
 		// At this point we've calculated the quality level that we want,
@@ -3041,14 +3032,8 @@ void LLViewerLODTexture::processTextureStats()
 
 	if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0)
 	{
-		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
-	}
-	else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
-	{
-		if(scaleDown())
-		{
-			mDesiredDiscardLevel = mCachedRawDiscardLevel;
-		}
+		S32 desiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
+        setDesiredDiscardLevel(desiredDiscardLevel);
 	}
 }
 
