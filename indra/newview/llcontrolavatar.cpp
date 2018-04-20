@@ -294,7 +294,7 @@ void LLControlAvatar::updateDebugText()
                               active_string.c_str(), (S32) isImpostor(), streaming_cost));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
-        addDebugText(llformat("pxarea %s", LLStringOps::getReadableNumber(getPixelArea()).c_str()));
+        addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
 #if 0
         std::string region_name = "no region";
         if (mRootVolp->getRegion())

@@ -3932,6 +3932,10 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 	{
         if (isAnimatedObject() && isRiggedMesh())
         {
+            if (unscaled_value)
+            {
+                *unscaled_value = (linkset_base_cost + ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * getEstTrianglesStreamingCost())/0.06;
+            }
             return linkset_base_cost + ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * getEstTrianglesStreamingCost();
         }
         else

@@ -747,6 +747,7 @@ private:
 public:
 	BOOL			isVisible() const;
 	void			setVisibilityRank(U32 rank);
+    U32				getVisibilityRank() const { return mVisibilityRank; }
 	static S32 		sNumVisibleAvatars; // Number of instances of this class
 /**                    Appearance
  **                                                                            **
