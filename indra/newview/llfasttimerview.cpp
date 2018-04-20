@@ -435,6 +435,9 @@ void LLFastTimerView::onClose(bool app_quitting)
 
 void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch)
 {
+	// disable use of glReadPixels which messes up nVidia nSight graphics debugging
+	if (!LLRender::sNsightDebugSupport)
+	{
 	//read result back into raw image
 	glReadPixels(0, 0, 1024, 512, GL_RGB, GL_UNSIGNED_BYTE, scratch->getData());
 
@@ -447,6 +450,7 @@ void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch
 	
 	std::string out_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, filename);
 	result->save(out_file);
+	}
 }
 
 //static

@@ -8631,7 +8631,19 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
+  <key>RenderNsightDebugSupport</key>
+  <map>
+    <key>Comment</key>
+    <string>
+      Disable features which prevent nVidia nSight from being usable with SL. Requires restart.
+    </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderLocalLights</key>
   <map>
     <key>Comment</key>
@@ -12268,7 +12280,9 @@
       <key>Comment</key>
       <string>If TRUE, always load textures at full resolution (discard = 0)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <!-- we don't want this to be persistent as people who enable it with low GPU mem cards
+	    can get into a situation where login becomes impossible -->
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

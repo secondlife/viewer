@@ -229,8 +229,8 @@ public:
         // precomputed textures from libatmosphere
         TRANSMITTANCE_TEX,
         SCATTER_TEX,
-        ILLUMINANCE_TEX,
         SINGLE_MIE_SCATTER_TEX,
+        ILLUMINANCE_TEX,
 
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;

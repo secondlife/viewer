@@ -38,7 +38,8 @@ uniform vec2 sun_size;
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D transmittance_texture;
 uniform sampler3D scattering_texture;
-uniform sampler3D mie_scattering_texture;
+uniform sampler3D single_mie_scattering_texture;
+uniform sampler2D irradiance_texture;
 
 vec3 GetSolarLuminance();
 vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 sun_dir, out vec3 transmittance);
@@ -53,8 +54,6 @@ void main()
     vec3 transmittance;
     vec3 radiance = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
 
-    //radiance *= transmittance;
-
     // If the view ray intersects the Sun, add the Sun radiance.
     if (dot(view_direction, sun_direction) >= sun_size.y)
     {
@@ -65,7 +64,6 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     frag_color.rgb = color;
- 
     frag_color.a = 1.0;
 }
 

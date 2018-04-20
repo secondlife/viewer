@@ -233,8 +233,8 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
     {
         m_model->Init(m_config, m_textures);
         getTransmittance()->setTexName(m_textures.transmittance_texture);
-        getScattering()->setTexName(m_textures.transmittance_texture);   
-        getMieScattering()->setTexName(m_textures.transmittance_texture);
+        getScattering()->setTexName(m_textures.scattering_texture);   
+        getMieScattering()->setTexName(m_textures.single_mie_scattering_texture);
     }
 
     return m_model != nullptr;

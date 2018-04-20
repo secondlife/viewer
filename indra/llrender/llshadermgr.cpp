@@ -35,6 +35,8 @@
 #include "OpenGL/OpenGL.h"
 #endif
 
+#pragma optimize("", off)
+
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
 #else
@@ -1306,8 +1308,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     mReservedUniforms.push_back("transmittance_texture");
     mReservedUniforms.push_back("scattering_texture");
-    mReservedUniforms.push_back("irradiance_texture");
     mReservedUniforms.push_back("single_mie_scattering_texture");
+    mReservedUniforms.push_back("irradiance_texture");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

@@ -1577,8 +1577,13 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 			}
 			alpha_data = new U8[width * height];
 			mAlphaCache[cache_index] = alpha_data;
+    
+			// nSight doesn't support use of glReadPixels
+			if (!LLRender::sNsightDebugSupport)
+			{
 			glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);
             }
+		}
 		
 		getTexLayerSet()->getAvatarAppearance()->dirtyMesh();
 
