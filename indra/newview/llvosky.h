@@ -220,14 +220,6 @@ public:
 
 class LLCubeMap;
 
-// turn on floating point precision
-// in vs2003 for this class.  Otherwise
-// black dots go everywhere from 7:10 - 8:50
-#if LL_MSVC && __MSVC_VER__ < 8
-#pragma optimize("p", on)		
-#endif
-
-
 class LLVOSky : public LLStaticViewerObject
 {
 public:	
