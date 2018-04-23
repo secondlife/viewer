@@ -415,6 +415,20 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	}
 }
 
+// public
+LLScrollListItem* LLNameListCtrl::getNameItemByAgentId(const LLUUID& agent_id)
+{
+	for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); it++)
+	{
+		LLScrollListItem* item = *it;
+		if (item && item->getUUID() == agent_id)
+		{
+			return item;
+		}
+	}
+	return NULL;
+}
+
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   std::string suffix,

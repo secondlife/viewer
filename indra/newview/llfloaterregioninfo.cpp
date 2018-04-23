@@ -98,6 +98,7 @@
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
 #include "llcorehttputil.h"
+#include "llavatarnamecache.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -3744,8 +3745,8 @@ void LLPanelEstateAccess::accessAddCore3(const uuid_vec_t& ids, void* data)
 
 	if (change_info->mOperationFlag & ESTATE_ACCESS_ALLOWED_AGENT_ADD)
 	{
-		LLCtrlListInterface *list = panel->childGetListInterface("allowed_avatar_name_list");
-		int currentCount = (list ? list->getItemCount() : 0);
+		LLNameListCtrl* name_list = panel->getChild<LLNameListCtrl>("allowed_avatar_name_list");
+		int currentCount = (name_list ? name_list->getItemCount() : 0);
 		if (ids.size() + currentCount > ESTATE_MAX_ACCESS_IDS)
 		{
 			LLSD args;
@@ -3757,11 +3758,36 @@ void LLPanelEstateAccess::accessAddCore3(const uuid_vec_t& ids, void* data)
 			delete change_info;
 			return;
 		}
+
+		std::string already_allowed;
+		bool single = true;
+		for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+		{
+			LLScrollListItem* item = name_list->getNameItemByAgentId(*it);
+			if (item)
+			{
+				if (!already_allowed.empty())
+				{
+					already_allowed += ", ";
+					single = false;
+				}
+				already_allowed += item->getColumn(0)->getValue().asString();
+			}
+		}
+		if (!already_allowed.empty())
+		{
+			LLSD args;
+			args["AGENT"] = already_allowed;
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeAllowedAgents");
+			LLNotificationsUtil::add(single ? "AgentIsAlreadyInList" : "AgentsAreAlreadyInList", args);
+			delete change_info;
+			return;
+		}
 	}
 	if (change_info->mOperationFlag & ESTATE_ACCESS_BANNED_AGENT_ADD)
 	{
-		LLCtrlListInterface *list = panel->childGetListInterface("banned_avatar_name_list");
-		int currentCount = (list ? list->getItemCount() : 0);
+		LLNameListCtrl* name_list = panel->getChild<LLNameListCtrl>("banned_avatar_name_list");
+		int currentCount = (name_list ? name_list->getItemCount() : 0);
 		if (ids.size() + currentCount > ESTATE_MAX_ACCESS_IDS)
 		{
 			LLSD args;
@@ -3770,6 +3796,31 @@ void LLPanelEstateAccess::accessAddCore3(const uuid_vec_t& ids, void* data)
 			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeBannedAgents");
 			args["NUM_EXCESS"] = llformat("%d", (ids.size() + currentCount) - ESTATE_MAX_ACCESS_IDS);
 			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
+			delete change_info;
+			return;
+		}
+
+		std::string already_banned;
+		bool single = true;
+		for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+		{
+			LLScrollListItem* item = name_list->getNameItemByAgentId(*it);
+			if (item)
+			{
+				if (!already_banned.empty())
+				{
+					already_banned += ", ";
+					single = false;
+				}
+				already_banned += item->getColumn(0)->getValue().asString();
+			}
+		}
+		if (!already_banned.empty())
+		{
+			LLSD args;
+			args["AGENT"] = already_banned;
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeBannedAgents");
+			LLNotificationsUtil::add(single ? "AgentIsAlreadyInList" : "AgentsAreAlreadyInList", args);
 			delete change_info;
 			return;
 		}
@@ -3870,16 +3921,38 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	const U32 originalFlags = (U32)notification["payload"]["operation"].asInteger();
+	U32 flags = originalFlags;
 
 	LLViewerRegion* region = gAgent.getRegion();
 
-	LLSD::array_const_iterator end_it = notification["payload"]["allowed_ids"].endArray();
+	if (option == 2) // cancel
+	{		
+		return false;
+	}
+	else if (option == 1)
+	{
+		// All estates, either than I own or manage for this owner.  
+		// This will be verified on simulator. JC
+		if (!region) return false;
+		if (region->getOwner() == gAgent.getID()
+			|| gAgent.isGodlike())
+		{
+			flags |= ESTATE_ACCESS_APPLY_TO_ALL_ESTATES;
+		}
+		else if (region->isEstateManager())
+		{
+			flags |= ESTATE_ACCESS_APPLY_TO_MANAGED_ESTATES;
+		}
+	}
 
+	std::string names;
+	bool single = true;
+
+	LLSD::array_const_iterator end_it = notification["payload"]["allowed_ids"].endArray();
 	for (LLSD::array_const_iterator iter = notification["payload"]["allowed_ids"].beginArray();
 		iter != end_it;
 		iter++)
 	{
-		U32 flags = originalFlags;
 		if (iter + 1 != end_it)
 			flags |= ESTATE_ACCESS_NO_REPLY;
 
@@ -3890,35 +3963,59 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 			LLNotificationsUtil::add("OwnerCanNotBeDenied");
 			break;
 		}
-		switch (option)
+		
+		sendEstateAccessDelta(flags, id);
+
+		// fill the name list for confirmation
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(id, &av_name))
 		{
-		case 0:
-			// This estate
-			sendEstateAccessDelta(flags, id);
-			break;
-		case 1:
-		{
-			// All estates, either than I own or manage for this owner.  
-			// This will be verified on simulator. JC
-			if (!region) break;
-			if (region->getOwner() == gAgent.getID()
-				|| gAgent.isGodlike())
+			if (!names.empty())
 			{
-				flags |= ESTATE_ACCESS_APPLY_TO_ALL_ESTATES;
-				sendEstateAccessDelta(flags, id);
+				names += ", ";
+				single = false;
 			}
-			else if (region->isEstateManager())
-			{
-				flags |= ESTATE_ACCESS_APPLY_TO_MANAGED_ESTATES;
-				sendEstateAccessDelta(flags, id);
-			}
-			break;
-		}
-		case 2:
-		default:
-			break;
+			names += av_name.getCompleteName();
 		}
 	}
+
+	if (!names.empty()) // show the conirmation
+	{
+		LLSD args;
+		args["AGENT"] = names;
+
+		if (flags & (ESTATE_ACCESS_ALLOWED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE))
+		{
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeAllowedAgents");
+		}
+		else if (flags & (ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_BANNED_AGENT_REMOVE))
+		{
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeBannedAgents");
+		}
+
+		if (flags & ESTATE_ACCESS_APPLY_TO_ALL_ESTATES)
+		{
+			args["ESTATE"] = LLTrans::getString("RegionInfoAllEstates");
+		}
+		else if (flags & ESTATE_ACCESS_APPLY_TO_MANAGED_ESTATES)
+		{
+			args["ESTATE"] = LLTrans::getString("RegionInfoManagedEstates");
+		}
+		else
+		{
+			args["ESTATE"] = LLTrans::getString("RegionInfoThisEstate");
+		}
+
+		if (flags & (ESTATE_ACCESS_ALLOWED_AGENT_ADD | ESTATE_ACCESS_BANNED_AGENT_ADD))
+		{
+			LLNotificationsUtil::add(single ? "AgentWasAddedToList" : "AgentsWereAddedToList", args);
+		}
+		else if (flags & (ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_BANNED_AGENT_REMOVE))
+		{
+			LLNotificationsUtil::add(single ? "AgentWasRemovedFromList" : "AgentsWereRemovedFromList", args);
+		}		
+	}
+
 	return false;
 }
 

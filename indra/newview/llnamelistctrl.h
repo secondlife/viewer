@@ -154,6 +154,8 @@ public:
 
 	void removeNameItem(const LLUUID& agent_id);
 
+	LLScrollListItem* getNameItemByAgentId(const LLUUID& agent_id);
+
 	// LLView interface
 	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
