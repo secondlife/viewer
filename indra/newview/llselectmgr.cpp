@@ -6346,10 +6346,16 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
     gGL.diffuseColor4f(color.mV[VRED] * 2, color.mV[VGREEN] * 2, color.mV[VBLUE] * 2, LLSelectMgr::sHighlightAlpha * 2);
 
     {
-        LLGLDisable depth(GL_BLEND);
-        LLGLEnable stencil(GL_STENCIL_TEST);
-        glStencilFunc(GL_NOTEQUAL, 2, 0xffff);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        bool wireframe_selection = gFloaterTools && gFloaterTools->getVisible();
+
+        LLGLDisable depth(wireframe_selection ? 0 : GL_BLEND);
+        LLGLEnable stencil(wireframe_selection ? 0 : GL_STENCIL_TEST);
+
+        if (!wireframe_selection)
+        { //modify wireframe into outline selection mode
+            glStencilFunc(GL_NOTEQUAL, 2, 0xffff);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        }
 
         LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(3.f, 3.f);
