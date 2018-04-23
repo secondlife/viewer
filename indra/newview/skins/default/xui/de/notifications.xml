@@ -2505,7 +2505,7 @@ Möchten Sie den Nicht-stören-Modus deaktivieren, bevor Sie diese Transaktion a
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] bestellungen und Ordner werden dauerhaft gelöscht. Sind Sie sicher, dass Sie den Inhalt Ihres Papierkorbs dauerhaft löschen möchten?
+		[COUNT] Bestellungen und Ordner werden dauerhaft gelöscht. Sind Sie sicher, dass Sie den Inhalt Ihres Papierkorbs dauerhaft löschen möchten?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
