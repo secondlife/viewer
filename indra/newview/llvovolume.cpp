@@ -3918,10 +3918,6 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 {
 	F32 radius = getScale().length()*0.5f;
 
-    // AXON make sure this is consistent with the final simulator-side values.
-    const F32 ANIMATED_OBJECT_BASE_COST = 15.0f;
-    const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f;
-
     F32 linkset_base_cost = 0.f;
     if (isAnimatedObject() && isRootEdit())
     {

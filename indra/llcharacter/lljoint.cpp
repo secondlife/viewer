@@ -440,7 +440,7 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
                                           llclamp(pos[2],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET));
     if (constrained_pos != pos)
     {
-        LL_DEBUGS("Avatar") << "attachment pos override constrained to " 
+        LL_DEBUGS("Avatar") << mesh_id << " joint " << getName() << " attachment pos override constrained to " 
                             << constrained_pos << " was " << pos << LL_ENDL;
     }
     

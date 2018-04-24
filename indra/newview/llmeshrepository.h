@@ -451,6 +451,45 @@ private:
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 };
 
+// Params related to streaming cost, render cost, and scene complexity tracking.
+struct LLMeshCostData
+{
+    LLMeshCostData();
+
+    // From the "size" field of the mesh header. LOD 0=lowest, 3=highest.
+    std::vector<S32> mSizeByLOD;
+
+    // Estimated triangle counts derived from the LOD sizes. LOD 0=lowest, 3=highest.
+    std::vector<F32> mEstTrisByLOD;
+
+    // Estimated triangle counts for the largest LOD. Typically this
+    // is also the "high" LOD, but not necessarily.
+    F32 mEstTrisMax;
+
+    // Sum of all LOD sizes.
+    S32 mSizeTotal;
+
+    // Helper functions for building data
+
+    // Triangle count as computed by original streaming cost
+    // formula. Triangles in each LOD are weighted based on how
+    // frequently they will be seen.
+    // This was called "unscaled_value" in the original getStreamingCost() functions.
+    F32 computeRadiusWeightedTris(F32 radius);
+
+    // Triangle count used by triangle-based cost formula. Based on
+    // triangles in highest LOD plus potentially partial charges for
+    // lower LODs depending on complexity.
+    F32 computeEstTrisForStreamingCost();
+
+    // Streaming cost. This should match the server-side calculation
+    // for the corresponding volume.
+    F32 computeRadiusBasedStreamingCost(F32 radius);
+
+    // New streaming cost formula, currently only used for animated objects.
+    F32 computeTriangleBasedStreamingCost();
+};
+
 class LLMeshRepository
 {
 public:
@@ -472,12 +511,14 @@ public:
 	
 	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
 
-    bool getLODSizes(LLUUID mesh_id, std::vector<S32>& lod_byte_sizes, std::vector<F32>& lod_tri_counts);
+    bool getLODSizes(LLSD& header, std::vector<S32>& lod_byte_sizes, std::vector<F32>& lod_tri_counts);
     // Estimated triangle count of the largest LOD
     F32 getEstTrianglesMax(LLUUID mesh_id);
     F32 getEstTrianglesStreamingCost(LLUUID mesh_id);
 	F32 getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
+    bool getCostData(LLUUID mesh_id, LLMeshCostData& data);
+    bool getCostData(LLSD& header, LLUUID mesh_id, LLMeshCostData& data);
 
 	LLMeshRepository();
 
@@ -587,6 +628,10 @@ public:
 };
 
 extern LLMeshRepository gMeshRepo;
+
+// AXON make sure this is consistent with the final simulator-side values.
+const F32 ANIMATED_OBJECT_BASE_COST = 15.0f;
+const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f;
 
 #endif
 
