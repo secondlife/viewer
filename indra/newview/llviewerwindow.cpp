@@ -261,10 +261,8 @@ static const F32 MIN_UI_SCALE = 0.75f;
 static const F32 MAX_UI_SCALE = 7.0f;
 static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
-std::string	LLViewerWindow::sSnapshotBaseName;
-std::string	LLViewerWindow::sSnapshotDir;
-
-std::string	LLViewerWindow::sMovieBaseName;
+static LLCachedControl<std::string>	sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
+static LLCachedControl<std::string>	sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
 
 LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
 
@@ -1694,11 +1692,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LL_INFOS() << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << LL_ENDL;
 	}
 
-	// Default to application directory.
-	LLViewerWindow::sSnapshotBaseName = "Snapshot";
-	LLViewerWindow::sMovieBaseName = "SLmovie";
-	resetSnapshotLoc();
-
 
 	/*
 	LLWindowCallbacks* callbacks,
@@ -1875,6 +1868,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 void LLViewerWindow::showSystemUIScaleFactorChanged()
 {
 	LLNotificationsUtil::add("SystemUIScaleFactorChanged", LLSD(), LLSD(), onSystemUIScaleFactorChanged);
+}
+
+std::string LLViewerWindow::getLastSnapshotDir()
+{
+    return sSnapshotDir;
 }
 
 //static
@@ -4401,11 +4399,12 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 		// Copy the directory + file name
 		std::string filepath = picker.getFirstFile();
 
-		LLViewerWindow::sSnapshotBaseName = gDirUtilp->getBaseFileName(filepath, true);
-		LLViewerWindow::sSnapshotDir = gDirUtilp->getDirName(filepath);
+		gSavedPerAccountSettings.setString("SnapshotBaseName", gDirUtilp->getBaseFileName(filepath, true));
+		gSavedPerAccountSettings.setString("SnapshotBaseDir", gDirUtilp->getDirName(filepath));
 	}
 
-	if(LLViewerWindow::sSnapshotDir.empty())
+	std::string snapshot_dir = sSnapshotDir;
+	if(snapshot_dir.empty())
 	{
 		return FALSE;
 	}
@@ -4452,7 +4451,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 
 void LLViewerWindow::resetSnapshotLoc()
 {
-	sSnapshotDir.clear();
+	gSavedPerAccountSettings.setString("SnapshotBaseDir", std::string());
 }
 
 // static
@@ -4504,6 +4503,17 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 	}
 	gAgent.sendAnimationRequest(ANIM_AGENT_SNAPSHOT, ANIM_REQUEST_START);
 	send_sound_trigger(LLUUID(gSavedSettings.getString("UISndSnapshot")), 1.0f);
+}
+
+BOOL LLViewerWindow::isSnapshotLocSet() const
+{
+	std::string snapshot_dir = sSnapshotDir;
+	return !snapshot_dir.empty();
+}
+
+void LLViewerWindow::resetSnapshotLoc() const
+{
+	gSavedPerAccountSettings.setString("SnapshotBaseDir", std::string());
 }
 
 BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type)
