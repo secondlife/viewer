@@ -7252,10 +7252,16 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* vis
 		
 		if (object)
 		{
-			S32 bytes = 0;
-			S32 visible = 0;
-			cost += object->getStreamingCost(&bytes, &visible);
+			cost += object->getStreamingCost();
 
+            S32 bytes = 0;
+            S32 visible = 0;
+            LLMeshCostData costs;
+            if (object->getCostData(costs))
+            {
+                bytes = costs.getSizeTotal();
+                visible = costs.getSizeByLOD(object->getLOD());
+            }
 			if (total_bytes)
 			{
 				*total_bytes += bytes;

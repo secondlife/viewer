@@ -106,6 +106,7 @@
 #include "llvocache.h"
 #include "llcleanup.h"
 #include "llcallstack.h"
+#include "llmeshrepository.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -3698,9 +3699,17 @@ F32 LLViewerObject::getEstTrianglesStreamingCost() const
     return 0.f;
 }
 
-F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
+// virtual
+F32 LLViewerObject::getStreamingCost() const
 {
 	return 0.f;
+}
+
+// virtual
+bool LLViewerObject::getCostData(LLMeshCostData& costs) const
+{
+    costs = LLMeshCostData();
+    return false;
 }
 
 U32 LLViewerObject::getTriangleCount(S32* vcount) const

@@ -68,6 +68,8 @@ class LLViewerRegion;
 class LLViewerTexture;
 class LLWorld;
 
+class LLMeshCostData;
+
 typedef enum e_object_update_type
 {
 	OUT_FULL,
@@ -366,7 +368,8 @@ public:
     F32 recursiveGetEstTrianglesMax() const;
     virtual F32 getEstTrianglesMax() const;
     virtual F32 getEstTrianglesStreamingCost() const;
-	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL, F32* unscaled_value = NULL) const;
+	virtual F32 getStreamingCost() const;
+    virtual bool getCostData(LLMeshCostData& costs) const;
 	virtual U32 getTriangleCount(S32* vcount = NULL) const;
 	virtual U32 getHighLODTriangleCount();
     F32 recursiveGetScaledSurfaceArea() const;

@@ -4062,53 +4062,12 @@ void LLMeshRepository::uploadError(LLSD& args)
 	mUploadErrorQ.push(args);
 }
 
-bool LLMeshRepository::getLODSizes(LLSD& header, std::vector<S32>& lod_byte_sizes, std::vector<F32>& lod_tri_counts)
-{
-    lod_byte_sizes.resize(4);
-    lod_tri_counts.resize(4);
-
-    std::fill(lod_byte_sizes.begin(), lod_byte_sizes.end(), 0);
-    std::fill(lod_tri_counts.begin(), lod_tri_counts.end(), 0.f);
-    
-    S32 bytes_high = header["high_lod"]["size"].asInteger();
-    S32 bytes_med = header["medium_lod"]["size"].asInteger();
-    if (bytes_med == 0)
-    {
-        bytes_med = bytes_high;
-    }
-    S32 bytes_low = header["low_lod"]["size"].asInteger();
-    if (bytes_low == 0)
-    {
-        bytes_low = bytes_med;
-    }
-    S32 bytes_lowest = header["lowest_lod"]["size"].asInteger();
-    if (bytes_lowest == 0)
-    {
-        bytes_lowest = bytes_low;
-    }
-    lod_byte_sizes[0] = bytes_lowest;
-    lod_byte_sizes[1] = bytes_low;
-    lod_byte_sizes[2] = bytes_med;
-    lod_byte_sizes[3] = bytes_high;
-
-    F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
-    F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
-    F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
-
-    for (S32 i=0; i<4; i++)
-    {
-        lod_tri_counts[i] = llmax((F32) lod_byte_sizes[i]-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle; 
-    }
-
-    return true;
-}
-
 F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
 {
     LLMeshCostData costs;
     if (getCostData(mesh_id, costs))
     {
-        return costs.mEstTrisMax;
+        return costs.getEstTrisMax();
     }
     else
     {
@@ -4121,7 +4080,7 @@ F32 LLMeshRepository::getEstTrianglesStreamingCost(LLUUID mesh_id)
     LLMeshCostData costs;
     if (getCostData(mesh_id, costs))
     {
-        return costs.computeEstTrisForStreamingCost();
+        return costs.getEstTrisForStreamingCost();
     }
     else
     {
@@ -4130,7 +4089,7 @@ F32 LLMeshRepository::getEstTrianglesStreamingCost(LLUUID mesh_id)
 }
 
 // FIXME replace with calc based on LLMeshCostData
-F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
+F32 LLMeshRepository::getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
 {
 	F32 result = 0.f;
     if (mThread && mesh_id.notNull())
@@ -4139,7 +4098,7 @@ F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S
         LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
         if (iter != mThread->mMeshHeader.end() && mThread->mMeshHeaderSize[mesh_id] > 0)
         {
-            result  = getStreamingCost(iter->second, radius, bytes, bytes_visible, lod, unscaled_value);
+            result  = getStreamingCostLegacy(iter->second, radius, bytes, bytes_visible, lod, unscaled_value);
         }
     }
     if (result > 0.f)
@@ -4147,8 +4106,8 @@ F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S
         LLMeshCostData data;
         if (getCostData(mesh_id, data))
         {
-            F32 ref_streaming_cost = data.computeRadiusBasedStreamingCost(radius);
-            F32 ref_weighted_tris = data.computeRadiusWeightedTris(radius);
+            F32 ref_streaming_cost = data.getRadiusBasedStreamingCost(radius);
+            F32 ref_weighted_tris = data.getRadiusWeightedTris(radius);
             if (!is_approx_equal(ref_streaming_cost,result))
             {
                 LL_WARNS() << mesh_id << "streaming mismatch " << result << " " << ref_streaming_cost << LL_ENDL;
@@ -4157,13 +4116,13 @@ F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S
             {
                 LL_WARNS() << mesh_id << "weighted_tris mismatch " << *unscaled_value << " " << ref_weighted_tris << LL_ENDL;
             }
-            if (bytes && (*bytes != data.mSizeTotal))
+            if (bytes && (*bytes != data.getSizeTotal()))
             {
-                LL_WARNS() << mesh_id << "bytes mismatch " << *bytes << " " << data.mSizeTotal << LL_ENDL;
+                LL_WARNS() << mesh_id << "bytes mismatch " << *bytes << " " << data.getSizeTotal() << LL_ENDL;
             }
-            if (bytes_visible && (lod >=0) && (lod < 4) && (*bytes_visible != data.mSizeByLOD[lod]))
+            if (bytes_visible && (lod >=0) && (lod < 4) && (*bytes_visible != data.getSizeByLOD(lod)))
             {
-                LL_WARNS() << mesh_id << "bytes_visible mismatch " << *bytes_visible << " " << data.mSizeByLOD[lod] << LL_ENDL;
+                LL_WARNS() << mesh_id << "bytes_visible mismatch " << *bytes_visible << " " << data.getSizeByLOD(lod) << LL_ENDL;
             }
         }
         else
@@ -4176,7 +4135,7 @@ F32 LLMeshRepository::getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes, S
 
 // FIXME replace with calc based on LLMeshCostData
 //static
-F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
+F32 LLMeshRepository::getStreamingCostLegacy(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
 {
 	if (header.has("404")
 		|| !header.has("lowest_lod")
@@ -4287,12 +4246,79 @@ LLMeshCostData::LLMeshCostData()
 
     std::fill(mSizeByLOD.begin(), mSizeByLOD.end(), 0);
     std::fill(mEstTrisByLOD.begin(), mEstTrisByLOD.end(), 0.f);
-    
-    mSizeTotal = 0;
-    mEstTrisMax = 0;
 }
 
-F32 LLMeshCostData::computeRadiusWeightedTris(F32 radius)
+bool LLMeshCostData::init(const LLSD& header)
+{
+    mSizeByLOD.resize(4);
+    mEstTrisByLOD.resize(4);
+
+    std::fill(mSizeByLOD.begin(), mSizeByLOD.end(), 0);
+    std::fill(mEstTrisByLOD.begin(), mEstTrisByLOD.end(), 0.f);
+    
+    S32 bytes_high = header["high_lod"]["size"].asInteger();
+    S32 bytes_med = header["medium_lod"]["size"].asInteger();
+    if (bytes_med == 0)
+    {
+        bytes_med = bytes_high;
+    }
+    S32 bytes_low = header["low_lod"]["size"].asInteger();
+    if (bytes_low == 0)
+    {
+        bytes_low = bytes_med;
+    }
+    S32 bytes_lowest = header["lowest_lod"]["size"].asInteger();
+    if (bytes_lowest == 0)
+    {
+        bytes_lowest = bytes_low;
+    }
+    mSizeByLOD[0] = bytes_lowest;
+    mSizeByLOD[1] = bytes_low;
+    mSizeByLOD[2] = bytes_med;
+    mSizeByLOD[3] = bytes_high;
+
+    F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
+    F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
+    F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
+
+    for (S32 i=0; i<4; i++)
+    {
+        mEstTrisByLOD[i] = llmax((F32) mSizeByLOD[i]-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle; 
+    }
+
+    return true;
+}
+
+
+S32 LLMeshCostData::getSizeByLOD(S32 lod)
+{
+    if (llclamp(lod,0,3) != lod)
+    {
+        return 0;
+    }
+    return mSizeByLOD[lod];
+}
+
+S32 LLMeshCostData::getSizeTotal()
+{
+    return mSizeByLOD[0] + mSizeByLOD[1] + mSizeByLOD[2] + mSizeByLOD[3];
+}
+
+F32 LLMeshCostData::getEstTrisByLOD(S32 lod)
+{
+    if (llclamp(lod,0,3) != lod)
+    {
+        return 0.f;
+    }
+    return mEstTrisByLOD[lod];
+}
+
+F32 LLMeshCostData::getEstTrisMax()
+{
+    return llmax(mEstTrisByLOD[0], mEstTrisByLOD[1], mEstTrisByLOD[2], mEstTrisByLOD[3]);
+}
+
+F32 LLMeshCostData::getRadiusWeightedTris(F32 radius)
 {
 	F32 max_distance = 512.f;
 
@@ -4336,7 +4362,7 @@ F32 LLMeshCostData::computeRadiusWeightedTris(F32 radius)
     return weighted_avg;
 }
 
-F32 LLMeshCostData::computeEstTrisForStreamingCost()
+F32 LLMeshCostData::getEstTrisForStreamingCost()
 {
     LL_DEBUGS("StreamingCost") << "tris_by_lod: "
                                << mEstTrisByLOD[0] << ", "
@@ -4363,14 +4389,14 @@ F32 LLMeshCostData::computeEstTrisForStreamingCost()
     return charged_tris;
 }
 
-F32 LLMeshCostData::computeRadiusBasedStreamingCost(F32 radius)
+F32 LLMeshCostData::getRadiusBasedStreamingCost(F32 radius)
 {
-	return computeRadiusWeightedTris(radius)/gSavedSettings.getU32("MeshTriangleBudget")*15000.f;
+	return getRadiusWeightedTris(radius)/gSavedSettings.getU32("MeshTriangleBudget")*15000.f;
 }
 
-F32 LLMeshCostData::computeTriangleBasedStreamingCost()
+F32 LLMeshCostData::getTriangleBasedStreamingCost()
 {
-    F32 result = ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * computeEstTrisForStreamingCost()/0.06;
+    F32 result = ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * getEstTrisForStreamingCost();
     return result;
 }
 
@@ -4391,7 +4417,7 @@ bool LLMeshRepository::getCostData(LLUUID mesh_id, LLMeshCostData& data)
                                    || (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION));
             if (!header_invalid)
             {
-                return getCostData(header, mesh_id, data);
+                return getCostData(header, data);
             }
 
             return true;
@@ -4400,19 +4426,15 @@ bool LLMeshRepository::getCostData(LLUUID mesh_id, LLMeshCostData& data)
     return false;
 }
 
-bool LLMeshRepository::getCostData(LLSD& header, LLUUID mesh_id, LLMeshCostData& data)
+bool LLMeshRepository::getCostData(LLSD& header, LLMeshCostData& data)
 {
     data = LLMeshCostData();
 
-    if (!getLODSizes(header, data.mSizeByLOD, data.mEstTrisByLOD))
+    if (!data.init(header))
     {
         return false;
     }
     
-    data.mEstTrisMax = llmax(data.mEstTrisByLOD[0], data.mEstTrisByLOD[1], data.mEstTrisByLOD[2], data.mEstTrisByLOD[3]);
-
-    data.mSizeTotal = data.mSizeByLOD[0] + data.mSizeByLOD[1] + data.mSizeByLOD[2] + data.mSizeByLOD[3];
-
     return true;
 }
 

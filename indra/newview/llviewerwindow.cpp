@@ -546,7 +546,14 @@ public:
 								object_count++;
 								S32 bytes = 0;	
 								S32 visible = 0;
-								cost += object->getStreamingCost(&bytes, &visible);
+								cost += object->getStreamingCost();
+                                LLMeshCostData costs;
+                                if (object->getCostData(costs))
+                                {
+                                    bytes = costs.getSizeTotal();
+                                    visible = costs.getSizeByLOD(object->getLOD());
+                                }
+
 								S32 vt = 0;
 								count += object->getTriangleCount(&vt);
 								vcount += vt;
