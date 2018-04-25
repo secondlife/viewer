@@ -903,6 +903,7 @@ void LLMeshRepoThread::run()
 			LLMeshRepository::sLODProcessing--;
 			mMutex->unlock();
 
+			// Todo: this and other cases shouldn't retry indefinitely, at the very least do as with mDecompositionRequests
 			if (!fetchMeshLOD(req.mMeshParams, req.mLOD))		// failed, resubmit
 			{
 				mMutex->lock();
@@ -1234,16 +1235,16 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 			//check VFS for mesh skin info
 			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
-			{				
-				LLMeshRepository::sCacheBytesRead += size;
-				++LLMeshRepository::sCacheReads;
-				file.seek(offset);
+			{
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS(LOG_MESH) << "Failed to allocate memory for skin info" << LL_ENDL;
+					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
 					return false;
 				}
+				LLMeshRepository::sCacheBytesRead += size;
+				++LLMeshRepository::sCacheReads;
+				file.seek(offset);
 				file.read(buffer, size);
 
 				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1331,16 +1332,16 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
+				U8* buffer = new(std::nothrow) U8[size];
+				if (!buffer)
+				{
+					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
+					return false;
+				}
 				LLMeshRepository::sCacheBytesRead += size;
 				++LLMeshRepository::sCacheReads;
 
 				file.seek(offset);
-				U8* buffer = new(std::nothrow) U8[size];
-				if (!buffer)
-				{
-					LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition" << LL_ENDL;
-					return false;
-				}
 				file.read(buffer, size);
 
 				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1434,7 +1435,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS(LOG_MESH) << "Failed to allocate memory for physics shape" << LL_ENDL;
+					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for physics shape, size: " << size << LL_ENDL;
 					return false;
 				}
 				file.read(buffer, size);
@@ -1612,15 +1613,17 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
-				LLMeshRepository::sCacheBytesRead += size;
-				++LLMeshRepository::sCacheReads;
-				file.seek(offset);
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh LOD" << LL_ENDL;
+					LL_WARNS_ONCE(LOG_MESH) << "Can't allocate memory for mesh LOD, size: " << size << LL_ENDL;
+					// todo: for now it will result in indefinite constant retries, should result in timeout
+					// or in retry-count and disabling mesh. (but usually viewer is beyond saving at this point)
 					return false;
 				}
+				LLMeshRepository::sCacheBytesRead += size;
+				++LLMeshRepository::sCacheReads;
+				file.seek(offset);
 				file.read(buffer, size);
 
 				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
