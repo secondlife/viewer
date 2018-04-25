@@ -1838,7 +1838,7 @@
         <menu_item_check
              label="All World"
              name="Rendering Type Set World"
-             shortcut="control|alt|shift|0">
+             shortcut="control|alt|shift|F10">
           <menu_item_check.on_check
            function="Advanced.CheckWorldRenderTypes"
            parameter="world" />
