@@ -95,6 +95,9 @@ U64 LLTextureCache::getUsage()
 
 bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
 {
+    // only write texture to disk if it's better than what we've cached or it's new
+    bool write_to_disk = false;
+
     {
 	    LLMutexLock lock(&mMutex);
 
@@ -110,6 +113,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
             // got a better discard, record its info...
             if (image->getDiscardLevel() < info.mDiscardLevel)
             {
+                write_to_disk = true;
                 info.mID                = id;
                 info.mCachedHeight      = image->getHeight();
                 info.mCachedWidth       = image->getWidth();
@@ -120,6 +124,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         }
         else // new addition
         {
+            write_to_disk = true;
             info.mID                = id;
             info.mCachedHeight      = image->getHeight();
             info.mCachedWidth       = image->getWidth();
@@ -177,23 +182,26 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         mUsage += info.mImageEncodedSize;
     }
 
-    std::string filename = getTextureFileName(id, EImageCodec(image->getCodec()));
-
-    LLFILE* f = LLFile::fopen(filename, "wb");
-    if (!f)
+    if (write_to_disk)
     {
-        LL_WARNS() << "Failed to write complete file while caching texture " << filename << LL_ENDL;
-        return false;
-    }
+        std::string filename = getTextureFileName(id, EImageCodec(image->getCodec()));
 
-	S32 bytes_written = fwrite((const char*)image->getData(), 1, image->getDataSize(), f);
+        LLFILE* f = LLFile::fopen(filename, "wb");
+        if (!f)
+        {
+            LL_WARNS() << "Failed to write complete file while caching texture " << filename << LL_ENDL;
+            return false;
+        }
 
-    fclose(f);
+	    S32 bytes_written = fwrite((const char*)image->getData(), 1, image->getDataSize(), f);
 
-    if (bytes_written != image->getDataSize())
-    {
-        LL_WARNS() << "Failed to write complete file while caching texture." << LL_ENDL;
-        return false;
+        fclose(f);
+
+        if (bytes_written != image->getDataSize())
+        {
+            LL_WARNS() << "Failed to write complete file while caching texture." << LL_ENDL;
+            return false;
+        }
     }
 
     ++mAddedEntries;
@@ -351,6 +359,9 @@ static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE_IO("TexCache IO");
 
 bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
 {
+
+try
+{
     //LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE_IO);
 
     if (!mEntries.size())
@@ -379,6 +390,12 @@ bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
     }
 
     mAddedEntries = 0;
+}
+catch (const std::exception& e)
+{
+    (void)e;
+    llassert(false);
+}
 
     return true;
 }
