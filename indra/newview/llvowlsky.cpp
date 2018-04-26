@@ -36,7 +36,6 @@
 #include "llenvironment.h"
 #include "llsettingssky.h"
 
-#define DOME_SLICES 1
 const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f)*0.25f;
 
 const U32 LLVOWLSky::MIN_SKY_DETAIL = 3;
@@ -131,167 +130,22 @@ inline F32 LLVOWLSky::calcPhi(U32 i)
 	return (F_PI / 8.f) * t;
 }
 
-#if !DOME_SLICES
-static const F32 Q = (1.f + sqrtf(5.f))/2.f; //golden ratio
-
-//icosahedron verts (based on asset b0c7b76e-28c6-1f87-a1de-752d5e3cd264, contact Runitai Linden for a copy)
-static const LLVector3 icosahedron_vert[] =
-{
-	LLVector3(0,1.f,Q),
-	LLVector3(0,-1.f,Q),
-	LLVector3(0,-1.f,-Q),
-	LLVector3(0,1.f,-Q),
-
-	LLVector3(Q,0,1.f),
-	LLVector3(-Q,0,1.f),
-	LLVector3(-Q,0,-1.f),
-	LLVector3(Q,0,-1.f),
-
-	LLVector3(1,-Q,0.f),
-	LLVector3(-1,-Q,0.f),
-	LLVector3(-1,Q,0.f),
-	LLVector3(1,Q,0.f),
-};
-
-//indices
-static const U32 icosahedron_ind[] = 
-{
-	5,0,1,
-	10,0,5,
-	5,1,9,
-	10,5,6,
-	6,5,9,
-	11,0,10,
-	3,11,10,
-	3,10,6,
-	3,6,2,
-	7,3,2,
-	8,7,2,
-	4,7,8,
-	1,4,8,
-	9,8,2,
-	9,2,6,
-	11,3,7,
-	4,0,11,
-	4,11,7,
-	1,0,4,
-	1,8,9,
-};
-
-
-//split every triangle in LLVertexBuffer into even fourths (assumes index triangle lists)
-void subdivide(LLVertexBuffer& in, LLVertexBuffer* ret)
-{
-	S32 tri_in = in.getNumIndices()/3;
-
-	ret->allocateBuffer(tri_in*4*3, tri_in*4*3, TRUE);
-
-	LLStrider<LLVector3> vin, vout;
-	LLStrider<U16> indin, indout;
-
-	ret->getVertexStrider(vout);
-	in.getVertexStrider(vin);
-
-	ret->getIndexStrider(indout);
-	in.getIndexStrider(indin);
-	
-	
-	for (S32 i = 0; i < tri_in; i++)
-	{
-		LLVector3 v0 = vin[*indin++];
-		LLVector3 v1 = vin[*indin++];
-		LLVector3 v2 = vin[*indin++];
-
-		LLVector3 v3 = (v0 + v1) * 0.5f;
-		LLVector3 v4 = (v1 + v2) * 0.5f;
-		LLVector3 v5 = (v2 + v0) * 0.5f;
-
-		*vout++ = v0;
-		*vout++ = v3;
-		*vout++ = v5;
-
-		*vout++ = v3;
-		*vout++ = v4;
-		*vout++ = v5;
-
-		*vout++ = v3;
-		*vout++ = v1;
-		*vout++ = v4;
-
-		*vout++ = v5;
-		*vout++ = v4;
-		*vout++ = v2;
-	}
-	
-	for (S32 i = 0; i < ret->getNumIndices(); i++)
-	{
-		*indout++ = i;
-	}
-
-}
-
-void chop(LLVertexBuffer& in, LLVertexBuffer* out)
-{
-	//chop off all triangles below horizon 
-    F32 d = LLEnvironment::instance().getCamHeight();
-	
-	std::vector<LLVector3> vert;
-	
-	LLStrider<LLVector3> vin;
-	LLStrider<U16> index;
-
-	in.getVertexStrider(vin);
-	in.getIndexStrider(index);
-
-	U32 tri_count = in.getNumIndices()/3;
-	for (U32 i = 0; i < tri_count; i++)
-	{
-		LLVector3 &v1 = vin[index[i*3+0]];
-		LLVector3 &v2 = vin[index[i*3+1]];
-		LLVector3 &v3 = vin[index[i*3+2]];
-
-		if (v1.mV[1] > d ||
-			v2.mV[1] > d ||
-			v3.mV[1] > d)
-		{
-			v1.mV[1] = llmax(v1.mV[1], d);
-			v2.mV[1] = llmax(v1.mV[1], d);
-			v3.mV[1] = llmax(v1.mV[1], d);
-
-			vert.push_back(v1);
-			vert.push_back(v2);
-			vert.push_back(v3);
-		}
-	}
-
-	out->allocateBuffer(vert.size(), vert.size(), TRUE);
-
-	LLStrider<LLVector3> vout;
-	out->getVertexStrider(vout);
-	out->getIndexStrider(index);
-
-	for (U32 i = 0; i < vert.size(); i++)
-	{
-		*vout++ = vert[i];
-		*index++ = i;
-	}	
-}
-#endif // !DOME_SLICES
-
 void LLVOWLSky::resetVertexBuffers()
 {
-	mFanVerts = NULL;
+	mFanVerts = nullptr;
 	mStripsVerts.clear();
-	mStarsVerts = NULL;
+	mStarsVerts = nullptr;
+    mFsSkyVerts = nullptr;
 
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 }
 	
 void LLVOWLSky::cleanupGL()
 {
-	mFanVerts = NULL;
+	mFanVerts = nullptr;
 	mStripsVerts.clear();
-	mStarsVerts = NULL;
+	mStarsVerts = nullptr;
+    mFsSkyVerts = nullptr;
 
 	LLDrawPoolWLSky::cleanupGL();
 }
@@ -306,12 +160,54 @@ static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Windlight Sky Geometry");
 
 BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_GEO_SKY);
+    LL_RECORD_BLOCK_TIME(FTM_GEO_SKY);
 	LLStrider<LLVector3>	vertices;
 	LLStrider<LLVector2>	texCoords;
 	LLStrider<U16>			indices;
 
-#if DOME_SLICES
+    if (gPipeline.useAdvancedAtmospherics())
+    {
+        if (mFsSkyVerts.isNull())
+        {
+            mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+
+            if (!mFsSkyVerts->allocateBuffer(4, 6, TRUE))
+		    {
+			    LL_WARNS() << "Failed to allocate Vertex Buffer on full screen sky update" << LL_ENDL;
+		    }
+
+		    BOOL success = mFsSkyVerts->getVertexStrider(vertices)
+			            && mFsSkyVerts->getTexCoord0Strider(texCoords)
+			            && mFsSkyVerts->getIndexStrider(indices);
+
+		    if(!success) 
+		    {
+			    LL_ERRS() << "Failed updating WindLight fullscreen sky geometry." << LL_ENDL;
+		    }
+
+            *vertices++ = LLVector3(-1.0f, -1.0f, 0.0f);
+            *vertices++ = LLVector3( 1.0f, -1.0f, 0.0f);
+            *vertices++ = LLVector3(-1.0f,  1.0f, 0.0f);
+            *vertices++ = LLVector3( 1.0f,  1.0f, 0.0f);
+
+		    *texCoords++ = LLVector2(0.0f, 0.0f);
+            *texCoords++ = LLVector2(1.0f, 0.0f);
+            *texCoords++ = LLVector2(0.0f, 1.0f);
+            *texCoords++ = LLVector2(1.0f, 1.0f);
+
+		    *indices++ = 0;
+		    *indices++ = 1;
+		    *indices++ = 2;
+            *indices++ = 1;
+		    *indices++ = 3;
+		    *indices++ = 2;
+
+            mFsSkyVerts->flush();
+        }
+
+        return TRUE;
+    }
+
 	{
 		mFanVerts = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 		if (!mFanVerts->allocateBuffer(getFanNumVerts(), getFanNumIndices(), TRUE))
@@ -407,85 +303,6 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 	
 		LL_INFOS() << "completed in " << llformat("%.2f", timer.getElapsedTimeF32().value()) << "seconds" << LL_ENDL;
 	}
-#else
-	mStripsVerts = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
-	
-    const F32 RADIUS = LLEnvironment::getCurrentSky()->getDomeRadius();
-
-	LLPointer<LLVertexBuffer> temp = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 0);
-	temp->allocateBuffer(12, 60, TRUE);
-
-	BOOL success = temp->getVertexStrider(vertices)
-		&& temp->getIndexStrider(indices);
-
-	if (success)
-	{
-		for (U32 i = 0; i < 12; i++)
-		{
-			*vertices++ = icosahedron_vert[i];
-		}
-
-		for (U32 i = 0; i < 60; i++)
-		{
-			*indices++ = icosahedron_ind[i];
-		}
-	}
-
-
-	LLPointer<LLVertexBuffer> temp2;
-	
-	for (U32 i = 0; i < 8; i++)
-	{
-		temp2 = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 0);
-		subdivide(*temp, temp2);
-		temp = temp2;
-	}
-	
-	temp->getVertexStrider(vertices);
-	for (S32 i = 0; i < temp->getNumVerts(); i++)
-	{
-		LLVector3 v = vertices[i];
-		v.normVec();
-		vertices[i] = v*RADIUS;
-	}
-
-	temp2 = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 0);
-	chop(*temp, temp2);
-
-	mStripsVerts->allocateBuffer(temp2->getNumVerts(), temp2->getNumIndices(), TRUE);
-	
-	success = mStripsVerts->getVertexStrider(vertices)
-		&& mStripsVerts->getTexCoordStrider(texCoords)
-		&& mStripsVerts->getIndexStrider(indices);
-
-	LLStrider<LLVector3> v;
-	temp2->getVertexStrider(v);
-	LLStrider<U16> ind;
-	temp2->getIndexStrider(ind);
-
-	if (success)
-	{
-		for (S32 i = 0; i < temp2->getNumVerts(); ++i)
-		{
-			LLVector3 vert = *v++;
-			vert.normVec();
-			F32 z0 = vert.mV[2];
-			F32 x0 = vert.mV[0];
-			
-			vert *= RADIUS;
-			
-			*vertices++ = vert;
-			*texCoords++ = LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
-		}
-
-		for (S32 i = 0; i < temp2->getNumIndices(); ++i)
-		{
-			*indices++ = *ind++;
-		}
-	}
-
-	mStripsVerts->flush();
-#endif
 
 	updateStarColors();
 	updateStarGeometry(drawable);
@@ -505,6 +322,23 @@ void LLVOWLSky::drawStars(void)
 	}
 }
 
+void LLVOWLSky::drawFsSky(void)
+{
+    if (mFsSkyVerts.isNull())
+	{
+		updateGeometry(mDrawable);
+	}
+
+    //LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+    LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE, GL_ALWAYS);
+    LLGLDisable disable_blend(GL_BLEND);
+
+	mFsSkyVerts->setBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK);
+	mFsSkyVerts->drawRange(LLRender::TRIANGLES, 0, mFsSkyVerts->getNumVerts() - 1, mFsSkyVerts->getNumIndices(), 0);
+	gPipeline.addTrianglesDrawn(mFsSkyVerts->getNumIndices(), LLRender::TRIANGLES);
+	LLVertexBuffer::unbind();
+}
+
 void LLVOWLSky::drawDome(void)
 {
 	if (mStripsVerts.empty())
@@ -516,7 +350,6 @@ void LLVOWLSky::drawDome(void)
 
 	const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
 	
-#if DOME_SLICES
 	std::vector< LLPointer<LLVertexBuffer> >::const_iterator strips_vbo_iter, end_strips;
 	end_strips = mStripsVerts.end();
 	for(strips_vbo_iter = mStripsVerts.begin(); strips_vbo_iter != end_strips; ++strips_vbo_iter)
@@ -531,16 +364,6 @@ void LLVOWLSky::drawDome(void)
 			0);
 		gPipeline.addTrianglesDrawn(strips_segment->getNumIndices(), LLRender::TRIANGLE_STRIP);
 	}
-
-#else
-	mStripsVerts->setBuffer(data_mask);
-	gGL.syncMatrices();
-	glDrawRangeElements(
-		GL_TRIANGLES,
-		0, mStripsVerts->getNumVerts()-1, mStripsVerts->getNumIndices(),
-		GL_UNSIGNED_SHORT,
-		mStripsVerts->getIndicesPointer());
-#endif
 
 	LLVertexBuffer::unbind();
 }

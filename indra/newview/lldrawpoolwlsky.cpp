@@ -44,6 +44,8 @@
 #include "llenvironment.h" 
 #include "llatmosphere.h"
 
+static LLStaticHashedString sCamPosLocal("camPosLocal");
+
 LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
 LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
@@ -124,62 +126,63 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 
 }
 
-void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) const
+void LLDrawPoolWLSky::renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
+{
+    gGL.pushMatrix();
+    gGL.matrixMode(LLRender::MM_PROJECTION);	
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.loadIdentity();
+
+    // Draw WL Sky	w/ normal cam pos (where you are) for adv atmo sky
+    sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
+    gSky.mVOWLSkyp->drawFsSky();
+
+    gGL.popMatrix();
+}
+
+void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
 {
     llassert_always(NULL != shader);
 
-    static LLStaticHashedString sCamPosLocal("camPosLocal");
+	gGL.pushMatrix();
 
-    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-
-    if (gPipeline.useAdvancedAtmospherics())
-    {
-        // Draw WL Sky	w/ normal cam pos (where you are) for adv atmo sky
-        sky_shader->uniform3f(sCamPosLocal, origin.mV[0], origin.mV[1], origin.mV[2]);
-
-//  TBD replace this with a FS tri pass, there's little point to the tess when you have fragment shaders...
-
-        gSky.mVOWLSkyp->drawDome();
-    }
-    else
-    {
-	    gGL.pushMatrix();
-
-	    //chop off translation
-	    if (LLPipeline::sReflectionRender && origin.mV[2] > 256.f)
-	    {
-		    gGL.translatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
-	    }
-	    else
-	    {
-		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
-	    }
+	//chop off translation
+	if (LLPipeline::sReflectionRender && camPosLocal.mV[2] > 256.f)
+	{
+		gGL.translatef(camPosLocal.mV[0], camPosLocal.mV[1], 256.f-camPosLocal.mV[2]*0.5f);
+	}
+	else
+	{
+		gGL.translatef(camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
+	}
 		
 
-	    // the windlight sky dome works most conveniently in a coordinate system
-	    // where Y is up, so permute our basis vectors accordingly.
-	    gGL.rotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
+	// the windlight sky dome works most conveniently in a coordinate system
+	// where Y is up, so permute our basis vectors accordingly.
+	gGL.rotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
 
-	    gGL.scalef(0.333f, 0.333f, 0.333f);
+	gGL.scalef(0.333f, 0.333f, 0.333f);
 
-	    gGL.translatef(0.f,-camHeightLocal, 0.f);
+	gGL.translatef(0.f,-camHeightLocal, 0.f);
 	
-	    // Draw WL Sky
-	    shader->uniform3f(sCamPosLocal, 0.f, camHeightLocal, 0.f);
+	// Draw WL Sky
+	shader->uniform3f(sCamPosLocal, 0.f, camHeightLocal, 0.f);
 
-        gSky.mVOWLSkyp->drawDome();
+    gSky.mVOWLSkyp->drawDome();
 
-	    gGL.popMatrix();
-    }
+	gGL.popMatrix();
 }
 
-void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
+void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
 		LLGLDisable blend(GL_BLEND);
 
 		sky_shader->bind();
+
+        LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
         if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders() && gAtmosphere)
         {
@@ -206,10 +209,14 @@ void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
             {
                 sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, sCloudNoiseTexture);
             }
-        }
 
-		/// Render the skydome
-		renderDome(camHeightLocal, sky_shader);	
+            renderFsSky(origin, camHeightLocal, sky_shader);
+        }
+        else
+        {
+		    /// Render the skydome
+		    renderDome(origin, camHeightLocal, sky_shader);	
+        }
 
 		sky_shader->unbind();
 	}
@@ -274,7 +281,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	}
 }
 
-void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
+void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
 	{
@@ -286,7 +293,7 @@ void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 		cloud_shader->bind();
 
 		/// Render the skydome
-		renderDome(camHeightLocal, cloud_shader);
+		renderDome(camPosLocal, camHeightLocal, cloud_shader);
 
 		cloud_shader->unbind();
 	}
@@ -362,7 +369,9 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
-	renderSkyHaze(camHeightLocal);
+    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+
+	renderSkyHaze(origin, camHeightLocal);
 
     if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
     {
@@ -387,7 +396,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	    gGL.popMatrix();
     }
 
-	renderSkyClouds(camHeightLocal);
+	renderSkyClouds(origin, camHeightLocal);
     
     gGL.setColorMask(true, true);
 }
@@ -408,11 +417,12 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
-	renderSkyHaze(camHeightLocal);
+    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+
+	renderSkyHaze(origin, camHeightLocal);
 
     if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
     {
-	    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	    gGL.pushMatrix();
 
 		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
@@ -429,7 +439,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	    gGL.popMatrix();
     }
 
-	renderSkyClouds(camHeightLocal);
+	renderSkyClouds(origin, camHeightLocal);
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }

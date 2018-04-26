@@ -60,6 +60,7 @@ public:
 
 	void drawStars(void);
 	void drawDome(void);
+    void drawFsSky(void); // fullscreen sky for advanced atmo
 	void resetVertexBuffers(void);
 	
 	void cleanupGL();
@@ -93,6 +94,8 @@ private:
 	BOOL updateStarGeometry(LLDrawable *drawable);
 
 private:
+    LLPointer<LLVertexBuffer>					mFsSkyVerts;
+
 	LLPointer<LLVertexBuffer>					mFanVerts;
 	std::vector< LLPointer<LLVertexBuffer> >	mStripsVerts;
 	LLPointer<LLVertexBuffer>					mStarsVerts;
