@@ -3728,7 +3728,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 					// weighted attachment - 1 point for every 3 bytes
 					weighted_mesh = 1;
 				}
-
 			}
 			else
 			{
@@ -3897,7 +3896,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame += media_faces * ARC_MEDIA_FACE_COST;
 	}
 
-    // AXON streaming cost for animated objects includes a fixed cost
+    // Streaming cost for animated objects includes a fixed cost
     // per linkset. Add a corresponding charge here translated into
     // triangles, but not weighted by any graphics properties.
     if (isAnimatedObject() && isRootEdit())
