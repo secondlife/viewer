@@ -2971,15 +2971,15 @@ void LLViewerObject::updateControlAvatar()
     LLViewerObject *root = getRootEdit();
     if (root->isAnimatedObject() && !root->getControlAvatar())
     {
-        bool any_mesh = root->isMesh();
+        bool any_rigged_mesh = root->isRiggedMesh();
         LLViewerObject::const_child_list_t& child_list = root->getChildren();
         for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
              iter != child_list.end(); ++iter)
         {
             const LLViewerObject* child = *iter;
-            any_mesh = any_mesh || child->isMesh();
+            any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
         }
-        if (any_mesh)
+        if (any_rigged_mesh)
         {
             std::string vobj_name = llformat("Vol%p", root);
             LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
