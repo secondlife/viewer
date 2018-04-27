@@ -240,6 +240,7 @@ void LLControlAvatar::updateDebugText()
         std::string active_string;
         std::string type_string;
         std::string lod_string;
+        std::string animated_object_flag_string;
         S32 total_tris = 0;
         S32 total_verts = 0;
         F32 est_tris = 0.f;
@@ -259,6 +260,15 @@ void LLControlAvatar::updateDebugText()
             lod_string += llformat("%d",volp->getLOD());
             if (volp && volp->mDrawable)
             {
+                bool is_animated_flag = volp->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+                if (is_animated_flag)
+                {
+                    animated_object_flag_string += "1";
+                }
+                else
+                {
+                    animated_object_flag_string += "0";
+                }
                 if (volp->mDrawable->isActive())
                 {
                     active_string += "A";
@@ -269,7 +279,7 @@ void LLControlAvatar::updateDebugText()
                 }
                 if (volp->isRiggedMesh())
                 {
-                    // Rigged/animateable mesh
+                    // Rigged/animatable mesh
                     type_string += "R";
                 }
                 else if (volp->isMesh())
@@ -293,6 +303,7 @@ void LLControlAvatar::updateDebugText()
                               total_linkset_count, animated_volume_count, 
                               active_string.c_str(), (S32) isImpostor(), streaming_cost));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
+        addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
 #if 0

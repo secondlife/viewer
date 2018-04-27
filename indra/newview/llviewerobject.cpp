@@ -2969,24 +2969,25 @@ LLControlAvatar *LLViewerObject::getControlAvatar() const
 void LLViewerObject::updateControlAvatar()
 {
     LLViewerObject *root = getRootEdit();
-    if (root->isAnimatedObject() && !root->getControlAvatar())
+    bool any_rigged_mesh = root->isRiggedMesh();
+    LLViewerObject::const_child_list_t& child_list = root->getChildren();
+    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+         iter != child_list.end(); ++iter)
     {
-        bool any_rigged_mesh = root->isRiggedMesh();
-        LLViewerObject::const_child_list_t& child_list = root->getChildren();
-        for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
-             iter != child_list.end(); ++iter)
-        {
-            const LLViewerObject* child = *iter;
-            any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
-        }
-        if (any_rigged_mesh)
-        {
-            std::string vobj_name = llformat("Vol%p", root);
-            LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
-            root->linkControlAvatar();
-        }
+        const LLViewerObject* child = *iter;
+        any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
     }
-    if (!root->isAnimatedObject() && root->getControlAvatar())
+
+    bool has_control_avatar = getControlAvatar();
+    bool should_have_control_avatar = root->isAnimatedObject() && any_rigged_mesh;
+
+    if (should_have_control_avatar && !has_control_avatar)
+    {
+        std::string vobj_name = llformat("Vol%p", root);
+        LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
+        root->linkControlAvatar();
+    }
+    if (!should_have_control_avatar && has_control_avatar)
     {
         std::string vobj_name = llformat("Vol%p", root);
         LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
