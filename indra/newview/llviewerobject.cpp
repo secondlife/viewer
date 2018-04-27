@@ -3663,7 +3663,10 @@ F32 LLViewerObject::recursiveGetEstTrianglesMax() const
          iter != mChildList.end(); iter++)
     {
         const LLViewerObject* child = *iter;
-        est_tris += child->recursiveGetEstTrianglesMax();
+        if (!child->isAvatar())
+        {
+            est_tris += child->recursiveGetEstTrianglesMax();
+        }
     }
     return est_tris;
 }
