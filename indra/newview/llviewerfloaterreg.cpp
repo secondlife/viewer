@@ -67,6 +67,7 @@
 #include "llfloaterexperiencepicker.h"
 #include "llfloaterevent.h"
 #include "llfloaterfacebook.h"
+#include "llfloaterfixedenvironment.h"
 #include "llfloaterflickr.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
@@ -225,6 +226,9 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("env_edit_sky", "floater_edit_sky_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditSky>);
 	LLFloaterReg::add("env_edit_water", "floater_edit_water_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditWater>);
 	LLFloaterReg::add("env_edit_day_cycle", "floater_edit_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditDayCycle>);
+
+    LLFloaterReg::add("env_fixed_environmentent_water", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentWater>);
+    //LLFloaterReg::add("env_fixed_environmentent", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironment>);
 
     LLFloaterReg::add("env_edit_extdaycycle", "floater_edit_ext_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditExtDayCycle>);
 

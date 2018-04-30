@@ -234,6 +234,7 @@ set(viewer_SOURCE_FILES
     llfloaterexperienceprofile.cpp
     llfloaterexperiences.cpp
     llfloaterfacebook.cpp
+    llfloaterfixedenvironment.cpp
     llfloaterflickr.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -420,6 +421,7 @@ set(viewer_SOURCE_FILES
     llpanelblockedlist.cpp
     llpanelclassified.cpp
     llpanelcontents.cpp
+    llpaneleditwater.cpp
     llpaneleditwearable.cpp
     llpanelenvironment.cpp
     llpanelexperiencelisteditor.cpp
@@ -849,6 +851,7 @@ set(viewer_HEADER_FILES
     llfloaterexperienceprofile.h
     llfloaterexperiences.h
     llfloaterfacebook.h
+    llfloaterfixedenvironment.h
     llfloaterflickr.h
     llfloaterfonttest.h
     llfloatergesture.h
@@ -1028,6 +1031,7 @@ set(viewer_HEADER_FILES
     llpanelblockedlist.h
     llpanelclassified.h
     llpanelcontents.h
+    llpaneleditwater.h
     llpaneleditwearable.h
     llpanelenvironment.h
     llpanelexperiencelisteditor.h

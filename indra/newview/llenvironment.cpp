@@ -329,6 +329,30 @@ S64Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env)
 
 LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironment::EnvSelection_t env)
 {
+    if (env == ENV_CURRENT)
+    {
+        fixedEnvironment_t fixed;
+        for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+        {
+            if (fixed.first && fixed.second)
+                break;
+
+            DayInstance::ptr_t environment = getEnvironmentInstance(static_cast<EnvSelection_t>(idx));
+            if (environment)
+            {
+                if (!fixed.first)
+                    fixed.first = environment->getSky();
+                if (!fixed.second)
+                    fixed.second = environment->getWater();
+            }
+        }
+
+        if (!fixed.first || !fixed.second)
+            LL_WARNS("ENVIRONMENT") << "Can not construct complete fixed environment.  Missing Sky and/or Water." << LL_ENDL;
+
+        return fixed;
+    }
+
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
         LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;

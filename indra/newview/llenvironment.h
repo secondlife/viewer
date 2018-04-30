@@ -82,7 +82,8 @@ public:
         ENV_PARCEL,
         ENV_REGION,
         ENV_DEFAULT,
-        ENV_END
+        ENV_END,
+        ENV_CURRENT = -1
     };
 
     typedef boost::signals2::connection     connection_t;
