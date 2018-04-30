@@ -3010,11 +3010,20 @@ void LLViewerObject::linkControlAvatar()
                                      << " created control av for " 
                                      << (S32) (1+volp->numChildren()) << " prims" << LL_ENDL;
     }
-    if (getControlAvatar())
+    LLControlAvatar *cav = getControlAvatar();
+    if (cav)
     {
-        getControlAvatar()->updateAttachmentOverrides();
-        getControlAvatar()->updateAnimations();
-        getControlAvatar()->mPlaying = true;
+        cav->updateAttachmentOverrides();
+        cav->updateAnimations();
+        if (!cav->mPlaying)
+        {
+            cav->mPlaying = true;
+            if (!cav->mRootVolp->isAnySelected())
+            {
+                cav->updateVolumeGeom();
+                cav->mRootVolp->recursiveMarkForUpdate(TRUE);
+            }
+        }
     }
     else
     {
