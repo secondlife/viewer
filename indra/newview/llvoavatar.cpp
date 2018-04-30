@@ -5322,6 +5322,11 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 			if (use_new_walk_run)
 				result = ANIM_AGENT_RUN_NEW;
 		}
+		// keeps in sync with setSex() related code (viewer controls sit's sex)
+		else if (id == ANIM_AGENT_SIT_FEMALE)
+		{
+			result = ANIM_AGENT_SIT;
+		}
 	
 	}
 
@@ -6093,7 +6098,26 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::updateVisualParams()
 {
-	setSex( (getVisualParamWeight( "male" ) > 0.5f) ? SEX_MALE : SEX_FEMALE );
+	ESex avatar_sex = (getVisualParamWeight("male") > 0.5f) ? SEX_MALE : SEX_FEMALE;
+	if (getSex() != avatar_sex)
+	{
+		if (mIsSitting && findMotion(avatar_sex == SEX_MALE ? ANIM_AGENT_SIT_FEMALE : ANIM_AGENT_SIT) != NULL)
+		{
+			// In some cases of gender change server changes sit motion with motion message,
+			// but in case of some avatars (legacy?) there is no update from server side,
+			// likely because server doesn't know about difference between motions
+			// (female and male sit ids are same server side, so it is likely unaware that it
+			// need to send update)
+			// Make sure motion is up to date
+			stopMotion(ANIM_AGENT_SIT);
+			setSex(avatar_sex);
+			startMotion(ANIM_AGENT_SIT);
+		}
+		else
+		{
+			setSex(avatar_sex);
+		}
+	}
 
 	LLCharacter::updateVisualParams();
 
