@@ -49,7 +49,7 @@ public:
     virtual void            onFocusReceived()   override;
     virtual void            onFocusLost()       override;
 
-    void                    setEditSettings(LLSettingsBase::ptr_t &settings)    { mSettings = settings; syncronizeTabs(); }
+    void                    setEditSettings(const LLSettingsBase::ptr_t &settings)  { mSettings = settings; syncronizeTabs(); refresh(); }
     LLSettingsBase::ptr_t   getEditSettings()   const                           { return mSettings; }
 
 protected:
@@ -63,9 +63,19 @@ protected:
 
     LLSettingsBase::ptr_t   mSettings;
 
+    virtual void            doLoadFromInventory() = 0;
+    virtual void            doImportFromDisk() = 0;
+    virtual void            doApplyFixedSettings() = 0;
+
+    bool                    canUseInventory() const;
 
 private:
-    void onNameChanged(const std::string &name);
+    void                    onNameChanged(const std::string &name);
+
+    void                    onButtonLoad();
+    void                    onButtonImport();
+    void                    onButtonApply();
+    void                    onButtonCancel();
 
 #if 0
 
@@ -146,10 +156,17 @@ class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
 public:
     LLFloaterFixedEnvironmentWater(const LLSD &key);
 
-    BOOL	        postBuild() override;
+    BOOL	                postBuild()                 override;
 
-protected:    
-    virtual void    updateEditEnvironment() override;
+    virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
+
+protected:
+    virtual void            updateEditEnvironment()     override;
+
+    virtual void            doLoadFromInventory()       override;
+    virtual void            doImportFromDisk()          override;
+    virtual void            doApplyFixedSettings()      override;
 
 private:
 };

@@ -202,10 +202,10 @@ bool LLEnvironment::getIsDayTime() const
 }
 
 //-------------------------------------------------------------------------
-void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, F64Seconds transition)
+void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, F64Seconds transition, bool forced)
 {
     mSelectedEnvironment = env;
-    updateEnvironment(transition);
+    updateEnvironment(transition, forced);
 }
 
 bool LLEnvironment::hasEnvironment(LLEnvironment::EnvSelection_t env)
@@ -337,6 +337,9 @@ LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironme
             if (fixed.first && fixed.second)
                 break;
 
+            if (idx == ENV_EDIT)
+                continue;   // skip the edit environment.
+
             DayInstance::ptr_t environment = getEnvironmentInstance(static_cast<EnvSelection_t>(idx));
             if (environment)
             {
@@ -379,11 +382,11 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance(
 }
 
 
-void LLEnvironment::updateEnvironment(F64Seconds transition)
+void LLEnvironment::updateEnvironment(F64Seconds transition, bool forced)
 {
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
 
-    if (mCurrentEnvironment != pinstance)
+    if ((mCurrentEnvironment != pinstance) || forced)
     {
         DayInstance::ptr_t trans = std::make_shared<DayTransition>(
             mCurrentEnvironment->getSky(), mCurrentEnvironment->getWater(), pinstance, transition);
@@ -1065,6 +1068,30 @@ std::string LLEnvironment::getSysDir(const std::string &subdir)
 std::string LLEnvironment::getUserDir(const std::string &subdir)
 {
     return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "windlight\\"+subdir, "");
+}
+
+LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::string filename)
+{
+    LLSD data = legacyLoadPreset(filename);
+    if (!data)
+        return LLSettingsWater::ptr_t();
+
+    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
+
+    return water;
+}
+
+LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string filename)
+{
+    LLSD data = legacyLoadPreset(filename);
+    if (!data)
+        return LLSettingsSky::ptr_t();
+
+    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
+
+    return sky;
 }
 
 LLSD LLEnvironment::legacyLoadPreset(const std::string& path)

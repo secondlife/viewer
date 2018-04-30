@@ -143,7 +143,7 @@ public:
     void                        updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting);
     void                        updateShaderUniforms(LLGLSLShader *shader);
 
-    void                        setSelectedEnvironment(EnvSelection_t env, F64Seconds transition = TRANSITION_DEFAULT);
+    void                        setSelectedEnvironment(EnvSelection_t env, F64Seconds transition = TRANSITION_DEFAULT, bool forced = false);
     EnvSelection_t              getSelectedEnvironment() const                  { return mSelectedEnvironment; }
 
     bool                        hasEnvironment(EnvSelection_t env);
@@ -159,7 +159,7 @@ public:
     LLSettingsSky::ptr_t        getEnvironmentFixedSky(EnvSelection_t env)      { return getEnvironmentFixed(env).first; };
     LLSettingsWater::ptr_t      getEnvironmentFixedWater(EnvSelection_t env)    { return getEnvironmentFixed(env).second; };
 
-    void                        updateEnvironment(F64Seconds transition = TRANSITION_DEFAULT);
+    void                        updateEnvironment(F64Seconds transition = TRANSITION_DEFAULT, bool forced = false);
 
     void                        addSky(const LLSettingsSky::ptr_t &sky);
     void                        addWater(const LLSettingsWater::ptr_t &sky);
@@ -186,6 +186,9 @@ public:
     inline LLVector4            getLightDirection() const { return ((mCurrentEnvironment->getSky()) ? LLVector4(mCurrentEnvironment->getSky()->getLightDirection(), 0.0f) : LLVector4()); }
     inline LLVector4            getClampedLightDirection() const { return LLVector4(mCurrentEnvironment->getSky()->getClampedLightDirection(), 0.0f); }
     inline LLVector4            getRotatedLight() const { return mRotatedLight; }
+
+    static LLSettingsWater::ptr_t   createWaterFromLegacyPreset(const std::string filename);
+    static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename);
 
     //-------------------------------------------
     connection_t                setSkyListChange(const change_signal_t::slot_type& cb);
@@ -356,7 +359,7 @@ private:
     void onTransitionDone(const LLSettingsBlender::ptr_t, bool isSky);
     //=========================================================================
     void                        legacyLoadAllPresets();
-    LLSD                        legacyLoadPreset(const std::string& path);
+    static LLSD                 legacyLoadPreset(const std::string& path);
     static std::string          getSysDir(const std::string &subdir);
     static std::string          getUserDir(const std::string &subdir);
 

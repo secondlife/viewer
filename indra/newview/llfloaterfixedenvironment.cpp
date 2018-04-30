@@ -36,6 +36,7 @@
 #include "llnotificationsutil.h"
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
+#include "llfilepicker.h"
 
 // newview
 #include "llpaneleditwater.h"
@@ -44,6 +45,9 @@
 #include "llsettingswater.h"
 
 #include "llenvironment.h"
+#include "llagent.h"
+
+#include "llsettingsvo.h"
 
 namespace
 {
@@ -70,22 +74,41 @@ BOOL LLFloaterFixedEnvironment::postBuild()
     mTxtName->setCommitOnFocusLost(TRUE);
     mTxtName->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNameChanged(mTxtName->getValue().asString()); });
 
+    getChild<LLButton>(BUTTON_NAME_LOAD)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonLoad(); });
+    getChild<LLButton>(BUTTON_NAME_IMPORT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonImport(); });
+    getChild<LLButton>(BUTTON_NAME_COMMIT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonApply(); });
+    getChild<LLButton>(BUTTON_NAME_CANCEL)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonCancel(); });
+
     return TRUE;
 }
 
 void LLFloaterFixedEnvironment::onFocusReceived()
 {
     updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
 }
 
 void LLFloaterFixedEnvironment::onFocusLost()
 {
+    // *TODO*: If the window receiving focus is from a select color or select image control...
+    // We have technically not changed out of what we are doing so don't change back to displaying
+    // the local environment. (unfortunately the focus manager has 
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
 }
 
 void LLFloaterFixedEnvironment::refresh()
 {
+    if (!mSettings)
+    {
+        // disable everything.
+        return;
+    }
+
+    bool enableApplyAndLoad = canUseInventory();
+
+    getChild<LLButton>(BUTTON_NAME_LOAD)->setEnabled(enableApplyAndLoad);
+    getChild<LLButton>(BUTTON_NAME_COMMIT)->setEnabled(enableApplyAndLoad);
+
     mTxtName->setValue(mSettings->getName());
 
     S32 count = mTab->getTabCount();
@@ -115,6 +138,33 @@ void LLFloaterFixedEnvironment::onNameChanged(const std::string &name)
     mSettings->setName(name);
 }
 
+void LLFloaterFixedEnvironment::onButtonLoad()
+{
+    doLoadFromInventory();
+}
+
+void LLFloaterFixedEnvironment::onButtonImport()
+{
+    doImportFromDisk();
+}
+
+void LLFloaterFixedEnvironment::onButtonApply()
+{
+    doApplyFixedSettings();
+}
+
+void LLFloaterFixedEnvironment::onButtonCancel()
+{
+    // *TODO*: If changed issue a warning?
+    this->closeFloater();
+}
+
+//-------------------------------------------------------------------------
+bool LLFloaterFixedEnvironment::canUseInventory() const
+{
+    return !gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty();
+}
+
 //=========================================================================
 LLFloaterFixedEnvironmentWater::LLFloaterFixedEnvironmentWater(const LLSD &key):
     LLFloaterFixedEnvironment(key)
@@ -131,15 +181,6 @@ BOOL LLFloaterFixedEnvironmentWater::postBuild()
     panel->setWater(std::static_pointer_cast<LLSettingsWater>(mSettings));
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
-    // Initialize the settings, take a snapshot of the current water. 
-    mSettings = LLEnvironment::instance().getEnvironmentFixedWater(LLEnvironment::ENV_CURRENT)->buildClone();
-
-    mSettings->setName("Snapshot water (new)");
-
-    mTxtName->setValue(mSettings->getName());
-
-    syncronizeTabs();
-    refresh();
     return TRUE;
 }
 
@@ -147,6 +188,62 @@ void LLFloaterFixedEnvironmentWater::updateEditEnvironment(void)
 {
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, 
         std::static_pointer_cast<LLSettingsWater>(mSettings));
+}
+
+void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
+{
+    if (!mSettings)
+    {
+        // Initialize the settings, take a snapshot of the current water. 
+        mSettings = LLEnvironment::instance().getEnvironmentFixedWater(LLEnvironment::ENV_CURRENT)->buildClone();
+        mSettings->setName("Snapshot water (new)");
+
+        // TODO: Should we grab sky and keep it around for reference?
+    }
+
+    updateEditEnvironment();
+    syncronizeTabs();
+    refresh();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+}
+
+void LLFloaterFixedEnvironmentWater::onClose(bool app_quitting)
+{
+    mSettings.reset();
+    syncronizeTabs();
+}
+
+void LLFloaterFixedEnvironmentWater::doLoadFromInventory()
+{
+
+}
+
+void LLFloaterFixedEnvironmentWater::doImportFromDisk()
+{   // Load a a legacy Windlight XML from disk.
+
+    LLFilePicker& picker = LLFilePicker::instance();
+    if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
+    {
+        std::string filename = picker.getFirstFile();
+
+        LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+        LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename);
+
+        if (!legacywater)
+        {   // *TODO* Put up error dialog here.  Could not create water from filename
+            return;
+        }
+
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
+        this->setEditSettings(legacywater);
+        LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
+    }
+}
+
+void LLFloaterFixedEnvironmentWater::doApplyFixedSettings() 
+{
+    LLSettingsVOBase::createInventoryItem(mSettings);
+
 }
 
 //=========================================================================
