@@ -195,7 +195,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		}
 		else
 		{ //always use a true hint of static draw when allocating non-client-backed buffers
-			glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
+            glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
 		}
 
 		glBindBufferARB(mType, 0);

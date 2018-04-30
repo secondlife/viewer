@@ -79,6 +79,7 @@ public:
     LLGLTexture* getTransmittance();
     LLGLTexture* getScattering();
     LLGLTexture* getMieScattering();
+    LLGLTexture* getIlluminance();
 
     GLhandleARB getAtmosphericShaderForLink() const;
 
@@ -97,6 +98,7 @@ protected:
     LLPointer<LLGLTexture> m_transmittance;
     LLPointer<LLGLTexture> m_scattering;
     LLPointer<LLGLTexture> m_mie_scatter_texture;
+    LLPointer<LLGLTexture> m_illuminance;
 
     std::vector<double> m_wavelengths;
     std::vector<double> m_solar_irradiance;

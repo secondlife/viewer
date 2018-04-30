@@ -33,6 +33,8 @@
 #include "llrender.h"
 #include "llvertexbuffer.h"
 
+#pragma optimize("", off)
+
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
 #endif
@@ -659,7 +661,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
         mUniformMap[hashedName] = location;
 
         LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
-    
+  
         //find the index of this uniform
         for (S32 i = 0; i < (S32) LLShaderMgr::instance()->mReservedUniforms.size(); i++)
         {
@@ -683,7 +685,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
                 std::pair<uniforms_index_t::iterator, bool> result;
                 S32 index = i + LLShaderMgr::instance()->mReservedUniforms.size();
 
-                if ((*uniforms)[i].String() == name)
+                if ((*uniforms)[i] == hashedName)
                 {
                     result = mUniform.insert(uniforms_index_t::value_type(index, location));
                     if (result.second)
@@ -1218,7 +1220,6 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
     if (mProgramObject)
     {   
         GLint location = getLocationForIndex(index);
-
         if (location >= 0)
         {
             glUniformMatrix4fvARB(location, count, transpose, v);

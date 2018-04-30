@@ -729,8 +729,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLGLState::checkTextureChannels();
 				LLGLState::checkClientArrays();
 
-				glh::matrix4f proj = glh_get_current_projection();
-				glh::matrix4f mod = glh_get_current_modelview();
+				glh::matrix4f proj = get_current_projection();
+				glh::matrix4f mod = get_current_modelview();
 				glViewport(0,0,512,512);
 				LLVOAvatar::updateFreezeCounter() ;
 
@@ -739,8 +739,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					LLVOAvatar::updateImpostors();
 				}
 
-				glh_set_current_projection(proj);
-				glh_set_current_modelview(mod);
+				set_current_projection(proj);
+				set_current_modelview(mod);
 				gGL.matrixMode(LLRender::MM_PROJECTION);
 				gGL.loadMatrix(proj.m);
 				gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -1078,8 +1078,8 @@ void render_hud_attachments()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 		
-	glh::matrix4f current_proj = glh_get_current_projection();
-	glh::matrix4f current_mod = glh_get_current_modelview();
+	glh::matrix4f current_proj = get_current_projection();
+	glh::matrix4f current_mod = get_current_modelview();
 
 	// clamp target zoom level to reasonable values
 	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
@@ -1171,8 +1171,8 @@ void render_hud_attachments()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 	
-	glh_set_current_projection(current_proj);
-	glh_set_current_modelview(current_mod);
+	set_current_projection(current_proj);
+	set_current_modelview(current_mod);
 }
 
 LLRect get_whole_screen_region()
@@ -1254,11 +1254,11 @@ bool setup_hud_matrices(const LLRect& screen_region)
 	// set up transform to keep HUD objects in front of camera
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.loadMatrix(proj.m);
-	glh_set_current_projection(proj);
+	set_current_projection(proj);
 	
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.loadMatrix(model.m);
-	glh_set_current_modelview(model);
+	set_current_modelview(model);
 	return TRUE;
 }
 
@@ -1266,13 +1266,13 @@ void render_ui(F32 zoom_factor, int subfield)
 {
 	LLGLState::checkStates();
 	
-	glh::matrix4f saved_view = glh_get_current_modelview();
+	glh::matrix4f saved_view = get_current_modelview();
 
 	if (!gSnapshot)
 	{
 		gGL.pushMatrix();
 		gGL.loadMatrix(gGLLastModelView);
-		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
+		set_current_modelview(copy_matrix(gGLLastModelView));
 	}
 	
 	if(LLSceneMonitor::getInstance()->needsUpdate())
@@ -1335,7 +1335,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
 	if (!gSnapshot)
 	{
-		glh_set_current_modelview(saved_view);
+		set_current_modelview(saved_view);
 		gGL.popMatrix();
 	}
 }

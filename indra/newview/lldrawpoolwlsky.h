@@ -76,6 +76,8 @@ private:
     void renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
 	void renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
 	void renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const;
+    void renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const;
+
 	void renderStars(void) const;
 	void renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const;
 	void renderHeavenlyBodies();

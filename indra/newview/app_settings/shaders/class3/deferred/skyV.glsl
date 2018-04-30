@@ -23,21 +23,29 @@
  * $/LicenseInfo$
  */
  
+uniform vec3 cameraPosLocal;
 uniform mat4 modelview_projection_matrix;
+uniform mat4 modelview_matrix;
+uniform mat4 inv_proj;
+uniform mat4 inv_modelview;
 
 ATTRIBUTE vec3 position;
 
 // Inputs
 uniform vec3 camPosLocal;
 
+out vec3 view_pos;
 out vec3 view_dir;
 
 void main()
 {
-	// World / view / projection
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    // pass through untransformed fullscreen pos (clipspace)
+	gl_Position = vec4(position.xyz, 1.0);
+
+    view_pos = (inv_proj * vec4(position, 1.0f)).xyz;
 
 	// this will be normalized in the frag shader...
-	view_dir = position.xyz - camPosLocal.xyz; 
+	//view_dir = (inv_modelview * view_pos).xyz;
+    view_dir = view_pos - camPosLocal;
 }
 

@@ -64,8 +64,8 @@
 #include "llvector4a.h"
 
 // Functions pulled from pipeline.cpp
-glh::matrix4f glh_get_current_modelview();
-glh::matrix4f glh_get_current_projection();
+glh::matrix4f get_current_modelview();
+glh::matrix4f get_current_projection();
 // Functions pulled from llviewerdisplay.cpp
 bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
 
@@ -642,7 +642,7 @@ void LLPanelPrimMediaControls::updateShape()
 		glh::matrix4f mat;
 		if (!is_hud) 
 		{
-			mat = glh_get_current_projection() * glh_get_current_modelview();
+			mat = get_current_projection() * get_current_modelview();
 		}
 		else {
 			glh::matrix4f proj, modelview;

@@ -1191,6 +1191,7 @@ void LLRender::syncMatrices()
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
 	static glh::matrix4f cached_mvp;
+    static glh::matrix4f cached_inv_mdv;
 	static U32 cached_mvp_mdv_hash = 0xFFFFFFFF;
 	static U32 cached_mvp_proj_hash = 0xFFFFFFFF;
 	
@@ -1204,12 +1205,18 @@ void LLRender::syncMatrices()
 		bool mvp_done = false;
 
 		U32 i = MM_MODELVIEW;
-		if (mMatHash[i] != shader->mMatHash[i])
+		if (mMatHash[MM_MODELVIEW] != shader->mMatHash[MM_MODELVIEW])
 		{ //update modelview, normal, and MVP
-			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+			glh::matrix4f& mat = mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 
-			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
-			shader->mMatHash[i] = mMatHash[i];
+            // if MDV has changed, update the cached inverse as well
+            if (cached_mvp_mdv_hash != mMatHash[MM_MODELVIEW])
+            {
+                cached_inv_mdv = mat.inverse();
+            }
+
+			shader->uniformMatrix4fv(name[MM_MODELVIEW], 1, GL_FALSE, mat.m);
+			shader->mMatHash[MM_MODELVIEW] = mMatHash[MM_MODELVIEW];
 
 			//update normal matrix
 			S32 loc = shader->getUniformLocation(LLShaderMgr::NORMAL_MATRIX);
@@ -1217,7 +1224,7 @@ void LLRender::syncMatrices()
 			{
 				if (cached_normal_hash != mMatHash[i])
 				{
-					cached_normal = mat.inverse().transpose();
+					cached_normal = cached_inv_mdv.transpose();
 					cached_normal_hash = mMatHash[i];
 				}
 
@@ -1232,6 +1239,17 @@ void LLRender::syncMatrices()
 
 				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
 			}
+
+            if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))
+            {
+                glh::matrix4f ogl_to_cfr = copy_matrix((F32*)OGL_TO_CFR_ROTATION);
+                glh::matrix4f modelview  = ogl_to_cfr.inverse() * get_current_modelview();
+
+	            glh::matrix4f inv_modelview = modelview.inverse();
+	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, FALSE, inv_modelview.m);
+            }
+
+            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, cached_inv_mdv.m);
 
 			//update MVP matrix
 			mvp_done = true;
@@ -1249,17 +1267,22 @@ void LLRender::syncMatrices()
 				}
 
 				shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
-			}
+			}            
 		}
 
-
 		i = MM_PROJECTION;
-		if (mMatHash[i] != shader->mMatHash[i])
+		if (mMatHash[MM_PROJECTION] != shader->mMatHash[MM_PROJECTION])
 		{ //update projection matrix, normal, and MVP
-			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+			glh::matrix4f& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 
-			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
-			shader->mMatHash[i] = mMatHash[i];
+            if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
+            {
+	            glh::matrix4f inv_proj = mat.inverse();
+	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+            }
+
+			shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, mat.m);
+			shader->mMatHash[MM_PROJECTION] = mMatHash[MM_PROJECTION];
 
 			if (!mvp_done)
 			{
@@ -1267,7 +1290,7 @@ void LLRender::syncMatrices()
 				S32 loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
 				if (loc > -1)
 				{
-					if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+					if (cached_mvp_mdv_hash != mMatHash[MM_PROJECTION] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
 					{
 						U32 mdv = MM_MODELVIEW;
 						cached_mvp = mat;
@@ -2332,3 +2355,85 @@ void LLRender::debugTexUnits(void)
 	LL_INFOS("TextureUnit") << "Active TexUnit Enabled : " << active_enabled << LL_ENDL;
 }
 
+
+
+glh::matrix4f copy_matrix(F32* src)
+{
+	glh::matrix4f ret;
+	ret.set_value(src);
+	return ret;
+}
+
+glh::matrix4f get_current_modelview()
+{
+	return copy_matrix(gGLModelView);
+}
+
+glh::matrix4f get_current_projection()
+{
+	return copy_matrix(gGLProjection);
+}
+
+glh::matrix4f get_last_modelview()
+{
+	return copy_matrix(gGLLastModelView);
+}
+
+glh::matrix4f get_last_projection()
+{
+	return copy_matrix(gGLLastProjection);
+}
+
+void copy_matrix(const glh::matrix4f& src, F32* dst)
+{
+	for (U32 i = 0; i < 16; i++)
+	{
+		dst[i] = src.m[i];
+	}
+}
+
+void set_current_modelview(const glh::matrix4f& mat)
+{
+	copy_matrix(mat, gGLModelView);
+}
+
+void set_current_projection(glh::matrix4f& mat)
+{
+	copy_matrix(mat, gGLProjection);
+}
+
+glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar)
+{
+	glh::matrix4f ret(
+		2.f/(right-left), 0.f, 0.f, -(right+left)/(right-left),
+		0.f, 2.f/(top-bottom), 0.f, -(top+bottom)/(top-bottom),
+		0.f, 0.f, -2.f/(zfar-znear),  -(zfar+znear)/(zfar-znear),
+		0.f, 0.f, 0.f, 1.f);
+
+	return ret;
+}
+
+glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
+{
+	GLfloat f = 1.f/tanf(DEG_TO_RAD*fovy/2.f);
+
+	return glh::matrix4f(f/aspect, 0, 0, 0,
+						 0, f, 0, 0,
+						 0, 0, (zFar+zNear)/(zNear-zFar), (2.f*zFar*zNear)/(zNear-zFar),
+						 0, 0, -1.f, 0);
+}
+
+glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up)
+{
+	LLVector3 f = center-eye;
+	f.normVec();
+	up.normVec();
+	LLVector3 s = f % up;
+	LLVector3 u = s % f;
+
+	return glh::matrix4f(s[0], s[1], s[2], 0,
+					  u[0], u[1], u[2], 0,
+					  -f[0], -f[1], -f[2], 0,
+					  0, 0, 0, 1);
+	
+}

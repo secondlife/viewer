@@ -705,7 +705,7 @@ void LLDrawPoolWater::shade()
 			}
 			else
 			{
-				LLGLSquashToFarClip far_clip(glh_get_current_projection());
+				LLGLSquashToFarClip far_clip(get_current_projection());
 				face->renderIndexed();
 			}
 		}

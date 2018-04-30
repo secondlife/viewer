@@ -31,6 +31,8 @@
 #include "llfile.h"
 #include "llrender.h"
 
+#pragma optimize("", off)
+
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
 #endif
@@ -1101,6 +1103,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("projection_matrix");
 	mReservedUniforms.push_back("inv_proj");
 	mReservedUniforms.push_back("modelview_projection_matrix");
+    mReservedUniforms.push_back("inv_modelview");
 	mReservedUniforms.push_back("normal_matrix");
 	mReservedUniforms.push_back("texture_matrix0");
 	mReservedUniforms.push_back("texture_matrix1");

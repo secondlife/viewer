@@ -201,9 +201,11 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
         delete m_model;
     }
     m_model = nullptr;
+
     getTransmittance()->setTexName(0);
     getScattering()->setTexName(0);
     getMieScattering()->setTexName(0);
+    getIlluminance()->setTexName(0);
 
     // Init libatmosphere model
     m_config.num_scattering_orders = 4;
@@ -235,6 +237,7 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
         getTransmittance()->setTexName(m_textures.transmittance_texture);
         getScattering()->setTexName(m_textures.scattering_texture);   
         getMieScattering()->setTexName(m_textures.single_mie_scattering_texture);
+        getIlluminance()->setTexName(m_textures.illuminance_texture);
     }
 
     return m_model != nullptr;
@@ -280,6 +283,20 @@ LLGLTexture* LLAtmosphere::getMieScattering()
         m_mie_scatter_texture->setTarget(GL_TEXTURE_3D, LLTexUnit::TT_TEXTURE_3D);
     }
     return m_mie_scatter_texture;
+}
+
+LLGLTexture* LLAtmosphere::getIlluminance()
+{
+    if (!m_illuminance)
+    {
+        m_illuminance = new LLGLTexture;
+        m_illuminance->generateGLTexture();
+        m_illuminance->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
+        m_illuminance->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
+        m_illuminance->setExplicitFormat(GL_RGB16F_ARB, GL_RGB, GL_FLOAT);
+        m_illuminance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
+    }
+    return m_illuminance;
 }
 
 GLhandleARB LLAtmosphere::getAtmosphericShaderForLink() const

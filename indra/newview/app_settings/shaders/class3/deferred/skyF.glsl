@@ -29,11 +29,12 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+in vec3 view_pos;
 in vec3 view_dir;
 
 uniform vec3 cameraPosLocal;
-uniform vec3 sun_direction;
-uniform vec2 sun_size;
+uniform vec3 sun_dir;
+uniform float sun_size;
 
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D transmittance_texture;
@@ -50,20 +51,35 @@ void main()
 {
     vec3 view_direction = normalize(view_dir);
 
+    vec3 sun_direction = sun_dir;
+
     vec3 camPos = cameraPosLocal + vec3(0, 0, 6360.0f);
     vec3 transmittance;
+    vec3 sky_illum;
     vec3 radiance = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
+    vec3 radiance2 = GetSunAndSkyIlluminance(camPos, view_direction, sun_direction, sky_illum);
+
+    radiance *= transmittance;
+
+    vec3 solar_luminance = transmittance * GetSolarLuminance();
 
     // If the view ray intersects the Sun, add the Sun radiance.
-    if (dot(view_direction, sun_direction) >= sun_size.y)
+    if (dot(view_direction, sun_direction) >= sun_size)
     {
-        radiance = radiance + (transmittance * GetSolarLuminance());
+        radiance = radiance + solar_luminance;
     }
 
-    vec3 color = vec3(1.0) - exp(-radiance);
-    color = pow(color, vec3(1.0 / 2.2));
+    vec3 color = radiance;
+    
+    color = vec3(1.0) - exp(-color * 0.0001);
+
+    //float d = dot(view_direction, sun_direction);
+    //frag_color.rgb = vec3(d, d >= sun_size ? 1.0f : 0.0f, 0.0f);
 
     frag_color.rgb = color;
+    //frag_color.rgb = vec3(dot(view_direction, sun_direction) > 0.95f ? 1.0 : 0.0, 0,0);
+    frag_color.rgb = normalize(view_pos);
+
     frag_color.a = 1.0;
 }
 

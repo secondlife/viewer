@@ -35,14 +35,6 @@
 #include "lltrace.h"
 
 class LLViewerObject;
-
-// This rotation matrix moves the default OpenGL reference frame 
-// (-Z at, Y up) to Cory's favorite reference frame (X at, Z up)
-const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f, 	// -Z becomes X
-									  -1.f,  0.f,  0.f,  0.f, 	// -X becomes Y
-									   0.f,  1.f,  0.f,  0.f,	//  Y becomes Z
-									   0.f,  0.f,  0.f,  1.f };
-
 const BOOL FOR_SELECTION = TRUE;
 const BOOL NOT_FOR_SELECTION = FALSE;
 

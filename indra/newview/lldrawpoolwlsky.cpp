@@ -128,17 +128,10 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 
 void LLDrawPoolWLSky::renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
 {
-    gGL.pushMatrix();
-    gGL.matrixMode(LLRender::MM_PROJECTION);	
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.loadIdentity();
-
     // Draw WL Sky	w/ normal cam pos (where you are) for adv atmo sky
+    //gGL.syncMatrices();
     sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
     gSky.mVOWLSkyp->drawFsSky();
-
-    gGL.popMatrix();
 }
 
 void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
@@ -174,52 +167,61 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 	gGL.popMatrix();
 }
 
-void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const
+void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
-	{
-		LLGLDisable blend(GL_BLEND);
-
+    if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders() && gAtmosphere)
+    {
 		sky_shader->bind();
 
-        LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+        // bind precomputed textures necessary for calculating sun and sky luminance
+        sky_shader->bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
+        sky_shader->bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
+        sky_shader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
+        sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
-        if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders() && gAtmosphere)
+        static float sunSize = (float)cos(0.0005);
+
+        sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
+
+        static LLVector3 solDir(-0.935f, 0.23f, 0.27f);
+
+        static bool fooA = false;
+        static bool fooB = false;
+
+        //neither of these appear to track with the env settings, would the real sun please stand up.
+        if (fooA) solDir = gPipeline.mTransformedSunDir;
+        if (fooB) solDir = gSky.mVOSkyp->getSun().getDirection();
+
+        solDir.normalize();
+
+        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, solDir.mV);
+
+        // clouds are rendered along with sky in adv atmo
+        if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
         {
-            // bind precomputed textures necessary for calculating sun and sky luminance
-            sky_shader->bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
-            sky_shader->bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
-            sky_shader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
-
-            static float sunSize = (float)cos(0.0005);
-
-            sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
-
-            static LLVector3 solDir(0.7f, 0.2f, 0.2f);
-
-            //neither of these appear to track with the env settings, would the real sun please stand up.
-            //sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, gPipeline.mTransformedSunDir.mV);
-            //sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, gSky.mVOSkyp->getSun().getDirection().mV);
-            solDir.normalize();
-
-            sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, solDir.mV);
-
-            // clouds are rendered along with sky in adv atmo
-            if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
-            {
-                sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, sCloudNoiseTexture);
-            }
-
-            renderFsSky(origin, camHeightLocal, sky_shader);
+            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, sCloudNoiseTexture);
         }
-        else
-        {
-		    /// Render the skydome
-		    renderDome(origin, camHeightLocal, sky_shader);	
-        }
+
+        renderFsSky(camPosLocal, camHeightLocal, sky_shader);
 
 		sky_shader->unbind();
 	}
+}
+
+void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const
+{
+    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
+	{
+        LLGLDisable blend(GL_BLEND);
+        sky_shader->bind();
+
+        /// Render the skydome
+        renderDome(origin, camHeightLocal, sky_shader);	
+
+		sky_shader->unbind();
+    }
 }
 
 void LLDrawPoolWLSky::renderStars(void) const
@@ -367,18 +369,17 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 	gGL.setColorMask(true, false);
 
-	LLGLSquashToFarClip far_clip(glh_get_current_projection());
+	LLGLSquashToFarClip far_clip(get_current_projection());
 
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
-	renderSkyHaze(origin, camHeightLocal);
+	renderSkyHazeDeferred(origin, camHeightLocal);
 
-    if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
+    if (gPipeline.canUseWindLightShaders())
     {
 	    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	    gGL.pushMatrix();
 
-		
 		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		gDeferredStarProgram.bind();
@@ -415,7 +416,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	LLGLDisable clip(GL_CLIP_PLANE0);
 
-	LLGLSquashToFarClip far_clip(glh_get_current_projection());
+	LLGLSquashToFarClip far_clip(get_current_projection());
 
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 

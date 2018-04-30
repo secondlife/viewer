@@ -489,4 +489,24 @@ extern S32 gGLViewport[4];
 
 extern LLRender gGL;
 
+// This rotation matrix moves the default OpenGL reference frame 
+// (-Z at, Y up) to Cory's favorite reference frame (X at, Z up)
+const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f, 	// -Z becomes X
+									  -1.f,  0.f,  0.f,  0.f, 	// -X becomes Y
+									   0.f,  1.f,  0.f,  0.f,	//  Y becomes Z
+									   0.f,  0.f,  0.f,  1.f };
+
+glh::matrix4f copy_matrix(F32* src);
+glh::matrix4f get_current_modelview();
+glh::matrix4f get_current_projection();
+glh::matrix4f get_last_modelview();
+glh::matrix4f get_last_projection();
+
+void copy_matrix(const glh::matrix4f& src, F32* dst);
+void set_current_modelview(const glh::matrix4f& mat);
+void set_current_projection(glh::matrix4f& mat);
+
+glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
+glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
+glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 #endif
