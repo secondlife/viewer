@@ -54,7 +54,7 @@ public:
 
 protected:
     virtual void            updateEditEnvironment() = 0;
-    virtual void            refresh();
+    virtual void            refresh()           override;
 
     virtual void            syncronizeTabs();
 
@@ -176,7 +176,7 @@ class LLSettingsEditPanel : public LLPanel
 public:
     virtual void setSettings(LLSettingsBase::ptr_t &) = 0;
 
-    virtual void refresh() = 0;
+//     virtual void refresh() override;
 
 protected:
     LLSettingsEditPanel() :
