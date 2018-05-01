@@ -72,26 +72,26 @@ protected:
 private:
 
     LLColorSwatchCtrl *     mClrFogColor;
-    LLSlider *              mSldFogDensity;
-    LLSlider *              mSldUnderWaterMod;
+//     LLSlider *              mSldFogDensity;
+//     LLSlider *              mSldUnderWaterMod;
     LLTextureCtrl *         mTxtNormalMap;
 
-    // Temp until XY control
-    LLSlider *              mSldWave1X;
-    LLSlider *              mSldWave1Y;
-
-    // Temp until XY control
-    LLSlider *              mSldWave2X;
-    LLSlider *              mSldWave2Y;
-
-    LLSlider *              mSldNormalScaleX;
-    LLSlider *              mSldNormalScaleY;
-    LLSlider *              mSldNormalScaleZ;
-    LLSlider *              mSldFresnelScale;
-    LLSlider *              mSldFresnelOffset;
-    LLSlider *              mSldScaleAbove;
-    LLSlider *              mSldScaleBelow;
-    LLSlider *              mSldBlurMultip;
+//     // Temp until XY control
+//     LLSlider *              mSldWave1X;
+//     LLSlider *              mSldWave1Y;
+// 
+//     // Temp until XY control
+//     LLSlider *              mSldWave2X;
+//     LLSlider *              mSldWave2Y;
+// 
+//     LLSlider *              mSldNormalScaleX;
+//     LLSlider *              mSldNormalScaleY;
+//     LLSlider *              mSldNormalScaleZ;
+//     LLSlider *              mSldFresnelScale;
+//     LLSlider *              mSldFresnelOffset;
+//     LLSlider *              mSldScaleAbove;
+//     LLSlider *              mSldScaleBelow;
+//     LLSlider *              mSldBlurMultip;
 
     void                    onFogColorChanged();
     void                    onFogDensityChanged();
