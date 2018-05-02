@@ -205,6 +205,38 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 }
 
 ///////////////////////////////////////////////////////////
+
+void LLXfer_VFile::closeFileHandle()
+{
+	if (mVFile)
+	{
+		delete mVFile;
+		mVFile = NULL;
+	}
+}
+
+///////////////////////////////////////////////////////////
+
+S32 LLXfer_VFile::reopenFileHandle()
+{
+	S32 retval = LL_ERR_NOERR;  // presume success
+
+	if (mVFile == NULL)
+	{
+		mVFile =new LLVFile(mVFS, mLocalID, mType, LLVFile::READ);
+		if (mVFile == NULL)
+		{
+			LL_WARNS("Xfer") << "LLXfer_VFile::reopenFileHandle() can't read VFS file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
+			retval = LL_ERR_FILE_NOT_FOUND;
+		}
+	}
+
+	return retval;
+}
+
+
+///////////////////////////////////////////////////////////
+
 void LLXfer_VFile::setXferSize (S32 xfer_size)
 {	
 	LLXfer::setXferSize(xfer_size);
