@@ -3696,7 +3696,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
             if (isAnimatedObject() && isRiggedMesh())
             {
-                // AXON Scaling here is to make animated object vs
+                // Scaling here is to make animated object vs
                 // non-animated object ARC proportional to the
                 // corresponding calculations for streaming cost.
                 num_triangles = (ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * costs.getEstTrisForStreamingCost())/0.06;
