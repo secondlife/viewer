@@ -134,6 +134,8 @@ public:
     const UserPrefs &           getPreferences() const { return mUserPrefs; }
 
     bool                        canEdit() const;
+    bool                        isExtendedEnvironmentEnabled() const;
+    bool                        isInventoryEnabled() const;
 
     LLSettingsSky::ptr_t        getCurrentSky() const { return mCurrentEnvironment->getSky(); }
     LLSettingsWater::ptr_t      getCurrentWater() const { return mCurrentEnvironment->getWater(); }

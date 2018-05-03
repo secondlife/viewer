@@ -82,6 +82,8 @@
 #include "lllandmarkactions.h"
 #include "llpanellandmarks.h"
 
+#include "llenvironment.h"
+
 #include <boost/shared_ptr.hpp>
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
@@ -4029,10 +4031,18 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Gesture"));
                     items.push_back(std::string("New Clothes"));
                     items.push_back(std::string("New Body Parts"));
+                    items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
+
+                    if (!LLEnvironment::instance().isInventoryEnabled())
+                    {
+                        disabled_items.push_back("New Settings");
+                    }
+
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
+
 		}
 		else
 		{

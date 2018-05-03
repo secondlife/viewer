@@ -63,6 +63,7 @@
                     decimal_digits="1"
                     follows="left|top|right"
                     height="10"
+                    increment="0.01"
                     initial_value="0"
                     layout="top"
                     left_delta="15"
@@ -81,6 +82,7 @@
                     decimal_digits="1"
                     follows="left|top|right"
                     height="10"
+                    increment="0.01"
                     initial_value="0"
                     layout="top"
                     left_delta="15"
@@ -158,6 +160,7 @@
                         <slider
                                 decimal_digits="1"
                                 follows="left|top"
+                                increment="0.01"
                                 initial_value="0"
                                 layout="topleft"
                                 label="X:"
@@ -170,6 +173,7 @@
                         <slider
                                 decimal_digits="1"
                                 follows="left|top"
+                                increment="0.01"
                                 initial_value="0"
                                 layout="topleft"
                                 label="Y:"
@@ -205,6 +209,7 @@
                         <slider
                                 decimal_digits="1"
                                 follows="left|top"
+                                increment="0.01"
                                 initial_value="0"
                                 layout="topleft"
                                 label="X:"
@@ -217,6 +222,7 @@
                         <slider
                                 decimal_digits="1"
                                 follows="left|top"
+                                increment="0.01"
                                 initial_value="0"
                                 layout="topleft"
                                 label="Y:"
@@ -241,6 +247,7 @@
                     <slider
                             decimal_digits="1"
                             follows="left|top"
+                            increment="0.01"
                             initial_value="0.7"
                             layout="topleft"
                             label="X:"
@@ -252,6 +259,7 @@
                     <slider
                             decimal_digits="1"
                             follows="left|top"
+                            increment="0.01"
                             initial_value="0.7"
                             layout="topleft"
                             max_val="10"
@@ -262,6 +270,7 @@
                     <slider
                             decimal_digits="1"
                             follows="left|top"
+                            increment="0.01"
                             initial_value="0.7"
                             layout="topleft"
                             max_val="10"

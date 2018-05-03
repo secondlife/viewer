@@ -135,6 +135,17 @@ bool LLEnvironment::canEdit() const
     return true;
 }
 
+bool LLEnvironment::isExtendedEnvironmentEnabled() const
+{
+    return !gAgent.getRegionCapability("ExtEnvironment").empty();
+}
+
+bool LLEnvironment::isInventoryEnabled() const
+{
+    return (!gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty() &&
+        !gAgent.getRegionCapability("UpdateSettingsTaskInventory").empty());
+}
+
 
 LLEnvironment::connection_t LLEnvironment::setSkyListChange(const LLEnvironment::change_signal_t::slot_type& cb)
 {
@@ -759,7 +770,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
 //=========================================================================
 void LLEnvironment::requestRegion()
 {
-    if (gAgent.getRegionCapability("ExtEnvironment").empty())
+    if (!isExtendedEnvironmentEnabled())
     {
         LLEnvironmentRequest::initiate();
         return;
@@ -770,7 +781,7 @@ void LLEnvironment::requestRegion()
 
 void LLEnvironment::updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
 {
-    if (gAgent.getRegionCapability("ExtEnvironment").empty())
+    if (!isExtendedEnvironmentEnabled())
     {
         LLEnvironmentApply::initiateRequest( LLSettingsVODay::convertToLegacy(pday) );
         return;
