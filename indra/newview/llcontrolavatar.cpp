@@ -367,8 +367,9 @@ void LLControlAvatar::updateAnimations()
     for (std::vector<LLVOVolume*>::iterator vol_it = volumes.begin(); vol_it != volumes.end(); ++vol_it)
     {
         LLVOVolume *volp = *vol_it;
-        for (std::map<LLUUID,S32>::iterator anim_it = volp->mObjectSignaledAnimations.begin();
-             anim_it != volp->mObjectSignaledAnimations.end();
+        signaled_animation_map_t& signaled_animations = LLObjectSignaledAnimationMap::instance().getMap()[volp->getID()];
+        for (std::map<LLUUID,S32>::iterator anim_it = signaled_animations.begin();
+             anim_it != signaled_animations.end();
              ++anim_it)
         {
             std::map<LLUUID,S32>::iterator found_anim_it = anims.find(anim_it->first);
@@ -384,7 +385,7 @@ void LLControlAvatar::updateAnimations()
             }
         }
     }
-    if (!mPlaying && anims.size()>0)
+    if (!mPlaying)
     {
         mPlaying = true;
         if (!mRootVolp->isAnySelected())
