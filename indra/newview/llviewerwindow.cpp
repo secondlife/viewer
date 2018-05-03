@@ -391,14 +391,12 @@ public:
 		}
 		}
 		
-#if LL_WINDOWS
 		if (gSavedSettings.getBOOL("DebugShowMemory"))
 		{
 			addText(xpos, ypos,
 					STRINGIZE("Memory: " << (LLMemory::getCurrentRSS() / 1024) << " (KB)"));
 			ypos += y_inc;
 		}
-#endif
 
 		if (gDisplayCameraPos)
 		{
