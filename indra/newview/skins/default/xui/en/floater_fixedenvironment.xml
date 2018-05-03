@@ -26,7 +26,6 @@
         <layout_panel name="info_panel"
                 auto_resize="false"
                 user_resize="false"
-                bg_alpha_color="blue"
                 min_height="60">
             <text
                     follows="left|top"
@@ -81,7 +80,11 @@
                     tab_position="top"
                     tab_width="120"
                     tab_padding_right="3">
-                <!-- move to own file -->
+                <!-- Tabs inserted here in code -->
+                <!-- -->
+                <!-- -->
+                
+                <!-- -->
             </tab_container>
         </layout_panel>
         <layout_panel name="button_panel"

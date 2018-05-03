@@ -171,6 +171,28 @@ protected:
 private:
 };
 
+class LLFloaterFixedEnvironmentSky : public LLFloaterFixedEnvironment
+{
+    LOG_CLASS(LLFloaterFixedEnvironmentSky);
+
+public:
+    LLFloaterFixedEnvironmentSky(const LLSD &key);
+
+    BOOL	                postBuild()                 override;
+
+    virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
+
+protected:
+    virtual void            updateEditEnvironment()     override;
+
+    virtual void            doLoadFromInventory()       override;
+    virtual void            doImportFromDisk()          override;
+    virtual void            doApplyFixedSettings()      override;
+
+private:
+};
+
 class LLSettingsEditPanel : public LLPanel
 {
 public:

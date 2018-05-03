@@ -40,6 +40,7 @@
 
 // newview
 #include "llpaneleditwater.h"
+#include "llpaneleditsky.h"
 
 #include "llsettingssky.h"
 #include "llsettingswater.h"
@@ -244,6 +245,96 @@ void LLFloaterFixedEnvironmentWater::doApplyFixedSettings()
 {
     LLSettingsVOBase::createInventoryItem(mSettings);
 
+}
+
+//=========================================================================
+LLFloaterFixedEnvironmentSky::LLFloaterFixedEnvironmentSky(const LLSD &key) :
+    LLFloaterFixedEnvironment(key)
+{}
+
+BOOL LLFloaterFixedEnvironmentSky::postBuild()
+{
+    if (!LLFloaterFixedEnvironment::postBuild())
+        return FALSE;
+
+    LLPanelSettingsSky * panel;
+    panel = new LLPanelSettingsSkyAtmosTab;
+    panel->buildFromFile("panel_settings_sky_atmos.xml");
+    panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+    mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
+
+    panel = new LLPanelSettingsSkyCloudTab;
+    panel->buildFromFile("panel_settings_sky_clouds.xml");
+    panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+    mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
+
+    panel = new LLPanelSettingsSkySunMoonTab;
+    panel->buildFromFile("panel_settings_sky_sunmoon.xml");
+    panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+    mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
+
+    return TRUE;
+}
+
+void LLFloaterFixedEnvironmentSky::updateEditEnvironment(void)
+{
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, 
+        std::static_pointer_cast<LLSettingsSky>(mSettings));
+}
+
+void LLFloaterFixedEnvironmentSky::onOpen(const LLSD& key)
+{
+    if (!mSettings)
+    {
+        // Initialize the settings, take a snapshot of the current water. 
+        mSettings = LLEnvironment::instance().getEnvironmentFixedSky(LLEnvironment::ENV_CURRENT)->buildClone();
+        mSettings->setName("Snapshot sky (new)");
+
+        // TODO: Should we grab sky and keep it around for reference?
+    }
+
+    updateEditEnvironment();
+    syncronizeTabs();
+    refresh();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+}
+
+void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
+{
+    mSettings.reset();
+    syncronizeTabs();
+}
+
+void LLFloaterFixedEnvironmentSky::doLoadFromInventory()
+{
+
+}
+
+void LLFloaterFixedEnvironmentSky::doImportFromDisk()
+{   // Load a a legacy Windlight XML from disk.
+
+    LLFilePicker& picker = LLFilePicker::instance();
+    if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
+    {
+        std::string filename = picker.getFirstFile();
+
+        LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+        LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename);
+
+        if (!legacysky)
+        {   // *TODO* Put up error dialog here.  Could not create water from filename
+            return;
+        }
+
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
+        this->setEditSettings(legacysky);
+        LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
+    }
+}
+
+void LLFloaterFixedEnvironmentSky::doApplyFixedSettings() 
+{
+    LLSettingsVOBase::createInventoryItem(mSettings);
 }
 
 //=========================================================================
