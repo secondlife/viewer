@@ -1099,7 +1099,6 @@ void LLXferManager::retransmitUnackedPackets()
 			{
 				LL_INFOS() << "resending xfer " << xferp->mRemoteHost << ":" << xferp->getFileName() << " packet unconfirmed after: "<< et << " sec, packet " << xferp->mPacketNum << LL_ENDL;
 				xferp->resendLastPacket();
-				xferp = xferp->mNext;
 			}
 		}
 		else if ((xferp->mStatus == e_LL_XFER_REGISTERED) && ( (et = xferp->ACKTimer.getElapsedTimeF32()) > LL_XFER_REGISTRATION_TIMEOUT))
@@ -1137,14 +1136,10 @@ void LLXferManager::retransmitUnackedPackets()
 					xferp->sendNextPacket();
 					changeNumActiveXfers(xferp->mRemoteHost,1);
 				}
-			}			
-			xferp = xferp->mNext;
+			}
 		}
-		else
-		{
-			xferp = xferp->mNext;
-		}
-	}
+		++iter;
+	} // end while() loop
 
 	//
 	// HACK - if we're using xfer confirm throttling, throttle our xfer confirms here
@@ -1240,7 +1235,6 @@ void LLXferManager::startPendingDownloads()
 		{
 			++download_count;
 		}
-		xferp = xferp->mNext;
 	}
 
 	S32 start_count = mMaxIncomingXfers - download_count;
