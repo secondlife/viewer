@@ -399,6 +399,7 @@ void LLPanelPermissions::refresh()
 	style_params.font.style = "UNDERLINE";
 
 	LLAvatarName av_name;
+	style_params.link_href = creator_app_link;
 	if (LLAvatarNameCache::get(mCreatorID, &av_name))
 	{
 		updateCreatorName(mCreatorID, av_name, style_params);
