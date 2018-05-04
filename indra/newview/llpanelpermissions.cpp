@@ -810,7 +810,7 @@ void LLPanelPermissions::refresh()
 		else
 		{
 			getChild<LLUICtrl>("checkbox share with group")->setValue(TRUE);
-			getChild<LLUICtrl>("checkbox share with group")->setTentative(	TRUE);
+			getChild<LLUICtrl>("checkbox share with group")->setTentative(!has_change_perm_ability);
 			getChildView("button deed")->setEnabled(gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) && (group_mask_on & PERM_MOVE) && (owner_mask_on & PERM_TRANSFER) && !group_owned && can_transfer);
 		}
 	}			
