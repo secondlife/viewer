@@ -2966,20 +2966,38 @@ LLControlAvatar *LLViewerObject::getControlAvatar() const
     return getRootEdit()->mControlAvatar.get();
 }
 
+// Manage the control avatar state of a given object.
+// Any object can be flagged as animated, but for performance reasons
+// we don't want to incur the overhead of managing a control avatar
+// unless this would have some user-visible consequence. That is,
+// there should be at least one rigged mesh in the linkset. Operations
+// that change the state of a linkset, such as linking or unlinking
+// prims, can also mean that a control avatar needs to be added or
+// removed. At the end, if there is a control avatar, we make sure
+// that its animation state is current.
 void LLViewerObject::updateControlAvatar()
 {
     LLViewerObject *root = getRootEdit();
-    bool any_rigged_mesh = root->isRiggedMesh();
-    LLViewerObject::const_child_list_t& child_list = root->getChildren();
-    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
-         iter != child_list.end(); ++iter)
+    bool is_animated_object = root->isAnimatedObject();
+    bool has_control_avatar = getControlAvatar();
+    if (!is_animated_object && !has_control_avatar)
     {
-        const LLViewerObject* child = *iter;
-        any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
+        return;
     }
 
-    bool has_control_avatar = getControlAvatar();
-    bool should_have_control_avatar = root->isAnimatedObject() && any_rigged_mesh;
+    bool should_have_control_avatar = false;
+    if (is_animated_object)
+    {
+        bool any_rigged_mesh = root->isRiggedMesh();
+        LLViewerObject::const_child_list_t& child_list = root->getChildren();
+        for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+             iter != child_list.end(); ++iter)
+        {
+            const LLViewerObject* child = *iter;
+            any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
+        }
+        should_have_control_avatar = is_animated_object && any_rigged_mesh;
+    }
 
     if (should_have_control_avatar && !has_control_avatar)
     {
@@ -3018,7 +3036,6 @@ void LLViewerObject::linkControlAvatar()
     if (cav)
     {
         cav->updateAttachmentOverrides();
-        cav->updateAnimations();
         if (!cav->mPlaying)
         {
             cav->mPlaying = true;
@@ -3028,7 +3045,6 @@ void LLViewerObject::linkControlAvatar()
                 cav->mRootVolp->recursiveMarkForUpdate(TRUE);
             }
         }
-        //cav->updateAnimations();
     }
     else
     {
