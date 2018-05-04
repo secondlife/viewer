@@ -2993,6 +2993,10 @@ void LLViewerObject::updateControlAvatar()
         LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
         root->unlinkControlAvatar();
     }
+    if (getControlAvatar())
+    {
+        getControlAvatar()->updateAnimations();
+    }
 }
 
 void LLViewerObject::linkControlAvatar()
@@ -3024,7 +3028,7 @@ void LLViewerObject::linkControlAvatar()
                 cav->mRootVolp->recursiveMarkForUpdate(TRUE);
             }
         }
-        cav->updateAnimations();
+        //cav->updateAnimations();
     }
     else
     {
