@@ -150,9 +150,9 @@ void LLXferManager::updateHostStatus()
 		for (status_list_t::iterator iter = mOutgoingHosts.begin();
 			 iter != mOutgoingHosts.end(); ++iter)
 		{
-			host_statusp = *iter;
 			if (host_statusp->mHost == (*send_iter)->mRemoteHost)
 			{
+				host_statusp = *iter;
 				break;
 			}
 		}
