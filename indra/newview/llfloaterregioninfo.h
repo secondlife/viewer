@@ -112,6 +112,7 @@ private:
 	LLFloaterRegionInfo(const LLSD& seed);
 	~LLFloaterRegionInfo();
 
+	static void requestEstateGetAccessCoro(std::string url, LLHandle<LLFloater> handle);
 
 	
 protected:
