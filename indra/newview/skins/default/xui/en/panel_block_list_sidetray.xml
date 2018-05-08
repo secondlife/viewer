@@ -109,6 +109,7 @@
      layout="topleft"
      left="3"
      name="blocked"
+     keep_one_selected="false"
      tool_tip="List of currently blocked Residents"
      top_pad="4"
   	 right="-1"/>
