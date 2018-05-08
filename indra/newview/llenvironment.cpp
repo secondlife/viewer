@@ -277,6 +277,41 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
     /*TODO: readjust environment*/
 }
 
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsBase::ptr_t &settings)
+{
+    DayInstance::ptr_t environment = getEnvironmentInstance(env);
+
+    if (settings->getSettingType() == "daycycle")
+    {
+        S64Seconds daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
+        S64Seconds dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
+        if (environment)
+        {
+            daylength = environment->getDayLength();
+            dayoffset = environment->getDayOffset();
+        }
+        setEnvironment(env, std::static_pointer_cast<LLSettingsDay>(settings), daylength, dayoffset);
+    }
+    else if (settings->getSettingType() == "sky")
+    {
+        fixedEnvironment_t fixedenv(std::static_pointer_cast<LLSettingsSky>(settings), LLSettingsWater::ptr_t());
+        if (environment)
+        {
+            fixedenv.second = environment->getWater();
+        }
+        setEnvironment(env, fixedenv);
+    }
+    else if (settings->getSettingType() == "water")
+    {
+        fixedEnvironment_t fixedenv(LLSettingsSky::ptr_t(), std::static_pointer_cast<LLSettingsWater>(settings));
+        if (environment)
+        {
+            fixedenv.first = environment->getSky();
+        }
+        setEnvironment(env, fixedenv);
+    }
+}
+
 
 void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
 {

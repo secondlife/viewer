@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+        height="602"
+        layout="topleft"
+        mouse_opaque="false"
+        name="save_settings_menu"
+        width="120">
+    <menu_item_call 
+            name="save_settings" 
+            label="Save">
+        <menu_item_call.on_click 
+                function="FlyoutCombo.Button.Action"
+                userdata="save"/>
+    </menu_item_call>
+    <menu_item_call 
+            name="save_as_new_settings" 
+            label="Save As">
+        <menu_item_call.on_click 
+                function="FlyoutCombo.Button.Action"
+                userdata="saveas" />
+    </menu_item_call>
+    <menu_item_call
+            name="apply_local"
+            label="Apply Locally">
+        <menu_item_call.on_click 
+                function="FlyoutCombo.Button.Action"
+                userdata="local" />
+    </menu_item_call>
+    <menu_item_call
+            name="apply_parcel"
+            label="Apply Parcel">
+        <menu_item_call.on_click 
+                function="FlyoutCombo.Button.Action"
+                userdata="parcel" />
+    </menu_item_call>
+    <menu_item_call
+            name="apply_region"
+            label="Apply Region">
+        <menu_item_call.on_click 
+                function="FlyoutCombo.Button.Action"
+                userdata="region" />
+    </menu_item_call>
+</toggleable_menu>

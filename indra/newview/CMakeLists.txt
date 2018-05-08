@@ -320,6 +320,7 @@ set(viewer_SOURCE_FILES
     llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
+    llflyoutcombobtn.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -941,6 +942,7 @@ set(viewer_HEADER_FILES
     llfolderviewmodelinventory.h
     llfollowcam.h
     llfriendcard.h
+    llflyoutcombobtn.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h

@@ -151,6 +151,7 @@ public:
     bool                        hasEnvironment(EnvSelection_t env);
     void                        setEnvironment(EnvSelection_t env, const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset);
     void                        setEnvironment(EnvSelection_t env, fixedEnvironment_t fixed);
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &fixed); 
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t())); }
     void                        setEnvironment(EnvSelection_t env, const LLSettingsWater::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(LLSettingsSky::ptr_t(), fixed)); }
     void                        clearEnvironment(EnvSelection_t env);
