@@ -47,6 +47,8 @@ class LLXfer_VFile : public LLXfer
 
 	std::string mName;
 
+	BOOL	mDeleteTempFile;
+
  public:
 	LLXfer_VFile ();
 	LLXfer_VFile (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type);

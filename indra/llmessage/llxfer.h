@@ -54,7 +54,6 @@ class LLXfer
         S32 mChunkSize;
   
  public:
-	LLXfer *mNext;
 	U64 mID;
 	S32 mPacketNum;
 
