@@ -50,8 +50,7 @@ LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel(const LLPanel::Params
   : LLPanel(p),
 	mIsDirty(TRUE),
 	mIsEditing(FALSE),
-	mCancelBtn(NULL),
-	mSaveBtn(NULL)
+	mCancelBtn(NULL)
 {
 }
 
@@ -63,11 +62,12 @@ LLSidepanelInventorySubpanel::~LLSidepanelInventorySubpanel()
 // virtual
 BOOL LLSidepanelInventorySubpanel::postBuild()
 {
-	mSaveBtn = getChild<LLButton>("save_btn");
-	mSaveBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onSaveButtonClicked, this));
 
-	mCancelBtn = getChild<LLButton>("cancel_btn");
-	mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
+	mCancelBtn = findChild<LLButton>("cancel_btn");
+	if (mCancelBtn)
+	{
+		mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
+	}
 	return TRUE;
 }
 
@@ -118,21 +118,15 @@ void LLSidepanelInventorySubpanel::dirty()
 
 void LLSidepanelInventorySubpanel::updateVerbs()
 {
-	mSaveBtn->setVisible(mIsEditing);
-	mCancelBtn->setVisible(mIsEditing);
+	if (mCancelBtn)
+	{
+		mCancelBtn->setVisible(mIsEditing);
+	}
 }
 
 void LLSidepanelInventorySubpanel::onEditButtonClicked()
 {
 	setIsEditing(TRUE);
-	refresh();
-	updateVerbs();
-}
-
-void LLSidepanelInventorySubpanel::onSaveButtonClicked()
-{
-	save();
-	setIsEditing(FALSE);
 	refresh();
 	updateVerbs();
 }

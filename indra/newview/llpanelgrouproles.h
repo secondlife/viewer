@@ -132,7 +132,7 @@ protected:
 									BOOL is_owner_role);
 
 protected:
-	LLPanel* mHeader;
+	LLPanel* mHeader; // Might not be present in xui of derived class (NULL)
 	LLPanel* mFooter;
 
 	LLFilterEditor*	mSearchEditor;
