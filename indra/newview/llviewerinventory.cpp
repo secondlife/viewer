@@ -70,6 +70,7 @@
 #include "llfloaterperms.h"
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
+#include "llsettingsvo.h"
 
 // do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {} 
@@ -1820,6 +1821,40 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 					  LLInventoryType::IT_GESTURE,
 					  PERM_ALL);	// overridden in create_new_item
 	}
+    else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
+    {
+        LL_WARNS("LAPRAS") << "Creating settings object of type: '" << type_name << "'" << LL_ENDL;
+
+        LLSettingsBase::ptr_t settings;
+        std::string name;
+
+        if ("sky" == type_name)
+        {
+            settings = LLSettingsVOSky::buildDefaultSky();
+            name = LLTrans::getString("New Sky");
+        }
+        else if ("water" == type_name)
+        {
+            settings = LLSettingsVOWater::buildDefaultWater();
+            name = LLTrans::getString("New Water");
+        }
+        else if ("daycycle" == type_name)
+        {
+            settings = LLSettingsVODay::buildDefaultDayCycle();
+            name = LLTrans::getString("New Daycycle");
+        }
+        else
+            LL_ERRS(LOG_INV) << "Unknown settings type: '" << type_name << "'" << LL_ENDL;
+
+        if (!settings)
+        {
+            LL_WARNS(LOG_INV) << "Unable to create a default setting object of type '" << type_name << "'" << LL_ENDL;
+            return;
+        }
+
+        settings->setName(name);
+        LLSettingsVOBase::createInventoryItem(settings);
+    }
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.

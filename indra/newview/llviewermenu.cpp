@@ -8476,22 +8476,20 @@ class LLWorldEnvPreset : public view_listener_t
 
 		if (item == "new_water")
 		{
-			//LLFloaterReg::showInstance("env_edit_water", "new");
             LLFloaterReg::showInstance("env_fixed_environmentent_water", "new");
 		}
 		else if (item == "edit_water")
 		{
-			//LLFloaterReg::showInstance("env_edit_water", "edit");
             LLFloaterReg::showInstance("env_fixed_environmentent_water", "edit");
         }
 		else if (item == "new_sky")
 		{
-			LLFloaterReg::showInstance("env_edit_sky", "new");
-		}
+            LLFloaterReg::showInstance("env_fixed_environmentent_sky", "new");
+        }
 		else if (item == "edit_sky")
 		{
-			LLFloaterReg::showInstance("env_edit_sky", "edit");
-		}
+            LLFloaterReg::showInstance("env_fixed_environmentent_sky", "edit");
+        }
 		else if (item == "new_day_cycle")
 		{
 			LLFloaterReg::showInstance("env_edit_day_cycle", "new");

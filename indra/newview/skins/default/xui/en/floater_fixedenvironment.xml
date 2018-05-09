@@ -26,7 +26,6 @@
         <layout_panel name="info_panel"
                 auto_resize="false"
                 user_resize="false"
-                bg_alpha_color="blue"
                 min_height="60">
             <text
                     follows="left|top"
@@ -35,7 +34,7 @@
                     width="35"
                     height="20"
                     font="SansSerif">
-            Name:
+                Name:
             </text>
             <line_editor
                     follows="left|top"
@@ -81,7 +80,11 @@
                     tab_position="top"
                     tab_width="120"
                     tab_padding_right="3">
-                <!-- move to own file -->
+                <!-- Tabs inserted here in code -->
+                <!-- -->
+                <!-- -->
+
+                <!-- -->
             </tab_container>
         </layout_panel>
         <layout_panel name="button_panel"
@@ -90,25 +93,71 @@
                 user_resize="false"
                 height="40"
                 visible="true">
-            <button
+            <layout_stack
+                    follows="bottom|left|right"
                     height="23"
-                    label="Save"
-                    follows="left|top"
-                    font="SansSerif"
-                    name="btn_commit"
-                    tool_tip="Load a settings from inventory" 
-                    width="96" />
-            <button
-                    height="23"
-                    label="Cancel"
-                    follows="right|top"
-                    right="-10"
-                    top_delta="0"
-                    font="SansSerif"
-                    name="btn_cancel"
-                    tool_tip="Load a settings from inventory" 
-                    width="96" />
-
+                    layout="topleft"
+                    mouse_opaque="false"
+                    name="button_bar_ls"
+                    left="0"
+                    orientation="horizontal"
+                    top="0"
+                    width="313">
+                <layout_panel
+                        follows="bottom|left|right"
+                        height="23"
+                        layout="bottomleft"
+                        left="0"
+                        mouse_opaque="false"
+                        name="save_btn_lp"
+                        auto_resize="true"
+                        width="156">
+                    <button
+                            follows="bottom|left|right"
+                            height="23"
+                            label="Save"
+                            left="1"
+                            layout="topleft"
+                            name="btn_commit"
+                            top="0"
+                            width="155" />
+                    <button
+                            follows="bottom|right"
+                            height="23"
+                            name="btn_flyout"
+                            label=""
+                            layout="topleft"
+                            left_pad="-20"
+                            tab_stop="false"
+                            top="0"
+                            image_selected="SegmentedBtn_Right_Selected_Press"
+                            image_unselected="SegmentedBtn_Right_Off"
+                            image_pressed="SegmentedBtn_Right_Press"
+                            image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+                            image_overlay="Arrow_Small_Up"
+                            width="20"/>
+                </layout_panel>
+                <layout_panel
+                        follows="bottom|left|right"
+                        height="23"
+                        layout="bottomleft"
+                        left_pad="3"
+                        mouse_opaque="false"
+                        name="revert_btn_lp"
+                        auto_resize="true"
+                        width="147">
+                    <button
+                            follows="bottom|right"
+                            height="23"
+                            right="-1"
+                            label="Cancel"
+                            layout="topleft"
+                            name="btn_cancel"
+                            top="0"
+                            tool_tip="Revert to last saved version"
+                            width="147" />
+                </layout_panel>
+            </layout_stack>
         </layout_panel>
     </layout_stack>
 </floater>

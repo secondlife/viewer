@@ -320,6 +320,7 @@ set(viewer_SOURCE_FILES
     llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
+    llflyoutcombobtn.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -421,6 +422,7 @@ set(viewer_SOURCE_FILES
     llpanelblockedlist.cpp
     llpanelclassified.cpp
     llpanelcontents.cpp
+    llpaneleditsky.cpp
     llpaneleditwater.cpp
     llpaneleditwearable.cpp
     llpanelenvironment.cpp
@@ -940,6 +942,7 @@ set(viewer_HEADER_FILES
     llfolderviewmodelinventory.h
     llfollowcam.h
     llfriendcard.h
+    llflyoutcombobtn.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1031,6 +1034,7 @@ set(viewer_HEADER_FILES
     llpanelblockedlist.h
     llpanelclassified.h
     llpanelcontents.h
+    llpaneleditsky.h
     llpaneleditwater.h
     llpaneleditwearable.h
     llpanelenvironment.h

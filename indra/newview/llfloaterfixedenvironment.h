@@ -29,6 +29,7 @@
 
 #include "llfloater.h"
 #include "llsettingsbase.h"
+#include "llflyoutcombobtn.h"
 
 class LLTabContainer;
 class LLButton;
@@ -43,18 +44,19 @@ class LLFloaterFixedEnvironment : public LLFloater
 
 public:
                             LLFloaterFixedEnvironment(const LLSD &key);
+                            ~LLFloaterFixedEnvironment();
 
     virtual BOOL	        postBuild()         override;
 
     virtual void            onFocusReceived()   override;
     virtual void            onFocusLost()       override;
 
-    void                    setEditSettings(LLSettingsBase::ptr_t &settings)    { mSettings = settings; syncronizeTabs(); }
+    void                    setEditSettings(const LLSettingsBase::ptr_t &settings)  { mSettings = settings; syncronizeTabs(); refresh(); }
     LLSettingsBase::ptr_t   getEditSettings()   const                           { return mSettings; }
 
 protected:
     virtual void            updateEditEnvironment() = 0;
-    virtual void            refresh();
+    virtual void            refresh()           override;
 
     virtual void            syncronizeTabs();
 
@@ -63,80 +65,26 @@ protected:
 
     LLSettingsBase::ptr_t   mSettings;
 
+    virtual void            doLoadFromInventory() = 0;
+    virtual void            doImportFromDisk() = 0;
+    virtual void            doApplyCreateNewInventory();
+    virtual void            doApplyUpdateInventory();
+    virtual void            doApplyEnvironment(const std::string &where);
+
+    bool                    canUseInventory() const;
+    bool                    canApplyRegion() const;
+    bool                    canApplyParcel() const;
+
+    LLFlyoutComboBtn *      mFlyoutControl;
 
 private:
-    void onNameChanged(const std::string &name);
+    void                    onNameChanged(const std::string &name);
 
-#if 0
+    void                    onButtonLoad();
+    void                    onButtonImport();
+    void                    onButtonApply(LLUICtrl *ctrl, const LLSD &data);
+    void                    onButtonCancel();
 
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
-	/*virtual*/ void	onClose(bool app_quitting);
-	/*virtual*/ void	draw();
-
-
-	//-- WL stuff begins ------------------------------------------------------
-
-	void syncControls(); /// sync up sliders with parameters
-
-	void setColorSwatch(const std::string& name, const WLColorControl& from_ctrl, F32 k);
-
-	// general purpose callbacks for dealing with color controllers
-	void onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color_ctrl);
-	void onColorControlRMoved(LLUICtrl* ctrl, void* userdata);
-	void onColorControlGMoved(LLUICtrl* ctrl, void* userdata);
-	void onColorControlBMoved(LLUICtrl* ctrl, void* userdata);
-	void onFloatControlMoved(LLUICtrl* ctrl, void* userdata);
-
-    void adjustIntensity(WLColorControl *ctrl, F32 color, F32 scale);
-
-	// lighting callbacks for glow
-	void onGlowRMoved(LLUICtrl* ctrl, void* userdata);
-	void onGlowBMoved(LLUICtrl* ctrl, void* userdata);
-
-	// lighting callbacks for sun
-	void onSunMoved(LLUICtrl* ctrl, void* userdata);
-	void onTimeChanged();
-
-    void onSunRotationChanged();
-    void onMoonRotationChanged();
-
-	// for handling when the star slider is moved to adjust the alpha
-	void onStarAlphaMoved(LLUICtrl* ctrl);
-
-	// handle cloud scrolling
-	void onCloudScrollXMoved(LLUICtrl* ctrl);
-	void onCloudScrollYMoved(LLUICtrl* ctrl);
-
-	//-- WL stuff ends --------------------------------------------------------
-
-	void reset(); /// reset the floater to its initial state
-	bool isNewPreset() const;
-	void refreshSkyPresetsList();
-	void enableEditing(bool enable);
-	void saveRegionSky();
-	std::string getSelectedPresetName() const;
-
-	void onSkyPresetNameEdited();
-	void onSkyPresetSelected();
-	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
-	void onSaveConfirmed();
-
-	void onBtnSave();
-	void onBtnCancel();
-
-	void onSkyPresetListChange();
-	void onRegionSettingsChange();
-	void onRegionInfoUpdate();
-
-    LLSettingsSky::ptr_t mEditSettings;
-
-	LLLineEditor*	mSkyPresetNameEditor;
-	LLComboBox*		mSkyPresetCombo;
-	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
-	LLButton*		mSaveButton;
-    LLSkySettingsAdapterPtr mSkyAdapter;
-#endif
 };
 
 class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
@@ -146,10 +94,37 @@ class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
 public:
     LLFloaterFixedEnvironmentWater(const LLSD &key);
 
-    BOOL	        postBuild() override;
+    BOOL	                postBuild()                 override;
 
-protected:    
-    virtual void    updateEditEnvironment() override;
+    virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
+
+protected:
+    virtual void            updateEditEnvironment()     override;
+
+    virtual void            doLoadFromInventory()       override;
+    virtual void            doImportFromDisk()          override;
+
+private:
+};
+
+class LLFloaterFixedEnvironmentSky : public LLFloaterFixedEnvironment
+{
+    LOG_CLASS(LLFloaterFixedEnvironmentSky);
+
+public:
+    LLFloaterFixedEnvironmentSky(const LLSD &key);
+
+    BOOL	                postBuild()                 override;
+
+    virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
+
+protected:
+    virtual void            updateEditEnvironment()     override;
+
+    virtual void            doLoadFromInventory()       override;
+    virtual void            doImportFromDisk()          override;
 
 private:
 };
@@ -159,7 +134,7 @@ class LLSettingsEditPanel : public LLPanel
 public:
     virtual void setSettings(LLSettingsBase::ptr_t &) = 0;
 
-    virtual void refresh() = 0;
+//     virtual void refresh() override;
 
 protected:
     LLSettingsEditPanel() :

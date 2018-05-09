@@ -189,6 +189,11 @@ public:
         return mSettings[SETTING_CLOUD_TEXTUREID].asUUID();
     }
 
+    void setCloudNoiseTextureId(const LLUUID &id)
+    {
+        setValue(SETTING_CLOUD_TEXTUREID, id);
+    }
+
     LLColor3 getCloudPosDensity1() const
     {
         return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY1]);
@@ -300,6 +305,11 @@ public:
         return mSettings[SETTING_MAX_Y].asReal();
     }
 
+    void setMaxY(F32 val) 
+    {
+        setValue(SETTING_MAX_Y, val);
+    }
+
     LLQuaternion getMoonRotation() const
     {
         return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
@@ -322,6 +332,11 @@ public:
     LLUUID getMoonTextureId() const
     {
         return mSettings[SETTING_MOON_TEXTUREID].asUUID();
+    }
+
+    void setMoonTextureId(LLUUID id)
+    {
+        setValue(SETTING_MOON_TEXTUREID, id);
     }
 
     F32 getStarBrightness() const
@@ -366,6 +381,11 @@ public:
     LLUUID getSunTextureId() const
     {
         return mSettings[SETTING_SUN_TEXTUREID].asUUID();
+    }
+
+    void setSunTextureId(LLUUID id) 
+    {
+        setValue(SETTING_SUN_TEXTUREID, id);
     }
 
     // Internal/calculated settings

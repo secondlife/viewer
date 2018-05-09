@@ -3850,6 +3850,11 @@ Abuse Report</string>
   <string name="Female - Shrug">Female - Shrug</string>
   <string name="Female - Stick tougue out">Female - Stick tongue out</string>
   <string name="Female - Wow">Female - Wow</string>
+  <!-- settings -->
+  <string name="New Daycycle">New Daycycle</string>
+  <string name="New Water">New Water</string>
+  <string name="New Sky">New Sky</string>
+  
 
   <string name="/bow">/bow</string>
   <string name="/clap">/clap</string>
