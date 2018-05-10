@@ -242,6 +242,8 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities for region that no longer exists!" << LL_ENDL;
             return; // this error condition is not recoverable.
         }
+        LL_DEBUGS("AppInit", "Capabilities") << "requesting seed caps for handle " << regionHandle 
+                                             << " name " << regionp->getName() << LL_ENDL;
 
         std::string url = regionp->getCapability("Seed");
         if (url.empty())
@@ -270,7 +272,8 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         buildCapabilityNames(capabilityNames);
 
         LL_INFOS("AppInit", "Capabilities") << "Requesting seed from " << url 
-            << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
+                                            << " region name " << regionp->getName()
+                                            << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
 
         regionp = NULL;
         result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
@@ -317,6 +320,8 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 #endif
 
         regionp->setCapabilitiesReceived(true);
+        LL_DEBUGS("AppInit", "Capabilities") << "received caps for handle " << regionHandle 
+                                             << " region name " << regionp->getName() << LL_ENDL;
 
         if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
         {
