@@ -239,14 +239,26 @@
         <string>bugsplat</string>
         <key>platforms</key>
         <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9a14b64569c998fb7ef6e3bb690eda29</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/17916/122458/bugsplat-1.0.2.515327-darwin64-515327.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2710e051eb1b12dba574f470834baa9e</string>
+              <string>90d85d1ac17f0049c8c48110e790a61f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9992/49191/bugsplat-3.5.0.5-windows-509980.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/17918/122472/bugsplat-3.5.0.5.515327-windows-515327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -256,16 +268,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f2bb37c69f35522e49aae547d3408fd8</string>
+              <string>9af7c080ebf0b961d7a4ccac7a303508</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/9991/49185/bugsplat-3.5.0.5-windows64-509980.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/17917/122466/bugsplat-3.5.0.5.515327-windows64-515327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.5.0.5</string>
+        <string>1.0.2.515327</string>
       </map>
       <key>chardet</key>
       <map>
