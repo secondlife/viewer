@@ -30,10 +30,9 @@
 #include "llerror.h"
 #include "llerrorcontrol.h"         // LLError::is_available()
 #include "lldependencies.h"
-#include "llcoro_get_id.h"
 #include "llexception.h"
+#include "llcoros.h"
 #include <boost/foreach.hpp>
-#include <boost/unordered_map.hpp>
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -115,19 +114,10 @@ private:
     // initialized, either in the constructor or in initSingleton(). However,
     // managing that as a stack depends on having a DISTINCT 'initializing'
     // stack for every C++ stack in the process! And we have a distinct C++
-    // stack for every running coroutine. It would be interesting and cool to
-    // implement a generic coroutine-local-storage mechanism and use that
-    // here. The trouble is that LLCoros is itself an LLSingleton, so
-    // depending on LLCoros functionality could dig us into infinite
-    // recursion. (Moreover, when we reimplement LLCoros on top of
-    // Boost.Fiber, that library already provides fiber_specific_ptr -- so
-    // it's not worth a great deal of time and energy implementing a generic
-    // equivalent on top of boost::dcoroutine, which is on its way out.)
-    // Instead, use a map of llcoro::id to select the appropriate
-    // coro-specific 'initializing' stack. llcoro::get_id() is carefully
-    // implemented to avoid requiring LLCoros.
-    typedef boost::unordered_map<llcoro::id, list_t> InitializingMap;
-    InitializingMap mInitializing;
+    // stack for every running coroutine. Therefore this stack must be based
+    // on a coroutine-local pointer.
+    // This local_ptr isn't static because it's a member of an LLSingleton.
+    LLCoros::local_ptr<LLSingletonBase::list_t> mInitializing;
 
 public:
     // Instantiate this to obtain a reference to the coroutine-specific
@@ -166,18 +156,23 @@ public:
 private:
     list_t& get_initializing_()
     {
-        // map::operator[] has find-or-create semantics, exactly what we need
-        // here. It returns a reference to the selected mapped_type instance.
-        return mInitializing[llcoro::get_id()];
+        LLSingletonBase::list_t* current = mInitializing.get();
+        if (! current)
+        {
+            // If the running coroutine doesn't already have an initializing
+            // stack, allocate a new one and save it for future reference.
+            current = new LLSingletonBase::list_t();
+            mInitializing.reset(current);
+        }
+        return *current;
     }
 
+    // By the time mInitializing is destroyed, its value for every coroutine
+    // except the running one must have been reset() to nullptr. So every time
+    // we pop the list to empty, reset() the running coroutine's local_ptr.
     void cleanup_initializing_()
     {
-        InitializingMap::iterator found = mInitializing.find(llcoro::get_id());
-        if (found != mInitializing.end())
-        {
-            mInitializing.erase(found);
-        }
+        mInitializing.reset(nullptr);
     }
 };
 

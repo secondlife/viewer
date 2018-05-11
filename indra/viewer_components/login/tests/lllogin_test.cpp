@@ -44,6 +44,7 @@
 //#define DEBUG_ON
 #include "../../../test/debug.h"
 #include "llevents.h"
+#include "lleventcoro.h"
 #include "stringize.h"
 
 #if LL_WINDOWS
@@ -199,6 +200,7 @@ namespace tut
 		credentials["passwd"] = "secret";
 
 		login.connect("login.bar.com", credentials);
+		llcoro::suspend();
 
 		ensure_equals("Online state", listener.lastEvent()["state"].asString(), "online");
 	}
@@ -226,6 +228,7 @@ namespace tut
 		credentials["passwd"] = "badpasswd";
 
 		login.connect("login.bar.com", credentials);
+		llcoro::suspend();
 
 		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 
@@ -265,6 +268,7 @@ namespace tut
 		credentials["passwd"] = "matter";
 
 		login.connect("login.bar.com", credentials);
+		llcoro::suspend();
 
 		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 
@@ -300,6 +304,7 @@ namespace tut
 		credentials["cfg_srv_timeout"] = 0.0f;
 
 		login.connect("login.bar.com", credentials);
+		llcoro::suspend();
 
 		// Get the mainloop eventpump, which needs a pinging in order to drive the 
 		// SRV timeout.

@@ -59,9 +59,11 @@ public:
     /// If it has not yet been dequeued it is simply removed from the queue.
     void cancelCoprocedure(const LLUUID &id);
 
+/*==========================================================================*|
     /// Requests a shutdown of the upload manager. Passing 'true' will perform 
     /// an immediate kill on the upload coroutine.
     void shutdown(bool hardShutdown = false);
+|*==========================================================================*/
 
     void setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn);
 

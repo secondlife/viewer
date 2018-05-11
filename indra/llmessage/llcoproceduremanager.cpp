@@ -203,6 +203,7 @@ void LLCoprocedureManager::cancelCoprocedure(const LLUUID &id)
     LL_INFOS() << "Coprocedure not found." << LL_ENDL;
 }
 
+/*==========================================================================*|
 void LLCoprocedureManager::shutdown(bool hardShutdown)
 {
     for (poolMap_t::const_iterator it = mPoolMap.begin(); it != mPoolMap.end(); ++it)
@@ -211,6 +212,7 @@ void LLCoprocedureManager::shutdown(bool hardShutdown)
     }
     mPoolMap.clear();
 }
+|*==========================================================================*/
 
 void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
 {
@@ -303,10 +305,13 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
 
 LLCoprocedurePool::~LLCoprocedurePool() 
 {
+/*==========================================================================*|
     shutdown();
+|*==========================================================================*/
 }
 
 //-------------------------------------------------------------------------
+/*==========================================================================*|
 void LLCoprocedurePool::shutdown(bool hardShutdown)
 {
     CoroAdapterMap_t::iterator it;
@@ -327,6 +332,7 @@ void LLCoprocedurePool::shutdown(bool hardShutdown)
     mCoroMapping.clear();
     mPendingCoprocs.clear();
 }
+|*==========================================================================*/
 
 //-------------------------------------------------------------------------
 LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoprocedurePool::CoProcedure_t proc)
