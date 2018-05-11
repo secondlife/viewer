@@ -605,103 +605,104 @@ class WindowsManifest(ViewerManifest):
         self.path("ca-bundle.crt")
 
         # Media plugins - CEF
-        with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_cef.dll")
+        with self.prefix(dst="llplugin"):
+            with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration']):
+                self.path("media_plugin_cef.dll")
 
-        # Media plugins - LibVLC
-        with self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_libvlc.dll")
+            # Media plugins - LibVLC
+            with self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration']):
+                self.path("media_plugin_libvlc.dll")
 
-        # Media plugins - Example (useful for debugging - not shipped with release viewer)
-        if self.channel_type() != 'release':
-            with self.prefix(src='../media_plugins/example/%s' % self.args['configuration'], dst="llplugin"):
-                self.path("media_plugin_example.dll")
+            # Media plugins - Example (useful for debugging - not shipped with release viewer)
+            if self.channel_type() != 'release':
+                with self.prefix(src='../media_plugins/example/%s' % self.args['configuration']):
+                    self.path("media_plugin_example.dll")
 
-        # CEF runtime files - debug
-        # CEF runtime files - not debug (release, relwithdebinfo etc.)
-        config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-        with self.prefix(src=os.path.join(pkgdir, 'bin', config), dst="llplugin"):
-            self.path("chrome_elf.dll")
-            self.path("d3dcompiler_43.dll")
-            self.path("d3dcompiler_47.dll")
-            self.path("libcef.dll")
-            self.path("libEGL.dll")
-            self.path("libGLESv2.dll")
-            self.path("dullahan_host.exe")
-            self.path("natives_blob.bin")
-            self.path("snapshot_blob.bin")
-            self.path("widevinecdmadapter.dll")
+            # CEF runtime files - debug
+            # CEF runtime files - not debug (release, relwithdebinfo etc.)
+            config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
+            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
+                self.path("chrome_elf.dll")
+                self.path("d3dcompiler_43.dll")
+                self.path("d3dcompiler_47.dll")
+                self.path("libcef.dll")
+                self.path("libEGL.dll")
+                self.path("libGLESv2.dll")
+                self.path("dullahan_host.exe")
+                self.path("natives_blob.bin")
+                self.path("snapshot_blob.bin")
+                self.path("widevinecdmadapter.dll")
 
-        # MSVC DLLs needed for CEF and have to be in same directory as plugin
-        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release'), dst="llplugin"):
-            self.path("msvcp120.dll")
-            self.path("msvcr120.dll")
+            # MSVC DLLs needed for CEF and have to be in same directory as plugin
+            with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release')):
+                self.path("msvcp120.dll")
+                self.path("msvcr120.dll")
 
-        # CEF files common to all configurations
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="llplugin"):
-            self.path("cef.pak")
-            self.path("cef_100_percent.pak")
-            self.path("cef_200_percent.pak")
-            self.path("cef_extensions.pak")
-            self.path("devtools_resources.pak")
-            self.path("icudtl.dat")
+            # CEF files common to all configurations
+            with self.prefix(src=os.path.join(pkgdir, 'resources')):
+                self.path("cef.pak")
+                self.path("cef_100_percent.pak")
+                self.path("cef_200_percent.pak")
+                self.path("cef_extensions.pak")
+                self.path("devtools_resources.pak")
+                self.path("icudtl.dat")
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('llplugin', 'locales')):
-            self.path("am.pak")
-            self.path("ar.pak")
-            self.path("bg.pak")
-            self.path("bn.pak")
-            self.path("ca.pak")
-            self.path("cs.pak")
-            self.path("da.pak")
-            self.path("de.pak")
-            self.path("el.pak")
-            self.path("en-GB.pak")
-            self.path("en-US.pak")
-            self.path("es-419.pak")
-            self.path("es.pak")
-            self.path("et.pak")
-            self.path("fa.pak")
-            self.path("fi.pak")
-            self.path("fil.pak")
-            self.path("fr.pak")
-            self.path("gu.pak")
-            self.path("he.pak")
-            self.path("hi.pak")
-            self.path("hr.pak")
-            self.path("hu.pak")
-            self.path("id.pak")
-            self.path("it.pak")
-            self.path("ja.pak")
-            self.path("kn.pak")
-            self.path("ko.pak")
-            self.path("lt.pak")
-            self.path("lv.pak")
-            self.path("ml.pak")
-            self.path("mr.pak")
-            self.path("ms.pak")
-            self.path("nb.pak")
-            self.path("nl.pak")
-            self.path("pl.pak")
-            self.path("pt-BR.pak")
-            self.path("pt-PT.pak")
-            self.path("ro.pak")
-            self.path("ru.pak")
-            self.path("sk.pak")
-            self.path("sl.pak")
-            self.path("sr.pak")
-            self.path("sv.pak")
-            self.path("sw.pak")
-            self.path("ta.pak")
-            self.path("te.pak")
-            self.path("th.pak")
-            self.path("tr.pak")
-            self.path("uk.pak")
-            self.path("vi.pak")
-            self.path("zh-CN.pak")
-            self.path("zh-TW.pak")
+            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+                self.path("am.pak")
+                self.path("ar.pak")
+                self.path("bg.pak")
+                self.path("bn.pak")
+                self.path("ca.pak")
+                self.path("cs.pak")
+                self.path("da.pak")
+                self.path("de.pak")
+                self.path("el.pak")
+                self.path("en-GB.pak")
+                self.path("en-US.pak")
+                self.path("es-419.pak")
+                self.path("es.pak")
+                self.path("et.pak")
+                self.path("fa.pak")
+                self.path("fi.pak")
+                self.path("fil.pak")
+                self.path("fr.pak")
+                self.path("gu.pak")
+                self.path("he.pak")
+                self.path("hi.pak")
+                self.path("hr.pak")
+                self.path("hu.pak")
+                self.path("id.pak")
+                self.path("it.pak")
+                self.path("ja.pak")
+                self.path("kn.pak")
+                self.path("ko.pak")
+                self.path("lt.pak")
+                self.path("lv.pak")
+                self.path("ml.pak")
+                self.path("mr.pak")
+                self.path("ms.pak")
+                self.path("nb.pak")
+                self.path("nl.pak")
+                self.path("pl.pak")
+                self.path("pt-BR.pak")
+                self.path("pt-PT.pak")
+                self.path("ro.pak")
+                self.path("ru.pak")
+                self.path("sk.pak")
+                self.path("sl.pak")
+                self.path("sr.pak")
+                self.path("sv.pak")
+                self.path("sw.pak")
+                self.path("ta.pak")
+                self.path("te.pak")
+                self.path("th.pak")
+                self.path("tr.pak")
+                self.path("uk.pak")
+                self.path("vi.pak")
+                self.path("zh-CN.pak")
+                self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins/")
