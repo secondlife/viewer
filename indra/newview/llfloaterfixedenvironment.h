@@ -30,6 +30,7 @@
 #include "llfloater.h"
 #include "llsettingsbase.h"
 #include "llflyoutcombobtn.h"
+#include "llinventory.h"
 
 class LLTabContainer;
 class LLButton;
@@ -43,29 +44,33 @@ class LLFloaterFixedEnvironment : public LLFloater
     LOG_CLASS(LLFloaterFixedEnvironment);
 
 public:
+    static const std::string    KEY_INVENTORY_ID;
+
                             LLFloaterFixedEnvironment(const LLSD &key);
                             ~LLFloaterFixedEnvironment();
 
-    virtual BOOL	        postBuild()         override;
+    virtual BOOL	        postBuild()                 override;
+    virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
 
-    virtual void            onFocusReceived()   override;
-    virtual void            onFocusLost()       override;
+    virtual void            onFocusReceived()           override;
+    virtual void            onFocusLost()               override;
 
     void                    setEditSettings(const LLSettingsBase::ptr_t &settings)  { mSettings = settings; syncronizeTabs(); refresh(); }
     LLSettingsBase::ptr_t   getEditSettings()   const                           { return mSettings; }
 
 protected:
     virtual void            updateEditEnvironment() = 0;
-    virtual void            refresh()           override;
-
+    virtual void            refresh()                   override;
     virtual void            syncronizeTabs();
+
+    void                    loadInventoryItem(const LLUUID  &inventoryId);
 
     LLTabContainer *        mTab;
     LLLineEditor *          mTxtName;
 
     LLSettingsBase::ptr_t   mSettings;
 
-    virtual void            doLoadFromInventory() = 0;
     virtual void            doImportFromDisk() = 0;
     virtual void            doApplyCreateNewInventory();
     virtual void            doApplyUpdateInventory();
@@ -77,14 +82,20 @@ protected:
 
     LLFlyoutComboBtn *      mFlyoutControl;
 
+    LLUUID                  mInventoryId;
+    LLInventoryItem *       mInventoryItem;
+
+    void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+    void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+
 private:
     void                    onNameChanged(const std::string &name);
 
-    void                    onButtonLoad();
     void                    onButtonImport();
     void                    onButtonApply(LLUICtrl *ctrl, const LLSD &data);
     void                    onButtonCancel();
 
+    void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status);
 };
 
 class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
@@ -102,7 +113,6 @@ public:
 protected:
     virtual void            updateEditEnvironment()     override;
 
-    virtual void            doLoadFromInventory()       override;
     virtual void            doImportFromDisk()          override;
 
 private:
@@ -123,7 +133,6 @@ public:
 protected:
     virtual void            updateEditEnvironment()     override;
 
-    virtual void            doLoadFromInventory()       override;
     virtual void            doImportFromDisk()          override;
 
 private:

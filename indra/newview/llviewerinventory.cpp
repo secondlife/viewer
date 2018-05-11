@@ -2035,6 +2035,19 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 	return LLWearableType::inventoryFlagsToWearableType(getFlags());
 }
 
+bool LLViewerInventoryItem::isSettingsType() const
+{
+    return (getInventoryType() == LLInventoryType::IT_SETTINGS);
+}
+
+LLSettingsType::type_e LLViewerInventoryItem::getSettingsType() const
+{
+    if (!isSettingsType())
+    {
+        return LLSettingsType::ST_NONE;
+    }
+    return LLSettingsType::fromInventoryFlags(getFlags());
+}
 
 time_t LLViewerInventoryItem::getCreationDate() const
 {

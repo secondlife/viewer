@@ -6910,7 +6910,11 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
 
 void LLSettingsBridge::openItem()
 {
-    LLItemBridge::openItem();
+    LLViewerInventoryItem* item = getItem();
+    if (item)
+    {
+        LLInvFVBridgeAction::doAction(item->getType(), mUUID, getInventoryModel());
+    }
 }
 
 void LLSettingsBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -7271,6 +7275,40 @@ void LLWearableBridgeAction::wearOnAvatar()
 	}
 }
 
+class LLSettingsBridgeAction
+    : public LLInvFVBridgeAction
+{
+    friend class LLInvFVBridgeAction;
+public:
+    virtual void doIt()
+    {
+        LLViewerInventoryItem* item = getItem();
+        if (item)
+        {
+            LLSettingsType::type_e type = item->getSettingsType();
+            switch (type)
+            {
+            case LLSettingsType::ST_SKY:
+                LLFloaterReg::showInstance("env_fixed_environmentent_sky", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                break;
+            case LLSettingsType::ST_WATER:
+                LLFloaterReg::showInstance("env_fixed_environmentent_water", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                break;
+            case LLSettingsType::ST_DAYCYCLE:
+                //LLFloaterReg::showInstance("env_fixed_environmentent_day", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                break;
+            default:
+                break;
+            }
+        }
+        LLInvFVBridgeAction::doIt();
+    }
+    virtual ~LLSettingsBridgeAction(){}
+protected:
+    LLSettingsBridgeAction(const LLUUID& id, LLInventoryModel* model) : LLInvFVBridgeAction(id, model) {}
+};
+
+
 LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,
 													   const LLUUID& uuid,
 													   LLInventoryModel* model)
@@ -7309,6 +7347,9 @@ LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_
 		case LLAssetType::AT_BODYPART:
 			action = new LLWearableBridgeAction(uuid,model);
 			break;
+        case LLAssetType::AT_SETTINGS:
+            action = new LLSettingsBridgeAction(uuid, model);
+            break;
 		default:
 			break;
 	}
