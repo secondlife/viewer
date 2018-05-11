@@ -8474,6 +8474,7 @@ class LLWorldEnvPreset : public view_listener_t
 	{
 		std::string item = userdata.asString();
 
+// *LAPRAS* These go away!  Keep for the moment.
 		if (item == "new_water")
 		{
             LLFloaterReg::showInstance("env_fixed_environmentent_water", "new");
