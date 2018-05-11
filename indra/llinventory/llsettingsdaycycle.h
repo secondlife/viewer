@@ -88,7 +88,10 @@ public:
     KeyframeList_t              getTrackKeyframes(S32 track);
 
     void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
+    const LLSettingsWaterPtr_t  getWaterAtKeyframe(F32 keyframe);
     void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe, S32 track);
+    const LLSettingsSkyPtr_t    getSkyAtKeyframe(F32 keyframe, S32 track);
+    const LLSettingsBase::ptr_t getSettingsAtKeyframe(F32 keyframe, S32 track);
         //---------------------------------------------------------------------
     void                        startDayCycle();
 
