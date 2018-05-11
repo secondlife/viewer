@@ -37,6 +37,18 @@ class LLLineEditor;
 class LLMultiSliderCtrl;
 class LLTimeCtrl;
 
+typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
+
+class SliderKey
+{
+public:
+	SliderKey(LLSettingsBasePtr_t kf, F32 t) : keyframe(kf), time(t) {}
+
+	LLSettingsBasePtr_t keyframe;
+	F32 time;
+};
+
+
 /**
  * Floater for creating or editing a day cycle.
  */
@@ -75,18 +87,26 @@ private:
 // 	void applyTrack();
 // 
 // 	/// refresh the sky presets combobox
-    void refreshSkyPresetsList();
 
-    void onDayPresetChanged();	/// sky preset selected
+	void onBtnSave();
+	void onBtnCancel();
+	void onAddTrack();
+	void onRemoveTrack();
+	void onCommitName(class LLLineEditor* caller, void* user_data);
+	void onTrackSelectionCallback(const LLSD& user_data);
 
-    void onBtnSave();
-    void onBtnCancel();
+	void selectTrack(U32 track_index);
+	void updateTabs();
+	void updateSkyTabs();
+	void updateWaterTabs();
+	void updateSlider(); //track->slider
+	//void updateTrack(); // slider->track, todo: better name
 
 // 	/// refresh the day cycle combobox
 // 	void refreshDayCyclesList();
 // 
 // 	/// add a slider to the track
-// //	void addSliderKey(F32 time, LLWLParamKey keyframe);
+	void addSliderKey(F32 time, const LLSettingsBasePtr_t key);
 // 
 // 	void initCallbacks();
 // //	LLWLParamKey getSelectedDayCycle();
@@ -123,8 +143,8 @@ private:
 
     LLSettingsDay::ptr_t    mSavedDay;
     LLSettingsDay::ptr_t    mEditDay;
+	U32 mCurrentTrack;
 
-    LLComboBox*			mDayPresetsCombo;
     LLButton*			mSaveButton;
     LLButton*			mCancelButton;
     LLButton*           mUploadButton;
@@ -133,12 +153,14 @@ private:
 
 //	LLComboBox*			mDayCyclesCombo;
 // 	LLMultiSliderCtrl*	mTimeSlider;
-// 	LLMultiSliderCtrl*	mKeysSlider;
+    LLMultiSliderCtrl*  mKeysSlider;
+    LLView*             mSkyTabContainer;
+    LLView*             mWaterTabContainer;
     // 	LLTimeCtrl*			mTimeCtrl;
 // 	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
 
 	// map of sliders to parameters
-//	std::map<std::string, SliderKey> mSliderToKey;
+	std::map<std::string, SliderKey> mSliderToKey;
 };
 
 #endif // LL_LLFloaterEditExtDayCycle_H
