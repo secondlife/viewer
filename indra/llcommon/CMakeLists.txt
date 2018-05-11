@@ -13,7 +13,6 @@ include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
-include(BUGSPLAT)
 include(BuildVersion)
 
 include_directories(
@@ -23,7 +22,6 @@ include_directories(
     ${ZLIB_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     ${URIPARSER_INCLUDE_DIRS}
-    ${BUGSPLAT_INCLUDE_DIR}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -301,7 +299,6 @@ target_link_libraries(
     ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${URIPARSER_LIBRARIES}
-    ${BUGSPLAT_LIBRARIES}
     )
 
 if (DARWIN)

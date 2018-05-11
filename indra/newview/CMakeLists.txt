@@ -4,6 +4,7 @@ project(viewer)
 
 include(00-Common)
 include(Boost)
+include(bugsplat)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -91,6 +92,7 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${BUGSPLAT_INCLUDE_DIR}
     )
 
 include_directories(SYSTEM
@@ -1976,6 +1978,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    ${BUGSPLAT_LIBRARIES}
     )
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
