@@ -435,6 +435,7 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
     //    return;
     //}
 
+#if 0 // AXON MAINT-8554 - this may be overly restrictive for large models
     LLVector3 constrained_pos = LLVector3(llclamp(pos[0],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET),
                                           llclamp(pos[1],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET),
                                           llclamp(pos[2],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET));
@@ -443,6 +444,9 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
         LL_DEBUGS("Avatar") << mesh_id << " joint " << getName() << " attachment pos override constrained to " 
                             << constrained_pos << " was " << pos << LL_ENDL;
     }
+#else
+    LLVector3 constrained_pos = pos;
+#endif
     
     LLVector3 before_pos;
     LLUUID before_mesh_id;
