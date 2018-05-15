@@ -181,7 +181,6 @@ set(viewer_SOURCE_FILES
     lldrawpoolwlsky.cpp
     lldynamictexture.cpp
     llemote.cpp
-    llenvadapters.cpp
     llenvironment.cpp
     llestateinfomodel.cpp
     lleventnotifier.cpp
@@ -226,8 +225,6 @@ set(viewer_SOURCE_FILES
     llfloaterdestinations.cpp
     llfloatereditdaycycle.cpp
     llfloatereditextdaycycle.cpp
-    llfloatereditsky.cpp
-    llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
     llfloaterexperiencepicker.cpp
@@ -801,7 +798,6 @@ set(viewer_HEADER_FILES
     lldrawpoolwlsky.h
     lldynamictexture.h
     llemote.h
-    llenvadapters.h
     llenvironment.h
     llestateinfomodel.h
     lleventnotifier.h
@@ -845,8 +841,6 @@ set(viewer_HEADER_FILES
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
     llfloatereditextdaycycle.h
-    llfloatereditsky.h
-    llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
     llfloaterexperiencepicker.h

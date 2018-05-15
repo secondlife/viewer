@@ -38,6 +38,8 @@
 #include "lltabcontainer.h"
 #include "llfilepicker.h"
 
+#include "llviewerparcelmgr.h"
+
 // newview
 #include "llpaneleditwater.h"
 #include "llpaneleditsky.h"
@@ -47,8 +49,10 @@
 
 #include "llenvironment.h"
 #include "llagent.h"
+#include "llparcel.h"
 
 #include "llsettingsvo.h"
+#include "llinventorymodel.h"
 
 namespace
 {
@@ -56,21 +60,30 @@ namespace
 
     const std::string CONTROL_TAB_AREA("tab_settings");
 
-    const std::string BUTTON_NAME_LOAD("btn_load");
     const std::string BUTTON_NAME_IMPORT("btn_import");
     const std::string BUTTON_NAME_COMMIT("btn_commit");
     const std::string BUTTON_NAME_CANCEL("btn_cancel");
+    const std::string BUTTON_NAME_FLYOUT("btn_flyout");
 
     const std::string ACTION_SAVE("save_settings");
     const std::string ACTION_SAVEAS("save_as_new_settings");
     const std::string ACTION_APPLY_LOCAL("apply_local");
     const std::string ACTION_APPLY_PARCEL("apply_parcel");
     const std::string ACTION_APPLY_REGION("apply_region");
+
+    const std::string XML_FLYOUTMENU_FILE("menu_save_settings.xml");
 }
 
+//=========================================================================
+const std::string LLFloaterFixedEnvironment::KEY_INVENTORY_ID("inventory_id");
+
+
+//=========================================================================
 LLFloaterFixedEnvironment::LLFloaterFixedEnvironment(const LLSD &key) :
     LLFloater(key),
-    mFlyoutControl(nullptr)
+    mFlyoutControl(nullptr),
+    mInventoryId(),
+    mInventoryItem(nullptr)
 {
 }
 
@@ -87,14 +100,38 @@ BOOL LLFloaterFixedEnvironment::postBuild()
     mTxtName->setCommitOnFocusLost(TRUE);
     mTxtName->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNameChanged(mTxtName->getValue().asString()); });
 
-    getChild<LLButton>(BUTTON_NAME_LOAD)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonLoad(); });
     getChild<LLButton>(BUTTON_NAME_IMPORT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonImport(); });
     getChild<LLButton>(BUTTON_NAME_CANCEL)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonCancel(); });
 
-    mFlyoutControl = new LLFlyoutComboBtn(this, "btn_commit", "btn_flyout", "menu_save_settings.xml");
+    mFlyoutControl = new LLFlyoutComboBtn(this, BUTTON_NAME_COMMIT, BUTTON_NAME_FLYOUT, XML_FLYOUTMENU_FILE);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
 
     return TRUE;
+}
+
+void LLFloaterFixedEnvironment::onOpen(const LLSD& key)
+{
+    LLUUID invid;
+
+    if (key.has(KEY_INVENTORY_ID))
+    {
+        invid = key[KEY_INVENTORY_ID].asUUID();
+    }
+
+    loadInventoryItem(invid);
+    LL_INFOS("SETTINGS") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
+
+    updateEditEnvironment();
+    syncronizeTabs();
+    refresh();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+
+}
+
+void LLFloaterFixedEnvironment::onClose(bool app_quitting)
+{
+    mSettings.reset();
+    syncronizeTabs();
 }
 
 void LLFloaterFixedEnvironment::onFocusReceived()
@@ -119,12 +156,10 @@ void LLFloaterFixedEnvironment::refresh()
         return;
     }
 
-    bool enableApplyAndLoad = canUseInventory();
+    bool is_inventory_avail = canUseInventory();
 
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, enableApplyAndLoad);
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, enableApplyAndLoad);
-
-    getChild<LLButton>(BUTTON_NAME_LOAD)->setEnabled(enableApplyAndLoad);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
 
     mTxtName->setValue(mSettings->getName());
 
@@ -150,14 +185,42 @@ void LLFloaterFixedEnvironment::syncronizeTabs()
     }
 }
 
+void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
+{
+    if (inventoryId.isNull())
+    {
+        mInventoryItem = nullptr;
+        mInventoryId.setNull();
+        return;
+    }
+
+    mInventoryId = inventoryId;
+    LL_INFOS("SETTINGS") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
+    mInventoryItem = gInventory.getItem(mInventoryId);
+
+    if (!mInventoryItem)
+    {
+        LL_WARNS("SETTINGS") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
+        mInventoryId.setNull();
+        mInventoryItem = nullptr;
+        return;
+    }
+
+    LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
+        [this](LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat) { onAssetLoaded(asset_id, settins, status); });
+}
+
+void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status)
+{
+    mSettings = settins;
+    updateEditEnvironment();
+    syncronizeTabs();
+    refresh();
+}
+
 void LLFloaterFixedEnvironment::onNameChanged(const std::string &name)
 {
     mSettings->setName(name);
-}
-
-void LLFloaterFixedEnvironment::onButtonLoad()
-{
-    doLoadFromInventory();
 }
 
 void LLFloaterFixedEnvironment::onButtonImport()
@@ -171,11 +234,11 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 
     if (ctrl_action == ACTION_SAVE)
     {
-        doApplyCreateNewInventory();
+        doApplyUpdateInventory();
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {
-        doApplyUpdateInventory();
+        doApplyCreateNewInventory();
     }
     else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
         (ctrl_action == ACTION_APPLY_PARCEL) ||
@@ -198,12 +261,15 @@ void LLFloaterFixedEnvironment::onButtonCancel()
 void LLFloaterFixedEnvironment::doApplyCreateNewInventory()
 {
     // This method knows what sort of settings object to create.
-    LLSettingsVOBase::createInventoryItem(mSettings);
+    LLSettingsVOBase::createInventoryItem(mSettings, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterFixedEnvironment::doApplyUpdateInventory()
 {
-    // todo update existing inventory object.
+    if (mInventoryId.isNull())
+        LLSettingsVOBase::createInventoryItem(mSettings, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    else
+        LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
@@ -230,20 +296,50 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
     }
 }
 
+void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
+{
+    LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
+    
+    setFocus(TRUE);                 // Call back the focus...
+    loadInventoryItem(inventory_id);
+}
+
+void LLFloaterFixedEnvironment::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
+{
+    LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
+
+    if (inventory_id != mInventoryId)
+    {
+        loadInventoryItem(inventory_id);
+    }
+}
+
 //-------------------------------------------------------------------------
 bool LLFloaterFixedEnvironment::canUseInventory() const
 {
-    return !gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty();
+    return LLEnvironment::instance().isInventoryEnabled();
 }
 
 bool LLFloaterFixedEnvironment::canApplyRegion() const
 {
-    return true;
+    return gAgent.canManageEstate();
 }
 
 bool LLFloaterFixedEnvironment::canApplyParcel() const
 {
-    return false;
+    LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
+    LLParcel *parcel(nullptr);
+
+    if (handle)
+        parcel = handle->getParcel();
+    if (!parcel)
+        parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+    if (!parcel)
+        return false;
+
+    return parcel->allowModifyBy(gAgent.getID(), gAgent.getGroupID()) && 
+        LLEnvironment::instance().isExtendedEnvironmentEnabled();
 }
 
 //=========================================================================
@@ -282,21 +378,12 @@ void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
         // TODO: Should we grab sky and keep it around for reference?
     }
 
-    updateEditEnvironment();
-    syncronizeTabs();
-    refresh();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    LLFloaterFixedEnvironment::onOpen(key);
 }
 
 void LLFloaterFixedEnvironmentWater::onClose(bool app_quitting)
 {
-    mSettings.reset();
-    syncronizeTabs();
-}
-
-void LLFloaterFixedEnvironmentWater::doLoadFromInventory()
-{
-
+    LLFloaterFixedEnvironment::onClose(app_quitting);
 }
 
 void LLFloaterFixedEnvironmentWater::doImportFromDisk()
@@ -364,24 +451,16 @@ void LLFloaterFixedEnvironmentSky::onOpen(const LLSD& key)
         mSettings = LLEnvironment::instance().getEnvironmentFixedSky(LLEnvironment::ENV_CURRENT)->buildClone();
         mSettings->setName("Snapshot sky (new)");
 
-        // TODO: Should we grab sky and keep it around for reference?
+        // TODO: Should we grab water and keep it around for reference?
     }
 
-    updateEditEnvironment();
-    syncronizeTabs();
-    refresh();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    LLFloaterFixedEnvironment::onOpen(key);
+
 }
 
 void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
 {
-    mSettings.reset();
-    syncronizeTabs();
-}
-
-void LLFloaterFixedEnvironmentSky::doLoadFromInventory()
-{
-
+    LLFloaterFixedEnvironment::onClose(app_quitting);
 }
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()

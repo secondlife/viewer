@@ -713,6 +713,8 @@
 	     	</menu_item_call>
 	     	
 	     	<menu_item_separator/>
+
+           <!-- *LAPRAS* These menus go away.  Keep till no longer needed -->
 	     	
 	     	<menu
 	     	 name="Water Presets"
@@ -732,7 +734,7 @@
 	     	 	 	parameter="edit_water"/>
 	     	 	</menu_item_call>
 	     	</menu>
-	     	
+
 	     	<menu
 	     	 name="Sky Presets"
 	     	 label="Sky Presets">
@@ -770,6 +772,7 @@
 	     	 	 	parameter="edit_day_cycle"/>
 	     	 	</menu_item_call>
 	     	</menu>
+        <!-- *LAPRAS* -->
 	    </menu>
     
     

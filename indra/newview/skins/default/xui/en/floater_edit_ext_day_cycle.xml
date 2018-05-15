@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-        legacy_header_height="18"
-        height="500"
+        height="602"
         layout="topleft"
         name="env_edit_extdaycycle"
         help_topic="day_presets"
@@ -13,43 +12,53 @@
     <string name="title_edit">Edit Day Cycle</string>
     <string name="hint_new">Name your day cycle, adjust the controls to create it, and click "Save".</string>
     <string name="hint_edit">To edit your day cycle, adjust the controls below and click "Save".</string>
-    <string name="combo_label">-Select a preset-</string>
+  
+    <!-- Todo: These 5 strings might be subjected to a change to get dynamic labels-->
+    <string name="0_label">0%[DSC]</string>
+    <string name="1_label">25%[DSC]</string>
+    <string name="2_label">50%[DSC]</string>
+    <string name="3_label">75%[DSC]</string>
+    <string name="4_label">100%[DSC]</string>
+    <string name="time_label"> ([TIME] hr)</string>
 
     <layout_stack name="test_stack"
             width="705"
-            height="500"
+            height="602"
             follows="all"
+            animate="false"
+            top="0"
             orientation="vertical">
         <layout_panel name="temp"
                 border="false"
                 auto_resize="false"
                 user_resize="true"
-                height="45"
-                min_height="45"
+                height="29"
+                min_height="29"
                 background_visible="false">
             <!-- This layout_panel is for loading legacy presets -->
             <text
-                    follows="top|left|right"
+                    follows="top|left"
                     font="SansSerif"
                     height="10"
                     layout="topleft"
                     name="label"
-                    top_delta="70"
-                    width="120">
-                Preset Name:
+                    left="15"
+                    top="5"
+                    width="105">
+              Day Cycle Name:
             </text>
-            <combo_box
-                    allow_text_entry="true"
+            <line_editor
                     follows="top|left"
                     layout="topleft"
                     left_pad="10"
                     max_chars="100"
-                    name="day_cycle_preset_combo"
-                    top_delta="-5"
-                    width="200" />           
+                    name="day_cycle_name"
+                    top="5"
+                    width="200"
+                    height="21" />
         </layout_panel>
-        <layout_panel name="timeline"
-                border="true"
+        <layout_panel name="timeline_track_selection"
+                border="false"
                 bevel_style="in"
                 auto_resize="false"
                 user_resize="true"
@@ -58,74 +67,415 @@
                 min_height="0"
                 visible="true"
                 background_visible="true">
-            <text
-                    follows="top|left|right"
-                    font="SansSerif"
+            <panel name="timeline_layers"
+                    border="false"
+                    follows="left|top"
+                    auto_resize="false"
+                    user_resize="true"
+                    bg_alpha_color="yellow"
+                    height="150"
+                    width="110"
+                    top_pad="0"
+                    min_height="0"
+                    visible="true"
+                    background_visible="true">
+                <button
+                        follows="left|top"
+                        height="23"
+                        label="Sky 4"
+                        layout="topleft"
+                        top_pad="5"
+                        left="10"
+                        name="sky4_track"
+                        width="100"> 
+                    <button.commit_callback
+                      function="DayCycle.Track"
+                      parameter="1" />
+                </button>
+                <button
+                        follows="left|top"
+                        height="23"
+                        label="Sky 3"
+                        layout="topleft"
+                        top_pad="0"
+                        left="10"
+                        name="sky3_track"
+                        width="100"> 
+                    <button.commit_callback
+                      function="DayCycle.Track"
+                      parameter="2" />
+                </button>
+                <button
+                        follows="left|top"
+                        height="23"
+                        label="Sky 2"
+                        layout="topleft"
+                        top_pad="0"
+                        left="10"
+                        name="sky2_track"
+                        width="100"> 
+                    <button.commit_callback
+                      function="DayCycle.Track"
+                      parameter="3" />
+                </button>
+                <button
+                        follows="left|top"
+                        height="23"
+                        label="Sky 1"
+                        layout="topleft"
+                        top_pad="0"
+                        left="10"
+                        name="sky1_track"
+                        width="100"> 
+                    <button.commit_callback
+                      function="DayCycle.Track"
+                      parameter="4" />
+                </button>
+                <button
+                        follows="left|top"
+                        height="23"
+                        label="Water"
+                        layout="topleft"
+                        top_pad="0"
+                        left="10"
+                        name="water_track"
+                        width="100"> 
+                    <button.commit_callback
+                      function="DayCycle.Track"
+                      parameter="0" />
+                </button>
+            </panel>
+            <panel name="timeline"
+                    border="true"
+                    follows="left|top"
+                    auto_resize="false"
+                    user_resize="true"
+                    height="150"
+                    min_height="0"
+                    width="595"
+                    min_width="595"
+                    left_pad="0"
+                    visible="true">              
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="p0"
+                         top_pad="5"
+                         value="0%"
+                         width="50" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="69"
+                         name="p1"
+                         top_delta="0"
+                         value="25%"
+                         width="50" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="69"
+                         name="p2"
+                         top_delta="0"
+                         value="50%"
+                         width="50" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="69"
+                         name="p3"
+                         top_delta="0"
+                         value="75%"
+                         width="50" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="69"
+                         name="p4"
+                         top_delta="0"
+                         value="100%"
+                         width="50" />
+                  <multi_slider
+                    can_edit_text="true"
+                    decimal_digits="0"
+                    draw_track="false"
+                    follows="bottom"
                     height="10"
+                    increment="0.0833333"
+                    initial_value="0"
                     layout="topleft"
-                    name="label"
-                    top_offset="20"
-                    left_offset="10"
-                    width="120">
-                Time Line Goes here
-            </text>
+                    left="10"
+                    max_sliders="20"
+                    max_val="24"
+                    name="WLTimeSlider"
+                    show_text="false"
+                    top_pad="0"
+                    use_triangle="true"
+                    width="525"
+                    min_width="525"/>
+          
+                  <multi_slider
+                      can_edit_text="true"
+                      decimal_digits="0"
+                      follows="bottom"
+                      height="10"
+                      increment="0.0833333"
+                      initial_value="0"
+                      layout="topleft"
+                      left="10"
+                      max_sliders="20"
+                      max_val="24"
+                      name="WLDayCycleKeys"
+                      show_text="false"
+                      top_pad="15"
+                      width="525"
+                      min_width="525" />
+              
+            <line_editor
+             border_style="line"
+             border_thickness="1"
+             follows="left|bottom"
+             font="SansSerif"
+             height="20"
+             layout="topleft"
+             left_pad="0"
+             max_length_bytes="300"
+             name="timeline_field"
+             select_on_focus="true"
+             value="%"
+             tool_tip="The full path to an editor (executable) to edit floater XML files (quotes not necessary)"
+             top_delta="-5"
+             width="35" />
+
+              <layout_stack
+                name="progress_control"
+                follows="top|left"
+                height="25"
+                width="83"
+                layout="topleft"
+                animate="false"
+                left="225"
+                top_pad="40"
+                orientation="horizontal">
+
+                <layout_panel
+                  name="skip_back"
+                  mouse_opaque="false"
+                  auto_resize="false"
+                  layout="topleft"
+                  top="0"
+                  height="25"
+                  min_width="25"
+                  width="25">
+                  <button
+                    name="skip_back_btn"
+                    follows="top"
+                    image_overlay="SkipBackward_Off"
+                    image_disabled="PushButton_Disabled"
+                    image_disabled_selected="PushButton_Disabled"
+                    image_selected="PushButton_Selected"
+                    image_unselected="PushButton_Off"
+                    hover_glow_amount="0.15"
+                    auto_resize="false"
+                    width="25"
+                    height="25"
+                    layout="topleft"
+                    tool_tip="Step back"
+                    top="0"
+                    left="0"/>
+                </layout_panel>
+
+                <layout_panel
+                  name="play"
+                  mouse_opaque="false"
+                  auto_resize="false"
+                  layout="topleft"
+                  top="0"
+                  height="25"
+                  min_width="25"
+                  width="25">
+                  <button
+                        name="play_btn"
+                        follows="top"
+                        image_overlay="Play_Off"
+                        image_disabled="PushButton_Disabled"
+                        image_disabled_selected="PushButton_Disabled"
+                        image_selected="PushButton_Selected"
+                        image_unselected="PushButton_Off"
+                        hover_glow_amount="0.15"
+                        auto_resize="false"
+                        layout="topleft"
+                        height="25"
+                        width="25"
+                        left="0"
+                        top="0" />
+                </layout_panel>
+
+                <layout_panel
+                  name="pause"
+                  mouse_opaque="false"
+                  auto_resize="false"
+                  layout="topleft"
+                  top="0"
+                  height="25"
+                  min_width="25"
+                  width="25"
+                  visible="false">
+                  <button
+                        name="pause_btn"
+                        follows="top"
+                        image_overlay="Pause_Off"
+                        image_disabled="PushButton_Disabled"
+                        image_disabled_selected="PushButton_Disabled"
+                        image_selected="PushButton_Selected"
+                        image_unselected="PushButton_Off"
+                        hover_glow_amount="0.15"
+                        auto_resize="false"
+                        layout="topleft"
+                        height="25"
+                        width="25"
+                        left="0"
+                        top="0"/>
+                </layout_panel>
+
+                <layout_panel
+                  name="skip_forward"
+                  mouse_opaque="false"
+                  auto_resize="false"
+                  layout="topleft"
+                  top="0"
+                  height="25"
+                  min_width="25"
+                  width="25">
+                  <button
+                    name="skip_forward_btn"
+                    follows="top"
+                    image_overlay="SkipForward_Off"
+                    image_disabled="PushButton_Disabled"
+                    image_disabled_selected="PushButton_Disabled"
+                    image_selected="PushButton_Selected"
+                    image_unselected="PushButton_Off"
+                    hover_glow_amount="0.15"
+                    width="25"
+                    height="25"
+                    layout="topleft"
+                    tool_tip="Step forward"
+                    top="0" />
+                </layout_panel>
+              </layout_stack>
+              
+            <button
+                    follows="top|left"
+                    height="23"
+                    width="90"
+                    label="Add Frame"
+                    left_pad="175"
+                    top_delta="-12"
+                    name="add_frame" />
+            <button
+                    follows="left|top"
+                    height="23"
+                    width="90"
+                    label="Delete Frame"
+                    top_pad="0"
+                    left_delta="0"
+                    name="delete_frame" />
+            </panel>
         </layout_panel>
-        <layout_panel name="flex"
-                auto_resize="true"
+        <layout_panel name="frame_settings_water"
+                auto_resize="false"
                 user_resize="true"
-                bg_alpha_color="blue"
-                height="11"
+                height="386"
+                width="700"
                 min_height="0"
-                visible="true"
-                background_visible="true">
+                visible="false">
             <tab_container
                     follows="all"
                     halign="left"
                     height="386"
                     layout="topleft"
-                    left_offset="0"
-                    name="landtab"
+                    left="0"
+                    name="water_tabs"
                     tab_position="top"
                     tab_width="140"
                     tab_padding_right="3"
-                    top_offset="6"
-                    width="633">
-                <panel
-                        border="true"
-                        follows="all"
-                        label="DUMMY"
-                        layout="topleft"
-                        left="0"
-                        help_topic="land_general_tab"
-                        name="land_general_panel"
-                        top="0">
-            <text
-                    follows="top|left|right"
-                    font="SansSerif"
-                    height="10"
-                    layout="center"
-                    name="label"
-                    top_offset="20"
-                    left_offset="10"
-                    width="300">
-                Space For editing selected frame
-            </text>
-                        
-                </panel>
+                    top_pad="0"
+                    width="700">
+                       <panel
+                         border="true"
+                         filename="panel_settings_water.xml"
+                         label="Water_panel"
+                         layout="topleft"
+                         left_delta="0"
+                         top_pad="5"
+                         name="water_panel"/>
+            </tab_container>
+        </layout_panel>
+        <layout_panel name="frame_settings_sky"
+                auto_resize="false"
+                user_resize="true"
+                height="386"
+                width="700"
+                min_height="0"
+                visible="true">
+            <tab_container
+                    follows="all"
+                    halign="left"
+                    height="386"
+                    visible="true"
+                    layout="topleft"
+                    left="0"
+                    name="sky_tabs"
+                    tab_position="top"
+                    tab_width="140"
+                    tab_padding_right="3"
+                    top_pad="0"
+                    width="700">
+                       <panel
+                         border="true"
+                         filename="panel_settings_sky_atmos.xml"
+                         label="Atmosphere &amp; Lighting"
+                         layout="topleft"
+                         left_delta="0"
+                         top_pad="5"
+                         name="atmosphere_panel" />
+                       <panel
+                         border="true"
+                         filename="panel_settings_sky_clouds.xml"
+                         label="Clouds"
+                         layout="topleft"
+                         left_delta="0"
+                         top_pad="5"
+                         name="clouds_panel" />
+                       <panel
+                         border="true"
+                         filename="panel_settings_sky_sunmoon.xml"
+                         label="Sun &amp; Moon"
+                         layout="topleft"
+                         left_delta="0"
+                         top_pad="5"
+                         name="moon_panel" />
             </tab_container>
         </layout_panel>
         <layout_panel name="buttons"
                 auto_resize="false"
                 user_resize="true"
-                height="43"
+                height="26"
                 min_height="0"
-                background_visible="false">
+                visible="true"
+                width="700">
             <button
                     follows="top|left"
                     height="23"
                     label="Save"
-                    left_offset="160"
-                    top_offset="60"
+                    left="5"
+                    top_pad="0"
                     name="save_btn"
                     width="100" />
             <button
@@ -138,7 +488,7 @@
                     width="100" /> 
 
             <button
-                    follows="top|right"
+                    follows="top|left"
                     height="23"
                     label="Upload"
                     layout="topleft"
