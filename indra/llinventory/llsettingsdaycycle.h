@@ -86,6 +86,8 @@ public:
     //---------------------------------------------------------------------
 
     KeyframeList_t              getTrackKeyframes(S32 track);
+    bool                        moveTrackKeyframe(S32 track, F32 old_frame, F32 new_frame);
+    bool                        removeTrackKeyframe(S32 track, F32 frame);
 
     void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
     const LLSettingsWaterPtr_t  getWaterAtKeyframe(F32 keyframe);
