@@ -34,6 +34,7 @@
 #include "lltrans.h"
 #include "llweb.h"
 
+#pragma optimize("", off)
 
 /// key used to store the grid, and the name attribute in the grid data
 const std::string  GRID_VALUE = "keyname";
@@ -88,6 +89,13 @@ LLGridManager::LLGridManager()
 	// an attacker.  Don't want someone snagging a password.
 	std::string grid_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 														   "grids.xml");
+
+    // fall back to app_settings/grids.xml if it's provided
+    if (!LLFile::isfile(grid_file))
+    {
+        grid_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
+														   "grids.xml");
+    }
 	LL_DEBUGS("GridManager")<<LL_ENDL;
 
 	initialize(grid_file);
@@ -132,6 +140,12 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  SL_UPDATE_QUERY_URL,
 				  "https://my.aditi.lindenlab.com/",
 				  "Aditi");
+
+    llofstream out_llsd_xml;
+    std::string default_grid_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "default_grids.xml");
+    out_llsd_xml.open(default_grid_file.c_str());
+    LLSDSerialize::toPrettyXML(mGridList, out_llsd_xml);
+    out_llsd_xml.close();
 
 	LLSD other_grids;
 	llifstream llsd_xml;
@@ -484,12 +498,19 @@ void LLGridManager::getLoginURIs(const std::string& grid, std::vector<std::strin
 	std::string grid_name = getGrid(grid);
 	if (!grid_name.empty())
 	{
-		for (LLSD::array_iterator llsd_uri = mGridList[grid_name][GRID_LOGIN_URI_VALUE].beginArray();
-			 llsd_uri != mGridList[grid_name][GRID_LOGIN_URI_VALUE].endArray();
-			 llsd_uri++)
-		{
-			uris.push_back(llsd_uri->asString());
-		}
+        if (mGridList[grid_name][GRID_LOGIN_URI_VALUE].isArray())
+        {
+		    for (LLSD::array_iterator llsd_uri = mGridList[grid_name][GRID_LOGIN_URI_VALUE].beginArray();
+			     llsd_uri != mGridList[grid_name][GRID_LOGIN_URI_VALUE].endArray();
+			     llsd_uri++)
+		    {
+			    uris.push_back(llsd_uri->asString());
+		    }
+        }
+        else
+        {
+            uris.push_back(mGridList[grid_name][GRID_LOGIN_URI_VALUE].asString());
+        }
 	}
 	else
 	{

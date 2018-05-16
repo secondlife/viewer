@@ -199,6 +199,13 @@ public:
         return mWaterFogKS;
     }
 
+    //-------------------------------------------
+    LLUUID getNextNormalMapID() const
+    {
+        return mNextNormalMapID;
+    }
+
+
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
@@ -224,7 +231,7 @@ protected:
     F32                 mWaterFogKS;
 
 private:
-
+    LLUUID              mNextNormalMapID;
 };
 
 #endif

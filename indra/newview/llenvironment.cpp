@@ -187,6 +187,17 @@ void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settin
     }
 }
 
+bool LLEnvironment::isExtendedEnvironmentEnabled() const
+{
+    return !gAgent.getRegionCapability("ExtEnvironment").empty();
+}
+
+bool LLEnvironment::isInventoryEnabled() const
+{
+    return (!gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty() &&
+        !gAgent.getRegionCapability("UpdateSettingsTaskInventory").empty());
+}
+
 LLEnvironment::connection_t LLEnvironment::setSkyListChange(const LLEnvironment::change_signal_t::slot_type& cb)
 {
     return mSkyListChange.connect(cb);
@@ -253,10 +264,10 @@ bool LLEnvironment::getIsDayTime() const
 }
 
 //-------------------------------------------------------------------------
-void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, F64Seconds transition)
+void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, F64Seconds transition, bool forced)
 {
     mSelectedEnvironment = env;
-    updateEnvironment(transition);
+    updateEnvironment(transition, forced);
 }
 
 bool LLEnvironment::hasEnvironment(LLEnvironment::EnvSelection_t env)
@@ -315,6 +326,41 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
     environment->setWater((fixed.second) ? fixed.second : mEnvironments[ENV_DEFAULT]->getWater());
 
     /*TODO: readjust environment*/
+}
+
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsBase::ptr_t &settings)
+{
+    DayInstance::ptr_t environment = getEnvironmentInstance(env);
+
+    if (settings->getSettingType() == "daycycle")
+    {
+        S64Seconds daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
+        S64Seconds dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
+        if (environment)
+        {
+            daylength = environment->getDayLength();
+            dayoffset = environment->getDayOffset();
+        }
+        setEnvironment(env, std::static_pointer_cast<LLSettingsDay>(settings), daylength, dayoffset);
+    }
+    else if (settings->getSettingType() == "sky")
+    {
+        fixedEnvironment_t fixedenv(std::static_pointer_cast<LLSettingsSky>(settings), LLSettingsWater::ptr_t());
+        if (environment)
+        {
+            fixedenv.second = environment->getWater();
+        }
+        setEnvironment(env, fixedenv);
+    }
+    else if (settings->getSettingType() == "water")
+    {
+        fixedEnvironment_t fixedenv(LLSettingsSky::ptr_t(), std::static_pointer_cast<LLSettingsWater>(settings));
+        if (environment)
+        {
+            fixedenv.first = environment->getSky();
+        }
+        setEnvironment(env, fixedenv);
+    }
 }
 
 
@@ -380,6 +426,33 @@ S64Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env)
 
 LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironment::EnvSelection_t env)
 {
+    if (env == ENV_CURRENT)
+    {
+        fixedEnvironment_t fixed;
+        for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+        {
+            if (fixed.first && fixed.second)
+                break;
+
+            if (idx == ENV_EDIT)
+                continue;   // skip the edit environment.
+
+            DayInstance::ptr_t environment = getEnvironmentInstance(static_cast<EnvSelection_t>(idx));
+            if (environment)
+            {
+                if (!fixed.first)
+                    fixed.first = environment->getSky();
+                if (!fixed.second)
+                    fixed.second = environment->getWater();
+            }
+        }
+
+        if (!fixed.first || !fixed.second)
+            LL_WARNS("ENVIRONMENT") << "Can not construct complete fixed environment.  Missing Sky and/or Water." << LL_ENDL;
+
+        return fixed;
+    }
+
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
         LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
@@ -406,11 +479,11 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance(
 }
 
 
-void LLEnvironment::updateEnvironment(F64Seconds transition)
+void LLEnvironment::updateEnvironment(F64Seconds transition, bool forced)
 {
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
 
-    if (mCurrentEnvironment != pinstance)
+    if ((mCurrentEnvironment != pinstance) || forced)
     {
         DayInstance::ptr_t trans = std::make_shared<DayTransition>(
             mCurrentEnvironment->getSky(), mCurrentEnvironment->getWater(), pinstance, transition);
@@ -795,7 +868,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
 //=========================================================================
 void LLEnvironment::requestRegion()
 {
-    if (gAgent.getRegionCapability("ExtEnvironment").empty())
+    if (!isExtendedEnvironmentEnabled())
     {
         LLEnvironmentRequest::initiate();
         return;
@@ -806,7 +879,7 @@ void LLEnvironment::requestRegion()
 
 void LLEnvironment::updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
 {
-    if (gAgent.getRegionCapability("ExtEnvironment").empty())
+    if (!isExtendedEnvironmentEnabled())
     {
         LLEnvironmentApply::initiateRequest( LLSettingsVODay::convertToLegacy(pday) );
         return;
@@ -1106,6 +1179,30 @@ std::string LLEnvironment::getUserDir(const std::string &subdir)
     return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "windlight\\"+subdir, "");
 }
 
+LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::string filename)
+{
+    LLSD data = legacyLoadPreset(filename);
+    if (!data)
+        return LLSettingsWater::ptr_t();
+
+    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
+
+    return water;
+}
+
+LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string filename)
+{
+    LLSD data = legacyLoadPreset(filename);
+    if (!data)
+        return LLSettingsSky::ptr_t();
+
+    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
+
+    return sky;
+}
+
 LLSD LLEnvironment::legacyLoadPreset(const std::string& path)
 {
     llifstream xml_file;
@@ -1375,7 +1472,6 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, S64Sec
 
     animate();
 }
-
 
 
 void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)

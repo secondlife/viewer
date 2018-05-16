@@ -32,6 +32,8 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#pragma optimize("", off)
+
 //=========================================================================
 namespace
 {
@@ -105,6 +107,10 @@ const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM("exp_term");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR("exp_scale");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_term");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
+
+const LLUUID LLSettingsSky::DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
+const LLUUID LLSettingsSky::DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
+const LLUUID LLSettingsSky::DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
 
 const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");
 
@@ -352,12 +358,18 @@ bool validateMieLayers(LLSD &value)
 
 //=========================================================================
 LLSettingsSky::LLSettingsSky(const LLSD &data) :
-    LLSettingsBase(data)
+    LLSettingsBase(data),
+    mNextSunTextureId(),
+    mNextMoonTextureId(),
+    mNextCloudTextureId()
 {
 }
 
 LLSettingsSky::LLSettingsSky():
-    LLSettingsBase()
+    LLSettingsBase(),
+    mNextSunTextureId(),
+    mNextMoonTextureId(),
+    mNextCloudTextureId()
 {
 }
 
@@ -367,6 +379,10 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
 
     replaceSettings(blenddata);
+    setBlendFactor(blendf);
+    mNextSunTextureId = other->getSunTextureId();
+    mNextMoonTextureId = other->getMoonTextureId();
+    mNextCloudTextureId = other->getCloudNoiseTextureId();
 }
 
 
@@ -394,6 +410,21 @@ LLSettingsSky::azimalt_t LLSettingsSky::getSunRotationAzAl() const
     ::angles_from_rotation(getSunRotation(), res.first, res.second);
 
     return res;
+}
+
+LLSettingsSky::stringset_t LLSettingsSky::getSkipInterpolateKeys() const
+{
+    static stringset_t skipSet;
+
+    if (skipSet.empty())
+    {
+        skipSet.insert(SETTING_RAYLEIGH_CONFIG);
+        skipSet.insert(SETTING_MIE_CONFIG);
+        skipSet.insert(SETTING_ABSORPTION_CONFIG);
+        skipSet.insert(SETTING_MIE_ANISOTROPY_FACTOR);
+    }
+
+    return skipSet;
 }
 
 LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const 
@@ -596,17 +627,17 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
-    dfltsetting[SETTING_CLOUD_TEXTUREID]    = LLUUID::null;
-    dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_MOON; // gMoonTextureID;   // These two are returned by the login... wow!
-    dfltsetting[SETTING_SUN_TEXTUREID]      = IMG_SUN;  // gSunTextureID;
+    dfltsetting[SETTING_CLOUD_TEXTUREID]    = DEFAULT_CLOUD_ID;
+    dfltsetting[SETTING_MOON_TEXTUREID]     = DEFAULT_MOON_ID; // gMoonTextureID;   // These two are returned by the login... wow!
+    dfltsetting[SETTING_SUN_TEXTUREID]      = DEFAULT_SUN_ID;  // gSunTextureID;
 
     dfltsetting[SETTING_TYPE] = "sky";
 
     // defaults are for earth...
-    dfltsetting[SETTING_PLANET_RADIUS]          = 6360.0f;
-    dfltsetting[SETTING_SKY_BOTTOM_RADIUS]      = 6360.0f;
-    dfltsetting[SETTING_SKY_TOP_RADIUS]         = 6420.0f;
-    dfltsetting[SETTING_SUN_ARC_RADIANS]        = 0.00935f / 2.0f;
+    dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
+    dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
+    dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
+    dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;
     dfltsetting[SETTING_MIE_ANISOTROPY_FACTOR]  = 0.8f;
 
     dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
@@ -871,6 +902,41 @@ F32 LLSettingsSky::getDistanceMultiplier() const
     return 0.8f;
 }
 
+void LLSettingsSky::setBlueDensity(const LLColor3 &val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_DENSITY] = val.getValue();
+    markDirty();
+}
+
+void LLSettingsSky::setBlueHorizon(const LLColor3 &val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_HORIZON] = val.getValue();
+    markDirty();
+}
+
+void LLSettingsSky::setDensityMultiplier(F32 val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_DENSITY_MULTIPLIER] = val;
+    markDirty();
+}
+
+void LLSettingsSky::setDistanceMultiplier(F32 val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_DISTANCE_MULTIPLIER] = val;
+    markDirty();
+}
+
+void LLSettingsSky::setHazeDensity(F32 val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_DENSITY] = val;
+    markDirty();
+}
+void LLSettingsSky::setHazeHorizon(F32 val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_HORIZON] = val;
+    markDirty();
+}
+
 // Sunlight attenuation effect (hue and brightness) due to atmosphere
 // this is used later for sunlight modulation at various altitudes
 LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
@@ -912,37 +978,37 @@ void LLSettingsSky::calculateLightSettings()
     // Initialize temp variables
     LLColor3    sunlight = getSunlightColor();
     LLColor3    ambient = getAmbientColor();
-    F32         cloud_shadow = getCloudShadow();
-    LLVector3   lightnorm = getLightDirection();
+        F32         cloud_shadow = getCloudShadow();
+        LLVector3   lightnorm = getLightDirection();
 
-    // Sunlight attenuation effect (hue and brightness) due to atmosphere
-    // this is used later for sunlight modulation at various altitudes
+        // Sunlight attenuation effect (hue and brightness) due to atmosphere
+        // this is used later for sunlight modulation at various altitudes
     F32      max_y = getMaxY();
     LLColor3 light_atten = getLightAttenuation(max_y);
     LLColor3 light_transmittance = getLightTransmittance();
         
-    // Compute sunlight from P & lightnorm (for long rays like sky)
-    /// USE only lightnorm.
-    // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+        // Compute sunlight from P & lightnorm (for long rays like sky)
+        /// USE only lightnorm.
+        // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
 
-    // and vary_sunlight will work properly with moon light
-    F32 lighty = lightnorm[1];
-    if (lighty < NIGHTTIME_ELEVATION_COS)
-    {
-        lighty = -lighty;
-    }
+        // and vary_sunlight will work properly with moon light
+        F32 lighty = lightnorm[1];
+        if (lighty < NIGHTTIME_ELEVATION_COS)
+        {
+            lighty = -lighty;
+        }
 
     lighty = llmax(0.f, lighty);
     if(lighty > 0.f)
-    {
+        {
         lighty = 1.f / lighty;
-    }
+        }
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
 
-    //increase ambient when there are more clouds
-    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
+        //increase ambient when there are more clouds
+        LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
 
-    //brightness of surface both sunlight and ambient
+        //brightness of surface both sunlight and ambient
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
@@ -953,6 +1019,7 @@ void LLSettingsSky::calculateLightSettings()
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(0);
 }
+
 
 //=========================================================================
 namespace

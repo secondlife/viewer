@@ -32,6 +32,8 @@
 
 #include "llsdserialize.h"
 
+#pragma optimize("", off)
+
 //=========================================================================
 namespace
 {
@@ -58,14 +60,16 @@ const F64Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
     mDirty(true),
-    mAssetID()
+    mAssetID(),
+    mBlendedFactor(0.0)
 {
 }
 
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
     mDirty(true),
-    mAssetID()
+    mAssetID(),
+    mBlendedFactor(0.0)
 {
 }
 
@@ -228,9 +232,12 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
 
             break;
 
+        case LLSD::TypeUUID:
+            newSettings[key_name] = value.asUUID();
+            break;
+
 //      case LLSD::TypeBoolean:
 //      case LLSD::TypeString:
-//      case LLSD::TypeUUID:
 //      case LLSD::TypeURI:
 //      case LLSD::TypeBinary:
 //      case LLSD::TypeDate:

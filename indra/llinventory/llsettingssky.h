@@ -80,6 +80,10 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
         
 
+    static const LLUUID DEFAULT_SUN_ID;
+    static const LLUUID DEFAULT_MOON_ID;
+    static const LLUUID DEFAULT_CLOUD_ID;
+
     static const std::string SETTING_LEGACY_HAZE;
 
     typedef std::shared_ptr<LLSettingsSky> ptr_t;
@@ -94,7 +98,6 @@ public:
     //---------------------------------------------------------------------
     virtual std::string getSettingType() const override { return std::string("sky"); }
     virtual LLSettingsType::type_e getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
-
 
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
@@ -170,6 +173,11 @@ public:
     LLUUID getCloudNoiseTextureId() const
     {
         return mSettings[SETTING_CLOUD_TEXTUREID].asUUID();
+    }
+
+    void setCloudNoiseTextureId(const LLUUID &id)
+    {
+        setValue(SETTING_CLOUD_TEXTUREID, id);
     }
 
     LLColor3 getCloudPosDensity1() const
@@ -283,6 +291,11 @@ public:
         return mSettings[SETTING_MAX_Y].asReal();
     }
 
+    void setMaxY(F32 val) 
+    {
+        setValue(SETTING_MAX_Y, val);
+    }
+
     LLQuaternion getMoonRotation() const
     {
         return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
@@ -305,6 +318,11 @@ public:
     LLUUID getMoonTextureId() const
     {
         return mSettings[SETTING_MOON_TEXTUREID].asUUID();
+    }
+
+    void setMoonTextureId(LLUUID id)
+    {
+        setValue(SETTING_MOON_TEXTUREID, id);
     }
 
     F32 getStarBrightness() const
@@ -349,6 +367,11 @@ public:
     LLUUID getSunTextureId() const
     {
         return mSettings[SETTING_SUN_TEXTUREID].asUUID();
+    }
+
+    void setSunTextureId(LLUUID id) 
+    {
+        setValue(SETTING_SUN_TEXTUREID, id);
     }
 
     // Internal/calculated settings
@@ -412,6 +435,27 @@ public:
         return mTotalAmbient;
     }
 
+//=====================================================================
+    // transient properties used in animations.
+    LLUUID getNextSunTextureId() const
+    {
+        return mNextSunTextureId;
+    }
+
+    LLUUID getNextMoonTextureId() const
+    {
+        return mNextMoonTextureId;
+    }
+
+    LLUUID getNextCloudNoiseTextureId() const
+    {
+        return mNextCloudTextureId;
+    }
+
+    //=====================================================================
+    virtual void                loadTextures() { };
+
+    //=====================================================================
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
@@ -430,6 +474,13 @@ public:
     F32 getDensityMultiplier() const;
     F32 getDistanceMultiplier() const;
 
+    void setBlueDensity(const LLColor3 &val);
+    void setBlueHorizon(const LLColor3 &val);
+    void setDensityMultiplier(F32 val);
+    void setDistanceMultiplier(F32 val);
+    void setHazeDensity(F32 val);
+    void setHazeHorizon(F32 val);
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -438,6 +489,7 @@ protected:
     LLSettingsSky();
 
     virtual stringset_t getSlerpKeys() const override;
+    virtual stringset_t getSkipInterpolateKeys() const override;
 
     virtual void    updateSettings() override;
 
@@ -467,6 +519,10 @@ private:
     LLColor3    mSunDiffuse;
 
     LLColor4    mTotalAmbient;
+
+    LLUUID      mNextSunTextureId;
+    LLUUID      mNextMoonTextureId;
+    LLUUID      mNextCloudTextureId;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 

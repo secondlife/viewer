@@ -373,9 +373,11 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
-	renderSkyHazeDeferred(origin, camHeightLocal);
+	//renderSkyHazeDeferred(origin, camHeightLocal);
 
-    if (gPipeline.canUseWindLightShaders())
+    renderSkyHaze(origin, camHeightLocal);
+
+    if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
     {
 	    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	    gGL.pushMatrix();

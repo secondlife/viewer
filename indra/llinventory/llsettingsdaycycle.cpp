@@ -483,7 +483,7 @@ void LLSettingsDay::updateSettings()
 //=========================================================================
 LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
 {
-    if ((trackno < 1) || (trackno >= TRACK_MAX))
+    if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt get track (#" << trackno << ") out of range!" << LL_ENDL;
         return KeyframeList_t();
@@ -508,6 +508,17 @@ void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 ke
     setDirtyFlag(true);
 }
 
+const LLSettingsWaterPtr_t LLSettingsDay::getWaterAtKeyframe(F32 keyframe)
+{
+    // todo: better way to identify keyframes?
+    CycleTrack_t::iterator iter = mDayTracks[TRACK_WATER].find(keyframe);
+    if (iter != mDayTracks[TRACK_WATER].end())
+    {
+        return std::dynamic_pointer_cast<LLSettingsWater>(iter->second);
+    }
+
+    return LLSettingsWaterPtr_t(NULL);
+}
 
 void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe, S32 track)
 {
@@ -519,6 +530,42 @@ void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe
 
     mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = sky;
     setDirtyFlag(true);
+}
+
+const LLSettingsSkyPtr_t LLSettingsDay::getSkyAtKeyframe(F32 keyframe, S32 track)
+{
+    if ((track < 1) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
+        return LLSettingsSkyPtr_t(NULL);
+    }
+
+    // todo: better way to identify keyframes?
+    CycleTrack_t::iterator iter = mDayTracks[track].find(keyframe);
+    if (iter != mDayTracks[track].end())
+    {
+        return std::dynamic_pointer_cast<LLSettingsSky>(iter->second);
+    }
+
+    return LLSettingsSkyPtr_t(NULL);
+}
+
+const LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(F32 keyframe, S32 track)
+{
+    if ((track < 0) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
+        return LLSettingsBase::ptr_t(NULL);
+    }
+
+    // todo: better way to identify keyframes?
+    CycleTrack_t::iterator iter = mDayTracks[track].find(keyframe);
+    if (iter != mDayTracks[track].end())
+    {
+        return iter->second;
+    }
+
+    return LLSettingsSkyPtr_t(NULL);
 }
 
 LLSettingsDay::TrackBound_t LLSettingsDay::getBoundingEntries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)

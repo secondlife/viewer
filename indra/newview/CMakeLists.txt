@@ -181,7 +181,6 @@ set(viewer_SOURCE_FILES
     lldrawpoolwlsky.cpp
     lldynamictexture.cpp
     llemote.cpp
-    llenvadapters.cpp
     llenvironment.cpp
     llestateinfomodel.cpp
     lleventnotifier.cpp
@@ -226,14 +225,13 @@ set(viewer_SOURCE_FILES
     llfloaterdestinations.cpp
     llfloatereditdaycycle.cpp
     llfloatereditextdaycycle.cpp
-    llfloatereditsky.cpp
-    llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
     llfloaterexperiencepicker.cpp
     llfloaterexperienceprofile.cpp
     llfloaterexperiences.cpp
     llfloaterfacebook.cpp
+    llfloaterfixedenvironment.cpp
     llfloaterflickr.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -319,6 +317,7 @@ set(viewer_SOURCE_FILES
     llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
+    llflyoutcombobtn.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -421,6 +420,8 @@ set(viewer_SOURCE_FILES
     llpanelblockedlist.cpp
     llpanelclassified.cpp
     llpanelcontents.cpp
+    llpaneleditsky.cpp
+    llpaneleditwater.cpp
     llpaneleditwearable.cpp
     llpanelenvironment.cpp
     llpanelexperiencelisteditor.cpp
@@ -798,7 +799,6 @@ set(viewer_HEADER_FILES
     lldrawpoolwlsky.h
     lldynamictexture.h
     llemote.h
-    llenvadapters.h
     llenvironment.h
     llestateinfomodel.h
     lleventnotifier.h
@@ -842,14 +842,13 @@ set(viewer_HEADER_FILES
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
     llfloatereditextdaycycle.h
-    llfloatereditsky.h
-    llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
     llfloaterexperiencepicker.h
     llfloaterexperienceprofile.h
     llfloaterexperiences.h
     llfloaterfacebook.h
+    llfloaterfixedenvironment.h
     llfloaterflickr.h
     llfloaterfonttest.h
     llfloatergesture.h
@@ -938,6 +937,7 @@ set(viewer_HEADER_FILES
     llfolderviewmodelinventory.h
     llfollowcam.h
     llfriendcard.h
+    llflyoutcombobtn.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1029,6 +1029,8 @@ set(viewer_HEADER_FILES
     llpanelblockedlist.h
     llpanelclassified.h
     llpanelcontents.h
+    llpaneleditsky.h
+    llpaneleditwater.h
     llpaneleditwearable.h
     llpanelenvironment.h
     llpanelexperiencelisteditor.h

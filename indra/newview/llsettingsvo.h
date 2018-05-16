@@ -36,23 +36,27 @@
 #include "llsdserialize.h"
 
 #include "llextendedstatus.h"
+#include <boost/signals2.hpp>
+
+class LLVFS;
 
 //=========================================================================
 class LLSettingsVOBase : public LLSettingsBase
 {
 public:
-#if 0
-    static void     storeAsAsset(const LLSettingsBase::ptr_t &settings);
-#endif
+    typedef std::function<void(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat extstat)>  asset_download_fn;
+    typedef std::function<void(LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)>           inventory_result_fn;
 
-    static void     createInventoryItem(const LLSettingsBase::ptr_t &settings);
+    static void     createInventoryItem(const LLSettingsBase::ptr_t &settings, inventory_result_fn callback = inventory_result_fn());
     
-    static void     uploadSettingsAsset(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id);
-    static void     uploadSettingsAsset(const LLSettingsBase::ptr_t &settings, LLUUID object_id, LLUUID inv_item_id);
+    static void     updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id, inventory_result_fn callback = inventory_result_fn());
+    static void     updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID object_id, LLUUID inv_item_id, inventory_result_fn callback = inventory_result_fn());
 
+    static void     getSettingsAsset(const LLUUID &assetId, asset_download_fn callback);
 
     static bool     exportFile(const LLSettingsBase::ptr_t &settings, const std::string &filename, LLSDSerialize::ELLSD_Serialize format = LLSDSerialize::LLSD_NOTATION);
     static LLSettingsBase::ptr_t importFile(const std::string &filename);
+    static LLSettingsBase::ptr_t createFromLLSD(const LLSD &settings);
 
 private:
     struct SettingsSaveData
@@ -66,13 +70,12 @@ private:
 
     LLSettingsVOBase() {}
 
-    static void     onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings);
+    static void     onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings, inventory_result_fn callback);
 
-#if 0
-    static void     onSaveNewAssetComplete(const LLUUID& new_asset_id, const SettingsSaveData::ptr_t &savedata, S32 status, LLExtStat ext_status);
-#endif
-    static void     onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings);
-    static void     onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings);
+    static void     onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback);
+    static void     onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback);
+    
+    static void     onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_id, S32 status, LLExtStat ext_status, asset_download_fn callback);
 };
 
 //=========================================================================
