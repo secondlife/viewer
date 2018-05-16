@@ -52,8 +52,6 @@ const std::string LLSettingsBase::SETTING_NAME("name");
 const std::string LLSettingsBase::SETTING_HASH("hash");
 const std::string LLSettingsBase::SETTING_TYPE("type");
 
-const F64Seconds LLSettingsBlender::DEFAULT_THRESHOLD(0.01);
-
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
@@ -535,21 +533,37 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 }
 
 //=========================================================================
-void LLSettingsBlender::update(F64Seconds timedelta)
+void LLSettingsBlender::update(F64 blendf)
 {
-    mTimeSpent += timedelta;
 
-    if (mTimeSpent >= mSeconds)
+}
+
+F64 LLSettingsBlender::setPosition(F64 blendf)
+{
+    if (blendf >= 1.0)
     {
+        mTarget->replaceSettings(mFinal->getSettings());
         LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
         mOnFinished(shared_from_this());
-        return;
+        return 1.0;
     }
-
-    F64 blendf = fmod(mTimeSpent.value(), mSeconds.value()) / mSeconds.value();
+    blendf = llclamp(blendf, 0.0, 1.0);
 
     //_WARNS("LAPRAS") << "blending at " << (blendf * 100.0f) << "%" << LL_ENDL;
     mTarget->replaceSettings(mInitial->getSettings());
     mTarget->blend(mFinal, blendf);
+
+    return blendf;
 }
 
+//-------------------------------------------------------------------------
+void LLSettingsBlenderTimeDelta::update(F64 timedelta)
+{
+    mTimeSpent += F64Seconds(timedelta);
+
+    F64 blendf = fmod(mTimeSpent.value(), mBlendSpan.value()) / mBlendSpan.value();
+
+    // Note no clamp here.  
+
+    setPosition(blendf);
+}

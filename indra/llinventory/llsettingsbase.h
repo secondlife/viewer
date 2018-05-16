@@ -264,67 +264,92 @@ public:
     typedef boost::signals2::signal<void(const ptr_t )> finish_signal_t;
     typedef boost::signals2::connection     connection_t;
 
-    static const F64Seconds DEFAULT_THRESHOLD;
-
     LLSettingsBlender(const LLSettingsBase::ptr_t &target,
-        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds) :
+            const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 span = 1.0) :
+        mOnFinished(),
         mTarget(target),
         mInitial(initsetting),
-        mFinal(endsetting),
-        mSeconds(seconds),
-        mOnFinished(),
+        mFinal(endsetting)
+    {
+        mTarget->replaceSettings(mInitial->getSettings());
+    }
+
+    virtual ~LLSettingsBlender() {}
+
+    virtual void            reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 span = 1.0)
+    {
+        mInitial = initsetting;
+        mFinal = endsetting;
+        mTarget->replaceSettings(mInitial->getSettings());
+    }
+
+    LLSettingsBase::ptr_t   getTarget() const
+    {
+        return mTarget;
+    }
+
+    LLSettingsBase::ptr_t   getInitial() const
+    {
+        return mInitial;
+    }
+
+    LLSettingsBase::ptr_t   getFinal() const
+    {
+        return mFinal;
+    }
+
+    connection_t            setOnFinished(const finish_signal_t::slot_type &onfinished)
+    {
+        return mOnFinished.connect(onfinished);
+    }
+
+    virtual void            update(F64 blendf);
+    virtual F64             setPosition(F64 blendf);
+
+private:
+    finish_signal_t         mOnFinished;
+
+    LLSettingsBase::ptr_t   mTarget;
+    LLSettingsBase::ptr_t   mInitial;
+    LLSettingsBase::ptr_t   mFinal;
+};
+
+class LLSettingsBlenderTimeDelta : public LLSettingsBlender
+{
+public:
+    LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
+        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds) :
+        LLSettingsBlender(target, initsetting, endsetting, seconds.value()),
+        mBlendSpan(seconds),
         mLastUpdate(0.0f),
         mTimeSpent(0.0f)
     {
-        mTarget->replaceSettings(mInitial->getSettings());
         mTimeStart = F64Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
     }
 
-    ~LLSettingsBlender() {}
-
-    void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds )
+    virtual ~LLSettingsBlenderTimeDelta() 
     {
-        mInitial = initsetting;
-        mFinal = endsetting;
-        mSeconds = seconds;
-        mTarget->replaceSettings(mInitial->getSettings());
+    }
+
+    virtual void            reset(LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 span = 1.0) override
+    {
+        LLSettingsBlender::reset(initsetting, endsetting, span);
+
+        mBlendSpan.value(span);
         mTimeStart.value(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
         mTimeSpent.value(0.0f);
     }
 
-    connection_t setOnFinished(const finish_signal_t::slot_type &onfinished)
-    {
-        return mOnFinished.connect(onfinished);
-    }
-
-    LLSettingsBase::ptr_t getTarget() const
-    {
-        return mTarget;
-    }
-
-    LLSettingsBase::ptr_t getInitial() const
-    {
-        return mInitial;
-    }
-
-    LLSettingsBase::ptr_t getFinal() const
-    {
-        return mFinal;
-    }
-
-    void update(F64Seconds time);
+    virtual void            update(F64 timedelta) override;
 
 private:
-    LLSettingsBase::ptr_t   mTarget;
-    LLSettingsBase::ptr_t   mInitial;
-    LLSettingsBase::ptr_t   mFinal;
-    F64Seconds              mSeconds;
-    finish_signal_t         mOnFinished;
+    F64Seconds              mBlendSpan;
     F64Seconds              mLastUpdate;
     F64Seconds              mTimeSpent;
     F64Seconds              mTimeStart;
 };
+
 
 #endif

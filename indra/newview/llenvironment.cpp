@@ -1380,9 +1380,9 @@ void LLEnvironment::DayInstance::update(F64Seconds delta)
         initialize();
 
     if (mBlenderSky)
-        mBlenderSky->update(delta);
+        mBlenderSky->update(delta.value());
     if (mBlenderWater)
-        mBlenderWater->update(delta);
+        mBlenderWater->update(delta.value());
 
 //     if (mSky)
 //         mSky->update();
@@ -1495,7 +1495,7 @@ void LLEnvironment::DayInstance::animate()
         F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
         mWater = std::static_pointer_cast<LLSettingsVOWater>((*bounds.first).second)->buildClone();
-        mBlenderWater = std::make_shared<LLSettingsBlender>(mWater,
+        mBlenderWater = std::make_shared<LLSettingsBlenderTimeDelta>(mWater,
             (*bounds.first).second, (*bounds.second).second, timespan);
         mBlenderWater->setOnFinished(
             [this](LLSettingsBlender::ptr_t blender) { onTrackTransitionDone(0, blender); });
@@ -1523,7 +1523,7 @@ void LLEnvironment::DayInstance::animate()
         F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
         mSky = std::static_pointer_cast<LLSettingsVOSky>((*bounds.first).second)->buildClone();
-        mBlenderSky = std::make_shared<LLSettingsBlender>(mSky,
+        mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(mSky,
             (*bounds.first).second, (*bounds.second).second, timespan);
         mBlenderSky->setOnFinished(
             [this](LLSettingsBlender::ptr_t blender) { onTrackTransitionDone(1, blender); });
@@ -1548,7 +1548,7 @@ void LLEnvironment::DayInstance::onTrackTransitionDone(S32 trackno, const LLSett
         " start=" << (*bounds.first).first << " end=" << (*bounds.second).first <<
         " span=" << timespan << LL_ENDL;
 
-    blender->reset((*bounds.first).second, (*bounds.second).second, timespan);
+    blender->reset((*bounds.first).second, (*bounds.second).second, timespan.value());
 }
 
 //-------------------------------------------------------------------------
@@ -1574,7 +1574,7 @@ void LLEnvironment::DayTransition::animate()
     mNextInstance->animate();
 
     mWater = mStartWater->buildClone();
-    mBlenderWater = std::make_shared<LLSettingsBlender>(mWater, mStartWater, mNextInstance->getWater(), mTransitionTime);
+    mBlenderWater = std::make_shared<LLSettingsBlenderTimeDelta>(mWater, mStartWater, mNextInstance->getWater(), mTransitionTime);
     mBlenderWater->setOnFinished(
         [this](LLSettingsBlender::ptr_t blender) { 
             mBlenderWater.reset();
@@ -1584,7 +1584,7 @@ void LLEnvironment::DayTransition::animate()
     });
 
     mSky = mStartSky->buildClone();
-    mBlenderSky = std::make_shared<LLSettingsBlender>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
+    mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
     mBlenderSky->setOnFinished(
         [this](LLSettingsBlender::ptr_t blender) {
         mBlenderSky.reset();
