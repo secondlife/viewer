@@ -43,6 +43,8 @@ const std::string LLTextureCache::CACHE_ENTRY_ENCODED_SIZE("size");
 const std::string LLTextureCache::CACHE_ENTRY_DISCARD_LEVEL("discard");
 const std::string LLTextureCache::CACHE_ENTRY_CACHED_WIDTH("cached_width");
 const std::string LLTextureCache::CACHE_ENTRY_CACHED_HEIGHT("cached_height");
+const std::string LLTextureCache::CACHE_ENTRY_FULL_WIDTH("full_width");
+const std::string LLTextureCache::CACHE_ENTRY_FULL_HEIGHT("full_height");
 const std::string LLTextureCache::CACHE_ENTRY_LAST_ACCESS("last_access");
 const std::string LLTextureCache::CACHE_ENTRY_DISCARD_BYTES("discard_bytes");
 
@@ -118,6 +120,8 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
                 info.mCachedHeight      = image->getHeight();
                 info.mCachedWidth       = image->getWidth();
                 info.mDiscardLevel      = image->getDiscardLevel();
+                info.mFullHeight        = image->getFullHeight();
+                info.mFullWidth         = image->getFullWidth();
                 info.mImageEncodedSize  = image->getDataSize();
                 info.mCodec             = image->getCodec();
             }
@@ -129,6 +133,8 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
             info.mCachedHeight      = image->getHeight();
             info.mCachedWidth       = image->getWidth();
             info.mDiscardLevel      = image->getDiscardLevel();
+            info.mImageEncodedSize  = image->getDataSize();
+            info.mFullWidth         = image->getFullWidth();
             info.mImageEncodedSize  = image->getDataSize();
             info.mCodec             = image->getCodec();
         }
@@ -158,6 +164,8 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         entry[CACHE_ENTRY_DISCARD_LEVEL] = LLSD::Integer(info.mDiscardLevel);
         entry[CACHE_ENTRY_CACHED_WIDTH]  = LLSD::Integer(info.mCachedWidth);
         entry[CACHE_ENTRY_CACHED_HEIGHT] = LLSD::Integer(info.mCachedHeight);
+        entry[CACHE_ENTRY_FULL_WIDTH]    = LLSD::Integer(info.mFullWidth);
+        entry[CACHE_ENTRY_FULL_HEIGHT]   = LLSD::Integer(info.mFullHeight);
         entry[CACHE_ENTRY_LAST_ACCESS]   = LLSD::Integer(info.mLastAccess);
 
         for (U32 index = 0; index < MAX_DISCARD_LEVEL; index++)
@@ -444,6 +452,8 @@ bool LLTextureCache::readCacheContentsFile()
         info.mCodec             = S8(iter->second[CACHE_ENTRY_CODEC].asInteger() & 0xFF);
         info.mCachedHeight      = iter->second[CACHE_ENTRY_CACHED_HEIGHT].asInteger();
         info.mCachedWidth       = iter->second[CACHE_ENTRY_CACHED_WIDTH].asInteger();
+        info.mFullHeight        = iter->second[CACHE_ENTRY_FULL_WIDTH].asInteger();
+        info.mFullWidth         = iter->second[CACHE_ENTRY_FULL_HEIGHT].asInteger();
         info.mDiscardLevel      = iter->second[CACHE_ENTRY_DISCARD_LEVEL].asInteger();
         info.mLastAccess        = iter->second[CACHE_ENTRY_LAST_ACCESS].asInteger();
 
@@ -480,7 +490,9 @@ bool LLTextureCache::readCacheContentsFile()
         }
 
         if ((info.mCachedHeight > 2048)
-         || (info.mCachedWidth > 2048))
+         || (info.mCachedWidth > 2048)
+         || (info.mFullHeight > 2048)
+         || (info.mFullWidth > 2048))
         {
             continue;
         }

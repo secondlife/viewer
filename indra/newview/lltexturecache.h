@@ -44,6 +44,8 @@ struct CachedTextureInfo
     U32     mDiscardBytes[MAX_DISCARD_LEVEL]; // track sizes of each discard level
     U32     mCachedWidth;
     U32     mCachedHeight;
+    U32     mFullWidth;
+    U32     mFullHeight;
     U32     mLastAccess; // epoch time for LRU
 };
 
@@ -56,6 +58,8 @@ public:
     static const std::string CACHE_ENTRY_DISCARD_LEVEL;
     static const std::string CACHE_ENTRY_CACHED_WIDTH;
     static const std::string CACHE_ENTRY_CACHED_HEIGHT;
+    static const std::string CACHE_ENTRY_FULL_WIDTH;
+    static const std::string CACHE_ENTRY_FULL_HEIGHT;
     static const std::string CACHE_ENTRY_LAST_ACCESS;
     static const std::string CACHE_ENTRY_DISCARD_BYTES;
 

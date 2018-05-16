@@ -1563,7 +1563,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	{
 		// priority range = 100,000 - 500,000
 		S32 desired_discard = mDesiredDiscardLevel;
-		/*if (!isJustBound() && mCachedRawImageReady)
+		if (!isJustBound() && mCachedRawImageReady)
 		{
 			if(mBoostLevel < BOOST_HIGH)
 			{
@@ -1575,7 +1575,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 				// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
 				desired_discard = cur_discard;
 			}
-		}*/
+		}
 
 		S32 ddiscard = cur_discard - desired_discard;
 		ddiscard = llclamp(ddiscard, -1, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
@@ -1937,22 +1937,11 @@ bool LLViewerFetchedTexture::updateFetch()
 		S32 delta_level = (mBoostLevel > LLGLTexture::BOOST_NONE) ? 2 : 1; 
 		if (current_discard < 0)
 		{
-			desired_discard = llmin(desired_discard, getMaxDiscardLevel() - delta_level);
-
-            if (desired_discard > 0 && desired_discard < getMaxDiscardLevel())
-            {
-                int q = 0;
-                q++;
-            }
+			desired_discard = llmax(desired_discard, getMaxDiscardLevel() - delta_level);
 		}
 		else if (LLViewerTexture::sCameraMovingBias < sCameraMotionThreshold)
 		{
-			desired_discard = llmin(desired_discard, current_discard - sCameraMotionBoost);
-            if (desired_discard > 0 && desired_discard < getMaxDiscardLevel())
-            {
-                int q = 0;
-                q++;
-            }
+			desired_discard = llmax(desired_discard, current_discard - sCameraMotionBoost);
 		}
         else
         {

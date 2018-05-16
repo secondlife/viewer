@@ -498,7 +498,6 @@ private:
 
 	S32 mRequestedSize;
 	S32 mRequestedOffset;
-    S32 mNetDataTotal;
 	S32 mDesiredSize;
 	S32 mFileSize;
 	S32 mCachedSize;
@@ -969,11 +968,6 @@ U32 LLTextureFetchWorker::calcWorkPriority()
 void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 {
 	bool prioritize = false;
-    if (discard != 0)
-    {
-        int q= 0;
-        q++;
-    }
 	if (mDesiredDiscard != discard)
 	{
 		if (!haveWork())
@@ -997,6 +991,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 		mDesiredSize = size;
 		prioritize = true;
 	}
+	mDesiredSize = llmax(mDesiredSize, 1 << 12);
 	if ((prioritize && mState == INIT) || mState == DONE)
 	{
 		setState(INIT);
@@ -1097,7 +1092,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mFullWidth = 0;
 		mFullHeight = 0;
 		mRequestedSize = 0;
-        mNetDataTotal = 0;
 		mRequestedOffset = 0;
 		mFileSize = 0;
 		mCachedSize = 0;
@@ -1124,13 +1118,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == LOAD_FROM_TEXTURE_CACHE)
 	{
-		/*S32 offset = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
+		S32 offset = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 		S32 size = mDesiredSize - offset;
 		if (size <= 0)
 		{
 			setState(CACHE_POST);
 			return false;
-		}*/
+		}
 		mFileSize = 0;
 		mLoaded = FALSE;			
 			
@@ -1179,10 +1173,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 			}
 		}
-		else if (mFetcher->canLoadFromCache())
+		else if ((mUrl.empty() || mFTType==FTT_SERVER_BAKE) && mFetcher->canLoadFromCache())
 		{
 			// see if we can read the texture from the local texture cache
-			mFormattedImage = mFetcher->mTextureCache->find(mID, mDesiredDiscard);
+			mFormattedImage = mFetcher->mTextureCache->find(mID);
             add(LLTextureFetch::sCacheAttempt, 1.0);
 
 			if (mFormattedImage.notNull())
@@ -1198,20 +1192,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else if(!mUrl.empty() && mCanUseHTTP)
 			{
-                std::string extension = gDirUtilp->getExtension(mUrl);
-
-			    if (mFormattedImage.isNull())
-			    {
-				    // For now, create formatted image based on extension				
-				    mFormattedImage = LLImageFormatted::createFromType(LLImageBase::getCodecFromExtension(extension));
-				    if (mFormattedImage.isNull())
-				    {
-					    mFormattedImage = new LLImageJ2C; // default
-				    }
-
-                    mFormattedImage->allocateData(mDesiredSize);
-			    }
-
 			    setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			    setState(WAIT_HTTP_RESOURCE);
 			}
@@ -1223,20 +1203,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else if(!mUrl.empty() && mCanUseHTTP)
 		{
-            std::string extension = gDirUtilp->getExtension(mUrl);
-
-			if (mFormattedImage.isNull())
-			{
-				// For now, create formatted image based on extension				
-				mFormattedImage = LLImageFormatted::createFromType(LLImageBase::getCodecFromExtension(extension));
-				if (mFormattedImage.isNull())
-				{
-					mFormattedImage = new LLImageJ2C; // default
-				}
-
-                mFormattedImage->allocateData(mDesiredSize);
-			}
-
 			setState(WAIT_HTTP_RESOURCE);
 		}
 		else
@@ -1257,7 +1223,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if ((mCachedSize >= mDesiredSize) || mHaveAllData)
 		{
 			// we have enough data, decode it
-			mLoadedDiscard = mFormattedImage->getDiscardLevel();
+			mLoadedDiscard = mDesiredDiscard;
 			if (mLoadedDiscard < 0)
 			{
 				LL_WARNS(LOG_TXT) << mID << " mLoadedDiscard is " << mLoadedDiscard
@@ -1346,20 +1312,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 
 		if (mCanUseHTTP && !mUrl.empty())
-		{
-            std::string extension = gDirUtilp->getExtension(mUrl);
-			if (mFormattedImage.isNull())
-			{
-				// For now, create formatted image based on extension				
-				mFormattedImage = LLImageFormatted::createFromType(LLImageBase::getCodecFromExtension(extension));
-				if (mFormattedImage.isNull())
-				{
-					mFormattedImage = new LLImageJ2C; // default
-				}
-
-                mFormattedImage->allocateData(mDesiredSize);
-			}
-
+		{			
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			setState(WAIT_HTTP_RESOURCE);
 			// don't return, fall through to next state
@@ -1370,15 +1323,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// LLTextureFetch::update() will send off a request which will change our state
 			mRequestedSize = mDesiredSize;
 			mRequestedDiscard = mDesiredDiscard;
-
-            // Add ourselves to the network queue to get header only
-            // which will set mSentRequest to SENT and set mFileSize
-            // with the size determined from the sim when
-            // LLViewerTextureList::receiveImageHeader
-            // calls LLTextureFetch::receiveImageHeader
-            // and moves us to the LOAD_FROM_SIMULATOR state ><
 			mSentRequest = QUEUED;
-            mFetcher->addToNetworkQueue(this); // failsafe                    
+			mFetcher->addToNetworkQueue(this);
 			recordTextureStart(false);
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
@@ -1393,13 +1339,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
         if (mFormattedImage.isNull())
         {
-            mFormattedImage = new LLImageJ2C;                
-            mFormattedImage->allocateData(mFileSize); // preallocate largest expected size...ONCE
-            // put ourselves back in the network queue to fetch remaining data
-            mFetcher->addToNetworkQueue(this); // failsafe                    
-			recordTextureStart(false);
+			mFormattedImage = new LLImageJ2C;
         }
-		else if (processSimulatorPackets())
+		if (processSimulatorPackets())
 		{
             // Capture some measure of total size for metrics
             F64 byte_count = 0;
@@ -1447,6 +1389,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			recordTextureDone(false, byte_count);
 		}
+		else
+		{
+			mFetcher->addToNetworkQueue(this); // failsafe
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			recordTextureStart(false);
+		}
 		return false;
 	}
 	
@@ -1459,7 +1407,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		//
 		// If it looks like we're busy, keep this request here.
 		// Otherwise, advance into the HTTP states.
-		if (mFetcher->getHttpWaitersCount() || !acquireHttpSemaphore())
+		if (mFetcher->getHttpWaitersCount() || ! acquireHttpSemaphore())
 		{
 			setState(WAIT_HTTP_RESOURCE2);
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
@@ -1477,14 +1425,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	if (mState == WAIT_HTTP_RESOURCE2)
 	{
 		// Just idle it if we make it to the head...
-        // and pray the HTTP stack gets to us eventually
 		return false;
 	}
 	
 	if (mState == SEND_HTTP_REQ)
 	{
-        llassert(mHttpHasResource);
-
 		// Also used in llmeshrepository
 		static LLCachedControl<bool> disable_range_req(gSavedSettings, "HttpRangeRequestsDisable", false);
 		
@@ -1498,42 +1443,46 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mFetcher->removeFromNetworkQueue(this, false);
 			
 		S32 cur_size = 0;
-
-        llassert(mFormattedImage.notNull());
-		if (mFormattedImage.isNull())
+		if (mFormattedImage.notNull())
 		{
-            LL_WARNS(LOG_TXT) << mID << " SEND_HTTP_REQ abort: no image to receive data" << LL_ENDL;
-            releaseHttpSemaphore();
-			return true; // abort.
-        }
-
-		cur_size = mNetDataTotal; // amount of data we already have
-
-		if ((mFormattedImage->getDiscardLevel() >= 0) && (mFormattedImage->getDiscardLevel() <= mDesiredDiscard))
+			cur_size = mFormattedImage->getDataSize(); // amount of data we already have
+			if (mFormattedImage->getDiscardLevel() == 0)
 		{
-            releaseHttpSemaphore();
-
-			if (cur_size >= mDesiredSize)
+				if (cur_size > 0)
 			{
 				// We already have all the data, just decode it
 				mLoadedDiscard = mFormattedImage->getDiscardLevel();
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				setState(DECODE_IMAGE);
+					releaseHttpSemaphore();
 				return false;
 			}
 			else
 			{
-					
+					releaseHttpSemaphore();
 				LL_WARNS(LOG_TXT) << mID << " SEND_HTTP_REQ abort: cur_size " << cur_size << " <=0" << LL_ENDL;
 				return true; // abort.
 			}
 		}
-
-		S32 requestSize = mDesiredSize - mNetDataTotal;
-
-        mRequestedOffset  = mNetDataTotal;
+		}
+		mRequestedSize = mDesiredSize;
 		mRequestedDiscard = mDesiredDiscard;
-		
+		mRequestedSize -= cur_size;
+		mRequestedOffset = cur_size;
+		if (mRequestedOffset)
+		{
+			// Texture fetching often issues 'speculative' loads that
+			// start beyond the end of the actual asset.  Some cache/web
+			// systems, e.g. Varnish, will respond to this not with a
+			// 416 but with a 200 and the entire asset in the response
+			// body.  By ensuring that we always have a partially
+			// satisfiable Range request, we avoid that hit to the network.
+			// We just have to deal with the overlapping data which is made
+			// somewhat harder by the fact that grid services don't necessarily
+			// return the Content-Range header on 206 responses.  *Sigh*
+			mRequestedOffset -= 1;
+			mRequestedSize += 1;
+		}
 		mHttpHandle = LLCORE_HTTP_HANDLE_INVALID;
 
 		llassert(!mUrl.empty());
@@ -1543,7 +1492,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mGetStatus = LLCore::HttpStatus();
 		mGetReason.clear();
 		LL_DEBUGS(LOG_TXT) << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
-						   << " Bytes: " << requestSize
+						   << " Bytes: " << mRequestedSize
 						   << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
 						   << LL_ENDL;
 
@@ -1569,9 +1518,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 																	  mWorkPriority,
 																	  mUrl,
 																	  mRequestedOffset,
-																	  (mRequestedOffset + requestSize) > HTTP_REQUESTS_RANGE_END_MAX
+																	  (mRequestedOffset + mRequestedSize) > HTTP_REQUESTS_RANGE_END_MAX
 																	  ? 0
-																	  : requestSize,
+																	  : mRequestedSize,
 																	  options,
 																	  mFetcher->mHttpHeaders,
                                                                       LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
@@ -1593,19 +1542,18 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		recordTextureStart(true);
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		setState(WAIT_HTTP_REQ);		
+		
+		// fall through
 	}
 	
 	if (mState == WAIT_HTTP_REQ)
 	{
 		// *NOTE:  As stated above, all transitions out of this state should
 		// call releaseHttpSemaphore().
-        llassert(mHttpHasResource);
-
 		if (mLoaded)
 		{
-			S32 cur_size = mNetDataTotal;
-
-			if (mRequestedSize < 0) // signals error in HTTP stack
+			S32 cur_size = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
+			if (mRequestedSize < 0)
 			{
 				if (http_not_found == mGetStatus)
 				{
@@ -1661,6 +1609,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// Use available data
 					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+
 					setState(DECODE_IMAGE);
 					releaseHttpSemaphore();
 					return false; 
@@ -1674,12 +1623,89 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return true; // failed
 			}
 			
-            mHaveAllData = (mNetDataTotal >= mDesiredSize);
+			// do this *before* any clearing of URLs so we don't just assume everything
+			// fetched via HTTP is J2C
+			std::string extension = gDirUtilp->getExtension(mUrl);
+
+			if (! mHttpBufferArray || ! mHttpBufferArray->size())
+			{
+				// no data received.
+				if (mHttpBufferArray)
+				{
+					mHttpBufferArray->release();
+					mHttpBufferArray = NULL;
+				}
+
+				// abort.
+				setState(DONE);
+				LL_WARNS(LOG_TXT) << mID << " abort: no data received" << LL_ENDL;
+				releaseHttpSemaphore();
+				return true;
+			}
+
+			S32 append_size(mHttpBufferArray->size());
+			S32 total_size(cur_size + append_size);
+			S32 src_offset(0);
+			llassert_always(append_size == mRequestedSize);
+			if (mHttpReplyOffset && mHttpReplyOffset != cur_size)
+			{
+				// In case of a partial response, our offset may
+				// not be trivially contiguous with the data we have.
+				// Get back into alignment.
+				if ( (mHttpReplyOffset > cur_size) || (cur_size > mHttpReplyOffset + append_size))
+				{
+					LL_WARNS(LOG_TXT) << "Partial HTTP response produces break in image data for texture "
+									  << mID << ".  Aborting load."  << LL_ENDL;
+					setState(DONE);
+					releaseHttpSemaphore();
+					return true;
+				}
+				src_offset = cur_size - mHttpReplyOffset;
+				append_size -= src_offset;
+				total_size -= src_offset;
+				mRequestedSize -= src_offset;			// Make requested values reflect useful part
+				mRequestedOffset += src_offset;
+			}
+
+			U8 * buffer = (U8 *)ALLOCATE_MEM(LLImageBase::getPrivatePool(), total_size);
+			if (!buffer)
+			{
+				// abort. If we have no space for packet, we have not enough space to decode image
+				setState(DONE);
+				LL_WARNS(LOG_TXT) << mID << " abort: out of memory" << LL_ENDL;
+				releaseHttpSemaphore();
+				return true;
+			}
+
+			if (mFormattedImage.isNull())
+			{
+				// For now, create formatted image based on extension				
+				mFormattedImage = LLImageFormatted::createFromType(LLImageBase::getCodecFromExtension(extension));
+				if (mFormattedImage.isNull())
+				{
+					mFormattedImage = new LLImageJ2C; // default
+				}
+			}
 						
 			if (mHaveAllData) //the image file is fully loaded.
 			{
-				mFileSize = mNetDataTotal;
-			}			
+				mFileSize = total_size;
+				mDesiredSize = total_size;
+			}
+			else //the file size is unknown.
+			{
+				mFileSize = total_size + 1 ; //flag the file is not fully loaded.
+			}
+
+			if (cur_size > 0)
+			{
+				// Copy previously collected data into buffer
+				memcpy(buffer, mFormattedImage->getData(), cur_size);
+			}
+			mHttpBufferArray->read(src_offset, (char *) buffer + cur_size, append_size);
+
+			// NOTE: setData releases current data and owns new data (buffer)
+			mFormattedImage->setData(buffer, total_size);
 
 			// Parse headers to determine width/height/components
 			if (!mFormattedImage->updateData())
@@ -1690,36 +1716,20 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return false;
 			}
 
-			mLoadedDiscard = mFormattedImage->getDiscardLevel();
-
-            if (mLoadedDiscard <= mDesiredDiscard)
-            {
-                if (mNetDataTotal <= FIRST_PACKET_SIZE)
-                {
-                    int q = 0;
-                    q++;
-                }
-
                 // Done with buffer array
+			mHttpBufferArray->release();
+			mHttpBufferArray = NULL;
 			    mHttpReplySize = 0;
 			    mHttpReplyOffset = 0;
-                mNetDataTotal = 0;
+			
+			mLoadedDiscard = mHaveAllData ? 0 : mRequestedDiscard;
 
 			    setState(DECODE_IMAGE);
-            
-                // don't bother caching discards above 0
 			    if (mLoadedDiscard == 0)
 			    {
 			        mWriteToCacheState = SHOULD_WRITE;
 			    }
 			    releaseHttpSemaphore();
-            }
-            else
-            {
-                // We didn't get all the data for the requested discard level
-                // so make a request for the remaining range...
-                setState(SEND_HTTP_REQ);
-            }
 			return false;
 		}
 		else
@@ -1837,7 +1847,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		else
 		{
             mFetchTime = mFetchTimer.getElapsedTimeF32();
-            return (mDecodedDiscard == 0);
+			return true;
 		}
 	}
 	
@@ -2028,35 +2038,47 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 	
 	if (mLastPacket >= mFirstPacket)
 	{
-		S32 buffer_size = mNetDataTotal;
+		S32 buffer_size = mFormattedImage->getDataSize();
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
             llassert_always((i>=0) && (i<mPackets.size()));
 			llassert_always(mPackets[i]);
 			buffer_size += mPackets[i]->mSize;
 		}
-
-		bool have_all_data = mLastPacket >= mTotalPackets;
-		if ((buffer_size && (buffer_size >= mRequestedSize)) || have_all_data)
+		bool have_all_data = mLastPacket >= mTotalPackets-1;
+		if (mRequestedSize <= 0)
+		{
+			// We received a packed but haven't requested anything yet (edge case)
+			// Return true (we're "done") since we didn't request anything
+			return true;
+		}
+		if (buffer_size >= mRequestedSize || have_all_data)
+		{
+			/// We have enough (or all) data
+			if (have_all_data)
 		{
             mHaveAllData = TRUE;
-			S32 cur_size = mNetDataTotal;
-            llassert(mFormattedImage->getDataSize() >= buffer_size);
+			}
+			S32 cur_size = mFormattedImage->getDataSize();
 			if (buffer_size > cur_size)
 			{
-				U8* buffer = mFormattedImage->getData();
+				/// We have new data
+				U8* buffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), buffer_size);
 				S32 offset = 0;
-                // copy packets into pre-allocated buffer in image at correct offsets
+				if (cur_size > 0 && mFirstPacket > 0)
+				{
+					memcpy(buffer, mFormattedImage->getData(), cur_size);
+					offset = cur_size;
+				}
 				for (S32 i=mFirstPacket; i<=mLastPacket; i++)
 				{
 					memcpy(buffer + offset, mPackets[i]->mData, mPackets[i]->mSize);
 					offset += mPackets[i]->mSize;
 				}
-                mNetDataTotal = offset; // record final position we've loaded thus far
-                // reparse to see what we've for for discards
-				mFormattedImage->updateData();
+				// NOTE: setData releases current data
+				mFormattedImage->setData(buffer, buffer_size);
 			}
-			mLoadedDiscard = mFormattedImage->getDiscardLevel();
+			mLoadedDiscard = mRequestedDiscard;
 			return true;
 		}
 	}
@@ -2090,29 +2112,21 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 		data_size = body ? body->size() : 0;
 
 		LL_DEBUGS(LOG_TXT) << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
-        llassert(data_size > 0);
-
 		if (data_size > 0)
 		{
 			LLViewerStatsRecorder::instance().textureFetch(data_size);
+			// *TODO: set the formatted image data here directly to avoid the copy
 
-            // this should be a rare occurrence where we accidentally receive
-            // more data than we asked for in our range request
-            if (mFormattedImage->getDataSize() < (mRequestedOffset + data_size))
-            {
-                mFormattedImage->reallocateData(mRequestedOffset + data_size);
-            }
-
-			U8* data = mFormattedImage->getData();
-
-            // read body data into formatted image data buffer (look ma, no [extra] copies!)
-            body->read(0, (char *) data + mRequestedOffset, data_size);
+			// Hold on to body for later copy
+			llassert_always(NULL == mHttpBufferArray);
+			body->addRef();
+			mHttpBufferArray = body;
 
 			if (partial)
 			{
 				unsigned int offset(0), length(0), full_length(0);
 				response->getRange(&offset, &length, &full_length);
-				if (!offset && !length)
+				if (! offset && ! length)
 				{
 					// This is the case where we receive a 206 status but
 					// there wasn't a useful Content-Range header in the response.
@@ -2128,34 +2142,50 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 					mHttpReplyOffset = offset;
 				}
 			}
-            else
+
+			if (! partial)
 			{
 				// Response indicates this is the entire asset regardless
 				// of our asking for a byte range.  Mark it so and drop
 				// any partial data we might have so that the current
 				// response body becomes the entire dataset.
-				if ((mNetDataTotal + data_size) <= mDesiredSize)
+				if (data_size <= mRequestedOffset)
 				{
 					LL_WARNS(LOG_TXT) << "Fetched entire texture " << mID
 									  << " when it was expected to be marked complete.  mImageSize:  "
 									  << mFileSize << " datasize:  " << mFormattedImage->getDataSize()
 									  << LL_ENDL;
-                    mDesiredSize = (mNetDataTotal + data_size); // "that's all folks!"
 				}
 				mHaveAllData = TRUE;
+				llassert_always(mDecodeHandle == 0);
+				mFormattedImage = NULL; // discard any previous data we had
 			}
+			else if (data_size < mRequestedSize)
+			{
+				mHaveAllData = TRUE;
+			}
+			else if (data_size > mRequestedSize)
+			{
+				// *TODO: This shouldn't be happening any more  (REALLY don't expect this anymore)
+				LL_WARNS(LOG_TXT) << "data_size = " << data_size << " > requested: " << mRequestedSize << LL_ENDL;
+				mHaveAllData = TRUE;
+				llassert_always(mDecodeHandle == 0);
+				mFormattedImage = NULL; // discard any previous data we had
 		}
-        // add data received in response
-		mNetDataTotal += data_size;
-        // reparse to see if we've got a better discard level yet
-        mFormattedImage->updateData();
+		}
+		else
+		{
+			// We requested data but received none (and no error),
+			// so presumably we have all of it
+			mHaveAllData = TRUE;
+		}
+		mRequestedSize = data_size;
 	}
 	else
 	{
 		mRequestedSize = -1; // error
 	}
 	
-    llassert(mHttpHasResource);
 	mLoaded = TRUE;
 	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
@@ -2306,22 +2336,36 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 		// Do full requests for baked textures to reduce interim blurring.
 		LL_DEBUGS(LOG_TXT) << "full request for " << id << " texture is FTT_SERVER_BAKE" << LL_ENDL;
-		//desired_size = MAX_IMAGE_DATA_SIZE;
+		desired_size = MAX_IMAGE_DATA_SIZE;
 		desired_discard = 0;
-        desired_size = LLImageJ2C::calcDataSizeJ2C(1024, 1024, 3, 0);
+	}
+	else if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
+	{
+		LL_DEBUGS(LOG_TXT) << "full request for " << id << " exten is not J2C: " << exten << LL_ENDL;
+		// Only do partial requests for J2C at the moment
+		desired_size = MAX_IMAGE_DATA_SIZE;
+		desired_discard = 0;
+	}
+	else if (desired_discard == 0)
+	{
+		// if we want the entire image, and we know its size, then get it all
+		// (calcDataSizeJ2C() below makes assumptions about how the image
+		// was compressed - this code ensures that when we request the entire image,
+		// we really do get it.)
+		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard) * 2;
 	}
 	else if (w*h*c > 0)
 	{
 		// If the requester knows the dimensions of the image,
 		// this will calculate how much data we need without having to parse the header
+
 		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);
 	}
 	else
 	{
 		// If the requester knows nothing about the file, fetch enough to parse the header
 		// and determine how many discard levels are actually available
-        //desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, 0);
-        desired_size = FIRST_PACKET_SIZE;
+		desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, 0) * 2;
 		desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? MAX_DISCARD_LEVEL - 1 : desired_discard;
 	}
 
@@ -2386,11 +2430,8 @@ void LLTextureFetch::addToNetworkQueue(LLTextureFetchWorker* worker)
 	{
 		// only add to the queue if in the request map
 		// i.e. a delete has not been requested
-        if (mNetworkQueue.find(worker->mID) == mNetworkQueue.end())
-        {
 		    mNetworkQueue.insert(worker->mID);
         }
-	}
 	for (cancel_queue_t::iterator iter1 = mCancelQueue.begin();
 		 iter1 != mCancelQueue.end(); ++iter1)
 	{
