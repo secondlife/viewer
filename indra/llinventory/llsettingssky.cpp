@@ -106,6 +106,10 @@ const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR("exp_s
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_term");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
 
+const LLUUID LLSettingsSky::DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
+const LLUUID LLSettingsSky::DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
+const LLUUID LLSettingsSky::DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
+
 namespace
 {
 
@@ -310,12 +314,18 @@ bool validateMieLayers(LLSD &value)
 
 //=========================================================================
 LLSettingsSky::LLSettingsSky(const LLSD &data) :
-    LLSettingsBase(data)
+    LLSettingsBase(data),
+    mNextSunTextureId(),
+    mNextMoonTextureId(),
+    mNextCloudTextureId()
 {
 }
 
 LLSettingsSky::LLSettingsSky():
-    LLSettingsBase()
+    LLSettingsBase(),
+    mNextSunTextureId(),
+    mNextMoonTextureId(),
+    mNextCloudTextureId()
 {
 }
 
@@ -325,6 +335,10 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
 
     replaceSettings(blenddata);
+    setBlendFactor(blendf);
+    mNextSunTextureId = other->getSunTextureId();
+    mNextMoonTextureId = other->getMoonTextureId();
+    mNextCloudTextureId = other->getCloudNoiseTextureId();
 }
 
 
@@ -557,9 +571,9 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
-    dfltsetting[SETTING_CLOUD_TEXTUREID]    = LLUUID::null;
-    dfltsetting[SETTING_MOON_TEXTUREID]     = IMG_MOON; // gMoonTextureID;   // These two are returned by the login... wow!
-    dfltsetting[SETTING_SUN_TEXTUREID]      = IMG_SUN;  // gSunTextureID;
+    dfltsetting[SETTING_CLOUD_TEXTUREID]    = DEFAULT_CLOUD_ID;
+    dfltsetting[SETTING_MOON_TEXTUREID]     = DEFAULT_MOON_ID; // gMoonTextureID;   // These two are returned by the login... wow!
+    dfltsetting[SETTING_SUN_TEXTUREID]      = DEFAULT_SUN_ID;  // gSunTextureID;
 
     dfltsetting[SETTING_TYPE] = "sky";
 

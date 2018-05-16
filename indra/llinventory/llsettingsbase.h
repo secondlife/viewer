@@ -96,6 +96,7 @@ public:
     inline void replaceSettings(LLSD settings)
     {
         mSettings = settings;
+        mBlendedFactor = 0.0;
         setDirtyFlag(true);
     }
 
@@ -144,6 +145,11 @@ public:
     inline void setValue(const std::string &name, const LLColor4 &value)
     {
         setValue(name, value.getValue());
+    }
+
+    inline F64 getBlendFactor() const
+    {
+        return mBlendedFactor;
     }
 
     // Note this method is marked const but may modify the settings object.
@@ -237,11 +243,17 @@ protected:
 
     LLSD        cloneSettings() const;
 
+    inline void setBlendFactor(F64 blendfactor) 
+    {
+        mBlendedFactor = blendfactor;
+    }
+
 private:
     bool        mDirty;
 
     LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
 
+    F64         mBlendedFactor;
 };
 
 

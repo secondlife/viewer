@@ -79,6 +79,10 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
         static const std::string SETTING_MIE_ANISOTROPY_FACTOR;
 
+    static const LLUUID DEFAULT_SUN_ID;
+    static const LLUUID DEFAULT_MOON_ID;
+    static const LLUUID DEFAULT_CLOUD_ID;
+
     typedef std::shared_ptr<LLSettingsSky> ptr_t;
     typedef std::pair<F32, F32> azimalt_t;
 
@@ -449,10 +453,31 @@ public:
         return mTotalAmbient;
     }
 
-    virtual validation_list_t getValidationList() const override;
-    static validation_list_t validationList();
+    //=====================================================================
+    virtual void                loadTextures() { };
 
-    static LLSD     translateLegacySettings(LLSD legacy);
+    //=====================================================================
+    virtual validation_list_t   getValidationList() const override;
+    static validation_list_t    validationList();
+
+    static LLSD                 translateLegacySettings(LLSD legacy);
+
+    //=====================================================================
+    // transient properties used in animations.
+    LLUUID getNextSunTextureId() const
+    {
+        return mNextSunTextureId;
+    }
+
+    LLUUID getNextMoonTextureId() const
+    {
+        return mNextMoonTextureId;
+    }
+
+    LLUUID getNextCloudNoiseTextureId() const
+    {
+        return mNextCloudTextureId;
+    }
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -491,6 +516,10 @@ private:
     LLColor3    mSunDiffuse;
 
     LLColor4    mTotalAmbient;
+
+    LLUUID      mNextSunTextureId;
+    LLUUID      mNextMoonTextureId;
+    LLUUID      mNextCloudTextureId;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
