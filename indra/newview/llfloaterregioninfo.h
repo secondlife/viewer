@@ -112,9 +112,6 @@ private:
 	LLFloaterRegionInfo(const LLSD& seed);
 	~LLFloaterRegionInfo();
 
-	static void requestEstateGetAccessCoro(std::string url, LLHandle<LLFloater> handle);
-
-	
 protected:
 	void onTabSelected(const LLSD& param);
 	void disableTabCtrls();
@@ -495,7 +492,9 @@ public:
 	virtual void updateChild(LLUICtrl* child_ctrl);
 
 	void updateControls(LLViewerRegion* region);
+	void updateLists();
 
+private:
 	void onClickAddAllowedAgent();
 	void onClickRemoveAllowedAgent();
 	void onClickAddAllowedGroup();
@@ -504,7 +503,7 @@ public:
 	void onClickRemoveBannedAgent();
 	void onClickAddEstateManager();
 	void onClickRemoveEstateManager();
-
+	
 	// Group picker callback is different, can't use core methods below
 	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
 	void addAllowedGroup2(LLUUID id);
@@ -523,8 +522,7 @@ public:
 	// Send the actual EstateOwnerRequest "estateaccessdelta" message
 	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
-
-	void clearAccessLists();
+	static void requestEstateGetAccessCoro(std::string url);
 };
 
 #endif

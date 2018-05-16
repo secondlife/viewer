@@ -263,6 +263,12 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
 	refreshFromRegion(gAgent.getRegion());
 	requestRegionInfo();
 	requestMeshRezInfo();
+
+	LLPanelEstateAccess* panel_access = LLFloaterRegionInfo::getPanelAccess();
+	if (panel_access)
+	{
+		panel_access->updateLists();
+	}
 }
 
 // static
@@ -285,14 +291,6 @@ void LLFloaterRegionInfo::requestRegionInfo()
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());
 	gAgent.sendReliableMessage();
-
-
-	bool cr = gAgent.getRegion()->capabilitiesReceived();
-	std::string cap_url = gAgent.getRegionCapability("EstateAccess");
-	if (!cap_url.empty() && cr)
-	{
-		LLCoros::instance().launch("LLFloaterRegionInfo::requestEstateGetAccessCoro", boost::bind(LLFloaterRegionInfo::requestEstateGetAccessCoro, cap_url, this->getHandle()));
-	}
 }
 
 // static
@@ -310,8 +308,7 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 		LLPanelEstateInfo::initDispatch(dispatch);
 	}
 
-	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
-	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
+	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
 
 	// unpack the message
 	std::string request;
@@ -327,7 +324,10 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 	//dispatch the message
 	dispatch.dispatch(request, invoice, strings);
 
-	panel->updateControls(gAgent.getRegion());
+	if (panel)
+	{
+		panel->updateControls(gAgent.getRegion());
+	}
 }
 
 
@@ -1707,10 +1707,6 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	getChildView("message_estate_btn")->setEnabled(god || owner || manager);
 	getChildView("kick_user_from_estate_btn")->setEnabled(god || owner || manager);
 
-	LLPanelEstateAccess* access_panel = LLFloaterRegionInfo::getPanelAccess();  // TODO: remove this call from here
-	if (access_panel)
-		access_panel->updateControls(region);
-
 	refresh();
 }
 
@@ -1732,10 +1728,6 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	//integers.push_back(LLFloaterRegionInfo::());::getPanelEstate();
 
 	
-	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
-	panel->clearAccessLists();
-	
-
 	sendEstateOwnerMessage(gMessageSystem, "getinfo", invoice, strings);
 
 	refresh();
@@ -3859,33 +3851,14 @@ void LLPanelEstateAccess::sendEstateAccessDelta(U32 flags, const LLUUID& agent_o
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buf);
 
+	gAgent.sendReliableMessage();
+
 
 	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
-
-	if (flags & (ESTATE_ACCESS_ALLOWED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE |
-		ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_BANNED_AGENT_REMOVE))
+	if (panel)
 	{
-
-		panel->clearAccessLists();
+		panel->updateLists();
 	}
-
-	gAgent.sendReliableMessage();
-}
-
-void LLPanelEstateAccess::clearAccessLists()
-{
-	LLNameListCtrl* name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
-	if (name_list)
-	{
-		name_list->deleteAllItems();
-	}
-
-	name_list = getChild<LLNameListCtrl>("banned_avatar_name_list");
-	if (name_list)
-	{
-		name_list->deleteAllItems();
-	}
-	updateControls(gAgent.getRegion());
 }
 
 void LLPanelEstateAccess::updateChild(LLUICtrl* child_ctrl)
@@ -3894,7 +3867,16 @@ void LLPanelEstateAccess::updateChild(LLUICtrl* child_ctrl)
 	updateControls(gAgent.getRegion());
 }
 
-void LLFloaterRegionInfo::requestEstateGetAccessCoro(std::string url, LLHandle<LLFloater> handle)
+void LLPanelEstateAccess::updateLists()
+{
+	std::string cap_url = gAgent.getRegionCapability("EstateAccess");
+	if (!cap_url.empty())
+	{
+		LLCoros::instance().launch("LLFloaterRegionInfo::requestEstateGetAccessCoro", boost::bind(LLPanelEstateAccess::requestEstateGetAccessCoro, cap_url));
+	}
+}
+
+void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
 {
 	LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
 	LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t	httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestEstateGetAccessoCoro", httpPolicy));
@@ -3904,12 +3886,6 @@ void LLFloaterRegionInfo::requestEstateGetAccessCoro(std::string url, LLHandle<L
 
 	LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
 	LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-	if (handle.isDead())
-	{
-		// nothing to do
-		return;
-	}
 
 	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
 	if (!panel) return;
@@ -3923,8 +3899,8 @@ void LLFloaterRegionInfo::requestEstateGetAccessCoro(std::string url, LLHandle<L
 		std::string msg = LLTrans::getString("RegionInfoAllowedResidents", args);
 		panel->getChild<LLUICtrl>("allow_resident_label")->setValue(LLSD(msg));
 
-		allowed_agent_name_list->clear();
 		allowed_agent_name_list->clearSortOrder();
+		allowed_agent_name_list->deleteAllItems();
 		for (LLSD::array_const_iterator it = result["AllowedAgents"].beginArray(); it != result["AllowedAgents"].endArray(); ++it)
 		{ 
 			LLUUID id = (*it)["id"].asUUID(); 
@@ -3942,8 +3918,8 @@ void LLFloaterRegionInfo::requestEstateGetAccessCoro(std::string url, LLHandle<L
 		std::string msg = LLTrans::getString("RegionInfoBannedResidents", args);
 		panel->getChild<LLUICtrl>("ban_resident_label")->setValue(LLSD(msg));
 
-		banned_agent_name_list->clear();
 		banned_agent_name_list->clearSortOrder();
+		banned_agent_name_list->deleteAllItems();
 		for (LLSD::array_const_iterator it = result["BannedAgents"].beginArray(); it != result["BannedAgents"].endArray(); ++it)
 		{
 			LLUUID id = (*it)["id"].asUUID();
@@ -3981,7 +3957,7 @@ void LLFloaterRegionInfo::requestEstateGetAccessCoro(std::string url, LLHandle<L
 		panel->getChild<LLUICtrl>("estate_manager_label")->setValue(LLSD(msg));
 
 		estate_manager_name_list->clearSortOrder();
-		allowed_group_name_list->deleteAllItems();
+		estate_manager_name_list->deleteAllItems();
 		for (LLSD::array_const_iterator it = result["Managers"].beginArray(); it != result["Managers"].endArray(); ++it)
 		{
 			LLUUID id = (*it)["agent_id"].asUUID();
