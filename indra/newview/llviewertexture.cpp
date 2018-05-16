@@ -61,8 +61,6 @@
 #include "llviewermedia.h"
 #include "lltexturecache.h"
 
-#pragma optimize("", off)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
