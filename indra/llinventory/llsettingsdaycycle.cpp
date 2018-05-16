@@ -502,6 +502,53 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
     return keyframes;
 }
 
+bool LLSettingsDay::moveTrackKeyframe(S32 trackno, F32 old_frame, F32 new_frame)
+{
+    if ((trackno < 0) || (trackno >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt get track (#" << trackno << ") out of range!" << LL_ENDL;
+        return false;
+    }
+
+    if (old_frame == new_frame)
+    {
+        return false;
+    }
+
+    CycleTrack_t &track = mDayTracks[trackno];
+    CycleTrack_t::iterator iter = track.find(old_frame);
+    if (iter != track.end())
+    {
+        LLSettingsBase::ptr_t base = iter->second;
+        track.erase(iter);
+        track[llclamp(new_frame, 0.0f, 1.0f)] = base;
+        return true;
+    }
+
+    return false;
+
+}
+
+bool LLSettingsDay::removeTrackKeyframe(S32 trackno, F32 frame)
+{
+    if ((trackno < 0) || (trackno >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt get track (#" << trackno << ") out of range!" << LL_ENDL;
+        return false;
+    }
+
+    CycleTrack_t &track = mDayTracks[trackno];
+    CycleTrack_t::iterator iter = track.find(frame);
+    if (iter != track.end())
+    {
+        LLSettingsBase::ptr_t base = iter->second;
+        track.erase(iter);
+        return true;
+    }
+
+    return false;
+}
+
 void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe)
 {
     mDayTracks[TRACK_WATER][llclamp(keyframe, 0.0f, 1.0f)] = water;
