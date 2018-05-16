@@ -72,12 +72,14 @@ const LLUUID LLSettingsWater::DEFAULT_WATER_NORMAL_ID(DEFAULT_WATER_NORMAL);
 
 //=========================================================================
 LLSettingsWater::LLSettingsWater(const LLSD &data) :
-    LLSettingsBase(data)
+    LLSettingsBase(data),
+    mNextNormalMapID()
 {
 }
 
 LLSettingsWater::LLSettingsWater() :
-    LLSettingsBase()
+    LLSettingsBase(),
+    mNextNormalMapID()
 {
 }
 
@@ -167,6 +169,8 @@ void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
     
     replaceSettings(blenddata);
+    setBlendFactor(blendf);
+    mNextNormalMapID = other->getNormalMapID();
 }
 
 LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const

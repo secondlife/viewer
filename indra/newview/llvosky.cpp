@@ -2105,6 +2105,50 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_di
 	}
 }
 
+// void LLVOSky::checkAndLoadSkyTextures(LLDrawPoolWLSky *pskypool)
+// {
+//     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+// 
+//     if (mMoonCurrentId != psky->getMoonTextureId())
+//     {
+//         mMoonCurrentId = psky->getMoonTextureId();
+//         if (mMoonCurrentId.isNull())
+//         {
+//             mMoonTexturep = NULL;
+//             mMoon.setDraw(FALSE);
+//         }
+//         else
+//         {
+//             mMoonTexturep = LLViewerTextureManager::getFetchedTexture(mMoonCurrentId, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+//             if (mMoonTexturep)
+//             {
+//                 mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+//             }
+//             mMoon.setDraw(TRUE);
+//         }
+//         mFace[FACE_MOON] = mDrawable->addFace(pskypool, mMoonTexturep);
+//     }
+// 
+//     if (mSunCurrentId != psky->getSunTextureId())
+//     {
+//         mSunCurrentId = psky->getSunTextureId();
+//         if (mSunCurrentId.isNull())
+//         {
+//             mSunTexturep = NULL;
+//             mSun.setDraw(FALSE);
+//         }
+//         else
+//         {
+//             mSunTexturep = LLViewerTextureManager::getFetchedTexture(mSunCurrentId, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+//             if (mSunTexturep)
+//             {
+//                 mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+//             }
+//             mSun.setDraw(TRUE);
+//         }
+//         mFace[FACE_SUN] = mDrawable->addFace(pskypool, mSunTexturep);
+//     }
+// }
 
 LLColor4U LLVOSky::getFadeColor() const
 { 
