@@ -3808,6 +3808,13 @@ Unable to add banned resident to estate manager list.
     
   <notification
    icon="alertmodal.tga"
+   name="ProblemBanningEstateManager"
+   type="alertmodal">
+Unable to add estate manager [AGENT] to banned list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
    name="AgentIsAlreadyInList"
    type="alertmodal">
 [AGENT] is already in your [LIST_TYPE] list.
