@@ -1354,6 +1354,11 @@ if (DARWIN)
 
   # This should be compiled with the viewer.
   LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
+  set_source_files_properties(
+    llappdelegate-objc.mm
+    PROPERTIES
+    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+    )
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1366,6 +1371,7 @@ if (DARWIN)
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
     ${COREAUDIO_LIBRARY}
+    ${BUGSPLAT_LIBRARIES}
     )
 
   # Add resource files to the project.
@@ -1393,6 +1399,11 @@ endif (DARWIN)
 
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
+    set_source_files_properties(
+      llappviewerlinux.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
@@ -1409,6 +1420,11 @@ if (WINDOWS)
          llappviewerwin32.cpp
          llwindebug.cpp
          )
+    set_source_files_properties(
+      llappviewerwin32.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1692,6 +1708,11 @@ if (SDL_FOUND)
     )
 endif (SDL_FOUND)
 
+if (BUGSPLAT)
+  set_property(TARGET ${VIEWER_BINARY_NAME}
+    PROPERTY COMPILE_DEFINITIONS "LL_BUGSPLAT")
+endif (BUGSPLAT)
+
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
@@ -1790,7 +1811,7 @@ if (WINDOWS)
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
           )
     endif (FMODEX)
-    
+
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}

@@ -49,20 +49,6 @@
 #include "google_breakpad/exception_handler.h"
 #include "stringize.h"
 #include "llcleanup.h"
-#include "BugSplat.h"
-
-// TESTING ONLY - REMOVE FOR PRODUCTION
-// (Want to only invoke BugSplat crash reporting in the same way we did for Breakpad - for Release viewers
-// but need to test here in a ReleaseWithDebugInfo environment)
-#if BUGSPLAT_ENABLED
-#define LL_SEND_CRASH_REPORTS 1
-#endif
-
-// BugSplat crash reporting tool - http://bugsplat.com
-#if BUGSPLAT_ENABLED
-bool BugSplatExceptionCallback(unsigned int nCode, void* lpVal1, void* lpVal2);
-MiniDmpSender *gBugSplatSender;
-#endif
 
 //
 // Signal handling
@@ -399,26 +385,6 @@ void EnableCrashingOnCrashes()
 }
 #endif
 
-#if BUGSPLAT_ENABLED
-bool BugSplatExceptionCallback(unsigned int nCode, void* lpVal1, void* lpVal2)
-{
-	switch (nCode)
-	{
-		case MDSCB_EXCEPTIONCODE:
-		{
-			// send the main viewer log file (Clearly a temporary hack since we don't have access to the gDir*** set of functions in newview
-			const std::string appdata = std::string(getenv("APPDATA"));
-			const std::string logfile = appdata + "\\SecondLife\\logs\\Secondlife.log";
-			const std::wstring wide_logfile(logfile.begin(), logfile.end());
-			gBugSplatSender->sendAdditionalFile((const __wchar_t *)wide_logfile.c_str());
-		}
-		break;
-	}
-
-	return false;
-}
-#endif
-
 void LLApp::setupErrorHandling(bool second_instance)
 {
 	// Error handling is done by starting up an error handling thread, which just sleeps and
@@ -427,25 +393,6 @@ void LLApp::setupErrorHandling(bool second_instance)
 #if LL_WINDOWS
 
 #if LL_SEND_CRASH_REPORTS
-
-#if BUGSPLAT_ENABLED
-	// TODOCP: populate these fields correctly
-	static const wchar_t *bugdb_name = L"second_life_callum_test";
-
-	// build (painfully) the app/channel name
-	#define stringize_inner(x) L#x
-	#define stringize_outer(x) stringize_inner(x)
-	std::wstring app_name(stringize_outer(LL_VIEWER_CHANNEL));
-
-	// build in real app version now we leveraged CMake to build in BuildVersion.cmake into LLCommon
-	wchar_t version_string[MAX_STRING];
-	wsprintf(version_string, L"%d.%d.%d.%d", LL_VIEWER_VERSION_MAJOR, LL_VIEWER_VERSION_MINOR, LL_VIEWER_VERSION_PATCH, LL_VIEWER_VERSION_BUILD);
-
-	gBugSplatSender = new MiniDmpSender((const __wchar_t *)bugdb_name, (const __wchar_t *)app_name.c_str(), (const __wchar_t *)version_string, NULL);
-
-	gBugSplatSender->setCallback(BugSplatExceptionCallback);
-#else
-
 	EnableCrashingOnCrashes();
 
 	// This sets a callback to handle w32 signals to the console window.
@@ -507,9 +454,8 @@ void LLApp::setupErrorHandling(bool second_instance)
 			mExceptionHandler->set_handle_debug_exceptions(true);
 		}
 	}
-#endif  // BUGSPLAT_ENABLED
-#endif	// LL_SEND_CRASH_REPORTS
-#else	// not LL_WINDOWS
+#endif
+#else
 	//
 	// Start up signal handling.
 	//
@@ -570,7 +516,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 	}
 #endif
 
-#endif // LL_WINDOWS
+#endif
 	startErrorThread();
 }
 

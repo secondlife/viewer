@@ -13,7 +13,6 @@ include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
-include(BuildVersion)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
@@ -254,14 +253,7 @@ set(llcommon_HEADER_FILES
     )
 
 set_source_files_properties(${llcommon_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE
-                            )
-
-# bring in version information for BugSplat crash reporting
-set_source_files_properties(${llcommon_SOURCE_FILES}
-                            PROPERTIES
-                            COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
-                            )
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
