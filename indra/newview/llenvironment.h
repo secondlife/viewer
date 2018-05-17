@@ -240,11 +240,14 @@ private:
 
         void                        clear();
 
+        void                        setSkyTrack(S32 trackno);
+
         LLSettingsDay::ptr_t        getDayCycle() const     { return mDayCycle; }
         LLSettingsSky::ptr_t        getSky() const          { return mSky; }
         LLSettingsWater::ptr_t      getWater() const        { return mWater; }
         S64Seconds                  getDayLength() const    { return mDayLength; }
         S64Seconds                  getDayOffset() const    { return mDayOffset; }
+        S32                         getSkyTrack() const     { return mSkyTrack; }
 
         virtual void                animate();
 
@@ -254,6 +257,7 @@ private:
         LLSettingsDay::ptr_t        mDayCycle;
         LLSettingsSky::ptr_t        mSky;
         LLSettingsWater::ptr_t      mWater;
+        S32                         mSkyTrack;
 
         InstanceType_t              mType;
         bool                        mInitialized;
@@ -265,8 +269,6 @@ private:
         LLSettingsBlender::ptr_t    mBlenderWater;
 
         F64                         secondsToKeyframe(S64Seconds seconds);
-
-        void                        onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t blender);
     };
     typedef std::array<DayInstance::ptr_t, ENV_END> InstanceArray_t;
 
@@ -359,7 +361,6 @@ private:
 
     void recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
 
-    void onTransitionDone(const LLSettingsBlender::ptr_t, bool isSky);
     //=========================================================================
     void                        legacyLoadAllPresets();
     static LLSD                 legacyLoadPreset(const std::string& path);

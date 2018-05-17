@@ -271,7 +271,8 @@ public:
         mInitial(initsetting),
         mFinal(endsetting)
     {
-        mTarget->replaceSettings(mInitial->getSettings());
+        if (mInitial)
+            mTarget->replaceSettings(mInitial->getSettings());
     }
 
     virtual ~LLSettingsBlender() {}
@@ -309,7 +310,6 @@ public:
 protected:
     void                    triggerComplete();
 
-private:
     finish_signal_t         mOnFinished;
 
     LLSettingsBase::ptr_t   mTarget;
@@ -347,7 +347,7 @@ public:
 
     virtual void            update(F64 timedelta) override;
 
-private:
+protected:
     F64Seconds              mBlendSpan;
     F64Seconds              mLastUpdate;
     F64Seconds              mTimeSpent;

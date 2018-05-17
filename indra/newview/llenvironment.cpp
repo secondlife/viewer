@@ -60,6 +60,125 @@ namespace
 {
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
+
+    //---------------------------------------------------------------------
+    inline F32 get_wrapping_distance(F32 begin, F32 end)
+    {
+        if (begin < end)
+        {
+            return end - begin;
+        }
+        else if (begin > end)
+        {
+            return 1.0 - (begin - end);
+        }
+
+        return 0;
+    }
+
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    {
+        if (collection.empty())
+            return collection.end();
+
+        LLSettingsDay::CycleTrack_t::iterator it = collection.upper_bound(key);
+
+        if (it == collection.end())
+        {   // wrap around
+            it = collection.begin();
+        }
+
+        return it;
+    }
+
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    {
+        if (collection.empty())
+            return collection.end();
+
+        LLSettingsDay::CycleTrack_t::iterator it = collection.lower_bound(key);
+
+        if (it == collection.end())
+        {   // all keyframes are lower, take the last one.
+            --it; // we know the range is not empty
+        }
+        else if ((*it).first > key)
+        {   // the keyframe we are interested in is smaller than the found.
+            if (it == collection.begin())
+                it = collection.end();
+            --it;
+        }
+
+        return it;
+    }
+
+    LLSettingsDay::TrackBound_t get_bounding_entries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)
+    {
+        return LLSettingsDay::TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
+    }
+
+    //---------------------------------------------------------------------
+    class LLTrackBlenderLoopingTime : public LLSettingsBlenderTimeDelta
+    {
+    public:
+        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, F64Seconds cyclelength, F64Seconds cycleoffset) :
+            LLSettingsBlenderTimeDelta(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t(), F64Seconds(1.0)),
+            mDay(day),
+            mTrackNo(trackno),
+            mCycleLength(cyclelength),
+            mCycleOffset(cycleoffset)
+        {
+            LLSettingsDay::TrackBound_t initial = getBoundingEntries(getAdjustedNow());
+
+            mInitial = (*initial.first).second;
+            mFinal = (*initial.second).second;
+            mBlendSpan = getSpanTime(initial);
+
+            setOnFinished([this](const LLSettingsBlender::ptr_t &){ onFinishedSpan(); });
+        }
+
+    protected:
+        LLSettingsDay::TrackBound_t getBoundingEntries(F64Seconds time)
+        {
+            LLSettingsDay::CycleTrack_t &wtrack = mDay->getCycleTrack(mTrackNo);
+            F64 position = convertTimeToPosition(time);
+
+            LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, position);
+            return bounds;
+        }
+
+        F64Seconds getAdjustedNow() const
+        {
+            F64Seconds now(LLDate::now().secondsSinceEpoch());
+
+            return (now + mCycleOffset);
+        }
+
+        F64Seconds                  getSpanTime(const LLSettingsDay::TrackBound_t &bounds) const
+        {
+            return mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+        }
+
+        F64                         convertTimeToPosition(F64Seconds time)
+        {
+            F64 position = static_cast<F64>(fmod(time.value(), mCycleLength.value())) / static_cast<F64>(mCycleLength.value());
+            return llclamp(position, 0.0, 1.0);
+        }
+
+    private:
+        LLSettingsDay::ptr_t        mDay;
+        S32                         mTrackNo;
+        F64Seconds                  mCycleLength;
+        F64Seconds                  mCycleOffset;
+
+        void                        onFinishedSpan()
+        {
+            LLSettingsDay::TrackBound_t next = getBoundingEntries(getAdjustedNow());
+            F64Seconds nextspan = getSpanTime(next);
+            reset((*next.first).second, (*next.second).second, nextspan.value());
+        }
+    };
+
 }
 
 //=========================================================================
@@ -441,12 +560,6 @@ void LLEnvironment::updateEnvironment(F64Seconds transition, bool forced)
 
         mCurrentEnvironment = trans;
     }
-}
-
-void LLEnvironment::onTransitionDone(const LLSettingsBlender::ptr_t blender, bool isSky)
-{
-    /*TODO: Test for both sky and water*/
-    mCurrentEnvironment->animate();
 }
 
 //-------------------------------------------------------------------------
@@ -1301,67 +1414,6 @@ void LLEnvironment::legacyLoadAllPresets()
 }
 
 //=========================================================================
-namespace
-{
-    inline F32 get_wrapping_distance(F32 begin, F32 end)
-    {
-        if (begin < end)
-        {
-            return end - begin;
-        }
-        else if (begin > end)
-        {
-            return 1.0 - (begin - end);
-        }
-
-        return 0;
-    }
-
-    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, F32 key)
-    {
-        if (collection.empty())
-            return collection.end();
-
-        LLSettingsDay::CycleTrack_t::iterator it = collection.upper_bound(key);
-
-        if (it == collection.end())
-        {   // wrap around
-            it = collection.begin();
-        }
-
-        return it;
-    }
-
-    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, F32 key)
-    {
-        if (collection.empty())
-            return collection.end();
-
-        LLSettingsDay::CycleTrack_t::iterator it = collection.lower_bound(key);
-
-        if (it == collection.end())
-        {   // all keyframes are lower, take the last one.
-            --it; // we know the range is not empty
-        }
-        else if ((*it).first > key)
-        {   // the keyframe we are interested in is smaller than the found.
-            if (it == collection.begin())
-                it = collection.end();
-            --it;
-        }
-
-        return it;
-    }
-
-    LLSettingsDay::TrackBound_t get_bounding_entries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)
-    {
-        return LLSettingsDay::TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
-    }
-
-}
-//=========================================================================
-
-
 LLEnvironment::DayInstance::DayInstance() :
     mDayCycle(),
     mSky(),
@@ -1371,7 +1423,8 @@ LLEnvironment::DayInstance::DayInstance() :
     mBlenderSky(),
     mBlenderWater(),
     mInitialized(false),
-    mType(TYPE_INVALID)
+    mType(TYPE_INVALID),
+    mSkyTrack(1)
 { }
 
 void LLEnvironment::DayInstance::update(F64Seconds delta)
@@ -1453,7 +1506,20 @@ void LLEnvironment::DayInstance::clear()
     mDayOffset = LLSettingsDay::DEFAULT_DAYOFFSET;
     mBlenderSky.reset();
     mBlenderWater.reset();
+    mSkyTrack = 1;
 }
+
+void LLEnvironment::DayInstance::setSkyTrack(S32 trackno)
+{
+    /*TODO*/
+//     if (trackno != mSkyTrack)
+//     {
+//         mSkyTrack = trackno;
+// 
+//         // *TODO*: Pick the sky track based on the skytrack.
+//     }
+}
+
 
 void LLEnvironment::DayInstance::setBlenders(const LLSettingsBlender::ptr_t &skyblend, const LLSettingsBlender::ptr_t &waterblend)
 {
@@ -1491,21 +1557,13 @@ void LLEnvironment::DayInstance::animate()
     }
     else
     {
-        LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, secondsToKeyframe(now));
-        F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-
-        mWater = std::static_pointer_cast<LLSettingsVOWater>((*bounds.first).second)->buildClone();
-        mBlenderWater = std::make_shared<LLSettingsBlenderTimeDelta>(mWater,
-            (*bounds.first).second, (*bounds.second).second, timespan);
-        mBlenderWater->setOnFinished(
-            [this](LLSettingsBlender::ptr_t blender) { onTrackTransitionDone(0, blender); });
-
-        
+        mWater = LLSettingsVOWater::buildDefaultWater();
+        mBlenderWater = std::make_shared<LLTrackBlenderLoopingTime>(mWater, mDayCycle, 0, mDayLength, mDayOffset);
     }
 
     // Day track 1 only for the moment
     // sky
-    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(1);
+    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(mSkyTrack);
 
     if (track.empty())
     {
@@ -1519,36 +1577,9 @@ void LLEnvironment::DayInstance::animate()
     }
     else
     {
-        LLSettingsDay::TrackBound_t bounds = get_bounding_entries(track, secondsToKeyframe(now));
-        F64Seconds timespan = mDayLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-
-        mSky = std::static_pointer_cast<LLSettingsVOSky>((*bounds.first).second)->buildClone();
-        mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(mSky,
-            (*bounds.first).second, (*bounds.second).second, timespan);
-        mBlenderSky->setOnFinished(
-            [this](LLSettingsBlender::ptr_t blender) { onTrackTransitionDone(1, blender); });
+        mSky = LLSettingsVOSky::buildDefaultSky();
+        mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, mSkyTrack, mDayLength, mDayOffset);
     }
-}
-
-void LLEnvironment::DayInstance::onTrackTransitionDone(S32 trackno, const LLSettingsBlender::ptr_t blender)
-{
-    LL_WARNS("LAPRAS") << "onTrackTransitionDone for " << trackno << LL_ENDL;
-    F64Seconds now(LLDate::now().secondsSinceEpoch());
-
-    now += mDayOffset;
-
-    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(trackno);
-
-    LLSettingsDay::TrackBound_t bounds = get_bounding_entries(track, secondsToKeyframe(now));
-
-    F32 distance = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-    F64Seconds timespan = mDayLength * distance;
-
-    LL_WARNS("LAPRAS") << "New sky blender. now=" << now <<
-        " start=" << (*bounds.first).first << " end=" << (*bounds.second).first <<
-        " span=" << timespan << LL_ENDL;
-
-    blender->reset((*bounds.first).second, (*bounds.second).second, timespan.value());
 }
 
 //-------------------------------------------------------------------------
