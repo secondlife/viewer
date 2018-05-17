@@ -8,17 +8,13 @@
         title="Edit Day Cycle"
         width="705">
 
+    <!-- obsolete?, add as hint for 'save' button? -->
     <string name="title_new">Create a New Day Cycle</string>
     <string name="title_edit">Edit Day Cycle</string>
     <string name="hint_new">Name your day cycle, adjust the controls to create it, and click "Save".</string>
     <string name="hint_edit">To edit your day cycle, adjust the controls below and click "Save".</string>
-  
-    <!-- Todo: These 5 strings might be subjected to a change to get dynamic labels-->
-    <string name="0_label">0%[DSC]</string>
-    <string name="1_label">25%[DSC]</string>
-    <string name="2_label">50%[DSC]</string>
-    <string name="3_label">75%[DSC]</string>
-    <string name="4_label">100%[DSC]</string>
+
+    <!-- Todo: These 5 strings might be subjected to a change to get dynamic labels, consider using layout_stack to get dynamic width adjustment-->
     <string name="time_label"> ([TIME] hr)</string>
 
     <layout_stack name="test_stack"
@@ -90,7 +86,7 @@
                         width="100"> 
                     <button.commit_callback
                       function="DayCycle.Track"
-                      parameter="1" />
+                      parameter="4" />
                 </button>
                 <button
                         follows="left|top"
@@ -103,7 +99,7 @@
                         width="100"> 
                     <button.commit_callback
                       function="DayCycle.Track"
-                      parameter="2" />
+                      parameter="3" />
                 </button>
                 <button
                         follows="left|top"
@@ -116,7 +112,7 @@
                         width="100"> 
                     <button.commit_callback
                       function="DayCycle.Track"
-                      parameter="3" />
+                      parameter="2" />
                 </button>
                 <button
                         follows="left|top"
@@ -129,7 +125,7 @@
                         width="100"> 
                     <button.commit_callback
                       function="DayCycle.Track"
-                      parameter="4" />
+                      parameter="1" />
                 </button>
                 <button
                         follows="left|top"
@@ -156,104 +152,100 @@
                     min_width="595"
                     left_pad="0"
                     visible="true">              
-                        <text
+    <!-- Todo: These 5 tests might be subjected to a change to be dynamically generated, consider using layout_stack to get dynamic width adjustment-->
+                <text
                          follows="left|top"
                          height="15"
                          layout="topleft"
                          left="10"
                          name="p0"
                          top_pad="5"
-                         value="0%"
-                         width="50" />
-                        <text
+                         value="0%[DSC]"
+                         width="70" />
+                <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="69"
+                         left_pad="49"
                          name="p1"
                          top_delta="0"
-                         value="25%"
-                         width="50" />
-                        <text
+                         value="25%[DSC]"
+                         width="70" />
+                <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="69"
+                         left_pad="49"
                          name="p2"
                          top_delta="0"
-                         value="50%"
-                         width="50" />
-                        <text
+                         value="50%[DSC]"
+                         width="70" />
+                <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="69"
+                         left_pad="49"
                          name="p3"
                          top_delta="0"
-                         value="75%"
-                         width="50" />
-                        <text
+                         value="75%[DSC]"
+                         width="70" />
+                <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="69"
+                         left_pad="49"
                          name="p4"
                          top_delta="0"
-                         value="100%"
-                         width="50" />
-                  <multi_slider
+                         value="100%[DSC]"
+                         width="70" />
+                <multi_slider
                     can_edit_text="true"
                     decimal_digits="0"
                     draw_track="false"
                     follows="bottom"
                     height="10"
-                    increment="0.0833333"
+                    increment="0.01"
                     initial_value="0"
                     layout="topleft"
                     left="10"
-                    max_sliders="20"
-                    max_val="24"
+                    max_sliders="1"
+                    max_val="1"
                     name="WLTimeSlider"
                     show_text="false"
                     top_pad="0"
                     use_triangle="true"
                     width="525"
                     min_width="525"/>
-          
-                  <multi_slider
+
+                <multi_slider
                       can_edit_text="true"
                       decimal_digits="0"
                       follows="bottom"
                       height="10"
-                      increment="0.0833333"
+                      increment="0.01"
                       initial_value="0"
                       layout="topleft"
                       left="10"
                       max_sliders="20"
-                      max_val="24"
-                      name="WLDayCycleKeys"
+                      max_val="1"
+                      name="WLDayCycleFrames"
                       show_text="false"
                       top_pad="15"
                       width="525"
                       min_width="525" />
-              
-            <line_editor
-             border_style="line"
-             border_thickness="1"
-             follows="left|bottom"
-             font="SansSerif"
-             height="20"
-             layout="topleft"
-             left_pad="0"
-             max_length_bytes="300"
-             name="timeline_field"
-             select_on_focus="true"
-             value="%"
-             tool_tip="The full path to an editor (executable) to edit floater XML files (quotes not necessary)"
-             top_delta="-5"
-             width="35" />
 
-              <layout_stack
+                <text
+                      follows="left|bottom"
+                      height="20"
+                      layout="topleft"
+                      left_pad="0"
+                      name="current_time"
+                      select_on_focus="true"
+                      value="[PRCNT]%[DSC]"
+                      top_delta="-5"
+                      width="70" />
+
+                <layout_stack
                 name="progress_control"
                 follows="top|left"
                 height="25"
@@ -264,7 +256,7 @@
                 top_pad="40"
                 orientation="horizontal">
 
-                <layout_panel
+                    <layout_panel
                   name="skip_back"
                   mouse_opaque="false"
                   auto_resize="false"
@@ -273,7 +265,7 @@
                   height="25"
                   min_width="25"
                   width="25">
-                  <button
+                        <button
                     name="skip_back_btn"
                     follows="top"
                     image_overlay="SkipBackward_Off"
@@ -289,9 +281,9 @@
                     tool_tip="Step back"
                     top="0"
                     left="0"/>
-                </layout_panel>
+                    </layout_panel>
 
-                <layout_panel
+                    <layout_panel
                   name="play"
                   mouse_opaque="false"
                   auto_resize="false"
@@ -300,7 +292,7 @@
                   height="25"
                   min_width="25"
                   width="25">
-                  <button
+                        <button
                         name="play_btn"
                         follows="top"
                         image_overlay="Play_Off"
@@ -315,9 +307,9 @@
                         width="25"
                         left="0"
                         top="0" />
-                </layout_panel>
+                    </layout_panel>
 
-                <layout_panel
+                    <layout_panel
                   name="pause"
                   mouse_opaque="false"
                   auto_resize="false"
@@ -327,7 +319,7 @@
                   min_width="25"
                   width="25"
                   visible="false">
-                  <button
+                        <button
                         name="pause_btn"
                         follows="top"
                         image_overlay="Pause_Off"
@@ -342,9 +334,9 @@
                         width="25"
                         left="0"
                         top="0"/>
-                </layout_panel>
+                    </layout_panel>
 
-                <layout_panel
+                    <layout_panel
                   name="skip_forward"
                   mouse_opaque="false"
                   auto_resize="false"
@@ -353,7 +345,7 @@
                   height="25"
                   min_width="25"
                   width="25">
-                  <button
+                        <button
                     name="skip_forward_btn"
                     follows="top"
                     image_overlay="SkipForward_Off"
@@ -367,10 +359,10 @@
                     layout="topleft"
                     tool_tip="Step forward"
                     top="0" />
-                </layout_panel>
-              </layout_stack>
-              
-            <button
+                    </layout_panel>
+                </layout_stack>
+
+                <button
                     follows="top|left"
                     height="23"
                     width="90"
@@ -378,7 +370,7 @@
                     left_pad="175"
                     top_delta="-12"
                     name="add_frame" />
-            <button
+                <button
                     follows="left|top"
                     height="23"
                     width="90"
@@ -407,10 +399,11 @@
                     tab_padding_right="3"
                     top_pad="0"
                     width="700">
-                       <panel
+                <panel
                          border="true"
+                         class="panel_settings_water"
                          filename="panel_settings_water.xml"
-                         label="Water_panel"
+                         label="Water"
                          layout="topleft"
                          left_delta="0"
                          top_pad="5"
@@ -437,24 +430,27 @@
                     tab_padding_right="3"
                     top_pad="0"
                     width="700">
-                       <panel
+                <panel
                          border="true"
+                         class="panel_settings_atmos"
                          filename="panel_settings_sky_atmos.xml"
                          label="Atmosphere &amp; Lighting"
                          layout="topleft"
                          left_delta="0"
                          top_pad="5"
                          name="atmosphere_panel" />
-                       <panel
+                <panel
                          border="true"
+                         class="panel_settings_clouds"
                          filename="panel_settings_sky_clouds.xml"
                          label="Clouds"
                          layout="topleft"
                          left_delta="0"
                          top_pad="5"
                          name="clouds_panel" />
-                       <panel
+                <panel
                          border="true"
+                         class="panel_settings_sunmoon"
                          filename="panel_settings_sky_sunmoon.xml"
                          label="Sun &amp; Moon"
                          layout="topleft"
@@ -495,7 +491,7 @@
                     left_pad="10"
                     name="upload_btn"
                     width="100" /> 
-                    
+
         </layout_panel>
     </layout_stack>
 

@@ -74,6 +74,10 @@ namespace
     const F32 SLIDER_SCALE_GLOW_B(-5.0f);
 }
 
+static LLPanelInjector<LLPanelSettingsSkyAtmosTab> t_settings_atmos("panel_settings_atmos");
+static LLPanelInjector<LLPanelSettingsSkyCloudTab> t_settings_cloud("panel_settings_cloud");
+static LLPanelInjector<LLPanelSettingsSkySunMoonTab> t_settings_sunmoon("panel_settings_sunmoon");
+
 //==========================================================================
 LLPanelSettingsSky::LLPanelSettingsSky() :
     LLSettingsEditPanel(),

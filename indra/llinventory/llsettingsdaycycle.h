@@ -60,7 +60,7 @@ public:
 
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
-    typedef std::shared_ptr<LLSettingsDay>        ptr_t;
+    typedef std::shared_ptr<LLSettingsDay>          ptr_t;
     typedef std::vector<F32>                        KeyframeList_t;
     typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
 
@@ -86,6 +86,8 @@ public:
     //---------------------------------------------------------------------
 
     KeyframeList_t              getTrackKeyframes(S32 track);
+    bool                        moveTrackKeyframe(S32 track, F32 old_frame, F32 new_frame);
+    bool                        removeTrackKeyframe(S32 track, F32 frame);
 
     void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
     const LLSettingsWaterPtr_t  getWaterAtKeyframe(F32 keyframe);
