@@ -260,15 +260,33 @@
      left="10"
      top_pad="-5"
      width="498" />
-    <name_list
-     follows="left|top"
-     height="400"
-     layout="topleft"
-     left_delta="0"
-     multi_select="true"
-     name="banned_avatar_name_list"
-     top_delta="0"
-     width="498" />
+      <name_list
+       draw_heading="true"
+       follows="left|top"
+       height="400"
+       layout="topleft"
+       left_delta="0"
+       multi_select="true"
+       name="banned_avatar_name_list"
+       top_delta="0"
+       width="498">
+          <columns
+            label="Name"
+            name="name"
+            width="140" />
+          <columns
+            label="Last login date"
+            name="last_login_date"
+            width="100" />
+          <columns
+            label="Date banned"
+            name="ban_date"
+            width="100" />
+          <columns
+            label="Banned by"
+            name="bannedby"
+            width="140" />
+      </name_list>
     <!-- Always banned buttons -->
     <button
      follows="left|top"

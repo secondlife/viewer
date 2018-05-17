@@ -3939,8 +3939,32 @@ void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
 		banned_agent_name_list->deleteAllItems();
 		for (LLSD::array_const_iterator it = result["BannedAgents"].beginArray(); it != result["BannedAgents"].endArray(); ++it)
 		{
-			LLUUID id = (*it)["id"].asUUID();
-			banned_agent_name_list->addNameItem(id);
+			LLSD item;
+			item["id"] = (*it)["id"].asUUID();
+			LLSD& columns = item["columns"];
+
+			columns[0]["column"] = "name"; // to be populated later
+
+			columns[1]["column"] = "last_login_date";
+			columns[1]["value"] = (*it)["last_login_date"].asString().substr(0, 16); // cut the seconds
+
+			std::string ban_date = (*it)["ban_date"].asString();
+			columns[2]["column"] = "ban_date";
+			columns[2]["value"] = ban_date[0] != '0' ? ban_date.substr(0, 16) : LLTrans::getString("na"); // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
+
+			columns[3]["column"] = "bannedby";
+			LLUUID banning_id = (*it)["banning_id"].asUUID();
+			LLAvatarName av_name;
+			if (banning_id.isNull())
+			{
+				columns[3]["value"] = LLTrans::getString("na");
+			}
+			else if (LLAvatarNameCache::get(banning_id, &av_name))
+			{
+				columns[3]["value"] = av_name.getCompleteName(); //TODO: fetch the name if it wasn't cached
+			}
+
+			banned_agent_name_list->addElement(item);
 		}
 		banned_agent_name_list->sortByName(TRUE);
 	}
