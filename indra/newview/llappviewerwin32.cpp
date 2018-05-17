@@ -76,7 +76,14 @@
 
 // FIXME: need a production BugSplat database name
 static const wchar_t *bugdb_name = L"second_life_callum_test";
-#endif
+
+// MiniDmpSender's constructor is defined to accept __wchar_t* instead of
+// plain wchar_t*.
+inline std::basic_string<__wchar_t> wunder(const std::wstring& str)
+{
+    return { str.begin(), str.end() };
+}
+#endif // LL_BUGSPLAT
 
 namespace
 {
@@ -518,8 +525,12 @@ bool LLAppViewerWin32::init()
 										   LL_VIEWER_VERSION_PATCH << '.' <<
 										   LL_VIEWER_VERSION_BUILD));
 
+	// have to convert normal wide strings to strings of __wchar_t
 	auto sender = new MiniDmpSender(
-		bugdb_name, LL_TO_WSTRING(LL_VIEWER_CHANNEL), version_string.c_str(), nullptr);
+		wunder(bugdb_name).c_str(),
+		wunder(LL_TO_WSTRING(LL_VIEWER_CHANNEL)).c_str(),
+		wunder(version_string).c_str(),
+		nullptr);
 	sender->setCallback(
 		[sender](unsigned int nCode, void* lpVal1, void* lpVal2)
 		{
@@ -532,16 +543,17 @@ bool LLAppViewerWin32::init()
 			if (nCode == MDSCB_EXCEPTIONCODE && gDirUtilp)
 			{
 				// send the main viewer log file
-				// widen to wstring, then pass c_str()
+				// widen to wstring, convert to __wchar_t, then pass c_str()
 				sender->sendAdditionalFile(
-					wstringize(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")).c_str());
+					wunder(wstringize(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log"))).c_str());
 			}
 
 			return false;
 		});
 
+	// engage stringize() overload that converts from wstring
 	LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
-			   << version_string << ')' << LL_ENDL;
+			   << stringize(version_string) << ')' << LL_ENDL;
 
 #endif // LL_BUGSPLAT
 #endif // LL_SEND_CRASH_REPORTS
