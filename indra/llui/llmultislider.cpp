@@ -334,8 +334,13 @@ void LLMultiSlider::deleteSlider(const std::string& name)
 
 void LLMultiSlider::clear()
 {
-	while(mThumbRects.size() > 0) {
+	while(mThumbRects.size() > 0 && mValue.size() > 0) {
 		deleteCurSlider();
+	}
+
+	if (mThumbRects.size() > 0 || mValue.size() > 0)
+	{
+		LL_WARNS() << "Failed to fully clear Multi slider" << LL_ENDL;
 	}
 
 	LLF32UICtrl::clear();
