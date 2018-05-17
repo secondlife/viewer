@@ -542,9 +542,7 @@ F64 LLSettingsBlender::setPosition(F64 blendf)
 {
     if (blendf >= 1.0)
     {
-        mTarget->replaceSettings(mFinal->getSettings());
-        LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
-        mOnFinished(shared_from_this());
+        triggerComplete();
         return 1.0;
     }
     blendf = llclamp(blendf, 0.0, 1.0);
@@ -556,10 +554,23 @@ F64 LLSettingsBlender::setPosition(F64 blendf)
     return blendf;
 }
 
+void LLSettingsBlender::triggerComplete()
+{
+    mTarget->replaceSettings(mFinal->getSettings());
+    LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
+    mOnFinished(shared_from_this());
+}
+
 //-------------------------------------------------------------------------
 void LLSettingsBlenderTimeDelta::update(F64 timedelta)
 {
     mTimeSpent += F64Seconds(timedelta);
+
+    if (mTimeSpent > mBlendSpan)
+    {
+        triggerComplete();
+        return;
+    }
 
     F64 blendf = fmod(mTimeSpent.value(), mBlendSpan.value()) / mBlendSpan.value();
 

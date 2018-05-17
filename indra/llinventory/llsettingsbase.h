@@ -306,6 +306,9 @@ public:
     virtual void            update(F64 blendf);
     virtual F64             setPosition(F64 blendf);
 
+protected:
+    void                    triggerComplete();
+
 private:
     finish_signal_t         mOnFinished;
 
