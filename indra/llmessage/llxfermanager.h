@@ -95,19 +95,20 @@ class LLXferManager
 
 	// Linked FIFO list, add to the front and pull from back
 	typedef std::deque<LLXfer *> xfer_list_t;
-	xfer_list_t mSendList;
-	xfer_list_t mReceiveList;
+	xfer_list_t		mSendList;
+	xfer_list_t		mReceiveList;
 
 	typedef std::list<LLHostStatus*> status_list_t;
 	status_list_t mOutgoingHosts;
 
- private:
  protected:
 	// implementation methods
 	virtual void startPendingDownloads();
-	virtual void addToList(LLXfer* xferp, xfer_list_t & list, BOOL is_priority);
+	virtual void addToList(LLXfer* xferp, xfer_list_t & xfer_list, BOOL is_priority);
 	std::multiset<std::string> mExpectedTransfers; // files that are authorized to transfer out
 	std::multiset<std::string> mExpectedRequests;  // files that are authorized to be downloaded on top of
+	std::multiset<std::string> mExpectedVFileTransfers; // files that are authorized to transfer out
+	std::multiset<std::string> mExpectedVFileRequests;  // files that are authorized to be downloaded on top of
 
  public:
 	LLXferManager(LLVFS *vfs);
@@ -120,11 +121,10 @@ class LLXferManager
 	void setAckThrottleBPS(const F32 bps);
 
 // list management routines
-	virtual LLXfer *findXfer(U64 id, xfer_list_t & xfer_list);
+	virtual LLXfer *findXferByID(U64 id, xfer_list_t & xfer_list);
 	virtual void removeXfer (LLXfer *delp, xfer_list_t & xfer_list);
 
 	LLHostStatus * findHostStatus(const LLHost &host);
-	virtual U32 numActiveListEntries(LLXfer *list_head);
 	virtual S32 numActiveXfers(const LLHost &host);
 	virtual S32 numPendingXfers(const LLHost &host);
 
@@ -153,7 +153,7 @@ class LLXferManager
 							 void (*callback)(void**,S32,LLExtStat), void** user_data,
 							 BOOL is_priority = FALSE,
 							 BOOL use_big_packets = FALSE);
-
+	/*
 // .. to memory
 	virtual void requestFile(const std::string& remote_filename, 
 							 ELLPath remote_path,
@@ -162,7 +162,7 @@ class LLXferManager
 							 void (*callback)(void*, S32, void**, S32, LLExtStat),
 							 void** user_data,
 							 BOOL is_priority = FALSE);
-
+	*/
 // vfile requesting
 // .. to vfile
 	virtual void requestVFile(const LLUUID &local_id, const LLUUID& remote_id,
@@ -185,18 +185,15 @@ class LLXferManager
 	virtual void expectFileForRequest(const std::string& filename);
 	virtual bool validateFileForRequest(const std::string& filename);
 
-/*
-// xfer request (may be memory or file)
-// .. to file
-	virtual void requestXfer(const char *local_filename, U64 xfer_id, 
-							 BOOL delete_remote_on_completion,
-							 const LLHost &remote_host, void (*callback)(void **,S32),void **user_data);
-// .. to memory
-	virtual void requestXfer(U64 xfer_id, 
-							 const LLHost &remote_host, 
-							 BOOL delete_remote_on_completion,
-							 void (*callback)(void *, S32, void **, S32),void **user_data);
-*/
+	/**
+	  	Same idea but for VFiles, kept separate to avoid namespace overlap
+	*/
+	/* Present in fireengine, not used by viewer
+	virtual void expectVFileForTransfer(const std::string& filename);
+	virtual bool validateVFileForTransfer(const std::string& filename);
+	virtual void expectVFileForRequest(const std::string& filename);
+	virtual bool validateVFileForRequest(const std::string& filename);
+	*/
 
 	virtual void processReceiveData (LLMessageSystem *mesgsys, void **user_data);
 	virtual void sendConfirmPacket (LLMessageSystem *mesgsys, U64 id, S32 packetnum, const LLHost &remote_host);

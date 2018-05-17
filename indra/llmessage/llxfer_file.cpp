@@ -102,12 +102,12 @@ void LLXfer_File::cleanup ()
 
 	if (mDeleteLocalOnCompletion)
 	{
-		LL_DEBUGS() << "Removing file: " << mLocalFilename << LL_ENDL;
+		LL_DEBUGS("Xfer") << "Removing file: " << mLocalFilename << LL_ENDL;
 		LLFile::remove(mLocalFilename, ENOENT);
 	}
 	else
 	{
-		LL_DEBUGS() << "Keeping local file: " << mLocalFilename << LL_ENDL;
+		LL_DEBUGS("Xfer") << "Keeping local file: " << mLocalFilename << LL_ENDL;
 	}
 
 	LLXfer::cleanup();
@@ -139,7 +139,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
 	mCallbackDataHandle = user_data;
 	mCallbackResult = LL_ERR_NOERR;
 
-	LL_INFOS() << "Requesting xfer from " << remote_host << " for file: " << mLocalFilename << LL_ENDL;
+	LL_INFOS("Xfer") << "Requesting xfer from " << remote_host << " for file: " << mLocalFilename << LL_ENDL;
 
 	if (mBuffer)
 	{
@@ -167,6 +167,7 @@ S32 LLXfer_File::startDownload()
 		fclose(mFp);
 		mFp = NULL;
 
+		// tbd - is it premature to send this message if the queue is backed up?
 		gMessageSystem->newMessageFast(_PREHASH_RequestXfer);
 		gMessageSystem->nextBlockFast(_PREHASH_XferID);
 		gMessageSystem->addU64Fast(_PREHASH_ID, mID);
@@ -182,7 +183,7 @@ S32 LLXfer_File::startDownload()
 	}
 	else
 	{
-		LL_WARNS() << "Couldn't create file to be received!" << LL_ENDL;
+		LL_WARNS("Xfer") << "Couldn't create file to be received!" << LL_ENDL;
 		retval = -1;
 	}
 
@@ -224,7 +225,7 @@ S32 LLXfer_File::startSend (U64 xfer_id, const LLHost &remote_host)
 	}
 	else
 	{
-		LL_INFOS() << "Warning: " << mLocalFilename << " not found." << LL_ENDL;
+		LL_INFOS("Xfer") << "Warning: " << mLocalFilename << " not found." << LL_ENDL;
 		return (LL_ERR_FILE_NOT_FOUND);
 	}
 
@@ -310,7 +311,7 @@ S32 LLXfer_File::flush()
 	{
 		if (mFp)
 		{
-			LL_ERRS() << "Overwriting open file pointer!" << LL_ENDL;
+			LL_ERRS("Xfer") << "Overwriting open file pointer!" << LL_ENDL;
 		}
 		mFp = LLFile::fopen(mTempFilename,"a+b");		/* Flawfinder : ignore */
 
@@ -324,7 +325,7 @@ S32 LLXfer_File::flush()
 					<< LL_ENDL;
 			}
 			
-//			LL_INFOS() << "******* wrote " << mBufferLength << " bytes of file xfer" << LL_ENDL;
+//			LL_INFOS("Xfer") << "******* wrote " << mBufferLength << " bytes of file xfer" << LL_ENDL;
 			fclose(mFp);
 			mFp = NULL;
 			
@@ -332,7 +333,7 @@ S32 LLXfer_File::flush()
 		}
 		else
 		{
-			LL_WARNS() << "LLXfer_File::flush() unable to open " << mTempFilename << " for writing!" << LL_ENDL;
+			LL_WARNS("Xfer") << "LLXfer_File::flush() unable to open " << mTempFilename << " for writing!" << LL_ENDL;
 			retval = LL_ERR_CANNOT_OPEN_FILE;
 		}
 	}
@@ -363,18 +364,18 @@ S32 LLXfer_File::processEOF()
 		{
 #if !LL_WINDOWS
 			S32 error_number = errno;
-			LL_INFOS() << "Rename failure (" << error_number << ") - "
+			LL_INFOS("Xfer") << "Rename failure (" << error_number << ") - "
 					<< mTempFilename << " to " << mLocalFilename << LL_ENDL;
 			if(EXDEV == error_number)
 			{
 				if(copy_file(mTempFilename, mLocalFilename) == 0)
 				{
-					LL_INFOS() << "Rename across mounts; copying+unlinking the file instead." << LL_ENDL;
+					LL_INFOS("Xfer") << "Rename across mounts; copying+unlinking the file instead." << LL_ENDL;
 					unlink(mTempFilename.c_str());
 				}
 				else
 				{
-					LL_WARNS() << "Copy failure - " << mTempFilename << " to "
+					LL_WARNS("Xfer") << "Copy failure - " << mTempFilename << " to "
 							<< mLocalFilename << LL_ENDL;
 				}
 			}
@@ -388,11 +389,11 @@ S32 LLXfer_File::processEOF()
 				//LL_WARNS() << "File " << mLocalFilename << " does "
 				//		<< (!fp ? "not" : "" ) << " exit." << LL_ENDL;
 				//if(fp) fclose(fp);
-				LL_WARNS() << "Rename fatally failed, can only handle EXDEV ("
+				LL_WARNS("Xfer") << "Rename fatally failed, can only handle EXDEV ("
 						<< EXDEV << ")" << LL_ENDL;
 			}
 #else
-			LL_WARNS() << "Rename failure - " << mTempFilename << " to "
+			LL_WARNS("Xfer") << "Rename failure - " << mTempFilename << " to "
 					<< mLocalFilename << LL_ENDL;
 #endif
 		}

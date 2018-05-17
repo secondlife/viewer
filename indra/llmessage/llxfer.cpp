@@ -63,7 +63,6 @@ void LLXfer::init (S32 chunk_size)
 	mXferSize = 0;
 
 	mStatus = e_LL_XFER_UNINITIALIZED;
-	mNext = NULL;
 	mWaitingForACK = FALSE;
 	
 	mCallback = NULL;
@@ -130,7 +129,7 @@ void LLXfer::setXferSize (S32 xfer_size)
 
 S32 LLXfer::startDownload()
 {
-	LL_WARNS() << "undifferentiated LLXfer::startDownload for " << getFileName()
+	LL_WARNS("Xfer") << "undifferentiated LLXfer::startDownload for " << getFileName()
 			<< LL_ENDL;
 	return (-1);
 }
@@ -155,7 +154,7 @@ S32 LLXfer::receiveData (char *datap, S32 data_size)
 		}
 		else
 		{
-			LL_ERRS() << "NULL data passed in receiveData" << LL_ENDL;
+			LL_ERRS("Xfer") << "NULL data passed in receiveData" << LL_ENDL;
 		}
 	}
 
@@ -178,7 +177,7 @@ S32 LLXfer::flush()
 
 S32 LLXfer::suck(S32 start_position)
 {
-	LL_WARNS() << "Attempted to send a packet outside the buffer bounds in LLXfer::suck()" << LL_ENDL;
+	LL_WARNS("Xfer") << "Attempted to send a packet outside the buffer bounds in LLXfer::suck()" << LL_ENDL;
 	return (-1);
 }
 
@@ -211,7 +210,7 @@ void LLXfer::sendPacket(S32 packet_num)
 
 	if (fdata_size < 0)
 	{
-		LL_WARNS() << "negative data size in xfer send, aborting" << LL_ENDL;
+		LL_WARNS("Xfer") << "negative data size in xfer send, aborting" << LL_ENDL;
 		abort(LL_ERR_EOF);
 		return;
 	}
@@ -309,12 +308,12 @@ S32 LLXfer::processEOF()
 
 	if (LL_ERR_NOERR == mCallbackResult)
 	{
-		LL_INFOS() << "xfer from " << mRemoteHost << " complete: " << getFileName()
+		LL_INFOS("Xfer") << "xfer from " << mRemoteHost << " complete: " << getFileName()
 				<< LL_ENDL;
 	}
 	else
 	{
-		LL_INFOS() << "xfer from " << mRemoteHost << " failed or aborted, code "
+		LL_INFOS("Xfer") << "xfer from " << mRemoteHost << " failed, code "
 				<< mCallbackResult << ": " << getFileName() << LL_ENDL;
 	}
 
@@ -343,7 +342,7 @@ void LLXfer::abort (S32 result_code)
 {
 	mCallbackResult = result_code;
 
-	LL_INFOS() << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
+	LL_INFOS("Xfer") << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
 			<< " - error: " << result_code << LL_ENDL;
 
 	if (result_code != LL_ERR_CIRCUIT_GONE)
