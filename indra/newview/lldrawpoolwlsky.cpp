@@ -328,6 +328,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
 		gGL.getTexUnit(0)->bind(face->getTexture());
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
+
+#if 0
 		F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
 		if (a > 0.f)
 		{
@@ -335,6 +337,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		}
 			
 		color.mV[3] = llclamp(a, 0.f, 1.f);
+#endif
 		
 		if (gPipeline.canUseVertexShaders())
 		{
@@ -373,34 +376,38 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
-	//renderSkyHazeDeferred(origin, camHeightLocal);
-
-    renderSkyHaze(origin, camHeightLocal);
-
-    if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
+    if (gPipeline.canUseWindLightShaders())
     {
-	    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	    gGL.pushMatrix();
-
-		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
-
-		gDeferredStarProgram.bind();
-		// *NOTE: have to bind a texture here since register combiners blending in
-		// renderStars() requires something to be bound and we might as well only
-		// bind the moon's texture once.		
-		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
-
-		renderHeavenlyBodies();
-
-		renderStars();
-		
-		gDeferredStarProgram.unbind();
-
-	    gGL.popMatrix();
-    }
-
-	renderSkyClouds(origin, camHeightLocal);
+        if (gPipeline.useAdvancedAtmospherics())
+        {
+	        renderSkyHazeDeferred(origin, camHeightLocal);
+        }
+        else
+        {
+            renderSkyHaze(origin, camHeightLocal);
     
+	        LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	        gGL.pushMatrix();
+
+		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+
+		    gDeferredStarProgram.bind();
+		    // *NOTE: have to bind a texture here since register combiners blending in
+		    // renderStars() requires something to be bound and we might as well only
+		    // bind the moon's texture once.		
+		    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+
+		    renderHeavenlyBodies();
+
+		    renderStars();
+		
+		    gDeferredStarProgram.unbind();
+
+	        gGL.popMatrix();
+
+            renderSkyClouds(origin, camHeightLocal);
+        }
+    }    
     gGL.setColorMask(true, true);
 }
 

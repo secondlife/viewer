@@ -206,7 +206,10 @@ LLSettingsSky::validation_list_t mieValidationList()
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
 
         mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));        
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, true,  LLSD::TypeReal,  
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
     }
     return mieValidation;
 }
@@ -348,7 +351,7 @@ bool validateMieLayers(LLSD &value)
     }
     if (result["warnings"].size() > 0)
     {
-        LL_WARNS("SETTINGS") << "Mie Config Validation warnings: " << result["errors"] << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Mie Config Validation warnings: " << result["warnings"] << LL_ENDL;
         return false;
     }
     return true;
@@ -421,7 +424,6 @@ LLSettingsSky::stringset_t LLSettingsSky::getSkipInterpolateKeys() const
         skipSet.insert(SETTING_RAYLEIGH_CONFIG);
         skipSet.insert(SETTING_MIE_CONFIG);
         skipSet.insert(SETTING_ABSORPTION_CONFIG);
-        skipSet.insert(SETTING_MIE_ANISOTROPY_FACTOR);
     }
 
     return skipSet;
@@ -538,9 +540,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
         validation.push_back(Validator(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.1f)))));
-
-        validation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, true,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+        
 
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
@@ -595,6 +595,7 @@ LLSD LLSettingsSky::mieConfigDefault()
     dflt_mie_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
     dflt_mie_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
     dflt_mie_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_mie_layer[SETTING_MIE_ANISOTROPY_FACTOR]            = 0.8f;
     dflt_mie.append(dflt_mie_layer);
     return dflt_mie;
 }
@@ -637,8 +638,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
     dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
     dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
-    dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;
-    dfltsetting[SETTING_MIE_ANISOTROPY_FACTOR]  = 0.8f;
+    dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;    
 
     dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
     dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();

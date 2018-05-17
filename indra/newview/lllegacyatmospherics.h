@@ -43,11 +43,10 @@
 // Will clean these up at some point...
 //
 
-const F32 HORIZON_DIST      = 1024.0f;
-const F32 EARTH_RADIUS      = 6.4e6f;  // exact radius = 6.37 x 10^6 m
-const F32 ATM_EXP_FALLOFF   = 0.000126f;
+const F32 HORIZON_DIST          = 1024.0f;
+const F32 ATM_EXP_FALLOFF       = 0.000126f;
 const F32 ATM_SEA_LEVEL_NDENS   = 2.55e25f;
-const F32 ATM_HEIGHT        = 100000.f;
+const F32 ATM_HEIGHT            = 100000.f;
 
 // constants used in calculation of scattering coeff of clear air
 const F32 sigma     = 0.035f;

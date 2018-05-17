@@ -77,77 +77,6 @@ static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 LLUUID gSunTextureID = IMG_SUN;
 LLUUID gMoonTextureID = IMG_MOON;
 
-F32 clip_side_to_horizon(const LLVector3& V0, const LLVector3& V1, const F32 cos_max_angle)
-{
-	const LLVector3 V = V1 - V0;
-	const F32 k2 = 1.f/(cos_max_angle * cos_max_angle) - 1;
-	const F32 A = V.mV[0] * V.mV[0] + V.mV[1] * V.mV[1] - k2 * V.mV[2] * V.mV[2];
-	const F32 B = V0.mV[0] * V.mV[0] + V0.mV[1] * V.mV[1] - k2 * V0.mV[2] * V.mV[2];
-	const F32 C = V0.mV[0] * V0.mV[0] + V0.mV[1] * V0.mV[1] - k2 * V0.mV[2] * V0.mV[2];
-
-	if (fabs(A) < 1e-7)
-	{
-		return -0.1f;	// v0 is cone origin and v1 is on the surface of the cone.
-	}
-
-	const F32 det = sqrt(B*B - A*C);
-	const F32 t1 = (-B - det) / A;
-	const F32 t2 = (-B + det) / A;
-	const F32 z1 = V0.mV[2] + t1 * V.mV[2];
-	const F32 z2 = V0.mV[2] + t2 * V.mV[2];
-	if (z1 * cos_max_angle < 0)
-	{
-		return t2;
-		}
-	else if (z2 * cos_max_angle < 0)
-		{
-		return t1;
-		}
-	else if ((t1 < 0) || (t1 > 1))
-		{
-		return t2;
-		}
-		else
-		{
-		return t1;
-	}
-}
-
-// Clips quads with top and bottom sides parallel to horizon.
-BOOL clip_quad_to_horizon(F32& t_left, F32& t_right, LLVector3 v_clipped[4],
-						  const LLVector3 v_corner[4], const F32 cos_max_angle)
-{
-	t_left = clip_side_to_horizon(v_corner[1], v_corner[0], cos_max_angle);
-	t_right = clip_side_to_horizon(v_corner[3], v_corner[2], cos_max_angle);
-
-	if ((t_left >= 1) || (t_right >= 1))
-	{
-		return FALSE;
-	}
-
-	//const BOOL left_clip = (t_left > 0);
-	//const BOOL right_clip = (t_right > 0);
-
-	//if (!left_clip && !right_clip)
-	{
-		for (S32 vtx = 0; vtx < 4; ++vtx)
-	{
-			v_clipped[vtx]  = v_corner[vtx];
-	}
-	}
-/*	else
-	{
-		v_clipped[0] = v_corner[0];
-		v_clipped[1] = left_clip ? ((1 - t_left) * v_corner[1] + t_left * v_corner[0])
-									: v_corner[1];
-		v_clipped[2] = v_corner[2];
-		v_clipped[3] = right_clip ? ((1 - t_right) * v_corner[3] + t_right * v_corner[2])
-									: v_corner[3];
-	}*/
-
-	return TRUE;
-}
-
 /***************************************
 		SkyTex
 ***************************************/
@@ -767,9 +696,12 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	up.normalize();
 
 	const static F32 elevation_factor = 0.0f/sResolution;
-	const F32 cos_max_angle = cosHorizon(elevation_factor);
-	mSun.setDraw(updateHeavenlyBodyGeometry(drawable, FACE_SUN, TRUE, mSun, cos_max_angle, up, right));
-	mMoon.setDraw(updateHeavenlyBodyGeometry(drawable, FACE_MOON, FALSE, mMoon, cos_max_angle, up, right));
+    
+    bool draw_sun  = updateHeavenlyBodyGeometry(drawable, FACE_SUN, mSun, up, right);
+    bool draw_moon = updateHeavenlyBodyGeometry(drawable, FACE_MOON, mMoon, up, right);
+
+	mSun.setDraw(draw_sun);
+	mMoon.setDraw(draw_moon);
 
 	const F32 water_height = gAgent.getRegion()->getWaterHeight() + 0.01f;
 		// LLWorld::getInstance()->getWaterHeight() + 0.01f;
@@ -820,9 +752,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	return TRUE;
 }
 
-BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, const BOOL is_sun,
-										 LLHeavenBody& hb, const F32 cos_max_angle,
-										 const LLVector3 &up, const LLVector3 &right)
+BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right)
 {
 	mHeavenlyBodyUpdated = TRUE ;
 
@@ -835,50 +765,31 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 
 	LLVector3 to_dir = hb.getDirection();
 
-	if (!is_sun)
-	{
-		to_dir.mV[2] = llmax(to_dir.mV[2]+0.1f, 0.1f);
-	}
-	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
+    /*F32 rad = hb.getDiskRadius();
+    F32 d = to_dir * LLVector3::z_axis;
+    if (d < -(rad * 0.5f))
+    {
+        hb.setVisible(FALSE);
+        return FALSE;
+    }*/
 
+	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
 
 	LLVector3 hb_right = to_dir % LLVector3::z_axis;
 	LLVector3 hb_up = hb_right % to_dir;
 	hb_right.normalize();
 	hb_up.normalize();
 
-	//const static F32 cos_max_turn = sqrt(3.f) / 2; // 30 degrees
-	//const F32 cos_turn_right = 1. / (llmax(cos_max_turn, hb_right * right));
-	//const F32 cos_turn_up = 1. / llmax(cos_max_turn, hb_up * up);
+	const LLVector3 scaled_right = HEAVENLY_BODY_DIST * hb.getDiskRadius() * hb_right;
+	const LLVector3 scaled_up    = HEAVENLY_BODY_DIST * hb.getDiskRadius() * hb_up;
 
-	const F32 enlargm_factor = ( 1 - to_dir.mV[2] );
-	F32 horiz_enlargement = 1 + enlargm_factor * 0.3f;
-	F32 vert_enlargement = 1 + enlargm_factor * 0.2f;
-
-	// Parameters for the water reflection
-	hb.setU(HEAVENLY_BODY_FACTOR * horiz_enlargement * hb.getDiskRadius() * hb_right);
-	hb.setV(HEAVENLY_BODY_FACTOR * vert_enlargement * hb.getDiskRadius() * hb_up);
-	// End of parameters for the water reflection
-
-	const LLVector3 scaled_right = HEAVENLY_BODY_DIST * hb.getU();
-	const LLVector3 scaled_up = HEAVENLY_BODY_DIST * hb.getV();
-
-	//const LLVector3 scaled_right = horiz_enlargement * HEAVENLY_BODY_SCALE * hb.getDiskRadius() * hb_right;//right;
-	//const LLVector3 scaled_up = vert_enlargement * HEAVENLY_BODY_SCALE * hb.getDiskRadius() * hb_up;//up;
 	LLVector3 v_clipped[4];
 
-	hb.corner(0) = draw_pos - scaled_right + scaled_up;
-	hb.corner(1) = draw_pos - scaled_right - scaled_up;
-	hb.corner(2) = draw_pos + scaled_right + scaled_up;
-	hb.corner(3) = draw_pos + scaled_right - scaled_up;
+	v_clipped[0] = draw_pos - scaled_right + scaled_up;
+	v_clipped[1] = draw_pos - scaled_right - scaled_up;
+	v_clipped[2] = draw_pos + scaled_right + scaled_up;
+	v_clipped[3] = draw_pos + scaled_right - scaled_up;
 
-
-	F32 t_left, t_right;
-	if (!clip_quad_to_horizon(t_left, t_right, v_clipped, hb.corners(), cos_max_angle))
-	{
-		hb.setVisible(FALSE);
-		return FALSE;
-	}
 	hb.setVisible(TRUE);
 
 	facep = mFace[f]; 
@@ -928,86 +839,8 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 
 	facep->getVertexBuffer()->flush();
 
-	if (is_sun)
-	{
-		if ((t_left > 0) && (t_right > 0))
-		{
-			F32 t = (t_left + t_right) * 0.5f;
-			mSun.setHorizonVisibility(0.5f * (1 + cos(t * F_PI)));
-		}
-		else
-		{
-			mSun.setHorizonVisibility();
-		}
-		updateSunHaloGeometry(drawable);
-	}
-
 	return TRUE;
 }
-
-void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
-{
-#if 0
-	const LLVector3* v_corner = mSun.corners();
-
-	LLStrider<LLVector3> verticesp;
-	LLStrider<LLVector3> normalsp;
-	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U16> indicesp;
-	S32 index_offset;
-	LLFace *face;
-
-	const LLVector3 right = 2 * (v_corner[2] - v_corner[0]);
-	LLVector3 up = 2 * (v_corner[2] - v_corner[3]);
-	up.normalize();
-	F32 size = right.length();
-	up = size * up;
-	const LLVector3 draw_pos = 0.25 * (v_corner[0] + v_corner[1] + v_corner[2] + v_corner[3]);
-	
-	LLVector3 v_glow_corner[4];
-
-	v_glow_corner[0] = draw_pos - right + up;
-	v_glow_corner[1] = draw_pos - right - up;
-	v_glow_corner[2] = draw_pos + right + up;
-	v_glow_corner[3] = draw_pos + right - up;
-
-	face = mFace[FACE_BLOOM]; 
-
-	if (face->mVertexBuffer.isNull())
-	{
-		face->setSize(4, 6);
-		face->setGeomIndex(0);
-		face->setIndicesIndex(0);
-		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
-		face->mVertexBuffer->allocateBuffer(4, 6, TRUE);
-	}
-
-	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
-	if (-1 == index_offset)
-	{
-		return;
-	}
-
-	for (S32 vtx = 0; vtx < 4; ++vtx)
-	{
-		*(verticesp++)  = v_glow_corner[vtx] + mCameraPosAgent;
-	}
-
-	*(texCoordsp++) = TEX01;
-	*(texCoordsp++) = TEX00;
-	*(texCoordsp++) = TEX11;
-	*(texCoordsp++) = TEX10;
-
-	*indicesp++ = index_offset + 0;
-	*indicesp++ = index_offset + 2;
-	*indicesp++ = index_offset + 1;
-
-	*indicesp++ = index_offset + 1;
-	*indicesp++ = index_offset + 2;
-	*indicesp++ = index_offset + 3;
-#endif
-}
-
 
 F32 dtReflection(const LLVector3& p, F32 cos_dir_from_top, F32 sin_dir_from_top, F32 diff_angl_dir)
 {
@@ -1070,9 +903,6 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	LLVector3 look_at_right = look_at % LLVector3::z_axis;
 	look_at_right.normalize();
 
-	const static F32 cos_horizon_angle = cosHorizon(0.0f/sResolution);
-	//const static F32 horizon_angle = acos(cos_horizon_angle);
-
 	const F32 enlargm_factor = ( 1 - to_dir.mV[2] );
 	F32 horiz_enlargement = 1 + enlargm_factor * 0.3f;
 	F32 vert_enlargement = 1 + enlargm_factor * 0.2f;
@@ -1087,21 +917,9 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	LLVector3 top_hb = v_corner[0] = stretch_corner[0] = hb_pos - Right + Up;
 	v_corner[1] = stretch_corner[1] = hb_pos - Right - Up;
 
-	F32 dt_hor, dt;
-	dt_hor = clip_side_to_horizon(v_corner[1], v_corner[0], cos_horizon_angle);
-
 	LLVector2 TEX0t = TEX00;
 	LLVector2 TEX1t = TEX10;
 	LLVector3 lower_corner = v_corner[1];
-
-	if ((dt_hor > 0) && (dt_hor < 1))
-	{
-		TEX0t = LLVector2(0, dt_hor);
-		TEX1t = LLVector2(1, dt_hor);
-		lower_corner = (1 - dt_hor) * v_corner[1] + dt_hor * v_corner[0];
-	}
-	else
-		dt_hor = llmax(0.0f, llmin(1.0f, dt_hor));
 
 	top_hb.normalize();
 	const F32 cos_angle_of_view = fabs(top_hb.mV[VZ]);
@@ -1113,9 +931,6 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
 	stretch_corner[0] = lower_corner + extension * (stretch_corner[0] - lower_corner);
 	stretch_corner[1] = lower_corner + extension * (stretch_corner[1] - lower_corner);
-
-	dt = dt_hor;
-
 
 	F32 cos_dir_from_top[2];
 
@@ -1205,9 +1020,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
 		F32 dt_tex = dtReflection(P, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
 
-		dt = dt_tex;
-		TEX0tt = LLVector2(0, dt);
-		TEX1tt = LLVector2(1, dt);
+		TEX0tt = LLVector2(0, dt_tex);
+		TEX1tt = LLVector2(1, dt_tex);
 		quads++;
 	}
 	else
@@ -1331,8 +1145,6 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
             left *= raws_inv;
             right *= raws_inv;
 
-            F32 dt_raw = dt;
-
             for (S32 raw = 0; raw < raws; ++raw)
             {
                 F32 dt_v0 = raw * raws_inv;
@@ -1341,8 +1153,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
                 const LLVector3 BR = v_refl_corner[3] + (F32)raw * right;
                 const LLVector3 EL = BL + left;
                 const LLVector3 ER = BR + right;
-                dt_v0 = dt_raw;
-                dt_raw = dt_v1 = dtReflection(EL, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
+                dt_v0 = dt_v1 = dtReflection(EL, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
                 for (S32 col = 0; col < cols; ++col)
                 {
                     F32 dt_h0 = col * cols_inv;
@@ -1403,7 +1214,10 @@ void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_an
 void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_dir)
 {
 	LLVector3 sun_direction = (sun_dir.length() == 0) ? LLVector3::x_axis : sun_dir;
+    LLVector3 moon_direction = (moon_dir.length() == 0) ? LLVector3::x_axis : moon_dir;
+
 	sun_direction.normalize();
+    moon_direction.normalize();
 
 	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
 	// on the upward facing faces of cubes.
@@ -1424,7 +1238,7 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_di
 	F32 dp = mLastLightingDirection * sun_direction;
 	mSun.setDirection(sun_direction);
 
-	mMoon.setDirection(moon_dir);
+	mMoon.setDirection(moon_direction);
 	updateDirections();
 
 	if (dp < 0.995f) { //the sun jumped a great deal, update immediately

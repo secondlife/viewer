@@ -31,6 +31,12 @@
 #include "llsettingsbase.h"
 #include "v4coloru.h"
 
+const F32 EARTH_RADIUS  =      6.370e6f;
+const F32 SUN_RADIUS    =    695.508e6f;
+const F32 SUN_DIST      = 149598.260e6f;
+const F32 MOON_RADIUS   =      1.737e6f;
+const F32 MOON_DIST     =    384.400e6f;
+
 class LLSettingsSky: public LLSettingsBase
 {
 public:

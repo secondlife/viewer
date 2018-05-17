@@ -189,7 +189,7 @@ public:
     inline F32                  getSceneLightStrength() const { return mSceneLightStrength; }
     inline void                 setSceneLightStrength(F32 light_strength) { mSceneLightStrength = light_strength; }
 
-    inline LLVector4            getLightDirection() const { return ((mCurrentEnvironment->getSky()) ? LLVector4(mCurrentEnvironment->getSky()->getLightDirection(), 0.0f) : LLVector4()); }
+    inline LLVector4            getLightDirection() const { return ((mCurrentEnvironment->getSky()) ? LLVector4(mCurrentEnvironment->getSky()->getLightDirection(), 0.0f) : LLVector4(0, 0, 1, 0)); }
     inline LLVector4            getClampedLightDirection() const { return LLVector4(mCurrentEnvironment->getSky()->getClampedLightDirection(), 0.0f); }
     inline LLVector4            getRotatedLight() const { return mRotatedLight; }
 

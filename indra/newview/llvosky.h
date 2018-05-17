@@ -147,8 +147,6 @@ protected:
 	BOOL			mVisible;
 	static F32		sInterpVal;
 	LLVector3		mQuadCorner[4];
-	LLVector3		mU;
-	LLVector3		mV;
 	LLVector3		mO;
 
 public:
@@ -188,14 +186,9 @@ public:
 		return sInterpVal * mColor + (1 - sInterpVal) * mColorCached;
 	}
 
-	const F32& getHorizonVisibility() const				{ return mHorizonVisibility; }
-	void setHorizonVisibility(const F32 c = 1)			{ mHorizonVisibility = c; }
 	const F32& getVisibility() const					{ return mVisibility; }
 	void setVisibility(const F32 c = 1)					{ mVisibility = c; }
-	F32 getHaloBrighness() const
-	{
-		return llmax(0.f, llmin(0.9f, mHorizonVisibility)) * mVisibility;
-	}
+
 	BOOL isVisible() const								{ return mVisible; }
 	void setVisible(const BOOL v)						{ mVisible = v; }
 
@@ -211,11 +204,6 @@ public:
 	const LLVector3& corner(const S32 n) const			{ return mQuadCorner[n]; }
 	LLVector3& corner(const S32 n)						{ return mQuadCorner[n]; }
 	const LLVector3* corners() const					{ return mQuadCorner; }
-
-	const LLVector3& getU() const						{ return mU; }
-	const LLVector3& getV() const						{ return mV; }
-	void setU(const LLVector3& u)						{ mU = u; }
-	void setV(const LLVector3& v)						{ mV = v; }
 };
 
 class LLCubeMap;
@@ -279,19 +267,8 @@ public:
 
     void setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_dir);
 
-	BOOL updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, const BOOL is_sun,
-									LLHeavenBody& hb, const F32 sin_max_angle,
-									const LLVector3 &up, const LLVector3 &right);
-
-	F32 cosHorizon(const F32 delta = 0) const
-	{
-		const F32 sin_angle = EARTH_RADIUS/(EARTH_RADIUS + mCameraPosAgent.mV[2]);
-		return delta - (F32)sqrt(1.f - sin_angle * sin_angle);
-	}
-
-	void updateSunHaloGeometry(LLDrawable *drawable);
+	BOOL updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
 	void updateReflectionGeometry(LLDrawable *drawable, F32 H, const LLHeavenBody& HB);
-
 	
 	F32 getWorldScale() const							{ return mWorldScale; }
 	void setWorldScale(const F32 s)						{ mWorldScale = s; }
