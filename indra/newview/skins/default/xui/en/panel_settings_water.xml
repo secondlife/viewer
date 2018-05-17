@@ -9,11 +9,12 @@
         name="panel_settings_water"
         top="0">
     <layout_stack name="water_stack1"
+            follows="all"
+            layout="topleft"
             left="5"
             top="5"
             right="-5"
             bottom="-5"
-            follows="left|top|right|bottom"
             orientation="vertical">
         <layout_panel
                 border="true"

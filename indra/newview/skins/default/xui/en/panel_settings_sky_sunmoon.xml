@@ -8,11 +8,12 @@
         name="panel_settings_sky_hbodies"
         top="0">
     <layout_stack 
+            follows="all"
+            layout="topleft"
             left="5"
             top="5"
             right="-5"
             bottom="-5"
-            follows="left|top|right|bottom"
             orientation="hoizontal">
         <layout_panel
                 border="true"

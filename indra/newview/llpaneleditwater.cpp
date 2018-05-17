@@ -57,6 +57,8 @@ namespace
     const std::string   FIELD_WATER_BLUR_MULTIP("water_blur_multip");
 }
 
+static LLPanelInjector<LLPanelSettingsWaterMainTab> t_settings_water("panel_settings_water");
+
 //==========================================================================
 LLPanelSettingsWater::LLPanelSettingsWater() :
     LLSettingsEditPanel(),

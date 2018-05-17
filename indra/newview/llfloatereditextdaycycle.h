@@ -35,19 +35,10 @@ class LLCheckBoxCtrl;
 class LLComboBox;
 class LLLineEditor;
 class LLMultiSliderCtrl;
+class LLTextBox;
 class LLTimeCtrl;
 
 typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
-
-class SliderKey
-{
-public:
-	SliderKey(LLSettingsBasePtr_t kf, F32 t) : keyframe(kf), time(t) {}
-
-	LLSettingsBasePtr_t keyframe;
-	F32 time;
-};
-
 
 /**
  * Floater for creating or editing a day cycle.
@@ -94,19 +85,22 @@ private:
 	void onRemoveTrack();
 	void onCommitName(class LLLineEditor* caller, void* user_data);
 	void onTrackSelectionCallback(const LLSD& user_data);
+	void onTimeSliderMoved();	/// time slider moved
+	void onFrameSliderCallback();		/// a frame moved or frame selection changed
 
 	void selectTrack(U32 track_index);
 	void updateTabs();
 	void updateSkyTabs();
 	void updateWaterTabs();
-	void updateSlider(); //track->slider
+	void updateSlider(); //track to slider
+	void addSliderFrame(const F32 frame, LLSettingsBase::ptr_t setting);
+	void removeCurrentSliderFrame();
 	//void updateTrack(); // slider->track, todo: better name
 
 // 	/// refresh the day cycle combobox
 // 	void refreshDayCyclesList();
 // 
 // 	/// add a slider to the track
-	void addSliderKey(F32 time, const LLSettingsBasePtr_t key);
 // 
 // 	void initCallbacks();
 // //	LLWLParamKey getSelectedDayCycle();
@@ -119,8 +113,6 @@ private:
 // 	void setApplyProgress(bool started);
 // 	bool getApplyProgress() const;
 // 
-// 	void onTimeSliderMoved();	/// time slider moved
-// 	void onKeyTimeMoved();		/// a key frame moved
 // 	void onKeyTimeChanged();	/// a key frame's time changed
 // 	void onAddKey();			/// new key added on slider
 // 	void onDeleteKey();			/// a key frame deleted
@@ -143,7 +135,10 @@ private:
 
     LLSettingsDay::ptr_t    mSavedDay;
     LLSettingsDay::ptr_t    mEditDay;
-	U32 mCurrentTrack;
+    S64Seconds              mDayLength;
+    S64Seconds              mDayOffset;
+    U32                     mCurrentTrack;
+    std::string             mLastFrameSlider;
 
     LLButton*			mSaveButton;
     LLButton*			mCancelButton;
@@ -151,16 +146,16 @@ private:
 
     edit_commit_signal_t    mCommitSignal;
 
-//	LLComboBox*			mDayCyclesCombo;
-// 	LLMultiSliderCtrl*	mTimeSlider;
-    LLMultiSliderCtrl*  mKeysSlider;
-    LLView*             mSkyTabContainer;
-    LLView*             mWaterTabContainer;
-    // 	LLTimeCtrl*			mTimeCtrl;
-// 	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
+    LLMultiSliderCtrl*	mTimeSlider;
+    LLMultiSliderCtrl*  mFramesSlider;
+    LLView*             mSkyTabLayoutContainer;
+    LLView*             mWaterTabLayoutContainer;
+    LLTextBox*          mCurrentTimeLabel;
 
-	// map of sliders to parameters
-	std::map<std::string, SliderKey> mSliderToKey;
+    // map of sliders to parameters
+    typedef std::pair<F32, LLSettingsBase::ptr_t> framedata_t;
+    typedef std::map<std::string, framedata_t> keymap_t;
+    keymap_t mSliderKeyMap;
 };
 
 #endif // LL_LLFloaterEditExtDayCycle_H

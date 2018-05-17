@@ -52,22 +52,24 @@
 #include "lltrans.h"
 
 static const std::string track_tabs[] = {
-	"water_track",
-	"sky4_track",
-	"sky3_track",
-	"sky2_track",
-	"sky1_track",
-	};
+    "water_track",
+    "sky1_track",
+    "sky2_track",
+    "sky3_track",
+    "sky4_track",
+};
 
 
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):	
     LLFloater(key),
     mSaveButton(NULL),
     mCancelButton(NULL),
-	mCurrentTrack(1)
-//    mDayCyclesCombo(NULL)
-// ,	mTimeSlider(NULL)
-// ,	mKeysSlider(NULL)
+    mDayLength(0),
+    mDayOffset(0),
+    mCurrentTrack(4),
+    mTimeSlider(NULL),
+    mFramesSlider(NULL),
+    mCurrentTimeLabel(NULL)
 // ,	mTimeCtrl(NULL)
 // ,	mMakeDefaultCheckBox(NULL)
 // ,	
@@ -82,24 +84,24 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     getChild<LLButton>("delete_frame")->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onRemoveTrack, this));
     getChild<LLLineEditor>("day_cycle_name")->setKeystrokeCallback(boost::bind(&LLFloaterEditExtDayCycle::onCommitName, this, _1, _2), NULL);
 
-//	mDayCyclesCombo = getChild<LLComboBox>("day_cycle_preset_combo");
-
-// 	mTimeSlider = getChild<LLMultiSliderCtrl>("WLTimeSlider");
-// 	mKeysSlider = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
-// 	mTimeCtrl = getChild<LLTimeCtrl>("time");
     mSaveButton = getChild<LLButton>("save_btn", true);
     mCancelButton = getChild<LLButton>("cancel_btn", true);
     mUploadButton = getChild<LLButton>("upload_btn", true);
-    mKeysSlider = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
-    mSkyTabContainer = getChild<LLView>("frame_settings_sky", true);
-    mWaterTabContainer = getChild<LLView>("frame_settings_water", true);
-// 	mMakeDefaultCheckBox = getChild<LLCheckBoxCtrl>("make_default_cb");
+    mTimeSlider = getChild<LLMultiSliderCtrl>("WLTimeSlider");
+    mFramesSlider = getChild<LLMultiSliderCtrl>("WLDayCycleFrames");
+    mSkyTabLayoutContainer = getChild<LLView>("frame_settings_sky", true);
+    mWaterTabLayoutContainer = getChild<LLView>("frame_settings_water", true);
+    mCurrentTimeLabel = getChild<LLTextBox>("current_time", true);
 
     //initCallbacks();
 
     mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onBtnSave, this));
     mCancelButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onBtnCancel, this));
     mUploadButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onUpload, this));
+    mTimeSlider->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onTimeSliderMoved, this));
+    mFramesSlider->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onFrameSliderCallback, this));
+
+    mTimeSlider->addSlider(0);
 
 
     getChild<LLButton>("sky4_track", true)->setToggleState(true);
@@ -115,8 +117,14 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     {
         // TODO/TEMP
-        LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(LLEnvironment::ENV_REGION);
+        LLEnvironment::EnvSelection_t env = LLEnvironment::ENV_REGION; // should not be used
+        LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(env);
         mEditDay = pday->buildClone(); // pday should be passed as parameter
+        
+        S64Seconds daylength = LLEnvironment::instance().getEnvironmentDayLength(env);
+        S64Seconds dayoffset = LLEnvironment::instance().getEnvironmentDayOffset(env);
+        mDayLength = daylength; // should be passed as parameter
+        mDayOffset = dayoffset; // should be passed as parameter
     }
 
     LLLineEditor* name_field = getChild<LLLineEditor>("day_cycle_name");
@@ -124,35 +132,34 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     selectTrack(mCurrentTrack);
 
-    /* TODO
-    if (mEditDay->hasSetting("cycle length")) // todo: figure out name
+    // time labels
+    mCurrentTimeLabel->setTextArg("[PRCNT]", std::string("0"));
+    const S32 max_elm = 5;
+    if (mDayLength.value() != 0)
     {
-    // extract setting
-    S32 extracted_time =
-    std::string time = LLTrans::getString("time_label", LLSD("TIME",(extracted_time * 0..100%) + offset));
-    std::string descr = LLTrans::getString("0_label", LLSD("DSC",time));
-    getChild<LLView>("p0")->setLabel(descr);
-    ...
-
-    getChild<LLView>("p1")->setLabel(descr);
-    time =
-    descr = 
-    getChild<LLView>("p2")->setLabel(descr);
-    time =
-    descr = 
-    getChild<LLView>("p3")->setLabel(descr);
-    time =
-    descr =
-    getChild<LLView>("p4")->setLabel(descr);
+        F32Hours hrs;
+        LLUIString formatted_label = getString("time_label");
+        for (int i = 0; i < max_elm; i++)
+        {
+            // Todo: if possible, find a better way, both to get string and child names
+            hrs = ((mDayLength / (max_elm - 1)) * i) + mDayOffset;
+            formatted_label.setArg("[TIME]", llformat("%.1f", hrs.value()));
+            getChild<LLTextBox>("p" + llformat("%d", i), true)->setTextArg("[DSC]", formatted_label.getString());
+        }
+        hrs = mDayOffset;
+        formatted_label.setArg("[TIME]", llformat("%.1f", hrs.value()));
+        mCurrentTimeLabel->setTextArg("[DSC]", formatted_label.getString());
     }
     else
     {
-    std::string descr = LLTrans::getString("0_label", LLSD());
-    getChild<LLView>("p0")->setLabel(descr);
-
+        for (int i = 0; i < max_elm; i++)
+        {
+            getChild<LLTextBox>("p" + llformat("%d", i), true)->setTextArg("[DSC]", std::string());
+        }
+        mCurrentTimeLabel->setTextArg("[DSC]", std::string());
     }
-    */
 
+	//todo: add time slider setting
 
     /*list_name_id_t              getSkyList() const;
     list_name_id_t              getWaterList() const;
@@ -257,21 +264,33 @@ void LLFloaterEditExtDayCycle::onBtnCancel()
 
 void LLFloaterEditExtDayCycle::onAddTrack()
 {
-    F32 frame = 0; // temp?
-    mKeysSlider->addSlider(frame);
+    F32 frame = mTimeSlider->getCurSliderValue();
+    LLSettingsBase::ptr_t setting;
+    // todo: expand to generate from panels instead of using defaults
+    if (mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack).get() != NULL) //temp check? todo: disable button in such cases
+    {
+        return;
+    }
     if (mCurrentTrack == 0)
     {
-        mEditDay->setWaterAtKeyframe(LLSettingsVOWater::buildDefaultWater(), frame);
+        setting = LLSettingsVOWater::buildDefaultWater();
+        mEditDay->setWaterAtKeyframe(std::dynamic_pointer_cast<LLSettingsWater>(setting), frame);
     }
     else
     {
-        mEditDay->setSkyAtKeyframe(LLSettingsVOSky::buildDefaultSky(), frame, mCurrentTrack);
+        setting = LLSettingsVOSky::buildDefaultSky();
+        mEditDay->setSkyAtKeyframe(std::dynamic_pointer_cast<LLSettingsSky>(setting), frame, mCurrentTrack);
     }
+    addSliderFrame(frame, setting);
+    updateTabs();
 }
 
 void LLFloaterEditExtDayCycle::onRemoveTrack()
 {
-    //mKeysSlider->deleteCurSlider();
+    F32 frame = mTimeSlider->getCurSliderValue();
+    mEditDay->removeTrackKeyframe(mCurrentTrack, frame);
+    removeCurrentSliderFrame();
+    //mFramesSlider->deleteCurSlider();
 }
 
 void LLFloaterEditExtDayCycle::onCommitName(class LLLineEditor* caller, void* user_data)
@@ -285,8 +304,68 @@ void LLFloaterEditExtDayCycle::onTrackSelectionCallback(const LLSD& user_data)
     selectTrack(track_index);
 }
 
+void LLFloaterEditExtDayCycle::onFrameSliderCallback()
+{
+    if (mFramesSlider->getValue().size() == 0)
+    {
+        mLastFrameSlider.clear();
+        return;
+    }
+    // make sure we have a slider
+    const std::string& cur_sldr = mFramesSlider->getCurSlider();
+    if (cur_sldr == "")
+    {
+        mLastFrameSlider.clear();
+        return;
+    }
+
+    F32 new_frame = mFramesSlider->getCurSliderValue();
+    // todo: add safety checks, user shouldn't be capable of moving one frame over another or move missing frame
+    keymap_t::iterator iter = mSliderKeyMap.find(cur_sldr);
+    if (iter != mSliderKeyMap.end() && /*temp? until disabling mechanics*/ mEditDay->getSettingsAtKeyframe(new_frame, mCurrentTrack).get() == NULL)
+    {
+        LL_DEBUGS() << "Moving frame from " << iter->second.first << " to " << new_frame << LL_ENDL;
+        if (mEditDay->moveTrackKeyframe(mCurrentTrack, iter->second.first, new_frame))
+        {
+            iter->second.first = new_frame;
+        }
+    }
+
+    if (mLastFrameSlider != cur_sldr)
+    {
+        // technically should not be possible for both frame and slider to change
+        // but for safety, assume that they can change independently and both
+        mLastFrameSlider = cur_sldr;
+        updateTabs();
+    }
+    // 	updateTrack();
+    // reset last known position
+}
+
+void LLFloaterEditExtDayCycle::onTimeSliderMoved()
+{
+    // Todo: safety checks
+    // Update label
+    F32 time = mTimeSlider->getCurSliderValue();
+    mCurrentTimeLabel->setTextArg("[PRCNT]", llformat("%.0f", time * 100));
+    if (mDayLength.value() != 0)
+    {
+        F32Hours hrs = (mDayLength  * time) + mDayOffset;
+        LLUIString formatted_label = getString("time_label");
+        formatted_label.setArg("[TIME]", llformat("%.1f", hrs.value()));
+        mCurrentTimeLabel->setTextArg("[DSC]", formatted_label.getString());
+    }
+    else
+    {
+        mCurrentTimeLabel->setTextArg("[DSC]", std::string());
+    }
+
+    //Todo: update something related to time/play?
+}
+
 void LLFloaterEditExtDayCycle::selectTrack(U32 track_index)
 {
+    // todo: safety checks
     mCurrentTrack = track_index;
     LLButton* button = getChild<LLButton>(track_tabs[track_index], true);
     if (button->getToggleState())
@@ -294,24 +373,22 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index)
         return;
     }
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++) // yse max value
     {
         getChild<LLButton>(track_tabs[i], true)->setToggleState(false);
     }
 
     button->setToggleState(true);
 
-    updateTabs();
+    bool show_water = mCurrentTrack == 0;
+    mSkyTabLayoutContainer->setVisible(!show_water);
+    mWaterTabLayoutContainer->setVisible(show_water);
     updateSlider();
 }
 
 void LLFloaterEditExtDayCycle::updateTabs()
 {
-    bool show_water = mCurrentTrack == 0;
-    mSkyTabContainer->setVisible(!show_water);
-    mWaterTabContainer->setVisible(show_water);
-
-    if (show_water)
+    if (mCurrentTrack == 0)
     {
         updateWaterTabs();
     }
@@ -323,11 +400,13 @@ void LLFloaterEditExtDayCycle::updateTabs()
 
 void LLFloaterEditExtDayCycle::updateWaterTabs()
 {
-    const LLSettingsWaterPtr_t p_water = mEditDay->getWaterAtKeyframe(mKeysSlider->getCurSliderValue());
+    // todo: substitute with mSliderKeyMap?
+    const LLSettingsWaterPtr_t p_water = mEditDay->getWaterAtKeyframe(mFramesSlider->getCurSliderValue());
 
     // Compiler warnings from getChild about LLPanelSettingsWaterMainTab not being complete/missing params constructor...
-    // Todo: fix class to work with getChild()
-    LLPanelSettingsWaterMainTab* panel = mWaterTabContainer->findChild<LLPanelSettingsWaterMainTab>("water_panel", true);
+    // Todo: fix class to work with getChild()?
+    LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>("water_tabs"); //can't extract panels directly, since they are in 'tuple'
+    LLPanelSettingsWaterMainTab* panel = dynamic_cast<LLPanelSettingsWaterMainTab*>(tab_container->getChildView("water_panel"));
     if (panel)
     {
         panel->setWater(p_water); // todo: Null disables
@@ -336,22 +415,25 @@ void LLFloaterEditExtDayCycle::updateWaterTabs()
 
 void LLFloaterEditExtDayCycle::updateSkyTabs()
 {
-    const LLSettingsSkyPtr_t p_sky = mEditDay->getSkyAtKeyframe(mKeysSlider->getCurSliderValue(), mCurrentTrack);
+    // todo: substitute with mSliderKeyMap?
+    const LLSettingsSkyPtr_t p_sky = mEditDay->getSkyAtKeyframe(mFramesSlider->getCurSliderValue(), mCurrentTrack);
+
+    LLView* tab_container = mSkyTabLayoutContainer->getChild<LLView>("sky_tabs"); //can't extract panels directly, since they are in 'tuple'
 
     // Compiler warnings from getChild about tabs...
     // Todo: fix class
     LLPanelSettingsSky* panel;
-    panel = mSkyTabContainer->findChild<LLPanelSettingsSky>("atmosphere_panel", true);
+    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("atmosphere_panel"));
     if (panel)
     {
         panel->setSky(p_sky); // todo: Null disables
     }
-    panel = mSkyTabContainer->findChild<LLPanelSettingsSky>("clouds_panel", true);
+    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("clouds_panel"));
     if (panel)
     {
         panel->setSky(p_sky);
     }
-    panel = mSkyTabContainer->findChild<LLPanelSettingsSky>("moon_panel", true);
+    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("moon_panel"));
     if (panel)
     {
         panel->setSky(p_sky);
@@ -360,17 +442,39 @@ void LLFloaterEditExtDayCycle::updateSkyTabs()
 
 void LLFloaterEditExtDayCycle::updateSlider()
 {
-    mKeysSlider->clear();
+    mFramesSlider->clear();
+    mSliderKeyMap.clear();
 
-    LLSettingsDay::KeyframeList_t keyframes = mEditDay->getTrackKeyframes(mCurrentTrack);
-    LLSettingsDay::KeyframeList_t::iterator iter = keyframes.begin();
-    LLSettingsDay::KeyframeList_t::iterator end = keyframes.end();
-
-    while (iter != end)
+    LLSettingsDay::CycleTrack_t track = mEditDay->getCycleTrack(mCurrentTrack);
+    for (auto &frame : track)
     {
-        mKeysSlider->addSlider(*iter);
-        iter++;
+        addSliderFrame(frame.first, frame.second);
     }
+}
+
+void LLFloaterEditExtDayCycle::addSliderFrame(const F32 frame, LLSettingsBase::ptr_t setting)
+{
+    // multi slider distinguishes elements by key/name in string format
+    // store names to map to be able to recal dependencies
+    std::string new_slider = mFramesSlider->addSlider(frame);
+    mSliderKeyMap[new_slider] = framedata_t(frame, setting);
+    mLastFrameSlider = new_slider;
+
+    updateTabs();
+}
+
+void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
+{
+    std::string sldr = mFramesSlider->getCurSlider();
+    mFramesSlider->deleteCurSlider();
+    keymap_t::iterator iter = mSliderKeyMap.find(sldr);
+    if (iter != mSliderKeyMap.end())
+    {
+        LL_DEBUGS() << "Removing frame from " << iter->second.first << LL_ENDL;
+        mSliderKeyMap.erase(iter);
+    }
+
+    updateTabs();
 }
 
 /*void LLFloaterEditExtDayCycle::updateTrack()
@@ -540,52 +644,7 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
 // #endif
 // }
 // 
-// void LLFloaterEditExtDayCycle::onTimeSliderMoved()
-// {
-// #if 0
-// 	/// get the slider value
-// 	F32 val = mTimeSlider->getCurSliderValue() / sHoursPerDay;
 // 
-// 	// set the value, turn off animation
-// 	LLWLParamManager::getInstance()->mAnimator.setDayTime((F64)val);
-// 	LLWLParamManager::getInstance()->mAnimator.deactivate();
-// 
-// 	// then call update once
-// 	LLWLParamManager::getInstance()->mAnimator.update(
-// 		LLWLParamManager::getInstance()->mCurParams);
-// #endif
-// }
-// 
-// void LLFloaterEditExtDayCycle::onKeyTimeMoved()
-// {
-// #if 0
-// 	if (mKeysSlider->getValue().size() == 0)
-// 	{
-// 		return;
-// 	}
-// 
-// 	// make sure we have a slider
-// 	const std::string& cur_sldr = mKeysSlider->getCurSlider();
-// 	if (cur_sldr == "")
-// 	{
-// 		return;
-// 	}
-// 
-// 	F32 time24 = mKeysSlider->getCurSliderValue();
-// 
-// 	// check to see if a key exists
-// 	LLWLParamKey key = mSliderToKey[cur_sldr].keyframe;
-// 	LL_DEBUGS() << "Setting key time: " << time24 << LL_ENDL;
-// 	mSliderToKey[cur_sldr].time = time24;
-// 
-// 	// if it exists, turn on check box
-// 	mSkyPresetsCombo->selectByValue(key.toStringVal());
-// 
-// 	mTimeCtrl->setTime24(time24);
-// 
-// 	applyTrack();
-// #endif
-// }
 // 
 // void LLFloaterEditExtDayCycle::onKeyTimeChanged()
 // {
@@ -655,25 +714,6 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
 // #endif
 // }
 // 
-void LLFloaterEditExtDayCycle::addSliderKey(F32 time, const std::shared_ptr<LLSettingsBase> keyframe)
-{
-	// make a slider
-	const std::string& sldr_name = mKeysSlider->addSlider(time);
-	if (sldr_name.empty())
-	{
-		return;
-	}
-
-	// set the key
-	SliderKey newKey(keyframe, mKeysSlider->getCurSliderValue());
-
-	llassert_always(sldr_name != LLStringUtil::null);
-
-	// add to map
-	mSliderToKey.insert(std::pair<std::string, SliderKey>(sldr_name, newKey));
-
-	llassert_always(mSliderToKey.size() == mKeysSlider->getValue().size());
-}
 
 // #if 0
 // LLWLParamKey LLFloaterEditExtDayCycle::getSelectedDayCycle()
