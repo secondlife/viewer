@@ -407,3 +407,4 @@ U32 LLXfer_VFile::getXferTypeTag()
 {
 	return LLXfer::XFER_VFILE;
 }
+
