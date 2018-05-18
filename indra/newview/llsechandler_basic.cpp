@@ -1275,7 +1275,7 @@ void LLSecAPIBasicHandler::init()
 		
 		// grab the application ca-bundle.crt file that contains the well-known certs shipped
 		// with the product
-		std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "ca-bundle.crt");
+		std::string ca_file_path = gDirUtilp->getCAFile();
 		LL_INFOS("SECAPI") << "Loading application certificate store from " << ca_file_path << LL_ENDL;
 		LLPointer<LLBasicCertificateStore> app_ca_store = new LLBasicCertificateStore(ca_file_path);
 		

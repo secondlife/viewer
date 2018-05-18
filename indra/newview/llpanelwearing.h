@@ -80,6 +80,7 @@ public:
 	void onAccordionTabStateChanged();
 	void setAttachmentDetails(LLSD content);
 	void requestAttachmentDetails();
+	void onRemoveItem();
 	void onEditAttachment();
 	void onRemoveAttachment();
 

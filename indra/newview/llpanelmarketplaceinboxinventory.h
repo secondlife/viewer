@@ -71,6 +71,7 @@ public:
 	
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	void selectItem();
 
 	void computeFreshness();
 	void deFreshify();

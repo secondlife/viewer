@@ -49,6 +49,7 @@ public:
 	enum EBoostLevel
 	{
 		BOOST_NONE 			= 0,
+		BOOST_ALM			, //acts like NONE when ALM is on, max discard when ALM is off
 		BOOST_AVATAR_BAKED	,
 		BOOST_AVATAR		,
 		BOOST_CLOUDS		,

@@ -192,13 +192,21 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
     LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::instance().getName()
         << " with url '" << url << "', requesting " << agentIds.size() << " Agent Ids" << LL_ENDL;
 
+    // Check pointer that can be cleaned up by cleanupClass()
+    if (!sHttpRequest || !sHttpOptions || !sHttpHeaders)
+    {
+        LL_WARNS("AvNameCache") << " Trying to request name cache when http pointers are not initialized." << LL_ENDL;
+        return;
+    }
+
+    LLSD httpResults;
+
     try
     {
         bool success = true;
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("NameCache", LLAvatarNameCache::sHttpPolicy);
         LLSD results = httpAdapter.getAndSuspend(sHttpRequest, url);
-        LLSD httpResults;
 
         LL_DEBUGS() << results << LL_ENDL;
 
@@ -237,6 +245,7 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
     {
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
                                           << "('" << url << "', " << agentIds.size()
+                                          << " http result: " << httpResults.asString()
                                           << " Agent Ids)"));
         throw;
     }
@@ -326,6 +335,11 @@ void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
 
 void LLAvatarNameCache::processName(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
+	if (agent_id.isNull())
+	{
+		return;
+	}
+
 	// Add to the cache
 	sCache[agent_id] = av_name;
 

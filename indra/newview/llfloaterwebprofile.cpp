@@ -38,8 +38,10 @@ LLFloaterWebProfile::LLFloaterWebProfile(const Params& key) :
 void LLFloaterWebProfile::onOpen(const LLSD& key)
 {
 	Params p(key);
-	p.show_chrome(false).
-		window_class("profile");
+	p.show_chrome(true);
+	p.window_class("profile");
+	p.allow_address_entry(false);
+	p.trusted_content(true);
 	LLFloaterWebContent::onOpen(p);
 	applyPreferredRect();
 }
