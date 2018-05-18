@@ -40,6 +40,7 @@
 #include "lltimectrl.h"
 
 #include "llsettingsvo.h"
+#include "llinventorymodel.h"
 
 // newview
 #include "llagent.h"
@@ -60,6 +61,16 @@ static const std::string track_tabs[] = {
 };
 
 
+//=========================================================================
+// **RIDER**
+
+const std::string LLFloaterFixedEnvironment::KEY_INVENTORY_ID("inventory_id");
+const std::string LLFloaterFixedEnvironment::KEY_LIVE_ENVIRONMENT("live_environment");
+const std::string LLFloaterFixedEnvironment::KEY_DAY_LENGTH("day_length");
+const std::string LLFloaterFixedEnvironment::KEY_DAY_OFFSET("day_offset");
+
+// **RIDER**
+
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):	
     LLFloater(key),
     mSaveButton(NULL),
@@ -69,7 +80,11 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):
     mCurrentTrack(4),
     mTimeSlider(NULL),
     mFramesSlider(NULL),
-    mCurrentTimeLabel(NULL)
+    mCurrentTimeLabel(NULL),
+    // **RIDER**
+    mInventoryId(),
+    mInventoryItem(nullptr)
+    // **RIDER**
 // ,	mTimeCtrl(NULL)
 // ,	mMakeDefaultCheckBox(NULL)
 // ,	
@@ -114,18 +129,30 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
     LLEnvironment::instance().updateEnvironment();
 
+    // **RIDER**
 
+    mEditingEnv = LLEnvironment::ENV_NONE;
+    mEditDay.reset();
+    if (key.has(KEY_INVENTORY_ID))
     {
-        // TODO/TEMP
-        LLEnvironment::EnvSelection_t env = LLEnvironment::ENV_REGION; // should not be used
-        LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(env);
-        mEditDay = pday->buildClone(); // pday should be passed as parameter
-        
-        S64Seconds daylength = LLEnvironment::instance().getEnvironmentDayLength(env);
-        S64Seconds dayoffset = LLEnvironment::instance().getEnvironmentDayOffset(env);
-        mDayLength = daylength; // should be passed as parameter
-        mDayOffset = dayoffset; // should be passed as parameter
+        loadInventoryItem(key[KEY_INVENTORY_ID].asUUID());
     }
+    else if (key.has(KEY_LIVE_ENVIRONMENT))
+    {
+        LLEnvironment::EnvSelection_t env = static_cast<LLEnvironment::EnvSelection_t>(key[KEY_LIVE_ENVIRONMENT].asInteger());
+
+        loadLiveEnvironment(env);
+    }
+
+    mDayLength.value(0);
+    mDayOffset.value(0);
+    if (key.has(KEY_DAY_LENGTH))
+    {
+        mDayLength.value(key[KEY_DAY_LENGTH].asReal());
+        mDayOffset.value(key[KEY_DAY_OFFSET].asReal());
+    }
+
+    // **RIDER**
 
     LLLineEditor* name_field = getChild<LLLineEditor>("day_cycle_name");
     name_field->setText(mEditDay->getName());
@@ -491,6 +518,81 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
 {
     return mCommitSignal.connect(cb);
 }
+
+// **RIDER**
+void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
+{
+    if (inventoryId.isNull())
+    {
+        mInventoryItem = nullptr;
+        mInventoryId.setNull();
+        return;
+    }
+
+    mInventoryId = inventoryId;
+    LL_INFOS("SETTINGS") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
+    mInventoryItem = gInventory.getItem(mInventoryId);
+
+    if (!mInventoryItem)
+    {
+        LL_WARNS("SETTINGS") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
+        mInventoryId.setNull();
+        mInventoryItem = nullptr;
+        return;
+    }
+
+    LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
+        [this](LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat) { onAssetLoaded(asset_id, settins, status); });
+}
+
+void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
+{
+    mEditDay = settings;
+    updateEditEnvironment();
+    syncronizeTabs();
+    refresh();
+}
+
+void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t env)
+{
+    mEditingEnv = env;
+    for (S32 idx = static_cast<S32>(env); idx <= LLEnvironment::ENV_DEFAULT; ++idx)
+    {
+        LLSettingsDay::ptr_t day = LLEnvironment::instance().getEnvironmentDay(static_cast<LLEnvironment::EnvSelection_t>(idx));
+
+        if (day)
+        {
+            mEditDay = day;
+            break;
+        }
+    }
+
+    updateEditEnvironment();
+    syncronizeTabs();
+    refresh();
+}
+
+void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
+{
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditDay);
+}
+
+void LLFloaterFixedEnvironment::syncronizeTabs()
+{
+    LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>("water_tabs"); //can't extract panels directly, since they are in 'tuple'
+
+    S32 count = mTab->getTabCount();
+
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(mTab->getPanelByIndex(idx));
+        if (panel)
+            panel->setSettings(mSettings);
+    }
+}
+
+// **RIDER**
+
 
 // 
 // virtual

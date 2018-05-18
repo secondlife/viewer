@@ -77,13 +77,14 @@ public:
 
     enum EnvSelection_t
     {
-        ENV_EDIT,
+        ENV_EDIT = 0,
         ENV_LOCAL,
         ENV_PARCEL,
         ENV_REGION,
         ENV_DEFAULT,
         ENV_END,
-        ENV_CURRENT = -1
+        ENV_CURRENT = -1,
+        ENV_NONE = -2
     };
 
     typedef boost::signals2::connection     connection_t;

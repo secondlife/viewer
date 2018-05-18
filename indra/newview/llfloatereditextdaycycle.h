@@ -48,6 +48,13 @@ class LLFloaterEditExtDayCycle : public LLFloater
 	LOG_CLASS(LLFloaterEditExtDayCycle);
 
 public:
+    // **RIDER**
+    static const std::string KEY_INVENTORY_ID;
+    static const std::string KEY_LIVE_ENVIRONMENT;
+    static const std::string KEY_DAY_LENGTH;
+    static const std::string KEY_DAY_OFFSET;
+    // **RIDER**
+
     typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)>            edit_commit_signal_t;
     typedef boost::signals2::connection     connection_t;
 
@@ -97,6 +104,16 @@ private:
 	void removeCurrentSliderFrame();
 	//void updateTrack(); // slider->track, todo: better name
 
+    // **RIDER**
+    void loadInventoryItem(const LLUUID  &inventoryId);
+    void onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
+    void loadLiveEnvironment(LLEnvironment::EnvSelection_t env);
+
+    void updateEditEnvironment();
+    void syncronizeTabs();
+    // **RIDER**
+
+
 // 	/// refresh the day cycle combobox
 // 	void refreshDayCyclesList();
 // 
@@ -133,24 +150,29 @@ private:
 // 
 // 	static std::string getRegionName();
 
-    LLSettingsDay::ptr_t    mSavedDay;
     LLSettingsDay::ptr_t    mEditDay;
     S64Seconds              mDayLength;
     S64Seconds              mDayOffset;
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
 
-    LLButton*			mSaveButton;
-    LLButton*			mCancelButton;
-    LLButton*           mUploadButton;
+    LLButton*			    mSaveButton;
+    LLButton*			    mCancelButton;
+    LLButton*               mUploadButton;
 
     edit_commit_signal_t    mCommitSignal;
 
-    LLMultiSliderCtrl*	mTimeSlider;
-    LLMultiSliderCtrl*  mFramesSlider;
-    LLView*             mSkyTabLayoutContainer;
-    LLView*             mWaterTabLayoutContainer;
-    LLTextBox*          mCurrentTimeLabel;
+    LLMultiSliderCtrl*	    mTimeSlider;
+    LLMultiSliderCtrl*      mFramesSlider;
+    LLView*                 mSkyTabLayoutContainer;
+    LLView*                 mWaterTabLayoutContainer;
+    LLTextBox*              mCurrentTimeLabel;
+
+    // **RIDER**
+    LLUUID                  mInventoryId;
+    LLInventoryItem *       mInventoryItem;
+    LLEnvironment::EnvSelection_t mEditingEnv;
+    // **RIDER**
 
     // map of sliders to parameters
     typedef std::pair<F32, LLSettingsBase::ptr_t> framedata_t;
