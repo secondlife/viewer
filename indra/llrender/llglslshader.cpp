@@ -33,8 +33,6 @@
 #include "llrender.h"
 #include "llvertexbuffer.h"
 
-#pragma optimize("", off)
-
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
 #endif

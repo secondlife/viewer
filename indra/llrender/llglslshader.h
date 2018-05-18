@@ -31,8 +31,6 @@
 #include "llrender.h"
 #include "llstaticstringtable.h"
 
-#pragma optimize("", off)
-
 class LLShaderFeatures
 {
 public:
