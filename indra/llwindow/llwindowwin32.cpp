@@ -69,6 +69,10 @@ const F32	ICON_FLASH_TIME = 0.5f;
 #define WM_DPICHANGED 0x02E0
 #endif
 
+#ifndef USER_DEFAULT_SCREEN_DPI
+#define USER_DEFAULT_SCREEN_DPI 96 // Win7
+#endif
+
 extern BOOL gDebugWindowProc;
 
 LPWSTR gIconResource = IDI_APPLICATION;
@@ -1103,7 +1107,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 	if (mWindowHandle)
 	{
-	LL_INFOS("Window") << "window is created." << LL_ENDL ;
+		LL_INFOS("Window") << "window is created." << LL_ENDL ;
 	}
 	else
 	{
@@ -1426,7 +1430,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 		if (mWindowHandle)
 		{
-		LL_INFOS("Window") << "recreate window done." << LL_ENDL ;
+			LL_INFOS("Window") << "recreate window done." << LL_ENDL ;
 		}
 		else
 		{
@@ -1547,8 +1551,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 			// force sNoFixedFunction iff we're trying to use nsight debugging which does not support many legacy API uses
 
-                // nSight doesn't support use of legacy API funcs in the fixed function pipe
-                if (LLRender::sGLCoreProfile || LLRender::sNsightDebugSupport)
+				// nSight doesn't support use of legacy API funcs in the fixed function pipe
+				if (LLRender::sGLCoreProfile || LLRender::sNsightDebugSupport)
 				{
 					LLGLSLShader::sNoFixedFunction = true;
 				}

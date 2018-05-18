@@ -40,6 +40,8 @@
 // We'll forward declare the struct here.  JC
 struct FT_FaceRec_;
 typedef struct FT_FaceRec_* LLFT_Face;
+struct FT_StreamRec_;
+typedef struct FT_StreamRec_ LLFT_Stream;
 
 class LLFontManager
 {
@@ -158,6 +160,11 @@ private:
 	F32 mLineHeight;
 
 	LLFT_Face mFTFace;
+
+#ifdef LL_WINDOWS
+	llifstream *pFileStream;
+	LLFT_Stream *pFtStream;
+#endif
 
 	BOOL mIsFallback;
 	font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)

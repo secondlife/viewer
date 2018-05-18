@@ -148,7 +148,7 @@ public:
                     return getStreamingCost_(bytes, visible_bytes, NULL);
                 }
 
-    LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures, bool first_frame) const;
+    LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures, bool first_frame = false) const;
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getLODTriangleCount(S32 lod) const;
 	/*virtual*/ U32		getHighLODTriangleCount() const;
@@ -217,10 +217,10 @@ public:
 	/*virtual*/ BOOL 	setMaterial(const U8 material);
 
 				void	setTexture(const S32 face);
-				S32     getIndexInTex() const {return mIndexInTex ;}
+				S32     getIndexInTex(U32 ch) const {return mIndexInTex[ch];}
 	/*virtual*/ BOOL	setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
 				void	updateSculptTexture();
-				void    setIndexInTex(S32 index) { mIndexInTex = index ;}
+				void    setIndexInTex(U32 ch, S32 index) { mIndexInTex[ch] = index ;}
 				void	sculpt();
 	 static     void    rebuildMeshAssetCallback(LLVFS *vfs,
 														  const LLUUID& asset_uuid,
@@ -343,7 +343,6 @@ public:
 
 protected:
 	S32	computeLODDetail(F32 distance, F32 radius) const;
-    S32 getLODAtDistance(F32 distance) const;
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
 	void updateTEData();
@@ -392,7 +391,7 @@ private:
 	LLPointer<LLViewerFetchedTexture> mLightTexture;
 	media_list_t mMediaImplList;
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
-	S32 mIndexInTex;
+	S32 mIndexInTex[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
 	S32 mMDCImplCount;
 
 	LLPointer<LLRiggedVolume> mRiggedVolume;

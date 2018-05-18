@@ -815,7 +815,15 @@ class LLAdvancedCheckRenderType : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-        return LLPipeline::checkWorldRenderTypes();
+		U32 render_type = render_type_from_string( userdata.asString() );
+		bool new_value = false;
+
+		if ( render_type != 0 )
+		{
+			new_value = LLPipeline::hasRenderTypeControl( render_type );
+		}
+
+		return new_value;
 	}
 };
 
@@ -1084,10 +1092,6 @@ U32 info_display_from_string(std::string info_display)
 	else if ("texel density" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_TEXEL_DENSITY;
-	}
-	else if ("triangle count" == info_display)
-	{
-		return LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT;
 	}
 	else
 	{
@@ -8013,7 +8017,7 @@ void handle_report_bug(const LLSD& param)
 	LLUIString url(param.asString());
 	
 	LLStringUtil::format_map_t replace;
-	replace["[ENVIRONMENT]"] = LLURI::escape(LLAppViewer::instance()->getShortViewerInfoString());
+	replace["[ENVIRONMENT]"] = LLURI::escape(LLAppViewer::instance()->getViewerInfoString(true));
 	LLSLURL location_url;
 	LLAgentUI::buildSLURL(location_url);
 	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());

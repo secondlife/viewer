@@ -400,12 +400,12 @@ void LLFloaterMove::initMovementMode()
 	{
 		initMovementMode = MM_FLY;
 	}
-	setMovementMode(initMovementMode);
+	
+	mCurrentMode = initMovementMode;
+	bool hide_mode_buttons = (MM_FLY == mCurrentMode) || (isAgentAvatarValid() && gAgentAvatarp->isSitting());
 
-	if (isAgentAvatarValid())
-	{
-		showModeButtons(!gAgentAvatarp->isSitting());
-	}
+	updateButtonsWithMovementMode(mCurrentMode);
+	showModeButtons(!hide_mode_buttons);
 }
 
 void LLFloaterMove::setModeTooltip(const EMovementMode mode)

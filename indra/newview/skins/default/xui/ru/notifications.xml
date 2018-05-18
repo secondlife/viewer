@@ -2491,7 +2491,7 @@ http://secondlife.com/download.
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		Предметы [COUNT] будут удалены навсегда. Вы действительно хотите удалить содержимое корзины без возможности восстановления?
+		[COUNT] предметов(а) и папки будут окончательно удалены. Вы действительно хотите удалить содержимое корзины без возможности восстановления?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3497,12 +3497,18 @@ http://secondlife.com/download.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Возникли проблемы соединения с голосовым сервером:
+		Нет связи с речевым сервером: порты 
 
-[HOSTID]
+[HOSTID],
 
-Голосовая связь будет недоступна.
-Проверьте настройки сети и брандмауэра.
+выделенные для голосового соединения: 
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Проверьте настройки сети и брандмауэра. 
+Отключите любую функцию SIP ALG в маршрутизаторе. 
+
+Голосовое общение будет недоступно.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

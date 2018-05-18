@@ -2491,7 +2491,7 @@ Bu işlemi tamamlamadan önce Rahatsız Etme&apos;yi kapatmak ister misiniz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tamam"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] öğe kalıcı olarak silinecektir. Çöp kutunuzun içeriğini kalıcı olarak silmek istediğinize emin misiniz?
+		[COUNT] öğe ve klasör kalıcı olarak silinecektir. Çöp kutunuzun içeriğini kalıcı olarak silmek istediğinizden emin misiniz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tamam"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3497,12 +3497,18 @@ Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Ses sunucunuz ile bağlantı kurma konusunda sorun yaşıyoruz.
+		Ses sunucusuna bağlanamıyoruz: Ses için izin verilmesi gereken 
 
 [HOSTID]
 
-Ses bağlantıları kullanılamayacak.
-Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
+Portları:
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin. 
+Yönlendiricinizdeki her SIP ALG özelliğini devre dışı bırakın. 
+
+Sesli iletişim kullanılamayacak.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

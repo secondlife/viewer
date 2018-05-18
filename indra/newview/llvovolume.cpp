@@ -226,7 +226,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
-	mIndexInTex = 0;
+	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
 
     mRenderComplexity_last = 0;
@@ -274,7 +274,12 @@ void LLVOVolume::markDead()
 
 		if (mSculptTexture.notNull())
 		{
-			mSculptTexture->removeVolume(this);
+			mSculptTexture->removeVolume(LLRender::SCULPT_TEX, this);
+		}
+
+		if (mLightTexture.notNull())
+		{
+			mLightTexture->removeVolume(LLRender::LIGHT_TEX, this);
 		}
 	}
 	
@@ -841,7 +846,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	{
 		LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 		LLUUID id = params->getLightTexture();
-		mLightTexture = LLViewerTextureManager::getFetchedTexture(id);
+		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
 		if (mLightTexture.notNull())
 		{
 			F32 rad = getLightRadius();
@@ -1101,11 +1106,11 @@ void LLVOVolume::updateSculptTexture()
 	{
 		if (old_sculpt.notNull())
 		{
-			old_sculpt->removeVolume(this);
+			old_sculpt->removeVolume(LLRender::SCULPT_TEX, this);
 		}
 		if (mSculptTexture.notNull())
 		{
-			mSculptTexture->addVolume(this);
+			mSculptTexture->addVolume(LLRender::SCULPT_TEX, this);
 		}
 	}
 	
@@ -1215,12 +1220,12 @@ void LLVOVolume::sculpt()
 				mSculptTexture->updateBindStatsForTester() ;
 			}
 		}
-		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
+		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, mSculptTexture->isMissingAsset());
 
 		//notify rebuild any other VOVolumes that reference this sculpty volume
-		for (S32 i = 0; i < mSculptTexture->getNumVolumes(); ++i)
+		for (S32 i = 0; i < mSculptTexture->getNumVolumes(LLRender::SCULPT_TEX); ++i)
 		{
-			LLVOVolume* volume = (*(mSculptTexture->getVolumeList()))[i];
+			LLVOVolume* volume = (*(mSculptTexture->getVolumeList(LLRender::SCULPT_TEX)))[i];
 			if (volume != this && volume->getVolume() == getVolume())
 			{
 				gPipeline.markRebuild(volume->mDrawable, LLDrawable::REBUILD_GEOMETRY, FALSE);
@@ -1243,54 +1248,6 @@ S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius) const
 		cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
 	}
 	return cur_detail;
-}
-
-// ARC FIXME same math as calcLOD, which can be refactored to call this.
-S32 LLVOVolume::getLODAtDistance(F32 distance) const
-{
-	if (mDrawable.isNull())
-	{
-		return 0;
-	}
-
-	F32 radius;
-
-	if (mDrawable->isState(LLDrawable::RIGGED))
-	{
-		LLVOAvatar* avatar = getAvatar(); 
-		
-		// Not sure how this can really happen, but alas it does. Better exit here than crashing.
-		if( !avatar || !avatar->mDrawable )
-		{
-			return FALSE;
-		}
-
-		radius = avatar->getBinRadius();
-	}
-	else
-	{
-		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
-	}
-	
-	distance *= sDistanceFactor;
-
-	F32 rampDist = LLVOVolume::sLODFactor * 2;
-	
-	if (distance < rampDist)
-	{
-		// Boost LOD when you're REALLY close
-		distance *= 1.0f/rampDist;
-		distance *= distance;
-		distance *= rampDist;
-	}
-	
-	// DON'T Compensate for field of view changing on FOV zoom.
-	distance *= F_PI/3.f;
-
-	S32 cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-                                      ll_round(radius, 0.01f));
-
-    return cur_detail;
 }
 
 BOOL LLVOVolume::calcLOD()
@@ -1323,11 +1280,9 @@ BOOL LLVOVolume::calcLOD()
 		distance = mDrawable->mDistanceWRTCamera;
 		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
 	}
-
-#if 0
+	
 	//hold onto unmodified distance for debugging
-	F32 debug_distance = distance;
-#endif
+	//F32 debug_distance = distance;
 	
 	distance *= sDistanceFactor;
 
@@ -1345,38 +1300,8 @@ BOOL LLVOVolume::calcLOD()
 	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), 
-                                  ll_round(radius, 0.01f));
+									ll_round(radius, 0.01f));
 
-
-#if 0
-    llassert(cur_detail == getLODAtDistance(debug_distance));
-#endif
-    
-    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT) && mDrawable->getFace(0))
-    {
-        S32 my_tris = getTriangleCount();
-        if (isRootEdit() && getChildren().size()>0)
-        {
-            S32 total_tris = my_tris;
-            LLViewerObject::const_child_list_t& child_list = getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
-                 iter != child_list.end(); ++iter)
-            {
-                LLViewerObject* childp = *iter;
-                LLVOVolume *child_volp = dynamic_cast<LLVOVolume*>(childp);
-                if (child_volp)
-                {
-                    total_tris += child_volp->getTriangleCount();
-                }
-            }
-            setDebugText(llformat("PRIMS %d TRIS %d TOTAL %d", 1+child_list.size(), my_tris, total_tris));
-        }
-        else if (isRootEdit())
-        {
-            setDebugText(llformat("TRIS %d", my_tris));
-        }
-	
-    }
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
@@ -1415,7 +1340,7 @@ BOOL LLVOVolume::updateLOD()
             LLVOAvatar* avatar = getAvatar(); 
             avatar->mFrameDataStale = true;
         }
-    }
+	}
 	else
 	{
 		F32 new_radius = getBinRadius();
@@ -2626,7 +2551,9 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
 			LL_WARNS("MediaOnAPrim") << "FAILED to bounce back URL \"" << url << "\" -- unloading impl" << LL_ENDL;
 			impl->setMediaFailed(true);
 		}
-		else {
+		// Make sure we are not bouncing to url we came from
+		else if (impl->getCurrentMediaURL() != url) 
+		{
 			// Okay, navigate now
             LL_INFOS("MediaOnAPrim") << "bouncing back to URL: " << url << LL_ENDL;
             impl->navigateTo(url, "", false, true);
@@ -2938,11 +2865,16 @@ S32 LLVOVolume::getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S
 
 void LLVOVolume::setLightTextureID(LLUUID id)
 {
+	LLViewerTexture* old_texturep = getLightTexture(); // same as mLightTexture, but inits if nessesary
 	if (id.notNull())
 	{
 		if (!hasLightTexture())
 		{
 			setParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE, TRUE, true);
+		}
+		else if (old_texturep)
+		{	
+			old_texturep->removeVolume(LLRender::LIGHT_TEX, this);
 		}
 		LLLightImageParams* param_block = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 		if (param_block && param_block->getLightTexture() != id)
@@ -2950,15 +2882,25 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 			param_block->setLightTexture(id);
 			parameterChanged(LLNetworkData::PARAMS_LIGHT_IMAGE, true);
 		}
+		LLViewerTexture* tex = getLightTexture();
+		if (tex)
+		{
+			tex->addVolume(LLRender::LIGHT_TEX, this); // new texture
 	}
 	else
 	{
-		if (hasLightTexture())
+			LL_WARNS() << "Can't get light texture for ID " << id.asString() << LL_ENDL;
+		}
+	}
+	else if (hasLightTexture())
+	{
+		if (old_texturep)
 		{
+			old_texturep->removeVolume(LLRender::LIGHT_TEX, this);
+		}
 			setParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE, FALSE, true);
 			parameterChanged(LLNetworkData::PARAMS_LIGHT_IMAGE, true);
 			mLightTexture = NULL;
-		}
 	}		
 }
 
@@ -3176,7 +3118,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 	{
 		if (mLightTexture.isNull() || id != mLightTexture->getID())
 		{
-			mLightTexture = LLViewerTextureManager::getFetchedTexture(id);
+			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
 		}
 	}
 	else
@@ -3495,11 +3437,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
-    // FIXME ARCTAN these are placeholder values based on NO TESTING WHATSOEVER.
-    // Must be updated with test values once we have them.
-    static const F32 ARC_SPECMAP_MULT = 1.1f;
-    static const F32 ARC_NORMALMAP_MULT = 1.1f;
-    
 	F32 shame = 0;
 
 	U32 invisi = 0;
@@ -3514,9 +3451,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 	U32 weighted_mesh = 0;
 	U32 produces_light = 0;
 	U32 media_faces = 0;
-    U32 materials = 0;
-    U32 specmap = 0;
-    U32 normalmap = 0;
 
 	const LLDrawable* drawablep = mDrawable;
 	U32 num_faces = drawablep->getNumFaces();
@@ -3610,44 +3544,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 		if (!face) continue;
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
-
-        LLMaterial* mat = NULL;
-        if (te)
-        {
-            mat = te->getMaterialParams();
-        }
-        if (mat)
-        {
-            materials = 1;
-            if (mat->getNormalID().notNull())
-            {
-                normalmap = 1;
-                LLUUID normal_id = mat->getNormalID();
-                if (material_textures.find(normal_id) == material_textures.end())
-                {
-                    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(normal_id);
-                    if (texture)
-                    {
-                        S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
-                        material_textures.insert(texture_cost_t::value_type(normal_id, texture_cost));
-                    }
-                }
-            }
-            if (mat->getSpecularID().notNull())
-            {
-                specmap = 1;
-                LLUUID spec_id = mat->getNormalID();
-                if (material_textures.find(spec_id) == material_textures.end())
-                {
-                    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(spec_id);
-                    if (texture)
-                    {
-                        S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
-                        material_textures.insert(texture_cost_t::value_type(spec_id, texture_cost));
-                    }
-                }
-            }
-        }
 
 		if (img)
 		{
@@ -3779,17 +3675,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 		shame += media_faces * ARC_MEDIA_FACE_COST;
 	}
 
-    if (specmap)
-    {
-		shame *= specmap * ARC_SPECMAP_MULT;
-    }
-
-    if (normalmap)
-    {
-		shame *= normalmap * ARC_NORMALMAP_MULT;
-    }
-    
-
 	if (shame > mRenderComplexity_current)
 	{
 		mRenderComplexity_current = (S32)shame;
@@ -3813,9 +3698,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
         (*sdp)["planar"] = (LLSD::Integer) animtex;
         (*sdp)["produces_light"] = (LLSD::Integer) produces_light;
         (*sdp)["shiny"] = (LLSD::Integer) shiny;
-        (*sdp)["materials"] = (LLSD::Integer) materials;
-        (*sdp)["specmap"] = (LLSD::Integer) specmap;
-        (*sdp)["normalmap"] = (LLSD::Integer) normalmap;
         (*sdp)["weighted_mesh"] = (LLSD::Integer) weighted_mesh;
     }
     
@@ -4223,21 +4105,6 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 {
 	F32 radius = getScale().length()*0.5f;
 
-    if (sdp)
-    {
-        (*sdp)["lodAtDistance"] = LLSD::emptyMap();
-        F32 test_radius = 0.0;
-        S32 lod = getLODAtDistance(test_radius);
-        (*sdp)["lodAtDistance"][lod] = test_radius;
-        while (lod>0)
-        {
-            test_radius += 4;
-            lod = getLODAtDistance(test_radius);
-            (*sdp)["lodAtDistance"][lod] = test_radius;
-        }
-        (*sdp)["lodAtDistance"][lod] = test_radius;
-    }
-    
 	if (isMesh())
 	{
 		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value, sdp);
@@ -4262,21 +4129,6 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 F32 LLVOVolume::getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
 {
     F32 radius = getScale().length()*0.5f;
-
-    if (sdp)
-    {
-        (*sdp)["lodAtDistance"] = LLSD::emptyMap();
-        F32 test_radius = 0.0;
-        S32 lod = getLODAtDistance(test_radius);
-        (*sdp)["lodAtDistance"][lod] = test_radius;
-        while (lod>0)
-        {
-            test_radius += 4;
-            lod = getLODAtDistance(test_radius);
-            (*sdp)["lodAtDistance"][lod] = test_radius;
-        }
-        (*sdp)["lodAtDistance"][lod] = test_radius;
-    }
 
     if (isMesh())
     {

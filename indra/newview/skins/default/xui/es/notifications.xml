@@ -2499,7 +2499,7 @@ Linden Lab
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] elementos serán borrados de forma permanente. ¿Estás seguro de que quieres borrar de forma permanente el contenido de la Papelera?
+		[COUNT] los objetos y las carpetas se borrarán de forma permanente. ¿Estás seguro de que quieres borrar de forma permanente el contenido de la Papelera?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3497,12 +3497,18 @@ Comprueba la configuración de la red y del servidor de seguridad.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Tenemos problemas de conexión con tu servidor de voz:
+		No se pudo establecer una conexión con el servidor de voz: 
 
-[HOSTID]
+[HOSTID] 
+
+Los puertos que deben estar activos para el servicio de voz son: 
+:TCP:  80, 443 
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000 
+
+Comprueba la configuración de la red y del servidor de seguridad. 
+Desactiva las funciones SIP ALG de tu router. 
 
 No podrás establecer comunicaciones de voz.
-Comprueba la configuración de la red y del servidor de seguridad.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

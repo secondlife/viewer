@@ -549,10 +549,10 @@ void LLFloaterWorldMap::trackAvatar( const LLUUID& avatar_id, const std::string&
 			getChild<LLUICtrl>("teleport_coordinate_z")->setValue(LLSD(200.f));
 		}
 		// Don't re-request info if we already have it or we won't have it in time to teleport
-		if (mTrackedStatus != LLTracker::TRACKING_AVATAR || name != mTrackedAvatarName)
+		if (mTrackedStatus != LLTracker::TRACKING_AVATAR || avatar_id != mTrackedAvatarID)
 		{
 			mTrackedStatus = LLTracker::TRACKING_AVATAR;
-			mTrackedAvatarName = name;
+			mTrackedAvatarID = avatar_id;
 			LLTracker::trackAvatar(avatar_id, name);
 		}
 	}

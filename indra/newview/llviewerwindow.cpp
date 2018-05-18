@@ -733,23 +733,13 @@ public:
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
 		}
-        // disable use of glReadPixels which messes up nVidia nSight graphics debugging
-        if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
+		// disable use of glReadPixels which messes up nVidia nSight graphics debugging
+		if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
 		{
 			U8 color[4];
 			LLCoordGL coord = gViewerWindow->getCurrentMouse();
 			glReadPixels(coord.mX, coord.mY, 1,1,GL_RGBA, GL_UNSIGNED_BYTE, color);
 			addText(xpos, ypos, llformat("%d %d %d %d", color[0], color[1], color[2], color[3]));
-			ypos += y_inc;
-		}
-
-		if (gSavedSettings.getBOOL("DebugShowPrivateMem"))
-		{
-			LLPrivateMemoryPoolManager::getInstance()->updateStatistics() ;
-			addText(xpos, ypos, llformat("Total Reserved(KB): %d", LLPrivateMemoryPoolManager::getInstance()->mTotalReservedSize / 1024));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("Total Allocated(KB): %d", LLPrivateMemoryPoolManager::getInstance()->mTotalAllocatedSize / 1024));
 			ypos += y_inc;
 		}
 
@@ -1409,7 +1399,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
 	LLVoiceClient::getInstance()->keyDown(key, mask);
-	
+
 	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
@@ -1962,7 +1952,11 @@ void LLViewerWindow::initBase()
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
 	MainPanel* main_view = new MainPanel();
-	main_view->buildFromFile("main_view.xml");
+	if (!main_view->buildFromFile("main_view.xml"))
+	{
+		LL_ERRS() << "Failed to initialize viewer: Viewer couldn't process file main_view.xml, "
+				<< "if this problem happens again, please validate your installation." << LL_ENDL;
+	}
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
@@ -4726,9 +4720,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					{
 						LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 					}
-                    // disable use of glReadPixels when doing nVidia nSight graphics debugging
-                    if (!LLRender::sNsightDebugSupport)
-                    {
+					// disable use of glReadPixels when doing nVidia nSight graphics debugging
+					if (!LLRender::sNsightDebugSupport)
+					{
 					if (type == LLSnapshotModel::SNAPSHOT_TYPE_COLOR)
 					{
 						glReadPixels(

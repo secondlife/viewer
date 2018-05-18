@@ -2482,7 +2482,7 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT]個物項將會永久刪除。 你確定你要永久刪除垃圾筒中的內容？
+		[COUNT]個物項與資料夾將會永久刪除。 你確定你要永久刪除垃圾筒中的內容？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3487,12 +3487,18 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		試圖連接語音伺服器時出了問題：
+		無法連通語音伺服器：
 
 [HOSTID]
 
-將無法用語音溝通。
+必須允許語音的資料埠如下：
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
 請檢查你的網路和防火牆設定。
+關閉路由器中的SIP ALG(應用層閘道)功能。
+
+將無法用語音溝通。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

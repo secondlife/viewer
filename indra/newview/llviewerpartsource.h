@@ -42,6 +42,7 @@
 class LLViewerTexture;
 class LLViewerObject;
 class LLViewerPart;
+class LLVOAvatar;
 
 class LLViewerPartSource : public LLRefCount
 {
@@ -85,6 +86,7 @@ protected:
 	F32			mLastUpdateTime;
 	F32			mLastPartTime;
 	LLUUID		mOwnerUUID;
+	LLPointer<LLVOAvatar> mOwnerAvatarp;
 	LLPointer<LLViewerTexture>	mImagep;
 	// Particle information
 	U32			mPartFlags; // Flags for the particle

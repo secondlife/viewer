@@ -2006,7 +2006,7 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
 	}
 
 	if( mCount > 0 ) // ND: Guard against crashes if mCount is zero, yes it can happen
-	mVerticesp[mCount] = mVerticesp[mCount-1];
+		mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count)

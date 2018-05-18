@@ -616,7 +616,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLAvatarAppearance(&gAgentWearables),
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
-	mAttachmentSurfaceArea(0.f),	
+	mAttachmentSurfaceArea(0.f),
 	mTurning(FALSE),
 	mLastSkeletonSerialNum( 0 ),
 	mIsSitting(FALSE),
@@ -4438,7 +4438,7 @@ U32 LLVOAvatar::renderSkinned()
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
 					{
-						num_indices += head_mesh->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, TRUE, mIsDummy);
+						num_indices += head_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
 					}
 					first_pass = FALSE;
 				}
@@ -4448,7 +4448,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
 				{
-					num_indices += upper_mesh->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, first_pass, mIsDummy);
+					num_indices += upper_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
@@ -4458,7 +4458,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
 				{
-					num_indices += lower_mesh->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, first_pass, mIsDummy);
+					num_indices += lower_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
@@ -4488,7 +4488,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		LLViewerJoint* skirt_mesh = getViewerJoint(MESH_ID_SKIRT);
 		if (skirt_mesh)
 		{
-			num_indices += skirt_mesh->render(LLRenderPass::POOL_ALPHA, mAdjustedPixelArea, FALSE);
+			num_indices += skirt_mesh->render(mAdjustedPixelArea, FALSE);
 		}
 		first_pass = FALSE;
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
@@ -4506,7 +4506,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			LLViewerJoint* eyelash_mesh = getViewerJoint(MESH_ID_EYELASH);
 			if (eyelash_mesh)
 			{
-				num_indices += eyelash_mesh->render(LLRenderPass::POOL_ALPHA, mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += eyelash_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			}
 			first_pass = FALSE;
 		}
@@ -4518,7 +4518,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
 			if (hair_mesh)
 			{
-				num_indices += hair_mesh->render(LLRenderPass::POOL_ALPHA, mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += hair_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			}
 			first_pass = FALSE;
 		}
@@ -4567,11 +4567,11 @@ U32 LLVOAvatar::renderRigid()
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
 		if (eyeball_left)
 		{
-			num_indices += eyeball_left->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, TRUE, mIsDummy);
+			num_indices += eyeball_left->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		}
 		if(eyeball_right)
 		{
-			num_indices += eyeball_right->render(LLRenderPass::POOL_AVATAR, mAdjustedPixelArea, TRUE, mIsDummy);
+			num_indices += eyeball_right->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		}
 	}
 
@@ -5306,6 +5306,10 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 			// in one case.
 			if (use_new_walk_run)
 				result = ANIM_AGENT_FEMALE_RUN_NEW;
+		}
+		else if (id == ANIM_AGENT_SIT)
+		{
+			result = ANIM_AGENT_SIT_FEMALE;
 		}
 	}
 	else
@@ -7067,7 +7071,6 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 }
 
 //static
-// first_frame allows paring down LLSD which will be identical frame to frame...
 LLSD LLVOAvatar::getAllAvatarsFrameData(bool first_frame)
 {
     LLSD result;
@@ -7075,67 +7078,45 @@ LLSD LLVOAvatar::getAllAvatarsFrameData(bool first_frame)
     {
         result["Self"] = gAgentAvatarp->getFrameData(first_frame);
         gAgentAvatarp->mFrameDataStale = false;
+    }
 
-        LLSD extraFrameData;
-        LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
-
-        U32 triangles = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME).value();
-
-        U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
-        U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
-        U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
-        U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
-
-        extraFrameData["DrawCalls"]          = (LLSD::Integer)drawcalls;
-        extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
-        extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
-        extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
-        extraFrameData["TrianglesDrawn"]     = (LLSD::Integer)triangles;
-
-        for (U32 i = LLRenderPass::POOL_SIMPLE; i < LLRenderPass::NUM_RENDER_TYPES; i++)
+    result["Other"] = LLSD::emptyArray();
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		 iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		LLVOAvatar* inst = (LLVOAvatar*) *iter;
+        if (!inst->isSelf() && inst->mFrameDataStale)
         {
-            U32 val = last_frame_recording.getLastValue(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i]).value();     
-            if (val) // skip recording lots of zeroes...
-            {
-                extraFrameData[LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i].getName()] = (LLSD::Integer)val;
-            }
-        }
-
-        extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
-        extraFrameData["VertexBufferMapped"] = (LLSD::Integer)(LLVertexBuffer::sMappedCount - LLVertexBuffer::sMappedCountLast);
-        extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)(LLVertexBuffer::sBindCount   - LLVertexBuffer::sBindCountLast);
-        extraFrameData["VertexBufferSets"]   = (LLSD::Integer)(LLVertexBuffer::sSetCount    - LLVertexBuffer::sSetCountLast);
-
-        LLVertexBuffer::sMappedCountLast = LLVertexBuffer::sMappedCount;
-        LLVertexBuffer::sBindCountLast   = LLVertexBuffer::sBindCount;
-        LLVertexBuffer::sSetCountLast    = LLVertexBuffer::sSetCount;
-
-        extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
-        extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
-        extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
-        extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
-        extraFrameData["TexMatrixOps"]       = (LLSD::Integer)gPipeline.mTextureMatrixOps;
-
-
-        result["ExtraFrameData"] = extraFrameData;
-    }
-
-    if (LLCharacter::sInstances.size() > 1)
-    {
-        result["Other"] = LLSD::emptyArray();
-	    for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		     iter != LLCharacter::sInstances.end(); ++iter)
-	    {
-		    LLVOAvatar* inst = (LLVOAvatar*) *iter;
-            if (!inst->isSelf() && inst->mFrameDataStale)
-            {
-                LLSD avatar_record = inst->getFrameData(first_frame);
-                result["Other"].append(avatar_record);
-                inst->mFrameDataStale = false;
-            }
+            LLSD avatar_record = inst->getFrameData(first_frame);
+            result["Other"].append(avatar_record);
+            inst->mFrameDataStale = false;
         }
     }
 
+    LLSD extraFrameData;
+
+    LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
+    U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
+    U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
+    U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
+    U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
+
+    extraFrameData["DrawCalls"]          = (LLSD::Integer)drawcalls;
+    extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
+    extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
+    extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
+    extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
+    extraFrameData["VertexBufferMapped"] = (LLSD::Integer)LLVertexBuffer::sMappedCount;
+    extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)LLVertexBuffer::sBindCount;
+    extraFrameData["VertexBufferSets"]   = (LLSD::Integer)LLVertexBuffer::sSetCount;
+    extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
+    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+    extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
+    extraFrameData["TexMatrixOps"]          = (LLSD::Integer)gPipeline.mTextureMatrixOps;
+
+    result["ExtraFrameData"] = extraFrameData;
 	return result;
 }
 
@@ -7171,109 +7152,104 @@ LLSD LLVOAvatar::getFrameData(bool first_frame) const
             }
         }
     }
+    LLSD av_attachments = LLSD::emptyArray();
 
-    if (first_frame)
+    LLVOVolume::texture_cost_t textures;
+    LLVOVolume::texture_cost_t material_textures;
+
+    // For each attached volume (top level or child), generate an LLSD record 
+    for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+         attachment_point != mAttachmentPoints.end();
+         ++attachment_point)
     {
-
-        LLSD av_attachments = LLSD::emptyArray();
-
-        LLVOVolume::texture_cost_t textures;
-        LLVOVolume::texture_cost_t material_textures;
-
-        // For each attached volume (top level or child), generate an LLSD record 
-        for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
-             attachment_point != mAttachmentPoints.end();
-             ++attachment_point)
+        LLViewerJointAttachment* attachment = attachment_point->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+             attachment_iter != attachment->mAttachedObjects.end();
+             ++attachment_iter)
         {
-            LLViewerJointAttachment* attachment = attachment_point->second;
-            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                 attachment_iter != attachment->mAttachedObjects.end();
-                 ++attachment_iter)
+            const LLViewerObject* attached_object = (*attachment_iter);
+            if (attached_object && !attached_object->isHUDAttachment())
             {
-                const LLViewerObject* attached_object = (*attachment_iter);
-                if (attached_object && !attached_object->isHUDAttachment())
+                const LLDrawable* drawable = attached_object->mDrawable;
+                if (drawable)
                 {
-                    const LLDrawable* drawable = attached_object->mDrawable;
-                    if (drawable)
+                    const LLVOVolume* volume = drawable->getVOVolume();
+                    if (volume)
                     {
-                        const LLVOVolume* volume = drawable->getVOVolume();
-                        if (volume)
-                        {
-                            LLSD attachment_sd = volume->getFrameData(textures, material_textures, first_frame);
-                            av_attachments.append(attachment_sd);
+                        LLSD attachment_sd = volume->getFrameData(textures, material_textures);
+                        av_attachments.append(attachment_sd);
 
-                            const_child_list_t children = volume->getChildren();
-                            for (const_child_list_t::const_iterator child_iter = children.begin();
-                                 child_iter != children.end();
-                                 ++child_iter)
+                        const_child_list_t children = volume->getChildren();
+                        for (const_child_list_t::const_iterator child_iter = children.begin();
+                             child_iter != children.end();
+                             ++child_iter)
+                        {
+                            LLViewerObject* child_obj = *child_iter;
+                            LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+                            if (child)
                             {
-                                LLViewerObject* child_obj = *child_iter;
-                                LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
-                                if (child)
-                                {
-                                    LLSD attachment_sd = child->getFrameData(textures, material_textures, first_frame);
-                                    av_attachments.append(attachment_sd);
-                                }
+                                LLSD attachment_sd = child->getFrameData(textures, material_textures);
+                                av_attachments.append(attachment_sd);
                             }
-                        
                         }
+                        
                     }
                 }
             }
-
         }
 
-        av_sd["Attachments"] = av_attachments;
+    }
+    av_sd["Attachments"] = av_attachments;
 
-        S32 texture_missing = 0;
-        S32 texture_count = 0;
-        F32 texture_mpixels = 0;
-        S32 material_texture_missing = 0;
-        S32 material_texture_count = 0;
-        F32 material_texture_mpixels = 0;
+    S32 texture_missing = 0;
+    S32 texture_count = 0;
+    F32 texture_mpixels = 0;
+    S32 material_texture_missing = 0;
+    S32 material_texture_count = 0;
+    F32 material_texture_mpixels = 0;
 
-        for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-             volume_texture != textures.end();
-             ++volume_texture)
+    for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+         volume_texture != textures.end();
+         ++volume_texture)
+    {
+        LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+        if (texture)
+        {
+            texture_count++;
+            texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
+        }
+        else
+        {
+            texture_missing++;
+        }
+    }
+    for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
+         volume_texture != material_textures.end();
+         ++volume_texture)
+    {
+        // Only count textures not already accounted for above
+        if (textures.find(volume_texture->first) == textures.end())
         {
             LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
             if (texture)
             {
-                texture_count++;
-                texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
+                material_texture_count++;
+                material_texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
             }
             else
             {
-                texture_missing++;
+                material_texture_missing++;
             }
         }
-        for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
-             volume_texture != material_textures.end();
-             ++volume_texture)
-        {
-            // Only count textures not already accounted for above
-            if (textures.find(volume_texture->first) == textures.end())
-            {
-                LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
-                if (texture)
-                {
-                    material_texture_count++;
-                    material_texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
-                }
-                else
-                {
-                    material_texture_missing++;
-                }
-            }
-        }
-
-        av_sd["AttachmentTextures"]["texture_count"] = texture_count;
-        av_sd["AttachmentTextures"]["texture_mpixels"] = texture_mpixels;
-        av_sd["AttachmentTextures"]["texture_missing"] = texture_missing;
-        av_sd["AttachmentTextures"]["material_texture_count"] = material_texture_count;
-        av_sd["AttachmentTextures"]["material_texture_mpixels"] = material_texture_mpixels;
-        av_sd["AttachmentTextures"]["material_texture_missing"] = material_texture_missing;
     }
+
+	LLSD av_attachment_textures;
+    av_sd["AttachmentTextures"]["texture_count"] = texture_count;
+    av_sd["AttachmentTextures"]["texture_mpixels"] = texture_mpixels;
+    av_sd["AttachmentTextures"]["texture_missing"] = texture_missing;
+    av_sd["AttachmentTextures"]["material_texture_count"] = material_texture_count;
+    av_sd["AttachmentTextures"]["material_texture_mpixels"] = material_texture_mpixels;
+    av_sd["AttachmentTextures"]["material_texture_missing"] = material_texture_missing;
 
     return av_sd;
 }
@@ -7376,9 +7352,9 @@ bool LLVOAvatar::isTooComplex() const
         // so that unlimited will completely disable the overly complex impostor rendering
         // yes, this leaves them vulnerable to griefing objects... their choice
         too_complex = (   max_render_cost > 0
-                          && (   mVisualComplexity > max_render_cost
-                                 || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
-                              ));
+                       && (   mVisualComplexity > max_render_cost
+                           || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
+                           ));
 	}
 
 	return too_complex;

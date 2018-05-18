@@ -51,6 +51,15 @@ class LLCondition;
 class LLVFS;
 class LLMeshRepository;
 
+typedef enum e_mesh_processing_result_enum
+{
+    MESH_OK = 0,
+    MESH_NO_DATA = 1,
+    MESH_OUT_OF_MEMORY,
+    MESH_HTTP_REQUEST_FAILED,
+    MESH_UNKNOWN
+} EMeshProcessingResult;
+
 class LLMeshUploadData
 {
 public:
@@ -298,7 +307,7 @@ public:
 	bool fetchMeshHeader(const LLVolumeParams& mesh_params);
 	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
-	bool lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
+	EMeshProcessingResult lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
