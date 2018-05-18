@@ -1174,7 +1174,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		else if ((mUrl.empty() || mFTType==FTT_SERVER_BAKE) && mFetcher->canLoadFromCache())
 		{
 			// see if we can read the texture from the local texture cache
-			mFormattedImage = mFetcher->mTextureCache->find(mID);
+			mFormattedImage = mFetcher->mTextureCache->find(mID, mDesiredDiscard);
             add(LLTextureFetch::sCacheAttempt, 1.0);
 
 			if (mFormattedImage.notNull())
@@ -2326,7 +2326,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	S32 desired_size;
 	std::string exten = gDirUtilp->getExtension(url);
 	//if (f_type == FTT_SERVER_BAKE)
-    if ((f_type == FTT_SERVER_BAKE) && !url.empty() && !exten.empty() && (LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
+    if (f_type == FTT_SERVER_BAKE)
 	{
 		// SH-4030: This case should be redundant with the following one, just
 		// breaking it out here to clarify that it's intended behavior.
@@ -2334,7 +2334,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 		// Do full requests for baked textures to reduce interim blurring.
 		LL_DEBUGS(LOG_TXT) << "full request for " << id << " texture is FTT_SERVER_BAKE" << LL_ENDL;
-		desired_size = MAX_IMAGE_DATA_SIZE;
+		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);;
 		desired_discard = 0;
 	}
 	else if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
@@ -2350,7 +2350,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		// (calcDataSizeJ2C() below makes assumptions about how the image
 		// was compressed - this code ensures that when we request the entire image,
 		// we really do get it.)
-		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard) * 2;
+		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);
 	}
 	else if (w*h*c > 0)
 	{
@@ -2364,7 +2364,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		// If the requester knows nothing about the file, fetch enough to parse the header
 		// and determine how many discard levels are actually available
 		desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, 0) * 2;
-		desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? MAX_DISCARD_LEVEL - 1 : desired_discard;
+		desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? 0 : desired_discard;
 	}
 
 	if (worker)
