@@ -196,7 +196,11 @@ void LLMultiSlider::setValue(const LLSD& value)
 
 F32 LLMultiSlider::getSliderValue(const std::string& name) const
 {
-	return (F32)mValue[name].asReal();
+	if (mValue.has(name))
+	{
+		return (F32)mValue[name].asReal();
+	}
+	return 0;
 }
 
 void LLMultiSlider::setCurSlider(const std::string& name)
@@ -204,6 +208,11 @@ void LLMultiSlider::setCurSlider(const std::string& name)
 	if(mValue.has(name)) {
 		mCurSlider = name;
 	}
+}
+
+void LLMultiSlider::resetCurSlider()
+{
+	mCurSlider = LLStringUtil::null;
 }
 
 const std::string& LLMultiSlider::addSlider()
@@ -421,20 +430,23 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		// Find the offset of the actual mouse location from the center of the thumb.
-		if (mThumbRects[mCurSlider].pointInRect(x,y))
+		if (!mCurSlider.empty())
 		{
-			mMouseOffset = (mThumbRects[mCurSlider].mLeft + mThumbWidth/2) - x;
-		}
-		else
-		{
-			mMouseOffset = 0;
-		}
+			// Find the offset of the actual mouse location from the center of the thumb.
+			if (mThumbRects[mCurSlider].pointInRect(x,y))
+			{
+				mMouseOffset = (mThumbRects[mCurSlider].mLeft + mThumbWidth/2) - x;
+			}
+			else
+			{
+				mMouseOffset = 0;
+			}
 
-		// Start dragging the thumb
-		// No handler needed for focus lost since this class has no state that depends on it.
-		gFocusMgr.setMouseCapture( this );
-		mDragStartThumbRect = mThumbRects[mCurSlider];				
+			// Start dragging the thumb
+			// No handler needed for focus lost since this class has no state that depends on it.
+			gFocusMgr.setMouseCapture( this );
+			mDragStartThumbRect = mThumbRects[mCurSlider];
+		}
 	}
 	make_ui_sound("UISndClick");
 
@@ -551,7 +563,7 @@ void LLMultiSlider::draw()
 		thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
 
 		// draw the highlight
-		if (hasFocus())
+		if (hasFocus() && !mCurSlider.empty())
 		{
 			thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
 		}
@@ -583,7 +595,7 @@ void LLMultiSlider::draw()
 	else
 	{ 
 		// draw highlight
-		if (hasFocus())
+		if (hasFocus() && !mCurSlider.empty())
 		{
 			thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
 		}

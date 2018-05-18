@@ -213,6 +213,11 @@ void LLMultiSliderCtrl::setCurSlider(const std::string& name)
 	mCurValue = mMultiSlider->getCurSliderValue();
 }
 
+void LLMultiSliderCtrl::resetCurSlider()
+{
+	mMultiSlider->resetCurSlider();
+}
+
 BOOL LLMultiSliderCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	BOOL res = FALSE;

@@ -37,6 +37,7 @@ class LLLineEditor;
 class LLMultiSliderCtrl;
 class LLTextBox;
 class LLTimeCtrl;
+//class LLFlyoutComboBtnCtrl;
 
 typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 
@@ -52,14 +53,13 @@ public:
     typedef boost::signals2::connection     connection_t;
 
 	LLFloaterEditExtDayCycle(const LLSD &key);
+    ~LLFloaterEditExtDayCycle();
+
+    void openFloater(LLSettingsDay::ptr_t settings, S64Seconds daylength = S64Seconds(0), S64Seconds dayoffset = S64Seconds(0));
 
     BOOL	postBuild();
- 	void	onOpen(const LLSD& key);
+    void	onOpen(const LLSD& key);
  	void	onClose(bool app_quitting);
-
-
-    /*TEMP*/
-    void    onUpload();
 
     void    onVisibilityChange(BOOL new_visibility);
 
@@ -79,8 +79,10 @@ private:
 // 
 // 	/// refresh the sky presets combobox
 
+//    void onButtonApply(LLUICtrl *ctrl, const LLSD &data);
 	void onBtnSave();
 	void onBtnCancel();
+	void onBtnUpload();
 	void onAddTrack();
 	void onRemoveTrack();
 	void onCommitName(class LLLineEditor* caller, void* user_data);
@@ -89,49 +91,16 @@ private:
 	void onFrameSliderCallback();		/// a frame moved or frame selection changed
 
 	void selectTrack(U32 track_index);
+	void clearTabs();
 	void updateTabs();
-	void updateSkyTabs();
-	void updateWaterTabs();
+	void updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
+	void updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
+	void updateButtons();
 	void updateSlider(); //track to slider
+	void updateTimeAndLabel();
 	void addSliderFrame(const F32 frame, LLSettingsBase::ptr_t setting);
 	void removeCurrentSliderFrame();
-	//void updateTrack(); // slider->track, todo: better name
 
-// 	/// refresh the day cycle combobox
-// 	void refreshDayCyclesList();
-// 
-// 	/// add a slider to the track
-// 
-// 	void initCallbacks();
-// //	LLWLParamKey getSelectedDayCycle();
-// 	bool isNewDay() const;
-// 	void dumpTrack();
-// 	void enableEditing(bool enable);
-// 	void reset();
-// 	void saveRegionDayCycle();
-// 
-// 	void setApplyProgress(bool started);
-// 	bool getApplyProgress() const;
-// 
-// 	void onKeyTimeChanged();	/// a key frame's time changed
-// 	void onAddKey();			/// new key added on slider
-// 	void onDeleteKey();			/// a key frame deleted
-// 
-// 	void onRegionSettingsChange();
-// 	void onRegionChange();
-// 	void onRegionSettingsApplied(bool success);
-// 	void onRegionInfoUpdate();
-// 
-// 	void onDayCycleNameEdited();
-// 	void onDayCycleSelected();
-// 
-// 	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
-// 	void onSaveConfirmed();
-// 
-// 	void onDayCycleListChange();
-// 	void onSkyPresetListChange();
-// 
-// 	static std::string getRegionName();
 
     LLSettingsDay::ptr_t    mSavedDay;
     LLSettingsDay::ptr_t    mEditDay;
@@ -140,11 +109,11 @@ private:
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
 
-    LLButton*			mSaveButton;
-    LLButton*			mCancelButton;
+    LLButton*           mSaveButton;
+    LLButton*           mCancelButton;
     LLButton*           mUploadButton;
-
-    edit_commit_signal_t    mCommitSignal;
+    LLButton*           mAddFrameButton;
+    LLButton*           mDeleteFrameButton;
 
     LLMultiSliderCtrl*	mTimeSlider;
     LLMultiSliderCtrl*  mFramesSlider;
@@ -152,10 +121,14 @@ private:
     LLView*             mWaterTabLayoutContainer;
     LLTextBox*          mCurrentTimeLabel;
 
+//    LLFlyoutComboBtnCtrl *      mFlyoutControl; // not a View!
+
+    edit_commit_signal_t    mCommitSignal;
+
     // map of sliders to parameters
     typedef std::pair<F32, LLSettingsBase::ptr_t> framedata_t;
     typedef std::map<std::string, framedata_t> keymap_t;
-    keymap_t mSliderKeyMap;
+    keymap_t mSliderKeyMap; //slider keys[old_frames], shadows mFramesSlider
 };
 
 #endif // LL_LLFloaterEditExtDayCycle_H
