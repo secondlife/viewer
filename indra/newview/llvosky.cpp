@@ -692,8 +692,6 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	LLVector3 up = right % look_at;
 	right.normalize();
 	up.normalize();
-
-	const static F32 elevation_factor = 0.0f/sResolution;
     
     bool draw_sun  = updateHeavenlyBodyGeometry(drawable, FACE_SUN, mSun, up, right);
     bool draw_moon = updateHeavenlyBodyGeometry(drawable, FACE_MOON, mMoon, up, right);
