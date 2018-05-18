@@ -278,9 +278,8 @@ Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assist
 		Le simulateur a renvoyé une erreur en réponse à la demande de déconnexion.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Le système est en train de vous déconnecter.
-Votre compte sera indisponible jusqu&apos;à
-[TIME], heure du Pacifique.
+		Le système est en train de vous déconnecter. 
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Impossible de créer de session valide.
@@ -1511,6 +1510,9 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone.
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Articles )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		le dossier de stock doit être contenu dans un dossier de version

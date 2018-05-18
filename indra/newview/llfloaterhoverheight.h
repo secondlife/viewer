@@ -39,7 +39,7 @@ public:
 
 	void onFinalCommit();
 
-	static void syncFromPreferenceSetting(void *user_data);
+	static void syncFromPreferenceSetting(void *user_data, bool update_offset = true);
 
 	void onRegionChanged();
 	void onSimulatorFeaturesReceived(const LLUUID &region_id);

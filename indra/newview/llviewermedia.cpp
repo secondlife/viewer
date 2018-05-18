@@ -1829,7 +1829,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 
 		// the correct way to deal with certs it to load ours from ca-bundle.crt and append them to the ones
 		// Qt/WebKit loads from your system location.
-		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "ca-bundle.crt" );
+		std::string ca_path = gDirUtilp->getCAFile();
 		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));

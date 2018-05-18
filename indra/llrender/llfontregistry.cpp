@@ -447,7 +447,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 			if (!fontp->loadFace(font_path, extra_scale * point_size,
 								 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, 2, is_fallback))
 			{
-				LL_INFOS_ONCE("LLFontRegistry") << "Couldn't load font " << *file_name_it << LL_ENDL;
+				LL_INFOS_ONCE("LLFontRegistry") << "Couldn't load font " << *file_name_it << " from path " << local_path << LL_ENDL;
 				delete fontp;
 				fontp = NULL;
 			}

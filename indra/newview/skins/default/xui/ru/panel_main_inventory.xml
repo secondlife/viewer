@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Вещи" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		Обнаружено [ITEM_COUNT] вещей... [FILTER]
+		Выборка [ITEM_COUNT] предметов и [CATEGORY_COUNT] папок ... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] вещей [FILTER]
+		[ITEM_COUNT] предметов(а) и [CATEGORY_COUNT] папки(ок) [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
-		Извлечено [ITEM_COUNT] вещей [FILTER]
+		Выборка [ITEM_COUNT] предметов и [CATEGORY_COUNT] папок [FILTER]
 	</panel.string>
 	<text name="ItemcountText">
 		Вещи:

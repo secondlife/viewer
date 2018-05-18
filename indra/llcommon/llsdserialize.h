@@ -77,7 +77,7 @@ public:
 	 * @return Returns the number of LLSD objects parsed into
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	S32 parse(std::istream& istr, LLSD& data, S32 max_bytes);
+	S32 parse(std::istream& istr, LLSD& data, S32 max_bytes, S32 max_depth = -1);
 
 	/** Like parse(), but uses a different call (istream.getline()) to read by lines
 	 *  This API is better suited for XML, where the parse cannot tell
@@ -103,10 +103,12 @@ protected:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data.
+	 * @param max_depth Max depth parser will check before exiting
+	 *  with parse error, -1 - unlimited.
 	 * @return Returns the number of LLSD objects parsed into
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	virtual S32 doParse(std::istream& istr, LLSD& data) const = 0;
+	virtual S32 doParse(std::istream& istr, LLSD& data, S32 max_depth = -1) const = 0;
 
 	/** 
 	 * @brief Virtual default function for resetting the parser
@@ -241,10 +243,12 @@ protected:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data. Undefined on failure.
+	 * @param max_depth Max depth parser will check before exiting
+	 *  with parse error, -1 - unlimited.
 	 * @return Returns the number of LLSD objects parsed into
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	virtual S32 doParse(std::istream& istr, LLSD& data) const;
+	virtual S32 doParse(std::istream& istr, LLSD& data, S32 max_depth = -1) const;
 
 private:
 	/** 
@@ -252,18 +256,20 @@ private:
 	 *
 	 * @param istr The input stream.
 	 * @param map The map to add the parsed data.
+	 * @param max_depth Allowed parsing depth.
 	 * @return Returns The number of LLSD objects parsed into data.
 	 */
-	S32 parseMap(std::istream& istr, LLSD& map) const;
+	S32 parseMap(std::istream& istr, LLSD& map, S32 max_depth) const;
 
 	/** 
 	 * @brief Parse an array from the istream.
 	 *
 	 * @param istr The input stream.
 	 * @param array The array to append the parsed data.
+	 * @param max_depth Allowed parsing depth.
 	 * @return Returns The number of LLSD objects parsed into data.
 	 */
-	S32 parseArray(std::istream& istr, LLSD& array) const;
+	S32 parseArray(std::istream& istr, LLSD& array, S32 max_depth) const;
 
 	/** 
 	 * @brief Parse a string from the istream and assign it to data.
@@ -314,10 +320,12 @@ protected:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data.
+	 * @param max_depth Max depth parser will check before exiting
+	 *  with parse error, -1 - unlimited.
 	 * @return Returns the number of LLSD objects parsed into
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	virtual S32 doParse(std::istream& istr, LLSD& data) const;
+	virtual S32 doParse(std::istream& istr, LLSD& data, S32 max_depth = -1) const;
 
 	/** 
 	 * @brief Virtual default function for resetting the parser
@@ -362,10 +370,12 @@ protected:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data.
+	 * @param max_depth Max depth parser will check before exiting
+	 *  with parse error, -1 - unlimited.
 	 * @return Returns the number of LLSD objects parsed into
 	 * data. Returns -1 on parse failure.
 	 */
-	virtual S32 doParse(std::istream& istr, LLSD& data) const;
+	virtual S32 doParse(std::istream& istr, LLSD& data, S32 max_depth = -1) const;
 
 private:
 	/** 
@@ -373,18 +383,20 @@ private:
 	 *
 	 * @param istr The input stream.
 	 * @param map The map to add the parsed data.
+	 * @param max_depth Allowed parsing depth.
 	 * @return Returns The number of LLSD objects parsed into data.
 	 */
-	S32 parseMap(std::istream& istr, LLSD& map) const;
+	S32 parseMap(std::istream& istr, LLSD& map, S32 max_depth) const;
 
 	/** 
 	 * @brief Parse an array from the istream.
 	 *
 	 * @param istr The input stream.
 	 * @param array The array to append the parsed data.
+	 * @param max_depth Allowed parsing depth.
 	 * @return Returns The number of LLSD objects parsed into data.
 	 */
-	S32 parseArray(std::istream& istr, LLSD& array) const;
+	S32 parseArray(std::istream& istr, LLSD& array, S32 max_depth) const;
 
 	/** 
 	 * @brief Parse a string from the istream and assign it to data.
@@ -800,16 +812,16 @@ public:
 		LLPointer<LLSDBinaryFormatter> f = new LLSDBinaryFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
-	static S32 fromBinary(LLSD& sd, std::istream& str, S32 max_bytes)
+	static S32 fromBinary(LLSD& sd, std::istream& str, S32 max_bytes, S32 max_depth = -1)
 	{
 		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
-		return p->parse(str, sd, max_bytes);
+		return p->parse(str, sd, max_bytes, max_depth);
 	}
-	static LLSD fromBinary(std::istream& str, S32 max_bytes)
+	static LLSD fromBinary(std::istream& str, S32 max_bytes, S32 max_depth = -1)
 	{
 		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
 		LLSD sd;
-		(void)p->parse(str, sd, max_bytes);
+		(void)p->parse(str, sd, max_bytes, max_depth);
 		return sd;
 	}
 };

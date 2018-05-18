@@ -1313,6 +1313,8 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
 
 void LLInventoryPanel::purgeSelectedItems()
 {
+    if (!mFolderRoot.get()) return;
+
     const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
     if (inventory_selected.empty()) return;
     LLSD args;
@@ -1333,6 +1335,8 @@ void LLInventoryPanel::purgeSelectedItems()
 
 void LLInventoryPanel::callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response)
 {
+    if (!mFolderRoot.get()) return;
+
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {

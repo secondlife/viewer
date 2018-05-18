@@ -342,7 +342,7 @@ void LLPanelObject::getState( )
 	}
 
 	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-
+#if 0
     // AXON REVIEW BEFORE RELEASE, behavior during edit is glitchy.
     // it's not entirely clear what the motivation is to have 3
     // different rules for enablement. At least the difference between
@@ -355,6 +355,11 @@ void LLPanelObject::getState( )
 	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() &&
         ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) &&
         ((objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
+#else
+	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && objectp->permModify();
+	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+#endif
 
 	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
@@ -1597,9 +1602,14 @@ void LLPanelObject::sendRotation(BOOL btn_down)
 		{
 			rotation = rotation * ~mRootObject->getRotationRegion();
 		}
+
+		// To include avatars into movements and rotation
+		// If false, all children are selected anyway - move avatar
+		// If true, not all children are selected - save positions
+		bool individual_selection = gSavedSettings.getBOOL("EditLinkedParts");
 		std::vector<LLVector3>& child_positions = mObject->mUnselectedChildrenPositions ;
 		std::vector<LLQuaternion> child_rotations;
-		if (mObject->isRootEdit())
+		if (mObject->isRootEdit() && individual_selection)
 		{
 			mObject->saveUnselectedChildrenRotation(child_rotations) ;
 			mObject->saveUnselectedChildrenPosition(child_positions) ;			
@@ -1609,8 +1619,8 @@ void LLPanelObject::sendRotation(BOOL btn_down)
 		LLManip::rebuild(mObject) ;
 
 		// for individually selected roots, we need to counterrotate all the children
-		if (mObject->isRootEdit())
-		{			
+		if (mObject->isRootEdit() && individual_selection)
+		{
 			mObject->resetChildrenRotationAndPosition(child_rotations, child_positions) ;			
 		}
 

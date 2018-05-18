@@ -139,6 +139,7 @@ void LLInboxFolderViewFolder::draw()
 	if (!hasBadgeHolderParent())
 	{
 		addBadgeToParentHolder();
+		setDrawBadgeAtTop(true);
 	}
 
 	setBadgeVisibility(mFresh);
@@ -156,6 +157,12 @@ BOOL LLInboxFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
 	deFreshify();
 	return LLFolderViewFolder::handleDoubleClick(x, y, mask);
+}
+
+void LLInboxFolderViewFolder::selectItem()
+{
+	deFreshify();
+	LLFolderViewFolder::selectItem();
 }
 
 void LLInboxFolderViewFolder::computeFreshness()

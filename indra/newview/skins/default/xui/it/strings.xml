@@ -275,9 +275,8 @@ Se ritieni che si tratta di un errore, contatta support@secondlife.com.
 		Errore del simulatore in seguito alla richiesta di logout.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Il sistema sta eseguendo il logout in questo momento.
-Il tuo account non sarà disponibile fino alle
-[TIME] fuso orario del Pacifico.
+		Il sistema sta eseguendo il logout in questo momento. 
+Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Non è possibile creare una sessione valida.
@@ -1502,6 +1501,9 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Trascina le cartelle in questa area per metterle in vendita su [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEM_COUNT] oggetti )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		la cartella di magazzino deve essere inclusa in una cartella di versione

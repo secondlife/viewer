@@ -920,7 +920,7 @@ public:
 		// unbind
 		if (texUnit)
 		{
-			texUnit->unbind(LLTexUnit::TT_TEXTURE);
+				texUnit->unbind(LLTexUnit::TT_TEXTURE);
 		}
 		// ensure that we delete these textures regardless of how we exit
 		LLImageGL::deleteTextures(source.size(), &source[0]);
@@ -1060,7 +1060,7 @@ F32 gpu_benchmark()
     delete [] pixels;
 
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STREAM_DRAW_ARB);
 
 	if (!buff->allocateBuffer(3, 0, true))
 	{

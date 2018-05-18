@@ -3943,8 +3943,7 @@ void LLAgent::teleportRequest(
 	bool look_at_from_camera)
 {
 	LLViewerRegion* regionp = getRegion();
-	bool is_local = (region_handle == regionp->getHandle());
-	if(regionp && teleportCore(is_local))
+	if (regionp && teleportCore(region_handle == regionp->getHandle()))
 	{
 		LL_INFOS("") << "TeleportLocationRequest: '" << region_handle << "':"
 					 << pos_local << LL_ENDL;
