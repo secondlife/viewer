@@ -71,7 +71,6 @@ const S32 HTTP_PACKET_SIZE = 1496;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
-class LLPrivateMemoryPool;
 
 typedef enum e_image_codec
 {
@@ -165,11 +164,7 @@ public:
 	static F32 calc_download_priority(F32 virtual_size, F32 visible_area, S32 bytes_sent);
 
 	static EImageCodec getCodecFromExtension(const std::string& exten);
-	static std::string getExtensionFromCodec(EImageCodec codec);
-
-	static void createPrivatePool() ;
-	static void destroyPrivatePool() ;
-	static LLPrivateMemoryPool* getPrivatePool() {return sPrivatePoolp;}
+    static std::string getExtensionFromCodec(EImageCodec codec);
 
 	//static LLTrace::MemStatHandle sMemStat;
 
@@ -190,8 +185,6 @@ private:
 
 	bool mBadBufferAllocation ;
 	bool mAllowOverSize ;
-
-	static LLPrivateMemoryPool* sPrivatePoolp ;
 };
 
 // Raw representation of an image (used for textures, and other uncompressed formats

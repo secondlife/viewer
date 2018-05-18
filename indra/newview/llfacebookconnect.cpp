@@ -503,13 +503,10 @@ LLFacebookConnect::LLFacebookConnect()
 
 void LLFacebookConnect::openFacebookWeb(std::string url)
 {
-	// Open the URL in an internal browser window without navigation UI
 	LLFloaterWebContent::Params p;
     p.url(url);
     p.show_chrome(true);
-    p.allow_address_entry(false);
     p.allow_back_forward_navigation(false);
-    p.trusted_content(true);
     p.clean_browser(true);
 	LLFloater *floater = LLFloaterReg::showInstance("fbc_web", p);
 	//the internal web browser has a bug that prevents it from gaining focus unless a mouse event occurs first (it seems).

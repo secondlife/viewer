@@ -70,10 +70,10 @@ bool LLTextureCache::initCache(ELLPath loc, bool purgeCache)
     mUsageMax = U64(cacheSizeMB) << 20;
 
     if (purgeCache)
-    {
+	{
         purge();
-        return true;
-    }
+			return true;
+		}
 
     return readCacheContentsFile();
 }
@@ -95,7 +95,7 @@ U64 LLTextureCache::getUsage()
 
 bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
 {
-    {
+		{
 	    LLMutexLock lock(&mMutex);
 
 #if LL_DEBUG
@@ -136,37 +136,37 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
 
         U32 iterations = 0;
         while (mUsageMax && ((mUsage + info.mImageEncodedSize) > mUsageMax) && (iterations++ < 256))
-        {
+	  {
             if (!evict(info.mImageEncodedSize))
-            {
+		  {
                 LL_WARNS() << "Failed to evict textures from cache. Exceeding max usage." << LL_ENDL;
-                break;
-            }
-        }
+		  break;
+	  }
+	}
 
         mMap.insert(std::make_pair(id, info));
 
         mUsage += info.mImageEncodedSize;
-    }
+	}
 
     std::string filename = getTextureFileName(id, EImageCodec(image->getCodec()));
 
     LLFILE* f = LLFile::fopen(filename, "wb");
     if (!f)
-    {
+	{
         LL_WARNS() << "Failed to write complete file while caching texture " << filename << LL_ENDL;
         return false;
-    }
+		}
 
 	S32 bytes_written = fwrite((const char*)image->getData(), 1, image->getDataSize(), f);
 
     fclose(f);
 
     if (bytes_written != image->getDataSize())
-    {
+	{
         LL_WARNS() << "Failed to write complete file while caching texture." << LL_ENDL;
         return false;
-    }
+	}
 
     ++mAddedEntries;
 
@@ -176,20 +176,20 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
 struct SortEntryByLRU
 {
 	bool operator()(const CachedTextureInfo* i1, const CachedTextureInfo* i2)
-    {
+	{
 		if (i1->mLastAccess < i2->mLastAccess)
-        {
+		{
             return true;
-        }
+	}
         else if (i1->mLastAccess == i2->mLastAccess)
-        {
+	{
             if (i1->mImageEncodedSize > i2->mImageEncodedSize)
-            {
+		{
                 return true;
-            }
-        }
+		}
+	}
         return false;
-    }
+	}
 };
 
 bool LLTextureCache::evict(U64 spaceRequired)
@@ -202,32 +202,32 @@ bool LLTextureCache::evict(U64 spaceRequired)
 	{
         const CachedTextureInfo& info = iter->second;
         potential_evictees.push_back(&info);       
-    }
+	}
 
     // sort potential_evictees to get least recently used items with largest size at front
     std::sort(potential_evictees.begin(), potential_evictees.end(), SortEntryByLRU());
 
     for (const CachedTextureInfo* potential_evictee : potential_evictees) 
-	{
+			{
         evictees.push_back(potential_evictee->mID);
         spaceReclaimed += potential_evictee->mImageEncodedSize;
         if (spaceReclaimed >= spaceRequired)
-        {
-            break;
-        }
-    }
+				{
+						break;
+					}
+				}
 
     for (LLUUID& id : evictees)
-    {
+	{
         map_t::iterator iter = mMap.find(id);
         if (iter != mMap.end())
-        {
+		{
             mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
-        }
+		}
         mMap.erase(id);
         mEntries.erase(id.asString());
         mAddedEntries++; // signal requirement to update on-disk rep to capture removed entry
-    }
+	}
 
     return ((mUsage + spaceRequired) < mUsageMax);
 }
@@ -238,12 +238,12 @@ bool LLTextureCache::remove(const LLUUID& id)
 
     map_t::iterator iter = mMap.find(id);
     if (iter != mMap.end())
-    {
+	{
         mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
         mMap.erase(id);
         mEntries.erase(id.asString());
         mAddedEntries++; // signal requirement to update on-disk rep to capture removed entry
-    }
+	}
     
     return true;
 }
@@ -253,45 +253,45 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id)
     LLMutexLock lock(&mMutex);
     map_t::iterator iter = mMap.find(id);    
     if (iter == mMap.end())
-    {
+	{
         // no texture here by that name...
         return LLPointer<LLImageFormatted>();
-    }
+	}
 
     CachedTextureInfo& info = iter->second;
 
-    char* data = ALLOCATE_MEM(LLImageBase::getPrivatePool(), info.mImageEncodedSize);
+    U8* data = (U8*)ll_aligned_malloc_16(info.mImageEncodedSize);
 
     std::string filename = getTextureFileName(id, EImageCodec(info.mCodec));
-    
+			
     LLFILE* f = LLFile::fopen(filename, "rb");
     if (!f)
-    {
+		{
         LL_WARNS() << "Failed to open cached texture " << id << " removing from cache." << LL_ENDL;
         remove(id);        
         return LLPointer<LLImageFormatted>();
-    }
+		}
 
     size_t bytes_read = fread(data, 1, info.mImageEncodedSize, f);
 
     fclose(f);
 
     if (bytes_read != info.mImageEncodedSize)
-    {
+	{
         LL_WARNS() << "Failed to read cached texture " << id << " removing from cache." << LL_ENDL;
-        FREE_MEM(LLImageBase::getPrivatePool(), data);
+        ll_aligned_free_16(data);
         remove(id);
         return LLPointer<LLImageFormatted>();
-    }
+		}
 
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(info.mCodec);
     image->setData((U8*)data, bytes_read);
     if (!image->updateData())
-    {
+		{
         LL_WARNS() << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;
         remove(id);
         return LLPointer<LLImageFormatted>();
-    }
+		}
 
     info.mLastAccess = time(nullptr);
 
@@ -305,7 +305,7 @@ void LLTextureCache::purge()
     gDirUtilp->deleteDirAndContents(mTexturesDirName);
     LLFile::rmdir(mTexturesDirName);
     // recreate this dir so subsequent caching to local disk works...
-    LLFile::mkdir(mTexturesDirName);
+		LLFile::mkdir(mTexturesDirName);
 	mMap.clear();    
 	LL_INFOS() << "The entire texture cache is cleared." << LL_ENDL;
 }
@@ -313,7 +313,7 @@ void LLTextureCache::purge()
 std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec codec)
 {
 	std::string idstr = id.asString();
-	std::string delem = gDirUtilp->getDirDelimiter();
+		std::string delem = gDirUtilp->getDirDelimiter();
     std::string ext   = LLImageBase::getExtensionFromCodec(codec);
 	std::string filename = mTexturesDirName + delem + idstr + ext;
 	return filename;
@@ -326,29 +326,29 @@ bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
     LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE_IO);
 
     if (!mEntries.size())
-    {
+	{
         LL_WARNS() << "No texture cache contents file to write." << LL_ENDL;
         return false;
-    }
+	}
 
     std::string filename = mTexturesDirName + ".contents";
     llofstream out;
     out.open(filename);
     if (!out.is_open())
-    {
+	{
         LL_WARNS() << "Could not open texture cache contents file for write." << LL_ENDL;
         return false;
-    }
+	}
 
     S32 entriesSerialized = LLSDSerialize::toPrettyNotation(mEntries, out);
 
     out.close();
 
     if (!entriesSerialized)
-    {
+	{
         LL_WARNS() << "Failed to serialize texture cache content entries." << LL_ENDL;
         return false;
-    }
+	}
 
     mAddedEntries = 0;
 
@@ -358,9 +358,9 @@ bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
 bool LLTextureCache::updateCacheContentsFile(bool force_immediate_write)
 {
     if (!force_immediate_write && (mAddedEntries < NEW_ENTRIES_PER_FLUSH_TO_DISK))
-    {
+	{
         return false;
-    }
+	}
 
     std::string name = LLCoros::instance().launch("TexCacheWrite", boost::bind(&LLTextureCache::writeCacheContentsFile, this, force_immediate_write));
 
@@ -373,7 +373,7 @@ bool LLTextureCache::readCacheContentsFile()
 	LLMutexLock lock(&mMutex);
 
     std::string filename = mTexturesDirName + ".contents";
-    
+		
 	llifstream file;
 	file.open(filename.c_str());
 
@@ -386,13 +386,13 @@ bool LLTextureCache::readCacheContentsFile()
 	LLSDSerialize::fromNotation(mEntries, file, (1 << 29));
 
     if (!mEntries.size())
-    {
+	{
         LL_WARNS() << "No data in texture cache contents file." << LL_ENDL;
-		return false;
-	}
+				return false;
+			}
 
     for (LLSD::map_const_iterator iter = mEntries.beginMap(); iter != mEntries.endMap(); ++iter)
-    {
+	{
         CachedTextureInfo info;
         info.mID                = iter->second[CACHE_ENTRY_ID].asUUID();
         info.mImageEncodedSize  = iter->second[CACHE_ENTRY_ENCODED_SIZE].asInteger();
@@ -405,13 +405,13 @@ bool LLTextureCache::readCacheContentsFile()
         info.mLastAccess        = iter->second[CACHE_ENTRY_LAST_ACCESS].asInteger();
 
         if (info.mID.isNull())
-        {
+	{
             continue;
-        }
+	}
 
         bool validCodec = false;
         switch(info.mCodec)
-        {
+	{
             default:
             case IMG_CODEC_INVALID:
             case IMG_CODEC_EOF:
@@ -426,33 +426,33 @@ bool LLTextureCache::readCacheContentsFile()
 	        case IMG_CODEC_PNG:
                 validCodec = true;
             break;
-        }
+		}
 
         if ((info.mCachedHeight > 2048)
          || (info.mCachedWidth > 2048)
          || (info.mFullHeight > 2048)
          || (info.mFullWidth > 2048))
-        {
+	{
             continue;
-        }
+	}
 
         if (!validCodec)
-        {
+	{
             continue;
-        }
+		}
 
         if (info.mDiscardLevel > MAX_DISCARD_LEVEL)
-        {
+	{
             continue;
-        }
+	}
 
         if (info.mImageEncodedSize > (1 << 28))
-        {
+	{
             continue;
-        }
+		}
 
         mMap.insert(std::make_pair(info.mID, info));
-    }
+	}
 
     return mMap.size() > 0;
 }

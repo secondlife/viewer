@@ -6588,11 +6588,9 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Wearable And Object Separator"));
-
 		items.push_back(std::string("Wearable Edit"));
 
-		bool modifiable = !gAgentWearables.isWearableModifiable(item->getUUID());
-		if (((flags & FIRST_SELECTED_ITEM) == 0) || modifiable)
+		if (((flags & FIRST_SELECTED_ITEM) == 0) || (item && !gAgentWearables.isWearableModifiable(item->getUUID())))
 		{
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}

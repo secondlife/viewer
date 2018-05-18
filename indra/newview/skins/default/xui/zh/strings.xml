@@ -276,7 +276,7 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedPendingLogout">
 		系統正在處理你的登出。
-你的帳號要等到 [TIME] （太平洋時間）才可使用。
+請稍待一分鐘再試圖重新登入。
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		無法建立有效的時域。
@@ -1503,6 +1503,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		將資料夾拖曳到這個區域，即可在[[MARKETPLACE_DASHBOARD_URL] Marketplace]刊登出售。
+	</string>
+	<string name="InventoryItemsCount">
+		（[ITEMS_COUNT]個物項）
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		限量資料夾必須放在版本資料夾裡

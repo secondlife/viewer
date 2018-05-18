@@ -83,6 +83,7 @@ public:
 	void focusZoomOnMedia(LLUUID media_id);
 	// Are we zoomed in?
 	bool isZoomed() const;
+	bool isZoomedOnMedia(LLUUID media_id);
 	void unZoom();
 	
 	// Return the ID of the media instance the controls are currently attached to (either focus or hover).
@@ -104,6 +105,7 @@ private:
 	LLUUID mFocusedObjectID;
 	S32 mFocusedObjectFace;
 	LLUUID mFocusedImplID;
+	LLUUID mPrevFocusedImplID;
 	LLVector3 mFocusedObjectNormal;
 	
 	LLUUID mHoverObjectID;

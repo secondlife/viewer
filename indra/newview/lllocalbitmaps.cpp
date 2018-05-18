@@ -358,8 +358,9 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	updateUserPrims(old_id, new_id, LLRender::DIFFUSE_MAP);
 	updateUserPrims(old_id, new_id, LLRender::NORMAL_MAP);
 	updateUserPrims(old_id, new_id, LLRender::SPECULAR_MAP);
-	
-	updateUserSculpts(old_id, new_id); // isn't there supposed to be an IMG_DEFAULT_SCULPT or something?
+
+	updateUserVolumes(old_id, new_id, LLRender::LIGHT_TEX);	
+	updateUserVolumes(old_id, new_id, LLRender::SCULPT_TEX); // isn't there supposed to be an IMG_DEFAULT_SCULPT or something?
 	
 	// default safeguard image for layers
 	if( new_id == IMG_DEFAULT )
@@ -502,26 +503,39 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 			}
 		}
 	}
-	
 }
 
-void LLLocalBitmap::updateUserSculpts(LLUUID old_id, LLUUID new_id)
+void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 {
 	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
-	for(U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(); volume_iter++)
+	for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
 	{
-		LLVOVolume* volume_to_object = (*old_texture->getVolumeList())[volume_iter];
-		LLViewerObject* object = (LLViewerObject*)volume_to_object;
-	
-		if(object)
+		LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
+		switch (channel)
 		{
-			if (object->isSculpted() && object->getVolume() &&
-				object->getVolume()->getParams().getSculptID() == old_id)
+			case LLRender::LIGHT_TEX:
 			{
-				LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-				LLSculptParams new_params(*old_params);
-				new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
+				if (volobjp->getLightTextureID() == old_id)
+				{
+					volobjp->setLightTextureID(new_id);
+				}
+				break;
+			}
+			case LLRender::SCULPT_TEX:
+			{
+				LLViewerObject* object = (LLViewerObject*)volobjp;
+
+				if (object)
+				{
+					if (object->isSculpted() && object->getVolume() &&
+						object->getVolume()->getParams().getSculptID() == old_id)
+					{
+						LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+						LLSculptParams new_params(*old_params);
+						new_params.setSculptTexture(new_id, (*old_params).getSculptType());
+						object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
+					}
+				}
 			}
 		}
 	}

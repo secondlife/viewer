@@ -269,6 +269,10 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
+    // TODO: we are handling failure in two separate places -
+    // here and in STATE_LOGIN_PROCESS_RESPONSE processing
+    // consider uniting them.
+
     // Login has failed. 
     // Figure out why and respond...
     LLSD response = event["data"];
@@ -339,6 +343,8 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     else if(   reason_response == "key"
             || reason_response == "presence"
             || reason_response == "connect"
+            || !message_response.empty() // will be handled in STATE_LOGIN_PROCESS_RESPONSE
+            || !response["message_id"].asString().empty()
             )
     {
         // these are events that have already been communicated elsewhere

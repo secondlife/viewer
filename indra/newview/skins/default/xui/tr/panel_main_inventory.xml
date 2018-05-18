@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Eşyalar" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		[ITEM_COUNT] Öge Alınıyor... [FILTER]
+		[ITEM_COUNT] Öğe ve [CATEGORY_COUNT] Klasör Alınıyor... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] Öge [FILTER]
+		[ITEM_COUNT] Öğe ve [CATEGORY_COUNT] Klasör [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
-		Alınan [ITEM_COUNT] Öğe [FILTER]
+		[ITEM_COUNT] Öğe ve [CATEGORY_COUNT] Klasör Alındı [FILTER]
 	</panel.string>
 	<text name="ItemcountText">
 		Ögeler:
