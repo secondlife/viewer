@@ -97,9 +97,6 @@ public:
 	// Legacy stuff
 	LLVector3 mSunDefaultPosition;
 
-	static const F32 NIGHTTIME_ELEVATION;	// degrees
-	static const F32 NIGHTTIME_ELEVATION_COS;
-
 protected:
 	F32				mSunPhase;
 	LLColor4		mFogColor;				// Color to use for fog and haze

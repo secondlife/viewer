@@ -51,18 +51,16 @@
 #include "llvosky.h"
 #include "llcubemap.h"
 #include "llviewercontrol.h"
+#include "llenvironment.h"
 
 #include "llvowlsky.h"
 
 F32 azimuth_from_vector(const LLVector3 &v);
 F32 elevation_from_vector(const LLVector3 &v);
 
-LLSky				gSky;
+LLSky gSky;
+
 // ---------------- LLSky ----------------
-
-const F32 LLSky::NIGHTTIME_ELEVATION = -8.0f; // degrees
-const F32 LLSky::NIGHTTIME_ELEVATION_COS = (F32)sin(NIGHTTIME_ELEVATION*DEG_TO_RAD);
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////

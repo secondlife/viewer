@@ -329,15 +329,12 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		gGL.getTexUnit(0)->bind(face->getTexture());
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 
-#if 0
-		F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
+		/*F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
 		if (a > 0.f)
 		{
 			a = a*a*4.f;
-		}
-			
-		color.mV[3] = llclamp(a, 0.f, 1.f);
-#endif
+		}			
+		color.mV[3] = llclamp(a, 0.f, 1.f);*/
 		
 		if (gPipeline.canUseVertexShaders())
 		{
@@ -431,7 +428,9 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 	renderSkyHaze(origin, camHeightLocal);
 
-    if (!gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
+    bool use_advanced = gPipeline.useAdvancedAtmospherics();
+    
+    if (!use_advanced)
     {
 	    gGL.pushMatrix();
 

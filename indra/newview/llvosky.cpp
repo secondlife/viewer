@@ -700,6 +700,12 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
     bool draw_sun  = updateHeavenlyBodyGeometry(drawable, FACE_SUN, mSun, up, right);
     bool draw_moon = updateHeavenlyBodyGeometry(drawable, FACE_MOON, mMoon, up, right);
 
+    bool daytime = LLEnvironment::getInstance()->getIsDayTime();
+
+    // makeshift check until we properly handle moon in daytime
+    draw_sun  &=  daytime;
+    draw_moon &= !daytime;
+
 	mSun.setDraw(draw_sun);
 	mMoon.setDraw(draw_moon);
 
@@ -763,16 +769,7 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, LLHe
 	S32 index_offset;
 	LLFace *facep;
 
-	LLVector3 to_dir = hb.getDirection();
-
-    /*F32 rad = hb.getDiskRadius();
-    F32 d = to_dir * LLVector3::z_axis;
-    if (d < -(rad * 0.5f))
-    {
-        hb.setVisible(FALSE);
-        return FALSE;
-    }*/
-
+	LLVector3 to_dir   = hb.getDirection();
 	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
 
 	LLVector3 hb_right = to_dir % LLVector3::z_axis;
@@ -780,8 +777,12 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, LLHe
 	hb_right.normalize();
 	hb_up.normalize();
 
-	const LLVector3 scaled_right = HEAVENLY_BODY_DIST * hb.getDiskRadius() * hb_right;
-	const LLVector3 scaled_up    = HEAVENLY_BODY_DIST * hb.getDiskRadius() * hb_up;
+    const F32 enlargm_factor = ( 1 - to_dir.mV[2] );
+	F32 horiz_enlargement = 1 + enlargm_factor * 0.3f;
+	F32 vert_enlargement = 1 + enlargm_factor * 0.2f;
+
+	const LLVector3 scaled_right = horiz_enlargement * HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR * hb.getDiskRadius() * hb_right;
+	const LLVector3 scaled_up    = vert_enlargement  * HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR * hb.getDiskRadius() * hb_up;
 
 	LLVector3 v_clipped[4];
 

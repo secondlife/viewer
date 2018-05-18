@@ -37,6 +37,9 @@ const F32 SUN_DIST      = 149598.260e6f;
 const F32 MOON_RADIUS   =      1.737e6f;
 const F32 MOON_DIST     =    384.400e6f;
 
+const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
+const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+
 class LLSettingsSky: public LLSettingsBase
 {
 public:
@@ -503,9 +506,6 @@ private:
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
-
-    static const F32         NIGHTTIME_ELEVATION;
-    static const F32         NIGHTTIME_ELEVATION_COS;
 
     void        calculateHeavnlyBodyPositions();
     void        calculateLightSettings();

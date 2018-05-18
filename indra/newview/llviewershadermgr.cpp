@@ -46,6 +46,8 @@
 #include "llenvironment.h"
 #include "llatmosphere.h"
 
+#pragma optimize("", off)
+
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
 #else
@@ -509,8 +511,9 @@ void LLViewerShaderMgr::setShaders()
             wl_class = llmin(wl_class, 2);
         }
 
-		if (!(LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders")
-			  && gSavedSettings.getBOOL("WindLightUseAtmosShaders")))
+        bool hasWindLightShaders = LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
+        bool useWindLightShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+		if (!hasWindLightShaders || !useWindLightShaders)
 		{
 			// user has disabled WindLight in their settings, downgrade
 			// windlight shaders to stub versions.
@@ -544,7 +547,6 @@ void LLViewerShaderMgr::setShaders()
 
 			// Load all shaders to set max levels
 			loaded = loadShadersEnvironment();
-			llassert(loaded);
 
 			if (loaded)
 			{

@@ -190,7 +190,6 @@ const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
-const F32 LLEnvironment::NIGHTTIME_ELEVATION_COS(LLSky::NIGHTTIME_ELEVATION_COS);
 
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
@@ -380,7 +379,7 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsDayTime() const
 {
-    return mCurrentEnvironment->getSky()->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS;
+    return mCurrentEnvironment->getSky()->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_SIN;
 }
 
 //-------------------------------------------------------------------------

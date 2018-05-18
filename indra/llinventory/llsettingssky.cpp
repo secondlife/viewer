@@ -51,9 +51,6 @@ namespace
 const F32 LLSettingsSky::DOME_OFFSET(0.96f);
 const F32 LLSettingsSky::DOME_RADIUS(15000.f);
 
-const F32 LLSettingsSky::NIGHTTIME_ELEVATION(-8.0f); // degrees
-const F32 LLSettingsSky::NIGHTTIME_ELEVATION_COS((F32)sin(NIGHTTIME_ELEVATION*DEG_TO_RAD));
-
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
 const std::string LLSettingsSky::SETTING_BLUE_DENSITY("blue_density");
@@ -816,6 +813,7 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
 {
     mSunDirection = DUE_EAST * getSunRotation();
     mSunDirection.normalize();
+
     mMoonDirection = DUE_EAST * getMoonRotation();
     mMoonDirection.normalize();
 
@@ -824,7 +822,7 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
     {
         mLightDirection = mSunDirection;
     }
-    else if (mSunDirection.mV[1] < 0.0 && mSunDirection.mV[1] > NIGHTTIME_ELEVATION_COS)
+    else if (mSunDirection.mV[1] < 0.0 && mSunDirection.mV[1] > NIGHTTIME_ELEVATION_SIN)
     {
         // clamp v1 to 0 so sun never points up and causes weirdness on some machines
         LLVector3 vec(mSunDirection);
@@ -834,7 +832,11 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
     }
     else
     {
-        mLightDirection = mMoonDirection;
+        // clamp v1 to 0 so moon never points up and causes weirdness on some machines
+        LLVector3 vec(mMoonDirection);
+        vec.mV[1] = 0.0;
+        vec.normalize();
+        mLightDirection = vec;
     }
 
     // calculate the clamp lightnorm for sky (to prevent ugly banding in sky
@@ -993,7 +995,7 @@ void LLSettingsSky::calculateLightSettings()
 
         // and vary_sunlight will work properly with moon light
         F32 lighty = lightnorm[1];
-        if (lighty < NIGHTTIME_ELEVATION_COS)
+        if (lighty < NIGHTTIME_ELEVATION_SIN)
         {
             lighty = -lighty;
         }

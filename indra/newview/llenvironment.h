@@ -293,7 +293,6 @@ private:
     };
 
     static const F32            SUN_DELTA_YAW;
-    static const F32            NIGHTTIME_ELEVATION_COS;
 
     typedef std::map<LLUUID, LLSettingsBase::ptr_t> AssetSettingMap_t;
 
