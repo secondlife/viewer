@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Cosas" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		Obtenidos [ITEM_COUNT] ítems... [FILTER]
+		Obteniendo [ITEM_COUNT] Objetos y [CATEGORY_COUNT] Carpetas... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] ítems [FILTER]
+		[ITEM_COUNT] Objetos y [CATEGORY_COUNT] Carpetas [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
-		Obtenidos [ITEM_COUNT] ítems [FILTER]
+		[ITEM_COUNT] Objetos y [CATEGORY_COUNT] Carpetas Obtenidos [FILTER]
 	</panel.string>
 	<text name="ItemcountText">
 		Ítems:

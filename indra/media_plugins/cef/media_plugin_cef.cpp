@@ -203,6 +203,8 @@ void MediaPluginCEF::onTitleChangeCallback(std::string title)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
 	message.setValue("name", title);
+	message.setValueBoolean("history_back_available", mCEFLib->canGoBack());
+	message.setValueBoolean("history_forward_available", mCEFLib->canGoForward());
 	sendMessage(message);
 }
 
@@ -809,7 +811,7 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_dat
 
 	// adding new code below in unicodeInput means we don't send ascii chars
 	// here too or we get double key presses on a mac.  
-	if (((unsigned char)event_chars < 0x20 || (unsigned char)event_chars >= 0x7f ))
+	if (((unsigned char)event_chars < 0x10 || (unsigned char)event_chars >= 0x7f ))
 	{
 		mCEFLib->nativeKeyboardEventOSX(key_event, event_modifiers, 
 										event_keycode, event_chars, 

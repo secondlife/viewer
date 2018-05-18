@@ -126,6 +126,16 @@ static bool handleDebugAvatarJointsChanged(const LLSD& newvalue)
     return true;
 }
 
+static bool handleAvatarHoverOffsetChanged(const LLSD& newvalue)
+{
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->setHoverIfRegionEnabled();
+	}
+	return true;
+}
+
+
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
 	// changing shader level may invalidate existing cached bump maps, as the shader type determines the format of the bump map it expects - clear and repopulate the bump cache
@@ -737,6 +747,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 	gSavedSettings.getControl("DebugAvatarJoints")->getCommitSignal()->connect(boost::bind(&handleDebugAvatarJointsChanged, _2));
 	gSavedSettings.getControl("RenderAutoMuteByteLimit")->getSignal()->connect(boost::bind(&handleRenderAutoMuteByteLimitChanged, _2));
+	gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(boost::bind(&handleAvatarHoverOffsetChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

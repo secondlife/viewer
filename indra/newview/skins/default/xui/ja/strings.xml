@@ -279,8 +279,7 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedPendingLogout">
 		システムによるログアウトが実行されました。
-あなたのアカウントは
-太平洋時間の [TIME] までご利用いただけません。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		有効なセッションを生成できません。
@@ -1510,6 +1509,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグします。
+	</string>
+	<string name="InventoryItemsCount">
+		（[ITEMS_COUNT] 個のアイテム）
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		バージョンフォルダに在庫フォルダが含まれなければなりません

@@ -1101,6 +1101,8 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		}
 		else if(message_name == "name_text")
 		{
+			mHistoryBackAvailable = message.getValueBoolean("history_back_available");
+			mHistoryForwardAvailable = message.getValueBoolean("history_forward_available");
 			mMediaName = message.getValue("name");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAME_CHANGED);
 		}

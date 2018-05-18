@@ -269,9 +269,8 @@ Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
 		La solicitud de cierre de sesión ha obtenido como resultado un error del simulador.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		El sistema está cerrando tu sesión en estos momentos.
-Tu cuenta no estará disponible hasta las
-[HORA] (horario de la costa del Pacífico).
+		El sistema te desconectará. 
+Por favor, aguarda un momento antes de intentar conectarte nuevamente.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		No se ha podido crear una sesión válida.
@@ -1493,6 +1492,9 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Arrastra carpetas a esta sección para incluirlas en la lista de venta del [[MARKETPLACE_DASHBOARD_URL] Mercado].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Objetos)
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		La carpeta de stock debe estar contenida en una carpeta de versión

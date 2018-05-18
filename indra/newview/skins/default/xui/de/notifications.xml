@@ -2505,7 +2505,7 @@ Möchten Sie den Nicht-stören-Modus deaktivieren, bevor Sie diese Transaktion a
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] Objekte werden dauerhaft gelöscht. Möchten Sie den Inhalt Ihres Papierkorbs wirklich dauerhaft löschen?
+		[COUNT] Bestellungen und Ordner werden dauerhaft gelöscht. Sind Sie sicher, dass Sie den Inhalt Ihres Papierkorbs dauerhaft löschen möchten?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3511,12 +3511,18 @@ Bitte überprüfen Sie Ihre Netzwerk- und Firewalleinstellungen.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Verbindung mit Voice-Server ist leider nicht möglich:
+		Wir können uns nicht mit dem Voice-Server verbinden: 
 
 [HOSTID]
 
-Voice-Kommunikation ist leider nicht verfügbar.
-Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
+Ports, die für Sprache erlaubt sein müssen, sind:
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Bitte überprüfen Sie Ihre Netzwerk- und Firewall-Einstellungen. 
+Deaktivieren Sie alle SIP-ALG-Funktionen in Ihrem Router. 
+
+Sprachkommunikation ist nicht möglich.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
