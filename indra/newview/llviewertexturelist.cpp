@@ -510,6 +510,12 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id, get_element_type(boost_priority));
 	if (!imagep.isNull())
 	{
+		if (boost_priority != LLViewerTexture::BOOST_ALM && imagep->getBoostLevel() == LLViewerTexture::BOOST_ALM)
+		{
+			// Workaround: we need BOOST_ALM texture for something, 'rise' to NONE
+			imagep->setDecodePriority(LLViewerTexture::BOOST_NONE);
+		}
+
 		LLViewerFetchedTexture *texture = imagep.get();
 		if (request_from_host.isOk() &&
 			!texture->getTargetHost().isOk())
@@ -1003,6 +1009,8 @@ void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debu
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
+	if (gGLManager.mIsDisabled) return 0.0f;
+	
 	//
 	// Create GL textures for all textures that need them (images which have been
 	// decoded, but haven't been pushed into GL).
@@ -1077,14 +1085,14 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     U32 iterations = 0; // limit unbounded spinning below
 
 	if(update_counter > 0)
-    {
+	{
 		uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchKey);
 		while ((update_counter > 0) && (total_update_count > 0) && (iterations < max_update_count))
-	    {
+		{
 			if (iter2 == mUUIDMap.end())
-		    {
+			{
 				iter2 = mUUIDMap.begin();
-		    }
+			}
 			LLViewerFetchedTexture* imagep = iter2->second;
             // Skip the textures where there's really nothing to do so to give some times to others. Also skip the texture if it's already in the high prio set.
             if (!SKIP_LOW_PRIO || (SKIP_LOW_PRIO && ((imagep->getDecodePriority() > MIN_PRIORITY_THRESHOLD) || imagep->hasFetcher())))
@@ -1096,10 +1104,10 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 			iter2++;
 			total_update_count--;
             iterations++;
-	    }
-    }
+		}
+	}
 
-    
+	
     elapsed_time = image_op_timer.getElapsedTimeF32();
 
     // if we hit this, we've taken the entire timeslice budget before
@@ -1123,9 +1131,9 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
         elapsed_time = image_op_timer.getElapsedTimeF32();
 		if ((min_count-- <= 0) && (elapsed_time > max_time))
 		{
-            break;
+			break;
 		}
-    }
+	}
 	return elapsed_time;
 }
 

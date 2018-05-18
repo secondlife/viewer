@@ -681,7 +681,7 @@ void LLVFS::presizeDataFile(const U32 size)
 
 	if (tmp)
 	{
-		LL_INFOS() << "Pre-sized VFS data file to " << ftell(mDataFP) << " bytes" << LL_ENDL;        
+		LL_INFOS() << "Pre-sized VFS data file to " << ftell(mDataFP) << " bytes" << LL_ENDL;
 	}
 	else
 	{
@@ -2148,7 +2148,11 @@ time_t LLVFS::creationTime()
     int errors = LLFile::stat(mDataFilename, &data_file_stat);
     if (0 == errors)
     {
-        return data_file_stat.st_ctime;
+        time_t creation_time = data_file_stat.st_ctime;
+#if LL_DARWIN
+        creation_time = data_file_stat.st_birthtime;
+#endif
+        return creation_time;
     }
     return 0;
 }

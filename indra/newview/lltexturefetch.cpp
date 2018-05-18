@@ -1109,7 +1109,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		setState(LOAD_FROM_TEXTURE_CACHE);
 		mInLocalCache = FALSE;
 		LL_DEBUGS(LOG_TXT) << mID << ": Priority: " << llformat("%8.0f",mImagePriority)
-						    << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
+						   << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
 
 		// fall through
 	}
@@ -1140,7 +1140,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mFileSize = LLAPRFile::size(filename);
 				if (mFileSize)
 				{
-					U8* data       = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), mFileSize);	
+					U8* data = (U8*)ll_aligned_malloc_16(mFileSize);
 					S32 bytes_read = LLAPRFile::readEx(filename, data, 0, mFileSize);
 					if (bytes_read == mFileSize)
 					{
@@ -1164,7 +1164,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					else
 					{
 						LL_WARNS(LOG_TXT) << "Failed to load local image " << filename << LL_ENDL;
-						FREE_MEM(LLImageBase::getPrivatePool(), data);	                    
+						ll_aligned_free_16(data);                   
 						setState(DONE);
 						return false;
 					}
@@ -1190,13 +1190,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else if(!mUrl.empty() && mCanUseHTTP)
 			{
-			    setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-			    setState(WAIT_HTTP_RESOURCE);
+				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+				setState(WAIT_HTTP_RESOURCE);
 			}
 			else
 			{
-			    setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-			    setState(LOAD_FROM_NETWORK);
+				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+				setState(LOAD_FROM_NETWORK);
 			}
 		}
 		else if(!mUrl.empty() && mCanUseHTTP)
@@ -1665,7 +1665,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mRequestedOffset += src_offset;
 			}
 
-			U8 * buffer = (U8 *)ALLOCATE_MEM(LLImageBase::getPrivatePool(), total_size);
+            U8* buffer = (U8*)ll_aligned_malloc_16(total_size);
 			if (!buffer)
 			{
 				// abort. If we have no space for packet, we have not enough space to decode image
@@ -2061,7 +2061,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 			if (buffer_size > cur_size)
 			{
 				/// We have new data
-				U8* buffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), buffer_size);
+                U8* buffer = (U8*)ll_aligned_malloc_16(buffer_size);
 				S32 offset = 0;
 				if (cur_size > 0 && mFirstPacket > 0)
 				{
@@ -2618,9 +2618,9 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
             if (worker->mCacheReadTime > 0.0f)
-            {
+			{
                 sample(sCacheReadLatency, worker->mCacheReadTime);
-            }
+			}
             sample(sTexDecodeLatency, worker->mDecodeTime);
             sample(sTexFetchLatency, worker->mFetchTime);
             worker->mCacheReadTimer.reset();
@@ -2806,10 +2806,10 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 	}
 
     if (mTextureCache)
-    {
+	{
         LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH_WRITE_CACHE);
         mTextureCache->updateCacheContentsFile(false);
-    }
+	}
 
 	return res;
 }
@@ -2943,8 +2943,8 @@ void LLTextureFetch::sendRequestListToSimulators()
 			 iter2 != iter1->second.end(); ++iter2)
 		{
 			LLTextureFetchWorker* req = *iter2;
-		if (gMessageSystem)
-        {
+			if (gMessageSystem)
+			{
 				if (req->mSentRequest != LLTextureFetchWorker::SENT_SIM)
 				{
 					// Initialize packet data based on data read from cache
@@ -2991,8 +2991,8 @@ void LLTextureFetch::sendRequestListToSimulators()
 					gMessageSystem->sendSemiReliable(host, NULL, NULL);
 					sim_request_count = 0;
 				}
-		    }
-        }
+			}
+		}
 
 		if (gMessageSystem && sim_request_count > 0 && sim_request_count <= IMAGES_PER_REQUEST)
 		{

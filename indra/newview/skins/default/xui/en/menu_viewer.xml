@@ -2206,7 +2206,7 @@
                function="Advanced.ToggleConsole"
                parameter="scene monitor" />
             </menu_item_check>
-                        <menu_item_separator/>
+            <menu_item_separator/>
 
             <menu_item_call
              label="Region Info to Debug Console"
@@ -2358,16 +2358,6 @@
               <menu_item_check.on_click
                function="ToggleControl"
                parameter="DebugShowMemory" />
-            </menu_item_check>
-	     <menu_item_check
-               label="Show Private Mem Info"
-               name="Show Private Mem Info">
-              <menu_item_check.on_check
-               function="CheckControl"
-               parameter="DebugShowPrivateMem" />
-              <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="DebugShowPrivateMem" />
             </menu_item_check>
 
             <menu_item_separator/>

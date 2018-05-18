@@ -304,7 +304,7 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
 
     CachedTextureInfo& info = iter->second;
 
-    char* data = ALLOCATE_MEM(LLImageBase::getPrivatePool(), info.mImageEncodedSize);
+    U8* data = (U8*)ll_aligned_malloc_16(info.mImageEncodedSize);
 
     std::string filename = getTextureFileName(id, EImageCodec(info.mCodec));
     
@@ -323,7 +323,7 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
     if (bytes_read != info.mDiscardBytes[discard_level])
     {
         LL_WARNS() << "Failed to read cached texture " << id << " at discard " << discard_level << " removing from cache." << LL_ENDL;
-        FREE_MEM(LLImageBase::getPrivatePool(), data);
+        ll_aligned_free_16(data);
         remove(id);
         return LLPointer<LLImageFormatted>();
     }

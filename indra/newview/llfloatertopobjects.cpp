@@ -236,7 +236,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			&& have_extended_data)
 		{
 			columns[column_num]["column"] = "memory";
-			columns[column_num]["value"] = llformat("%0.0f", (script_memory / 1000.f));
+			columns[column_num]["value"] = llformat("%0.0f", (script_memory / 1024.f));
 			columns[column_num++]["font"] = "SANSSERIF";
 
 			columns[column_num]["column"] = "URLs";
