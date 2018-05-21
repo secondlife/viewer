@@ -137,6 +137,8 @@ public:
 	const std::string	getLabel() const { return wstring_to_utf8str(mLabel); }
 	void				setLabel( const LLStringExplicit& label);
 
+	void				setDrawAtParentTop(bool draw_at_top) { mDrawAtParentTop = draw_at_top;}
+
 private:
 	LLPointer< LLUIImage >	mBorderImage;
 	LLUIColor				mBorderColor;
@@ -164,6 +166,7 @@ private:
 	F32						mPaddingVert;
 
 	LLScrollContainer*		mParentScroller;
+	bool					mDrawAtParentTop;
 };
 
 // Build time optimization, generate once in .cpp file
