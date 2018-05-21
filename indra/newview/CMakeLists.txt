@@ -1361,7 +1361,7 @@ if (DARWIN)
     llappdelegate-objc.mm
     PROPERTIES
     COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
-    COMPILE_FLAGS "-fmodules"
+    COMPILE_FLAGS "-fmodules -fcxx-modules"
     )
 
   find_library(AGL_LIBRARY AGL)
