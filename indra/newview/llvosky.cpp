@@ -696,11 +696,8 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
     bool draw_sun  = updateHeavenlyBodyGeometry(drawable, FACE_SUN, mSun, up, right);
     bool draw_moon = updateHeavenlyBodyGeometry(drawable, FACE_MOON, mMoon, up, right);
 
-    bool daytime = LLEnvironment::getInstance()->getIsDayTime();
-
-    // makeshift check until we properly handle moon in daytime
-    draw_sun  &=  daytime;
-    draw_moon &= !daytime;
+    draw_sun  &= LLEnvironment::getInstance()->getIsSunUp();
+    draw_moon &= LLEnvironment::getInstance()->getIsMoonUp();
 
 	mSun.setDraw(draw_sun);
 	mMoon.setDraw(draw_moon);

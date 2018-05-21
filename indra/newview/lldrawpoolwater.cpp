@@ -493,45 +493,30 @@ void LLDrawPoolWater::shade()
     light_dir = voskyp->getLightDirection();
     light_dir.normalize();
 
-    if (LLEnvironment::instance().getIsDayTime())
+    bool sun_up = LLEnvironment::instance().getIsSunUp();
+    bool moon_up = LLEnvironment::instance().getIsSunUp();
+
+    if (sun_up)
     {
-        light_color = voskyp->getSunAmbientColor();
-        light_diffuse = voskyp->getSunDiffuseColor(); 
-        light_diffuse.normalize();
-        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
-        light_diffuse *= (light_exp + 0.25f);
-    }
-    else
-    {
-        light_color = voskyp->getMoonDiffuseColor();
-        light_diffuse = voskyp->getMoonDiffuseColor();
-        light_diffuse.normalize();
-        light_diffuse *= 0.5f;
-        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
+        light_color   =  light_color + voskyp->getSunAmbientColor();
+        light_diffuse += voskyp->getSunDiffuseColor();         
     }
 
-// 	if (gSky.getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS) 	 
-//     { 	 
-//         light_dir  = gSky.getSunDirection(); 	 
-//         light_dir.normVec(); 	
-// 		light_color = gSky.getSunDiffuseColor();
-// 		if(gSky.mVOSkyp) {
-// 	        light_diffuse = gSky.mVOSkyp->getSun().getColorCached(); 	 
-// 			light_diffuse.normVec(); 	 
-// 		}
-//         light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
-//         light_diffuse *= light_exp + 0.25f; 	 
-//     } 	 
-//     else  	 
-//     { 	 
-//         light_dir       = gSky.getMoonDirection(); 	 
-//         light_dir.normVec(); 	 
-// 		light_color = gSky.getMoonDiffuseColor();
-//         light_diffuse   = gSky.mVOSkyp->getMoon().getColorCached(); 	 
-//         light_diffuse.normVec(); 	 
-//         light_diffuse *= 0.5f; 	 
-//         light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
-//     }
+    light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
+
+    if (moon_up)
+    {
+        light_color   += voskyp->getMoonDiffuseColor();
+        light_diffuse += voskyp->getMoonDiffuseColor() * 0.5f; 
+
+        if (!sun_up)
+        {
+            light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
+        }
+    }
+
+    light_diffuse.normalize();
+    light_diffuse *= (light_exp + 0.25f);
 
 	light_exp *= light_exp;
 	light_exp *= light_exp;

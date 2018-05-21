@@ -183,8 +183,8 @@ public:
 
     F32                         getCamHeight() const;
     F32                         getWaterHeight() const;
-    bool                        getIsDayTime() const;   // "Day Time" is defined as the sun above the horizon.
-    bool                        getIsNightTime() const { return !getIsDayTime(); } // "Not Day Time" 
+    bool                        getIsSunUp() const;
+    bool                        getIsMoonUp() const;
 
     inline F32                  getSceneLightStrength() const { return mSceneLightStrength; }
     inline void                 setSceneLightStrength(F32 light_strength) { mSceneLightStrength = light_strength; }

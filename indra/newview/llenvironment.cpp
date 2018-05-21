@@ -377,9 +377,16 @@ F32 LLEnvironment::getWaterHeight() const
     return gAgent.getRegion()->getWaterHeight();
 }
 
-bool LLEnvironment::getIsDayTime() const
+bool LLEnvironment::getIsSunUp() const
 {
-    return mCurrentEnvironment->getSky()->getSunDirection().mV[2] > NIGHTTIME_ELEVATION_SIN;
+    LLVector3 sunDir = mCurrentEnvironment->getSky()->getSunDirection();
+    return sunDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+}
+
+bool LLEnvironment::getIsMoonUp() const
+{
+    LLVector3 moonDir = mCurrentEnvironment->getSky()->getMoonDirection();
+    return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
 }
 
 //-------------------------------------------------------------------------
