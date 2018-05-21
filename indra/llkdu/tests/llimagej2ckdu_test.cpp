@@ -119,6 +119,10 @@ bool LLKDUMemIn::get(int, kdu_core::kdu_line_buf&, int) { return false; }
 
 // Stub Kakadu Library calls
 // they're all namespaced now
+namespace kdu_core_local
+{
+    class kd_coremem;
+}
 namespace kdu_core {
 kdu_tile_comp kdu_tile::access_component(int ) { kdu_tile_comp a; return a; }
 kdu_block_encoder::kdu_block_encoder() { }
@@ -140,7 +144,8 @@ void kdu_resolution::get_dims(kdu_dims& ) { }
 int kdu_resolution::which() { return 0; }
 int kdu_resolution::get_valid_band_indices(int &) { return 1; }
 kdu_synthesis::kdu_synthesis(kdu_resolution, kdu_sample_allocator*, bool, float, kdu_thread_env*, kdu_thread_queue*) { }
-kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool) { }
+//kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool) { }
+kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool, kd_core_local::kd_coremem*) {}
 kdu_params::~kdu_params() { }
 void kdu_params::set(const char* , int , int , bool ) { }
 void kdu_params::set(const char* , int , int , int ) { }
@@ -164,39 +169,61 @@ void kdu_codestream::destroy() { }
 void kdu_codestream::collect_timing_stats(int ) { }
 void kdu_codestream::set_max_bytes(kdu_long, bool, bool ) { }
 void kdu_codestream::get_valid_tiles(kdu_dims& ) { }
-void kdu_codestream::create(kdu_compressed_source*, kdu_thread_env*) { }
+void kdu_codestream::create(
+    siz_params*,
+    kdu_compressed_target*,
+    kdu_dims*,
+    int,
+    kdu_long,
+    kdu_thread_env*,
+    kdu_membroker*) {}
+void kdu_codestream::create(kdu_compressed_source *,kdu_thread_env *, kdu_membroker *) {}
 void kdu_codestream::apply_input_restrictions(int, int, int, int, kdu_dims const *, kdu_component_access_mode, kdu_thread_env *, kdu_quality_limiter const *) {}
 void kdu_codestream::get_subsampling(int , kdu_coords&, bool ) { }
 void kdu_codestream::flush(kdu_long *, int, kdu_uint16 *, bool, bool, double, kdu_thread_env*, int) { }
 void kdu_codestream::set_resilient(bool ) { }
 int kdu_codestream::get_num_components(bool ) { return 0; }
 kdu_long kdu_codestream::get_total_bytes(bool ) { return 0; }
-kdu_long kdu_codestream::get_compressed_data_memory(bool ) {return 0; }
+kdu_long kdu_codestream::get_compressed_data_memory(bool ) const {return 0; }
 void kdu_codestream::share_buffering(kdu_codestream ) { }
 int kdu_codestream::get_num_tparts() { return 0; }
 int kdu_codestream::trans_out(kdu_long, kdu_long*, int, bool, kdu_thread_env* ) { return 0; }
 bool kdu_codestream::ready_for_flush(kdu_thread_env*) { return false; }
 siz_params* kdu_codestream::access_siz() { return NULL; }
 kdu_tile kdu_codestream::open_tile(kdu_coords , kdu_thread_env* ) { kdu_tile a; return a; }
-kdu_codestream_comment kdu_codestream::add_comment() { kdu_codestream_comment a; return a; }
+kdu_codestream_comment kdu_codestream::add_comment(kdu_thread_env*) { kdu_codestream_comment a; return a; }
 void kdu_subband::close_block(kdu_block*, kdu_thread_env*) { }
 void kdu_subband::get_valid_blocks(kdu_dims &indices) const { }
 kdu_block * kdu_subband::open_block(kdu_coords, int *, kdu_thread_env *, int, bool) { return NULL; }
 bool kdu_codestream_comment::put_text(const char*) { return false; }
 void kdu_customize_warnings(kdu_message*) { }
 void kdu_customize_errors(kdu_message*) { }
-kdu_long kdu_multi_analysis::create(kdu_codestream, kdu_tile, kdu_thread_env *,kdu_thread_queue *, int, kdu_roi_image *, int, kdu_sample_allocator *, kdu_push_pull_params const *) { return kdu_long(0); }
+kdu_long kdu_multi_analysis::create(
+    kdu_codestream,
+    kdu_tile,
+    kdu_thread_env*,
+    kdu_thread_queue*,
+    int,
+    kdu_roi_image*,
+    int,
+    kdu_sample_allocator*,
+    const kdu_push_pull_params*,
+    kdu_membroker*) { return kdu_long(0); }
 void kdu_multi_analysis::destroy(kdu_thread_env *) {}
-siz_params::siz_params() : kdu_params(NULL, false, false, false, false, false) { }
+siz_params::siz_params(kd_core_local::kd_coremem*) : kdu_params(NULL, false, false, false, false, false) { }
 siz_params::~siz_params() {}
 void siz_params::finalize(bool ) { }
 void siz_params::copy_with_xforms(kdu_params*, int, int, bool, bool, bool) { }
 int siz_params::write_marker_segment(kdu_output*, kdu_params*, int) { return 0; }
 bool siz_params::check_marker_segment(kdu_uint16, int, kdu_byte a[], int&) { return false; }
 bool siz_params::read_marker_segment(kdu_uint16, int, kdu_byte a[], int) { return false; }
-
-kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*, int) { }
-void kdu_codestream::create(siz_params*, kdu_compressed_target*, kdu_dims*, int, kdu_long, kdu_thread_env* ) { }
+kdu_decoder::kdu_decoder(
+    kdu_subband subband,
+    kdu_sample_allocator*,
+    bool, float, int,
+    kdu_thread_env*,
+    kdu_thread_queue*,
+    int, float*) {}
 kdu_sample_allocator::~kdu_sample_allocator() {}
 void kdu_sample_allocator::do_finalize(kdu_codestream) {}
 void (*kdu_convert_ycc_to_rgb_rev16)(kdu_int16*,kdu_int16*,kdu_int16*,int);
@@ -205,6 +232,8 @@ void (*kdu_convert_ycc_to_rgb_rev32)(kdu_int32*,kdu_int32*,kdu_int32*,int);
 void (*kdu_convert_ycc_to_rgb_irrev32)(float*,float*,float*,int);
 bool kdu_core_sample_alignment_checker(int, int, int, int, bool, bool) { return false; }
 void kdu_pull_ifc::destroy() {}
+void kdu_sample_allocator::advance_pre_frag() {}
+void kdu_params::operator delete(void *) {}
 } // namespace kdu_core
 
 // -------------------------------------------------------------------------------------------
