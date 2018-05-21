@@ -26,7 +26,7 @@
 
 #import "llappdelegate-objc.h"
 #if defined(LL_BUGSPLAT)
-#import BugsplatMac;
+@import BugsplatMac;
 #endif
 #include "llwindowmacosx-objc.h"
 #include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
