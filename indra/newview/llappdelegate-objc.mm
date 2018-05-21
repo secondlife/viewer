@@ -25,6 +25,9 @@
  */
 
 #import "llappdelegate-objc.h"
+#if defined(LL_BUGSPLAT)
+#import BugsplatMac;
+#endif
 #include "llwindowmacosx-objc.h"
 #include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
 
@@ -64,6 +67,11 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
 
  //   [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
+
+#if defined(LL_BUGSPLAT)
+	// https://www.bugsplat.com/docs/platforms/os-x#initialization
+	[[BugsplatStartupManager sharedManager] start];
+#endif
 }
 
 - (void) handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
