@@ -275,6 +275,26 @@
          label="BAKED_HAIR"
          name="BAKED_HAIR"
          value="5" />
+        <combo_box.item
+          label="BAKED_LEFTARM"
+          name="BAKED_LEFTARM"
+          value="6" />
+        <combo_box.item
+          label="BAKED_LEFTLEG"
+          name="BAKED_LEFTLEG"
+          value="7" />
+        <combo_box.item
+         label="BAKED_AUX1"
+         name="BAKED_AUX1"
+         value="8" />
+        <combo_box.item
+           label="BAKED_AUX2"
+           name="BAKED_AUX2"
+           value="9" />
+        <combo_box.item
+         label="BAKED_AUX3"
+         name="BAKED_AUX3"
+         value="10" />
   </combo_box>
   <check_box
      follows="left|top"

@@ -750,6 +750,46 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 					result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
 					break;
 				}
+				case LLAvatarAppearanceDefines::BAKED_SKIRT:
+				{
+					result = LLAvatarAppearanceDefines::TEX_SKIRT_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_EYES:
+				{
+					result = LLAvatarAppearanceDefines::TEX_EYES_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_HAIR:
+				{
+					result = LLAvatarAppearanceDefines::TEX_HAIR_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LEFT_ARM:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LEFT_ARM_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LEFT_LEG:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LEFT_LEG_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX1:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX1_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX2:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX2_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX3:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX3_TATTOO;
+					break;
+				}
 
 				default:
 				{
