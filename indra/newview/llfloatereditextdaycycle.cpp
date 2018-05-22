@@ -38,10 +38,10 @@
 #include "llnotificationsutil.h"
 #include "llspinctrl.h"
 #include "lltimectrl.h"
+#include "lltabcontainer.h"
 
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
-
 // newview
 #include "llagent.h"
 //#include "llflyoutcombobtnctrl.h" //Todo: get rid of this and LLSaveOutfitComboBtn, make a proper UI element/button/pannel instead
@@ -75,10 +75,9 @@ const std::string XML_FLYOUTMENU_FILE("menu_save_settings.xml");*/
 //=========================================================================
 // **RIDER**
 
-const std::string LLFloaterFixedEnvironment::KEY_INVENTORY_ID("inventory_id");
-const std::string LLFloaterFixedEnvironment::KEY_LIVE_ENVIRONMENT("live_environment");
-const std::string LLFloaterFixedEnvironment::KEY_DAY_LENGTH("day_length");
-const std::string LLFloaterFixedEnvironment::KEY_DAY_OFFSET("day_offset");
+const std::string LLFloaterEditExtDayCycle::KEY_INVENTORY_ID("inventory_id");
+const std::string LLFloaterEditExtDayCycle::KEY_LIVE_ENVIRONMENT("live_environment");
+const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
 
 // **RIDER**
 
@@ -88,7 +87,6 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):
     mCancelButton(NULL),
     mUploadButton(NULL),
     mDayLength(0),
-    mDayOffset(0),
     mCurrentTrack(4),
     mTimeSlider(NULL),
     mFramesSlider(NULL),
@@ -96,10 +94,17 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):
     mCurrentTimeLabel(NULL),
     // **RIDER**
     mInventoryId(),
-    mInventoryItem(nullptr)
+    mInventoryItem(nullptr),
+    mSkyBlender(),
+    mWaterBlender(),
+    mScratchSky(),
+    mScratchWater()
     // **RIDER**
 {
     mCommitCallbackRegistrar.add("DayCycle.Track", boost::bind(&LLFloaterEditExtDayCycle::onTrackSelectionCallback, this, _2));
+
+    mScratchSky = LLSettingsVOSky::buildDefaultSky();
+    mScratchWater = LLSettingsVOWater::buildDefaultWater();
 }
 
 LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
@@ -110,14 +115,13 @@ LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
     //delete mFlyoutControl;
 }
 
-void LLFloaterEditExtDayCycle::openFloater(LLSettingsDay::ptr_t settings, S64Seconds daylength, S64Seconds dayoffset)
-{
-        mSavedDay = settings;
-        mEditDay = settings->buildClone();
-        mDayLength = daylength;
-        mDayOffset = dayoffset;
-        LLFloater::openFloater();
-}
+// void LLFloaterEditExtDayCycle::openFloater(LLSettingsDay::ptr_t settings, S64Seconds daylength, S64Seconds dayoffset)
+// {
+//         mEditDay = settings->buildClone();
+//         mDayLength = daylength;
+//         mDayOffset = dayoffset;
+//         LLFloater::openFloater();
+// }
 
 // virtual
 BOOL LLFloaterEditExtDayCycle::postBuild()
@@ -173,13 +177,15 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
         loadLiveEnvironment(env);
     }
+    else
+    {
+        loadLiveEnvironment(LLEnvironment::ENV_DEFAULT);
+    }
 
     mDayLength.value(0);
-    mDayOffset.value(0);
     if (key.has(KEY_DAY_LENGTH))
     {
         mDayLength.value(key[KEY_DAY_LENGTH].asReal());
-        mDayOffset.value(key[KEY_DAY_OFFSET].asReal());
     }
 
     // **RIDER**
@@ -201,7 +207,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         LLUIString formatted_label = getString("time_label");
         for (int i = 0; i < max_elm; i++)
         {
-            total = ((mDayLength / (max_elm - 1)) * i) + mDayOffset;
+            total = ((mDayLength / (max_elm - 1)) * i); 
             hrs = total;
             minutes = total - hrs;
 
@@ -213,8 +219,8 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
             formatted_label.setArg("[MM]", llformat("%d", abs(minutes.value())));
             getChild<LLTextBox>("p" + llformat("%d", i), true)->setTextArg("[DSC]", formatted_label.getString());
         }
-        hrs = mDayOffset;
-        minutes = mDayOffset - hrs;
+        hrs = mDayLength;
+        minutes = mDayLength - hrs;
         //formatted_label.setArg("[TIME]", llformat("%.1f", hrs.value()));
         //date = LLDate(mDayOffset);
         //formatted_label.setArg("[TIME]", date.toHTTPDateString(std::string("%H:%M")));
@@ -246,7 +252,7 @@ void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
 {
     if (new_visibility)
     {
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditDay, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mScratchSky, mScratchWater);
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
     }
     else
@@ -289,8 +295,6 @@ void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
 
 void LLFloaterEditExtDayCycle::onBtnSave()
 {
-    mSavedDay = mEditDay;
-
     //no longer needed?
     if (!mCommitSignal.empty())
         mCommitSignal(mEditDay);
@@ -322,41 +326,49 @@ void LLFloaterEditExtDayCycle::onAddTrack()
 
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
-        if (mSliderKeyMap.empty())
-        {
-            // No existing points, use defaults
-            setting = LLSettingsVOWater::buildDefaultWater();
-        }
-        else
-        {
-            // clone existing element, since we are intentionally dropping slider on time selection, copy from tab panels
-            LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>("water_tabs"); //can't extract panels directly, since it is in 'tuple'
-            LLPanelSettingsWaterMainTab* panel = dynamic_cast<LLPanelSettingsWaterMainTab*>(tab_container->getChildView("water_panel"));
-            if (panel)
-            {
-                setting = panel->getWater()->buildClone();
-            }
-        }
+        // **RIDER**
+        // scratch water should always have the current water settings.
+        setting = mScratchWater->buildClone();
+//         if (mSliderKeyMap.empty())
+//         {
+//             // No existing points, use defaults
+//             setting = LLSettingsVOWater::buildDefaultWater();
+//         }
+//         else
+//         {
+//             // clone existing element, since we are intentionally dropping slider on time selection, copy from tab panels
+//             LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>("water_tabs"); //can't extract panels directly, since it is in 'tuple'
+//             LLPanelSettingsWaterMainTab* panel = dynamic_cast<LLPanelSettingsWaterMainTab*>(tab_container->getChildView("water_panel"));
+//             if (panel)
+//             {
+//                 setting = panel->getWater()->buildClone();
+//             }
+//         }
+        // **RIDER**
         mEditDay->setWaterAtKeyframe(std::dynamic_pointer_cast<LLSettingsWater>(setting), frame);
     }
     else
     {
-        if (mSliderKeyMap.empty())
-        {
-            // No existing points, use defaults
-            setting = LLSettingsVOSky::buildDefaultSky();
-        }
-        else
-        {
-            // clone existing element, since we are intentionally dropping slider on time selection, copy from tab panels
-            LLView* tab_container = mSkyTabLayoutContainer->getChild<LLView>("sky_tabs"); //can't extract panels directly, since they are in 'tuple'
-
-            LLPanelSettingsSky* panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("atmosphere_panel"));
-            if (panel)
-            {
-                setting = panel->getSky()->buildClone();
-            }
-        }
+        // **RIDER**
+        // scratch sky should always have the current sky settings.
+        setting = mScratchSky->buildClone();
+//         if (mSliderKeyMap.empty())
+//         {
+//             // No existing points, use defaults
+//             setting = LLSettingsVOSky::buildDefaultSky();
+//         }
+//         else
+//         {
+//             // clone existing element, since we are intentionally dropping slider on time selection, copy from tab panels
+//             LLView* tab_container = mSkyTabLayoutContainer->getChild<LLView>("sky_tabs"); //can't extract panels directly, since they are in 'tuple'
+// 
+//             LLPanelSettingsSky* panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("atmosphere_panel"));
+//             if (panel)
+//             {
+//                 setting = panel->getSky()->buildClone();
+//             }
+//         }
+        // **RIDER**
         mEditDay->setSkyAtKeyframe(std::dynamic_pointer_cast<LLSettingsSky>(setting), frame, mCurrentTrack);
     }
 
@@ -493,23 +505,27 @@ void LLFloaterEditExtDayCycle::clearTabs()
 
 void LLFloaterEditExtDayCycle::updateTabs()
 {
-    // TODO: either prevent user from editing existing settings or clone them to not affect saved frames
-    std::string sldr = mFramesSlider->getCurSlider();
-    if (sldr.empty())
-    {
-        // keep old settings for duplicating if there are any
-        // TODO: disable tabs to prevent editing without nulling settings
-    }
-    else if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
-    {
-        const LLSettingsWaterPtr_t p_water = sldr.empty() ? LLSettingsWaterPtr_t(NULL) : mEditDay->getWaterAtKeyframe(mFramesSlider->getCurSliderValue());
-        updateWaterTabs(p_water);
-    }
-    else
-    {
-        const LLSettingsSkyPtr_t p_sky = sldr.empty() ? LLSettingsSkyPtr_t(NULL) : mEditDay->getSkyAtKeyframe(mFramesSlider->getCurSliderValue(), mCurrentTrack);
-        updateSkyTabs(p_sky);
-    }
+//     // TODO: either prevent user from editing existing settings or clone them to not affect saved frames
+//     std::string sldr = mFramesSlider->getCurSlider();
+//     if (sldr.empty())
+//     {
+//         // keep old settings for duplicating if there are any
+//         // TODO: disable tabs to prevent editing without nulling settings
+//     }
+//     else if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
+//     {
+//         const LLSettingsWaterPtr_t p_water = sldr.empty() ? LLSettingsWaterPtr_t(NULL) : mEditDay->getWaterAtKeyframe(mFramesSlider->getCurSliderValue());
+//         updateWaterTabs(p_water);
+//     }
+//     else
+//     {
+//         const LLSettingsSkyPtr_t p_sky = sldr.empty() ? LLSettingsSkyPtr_t(NULL) : mEditDay->getSkyAtKeyframe(mFramesSlider->getCurSliderValue(), mCurrentTrack);
+//         updateSkyTabs(p_sky);
+//     }
+
+    reblendSettings();
+    syncronizeTabs();
+
     updateButtons();
     updateTimeAndLabel();
 }
@@ -598,7 +614,7 @@ void LLFloaterEditExtDayCycle::updateTimeAndLabel()
         //formatted_label.setArg("[TIME]", llformat("%.1f", hrs.value()));
         //formatted_label.setArg("[TIME]", date.toHTTPDateString(std::string("%H:%M")));
 
-        S64Seconds total = (mDayLength  * time) + mDayOffset;
+        S64Seconds total = (mDayLength  * time); 
         S32Hours hrs = total;
         S32Minutes minutes = total - hrs;
 
@@ -682,7 +698,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 
 void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
-    mEditDay = settings;
+    mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
@@ -697,7 +713,7 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
         if (day)
         {
-            mEditDay = day;
+            mEditDay = day->buildClone();
             break;
         }
     }
@@ -709,21 +725,97 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
 void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
 {
-    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditDay);
+    S32 skytrack = (mCurrentTrack) ? mCurrentTrack : 1;
+    mSkyBlender = std::make_shared<LLTrackBlenderLoopingManual>(mScratchSky, mEditDay, skytrack);
+    mWaterBlender = std::make_shared<LLTrackBlenderLoopingManual>(mScratchWater, mEditDay, LLSettingsDay::TRACK_WATER);
+
+    reblendSettings();
+
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mScratchSky, mScratchWater);
 }
 
-void LLFloaterFixedEnvironment::syncronizeTabs()
+void LLFloaterEditExtDayCycle::syncronizeTabs()
 {
-    LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>("water_tabs"); //can't extract panels directly, since they are in 'tuple'
+    // This should probably get moved into "updateTabs"
 
-    S32 count = mTab->getTabCount();
+    F32 frame = mTimeSlider->getCurSliderValue();
+    bool canedit(false);
 
+    LLSettingsWater::ptr_t psettingWater;
+    LLTabContainer * tabs = mWaterTabLayoutContainer->getChild<LLTabContainer>("water_tabs");
+    if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
+    {
+        canedit = true;
+        psettingWater = std::static_pointer_cast<LLSettingsWater>(mEditDay->getSettingsAtKeyframe(frame, LLSettingsDay::TRACK_WATER));
+        if (!psettingWater)
+        {
+            canedit = false;
+            psettingWater = mScratchWater;
+        }
+    }
+    else 
+    {
+        psettingWater = mScratchWater;
+    }
+
+    S32 count = tabs->getTabCount();
     for (S32 idx = 0; idx < count; ++idx)
     {
-        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(mTab->getPanelByIndex(idx));
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tabs->getPanelByIndex(idx));
         if (panel)
-            panel->setSettings(mSettings);
+        {
+            panel->setAllChildrenEnabled(canedit);
+            panel->setSettings(psettingWater);
+            panel->refresh();
+        }
     }
+
+    LLSettingsSky::ptr_t psettingSky;
+
+    canedit = false;
+    tabs = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs");
+    if (mCurrentTrack != LLSettingsDay::TRACK_WATER)
+    {
+        canedit = true;
+        psettingSky = std::static_pointer_cast<LLSettingsSky>(mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack));
+        if (!psettingSky)
+        {
+            canedit = false;
+            psettingSky = mScratchSky;
+        }
+    }
+    else
+    {
+        psettingSky = mScratchSky;
+    }
+
+    count = tabs->getTabCount();
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tabs->getPanelByIndex(idx));
+        if (panel)
+        {
+            panel->setAllChildrenEnabled(canedit);
+            panel->setSettings(psettingSky);
+            panel->refresh();
+        }
+    }
+
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, psettingSky, psettingWater);
+}
+
+void LLFloaterEditExtDayCycle::reblendSettings()
+{
+    F64 position = mTimeSlider->getCurSliderValue();
+
+    if ((mSkyBlender->getTrack() != mCurrentTrack) && (mCurrentTrack != LLSettingsDay::TRACK_WATER))
+    {
+        mSkyBlender->switchTrack(mCurrentTrack, position);
+    }
+    else
+        mSkyBlender->setPosition(position);
+
+    mWaterBlender->setPosition(position);    
 }
 
 // **RIDER**

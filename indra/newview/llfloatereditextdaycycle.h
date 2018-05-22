@@ -31,6 +31,8 @@
 #include "llsettingsdaycycle.h"
 #include <boost/signals2.hpp>
 
+#include "llenvironment.h"
+
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLLineEditor;
@@ -38,6 +40,8 @@ class LLMultiSliderCtrl;
 class LLTextBox;
 class LLTimeCtrl;
 //class LLFlyoutComboBtnCtrl;
+
+class LLInventoryItem;
 
 typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 
@@ -50,10 +54,9 @@ class LLFloaterEditExtDayCycle : public LLFloater
 
 public:
     // **RIDER**
-    static const std::string KEY_INVENTORY_ID;
-    static const std::string KEY_LIVE_ENVIRONMENT;
-    static const std::string KEY_DAY_LENGTH;
-    static const std::string KEY_DAY_OFFSET;
+    static const std::string    KEY_INVENTORY_ID;
+    static const std::string    KEY_LIVE_ENVIRONMENT;
+    static const std::string    KEY_DAY_LENGTH;
     // **RIDER**
 
     typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)>            edit_commit_signal_t;
@@ -62,7 +65,7 @@ public:
 	LLFloaterEditExtDayCycle(const LLSD &key);
     ~LLFloaterEditExtDayCycle();
 
-    void openFloater(LLSettingsDay::ptr_t settings, S64Seconds daylength = S64Seconds(0), S64Seconds dayoffset = S64Seconds(0));
+    //void openFloater(LLSettingsDay::ptr_t settings, S64Seconds daylength = S64Seconds(0), S64Seconds dayoffset = S64Seconds(0));
 
     BOOL	postBuild();
     void	onOpen(const LLSD& key);
@@ -115,13 +118,11 @@ private:
 
     void updateEditEnvironment();
     void syncronizeTabs();
+    void reblendSettings();
     // **RIDER**
-
-
 
     LLSettingsDay::ptr_t    mEditDay;
     S64Seconds              mDayLength;
-    S64Seconds              mDayOffset;
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
 
@@ -140,7 +141,11 @@ private:
     // **RIDER**
     LLUUID                  mInventoryId;
     LLInventoryItem *       mInventoryItem;
-    LLEnvironment::EnvSelection_t mEditingEnv;
+    LLEnvironment::EnvSelection_t       mEditingEnv;
+    LLTrackBlenderLoopingManual::ptr_t  mSkyBlender;
+    LLTrackBlenderLoopingManual::ptr_t  mWaterBlender;
+    LLSettingsSky::ptr_t    mScratchSky;
+    LLSettingsWater::ptr_t  mScratchWater;
     // **RIDER**
 
 //    LLFlyoutComboBtnCtrl *      mFlyoutControl; // not a View!

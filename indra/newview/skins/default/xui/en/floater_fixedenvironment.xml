@@ -81,10 +81,6 @@
                     tab_width="120"
                     tab_padding_right="3">
                 <!-- Tabs inserted here in code -->
-                <!-- -->
-                <!-- -->
-
-                <!-- -->
             </tab_container>
         </layout_panel>
         <layout_panel name="button_panel"

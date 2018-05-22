@@ -141,7 +141,7 @@ private:
 class LLSettingsEditPanel : public LLPanel
 {
 public:
-    virtual void setSettings(LLSettingsBase::ptr_t &) = 0;
+    virtual void setSettings(const LLSettingsBase::ptr_t &) = 0;
 
 //     virtual void refresh() override;
 

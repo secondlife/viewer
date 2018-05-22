@@ -400,6 +400,18 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 {
     DayInstance::ptr_t environment = getEnvironmentInstance(env);
 
+    if (env == ENV_DEFAULT)
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to set default environment. Not allowed." << LL_ENDL;
+        return;
+    }
+
+    if (!settings)
+    {
+        clearEnvironment(env);
+        return;
+    }
+
     if (settings->getSettingType() == "daycycle")
     {
         S64Seconds daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
@@ -1623,4 +1635,69 @@ void LLEnvironment::DayTransition::animate()
         if (!mBlenderSky && !mBlenderWater)
             LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
     });
+}
+
+//=========================================================================
+LLTrackBlenderLoopingManual::LLTrackBlenderLoopingManual(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno) :
+        LLSettingsBlender(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t()),
+        mDay(day),
+        mTrackNo(trackno),
+        mPosition(0.0)
+{
+    LLSettingsDay::TrackBound_t initial = getBoundingEntries(mPosition);
+
+    if (initial.first != mEndMarker)
+    {   // No frames in track
+        mInitial = (*initial.first).second;
+        mFinal = (*initial.second).second;
+
+        LLSD initSettings = mInitial->getSettings();
+        mTarget->replaceSettings(initSettings);
+    }
+}
+
+F64 LLTrackBlenderLoopingManual::setPosition(F64 position)
+{
+    mPosition = llclamp(position, 0.0, 1.0);
+
+    LLSettingsDay::TrackBound_t bounds = getBoundingEntries(mPosition);
+
+    if (bounds.first == mEndMarker)
+    {   // No frames in track.
+        return 0.0;
+    }
+
+    mInitial = (*bounds.first).second;
+    mFinal = (*bounds.second).second;
+
+    F64 spanLength = getSpanLength(bounds);
+
+    F64 spanPos = ((mPosition < (*bounds.first).first) ? (mPosition + 1.0) : mPosition) - (*bounds.first).first;
+
+    F64 blendf = fmod(spanPos, spanLength) / spanLength;
+    return LLSettingsBlender::setPosition(blendf);
+}
+
+void LLTrackBlenderLoopingManual::switchTrack(S32 trackno, F64 position)
+{
+    mTrackNo = trackno;
+
+    F64 useposition = (position < 0.0) ? mPosition : position;
+
+    setPosition(useposition);
+}
+
+LLSettingsDay::TrackBound_t LLTrackBlenderLoopingManual::getBoundingEntries(F64 position)
+{
+    LLSettingsDay::CycleTrack_t &wtrack = mDay->getCycleTrack(mTrackNo);
+
+    mEndMarker = wtrack.end();
+
+    LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, position);
+    return bounds;
+}
+
+F64 LLTrackBlenderLoopingManual::getSpanLength(const LLSettingsDay::TrackBound_t &bounds) const
+{
+    return get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 }

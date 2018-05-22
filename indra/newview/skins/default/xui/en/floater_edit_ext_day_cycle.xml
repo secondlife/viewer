@@ -437,7 +437,7 @@
                          name="atmosphere_panel" />
                 <panel
                          border="true"
-                         class="panel_settings_clouds"
+                         class="panel_settings_cloud"
                          filename="panel_settings_sky_clouds.xml"
                          label="Clouds"
                          layout="topleft"
