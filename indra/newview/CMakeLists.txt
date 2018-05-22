@@ -1361,8 +1361,15 @@ if (DARWIN)
     llappdelegate-objc.mm
     PROPERTIES
     COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+    # BugsplatMac is a module, imported with @import. That language feature
+    # demands these switches.
     COMPILE_FLAGS "-fmodules -fcxx-modules"
     )
+
+  # from https://stackoverflow.com/a/43551534
+  set(CMAKE_MACOSX_RPATH 1)
+  # From Contents/MacOS/SecondLife, look in Contents/Frameworks
+  set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks")
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
