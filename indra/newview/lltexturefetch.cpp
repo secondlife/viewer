@@ -1761,7 +1761,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mRequestedOffset += src_offset;
 			}
 
-			U8 * buffer = (U8 *)ALLOCATE_MEM(LLImageBase::getPrivatePool(), total_size);
+			U8 * buffer = (U8 *)ll_aligned_malloc_16(total_size);
 			if (!buffer)
 			{
 				// abort. If we have no space for packet, we have not enough space to decode image
@@ -2266,7 +2266,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 			if (buffer_size > cur_size)
 			{
 				/// We have new data
-				U8* buffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), buffer_size);
+				U8* buffer = (U8*)ll_aligned_malloc_16(buffer_size);
 				S32 offset = 0;
 				if (cur_size > 0 && mFirstPacket > 0)
 				{
@@ -5059,7 +5059,7 @@ void LLTextureFetchDebugger::callbackHTTP(FetchEntry & fetch, LLCore::HttpRespon
 		//LL_INFOS(LOG_TXT) << "Fetch Debugger : got results for " << fetch.mID << ", data_size = " << data_size << ", received = " << fetch.mCurlReceivedSize << ", requested = " << fetch.mRequestedSize << ", partial = " << partial << LL_ENDL;
 		if ((fetch.mCurlReceivedSize >= fetch.mRequestedSize) || !partial || (fetch.mRequestedSize == 600))
 		{
-			U8* d_buffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), data_size);
+			U8* d_buffer = (U8*)ll_aligned_malloc_16(data_size);
 			if (ba)
 			{
 				ba->read(0, d_buffer, data_size);

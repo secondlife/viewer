@@ -1278,7 +1278,6 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 	{
 		is_in_trash = true;
-		remove_from_inventory = TRUE;
 	}
 
 	LLUUID source_id = from_task_inventory ? mSourceID : LLUUID::null;
@@ -1806,7 +1805,6 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 	if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 	{
 		accept = ACCEPT_YES_SINGLE;
-		remove_inventory = TRUE;
 	}
 
 	if(drop)

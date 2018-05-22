@@ -4,6 +4,7 @@
   <font name="default" comment="default font files (global fallbacks)">
     <file>DejaVuSans.ttf</file>
     <os name="Windows">
+      <file>meiryo.TTC</file>
       <file>MSGOTHIC.TTC</file>
       <file>gulim.ttc</file>
       <file>simhei.ttf</file>
