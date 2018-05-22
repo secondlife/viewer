@@ -194,6 +194,7 @@ public:
 
     static LLSettingsWater::ptr_t   createWaterFromLegacyPreset(const std::string filename);
     static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename);
+    static LLSettingsDay::ptr_t createDayCycleFromLegacyPreset(const std::string filename);
 
     //-------------------------------------------
     connection_t                setSkyListChange(const change_signal_t::slot_type& cb);

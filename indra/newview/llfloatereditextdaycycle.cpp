@@ -39,11 +39,15 @@
 #include "llspinctrl.h"
 #include "lltimectrl.h"
 #include "lltabcontainer.h"
+#include "llfilepicker.h"
 
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
+#include "llviewerparcelmgr.h"
+
 // newview
 #include "llagent.h"
+#include "llparcel.h"
 #include "llflyoutcombobtn.h" //Todo: make a proper UI element/button/panel instead
 #include "llregioninfomodel.h"
 #include "llviewerregion.h"
@@ -90,6 +94,7 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):
     mFramesSlider(NULL),
     mCurrentTimeLabel(NULL),
     // **RIDER**
+    mImportButton(nullptr),
     mInventoryId(),
     mInventoryItem(nullptr),
     mSkyBlender(),
@@ -124,6 +129,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mSkyTabLayoutContainer = getChild<LLView>("frame_settings_sky", true);
     mWaterTabLayoutContainer = getChild<LLView>("frame_settings_water", true);
     mCurrentTimeLabel = getChild<LLTextBox>("current_time", true);
+    mImportButton = getChild<LLButton>("btn_import", true);
 
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, "save_btn", "btn_flyout", XML_FLYOUTMENU_FILE);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
@@ -133,6 +139,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mFramesSlider->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onFrameSliderCallback, this));
     mAddFrameButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onAddTrack, this));
     mDeleteFrameButton->setCommitCallback(boost::bind(&LLFloaterEditExtDayCycle::onRemoveTrack, this));
+    mImportButton->setCommitCallback([this](LLUICtrl *, const LLSD &){ onButtonImport(); });
 
     mTimeSlider->addSlider(0);
 
@@ -173,9 +180,6 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     }
 
     // **RIDER**
-
-    LLLineEditor* name_field = getChild<LLLineEditor>("day_cycle_name");
-    name_field->setText(mEditDay->getName());
 
     selectTrack(mCurrentTrack);
 
@@ -237,60 +241,56 @@ void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
     }
 }
 
+void LLFloaterEditExtDayCycle::refresh()
+{
+    if (mEditDay)
+    {
+        LLLineEditor* name_field = getChild<LLLineEditor>("day_cycle_name");
+        name_field->setText(mEditDay->getName());
+    }
+
+    bool is_inventory_avail = canUseInventory();
+
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
+
+
+    LLFloater::refresh();
+}
+
+
 void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 {
     std::string ctrl_action = ctrl->getName();
 
     if (ctrl_action == ACTION_SAVE)
     {
-//         if (mSavedDay.get() != mOriginalDay.get())
-//         {
-//             restoreSavedEnv();
-//         }
-//         else
-//         {
-//             S64Seconds day_length = mDayLength.value() > 0 ? mDayLength : LLSettingsDay::DEFAULT_DAYLENGTH;
-//             S64Seconds day_offset = mDayLength.value() > 0 ? mDayOffset : LLSettingsDay::DEFAULT_DAYOFFSET;
-//             LLEnvironment::instance().setEnvironment((LLEnvironment::EnvSelection_t)mSavedEnvironment, mEditDay, day_length, day_offset);
-//             LLEnvironment::instance().setSelectedEnvironment((LLEnvironment::EnvSelection_t)mSavedEnvironment);
-//             LLEnvironment::instance().updateEnvironment();
-//         }
-//         mOriginalDay = mEditDay; // to kill the pointer
-// 
-//         if (!mCommitSignal.empty())
-//             mCommitSignal(mEditDay);
+        doApplyUpdateInventory();
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {
-        LLSettingsVOBase::createInventoryItem(mEditDay);
+        doApplyCreateNewInventory();
+    }
+    else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
+        (ctrl_action == ACTION_APPLY_PARCEL) ||
+        (ctrl_action == ACTION_APPLY_REGION))
+    {
+        doApplyEnvironment(ctrl_action);
     }
     else
     {
-        LLEnvironment::EnvSelection_t env(LLEnvironment::ENV_DEFAULT);
-        bool updateSimulator(ctrl_action != ACTION_APPLY_LOCAL);
-
-        if (ctrl_action == ACTION_APPLY_LOCAL)
-            env = LLEnvironment::ENV_LOCAL;
-        else if (ctrl_action == ACTION_APPLY_PARCEL)
-            env = LLEnvironment::ENV_PARCEL;
-        else if (ctrl_action == ACTION_APPLY_REGION)
-            env = LLEnvironment::ENV_REGION;
-        else
-        {
-            LL_WARNS("ENVIRONMENT") << "Unknown apply '" << ctrl_action << "'" << LL_ENDL;
-        }
-
-        LLEnvironment::instance().setEnvironment(env, mEditDay);
-        if (updateSimulator)
-        {
-            LL_WARNS("ENVIRONMENT") << "Attempting to apply " << env << LL_ENDL;
-        }
+        LL_WARNS("ENVIRONMENT") << "Unknown settings action '" << ctrl_action << "'" << LL_ENDL;
     }
 }
 
 void LLFloaterEditExtDayCycle::onBtnCancel()
 {
     closeFloater(); // will restore env
+}
+
+void LLFloaterEditExtDayCycle::onButtonImport()
+{
+    doImportFromDisk();
 }
 
 void LLFloaterEditExtDayCycle::onAddTrack()
@@ -759,6 +759,12 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
         }
     }
 
+    if (!mEditDay)
+    {
+        LL_WARNS("SETTINGS") << "Unable to load environment " << env << " building default." << LL_ENDL;
+        mEditDay = LLSettingsVODay::buildDefaultDayCycle();
+    }
+
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
@@ -857,6 +863,113 @@ void LLFloaterEditExtDayCycle::reblendSettings()
         mSkyBlender->setPosition(position);
 
     mWaterBlender->setPosition(position);    
+}
+
+void LLFloaterEditExtDayCycle::doApplyCreateNewInventory()
+{
+    // This method knows what sort of settings object to create.
+    LLSettingsVOBase::createInventoryItem(mEditDay, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+}
+
+void LLFloaterEditExtDayCycle::doApplyUpdateInventory()
+{
+    if (mInventoryId.isNull())
+        LLSettingsVOBase::createInventoryItem(mEditDay, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    else
+        LLSettingsVOBase::updateInventoryItem(mEditDay, mInventoryId, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
+}
+
+void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
+{
+    LLEnvironment::EnvSelection_t env(LLEnvironment::ENV_DEFAULT);
+    bool updateSimulator(where != ACTION_APPLY_LOCAL);
+
+    if (where == ACTION_APPLY_LOCAL)
+        env = LLEnvironment::ENV_LOCAL;
+    else if (where == ACTION_APPLY_PARCEL)
+        env = LLEnvironment::ENV_PARCEL;
+    else if (where == ACTION_APPLY_REGION)
+        env = LLEnvironment::ENV_REGION;
+    else
+    {
+        LL_WARNS("ENVIRONMENT") << "Unknown apply '" << where << "'" << LL_ENDL;
+        return;
+    }
+
+    LLEnvironment::instance().setEnvironment(env, mEditDay);
+    if (updateSimulator)
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempting apply" << LL_ENDL;
+    }
+}
+
+void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
+{
+    LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
+
+    setFocus(TRUE);                 // Call back the focus...
+    loadInventoryItem(inventory_id);
+}
+
+void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
+{
+    LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
+
+    if (inventory_id != mInventoryId)
+    {
+        loadInventoryItem(inventory_id);
+    }
+}
+
+void LLFloaterEditExtDayCycle::doImportFromDisk()
+{   // Load a a legacy Windlight XML from disk.
+
+    LLFilePicker& picker = LLFilePicker::instance();
+    if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
+    {
+        std::string filename = picker.getFirstFile();
+
+        LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+        LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename);
+
+        if (!legacyday)
+        {   // *TODO* Put up error dialog here.  Could not create water from filename
+            return;
+        }
+
+        mEditDay = legacyday;
+
+        updateEditEnvironment();
+        syncronizeTabs();
+        refresh();
+    }
+}
+
+bool LLFloaterEditExtDayCycle::canUseInventory() const
+{
+    return LLEnvironment::instance().isInventoryEnabled();
+}
+
+bool LLFloaterEditExtDayCycle::canApplyRegion() const
+{
+    return gAgent.canManageEstate();
+}
+
+bool LLFloaterEditExtDayCycle::canApplyParcel() const
+{
+    LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
+    LLParcel *parcel(nullptr);
+
+    if (handle)
+        parcel = handle->getParcel();
+    if (!parcel)
+        parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+    if (!parcel)
+        return false;
+
+    return parcel->allowModifyBy(gAgent.getID(), gAgent.getGroupID()) &&
+        LLEnvironment::instance().isExtendedEnvironmentEnabled();
 }
 
 // **RIDER**

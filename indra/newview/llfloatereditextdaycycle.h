@@ -75,12 +75,15 @@ public:
 
     connection_t setEditCommitSignal(edit_commit_signal_t::slot_type cb);
 
+    virtual void refresh();
+
 private:
 
 	// flyout response/click
 	void onButtonApply(LLUICtrl *ctrl, const LLSD &data);
 	void onBtnCancel();
-	void onAddTrack();
+    void onButtonImport();
+    void onAddTrack();
 	void onRemoveTrack();
 	void onCommitName(class LLLineEditor* caller, void* user_data);
 	void onTrackSelectionCallback(const LLSD& user_data);
@@ -107,9 +110,21 @@ private:
     void onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
     void loadLiveEnvironment(LLEnvironment::EnvSelection_t env);
 
+    void doImportFromDisk();
+    void doApplyCreateNewInventory();
+    void doApplyUpdateInventory();
+    void doApplyEnvironment(const std::string &where);
+    void onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+    void onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+
+    bool canUseInventory() const;
+    bool canApplyRegion() const;
+    bool canApplyParcel() const;
+
     void updateEditEnvironment();
     void syncronizeTabs();
     void reblendSettings();
+
     // **RIDER**
 	
     // data for restoring previous displayed environment
@@ -125,6 +140,7 @@ private:
     LLButton*			mCancelButton;
     LLButton*           mAddFrameButton;
     LLButton*           mDeleteFrameButton;
+    LLButton*           mImportButton;
 
     LLMultiSliderCtrl*	    mTimeSlider;
     LLMultiSliderCtrl*      mFramesSlider;

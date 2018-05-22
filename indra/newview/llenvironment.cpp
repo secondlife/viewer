@@ -1265,6 +1265,16 @@ LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string 
     return sky;
 }
 
+LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::string filename)
+{
+    // for the moment just look it up from the preloaded.
+    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+
+    LLSettingsDay::ptr_t day = instance().findDayCycleByName(name);
+    return day;
+}
+
+
 LLSD LLEnvironment::legacyLoadPreset(const std::string& path)
 {
     llifstream xml_file;

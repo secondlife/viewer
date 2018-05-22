@@ -8493,11 +8493,11 @@ class LLWorldEnvPreset : public view_listener_t
         }
 		else if (item == "new_day_cycle")
 		{
-			LLFloaterReg::showInstance("env_edit_day_cycle", "new");
+			LLFloaterReg::showInstance("env_edit_extdaycycle", "new");
 		}
 		else if (item == "edit_day_cycle")
 		{
-			LLFloaterReg::showInstance("env_edit_day_cycle", "edit");
+			LLFloaterReg::showInstance("env_edit_extdaycycle", "edit");
 		}
 		else
 		{

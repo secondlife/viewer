@@ -52,6 +52,16 @@
                     top="5"
                     width="200"
                     height="21" />
+            <button
+                    height="23"
+                    label="Import"
+                    follows="right|top"
+                    right="-10"
+                    font="SansSerif"
+                    top_delta="0"
+                    name="btn_import"
+                    tool_tip="Import legacy settings from disk." 
+                    width="96" />
         </layout_panel>
         <layout_panel name="timeline_track_selection"
                 border="false"
