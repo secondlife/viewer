@@ -360,7 +360,7 @@ void LLPanelEnvironmentInfo::onBtnEdit()
 
     if (dayeditor)
     {
-        dayeditor->setEditCommitSignal(boost::bind(&LLPanelEnvironmentInfo::onEditiCommited, this, _1)); //Not needed?
+        dayeditor->setEditCommitSignal(boost::bind(&LLPanelEnvironmentInfo::onEditiCommited, this, _1));
         dayeditor->openFloater(mEditingDayCycle, F32Hours(mDayLengthSlider->getValue().asReal()), F32Hours(mDayOffsetSlider->getValue().asReal()));
     }
 }

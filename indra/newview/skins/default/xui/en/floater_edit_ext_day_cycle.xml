@@ -470,25 +470,8 @@
                     top_pad="0"
                     name="save_btn"
                     width="100" />
-            <button
-                    follows="top|left"
-                    height="23"
-                    label="Cancel"
-                    layout="topleft"
-                    left_pad="10"
-                    name="cancel_btn"
-                    width="100" /> 
 
             <button
-                    follows="top|left"
-                    height="23"
-                    label="Upload"
-                    layout="topleft"
-                    left_pad="10"
-                    name="upload_btn"
-                    width="100" />
-            
-            <!--<button
                     follows="top|left"
                     height="23"
                     name="btn_flyout"
@@ -501,7 +484,25 @@
                     image_pressed="SegmentedBtn_Right_Press"
                     image_pressed_selected="SegmentedBtn_Right_Selected_Press"
                     image_overlay="Arrow_Small_Up"
-                    width="20"/>-->
+                    width="20"/>
+
+            <button
+                    follows="top|left"
+                    height="23"
+                    label="Cancel"
+                    layout="topleft"
+                    left_pad="10"
+                    name="cancel_btn"
+                    width="100" /> 
+
+            <!--<button
+                    follows="top|left"
+                    height="23"
+                    label="Upload"
+                    layout="topleft"
+                    left_pad="10"
+                    name="upload_btn"
+                    width="100" />-->
 
         </layout_panel>
     </layout_stack>

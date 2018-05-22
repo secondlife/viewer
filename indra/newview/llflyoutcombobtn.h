@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSAVECOMBOBTN_H
-#define LL_LLSAVECOMBOBTN_H
+#ifndef LL_LLFLYOUTCOMBOBTN_H
+#define LL_LLFLYOUTCOMBOBTN_H
 
 /*TODO: Make this button generic */
 
@@ -33,14 +33,11 @@ class LLButton;
 
 #include "lltoggleablemenu.h"
 
-/**
- * Represents outfit Save/Save As combo button.
- */
-class LLFlyoutComboBtn
+class LLFlyoutComboBtnCtrl
 {
-    LOG_CLASS(LLFlyoutComboBtn);
+    LOG_CLASS(LLFlyoutComboBtnCtrl);
 public:
-    LLFlyoutComboBtn(LLPanel* parent, const std::string &action_button, const std::string &flyout_button, const std::string &menu_file);
+    LLFlyoutComboBtnCtrl(LLPanel* parent, const std::string &action_button, const std::string &flyout_button, const std::string &menu_file);
 
 	void setMenuItemEnabled(const std::string &item, bool enabled);
 	void setShownBtnEnabled(bool enabled);
@@ -68,4 +65,4 @@ private:
 
     LLUICtrl::commit_signal_t   mActionSignal;
 };
-#endif // LL_LLSAVEOUTFITCOMBOBTN_H
+#endif // LL_LLFLYOUTCOMBOBTN_H

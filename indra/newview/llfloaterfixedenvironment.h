@@ -80,7 +80,7 @@ protected:
     bool                    canApplyRegion() const;
     bool                    canApplyParcel() const;
 
-    LLFlyoutComboBtn *      mFlyoutControl;
+    LLFlyoutComboBtnCtrl *      mFlyoutControl;
 
     LLUUID                  mInventoryId;
     LLInventoryItem *       mInventoryItem;
