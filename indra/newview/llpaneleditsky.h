@@ -45,7 +45,7 @@ class LLPanelSettingsSky : public LLSettingsEditPanel
 public:
                             LLPanelSettingsSky();
 
-    virtual void            setSettings(LLSettingsBase::ptr_t &settings) override   { setSky(std::static_pointer_cast<LLSettingsSky>(settings)); }
+    virtual void            setSettings(const LLSettingsBase::ptr_t &settings) override   { setSky(std::static_pointer_cast<LLSettingsSky>(settings)); }
 
     LLSettingsSky::ptr_t    getSky() const                                          { return mSkySettings; }
     void                    setSky(const LLSettingsSky::ptr_t &sky)                 { mSkySettings = sky; refresh(); }

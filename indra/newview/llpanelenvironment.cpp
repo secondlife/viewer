@@ -359,9 +359,13 @@ void LLPanelEnvironmentInfo::onBtnEdit()
     LLFloaterEditExtDayCycle *dayeditor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance("env_edit_extdaycycle");
 
     if (dayeditor)
-    {
-        dayeditor->setEditCommitSignal(boost::bind(&LLPanelEnvironmentInfo::onEditiCommited, this, _1));
-        dayeditor->openFloater();
+    {   //*TODO Determine if region or parcel.
+        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_LIVE_ENVIRONMENT, "parcel")
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mDayLengthSlider->getValueF32() * (60.0 * 60.0)));
+
+        LLFloaterReg::showInstance("env_edit_extdaycycle", params, TAKE_FOCUS_YES);
+
+//         dayeditor->openFloater(mEditingDayCycle, F32Hours(mDayLengthSlider->getValue().asReal()), F32Hours(mDayOffsetSlider->getValue().asReal()));
     }
 }
 

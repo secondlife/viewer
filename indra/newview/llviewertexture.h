@@ -156,10 +156,10 @@ public:
 	S32 getNumFaces(U32 ch) const;
 	const ll_face_list_t* getFaceList(U32 channel) const {llassert(channel < LLRender::NUM_TEXTURE_CHANNELS); return &mFaceList[channel];}
 
-	virtual void addVolume(LLVOVolume* volumep);
-	virtual void removeVolume(LLVOVolume* volumep);
-	S32 getNumVolumes() const;
-	const ll_volume_list_t* getVolumeList() const { return &mVolumeList; }
+	virtual void addVolume(U32 channel, LLVOVolume* volumep);
+	virtual void removeVolume(U32 channel, LLVOVolume* volumep);
+	S32 getNumVolumes(U32 channel) const;
+	const ll_volume_list_t* getVolumeList(U32 channel) const { return &mVolumeList[channel]; }
 
 	
 	virtual void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
@@ -201,8 +201,8 @@ protected:
 	U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];
 	LLFrameTimer      mLastFaceListUpdateTimer ;
 
-	ll_volume_list_t  mVolumeList;
-	U32					mNumVolumes;
+	ll_volume_list_t  mVolumeList[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
+	U32					mNumVolumes[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
 	LLFrameTimer	  mLastVolumeListUpdateTimer;
 
 	//do not use LLPointer here.

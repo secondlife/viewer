@@ -76,6 +76,7 @@ public:
 	const std::string&	getCurSlider() const					{ return mCurSlider; }
 	F32					getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
 	void				setCurSlider(const std::string& name);
+	void				resetCurSlider();
 	void				setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
 	/*virtual*/ void	setValue(const LLSD& value);

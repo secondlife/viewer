@@ -535,7 +535,7 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 //=========================================================================
 void LLSettingsBlender::update(F64 blendf)
 {
-
+    setPosition(blendf);
 }
 
 F64 LLSettingsBlender::setPosition(F64 blendf)

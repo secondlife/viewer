@@ -248,7 +248,8 @@ Entre em contato com o suporte do Second Life para obter ajuda em http://support
 		Reação à solicitação de saída foi uma falha do simulador.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		O sistema está passando para o modo offline.  Sua conta não está disponível para acesso até [TIME], horário do Pacífico nos EUA (GMT-08).
+		O sistema o está desconectando no momento. 
+Aguarde um minuto antes que tentar logar-se novamente.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Impossível criar sessão válida.
@@ -1459,6 +1460,9 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Arraste pastas para esta área para listá-las para venda no [Marketplace [MARKETPLACE_DASHBOARD_URL]].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Items )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		a pasta de estoque deve estar em uma pasta de versões

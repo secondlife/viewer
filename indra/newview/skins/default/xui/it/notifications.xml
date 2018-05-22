@@ -2496,7 +2496,7 @@ Vuoi disattivare la modalità Non disturbare prima di completare questa transazi
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] oggetti verranno eliminati definitivamente. Vuoi veramente eliminare in modo permanente il contenuto del tuo Cestino?
+		[COUNT] oggetti e cartelle verranno eliminati definitivamente. Vuoi veramente eliminare in modo permanente il contenuto del tuo Cestino?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3501,12 +3501,18 @@ Ti consigliamo di controllare le tue impostazioni di rete e della firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		A causa di problemi di connessione al server vocale
+		Non riusciamo a collegarci al server voce:
 
 [HOSTID]
 
-le comunicazioni tramite voce non saranno disponibili.
-Ti consigliamo di controllare le tue impostazioni di rete e della firewall.
+porte che devono avere il permesso voce sono: 
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Controlla le tue impostazione di rete e della firewall. 
+Disabilita la funzione SIP ALG del router. 
+
+La comunicazione voce non sará possibile.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

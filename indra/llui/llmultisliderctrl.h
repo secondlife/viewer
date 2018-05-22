@@ -84,6 +84,7 @@ public:
 	const std::string& getCurSlider() const					{ return mMultiSlider->getCurSlider(); }
 	F32				getCurSliderValue() const				{ return mCurValue; }
 	void			setCurSlider(const std::string& name);		
+	void			resetCurSlider();
 	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
 	virtual void	setMinValue(const LLSD& min_value)	{ setMinValue((F32)min_value.asReal()); }
