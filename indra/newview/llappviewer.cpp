@@ -4954,7 +4954,6 @@ void LLAppViewer::idle()
 	//
 	// Update weather effects
 	//
-	gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
 
 	// Update wind vector 
 	LLVector3 wind_position_region;

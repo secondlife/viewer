@@ -379,14 +379,12 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsSunUp() const
 {
-    LLVector3 sunDir = mCurrentEnvironment->getSky()->getSunDirection();
-    return sunDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+    return mCurrentEnvironment->getSky()->getIsSunUp();
 }
 
 bool LLEnvironment::getIsMoonUp() const
 {
-    LLVector3 moonDir = mCurrentEnvironment->getSky()->getMoonDirection();
-    return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+    return mCurrentEnvironment->getSky()->getIsMoonUp();
 }
 
 //-------------------------------------------------------------------------

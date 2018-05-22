@@ -137,7 +137,6 @@ public:
 	bool isIdentity() const;
 	const LLMatrix4& setZero();						// Clears matrix to all zeros.
 
-	const LLMatrix4& initRotation(const F32 angle, const F32 x, const F32 y, const F32 z);	// Calculate rotation matrix by rotating angle radians about (x, y, z)
 	const LLMatrix4& initRotation(const F32 angle, const LLVector4 &axis);	// Calculate rotation matrix for rotating angle radians about vec
 	const LLMatrix4& initRotation(const F32 roll, const F32 pitch, const F32 yaw);		// Calculate rotation matrix from Euler angles
 	const LLMatrix4& initRotation(const LLQuaternion &q);			// Set with Quaternion and position
@@ -148,10 +147,6 @@ public:
 
 	// These operation create a matrix that will rotate and translate by the
 	// specified amounts.
-	const LLMatrix4& initRotTrans(const F32 angle,
-								  const F32 rx, const F32 ry, const F32 rz,
-								  const F32 px, const F32 py, const F32 pz);
-
 	const LLMatrix4& initRotTrans(const F32 angle, const LLVector3 &axis, const LLVector3 &translation);	 // Rotation from axis angle + translation
 	const LLMatrix4& initRotTrans(const F32 roll, const F32 pitch, const F32 yaw, const LLVector4 &pos); // Rotation from Euler + translation
 	const LLMatrix4& initRotTrans(const LLQuaternion &q, const LLVector4 &pos);	// Set with Quaternion and position
@@ -211,7 +206,6 @@ public:
 
 	// Rotate existing matrix
 	// These are really, really, inefficient as implemented! - djs
-	const LLMatrix4& rotate(const F32 angle, const F32 x, const F32 y, const F32 z); 		// Rotate matrix by rotating angle radians about (x, y, z)
 	const LLMatrix4& rotate(const F32 angle, const LLVector4 &vec);		// Rotate matrix by rotating angle radians about vec
 	const LLMatrix4& rotate(const F32 roll, const F32 pitch, const F32 yaw);		// Rotate matrix by Euler angles
 	const LLMatrix4& rotate(const LLQuaternion &q);				// Rotate matrix by Quaternion

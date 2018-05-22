@@ -74,7 +74,6 @@ LLSky::LLSky()
 
 	mLightingGeneration = 0;
 	mUpdatedThisFrame = TRUE;
-	mSunPhase = 0.f;
 }
 
 
@@ -292,27 +291,6 @@ void LLSky::init(const LLVector3 &sun_direction)
 
 	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));	
 
-	////////////////////////////
-	//
-	// Legacy code, ignore
-	//
-	//
-
-	// Get the parameters.
-	mSunDefaultPosition = gSavedSettings.getVector3("SkySunDefaultPosition");
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition"))
-	{
-		setSunDirection(mSunDefaultPosition, -mSunDefaultPosition);
-	}
-	else
-	{
-		setSunDirection(sun_direction, -sun_direction);
-	}
-
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
@@ -335,39 +313,6 @@ void LLSky::setWind(const LLVector3& average_wind)
 	{
 		mVOSkyp->setWind(average_wind);
 	}
-}
-
-
-void LLSky::propagateHeavenlyBodies(F32 dt)
-{
-// 	if (!mOverrideSimSunPosition)
-// 	{
-// 		LLVector3 curr_dir = getSunDirection();
-// 		LLVector3 diff = mSunTargDir - curr_dir;
-// 		const F32 dist = diff.normVec();
-// 		if (dist > 0)
-// 		{
-// 			const F32 step = llmin (dist, 0.00005f);
-// 			//const F32 step = min (dist, 0.0001);
-// 			diff *= step;
-// 			curr_dir += diff;
-// 			curr_dir.normVec();
-// 			if (mVOSkyp)
-// 			{
-// 				mVOSkyp->setSunDirection(curr_dir);
-// 			}
-// 		}
-// 	}
-}
-
-F32 LLSky::getSunPhase() const
-{
-	return mSunPhase;
-}
-
-void LLSky::setSunPhase(const F32 phase)
-{
-	mSunPhase = phase;
 }
 
 //////////////////////////////////////////////////////////////////////

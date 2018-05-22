@@ -464,8 +464,10 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS];
     legacy[SETTING_SUNLIGHT_COLOR] = ensureArray4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
     
+// convert to azimuth (yaw) from east and alt (pitch) from horizon
+// in +x is at (north), +z up, +y right (east)
     LLSettingsSky::azimalt_t azialt = psky->getSunRotationAzAl();
-
+    
     legacy[SETTING_LEGACY_EAST_ANGLE] = azialt.first;
     legacy[SETTING_LEGACY_SUN_ANGLE] = azialt.second;
     
@@ -480,6 +482,8 @@ void LLSettingsVOSky::updateSettings()
     LLVector3 sun_direction = getSunDirection();
     LLVector3 moon_direction = getMoonDirection();
 
+    // axis swap converts from +x right, +y up, +z at
+    // to CFR (+x at, +z up, +y right)
     // set direction (in CRF) and don't allow overriding
     LLVector3 crf_sunDirection(sun_direction.mV[2], sun_direction.mV[0], sun_direction.mV[1]);
     LLVector3 crf_moonDirection(moon_direction.mV[2], moon_direction.mV[0], moon_direction.mV[1]);

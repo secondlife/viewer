@@ -35,6 +35,7 @@
 //=========================================================================
 namespace
 {
+    // vectors in +x at, +y up, +z right coord sys
     const LLVector3 DUE_EAST(0.0f, 0.0f, 1.0);
     const LLVector3 VECT_ZENITH(0.f, 1.f, 0.f);
     const LLVector3 VECT_NORTHSOUTH(1.f, 0.f, 0.f);
@@ -599,7 +600,12 @@ LLSD LLSettingsSky::defaults()
 {
     LLSD dfltsetting;
     LLQuaternion sunquat;
+
+    // we're using the roll value of 80 degrees from horizon
+    // with an euler angle conversion meant for a +x right, +y up, +z at coord sys here
     sunquat.setEulerAngles(1.39626, 0.0, 0.0); // 80deg Azumith/0deg East
+
+    // then we're using the conjugate which does not give the opposite direction
     LLQuaternion moonquat = ~sunquat;
 
     // Magic constants copied form dfltsetting.xml 
@@ -807,34 +813,41 @@ void LLSettingsSky::updateSettings()
     calculateLightSettings();
 }
 
+bool LLSettingsSky::getIsSunUp() const
+{
+    LLVector3 sunDir = getSunDirection();
+    return sunDir.mV[1] > NIGHTTIME_ELEVATION_SIN;
+}
+
+bool LLSettingsSky::getIsMoonUp() const
+{
+    LLVector3 moonDir = getMoonDirection();
+    return moonDir.mV[1] > NIGHTTIME_ELEVATION_SIN;
+}
+
 void LLSettingsSky::calculateHeavnlyBodyPositions()
 {
-    mSunDirection = DUE_EAST * getSunRotation();
+    LLQuaternion sunq  = getSunRotation();
+    LLQuaternion moonq = getMoonRotation();
+
+    mSunDirection = DUE_EAST * sunq;
     mSunDirection.normalize();
 
-    mMoonDirection = DUE_EAST * getMoonRotation();
+    mMoonDirection = DUE_EAST * moonq;
     mMoonDirection.normalize();
 
     // is the normal from the sun or the moon
-    if (mSunDirection.mV[1] >= 0.0)
+    if (getIsSunUp())
     {
         mLightDirection = mSunDirection;
     }
-    else if (mSunDirection.mV[1] < 0.0 && mSunDirection.mV[1] > NIGHTTIME_ELEVATION_SIN)
+    else if (getIsMoonUp())
     {
-        // clamp v1 to 0 so sun never points up and causes weirdness on some machines
-        LLVector3 vec(mSunDirection);
-        vec.mV[1] = 0.0;
-        vec.normalize();
-        mLightDirection = vec;
+        mLightDirection = mMoonDirection;
     }
     else
     {
-        // clamp v1 to 0 so moon never points up and causes weirdness on some machines
-        LLVector3 vec(mMoonDirection);
-        vec.mV[1] = 0.0;
-        vec.normalize();
-        mLightDirection = vec;
+        mLightDirection = LLVector3::z_axis;
     }
 
     // calculate the clamp lightnorm for sky (to prevent ugly banding in sky
@@ -846,6 +859,10 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
         mClampedLightDirection.mV[1] = -0.1f;
         mClampedLightDirection.normalize();
     }
+
+    //LL_INFOS() << "Sun:   " << mSunDirection << LL_ENDL;
+    //LL_INFOS() << "Moon:  " << mMoonDirection << LL_ENDL;
+    //LL_INFOS() << "Light: " << mLightDirection << LL_ENDL;
 }
 
 LLColor3 LLSettingsSky::getBlueDensity() const

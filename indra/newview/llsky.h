@@ -63,8 +63,6 @@ public:
 	void updateCull();
 	void updateSky();
 
-	void propagateHeavenlyBodies(F32 dt);					// dt = seconds
-
 	S32  mLightingGeneration;
 	BOOL mUpdatedThisFrame;
 
@@ -81,8 +79,8 @@ public:
 	LLColor4 getTotalAmbientColor() const;
 	BOOL sunUp() const;
 
-	F32 getSunPhase() const;
-	void setSunPhase(const F32 phase);
+    // Legacy
+	void setSunPhase(const F32) { }
 
 	void destroyGL();
 	void restoreGL();
@@ -91,17 +89,11 @@ public:
 public:
 	LLPointer<LLVOSky>		mVOSkyp;	// Pointer to the LLVOSky object (only one, ever!)
 	LLPointer<LLVOGround>	mVOGroundp;
-
 	LLPointer<LLVOWLSky>	mVOWLSkyp;
 
-	// Legacy stuff
-	LLVector3 mSunDefaultPosition;
-
 protected:
-	F32				mSunPhase;
-	LLColor4		mFogColor;				// Color to use for fog and haze
-
+    LLColor4 mFogColor;
 };
 
-extern LLSky    gSky;
+extern LLSky gSky;
 #endif

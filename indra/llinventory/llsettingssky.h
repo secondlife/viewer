@@ -490,6 +490,9 @@ public:
     void setHazeDensity(F32 val);
     void setHazeHorizon(F32 val);
 
+    bool getIsSunUp() const;
+    bool getIsMoonUp() const;
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
