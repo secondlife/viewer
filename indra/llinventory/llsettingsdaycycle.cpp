@@ -611,6 +611,16 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(F32 keyframe, S32 tra
     return LLSettingsBase::ptr_t();
 }
 
+F32 LLSettingsDay::getUpperBoundFrame(S32 track, F32 keyframe)
+{
+    return get_wrapping_atafter(mDayTracks[track], keyframe)->first;
+}
+
+F32 LLSettingsDay::getLowerBoundFrame(S32 track, F32 keyframe)
+{
+    return get_wrapping_atbefore(mDayTracks[track], keyframe)->first;
+}
+
 LLSettingsDay::TrackBound_t LLSettingsDay::getBoundingEntries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)
 {
     return TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
