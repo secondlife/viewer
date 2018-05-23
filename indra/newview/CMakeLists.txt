@@ -1368,11 +1368,6 @@ if (DARWIN)
     COMPILE_FLAGS "-fmodules -fcxx-modules"
     )
 
-  # from https://stackoverflow.com/a/43551534
-  set(CMAKE_MACOSX_RPATH 1)
-  # From Contents/MacOS/SecondLife, look in Contents/Frameworks
-  set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks")
-
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COCOA_LIBRARY Cocoa)
@@ -1937,8 +1932,8 @@ else (WINDOWS)
 endif (WINDOWS)
 
 # *NOTE: - this list is very sensitive to ordering, test carefully on all
-# platforms if you change the releative order of the entries here.
-# In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
+# platforms if you change the relative order of the entries here.
+# In particular, cmake 2.6.4 (when building with linux/makefile generators)
 # appears to sometimes de-duplicate redundantly listed dependencies improperly.
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
@@ -2101,11 +2096,16 @@ if (DARWIN)
   set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2007")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
   set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
+
+  # https://blog.kitware.com/upcoming-in-cmake-2-8-12-osx-rpath-support/
+  set(CMAKE_MACOSX_RPATH 1)
   
   set_target_properties(
     ${VIEWER_BINARY_NAME}
     PROPERTIES
     OUTPUT_NAME "${product}"
+    # From Contents/MacOS/SecondLife, look in Contents/Frameworks
+    INSTALL_RPATH "@loader_path/../Frameworks"
     MACOSX_BUNDLE_INFO_PLIST
     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     )
