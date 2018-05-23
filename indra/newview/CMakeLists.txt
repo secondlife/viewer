@@ -3,7 +3,12 @@
 project(viewer)
 
 include(00-Common)
+# DON'T move Linking.cmake to its place in the alphabetized list below: it
+# sets variables on which the 3p .cmake files depend.
+include(Linking)
+
 include(Boost)
+include(bugsplat)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -37,7 +42,6 @@ include(LLUI)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
@@ -91,6 +95,7 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${BUGSPLAT_INCLUDE_DIR}
     )
 
 include_directories(SYSTEM
@@ -1354,6 +1359,19 @@ if (DARWIN)
 
   # This should be compiled with the viewer.
   LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
+  set_source_files_properties(
+    llappdelegate-objc.mm
+    PROPERTIES
+    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+    # BugsplatMac is a module, imported with @import. That language feature
+    # demands these switches.
+    COMPILE_FLAGS "-fmodules -fcxx-modules"
+    )
+
+  # from https://stackoverflow.com/a/43551534
+  set(CMAKE_MACOSX_RPATH 1)
+  # From Contents/MacOS/SecondLife, look in Contents/Frameworks
+  set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks")
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1366,6 +1384,7 @@ if (DARWIN)
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
     ${COREAUDIO_LIBRARY}
+    ${BUGSPLAT_LIBRARIES}
     )
 
   # Add resource files to the project.
@@ -1393,6 +1412,11 @@ endif (DARWIN)
 
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
+    set_source_files_properties(
+      llappviewerlinux.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
@@ -1409,6 +1433,11 @@ if (WINDOWS)
          llappviewerwin32.cpp
          llwindebug.cpp
          )
+    set_source_files_properties(
+      llappviewerwin32.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1691,6 +1720,11 @@ if (SDL_FOUND)
     )
 endif (SDL_FOUND)
 
+if (BUGSPLAT)
+  set_property(TARGET ${VIEWER_BINARY_NAME}
+    PROPERTY COMPILE_DEFINITIONS "LL_BUGSPLAT")
+endif (BUGSPLAT)
+
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
@@ -1789,7 +1823,7 @@ if (WINDOWS)
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
           )
     endif (FMODEX)
-    
+
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}
@@ -1977,6 +2011,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    ${BUGSPLAT_LIBRARIES}
     )
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
