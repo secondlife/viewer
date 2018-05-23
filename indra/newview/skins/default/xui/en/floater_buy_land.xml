@@ -702,16 +702,6 @@ This parcel is 512 m² of land.
      right="400">
         You have L$ 2,100.
     </text>
-    <check_box
-     follows="bottom|left"
-     height="20"
-     label="Remove [AMOUNT] m² of contribution from group."
-     layout="topleft"
-     left_delta="3"
-     name="remove_contribution"
-     top_delta="14"
-     visible="false"
-     width="275" />
     <button
      follows="bottom|left"
      height="20"
@@ -721,6 +711,15 @@ This parcel is 512 m² of land.
      name="buy_btn"
      top="460"
      width="100" />
+    <check_box
+     follows="bottom|left"
+     height="20"
+     label="Remove [AMOUNT] m² of contribution from group."
+     layout="topleft"
+     left_pad="3"
+     name="remove_contribution"
+     visible="false"
+     width="275" />
     <button
      follows="bottom|right"
      height="20"

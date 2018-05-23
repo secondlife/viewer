@@ -99,8 +99,7 @@ public:
 
 	void setServerReleaseNotesURL(const std::string& url) { mServerReleaseNotesURL = url; }
 	LLSD getViewerInfo() const;
-	std::string getViewerInfoString() const;
-	std::string getShortViewerInfoString() const;
+	std::string getViewerInfoString(bool default_string = false) const;
 
 	// Report true if under the control of a debugger. A null-op default.
 	virtual bool beingDebugged() { return false; } 
@@ -221,6 +220,8 @@ protected:
 	virtual bool meetsRequirementsForMaximizedStart(); // Used on first login to decide to launch maximized
 
 private:
+
+	bool doFrame();
 
 	void initMaxHeapSize();
 	bool initThreads(); // Initialize viewer threads, return false on failure.
@@ -395,5 +396,7 @@ extern LLUUID gBlackSquareID;
 
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
+
+extern BOOL gSimulateMemLeak;
 
 #endif // LL_LLAPPVIEWER_H

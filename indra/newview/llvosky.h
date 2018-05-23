@@ -248,11 +248,11 @@ public:
 	const LLHeavenBody& getSun() const						{ return mSun; }
 	const LLHeavenBody& getMoon() const						{ return mMoon; }
 
-	const LLVector3& getToSunLast() const					{ return mSun.getDirectionCached(); }
-	const LLVector3& getToSun() const						{ return mSun.getDirection(); }
-	const LLVector3& getToMoon() const						{ return mMoon.getDirection(); }
-	const LLVector3& getToMoonLast() const					{ return mMoon.getDirectionCached(); }
-	BOOL isSunUp() const									{ return mSun.getDirectionCached().mV[2] > -0.05f; }
+	//const LLVector3& getToSunLast() const					{ return mSun.getDirectionCached(); }
+	//const LLVector3& getToSun() const						{ return mSun.getDirection(); }
+	//const LLVector3& getToMoon() const						{ return mMoon.getDirection(); }
+	//const LLVector3& getToMoonLast() const					{ return mMoon.getDirectionCached(); }
+	//BOOL isSunUp() const									{ return mSun.getDirectionCached().mV[2] > -0.05f; }
 
     LLVector3 getLightDirection() const;
     LLColor3 getSunDiffuseColor() const;

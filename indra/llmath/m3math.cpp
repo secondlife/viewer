@@ -34,6 +34,8 @@
 #include "m3math.h"
 #include "llquaternion.h"
 
+#pragma optimize("", off)
+
 // LLMatrix3
 
 //              ji  

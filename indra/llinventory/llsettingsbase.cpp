@@ -207,11 +207,6 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
                     LLQuaternion q = slerp(mix, LLQuaternion(value), LLQuaternion(other_value));
                     newvalue = q.getValue();
                 }
-                else if (value[0].type() == LLSD::TypeMap)
-                {
-                    // TODO
-                    // determine if lerping between maps is both feasible and reasonable
-                }
                 else
                 {   // TODO: We could expand this to inspect the type and do a deep lerp based on type. 
                     // for now assume a heterogeneous array of reals. 
@@ -219,6 +214,7 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
 
                     for (size_t i = 0; i < len; ++i)
                     {
+
                         newvalue[i] = lerp(value[i].asReal(), other_value[i].asReal(), mix);
                     }
                 }
@@ -539,7 +535,7 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 //=========================================================================
 void LLSettingsBlender::update(F64 blendf)
 {
-
+    setPosition(blendf);
 }
 
 F64 LLSettingsBlender::setPosition(F64 blendf)
@@ -561,8 +557,8 @@ F64 LLSettingsBlender::setPosition(F64 blendf)
 void LLSettingsBlender::triggerComplete()
 {
     mTarget->replaceSettings(mFinal->getSettings());
-        LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
-        mOnFinished(shared_from_this());
+    LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
+    mOnFinished(shared_from_this());
 }
 
 //-------------------------------------------------------------------------

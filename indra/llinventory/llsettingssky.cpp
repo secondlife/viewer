@@ -32,19 +32,23 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#pragma optimize("", off)
+
+static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
+static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+
 //=========================================================================
 namespace
 {
-    // vectors in +x at, +y up, +z right coord sys
-    const LLVector3 DUE_EAST(0.0f, 0.0f, 1.0);
-    const LLVector3 VECT_ZENITH(0.f, 1.f, 0.f);
-    const LLVector3 VECT_NORTHSOUTH(1.f, 0.f, 0.f);
-
     LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");
+}
 
-    LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude);
-    void angles_from_rotation(LLQuaternion quat, F32 &azimuth, F32 &altitude);
+static LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude)
+{
+    LLQuaternion body_quat;
+    body_quat.setEulerAngles(0.0f, -altitude, azimuth);
+    return body_quat;
 }
 
 const F32 LLSettingsSky::DOME_OFFSET(0.96f);
@@ -384,33 +388,6 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     mNextCloudTextureId = other->getCloudNoiseTextureId();
 }
 
-
-void LLSettingsSky::setMoonRotation(F32 azimuth, F32 altitude)
-{
-    setValue(SETTING_MOON_ROTATION, ::body_position_from_angles(azimuth, altitude));
-}
-
-LLSettingsSky::azimalt_t LLSettingsSky::getMoonRotationAzAl() const
-{
-    azimalt_t res;
-    ::angles_from_rotation(getMoonRotation(), res.first, res.second);
-
-    return res;
-}
-
-void LLSettingsSky::setSunRotation(F32 azimuth, F32 altitude)
-{
-    setValue(SETTING_SUN_ROTATION, ::body_position_from_angles(azimuth, altitude));
-}
-
-LLSettingsSky::azimalt_t LLSettingsSky::getSunRotationAzAl() const
-{
-    azimalt_t res;
-    ::angles_from_rotation(getSunRotation(), res.first, res.second);
-
-    return res;
-}
-
 LLSettingsSky::stringset_t LLSettingsSky::getSkipInterpolateKeys() const
 {
     static stringset_t skipSet;
@@ -600,13 +577,10 @@ LLSD LLSettingsSky::defaults()
 {
     LLSD dfltsetting;
     LLQuaternion sunquat;
+    LLQuaternion moonquat;
 
-    // we're using the roll value of 80 degrees from horizon
-    // with an euler angle conversion meant for a +x right, +y up, +z at coord sys here
-    sunquat.setEulerAngles(1.39626, 0.0, 0.0); // 80deg Azumith/0deg East
-
-    // then we're using the conjugate which does not give the opposite direction
-    LLQuaternion moonquat = ~sunquat;
+    sunquat.setEulerAngles(0.0f, -1.39626, 0.0f); // 80 deg pitch / 0   deg azimuth from East
+    moonquat.setEulerAngles(0.0f, -1.39626, F_PI); // 80 deg pitch / 180 deg azimuth from East
 
     // Magic constants copied form dfltsetting.xml 
     dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
@@ -683,7 +657,7 @@ LLSD LLSettingsSky::translateLegacyHazeSettings(const LLSD& legacy)
     return legacyhazesettings;
 }
 
-LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
+LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy, const std::string* name)
 {
     LLSD newsettings(defaults());
 
@@ -785,16 +759,21 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
     {   // convert the east and sun angles into a quaternion.
-        F32 azimuth = legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
+        F32 azimuth  = legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
         F32 altitude = legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
 
-        LLQuaternion sunquat = ::body_position_from_angles(azimuth, altitude);
-        LLQuaternion moonquat = ::body_position_from_angles(azimuth + F_PI, -altitude);
+        F32 pi_over_2 = F_PI * 0.5f;
+        LLQuaternion sunquat  = body_position_from_angles(azimuth - pi_over_2, altitude);
+        LLQuaternion moonquat = body_position_from_angles(azimuth + pi_over_2, altitude);
 
-        F32 az(0), al(0);
-        ::angles_from_rotation(sunquat, az, al);
+        if (name)
+        {
+            LLVector3 sundir  = LLVector3::x_axis * sunquat;
+            LLVector3 moondir = LLVector3::x_axis * moonquat;
+            LL_INFOS() << *name << " sun: " << sundir << " moon: " << moondir << LL_ENDL;
+        }
 
-        newsettings[SETTING_SUN_ROTATION] = sunquat.getValue();
+        newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
     }
 
@@ -816,13 +795,13 @@ void LLSettingsSky::updateSettings()
 bool LLSettingsSky::getIsSunUp() const
 {
     LLVector3 sunDir = getSunDirection();
-    return sunDir.mV[1] > NIGHTTIME_ELEVATION_SIN;
+    return sunDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
 }
 
 bool LLSettingsSky::getIsMoonUp() const
 {
     LLVector3 moonDir = getMoonDirection();
-    return moonDir.mV[1] > NIGHTTIME_ELEVATION_SIN;
+    return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
 }
 
 void LLSettingsSky::calculateHeavnlyBodyPositions()
@@ -830,10 +809,10 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()
     LLQuaternion sunq  = getSunRotation();
     LLQuaternion moonq = getMoonRotation();
 
-    mSunDirection = DUE_EAST * sunq;
+    mSunDirection = LLVector3::x_axis * sunq;
     mSunDirection.normalize();
 
-    mMoonDirection = DUE_EAST * moonq;
+    mMoonDirection = LLVector3::x_axis * moonq;
     mMoonDirection.normalize();
 
     // is the normal from the sun or the moon
@@ -1036,55 +1015,4 @@ void LLSettingsSky::calculateLightSettings()
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(0);
 }
-
-
-//=========================================================================
-namespace
-{
-    LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude)
-    {
-        // Azimuth is traditionally calculated from North, we are going from East.
-        LLQuaternion rot_azi;
-        LLQuaternion rot_alt;
-
-        rot_azi.setAngleAxis(azimuth, VECT_ZENITH);
-        rot_alt.setAngleAxis(-altitude, VECT_NORTHSOUTH);
-
-        LLQuaternion body_quat = rot_alt * rot_azi;
-        body_quat.normalize();
-
-        //LLVector3 sun_vector = (DUE_EAST * body_quat);
-        //_WARNS("RIDER") << "Azimuth=" << azimuth << " Altitude=" << altitude << " Body Vector=" << sun_vector.getValue() << LL_ENDL;
-        return body_quat;
-    }
-
-    void angles_from_rotation(LLQuaternion quat, F32 &azimuth, F32 &altitude)
-    {
-        LLVector3 body_vector = (DUE_EAST * quat);
-
-        LLVector3 body_az(body_vector[0], 0.f, body_vector[2]);
-        LLVector3 body_al(0.f, body_vector[1], body_vector[2]);
-        
-        if (fabs(body_az.normalize()) > 0.001)
-        {
-            azimuth = angle_between(DUE_EAST, body_az);
-            if (body_az[1] < 0.0f)
-                azimuth = F_TWO_PI - azimuth;
-        }
-        else
-            azimuth = 0.0f;
-
-        if (fabs(body_al.normalize()) > 0.001)
-        {
-            altitude = angle_between(DUE_EAST, body_al);
-            if (body_al[2] < 0.0f)
-            {
-                altitude = F_TWO_PI - altitude;
-            }
-        }
-        else
-            altitude = 0.0f;
-    }
-}
-
 

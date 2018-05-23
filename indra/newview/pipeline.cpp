@@ -6034,7 +6034,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
 			}
 		}
 		F32 backlight_mag;
-		if (gSky.getSunDirection().mV[2] >= NIGHTTIME_ELEVATION_SIN)
+        if (LLEnvironment::instance().getIsSunUp())
 		{
 			backlight_mag = BACKLIGHT_DAY_MAGNITUDE_OBJECT;
 		}
@@ -6253,14 +6253,16 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 	// Light 0 = Sun or Moon (All objects)
 	{
-		if (gSky.getSunDirection().mV[2] >= NIGHTTIME_ELEVATION_SIN)
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+		if (LLEnvironment::instance().getIsSunUp())
 		{
-			mSunDir.setVec(gSky.getSunDirection());
+			mSunDir.setVec(psky->getSunDirection());
 			mSunDiffuse.setVec(gSky.getSunDiffuseColor());
 		}
 		else
 		{
-			mSunDir.setVec(gSky.getMoonDirection());
+			mSunDir.setVec(psky->getMoonDirection());
 			mSunDiffuse.setVec(gSky.getMoonDiffuseColor());
 		}
 

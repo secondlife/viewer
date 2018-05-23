@@ -551,23 +551,15 @@ bool LLSettingsDay::removeTrackKeyframe(S32 trackno, F32 frame)
 
 void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe)
 {
-    mDayTracks[TRACK_WATER][llclamp(keyframe, 0.0f, 1.0f)] = water;
-    setDirtyFlag(true);
+    setSettingsAtKeyframe(water, keyframe, TRACK_WATER);
 }
 
-const LLSettingsWaterPtr_t LLSettingsDay::getWaterAtKeyframe(F32 keyframe)
+LLSettingsWater::ptr_t LLSettingsDay::getWaterAtKeyframe(F32 keyframe) const
 {
-    // todo: better way to identify keyframes?
-    CycleTrack_t::iterator iter = mDayTracks[TRACK_WATER].find(keyframe);
-    if (iter != mDayTracks[TRACK_WATER].end())
-    {
-        return std::dynamic_pointer_cast<LLSettingsWater>(iter->second);
-    }
-
-    return LLSettingsWaterPtr_t(NULL);
+    return std::dynamic_pointer_cast<LLSettingsWater>(getSettingsAtKeyframe(keyframe, TRACK_WATER));
 }
 
-void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe, S32 track)
+void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, F32 keyframe, S32 track)
 {
     if ((track < 1) || (track >= TRACK_MAX))
     {
@@ -575,44 +567,48 @@ void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe
         return;
     }
 
-    mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = sky;
-    setDirtyFlag(true);
+    setSettingsAtKeyframe(sky, keyframe, track);
 }
 
-const LLSettingsSkyPtr_t LLSettingsDay::getSkyAtKeyframe(F32 keyframe, S32 track)
+LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(F32 keyframe, S32 track) const
 {
     if ((track < 1) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
-        return LLSettingsSkyPtr_t(NULL);
+        return LLSettingsSky::ptr_t();
     }
 
-    // todo: better way to identify keyframes?
-    CycleTrack_t::iterator iter = mDayTracks[track].find(keyframe);
-    if (iter != mDayTracks[track].end())
-    {
-        return std::dynamic_pointer_cast<LLSettingsSky>(iter->second);
-    }
-
-    return LLSettingsSkyPtr_t(NULL);
+    return std::dynamic_pointer_cast<LLSettingsSky>(getSettingsAtKeyframe(keyframe, track));
 }
 
-const LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(F32 keyframe, S32 track)
+void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, F32 keyframe, S32 track)
+{
+    if ((track < 0) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to set track (#" << track << ") out of range!" << LL_ENDL;
+        return;
+    }
+
+    mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = settings;
+    setDirtyFlag(true);
+}
+
+LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(F32 keyframe, S32 track) const
 {
     if ((track < 0) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
-        return LLSettingsBase::ptr_t(NULL);
+        return LLSettingsBase::ptr_t();
     }
 
     // todo: better way to identify keyframes?
-    CycleTrack_t::iterator iter = mDayTracks[track].find(keyframe);
+    CycleTrack_t::const_iterator iter = mDayTracks[track].find(keyframe);
     if (iter != mDayTracks[track].end())
     {
         return iter->second;
     }
 
-    return LLSettingsSkyPtr_t(NULL);
+    return LLSettingsBase::ptr_t();
 }
 
 LLSettingsDay::TrackBound_t LLSettingsDay::getBoundingEntries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)

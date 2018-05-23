@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		[ITEM_COUNT] 個のアイテムを取得中です... [FILTER]
+		[ITEM_COUNT] 個のアイテムと [CATEGORY_COUNT] 個のフォルダーを取得中です... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] 個のアイテム　[FILTER]
+		[ITEM_COUNT] 個のアイテムと [CATEGORY_COUNT] 個のフォルダー [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
-		[ITEM_COUNT] 個の取得アイテム　[FILTER]
+		[ITEM_COUNT] 個のアイテムと [CATEGORY_COUNT] 個のフォルダーを取得しました [FILTER]
 	</panel.string>
 	<text name="ItemcountText">
 		アイテム：

@@ -136,7 +136,7 @@ void LLSky::setSunDirection(const LLVector3 &sun_direction, const LLVector3 &moo
 	}
 }
 
-LLVector3 LLSky::getSunDirection() const
+/*LLVector3 LLSky::getSunDirection() const
 {
 	if (mVOSkyp)
 	{
@@ -159,7 +159,7 @@ LLVector3 LLSky::getMoonDirection() const
 	{
 		return LLVector3::z_axis;
 	}
-}
+}*/
 
 
 LLColor4 LLSky::getSunDiffuseColor() const
@@ -225,7 +225,7 @@ LLColor4 LLSky::getTotalAmbientColor() const
 }
 
 
-BOOL LLSky::sunUp() const
+/*BOOL LLSky::sunUp() const
 {
 	if (mVOSkyp)
 	{
@@ -235,7 +235,7 @@ BOOL LLSky::sunUp() const
 	{
 		return TRUE;
 	}
-}
+}*/
 
 
 LLColor4U LLSky::getFadeColor() const

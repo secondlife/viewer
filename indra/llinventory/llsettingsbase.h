@@ -267,7 +267,7 @@ public:
     typedef boost::signals2::connection     connection_t;
 
     LLSettingsBlender(const LLSettingsBase::ptr_t &target,
-            const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 span = 1.0) :
+            const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting) :
         mOnFinished(),
         mTarget(target),
         mInitial(initsetting),
@@ -279,8 +279,9 @@ public:
 
     virtual ~LLSettingsBlender() {}
 
-    virtual void            reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 span = 1.0)
+    virtual void            reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 /*span*/ = 1.0)
     {
+        // note: the 'span' reset parameter is unused by the base class.
         mInitial = initsetting;
         mFinal = endsetting;
         mTarget->replaceSettings(mInitial->getSettings());
@@ -324,7 +325,7 @@ class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 public:
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
         const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds) :
-        LLSettingsBlender(target, initsetting, endsetting, seconds.value()),
+        LLSettingsBlender(target, initsetting, endsetting),
         mBlendSpan(seconds),
         mLastUpdate(0.0f),
         mTimeSpent(0.0f)

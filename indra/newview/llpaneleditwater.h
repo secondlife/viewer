@@ -45,7 +45,7 @@ class LLPanelSettingsWater : public LLSettingsEditPanel
 public:
                             LLPanelSettingsWater();
 
-    virtual void            setSettings(LLSettingsBase::ptr_t &settings) override   { setWater(std::static_pointer_cast<LLSettingsWater>(settings)); }
+    virtual void            setSettings(const LLSettingsBase::ptr_t &settings) override   { setWater(std::static_pointer_cast<LLSettingsWater>(settings)); }
 
     LLSettingsWater::ptr_t  getWater() const                                        { return mWaterSettings; }
     void                    setWater(const LLSettingsWater::ptr_t &water)           { mWaterSettings = water; refresh(); }

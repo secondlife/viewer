@@ -33,6 +33,8 @@
 class LLSettingsWater;
 class LLSettingsSky;
 
+// These are alias for LLSettingsWater::ptr_t and LLSettingsSky::ptr_t respectively.
+// Here for definitions only.
 typedef std::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
 typedef std::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
 
@@ -84,16 +86,16 @@ public:
     static LLSD                 defaults();
 
     //---------------------------------------------------------------------
-
     KeyframeList_t              getTrackKeyframes(S32 track);
     bool                        moveTrackKeyframe(S32 track, F32 old_frame, F32 new_frame);
     bool                        removeTrackKeyframe(S32 track, F32 frame);
 
     void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
-    const LLSettingsWaterPtr_t  getWaterAtKeyframe(F32 keyframe);
+    LLSettingsWaterPtr_t        getWaterAtKeyframe(F32 keyframe) const;
     void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe, S32 track);
-    const LLSettingsSkyPtr_t    getSkyAtKeyframe(F32 keyframe, S32 track);
-    const LLSettingsBase::ptr_t getSettingsAtKeyframe(F32 keyframe, S32 track);
+    LLSettingsSkyPtr_t          getSkyAtKeyframe(F32 keyframe, S32 track) const;
+    void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, F32 keyframe, S32 track);
+    LLSettingsBase::ptr_t       getSettingsAtKeyframe(F32 keyframe, S32 track) const;
         //---------------------------------------------------------------------
     void                        startDayCycle();
 

@@ -37,9 +37,6 @@ const F32 SUN_DIST      = 149598.260e6f;
 const F32 MOON_RADIUS   =      1.737e6f;
 const F32 MOON_DIST     =    384.400e6f;
 
-const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
-const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
-
 class LLSettingsSky: public LLSettingsBase
 {
 public:
@@ -96,7 +93,6 @@ public:
     static const std::string SETTING_LEGACY_HAZE;
 
     typedef std::shared_ptr<LLSettingsSky> ptr_t;
-    typedef std::pair<F32, F32> azimalt_t;
 
     //---------------------------------------------------------------------
     LLSettingsSky(const LLSD &data);
@@ -315,15 +311,6 @@ public:
         setValue(SETTING_MOON_ROTATION, val);
     }
 
-    azimalt_t getMoonRotationAzAl() const;
-
-    void setMoonRotation(F32 azimuth, F32 altitude);
-
-    void setMoonRotation(const azimalt_t &azialt)
-    {
-        setMoonRotation(azialt.first, azialt.second);
-    }
-
     LLUUID getMoonTextureId() const
     {
         return mSettings[SETTING_MOON_TEXTUREID].asUUID();
@@ -359,18 +346,9 @@ public:
         return LLQuaternion(mSettings[SETTING_SUN_ROTATION]);
     }
 
-    azimalt_t getSunRotationAzAl() const;
-
     void setSunRotation(const LLQuaternion &val) 
     {
         setValue(SETTING_SUN_ROTATION, val);
-    }
-
-    void setSunRotation(F32 azimuth, F32 altitude);
-
-    void setSunRotation(const azimalt_t & azimalt)
-    {
-        setSunRotation(azimalt.first, azimalt.second);
     }
 
     LLUUID getSunTextureId() const
@@ -468,7 +446,7 @@ public:
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
-    static LLSD translateLegacySettings(const LLSD& legacy);
+    static LLSD translateLegacySettings(const LLSD& legacy, const std::string* name = nullptr);
     static LLSD translateLegacyHazeSettings(const LLSD& legacy);
 
     LLColor3 getLightAttenuation(F32 distance) const;

@@ -15,7 +15,7 @@
     <string name="hint_edit">To edit your day cycle, adjust the controls below and click "Save".</string>
 
     <!-- Todo: These 5 strings might be subjected to a change to get dynamic labels, consider using layout_stack to get dynamic width adjustment-->
-    <string name="time_label"> ([TIME] hr)</string>
+    <string name="time_label"> ([HH]:[MM])</string>
 
     <layout_stack name="test_stack"
             width="705"
@@ -58,23 +58,19 @@
                 bevel_style="in"
                 auto_resize="false"
                 user_resize="true"
-                bg_alpha_color="red"
                 height="150"
                 min_height="0"
-                visible="true"
-                background_visible="true">
+                visible="true">
             <panel name="timeline_layers"
                     border="false"
                     follows="left|top"
                     auto_resize="false"
                     user_resize="true"
-                    bg_alpha_color="yellow"
                     height="150"
                     width="110"
                     top_pad="0"
                     min_height="0"
-                    visible="true"
-                    background_visible="true">
+                    visible="true">
                 <button
                         follows="left|top"
                         height="23"
@@ -161,43 +157,43 @@
                          name="p0"
                          top_pad="5"
                          value="0%[DSC]"
-                         width="70" />
+                         width="80" />
                 <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="49"
+                         left_pad="39"
                          name="p1"
                          top_delta="0"
                          value="25%[DSC]"
-                         width="70" />
+                         width="80" />
                 <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="49"
+                         left_pad="39"
                          name="p2"
                          top_delta="0"
                          value="50%[DSC]"
-                         width="70" />
+                         width="80" />
                 <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="49"
+                         left_pad="39"
                          name="p3"
                          top_delta="0"
                          value="75%[DSC]"
-                         width="70" />
+                         width="80" />
                 <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="49"
+                         left_pad="39"
                          name="p4"
                          top_delta="0"
                          value="100%[DSC]"
-                         width="70" />
+                         width="80" />
                 <multi_slider
                     can_edit_text="true"
                     decimal_digits="0"
@@ -441,7 +437,7 @@
                          name="atmosphere_panel" />
                 <panel
                          border="true"
-                         class="panel_settings_clouds"
+                         class="panel_settings_cloud"
                          filename="panel_settings_sky_clouds.xml"
                          label="Clouds"
                          layout="topleft"
@@ -474,6 +470,22 @@
                     top_pad="0"
                     name="save_btn"
                     width="100" />
+
+            <button
+                    follows="top|left"
+                    height="23"
+                    name="btn_flyout"
+                    label=""
+                    layout="topleft"
+                    left_pad="-20"
+                    top="0"
+                    image_selected="SegmentedBtn_Right_Selected_Press"
+                    image_unselected="SegmentedBtn_Right_Off"
+                    image_pressed="SegmentedBtn_Right_Press"
+                    image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+                    image_overlay="Arrow_Small_Up"
+                    width="20"/>
+
             <button
                     follows="top|left"
                     height="23"
@@ -483,14 +495,14 @@
                     name="cancel_btn"
                     width="100" /> 
 
-            <button
+            <!--<button
                     follows="top|left"
                     height="23"
                     label="Upload"
                     layout="topleft"
                     left_pad="10"
                     name="upload_btn"
-                    width="100" /> 
+                    width="100" />-->
 
         </layout_panel>
     </layout_stack>

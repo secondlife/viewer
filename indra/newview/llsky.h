@@ -70,14 +70,15 @@ public:
 	F32 getFogRatio() const;
 	LLColor4U getFadeColor() const;
 
-	LLVector3 getSunDirection() const;
-	LLVector3 getMoonDirection() const;
+	//LLVector3 getSunDirection() const;
+	//LLVector3 getMoonDirection() const;
+
 	LLColor4 getSunDiffuseColor() const;
 	LLColor4 getMoonDiffuseColor() const;
 	LLColor4 getSunAmbientColor() const;
 	LLColor4 getMoonAmbientColor() const;
 	LLColor4 getTotalAmbientColor() const;
-	BOOL sunUp() const;
+	//BOOL sunUp() const;
 
     // Legacy
 	void setSunPhase(const F32) { }

@@ -45,6 +45,7 @@ public:
 	
 	bool hasBadgeHolderParent() const { return mHasBadgeHolderParent; };
 	void setBadgeVisibility(bool visible);
+	void setDrawBadgeAtTop(bool draw_at_top);
 
 private:
 

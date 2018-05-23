@@ -58,6 +58,8 @@
 #include "llassetstorage.h"
 #include "llvfile.h"
 
+#pragma optimize("", off)
+
 #undef  VERIFY_LEGACY_CONVERSION
 
 //=========================================================================
@@ -363,7 +365,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildSky(LLSD settings)
 LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &name, const LLSD &legacy)
 {
 
-    LLSD newsettings = LLSettingsSky::translateLegacySettings(legacy);
+    LLSD newsettings = LLSettingsSky::translateLegacySettings(legacy, &name);
 
     newsettings[SETTING_NAME] = name;
 
@@ -464,13 +466,18 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS];
     legacy[SETTING_SUNLIGHT_COLOR] = ensureArray4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
     
-// convert to azimuth (yaw) from east and alt (pitch) from horizon
-// in +x is at (north), +z up, +y right (east)
-    LLSettingsSky::azimalt_t azialt = psky->getSunRotationAzAl();
+    LLQuaternion sunquat = psky->getSunRotation();
+
+    F32 roll;
+    F32 pitch;
+    F32 yaw;
+
+    // get euler angles in right-handed X right, Y up, Z at
+    sunquat.getEulerAngles(&roll, &pitch, &yaw);
     
-    legacy[SETTING_LEGACY_EAST_ANGLE] = azialt.first;
-    legacy[SETTING_LEGACY_SUN_ANGLE] = azialt.second;
-    
+    legacy[SETTING_LEGACY_EAST_ANGLE] = yaw;
+    legacy[SETTING_LEGACY_SUN_ANGLE]  = pitch;
+
     return legacy;    
 }
 
@@ -479,16 +486,16 @@ void LLSettingsVOSky::updateSettings()
 {
     LLSettingsSky::updateSettings();
 
-    LLVector3 sun_direction = getSunDirection();
+    LLVector3 sun_direction  = getSunDirection();
     LLVector3 moon_direction = getMoonDirection();
 
-    // axis swap converts from +x right, +y up, +z at
+    // axis swap converts from +x right, +z up, +y at
     // to CFR (+x at, +z up, +y right)
     // set direction (in CRF) and don't allow overriding
-    LLVector3 crf_sunDirection(sun_direction.mV[2], sun_direction.mV[0], sun_direction.mV[1]);
-    LLVector3 crf_moonDirection(moon_direction.mV[2], moon_direction.mV[0], moon_direction.mV[1]);
+    //LLVector3 crf_sunDirection(sun_direction.mV[1], sun_direction.mV[0], sun_direction.mV[2]);
+    //LLVector3 crf_moonDirection(moon_direction.mV[1], moon_direction.mV[0], moon_direction.mV[2]);
 
-    gSky.setSunDirection(crf_sunDirection, crf_moonDirection);
+    gSky.setSunDirection(sun_direction, moon_direction);
 }
 
 void LLSettingsVOSky::applySpecial(void *ptarget)
@@ -812,9 +819,9 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
 
     for (LLSD::map_iterator itm = skydefs.beginMap(); itm != skydefs.endMap(); ++itm)
     {
-        LLSD newsettings = LLSettingsSky::translateLegacySettings((*itm).second);
         std::string newname = "sky:" + (*itm).first;
-
+        LLSD newsettings = LLSettingsSky::translateLegacySettings((*itm).second, &newname);
+        
         newsettings[SETTING_NAME] = newname;
         frames[newname] = newsettings;
 

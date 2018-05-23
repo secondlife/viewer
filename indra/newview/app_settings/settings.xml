@@ -2369,7 +2369,8 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DebugShowPrivateMem</key>
+    <key>DEPRECATED: DebugShowPrivateMem</key>
+  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>Show Private Mem Info</string>
@@ -6409,9 +6410,10 @@
             <real>600.0</real>
         </map>
     <key>MemoryPrivatePoolEnabled</key>
+  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>Enable the private memory pool management</string>
+      <string>DEPRECATED: Enable the private memory pool management</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6420,9 +6422,10 @@
       <integer>0</integer>
     </map>
     <key>MemoryPrivatePoolSize</key>
+  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>Size of the private memory pool in MB (min. value is 256)</string>
+      <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8642,7 +8645,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>RenderLocalLights</key>
   <map>
@@ -12280,9 +12283,7 @@
       <key>Comment</key>
       <string>If TRUE, always load textures at full resolution (discard = 0)</string>
       <key>Persist</key>
-      <!-- we don't want this to be persistent as people who enable it with low GPU mem cards
-	    can get into a situation where login becomes impossible -->
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

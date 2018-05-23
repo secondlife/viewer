@@ -427,7 +427,7 @@ void LLVOSky::updateDirections(void)
 	mMoon.renewDirection();
 	mMoon.renewColor();
 
-	float dp = getToSunLast() * LLVector3(0,0,1.f);
+	float dp = psky->getSunDirection() * LLVector3::y_axis;
 	if (dp < 0)
 	{
 		dp = 0;
@@ -498,11 +498,10 @@ BOOL LLVOSky::updateSky()
 							   mLastTotalAmbient.mV[1] - total_ambient.mV[1],
                                mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
 
-			if ( mForceUpdate 
-				 || (((dot_lighting < LIGHT_DIRECTION_THRESHOLD)
-				 || (delta_color.length() > COLOR_CHANGE_THRESHOLD)
-				 || !mInitialized)
-				&& !direction.isExactlyZero()))
+            bool light_direction_changed = (dot_lighting >= LIGHT_DIRECTION_THRESHOLD);
+            bool color_changed = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
+            bool do_update = !mInitialized || mForceUpdate || light_direction_changed || color_changed;
+			if ( do_update && !direction.isExactlyZero())
 			{
 				mLastLightingDirection = direction;
                 mLastTotalAmbient = total_ambient;
@@ -536,28 +535,28 @@ BOOL LLVOSky::updateSky()
 						}
 						next_frame = 0;	
 
-			// update the sky texture
-			for (S32 i = 0; i < 6; ++i)
-			{
-				mSkyTex[i].create(1.0f);
-				mShinyTex[i].create(1.0f);
-			}
+			            // update the sky texture
+			            for (S32 i = 0; i < 6; ++i)
+			            {
+				            mSkyTex[i].create(1.0f);
+				            mShinyTex[i].create(1.0f);
+			            }
 
-			// update the environment map
-			if (mCubeMap)
-			{
-				std::vector<LLPointer<LLImageRaw> > images;
-				images.reserve(6);
-				for (S32 side = 0; side < 6; side++)
-				{
-					images.push_back(mShinyTex[side].getImageRaw(TRUE));
-				}
-				mCubeMap->init(images);
-				gGL.getTexUnit(0)->disable();
-			}
+			            // update the environment map
+			            if (mCubeMap)
+			            {
+				            std::vector<LLPointer<LLImageRaw> > images;
+				            images.reserve(6);
+				            for (S32 side = 0; side < 6; side++)
+				            {
+					            images.push_back(mShinyTex[side].getImageRaw(TRUE));
+				            }
+				            mCubeMap->init(images);
+				            gGL.getTexUnit(0)->disable();
+			            }
 					}
 				}
-                    }
+            }
 
 			gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 			mForceUpdate = FALSE;
@@ -1181,8 +1180,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
 void LLVOSky::updateFog(const F32 distance)
 {
-    LLVector3 toSun = getToSunLast();
-    m_legacyAtmospherics.updateFog(distance, toSun);
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    m_legacyAtmospherics.updateFog(distance, psky->getSunDirection());
 }
 
 void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)

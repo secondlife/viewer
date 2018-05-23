@@ -78,13 +78,14 @@ public:
 
     enum EnvSelection_t
     {
-        ENV_EDIT,
+        ENV_EDIT = 0,
         ENV_LOCAL,
         ENV_PARCEL,
         ENV_REGION,
         ENV_DEFAULT,
         ENV_END,
-        ENV_CURRENT = -1
+        ENV_CURRENT = -1,
+        ENV_NONE = -2
     };
 
     typedef boost::signals2::connection     connection_t;
@@ -157,6 +158,7 @@ public:
     void                        setEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &fixed); 
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t())); }
     void                        setEnvironment(EnvSelection_t env, const LLSettingsWater::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(LLSettingsSky::ptr_t(), fixed)); }
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixeds, const LLSettingsWater::ptr_t & fixedw) { setEnvironment(env, fixedEnvironment_t(fixeds, fixedw)); }
     void                        clearEnvironment(EnvSelection_t env);
     LLSettingsDay::ptr_t        getEnvironmentDay(EnvSelection_t env);
     S64Seconds                  getEnvironmentDayLength(EnvSelection_t env);
@@ -371,6 +373,27 @@ private:
 
 };
 
+class LLTrackBlenderLoopingManual : public LLSettingsBlender
+{
+public:
+    LLTrackBlenderLoopingManual(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno);
+
+    F64                         setPosition(F64 position) override;
+    void                        switchTrack(S32 trackno, F64 position = -1.0);
+    S32                         getTrack() const { return mTrackNo; }
+
+    typedef std::shared_ptr<LLTrackBlenderLoopingManual> ptr_t;
+protected:
+    LLSettingsDay::TrackBound_t getBoundingEntries(F64 position);
+    F64                         getSpanLength(const LLSettingsDay::TrackBound_t &bounds) const;
+
+private:
+    LLSettingsDay::ptr_t        mDay;
+    S32                         mTrackNo;
+    F64                         mPosition;
+
+    LLSettingsDay::CycleTrack_t::iterator mEndMarker;
+};
 
 #endif // LL_ENVIRONMENT_H
 

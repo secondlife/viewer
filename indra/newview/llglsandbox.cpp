@@ -920,7 +920,7 @@ public:
 		// unbind
 		if (texUnit)
 		{
-			texUnit->unbind(LLTexUnit::TT_TEXTURE);
+				texUnit->unbind(LLTexUnit::TT_TEXTURE);
 		}
 		// ensure that we delete these textures regardless of how we exit
 		LLImageGL::deleteTextures(source.size(), &source[0]);

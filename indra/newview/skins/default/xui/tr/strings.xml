@@ -278,9 +278,8 @@ Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: supp
 		Oturum kapatma talebi simülatörden bir hata yanıtı gelmesine neden oldu.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Sistem şu anda oturumunuzu sonlandırıyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		Sistem şu anda oturumunuzu kapatıyor. 
+Lütfen yeniden oturum açmayı denemeden önce bir dakika bekleyin.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Geçerli bir oturum oluşturulamadı.
@@ -1508,6 +1507,9 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Klasörleri [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak listelemek için bu alana sürükleyin.
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Öğe )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		stok klasörü bir sürüm klasöründe bulunmalıdır
