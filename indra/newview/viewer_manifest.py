@@ -1005,12 +1005,14 @@ open "%s" --args "$@"
                         os.path.basename(Info_plist),
                         "Info.plist")
 
-                    # CEF framework goes inside viewer_app/Contents/Frameworks.
-                    # Remember where we parked this car.
                     with self.prefix(src="", dst="Frameworks"):
+                        # CEF framework goes inside viewer_app/Contents/Frameworks.
                         CEF_framework = "Chromium Embedded Framework.framework"
                         self.path2basename(relpkgdir, CEF_framework)
+                        # Remember where we parked this car.
                         CEF_framework = self.dst_path_of(CEF_framework)
+
+                        self.path2basename(relpkgdir, "BugsplatMac.framework")
 
                     with self.prefix(dst="MacOS"):
                         # CMake constructs the Second Life executable in the
