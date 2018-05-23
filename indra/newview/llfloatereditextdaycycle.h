@@ -129,8 +129,6 @@ private:
 	
     // data for restoring previous displayed environment
 
-    S32                     mSavedEnvironment;
-
     LLSettingsDay::ptr_t    mEditDay; // edited copy
     LLSettingsDay::ptr_t    mOriginalDay; // the one we are editing
     S64Seconds              mDayLength;
