@@ -87,12 +87,14 @@ private:
 	void onRemoveTrack();
 	void onCommitName(class LLLineEditor* caller, void* user_data);
 	void onTrackSelectionCallback(const LLSD& user_data);
+	void onPlayActionCallback(const LLSD& user_data);
 	// time slider moved
 	void onTimeSliderMoved();
 	// a frame moved or frame selection changed
 	void onFrameSliderCallback();
 
 	void selectTrack(U32 track_index);
+	void selectFrame(F32 frame);
 	void clearTabs();
 	void updateTabs();
 	void updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
@@ -126,11 +128,13 @@ private:
     void reblendSettings();
 
     // **RIDER**
-	
-    // data for restoring previous displayed environment
+
+    // play functions
+    void startPlay();
+    void stopPlay();
+    static void onIdlePlay(void* user_data);
 
     LLSettingsDay::ptr_t    mEditDay; // edited copy
-    LLSettingsDay::ptr_t    mOriginalDay; // the one we are editing
     S64Seconds              mDayLength;
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
@@ -157,6 +161,9 @@ private:
     // **RIDER**
 
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
+
+    LLFrameTimer mPlayTimer;
+    F32 mPlayStartFrame; // an env frame
 
     edit_commit_signal_t    mCommitSignal;
 

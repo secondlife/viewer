@@ -30,6 +30,7 @@
 
 // libs
 #include "llbutton.h"
+#include "llcallbacklist.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llloadingindicator.h"
@@ -74,6 +75,8 @@ const std::string ACTION_APPLY_LOCAL("apply_local");
 const std::string ACTION_APPLY_PARCEL("apply_parcel");
 const std::string ACTION_APPLY_REGION("apply_region");
 
+const F32 DAY_CYCLE_PLAY_TIME_SECONDS = 60;
+
 
 //=========================================================================
 // **RIDER**
@@ -103,7 +106,9 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key):
     mScratchWater()
     // **RIDER**
 {
-    mCommitCallbackRegistrar.add("DayCycle.Track", boost::bind(&LLFloaterEditExtDayCycle::onTrackSelectionCallback, this, _2));
+
+    mCommitCallbackRegistrar.add("DayCycle.Track", [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); });
+    mCommitCallbackRegistrar.add("DayCycle.PlayActions", [this](LLUICtrl *ctrl, const LLSD &data) { onPlayActionCallback(data); });
 
     mScratchSky = LLSettingsVOSky::buildDefaultSky();
     mScratchWater = LLSettingsVOWater::buildDefaultWater();
@@ -226,6 +231,7 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
     {
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
     }
+    stopPlay();
 }
 
 void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
@@ -238,6 +244,7 @@ void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
     else
     {
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+        stopPlay();
     }
 }
 
@@ -378,6 +385,34 @@ void LLFloaterEditExtDayCycle::onTrackSelectionCallback(const LLSD& user_data)
     selectTrack(track_index);
 }
 
+void LLFloaterEditExtDayCycle::onPlayActionCallback(const LLSD& user_data)
+{
+    std::string action = user_data.asString();
+    F32 frame = mTimeSlider->getCurSliderValue();
+    if (action == "play")
+    {
+        startPlay();
+    }
+    else if (action == "pause")
+    {
+        stopPlay();
+    }
+    else if (mSliderKeyMap.size() != 0)
+    {
+        F32 new_frame = 0;
+        if (action == "forward")
+        {
+            new_frame = mEditDay->getUpperBoundFrame(mCurrentTrack, frame);
+        }
+        else if (action == "back")
+        {
+            new_frame = mEditDay->getLowerBoundFrame(mCurrentTrack, frame - (mTimeSlider->getIncrement() / 2));
+        }
+        selectFrame(new_frame);
+        stopPlay();
+    }
+}
+
 void LLFloaterEditExtDayCycle::onFrameSliderCallback()
 {
     if (mSliderKeyMap.size() == 0)
@@ -453,25 +488,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback()
 
 void LLFloaterEditExtDayCycle::onTimeSliderMoved()
 {
-    mFramesSlider->resetCurSlider();
-
-    keymap_t::iterator iter = mSliderKeyMap.begin();
-    keymap_t::iterator end_iter = mSliderKeyMap.end();
-    F32 frame = mTimeSlider->getCurSliderValue();
-    while (iter != end_iter)
-    {
-        if (iter->second.mFrame == frame)
-        {
-            mFramesSlider->setCurSlider(iter->first);
-            break;
-        }
-        iter++;
-    }
-
-    // block or update tabs according to new selection
-    updateTabs();
-
-    // blending:
+    selectFrame(mTimeSlider->getCurSliderValue());
 }
 
 void LLFloaterEditExtDayCycle::selectTrack(U32 track_index)
@@ -494,6 +511,28 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index)
     mSkyTabLayoutContainer->setVisible(!show_water);
     mWaterTabLayoutContainer->setVisible(show_water);
     updateSlider();
+}
+
+void LLFloaterEditExtDayCycle::selectFrame(F32 frame)
+{
+    mFramesSlider->resetCurSlider();
+
+    mTimeSlider->setCurSliderValue(frame);
+
+    keymap_t::iterator iter = mSliderKeyMap.begin();
+    keymap_t::iterator end_iter = mSliderKeyMap.end();
+    while (iter != end_iter)
+    {
+        if (iter->second.mFrame == frame)
+        {
+            mFramesSlider->setCurSlider(iter->first);
+            break;
+        }
+        iter++;
+    }
+
+    // block or update tabs according to new selection
+    updateTabs();
 }
 
 void LLFloaterEditExtDayCycle::clearTabs()
@@ -612,8 +651,9 @@ void LLFloaterEditExtDayCycle::updateButtons()
 {
     F32 frame = mTimeSlider->getCurSliderValue();
     LLSettingsBase::ptr_t settings = mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack);
-    mAddFrameButton->setEnabled(settings.get() == NULL ? TRUE : FALSE);
-    mDeleteFrameButton->setEnabled(mSliderKeyMap.size() > 0 ? TRUE : FALSE);
+    bool can_add = settings.get() == NULL;
+    mAddFrameButton->setEnabled(can_add);
+    mDeleteFrameButton->setEnabled(!can_add);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -738,7 +778,6 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
     mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
-    mOriginalDay = mEditDay->buildClone();
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
@@ -753,7 +792,6 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
         if (day)
         {
-            mOriginalDay = day;
             mEditDay = day->buildClone();
             break;
         }
@@ -811,9 +849,9 @@ void LLFloaterEditExtDayCycle::syncronizeTabs()
         LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tabs->getPanelByIndex(idx));
         if (panel)
         {
-            panel->setAllChildrenEnabled(canedit);
             panel->setSettings(psettingWater);
-            panel->refresh();
+            panel->setEnabled(canedit);
+            panel->setAllChildrenEnabled(canedit);
         }
     }
 
@@ -842,9 +880,9 @@ void LLFloaterEditExtDayCycle::syncronizeTabs()
         LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tabs->getPanelByIndex(idx));
         if (panel)
         {
-            panel->setAllChildrenEnabled(canedit);
             panel->setSettings(psettingSky);
-            panel->refresh();
+            panel->setEnabled(canedit);
+            panel->setAllChildrenEnabled(canedit);
         }
     }
 
@@ -973,5 +1011,43 @@ bool LLFloaterEditExtDayCycle::canApplyParcel() const
 }
 
 // **RIDER**
+
+void LLFloaterEditExtDayCycle::startPlay()
+{
+    mPlayTimer.reset();
+    mPlayTimer.start();
+    gIdleCallbacks.addFunction(onIdlePlay, this);
+    mPlayStartFrame = mTimeSlider->getCurSliderValue();
+
+    getChild<LLView>("play_layout", true)->setVisible(FALSE);
+    getChild<LLView>("pause_layout", true)->setVisible(TRUE);
+}
+
+void LLFloaterEditExtDayCycle::stopPlay()
+{
+    gIdleCallbacks.deleteFunction(onIdlePlay, this);
+    mPlayTimer.stop();
+
+    getChild<LLView>("play_layout", true)->setVisible(TRUE);
+    getChild<LLView>("pause_layout", true)->setVisible(FALSE);
+}
+
+//static
+void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
+{
+    LLFloaterEditExtDayCycle* self = (LLFloaterEditExtDayCycle*)user_data;
+
+    F32 prcnt_played = self->mPlayTimer.getElapsedTimeF32() / DAY_CYCLE_PLAY_TIME_SECONDS;
+    F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
+
+    self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
+    self->selectFrame(self->mTimeSlider->getCurSliderValue());
+
+    if (self->mPlayTimer.getElapsedTimeF32() > DAY_CYCLE_PLAY_TIME_SECONDS)
+    {
+        // Nothing to do anymore.
+        self->stopPlay();
+    }
+}
 
 
