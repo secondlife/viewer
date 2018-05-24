@@ -180,10 +180,12 @@ if (DARWIN)
     COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib ${LL_TEST_DESTINATION_DIR}
     DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib
   )
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libnghttp2*.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libnghttp2.dylib
-  )
+  foreach(nghttp ${NGHTTP2_LIBRARIES})
+    add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/${nghttp} ${LL_TEST_DESTINATION_DIR}
+      DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/${nghttp}
+    )
+  endforeach(nghttp)
   foreach(expat ${EXPAT_COPY})
     add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat} ${LL_TEST_DESTINATION_DIR}
