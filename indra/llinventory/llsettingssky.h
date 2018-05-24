@@ -479,6 +479,8 @@ public:
         return mNextCloudTextureId;
     }
 
+    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;

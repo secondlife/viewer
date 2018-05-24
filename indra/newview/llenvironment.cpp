@@ -124,7 +124,7 @@ namespace
         LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, F64Seconds cyclelength, F64Seconds cycleoffset) :
             LLSettingsBlenderTimeDelta(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t(), F64Seconds(1.0)),
             mDay(day),
-            mTrackNo(trackno),
+            mTrackNo(0),
             mCycleLength(cyclelength),
             mCycleOffset(cycleoffset)
         {
@@ -134,10 +134,57 @@ namespace
             mFinal = (*initial.second).second;
             mBlendSpan = getSpanTime(initial);
 
+            mTrackNo = selectTrackNumber(trackno);
+
             setOnFinished([this](const LLSettingsBlender::ptr_t &){ onFinishedSpan(); });
         }
 
+
+        void switchTrack(S32 trackno, F64) override
+        {
+            S32 use_trackno = selectTrackNumber(trackno);
+
+            if (use_trackno == mTrackNo)
+            {   // results in no change
+                return;
+            }
+
+            mTrackTransitionStart = mTarget->buildDerivedClone();
+            mTrackNo = use_trackno;
+
+            F64Seconds now = getAdjustedNow() + LLEnvironment::TRANSITION_ALTITUDE;
+            LLSettingsDay::TrackBound_t bounds = getBoundingEntries(now);
+
+            LLSettingsBase::ptr_t pendsetting = (*bounds.first).second->buildDerivedClone();
+            F64 targetpos = convertTimeToPosition(now) - (*bounds.first).first;
+            F64 targetspan = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+
+            F64 blendf = calculateBlend(targetpos, targetspan);
+            pendsetting->blend((*bounds.second).second, blendf);
+
+            reset(mTrackTransitionStart, pendsetting, LLEnvironment::TRANSITION_ALTITUDE.value());
+        }
+
+
     protected:
+        S32 selectTrackNumber(S32 trackno)
+        {
+            if (trackno == 0)
+            {   // We are dealing with the water track.  There is only ever one.
+                return 0;
+            }
+
+            for (S32 test = trackno; test == 0; --test)
+            {   // Find the track below the requested one with data.
+                LLSettingsDay::CycleTrack_t &track = mDay->getCycleTrack(mTrackNo);
+
+                if (!track.empty())
+                    return test;
+            }
+
+            return 1;
+        }
+
         LLSettingsDay::TrackBound_t getBoundingEntries(F64Seconds time)
         {
             LLSettingsDay::CycleTrack_t &wtrack = mDay->getCycleTrack(mTrackNo);
@@ -170,6 +217,7 @@ namespace
         S32                         mTrackNo;
         F64Seconds                  mCycleLength;
         F64Seconds                  mCycleOffset;
+        LLSettingsBase::ptr_t       mTrackTransitionStart;
 
         void                        onFinishedSpan()
         {
@@ -186,6 +234,7 @@ const F32Seconds LLEnvironment::TRANSITION_INSTANT(0.0f);
 const F32Seconds LLEnvironment::TRANSITION_FAST(1.0f);
 const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
+const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
 const F32 LLEnvironment::NIGHTTIME_ELEVATION_COS(LLSky::NIGHTTIME_ELEVATION_COS);
@@ -202,7 +251,8 @@ LLEnvironment::LLEnvironment():
     mDayCycleByName(),
     mDayCycleById(),
     mUserPrefs(),
-    mSelectedEnvironment(LLEnvironment::ENV_LOCAL)
+    mSelectedEnvironment(LLEnvironment::ENV_LOCAL),
+    mCurrentTrack(1)
 {
 }
 
@@ -228,11 +278,13 @@ void LLEnvironment::initSingleton()
 
     requestRegionEnvironment();
 
-    LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLEnvironment::onParcelChange, this));
-    gAgent.addParcelChangedCallback(boost::bind(&LLEnvironment::onParcelChange, this));
+    LLRegionInfoModel::instance().setUpdateCallback([this]() { onParcelChange(); });
+    gAgent.addParcelChangedCallback([this]() { onParcelChange(); });
 
     //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
-    gAgent.addRegionChangedCallback(boost::bind(&LLEnvironment::requestRegionEnvironment, this));
+    gAgent.addRegionChangedCallback([this]() { requestRegionEnvironment(); });
+
+    gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
 }
 
 LLEnvironment::~LLEnvironment()
@@ -374,6 +426,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 
     environment->clear();
     environment->setDay(pday, daylength, dayoffset);
+    environment->setSkyTrack(mCurrentTrack);
     environment->animate();
     /*TODO: readjust environment*/
 }
@@ -1435,6 +1488,29 @@ void LLEnvironment::legacyLoadAllPresets()
     }
 }
 
+void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
+{
+    S32 trackno = calculateSkyTrackForAltitude(localpos.mV[VZ]);
+    if (trackno == mCurrentTrack)
+        return;
+
+    LL_WARNS("LAPRAS") << "Wants to switch to track #" << trackno << LL_ENDL;
+
+    mCurrentTrack = trackno;
+    for (S32 env = ENV_LOCAL; env < ENV_DEFAULT; ++env)
+    {
+        if (mEnvironments[env])
+            mEnvironments[env]->setSkyTrack(mCurrentTrack);
+    }
+}
+
+S32 LLEnvironment::calculateSkyTrackForAltitude(F64 altitude)
+{
+    //*LAPRAS* temp  base on region's response.
+    return llmin((static_cast<S32>(altitude) / 100) + 1, (LLSettingsDay::TRACK_MAX - 1));
+}
+
+
 //=========================================================================
 LLEnvironment::DayInstance::DayInstance() :
     mDayCycle(),
@@ -1533,13 +1609,11 @@ void LLEnvironment::DayInstance::clear()
 
 void LLEnvironment::DayInstance::setSkyTrack(S32 trackno)
 {
-    /*TODO*/
-//     if (trackno != mSkyTrack)
-//     {
-//         mSkyTrack = trackno;
-// 
-//         // *TODO*: Pick the sky track based on the skytrack.
-//     }
+    mSkyTrack = trackno;
+    if (mBlenderSky)
+    {
+        mBlenderSky->switchTrack(trackno);
+    }
 }
 
 
@@ -1572,35 +1646,35 @@ void LLEnvironment::DayInstance::animate()
         mWater.reset();
         mBlenderWater.reset();
     }
-    else if (wtrack.size() == 1)
-    {
-        mWater = std::static_pointer_cast<LLSettingsWater>((*(wtrack.begin())).second);
-        mBlenderWater.reset();
-    }
+//     else if (wtrack.size() == 1)
+//     {
+//         mWater = std::static_pointer_cast<LLSettingsWater>((*(wtrack.begin())).second);
+//         mBlenderWater.reset();
+//     }
     else
     {
         mWater = LLSettingsVOWater::buildDefaultWater();
         mBlenderWater = std::make_shared<LLTrackBlenderLoopingTime>(mWater, mDayCycle, 0, mDayLength, mDayOffset);
     }
 
-    // Day track 1 only for the moment
-    // sky
-    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(mSkyTrack);
+    // sky, initalize to track 1
+    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(1);
 
     if (track.empty())
     {
         mSky.reset();
         mBlenderSky.reset();
     }
-    else if (track.size() == 1)
-    {
-        mSky = std::static_pointer_cast<LLSettingsSky>((*(track.begin())).second);
-        mBlenderSky.reset();
-    }
+//     else if (track.size() == 1)
+//     {
+//         mSky = std::static_pointer_cast<LLSettingsSky>((*(track.begin())).second);
+//         mBlenderSky.reset();
+//     }
     else
     {
         mSky = LLSettingsVOSky::buildDefaultSky();
-        mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, mSkyTrack, mDayLength, mDayOffset);
+        mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, 1, mDayLength, mDayOffset);
+        mBlenderSky->switchTrack(mSkyTrack);
     }
 }
 

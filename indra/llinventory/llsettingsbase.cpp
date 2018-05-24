@@ -547,8 +547,11 @@ F64 LLSettingsBlender::setPosition(F64 blendf)
     }
     blendf = llclamp(blendf, 0.0, 1.0);
 
-    //_WARNS("LAPRAS") << "blending at " << (blendf * 100.0f) << "%" << LL_ENDL;
     mTarget->replaceSettings(mInitial->getSettings());
+    if (mIsTrivial || (blendf == 0.0))
+    {   // this is a trivial blend.  Results will be identical to the initial.
+        return blendf;
+    }
     mTarget->blend(mFinal, blendf);
 
     return blendf;
@@ -562,6 +565,11 @@ void LLSettingsBlender::triggerComplete()
 }
 
 //-------------------------------------------------------------------------
+F64 LLSettingsBlenderTimeDelta::calculateBlend(F64 spanpos, F64 spanlen) const
+{
+    return fmod(spanpos, spanlen) / spanlen;
+}
+
 void LLSettingsBlenderTimeDelta::update(F64 timedelta)
 {
     mTimeSpent += F64Seconds(timedelta);
@@ -572,8 +580,7 @@ void LLSettingsBlenderTimeDelta::update(F64 timedelta)
         return;
     }
 
-    F64 blendf = fmod(mTimeSpent.value(), mBlendSpan.value()) / mBlendSpan.value();
-
+    F64 blendf = calculateBlend(mTimeSpent.value(), mBlendSpan.value());
     // Note no clamp here.  
 
     setPosition(blendf);

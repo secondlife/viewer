@@ -211,6 +211,8 @@ public:
 
     static LLSD         translateLegacySettings(LLSD legacy);
 
+    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+
 protected:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
     static const std::string SETTING_LEGACY_FOG_COLOR;

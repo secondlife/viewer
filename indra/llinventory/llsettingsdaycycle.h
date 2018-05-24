@@ -114,6 +114,8 @@ public:
     virtual validation_list_t   getValidationList() const override;
     static validation_list_t    validationList();
 
+    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+
 protected:
     LLSettingsDay();
 

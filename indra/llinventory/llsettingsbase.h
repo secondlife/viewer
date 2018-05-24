@@ -166,6 +166,8 @@ public:
 
     virtual bool    validate();
 
+    virtual ptr_t   buildDerivedClone() = 0;
+
     class Validator
     {
     public:
@@ -269,10 +271,15 @@ public:
         mOnFinished(),
         mTarget(target),
         mInitial(initsetting),
-        mFinal(endsetting)
+        mFinal(endsetting),
+        mIsTrivial(false)
     {
         if (mInitial)
             mTarget->replaceSettings(mInitial->getSettings());
+
+        if (!mFinal)
+            mFinal = mInitial;
+        mIsTrivial = (mFinal == mInitial);
     }
 
     virtual ~LLSettingsBlender() {}
@@ -280,8 +287,16 @@ public:
     virtual void            reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 /*span*/ = 1.0)
     {
         // note: the 'span' reset parameter is unused by the base class.
+        if (!mInitial)
+            LL_WARNS("BLENDER") << "Reseting blender with empty initial setting. Expect badness in the future." << LL_ENDL;
+
         mInitial = initsetting;
         mFinal = endsetting;
+
+        if (!mFinal)
+            mFinal = mInitial;
+        mIsTrivial = (mFinal == mInitial);
+
         mTarget->replaceSettings(mInitial->getSettings());
     }
 
@@ -308,6 +323,8 @@ public:
     virtual void            update(F64 blendf);
     virtual F64             setPosition(F64 blendf);
 
+    virtual void            switchTrack(S32 trackno, F64 position = -1.0) { /*NoOp*/ }
+
 protected:
     void                    triggerComplete();
 
@@ -316,6 +333,7 @@ protected:
     LLSettingsBase::ptr_t   mTarget;
     LLSettingsBase::ptr_t   mInitial;
     LLSettingsBase::ptr_t   mFinal;
+    bool                    mIsTrivial;
 };
 
 class LLSettingsBlenderTimeDelta : public LLSettingsBlender
@@ -349,6 +367,8 @@ public:
     virtual void            update(F64 timedelta) override;
 
 protected:
+    F64                     calculateBlend(F64 spanpos, F64 spanlen) const;
+
     F64Seconds              mBlendSpan;
     F64Seconds              mLastUpdate;
     F64Seconds              mTimeSpent;

@@ -53,6 +53,7 @@ public:
     static const F32Seconds     TRANSITION_FAST;
     static const F32Seconds     TRANSITION_DEFAULT;
     static const F32Seconds     TRANSITION_SLOW;
+    static const F32Seconds     TRANSITION_ALTITUDE;
 
     struct EnvironmentInfo
     {
@@ -214,6 +215,8 @@ public:
 
     void                        selectAgentEnvironment();
 
+    S32                         calculateSkyTrackForAltitude(F64 altitude);
+
 protected:
     virtual void                initSingleton();
 
@@ -267,6 +270,7 @@ private:
 
         S64Seconds                  mDayLength;
         S64Seconds                  mDayOffset;
+        S32                         mLastTrackAltitude;
 
         LLSettingsBlender::ptr_t    mBlenderSky;
         LLSettingsBlender::ptr_t    mBlenderWater;
@@ -333,6 +337,8 @@ private:
     change_signal_t             mWaterListChange;
     change_signal_t             mDayCycleListChange;
 
+    S32                         mCurrentTrack;
+
     DayInstance::ptr_t          getEnvironmentInstance(EnvSelection_t env, bool create = false);
 
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
@@ -364,6 +370,7 @@ private:
 
     void recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
 
+    void onAgentPositionHasChanged(const LLVector3 &localpos);
     //=========================================================================
     void                        legacyLoadAllPresets();
     static LLSD                 legacyLoadPreset(const std::string& path);
@@ -378,7 +385,7 @@ public:
     LLTrackBlenderLoopingManual(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno);
 
     F64                         setPosition(F64 position) override;
-    void                        switchTrack(S32 trackno, F64 position = -1.0);
+    virtual void                switchTrack(S32 trackno, F64 position) override;
     S32                         getTrack() const { return mTrackNo; }
 
     typedef std::shared_ptr<LLTrackBlenderLoopingManual> ptr_t;
