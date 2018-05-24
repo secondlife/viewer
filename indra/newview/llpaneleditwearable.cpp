@@ -369,7 +369,7 @@ LLEditWearableDictionary::TextureCtrls::TextureCtrls()
 		addEntry (TEX_LEFT_LEG_TATTOO, new PickerControlEntry(TEX_LEFT_LEG_TATTOO, "Left Leg Tattoo", LLUUID::null, TRUE));
 		addEntry (TEX_AUX1_TATTOO, new PickerControlEntry(TEX_AUX1_TATTOO, "Aux1 Tattoo", LLUUID::null, TRUE));
 		addEntry (TEX_AUX2_TATTOO, new PickerControlEntry(TEX_AUX2_TATTOO, "Aux2 Tattoo", LLUUID::null, TRUE));
-		addEntry (TEX_AUX3_BAKED, new PickerControlEntry(TEX_AUX3_TATTOO, "Aux3 Tattoo", LLUUID::null, TRUE));
+		addEntry (TEX_AUX3_TATTOO, new PickerControlEntry(TEX_AUX3_TATTOO, "Aux3 Tattoo", LLUUID::null, TRUE));
 }
 
 LLEditWearableDictionary::PickerControlEntry::PickerControlEntry(ETextureIndex tex_index,

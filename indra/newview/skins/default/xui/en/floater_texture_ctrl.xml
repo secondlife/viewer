@@ -245,7 +245,7 @@
 			   follows="left|top"
 			   name="l_bake_use_texture_combo_box"
 			   tool_tip="Choose the bake texture"
-			   width="108"
+			   width="118"
          visible="false">
         <combo_box.item
          label="None"
