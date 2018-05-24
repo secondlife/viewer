@@ -8539,6 +8539,8 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		apr_file_printf( file, "<linden_genepool version=\"1.0\">\n" );
 		apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
+		bool agent_is_godlike = gAgent.isGodlikeWithoutAdminMenuFakery();
+
 		if (group_by_wearables)
 		{
 			for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
@@ -8564,8 +8566,11 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 						LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 						if( te_image )
 						{
-							std::string uuid_str;
-							te_image->getID().toString( uuid_str );
+							std::string uuid_str = LLUUID().asString();
+							if (agent_is_godlike)
+							{
+								te_image->getID().toString(uuid_str);
+							}
 							apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 						}
 					}
@@ -8587,8 +8592,11 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
-					std::string uuid_str;
-					te_image->getID().toString( uuid_str );
+					std::string uuid_str = LLUUID().asString();
+					if (agent_is_godlike)
+					{
+						te_image->getID().toString(uuid_str);
+					}
 					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 				}
 			}
