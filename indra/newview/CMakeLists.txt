@@ -2106,6 +2106,9 @@ if (DARWIN)
     OUTPUT_NAME "${product}"
     # From Contents/MacOS/SecondLife, look in Contents/Frameworks
     INSTALL_RPATH "@loader_path/../Frameworks"
+    # SIGH, as of 2018-05-24 (cmake 3.11.1) the INSTALL_RPATH property simply
+    # does not work. Try this:
+    LINK_FLAGS "-rpath @loader_path/../Frameworks"
     MACOSX_BUNDLE_INFO_PLIST
     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     )
