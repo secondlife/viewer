@@ -66,8 +66,54 @@
 #endif
 
 #include "stringize.h"
+#include "lldir.h"
 
 #include <exception>
+
+// Bugsplat (http://bugsplat.com) crash reporting tool
+#ifdef LL_BUGSPLAT
+#include "BugSplat.h"
+
+namespace
+{
+    // FIXME: need a production BugSplat database name
+    static const wchar_t *bugdb_name = L"second_life_callum_test";
+
+    // MiniDmpSender's constructor is defined to accept __wchar_t* instead of
+    // plain wchar_t*.
+    inline std::basic_string<__wchar_t> wunder(const std::wstring& str)
+    {
+        return { str.begin(), str.end() };
+    }
+
+    // Irritatingly, MiniDmpSender::setCallback() is defined to accept a
+    // classic-C function pointer instead of an arbitrary C++ callable. In the
+    // latter case, we could pass a lambda that binds our MiniDmpSender
+    // pointer. As things stand, we must define an actual function and store
+    // the pointer statically.
+    static MiniDmpSender *sBugSplatSender = nullptr;
+
+    bool bugsplatSendLog(UINT nCode, LPVOID lpVal1, LPVOID lpVal2)
+    {
+        // If we haven't yet initialized LLDir, don't bother trying to
+        // find our log file.
+        // Alternatively -- if we might encounter trouble trying to query
+        // LLDir during crash cleanup -- consider making gDirUtilp an
+        // LLPounceable, and attach a callback that stores the pathname to
+        // the log file here.
+        if (nCode == MDSCB_EXCEPTIONCODE && gDirUtilp)
+        {
+            // send the main viewer log file
+            // widen to wstring, convert to __wchar_t, then pass c_str()
+            sBugSplatSender->sendAdditionalFile(
+                wunder(wstringize(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log"))).c_str());
+        }
+
+        return false;
+    }
+}
+#endif // LL_BUGSPLAT
+
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -495,15 +541,33 @@ bool LLAppViewerWin32::init()
 	LLWinDebug::instance();
 #endif
 
-#if LL_WINDOWS
 #if LL_SEND_CRASH_REPORTS
-
+#if ! defined(LL_BUGSPLAT)
 
 	LLAppViewer* pApp = LLAppViewer::instance();
 	pApp->initCrashReporting();
 
-#endif
-#endif
+#else // LL_BUGSPLAT
+
+	std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
+										   LL_VIEWER_VERSION_MINOR << '.' <<
+										   LL_VIEWER_VERSION_PATCH << '.' <<
+										   LL_VIEWER_VERSION_BUILD));
+
+	// have to convert normal wide strings to strings of __wchar_t
+	sBugSplatSender = new MiniDmpSender(
+		wunder(bugdb_name).c_str(),
+		wunder(LL_TO_WSTRING(LL_VIEWER_CHANNEL)).c_str(),
+		wunder(version_string).c_str(),
+		nullptr);
+	sBugSplatSender->setCallback(bugsplatSendLog);
+
+	// engage stringize() overload that converts from wstring
+	LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
+			   << stringize(version_string) << ')' << LL_ENDL;
+
+#endif // LL_BUGSPLAT
+#endif // LL_SEND_CRASH_REPORTS
 
 	bool success = LLAppViewer::init();
 
