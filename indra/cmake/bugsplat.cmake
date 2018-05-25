@@ -3,10 +3,12 @@
 # build).
 if (DEFINED ENV{BUGSPLAT_DB})
   if (USESYSTEMLIBS)
+    message(STATUS "Looking for system BugSplat")
     set(BUGSPLAT_FIND_QUIETLY ON)
     set(BUGSPLAT_FIND_REQUIRED ON)
     include(FindBUGSPLAT)
   else (USESYSTEMLIBS)
+    message(STATUS "Engaging autobuild BugSplat")
     include(Prebuilt)
     use_prebuilt_binary(bugsplat)
     if (WINDOWS)

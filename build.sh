@@ -110,6 +110,11 @@ pre_build()
     then # show that we're doing this, just not the contents
          echo source "$bugsplat_sh"
          source "$bugsplat_sh"
+         # important: we test this and use its value in [grand-]child processes
+         if [ -n "${BUGSPLAT_DB:-}" ]
+         then echo export BUGSPLAT_DB
+              export BUGSPLAT_DB
+         fi
     fi
     set -x
 
