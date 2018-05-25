@@ -2758,7 +2758,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
         // class responder if nothing else gets added. 
         // (comment from removed Responder)
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, update, 
-            "Hover hight sent to sim", "Hover hight not sent to sim");
+            "Hover height sent to sim", "Hover height not sent to sim");
 		mLastHoverOffsetSent = hover_offset;
 	}
 }
