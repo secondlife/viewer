@@ -271,15 +271,13 @@ public:
         mOnFinished(),
         mTarget(target),
         mInitial(initsetting),
-        mFinal(endsetting),
-        mIsTrivial(false)
+        mFinal(endsetting)
     {
         if (mInitial)
             mTarget->replaceSettings(mInitial->getSettings());
 
         if (!mFinal)
             mFinal = mInitial;
-        mIsTrivial = (mFinal == mInitial);
     }
 
     virtual ~LLSettingsBlender() {}
@@ -295,7 +293,6 @@ public:
 
         if (!mFinal)
             mFinal = mInitial;
-        mIsTrivial = (mFinal == mInitial);
 
         mTarget->replaceSettings(mInitial->getSettings());
     }
@@ -333,7 +330,6 @@ protected:
     LLSettingsBase::ptr_t   mTarget;
     LLSettingsBase::ptr_t   mInitial;
     LLSettingsBase::ptr_t   mFinal;
-    bool                    mIsTrivial;
 };
 
 class LLSettingsBlenderTimeDelta : public LLSettingsBlender

@@ -548,7 +548,7 @@ F64 LLSettingsBlender::setPosition(F64 blendf)
     blendf = llclamp(blendf, 0.0, 1.0);
 
     mTarget->replaceSettings(mInitial->getSettings());
-    if (mIsTrivial || (blendf == 0.0))
+    if (!mFinal || (mInitial == mFinal) || (blendf == 0.0))
     {   // this is a trivial blend.  Results will be identical to the initial.
         return blendf;
     }

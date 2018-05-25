@@ -61,18 +61,18 @@ public:
 
         typedef std::shared_ptr<EnvironmentInfo>  ptr_t;
 
-        S32             mParcelId;
-        LLUUID          mRegionId;
-        S64Seconds      mDayLength;
-        S64Seconds      mDayOffset;
-        size_t          mDayHash;
-        LLSD            mDaycycleData;
-        LLSD            mAltitudes;
-        bool            mIsDefault;
-        bool            mIsRegion;
+        S32                 mParcelId;
+        LLUUID              mRegionId;
+        S64Seconds          mDayLength;
+        S64Seconds          mDayOffset;
+        size_t              mDayHash;
+        LLSD                mDaycycleData;
+        std::array<F32, 4>  mAltitudes;
+        bool                mIsDefault;
+        bool                mIsRegion;
 
 
-        static ptr_t    extract(LLSD);
+        static ptr_t        extract(LLSD);
 
     };
 
@@ -338,6 +338,7 @@ private:
     change_signal_t             mDayCycleListChange;
 
     S32                         mCurrentTrack;
+    std::array<F32, 4>          mTrackAltitudes;
 
     DayInstance::ptr_t          getEnvironmentInstance(EnvSelection_t env, bool create = false);
 

@@ -852,6 +852,7 @@ void LLFloaterEditExtDayCycle::syncronizeTabs()
             panel->setSettings(psettingWater);
             panel->setEnabled(canedit);
             panel->setAllChildrenEnabled(canedit);
+            panel->refresh();
         }
     }
 
@@ -883,6 +884,7 @@ void LLFloaterEditExtDayCycle::syncronizeTabs()
             panel->setSettings(psettingSky);
             panel->setEnabled(canedit);
             panel->setAllChildrenEnabled(canedit);
+            panel->refresh();
         }
     }
 
@@ -1041,13 +1043,10 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
     F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
 
     self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
-    self->selectFrame(self->mTimeSlider->getCurSliderValue());
+    self->mSkyBlender->setPosition(new_frame);
+    self->mWaterBlender->setPosition(new_frame);
+    self->syncronizeTabs();
 
-    if (self->mPlayTimer.getElapsedTimeF32() > DAY_CYCLE_PLAY_TIME_SECONDS)
-    {
-        // Nothing to do anymore.
-        self->stopPlay();
-    }
 }
 
 

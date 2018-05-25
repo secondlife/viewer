@@ -132,7 +132,7 @@ private:
     // play functions
     void startPlay();
     void stopPlay();
-    static void onIdlePlay(void* user_data);
+    static void onIdlePlay(void *);
 
     LLSettingsDay::ptr_t    mEditDay; // edited copy
     S64Seconds              mDayLength;

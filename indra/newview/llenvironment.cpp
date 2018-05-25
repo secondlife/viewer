@@ -961,6 +961,10 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
             LL_WARNS("LAPRAS") << "Had requested parcel environment #" << parcel_id << " but got region." << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
         }
+
+        mTrackAltitudes = envinfo->mAltitudes;
+
+        LL_WARNS("LAPRAS") << "Altitudes set to {" << mTrackAltitudes[0] << ", "<< mTrackAltitudes[1] << ", " << mTrackAltitudes[2] << ", " << mTrackAltitudes[3] << LL_ENDL;
     }
     else
     {
@@ -1250,7 +1254,7 @@ LLEnvironment::EnvironmentInfo::EnvironmentInfo():
     mDayOffset(0),
     mDayHash(0),
     mDaycycleData(),
-    mAltitudes(),
+    mAltitudes({ { 0.0, 0.0, 0.0, 0.0 } }),
     mIsDefault(false),
     mIsRegion(false)
 {
@@ -1275,7 +1279,16 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
     if (environment.has("is_default"))
         pinfo->mIsDefault = environment["is_default"].asBoolean();
     if (environment.has("track_altitudes"))
-        pinfo->mAltitudes = environment["track_altitudes"];
+    {
+        LL_WARNS("LAPRAS") << "track_altitudes=" << environment["track_altitudes"] << LL_ENDL;
+
+        /*LAPRAS: TODO: Fix the simulator message.  Shouldn't be 5, just 4*/
+        int idx = 1; 
+        for (F32 &altitude : pinfo->mAltitudes)
+        {
+            altitude = environment["track_altitudes"][idx++].asReal();
+        }
+    }
 
     return pinfo;
 }
@@ -1506,8 +1519,17 @@ void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
 
 S32 LLEnvironment::calculateSkyTrackForAltitude(F64 altitude)
 {
-    //*LAPRAS* temp  base on region's response.
-    return llmin((static_cast<S32>(altitude) / 100) + 1, (LLSettingsDay::TRACK_MAX - 1));
+//     //*LAPRAS* temp  base on region's response.
+//     return llmin((static_cast<S32>(altitude) / 100) + 1, (LLSettingsDay::TRACK_MAX - 1));
+
+    auto it = std::find_if_not(mTrackAltitudes.begin(), mTrackAltitudes.end(), [altitude](F32 test) { return altitude > test; });
+    
+    if (it == mTrackAltitudes.begin())
+        return 1;
+    else if (it == mTrackAltitudes.end())
+        return 4;
+
+    return std::min(std::distance(mTrackAltitudes.begin(), it), 4LL);
 }
 
 
