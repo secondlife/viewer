@@ -186,6 +186,11 @@ class ViewerManifest(LLManifest):
                             "Address Size":self.address_size,
                             "Update Service":"https://update.secondlife.com/update",
                             }
+            try:
+                build_data_dict["BugSplat DB"] = os.environ["BUGSPLAT_DB"]
+            except KeyError:
+                # skip the assignment if there's no BUGSPLAT_DB variable
+                pass
             build_data_dict = self.finish_build_data_dict(build_data_dict)
             with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
                 json.dump(build_data_dict,build_data_handle)
@@ -1001,6 +1006,13 @@ open "%s" --args "$@"
                     # runs the executable, instead of launching the app)
                     Info["CFBundleExecutable"] = "Second Life"
                     Info["CFBundleIconFile"] = viewer_icon
+                    try:
+                        # https://www.bugsplat.com/docs/platforms/os-x#configuration
+                        Info["BugsplatServerURL"] = \
+                            "https://{BUGSPLAT_DB}.bugsplatsoftware.com/".format(**os.environ)
+                    except KeyError:
+                        # skip the assignment if there's no BUGSPLAT_DB variable
+                        pass
                     self.put_in_file(
                         plistlib.writePlistToString(Info),
                         os.path.basename(Info_plist),

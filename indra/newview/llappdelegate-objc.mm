@@ -70,6 +70,8 @@
 
 #if defined(LL_BUGSPLAT)
 	// https://www.bugsplat.com/docs/platforms/os-x#initialization
+//	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
+//	[BugsplatStartupManager sharedManager].askUserDetails = NO;
 	[[BugsplatStartupManager sharedManager] start];
 #endif
 }
@@ -186,5 +188,22 @@
     
     return true;
 }
+
+#if 0 // defined(LL_BUGSPLAT)
+
+@implementation BugsplatStartupManagerDelegate
+
+- (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
+    NSURL *fileURL = [[NSBundle mainBundle] URLForResource:@"example" withExtension:@"json"];
+    NSData *data = [NSData dataWithContentsOfURL:fileURL];
+    
+    BugsplatAttachment *attachment = 
+        [[BugsplatAttachment alloc] initWithFilename:@"example.json"
+                                      attachmentData:data
+                                         contentType:@"application/json"];
+    return attachment;
+}
+
+#endif // LL_BUGSPLAT
 
 @end

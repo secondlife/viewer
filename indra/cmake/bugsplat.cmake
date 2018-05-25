@@ -1,13 +1,7 @@
-# BUGSPLAT can be set when launching the make using the argument -DBUGSPLAT:BOOL=ON
-# When building using proprietary binaries though (i.e. having access to LL private servers),
-# we always build with BUGSPLAT.
-# Open source devs should use the -DBUGSPLAT:BOOL=ON then if they want to
-# build with BugSplat, whether they are using USESYSTEMLIBS or not.
-if (INSTALL_PROPRIETARY)
-  set(BUGSPLAT ON CACHE BOOL "Using BugSplat crash reporting library.")
-endif (INSTALL_PROPRIETARY)
-
-if (BUGSPLAT)
+# BugSplat is engaged by setting environment variable BUGSPLAT_DB to the
+# target BugSplat database name prior to running CMake (and during autobuild
+# build).
+if (DEFINED ENV{BUGSPLAT_DB})
   if (USESYSTEMLIBS)
     set(BUGSPLAT_FIND_QUIETLY ON)
     set(BUGSPLAT_FIND_REQUIRED ON)
@@ -27,4 +21,4 @@ if (BUGSPLAT)
     endif (WINDOWS)
     set(BUGSPLAT_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/bugsplat)
   endif (USESYSTEMLIBS)
-endif (BUGSPLAT)
+endif (DEFINED ENV{BUGSPLAT_DB})
