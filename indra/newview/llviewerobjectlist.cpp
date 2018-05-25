@@ -1050,7 +1050,7 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 
     if (diff.empty())
     {
-        LL_INFOS() << "No outstanding object IDs to request. Pending count: " << mPendingObjectCost.size() << " Requesting count: " << mStaleObjectCost.size() << LL_ENDL;
+        LL_INFOS() << "No outstanding object IDs to request. Pending count: " << mPendingObjectCost.size() << LL_ENDL;
         return;
     }
 
