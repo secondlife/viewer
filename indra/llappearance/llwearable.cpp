@@ -437,7 +437,13 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 				LL_WARNS() << "Bad Wearable asset: bad texture, #" << i << LL_ENDL;
 				return LLWearable::FAILURE;
 		}
-	
+
+		if (te >= ETextureIndex::TEX_NUM_INDICES) //createLayers() converts to ETextureIndex
+		{
+			LL_WARNS() << "Bad Wearable asset: bad texture index: " << te << LL_ENDL;
+			return LLWearable::FAILURE;
+		}
+
 		if( !LLUUID::validate( uuid_buffer ) )
 		{
 				LL_WARNS() << "Bad Wearable asset: bad texture uuid: " 
