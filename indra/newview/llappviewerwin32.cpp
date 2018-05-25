@@ -79,12 +79,27 @@
 namespace
 {
     // MiniDmpSender's constructor is defined to accept __wchar_t* instead of
-    // plain wchar_t*. It would be nice if, when wchar_t is the same as
-    // __wchar_t, this whole function would optimize away. However, we use it
-    // only for the arguments to make exactly one call to initialize BugSplat.
+    // plain wchar_t*. That said, wunder() returns std::basic_string<__wchar_t>,
+    // NOT plain __wchar_t*, despite the apparent convenience. Calling
+    // wunder(something).c_str() as an argument expression is fine: that
+    // std::basic_string instance will survive until the function returns.
+    // Calling c_str() on a std::basic_string local to wunder() would be
+    // Undefined Behavior: we'd be left with a pointer into a destroyed
+    // std::basic_string instance.
+
+    // It would be nice if, when wchar_t is the same as __wchar_t, this whole
+    // function would optimize away. However, we use it only for the arguments
+    // to make exactly one call to initialize BugSplat.
     inline std::basic_string<__wchar_t> wunder(const std::wstring& str)
     {
         return { str.begin(), str.end() };
+    }
+
+    // when what we have in hand is a std::string, convert from UTF-8 using
+    // specific wstringize() overload
+    inline std::basic_string<__wchar_t> wunder(const std::string& str)
+    {
+        return wunder(wstringize(str));
     }
 
     // Irritatingly, MiniDmpSender::setCallback() is defined to accept a
@@ -107,7 +122,7 @@ namespace
             // send the main viewer log file
             // widen to wstring, convert to __wchar_t, then pass c_str()
             sBugSplatSender->sendAdditionalFile(
-                wunder(wstringize(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log"))).c_str());
+                wunder(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")).c_str());
         }
 
         return false;
@@ -559,7 +574,7 @@ bool LLAppViewerWin32::init()
 		std::string build_data_fname(
 			gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
 		std::ifstream inf(build_data_fname.c_str());
-		if (! inf.open())
+		if (! inf.is_open())
 		{
 			LL_WARNS() << "Can't initialize BugSplat, can't read '" << build_data_fname
 					   << "'" << LL_ENDL;
@@ -570,8 +585,9 @@ bool LLAppViewerWin32::init()
 			Json::Value build_data;
 			if (! reader.parse(inf, build_data, false)) // don't collect comments
 			{
+				// gah, the typo is baked into their API
 				LL_WARNS() << "Can't initialize BugSplat, can't parse '" << build_data_fname
-						   << "': " << reader.getFormattedErrorMessages() << LL_ENDL;
+						   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
 			}
 			else
 			{
@@ -579,7 +595,7 @@ bool LLAppViewerWin32::init()
 				if (! BugSplat_DB)
 				{
 					LL_WARNS() << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
-							   << build_data_fname "'" << LL_ENDL;
+							   << build_data_fname << "'" << LL_ENDL;
 				}
 				else
 				{
@@ -591,7 +607,7 @@ bool LLAppViewerWin32::init()
 
 					// have to convert normal wide strings to strings of __wchar_t
 					sBugSplatSender = new MiniDmpSender(
-						wunder(BugSplat_DB).c_str(),
+						wunder(BugSplat_DB.asString()).c_str(),
 						wunder(LL_TO_WSTRING(LL_VIEWER_CHANNEL)).c_str(),
 						wunder(version_string).c_str(),
 						nullptr);
