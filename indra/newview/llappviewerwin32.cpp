@@ -550,7 +550,7 @@ bool LLAppViewerWin32::init()
 
 #else // LL_BUGSPLAT
 
-	if (gDirUtilp)
+	if (! gDirUtilp)
 	{
 		LL_WARNS() << "Can't initialize BugSplat, gDirUtilp not yet set" << LL_ENDL;
 	}
