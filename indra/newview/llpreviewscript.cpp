@@ -2041,7 +2041,15 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 
 	mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), TRUE);
 	mScriptEd->makeEditorPristine();
-	mScriptEd->setScriptName(getItem()->getName());
+
+	std::string script_name = DEFAULT_SCRIPT_NAME;
+	const LLInventoryItem* inv_item = getItem();
+
+	if(inv_item)
+	{
+		script_name = inv_item->getName();
+	}
+	mScriptEd->setScriptName(script_name);
 }
 
 

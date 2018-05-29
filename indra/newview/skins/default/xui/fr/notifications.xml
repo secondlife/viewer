@@ -2492,7 +2492,7 @@ Voulez-vous désactiver Ne pas déranger avant de terminer cette transaction ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] objets seront supprimés définitivement. Êtes-vous certain de vouloir supprimer le contenu de votre corbeille de manière permanente ?
+		[COUNT] les objets et les dossiers seront supprimés définitivement. Êtes-vous certain de vouloir supprimer le contenu de votre corbeille de manière permanente ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3498,12 +3498,18 @@ Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Problèmes de connexion à votre serveur vocal :
+		La connexion au serveur vocal est impossible : 
 
 [HOSTID]
 
+Les ports autorisés pour la voix sont :
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Veuillez vérifier la configuration de votre réseau et de votre pare-feu. 
+Veuillez désactiver toute  fonctionnalité SIP ALG dans votre routeur. 
+
 Aucune communication vocale n&apos;est disponible.
-Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

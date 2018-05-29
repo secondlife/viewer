@@ -173,9 +173,9 @@ void LLTextureBar::draw()
 	{
 		color = LLColor4::green4;
 	}
-	else if (mImagep->getBoostLevel() > LLGLTexture::BOOST_NONE)
+	else if (mImagep->getBoostLevel() > LLGLTexture::BOOST_ALM)
 	{
-		color = LLColor4::magenta;
+		color = LLColor4::magenta; // except none and alm
 	}
 	else if (mImagep->getDecodePriority() <= 0.0f)
 	{

@@ -1624,7 +1624,7 @@ void LLPanelEditWearable::initPreviousAlphaTextures()
         initPreviousAlphaTextureEntry(TEX_UPPER_ALPHA);
         initPreviousAlphaTextureEntry(TEX_HEAD_ALPHA);
         initPreviousAlphaTextureEntry(TEX_EYES_ALPHA);
-        initPreviousAlphaTextureEntry(TEX_LOWER_ALPHA);
+        initPreviousAlphaTextureEntry(TEX_HAIR_ALPHA);
 }
 
 void LLPanelEditWearable::initPreviousAlphaTextureEntry(LLAvatarAppearanceDefines::ETextureIndex te)

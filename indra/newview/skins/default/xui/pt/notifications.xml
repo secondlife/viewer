@@ -2484,7 +2484,7 @@ Deseja desativar o Não perturbe antes de concluir esta transação?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] itens serão excluídos permanentemente. Tem certeza de que deseja excluir o conteúdo da Lixeira? Para sempre?
+		[COUNT] itens e pastas serão excluídas permanentemente. Tem certeza de que deseja excluir o conteúdo da Lixeira? Para sempre?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3486,12 +3486,18 @@ Verifique a configuração da sua rede e firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Estamos tendo problemas de conexão com o seu servidor de voz:
+		Não conseguimos conectar ao servidor de voz:
 
 [HOSTID]
 
+As portas que devem ter permissão para voz são: 
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Verifique a configuração da sua rede e firewall. 
+Desativar qualquer configuração SIP ALG em seu router. 
+
 Talvez não seja possível se comunicar via voz.
-Verifique a configuração da sua rede e firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
