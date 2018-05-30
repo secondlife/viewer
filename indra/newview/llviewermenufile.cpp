@@ -203,6 +203,40 @@ void LLFilePickerThread::clearDead()
 	}
 }
 
+LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ELoadFilter filter, bool get_multiple)
+	: LLFilePickerThread(filter, get_multiple),
+	mLoadFilter(filter),
+	mSaveFilter(LLFilePicker::FFSAVE_ALL),
+	mFilePickedSignal(NULL)
+{
+	mFilePickedSignal = new file_picked_signal_t();
+	mFilePickedSignal->connect(cb);
+}
+
+LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+	: LLFilePickerThread(filter, proposed_name),
+	mLoadFilter(LLFilePicker::FFLOAD_ALL),
+	mSaveFilter(filter),
+	mFilePickedSignal(NULL)
+{
+	mFilePickedSignal = new file_picked_signal_t();
+	mFilePickedSignal->connect(cb);
+}
+
+LLFilePickerReplyThread::~LLFilePickerReplyThread()
+{
+	delete mFilePickedSignal;
+}
+
+void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
+{
+	if (filenames.empty()) return;
+
+	if (mFilePickedSignal)
+	{
+		(*mFilePickedSignal)(filenames, mLoadFilter, mSaveFilter);
+	}
+}
 
 //============================================================================
 
@@ -246,6 +280,150 @@ std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 #endif
     default:
 	return ALL_FILE_EXTENSIONS;
+	}
+}
+
+
+const bool check_file_extension(const std::string& filename, LLFilePicker::ELoadFilter type)
+{
+	std::string ext = gDirUtilp->getExtension(filename);
+
+	//strincmp doesn't like NULL pointers
+	if (ext.empty())
+	{
+		std::string short_name = gDirUtilp->getBaseFileName(filename);
+
+		// No extension
+		LLSD args;
+		args["FILE"] = short_name;
+		LLNotificationsUtil::add("NoFileExtension", args);
+		return false;
+	}
+	else
+	{
+		//so there is an extension
+		//loop over the valid extensions and compare to see
+		//if the extension is valid
+
+		//now grab the set of valid file extensions
+		std::string valid_extensions = build_extensions_string(type);
+
+		BOOL ext_valid = FALSE;
+
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> sep(" ");
+		tokenizer tokens(valid_extensions, sep);
+		tokenizer::iterator token_iter;
+
+		//now loop over all valid file extensions
+		//and compare them to the extension of the file
+		//to be uploaded
+		for (token_iter = tokens.begin();
+			token_iter != tokens.end() && ext_valid != TRUE;
+			++token_iter)
+		{
+			const std::string& cur_token = *token_iter;
+
+			if (cur_token == ext || cur_token == "*.*")
+			{
+				//valid extension
+				//or the acceptable extension is any
+				ext_valid = TRUE;
+			}
+		}//end for (loop over all tokens)
+
+		if (ext_valid == FALSE)
+		{
+			//should only get here if the extension exists
+			//but is invalid
+			LLSD args;
+			args["EXTENSION"] = ext;
+			args["VALIDS"] = valid_extensions;
+			LLNotificationsUtil::add("InvalidFileExtension", args);
+			return false;
+		}
+	}//end else (non-null extension)
+	return true;
+}
+
+const void upload_single_file(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
+{
+	std::string filename = filenames[0];
+	if (!check_file_extension(filename, type)) return;
+	
+	if (!filename.empty())
+	{
+		if (type == LLFilePicker::FFLOAD_WAV)
+		{
+			// pre-qualify wavs to make sure the format is acceptable
+			std::string error_msg;
+			if (check_for_invalid_wav_formats(filename, error_msg))
+			{
+				LL_INFOS() << error_msg << ": " << filename << LL_ENDL;
+				LLSD args;
+				args["FILE"] = filename;
+				LLNotificationsUtil::add(error_msg, args);
+				return;
+			}
+			else
+			{
+				LLFloaterReg::showInstance("upload_sound", LLSD(filename));
+			}
+		}
+		if (type == LLFilePicker::FFLOAD_IMAGE)
+		{
+			LLFloaterReg::showInstance("upload_image", LLSD(filename));
+		}
+		if (type == LLFilePicker::FFLOAD_ANIM)
+		{
+			if (filename.rfind(".anim") != std::string::npos)
+			{
+				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
+			}
+			else
+			{
+				LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
+			}
+		}		
+	}
+	return;
+}
+
+
+const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
+{
+	// TODO:
+	// Check user balance for entire cost
+	// Charge user entire cost
+	// Loop, uploading
+	// If an upload fails, refund the user for that one
+	//
+	// Also fix single upload to charge first, then refund
+
+	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+		if (!check_file_extension(filename, type)) continue;
+		
+		std::string name = gDirUtilp->getBaseFileName(filename, true);
+		std::string asset_name = name;
+		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
+
+		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+			filename,
+			asset_name,
+			asset_name, 0,
+			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+			LLFloaterPerms::getNextOwnerPerms("Uploads"),
+			LLFloaterPerms::getGroupPerms("Uploads"),
+			LLFloaterPerms::getEveryonePerms("Uploads"),
+			expected_upload_cost));
+
+		upload_new_resource(uploadInfo, NULL, NULL);
 	}
 }
 
@@ -369,12 +547,12 @@ class LLFileUploadImage : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
-		if (!filename.empty())
+		if (gAgentCamera.cameraMouselook())
 		{
-			LLFloaterReg::showInstance("upload_image", LLSD(filename));
+			gAgentCamera.changeCameraToDefault();
 		}
-		return TRUE;
+		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_IMAGE, false))->getFile();
+		return true;
 	}
 };
 
@@ -396,11 +574,11 @@ class LLFileUploadSound : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
-		if (!filename.empty())
+		if (gAgentCamera.cameraMouselook())
 		{
-			LLFloaterReg::showInstance("upload_sound", LLSD(filename));
+			gAgentCamera.changeCameraToDefault();
 		}
+		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_WAV, false))->getFile();
 		return true;
 	}
 };
@@ -409,18 +587,11 @@ class LLFileUploadAnim : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
-		if (!filename.empty())
+		if (gAgentCamera.cameraMouselook())
 		{
-			if (filename.rfind(".anim") != std::string::npos)
-			{
-				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
-			}
-			else
-			{
-				LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
-			}
+			gAgentCamera.changeCameraToDefault();
 		}
+		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_ANIM, false))->getFile();
 		return true;
 	}
 };
@@ -429,55 +600,11 @@ class LLFileUploadBulk : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		if( gAgentCamera.cameraMouselook() )
+		if (gAgentCamera.cameraMouselook())
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-
-		// TODO:
-		// Check extensions for uploadability, cost
-		// Check user balance for entire cost
-		// Charge user entire cost
-		// Loop, uploading
-		// If an upload fails, refund the user for that one
-		//
-		// Also fix single upload to charge first, then refund
-
-		LLFilePicker& picker = LLFilePicker::instance();
-		if (picker.getMultipleOpenFiles())
-		{
-            std::string filename = picker.getFirstFile();
-            S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
-
-            while (!filename.empty())
-            {
-                std::string name = gDirUtilp->getBaseFileName(filename, true);
-
-                std::string asset_name = name;
-                LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
-                LLStringUtil::replaceChar(asset_name, '|', '?');
-                LLStringUtil::stripNonprintable(asset_name);
-                LLStringUtil::trim(asset_name);
-
-                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-                    filename,
-                    asset_name,
-                    asset_name, 0,
-                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
-                    LLFloaterPerms::getGroupPerms("Uploads"),
-                    LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost));
-
-                upload_new_resource(uploadInfo, NULL, NULL);
-
-                filename = picker.getNextFile();
-            }
-		}
-		else
-		{
-			LL_INFOS() << "Couldn't import objects from file" << LL_ENDL;
-		}
+		(new LLFilePickerReplyThread(boost::bind(&upload_bulk, _1, _2), LLFilePicker::FFLOAD_ALL, true))->getFile();
 		return true;
 	}
 };
