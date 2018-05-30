@@ -2606,6 +2606,8 @@ void LLVOAvatarSelf::requestLayerSetUpdate(ETextureIndex index )
 			if( mUpperBodyLayerSet )
 				mUpperBodyLayerSet->requestUpdate(); */
 	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+	if (!texture_dict)
+		return;
 	if (!texture_dict->mIsLocalTexture || !texture_dict->mIsUsedByBakedTexture)
 		return;
 	const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
@@ -2622,7 +2624,7 @@ LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
                case TEX_HEAD_BODYPAINT:
                        return mHeadLayerSet; */
        const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
-       if (texture_dict->mIsUsedByBakedTexture)
+       if (texture_dict && texture_dict->mIsUsedByBakedTexture)
        {
                const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
                return getLayerSet(baked_index);
