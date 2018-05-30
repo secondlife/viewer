@@ -1794,6 +1794,8 @@ bool LLAppViewer::cleanup()
 	// (Deleted observers should have already removed themselves)
 	gInventory.cleanupInventory();
 
+	LLCoros::getInstance()->printActiveCoroutines();
+
 	LL_INFOS() << "Cleaning up Selections" << LL_ENDL;
 
 	// Clean up selection managers after UI is destroyed, as UI may be observing them.
