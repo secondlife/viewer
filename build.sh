@@ -120,7 +120,6 @@ pre_build()
 
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
-     -DUNATTENDED:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
