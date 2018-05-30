@@ -204,6 +204,8 @@ then
     exit 1
 fi
 
+shopt -s nullglob # if nothing matches a glob, expand to nothing
+
 initialize_build # provided by master buildscripts build.sh
 
 begin_section "autobuild initialize"
