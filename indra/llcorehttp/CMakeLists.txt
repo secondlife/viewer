@@ -167,29 +167,26 @@ if (DARWIN)
     COMMENT "Creating Resources directory in app bundle."
   )
   
-  # Copy the required libraries to the package app
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libapr-1.0.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libapr-1.0.dylib
-  )
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libaprutil-1.0.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libaprutil-1.0.dylib
-  )
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libexception_handler.dylib
-  )
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/libnghttp2*.dylib ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/libnghttp2.dylib
-  )
-  foreach(expat ${EXPAT_COPY})
-    add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat} ${LL_TEST_DESTINATION_DIR}
-      DEPENDS ${AUTOBUILD_INSTALL_DIR}/lib/release/${expat}
+  # Copy the required libraries to the package app. We used to use a sequence
+  # of '${CMAKE_COMMAND} -E copy' commands, but 'cmake -E copy' does only a
+  # single file at a time: it doesn't understand wildcards. 'cmake -E copy' is
+  # for portability. This operation is Darwin-specific. We can count on the
+  # 'cp' command.
+  set(copy_dylibs
+    libapr-1.0.dylib
+    libaprutil-1.0.dylib
+    libexception_handler.dylib
+    libnghttp2*.dylib
+    ${EXPAT_COPY}
     )
-  endforeach(expat)
+
+  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+    WORKING_DIRECTORY "${AUTOBUILD_INSTALL_DIR}/lib/release"
+    COMMAND cp -v
+    ${copy_dylibs}
+    ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${copy_dylibs}
+  )
 
 endif (DARWIN)
 
