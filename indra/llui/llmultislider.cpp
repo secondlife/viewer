@@ -210,6 +210,19 @@ void LLMultiSlider::setCurSlider(const std::string& name)
 	}
 }
 
+F32 LLMultiSlider::getSliderValueFromX(S32 xpos) const
+{
+    S32 left_edge = mThumbWidth / 2;
+    S32 right_edge = getRect().getWidth() - (mThumbWidth / 2);
+
+    xpos += mMouseOffset;
+    xpos = llclamp(xpos, left_edge, right_edge);
+
+    F32 t = F32(xpos - left_edge) / (right_edge - left_edge);
+
+    return((t * (mMaxValue - mMinValue)) + mMinValue);
+}
+
 void LLMultiSlider::resetCurSlider()
 {
 	mCurSlider = LLStringUtil::null;
@@ -359,14 +372,15 @@ BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( gFocusMgr.getMouseCapture() == this )
 	{
-		S32 left_edge = mThumbWidth/2;
-		S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
-
-		x += mMouseOffset;
-		x = llclamp( x, left_edge, right_edge );
-
-		F32 t = F32(x - left_edge) / (right_edge - left_edge);
-		setCurSliderValue(t * (mMaxValue - mMinValue) + mMinValue );
+// 		S32 left_edge = mThumbWidth/2;
+// 		S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
+// 
+// 		x += mMouseOffset;
+// 		x = llclamp( x, left_edge, right_edge );
+// 
+// 		F32 t = F32(x - left_edge) / (right_edge - left_edge);
+// 		setCurSliderValue(t * (mMaxValue - mMinValue) + mMinValue );
+        setCurSliderValue(getSliderValueFromX(x));
 		onCommit();
 
 		getWindow()->setCursor(UI_CURSOR_ARROW);

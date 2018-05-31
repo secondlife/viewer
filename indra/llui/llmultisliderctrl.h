@@ -74,7 +74,7 @@ protected:
 public:
 	virtual ~LLMultiSliderCtrl();
 
-	F32				getSliderValue(const std::string& name) const;
+    F32				getSliderValue(const std::string& name) const   { return mMultiSlider->getSliderValue(name); }
 	void			setSliderValue(const std::string& name, F32 v, BOOL from_event = FALSE);
 
 	virtual void	setValue(const LLSD& value );
@@ -98,6 +98,8 @@ public:
 	void			setMinValue(F32 min_value) {mMultiSlider->setMinValue(min_value);}
 	void			setMaxValue(F32 max_value) {mMultiSlider->setMaxValue(max_value);}
 	void			setIncrement(F32 increment) {mMultiSlider->setIncrement(increment);}
+
+    F32             getSliderValueFromX(S32 x) const { return mMultiSlider->getSliderValueFromX(x); }
 
 	/// for adding and deleting sliders
 	const std::string&	addSlider();

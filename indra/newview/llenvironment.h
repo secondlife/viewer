@@ -129,6 +129,8 @@ public:
     typedef boost::signals2::signal<void()>                 change_signal_t;
     typedef std::function<void(S32, EnvironmentInfo::ptr_t)>     environment_apply_fn;
 
+    typedef std::array<F32, 4>                              altitude_list_t;
+
     virtual ~LLEnvironment();
 
     void                        loadPreferences();
@@ -216,6 +218,8 @@ public:
     void                        selectAgentEnvironment();
 
     S32                         calculateSkyTrackForAltitude(F64 altitude);
+
+    const altitude_list_t &     getRegionAltitudes() const { return mTrackAltitudes; }
 
 protected:
     virtual void                initSingleton();
@@ -338,7 +342,7 @@ private:
     change_signal_t             mDayCycleListChange;
 
     S32                         mCurrentTrack;
-    std::array<F32, 4>          mTrackAltitudes;
+    altitude_list_t             mTrackAltitudes;
 
     DayInstance::ptr_t          getEnvironmentInstance(EnvSelection_t env, bool create = false);
 

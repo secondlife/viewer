@@ -72,6 +72,7 @@ public:
 	virtual ~LLMultiSlider();
 	void				setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32					getSliderValue(const std::string& name) const;
+    F32                 getSliderValueFromX(S32 xpos) const;
 
 	const std::string&	getCurSlider() const					{ return mCurSlider; }
 	F32					getCurSliderValue() const				{ return getSliderValue(mCurSlider); }

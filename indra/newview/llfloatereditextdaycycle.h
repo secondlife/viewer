@@ -91,9 +91,12 @@ private:
 	// time slider moved
 	void onTimeSliderMoved();
 	// a frame moved or frame selection changed
-	void onFrameSliderCallback();
+	void onFrameSliderCallback(const LLSD &);
+    void onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
+    void onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
+    void onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
 
-	void selectTrack(U32 track_index);
+	void selectTrack(U32 track_index, bool force = false);
 	void selectFrame(F32 frame);
 	void clearTabs();
 	void updateTabs();
@@ -139,10 +142,10 @@ private:
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
 
-    LLButton*			mCancelButton;
-    LLButton*           mAddFrameButton;
-    LLButton*           mDeleteFrameButton;
-    LLButton*           mImportButton;
+    LLButton*			    mCancelButton;
+    LLButton*               mAddFrameButton;
+    LLButton*               mDeleteFrameButton;
+    LLButton*               mImportButton;
 
     LLMultiSliderCtrl*	    mTimeSlider;
     LLMultiSliderCtrl*      mFramesSlider;
@@ -160,10 +163,11 @@ private:
     LLSettingsWater::ptr_t  mScratchWater;
     // **RIDER**
 
-    LLFlyoutComboBtnCtrl *      mFlyoutControl;
+    LLFlyoutComboBtnCtrl *  mFlyoutControl;
 
-    LLFrameTimer mPlayTimer;
-    F32 mPlayStartFrame; // an env frame
+    LLFrameTimer            mPlayTimer;
+    F32                     mPlayStartFrame; // an env frame
+    bool                    mIsPlaying;
 
     edit_commit_signal_t    mCommitSignal;
 
