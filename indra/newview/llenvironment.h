@@ -188,15 +188,23 @@ public:
     bool                        getIsSunUp() const;
     bool                        getIsMoonUp() const;
 
-    inline F32                  getSceneLightStrength() const { return mSceneLightStrength; }
-    inline void                 setSceneLightStrength(F32 light_strength) { mSceneLightStrength = light_strength; }
+    // Returns either sun or moon direction (depending on which is up and stronger)
+    // Light direction in +x right, +z up, +y at internal coord sys
+    LLVector3                   getLightDirection() const;
 
-    inline LLVector4            getLightDirection() const { return ((mCurrentEnvironment->getSky()) ? LLVector4(mCurrentEnvironment->getSky()->getLightDirection(), 0.0f) : LLVector4(0, 0, 1, 0)); }
-    inline LLVector4            getClampedLightDirection() const { return LLVector4(mCurrentEnvironment->getSky()->getClampedLightDirection(), 0.0f); }
-    inline LLVector4            getRotatedLight() const { return mRotatedLight; }
+    // Returns light direction converted to CFR coord system
+    LLVector4                   getLightDirectionCFR() const;
+
+    // Returns light direction converted to OGL coord system
+    // and clamped above -0.1f in Y to avoid render artifacts in sky shaders
+    LLVector4                   getClampedLightNorm() const;
+
+    // Returns light direction converted to OGL coord system
+    // and rotated by last cam yaw needed by water rendering shaders
+    LLVector4                   getRotatedLightNorm() const;
 
     static LLSettingsWater::ptr_t   createWaterFromLegacyPreset(const std::string filename);
-    static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename);
+    static LLSettingsSky::ptr_t     createSkyFromLegacyPreset(const std::string filename);
 
     //-------------------------------------------
     connection_t                setSkyListChange(const change_signal_t::slot_type& cb);
@@ -220,6 +228,9 @@ protected:
     virtual void                initSingleton();
 
 private:
+    LLVector4 toCFR(const LLVector3 vec) const;
+    LLVector4 toLightNorm(const LLVector3 vec) const;
+
     class DayInstance
     {
     public:
@@ -295,6 +306,7 @@ private:
     };
 
     static const F32            SUN_DELTA_YAW;
+    F32                         mLastCamYaw = 0.0f;
 
     typedef std::map<LLUUID, LLSettingsBase::ptr_t> AssetSettingMap_t;
 
@@ -324,9 +336,6 @@ private:
 
     namedSettingMap_t           mDayCycleByName;
     AssetSettingMap_t           mDayCycleById;
-
-    F32                         mSceneLightStrength;
-    LLVector4                   mRotatedLight;
 
     UserPrefs                   mUserPrefs;
 

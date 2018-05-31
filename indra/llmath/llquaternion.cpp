@@ -38,8 +38,6 @@
 #include "m3math.h"
 #include "llquantize.h"
 
-#pragma optimize("", off)
-
 // WARNING: Don't use this for global const definitions!  using this
 // at the top of a *.cpp file might not give you what you think.
 const LLQuaternion LLQuaternion::DEFAULT;

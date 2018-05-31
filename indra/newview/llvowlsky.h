@@ -50,9 +50,6 @@ private:
 public:
 	LLVOWLSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
-	void initSunDirection(LLVector3 const & sun_direction,
-		LLVector3 const & sun_angular_velocity);
-
 	/*virtual*/ void		 idleUpdate(LLAgent &agent, const F64 &time);
 	/*virtual*/ BOOL		 isActive(void) const;
 	/*virtual*/ LLDrawable * createDrawable(LLPipeline *pipeline);

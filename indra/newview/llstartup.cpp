@@ -332,7 +332,6 @@ bool idle_startup()
 	static std::string auth_desc;
 	static std::string auth_message;
 
-	static LLVector3 initial_sun_direction(1.f, 0.f, 0.f);
 	static LLVector3 agent_start_position_region(10.f, 10.f, 10.f);		// default for when no space server
 
 	// last location by default
@@ -1467,7 +1466,7 @@ bool idle_startup()
 		LLGLState::checkTextureChannels();
 
         LLEnvironment::instance().loadPreferences();
-		gSky.init(initial_sun_direction);
+		gSky.init();
 
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();

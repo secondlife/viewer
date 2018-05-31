@@ -251,7 +251,7 @@ protected:
     void markDirty() { mDirty = true; }
 
 private:
-    bool        mDirty;
+    bool        mDirty = true;
 
     LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
 

@@ -365,7 +365,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildSky(LLSD settings)
 LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &name, const LLSD &legacy)
 {
 
-    LLSD newsettings = LLSettingsSky::translateLegacySettings(legacy, &name);
+    LLSD newsettings = LLSettingsSky::translateLegacySettings(legacy);
 
     newsettings[SETTING_NAME] = name;
 
@@ -476,7 +476,7 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     sunquat.getEulerAngles(&roll, &pitch, &yaw);
     
     legacy[SETTING_LEGACY_EAST_ANGLE] = yaw;
-    legacy[SETTING_LEGACY_SUN_ANGLE]  = pitch;
+    legacy[SETTING_LEGACY_SUN_ANGLE]  = -pitch;
 
     return legacy;    
 }
@@ -485,32 +485,51 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
 void LLSettingsVOSky::updateSettings()
 {
     LLSettingsSky::updateSettings();
-
     LLVector3 sun_direction  = getSunDirection();
     LLVector3 moon_direction = getMoonDirection();
 
-    // axis swap converts from +x right, +z up, +y at
-    // to CFR (+x at, +z up, +y right)
-    // set direction (in CRF) and don't allow overriding
-    //LLVector3 crf_sunDirection(sun_direction.mV[1], sun_direction.mV[0], sun_direction.mV[2]);
-    //LLVector3 crf_moonDirection(moon_direction.mV[1], moon_direction.mV[0], moon_direction.mV[2]);
+    F32 dp = getLightDirection() * LLVector3(0.0f, 0.0f, 1.0f);
+	if (dp < 0)
+	{
+		dp = 0;
+	}
+    dp = llmax(dp, 0.1f);
 
-    gSky.setSunDirection(sun_direction, moon_direction);
+	// Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
+	// between sunlight and point lights in windlight to normalize point lights.
+	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
+    mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
+
+    // Axis swaps convert from +x right, +z up, +y at
+    // to CFR +x at, +z up, +y right coord sys
+    LLVector3 sun_direction_cfr(sun_direction.mV[0],   -sun_direction.mV[1],  sun_direction.mV[2]);
+    LLVector3 moon_direction_cfr(moon_direction.mV[0], -moon_direction.mV[1], moon_direction.mV[2]);
+    gSky.setSunAndMoonDirectionsCFR(sun_direction_cfr, moon_direction_cfr);
 }
 
 void LLSettingsVOSky::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
-    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, getClampedLightDirection().mV);
+    LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
-    shader->uniform4f(LLShaderMgr::GAMMA, getGamma(), 0.0, 0.0, 1.0);
+    if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
+	{        
+        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);
+		shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+	} 
+	else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
+	{
+		LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
+        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);        
 
-    {
         LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
         vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
         shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
-    }
+	}
+
+    shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
+    shader->uniform4f(LLShaderMgr::GAMMA, getGamma(), 0.0, 0.0, 1.0);
 }
 
 LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
@@ -519,12 +538,12 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
 
     if (param_map.empty())
     {
+// LEGACY_ATMOSPHERICS
+        param_map[SETTING_AMBIENT] = LLShaderMgr::AMBIENT;
         param_map[SETTING_BLUE_DENSITY] = LLShaderMgr::BLUE_DENSITY;
         param_map[SETTING_BLUE_HORIZON] = LLShaderMgr::BLUE_HORIZON;
         param_map[SETTING_HAZE_DENSITY] = LLShaderMgr::HAZE_DENSITY;
         param_map[SETTING_HAZE_HORIZON] = LLShaderMgr::HAZE_HORIZON;
-
-        param_map[SETTING_AMBIENT] = LLShaderMgr::AMBIENT;
         param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
         param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
 
@@ -663,12 +682,16 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
-    shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, getWaterPlane().mV);
-    shader->uniform1f(LLShaderMgr::WATER_FOGKS, getWaterFogKS());
+    if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
+	{
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, getWaterPlane().mV);
+        shader->uniform1f(LLShaderMgr::WATER_FOGKS, getWaterFogKS());
 
-    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLEnvironment::instance().getRotatedLight().mV);
-    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-    shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
+        LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
+        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
+        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+        shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
+    }
 }
 
 void LLSettingsVOWater::updateSettings()
@@ -702,7 +725,7 @@ void LLSettingsVOWater::updateSettings()
 
         mWaterPlane = LLVector4(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
 
-        LLVector4 light_direction = LLEnvironment::instance().getLightDirection();
+        LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
         mWaterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
     }
@@ -820,7 +843,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     for (LLSD::map_iterator itm = skydefs.beginMap(); itm != skydefs.endMap(); ++itm)
     {
         std::string newname = "sky:" + (*itm).first;
-        LLSD newsettings = LLSettingsSky::translateLegacySettings((*itm).second, &newname);
+        LLSD newsettings = LLSettingsSky::translateLegacySettings((*itm).second);
         
         newsettings[SETTING_NAME] = newname;
         frames[newname] = newsettings;

@@ -87,11 +87,6 @@ LLVOWLSky::LLVOWLSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regi
 	initStars();
 }
 
-void LLVOWLSky::initSunDirection(LLVector3 const & sun_direction,
-		LLVector3 const & sun_angular_velocity)
-{
-}
-
 void LLVOWLSky::idleUpdate(LLAgent &agent, const F64 &time)
 {
 	

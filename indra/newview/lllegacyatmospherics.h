@@ -207,7 +207,7 @@ public:
     ~LLAtmospherics();
 
     void init();
-    void updateFog(const F32 distance, LLVector3& tosun);
+    void updateFog(const F32 distance, const LLVector3& tosun);
 
     const LLHaze& getHaze() const                    { return mHaze; }
     LLHaze& getHaze()                                { return mHaze; }

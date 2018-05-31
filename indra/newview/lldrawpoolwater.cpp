@@ -488,26 +488,29 @@ void LLDrawPoolWater::shade()
 	LLVector3 light_dir;
 	LLColor3 light_color;
 
-    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    LLEnvironment& environment = LLEnvironment::instance();
+    LLSettingsWater::ptr_t pwater = environment.getCurrentWater();
+    LLSettingsSky::ptr_t   psky   = environment.getCurrentSky();
 
-    light_dir = voskyp->getLightDirection();
+    light_dir = environment.getLightDirection();
     light_dir.normalize();
 
-    bool sun_up = LLEnvironment::instance().getIsSunUp();
-    bool moon_up = LLEnvironment::instance().getIsSunUp();
+    bool sun_up  = environment.getIsSunUp();
+    bool moon_up = environment.getIsMoonUp();
 
     if (sun_up)
     {
-        light_color   =  light_color + voskyp->getSunAmbientColor();
-        light_diffuse += voskyp->getSunDiffuseColor();         
+        light_color   =  light_color + psky->getSunAmbient();
+        light_diffuse += psky->getSunDiffuse();         
     }
 
     light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
 
     if (moon_up)
     {
-        light_color   += voskyp->getMoonDiffuseColor();
-        light_diffuse += voskyp->getMoonDiffuseColor() * 0.5f; 
+        LLColor3 moon_diffuse_color = psky->getMoonDiffuse();
+        light_color   += moon_diffuse_color;
+        light_diffuse += moon_diffuse_color * 0.5f; 
 
         if (!sun_up)
         {

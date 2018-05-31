@@ -56,6 +56,8 @@
 
 #include "llatmosphere.h"
 
+#pragma optimize("", off)
+
 //define EXPORT_PRESETS 1
 //=========================================================================
 namespace
@@ -630,6 +632,52 @@ void LLEnvironment::updateEnvironment(F64Seconds transition, bool forced)
     }
 }
 
+LLVector3 LLEnvironment::getLightDirection() const
+{
+    LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
+    if (!psky)
+    {
+        return LLVector3(0, 0, 1);
+    }
+    return psky->getLightDirection();
+}
+
+LLVector4 LLEnvironment::toCFR(const LLVector3 vec) const
+{
+    LLVector4 vec_cfr(vec.mV[1], vec.mV[0], vec.mV[2], 0.0f);
+    return vec_cfr;
+}
+
+LLVector4 LLEnvironment::toLightNorm(const LLVector3 vec) const
+{
+    LLVector4 vec_ogl(vec.mV[1], vec.mV[2], vec.mV[0], 0.0f);
+    return vec_ogl;
+}
+
+LLVector4 LLEnvironment::getLightDirectionCFR() const
+{
+    LLVector3 light_direction = getLightDirection();
+    LLVector4 light_direction_cfr = toCFR(light_direction);
+    return light_direction_cfr;
+}
+
+LLVector4 LLEnvironment::getClampedLightNorm() const
+{
+    LLVector3 light_direction = getLightDirection();
+    if (light_direction.mV[2] < -0.1f)
+    {
+        light_direction.mV[2] = -0.1f;
+    }
+    return toLightNorm(light_direction);
+}
+
+LLVector4 LLEnvironment::getRotatedLightNorm() const
+{
+    LLVector3 light_direction = getLightDirection();
+    light_direction *= LLQuaternion(-mLastCamYaw, LLVector3(0.f, 1.f, 0.f));
+    return toLightNorm(light_direction);
+}
+
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
@@ -644,18 +692,14 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     // update clouds, sun, and general
     updateCloudScroll();
 
-    F32 camYaw = cam->getYaw();
+    // cache this for use in rotating the rotated light vec for shader param updates later...
+    mLastCamYaw = cam->getYaw() + SUN_DELTA_YAW;
 
     stop_glerror();
 
     // *TODO: potential optimization - this block may only need to be
     // executed some of the time.  For example for water shaders only.
     {
-        LLVector3 lightNorm3( getLightDirection() );
-
-        lightNorm3 *= LLQuaternion(-(camYaw + SUN_DELTA_YAW), LLVector3(0.f, 1.f, 0.f));
-        mRotatedLight = LLVector4(lightNorm3, 0.f);
-
         LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
         end_shaders = LLViewerShaderMgr::instance()->endShaders();
         for (shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
@@ -767,26 +811,10 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
 void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 {
     if (gPipeline.canUseWindLightShaders())
-    {
-        updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
+    {        
         updateGLVariablesForSettings(shader, mCurrentEnvironment->getWater());
-    }
-
-    if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
-    {
-        stop_glerror();
-        shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, mRotatedLight.mV);
-        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-        stop_glerror();
-    }
-    else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
-    {
-        stop_glerror();
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, getClampedLightDirection().mV);
-        stop_glerror();
-    }
-
-    shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, getSceneLightStrength());
+        updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
+    }    
 }
 
 LLEnvironment::list_name_id_t LLEnvironment::getSkyList() const
@@ -1552,6 +1580,7 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mInitialized = false;
 
     mSky = psky;
+    mSky->update();
     mBlenderSky.reset();
 
     if (gAtmosphere)
@@ -1570,6 +1599,7 @@ void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
     mInitialized = false;
 
     mWater = pwater;
+    mWater->update();
     mBlenderWater.reset();
 }
 

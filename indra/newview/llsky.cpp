@@ -129,170 +129,31 @@ void LLSky::resetVertexBuffers()
 	}
 }
 
-void LLSky::setSunDirection(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
+void LLSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
 {
-	if(mVOSkyp.notNull()) {
-        mVOSkyp->setSunDirection(sun_direction, moon_direction);
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunAndMoonDirectionsCFR(sun_direction, moon_direction);
 	}
 }
-
-/*LLVector3 LLSky::getSunDirection() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getToSun();
-	}
-	else
-	{
-		return LLVector3::z_axis;
-	}
-}
-
-
-LLVector3 LLSky::getMoonDirection() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getToMoon();
-	}
-	else
-	{
-		return LLVector3::z_axis;
-	}
-}*/
-
-
-LLColor4 LLSky::getSunDiffuseColor() const
-{
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getSunDiffuseColor());
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
-	}
-}
-
-LLColor4 LLSky::getSunAmbientColor() const
-{
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getSunAmbientColor());
-	}
-	else
-	{
-		return LLColor4(0.f, 0.f, 0.f, 1.f);
-	}
-}
-
-
-LLColor4 LLSky::getMoonDiffuseColor() const
-{
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getMoonDiffuseColor());
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
-	}
-}
-
-LLColor4 LLSky::getMoonAmbientColor() const
-{
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getMoonAmbientColor());
-	}
-	else
-	{
-		return LLColor4(0.f, 0.f, 0.f, 0.f);
-	}
-}
-
-
-LLColor4 LLSky::getTotalAmbientColor() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getTotalAmbientColor();
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
-	}
-}
-
-
-/*BOOL LLSky::sunUp() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->isSunUp();
-	}
-	else
-	{
-		return TRUE;
-	}
-}*/
-
-
-LLColor4U LLSky::getFadeColor() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getFadeColor();
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
-	}
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // Public Methods
 //////////////////////////////////////////////////////////////////////
 
-void LLSky::init(const LLVector3 &sun_direction)
+void LLSky::init()
 {
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
 	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, NULL));
-	mVOWLSkyp->initSunDirection(sun_direction, LLVector3::zero);
+    mVOWLSkyp->init();
 	gPipeline.createObject(mVOWLSkyp.get());
 
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
 	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, NULL);
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	mVOSkyp->initSunDirection(sun_direction, LLVector3());
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	gPipeline.createObject((LLViewerObject *)mVOSkyp);
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
+    mVOSkyp->init();
+	gPipeline.createObject(mVOSkyp.get());
 
 	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, NULL);
-	LLVOGround *groundp = mVOGroundp;
-	gPipeline.createObject((LLViewerObject *)groundp);
+	gPipeline.createObject(mVOGroundp.get());
 
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));	
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
+	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));
 
 	mUpdatedThisFrame = TRUE;
 }

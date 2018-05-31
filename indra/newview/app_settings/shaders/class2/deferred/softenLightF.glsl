@@ -82,6 +82,8 @@ vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleFragSoftClip(vec3 l);
 vec3 atmosFragAffectDirectionalLight(float intensity, vec3 sunlit);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+vec3 fullbrightFragAtmosTransport(vec3 l, vec3 additive, vec3 atten);
+vec3 fullbrightScaleSoftClipFrag(vec3 l, vec3 atten);
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
@@ -147,7 +149,7 @@ void main()
 	
 		calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 	
-		col = atmosAmbient(vec3(0));
+		col = atmosFragAmbient(vec3(0), amblit);
 		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
 		ambient *= 0.5;
 		ambient *= ambient;
@@ -167,7 +169,7 @@ void main()
 			//
 			
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+			vec3 dumbshiny = sunlit*scol_ambocc.r*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
@@ -192,7 +194,7 @@ void main()
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosFragLighting(col, additive, atten), fullbrightFragAtmosTransport(col, atten, additive), diffuse.a);
-			col = mix(scaleFragSoftClip(col), fullbrightFragScaleSoftClip(col), diffuse.a);
+			col = mix(scaleFragSoftClip(col), fullbrightScaleSoftClipFrag(col, atten), diffuse.a);
 		}
 
 		#ifdef WATER_FOG

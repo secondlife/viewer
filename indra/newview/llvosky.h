@@ -141,69 +141,56 @@ protected:
 	LLVector3		mAngularVelocity;		// velocity of the local heavenly body
 
 	F32				mDiskRadius;
-	BOOL			mDraw;					// FALSE - do not draw.
+	bool			mDraw;					// FALSE - do not draw.
 	F32				mHorizonVisibility;		// number [0, 1] due to how horizon
 	F32				mVisibility;			// same but due to other objects being in throng.
-	BOOL			mVisible;
+	bool			mVisible;
 	static F32		sInterpVal;
 	LLVector3		mQuadCorner[4];
 	LLVector3		mO;
 
 public:
-	LLHeavenBody(const F32 rad) :
-		mDirectionCached(LLVector3(0,0,0)),
-		mDirection(LLVector3(0,0,0)),
-		mIntensity(0.f),
-		mDiskRadius(rad), mDraw(FALSE),
-		mHorizonVisibility(1.f), mVisibility(1.f),
-		mVisible(FALSE)
-	{
-		mColor.setToBlack();
-		mColorCached.setToBlack();
-	}
+	LLHeavenBody(const F32 rad);
 	~LLHeavenBody() {}
 
-	const LLVector3& getDirection()	const				{ return mDirection; }
-	void setDirection(const LLVector3 &direction)		{ mDirection = direction; }
-	void setAngularVelocity(const LLVector3 &ang_vel)	{ mAngularVelocity = ang_vel; }
-	const LLVector3& getAngularVelocity() const			{ return mAngularVelocity; }
+	const LLVector3& getDirection()	const;
+	void setDirection(const LLVector3 &direction);
+	void setAngularVelocity(const LLVector3 &ang_vel);
+	const LLVector3& getAngularVelocity() const;
 
-	const LLVector3& getDirectionCached() const			{ return mDirectionCached; }
-	void renewDirection()								{ mDirectionCached = mDirection; }
+	const LLVector3& getDirectionCached() const;
+	void renewDirection();
 
-	const LLColor3& getColorCached() const				{ return mColorCached; }
-	void setColorCached(const LLColor3& c)				{ mColorCached = c; }
-	const LLColor3& getColor() const					{ return mColor; }
-	void setColor(const LLColor3& c)					{ mColor = c; }
+	const LLColor3& getColorCached() const;
+	void setColorCached(const LLColor3& c);
+	const LLColor3& getColor() const;
+	void setColor(const LLColor3& c);
 
-	void renewColor()									{ mColorCached = mColor; }
+	void renewColor();
 
-	static F32 interpVal()								{ return sInterpVal; }
-	static void setInterpVal(const F32 v)				{ sInterpVal = v; }
+	static F32 interpVal();
+	static void setInterpVal(const F32 v);
 
-	LLColor3 getInterpColor() const
-	{
-		return sInterpVal * mColor + (1 - sInterpVal) * mColorCached;
-	}
+	LLColor3 getInterpColor() const;
 
-	const F32& getVisibility() const					{ return mVisibility; }
-	void setVisibility(const F32 c = 1)					{ mVisibility = c; }
+	const F32& getVisibility() const;
+	void setVisibility(const F32 c = 1);
 
-	BOOL isVisible() const								{ return mVisible; }
-	void setVisible(const BOOL v)						{ mVisible = v; }
+	bool isVisible() const;
+	void setVisible(const bool v);
 
-	const F32& getIntensity() const						{ return mIntensity; }
-	void setIntensity(const F32 c)						{ mIntensity = c; }
+	const F32& getIntensity() const;
+	void setIntensity(const F32 c);
 
-	void setDiskRadius(const F32 radius)				{ mDiskRadius = radius; }
-	F32	getDiskRadius()	const							{ return mDiskRadius; }
+	void setDiskRadius(const F32 radius);
+	F32	getDiskRadius()	const;
 
-	void setDraw(const BOOL draw)						{ mDraw = draw; }
-	BOOL getDraw() const								{ return mDraw; }
+	void setDraw(const bool draw);
+	bool getDraw() const;
 
-	const LLVector3& corner(const S32 n) const			{ return mQuadCorner[n]; }
-	LLVector3& corner(const S32 n)						{ return mQuadCorner[n]; }
-	const LLVector3* corners() const					{ return mQuadCorner; }
+	const LLVector3& corner(const S32 n) const;
+	LLVector3& corner(const S32 n);
+	const LLVector3* corners() const;
 };
 
 class LLCubeMap;
@@ -237,7 +224,7 @@ public:
 	void restoreGL();
 
 	/*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
-	BOOL updateSky();
+	bool updateSky();
 	
 	// Graphical stuff for objects - maybe broken out into render class
 	// later?
@@ -245,29 +232,15 @@ public:
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
 
-	const LLHeavenBody& getSun() const						{ return mSun; }
+	const LLHeavenBody& getSun() const						{ return mSun;  }
 	const LLHeavenBody& getMoon() const						{ return mMoon; }
 
-	//const LLVector3& getToSunLast() const					{ return mSun.getDirectionCached(); }
-	//const LLVector3& getToSun() const						{ return mSun.getDirection(); }
-	//const LLVector3& getToMoon() const						{ return mMoon.getDirection(); }
-	//const LLVector3& getToMoonLast() const					{ return mMoon.getDirectionCached(); }
-	//BOOL isSunUp() const									{ return mSun.getDirectionCached().mV[2] > -0.05f; }
+	bool isSameFace(S32 idx, const LLFace* face) const { return mFace[idx] == face; }
 
-    LLVector3 getLightDirection() const;
-    LLColor3 getSunDiffuseColor() const;
-    LLColor3 getMoonDiffuseColor() const;
-    LLColor4 getSunAmbientColor() const;
-    LLColor4 getMoonAmbientColor() const;
-    LLColor4 getTotalAmbientColor() const;
-	
-	BOOL isSameFace(S32 idx, const LLFace* face) const { return mFace[idx] == face; }
+    // directions provided should already be in CFR coord sys (+x at, +z up, +y right)
+    void setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir, const LLVector3 &moon_dir);
 
-	void initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity);
-
-    void setSunDirection(const LLVector3 &sun_dir, const LLVector3 &moon_dir);
-
-	BOOL updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
+	bool updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
 	void updateReflectionGeometry(LLDrawable *drawable, F32 H, const LLHeavenBody& HB);
 	
 	F32 getWorldScale() const							{ return mWorldScale; }
@@ -291,7 +264,7 @@ public:
 	LLCubeMap *getCubeMap() const						{ return mCubeMap; }
 	S32 getDrawRefl() const								{ return mDrawRefl; }
 	void setDrawRefl(const S32 r)						{ mDrawRefl = r; }
-	BOOL isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
+	bool isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
 	LLFace* getReflFace() const							{ return mFace[FACE_REFLECTION]; }
 
 	LLViewerTexture*	getSunTex() const					{ return mSunTexturep; }
@@ -333,12 +306,12 @@ protected:
 	LLColor3			mBrightestPointNew;
 	F32					mBrightnessScaleGuess;
 	LLColor3			mBrightestPointGuess;
-	BOOL				mWeatherChange;
+	bool				mWeatherChange;
 	F32					mCloudDensity;
 	F32					mWind;
 	
-	BOOL				mInitialized;
-	BOOL				mForceUpdate;				//flag to force instantaneous update of cubemap
+	bool				mInitialized;
+	bool				mForceUpdate;				//flag to force instantaneous update of cubemap
 	LLVector3			mLastLightingDirection;
 	LLColor3			mLastTotalAmbient;
 	F32					mAmbientScale;
@@ -351,7 +324,7 @@ protected:
 
 	LLFrameTimer		mUpdateTimer;
 
-	BOOL                mHeavenlyBodyUpdated ;
+	bool                mHeavenlyBodyUpdated ;
 
     LLAtmospherics      m_legacyAtmospherics;
 };

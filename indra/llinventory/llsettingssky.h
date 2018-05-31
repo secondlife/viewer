@@ -281,16 +281,6 @@ public:
         setValue(SETTING_GLOW, val);
     }
 
-    LLVector3 getLightNormal() const
-    {
-        return LLVector3(mSettings[SETTING_LIGHT_NORMAL]);
-    }
-
-    void setLightNormal(const LLVector3 &val) 
-    {
-        setValue(SETTING_LIGHT_NORMAL, val);
-    }
-
     F32 getMaxY() const
     {
         return mSettings[SETTING_MAX_Y].asReal();
@@ -361,68 +351,7 @@ public:
         setValue(SETTING_SUN_TEXTUREID, id);
     }
 
-    // Internal/calculated settings
-    LLVector3 getLightDirection() const
-    {
-        update();
-        return mLightDirection;
-    };
-
-    LLVector3 getClampedLightDirection() const
-    {
-        update();
-        return mClampedLightDirection;
-    };
-
-    LLVector3   getSunDirection() const
-    {
-        update();
-        return mSunDirection;
-    }
-
-    LLVector3   getMoonDirection() const
-    {
-        update();
-        return mMoonDirection;
-    }
-
-    LLColor4U   getFadeColor() const
-    {
-        update();
-        return mFadeColor;
-    }
-
-    LLColor4    getMoonAmbient() const
-    {
-        update();
-        return mMoonAmbient;
-    }
-
-    LLColor3    getMoonDiffuse() const
-    {
-        update();
-        return mMoonDiffuse;
-    }
-
-    LLColor4    getSunAmbient() const
-    {
-        update();
-        return mSunAmbient;
-    }
-
-    LLColor3    getSunDiffuse() const
-    {
-        update();
-        return mSunDiffuse;
-    }
-
-    LLColor4    getTotalAmbient() const
-    {
-        update();
-        return mTotalAmbient;
-    }
-
-//=====================================================================
+    //=====================================================================
     // transient properties used in animations.
     LLUUID getNextSunTextureId() const
     {
@@ -446,7 +375,7 @@ public:
     virtual validation_list_t getValidationList() const override;
     static validation_list_t validationList();
 
-    static LLSD translateLegacySettings(const LLSD& legacy, const std::string* name = nullptr);
+    static LLSD translateLegacySettings(const LLSD& legacy);
     static LLSD translateLegacyHazeSettings(const LLSD& legacy);
 
     LLColor3 getLightAttenuation(F32 distance) const;
@@ -468,8 +397,19 @@ public:
     void setHazeDensity(F32 val);
     void setHazeHorizon(F32 val);
 
+// Internal/calculated settings
     bool getIsSunUp() const;
     bool getIsMoonUp() const;
+
+    LLVector3 getLightDirection() const;
+    LLVector3 getSunDirection() const;
+    LLVector3 getMoonDirection() const;
+    LLColor4U getFadeColor() const;
+    LLColor4  getMoonAmbient() const;
+    LLColor3  getMoonDiffuse() const;
+    LLColor4  getSunAmbient() const;
+    LLColor3  getSunDiffuse() const;
+    LLColor4  getTotalAmbient() const;
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -484,28 +424,29 @@ protected:
     virtual void    updateSettings() override;
 
 private:
+    mutable bool mPositionsDirty = true;
+    mutable bool mLightingDirty  = true;
+
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
 
-    void        calculateHeavnlyBodyPositions();
-    void        calculateLightSettings();
+    void        calculateHeavnlyBodyPositions() const;
+    void        calculateLightSettings() const;
 
-    LLVector3   mSunDirection;
-    LLVector3   mMoonDirection;
-    LLVector3   mLightDirection;
-    LLVector3   mClampedLightDirection;
+    mutable LLVector3   mSunDirection;
+    mutable LLVector3   mMoonDirection;
+    mutable LLVector3   mLightDirection;
 
     static const F32 DOME_RADIUS;
     static const F32 DOME_OFFSET;
 
-    LLColor4U   mFadeColor;
-    LLColor4    mMoonAmbient;
-    LLColor3    mMoonDiffuse;
-    LLColor4    mSunAmbient;
-    LLColor3    mSunDiffuse;
-
-    LLColor4    mTotalAmbient;
+    mutable LLColor4U   mFadeColor;
+    mutable LLColor4    mMoonAmbient;
+    mutable LLColor3    mMoonDiffuse;
+    mutable LLColor4    mSunAmbient;
+    mutable LLColor3    mSunDiffuse;
+    mutable LLColor4    mTotalAmbient;
 
     LLUUID      mNextSunTextureId;
     LLUUID      mNextMoonTextureId;

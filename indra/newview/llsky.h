@@ -48,11 +48,11 @@ public:
 	LLSky();
 	~LLSky();
 
-	void init(const LLVector3 &sun_direction);
-
+	void init();
 	void cleanup();
 
-	void setSunDirection(const LLVector3 &sun_direction, const LLVector3 &moon_direction);
+    // These directions should be in CFR coord sys (+x at, +z up, +y right)
+    void setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction);
 
 	LLColor4 getSkyFogColor() const;
 
@@ -69,19 +69,6 @@ public:
 	void setFogRatio(const F32 fog_ratio);		// Fog distance as fraction of cull distance.
 	F32 getFogRatio() const;
 	LLColor4U getFadeColor() const;
-
-	//LLVector3 getSunDirection() const;
-	//LLVector3 getMoonDirection() const;
-
-	LLColor4 getSunDiffuseColor() const;
-	LLColor4 getMoonDiffuseColor() const;
-	LLColor4 getSunAmbientColor() const;
-	LLColor4 getMoonAmbientColor() const;
-	LLColor4 getTotalAmbientColor() const;
-	//BOOL sunUp() const;
-
-    // Legacy
-	void setSunPhase(const F32) { }
 
 	void destroyGL();
 	void restoreGL();

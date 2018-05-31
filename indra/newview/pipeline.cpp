@@ -116,6 +116,8 @@
 
 #include "llenvironment.h"
 
+#pragma optimize("", off)
+
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
 //#define DEBUG_INDICES
@@ -2145,7 +2147,7 @@ void check_references(LLSpatialGroup* group, LLFace* face)
 
 void LLPipeline::checkReferences(LLFace* face)
 {
-#if 0
+#if CHECK_PIPELINE_REFERENCES
 	if (sCull)
 	{
 		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
@@ -2177,7 +2179,7 @@ void LLPipeline::checkReferences(LLFace* face)
 
 void LLPipeline::checkReferences(LLDrawable* drawable)
 {
-#if 0
+#if CHECK_PIPELINE_REFERENCES
 	if (sCull)
 	{
 		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
@@ -2228,7 +2230,7 @@ void check_references(LLSpatialGroup* group, LLDrawInfo* draw_info)
 
 void LLPipeline::checkReferences(LLDrawInfo* draw_info)
 {
-#if 0
+#if CHECK_PIPELINE_REFERENCES
 	if (sCull)
 	{
 		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
@@ -2254,7 +2256,7 @@ void LLPipeline::checkReferences(LLDrawInfo* draw_info)
 
 void LLPipeline::checkReferences(LLSpatialGroup* group)
 {
-#if 0
+#if CHECK_PIPELINE_REFERENCES
 	if (sCull)
 	{
 		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
@@ -6018,8 +6020,9 @@ void LLPipeline::setupAvatarLights(bool for_edit)
 	}
 	else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
 	{
-		LLVector3 opposite_pos = -1.f * mSunDir;
-		LLVector3 orthog_light_pos = mSunDir % LLVector3::z_axis;
+        LLVector3 sun_dir = LLVector3(mSunDir);
+		LLVector3 opposite_pos = -sun_dir;
+		LLVector3 orthog_light_pos = sun_dir % LLVector3::z_axis;
 		LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
 		backlight_pos.normalize();
 			
@@ -6243,27 +6246,29 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
 	assertInitialized();
 	
+    LLEnvironment& environment = LLEnvironment::instance();
+    LLSettingsSky::ptr_t psky = environment.getCurrentSky();
+
 	// Ambient
 	if (!LLGLSLShader::sNoFixedFunction)
 	{
 		gGL.syncMatrices();
-		LLColor4 ambient = gSky.getTotalAmbientColor();
+		LLColor4 ambient = psky->getTotalAmbient();
 		gGL.setAmbientLightColor(ambient);
 	}
 
 	// Light 0 = Sun or Moon (All objects)
 	{
-        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        LLVector4 light_dir = environment.getLightDirectionCFR();
+        mSunDir.setVec(light_dir);
 
-		if (LLEnvironment::instance().getIsSunUp())
-		{
-			mSunDir.setVec(psky->getSunDirection());
-			mSunDiffuse.setVec(gSky.getSunDiffuseColor());
+		if (environment.getIsSunUp())
+		{			
+			mSunDiffuse.setVec(psky->getSunDiffuse());
 		}
 		else
 		{
-			mSunDir.setVec(psky->getMoonDirection());
-			mSunDiffuse.setVec(gSky.getMoonDiffuseColor());
+			mSunDiffuse.setVec(psky->getMoonDiffuse());
 		}
 
 		F32 max_color = llmax(mSunDiffuse.mV[0], mSunDiffuse.mV[1], mSunDiffuse.mV[2]);
@@ -6273,20 +6278,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		}
 		mSunDiffuse.clamp();
 
-		LLVector4 light_pos(mSunDir, 0.0f);
 		LLColor4 light_diffuse = mSunDiffuse;
-
-		if (LLPipeline::sRenderDeferred)
-		{
-			/*light_diffuse.mV[0] = powf(light_diffuse.mV[0], 2.2f);
-			light_diffuse.mV[1] = powf(light_diffuse.mV[1], 2.2f);
-			light_diffuse.mV[2] = powf(light_diffuse.mV[2], 2.2f);*/
-		}
 
 		mHWLightColors[0] = light_diffuse;
 
 		LLLightState* light = gGL.getLight(0);
-		light->setPosition(light_pos);
+		light->setPosition(mSunDir);
 		light->setDiffuse(light_diffuse);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
@@ -6505,7 +6502,7 @@ void LLPipeline::enableLights(U32 mask)
 		mLightMask = mask;
 		stop_glerror();
 
-		LLColor4 ambient = gSky.getTotalAmbientColor();
+		LLColor4 ambient = LLEnvironment::instance().getCurrentSky()->getTotalAmbient();
 		gGL.setAmbientLightColor(ambient);
 	}
 }
@@ -8470,8 +8467,7 @@ void LLPipeline::renderDeferredLighting()
 		
 		{
 			setupHWLights(NULL); //to set mSunDir;
-			LLVector4 dir(mSunDir, 0.f);
-			glh::vec4f tc(dir.mV);
+			glh::vec4f tc(mSunDir.mV);
 			mat.mult_matrix_vec(tc);
 			mTransformedSunDir.set(tc.v);
 		}
@@ -9084,8 +9080,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		
 		{
 			setupHWLights(NULL); //to set mSunDir;
-			LLVector4 dir(mSunDir, 0.f);
-			glh::vec4f tc(dir.mV);
+			glh::vec4f tc(mSunDir.mV);
 			mat.mult_matrix_vec(tc);
 			mTransformedSunDir.set(tc.v);
 		}
@@ -10654,15 +10649,17 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	//LLVector3 n = RenderShadowNearDist;
 	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
 
+    LLVector3 sun_dir(mSunDir);
+
 	//put together a universal "near clip" plane for shadow frusta
 	LLPlane shadow_near_clip;
-	{
+	{        
 		LLVector3 p = gAgent.getPositionAgent();
-		p += mSunDir * RenderFarClip*2.f;
-		shadow_near_clip.setVec(p, mSunDir);
+		p += sun_dir * RenderFarClip*2.f;
+		shadow_near_clip.setVec(p, sun_dir);
 	}
 
-	LLVector3 lightDir = -mSunDir;
+	LLVector3 lightDir = -sun_dir;
 	lightDir.normVec();
 
 	glh::vec3f light_dir(lightDir.mV);

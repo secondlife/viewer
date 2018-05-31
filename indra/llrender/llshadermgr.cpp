@@ -35,6 +35,8 @@
 #include "OpenGL/OpenGL.h"
 #endif
 
+#pragma optimize("", off)
+
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
 #else
@@ -552,8 +554,8 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0)
 	{
-        LL_INFOS() << "Shader loading from " << fname << ":\n" << LL_ENDL;
-        LL_INFOS() << log << LL_ENDL;
+        LL_INFOS("ShaderErrors") << "Shader loading from " << fname << ":\n" << LL_ENDL;
+        LL_INFOS("ShaderErrors") << log << LL_ENDL;
 	}
  }
 

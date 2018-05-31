@@ -42,7 +42,6 @@
 #include "llrender.h"
 #include "lllightconstants.h"
 #include "llsky.h"
-#include "llenvironment.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llvopartgroup.h"
@@ -1626,14 +1625,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				{
 					tep->getScale( &s_scale, &t_scale );
 				}
-
-                LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
 				// Use the nudged south when coming from above sun angle, such
 				// that emboss mapping always shows up on the upward faces of cubes when 
 				// it's noon (since a lot of builders build with the sun forced to noon).
 				LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
-				LLVector3   moon_ray = psky->getMoonDirection();
+				LLVector3   moon_ray = gSky.mVOSkyp->getMoon().getDirection();
 				LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
 
 				bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);

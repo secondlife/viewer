@@ -42,13 +42,14 @@ namespace
 {
     LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");
+    static const LLVector3 DUE_EAST = LLVector3::x_axis;
 }
 
-static LLQuaternion body_position_from_angles(F32 azimuth, F32 altitude)
+static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
 {
-    LLQuaternion body_quat;
-    body_quat.setEulerAngles(0.0f, -altitude, azimuth);
-    return body_quat;
+    LLQuaternion quat;
+    quat.setEulerAngles(0.0f, -altitude, azimuth);
+    return quat;
 }
 
 const F32 LLSettingsSky::DOME_OFFSET(0.96f);
@@ -487,8 +488,6 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
                 LLSD(LLSDArray(0.2f)("*")(-2.5f)("*")),
                 LLSD(LLSDArray(20.0f)("*")(0.0f)("*")))));
         
-        validation.push_back(Validator(SETTING_LIGHT_NORMAL,        false, LLSD::TypeArray, 
-            boost::bind(&Validator::verifyVectorNormalized, _1, 3)));
         validation.push_back(Validator(SETTING_MAX_Y,               true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4000.0f)))));
         validation.push_back(Validator(SETTING_MOON_ROTATION,       true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
@@ -579,8 +578,8 @@ LLSD LLSettingsSky::defaults()
     LLQuaternion sunquat;
     LLQuaternion moonquat;
 
-    sunquat.setEulerAngles(0.0f, -1.39626, 0.0f); // 80 deg pitch / 0   deg azimuth from East
-    moonquat.setEulerAngles(0.0f, -1.39626, F_PI); // 80 deg pitch / 180 deg azimuth from East
+    sunquat  = convert_azimuth_and_altitude_to_quat(0.0f, 80.0f * DEG_TO_RAD);
+    moonquat = convert_azimuth_and_altitude_to_quat(F_PI, 80.0f * DEG_TO_RAD);
 
     // Magic constants copied form dfltsetting.xml 
     dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
@@ -595,7 +594,6 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
     dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();
     
-    dfltsetting[SETTING_LIGHT_NORMAL]       = LLVector3(0.0000, 0.9126, -0.4086).getValue();
     dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
     dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
     dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(0.0000);
@@ -657,7 +655,7 @@ LLSD LLSettingsSky::translateLegacyHazeSettings(const LLSD& legacy)
     return legacyhazesettings;
 }
 
-LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy, const std::string* name)
+LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 {
     LLSD newsettings(defaults());
 
@@ -719,11 +717,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy, const std::strin
     {
         newsettings[SETTING_GLOW] = LLColor3(legacy[SETTING_GLOW]).getValue();
     }
-    
-    if (legacy.has(SETTING_LIGHT_NORMAL))
-    {
-        newsettings[SETTING_LIGHT_NORMAL] = LLVector3(legacy[SETTING_LIGHT_NORMAL]).getValue();
-    }
+
     if (legacy.has(SETTING_MAX_Y))
     {
         newsettings[SETTING_MAX_Y] = LLSD::Real(legacy[SETTING_MAX_Y][0].asReal());
@@ -762,16 +756,11 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy, const std::strin
         F32 azimuth  = legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
         F32 altitude = legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
 
-        F32 pi_over_2 = F_PI * 0.5f;
-        LLQuaternion sunquat  = body_position_from_angles(azimuth - pi_over_2, altitude);
-        LLQuaternion moonquat = body_position_from_angles(azimuth + pi_over_2, altitude);
+        LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
+        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, altitude);
 
-        if (name)
-        {
-            LLVector3 sundir  = LLVector3::x_axis * sunquat;
-            LLVector3 moondir = LLVector3::x_axis * moonquat;
-            LL_INFOS() << *name << " sun: " << sundir << " moon: " << moondir << LL_ENDL;
-        }
+        //LLVector3 sundir  = DUE_EAST * sunquat;
+        //LLVector3 moondir = DUE_EAST * moonquat;
 
         newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
@@ -785,11 +774,11 @@ void LLSettingsSky::updateSettings()
     LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKYVALUES);
     //LL_INFOS("WINDLIGHT", "SKY", "EEP") << "WL Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
 
+    mPositionsDirty = isDirty();
+    mLightingDirty  = isDirty();
+
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
-
-    calculateHeavnlyBodyPositions();
-    calculateLightSettings();
 }
 
 bool LLSettingsSky::getIsSunUp() const
@@ -804,44 +793,42 @@ bool LLSettingsSky::getIsMoonUp() const
     return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
 }
 
-void LLSettingsSky::calculateHeavnlyBodyPositions()
+void LLSettingsSky::calculateHeavnlyBodyPositions()  const
 {
+    if (!mPositionsDirty)
+    {
+        return;
+    }
+
+    mPositionsDirty = false;
+
     LLQuaternion sunq  = getSunRotation();
     LLQuaternion moonq = getMoonRotation();
 
-    mSunDirection = LLVector3::x_axis * sunq;
-    mSunDirection.normalize();
+    mSunDirection  = DUE_EAST * sunq;
+    mMoonDirection = DUE_EAST * moonq;
 
-    mMoonDirection = LLVector3::x_axis * moonq;
+    mSunDirection.normalize();
     mMoonDirection.normalize();
+}
+
+LLVector3 LLSettingsSky::getLightDirection() const
+{
+    calculateHeavnlyBodyPositions();
 
     // is the normal from the sun or the moon
     if (getIsSunUp())
     {
-        mLightDirection = mSunDirection;
+        llassert(mSunDirection.length() > 0.01f);
+        return mSunDirection;
     }
     else if (getIsMoonUp())
     {
-        mLightDirection = mMoonDirection;
-    }
-    else
-    {
-        mLightDirection = LLVector3::z_axis;
+        llassert(mMoonDirection.length() > 0.01f);
+        return mMoonDirection;
     }
 
-    // calculate the clamp lightnorm for sky (to prevent ugly banding in sky
-    // when haze goes below the horizon
-    mClampedLightDirection = mLightDirection;
-
-    if (mClampedLightDirection.mV[1] < -0.1f)
-    {
-        mClampedLightDirection.mV[1] = -0.1f;
-        mClampedLightDirection.normalize();
-    }
-
-    //LL_INFOS() << "Sun:   " << mSunDirection << LL_ENDL;
-    //LL_INFOS() << "Moon:  " << mMoonDirection << LL_ENDL;
-    //LL_INFOS() << "Light: " << mLightDirection << LL_ENDL;
+    return LLVector3::z_axis;
 }
 
 LLColor3 LLSettingsSky::getBlueDensity() const
@@ -969,42 +956,91 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
     return v;
 }
 
-void LLSettingsSky::calculateLightSettings()
+LLVector3 LLSettingsSky::getSunDirection() const
 {
+    calculateHeavnlyBodyPositions();
+    return mSunDirection;
+}
+
+LLVector3 LLSettingsSky::getMoonDirection() const
+{
+    calculateHeavnlyBodyPositions();
+    return mMoonDirection;
+}
+
+LLColor4U LLSettingsSky::getFadeColor() const
+{
+    calculateLightSettings();
+    return mFadeColor;
+}
+
+LLColor4 LLSettingsSky::getMoonAmbient() const
+{
+    calculateLightSettings();
+    return mMoonAmbient;
+}
+
+LLColor3 LLSettingsSky::getMoonDiffuse() const
+{
+    calculateLightSettings();
+    return mMoonDiffuse;
+}
+
+LLColor4 LLSettingsSky::getSunAmbient() const
+{
+    calculateLightSettings();
+    return mSunAmbient;
+}
+
+LLColor3 LLSettingsSky::getSunDiffuse() const
+{
+    calculateLightSettings();
+    return mSunDiffuse;
+}
+
+LLColor4 LLSettingsSky::getTotalAmbient() const
+{
+    calculateLightSettings();
+    return mTotalAmbient;
+}
+
+void LLSettingsSky::calculateLightSettings() const
+{
+    if (!mLightingDirty)
+    {
+        return;
+    }
+
+    calculateHeavnlyBodyPositions();
+
+    mLightingDirty = false;
+
     // Initialize temp variables
     LLColor3    sunlight = getSunlightColor();
     LLColor3    ambient = getAmbientColor();
-        F32         cloud_shadow = getCloudShadow();
-        LLVector3   lightnorm = getLightDirection();
+    F32         cloud_shadow = getCloudShadow();
+    LLVector3   lightnorm = getLightDirection();
 
-        // Sunlight attenuation effect (hue and brightness) due to atmosphere
-        // this is used later for sunlight modulation at various altitudes
+    // Sunlight attenuation effect (hue and brightness) due to atmosphere
+    // this is used later for sunlight modulation at various altitudes
     F32      max_y = getMaxY();
     LLColor3 light_atten = getLightAttenuation(max_y);
     LLColor3 light_transmittance = getLightTransmittance();
-        
-        // Compute sunlight from P & lightnorm (for long rays like sky)
-        /// USE only lightnorm.
-        // temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
 
-        // and vary_sunlight will work properly with moon light
-        F32 lighty = lightnorm[1];
-        if (lighty < NIGHTTIME_ELEVATION_SIN)
-        {
-            lighty = -lighty;
-        }
+    // and vary_sunlight will work properly with moon light
+    F32 lighty = lightnorm[1];
 
     lighty = llmax(0.f, lighty);
     if(lighty > 0.f)
-        {
+    {
         lighty = 1.f / lighty;
-        }
+    }
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
 
-        //increase ambient when there are more clouds
-        LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
+    //increase ambient when there are more clouds
+    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
 
-        //brightness of surface both sunlight and ambient
+    //brightness of surface both sunlight and ambient
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
@@ -1015,4 +1051,3 @@ void LLSettingsSky::calculateLightSettings()
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(0);
 }
-

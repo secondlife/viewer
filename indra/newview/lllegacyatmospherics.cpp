@@ -267,7 +267,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
     F32 density_multiplier = psky->getDensityMultiplier();
 
     F32         max_y = psky->getMaxY();
-    LLVector3   lightnorm = psky->getLightNormal();
+    LLVector3   lightnorm = LLVector3(LLEnvironment::instance().getClampedLightNorm());
 
 	// project the direction ray onto the sky dome.
 	F32 phi = acos(Pn[1]);
@@ -444,8 +444,10 @@ LLColor3 LLAtmospherics::calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& va
 	return res;
 }
 
-void LLAtmospherics::updateFog(const F32 distance, LLVector3& tosun)
+void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 {
+    LLVector3 tosun = tosun_in;
+
 	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG))
 	{
 		if (!LLGLSLShader::sNoFixedFunction)

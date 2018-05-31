@@ -107,6 +107,7 @@ protected:
     virtual parammapping_t getParameterMap() const override;
 
     bool m_isAdvanced = false;
+    F32 mSceneLightStrength = 3.0f;
 };
 
 //=========================================================================

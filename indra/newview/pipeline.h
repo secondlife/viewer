@@ -655,9 +655,9 @@ public:
 	U32					mTrueNoiseMap;
 	U32					mLightFunc;
 
-	LLColor4				mSunDiffuse;
-	LLVector3				mSunDir;
-	LLVector3				mTransformedSunDir;
+	LLColor4			mSunDiffuse;
+	LLVector4			mSunDir;
+	LLVector4			mTransformedSunDir;
 
 	bool					mInitialized;
 	bool					mVertexShadersEnabled;

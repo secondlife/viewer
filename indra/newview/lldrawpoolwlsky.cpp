@@ -179,22 +179,12 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
         sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
-        static float sunSize = (float)cos(0.0005);
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        LLVector4 light_dir = LLEnvironment::instance().getClampedLightNorm();
 
+        F32 sunSize = (float)cosf(psky->getSunArcRadians());
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
-
-        static LLVector3 solDir(-0.935f, 0.23f, 0.27f);
-
-        static bool fooA = false;
-        static bool fooB = false;
-
-        //neither of these appear to track with the env settings, would the real sun please stand up.
-        if (fooA) solDir = gPipeline.mTransformedSunDir;
-        if (fooB) solDir = gSky.mVOSkyp->getSun().getDirection();
-
-        solDir.normalize();
-
-        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, solDir.mV);
+        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, light_dir.mV);
 
         // clouds are rendered along with sky in adv atmo
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
@@ -295,7 +285,7 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 		cloud_shader->bind();
 
 		/// Render the skydome
-		renderDome(camPosLocal, camHeightLocal, cloud_shader);
+//renderDome(camPosLocal, camHeightLocal, cloud_shader);
 
 		cloud_shader->unbind();
 	}
@@ -339,6 +329,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		if (gPipeline.canUseVertexShaders())
 		{
 			gHighlightProgram.bind();
+            gHighlightProgram.uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
 		}
 
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
