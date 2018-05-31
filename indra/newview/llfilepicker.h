@@ -198,6 +198,4 @@ public:
 	~LLFilePicker();
 };
 
-const std::string upload_pick(void* data);
-
 #endif
