@@ -1529,7 +1529,7 @@ S32 LLEnvironment::calculateSkyTrackForAltitude(F64 altitude)
     else if (it == mTrackAltitudes.end())
         return 4;
 
-    return std::min(std::distance(mTrackAltitudes.begin(), it), 4LL);
+    return llmin(std::distance(mTrackAltitudes.begin(), it), 4LL);
 }
 
 
