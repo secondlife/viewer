@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="170"
+ layout="topleft"
+ name="floaterpreferencesviewadvanced"
+ help_topic="floaterviewadvanced"
+ title="ADJUST CAMERA VIEW"
+ save_rect="true"
+ width="280">
+
+  <text
+    follows="top|left|right"
+    height="16"
+    layout="topleft"
+    left="10"
+    top="10"
+    width="100">
+      Camera offset:
+  </text>
+
+  <spinner
+   height="20"
+   label="X"
+   label_width="12"
+   follows="topl|eft"
+   left="10"
+   name="camera_x"
+   top_pad="5"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Y"
+   label_width="12"
+   follows="topl|eft"
+   name="camera_y"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Z"
+   label_width="12"
+   follows="topl|eft"
+   name="camera_z"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <text
+    follows="top|left|right"
+    height="16"
+    layout="topleft"
+    left="10"
+    top_pad="20"
+    width="100">
+      Focus offset:
+  </text>
+
+  <spinner
+   height="20"
+   label="X"
+   label_width="12"
+   follows="topl|eft"
+   left="10"
+   name="focus_x"
+   top_pad="5"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Y"
+   label_width="12"
+   follows="topl|eft"
+   name="focus_y"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Z"
+   label_width="12"
+   follows="topl|eft"
+   name="focus_z"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <button
+   follows="left|top"
+   height="23"
+   label="OK"
+   layout="topleft"
+   left="90"
+   name="ok"
+   top_pad="30"
+   width="90">
+    <button.commit_callback
+     function="Ok"/>
+  </button>
+  <button
+   follows="left|top"
+   height="23"
+   label="Cancel"
+   layout="topleft"
+   left_pad="5"
+   name="cancel"
+   width="90">
+    <button.commit_callback
+     function="Cancel"/>
+  </button>
+</floater>

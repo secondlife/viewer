@@ -42,6 +42,7 @@
 #include "llslider.h"
 #include "llfirstuse.h"
 #include "llhints.h"
+#include "lltabcontainer.h"
 
 static LLDefaultChildRegistry::Register<LLPanelCameraItem> r("panel_camera_item");
 
@@ -353,6 +354,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 {
 	LLHints::registerHintTarget("view_popup", getHandle());
 	mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
+	mCommitCallbackRegistrar.add("Presets.GoViewPrefs", boost::bind(&LLFloaterCamera::onViewButtonClick, this, _2));
 }
 
 // virtual
@@ -375,6 +377,33 @@ BOOL LLFloaterCamera::postBuild()
 
 	return LLFloater::postBuild();
 }
+
+F32	LLFloaterCamera::getCurrentTransparency()
+{
+
+	static LLCachedControl<F32> camera_opacity(gSavedSettings, "CameraOpacity");
+	static LLCachedControl<F32> active_floater_transparency(gSavedSettings, "ActiveFloaterTransparency");
+	return llmin(camera_opacity(), active_floater_transparency());
+
+}
+
+void LLFloaterCamera::onViewButtonClick(const LLSD& user_data)
+{
+	// bring up the prefs floater
+	LLFloater* prefsfloater = LLFloaterReg::showInstance("preferences");
+	if (prefsfloater)
+	{
+		// grab the 'view' panel from the preferences floater and
+		// bring it the front!
+		LLTabContainer* tabcontainer = prefsfloater->getChild<LLTabContainer>("pref core");
+		LLPanel* graphicspanel = prefsfloater->getChild<LLPanel>("view");
+		if (tabcontainer && graphicspanel)
+		{
+			tabcontainer->selectTabPanel(graphicspanel);
+		}
+	}
+}
+
 
 void LLFloaterCamera::fillFlatlistFromPanel (LLFlatListView* list, LLPanel* panel)
 {

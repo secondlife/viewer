@@ -98,7 +98,7 @@ with the same filename but different name
   <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="0" scale.top="1" scale.right="0" scale.bottom="0"  />
   <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
 
-  <texture name="Cam_Avatar_Off" file_name="bottomtray/Cam_Avatar_Off.png" preload="false" />
+  <texture name="Cam_Avatar_Off" file_name="bottomtray/Cam_Avatar_Off.png" preload="true" />
   <texture name="Cam_FreeCam_Off" file_name="bottomtray/Cam_FreeCam_Off.png" preload="false" />
   <texture name="Cam_Orbit_Off" file_name="bottomtray/Cam_Orbit_Off.png" preload="false" />
   <texture name="Cam_Pan_Off" file_name="bottomtray/Cam_Pan_Off.png" preload="false" />
@@ -207,7 +207,7 @@ with the same filename but different name
 
   <texture name="Facebook_Icon" file_name="icons/Facebook.png" preload="false" />
 
-  <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
+  <texture name="Presets_Icon_Graphic" file_name="icons/Presets_Icon_Graphic.png" preload="true" />
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />

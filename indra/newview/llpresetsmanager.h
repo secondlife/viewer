@@ -54,26 +54,39 @@ public:
 	typedef std::list<std::string> preset_name_list_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
-	void createMissingDefault();
+	void createMissingDefault(const std::string& subdirectory);
+	void startWatching(const std::string& subdirectory);
+	void triggerChangeCameraSignal();
 	void triggerChangeSignal();
 	static std::string getPresetsDir(const std::string& subdirectory);
-	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
+	bool setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
 	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option);
 	bool savePreset(const std::string& subdirectory, std::string name, bool createDefault = false);
 	void loadPreset(const std::string& subdirectory, std::string name);
 	bool deletePreset(const std::string& subdirectory, std::string name);
+	bool isCameraDirty();
+	static void setCameraDirty(bool dirty);
 
 	// Emitted when a preset gets loaded, deleted, or saved.
+	boost::signals2::connection setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb);
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
 
 	// Emitted when a preset gets loaded or saved.
 
 	preset_name_list_t mPresetNames;
 
+	preset_list_signal_t mPresetListChangeCameraSignal;
 	preset_list_signal_t mPresetListChangeSignal;
 
   private:
-    LOG_CLASS(LLPresetsManager);
+	LOG_CLASS(LLPresetsManager);
+
+	void getControlNames(std::vector<std::string>& names);
+	static void settingChanged();
+
+	boost::signals2::connection	mCameraChangedSignal;
+
+	static bool	mCameraDirty;
 };
 
 #endif // LL_PRESETSMANAGER_H

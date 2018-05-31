@@ -279,6 +279,7 @@ set(viewer_SOURCE_FILES
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
+    llfloaterpreferenceviewadvanced.cpp
     llfloaterpreviewtrash.cpp
     llfloaterproperties.cpp
     llfloaterregiondebugconsole.cpp
@@ -467,6 +468,7 @@ set(viewer_SOURCE_FILES
     llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
+    llpanelpresetscamerapulldown.cpp
     llpanelpresetspulldown.cpp
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
@@ -903,6 +905,7 @@ set(viewer_HEADER_FILES
     llfloaterperms.h
     llfloaterpostprocess.h
     llfloaterpreference.h
+    llfloaterpreferenceviewadvanced.h
     llfloaterpreviewtrash.h
     llfloaterproperties.h
     llfloaterregiondebugconsole.h
@@ -1082,6 +1085,7 @@ set(viewer_HEADER_FILES
     llpanelplaceprofile.h
     llpanelplaces.h
     llpanelplacestab.h
+    llpanelpresetscamerapulldown.h
     llpanelpresetspulldown.h
     llpanelprimmediacontrols.h
     llpanelprofile.h

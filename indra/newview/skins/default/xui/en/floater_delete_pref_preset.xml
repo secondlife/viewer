@@ -4,7 +4,7 @@
  height="130"
  help_topic="floater_delete_preset"
  layout="topleft"
- name="Delete Pref Preset"
+ name="delete_pref_preset"
  save_rect="true"
  title="DELETE PREF PRESET"
  width="300">

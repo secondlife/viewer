@@ -1,10 +1,10 @@
 /** 
- * @file llpanelpresetspulldown.cpp
- * @brief A panel showing a quick way to pick presets
+ * @file llpanelpresetscamerapulldown.cpp
+ * @brief A panel showing a quick way to pick camera presets
  *
- * $LicenseInfo:firstyear=2014&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2017&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2014, Linden Research, Inc.
+ * Copyright (C) 2017, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelpresetspulldown.h"
+#include "llpanelpresetscamerapulldown.h"
 
 #include "llviewercontrol.h"
 #include "llstatusbar.h"
@@ -40,48 +40,54 @@
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
 
-/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 2.0f;
-/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseTotalTimeSec = 3.0f;
+/* static */ const F32 LLPanelPresetsCameraPulldown::sAutoCloseFadeStartTimeSec = 2.0f;
+/* static */ const F32 LLPanelPresetsCameraPulldown::sAutoCloseTotalTimeSec = 3.0f;
 
 ///----------------------------------------------------------------------------
-/// Class LLPanelPresetsPulldown
+/// Class LLPanelPresetsCameraPulldown
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLPanelPresetsPulldown::LLPanelPresetsPulldown()
+LLPanelPresetsCameraPulldown::LLPanelPresetsCameraPulldown()
 {
 	mHoverTimer.stop();
 
-	mCommitCallbackRegistrar.add("Presets.GoGraphicsPrefs", boost::bind(&LLPanelPresetsPulldown::onGraphicsButtonClick, this, _2));
-	mCommitCallbackRegistrar.add("Presets.RowClick", boost::bind(&LLPanelPresetsPulldown::onRowClick, this, _2));
+	mCommitCallbackRegistrar.add("Presets.GoViewPrefs", boost::bind(&LLPanelPresetsCameraPulldown::onViewButtonClick, this, _2));
+	mCommitCallbackRegistrar.add("PresetsCamera.RowClick", boost::bind(&LLPanelPresetsCameraPulldown::onRowClick, this, _2));
 
-	buildFromFile( "panel_presets_pulldown.xml");
+	buildFromFile( "panel_presets_camera_pulldown.xml");
 }
 
-BOOL LLPanelPresetsPulldown::postBuild()
+BOOL LLPanelPresetsCameraPulldown::postBuild()
 {
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
-    presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPresetsPulldown::populatePanel, this));
-	// Make sure there is a default preference file
-    presetsMgr->createMissingDefault(PRESETS_GRAPHIC);
+	if (presetsMgr)
+	{
+		// Make sure there is a default preference file
+		presetsMgr->createMissingDefault(PRESETS_CAMERA);
+
+		presetsMgr->startWatching(PRESETS_CAMERA);
+
+		presetsMgr->setPresetListChangeCameraCallback(boost::bind(&LLPanelPresetsCameraPulldown::populatePanel, this));
+	}
 
 	populatePanel();
 
 	return LLPanel::postBuild();
 }
 
-void LLPanelPresetsPulldown::populatePanel()
+void LLPanelPresetsCameraPulldown::populatePanel()
 {
-	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_GRAPHIC);
+	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_CAMERA);
 	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_TOP);
 
-	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
+	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_camera_list");
 
 	if (scroll && mPresetNames.begin() != mPresetNames.end())
 	{
 		scroll->clearRows();
 
-		std::string active_preset = gSavedSettings.getString("PresetGraphicActive");
+		std::string active_preset = gSavedSettings.getString("PresetCameraActive");
 		if (active_preset == PRESETS_DEFAULT)
 		{
 			active_preset = LLTrans::getString(PRESETS_DEFAULT);
@@ -113,48 +119,48 @@ void LLPanelPresetsPulldown::populatePanel()
 }
 
 /*virtual*/
-void LLPanelPresetsPulldown::onMouseEnter(S32 x, S32 y, MASK mask)
+void LLPanelPresetsCameraPulldown::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	mHoverTimer.stop();
 	LLPanel::onMouseEnter(x,y,mask);
 }
 
 /*virtual*/
-void LLPanelPresetsPulldown::onTopLost()
+void LLPanelPresetsCameraPulldown::onTopLost()
 {
 	setVisible(FALSE);
 }
 
 /*virtual*/
-BOOL LLPanelPresetsPulldown::handleMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLPanelPresetsCameraPulldown::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     LLPanel::handleMouseDown(x,y,mask);
     return TRUE;
 }
 
 /*virtual*/
-BOOL LLPanelPresetsPulldown::handleRightMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLPanelPresetsCameraPulldown::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLPanel::handleRightMouseDown(x, y, mask);
     return TRUE;
 }
 
 /*virtual*/
-BOOL LLPanelPresetsPulldown::handleDoubleClick(S32 x, S32 y, MASK mask)
+BOOL LLPanelPresetsCameraPulldown::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     LLPanel::handleDoubleClick(x, y, mask);
     return TRUE;
 }
 
 /*virtual*/
-void LLPanelPresetsPulldown::onMouseLeave(S32 x, S32 y, MASK mask)
+void LLPanelPresetsCameraPulldown::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mHoverTimer.start();
 	LLPanel::onMouseLeave(x,y,mask);
 }
 
 /*virtual*/ 
-void LLPanelPresetsPulldown::onVisibilityChange ( BOOL new_visibility )
+void LLPanelPresetsCameraPulldown::onVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)	
 	{
@@ -167,9 +173,9 @@ void LLPanelPresetsPulldown::onVisibilityChange ( BOOL new_visibility )
 	}
 }
 
-void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
+void LLPanelPresetsCameraPulldown::onRowClick(const LLSD& user_data)
 {
-	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
+	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_camera_list");
 
 	if (scroll)
 	{
@@ -179,7 +185,7 @@ void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
 			std::string name = item->getColumn(1)->getValue().asString();
 
             LL_DEBUGS() << "selected '" << name << "'" << LL_ENDL;
-			LLPresetsManager::getInstance()->loadPreset(PRESETS_GRAPHIC, name);
+			LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, name);
 
 			setVisible(FALSE);
 		}
@@ -194,7 +200,7 @@ void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
     }
 }
 
-void LLPanelPresetsPulldown::onGraphicsButtonClick(const LLSD& user_data)
+void LLPanelPresetsCameraPulldown::onViewButtonClick(const LLSD& user_data)
 {
 	// close the minicontrol, we're bringing up the big one
 	setVisible(FALSE);
@@ -203,10 +209,10 @@ void LLPanelPresetsPulldown::onGraphicsButtonClick(const LLSD& user_data)
 	LLFloater* prefsfloater = LLFloaterReg::showInstance("preferences");
 	if (prefsfloater)
 	{
-		// grab the 'graphics' panel from the preferences floater and
+		// grab the 'view' panel from the preferences floater and
 		// bring it the front!
 		LLTabContainer* tabcontainer = prefsfloater->getChild<LLTabContainer>("pref core");
-		LLPanel* graphicspanel = prefsfloater->getChild<LLPanel>("display");
+		LLPanel* graphicspanel = prefsfloater->getChild<LLPanel>("view");
 		if (tabcontainer && graphicspanel)
 		{
 			tabcontainer->selectTabPanel(graphicspanel);
@@ -215,7 +221,7 @@ void LLPanelPresetsPulldown::onGraphicsButtonClick(const LLSD& user_data)
 }
 
 //virtual
-void LLPanelPresetsPulldown::draw()
+void LLPanelPresetsCameraPulldown::draw()
 {
 	F32 alpha = mHoverTimer.getStarted() 
 		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), sAutoCloseFadeStartTimeSec, sAutoCloseTotalTimeSec, 1.f, 0.f)

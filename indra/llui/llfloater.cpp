@@ -1,5 +1,4 @@
 /** 
-
  * @file llfloater.cpp
  * @brief LLFloater base class
  *

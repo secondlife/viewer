@@ -2369,7 +2369,8 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DEPRECATED: DebugShowPrivateMem</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>DEPRECATED: DebugShowPrivateMem</key>
+  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>Show Private Mem Info</string>
@@ -6408,7 +6409,8 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    <key>MemoryPrivatePoolEnabled</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolEnabled</key>
+  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>DEPRECATED: Enable the private memory pool management</string>
@@ -6419,7 +6421,8 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryPrivatePoolSize</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolSize</key>
+  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
@@ -16167,7 +16170,29 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>CefVerboseLog</key>
+  <key>CameraOpacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Opacity of the Camera Controls floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>PresetCameraActive</key>
+    <map>
+      <key>Comment</key>
+      <string>Name of currently selected preference</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+<key>CefVerboseLog</key>
     <map>
       <key>Comment</key>
       <string>Enable/disable CEF verbose loggingk</string>
