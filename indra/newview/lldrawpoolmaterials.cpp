@@ -30,6 +30,7 @@
 #include "lldrawpoolmaterials.h"
 #include "llviewershadermgr.h"
 #include "pipeline.h"
+#include "llglcommonfunc.h"
 
 S32 diffuse_channel = -1;
 
@@ -211,6 +212,9 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 	{
 		params.mGroup->rebuildMesh();
 	}
+
+	LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+
 	params.mVertexBuffer->setBuffer(mask);
 	params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);

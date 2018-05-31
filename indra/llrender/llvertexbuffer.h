@@ -341,8 +341,8 @@ public:
 		
 	static bool sDisableVBOMapping; //disable glMapBufferARB
 	static bool sEnableVBOs;
-	static S32 sTypeSize[TYPE_MAX];
-	static U32 sGLMode[LLRender::NUM_MODES];
+	static const S32 sTypeSize[TYPE_MAX];
+	static const U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
 	static U32 sGLRenderArray;
 	static U32 sGLRenderIndices;

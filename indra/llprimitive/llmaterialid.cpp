@@ -61,6 +61,11 @@ LLMaterialID::LLMaterialID(const LLMaterialID& pOtherMaterialID)
 	copyFromOtherMaterialID(pOtherMaterialID);
 }
 
+LLMaterialID::LLMaterialID(const LLUUID& lluid)
+{
+	set(lluid.mData);
+}
+
 LLMaterialID::~LLMaterialID()
 {
 }
