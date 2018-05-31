@@ -28,6 +28,8 @@
 
 #include "llenvironment.h"
 
+#include <algorithm>
+
 #include "llagent.h"
 #include "llviewercontrol.h" // for gSavedSettings
 #include "llviewerregion.h"
@@ -1529,7 +1531,7 @@ S32 LLEnvironment::calculateSkyTrackForAltitude(F64 altitude)
     else if (it == mTrackAltitudes.end())
         return 4;
 
-    return llmin(std::distance(mTrackAltitudes.begin(), it), 4LL);
+    return std::min(static_cast<S32>(std::distance(mTrackAltitudes.begin(), it)), 4);
 }
 
 
