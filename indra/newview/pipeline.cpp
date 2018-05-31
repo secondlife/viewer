@@ -2726,7 +2726,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	{
 		scratch_space->copyContents(source, 
 									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 	}
 
 	dest.bindTarget();
@@ -3099,6 +3099,12 @@ void LLPipeline::updateGeom(F32 max_dtime)
 				{
 					mBuildQ2.erase(find);
 				}
+			}
+
+			if (drawablep->isUnload())
+			{
+				drawablep->unload();
+				drawablep->clearState(LLDrawable::FOR_UNLOAD);
 			}
 
 			if (updateDrawableGeom(drawablep, TRUE))
@@ -3494,6 +3500,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
 		LLSpatialGroup* last_group = NULL;
+		BOOL fov_changed = LLViewerCamera::getInstance()->isDefaultFOVChanged();
 		for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 		{
 			LLCullResult::bridge_iterator cur_iter = i;
@@ -3507,7 +3514,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 
 			if (!bridge->isDead() && group && !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
 			{
-				stateSort(bridge, camera);
+				stateSort(bridge, camera, fov_changed);
 			}
 
 			if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD &&
@@ -3579,9 +3586,9 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 
 }
 
-void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
+void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed)
 {
-	if (bridge->getSpatialGroup()->changeLOD())
+	if (bridge->getSpatialGroup()->changeLOD() || fov_changed)
 	{
 		bool force_update = false;
 		bridge->updateDistance(camera, force_update);
@@ -4646,12 +4653,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
 
 	LLGLEnable cull(GL_CULL_FACE);
-
-	LLGLEnable stencil(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-	stop_glerror();
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	stop_glerror();
 
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
@@ -8208,7 +8209,7 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 	if (LLRenderTarget::sUseFBO)
 	{ //copy depth buffer from mScreen to framebuffer
 		LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
-			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 	}
 	
 
@@ -9104,7 +9105,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		{
 			LLGLDepthTest depth(GL_TRUE);
 			mDeferredDepth.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),
-							0, 0, mDeferredDepth.getWidth(), mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
+							0, 0, mDeferredDepth.getWidth(), mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);	
 		}
 
 		LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
@@ -10215,7 +10216,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	}
 	LLPipeline::sShadowRender = true;
 	
-	U32 types[] = { 
+	static const U32 types[] = { 
 		LLRenderPass::PASS_SIMPLE, 
 		LLRenderPass::PASS_FULLBRIGHT, 
 		LLRenderPass::PASS_SHINY, 
@@ -11722,7 +11723,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->setImpostorDim(tdim);
 
-	LLVOAvatar::sUseImpostors = true; // @TODO ???
+	LLVOAvatar::sUseImpostors = (0 != LLVOAvatar::sMaxNonImpostors);
 	sUseOcclusion = occlusion;
 	sReflectionRender = false;
 	sImpostorRender = false;
