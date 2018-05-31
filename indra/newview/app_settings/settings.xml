@@ -2369,8 +2369,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DEPRECATED: DebugShowPrivateMem</key>
-  <!-- deprecated (see MAINT-8091) -->
+    <key>DEPRECATED: DebugShowPrivateMem</key>  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>Show Private Mem Info</string>
@@ -4647,6 +4646,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>IgnoreFOVZoomForLODs</key>
+    <map>
+      <key>Comment</key>
+      <string>Ignore zoom effect(CTRL+0) when calculating lods.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>IgnoreAllNotifications</key>
     <map>
       <key>Comment</key>
@@ -6409,8 +6419,7 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    <key>MemoryPrivatePoolEnabled</key>
-  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolEnabled</key>  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>DEPRECATED: Enable the private memory pool management</string>
@@ -6421,8 +6430,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryPrivatePoolSize</key>
-  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolSize</key>  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
@@ -10173,9 +10181,9 @@
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>OBSOLETE and UNUSED.</string>
+    <string>If avatar attachment size exceed this value (in bytes) attachment will not be rendered. Excludes attachments worn by own avatar.</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
