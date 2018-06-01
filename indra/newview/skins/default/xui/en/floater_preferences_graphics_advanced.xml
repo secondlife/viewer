@@ -253,7 +253,7 @@
     follows="left|top"
     height="16"
     layout="topleft"
-    name="ShadersText"
+    name="HardwareText"
     top_delta="20"
     left="10"
     width="128">
@@ -426,7 +426,7 @@
     follows="left|top"
     height="16"
     layout="topleft"
-    name="AvatarText"
+    name="MeshText"
     top_delta="20"
     left="400"
   	top="21"
@@ -917,7 +917,7 @@ are saved in a preset file. -->
     label="RenderAvatarMaxComplexity"
     layout="topleft"
     left="0"
-    name="RenderAvatarMaxNonImpostors"
+    name="RenderAvatarMaxComplexity"
     top_delta="0"
     width="0">
   </check_box>
