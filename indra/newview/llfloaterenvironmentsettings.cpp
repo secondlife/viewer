@@ -122,6 +122,7 @@ void LLFloaterEnvironmentSettings::onSelectDayCyclePreset()
 
 void LLFloaterEnvironmentSettings::onBtnOK()
 {
+#if 0
     bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 
     LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
@@ -157,7 +158,6 @@ void LLFloaterEnvironmentSettings::onBtnOK()
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
     }
 
-#if 0
 	// Save and apply new user preferences.
 	bool use_region_settings	= mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 	bool use_fixed_sky			= mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;

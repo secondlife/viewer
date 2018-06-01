@@ -212,6 +212,15 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
 
 void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
+    if (!settings || status)
+    {
+        LLSD args;
+        args["DESC"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
+        LLNotificationsUtil::add("FailedToFindSettings", args);
+        closeFloater();
+        return;
+    }
+
     mSettings = settings;
     updateEditEnvironment();
     syncronizeTabs();

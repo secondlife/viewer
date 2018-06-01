@@ -101,6 +101,9 @@ const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
 const S32 LLSettingsDay::FRAME_MAX(56);
 
+// *LAPRAS* Change when Agni
+const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("94d296c2-6e05-963c-6b62-671199121dbb");
+
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
     LLSettingsBase(data),
@@ -218,22 +221,18 @@ bool LLSettingsDay::initialize()
                 if (i == TRACK_WATER)
                 {
                     setting = used[(*it)[SETTING_KEYNAME]];
-                    if (!setting)
-                        setting = getNamedWater((*it)[SETTING_KEYNAME]);
                     if (setting && setting->getSettingType() != "water")
                     {
-                        LL_WARNS("DAYCYCLE") << "Water track referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        LL_WARNS("SETTINGS", "DAYCYCLE") << "Water track referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
                         setting.reset();
                     }
                 }
                 else
                 {
                     setting = used[(*it)[SETTING_KEYNAME]];
-                    if (!setting)
-                        setting = getNamedSky((*it)[SETTING_KEYNAME]);
                     if (setting && setting->getSettingType() != "sky")
                     {
-                        LL_WARNS("DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        LL_WARNS("SETTINGS", "DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
                         setting.reset();
                     }
                 }
@@ -246,6 +245,10 @@ bool LLSettingsDay::initialize()
                 else
                     hassky |= true;
                 mDayTracks[i][keyframe] = setting;
+            }
+            else
+            {
+                LL_WARNS("SETTINGS", "DAYCYCLE") << "Skipping frame on track #" << i << " at time index " << keyframe << LL_ENDL;
             }
         }
     }

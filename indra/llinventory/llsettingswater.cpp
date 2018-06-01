@@ -69,6 +69,9 @@ const std::string LLSettingsWater::SETTING_LEGACY_WAVE2_DIR("wave2Dir");
 
 const LLUUID LLSettingsWater::DEFAULT_WATER_NORMAL_ID(DEFAULT_WATER_NORMAL);
 
+// *LAPRAS* Change when Agni
+const LLUUID LLSettingsWater::DEFAULT_ASSET_ID("ce4cfe94-700a-292c-7c22-a2d9201bd661");
+
 
 //=========================================================================
 LLSettingsWater::LLSettingsWater(const LLSD &data) :

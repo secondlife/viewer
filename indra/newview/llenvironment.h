@@ -56,6 +56,14 @@ public:
     static const F32Seconds     TRANSITION_SLOW;
     static const F32Seconds     TRANSITION_ALTITUDE;
 
+    static const LLUUID         KNOWN_SKY_DEFAULT;
+    static const LLUUID         KNOWN_WATER_DEFAULT;
+    static const LLUUID         KNOWN_DAY_DEFAULT;
+    static const LLUUID         KNOWN_SKY_SUNRISE;
+    static const LLUUID         KNOWN_SKY_MIDDAY;
+    static const LLUUID         KNOWN_SKY_SUNSET;
+    static const LLUUID         KNOWN_SKY_MIDNIGHT;
+
     struct EnvironmentInfo
     {
         EnvironmentInfo();
@@ -162,6 +170,8 @@ public:
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t())); }
     void                        setEnvironment(EnvSelection_t env, const LLSettingsWater::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(LLSettingsSky::ptr_t(), fixed)); }
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixeds, const LLSettingsWater::ptr_t & fixedw) { setEnvironment(env, fixedEnvironment_t(fixeds, fixedw)); }
+    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId);
+
     void                        clearEnvironment(EnvSelection_t env);
     LLSettingsDay::ptr_t        getEnvironmentDay(EnvSelection_t env);
     LLSettingsDay::Seconds      getEnvironmentDayLength(EnvSelection_t env);
@@ -180,9 +190,11 @@ public:
     list_name_id_t              getWaterList() const;
     list_name_id_t              getDayCycleList() const;
 
+    // *LAPRAS* TODO : Remove these vvv
     LLSettingsSky::ptr_t        findSkyByName(std::string name) const;
     LLSettingsWater::ptr_t      findWaterByName(std::string name) const;
     LLSettingsDay::ptr_t        findDayCycleByName(std::string name) const;
+    // *LAPRAS* TODO : Remove these ^^^
 
     inline LLVector2            getCloudScrollDelta() const { return mCloudScrollDelta; }
 
@@ -387,9 +399,10 @@ private:
     void recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
 
     void onAgentPositionHasChanged(const LLVector3 &localpos);
+
+    void onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
     //=========================================================================
     void                        legacyLoadAllPresets();
-    static LLSD                 legacyLoadPreset(const std::string& path);
     static std::string          getSysDir(const std::string &subdir);
     static std::string          getUserDir(const std::string &subdir);
 

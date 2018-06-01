@@ -58,47 +58,33 @@
 #include "llassetstorage.h"
 #include "llvfile.h"
 
+#include <boost/algorithm/string/replace.hpp>
+
 #undef  VERIFY_LEGACY_CONVERSION
 
 //=========================================================================
 namespace 
 {
-LLSD ensureArray4(LLSD in, F32 fill)
-{
-    if (in.size() >= 4)
-        return in;
-    
-    LLSD out(LLSD::emptyArray());
-    
-    for (S32 idx = 0; idx < in.size(); ++idx)
+    LLSD ensure_array_4(LLSD in, F32 fill);
+    LLSD read_legacy_preset_data(const std::string& path);
+
+    //-------------------------------------------------------------------------
+    class LLSettingsInventoryCB : public LLInventoryCallback
     {
-        out.append(in[idx]);
-    }
-    
-    while (out.size() < 4)
-    {
-        out.append(LLSD::Real(fill));
-    }
-    return out;
-}
+    public:
+        typedef std::function<void(const LLUUID &)> callback_t;
 
+        LLSettingsInventoryCB(callback_t cbfn) :
+            mCbfn(cbfn)
+        { }
 
-//-------------------------------------------------------------------------
-class LLSettingsInventoryCB : public LLInventoryCallback
-{
-public:
-    typedef std::function<void(const LLUUID &)> callback_t;
+        void fire(const LLUUID& inv_item) override  { if (mCbfn) mCbfn(inv_item); }
 
-    LLSettingsInventoryCB(callback_t cbfn) :
-        mCbfn(cbfn)
-    { }
+    private:
+        callback_t  mCbfn;
+    };
 
-    void fire(const LLUUID& inv_item) override  { if (mCbfn) mCbfn(inv_item); }
-
-private:
-    callback_t  mCbfn;
-};
-
+    //-------------------------------------------------------------------------
 }
 
 
@@ -240,9 +226,10 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
     }
     else
     {
-        LL_WARNS("SETTINGS") << "Error retrieving asset asset_id. Status code=" << status << "(" << LLAssetStorage::getErrorString(status) << ") ext_status=" << ext_status << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Error retrieving asset " << asset_id << ". Status code=" << status << "(" << LLAssetStorage::getErrorString(status) << ") ext_status=" << ext_status << LL_ENDL;
     }
-    callback(asset_id, settings, status, ext_status);
+    if (callback)
+        callback(asset_id, settings, status, ext_status);
 }
 
 
@@ -392,6 +379,37 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     return skyp;
 }
 
+namespace
+{
+    // This is a disturbing hack
+    std::string legacy_name_to_filename(const std::string &name)
+    {
+        std::string fixedname(LLURI::escape(name));
+
+        boost::algorithm::replace_all(fixedname, "-", "%2D");
+        return fixedname;
+    }
+}
+
+LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
+{
+    std::string full_path(path);
+    std::string full_name(legacy_name_to_filename(name));
+    full_name += ".xml";
+
+    gDirUtilp->append(full_path, full_name);
+    LLSD legacy_data = read_legacy_preset_data(full_path);
+
+    if (!legacy_data)
+    {
+        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << full_path << LL_ENDL;
+        return ptr_t();
+    }
+
+    return buildFromLegacyPreset(name, legacy_data);
+}
+
+
 LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
 {
     LLSD settings = LLSettingsSky::defaults();
@@ -449,20 +467,20 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     
     convertAtmosphericsToLegacy(legacy, settings);
 
-    legacy[SETTING_CLOUD_COLOR] = ensureArray4(settings[SETTING_CLOUD_COLOR], 1.0);
-    legacy[SETTING_CLOUD_POS_DENSITY1] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);
-    legacy[SETTING_CLOUD_POS_DENSITY2] = ensureArray4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
+    legacy[SETTING_CLOUD_COLOR] = ensure_array_4(settings[SETTING_CLOUD_COLOR], 1.0);
+    legacy[SETTING_CLOUD_POS_DENSITY1] = ensure_array_4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);
+    legacy[SETTING_CLOUD_POS_DENSITY2] = ensure_array_4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
     legacy[SETTING_CLOUD_SCALE] = LLSDArray(settings[SETTING_CLOUD_SCALE])(LLSD::Real(0.0))(LLSD::Real(0.0))(LLSD::Real(1.0));       
     legacy[SETTING_CLOUD_SCROLL_RATE] = settings[SETTING_CLOUD_SCROLL_RATE];
     legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = LLSDArray(LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())))
         (LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));     
     legacy[SETTING_CLOUD_SHADOW] = LLSDArray(settings[SETTING_CLOUD_SHADOW].asReal())(0.0f)(0.0f)(1.0f);    
     legacy[SETTING_GAMMA] = LLSDArray(settings[SETTING_GAMMA])(0.0f)(0.0f)(1.0f);
-    legacy[SETTING_GLOW] = ensureArray4(settings[SETTING_GLOW], 1.0);
-    legacy[SETTING_LIGHT_NORMAL] = ensureArray4(psky->getLightDirection().getValue(), 0.0f);
+    legacy[SETTING_GLOW] = ensure_array_4(settings[SETTING_GLOW], 1.0);
+    legacy[SETTING_LIGHT_NORMAL] = ensure_array_4(psky->getLightDirection().getValue(), 0.0f);
     legacy[SETTING_MAX_Y] = LLSDArray(settings[SETTING_MAX_Y])(0.0f)(0.0f)(1.0f);
     legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS];
-    legacy[SETTING_SUNLIGHT_COLOR] = ensureArray4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
+    legacy[SETTING_SUNLIGHT_COLOR] = ensure_array_4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
     
     LLQuaternion sunquat = psky->getSunRotation();
 
@@ -619,6 +637,25 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
     return waterp;
 }
 
+LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
+{
+    std::string full_path(path);
+    std::string full_name(legacy_name_to_filename(name));
+    full_name += ".xml";
+
+    gDirUtilp->append(full_path, full_name);
+    LLSD legacy_data = read_legacy_preset_data(full_path);
+
+    if (!legacy_data)
+    {
+        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << full_path << LL_ENDL;
+        return ptr_t();
+    }
+
+    return buildFromLegacyPreset(name, legacy_data);
+}
+
+
 LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
 {
     LLSD settings = LLSettingsWater::defaults();
@@ -659,7 +696,7 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
     LLSD settings = pwater->getSettings();
 
     legacy[SETTING_LEGACY_BLUR_MULTIPILER] = settings[SETTING_BLUR_MULTIPILER];
-    legacy[SETTING_LEGACY_FOG_COLOR] = ensureArray4(settings[SETTING_FOG_COLOR], 1.0f);
+    legacy[SETTING_LEGACY_FOG_COLOR] = ensure_array_4(settings[SETTING_FOG_COLOR], 1.0f);
     legacy[SETTING_LEGACY_FOG_DENSITY] = settings[SETTING_FOG_DENSITY];
     legacy[SETTING_LEGACY_FOG_MOD] = settings[SETTING_FOG_MOD];
     legacy[SETTING_LEGACY_FRESNEL_OFFSET] = settings[SETTING_FRESNEL_OFFSET];
@@ -768,10 +805,18 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDay(LLSD settings)
 }
 
 //-------------------------------------------------------------------------
-LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings)
+LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &name, const std::string &path, const LLSD &oldsettings)
 {
     LLSD newsettings(defaults());
     std::set<std::string> framenames;
+    std::set<std::string> notfound;
+
+    std::string base_path(gDirUtilp->getDirName(path));
+    std::string water_path(base_path);
+    std::string sky_path(base_path);
+
+    gDirUtilp->append(water_path, "water");
+    gDirUtilp->append(sky_path, "skies");
 
     newsettings[SETTING_NAME] = name;
 
@@ -795,14 +840,16 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
     LLSD frames(LLSD::emptyMap());
 
     {
-        LLSettingsWater::ptr_t pwater = LLEnvironment::instance().findWaterByName("Default");
-        frames["water:Default"] = pwater->getSettings();
+        LLSettingsWater::ptr_t pwater = LLSettingsVOWater::buildFromLegacyPresetFile("Default", water_path);
+        if (pwater)
+            frames["water:Default"] = pwater->getSettings();
     }
 
     for (std::set<std::string>::iterator itn = framenames.begin(); itn != framenames.end(); ++itn)
     {
-        LLSettingsSky::ptr_t psky = LLEnvironment::instance().findSkyByName(*itn);
-        frames["sky:" + (*itn)] = psky->getSettings();
+        LLSettingsSky::ptr_t psky = LLSettingsVOSky::buildFromLegacyPresetFile((*itn), sky_path);
+        if (psky)
+            frames["sky:" + (*itn)] = psky->getSettings();
     }
 
     newsettings[SETTING_FRAMES] = frames;
@@ -833,6 +880,26 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
     return dayp;
 }
+
+LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
+{
+    std::string full_path(path);
+    std::string full_name(legacy_name_to_filename(name));
+    full_name += ".xml";
+
+    gDirUtilp->append(full_path, full_name);
+    LLSD legacy_data = read_legacy_preset_data(full_path);
+
+    if (!legacy_data)
+    {
+        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << full_path << LL_ENDL;
+        return ptr_t();
+    }
+
+    return buildFromLegacyPreset(name, path, legacy_data);
+}
+
+
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skydefs, LLSD waterdef)
 {
@@ -890,6 +957,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     }
     return dayp;
 }
+
+
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
 {
@@ -1024,12 +1093,43 @@ LLSettingsWaterPtr_t LLSettingsVODay::buildWater(LLSD settings) const
     return LLSettingsWater::ptr_t();
 }
 
-LLSettingsSkyPtr_t LLSettingsVODay::getNamedSky(const std::string &name) const
+//=========================================================================
+namespace
 {
-    return LLEnvironment::instance().findSkyByName(name);
-}
+    LLSD ensure_array_4(LLSD in, F32 fill)
+    {
+        if (in.size() >= 4)
+            return in;
 
-LLSettingsWaterPtr_t LLSettingsVODay::getNamedWater(const std::string &name) const
-{
-    return LLEnvironment::instance().findWaterByName(name);
+        LLSD out(LLSD::emptyArray());
+
+        for (S32 idx = 0; idx < in.size(); ++idx)
+        {
+            out.append(in[idx]);
+        }
+
+        while (out.size() < 4)
+        {
+            out.append(LLSD::Real(fill));
+        }
+        return out;
+    }
+
+    //---------------------------------------------------------------------
+    LLSD read_legacy_preset_data(const std::string& path)
+    {
+        llifstream xml_file;
+//      std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
+
+        xml_file.open(path.c_str());
+        if (!xml_file)
+            return LLSD();
+
+        LLSD params_data;
+        LLPointer<LLSDParser> parser = new LLSDXMLParser();
+        parser->parse(xml_file, params_data, LLSDSerialize::SIZE_UNLIMITED);
+        xml_file.close();
+
+        return params_data;
+    }
 }

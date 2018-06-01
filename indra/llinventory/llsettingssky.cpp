@@ -110,6 +110,9 @@ const LLUUID LLSettingsSky::DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271
 const LLUUID LLSettingsSky::DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
 const LLUUID LLSettingsSky::DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
 
+// *LAPRAS* Change when Agni!
+const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("cec9af47-90d4-9093-5245-397e5c9e7749");
+
 const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");
 
 namespace

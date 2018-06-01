@@ -48,6 +48,8 @@ public:
 
     static const LLUUID DEFAULT_WATER_NORMAL_ID;
 
+    static const LLUUID DEFAULT_ASSET_ID;
+
     typedef std::shared_ptr<LLSettingsWater> ptr_t;
 
     //---------------------------------------------------------------------

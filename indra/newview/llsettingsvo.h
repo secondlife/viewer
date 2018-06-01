@@ -90,6 +90,8 @@ public:
     static ptr_t    buildDefaultSky();
     virtual ptr_t   buildClone() override;
 
+    static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
+
     static LLSD     convertToLegacy(const ptr_t &, bool isAdvanced);
 
     bool isAdvanced() const { return  m_isAdvanced; }
@@ -122,6 +124,8 @@ public:
     static ptr_t    buildDefaultWater();
     virtual ptr_t   buildClone() override;
 
+    static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
+
     static LLSD     convertToLegacy(const ptr_t &);
 protected:
     LLSettingsVOWater();
@@ -145,7 +149,8 @@ public:
 
     static ptr_t    buildDay(LLSD settings);
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
+    static ptr_t    buildFromLegacyPreset(const std::string &name, const std::string &path, const LLSD &oldsettings);
+    static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
@@ -157,8 +162,6 @@ public:
     virtual LLSettingsWaterPtr_t    getDefaultWater() const override;
     virtual LLSettingsSkyPtr_t      buildSky(LLSD) const override;
     virtual LLSettingsWaterPtr_t    buildWater(LLSD) const override;
-    virtual LLSettingsSkyPtr_t      getNamedSky(const std::string &) const override;
-    virtual LLSettingsWaterPtr_t    getNamedWater(const std::string &) const override;
 
 protected:
     LLSettingsVODay();
