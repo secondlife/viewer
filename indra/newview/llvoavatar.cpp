@@ -1277,13 +1277,11 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 		mImpostorOffset = LLVector3(pos_group.getF32ptr())-getRenderPosition();
 		mDrawable->setPositionGroup(pos_group);
 	}
-	
-	
 }
 
 void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
-	LLVector4a buffer(0.25f);
+	LLVector4a buffer(0.0);
 	LLVector4a pos;
 	pos.load3(getRenderPosition().mV);
 	newMin.setSub(pos, buffer);
@@ -1312,7 +1310,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 
 	mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
 
-	//stretch bounding box by attachments
+	//stretch bounding box by static attachments
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -1355,6 +1353,39 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 			}
 		}
 	}
+
+    // Stretch bounding box by rigged mesh joint boxes
+    for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+    {
+        LLJoint *joint = getJoint(joint_num);
+
+        // FIXME TEMP HACK FOR TESTING
+        if (joint)
+        {
+            joint->getRiggingInfo().setIsRiggedTo(true);
+        }
+
+        if (joint && joint->getRiggingInfo().isRiggedTo())
+        {
+            LLViewerJointAttachment *as_joint_attach = dynamic_cast<LLViewerJointAttachment*>(joint);
+            if (as_joint_attach && as_joint_attach->getIsHUDAttachment())
+            {
+                // Ignore bounding box of HUD joints
+                continue;
+            }
+            LLMatrix4a mat;
+            LLVector4a new_extents[2];
+            mat.loadu(joint->getWorldMatrix());
+            matMulBoundBox(mat, joint->getRiggingInfo().getRiggedExtents(), new_extents);
+            update_min_max(newMin, newMax, new_extents[0]);
+            update_min_max(newMin, newMax, new_extents[1]);
+            //if (isSelf())
+            //{
+            //    LL_INFOS() << joint->getName() << " extents " << new_extents[0] << "," << new_extents[1] << LL_ENDL;
+            //    LL_INFOS() << joint->getName() << " av box is " << newMin << "," << newMax << LL_ENDL;
+            //}
+        }
+    }
 
 	//pad bounding box	
 

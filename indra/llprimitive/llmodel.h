@@ -38,7 +38,6 @@ class domMesh;
 
 #define MAX_MODEL_FACES 8
 
-
 class LLMeshSkinInfo 
 {
 public:
