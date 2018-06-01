@@ -985,7 +985,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		// Add shader file to map
 		mShaderObjects[filename] = ret;
 		shader_level = try_gpu_class;
-    }
+	}
 	else
 	{
 		if (shader_level > 1)
@@ -1150,7 +1150,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("cloud_noise_texture");
 	mReservedUniforms.push_back("fullbright");
 	mReservedUniforms.push_back("lightnorm");
-	mReservedUniforms.push_back("sunlight_color");
+	mReservedUniforms.push_back("sunlight_color_copy");
 	mReservedUniforms.push_back("ambient");
 	mReservedUniforms.push_back("blue_horizon");
 	mReservedUniforms.push_back("blue_density");

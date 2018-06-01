@@ -138,7 +138,7 @@ private:
     static void onIdlePlay(void *);
 
     LLSettingsDay::ptr_t    mEditDay; // edited copy
-    S64Seconds              mDayLength;
+    LLSettingsDay::Seconds  mDayLength;
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
 

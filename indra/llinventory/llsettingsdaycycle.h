@@ -48,13 +48,16 @@ public:
     static const std::string    SETTING_TRACKS;
     static const std::string    SETTING_FRAMES;
 
-    static const S64Seconds     MINIMUM_DAYLENGTH;
-    static const S64Seconds     DEFAULT_DAYLENGTH;
-    static const S64Seconds     MAXIMUM_DAYLENGTH;
+    // 32-bit as LLSD only supports that width at present
+    typedef S32Seconds Seconds;
 
-    static const S64Seconds     MINIMUM_DAYOFFSET;
-    static const S64Seconds     DEFAULT_DAYOFFSET;
-    static const S64Seconds     MAXIMUM_DAYOFFSET;
+    static const Seconds MINIMUM_DAYLENGTH;
+    static const Seconds DEFAULT_DAYLENGTH;
+    static const Seconds MAXIMUM_DAYLENGTH;
+
+    static const Seconds MINIMUM_DAYOFFSET;
+    static const Seconds DEFAULT_DAYOFFSET;
+    static const Seconds MAXIMUM_DAYOFFSET;
 
     static const S32            TRACK_WATER;
     static const S32            TRACK_MAX;
@@ -129,7 +132,7 @@ protected:
 private:
     CycleList_t                 mDayTracks;
 
-    F64Seconds                  mLastUpdateTime;
+    LLSettingsBase::Seconds     mLastUpdateTime;
 
     void                        parseFromLLSD(LLSD &data);
 
@@ -137,10 +140,6 @@ private:
     static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, F32 keyframe);
 
     TrackBound_t                getBoundingEntries(CycleTrack_t &track, F32 keyframe);
-
-//     void                        onSkyTransitionDone(S32 track, const LLSettingsBlender::ptr_t &blender);
-//     void                        onWaterTransitionDone(const LLSettingsBlender::ptr_t &blender);
-
 };
 
 #endif

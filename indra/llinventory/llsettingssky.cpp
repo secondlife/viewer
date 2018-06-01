@@ -790,7 +790,7 @@ bool LLSettingsSky::getIsMoonUp() const
     return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
 }
 
-void LLSettingsSky::calculateHeavnlyBodyPositions()  const
+void LLSettingsSky::calculateHeavenlyBodyPositions()  const
 {
     if (!mPositionsDirty)
     {
@@ -811,7 +811,7 @@ void LLSettingsSky::calculateHeavnlyBodyPositions()  const
 
 LLVector3 LLSettingsSky::getLightDirection() const
 {
-    calculateHeavnlyBodyPositions();
+    calculateHeavenlyBodyPositions();
 
     // is the normal from the sun or the moon
     if (getIsSunUp())
@@ -955,13 +955,13 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
 
 LLVector3 LLSettingsSky::getSunDirection() const
 {
-    calculateHeavnlyBodyPositions();
+    calculateHeavenlyBodyPositions();
     return mSunDirection;
 }
 
 LLVector3 LLSettingsSky::getMoonDirection() const
 {
-    calculateHeavnlyBodyPositions();
+    calculateHeavenlyBodyPositions();
     return mMoonDirection;
 }
 
@@ -1008,7 +1008,7 @@ void LLSettingsSky::calculateLightSettings() const
         return;
     }
 
-    calculateHeavnlyBodyPositions();
+    calculateHeavenlyBodyPositions();
 
     mLightingDirty = false;
 

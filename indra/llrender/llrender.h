@@ -446,7 +446,7 @@ public:
 	static U32 sUICalls;
 	static U32 sUIVerts;
 	static bool sGLCoreProfile;
-    static bool sNsightDebugSupport;
+	static bool sNsightDebugSupport;
 
 private:
 	friend class LLLightState;
@@ -501,11 +501,6 @@ extern LLRender gGL;
 const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f, 	// -Z becomes X
 									  -1.f,  0.f,  0.f,  0.f, 	// -X becomes Y
 									   0.f,  1.f,  0.f,  0.f,	//  Y becomes Z
-									   0.f,  0.f,  0.f,  1.f };
-
-const F32 XYZ_TO_OGL_ROTATION[16] = {  1.f,  0.f,  0.f,  0.f, 	//  X stays    X
-									   0.f,  0.f, -1.f,  0.f, 	//  Z becomes -Y
-									   0.f,  1.f,  0.f,  0.f,	//  Y becomes  Z
 									   0.f,  0.f,  0.f,  1.f };
 
 glh::matrix4f copy_matrix(F32* src);

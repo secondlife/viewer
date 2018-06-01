@@ -30,11 +30,6 @@
 #include "llgl.h"
 #include "llglslshader.h"
 
-/*RIDER: TODO:
- * This should use the LL Singleton<> template... but not a quick conversion.
- * (llviewershadermgr derives from this)
- */
-
 class LLShaderMgr
 {
 public:

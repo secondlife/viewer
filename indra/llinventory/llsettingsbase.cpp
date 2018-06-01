@@ -572,7 +572,7 @@ F64 LLSettingsBlenderTimeDelta::calculateBlend(F64 spanpos, F64 spanlen) const
 
 void LLSettingsBlenderTimeDelta::update(F64 timedelta)
 {
-    mTimeSpent += F64Seconds(timedelta);
+    mTimeSpent += LLSettingsBase::Seconds(timedelta);
 
     if (mTimeSpent > mBlendSpan)
     {

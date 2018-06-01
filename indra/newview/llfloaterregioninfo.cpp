@@ -3426,7 +3426,7 @@ void LLPanelRegionEnvironment::doApply()
     }
     else
     {
-        S64Seconds daylength;
+        LLSettingsDay::Seconds daylength;
         F32Hours   dayoffset_h;
 
         daylength = F32Hours(mDayLengthSlider->getValueF32());
@@ -3437,7 +3437,7 @@ void LLPanelRegionEnvironment::doApply()
             dayoffset_h = F32Hours(24.0f) + dayoffset_h;
         }
 
-        S64Seconds dayoffset_s = dayoffset_h;
+        LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
 
         LLEnvironment::instance().updateRegion(mEditingDayCycle, daylength.value(), dayoffset_s.value());
     }

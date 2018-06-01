@@ -1267,7 +1267,7 @@ void LLRender::syncMatrices()
 				}
 
 				shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
-			}            
+			}
 		}
 
 		i = MM_PROJECTION;

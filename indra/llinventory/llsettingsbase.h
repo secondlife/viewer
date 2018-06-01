@@ -41,6 +41,7 @@
 #include "llquaternion.h"
 #include "v4color.h"
 #include "v3color.h"
+#include "llunits.h"
 
 #include "llinventorysettings.h"
 
@@ -54,6 +55,8 @@ class LLSettingsBase :
     friend std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings);
 
 public:
+    typedef F64Seconds Seconds;
+
     static const std::string SETTING_ID;
     static const std::string SETTING_NAME;
     static const std::string SETTING_HASH;
@@ -344,7 +347,7 @@ public:
         mLastUpdate(0.0f),
         mTimeSpent(0.0f)
     {
-        mTimeStart = F64Seconds(LLDate::now().secondsSinceEpoch());
+        mTimeStart = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
     }
 
@@ -367,10 +370,10 @@ public:
 protected:
     F64                     calculateBlend(F64 spanpos, F64 spanlen) const;
 
-    F64Seconds              mBlendSpan;
-    F64Seconds              mLastUpdate;
-    F64Seconds              mTimeSpent;
-    F64Seconds              mTimeStart;
+    LLSettingsBase::Seconds mBlendSpan;
+    LLSettingsBase::Seconds mLastUpdate;
+    LLSettingsBase::Seconds mTimeSpent;
+    LLSettingsBase::Seconds mTimeStart;
 };
 
 

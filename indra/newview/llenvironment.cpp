@@ -125,8 +125,8 @@ namespace
     class LLTrackBlenderLoopingTime : public LLSettingsBlenderTimeDelta
     {
     public:
-        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, F64Seconds cyclelength, F64Seconds cycleoffset) :
-            LLSettingsBlenderTimeDelta(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t(), F64Seconds(1.0)),
+        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, LLSettingsBase::Seconds cyclelength, LLSettingsBase::Seconds cycleoffset) :
+            LLSettingsBlenderTimeDelta(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t(), LLSettingsBase::Seconds(1.0)),
             mDay(day),
             mTrackNo(0),
             mCycleLength(cyclelength),
@@ -156,7 +156,7 @@ namespace
             mTrackTransitionStart = mTarget->buildDerivedClone();
             mTrackNo = use_trackno;
 
-            F64Seconds now = getAdjustedNow() + LLEnvironment::TRANSITION_ALTITUDE;
+            LLSettingsBase::Seconds now = getAdjustedNow() + LLEnvironment::TRANSITION_ALTITUDE;
             LLSettingsDay::TrackBound_t bounds = getBoundingEntries(now);
 
             LLSettingsBase::ptr_t pendsetting = (*bounds.first).second->buildDerivedClone();
@@ -189,7 +189,7 @@ namespace
             return 1;
         }
 
-        LLSettingsDay::TrackBound_t getBoundingEntries(F64Seconds time)
+        LLSettingsDay::TrackBound_t getBoundingEntries(LLSettingsBase::Seconds time)
         {
             LLSettingsDay::CycleTrack_t &wtrack = mDay->getCycleTrack(mTrackNo);
             F64 position = convertTimeToPosition(time);
@@ -198,19 +198,19 @@ namespace
             return bounds;
         }
 
-        F64Seconds getAdjustedNow() const
+        LLSettingsBase::Seconds getAdjustedNow() const
         {
-            F64Seconds now(LLDate::now().secondsSinceEpoch());
+            LLSettingsBase::Seconds now(LLDate::now().secondsSinceEpoch());
 
             return (now + mCycleOffset);
         }
 
-        F64Seconds                  getSpanTime(const LLSettingsDay::TrackBound_t &bounds) const
+        LLSettingsBase::Seconds getSpanTime(const LLSettingsDay::TrackBound_t &bounds) const
         {
             return mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
         }
 
-        F64                         convertTimeToPosition(F64Seconds time)
+        F64 convertTimeToPosition(LLSettingsBase::Seconds time)
         {
             F64 position = static_cast<F64>(fmod(time.value(), mCycleLength.value())) / static_cast<F64>(mCycleLength.value());
             return llclamp(position, 0.0, 1.0);
@@ -219,14 +219,14 @@ namespace
     private:
         LLSettingsDay::ptr_t        mDay;
         S32                         mTrackNo;
-        F64Seconds                  mCycleLength;
-        F64Seconds                  mCycleOffset;
+        LLSettingsBase::Seconds     mCycleLength;
+        LLSettingsBase::Seconds     mCycleOffset;
         LLSettingsBase::ptr_t       mTrackTransitionStart;
 
         void                        onFinishedSpan()
         {
             LLSettingsDay::TrackBound_t next = getBoundingEntries(getAdjustedNow());
-            F64Seconds nextspan = getSpanTime(next);
+            LLSettingsBase::Seconds nextspan = getSpanTime(next);
             reset((*next.first).second, (*next.second).second, nextspan.value());
         }
     };
@@ -442,7 +442,7 @@ bool LLEnvironment::getIsMoonUp() const
 }
 
 //-------------------------------------------------------------------------
-void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, F64Seconds transition, bool forced)
+void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, LLSettingsBase::Seconds transition, bool forced)
 {
     mSelectedEnvironment = env;
     updateEnvironment(transition, forced);
@@ -472,7 +472,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnviro
 }
 
 
-void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset)
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
 {
     if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
     {   
@@ -525,8 +525,8 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 
     if (settings->getSettingType() == "daycycle")
     {
-        S64Seconds daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
-        S64Seconds dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
+        LLSettingsDay::Seconds daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
+        LLSettingsDay::Seconds dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
         if (environment)
         {
             daylength = environment->getDayLength();
@@ -583,12 +583,12 @@ LLSettingsDay::ptr_t LLEnvironment::getEnvironmentDay(LLEnvironment::EnvSelectio
     return LLSettingsDay::ptr_t();
 }
 
-S64Seconds LLEnvironment::getEnvironmentDayLength(EnvSelection_t env)
+LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayLength(EnvSelection_t env)
 {
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
         LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
-        return S64Seconds(0);
+        return LLSettingsDay::Seconds(0);
     }
 
     DayInstance::ptr_t environment = getEnvironmentInstance(env);
@@ -596,22 +596,22 @@ S64Seconds LLEnvironment::getEnvironmentDayLength(EnvSelection_t env)
     if (environment)
         return environment->getDayLength();
 
-    return S64Seconds(0);
+    return LLSettingsDay::Seconds(0);
 }
 
-S64Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env)
+LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env)
 {
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
         LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
-        return S64Seconds(0);
+        return LLSettingsDay::Seconds(0);
     }
 
     DayInstance::ptr_t environment = getEnvironmentInstance(env);
     if (environment)
         return environment->getDayOffset();
 
-    return S64Seconds(0);
+    return LLSettingsDay::Seconds(0);
 }
 
 
@@ -670,7 +670,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance(
 }
 
 
-void LLEnvironment::updateEnvironment(F64Seconds transition, bool forced)
+void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool forced)
 {
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
 
@@ -1365,9 +1365,9 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
     if (environment.has("region_id"))
         pinfo->mRegionId = environment["region_id"].asUUID();
     if (environment.has("day_length"))
-        pinfo->mDayLength = S64Seconds(environment["day_length"].asInteger());
+        pinfo->mDayLength = LLSettingsDay::Seconds(environment["day_length"].asInteger());
     if (environment.has("day_offset"))
-        pinfo->mDayOffset = S64Seconds(environment["day_offset"].asInteger());
+        pinfo->mDayOffset = LLSettingsDay::Seconds(environment["day_offset"].asInteger());
     if (environment.has("day_hash"))
         pinfo->mDayHash = environment["day_hash"].asInteger();
     if (environment.has("day_cycle"))
@@ -1643,7 +1643,7 @@ LLEnvironment::DayInstance::DayInstance() :
     mSkyTrack(1)
 { }
 
-void LLEnvironment::DayInstance::update(F64Seconds delta)
+void LLEnvironment::DayInstance::update(LLSettingsBase::Seconds delta)
 {
     if (!mInitialized)
         initialize();
@@ -1659,7 +1659,7 @@ void LLEnvironment::DayInstance::update(F64Seconds delta)
 //         mWater->update();
 }
 
-void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset)
+void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
 {
     if (mType == TYPE_FIXED)
         LL_WARNS("ENVIRONMENT") << "Fixed day instance changed to Cycled" << LL_ENDL;
@@ -1750,7 +1750,7 @@ void LLEnvironment::DayInstance::setBlenders(const LLSettingsBlender::ptr_t &sky
     mBlenderWater = waterblend;
 }
 
-F64 LLEnvironment::DayInstance::secondsToKeyframe(S64Seconds seconds)
+F64 LLEnvironment::DayInstance::secondsToKeyframe(LLSettingsDay::Seconds seconds)
 {
     F64 frame = static_cast<F64>(seconds.value() % mDayLength.value()) / static_cast<F64>(mDayLength.value());
 
@@ -1759,7 +1759,7 @@ F64 LLEnvironment::DayInstance::secondsToKeyframe(S64Seconds seconds)
 
 void LLEnvironment::DayInstance::animate()
 {
-    F64Seconds now(LLDate::now().secondsSinceEpoch());
+    LLSettingsBase::Seconds now(LLDate::now().secondsSinceEpoch());
 
     now += mDayOffset;
 
@@ -1807,7 +1807,7 @@ void LLEnvironment::DayInstance::animate()
 
 //-------------------------------------------------------------------------
 LLEnvironment::DayTransition::DayTransition(const LLSettingsSky::ptr_t &skystart,
-    const LLSettingsWater::ptr_t &waterstart, LLEnvironment::DayInstance::ptr_t &end, S64Seconds time) :
+    const LLSettingsWater::ptr_t &waterstart, LLEnvironment::DayInstance::ptr_t &end, LLSettingsDay::Seconds time) :
     DayInstance(),
     mStartSky(skystart),
     mStartWater(waterstart),
@@ -1817,7 +1817,7 @@ LLEnvironment::DayTransition::DayTransition(const LLSettingsSky::ptr_t &skystart
     
 }
 
-void LLEnvironment::DayTransition::update(F64Seconds delta)
+void LLEnvironment::DayTransition::update(LLSettingsBase::Seconds delta)
 {
     mNextInstance->update(delta);
     DayInstance::update(delta);

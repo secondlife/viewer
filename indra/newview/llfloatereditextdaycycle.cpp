@@ -192,7 +192,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     {
         S32Hours hrs;
         S32Minutes minutes;
-        S64Seconds total;
+        LLSettingsDay::Seconds total;
         LLUIString formatted_label = getString("time_label");
         for (int i = 0; i < max_elm; i++)
         {
@@ -700,7 +700,7 @@ void LLFloaterEditExtDayCycle::updateTimeAndLabel()
     {
         LLUIString formatted_label = getString("time_label");
 
-        S64Seconds total = (mDayLength  * time); 
+        LLSettingsDay::Seconds total = (mDayLength  * time); 
         S32Hours hrs = total;
         S32Minutes minutes = total - hrs;
 

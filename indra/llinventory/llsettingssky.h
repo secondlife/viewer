@@ -423,7 +423,7 @@ protected:
     LLSettingsSky();
 
     virtual stringset_t getSlerpKeys() const override;
-
+    virtual stringset_t getSkipInterpolateKeys() const;
     virtual void    updateSettings() override;
 
 private:
@@ -434,7 +434,7 @@ private:
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
 
-    void        calculateHeavnlyBodyPositions() const;
+    void        calculateHeavenlyBodyPositions() const;
     void        calculateLightSettings() const;
 
     mutable LLVector3   mSunDirection;

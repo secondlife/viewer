@@ -62,15 +62,15 @@ public:
 
         typedef std::shared_ptr<EnvironmentInfo>  ptr_t;
 
-        S32                 mParcelId;
-        LLUUID              mRegionId;
-        S64Seconds          mDayLength;
-        S64Seconds          mDayOffset;
-        size_t              mDayHash;
-        LLSD                mDaycycleData;
-        std::array<F32, 4>  mAltitudes;
-        bool                mIsDefault;
-        bool                mIsRegion;
+        S32                     mParcelId;
+        LLUUID                  mRegionId;
+        LLSettingsDay::Seconds  mDayLength;
+        LLSettingsDay::Seconds  mDayOffset;
+        size_t                  mDayHash;
+        LLSD                    mDaycycleData;
+        std::array<F32, 4>      mAltitudes;
+        bool                    mIsDefault;
+        bool                    mIsRegion;
 
 
         static ptr_t        extract(LLSD);
@@ -152,11 +152,11 @@ public:
     void                        updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting);
     void                        updateShaderUniforms(LLGLSLShader *shader);
 
-    void                        setSelectedEnvironment(EnvSelection_t env, F64Seconds transition = TRANSITION_DEFAULT, bool forced = false);
+    void                        setSelectedEnvironment(EnvSelection_t env, LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);
     EnvSelection_t              getSelectedEnvironment() const                  { return mSelectedEnvironment; }
 
     bool                        hasEnvironment(EnvSelection_t env);
-    void                        setEnvironment(EnvSelection_t env, const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset);
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
     void                        setEnvironment(EnvSelection_t env, fixedEnvironment_t fixed);
     void                        setEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &fixed); 
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t())); }
@@ -164,13 +164,13 @@ public:
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixeds, const LLSettingsWater::ptr_t & fixedw) { setEnvironment(env, fixedEnvironment_t(fixeds, fixedw)); }
     void                        clearEnvironment(EnvSelection_t env);
     LLSettingsDay::ptr_t        getEnvironmentDay(EnvSelection_t env);
-    S64Seconds                  getEnvironmentDayLength(EnvSelection_t env);
-    S64Seconds                  getEnvironmentDayOffset(EnvSelection_t env);
+    LLSettingsDay::Seconds      getEnvironmentDayLength(EnvSelection_t env);
+    LLSettingsDay::Seconds      getEnvironmentDayOffset(EnvSelection_t env);
     fixedEnvironment_t          getEnvironmentFixed(EnvSelection_t env);
     LLSettingsSky::ptr_t        getEnvironmentFixedSky(EnvSelection_t env)      { return getEnvironmentFixed(env).first; };
     LLSettingsWater::ptr_t      getEnvironmentFixedWater(EnvSelection_t env)    { return getEnvironmentFixed(env).second; };
 
-    void                        updateEnvironment(F64Seconds transition = TRANSITION_DEFAULT, bool forced = false);
+    void                        updateEnvironment(LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);
 
     void                        addSky(const LLSettingsSky::ptr_t &sky);
     void                        addWater(const LLSettingsWater::ptr_t &sky);
@@ -253,9 +253,9 @@ private:
                                     DayInstance();
         virtual                     ~DayInstance() { };
 
-        virtual void                update(F64Seconds);
+        virtual void                update(LLSettingsBase::Seconds);
 
-        void                        setDay(const LLSettingsDay::ptr_t &pday, S64Seconds daylength, S64Seconds dayoffset);
+        void                        setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
         void                        setSky(const LLSettingsSky::ptr_t &psky);
         void                        setWater(const LLSettingsWater::ptr_t &pwater);
 
@@ -269,8 +269,8 @@ private:
         LLSettingsDay::ptr_t        getDayCycle() const     { return mDayCycle; }
         LLSettingsSky::ptr_t        getSky() const          { return mSky; }
         LLSettingsWater::ptr_t      getWater() const        { return mWater; }
-        S64Seconds                  getDayLength() const    { return mDayLength; }
-        S64Seconds                  getDayOffset() const    { return mDayOffset; }
+        LLSettingsDay::Seconds      getDayLength() const    { return mDayLength; }
+        LLSettingsDay::Seconds      getDayOffset() const    { return mDayOffset; }
         S32                         getSkyTrack() const     { return mSkyTrack; }
 
         virtual void                animate();
@@ -286,14 +286,14 @@ private:
         InstanceType_t              mType;
         bool                        mInitialized;
 
-        S64Seconds                  mDayLength;
-        S64Seconds                  mDayOffset;
+        LLSettingsDay::Seconds      mDayLength;
+        LLSettingsDay::Seconds      mDayOffset;
         S32                         mLastTrackAltitude;
 
         LLSettingsBlender::ptr_t    mBlenderSky;
         LLSettingsBlender::ptr_t    mBlenderWater;
 
-        F64                         secondsToKeyframe(S64Seconds seconds);
+        F64                         secondsToKeyframe(LLSettingsDay::Seconds seconds);
     };
     typedef std::array<DayInstance::ptr_t, ENV_END> InstanceArray_t;
 
@@ -301,17 +301,17 @@ private:
     class DayTransition : public DayInstance
     {
     public:
-                                    DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, S64Seconds time);
+                                    DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, LLSettingsDay::Seconds time);
         virtual                     ~DayTransition() { };
 
-        virtual void                update(F64Seconds);
+        virtual void                update(LLSettingsBase::Seconds);
         virtual void                animate();
 
     protected:
         LLSettingsSky::ptr_t        mStartSky;
         LLSettingsWater::ptr_t      mStartWater;
         DayInstance::ptr_t          mNextInstance;
-        S64Seconds                  mTransitionTime;
+        LLSettingsDay::Seconds      mTransitionTime;
     };
 
     static const F32            SUN_DELTA_YAW;

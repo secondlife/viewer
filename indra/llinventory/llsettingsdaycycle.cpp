@@ -89,13 +89,13 @@ const std::string LLSettingsDay::SETTING_KEYHASH("key_hash");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
 const std::string LLSettingsDay::SETTING_FRAMES("frames");
 
-const S64Seconds LLSettingsDay::MINIMUM_DAYLENGTH(300); // 5 mins
-const S64Seconds LLSettingsDay::DEFAULT_DAYLENGTH(14400); // 4 hours
-const S64Seconds LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
+const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYLENGTH(300); // 5 mins
+const LLSettingsDay::Seconds LLSettingsDay::DEFAULT_DAYLENGTH(14400); // 4 hours
+const LLSettingsDay::Seconds LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
 
-const S64Seconds LLSettingsDay::MINIMUM_DAYOFFSET(0);
-const S64Seconds LLSettingsDay::DEFAULT_DAYOFFSET(57600);  // +16 hours == -8 hours (SLT time offset)
-const S64Seconds LLSettingsDay::MAXIMUM_DAYOFFSET(86400);  // 24 hours
+const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYOFFSET(0);
+const LLSettingsDay::Seconds LLSettingsDay::DEFAULT_DAYOFFSET(57600);  // +16 hours == -8 hours (SLT time offset)
+const LLSettingsDay::Seconds LLSettingsDay::MAXIMUM_DAYOFFSET(86400);  // 24 hours
 
 const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
@@ -465,7 +465,7 @@ LLSettingsDay::CycleTrack_t &LLSettingsDay::getCycleTrack(S32 track)
 //=========================================================================
 void LLSettingsDay::startDayCycle()
 {
-    F64Seconds now(LLDate::now().secondsSinceEpoch());
+    LLSettingsBase::Seconds now(LLDate::now().secondsSinceEpoch());
 
     if (!mInitialized)
     {
