@@ -83,6 +83,8 @@ public:
     static const LLUUID DEFAULT_MOON_ID;
     static const LLUUID DEFAULT_CLOUD_ID;
 
+    static const LLUUID DEFAULT_ASSET_ID;
+
     typedef std::shared_ptr<LLSettingsSky> ptr_t;
     typedef std::pair<F32, F32> azimalt_t;
 

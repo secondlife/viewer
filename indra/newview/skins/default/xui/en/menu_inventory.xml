@@ -863,6 +863,33 @@
          function="Inventory.DoToSelected"
          parameter="take_off" />
     </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Settings Separator" />
+    <menu_item_call
+            name="Settings Apply Local"
+            layout="topleft"
+            label="Apply Only To Myself">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_local" />
+    </menu_item_call>
+    <menu_item_call
+            name="Settings Apply Parcel"
+            layout="topleft"
+            label="Apply To Parcel">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_parcel" />
+    </menu_item_call>
+    <menu_item_call
+            name="Settings Apply Region"
+            layout="topleft"
+            label="Apply To Region">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_region" />
+    </menu_item_call>
 	<menu_item_separator
 	 layout="topleft"
 	 name="Marketplace Separator" />

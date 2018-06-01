@@ -795,6 +795,14 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 
 void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
+    if (!settings || status)
+    {
+        LLSD args;
+        args["DESC"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
+        LLNotificationsUtil::add("FailedToFindSettings", args);
+        closeFloater();
+        return;
+    }
     mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
     updateEditEnvironment();
     syncronizeTabs();

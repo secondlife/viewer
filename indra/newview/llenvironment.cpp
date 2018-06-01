@@ -238,6 +238,16 @@ const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
+//*TODO* Change these when available on Agni (these are Damballah asset IDs).
+const LLUUID LLEnvironment::KNOWN_SKY_DEFAULT(LLSettingsSky::DEFAULT_ASSET_ID);
+const LLUUID LLEnvironment::KNOWN_WATER_DEFAULT(LLSettingsWater::DEFAULT_ASSET_ID);
+const LLUUID LLEnvironment::KNOWN_DAY_DEFAULT(LLSettingsDay::DEFAULT_ASSET_ID);
+
+const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("645d7475-19d6-d05c-6eb2-29eeacf76e06");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("68f5a7ec-2785-d9d8-be7c-cca93976759a");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("06420773-757b-4b7c-a1f9-85fceb2f7bd4");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("c13658f3-91b8-d559-3a12-b11ce3940c4c");
+
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
 const F32 LLEnvironment::NIGHTTIME_ELEVATION_COS(LLSky::NIGHTTIME_ELEVATION_COS);
 
@@ -498,6 +508,25 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
     }
 }
 
+void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId)
+{
+    LLSettingsVOBase::getSettingsAsset(assetId,
+        [this, env](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onSetEnvAssetLoaded(env, asset_id, settings, status); });
+
+}
+
+void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
+{
+    if (!settings || status)
+    {
+        LLSD args;
+        args["DESC"] = asset_id.asString();
+        LLNotificationsUtil::add("FailedToFindSettings", args);
+        return;
+    }
+
+    setEnvironment(env, settings);
+}
 
 void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
 {
@@ -1311,196 +1340,172 @@ std::string LLEnvironment::getUserDir(const std::string &subdir)
 
 LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::string filename)
 {
-    LLSD data = legacyLoadPreset(filename);
-    if (!data)
-        return LLSettingsWater::ptr_t();
-
     std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
-    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
+    std::string path(gDirUtilp->getDirName(filename));
 
+    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPresetFile(name, path);
     return water;
 }
 
 LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string filename)
 {
-    LLSD data = legacyLoadPreset(filename);
-    if (!data)
-        return LLSettingsSky::ptr_t();
-
     std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
-    LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
+    std::string path(gDirUtilp->getDirName(filename));
 
+    LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPresetFile(name, path);
     return sky;
+
 }
 
 LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::string filename)
 {
-    // for the moment just look it up from the preloaded.
     std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    std::string path(gDirUtilp->getDirName(filename));
 
-    LLSettingsDay::ptr_t day = instance().findDayCycleByName(name);
+    LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPresetFile(name, path);
     return day;
 }
 
 
-LLSD LLEnvironment::legacyLoadPreset(const std::string& path)
-{
-    llifstream xml_file;
-    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
-
-    xml_file.open(path.c_str());
-    if (!xml_file)
-    {
-        return LLSD();
-    }
-
-    LLSD params_data;
-    LLPointer<LLSDParser> parser = new LLSDXMLParser();
-    parser->parse(xml_file, params_data, LLSDSerialize::SIZE_UNLIMITED);
-    xml_file.close();
-
-    return params_data;
-}
-
 void LLEnvironment::legacyLoadAllPresets()
 {
-    std::string dir;
-    std::string file;
-
-    // System skies
-    {
-        dir = getSysDir("skies");
-        LLDirIterator dir_iter(dir, "*.xml");
-        while (dir_iter.next(file))
-        {
-            std::string path = gDirUtilp->add(dir, file);
-
-            LLSD data = legacyLoadPreset(path);
-            if (data)
-            {
-                std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
-
-                LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
-                LLEnvironment::instance().addSky(sky);
-            }
-        }
-    }
-
-    // User skies
-    {
-        dir = getUserDir("skies");
-        LLDirIterator dir_iter(dir, "*.xml");
-        while (dir_iter.next(file))
-        {
-            std::string path = gDirUtilp->add(dir, file);
-
-            LLSD data = legacyLoadPreset(path);
-            if (data)
-            {
-                std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
-
-                LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
-                LLEnvironment::instance().addSky(sky);
-            }
-        }
-    }
-
-    // System water
-    {
-        dir = getSysDir("water");
-        LLDirIterator dir_iter(dir, "*.xml");
-        while (dir_iter.next(file))
-        {
-            std::string path = gDirUtilp->add(dir, file);
-
-            LLSD data = legacyLoadPreset(path);
-            if (data)
-            {
-                std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
-
-                LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
-                LLEnvironment::instance().addWater(water);
-            }
-        }
-    }
-
-    // User water
-    {
-        dir = getUserDir("water");
-        LLDirIterator dir_iter(dir, "*.xml");
-        while (dir_iter.next(file))
-        {
-            std::string path = gDirUtilp->add(dir, file);
-
-            LLSD data = legacyLoadPreset(path);
-            if (data)
-            {
-                std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
-
-                LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
-                LLEnvironment::instance().addWater(water);
-            }
-        }
-    }
-
-    // System Days
-    {
-        dir = getSysDir("days");
-        LLDirIterator dir_iter(dir, "*.xml");
-        while (dir_iter.next(file))
-        {
-            std::string path = gDirUtilp->add(dir, file);
-
-            LLSD data = legacyLoadPreset(path);
-            if (data)
-            {
-                std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
-
-                LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
-                /*if (day->validate())
-                {
-                    LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
-                    LLEnvironment::instance().addDayCycle(day);
-                }
-                else
-                {
-                    LL_WARNS() << "Day Cycle " << name << " was not valid. Ignoring." << LL_ENDL;
-                }*/
-                LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
-                LLEnvironment::instance().addDayCycle(day);
-#ifdef EXPORT_PRESETS
-                std::string exportfile = LLURI::escape(name) + "(new).xml";
-                std::string exportpath = gDirUtilp->add(getSysDir("new"), exportfile);
-
-                LLSD settings = day->getSettings();
-
-                std::ofstream daycyclefile(exportpath);
-                LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
-                formatter->format(settings, daycyclefile, LLSDFormatter::OPTIONS_PRETTY);
-                daycyclefile.close();
-#endif
-            }
-        }
-    }
-
-    // User Days
-    {
-        dir = getUserDir("days");
-        LLDirIterator dir_iter(dir, "*.xml");
-        while (dir_iter.next(file))
-        {
-            std::string path = gDirUtilp->add(dir, file);
-
-            LLSD data = legacyLoadPreset(path);
-            if (data)
-            {
-                std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
-
-                LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
-                LLEnvironment::instance().addDayCycle(day);
-            }
-        }
-    }
+//     std::string dir;
+//     std::string file;
+// 
+//     // System skies
+//     {
+//         dir = getSysDir("skies");
+//         LLDirIterator dir_iter(dir, "*.xml");
+//         while (dir_iter.next(file))
+//         {
+//             std::string path = gDirUtilp->add(dir, file);
+// 
+//             LLSD data = legacyLoadPreset(path);
+//             if (data)
+//             {
+//                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
+// 
+//                 LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
+//                 LLEnvironment::instance().addSky(sky);
+//             }
+//         }
+//     }
+// 
+//     // User skies
+//     {
+//         dir = getUserDir("skies");
+//         LLDirIterator dir_iter(dir, "*.xml");
+//         while (dir_iter.next(file))
+//         {
+//             std::string path = gDirUtilp->add(dir, file);
+// 
+//             LLSD data = legacyLoadPreset(path);
+//             if (data)
+//             {
+//                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
+// 
+//                 LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPreset(name, data);
+//                 LLEnvironment::instance().addSky(sky);
+//             }
+//         }
+//     }
+// 
+//     // System water
+//     {
+//         dir = getSysDir("water");
+//         LLDirIterator dir_iter(dir, "*.xml");
+//         while (dir_iter.next(file))
+//         {
+//             std::string path = gDirUtilp->add(dir, file);
+// 
+//             LLSD data = legacyLoadPreset(path);
+//             if (data)
+//             {
+//                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
+// 
+//                 LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
+//                 LLEnvironment::instance().addWater(water);
+//             }
+//         }
+//     }
+// 
+//     // User water
+//     {
+//         dir = getUserDir("water");
+//         LLDirIterator dir_iter(dir, "*.xml");
+//         while (dir_iter.next(file))
+//         {
+//             std::string path = gDirUtilp->add(dir, file);
+// 
+//             LLSD data = legacyLoadPreset(path);
+//             if (data)
+//             {
+//                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
+// 
+//                 LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPreset(name, data);
+//                 LLEnvironment::instance().addWater(water);
+//             }
+//         }
+//     }
+// 
+//     // System Days
+//     {
+//         dir = getSysDir("days");
+//         LLDirIterator dir_iter(dir, "*.xml");
+//         while (dir_iter.next(file))
+//         {
+//             std::string path = gDirUtilp->add(dir, file);
+// 
+//             LLSD data = legacyLoadPreset(path);
+//             if (data)
+//             {
+//                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
+// 
+//                 LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
+//                 /*if (day->validate())
+//                 {
+//                     LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
+//                     LLEnvironment::instance().addDayCycle(day);
+//                 }
+//                 else
+//                 {
+//                     LL_WARNS() << "Day Cycle " << name << " was not valid. Ignoring." << LL_ENDL;
+//                 }*/
+//                 LL_INFOS() << "Adding Day Cycle " << name << "." << LL_ENDL;
+//                 LLEnvironment::instance().addDayCycle(day);
+// #ifdef EXPORT_PRESETS
+//                 std::string exportfile = LLURI::escape(name) + "(new).xml";
+//                 std::string exportpath = gDirUtilp->add(getSysDir("new"), exportfile);
+// 
+//                 LLSD settings = day->getSettings();
+// 
+//                 std::ofstream daycyclefile(exportpath);
+//                 LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
+//                 formatter->format(settings, daycyclefile, LLSDFormatter::OPTIONS_PRETTY);
+//                 daycyclefile.close();
+// #endif
+//             }
+//         }
+//     }
+// 
+//     // User Days
+//     {
+//         dir = getUserDir("days");
+//         LLDirIterator dir_iter(dir, "*.xml");
+//         while (dir_iter.next(file))
+//         {
+//             std::string path = gDirUtilp->add(dir, file);
+// 
+//             LLSD data = legacyLoadPreset(path);
+//             if (data)
+//             {
+//                 std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), true));
+// 
+//                 LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPreset(name, data);
+//                 LLEnvironment::instance().addDayCycle(day);
+//             }
+//         }
+//     }
 }
 
 void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
@@ -1521,9 +1526,6 @@ void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
 
 S32 LLEnvironment::calculateSkyTrackForAltitude(F64 altitude)
 {
-//     //*LAPRAS* temp  base on region's response.
-//     return llmin((static_cast<S32>(altitude) / 100) + 1, (LLSettingsDay::TRACK_MAX - 1));
-
     auto it = std::find_if_not(mTrackAltitudes.begin(), mTrackAltitudes.end(), [altitude](F32 test) { return altitude > test; });
     
     if (it == mTrackAltitudes.begin())

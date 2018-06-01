@@ -11104,4 +11104,13 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="FailedToFindSettings"
+   persist="true"
+   type="alertmodal">
+Failed to find the settisgs named [DESC] in database.
+  <tag>fail</tag>
+  </notification>
+  
 </notifications>

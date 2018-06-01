@@ -6903,7 +6903,44 @@ LLUIImagePtr LLSettingsBridge::getIcon() const
 
 void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action)
 {
-    LLItemBridge::performAction(model, action);
+    if ("apply_settings_local" == action)
+    {
+        // Single item only
+        LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
+        if (!item) 
+            return;
+        LLUUID asset_id = item->getProtectedAssetUUID();
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, asset_id);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    }
+    else if ("apply_settings_parcel" == action)
+    {
+        // Single item only
+        LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
+        if (!item)
+            return;
+        LLUUID asset_id = item->getProtectedAssetUUID();
+        // *LAPRAS* TODO update on simulator.
+        LL_WARNS("LAPRAS") << "Only updating locally!!! NOT REALLY PARCEL UPDATE" << LL_ENDL;
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_PARCEL, asset_id);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    }
+    else if ("apply_settings_region" == action)
+    {
+        // Single item only
+        LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
+        if (!item)
+            return;
+        LLUUID asset_id = item->getProtectedAssetUUID();
+        // *LAPRAS* TODO update on simulator.
+        LL_WARNS("LAPRAS") << "Only updating locally!!! NOT REALLY REGION UPDATE" << LL_ENDL;
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, asset_id);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    }
+    else
+        LLItemBridge::performAction(model, action);
 }
 
 void LLSettingsBridge::openItem()
@@ -6917,9 +6954,48 @@ void LLSettingsBridge::openItem()
 
 void LLSettingsBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-    LLItemBridge::buildContextMenu(menu, flags);
-}
+    LL_DEBUGS() << "LLSettingsBridge::buildContextMenu()" << LL_ENDL;
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
 
+    if (isMarketplaceListingsFolder())
+    {
+        menuentry_vec_t items;
+        menuentry_vec_t disabled_items;
+        addMarketplaceContextMenuOptions(flags, items, disabled_items);
+        items.push_back(std::string("Properties"));
+        getClipboardEntries(false, items, disabled_items, flags);
+        hide_context_entries(menu, items, disabled_items);
+    }
+    else if (isItemInTrash())
+    {
+        addTrashContextMenuOptions(items, disabled_items);
+    }
+    else
+    {
+        items.push_back(std::string("Share"));
+        if (!canShare())
+        {
+            disabled_items.push_back(std::string("Share"));
+        }
+
+        addOpenRightClickMenuOption(items);
+        items.push_back(std::string("Properties"));
+
+        getClipboardEntries(true, items, disabled_items, flags);
+
+        items.push_back("Settings Separator");
+        items.push_back("Settings Apply Local");
+
+        items.push_back("Settings Apply Parcel");
+        // *LAPRAS* TODO: test for permission
+
+        items.push_back("Settings Apply Region");
+        // *LAPRAS* TODO: test for permission
+    }
+    addLinkReplaceMenuOption(items, disabled_items);
+    hide_context_entries(menu, items, disabled_items);
+}
 std::string LLSettingsBridge::getLabelSuffix() const
 {
     return LLItemBridge::getLabelSuffix();

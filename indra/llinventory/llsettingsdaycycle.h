@@ -60,6 +60,8 @@ public:
     static const S32            TRACK_MAX;
     static const S32            FRAME_MAX;
 
+    static const LLUUID         DEFAULT_ASSET_ID;
+
     typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
     typedef std::vector<CycleTrack_t>               CycleList_t;
     typedef std::shared_ptr<LLSettingsDay>          ptr_t;
@@ -105,10 +107,7 @@ public:
     virtual LLSettingsSkyPtr_t  buildSky(LLSD) const = 0;
     virtual LLSettingsWaterPtr_t buildWater(LLSD) const = 0;
 
-    virtual LLSettingsSkyPtr_t  getNamedSky(const std::string &) const = 0;
-    virtual LLSettingsWaterPtr_t getNamedWater(const std::string &) const = 0;
-
-    void    setInitialized(bool value = true) { mInitialized = value; }
+    void                        setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
 
     virtual validation_list_t   getValidationList() const override;
