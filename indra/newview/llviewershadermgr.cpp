@@ -2999,6 +2999,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectSimpleWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 			gSkinnedObjectSimpleWaterProgram.mFeatures.hasObjectSkinning = true;
 			gSkinnedObjectSimpleWaterProgram.mFeatures.disableTextureIndex = true;
+			gSkinnedObjectSimpleWaterProgram.mFeatures.hasAlphaMask = true;
 			gSkinnedObjectSimpleWaterProgram.mShaderFiles.clear();
 			gSkinnedObjectSimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 			gSkinnedObjectSimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER_ARB));

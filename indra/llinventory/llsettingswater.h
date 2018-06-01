@@ -76,22 +76,22 @@ public:
         setValue(SETTING_BLUR_MULTIPILER, val);
     }
 
-    LLColor3 getWaterFogColor() const
+    LLColor3 getFogColor() const
     {
         return LLColor3(mSettings[SETTING_FOG_COLOR]);
     }
 
-    void setWaterFogColor(LLColor3 val)
+    void setFogColor(LLColor3 val)
     {
         setValue(SETTING_FOG_COLOR, val);
     }
 
-    F32 getWaterFogDensity() const
+    F32 getFogDensity() const
     {
         return mSettings[SETTING_FOG_DENSITY].asReal();
     }
 
-    void setWaterFogDensity(F32 val)
+    void setFogDensity(F32 val)
     {
         setValue(SETTING_FOG_DENSITY, val);
     }
@@ -210,6 +210,8 @@ public:
     static validation_list_t validationList();
 
     static LLSD         translateLegacySettings(LLSD legacy);
+
+    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
 
 protected:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;

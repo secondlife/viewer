@@ -47,11 +47,21 @@
                     follows="top|left"
                     layout="topleft"
                     left_pad="10"
-                    max_chars="100"
+                    max_length_bytes="100"
                     name="day_cycle_name"
                     top="5"
                     width="200"
                     height="21" />
+            <button
+                    height="23"
+                    label="Import"
+                    follows="right|top"
+                    right="-10"
+                    font="SansSerif"
+                    top_delta="0"
+                    name="btn_import"
+                    tool_tip="Import legacy settings from disk." 
+                    width="96" />
         </layout_panel>
         <layout_panel name="timeline_track_selection"
                 border="false"
@@ -64,8 +74,6 @@
             <panel name="timeline_layers"
                     border="false"
                     follows="left|top"
-                    auto_resize="false"
-                    user_resize="true"
                     height="150"
                     width="110"
                     top_pad="0"
@@ -113,7 +121,7 @@
                 <button
                         follows="left|top"
                         height="23"
-                        label="Sky 1"
+                        label="Ground Level"
                         layout="topleft"
                         top_pad="0"
                         left="10"
@@ -140,8 +148,6 @@
             <panel name="timeline"
                     border="true"
                     follows="left|top"
-                    auto_resize="false"
-                    user_resize="true"
                     height="150"
                     min_height="0"
                     width="595"
@@ -195,7 +201,6 @@
                          value="100%[DSC]"
                          width="80" />
                 <multi_slider
-                    can_edit_text="true"
                     decimal_digits="0"
                     draw_track="false"
                     follows="bottom"
@@ -210,11 +215,9 @@
                     show_text="false"
                     top_pad="0"
                     use_triangle="true"
-                    width="525"
-                    min_width="525"/>
+                    width="525" />
 
                 <multi_slider
-                      can_edit_text="true"
                       decimal_digits="0"
                       follows="bottom"
                       height="10"
@@ -227,8 +230,7 @@
                       name="WLDayCycleFrames"
                       show_text="false"
                       top_pad="15"
-                      width="525"
-                      min_width="525" />
+                      width="525" />
 
                 <text
                       follows="left|bottom"
@@ -236,7 +238,6 @@
                       layout="topleft"
                       left_pad="0"
                       name="current_time"
-                      select_on_focus="true"
                       value="[PRCNT]%[DSC]"
                       top_delta="-5"
                       width="70" />
@@ -262,25 +263,29 @@
                   min_width="25"
                   width="25">
                         <button
-                    name="skip_back_btn"
-                    follows="top"
-                    image_overlay="SkipBackward_Off"
-                    image_disabled="PushButton_Disabled"
-                    image_disabled_selected="PushButton_Disabled"
-                    image_selected="PushButton_Selected"
-                    image_unselected="PushButton_Off"
-                    hover_glow_amount="0.15"
-                    auto_resize="false"
-                    width="25"
-                    height="25"
-                    layout="topleft"
-                    tool_tip="Step back"
-                    top="0"
-                    left="0"/>
+                         name="skip_back_btn"
+                         follows="top"
+                         image_overlay="SkipBackward_Off"
+                         image_disabled="PushButton_Disabled"
+                         image_disabled_selected="PushButton_Disabled"
+                         image_selected="PushButton_Selected"
+                         image_unselected="PushButton_Off"
+                         hover_glow_amount="0.15"
+                         auto_resize="false"
+                         width="25"
+                         height="25"
+                         layout="topleft"
+                         tool_tip="Step back"
+                         top="0"
+                         left="0">
+                            <button.commit_callback
+                                function="DayCycle.PlayActions"
+                                parameter="back" />
+                        </button>
                     </layout_panel>
 
                     <layout_panel
-                  name="play"
+                  name="play_layout"
                   mouse_opaque="false"
                   auto_resize="false"
                   layout="topleft"
@@ -302,11 +307,15 @@
                         height="25"
                         width="25"
                         left="0"
-                        top="0" />
+                        top="0">
+                            <button.commit_callback
+                                function="DayCycle.PlayActions"
+                                parameter="play" />
+                        </button>
                     </layout_panel>
 
                     <layout_panel
-                  name="pause"
+                  name="pause_layout"
                   mouse_opaque="false"
                   auto_resize="false"
                   layout="topleft"
@@ -329,32 +338,40 @@
                         height="25"
                         width="25"
                         left="0"
-                        top="0"/>
+                        top="0">
+                            <button.commit_callback
+                                function="DayCycle.PlayActions"
+                                parameter="pause" />
+                        </button>
                     </layout_panel>
 
                     <layout_panel
-                  name="skip_forward"
-                  mouse_opaque="false"
-                  auto_resize="false"
-                  layout="topleft"
-                  top="0"
-                  height="25"
-                  min_width="25"
-                  width="25">
+                     name="skip_forward"
+                     mouse_opaque="false"
+                     auto_resize="false"
+                     layout="topleft"
+                     top="0"
+                     height="25"
+                     min_width="25"
+                     width="25">
                         <button
-                    name="skip_forward_btn"
-                    follows="top"
-                    image_overlay="SkipForward_Off"
-                    image_disabled="PushButton_Disabled"
-                    image_disabled_selected="PushButton_Disabled"
-                    image_selected="PushButton_Selected"
-                    image_unselected="PushButton_Off"
-                    hover_glow_amount="0.15"
-                    width="25"
-                    height="25"
-                    layout="topleft"
-                    tool_tip="Step forward"
-                    top="0" />
+                         name="skip_forward_btn"
+                         follows="top"
+                         image_overlay="SkipForward_Off"
+                         image_disabled="PushButton_Disabled"
+                         image_disabled_selected="PushButton_Disabled"
+                         image_selected="PushButton_Selected"
+                         image_unselected="PushButton_Off"
+                         hover_glow_amount="0.15"
+                         width="25"
+                         height="25"
+                         layout="topleft"
+                         tool_tip="Step forward"
+                         top="0">
+                            <button.commit_callback
+                                function="DayCycle.PlayActions"
+                                parameter="forward" />
+                        </button>
                     </layout_panel>
                 </layout_stack>
 
@@ -494,15 +511,6 @@
                     left_pad="10"
                     name="cancel_btn"
                     width="100" /> 
-
-            <!--<button
-                    follows="top|left"
-                    height="23"
-                    label="Upload"
-                    layout="topleft"
-                    left_pad="10"
-                    name="upload_btn"
-                    width="100" />-->
 
         </layout_panel>
     </layout_stack>

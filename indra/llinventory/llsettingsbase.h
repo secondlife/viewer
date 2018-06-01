@@ -274,7 +274,10 @@ public:
         mFinal(endsetting)
     {
         if (mInitial)
-        mTarget->replaceSettings(mInitial->getSettings());
+            mTarget->replaceSettings(mInitial->getSettings());
+
+        if (!mFinal)
+            mFinal = mInitial;
     }
 
     virtual ~LLSettingsBlender() {}
@@ -282,8 +285,15 @@ public:
     virtual void            reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 /*span*/ = 1.0)
     {
         // note: the 'span' reset parameter is unused by the base class.
+        if (!mInitial)
+            LL_WARNS("BLENDER") << "Reseting blender with empty initial setting. Expect badness in the future." << LL_ENDL;
+
         mInitial = initsetting;
         mFinal = endsetting;
+
+        if (!mFinal)
+            mFinal = mInitial;
+
         mTarget->replaceSettings(mInitial->getSettings());
     }
 
@@ -309,6 +319,8 @@ public:
 
     virtual void            update(F64 blendf);
     virtual F64             setPosition(F64 blendf);
+
+    virtual void            switchTrack(S32 trackno, F64 position = -1.0) { /*NoOp*/ }
 
 protected:
     void                    triggerComplete();
@@ -351,6 +363,8 @@ public:
     virtual void            update(F64 timedelta) override;
 
 protected:
+    F64                     calculateBlend(F64 spanpos, F64 spanlen) const;
+
     F64Seconds              mBlendSpan;
     F64Seconds              mLastUpdate;
     F64Seconds              mTimeSpent;

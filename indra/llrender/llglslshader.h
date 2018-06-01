@@ -175,7 +175,18 @@ public:
     typedef std::map < S32, magmin_values_t> magmin_filter_t;
 
 	GLhandleARB mProgramObject;
+#if LL_RELEASE_WITH_DEBUG_INFO
+	struct attr_name
+	{
+		GLint loc;
+		const char *name;
+		void operator = (GLint _loc) { loc = _loc; }
+		operator GLint () { return loc; }
+	};
+	std::vector<attr_name> mAttribute; //lookup table of attribute enum to attribute channel
+#else
 	std::vector<GLint> mAttribute; //lookup table of attribute enum to attribute channel
+#endif
 	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
     uniforms_index_t mUniform;
     uniforms_index_t mTexture;

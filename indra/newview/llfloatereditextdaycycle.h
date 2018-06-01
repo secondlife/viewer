@@ -75,21 +75,29 @@ public:
 
     connection_t setEditCommitSignal(edit_commit_signal_t::slot_type cb);
 
+    virtual void refresh();
+
 private:
 
 	// flyout response/click
 	void onButtonApply(LLUICtrl *ctrl, const LLSD &data);
 	void onBtnCancel();
-	void onAddTrack();
+    void onButtonImport();
+    void onAddTrack();
 	void onRemoveTrack();
 	void onCommitName(class LLLineEditor* caller, void* user_data);
 	void onTrackSelectionCallback(const LLSD& user_data);
+	void onPlayActionCallback(const LLSD& user_data);
 	// time slider moved
 	void onTimeSliderMoved();
 	// a frame moved or frame selection changed
-	void onFrameSliderCallback();
+	void onFrameSliderCallback(const LLSD &);
+    void onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
+    void onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
+    void onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
 
-	void selectTrack(U32 track_index);
+	void selectTrack(U32 track_index, bool force = false);
+	void selectFrame(F32 frame);
 	void clearTabs();
 	void updateTabs();
 	void updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
@@ -107,24 +115,37 @@ private:
     void onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
     void loadLiveEnvironment(LLEnvironment::EnvSelection_t env);
 
+    void doImportFromDisk();
+    void doApplyCreateNewInventory();
+    void doApplyUpdateInventory();
+    void doApplyEnvironment(const std::string &where);
+    void onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+    void onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+
+    bool canUseInventory() const;
+    bool canApplyRegion() const;
+    bool canApplyParcel() const;
+
     void updateEditEnvironment();
     void syncronizeTabs();
     void reblendSettings();
-    // **RIDER**
-	
-    // data for restoring previous displayed environment
 
-    S32                     mSavedEnvironment;
+    // **RIDER**
+
+    // play functions
+    void startPlay();
+    void stopPlay();
+    static void onIdlePlay(void *);
 
     LLSettingsDay::ptr_t    mEditDay; // edited copy
-    LLSettingsDay::ptr_t    mOriginalDay; // the one we are editing
     S64Seconds              mDayLength;
     U32                     mCurrentTrack;
     std::string             mLastFrameSlider;
 
-    LLButton*			mCancelButton;
-    LLButton*           mAddFrameButton;
-    LLButton*           mDeleteFrameButton;
+    LLButton*			    mCancelButton;
+    LLButton*               mAddFrameButton;
+    LLButton*               mDeleteFrameButton;
+    LLButton*               mImportButton;
 
     LLMultiSliderCtrl*	    mTimeSlider;
     LLMultiSliderCtrl*      mFramesSlider;
@@ -142,7 +163,11 @@ private:
     LLSettingsWater::ptr_t  mScratchWater;
     // **RIDER**
 
-    LLFlyoutComboBtnCtrl *      mFlyoutControl;
+    LLFlyoutComboBtnCtrl *  mFlyoutControl;
+
+    LLFrameTimer            mPlayTimer;
+    F32                     mPlayStartFrame; // an env frame
+    bool                    mIsPlaying;
 
     edit_commit_signal_t    mCommitSignal;
 

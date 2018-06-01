@@ -114,6 +114,11 @@ public:
     virtual validation_list_t   getValidationList() const override;
     static validation_list_t    validationList();
 
+    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+	
+    F32                         getUpperBoundFrame(S32 track, F32 keyframe);
+    F32                         getLowerBoundFrame(S32 track, F32 keyframe);
+
 protected:
     LLSettingsDay();
 

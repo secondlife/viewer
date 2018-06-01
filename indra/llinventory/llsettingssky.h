@@ -411,6 +411,8 @@ public:
     LLColor3  getSunDiffuse() const;
     LLColor4  getTotalAmbient() const;
 
+    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -419,7 +421,6 @@ protected:
     LLSettingsSky();
 
     virtual stringset_t getSlerpKeys() const override;
-    virtual stringset_t getSkipInterpolateKeys() const override;
 
     virtual void    updateSettings() override;
 
