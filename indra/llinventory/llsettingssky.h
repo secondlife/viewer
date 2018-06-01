@@ -423,7 +423,7 @@ protected:
     LLSettingsSky();
 
     virtual stringset_t getSlerpKeys() const override;
-    virtual stringset_t getSkipInterpolateKeys() const;
+    virtual stringset_t getSkipInterpolateKeys() const override;
     virtual void    updateSettings() override;
 
 private:
