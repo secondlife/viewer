@@ -53,8 +53,6 @@
 #include "llsettingssky.h"
 #include "llenvironment.h"
 
-#pragma optimize("", off)
-
 #undef min
 #undef max
 

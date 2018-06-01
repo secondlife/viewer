@@ -32,17 +32,14 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
-#pragma optimize("", off)
-
 static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
 static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
-
+static const LLVector3 DUE_EAST = LLVector3::x_axis;
 //=========================================================================
 namespace
 {
     LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
-    LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");
-    static const LLVector3 DUE_EAST = LLVector3::x_axis;
+    LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");    
 }
 
 static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)

@@ -166,6 +166,8 @@ public:
 
     virtual bool    validate();
 
+    virtual ptr_t   buildDerivedClone() = 0;
+
     class Validator
     {
     public:

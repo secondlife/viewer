@@ -58,8 +58,6 @@
 
 #include "llatmosphere.h"
 
-#pragma optimize("", off)
-
 //define EXPORT_PRESETS 1
 //=========================================================================
 namespace

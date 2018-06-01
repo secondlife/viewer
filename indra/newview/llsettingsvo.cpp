@@ -58,8 +58,6 @@
 #include "llassetstorage.h"
 #include "llvfile.h"
 
-#pragma optimize("", off)
-
 #undef  VERIFY_LEGACY_CONVERSION
 
 //=========================================================================

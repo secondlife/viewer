@@ -376,13 +376,15 @@ public:
     static validation_list_t validationList();
 
     static LLSD translateLegacySettings(const LLSD& legacy);
+
+// LEGACY_ATMOSPHERICS
     static LLSD translateLegacyHazeSettings(const LLSD& legacy);
 
     LLColor3 getLightAttenuation(F32 distance) const;
     LLColor3 getLightTransmittance() const;
     LLColor3 gammaCorrect(const LLColor3& in) const;
 
-// LEGACY_ATMOSPHERICS
+
     LLColor3 getBlueDensity() const;
     LLColor3 getBlueHorizon() const;
     F32 getHazeDensity() const;
