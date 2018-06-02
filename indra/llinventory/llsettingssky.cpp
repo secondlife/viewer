@@ -106,12 +106,11 @@ const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR("exp_s
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_term");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
 
-const LLUUID LLSettingsSky::DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
-const LLUUID LLSettingsSky::DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
-const LLUUID LLSettingsSky::DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
-
 // *LAPRAS* Change when Agni!
-const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("cec9af47-90d4-9093-5245-397e5c9e7749");
+static const LLUUID DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
+static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
+static const LLUUID DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
+static const LLUUID DEFAULT_ASSET_ID("cec9af47-90d4-9093-5245-397e5c9e7749");
 
 const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");
 
@@ -218,7 +217,7 @@ LLSettingsSky::validation_list_t mieValidationList()
 bool validateLegacyHaze(LLSD &value)
 {
     LLSettingsSky::validation_list_t legacyHazeValidations = legacyHazeValidationList();
-    llassert(value.type() == LLSD::Type::TypeMap);
+    llassert(value.type() == LLSD::TypeMap);
     LLSD result = LLSettingsBase::settingValidation(value, legacyHazeValidations);
     if (result["errors"].size() > 0)
     {
@@ -242,14 +241,14 @@ bool validateRayleighLayers(LLSD &value)
         for (LLSD::array_iterator itf = value.beginArray(); itf != value.endArray(); ++itf)
         {
             LLSD& layerConfig = (*itf);
-            if (layerConfig.type() == LLSD::Type::TypeMap)
+            if (layerConfig.type() == LLSD::TypeMap)
             {
                 if (!validateRayleighLayers(layerConfig))
                 {
                     allGood = false;
                 }
             }
-            else if (layerConfig.type() == LLSD::Type::TypeArray)
+            else if (layerConfig.type() == LLSD::TypeArray)
             {
                 return validateRayleighLayers(layerConfig);
             }
@@ -260,7 +259,7 @@ bool validateRayleighLayers(LLSD &value)
         }
         return allGood;
     }    
-    llassert(value.type() == LLSD::Type::TypeMap);
+    llassert(value.type() == LLSD::TypeMap);
     LLSD result = LLSettingsBase::settingValidation(value, rayleighValidations);
     if (result["errors"].size() > 0)
     {
@@ -284,14 +283,14 @@ bool validateAbsorptionLayers(LLSD &value)
         for (LLSD::array_iterator itf = value.beginArray(); itf != value.endArray(); ++itf)
         {
             LLSD& layerConfig = (*itf);
-            if (layerConfig.type() == LLSD::Type::TypeMap)
+            if (layerConfig.type() == LLSD::TypeMap)
             {
                 if (!validateAbsorptionLayers(layerConfig))
                 {
                     allGood = false;
                 }
             }
-            else if (layerConfig.type() == LLSD::Type::TypeArray)
+            else if (layerConfig.type() == LLSD::TypeArray)
             {
                 return validateAbsorptionLayers(layerConfig);
             }
@@ -302,7 +301,7 @@ bool validateAbsorptionLayers(LLSD &value)
         }
         return allGood;
     }
-    llassert(value.type() == LLSD::Type::TypeMap);
+    llassert(value.type() == LLSD::TypeMap);
     LLSD result = LLSettingsBase::settingValidation(value, absorptionValidations);
     if (result["errors"].size() > 0)
     {
@@ -326,14 +325,14 @@ bool validateMieLayers(LLSD &value)
         for (LLSD::array_iterator itf = value.beginArray(); itf != value.endArray(); ++itf)
         {
             LLSD& layerConfig = (*itf);
-            if (layerConfig.type() == LLSD::Type::TypeMap)
+            if (layerConfig.type() == LLSD::TypeMap)
             {
                 if (!validateMieLayers(layerConfig))
                 {
                     allGood = false;
                 }
             }
-            else if (layerConfig.type() == LLSD::Type::TypeArray)
+            else if (layerConfig.type() == LLSD::TypeArray)
             {
                 return validateMieLayers(layerConfig);
             }
@@ -379,7 +378,7 @@ LLSettingsSky::LLSettingsSky():
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
-    LLSettingsSky::ptr_t other = std::static_pointer_cast<LLSettingsSky>(end);
+    LLSettingsSky::ptr_t other((LLSettingsSky*)end.get());
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
 
     replaceSettings(blenddata);
@@ -415,8 +414,6 @@ LLSettingsSky::stringset_t LLSettingsSky::getSlerpKeys() const
 
     return slepSet;
 }
-
-
 
 LLSettingsSky::validation_list_t LLSettingsSky::getValidationList() const
 {
@@ -512,7 +509,6 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
         validation.push_back(Validator(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.1f)))));
-        
 
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
@@ -771,9 +767,6 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
-    LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKYVALUES);
-    //LL_INFOS("WINDLIGHT", "SKY", "EEP") << "WL Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
-
     mPositionsDirty = isDirty();
     mLightingDirty  = isDirty();
 
@@ -1050,4 +1043,9 @@ void LLSettingsSky::calculateLightSettings() const
 
     mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
     mFadeColor.setAlpha(0);
+}
+
+LLUUID LLSettingsSky::GetDefaultAssetId()
+{
+    return DEFAULT_ASSET_ID;
 }

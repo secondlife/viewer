@@ -87,7 +87,7 @@ BOOL LLPanelSettingsWaterMainTab::postBuild()
 //    getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onFogDensityChanged(getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->getValue().asReal()); });
     getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onFogUnderWaterChanged(); });
 
-    mTxtNormalMap->setDefaultImageAssetID(LLSettingsWater::DEFAULT_WATER_NORMAL_ID);
+    mTxtNormalMap->setDefaultImageAssetID(LLSettingsWater::GetDefaultWaterNormalAssetId());
     mTxtNormalMap->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNormalMapChanged(); });
 
     getChild<LLUICtrl>(FIELD_WATER_WAVE1_X)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onLargeWaveChanged(); });

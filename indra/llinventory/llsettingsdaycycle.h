@@ -35,12 +35,15 @@ class LLSettingsSky;
 
 // These are alias for LLSettingsWater::ptr_t and LLSettingsSky::ptr_t respectively.
 // Here for definitions only.
-typedef std::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
-typedef std::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
+typedef PTR_NAMESPACE::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
+typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
 
 class LLSettingsDay : public LLSettingsBase
 {
 public:
+    // 32-bit as LLSD only supports that width at present
+    typedef S32Seconds Seconds;
+
     static const std::string    SETTING_KEYID;
     static const std::string    SETTING_KEYNAME;
     static const std::string    SETTING_KEYKFRAME;
@@ -63,13 +66,12 @@ public:
     static const S32            TRACK_MAX;
     static const S32            FRAME_MAX;
 
-    static const LLUUID         DEFAULT_ASSET_ID;
-
-    typedef std::map<F32, LLSettingsBase::ptr_t>    CycleTrack_t;
-    typedef std::vector<CycleTrack_t>               CycleList_t;
-    typedef std::shared_ptr<LLSettingsDay>          ptr_t;
-    typedef std::vector<F32>                        KeyframeList_t;
-    typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator> TrackBound_t;
+    typedef std::map<LLSettingsBase::TrackPosition, LLSettingsBase::ptr_t>  CycleTrack_t;
+    typedef std::vector<CycleTrack_t>                                       CycleList_t;
+    typedef PTR_NAMESPACE::shared_ptr<LLSettingsDay>                        ptr_t;
+    typedef PTR_NAMESPACE::weak_ptr<LLSettingsDay>                          wptr_t;
+    typedef std::vector<LLSettingsBase::TrackPosition>                      KeyframeList_t;
+    typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator>       TrackBound_t;
 
     //---------------------------------------------------------------------
     LLSettingsDay(const LLSD &data);
@@ -78,29 +80,29 @@ public:
     bool                        initialize();
 
     virtual ptr_t               buildClone() = 0;
-    virtual LLSD                getSettings() const override;
-    virtual LLSettingsType::type_e  getSettingTypeValue() const override { return LLSettingsType::ST_DAYCYCLE; }
+    virtual LLSD                getSettings() const SETTINGS_OVERRIDE;
+    virtual LLSettingsType::type_e  getSettingTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_DAYCYCLE; }
 
 
     //---------------------------------------------------------------------
-    virtual std::string         getSettingType() const override { return std::string("daycycle"); }
+    virtual std::string         getSettingType() const SETTINGS_OVERRIDE { return std::string("daycycle"); }
 
     // Settings status 
-    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix) override;
+    virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix) SETTINGS_OVERRIDE;
 
     static LLSD                 defaults();
 
     //---------------------------------------------------------------------
     KeyframeList_t              getTrackKeyframes(S32 track);
-    bool                        moveTrackKeyframe(S32 track, F32 old_frame, F32 new_frame);
-    bool                        removeTrackKeyframe(S32 track, F32 frame);
+    bool                        moveTrackKeyframe(S32 track, const LLSettingsBase::Seconds& old_frame, const LLSettingsBase::Seconds& new_frame);
+    bool                        removeTrackKeyframe(S32 track, const LLSettingsBase::Seconds& frame);
 
-    void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe);
-    LLSettingsWaterPtr_t        getWaterAtKeyframe(F32 keyframe) const;
-    void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, F32 keyframe, S32 track);
-    LLSettingsSkyPtr_t          getSkyAtKeyframe(F32 keyframe, S32 track) const;
-    void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, F32 keyframe, S32 track);
-    LLSettingsBase::ptr_t       getSettingsAtKeyframe(F32 keyframe, S32 track) const;
+    void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, const LLSettingsBase::Seconds& keyframe);
+    LLSettingsWaterPtr_t        getWaterAtKeyframe(const LLSettingsBase::Seconds& keyframe) const;
+    void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, const LLSettingsBase::Seconds& keyframe, S32 track);
+    LLSettingsSkyPtr_t          getSkyAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const;
+    void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::Seconds& keyframe, S32 track);
+    LLSettingsBase::ptr_t       getSettingsAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const;
         //---------------------------------------------------------------------
     void                        startDayCycle();
 
@@ -113,18 +115,20 @@ public:
     void                        setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
 
-    virtual validation_list_t   getValidationList() const override;
+    virtual validation_list_t   getValidationList() const SETTINGS_OVERRIDE;
     static validation_list_t    validationList();
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
 	
-    F32                         getUpperBoundFrame(S32 track, F32 keyframe);
-    F32                         getLowerBoundFrame(S32 track, F32 keyframe);
+    LLSettingsBase::TrackPosition getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
+    LLSettingsBase::TrackPosition getLowerBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
+
+    static LLUUID GetDefaultAssetId();
 
 protected:
     LLSettingsDay();
 
-    virtual void                updateSettings() override;
+    virtual void                updateSettings() SETTINGS_OVERRIDE;
 
     bool                        mInitialized;
 
@@ -135,10 +139,9 @@ private:
 
     void                        parseFromLLSD(LLSD &data);
 
-    static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, F32 keyframe);
-    static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, F32 keyframe);
-
-    TrackBound_t                getBoundingEntries(CycleTrack_t &track, F32 keyframe);
+    static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);
+    static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);
+    TrackBound_t                    getBoundingEntries(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);
 };
 
 #endif

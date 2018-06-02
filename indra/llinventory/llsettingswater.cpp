@@ -67,11 +67,8 @@ const std::string LLSettingsWater::SETTING_LEGACY_SCALE_BELOW("scaleBelow");
 const std::string LLSettingsWater::SETTING_LEGACY_WAVE1_DIR("wave1Dir");
 const std::string LLSettingsWater::SETTING_LEGACY_WAVE2_DIR("wave2Dir");
 
-const LLUUID LLSettingsWater::DEFAULT_WATER_NORMAL_ID(DEFAULT_WATER_NORMAL);
-
 // *LAPRAS* Change when Agni
-const LLUUID LLSettingsWater::DEFAULT_ASSET_ID("ce4cfe94-700a-292c-7c22-a2d9201bd661");
-
+static const LLUUID DEFAULT_ASSET_ID("ce4cfe94-700a-292c-7c22-a2d9201bd661");
 
 //=========================================================================
 LLSettingsWater::LLSettingsWater(const LLSD &data) :
@@ -98,7 +95,7 @@ LLSD LLSettingsWater::defaults()
     dfltsetting[SETTING_FOG_MOD] = LLSD::Real(0.25f);
     dfltsetting[SETTING_FRESNEL_OFFSET] = LLSD::Real(0.5f);
     dfltsetting[SETTING_FRESNEL_SCALE] = LLSD::Real(0.3999);
-    dfltsetting[SETTING_NORMAL_MAP] = LLSD::UUID(DEFAULT_WATER_NORMAL_ID);
+    dfltsetting[SETTING_NORMAL_MAP] = LLSD::UUID(DEFAULT_WATER_NORMAL);
     dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f, 2.0f, 2.0f).getValue();
     dfltsetting[SETTING_SCALE_ABOVE] = LLSD::Real(0.0299f);
     dfltsetting[SETTING_SCALE_BELOW] = LLSD::Real(0.2000f);
@@ -168,7 +165,7 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 
 void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
-    LLSettingsWater::ptr_t other = std::static_pointer_cast<LLSettingsWater>(end);
+    LLSettingsWater::ptr_t other((LLSettingsWater*)end.get());
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
     
     replaceSettings(blenddata);
@@ -225,5 +222,15 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
     }
 
     return validation;
+}
+
+LLUUID LLSettingsWater::GetDefaultAssetId()
+{
+    return DEFAULT_ASSET_ID;
+}
+
+LLUUID LLSettingsWater::GetDefaultWaterNormalAssetId()
+{
+    return DEFAULT_WATER_NORMAL;
 }
 

@@ -66,7 +66,7 @@ namespace
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
 
     //---------------------------------------------------------------------
-    inline F32 get_wrapping_distance(F32 begin, F32 end)
+    inline LLSettingsBase::TrackPosition get_wrapping_distance(LLSettingsBase::TrackPosition begin, LLSettingsBase::TrackPosition end)
     {
         if (begin < end)
         {
@@ -74,13 +74,13 @@ namespace
         }
         else if (begin > end)
         {
-            return 1.0 - (begin - end);
+            return LLSettingsBase::TrackPosition(1.0) - (begin - end);
         }
 
         return 0;
     }
 
-    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, const LLSettingsBase::TrackPosition& key)
     {
         if (collection.empty())
             return collection.end();
@@ -95,7 +95,7 @@ namespace
         return it;
     }
 
-    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, const LLSettingsBase::TrackPosition& key)
     {
         if (collection.empty())
             return collection.end();
@@ -116,7 +116,7 @@ namespace
         return it;
     }
 
-    LLSettingsDay::TrackBound_t get_bounding_entries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)
+    LLSettingsDay::TrackBound_t get_bounding_entries(LLSettingsDay::CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe)
     {
         return LLSettingsDay::TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
     }
@@ -144,7 +144,7 @@ namespace
         }
 
 
-        void switchTrack(S32 trackno, F64) override
+        void switchTrack(S32 trackno, const LLSettingsBase::BlendFactor&) override
         {
             S32 use_trackno = selectTrackNumber(trackno);
 
@@ -159,16 +159,15 @@ namespace
             LLSettingsBase::Seconds now = getAdjustedNow() + LLEnvironment::TRANSITION_ALTITUDE;
             LLSettingsDay::TrackBound_t bounds = getBoundingEntries(now);
 
-            LLSettingsBase::ptr_t pendsetting = (*bounds.first).second->buildDerivedClone();
-            F64 targetpos = convertTimeToPosition(now) - (*bounds.first).first;
-            F64 targetspan = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+            LLSettingsBase::ptr_t pendsetting  = (*bounds.first).second->buildDerivedClone();
+            LLSettingsBase::TrackPosition targetpos  = convertTimeToPosition(now) - (*bounds.first).first;
+            LLSettingsBase::TrackPosition targetspan = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
-            F64 blendf = calculateBlend(targetpos, targetspan);
+            LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
             pendsetting->blend((*bounds.second).second, blendf);
 
-            reset(mTrackTransitionStart, pendsetting, LLEnvironment::TRANSITION_ALTITUDE.value());
+            reset(mTrackTransitionStart, pendsetting, LLEnvironment::TRANSITION_ALTITUDE);
         }
-
 
     protected:
         S32 selectTrackNumber(S32 trackno)
@@ -210,9 +209,9 @@ namespace
             return mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
         }
 
-        F64 convertTimeToPosition(LLSettingsBase::Seconds time)
+        LLSettingsBase::TrackPosition convertTimeToPosition(const LLSettingsBase::Seconds& time)
         {
-            F64 position = static_cast<F64>(fmod(time.value(), mCycleLength.value())) / static_cast<F64>(mCycleLength.value());
+            F64 position = fmod((F64)time, (F64)mCycleLength) / (F64)mCycleLength;
             return llclamp(position, 0.0, 1.0);
         }
 
@@ -223,11 +222,11 @@ namespace
         LLSettingsBase::Seconds     mCycleOffset;
         LLSettingsBase::ptr_t       mTrackTransitionStart;
 
-        void                        onFinishedSpan()
+        void onFinishedSpan()
         {
             LLSettingsDay::TrackBound_t next = getBoundingEntries(getAdjustedNow());
             LLSettingsBase::Seconds nextspan = getSpanTime(next);
-            reset((*next.first).second, (*next.second).second, nextspan.value());
+            reset((*next.first).second, (*next.second).second, nextspan);
         }
     };
 
@@ -241,10 +240,6 @@ const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 //*TODO* Change these when available on Agni (these are Damballah asset IDs).
-const LLUUID LLEnvironment::KNOWN_SKY_DEFAULT(LLSettingsSky::DEFAULT_ASSET_ID);
-const LLUUID LLEnvironment::KNOWN_WATER_DEFAULT(LLSettingsWater::DEFAULT_ASSET_ID);
-const LLUUID LLEnvironment::KNOWN_DAY_DEFAULT(LLSettingsDay::DEFAULT_ASSET_ID);
-
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("645d7475-19d6-d05c-6eb2-29eeacf76e06");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("68f5a7ec-2785-d9d8-be7c-cca93976759a");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("06420773-757b-4b7c-a1f9-85fceb2f7bd4");
@@ -1741,7 +1736,7 @@ void LLEnvironment::DayInstance::setSkyTrack(S32 trackno)
     mSkyTrack = trackno;
     if (mBlenderSky)
     {
-        mBlenderSky->switchTrack(trackno);
+        mBlenderSky->switchTrack(trackno, 0.0);
     }
 }
 
@@ -1803,7 +1798,7 @@ void LLEnvironment::DayInstance::animate()
     {
         mSky = LLSettingsVOSky::buildDefaultSky();
         mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, 1, mDayLength, mDayOffset);
-        mBlenderSky->switchTrack(mSkyTrack);
+        mBlenderSky->switchTrack(mSkyTrack, 0.0);
     }
 }
 
@@ -1869,7 +1864,7 @@ LLTrackBlenderLoopingManual::LLTrackBlenderLoopingManual(const LLSettingsBase::p
     }
 }
 
-F64 LLTrackBlenderLoopingManual::setPosition(F64 position)
+LLSettingsBase::BlendFactor LLTrackBlenderLoopingManual::setPosition(const LLSettingsBase::TrackPosition& position)
 {
     mPosition = llclamp(position, 0.0, 1.0);
 
@@ -1891,11 +1886,11 @@ F64 LLTrackBlenderLoopingManual::setPosition(F64 position)
     return LLSettingsBlender::setPosition(blendf);
 }
 
-void LLTrackBlenderLoopingManual::switchTrack(S32 trackno, F64 position)
+void LLTrackBlenderLoopingManual::switchTrack(S32 trackno, const LLSettingsBase::TrackPosition& position)
 {
     mTrackNo = trackno;
 
-    F64 useposition = (position < 0.0) ? mPosition : position;
+    LLSettingsBase::TrackPosition useposition = (position < 0.0) ? mPosition : position;
 
     setPosition(useposition);
 }

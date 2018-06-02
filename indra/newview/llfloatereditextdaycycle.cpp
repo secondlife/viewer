@@ -311,9 +311,9 @@ void LLFloaterEditExtDayCycle::onAddTrack()
 {
     // todo: 2.5% safety zone
     std::string sldr_key = mFramesSlider->getCurSlider();
-    F32 frame = mTimeSlider->getCurSliderValue();
+    LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     LLSettingsBase::ptr_t setting;
-    if (mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack).get() != NULL)
+    if (mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack) != nullptr)
     {
         return;
     }
@@ -322,13 +322,15 @@ void LLFloaterEditExtDayCycle::onAddTrack()
     {
         // scratch water should always have the current water settings.
         setting = mScratchWater->buildClone();
-        mEditDay->setWaterAtKeyframe(std::dynamic_pointer_cast<LLSettingsWater>(setting), frame);
+        LLSettingsWater::ptr_t water((LLSettingsWater*)setting.get());
+        mEditDay->setWaterAtKeyframe(water, frame);
     }
     else
     {
         // scratch sky should always have the current sky settings.
         setting = mScratchSky->buildClone();
-        mEditDay->setSkyAtKeyframe(std::dynamic_pointer_cast<LLSettingsSky>(setting), frame, mCurrentTrack);
+        LLSettingsSky::ptr_t sky((LLSettingsSky*)setting.get());
+        mEditDay->setSkyAtKeyframe(sky, frame, mCurrentTrack);
     }
 
     addSliderFrame(frame, setting);
@@ -657,7 +659,7 @@ void LLFloaterEditExtDayCycle::setSkyTabsEnabled(BOOL enable)
 
 void LLFloaterEditExtDayCycle::updateButtons()
 {
-    F32 frame = mTimeSlider->getCurSliderValue();
+    LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     LLSettingsBase::ptr_t settings = mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack);
     bool can_add = settings.get() == NULL;
     mAddFrameButton->setEnabled(can_add);
@@ -744,7 +746,8 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
     {
         LL_DEBUGS() << "Removing frame from " << iter->second.mFrame << LL_ENDL;
         mSliderKeyMap.erase(iter);
-        mEditDay->removeTrackKeyframe(mCurrentTrack, iter->second.mFrame);
+        LLSettingsBase::Seconds seconds(iter->second.mFrame);
+        mEditDay->removeTrackKeyframe(mCurrentTrack, seconds);
     }
 
     mLastFrameSlider = mFramesSlider->getCurSlider();
@@ -852,7 +855,7 @@ void LLFloaterEditExtDayCycle::syncronizeTabs()
 {
     // This should probably get moved into "updateTabs"
 
-    F32 frame = mTimeSlider->getCurSliderValue();
+    LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     bool canedit(false);
 
     LLSettingsWater::ptr_t psettingWater;

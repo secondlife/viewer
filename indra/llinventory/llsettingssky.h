@@ -88,13 +88,7 @@ public:
 
     static const std::string SETTING_LEGACY_HAZE;
 
-    static const LLUUID DEFAULT_SUN_ID;
-    static const LLUUID DEFAULT_MOON_ID;
-    static const LLUUID DEFAULT_CLOUD_ID;
-
-    static const LLUUID DEFAULT_ASSET_ID;
-
-    typedef std::shared_ptr<LLSettingsSky> ptr_t;
+    typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
 
     //---------------------------------------------------------------------
     LLSettingsSky(const LLSD &data);
@@ -103,11 +97,11 @@ public:
     virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
-    virtual std::string getSettingType() const override { return std::string("sky"); }
-    virtual LLSettingsType::type_e getSettingTypeValue() const override { return LLSettingsType::ST_SKY; }
+    virtual std::string getSettingType() const SETTINGS_OVERRIDE { return std::string("sky"); }
+    virtual LLSettingsType::type_e getSettingTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_SKY; }
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
     
     static LLSD defaults();
 
@@ -374,7 +368,7 @@ public:
     virtual void                loadTextures() { };
 
     //=====================================================================
-    virtual validation_list_t getValidationList() const override;
+    virtual validation_list_t getValidationList() const SETTINGS_OVERRIDE;
     static validation_list_t validationList();
 
     static LLSD translateLegacySettings(const LLSD& legacy);
@@ -415,7 +409,9 @@ public:
     LLColor3  getSunDiffuse() const;
     LLColor4  getTotalAmbient() const;
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
+
+    static LLUUID GetDefaultAssetId();
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -424,13 +420,13 @@ protected:
 
     LLSettingsSky();
 
-    virtual stringset_t getSlerpKeys() const override;
-    virtual stringset_t getSkipInterpolateKeys() const override;
-    virtual void    updateSettings() override;
+    virtual stringset_t getSlerpKeys() const SETTINGS_OVERRIDE;
+    virtual stringset_t getSkipInterpolateKeys() const SETTINGS_OVERRIDE;
+    virtual void    updateSettings() SETTINGS_OVERRIDE;
 
 private:
-    mutable bool mPositionsDirty = true;
-    mutable bool mLightingDirty  = true;
+    mutable bool mPositionsDirty;
+    mutable bool mLightingDirty;
 
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();

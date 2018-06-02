@@ -543,7 +543,7 @@ void LLCircuitData::checkPeriodTime()
 		mBytesOutLastPeriod	= mBytesOutThisPeriod;
 		mBytesInThisPeriod	= S32Bytes(0);
 		mBytesOutThisPeriod	= S32Bytes(0);
-		mLastPeriodLength	= period_length;
+		mLastPeriodLength	= F32Seconds::convert(period_length);
 
 		mPeriodTime = mt_sec;
 	}
@@ -1378,8 +1378,8 @@ F32Milliseconds LLCircuitData::getPingInTransitTime()
 
 	if (mPingsInTransit)
 	{
-		time_since_ping_was_sent =  ((mPingsInTransit*mHeartbeatInterval - F32Seconds(1)) 
-			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime));
+		time_since_ping_was_sent =  F32Milliseconds::convert(((mPingsInTransit*mHeartbeatInterval - F32Seconds(1)) 
+			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime)));
 	}
 
 	return time_since_ping_was_sent;

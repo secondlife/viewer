@@ -45,8 +45,14 @@
 
 #include "llinventorysettings.h"
 
+#define PTR_NAMESPACE     std
+#define SETTINGS_OVERRIDE override
+
+//#define PTR_NAMESPACE boost
+//#define SETTINGS_OVERRIDE
+
 class LLSettingsBase : 
-    public std::enable_shared_from_this<LLSettingsBase>,
+    public PTR_NAMESPACE::enable_shared_from_this<LLSettingsBase>,
     private boost::noncopyable
 {
     friend class LLEnvironment;
@@ -56,6 +62,8 @@ class LLSettingsBase :
 
 public:
     typedef F64Seconds Seconds;
+    typedef F64        BlendFactor;
+    typedef F64        TrackPosition;
 
     static const std::string SETTING_ID;
     static const std::string SETTING_NAME;
@@ -64,7 +72,7 @@ public:
 
     typedef std::map<std::string, S32>  parammapping_t;
 
-    typedef std::shared_ptr<LLSettingsBase> ptr_t;
+    typedef PTR_NAMESPACE::shared_ptr<LLSettingsBase> ptr_t;
 
     virtual ~LLSettingsBase() { };
 
@@ -107,10 +115,15 @@ public:
 
     //---------------------------------------------------------------------
     // 
-    inline void setValue(const std::string &name, const LLSD &value)
+    inline void setLLSD(const std::string &name, const LLSD &value)
     {
         mSettings[name] = value;
         mDirty = true;
+    }
+
+    inline void setValue(const std::string &name, const LLSD &value)
+    {
+        setLLSD(name, value);
     }
 
     inline LLSD getValue(const std::string &name, const LLSD &deflt = LLSD()) const
@@ -118,6 +131,11 @@ public:
         if (!mSettings.has(name))
             return deflt;
         return mSettings[name];
+    }
+
+    inline void setValue(const std::string &name, F32 v)
+    {
+        setLLSD(name, LLSD::Real(v));
     }
 
     inline void setValue(const std::string &name, const LLVector2 &value)
@@ -150,7 +168,7 @@ public:
         setValue(name, value.getValue());
     }
 
-    inline F64 getBlendFactor() const
+    inline BlendFactor getBlendFactor() const
     {
         return mBlendedFactor;
     }
@@ -165,7 +183,7 @@ public:
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
 
-    virtual void    blend(const ptr_t &end, F64 blendf) = 0;
+    virtual void    blend(const ptr_t &end, BlendFactor blendf) = 0;
 
     virtual bool    validate();
 
@@ -220,8 +238,8 @@ protected:
     typedef std::set<std::string>   stringset_t;
     
     // combining settings objects. Customize for specific setting types
-    virtual void lerpSettings(const LLSettingsBase &other, F64 mix);
-    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, F64 mix) const;
+    virtual void lerpSettings(const LLSettingsBase &other, BlendFactor mix);
+    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, BlendFactor mix) const;
 
     /// when lerping between settings, some may require special handling.  
     /// Get a list of these key to be skipped by the default settings lerp.
@@ -248,7 +266,7 @@ protected:
 
     LLSD        cloneSettings() const;
 
-    inline void setBlendFactor(F64 blendfactor) 
+    inline void setBlendFactor(BlendFactor blendfactor) 
     {
         mBlendedFactor = blendfactor;
     }
@@ -256,18 +274,18 @@ protected:
     void markDirty() { mDirty = true; }
 
 private:
-    bool        mDirty = true;
+    bool        mDirty;
 
     LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
 
-    F64         mBlendedFactor;
+    BlendFactor mBlendedFactor;
 };
 
 
-class LLSettingsBlender : public std::enable_shared_from_this<LLSettingsBlender>
+class LLSettingsBlender : public PTR_NAMESPACE::enable_shared_from_this<LLSettingsBlender>
 {
 public:
-    typedef std::shared_ptr<LLSettingsBlender>      ptr_t;
+    typedef PTR_NAMESPACE::shared_ptr<LLSettingsBlender>      ptr_t;
     typedef boost::signals2::signal<void(const ptr_t )> finish_signal_t;
     typedef boost::signals2::connection     connection_t;
 
@@ -287,7 +305,7 @@ public:
 
     virtual ~LLSettingsBlender() {}
 
-    virtual void            reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 /*span*/ = 1.0)
+    virtual void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& span)
     {
         // note: the 'span' reset parameter is unused by the base class.
         if (!mInitial)
@@ -322,10 +340,10 @@ public:
         return mOnFinished.connect(onfinished);
     }
 
-    virtual void            update(F64 blendf);
-    virtual F64             setPosition(F64 blendf);
+    virtual void            update(const LLSettingsBase::BlendFactor& blendf);
+    virtual F64             setPosition(const LLSettingsBase::TrackPosition& position);
 
-    virtual void            switchTrack(S32 trackno, F64 position = -1.0) { /*NoOp*/ }
+    virtual void            switchTrack(S32 trackno, const LLSettingsBase::BlendFactor& position) { /*NoOp*/ }
 
 protected:
     void                    triggerComplete();
@@ -341,7 +359,7 @@ class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 {
 public:
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
-        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64Seconds seconds) :
+        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, LLSettingsBase::Seconds seconds) :
         LLSettingsBlender(target, initsetting, endsetting),
         mBlendSpan(seconds),
         mLastUpdate(0.0f),
@@ -355,20 +373,20 @@ public:
     {
     }
 
-    virtual void            reset(LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, F64 span = 1.0) override
+    virtual void reset(LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& span) SETTINGS_OVERRIDE
     {
         LLSettingsBlender::reset(initsetting, endsetting, span);
 
-        mBlendSpan.value(span);
-        mTimeStart.value(LLDate::now().secondsSinceEpoch());
+        mBlendSpan  = span;
+        mTimeStart  = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
-        mTimeSpent.value(0.0f);
+        mTimeSpent  = LLSettingsBase::Seconds(0.0);
     }
 
-    virtual void            update(F64 timedelta) override;
+    virtual void advance(const LLSettingsBase::Seconds& timedelta);
 
 protected:
-    F64                     calculateBlend(F64 spanpos, F64 spanlen) const;
+    LLSettingsBase::BlendFactor calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const;
 
     LLSettingsBase::Seconds mBlendSpan;
     LLSettingsBase::Seconds mLastUpdate;

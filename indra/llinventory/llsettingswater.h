@@ -46,11 +46,7 @@ public:
     static const std::string SETTING_WAVE1_DIR;
     static const std::string SETTING_WAVE2_DIR;
 
-    static const LLUUID DEFAULT_WATER_NORMAL_ID;
-
-    static const LLUUID DEFAULT_ASSET_ID;
-
-    typedef std::shared_ptr<LLSettingsWater> ptr_t;
+    typedef PTR_NAMESPACE::shared_ptr<LLSettingsWater> ptr_t;
 
     //---------------------------------------------------------------------
     LLSettingsWater(const LLSD &data);
@@ -59,11 +55,11 @@ public:
     virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
-    virtual std::string     getSettingType() const override { return std::string("water"); }
-    virtual LLSettingsType::type_e  getSettingTypeValue() const override { return LLSettingsType::ST_WATER; }
+    virtual std::string     getSettingType() const SETTINGS_OVERRIDE { return std::string("water"); }
+    virtual LLSettingsType::type_e  getSettingTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_WATER; }
 
     // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) override;
+    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     static LLSD defaults();
 
@@ -208,12 +204,15 @@ public:
     }
 
 
-    virtual validation_list_t getValidationList() const override;
+    virtual validation_list_t getValidationList() const SETTINGS_OVERRIDE;
     static validation_list_t validationList();
 
     static LLSD         translateLegacySettings(LLSD legacy);
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() override { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
+
+    static LLUUID GetDefaultAssetId();
+    static LLUUID GetDefaultWaterNormalAssetId();
 
 protected:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
@@ -231,11 +230,11 @@ protected:
 
     LLSettingsWater();
 
-    LLVector4           mWaterPlane;
-    F32                 mWaterFogKS;
+    LLVector4 mWaterPlane;
+    F32       mWaterFogKS;
 
 private:
-    LLUUID              mNextNormalMapID;
+    LLUUID    mNextNormalMapID;
 };
 
 #endif

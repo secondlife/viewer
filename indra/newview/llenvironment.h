@@ -56,9 +56,6 @@ public:
     static const F32Seconds     TRANSITION_SLOW;
     static const F32Seconds     TRANSITION_ALTITUDE;
 
-    static const LLUUID         KNOWN_SKY_DEFAULT;
-    static const LLUUID         KNOWN_WATER_DEFAULT;
-    static const LLUUID         KNOWN_DAY_DEFAULT;
     static const LLUUID         KNOWN_SKY_SUNRISE;
     static const LLUUID         KNOWN_SKY_MIDDAY;
     static const LLUUID         KNOWN_SKY_SUNSET;
@@ -413,8 +410,8 @@ class LLTrackBlenderLoopingManual : public LLSettingsBlender
 public:
     LLTrackBlenderLoopingManual(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno);
 
-    F64                         setPosition(F64 position) override;
-    virtual void                switchTrack(S32 trackno, F64 position) override;
+    F64                         setPosition(const LLSettingsBase::TrackPosition& position) override;
+    virtual void                switchTrack(S32 trackno, const LLSettingsBase::TrackPosition& position) override;
     S32                         getTrack() const { return mTrackNo; }
 
     typedef std::shared_ptr<LLTrackBlenderLoopingManual> ptr_t;

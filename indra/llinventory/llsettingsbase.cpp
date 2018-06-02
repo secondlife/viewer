@@ -35,7 +35,7 @@
 //=========================================================================
 namespace
 {
-    const F64 BREAK_POINT = 0.5;
+    const LLSettingsBase::BlendFactor BREAK_POINT = 0.5;
 }
 
 //=========================================================================
@@ -272,7 +272,8 @@ size_t LLSettingsBase::getHash() const
     LLSD hash_settings = llsd_shallow(getSettings(), 
         LLSDMap(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false)("*", true));
 
-    return boost::hash<LLSD>{}(hash_settings);
+    boost::hash<LLSD> hasher;
+    return hasher(hash_settings);
 }
 
 bool LLSettingsBase::validate()
@@ -340,17 +341,35 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
     validated.insert(validateType.getName());
 
     // Fields for specific settings.
-    for (auto &test: validations)
+    for (validation_list_t::iterator itv = validations.begin(); itv != validations.end(); ++itv)
     {
-        if (!test.verify(settings))
+#ifdef VALIDATION_DEBUG
+        LLSD oldvalue;
+        if (settings.has((*itv).getName()))
+        {
+            oldvalue = llsd_clone(mSettings[(*itv).getName()]);
+        }
+#endif
+
+        if (!(*itv).verify(settings))
         {
             std::stringstream errtext;
 
-            errtext << "Settings LLSD fails validation and could not be corrected for '" << test.getName() << "'!\n";
+            errtext << "Settings LLSD fails validation and could not be corrected for '" << (*itv).getName() << "'!\n";
             errors.append( errtext.str() );
             isValid = false;
         }
-        validated.insert(test.getName());
+        validated.insert((*itv).getName());
+
+#ifdef VALIDATION_DEBUG
+        if (!oldvalue.isUndefined())
+        {
+            if (!compare_llsd(settings[(*itv).getName()], oldvalue))
+            {
+                LL_WARNS("SETTINGS") << "Setting '" << (*itv).getName() << "' was changed: " << oldvalue << " -> " << settings[(*itv).getName()] << LL_ENDL;
+            }
+        }
+#endif
     }
 
     // strip extra entries
@@ -366,9 +385,9 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         }
     }
 
-    for (const std::string &its: strip)
+    for (stringset_t::iterator its = strip.begin(); its != strip.end(); ++its)
     {
-        settings.erase(its);
+        settings.erase(*its);
     }
 
     return LLSDMap("success", LLSD::Boolean(isValid))
@@ -533,13 +552,14 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 }
 
 //=========================================================================
-void LLSettingsBlender::update(F64 blendf)
+void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 {
     setPosition(blendf);
 }
 
-F64 LLSettingsBlender::setPosition(F64 blendf)
+F64 LLSettingsBlender::setPosition(const LLSettingsBase::TrackPosition& blendf_in)
 {
+    LLSettingsBase::TrackPosition blendf = blendf_in;
     if (blendf >= 1.0)
     {
         triggerComplete();
@@ -565,14 +585,14 @@ void LLSettingsBlender::triggerComplete()
 }
 
 //-------------------------------------------------------------------------
-F64 LLSettingsBlenderTimeDelta::calculateBlend(F64 spanpos, F64 spanlen) const
+LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const
 {
-    return fmod(spanpos, spanlen) / spanlen;
+    return LLSettingsBase::BlendFactor(fmod((F64)spanpos, (F64)spanlen) / (F64)spanlen);
 }
 
-void LLSettingsBlenderTimeDelta::update(F64 timedelta)
+void LLSettingsBlenderTimeDelta::advance(const LLSettingsBase::Seconds& timedelta)
 {
-    mTimeSpent += LLSettingsBase::Seconds(timedelta);
+    mTimeSpent += timedelta;
 
     if (mTimeSpent > mBlendSpan)
     {
@@ -580,8 +600,7 @@ void LLSettingsBlenderTimeDelta::update(F64 timedelta)
         return;
     }
 
-    F64 blendf = calculateBlend(mTimeSpent.value(), mBlendSpan.value());
-    // Note no clamp here.  
+    LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
 
     setPosition(blendf);
 }

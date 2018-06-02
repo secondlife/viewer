@@ -42,7 +42,22 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
 
-    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    template<typename T>
+    inline T get_wrapping_distance(T begin, T end)
+    {
+        if (begin < end)
+        {
+            return end - begin;
+        }
+        else if (begin > end)
+        {
+            return 1.0 - (begin - end);
+        }
+
+        return 0;
+    }
+
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, const LLSettingsBase::TrackPosition& key)
     {
         if (collection.empty())
             return collection.end();
@@ -57,7 +72,7 @@ namespace
         return it;
     }
 
-    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, F32 key)
+    LLSettingsDay::CycleTrack_t::iterator get_wrapping_atbefore(LLSettingsDay::CycleTrack_t &collection, const LLSettingsBase::TrackPosition& key)
     {
         if (collection.empty())
             return collection.end();
@@ -102,7 +117,7 @@ const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
 const S32 LLSettingsDay::FRAME_MAX(56);
 
 // *LAPRAS* Change when Agni
-const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("94d296c2-6e05-963c-6b62-671199121dbb");
+static const LLUUID DEFAULT_ASSET_ID("94d296c2-6e05-963c-6b62-671199121dbb");
 
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
@@ -136,20 +151,20 @@ LLSD LLSettingsDay::getSettings() const
 
     LLSD tracks(LLSD::emptyArray());
     
-    for (auto &track: mDayTracks)
+    for (CycleList_t::const_iterator itTrack = mDayTracks.begin(); itTrack != mDayTracks.end(); ++itTrack)
     {
         LLSD trackout(LLSD::emptyArray());
 
-        for (auto &frame: track)
+        for (CycleTrack_t::const_iterator itFrame = (*itTrack).begin(); itFrame != (*itTrack).end(); ++itFrame)
         {
-            F32 frame_time = frame.first;
-            LLSettingsBase::ptr_t data = frame.second;
+            F32 frame = (*itFrame).first;
+            LLSettingsBase::ptr_t data = (*itFrame).second;
             size_t datahash = data->getHash();
 
             std::stringstream keyname;
             keyname << datahash;
 
-            trackout.append(LLSD(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(frame_time))(SETTING_KEYNAME, keyname.str())));
+            trackout.append(LLSD(LLSDMap(SETTING_KEYKFRAME, LLSD::Real(frame))(SETTING_KEYNAME, keyname.str())));
             in_use[keyname.str()] = data;
         }
         tracks.append(trackout);
@@ -157,12 +172,12 @@ LLSD LLSettingsDay::getSettings() const
     settings[SETTING_TRACKS] = tracks;
 
     LLSD frames(LLSD::emptyMap());
-    for (auto &used_frame: in_use)
+    for (std::map<std::string, LLSettingsBase::ptr_t>::iterator itFrame = in_use.begin(); itFrame != in_use.end(); ++itFrame)
     {
-        LLSD framesettings = llsd_clone(used_frame.second->getSettings(),
+        LLSD framesettings = llsd_clone((*itFrame).second->getSettings(),
             LLSDMap("*", true)(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false));
 
-        frames[used_frame.first] = framesettings;
+        frames[(*itFrame).first] = framesettings;
     }
     settings[SETTING_FRAMES] = frames;
 
@@ -212,8 +227,9 @@ bool LLSettingsDay::initialize()
         LLSD curtrack = tracks[i];
         for (LLSD::array_const_iterator it = curtrack.beginArray(); it != curtrack.endArray(); ++it)
         {
-            F32 keyframe = (*it)[SETTING_KEYKFRAME].asReal();
-            keyframe = llclamp(keyframe, 0.0f, 1.0f);
+            LLSettingsBase::Seconds keyframe = LLSettingsBase::Seconds((*it)[SETTING_KEYKFRAME].asReal());
+            // is this supposed to be a blend factor or a time value?
+            //keyframe = llclamp((F32)keyframe, 0.0f, 1.0f);
             LLSettingsBase::ptr_t setting;
 
             if ((*it).has(SETTING_KEYNAME))
@@ -223,7 +239,7 @@ bool LLSettingsDay::initialize()
                     setting = used[(*it)[SETTING_KEYNAME]];
                     if (setting && setting->getSettingType() != "water")
                     {
-                        LL_WARNS("SETTINGS", "DAYCYCLE") << "Water track referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        LL_WARNS("DAYCYCLE") << "Water track referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
                         setting.reset();
                     }
                 }
@@ -232,7 +248,7 @@ bool LLSettingsDay::initialize()
                     setting = used[(*it)[SETTING_KEYNAME]];
                     if (setting && setting->getSettingType() != "sky")
                     {
-                        LL_WARNS("SETTINGS", "DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        LL_WARNS("DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
                         setting.reset();
                     }
                 }
@@ -296,7 +312,6 @@ LLSD LLSettingsDay::defaults()
     dfltsetting[SETTING_FRAMES] = frames;
 
     dfltsetting[SETTING_TYPE] = "daycycle";
-
     return dfltsetting;
 }
 
@@ -475,7 +490,6 @@ void LLSettingsDay::startDayCycle()
         LL_WARNS("DAYCYCLE") << "Attempt to start day cycle on uninitialized object." << LL_ENDL;
         return;
     }
-
 }
 
 
@@ -497,15 +511,15 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
 
     keyframes.reserve(track.size());
 
-    for (auto &frame: track)
+    for (CycleTrack_t::iterator it = track.begin(); it != track.end(); ++it)
     {
-        keyframes.push_back(frame.first);
+        keyframes.push_back((*it).first);
     }
 
     return keyframes;
 }
 
-bool LLSettingsDay::moveTrackKeyframe(S32 trackno, F32 old_frame, F32 new_frame)
+bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::Seconds& old_frame, const LLSettingsBase::Seconds& new_frame)
 {
     if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
@@ -524,7 +538,9 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, F32 old_frame, F32 new_frame)
     {
         LLSettingsBase::ptr_t base = iter->second;
         track.erase(iter);
-        track[llclamp(new_frame, 0.0f, 1.0f)] = base;
+        // why are we clamping a time value as if its a blend factor
+        //track[llclamp(new_frame, 0.0f, 1.0f)] = base;
+        track[new_frame] = base;
         return true;
     }
 
@@ -532,7 +548,7 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, F32 old_frame, F32 new_frame)
 
 }
 
-bool LLSettingsDay::removeTrackKeyframe(S32 trackno, F32 frame)
+bool LLSettingsDay::removeTrackKeyframe(S32 trackno, const LLSettingsBase::Seconds& frame)
 {
     if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
@@ -552,17 +568,18 @@ bool LLSettingsDay::removeTrackKeyframe(S32 trackno, F32 frame)
     return false;
 }
 
-void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, F32 keyframe)
+void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, const LLSettingsBase::Seconds& keyframe)
 {
     setSettingsAtKeyframe(water, keyframe, TRACK_WATER);
 }
 
-LLSettingsWater::ptr_t LLSettingsDay::getWaterAtKeyframe(F32 keyframe) const
+LLSettingsWater::ptr_t LLSettingsDay::getWaterAtKeyframe(const LLSettingsBase::Seconds& keyframe) const
 {
-    return std::dynamic_pointer_cast<LLSettingsWater>(getSettingsAtKeyframe(keyframe, TRACK_WATER));
+    LLSettingsBase* p = getSettingsAtKeyframe(keyframe, TRACK_WATER).get();
+    return LLSettingsWater::ptr_t((LLSettingsWater*)p);
 }
 
-void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, F32 keyframe, S32 track)
+void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, const LLSettingsBase::Seconds& keyframe, S32 track)
 {
     if ((track < 1) || (track >= TRACK_MAX))
     {
@@ -573,18 +590,18 @@ void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, F32 keyfra
     setSettingsAtKeyframe(sky, keyframe, track);
 }
 
-LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(F32 keyframe, S32 track) const
+LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const
 {
     if ((track < 1) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
         return LLSettingsSky::ptr_t();
     }
-
-    return std::dynamic_pointer_cast<LLSettingsSky>(getSettingsAtKeyframe(keyframe, track));
+    LLSettingsBase* p = getSettingsAtKeyframe(keyframe, track).get();
+    return LLSettingsSky::ptr_t((LLSettingsSky*)p);
 }
 
-void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, F32 keyframe, S32 track)
+void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::Seconds& keyframe, S32 track)
 {
     if ((track < 0) || (track >= TRACK_MAX))
     {
@@ -592,11 +609,12 @@ void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings,
         return;
     }
 
-    mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = settings;
+    //mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = settings;
+    mDayTracks[track][keyframe] = settings;
     setDirtyFlag(true);
 }
 
-LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(F32 keyframe, S32 track) const
+LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const
 {
     if ((track < 0) || (track >= TRACK_MAX))
     {
@@ -614,19 +632,24 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(F32 keyframe, S32 tra
     return LLSettingsBase::ptr_t();
 }
 
-F32 LLSettingsDay::getUpperBoundFrame(S32 track, F32 keyframe)
+LLSettingsBase::TrackPosition LLSettingsDay::getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe)
 {
     return get_wrapping_atafter(mDayTracks[track], keyframe)->first;
 }
 
-F32 LLSettingsDay::getLowerBoundFrame(S32 track, F32 keyframe)
+LLSettingsBase::TrackPosition LLSettingsDay::getLowerBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe)
 {
     return get_wrapping_atbefore(mDayTracks[track], keyframe)->first;
 }
 
-LLSettingsDay::TrackBound_t LLSettingsDay::getBoundingEntries(LLSettingsDay::CycleTrack_t &track, F32 keyframe)
+LLSettingsDay::TrackBound_t LLSettingsDay::getBoundingEntries(LLSettingsDay::CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe)
 {
     return TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
+}
+
+LLUUID LLSettingsDay::GetDefaultAssetId()
+{
+    return DEFAULT_ASSET_ID;
 }
 
 //=========================================================================
