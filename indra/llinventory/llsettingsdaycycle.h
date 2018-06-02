@@ -51,9 +51,6 @@ public:
     static const std::string    SETTING_TRACKS;
     static const std::string    SETTING_FRAMES;
 
-    // 32-bit as LLSD only supports that width at present
-    typedef S32Seconds Seconds;
-
     static const Seconds MINIMUM_DAYLENGTH;
     static const Seconds DEFAULT_DAYLENGTH;
     static const Seconds MAXIMUM_DAYLENGTH;
