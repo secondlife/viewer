@@ -407,7 +407,16 @@ bool LLFeatureManager::loadGPUClass()
 	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
 		//get memory bandwidth from benchmark
-		F32 gbps = gpu_benchmark();
+		F32 gbps;
+		try
+		{
+			gbps = gpu_benchmark();
+		}
+		catch (const std::exception& e)
+		{
+			gbps = -1.f;
+			LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
+		}
 	
 		if (gbps < 0.f)
 		{ //couldn't bench, use GLVersion
