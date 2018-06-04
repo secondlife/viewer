@@ -25,6 +25,7 @@ set(llmath_SOURCE_FILES
     lloctree.cpp
     llperlin.cpp
     llquaternion.cpp
+    llrigginginfo.cpp
     llrect.cpp
     llsphere.cpp
     llvector4a.cpp
@@ -71,6 +72,7 @@ set(llmath_HEADER_FILES
     llquaternion2.h
     llquaternion2.inl
     llrect.h
+    llrigginginfo.h
     llsimdmath.h
     llsimdtypes.h
     llsimdtypes.inl

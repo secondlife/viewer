@@ -49,6 +49,7 @@
 #include "lldriverparam.h"
 #include "llviewertexlayer.h"
 #include "material_codes.h"		// LL_MCODE_END
+#include "llrigginginfo.h"
 #include "llviewerstats.h"
 #include "llvovolume.h"
 #include "llavatarrendernotifier.h"
@@ -216,7 +217,12 @@ public:
     void                    getAttachmentOverrideNames(std::set<std::string>& pos_names, 
                                                        std::set<std::string>& scale_names) const;
 
+    // virtual
+    void 					updateRiggingInfo();
+
     std::set<LLUUID>		mActiveOverrideMeshes;
+
+    
     
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);

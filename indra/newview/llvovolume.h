@@ -282,6 +282,9 @@ public:
     virtual void onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
     virtual void afterReparent();
 
+    //virtual
+    void updateRiggingInfo();
+    
     // Functions that deal with media, or media navigation
     
     // Update this object's media data with the given media data array

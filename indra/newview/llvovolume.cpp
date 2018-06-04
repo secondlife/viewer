@@ -3565,6 +3565,21 @@ void LLVOVolume::afterReparent()
 }
 
 //----------------------------------------------------------------------------
+void LLVOVolume::updateRiggingInfo()
+{
+    if (isRiggedMesh())
+    {
+        const LLMeshSkinInfo* skin = getSkinInfo();
+        LLVOAvatar *avatar = getAvatar();
+        if (skin && avatar)
+        {
+            LLSkinningUtil::initIsRiggedTo(skin, avatar, mJointRiggingInfoTab);
+        }
+        // AXON add bbox processing from volume faces.
+    }
+}
+
+//----------------------------------------------------------------------------
 
 void LLVOVolume::generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point)
 {

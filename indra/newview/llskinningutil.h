@@ -31,6 +31,9 @@ class LLVOAvatar;
 class LLMeshSkinInfo;
 class LLMatrix4a;
 
+#include "llrigginginfo.h"
+
+// This should probably just be a namespace
 class LLSkinningUtil
 {
 public:
@@ -42,6 +45,7 @@ public:
     static void checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
     static void scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
     static void getPerVertexSkinMatrix(F32* weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat, U32 max_joints);
+    static void initIsRiggedTo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, joint_rig_info_tab& rig_info_tab); 
 };
 
 #endif

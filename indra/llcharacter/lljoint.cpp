@@ -97,46 +97,6 @@ void LLVector3OverrideMap::clear()
 }
 
 //-----------------------------------------------------------------------------
-// LLJointRiggingInfo
-//-----------------------------------------------------------------------------
-LLJointRiggingInfo::LLJointRiggingInfo()
-{
-    mRiggedExtents[0].clear();
-    mRiggedExtents[1].clear();
-    mIsRiggedTo = false;
-}
-
-bool LLJointRiggingInfo::isRiggedTo() const
-{
-    return mIsRiggedTo;
-}
-
-void LLJointRiggingInfo::setIsRiggedTo(bool val)
-{
-    mIsRiggedTo = val;
-}
-    
-LLVector4a *LLJointRiggingInfo::getRiggedExtents()
-{
-    return mRiggedExtents;
-}
-
-const LLVector4a *LLJointRiggingInfo::getRiggedExtents() const
-{
-    return mRiggedExtents;
-}
-
-// Combine two rigging info states.
-// - isRiggedTo if either of the source infos are rigged to
-// - box is union of the two sources
-void LLJointRiggingInfo::merge(const LLJointRiggingInfo& other)
-{
-    mIsRiggedTo = mIsRiggedTo || other.mIsRiggedTo;
-    update_min_max(mRiggedExtents[0], mRiggedExtents[1], other.mRiggedExtents[0]);
-    update_min_max(mRiggedExtents[0], mRiggedExtents[1], other.mRiggedExtents[1]);
-}
-
-//-----------------------------------------------------------------------------
 // LLJoint()
 // Class Constructor
 //-----------------------------------------------------------------------------
@@ -635,19 +595,6 @@ void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
             LL_DEBUGS("Avatar") << "  POS " << highlight << "" << (*dit) << " default " << mDefaultPosition << LL_ENDL;
         }
 	}
-}
-
-//--------------------------------------------------------------------
-// getRiggingInfo()
-//--------------------------------------------------------------------
-LLJointRiggingInfo& LLJoint::getRiggingInfo()
-{
-    return mRiggingInfo;
-}
-
-const LLJointRiggingInfo& LLJoint::getRiggingInfo() const
-{
-    return mRiggingInfo;
 }
 
 //--------------------------------------------------------------------

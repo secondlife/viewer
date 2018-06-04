@@ -70,23 +70,6 @@ private:
 	map_type m_map;
 };
 
-// Stores information related to associated rigged mesh vertices
-// Extents are in joint space
-// isRiggedTo is based on the state of all currently associated rigged meshes
-class LLJointRiggingInfo
-{
-public:
-    LLJointRiggingInfo();
-    bool isRiggedTo() const;
-    void setIsRiggedTo(bool val);
-    LLVector4a *getRiggedExtents();
-    const LLVector4a *getRiggedExtents() const;
-    void merge(const LLJointRiggingInfo& other);
-private:
-	LL_ALIGN_16(LLVector4a mRiggedExtents[2]);
-    bool mIsRiggedTo;
-};
-
 inline bool operator==(const LLVector3OverrideMap& a, const LLVector3OverrideMap& b)
 {
     return a.getMap() == b.getMap();
@@ -175,11 +158,6 @@ public:
 	LLVector3OverrideMap m_attachmentScaleOverrides;
 	LLVector3 m_scaleBeforeOverrides;
 
-    // Rigging Info
-    LLJointRiggingInfo mRiggingInfo;
-    LLJointRiggingInfo& getRiggingInfo();
-    const LLJointRiggingInfo& getRiggingInfo() const;
-    
 	void updatePos(const std::string& av_info);
 	void updateScale(const std::string& av_info);
 

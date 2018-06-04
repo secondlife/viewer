@@ -216,3 +216,28 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
     llassert(valid_weights);
 }
 
+//static
+void LLSkinningUtil::initIsRiggedTo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, joint_rig_info_tab& rig_info_tab) 
+{
+    S32 rigged_count = 0;
+    rig_info_tab.resize(LL_CHARACTER_MAX_ANIMATED_JOINTS);
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        LLJoint *joint = NULL;
+        if (skin->mJointNums[j] == -1)
+        {
+            joint = avatar->getJoint(skin->mJointNames[j]);
+            if (joint)
+            {
+                skin->mJointNums[j] = joint->getJointNum();
+            }
+        }
+        S32 joint_num = skin->mJointNums[j];
+        if (joint_num != -1)
+        {
+            rig_info_tab[joint_num].setIsRiggedTo(true);
+            rigged_count++;
+        }
+    }
+    //LL_INFOS() << "rigged_count " << rigged_count << LL_ENDL;
+}

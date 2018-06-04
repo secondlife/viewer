@@ -42,6 +42,7 @@
 #include "v3math.h"
 #include "llvertexbuffer.h"
 #include "llbbox.h"
+#include "llrigginginfo.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -876,6 +877,10 @@ public:
 	void setLastUpdateType(EObjectUpdateType last_update_type);
 	BOOL getLastUpdateCached() const;
 	void setLastUpdateCached(BOOL last_update_cached);
+
+    virtual void updateRiggingInfo() {}
+
+    joint_rig_info_tab mJointRiggingInfoTab;
 
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
