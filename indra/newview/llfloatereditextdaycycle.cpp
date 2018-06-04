@@ -267,7 +267,8 @@ void LLFloaterEditExtDayCycle::refresh()
 
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
-
+    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel());
+    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion());
 
     LLFloater::refresh();
 }
@@ -950,26 +951,35 @@ void LLFloaterEditExtDayCycle::doApplyUpdateInventory()
 
 void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
 {
-    LLEnvironment::EnvSelection_t env(LLEnvironment::ENV_DEFAULT);
-    bool updateSimulator(where != ACTION_APPLY_LOCAL);
-
     if (where == ACTION_APPLY_LOCAL)
-        env = LLEnvironment::ENV_LOCAL;
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditDay);
+    }
     else if (where == ACTION_APPLY_PARCEL)
-        env = LLEnvironment::ENV_PARCEL;
+    {
+        LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
+        LLParcel *parcel(nullptr);
+
+        if (handle)
+            parcel = handle->getParcel();
+        if (!parcel)
+            parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+        if (!parcel)
+            return;
+
+        LLEnvironment::instance().updateParcel(parcel->getLocalID(), mEditDay, -1, -1);
+    }
     else if (where == ACTION_APPLY_REGION)
-        env = LLEnvironment::ENV_REGION;
+    {
+        LLEnvironment::instance().updateRegion(mEditDay, -1, -1);
+    }
     else
     {
         LL_WARNS("ENVIRONMENT") << "Unknown apply '" << where << "'" << LL_ENDL;
         return;
     }
 
-    LLEnvironment::instance().setEnvironment(env, mEditDay);
-    if (updateSimulator)
-    {
-        LL_WARNS("ENVIRONMENT") << "Attempting apply" << LL_ENDL;
-    }
 }
 
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
@@ -1038,7 +1048,7 @@ bool LLFloaterEditExtDayCycle::canApplyParcel() const
     if (!parcel)
         return false;
 
-    return parcel->allowModifyBy(gAgent.getID(), gAgent.getGroupID()) &&
+    return parcel->allowTerraformBy(gAgent.getID()) &&
         LLEnvironment::instance().isExtendedEnvironmentEnabled();
 }
 

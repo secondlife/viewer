@@ -98,6 +98,7 @@ public:
     LLSettingsSkyPtr_t          getSkyAtKeyframe(F32 keyframe, S32 track) const;
     void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, F32 keyframe, S32 track);
     LLSettingsBase::ptr_t       getSettingsAtKeyframe(F32 keyframe, S32 track) const;
+    void                        clearTrack(S32 track);
         //---------------------------------------------------------------------
     void                        startDayCycle();
 

@@ -622,13 +622,15 @@ public:
     virtual void	performAction(LLInventoryModel* model, std::string action);
     virtual void	openItem();
     virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
-    virtual std::string getLabelSuffix() const;
-    virtual BOOL renameItem(const std::string& new_name);
+    virtual BOOL    renameItem(const std::string& new_name);
     virtual LLSettingsType::type_e getSettingsType() const { return mSettingsType; }
 
-
 protected:
+    bool            canUpdateRegion() const;
+    bool            canUpdateParcel() const;
+
     LLSettingsType::type_e mSettingsType;
+
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

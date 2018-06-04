@@ -81,6 +81,8 @@
 #include "llwearableitemslist.h"
 #include "lllandmarkactions.h"
 #include "llpanellandmarks.h"
+#include "llviewerparcelmgr.h"
+#include "llparcel.h"
 
 #include "llenvironment.h"
 
@@ -6920,11 +6922,16 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
         if (!item)
             return;
         LLUUID asset_id = item->getProtectedAssetUUID();
-        // *LAPRAS* TODO update on simulator.
-        LL_WARNS("LAPRAS") << "Only updating locally!!! NOT REALLY PARCEL UPDATE" << LL_ENDL;
-        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_PARCEL, asset_id);
-        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+
+        LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
+        if (!parcel)
+        {
+            LL_WARNS("INVENTORY") << "could not identify parcel." << LL_ENDL;
+            return;
+        }
+        S32 parcel_id = parcel->getLocalID();
+
+        LLEnvironment::instance().updateParcel(parcel_id, asset_id, -1, -1);
     }
     else if ("apply_settings_region" == action)
     {
@@ -6933,11 +6940,8 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
         if (!item)
             return;
         LLUUID asset_id = item->getProtectedAssetUUID();
-        // *LAPRAS* TODO update on simulator.
-        LL_WARNS("LAPRAS") << "Only updating locally!!! NOT REALLY REGION UPDATE" << LL_ENDL;
-        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, asset_id);
-        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+
+        LLEnvironment::instance().updateRegion(asset_id, -1, -1);
     }
     else
         LLItemBridge::performAction(model, action);
@@ -6988,23 +6992,33 @@ void LLSettingsBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
         items.push_back("Settings Apply Local");
 
         items.push_back("Settings Apply Parcel");
-        // *LAPRAS* TODO: test for permission
-
+        if (!canUpdateParcel())
+            disabled_items.push_back("Settings Apply Parcel");
+        
         items.push_back("Settings Apply Region");
-        // *LAPRAS* TODO: test for permission
+        if (!canUpdateRegion())
+            disabled_items.push_back("Settings Apply Region");
     }
     addLinkReplaceMenuOption(items, disabled_items);
     hide_context_entries(menu, items, disabled_items);
 }
-std::string LLSettingsBridge::getLabelSuffix() const
-{
-    return LLItemBridge::getLabelSuffix();
-}
 
 BOOL LLSettingsBridge::renameItem(const std::string& new_name)
 {
+    /*TODO: change internal settings name? */
     return LLItemBridge::renameItem(new_name);
 }
+
+bool LLSettingsBridge::canUpdateParcel() const
+{
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
+}
+
+bool LLSettingsBridge::canUpdateRegion() const
+{
+    return LLEnvironment::instance().canAgentUpdateRegionEnvironment();
+}
+
 
 // +=================================================+
 // |        LLLinkBridge                             |
