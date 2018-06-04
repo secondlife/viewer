@@ -262,7 +262,7 @@ private:
                                     DayInstance();
         virtual                     ~DayInstance() { };
 
-        virtual void                update(LLSettingsBase::Seconds);
+        virtual void                applyTimeDelta(const LLSettingsBase::Seconds& delta);
 
         void                        setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
         void                        setSky(const LLSettingsSky::ptr_t &psky);
@@ -302,7 +302,7 @@ private:
         LLSettingsBlender::ptr_t    mBlenderSky;
         LLSettingsBlender::ptr_t    mBlenderWater;
 
-        F64                         secondsToKeyframe(LLSettingsDay::Seconds seconds);
+        LLSettingsBase::TrackPosition secondsToKeyframe(LLSettingsDay::Seconds seconds);
     };
     typedef std::array<DayInstance::ptr_t, ENV_END> InstanceArray_t;
 
@@ -313,7 +313,7 @@ private:
                                     DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, LLSettingsDay::Seconds time);
         virtual                     ~DayTransition() { };
 
-        virtual void                update(LLSettingsBase::Seconds);
+        virtual void                applyTimeDelta(const LLSettingsBase::Seconds& delta);
         virtual void                animate();
 
     protected:
@@ -410,7 +410,7 @@ class LLTrackBlenderLoopingManual : public LLSettingsBlender
 public:
     LLTrackBlenderLoopingManual(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno);
 
-    F64                         setPosition(const LLSettingsBase::TrackPosition& position) override;
+    F64                         setPosition(const LLSettingsBase::TrackPosition& position);
     virtual void                switchTrack(S32 trackno, const LLSettingsBase::TrackPosition& position) override;
     S32                         getTrack() const { return mTrackNo; }
 

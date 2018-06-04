@@ -59,9 +59,9 @@ public:
     static const Seconds DEFAULT_DAYOFFSET;
     static const Seconds MAXIMUM_DAYOFFSET;
 
-    static const S32            TRACK_WATER;
-    static const S32            TRACK_MAX;
-    static const S32            FRAME_MAX;
+    static const S32     TRACK_WATER;
+    static const S32     TRACK_MAX;
+    static const S32     FRAME_MAX;
 
     typedef std::map<LLSettingsBase::TrackPosition, LLSettingsBase::ptr_t>  CycleTrack_t;
     typedef std::vector<CycleTrack_t>                                       CycleList_t;
@@ -91,15 +91,15 @@ public:
 
     //---------------------------------------------------------------------
     KeyframeList_t              getTrackKeyframes(S32 track);
-    bool                        moveTrackKeyframe(S32 track, const LLSettingsBase::Seconds& old_frame, const LLSettingsBase::Seconds& new_frame);
-    bool                        removeTrackKeyframe(S32 track, const LLSettingsBase::Seconds& frame);
+    bool                        moveTrackKeyframe(S32 track, const LLSettingsBase::TrackPosition& old_frame, const LLSettingsBase::TrackPosition& new_frame);
+    bool                        removeTrackKeyframe(S32 track, const LLSettingsBase::TrackPosition& frame);
 
-    void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, const LLSettingsBase::Seconds& keyframe);
-    LLSettingsWaterPtr_t        getWaterAtKeyframe(const LLSettingsBase::Seconds& keyframe) const;
-    void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, const LLSettingsBase::Seconds& keyframe, S32 track);
-    LLSettingsSkyPtr_t          getSkyAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const;
-    void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::Seconds& keyframe, S32 track);
-    LLSettingsBase::ptr_t       getSettingsAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const;
+    void                        setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, const LLSettingsBase::TrackPosition& keyframe);
+    LLSettingsWaterPtr_t        getWaterAtKeyframe(const LLSettingsBase::TrackPosition& keyframe) const;
+    void                        setSkyAtKeyframe(const LLSettingsSkyPtr_t &sky, const LLSettingsBase::TrackPosition& keyframe, S32 track);
+    LLSettingsSkyPtr_t          getSkyAtKeyframe(const LLSettingsBase::TrackPosition& keyframe, S32 track) const;
+    void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::TrackPosition& keyframe, S32 track);
+    LLSettingsBase::ptr_t       getSettingsAtKeyframe(const LLSettingsBase::TrackPosition& keyframe, S32 track) const;
         //---------------------------------------------------------------------
     void                        startDayCycle();
 

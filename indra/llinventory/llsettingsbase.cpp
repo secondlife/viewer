@@ -35,7 +35,7 @@
 //=========================================================================
 namespace
 {
-    const LLSettingsBase::BlendFactor BREAK_POINT = 0.5;
+    const LLSettingsBase::TrackPosition BREAK_POINT = 0.5;
 }
 
 //=========================================================================
@@ -554,10 +554,10 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
 //=========================================================================
 void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 {
-    setPosition(blendf);
+    setBlendFactor(blendf);
 }
 
-F64 LLSettingsBlender::setPosition(const LLSettingsBase::TrackPosition& blendf_in)
+F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_in)
 {
     LLSettingsBase::TrackPosition blendf = blendf_in;
     if (blendf >= 1.0)
@@ -565,7 +565,7 @@ F64 LLSettingsBlender::setPosition(const LLSettingsBase::TrackPosition& blendf_i
         triggerComplete();
         return 1.0;
     }
-    blendf = llclamp(blendf, 0.0, 1.0);
+    blendf = llclamp(blendf, 0.0f, 1.0f);
 
     mTarget->replaceSettings(mInitial->getSettings());
     if (!mFinal || (mInitial == mFinal) || (blendf == 0.0))
@@ -590,7 +590,7 @@ LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLS
     return LLSettingsBase::BlendFactor(fmod((F64)spanpos, (F64)spanlen) / (F64)spanlen);
 }
 
-void LLSettingsBlenderTimeDelta::advance(const LLSettingsBase::Seconds& timedelta)
+void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
 {
     mTimeSpent += timedelta;
 
@@ -602,5 +602,5 @@ void LLSettingsBlenderTimeDelta::advance(const LLSettingsBase::Seconds& timedelt
 
     LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
 
-    setPosition(blendf);
+    update(blendf);
 }

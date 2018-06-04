@@ -51,7 +51,7 @@ namespace
         }
         else if (begin > end)
         {
-            return 1.0 - (begin - end);
+            return T(1.0) - (begin - end);
         }
 
         return 0;
@@ -227,9 +227,8 @@ bool LLSettingsDay::initialize()
         LLSD curtrack = tracks[i];
         for (LLSD::array_const_iterator it = curtrack.beginArray(); it != curtrack.endArray(); ++it)
         {
-            LLSettingsBase::Seconds keyframe = LLSettingsBase::Seconds((*it)[SETTING_KEYKFRAME].asReal());
-            // is this supposed to be a blend factor or a time value?
-            //keyframe = llclamp((F32)keyframe, 0.0f, 1.0f);
+            LLSettingsBase::TrackPosition keyframe = LLSettingsBase::TrackPosition((*it)[SETTING_KEYKFRAME].asReal());
+            keyframe = llclamp(keyframe, 0.0f, 1.0f);
             LLSettingsBase::ptr_t setting;
 
             if ((*it).has(SETTING_KEYNAME))
@@ -261,10 +260,6 @@ bool LLSettingsDay::initialize()
                 else
                     hassky |= true;
                 mDayTracks[i][keyframe] = setting;
-            }
-            else
-            {
-                LL_WARNS("SETTINGS", "DAYCYCLE") << "Skipping frame on track #" << i << " at time index " << keyframe << LL_ENDL;
             }
         }
     }
@@ -312,6 +307,7 @@ LLSD LLSettingsDay::defaults()
     dfltsetting[SETTING_FRAMES] = frames;
 
     dfltsetting[SETTING_TYPE] = "daycycle";
+
     return dfltsetting;
 }
 
@@ -365,7 +361,7 @@ namespace
                     continue;
                 }
 
-                F32 frame = elem[LLSettingsDay::SETTING_KEYKFRAME].asReal();
+                LLSettingsBase::TrackPosition frame = elem[LLSettingsDay::SETTING_KEYKFRAME].asReal();
                 if ((frame < 0.0) || (frame > 1.0))
                 {
                     frame = llclamp(frame, 0.0f, 1.0f);
@@ -483,8 +479,6 @@ LLSettingsDay::CycleTrack_t &LLSettingsDay::getCycleTrack(S32 track)
 //=========================================================================
 void LLSettingsDay::startDayCycle()
 {
-    LLSettingsBase::Seconds now(LLDate::now().secondsSinceEpoch());
-
     if (!mInitialized)
     {
         LL_WARNS("DAYCYCLE") << "Attempt to start day cycle on uninitialized object." << LL_ENDL;
@@ -519,7 +513,7 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
     return keyframes;
 }
 
-bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::Seconds& old_frame, const LLSettingsBase::Seconds& new_frame)
+bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::TrackPosition& old_frame, const LLSettingsBase::TrackPosition& new_frame)
 {
     if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
@@ -538,8 +532,7 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::Seconds
     {
         LLSettingsBase::ptr_t base = iter->second;
         track.erase(iter);
-        // why are we clamping a time value as if its a blend factor
-        //track[llclamp(new_frame, 0.0f, 1.0f)] = base;
+        track[llclamp(new_frame, 0.0f, 1.0f)] = base;
         track[new_frame] = base;
         return true;
     }
@@ -548,7 +541,7 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::Seconds
 
 }
 
-bool LLSettingsDay::removeTrackKeyframe(S32 trackno, const LLSettingsBase::Seconds& frame)
+bool LLSettingsDay::removeTrackKeyframe(S32 trackno, const LLSettingsBase::TrackPosition& frame)
 {
     if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
@@ -568,18 +561,18 @@ bool LLSettingsDay::removeTrackKeyframe(S32 trackno, const LLSettingsBase::Secon
     return false;
 }
 
-void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, const LLSettingsBase::Seconds& keyframe)
+void LLSettingsDay::setWaterAtKeyframe(const LLSettingsWaterPtr_t &water, const LLSettingsBase::TrackPosition& keyframe)
 {
     setSettingsAtKeyframe(water, keyframe, TRACK_WATER);
 }
 
-LLSettingsWater::ptr_t LLSettingsDay::getWaterAtKeyframe(const LLSettingsBase::Seconds& keyframe) const
+LLSettingsWater::ptr_t LLSettingsDay::getWaterAtKeyframe(const LLSettingsBase::TrackPosition& keyframe) const
 {
     LLSettingsBase* p = getSettingsAtKeyframe(keyframe, TRACK_WATER).get();
     return LLSettingsWater::ptr_t((LLSettingsWater*)p);
 }
 
-void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, const LLSettingsBase::Seconds& keyframe, S32 track)
+void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, const LLSettingsBase::TrackPosition& keyframe, S32 track)
 {
     if ((track < 1) || (track >= TRACK_MAX))
     {
@@ -590,18 +583,18 @@ void LLSettingsDay::setSkyAtKeyframe(const LLSettingsSky::ptr_t &sky, const LLSe
     setSettingsAtKeyframe(sky, keyframe, track);
 }
 
-LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const
+LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(const LLSettingsBase::TrackPosition& keyframe, S32 track) const
 {
     if ((track < 1) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
         return LLSettingsSky::ptr_t();
     }
-    LLSettingsBase* p = getSettingsAtKeyframe(keyframe, track).get();
-    return LLSettingsSky::ptr_t((LLSettingsSky*)p);
+
+    return PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(getSettingsAtKeyframe(keyframe, track));
 }
 
-void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::Seconds& keyframe, S32 track)
+void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::TrackPosition& keyframe, S32 track)
 {
     if ((track < 0) || (track >= TRACK_MAX))
     {
@@ -609,12 +602,11 @@ void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings,
         return;
     }
 
-    //mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = settings;
-    mDayTracks[track][keyframe] = settings;
+    mDayTracks[track][llclamp(keyframe, 0.0f, 1.0f)] = settings;
     setDirtyFlag(true);
 }
 
-LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase::Seconds& keyframe, S32 track) const
+LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase::TrackPosition& keyframe, S32 track) const
 {
     if ((track < 0) || (track >= TRACK_MAX))
     {

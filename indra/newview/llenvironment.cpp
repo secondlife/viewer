@@ -121,6 +121,13 @@ namespace
         return LLSettingsDay::TrackBound_t(get_wrapping_atbefore(track, keyframe), get_wrapping_atafter(track, keyframe));
     }
 
+    // Find normalized track position of given time along full length of cycle
+    inline LLSettingsBase::TrackPosition convert_time_to_position(const LLSettingsBase::Seconds& time, const LLSettingsBase::Seconds& len)
+    {
+        LLSettingsBase::TrackPosition position = LLSettingsBase::TrackPosition(fmod((F64)time, (F64)len) / (F64)len);
+        return llclamp(position, 0.0f, 1.0f);
+    }
+
     //---------------------------------------------------------------------
     class LLTrackBlenderLoopingTime : public LLSettingsBlenderTimeDelta
     {
@@ -143,8 +150,7 @@ namespace
             setOnFinished([this](const LLSettingsBlender::ptr_t &){ onFinishedSpan(); });
         }
 
-
-        void switchTrack(S32 trackno, const LLSettingsBase::BlendFactor&) override
+        void switchTrack(S32 trackno, const LLSettingsBase::TrackPosition&) override
         {
             S32 use_trackno = selectTrackNumber(trackno);
 
@@ -160,7 +166,7 @@ namespace
             LLSettingsDay::TrackBound_t bounds = getBoundingEntries(now);
 
             LLSettingsBase::ptr_t pendsetting  = (*bounds.first).second->buildDerivedClone();
-            LLSettingsBase::TrackPosition targetpos  = convertTimeToPosition(now) - (*bounds.first).first;
+            LLSettingsBase::TrackPosition targetpos  = convert_time_to_position(now, mCycleLength) - (*bounds.first).first;
             LLSettingsBase::TrackPosition targetspan = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
             LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
@@ -191,8 +197,7 @@ namespace
         LLSettingsDay::TrackBound_t getBoundingEntries(LLSettingsBase::Seconds time)
         {
             LLSettingsDay::CycleTrack_t &wtrack = mDay->getCycleTrack(mTrackNo);
-            F64 position = convertTimeToPosition(time);
-
+            LLSettingsBase::TrackPosition position = convert_time_to_position(time, mCycleLength);
             LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, position);
             return bounds;
         }
@@ -207,12 +212,6 @@ namespace
         LLSettingsBase::Seconds getSpanTime(const LLSettingsDay::TrackBound_t &bounds) const
         {
             return mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-        }
-
-        LLSettingsBase::TrackPosition convertTimeToPosition(const LLSettingsBase::Seconds& time)
-        {
-            F64 position = fmod((F64)time, (F64)mCycleLength) / (F64)mCycleLength;
-            return llclamp(position, 0.0, 1.0);
         }
 
     private:
@@ -764,7 +763,7 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     F32Seconds delta(timer.getElapsedTimeAndResetF32());
 
-    mCurrentEnvironment->update(delta);
+    mCurrentEnvironment->applyTimeDelta(delta);
 
     // update clouds, sun, and general
     updateCloudScroll();
@@ -1640,20 +1639,15 @@ LLEnvironment::DayInstance::DayInstance() :
     mSkyTrack(1)
 { }
 
-void LLEnvironment::DayInstance::update(LLSettingsBase::Seconds delta)
+void LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& delta)
 {
     if (!mInitialized)
         initialize();
 
     if (mBlenderSky)
-        mBlenderSky->update(delta.value());
+        mBlenderSky->applyTimeDelta(delta);
     if (mBlenderWater)
-        mBlenderWater->update(delta.value());
-
-//     if (mSky)
-//         mSky->update();
-//     if (mWater)
-//         mWater->update();
+        mBlenderWater->applyTimeDelta(delta);
 }
 
 void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
@@ -1747,11 +1741,9 @@ void LLEnvironment::DayInstance::setBlenders(const LLSettingsBlender::ptr_t &sky
     mBlenderWater = waterblend;
 }
 
-F64 LLEnvironment::DayInstance::secondsToKeyframe(LLSettingsDay::Seconds seconds)
+LLSettingsBase::TrackPosition LLEnvironment::DayInstance::secondsToKeyframe(LLSettingsDay::Seconds seconds)
 {
-    F64 frame = static_cast<F64>(seconds.value() % mDayLength.value()) / static_cast<F64>(mDayLength.value());
-
-    return llclamp(frame, 0.0, 1.0);
+    return convert_time_to_position(seconds, mDayLength);
 }
 
 void LLEnvironment::DayInstance::animate()
@@ -1814,10 +1806,10 @@ LLEnvironment::DayTransition::DayTransition(const LLSettingsSky::ptr_t &skystart
     
 }
 
-void LLEnvironment::DayTransition::update(LLSettingsBase::Seconds delta)
+void LLEnvironment::DayTransition::applyTimeDelta(const LLSettingsBase::Seconds& delta)
 {
-    mNextInstance->update(delta);
-    DayInstance::update(delta);
+    mNextInstance->applyTimeDelta(delta);
+    DayInstance::applyTimeDelta(delta);
 }
 
 void LLEnvironment::DayTransition::animate() 
@@ -1866,7 +1858,7 @@ LLTrackBlenderLoopingManual::LLTrackBlenderLoopingManual(const LLSettingsBase::p
 
 LLSettingsBase::BlendFactor LLTrackBlenderLoopingManual::setPosition(const LLSettingsBase::TrackPosition& position)
 {
-    mPosition = llclamp(position, 0.0, 1.0);
+    mPosition = llclamp(position, 0.0f, 1.0f);
 
     LLSettingsDay::TrackBound_t bounds = getBoundingEntries(mPosition);
 
@@ -1883,7 +1875,7 @@ LLSettingsBase::BlendFactor LLTrackBlenderLoopingManual::setPosition(const LLSet
     F64 spanPos = ((mPosition < (*bounds.first).first) ? (mPosition + 1.0) : mPosition) - (*bounds.first).first;
 
     F64 blendf = fmod(spanPos, spanLength) / spanLength;
-    return LLSettingsBlender::setPosition(blendf);
+    return LLSettingsBlender::setBlendFactor(blendf);
 }
 
 void LLTrackBlenderLoopingManual::switchTrack(S32 trackno, const LLSettingsBase::TrackPosition& position)

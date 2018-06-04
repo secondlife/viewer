@@ -165,7 +165,7 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 
 void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
-    LLSettingsWater::ptr_t other((LLSettingsWater*)end.get());
+    LLSettingsWater::ptr_t other = PTR_NAMESPACE::static_pointer_cast<LLSettingsWater>(end);
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
     
     replaceSettings(blenddata);

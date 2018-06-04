@@ -48,9 +48,6 @@
 #define PTR_NAMESPACE     std
 #define SETTINGS_OVERRIDE override
 
-//#define PTR_NAMESPACE boost
-//#define SETTINGS_OVERRIDE
-
 class LLSettingsBase : 
     public PTR_NAMESPACE::enable_shared_from_this<LLSettingsBase>,
     private boost::noncopyable
@@ -63,7 +60,7 @@ class LLSettingsBase :
 public:
     typedef F64Seconds Seconds;
     typedef F64        BlendFactor;
-    typedef F64        TrackPosition;
+    typedef F32        TrackPosition; // 32-bit as these are stored in LLSD as such
 
     static const std::string SETTING_ID;
     static const std::string SETTING_NAME;
@@ -305,7 +302,7 @@ public:
 
     virtual ~LLSettingsBlender() {}
 
-    virtual void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& span)
+    virtual void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::TrackPosition&)
     {
         // note: the 'span' reset parameter is unused by the base class.
         if (!mInitial)
@@ -341,9 +338,15 @@ public:
     }
 
     virtual void            update(const LLSettingsBase::BlendFactor& blendf);
-    virtual F64             setPosition(const LLSettingsBase::TrackPosition& position);
+    virtual void            applyTimeDelta(const LLSettingsBase::Seconds& delta)
+    {
+        llassert(false);
+        // your derived class needs to implement an override of this func
+    }
 
-    virtual void            switchTrack(S32 trackno, const LLSettingsBase::BlendFactor& position) { /*NoOp*/ }
+    virtual F64             setBlendFactor(const LLSettingsBase::BlendFactor& position);
+
+    virtual void            switchTrack(S32 trackno, const LLSettingsBase::TrackPosition& position) { /*NoOp*/ }
 
 protected:
     void                    triggerComplete();
@@ -359,9 +362,9 @@ class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 {
 public:
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
-        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, LLSettingsBase::Seconds seconds) :
+        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, LLSettingsBase::Seconds blend_span) :
         LLSettingsBlender(target, initsetting, endsetting),
-        mBlendSpan(seconds),
+        mBlendSpan(blend_span),
         mLastUpdate(0.0f),
         mTimeSpent(0.0f)
     {
@@ -373,22 +376,22 @@ public:
     {
     }
 
-    virtual void reset(LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& span) SETTINGS_OVERRIDE
+    virtual void reset(LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::TrackPosition& blend_span) SETTINGS_OVERRIDE
     {
-        LLSettingsBlender::reset(initsetting, endsetting, span);
+        LLSettingsBlender::reset(initsetting, endsetting, blend_span);
 
-        mBlendSpan  = span;
+        mBlendSpan  = blend_span;
         mTimeStart  = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
         mTimeSpent  = LLSettingsBase::Seconds(0.0);
     }
 
-    virtual void advance(const LLSettingsBase::Seconds& timedelta);
+    virtual void applyTimeDelta(const LLSettingsBase::Seconds& timedelta) SETTINGS_OVERRIDE;
 
 protected:
     LLSettingsBase::BlendFactor calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const;
 
-    LLSettingsBase::Seconds mBlendSpan;
+    LLSettingsBase::TrackPosition mBlendSpan;
     LLSettingsBase::Seconds mLastUpdate;
     LLSettingsBase::Seconds mTimeSpent;
     LLSettingsBase::Seconds mTimeStart;
