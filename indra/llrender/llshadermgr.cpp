@@ -1150,7 +1150,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("cloud_noise_texture");
 	mReservedUniforms.push_back("fullbright");
 	mReservedUniforms.push_back("lightnorm");
-	mReservedUniforms.push_back("sunlight_color_copy");
+	mReservedUniforms.push_back("sunlight_color");
 	mReservedUniforms.push_back("ambient");
 	mReservedUniforms.push_back("blue_horizon");
 	mReservedUniforms.push_back("blue_density");

@@ -285,7 +285,7 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 		cloud_shader->bind();
 
 		/// Render the skydome
-//renderDome(camPosLocal, camHeightLocal, cloud_shader);
+        renderDome(camPosLocal, camHeightLocal, cloud_shader);
 
 		cloud_shader->unbind();
 	}
