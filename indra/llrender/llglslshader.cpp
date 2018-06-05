@@ -537,7 +537,11 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
 
     mAttribute.clear();
     U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
+#if LL_RELEASE_WITH_DEBUG_INFO
+    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, { -1, NULL });
+#else
     mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, -1);
+#endif
     
     if (res)
     { //read back channel locations
@@ -551,7 +555,11 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
             S32 index = glGetAttribLocationARB(mProgramObject, (const GLcharARB *)name);
             if (index != -1)
             {
+#if LL_RELEASE_WITH_DEBUG_INFO
+                mAttribute[i] = { index, name };
+#else
                 mAttribute[i] = index;
+#endif
                 mAttributeMask |= 1 << i;
                 LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
@@ -744,24 +752,25 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	, even if the "diffuseMap" will be appear and use first in shader code.
 
 	As example where this situation appear see: "Deferred Material Shader 28/29/30/31"
-	And tickets: MAINT-4165, MAINT-4839, MAINT-3568
+	And tickets: MAINT-4165, MAINT-4839, MAINT-3568, MAINT-6437
 	*/
 
 
 	S32 diffuseMap = glGetUniformLocationARB(mProgramObject, "diffuseMap");
+	S32 specularMap = glGetUniformLocationARB(mProgramObject, "specularMap");
 	S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
 	S32 environmentMap = glGetUniformLocationARB(mProgramObject, "environmentMap");
 
 	std::set<S32> skip_index;
 
-	if (-1 != diffuseMap && (-1 != bumpMap || -1 != environmentMap))
+	if (-1 != diffuseMap && (-1 != specularMap || -1 != bumpMap || -1 != environmentMap))
 	{
 		GLenum type;
 		GLsizei length;
 		GLint size = -1;
 		char name[1024];
 
-		diffuseMap = bumpMap = environmentMap = -1;
+		diffuseMap = specularMap = bumpMap = environmentMap = -1;
 
 		for (S32 i = 0; i < activeCount; i++)
 		{
@@ -772,6 +781,18 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 			if (-1 == diffuseMap && std::string(name) == "diffuseMap")
 			{
 				diffuseMap = i;
+				continue;
+			}
+
+			if (-1 == specularMap && std::string(name) == "specularMap")
+			{
+				specularMap = i;
+				continue;
+			}
+
+			if (-1 == specularMap && std::string(name) == "specularMap")
+			{
+				specularMap = i;
 				continue;
 			}
 
@@ -788,34 +809,29 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 			}
 		}
 
+		bool specularDiff = specularMap < diffuseMap && -1 != specularMap;
 		bool bumpLessDiff = bumpMap < diffuseMap && -1 != bumpMap;
 		bool envLessDiff = environmentMap < diffuseMap && -1 != environmentMap;
 
-		if (bumpLessDiff && envLessDiff)
+		if (specularDiff || bumpLessDiff || envLessDiff)
 		{
 			mapUniform(diffuseMap, uniforms);
-			mapUniform(bumpMap, uniforms);
-			mapUniform(environmentMap, uniforms);
-
 			skip_index.insert(diffuseMap);
-			skip_index.insert(bumpMap);
-			skip_index.insert(environmentMap);
-		}
-		else if (bumpLessDiff)
-		{
-			mapUniform(diffuseMap, uniforms);
-			mapUniform(bumpMap, uniforms);
 
-			skip_index.insert(diffuseMap);
-			skip_index.insert(bumpMap);
-		}
-		else if (envLessDiff)
-		{
-			mapUniform(diffuseMap, uniforms);
-			mapUniform(environmentMap, uniforms);
+			if (-1 != specularMap) {
+				mapUniform(specularMap, uniforms);
+				skip_index.insert(specularMap);
+			}
 
-			skip_index.insert(diffuseMap);
-			skip_index.insert(environmentMap);
+			if (-1 != bumpMap) {
+				mapUniform(bumpMap, uniforms);
+				skip_index.insert(bumpMap);
+			}
+
+			if (-1 != environmentMap) {
+				mapUniform(environmentMap, uniforms);
+				skip_index.insert(environmentMap);
+			}
 		}
 	}
 

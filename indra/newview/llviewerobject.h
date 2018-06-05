@@ -412,6 +412,7 @@ public:
 	void clearIcon();
 
 	void markForUpdate(BOOL priority);
+	void markForUnload(BOOL priority);
 	void updateVolume(const LLVolumeParams& volume_params);
 	virtual	void updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual F32 getBinRadius();
