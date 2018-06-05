@@ -112,11 +112,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-// AXON to remove
-#pragma optimize("", off)
-#endif
-
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;

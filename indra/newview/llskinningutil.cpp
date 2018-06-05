@@ -33,11 +33,6 @@
 #include "llmeshrepository.h"
 #include "llvolume.h"
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-// AXON to remove
-#pragma optimize("", off)
-#endif
-
 // static
 void LLSkinningUtil::initClass()
 {
