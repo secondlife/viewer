@@ -36,6 +36,8 @@
 #include "llsettingswater.h"
 #include "llsettingsdaycycle.h"
 
+#include "llatmosphere.h"
+
 #include <boost/signals2.hpp>
 
 //-------------------------------------------------------------------------

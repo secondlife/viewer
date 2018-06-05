@@ -362,7 +362,7 @@ class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 {
 public:
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
-        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, LLSettingsBase::Seconds blend_span) :
+        const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& blend_span) :
         LLSettingsBlender(target, initsetting, endsetting),
         mBlendSpan(blend_span),
         mLastUpdate(0.0f),
