@@ -30,8 +30,11 @@
 #ifndef	LL_LLRIGGINGINFO_H
 #define	LL_LLRIGGINGINFO_H
 
+#include "llvector4a.h"
+
 // Extents are in joint space
 // isRiggedTo is based on the state of all currently associated rigged meshes
+LL_ALIGN_PREFIX(16)
 class LLJointRiggingInfo
 {
 public:
@@ -44,7 +47,7 @@ public:
 private:
 	LL_ALIGN_16(LLVector4a mRiggedExtents[2]);
     bool mIsRiggedTo;
-};
+} LL_ALIGN_POSTFIX(16);
 
 // For storing all the rigging info associated with a given avatar or
 // object, keyed by joint_num.
