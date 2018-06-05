@@ -364,7 +364,9 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     LLSettingsBase(data),
     mNextSunTextureId(),
     mNextMoonTextureId(),
-    mNextCloudTextureId()
+    mNextCloudTextureId(),
+    mPositionsDirty(true),
+    mLightingDirty(true)
 {
 }
 
@@ -372,13 +374,15 @@ LLSettingsSky::LLSettingsSky():
     LLSettingsBase(),
     mNextSunTextureId(),
     mNextMoonTextureId(),
-    mNextCloudTextureId()
+    mNextCloudTextureId(),
+    mPositionsDirty(true),
+    mLightingDirty(true)
 {
 }
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
-    LLSettingsSky::ptr_t other((LLSettingsSky*)end.get());
+    LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
 
     replaceSettings(blenddata);
