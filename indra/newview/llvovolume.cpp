@@ -3581,7 +3581,7 @@ void LLVOVolume::updateRiggingInfo()
                 for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
                 {
                     LLVolumeFace& vol_face = volume->getVolumeFace(f);
-                    LLSkinningUtil::updateRiggedExtents(skin, avatar, vol_face);
+                    LLSkinningUtil::updateRiggingInfo(skin, avatar, vol_face);
                     if (vol_face.mJointRiggingInfoTabPtr)
                     {
                         mergeRigInfoTab(mJointRiggingInfoTab, *vol_face.mJointRiggingInfoTabPtr);

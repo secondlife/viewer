@@ -32,26 +32,23 @@
 #include "llviewercontrol.h"
 #include "llmeshrepository.h"
 #include "llvolume.h"
+#include "llrigginginfo.h"
 
-// static
 void LLSkinningUtil::initClass()
 {
 }
 
-// static
 U32 LLSkinningUtil::getMaxJointCount()
 {
     U32 result = LL_MAX_JOINTS_PER_MESH_OBJECT;
 	return result;
 }
 
-// static
 U32 LLSkinningUtil::getMeshJointCount(const LLMeshSkinInfo *skin)
 {
 	return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
 }
 
-// static
 void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
 {
     if (skin->mInvalidJointsScrubbed)
@@ -72,7 +69,6 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
     skin->mInvalidJointsScrubbed = true;
 }
 
-// static
 void LLSkinningUtil::initSkinningMatrixPalette(
     LLMatrix4* mat,
     S32 count, 
@@ -120,7 +116,6 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     }
 }
 
-// static
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
 #ifdef SHOW_ASSERT                  // same condition that controls llassert()
@@ -160,7 +155,6 @@ void LLSkinningUtil::scrubSkinWeights(LLVector4a* weights, U32 num_vertices, con
 	checkSkinWeights(weights, num_vertices, skin);
 }
 
-// static
 void LLSkinningUtil::getPerVertexSkinMatrix(
     F32* weights,
     LLMatrix4a* mat,
@@ -217,14 +211,7 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
     llassert(valid_weights);
 }
 
-//static
-void LLSkinningUtil::initIsRiggedTo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, joint_rig_info_tab& rig_info_tab) 
-{
-    // AXON REMOVE
-}
-
-//static
-void LLSkinningUtil::updateRiggedExtents(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
+void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
 {
     S32 num_verts = vol_face.mNumVertices;
     if (num_verts>0 && vol_face.mWeights && (skin->mJointNames.size()>0))
