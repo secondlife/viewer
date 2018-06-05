@@ -1053,4 +1053,3 @@ LLUUID LLSettingsSky::GetDefaultAssetId()
 {
     return DEFAULT_ASSET_ID;
 }
-

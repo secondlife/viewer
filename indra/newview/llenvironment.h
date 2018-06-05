@@ -239,15 +239,15 @@ public:
 
     void                        requestRegion();
     void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset);
-    void                        updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
-    void                        updateRegion(LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
-    void                        updateRegion(LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
+    void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
+    void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
     void                        resetRegion();
     void                        requestParcel(S32 parcel_id);
     void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset);
-    void                        updateParcel(S32 parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
-    void                        updateParcel(S32 parcel_id, LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
-    void                        updateParcel(S32 parcel_id, LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
+    void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
+    void                        updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
     void                        resetParcel(S32 parcel_id);
 
     void                        selectAgentEnvironment();
