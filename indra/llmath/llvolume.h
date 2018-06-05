@@ -57,6 +57,7 @@ class LLVolumeTriangle;
 #include "llpointer.h"
 #include "llfile.h"
 #include "llalignedarray.h"
+#include "llrigginginfo.h"
 
 //============================================================================
 
@@ -958,6 +959,10 @@ public:
 	LLVector4a* mWeights;
 
     mutable BOOL mWeightsScrubbed;
+
+    // Which joints are rigged to, and the bounding box of any rigged
+    // vertices per joint.
+    joint_rig_info_tab *mJointRiggingInfoTabPtr;
     
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
 

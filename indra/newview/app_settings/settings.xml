@@ -2215,6 +2215,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>AvatarBoundingBoxComplexity</key>
+  <map>
+    <key>Comment</key>
+    <string>How many aspects to consider for avatar bounding box</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>

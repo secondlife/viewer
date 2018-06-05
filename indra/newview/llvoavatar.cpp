@@ -112,6 +112,11 @@
 
 #include <boost/lexical_cast.hpp>
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+// AXON to remove
+#pragma optimize("", off)
+#endif
+
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
@@ -1281,6 +1286,7 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 
 void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
+    S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
 	LLVector4a buffer(0.0);
 	LLVector4a pos;
 	pos.load3(getRenderPosition().mV);
@@ -1290,106 +1296,115 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	float max_attachment_span = get_default_max_prim_scale() * 5.0f;
 	
 	//stretch bounding box by joint positions
-	for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
-	{
-		LLPolyMesh* mesh = i->second;
-		for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
-		{
-			LLVector4a trans;
-			trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
-			update_min_max(newMin, newMax, trans);
-		}
-	}
-
-	LLVector4a center, size;
-	center.setAdd(newMin, newMax);
-	center.mul(0.5f);
-
-	size.setSub(newMax,newMin);
-	size.mul(0.5f);
-
-	mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
-
-	//stretch bounding box by static attachments
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
-
-		if (attachment->getValid())
-		{
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
-				const LLViewerObject* attached_object = (*attachment_iter);
-				if (attached_object && !attached_object->isHUDAttachment())
-				{
-					LLDrawable* drawable = attached_object->mDrawable;
-					if (drawable && !drawable->isState(LLDrawable::RIGGED))
-					{
-						LLSpatialBridge* bridge = drawable->getSpatialBridge();
-						if (bridge)
-						{
-							const LLVector4a* ext = bridge->getSpatialExtents();
-							LLVector4a distance;
-							distance.setSub(ext[1], ext[0]);
-							LLVector4a max_span(max_attachment_span);
-
-							S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
-						
-							// Only add the prim to spatial extents calculations if it isn't a megaprim.
-							// max_attachment_span calculated at the start of the function 
-							// (currently 5 times our max prim size) 
-							if (lt == 0x7)
-							{
-								update_min_max(newMin,newMax,ext[0]);
-								update_min_max(newMin,newMax,ext[1]);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-    // Stretch bounding box by rigged mesh joint boxes
-    updateRiggingInfo();
-    for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+    if (box_detail>=1)
     {
-        LLJoint *joint = getJoint(joint_num);
-        LLJointRiggingInfo *rig_info = NULL;
-        if (joint_num < mJointRiggingInfoTab.size())
+        for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
         {
-            rig_info = &mJointRiggingInfoTab[joint_num];
+            LLPolyMesh* mesh = i->second;
+            for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
+            {
+                LLVector4a trans;
+                trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
+                update_min_max(newMin, newMax, trans);
+            }
         }
 
-        // FIXME TEMP HACK FOR TESTING
-        //if (joint)
-        //{
-        //    rig_info.setIsRiggedTo(true);
-        //}
+        LLVector4a center, size;
+        center.setAdd(newMin, newMax);
+        center.mul(0.5f);
 
-        if (joint && rig_info && rig_info->isRiggedTo())
+        size.setSub(newMax,newMin);
+        size.mul(0.5f);
+
+        mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
+    }
+
+	//stretch bounding box by static attachments
+    if (box_detail >= 2)
+    {
+        for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+             iter != mAttachmentPoints.end();
+             ++iter)
         {
-            LLViewerJointAttachment *as_joint_attach = dynamic_cast<LLViewerJointAttachment*>(joint);
-            if (as_joint_attach && as_joint_attach->getIsHUDAttachment())
+            LLViewerJointAttachment* attachment = iter->second;
+
+            if (attachment->getValid())
             {
-                // Ignore bounding box of HUD joints
-                continue;
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                     attachment_iter != attachment->mAttachedObjects.end();
+                     ++attachment_iter)
+                {
+                    const LLViewerObject* attached_object = (*attachment_iter);
+                    if (attached_object && !attached_object->isHUDAttachment())
+                    {
+                        LLDrawable* drawable = attached_object->mDrawable;
+                        if (drawable && !drawable->isState(LLDrawable::RIGGED))
+                        {
+                            LLSpatialBridge* bridge = drawable->getSpatialBridge();
+                            if (bridge)
+                            {
+                                const LLVector4a* ext = bridge->getSpatialExtents();
+                                LLVector4a distance;
+                                distance.setSub(ext[1], ext[0]);
+                                LLVector4a max_span(max_attachment_span);
+
+                                S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
+						
+                                // Only add the prim to spatial extents calculations if it isn't a megaprim.
+                                // max_attachment_span calculated at the start of the function 
+                                // (currently 5 times our max prim size) 
+                                if (lt == 0x7)
+                                {
+                                    update_min_max(newMin,newMax,ext[0]);
+                                    update_min_max(newMin,newMax,ext[1]);
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            LLMatrix4a mat;
-            LLVector4a new_extents[2];
-            mat.loadu(joint->getWorldMatrix());
-            matMulBoundBox(mat, rig_info->getRiggedExtents(), new_extents);
-            update_min_max(newMin, newMax, new_extents[0]);
-            update_min_max(newMin, newMax, new_extents[1]);
-            //if (isSelf())
+        }
+    }
+
+    // Stretch bounding box by rigged mesh joint boxes
+    if (box_detail>=3)
+    {
+        updateRiggingInfo();
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLJoint *joint = getJoint(joint_num);
+            LLJointRiggingInfo *rig_info = NULL;
+            if (joint_num < mJointRiggingInfoTab.size())
+            {
+                rig_info = &mJointRiggingInfoTab[joint_num];
+            }
+
+            // FIXME TEMP HACK FOR TESTING
+            //if (joint)
             //{
-            //    LL_INFOS() << joint->getName() << " extents " << new_extents[0] << "," << new_extents[1] << LL_ENDL;
-            //    LL_INFOS() << joint->getName() << " av box is " << newMin << "," << newMax << LL_ENDL;
+            //    rig_info.setIsRiggedTo(true);
             //}
+
+            if (joint && rig_info && rig_info->isRiggedTo())
+            {
+                LLViewerJointAttachment *as_joint_attach = dynamic_cast<LLViewerJointAttachment*>(joint);
+                if (as_joint_attach && as_joint_attach->getIsHUDAttachment())
+                {
+                    // Ignore bounding box of HUD joints
+                    continue;
+                }
+                LLMatrix4a mat;
+                LLVector4a new_extents[2];
+                mat.loadu(joint->getWorldMatrix());
+                matMulBoundBox(mat, rig_info->getRiggedExtents(), new_extents);
+                update_min_max(newMin, newMax, new_extents[0]);
+                update_min_max(newMin, newMax, new_extents[1]);
+                //if (isSelf())
+                //{
+                //    LL_INFOS() << joint->getName() << " extents " << new_extents[0] << "," << new_extents[1] << LL_ENDL;
+                //    LL_INFOS() << joint->getName() << " av box is " << newMin << "," << newMax << LL_ENDL;
+                //}
+            }
         }
     }
 
@@ -9447,6 +9462,28 @@ S32 countRigInfoTab(joint_rig_info_tab& tab)
     return count;
 }
 
+void showRigInfoTabExtents(LLVOAvatar *avatar, joint_rig_info_tab& tab, S32& count_rigged, S32& count_box)
+{
+    count_rigged = count_box = 0;
+    LLVector4a zero_vec;
+    zero_vec.clear();
+    for (S32 i=0; i<tab.size(); i++)
+    {
+        if (tab[i].isRiggedTo())
+        {
+            count_rigged++;
+            LLJoint *joint = avatar->getJoint(i);
+            LL_DEBUGS("RigSpam") << "joint " << i << " name " << joint->getName() << " box " 
+                                 << tab[i].getRiggedExtents()[0] << ", " << tab[i].getRiggedExtents()[1] << LL_ENDL;
+            if ((!tab[i].getRiggedExtents()[0].equals3(zero_vec)) ||
+                (!tab[i].getRiggedExtents()[1].equals3(zero_vec)))
+            {
+                count_box++;
+            }
+       }
+    }
+}
+
 // virtual
 void LLVOAvatar::updateRiggingInfo()
 {
@@ -9485,6 +9522,10 @@ void LLVOAvatar::updateRiggingInfo()
         {
             volp->updateRiggingInfo();
             mergeRigInfoTab(mJointRiggingInfoTab, volp->mJointRiggingInfoTab);
+            LL_DEBUGS("RigSpammish") << getFullname() << " after cav update rig tab:" << LL_ENDL;
+            S32 joint_count, box_count;
+            showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
+            LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
             //LL_INFOS() << "cav after merge rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
 
             LLViewerObject::const_child_list_t& children = volp->getChildren();
@@ -9494,12 +9535,21 @@ void LLVOAvatar::updateRiggingInfo()
                 LLViewerObject *childp = *it;
                 childp->updateRiggingInfo();
                 mergeRigInfoTab(mJointRiggingInfoTab, childp->mJointRiggingInfoTab);
+
+                LL_DEBUGS("RigSpammish") << getFullname() << " after cav child update rig tab:" << LL_ENDL;
+                S32 joint_count, box_count;
+                showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
+                LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
                 //LL_INFOS() << "cav after merge rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
             }
         }
     }
 
     //LL_INFOS() << "done update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
+    LL_DEBUGS("RigSpammish") << getFullname() << " after update rig tab:" << LL_ENDL;
+    S32 joint_count, box_count;
+    showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
+    LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
 }
 
 U32 LLVOAvatar::getPartitionType() const

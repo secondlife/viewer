@@ -30,6 +30,7 @@
 class LLVOAvatar;
 class LLMeshSkinInfo;
 class LLMatrix4a;
+class LLVolumeFace;
 
 #include "llrigginginfo.h"
 
@@ -46,6 +47,7 @@ public:
     static void scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
     static void getPerVertexSkinMatrix(F32* weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat, U32 max_joints);
     static void initIsRiggedTo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, joint_rig_info_tab& rig_info_tab); 
+    static void updateRiggedExtents(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face);
 };
 
 #endif

@@ -27,6 +27,11 @@
 #include "llmath.h"
 #include "llrigginginfo.h"
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+// AXON to remove
+#pragma optimize("", off)
+#endif
+
 //-----------------------------------------------------------------------------
 // LLJointRiggingInfo
 //-----------------------------------------------------------------------------

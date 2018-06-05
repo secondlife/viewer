@@ -85,6 +85,11 @@
 #include "llviewerinventory.h"
 #include "llcallstack.h"
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+// AXON to remove
+#pragma optimize("", off)
+#endif
+
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
 U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
@@ -230,6 +235,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mLastFetchedMediaVersion = -1;
 	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
+    mLastRiggingInfoLOD = -1;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -3571,11 +3577,28 @@ void LLVOVolume::updateRiggingInfo()
     {
         const LLMeshSkinInfo* skin = getSkinInfo();
         LLVOAvatar *avatar = getAvatar();
-        if (skin && avatar)
+        if (skin && avatar && getLOD()>mLastRiggingInfoLOD)
         {
-            LLSkinningUtil::initIsRiggedTo(skin, avatar, mJointRiggingInfoTab);
+            LLVolume *volume = getVolume();
+            if (volume)
+            {
+                mJointRiggingInfoTab.clear();
+                for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
+                {
+                    LLVolumeFace& vol_face = volume->getVolumeFace(f);
+                    LLSkinningUtil::updateRiggedExtents(skin, avatar, vol_face);
+                    if (vol_face.mJointRiggingInfoTabPtr)
+                    {
+                        mergeRigInfoTab(mJointRiggingInfoTab, *vol_face.mJointRiggingInfoTabPtr);
+                    }
+                }
+                // Keep the highest LOD info available.
+                // AXON would this ever need to be forced to refresh? Set to -1 if so.
+                mLastRiggingInfoLOD = getLOD();
+                LL_DEBUGS("RigSpammish") << "updated rigging info for LLVOVolume " 
+                                         << this << " lod " << mLastRiggingInfoLOD << LL_ENDL;
+            }
         }
-        // AXON add bbox processing from volume faces.
     }
 }
 
