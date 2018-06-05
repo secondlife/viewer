@@ -285,6 +285,9 @@ void LLFloaterFixedEnvironment::doApplyUpdateInventory()
 
 void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
 {
+    LLSettingsSky::ptr_t psky     = std::dynamic_pointer_cast<LLSettingsSky>(mSettings);
+    LLSettingsWater::ptr_t pwater = std::dynamic_pointer_cast<LLSettingsWater>(mSettings);
+
     if (where == ACTION_APPLY_LOCAL)
     {
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mSettings);
@@ -303,16 +306,16 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
             return;
 
         if (mSettings->getSettingType() == "sky")
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), psky, -1, -1);
         else if (mSettings->getSettingType() == "water")
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), pwater, -1, -1);
     }
     else if (where == ACTION_APPLY_REGION)
     {
         if (mSettings->getSettingType() == "sky")
-            LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
+            LLEnvironment::instance().updateRegion(psky, -1, -1);
         else if (mSettings->getSettingType() == "water")
-            LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
+            LLEnvironment::instance().updateRegion(pwater, -1, -1);
     }
     else
     {
