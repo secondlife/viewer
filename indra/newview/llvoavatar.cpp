@@ -1007,7 +1007,7 @@ void LLVOAvatar::dumpBakedStatus()
 				const ETextureIndex index = baked_dict->mTextureIndex;
 				if (!inst->isTextureDefined(index))
 				{
-					LL_CONT << " " << LLAvatarAppearanceDictionary::getInstance()->getTexture(index) ? LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mName : "";
+					LL_CONT << " " << (LLAvatarAppearanceDictionary::getInstance()->getTexture(index) ? LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mName : "");
 				}
 			}
 			LL_CONT << " ) " << inst->getUnbakedPixelAreaRank();
