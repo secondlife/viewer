@@ -363,6 +363,26 @@ void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settin
     }
 }
 
+bool LLEnvironment::canAgentUpdateParcelEnvironment(bool useselected) const
+{
+    if (!LLEnvironment::instance().isExtendedEnvironmentEnabled())
+        return false;
+    // *TODO*
+    //LLParcel* parcel = (useselected) ? LLViewerParcelMgr::instance().getParcelSelection() : LLViewerParcelMgr::instance().getAgentParcel();
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    if (parcel)
+    {
+        return parcel->allowTerraformBy(gAgent.getID());
+    }
+
+    return false;
+}
+
+bool LLEnvironment::canAgentUpdateRegionEnvironment() const
+{
+    return gAgent.getRegion()->canManageEstate();
+}
+
 bool LLEnvironment::isExtendedEnvironmentEnabled() const
 {
     return !gAgent.getRegionCapability("ExtEnvironment").empty();
@@ -1099,7 +1119,6 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         setEnvironment(ENV_PARCEL, pday, envinfo->mDayLength, envinfo->mDayOffset);
     }
     
-    /*TODO: track_altitudes*/
     updateEnvironment();
 }
 
@@ -1126,6 +1145,29 @@ void LLEnvironment::updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32
     updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset);
 }
 
+void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset)
+{
+    if (!isExtendedEnvironmentEnabled())
+    {
+        LL_WARNS("ENVIRONMENT") << "attempt to apply asset id to region not supporting it." << LL_ENDL;
+        LLNotificationsUtil::add("NoEnvironmentSettings");
+        return;
+    }
+
+    updateParcel(INVALID_PARCEL_ID, asset_id, day_length, day_offset);
+}
+
+void LLEnvironment::updateRegion(LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset)
+{
+    updateParcel(INVALID_PARCEL_ID, psky, day_length, day_offset);
+}
+
+void LLEnvironment::updateRegion(LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset)
+{
+    updateParcel(INVALID_PARCEL_ID, pwater, day_length, day_offset);
+}
+
+
 void LLEnvironment::resetRegion()
 {
     resetParcel(INVALID_PARCEL_ID);
@@ -1137,6 +1179,52 @@ void LLEnvironment::requestParcel(S32 parcel_id)
         LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
         boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id,
         [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }));
+}
+
+void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset)
+{
+    LLSettingsVOBase::getSettingsAsset(asset_id,
+        [this, parcel_id, day_length, day_offset](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onUpdateParcelAssetLoaded(asset_id, settings, status, parcel_id, day_length, day_offset); });
+}
+
+void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset)
+{
+    if (status)
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to get settings asset with id " << asset_id << "!" << LL_ENDL;
+        LLNotificationsUtil::add("FailedToLoadSettingsApply");
+        return;
+    }
+
+    LLSettingsDay::ptr_t pday;
+
+    if (settings->getSettingType() == "daycycle")
+        pday = std::static_pointer_cast<LLSettingsDay>(settings);
+    else
+    {
+        pday = createDayCycleFromEnvironment( (parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, settings);
+    }
+
+    if (!pday)
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to construct day around " << asset_id << "!" << LL_ENDL;
+        LLNotificationsUtil::add("FailedToBuildSettingsDay");
+        return;
+    }
+
+    updateParcel(parcel_id, pday, day_length, day_offset);
+}
+
+void LLEnvironment::updateParcel(S32 parcel_id, LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset)
+{
+    LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, psky);
+    updateParcel(parcel_id, pday, day_length, day_offset);
+}
+
+void LLEnvironment::updateParcel(S32 parcel_id, LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset)
+{
+    LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, pwater);
+    updateParcel(parcel_id, pday, day_length, day_offset);
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
@@ -1223,6 +1311,20 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, LLSettingsDay::ptr_t pd
     std::string url = gAgent.getRegionCapability("ExtEnvironment");
     if (url.empty())
         return;
+
+    if (day_length < 1)
+    {
+        day_length = getEnvironmentDayLength((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL).value();
+        if ((day_length < 1) && (parcel_id != INVALID_PARCEL_ID))
+            day_length = getEnvironmentDayLength(ENV_REGION).value();
+    }
+
+    if (day_offset < 1)
+    {
+        day_offset = getEnvironmentDayOffset((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL).value();
+        if ((day_offset < 1) && (parcel_id != INVALID_PARCEL_ID))
+            day_offset = getEnvironmentDayOffset(ENV_REGION).value();
+    }
 
     LLSD body(LLSD::emptyMap());
     body["environment"] = LLSD::emptyMap();
@@ -1454,6 +1556,47 @@ LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::st
     return day;
 }
 
+LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings)
+{
+    std::string type(settings->getSettingType());
+
+    if (type == "daycycle")
+        return std::static_pointer_cast<LLSettingsDay>(settings);
+
+    if ((env != ENV_PARCEL) && (env != ENV_REGION))
+    {
+        LL_WARNS("ENVIRONMENT") << "May only create from parcel or region environment." << LL_ENDL;
+        return LLSettingsDay::ptr_t();
+    }
+
+    LLSettingsDay::ptr_t day = this->getEnvironmentDay(env);
+    if (!day && (env == ENV_PARCEL))
+    {
+        day = this->getEnvironmentDay(ENV_REGION);
+    }
+
+    if (!day)
+    {
+        LL_WARNS("ENVIRONMENT") << "Could not retrieve existing day settings." << LL_ENDL;
+        return LLSettingsDay::ptr_t();
+    }
+
+    day = day->buildClone();
+
+    if (type == "sky")
+    {
+        for (S32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
+            day->clearTrack(idx);
+        day->setSettingsAtKeyframe(settings, 0.0f, 1);
+    }
+    else if (type == "water")
+    {
+        day->clearTrack(LLSettingsDay::TRACK_WATER);
+        day->setSettingsAtKeyframe(settings, 0.0f, LLSettingsDay::TRACK_WATER);
+    }
+
+    return day;
+}
 
 void LLEnvironment::legacyLoadAllPresets()
 {

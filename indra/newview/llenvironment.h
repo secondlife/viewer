@@ -41,7 +41,6 @@
 //-------------------------------------------------------------------------
 class LLViewerCamera;
 class LLGLSLShader;
-class AtmosphericModelSettings;
 
 //-------------------------------------------------------------------------
 class LLEnvironment : public LLSingleton<LLEnvironment>
@@ -56,6 +55,9 @@ public:
     static const F32Seconds     TRANSITION_SLOW;
     static const F32Seconds     TRANSITION_ALTITUDE;
 
+    static const LLUUID         KNOWN_SKY_DEFAULT;
+    static const LLUUID         KNOWN_WATER_DEFAULT;
+    static const LLUUID         KNOWN_DAY_DEFAULT;
     static const LLUUID         KNOWN_SKY_SUNRISE;
     static const LLUUID         KNOWN_SKY_MIDDAY;
     static const LLUUID         KNOWN_SKY_SUNSET;
@@ -67,15 +69,15 @@ public:
 
         typedef std::shared_ptr<EnvironmentInfo>  ptr_t;
 
-        S32                     mParcelId;
-        LLUUID                  mRegionId;
-        LLSettingsDay::Seconds  mDayLength;
-        LLSettingsDay::Seconds  mDayOffset;
-        size_t                  mDayHash;
-        LLSD                    mDaycycleData;
-        std::array<F32, 4>      mAltitudes;
-        bool                    mIsDefault;
-        bool                    mIsRegion;
+        S32                 mParcelId;
+        LLUUID              mRegionId;
+        S64Seconds          mDayLength;
+        S64Seconds          mDayOffset;
+        size_t              mDayHash;
+        LLSD                mDaycycleData;
+        std::array<F32, 4>  mAltitudes;
+        bool                mIsDefault;
+        bool                mIsRegion;
 
 
         static ptr_t        extract(LLSD);
@@ -146,6 +148,8 @@ public:
     bool                        canEdit() const;
     bool                        isExtendedEnvironmentEnabled() const;
     bool                        isInventoryEnabled() const;
+    bool                        canAgentUpdateParcelEnvironment(bool useselected = false) const;
+    bool                        canAgentUpdateRegionEnvironment() const;
 
     LLSettingsSky::ptr_t        getCurrentSky() const { return mCurrentEnvironment->getSky(); }
     LLSettingsWater::ptr_t      getCurrentWater() const { return mCurrentEnvironment->getWater(); }
@@ -219,6 +223,9 @@ public:
     static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename);
     static LLSettingsDay::ptr_t createDayCycleFromLegacyPreset(const std::string filename);
 
+    // Construct a new day cycle based on the environment.  Replacing either the water or the sky tracks.
+    LLSettingsDay::ptr_t        createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings);
+
     //-------------------------------------------
     connection_t                setSkyListChange(const change_signal_t::slot_type& cb);
     connection_t                setWaterListChange(const change_signal_t::slot_type& cb);
@@ -229,10 +236,16 @@ public:
     void                        onLegacyRegionSettings(LLSD data);
 
     void                        requestRegion();
+    void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset);
     void                        updateRegion(LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        updateRegion(LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
+    void                        updateRegion(LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
     void                        resetRegion();
     void                        requestParcel(S32 parcel_id);
+    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset);
     void                        updateParcel(S32 parcel_id, LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
+    void                        updateParcel(S32 parcel_id, LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
+    void                        updateParcel(S32 parcel_id, LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
     void                        resetParcel(S32 parcel_id);
 
     void                        selectAgentEnvironment();
@@ -398,6 +411,8 @@ private:
     void onAgentPositionHasChanged(const LLVector3 &localpos);
 
     void onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
+    void onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset);
+
     //=========================================================================
     void                        legacyLoadAllPresets();
     static std::string          getSysDir(const std::string &subdir);

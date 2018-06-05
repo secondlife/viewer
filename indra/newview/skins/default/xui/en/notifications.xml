@@ -11113,4 +11113,31 @@ Failed to find the settisgs named [DESC] in database.
   <tag>fail</tag>
   </notification>
   
+  <notification
+   icon="notify.tga"
+   name="FailedToLoadSettingsApply"
+   persist="true"
+   type="alertmodal">
+Unable to apply those settings to the environment.
+  <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FailedToBuildSettingsDay"
+   persist="true"
+   type="alertmodal">
+Unable to apply those settings to the environment.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="NoEnvironmentSettings"
+   persist="true"
+   type="alertmodal">
+This Region does not support environmental settings.
+  <tag>fail</tag>
+  </notification>
+  
 </notifications>

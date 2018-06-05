@@ -624,6 +624,17 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
     return LLSettingsBase::ptr_t();
 }
 
+void LLSettingsDay::clearTrack(S32 track)
+{
+    if ((track < 0) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to clear track (#" << track << ") out of range!" << LL_ENDL;
+        return;
+    }
+
+    mDayTracks[track].clear();
+}
+
 LLSettingsBase::TrackPosition LLSettingsDay::getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe)
 {
     return get_wrapping_atafter(mDayTracks[track], keyframe)->first;
