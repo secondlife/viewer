@@ -77,7 +77,7 @@ namespace
             return LLSettingsBase::TrackPosition(1.0) - (begin - end);
         }
 
-        return 0;
+        return 1.0f;
     }
 
     LLSettingsDay::CycleTrack_t::iterator get_wrapping_atafter(LLSettingsDay::CycleTrack_t &collection, const LLSettingsBase::TrackPosition& key)
@@ -139,13 +139,14 @@ namespace
             mCycleLength(cyclelength),
             mCycleOffset(cycleoffset)
         {
+            // must happen prior to getBoundingEntries call...
+            mTrackNo = selectTrackNumber(trackno);
+
             LLSettingsDay::TrackBound_t initial = getBoundingEntries(getAdjustedNow());
 
             mInitial = (*initial.first).second;
             mFinal = (*initial.second).second;
             mBlendSpan = getSpanTime(initial);
-
-            mTrackNo = selectTrackNumber(trackno);
 
             setOnFinished([this](const LLSettingsBlender::ptr_t &){ onFinishedSpan(); });
         }
@@ -211,7 +212,9 @@ namespace
 
         LLSettingsBase::Seconds getSpanTime(const LLSettingsDay::TrackBound_t &bounds) const
         {
-            return mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+            LLSettingsBase::Seconds span = mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
+            llassert(span > 0.01f);
+            return span;
         }
 
     private:
@@ -1905,11 +1908,6 @@ void LLEnvironment::DayInstance::animate()
         mWater.reset();
         mBlenderWater.reset();
     }
-//     else if (wtrack.size() == 1)
-//     {
-//         mWater = std::static_pointer_cast<LLSettingsWater>((*(wtrack.begin())).second);
-//         mBlenderWater.reset();
-//     }
     else
     {
         mWater = LLSettingsVOWater::buildDefaultWater();
@@ -1924,11 +1922,6 @@ void LLEnvironment::DayInstance::animate()
         mSky.reset();
         mBlenderSky.reset();
     }
-//     else if (track.size() == 1)
-//     {
-//         mSky = std::static_pointer_cast<LLSettingsSky>((*(track.begin())).second);
-//         mBlenderSky.reset();
-//     }
     else
     {
         mSky = LLSettingsVOSky::buildDefaultSky();
