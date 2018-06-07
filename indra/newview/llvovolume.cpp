@@ -3597,26 +3597,64 @@ void LLVOVolume::updateRiggingInfo()
     {
         const LLMeshSkinInfo* skin = getSkinInfo();
         LLVOAvatar *avatar = getAvatar();
-        if (skin && avatar && getLOD()>mLastRiggingInfoLOD)
+        LLVolume *volume = getVolume();
+        if (skin && avatar && volume)
         {
-            LLVolume *volume = getVolume();
-            if (volume)
+            LL_DEBUGS("RigSpammish") << "starting, vovol " << this << " lod " << getLOD() << " last " << mLastRiggingInfoLOD << LL_ENDL;
+            // AXON SPAM
+            for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
             {
+                LLVolumeFace& vol_face = volume->getVolumeFace(f);
+                if (vol_face.mJointRiggingInfoTab.size()>0)
+                {
+                    LL_DEBUGS("RigSpammish") << "vovol " << this << " lod " << getLOD() << " face " << f << " vf " << &vol_face << " has rig info" << LL_ENDL;
+                }
+                else
+                {
+                    LL_DEBUGS("RigSpammish") << "vovol " << this << " lod " << getLOD() << " face " << f << " vf " << &vol_face << " needs update" << LL_ENDL;
+                }
+            }
+            // We maintain rigging info based on the highest LOD
+            // handled so far. Need to update if either the LOD is
+            // the same but some faces need to be updated, or if
+            // the LOD has increased.
+            bool any_face_needs_rebuild = false;
+            if (getLOD()==mLastRiggingInfoLOD)
+            {
+                // See if any volume face needs its rigging info built.
+                for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
+                {
+                    LLVolumeFace& vol_face = volume->getVolumeFace(f);
+                    if (vol_face.mJointRiggingInfoTab.size()==0)
+                    {
+                        // AXON this is overkill since some faces don't contain any valid weights/rigged verts.
+                        any_face_needs_rebuild = true;
+                        break;
+                    }
+                }
+            }
+
+            //if (getLOD()>mLastRiggingInfoLOD ||
+            //    (getLOD()==mLastRiggingInfoLOD && any_face_needs_rebuild))
+            if (getLOD()==3)
+            {
+                // Rigging info has changed
                 mJointRiggingInfoTab.clear();
                 for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
                 {
                     LLVolumeFace& vol_face = volume->getVolumeFace(f);
                     LLSkinningUtil::updateRiggingInfo(skin, avatar, vol_face);
-                    if (vol_face.mJointRiggingInfoTabPtr)
+                    if (vol_face.mJointRiggingInfoTab.size()>0)
                     {
-                        mergeRigInfoTab(mJointRiggingInfoTab, *vol_face.mJointRiggingInfoTabPtr);
+                        mJointRiggingInfoTab.merge(vol_face.mJointRiggingInfoTab);
                     }
                 }
                 // Keep the highest LOD info available.
-                // AXON would this ever need to be forced to refresh? Set to -1 if so.
                 mLastRiggingInfoLOD = getLOD();
                 LL_DEBUGS("RigSpammish") << "updated rigging info for LLVOVolume " 
-                                         << this << " lod " << mLastRiggingInfoLOD << LL_ENDL;
+                                         << this << " lod " << mLastRiggingInfoLOD 
+                                         << " any faces rebuilt? " << any_face_needs_rebuild
+                                         << LL_ENDL;
             }
         }
     }

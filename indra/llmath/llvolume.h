@@ -962,7 +962,7 @@ public:
 
     // Which joints are rigged to, and the bounding box of any rigged
     // vertices per joint.
-    joint_rig_info_tab *mJointRiggingInfoTabPtr;
+    LLJointRiggingInfoTab mJointRiggingInfoTab;
     
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
 

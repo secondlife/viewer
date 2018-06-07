@@ -51,6 +51,10 @@
 #include "llstl.h"
 #include "lltimer.h"
 
+//#if LL_WINDOWS
+//#pragma optimize("", off)
+//#endif
+
 namespace {
 #if LL_WINDOWS
 	void debugger_print(const std::string& s)
@@ -361,6 +365,7 @@ namespace
 			}
 		}
 		
+		LL_INFOS("LogControlFile") << "logging reconfiguring from " << filename() << LL_ENDL;
 		LLError::configure(configuration);
 		LL_INFOS("LogControlFile") << "logging reconfigured from " << filename() << LL_ENDL;
 		return true;
@@ -1292,7 +1297,7 @@ namespace LLError
 
 #if LL_WINDOWS
 		// VC80 was optimizing the error away.
-		#pragma optimize("", off)
+//		#pragma optimize("", off)
 #endif
 	void crashAndLoop(const std::string& message)
 	{
@@ -1310,7 +1315,7 @@ namespace LLError
 		exit(EXIT_FAILURE);
 	}
 #if LL_WINDOWS
-		#pragma optimize("", on)
+//		#pragma optimize("", on)
 #endif
 
 	std::string utcTime()

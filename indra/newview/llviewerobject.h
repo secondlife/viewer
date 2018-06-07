@@ -881,7 +881,7 @@ public:
 
     virtual void updateRiggingInfo() {}
 
-    joint_rig_info_tab mJointRiggingInfoTab;
+    LLJointRiggingInfoTab mJointRiggingInfoTab;
 
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.

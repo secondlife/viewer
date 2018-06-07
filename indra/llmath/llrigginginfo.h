@@ -44,6 +44,17 @@ public:
     LLVector4a *getRiggedExtents();
     const LLVector4a *getRiggedExtents() const;
     void merge(const LLJointRiggingInfo& other);
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 private:
 	LL_ALIGN_16(LLVector4a mRiggedExtents[2]);
     bool mIsRiggedTo;
@@ -51,8 +62,25 @@ private:
 
 // For storing all the rigging info associated with a given avatar or
 // object, keyed by joint_num.
-typedef std::vector<LLJointRiggingInfo> joint_rig_info_tab;
+// Using direct memory management instead of std::vector<> to avoid alignment issues.
+class LLJointRiggingInfoTab
+{
+public:
+    LLJointRiggingInfoTab();
+    ~LLJointRiggingInfoTab();
+    void resize(S32 size);
+    void clear();
+    S32 size() const { return mSize; }
+    void merge(const LLJointRiggingInfoTab& src);
+    LLJointRiggingInfo& operator[](S32 i) { return mRigInfoPtr[i]; }
+    const LLJointRiggingInfo& operator[](S32 i) const { return mRigInfoPtr[i]; };
+private:
+    // Not implemented
+    LLJointRiggingInfoTab& operator=(const LLJointRiggingInfoTab& src);
+    LLJointRiggingInfoTab(const LLJointRiggingInfoTab& src);
 
-void mergeRigInfoTab(joint_rig_info_tab& dst, const joint_rig_info_tab& src);
+    LLJointRiggingInfo *mRigInfoPtr;
+    S32 mSize;
+};
 
 #endif

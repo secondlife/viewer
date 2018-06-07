@@ -219,10 +219,10 @@ public:
 
     // virtual
     void 					updateRiggingInfo();
+    bool					mRiggingInfoNeedsUpdate;
 
     std::set<LLUUID>		mActiveOverrideMeshes;
-
-    
+    virtual void			onActiveOverrideMeshesChanged();
     
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);

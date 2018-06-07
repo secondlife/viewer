@@ -27,6 +27,10 @@
 #include "llmath.h"
 #include "llrigginginfo.h"
 
+//#if LL_WINDOWS
+//#pragma optimize("", off)
+//#endif
+
 //-----------------------------------------------------------------------------
 // LLJointRiggingInfo
 //-----------------------------------------------------------------------------
@@ -80,17 +84,79 @@ void LLJointRiggingInfo::merge(const LLJointRiggingInfo& other)
     }
 }
 
-void mergeRigInfoTab(joint_rig_info_tab& dst, const joint_rig_info_tab& src)
+LLJointRiggingInfoTab::LLJointRiggingInfoTab():
+    mRigInfoPtr(NULL),
+    mSize(0)
 {
+}
+
+LLJointRiggingInfoTab::~LLJointRiggingInfoTab()
+{
+    clear();
+}
+
+// This doesn't preserve data if the size changes. In practice
+// this doesn't matter because the size is always either
+// LL_CHARACTER_MAX_ANIMATED_JOINTS or 0.
+void LLJointRiggingInfoTab::resize(S32 size)
+{
+    if (size != mSize)
+    {
+        clear();
+        if (size > 0)
+        {
+            mRigInfoPtr = new LLJointRiggingInfo[size];
+            mSize = size;
+        }
+    }
+}
+
+void LLJointRiggingInfoTab::clear()
+{
+    if (mRigInfoPtr)
+    {
+        delete[](mRigInfoPtr);
+        mRigInfoPtr = NULL;
+        mSize = 0;
+    }
+}
+
+void showDetails(const LLJointRiggingInfoTab& src, const std::string& str)
+{
+	S32 count_rigged = 0;
+	S32 count_box = 0;
+    LLVector4a zero_vec;
+    zero_vec.clear();
+    for (S32 i=0; i<src.size(); i++)
+    {
+        if (src[i].isRiggedTo())
+        {
+            count_rigged++;
+            if ((!src[i].getRiggedExtents()[0].equals3(zero_vec)) ||
+                (!src[i].getRiggedExtents()[1].equals3(zero_vec)))
+            {
+                count_box++;
+            }
+       }
+    }
+    LL_DEBUGS("RigSpammish") << "details: " << str << " has " << count_rigged << " rigged joints, of which " << count_box << " are non-empty" << LL_ENDL;
+}
+
+void LLJointRiggingInfoTab::merge(const LLJointRiggingInfoTab& src)
+{
+    //showDetails(*this, "input this");
     // Size should be either LL_CHARACTER_MAX_ANIMATED_JOINTS, or 0 if
     // no data. Not necessarily the same for both inputs.
-    if (src.size() > dst.size())
+    if (src.size() > size())
     {
-        dst.resize(src.size());
+        resize(src.size());
     }
-    S32 size = llmin(src.size(), dst.size());
-    for (S32 i=0; i<size; i++)
+    S32 min_size = llmin(size(), src.size());
+    for (S32 i=0; i<min_size; i++)
     {
-        dst[i].merge(src[i]);
+        (*this)[i].merge(src[i]);
     }
+    //showDetails(src, "input src");
+    //showDetails(*this, "output this");
+
 }

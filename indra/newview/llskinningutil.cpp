@@ -34,6 +34,10 @@
 #include "llvolume.h"
 #include "llrigginginfo.h"
 
+//#if LL_WINDOWS
+//#pragma optimize("", off)
+//#endif
+
 void LLSkinningUtil::initClass()
 {
 }
@@ -211,15 +215,36 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
     llassert(valid_weights);
 }
 
+// AXON need to remember this has been done
+void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
+{
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        LLJoint *joint = NULL;
+        if (skin->mJointNums[j] == -1)
+        {
+            joint = avatar->getJoint(skin->mJointNames[j]);
+            if (joint)
+            {
+                skin->mJointNums[j] = joint->getJointNum();
+            }
+        }
+    }
+}
+
 void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
 {
+    // AXON cast
+    initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
     S32 num_verts = vol_face.mNumVertices;
     if (num_verts>0 && vol_face.mWeights && (skin->mJointNames.size()>0))
     {
-        if (!vol_face.mJointRiggingInfoTabPtr)
+        if (vol_face.mJointRiggingInfoTab.size()==0)
         {
-            vol_face.mJointRiggingInfoTabPtr = new joint_rig_info_tab(LL_CHARACTER_MAX_ANIMATED_JOINTS);
-            joint_rig_info_tab& rig_info_tab = *vol_face.mJointRiggingInfoTabPtr;
+            std::set<S32> active_joints;
+            S32 active_verts = 0;
+            vol_face.mJointRiggingInfoTab.resize(LL_CHARACTER_MAX_ANIMATED_JOINTS);
+            LLJointRiggingInfoTab &rig_info_tab = vol_face.mJointRiggingInfoTab;
             for (S32 i=0; i<vol_face.mNumVertices; i++)
             {
                 LLVector4a& pos = vol_face.mPositions[i];
@@ -228,11 +253,13 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                 {
                     S32 joint_index = llfloor(w[k]);
                     S32 joint_num = skin->mJointNums[joint_index];
-                    if (joint_num != -1)
+                    if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
                     {
                         rig_info_tab[joint_num].setIsRiggedTo(true);
+                        active_joints.insert(joint_num);
+                        active_verts++;
 
-                        // AXON can precompute that matMuls.
+                        // AXON can precompute these matMuls.
                         LLMatrix4a bind_shape;
                         bind_shape.loadu(skin->mBindShapeMatrix);
                         LLMatrix4a inv_bind;
@@ -246,8 +273,21 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                     }
                 }
             }
-            LL_DEBUGS("RigSpammish") << "updated rigging info for vf " << &vol_face 
-                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
+            LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face 
+                                     << " num_verts " << vol_face.mNumVertices
+                                     << " active joints " << active_joints.size()
+                                     << " active verts " << active_verts
+                                     << LL_ENDL; 
         }
+    }
+    if (vol_face.mJointRiggingInfoTab.size()!=0)
+    {
+        LL_DEBUGS("RigSpammish") << "we have rigging info for vf " << &vol_face 
+                                 << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
+    }
+    else
+    {
+        LL_DEBUGS("RigSpammish") << "no rigging info for vf " << &vol_face 
+                                 << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
     }
 }
