@@ -7,7 +7,7 @@
         left="0"
         help_topic="land_general_tab"
         name="panel_settings_water"
-        top="0">
+        top="0">    
     <layout_stack name="water_stack1"
             follows="all"
             layout="topleft"
@@ -109,7 +109,7 @@
                         auto_resize="true"
                         user_resize="true"
                         visible="true"
-                        min_width="375"
+                        min_width="460"
                         width="50">
                     <text
                             follows="left|top"
@@ -143,98 +143,46 @@
                             height="16"
                             layout="topleft"
                             top_delta="-20"
-                            left_delta="120">
+                            left_delta="130">
                         Large Wave Speed
                     </text>
-                    <panel
-                            follows="left|top"
-                            border="true"
-                            bg_alpha_color="red"
-                            background_visible="true"
-                            width="100"
-                            height="100"
-                            left_delta="0"
-                            top_delta="21">
-                        <text>
-                            placeholder
-                        </text>
-                        <slider
-                                decimal_digits="1"
-                                follows="left|top"
-                                increment="0.01"
-                                initial_value="0"
-                                layout="topleft"
-                                label="X:"
-                                left_delta="10"
-                                max_val="4"
-                                min_val="-4"
-                                name="water_wave1_x"
-                                top_pad="5"
-                                width="100"/>
-                        <slider
-                                decimal_digits="1"
-                                follows="left|top"
-                                increment="0.01"
-                                initial_value="0"
-                                layout="topleft"
-                                label="Y:"
-                                left_delta="0"
-                                max_val="4"
-                                min_val="-4"
-                                name="water_wave1_y"
-                                top_pad="5"
-                                orientation="vertical" 
-                                height="70"/>
-                    </panel>
+                    <xy_vector
+                        follows="top|left"
+                        name="water_wave1_xy"
+                        width="120"
+                        height="145"
+                        visible="true"
+                        left_delta="0"
+                        top_delta="21"
+                        min_val_x="-4"
+                        max_val_x="4"
+                        increment_x="0.5f"
+                        min_val_y="-4"
+                        max_val_y="4"
+                        increment_y="0.5f"
+                        arrow_color="red"/>
+                    
                     <text
                             follows="left|top"
                             height="16"
                             layout="topleft"
                             top_delta="-20"
-                            left_delta="120">
+                            left_delta="160">
                         Small Wave Speed
                     </text>
-                    <panel
-                            follows="left|top"
-                            border="true"
-                            bg_alpha_color="red"
-                            background_visible="true"
-                            width="100"
-                            height="100"
-                            left_delta="0"
-                            top_delta="21"
-                            >
-                        <text>
-                            placeholder
-                        </text>
-                        <slider
-                                decimal_digits="1"
-                                follows="left|top"
-                                increment="0.01"
-                                initial_value="0"
-                                layout="topleft"
-                                label="X:"
-                                left_delta="10"
-                                max_val="4"
-                                min_val="-4"
-                                name="water_wave2_x"
-                                top_pad="5"
-                                width="100"/>
-                        <slider
-                                decimal_digits="1"
-                                follows="left|top"
-                                increment="0.01"
-                                initial_value="0"
-                                layout="topleft"
-                                label="Y:"
-                                left_delta="0"
-                                max_val="4"
-                                min_val="-4"
-                                name="water_wave2_y"
-                                top_pad="5"
-                                orientation="vertical" 
-                                height="70"/>
-                    </panel>
+                    <xy_vector
+                        follows="top|left"
+                        name="water_wave2_xy"
+                        width="120"
+                        height="145"
+                        visible="true"
+                        left_delta="0"
+                        top_delta="21"
+                        min_val_x="-4"
+                        max_val_x="4"
+                        min_val_y="-4"
+                        max_val_y="4" 
+                        arrow_color="green"/>
 
                     <text
                             follows="left|top|right"

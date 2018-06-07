@@ -95,51 +95,24 @@
                     width="200">
                 Cloud Scroll:
             </text>
-            <panel
+            <xy_vector
                     follows="left|top"
-                    border="true"
-                    bg_alpha_color="red"
-                    background_visible="true"
-                    width="100"
-                    height="100"
-                    left_delta="5"
-                    top_delta="21">
-                <text>
-                    placeholder
-                </text>
-                <slider
-                        decimal_digits="1"
-                        follows="left|top"
-                        increment="0.01"
-                        initial_value="0"
-                        layout="topleft"
-                        label="X:"
-                        left_delta="10"
-                        max_val="10"
-                        min_val="-10"
-                        name="cloud_scroll_x"
-                        top_pad="5"
-                        width="100"/>
-                <slider
-                        decimal_digits="1"
-                        follows="left|top"
-                        increment="0.01"
-                        initial_value="0"
-                        layout="topleft"
-                        label="Y:"
-                        left_delta="0"
-                        max_val="10"
-                        min_val="-10"
-                        name="cloud_scroll_y"
-                        top_pad="5"
-                        orientation="vertical" 
-                        height="70"/>
-            </panel>
+                    name="cloud_scroll_xy"
+                    width="120"
+                    height="145"
+                    visible="true"
+                    left_delta="0"
+                    top_delta="21"
+                    min_val_x="-10"
+                    max_val_x="10"
+                    min_val_y="-10"
+                    max_val_y="10" />
+
             <text
                     follows="left|top"
                     height="10"
                     layout="topleft"
-                    left_delta="115"
+                    left_delta="160"
                     top_delta="-20"
                     width="200">
                 Cloud Image:

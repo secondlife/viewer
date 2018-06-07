@@ -31,6 +31,7 @@
 #include "llslider.h"
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
+#include "llxyvector.h"
 
 namespace
 {
@@ -39,11 +40,8 @@ namespace
     const std::string   FIELD_WATER_UNDERWATER_MOD("water_underwater_mod");
     const std::string   FIELD_WATER_NORMAL_MAP("water_normal_map");
 
-    const std::string   FIELD_WATER_WAVE1_X("water_wave1_x");
-    const std::string   FIELD_WATER_WAVE1_Y("water_wave1_y");
-
-    const std::string   FIELD_WATER_WAVE2_X("water_wave2_x");
-    const std::string   FIELD_WATER_WAVE2_Y("water_wave2_y");
+    const std::string   FIELD_WATER_WAVE1_XY("water_wave1_xy");
+    const std::string   FIELD_WATER_WAVE2_XY("water_wave2_xy");
 
     const std::string   FIELD_WATER_NORMAL_SCALE_X("water_normal_scale_x");
     const std::string   FIELD_WATER_NORMAL_SCALE_Y("water_normal_scale_y");
@@ -82,6 +80,8 @@ BOOL LLPanelSettingsWaterMainTab::postBuild()
     mClrFogColor = getChild<LLColorSwatchCtrl>(FIELD_WATER_FOG_COLOR);
     mTxtNormalMap = getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP);
 
+    getChild<LLXYVector>(FIELD_WATER_WAVE1_XY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onLargeWaveChanged(); });
+
     mClrFogColor->setCommitCallback([this](LLUICtrl *, const LLSD &) { onFogColorChanged(); });
     getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onFogDensityChanged(); });
 //    getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onFogDensityChanged(getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->getValue().asReal()); });
@@ -90,11 +90,7 @@ BOOL LLPanelSettingsWaterMainTab::postBuild()
     mTxtNormalMap->setDefaultImageAssetID(LLSettingsWater::GetDefaultWaterNormalAssetId());
     mTxtNormalMap->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNormalMapChanged(); });
 
-    getChild<LLUICtrl>(FIELD_WATER_WAVE1_X)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onLargeWaveChanged(); });
-    getChild<LLUICtrl>(FIELD_WATER_WAVE1_Y)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onLargeWaveChanged(); });
-
-    getChild<LLUICtrl>(FIELD_WATER_WAVE2_X)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSmallWaveChanged(); });
-    getChild<LLUICtrl>(FIELD_WATER_WAVE2_Y)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSmallWaveChanged(); });
+    getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSmallWaveChanged(); });
 
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNormalScaleChanged(); });
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNormalScaleChanged(); });
@@ -128,11 +124,9 @@ void LLPanelSettingsWaterMainTab::refresh()
     getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setValue(mWaterSettings->getFogMod());
     mTxtNormalMap->setValue(mWaterSettings->getNormalMapID());
     LLVector2 vect2 = mWaterSettings->getWave1Dir();
-    getChild<LLUICtrl>(FIELD_WATER_WAVE1_X)->setValue(vect2[0]);
-    getChild<LLUICtrl>(FIELD_WATER_WAVE1_Y)->setValue(vect2[1]);
+    getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->setValue(vect2.getValue());
     vect2 = mWaterSettings->getWave2Dir();
-    getChild<LLUICtrl>(FIELD_WATER_WAVE2_X)->setValue(vect2[0]);
-    getChild<LLUICtrl>(FIELD_WATER_WAVE2_Y)->setValue(vect2[1]);
+    getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->setValue(vect2.getValue());
     LLVector3 vect3 = mWaterSettings->getNormalScale();
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->setValue(vect3[0]);
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->setValue(vect3[1]);
@@ -169,14 +163,14 @@ void LLPanelSettingsWaterMainTab::onNormalMapChanged()
 
 void LLPanelSettingsWaterMainTab::onLargeWaveChanged()
 {
-    LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE1_X)->getValue().asReal(), getChild<LLUICtrl>(FIELD_WATER_WAVE1_Y)->getValue().asReal());
+    LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->getValue());
     LL_WARNS("LAPRAS") << "Changing Large Wave from " << mWaterSettings->getWave1Dir() << " -> " << vect << LL_ENDL;
     mWaterSettings->setWave1Dir(vect);
 }
 
 void LLPanelSettingsWaterMainTab::onSmallWaveChanged()
 {
-    LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE2_X)->getValue().asReal(), getChild<LLUICtrl>(FIELD_WATER_WAVE2_Y)->getValue().asReal());
+    LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->getValue());
     LL_WARNS("LAPRAS") << "Changing Small Wave from " << mWaterSettings->getWave2Dir() << " -> " << vect << LL_ENDL;
     mWaterSettings->setWave2Dir(vect);
 }
