@@ -1082,6 +1082,8 @@ bool LLAppViewer::init()
 		}
 	}
 
+// don't nag developers who need to run the executable directly
+#if LL_RELEASE_FOR_DOWNLOAD
 	// MAINT-8305: If we're processing a SLURL, skip the launcher check.
 	if (gSavedSettings.getString("CmdLineLoginLocation").empty())
 	{
@@ -1098,6 +1100,7 @@ bool LLAppViewer::init()
 			LLNotificationsUtil::add("RunLauncher");
 		}
 	}
+#endif
 
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
