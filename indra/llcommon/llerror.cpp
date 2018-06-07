@@ -247,6 +247,13 @@ namespace LLError
 {
 	std::string Log::demangle(const char* mangled)
 	{
+
+#if LL_DARWIN
+        // MAINT-8724 libc++abi demangling causes malloc check failures
+        // that abort the application on OS X 10.14 Mojave so the easy
+        // fix is to disable demangling until a better fix can be found.
+        return mangled;
+#else
 #ifdef __GNUC__
 		// GCC: type_info::name() returns a mangled class name,st demangle
 
@@ -282,6 +289,7 @@ namespace LLError
 
 #else
 		return mangled;
+#endif
 #endif
 	}
 } // LLError
