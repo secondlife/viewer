@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+        height="602"
+        layout="topleft"
+        name="floater_settings_picker"
+        help_topic=""
+        save_rect="true"
+        title="Settings Selector"
+        width="705">
+        
+</floater>

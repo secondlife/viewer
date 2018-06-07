@@ -61,6 +61,7 @@ public:
     typedef F64Seconds Seconds;
     typedef F64        BlendFactor;
     typedef F32        TrackPosition; // 32-bit as these are stored in LLSD as such
+    static const TrackPosition INVALID_TRACKPOS;
 
     static const std::string SETTING_ID;
     static const std::string SETTING_NAME;

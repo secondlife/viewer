@@ -40,6 +40,7 @@ class LLLineEditor;
 class LLMultiSliderCtrl;
 class LLTextBox;
 class LLTimeCtrl;
+class LLTabContainer;
 
 class LLInventoryItem;
 
@@ -83,6 +84,7 @@ private:
 	void onButtonApply(LLUICtrl *ctrl, const LLSD &data);
 	void onBtnCancel();
     void onButtonImport();
+    void onButtonLoadFrame();
     void onAddTrack();
 	void onRemoveTrack();
 	void onCommitName(class LLLineEditor* caller, void* user_data);
@@ -130,46 +132,41 @@ private:
     void syncronizeTabs();
     void reblendSettings();
 
-    // **RIDER**
+    void setTabsData(LLTabContainer * tabcontainer, const LLSettingsBase::ptr_t &settings, bool editable);
 
     // play functions
     void startPlay();
     void stopPlay();
     static void onIdlePlay(void *);
 
-    LLSettingsDay::ptr_t    mEditDay; // edited copy
-    LLSettingsDay::Seconds  mDayLength;
-    U32                     mCurrentTrack;
-    std::string             mLastFrameSlider;
+    LLSettingsDay::ptr_t        mEditDay; // edited copy
+    LLSettingsDay::Seconds      mDayLength;
+    U32                         mCurrentTrack;
+    std::string                 mLastFrameSlider;
 
-    LLButton*			    mCancelButton;
-    LLButton*               mAddFrameButton;
-    LLButton*               mDeleteFrameButton;
-    LLButton*               mImportButton;
+    LLButton*                   mAddFrameButton;
+    LLButton*                   mDeleteFrameButton;
+    LLButton*                   mImportButton;
+    LLButton*                   mLoadFrame;
+    LLMultiSliderCtrl*	        mTimeSlider;
+    LLMultiSliderCtrl*          mFramesSlider;
+    LLView*                     mSkyTabLayoutContainer;
+    LLView*                     mWaterTabLayoutContainer;
+    LLTextBox*                  mCurrentTimeLabel;
+    LLUUID                      mInventoryId;
+    LLInventoryItem *           mInventoryItem;
+    LLFlyoutComboBtnCtrl *      mFlyoutControl;
 
-    LLMultiSliderCtrl*	    mTimeSlider;
-    LLMultiSliderCtrl*      mFramesSlider;
-    LLView*                 mSkyTabLayoutContainer;
-    LLView*                 mWaterTabLayoutContainer;
-    LLTextBox*              mCurrentTimeLabel;
-
-    // **RIDER**
-    LLUUID                  mInventoryId;
-    LLInventoryItem *       mInventoryItem;
-    LLEnvironment::EnvSelection_t       mEditingEnv;
     LLTrackBlenderLoopingManual::ptr_t  mSkyBlender;
     LLTrackBlenderLoopingManual::ptr_t  mWaterBlender;
-    LLSettingsSky::ptr_t    mScratchSky;
-    LLSettingsWater::ptr_t  mScratchWater;
-    // **RIDER**
+    LLSettingsSky::ptr_t        mScratchSky;
+    LLSettingsWater::ptr_t      mScratchWater;
 
-    LLFlyoutComboBtnCtrl *  mFlyoutControl;
+    LLFrameTimer                mPlayTimer;
+    F32                         mPlayStartFrame; // an env frame
+    bool                        mIsPlaying;
 
-    LLFrameTimer            mPlayTimer;
-    F32                     mPlayStartFrame; // an env frame
-    bool                    mIsPlaying;
-
-    edit_commit_signal_t    mCommitSignal;
+    edit_commit_signal_t        mCommitSignal;
 
     // For map of sliders to parameters
     class FrameData

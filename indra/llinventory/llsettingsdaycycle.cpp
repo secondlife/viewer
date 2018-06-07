@@ -530,6 +530,14 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::TrackPo
     CycleTrack_t::iterator iter = track.find(old_frame);
     if (iter != track.end())
     {
+        /*TODO check that we are not moving too close to another keyframe */
+//         CycleTrack_t::value_type existing = getSettingsNearKeyfarme(new_frame, trackno, 2.5f);
+//         if ((*iter).first != existing.first)
+//         {
+//             LL_WARNS("DAYCYCLE") << "Track too close to existing track.  Not moving." << LL_ENDL;
+//             return false;
+//         }
+
         LLSettingsBase::ptr_t base = iter->second;
         track.erase(iter);
         track[llclamp(new_frame, 0.0f, 1.0f)] = base;
@@ -622,6 +630,37 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
     }
 
     return LLSettingsBase::ptr_t();
+}
+
+LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyfarme(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const
+{
+    if ((track < 0) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to get track (#" << track << ") out of range!" << LL_ENDL;
+        return CycleTrack_t::value_type(TrackPosition(INVALID_TRACKPOS), LLSettingsBase::ptr_t());
+    }
+
+    if (mDayTracks[track].empty())
+    {
+        LL_INFOS("DAYCYCLE") << "Empty track" << LL_ENDL;
+        return CycleTrack_t::value_type(TrackPosition(INVALID_TRACKPOS), LLSettingsBase::ptr_t());
+    }
+
+    TrackPosition startframe(keyframe - fudge);
+    if (startframe < 0.0f)
+        startframe = 1.0f + startframe;
+
+    CycleTrack_t::iterator it = get_wrapping_atafter(const_cast<CycleTrack_t &>(mDayTracks[track]), startframe);
+
+    F32 dist = get_wrapping_distance(startframe, (*it).first);
+
+    LL_WARNS("LAPRAS") << "[" << startframe << " ... " << keyframe << " -> " << (*it).first << "@" << dist << LL_ENDL;
+
+
+    if (dist <= (fudge * 2.0f))
+        return (*it);
+
+    return CycleTrack_t::value_type(TrackPosition(INVALID_TRACKPOS), LLSettingsBase::ptr_t());
 }
 
 void LLSettingsDay::clearTrack(S32 track)

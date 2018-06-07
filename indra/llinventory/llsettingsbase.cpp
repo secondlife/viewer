@@ -38,6 +38,8 @@ namespace
     const LLSettingsBase::TrackPosition BREAK_POINT = 0.5;
 }
 
+const LLSettingsBase::TrackPosition LLSettingsBase::INVALID_TRACKPOS(-1.0);
+
 //=========================================================================
 std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings)
 {

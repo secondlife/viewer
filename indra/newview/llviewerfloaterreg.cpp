@@ -253,6 +253,9 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("inventory", "floater_my_inventory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("inspect", "floater_inspect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInspect>);
 	LLFloaterReg::add("item_properties", "floater_item_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterItemProperties>);
+
+//    LLFloaterReg::add("floater_settings_picker", "floater_settings_picker.xml" , (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterItemProperties>);
+    
 	LLInspectAvatarUtil::registerFloater();
 	LLInspectGroupUtil::registerFloater();
 	LLInspectObjectUtil::registerFloater();
