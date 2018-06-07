@@ -1082,6 +1082,8 @@ bool LLAppViewer::init()
 		}
 	}
 
+// don't nag developers who need to run the executable directly
+#if LL_RELEASE_FOR_DOWNLOAD
 	char* PARENT = getenv("PARENT");
 	if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
 	{
@@ -1094,6 +1096,7 @@ bool LLAppViewer::init()
 		// him/herself in the foot.
 		LLNotificationsUtil::add("RunLauncher");
 	}
+#endif
 
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())

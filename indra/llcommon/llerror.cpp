@@ -247,32 +247,15 @@ namespace LLError
 {
 	std::string Log::demangle(const char* mangled)
 	{
-
-#if LL_DARWIN
-        // MAINT-8724 libc++abi demangling causes malloc check failures
-        // that abort the application on OS X 10.14 Mojave so the easy
-        // fix is to disable demangling until a better fix can be found.
-        return mangled;
-#else
 #ifdef __GNUC__
 		// GCC: type_info::name() returns a mangled class name,st demangle
-
-		static size_t abi_name_len = 100;
-		static char* abi_name_buf = (char*)malloc(abi_name_len);
-			// warning: above is voodoo inferred from the GCC manual,
-			// do NOT change
-
-		int status;
-			// We don't use status, and shouldn't have to pass apointer to it
-			// but gcc 3.3 libstc++'s implementation of demangling is broken
-			// and fails without.
-			
-		char* name = abi::__cxa_demangle(mangled,
-										abi_name_buf, &abi_name_len, &status);
-			// this call can realloc the abi_name_buf pointer (!)
-
-		return name ? name : mangled;
-
+        // passing nullptr, 0 forces allocation of a unique buffer we can free
+        // fixing MAINT-8724 on OSX 10.14
+		int status = -1;
+		char* name = abi::__cxa_demangle(mangled, nullptr, 0, &status);
+        std::string result(name ? name : mangled);
+        free(name);
+        return result;
 #elif LL_WINDOWS
 		// DevStudio: type_info::name() includes the text "class " at the start
 
@@ -289,7 +272,6 @@ namespace LLError
 
 #else
 		return mangled;
-#endif
 #endif
 	}
 } // LLError
