@@ -226,7 +226,7 @@ bool validateLegacyHaze(LLSD &value)
     }
     if (result["warnings"].size() > 0)
     {
-        LL_WARNS("SETTINGS") << "Legacy Haze Config Validation warnings: " << result["errors"] << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Legacy Haze Config Validation warnings: " << result["warnings"] << LL_ENDL;
         return false;
     }
     return true;
