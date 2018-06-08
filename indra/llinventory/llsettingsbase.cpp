@@ -284,7 +284,7 @@ bool LLSettingsBase::validate()
 
     if (!mSettings.has(SETTING_TYPE))
     {
-        mSettings[SETTING_TYPE] = getSettingType();
+        mSettings[SETTING_TYPE] = getSettingsType();
     }
 
     LLSD result = LLSettingsBase::settingValidation(mSettings, validations);

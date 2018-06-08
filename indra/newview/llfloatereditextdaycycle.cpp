@@ -46,6 +46,8 @@
 #include "llinventorymodel.h"
 #include "llviewerparcelmgr.h"
 
+#include "llsettingspicker.h"
+
 // newview
 #include "llagent.h"
 #include "llparcel.h"
@@ -54,6 +56,8 @@
 #include "llviewerregion.h"
 #include "llpaneleditwater.h"
 #include "llpaneleditsky.h"
+
+#include "llui.h"
 
 #include "llenvironment.h"
 #include "lltrans.h"
@@ -266,18 +270,31 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
     stopPlay();
 }
 
+void LLFloaterEditExtDayCycle::onFocusReceived()
+{
+    updateEditEnvironment();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+}
+
+void LLFloaterEditExtDayCycle::onFocusLost()
+{
+    stopPlay();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+}
+
+
 void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
 {
-    if (new_visibility)
-    {
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mScratchSky, mScratchWater);
-        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
-    }
-    else
-    {
-        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
-        stopPlay();
-    }
+//     if (new_visibility)
+//     {
+//         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mScratchSky, mScratchWater);
+//         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
+//     }
+//     else
+//     {
+//         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+//         stopPlay();
+//     }
 }
 
 void LLFloaterEditExtDayCycle::refresh()
@@ -335,7 +352,7 @@ void LLFloaterEditExtDayCycle::onButtonImport()
 
 void LLFloaterEditExtDayCycle::onButtonLoadFrame()
 {
-
+    doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY);
 }
 
 void LLFloaterEditExtDayCycle::onAddTrack()
@@ -818,6 +835,7 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     }
     mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
     updateEditEnvironment();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
     syncronizeTabs();
     refresh();
 }
@@ -848,7 +866,8 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
 void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
 {
-
+    if (!mEditDay)
+        return;
     S32 skytrack = (mCurrentTrack) ? mCurrentTrack : 1;
     mSkyBlender = std::make_shared<LLTrackBlenderLoopingManual>(mScratchSky, mEditDay, skytrack);
     mWaterBlender = std::make_shared<LLTrackBlenderLoopingManual>(mScratchWater, mEditDay, LLSettingsDay::TRACK_WATER);
@@ -1104,4 +1123,35 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
 
 }
 
+void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e type)
+{
+//  LLUI::sWindow->setCursor(UI_CURSOR_WAIT);
+    LLFloater* floaterp = mInventoryFloater.get();
 
+    // Show the dialog
+    if (!floaterp)
+    {
+        LLFloaterSettingsPicker *picker = new LLFloaterSettingsPicker(
+            this,
+            LLUUID::null, "SELECT SETTINGS");
+
+        mInventoryFloater = picker->getHandle();
+
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data.asUUID()); });
+//                 texture_floaterp->setTextureSelectedCallback(boost::bind(&LLOutfitGallery::onTextureSelectionChanged, this, _1));
+//                 texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLOutfitGallery::onTexturePickerCommit, this, _1, _2));
+//                 texture_floaterp->setOnUpdateImageStatsCallback(boost::bind(&LLOutfitGallery::onTexturePickerUpdateImageStats, this, _1));
+//                 texture_floaterp->setLocalTextureEnabled(FALSE);
+
+        floaterp = picker;
+    }
+
+    ((LLFloaterSettingsPicker *)floaterp)->setSettingsFilter(type);
+    floaterp->openFloater();
+    floaterp->setFocus(TRUE);
+}
+
+void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID asset_id)
+{
+    LL_WARNS("LAPRAS") << "Got asset ID=" << asset_id << LL_ENDL;
+}

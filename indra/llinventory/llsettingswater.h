@@ -55,8 +55,8 @@ public:
     virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
-    virtual std::string     getSettingType() const SETTINGS_OVERRIDE { return std::string("water"); }
-    virtual LLSettingsType::type_e  getSettingTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_WATER; }
+    virtual std::string     getSettingsType() const SETTINGS_OVERRIDE { return std::string("water"); }
+    virtual LLSettingsType::type_e  getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_WATER; }
 
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;

@@ -539,6 +539,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
+    llsettingspicker.cpp
     llsettingsvo.cpp
     llshareavatarhandler.cpp
     llsidepanelappearance.cpp
@@ -1149,6 +1150,7 @@ set(viewer_HEADER_FILES
     llsecapi.h
     llsechandler_basic.h
     llselectmgr.h
+    llsettingspicker.h
     llsettingsvo.h
     llsidepanelappearance.h
     llsidepanelinventory.h

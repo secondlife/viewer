@@ -75,9 +75,9 @@ public:
     virtual ~LLSettingsBase() { };
 
     //---------------------------------------------------------------------
-    virtual std::string getSettingType() const = 0;
+    virtual std::string getSettingsType() const = 0;
 
-    virtual LLSettingsType::type_e getSettingTypeValue() const = 0;
+    virtual LLSettingsType::type_e getSettingsTypeValue() const = 0;
 
     //---------------------------------------------------------------------
     // Settings status 
