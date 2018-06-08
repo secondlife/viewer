@@ -55,6 +55,17 @@ public:
 		ll_aligned_free_16(ptr);
 	}
 
+	void* operator new[](size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete[](void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
+
 private:
 	LL_ALIGN_16(LLVector4a mRiggedExtents[2]);
     bool mIsRiggedTo;
@@ -74,6 +85,8 @@ public:
     void merge(const LLJointRiggingInfoTab& src);
     LLJointRiggingInfo& operator[](S32 i) { return mRigInfoPtr[i]; }
     const LLJointRiggingInfo& operator[](S32 i) const { return mRigInfoPtr[i]; };
+    bool needsUpdate() { return mNeedsUpdate; }
+    void setNeedsUpdate(bool val) { mNeedsUpdate = val; }
 private:
     // Not implemented
     LLJointRiggingInfoTab& operator=(const LLJointRiggingInfoTab& src);
@@ -81,6 +94,7 @@ private:
 
     LLJointRiggingInfo *mRigInfoPtr;
     S32 mSize;
+    bool mNeedsUpdate;
 };
 
 #endif

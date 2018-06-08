@@ -86,7 +86,8 @@ void LLJointRiggingInfo::merge(const LLJointRiggingInfo& other)
 
 LLJointRiggingInfoTab::LLJointRiggingInfoTab():
     mRigInfoPtr(NULL),
-    mSize(0)
+    mSize(0),
+    mNeedsUpdate(true)
 {
 }
 
