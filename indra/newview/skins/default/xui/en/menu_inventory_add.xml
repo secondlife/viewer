@@ -194,6 +194,14 @@
                      function="Inventory.DoCreate"
                      parameter="tattoo" />
                 </menu_item_call>
+              <menu_item_call
+                 label="New Universal"
+                 layout="topleft"
+                 name="New Universal">
+                <menu_item_call.on_click
+                 function="Inventory.DoCreate"
+                 parameter="universal" />
+              </menu_item_call>
                 <menu_item_call
                  label="New Physics"
                  layout="topleft"

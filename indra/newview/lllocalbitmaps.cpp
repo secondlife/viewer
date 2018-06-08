@@ -381,6 +381,7 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	updateUserLayers(old_id, new_id, LLWearableType::WT_SKIRT);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_SOCKS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_TATTOO);
+	updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
 }
@@ -746,7 +747,7 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_TATTOO:
 		{
-			switch(baked_texind)
+			switch (baked_texind)
 			{
 				case LLAvatarAppearanceDefines::BAKED_HEAD:
 				{
@@ -764,6 +765,19 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 					result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
 					break;
 				}
+				default:
+				{
+					break;
+				}
+			}
+			break;
+			
+		}
+		case LLWearableType::WT_UNIVERSAL:
+		{
+			switch (baked_texind)
+			{
+				
 				case LLAvatarAppearanceDefines::BAKED_SKIRT:
 				{
 					result = LLAvatarAppearanceDefines::TEX_SKIRT_TATTOO;
