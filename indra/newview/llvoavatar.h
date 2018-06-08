@@ -219,7 +219,6 @@ public:
 
     // virtual
     void 					updateRiggingInfo();
-    bool					mRiggingInfoNeedsUpdate;
 
     std::set<LLUUID>		mActiveOverrideMeshes;
     virtual void			onActiveOverrideMeshesChanged();

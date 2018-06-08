@@ -671,8 +671,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mCachedInMuteList(false),
     mIsControlAvatar(false),
     mIsUIAvatar(false),
-    mEnableDefaultMotions(true),
-    mRiggingInfoNeedsUpdate(true)
+    mEnableDefaultMotions(true)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -1371,10 +1370,10 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     {
         // AXON try to cache unless something has changed about attached rigged meshes.
         // Needs more logic based on volume states.
-        //if (mRiggingInfoNeedsUpdate)
+        //if (mRiggingInfoTab.needsUpdate())
         {
             updateRiggingInfo();
-            mRiggingInfoNeedsUpdate = false;
+            mJointRiggingInfoTab.setNeedsUpdate(false);
         }
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
         {
@@ -9479,12 +9478,10 @@ void showRigInfoTabExtents(LLVOAvatar *avatar, LLJointRiggingInfoTab& tab, S32& 
     }
 }
 
-// virtual
-void LLVOAvatar::updateRiggingInfo()
+// AXON move to member
+void getAssociatedVolumes(LLVOAvatar *av, std::vector<LLVOVolume*>& volumes)
 {
-    mJointRiggingInfoTab.clear();
-    //LL_INFOS() << "starting update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
-	for ( attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
+	for ( LLVOAvatar::attachment_map_t::iterator iter = av->mAttachmentPoints.begin(); iter != av->mAttachmentPoints.end(); ++iter )
 	{
 		LLViewerJointAttachment* attachment = iter->second;
 		LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_end = attachment->mAttachedObjects.end();
@@ -9493,50 +9490,58 @@ void LLVOAvatar::updateRiggingInfo()
 			 attach_iter != attach_end; ++attach_iter)
 		{
 			LLViewerObject* attached_object =  *attach_iter;
-            attached_object->updateRiggingInfo();
-            mJointRiggingInfoTab.merge(attached_object->mJointRiggingInfoTab);
-            //LL_INFOS() << "after merge rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
-            
-
+            LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
+            if (volume)
+            {
+                volumes.push_back(volume);
+            }
             LLViewerObject::const_child_list_t& children = attached_object->getChildren();
             for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
                  it != children.end(); ++it)
             {
                 LLViewerObject *childp = *it;
-                childp->updateRiggingInfo();
-                mJointRiggingInfoTab.merge(childp->mJointRiggingInfoTab);
-                //LL_INFOS() << "after merge rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
+                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+                if (volume)
+                {
+                    volumes.push_back(volume);
+                }
             }
         }
 	}
-    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(av);
     if (control_av)
     {
         LLVOVolume *volp = control_av->mRootVolp;
         if (volp && !volp->isAttachment())
         {
-            mJointRiggingInfoTab.merge(volp->mJointRiggingInfoTab);
-            LL_DEBUGS("RigSpammish") << getFullname() << " mRootVolp " << control_av->mRootVolp << " after cav update rig tab:" << LL_ENDL;
-            S32 joint_count, box_count;
-            showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
-            LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
-            //LL_INFOS() << "cav after merge rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
-
+            volumes.push_back(volp);
             LLViewerObject::const_child_list_t& children = volp->getChildren();
             for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
                  it != children.end(); ++it)
             {
                 LLViewerObject *childp = *it;
-                childp->updateRiggingInfo();
-                mJointRiggingInfoTab.merge(childp->mJointRiggingInfoTab);
-
-                LL_DEBUGS("RigSpammish") << getFullname() << " after cav child update rig tab:" << LL_ENDL;
-                S32 joint_count, box_count;
-                showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
-                LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
-                //LL_INFOS() << "cav after merge rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
+                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+                if (volume)
+                {
+                    volumes.push_back(volume);
+                }
             }
         }
+    }
+}
+
+// virtual
+void LLVOAvatar::updateRiggingInfo()
+{
+    LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
+    mJointRiggingInfoTab.clear();
+    std::vector<LLVOVolume*> volumes;
+    getAssociatedVolumes(this, volumes);
+    for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+    {
+        LLVOVolume *vol = *it;
+        vol->updateRiggingInfo();
+        mJointRiggingInfoTab.merge(vol->mJointRiggingInfoTab);
     }
 
     //LL_INFOS() << "done update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
@@ -9549,7 +9554,7 @@ void LLVOAvatar::updateRiggingInfo()
 // virtual
 void LLVOAvatar::onActiveOverrideMeshesChanged()
 {
-    mRiggingInfoNeedsUpdate = true;
+    mJointRiggingInfoTab.setNeedsUpdate(true);
 }
 
 U32 LLVOAvatar::getPartitionType() const

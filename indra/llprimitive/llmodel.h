@@ -56,6 +56,7 @@ public:
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
+    bool mJointNumsInitialized;
 };
 
 class LLModel : public LLVolume
