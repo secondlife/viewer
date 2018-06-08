@@ -52,7 +52,7 @@ LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
 
 static LLGLSLShader* cloud_shader = NULL;
 static LLGLSLShader* sky_shader = NULL;
-
+static LLGLSLShader* moon_shader = NULL;
 
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 	LLDrawPool(POOL_WL_SKY)
@@ -109,6 +109,11 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 			LLPipeline::sUnderWaterRender ?
 				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
+
+    moon_shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectFullbrightNoColorWaterProgram :
+				&gWLMoonProgram;
 }
 
 void LLDrawPoolWLSky::endRenderPass( S32 pass )
@@ -275,6 +280,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
+#if REMOVE_BEFORE_FLIGHT
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -289,6 +295,7 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 
 		cloud_shader->unbind();
 	}
+#endif
 }
 
 void LLDrawPoolWLSky::renderHeavenlyBodies()
@@ -311,7 +318,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON];
 
-	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount())
+	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount() && moon_shader)
 	{
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
@@ -328,8 +335,9 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		
 		if (gPipeline.canUseVertexShaders())
 		{
-			gHighlightProgram.bind();
-            gHighlightProgram.uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
+			moon_shader->bind();
+            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
+            moon_shader->uniform3fv(LLShaderMgr::GLOW_LUM_WEIGHTS, 1, LLPipeline::RenderGlowLumWeights.mV);
 		}
 
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
@@ -338,7 +346,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 		if (gPipeline.canUseVertexShaders())
 		{
-			gHighlightProgram.unbind();
+			moon_shader->unbind();
 		}
 	}
 }

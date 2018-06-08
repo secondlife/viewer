@@ -53,6 +53,8 @@ public:
 
     // These directions should be in CFR coord sys (+x at, +z up, +y right)
     void setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction);
+    void setSunDirectionCFR(const LLVector3 &sun_direction);
+    void setMoonDirectionCFR(const LLVector3 &moon_direction);
 
 	LLColor4 getSkyFogColor() const;
 

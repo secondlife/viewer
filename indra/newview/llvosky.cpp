@@ -1354,3 +1354,39 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
 
     LLSkyTex::stepCurrent();
 }
+
+void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
+{
+    mSun.setDirection(sun_dir_cfr);	
+
+	mLastLightingDirection = mSun.getDirection();
+
+	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
+	// on the upward facing faces of cubes.
+    {
+	    // Same as dot product with the up direction + clamp.
+	    F32 sunDot = llmax(0.f, sun_dir_cfr.mV[2]);
+	    sunDot *= sunDot;	
+
+	    // Create normalized vector that has the sunDir pushed south about an hour and change.
+	    LLVector3 adjustedDir = (sun_dir_cfr + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
+
+	    // Blend between normal sun dir and adjusted sun dir based on how close we are
+	    // to having the sun overhead.
+	    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
+	    mBumpSunDir.normalize();
+    }
+
+	updateDirections();
+
+    LLSkyTex::stepCurrent();
+}
+
+void LLVOSky::setMoonDirectionCFR(const LLVector3 &moon_dir_cfr)
+{
+	mMoon.setDirection(moon_dir_cfr);
+
+	updateDirections();
+
+    LLSkyTex::stepCurrent();
+}

@@ -176,7 +176,7 @@ LLGLSLShader		gImpostorProgram;
 // WindLight shader handles
 LLGLSLShader			gWLSkyProgram;
 LLGLSLShader			gWLCloudProgram;
-
+LLGLSLShader			gWLMoonProgram;
 
 // Effects Shaders
 LLGLSLShader			gGlowProgram;
@@ -250,6 +250,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	//ONLY shaders that need WL Param management should be added here
 	mShaderList.push_back(&gWLSkyProgram);
 	mShaderList.push_back(&gWLCloudProgram);
+    mShaderList.push_back(&gWLMoonProgram);
 	mShaderList.push_back(&gAvatarProgram);
 	mShaderList.push_back(&gObjectShinyProgram);
 	mShaderList.push_back(&gObjectShinyNonIndexedProgram);
@@ -828,6 +829,7 @@ void LLViewerShaderMgr::unloadShaders()
 
 	gWLSkyProgram.unload();
 	gWLCloudProgram.unload();
+    gWLMoonProgram.unload();
 
 	gPostColorFilterProgram.unload();
 	gPostNightVisionProgram.unload();
@@ -3480,6 +3482,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 	{
 		gWLSkyProgram.unload();
 		gWLCloudProgram.unload();
+        gWLMoonProgram.unload();
 		gDownsampleMinMaxDepthRectProgram.unload();
         gInscatterRectProgram.unload();
 		return TRUE;
@@ -3503,7 +3506,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		success = gWLSkyProgram.createShader(NULL, NULL);
 	}
 
-	if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+	if (success)
 	{
 		gWLCloudProgram.mName = "Windlight Cloud Program";
 		//gWLCloudProgram.mFeatures.hasGamma = true;
@@ -3513,6 +3516,24 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 		success = gWLCloudProgram.createShader(NULL, NULL);
+	}
+
+    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+	{
+		gWLMoonProgram.mName = "Windlight Moon Program";
+		gWLMoonProgram.mShaderFiles.clear();
+		gWLMoonProgram.mFeatures.calculatesAtmospherics = true;
+		gWLMoonProgram.mFeatures.hasTransport = true;
+        gWLMoonProgram.mFeatures.hasGamma = true;
+		gWLMoonProgram.mFeatures.hasAtmospherics = true;
+        gWLMoonProgram.mFeatures.isFullbright = true;
+		gWLMoonProgram.mFeatures.disableTextureIndex = true;
+		gWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		gWLMoonProgram.mShaderFiles.push_back(make_pair("windlight/moonV.glsl", GL_VERTEX_SHADER_ARB));
+		gWLMoonProgram.mShaderFiles.push_back(make_pair("windlight/moonF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gWLMoonProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
+		gWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		success = gWLMoonProgram.createShader(NULL, NULL);
 	}
 
 	return success;

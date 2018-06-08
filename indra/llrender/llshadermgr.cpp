@@ -552,8 +552,8 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0)
 	{
-        LL_INFOS("ShaderErrors") << "Shader loading from " << fname << ":\n" << LL_ENDL;
-        LL_INFOS("ShaderErrors") << log << LL_ENDL;
+        LL_DEBUGS() << "Shader loading from " << fname << ":\n" << LL_ENDL;
+        LL_DEBUGS() << log << LL_ENDL;
 	}
  }
 

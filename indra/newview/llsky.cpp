@@ -136,6 +136,20 @@ void LLSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLV
 	}
 }
 
+void LLSky::setSunDirectionCFR(const LLVector3 &sun_direction)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunDirectionCFR(sun_direction);
+	}
+}
+
+void LLSky::setMoonDirectionCFR(const LLVector3 &moon_direction)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setMoonDirectionCFR(moon_direction);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////
 // Public Methods
 //////////////////////////////////////////////////////////////////////

@@ -239,6 +239,8 @@ public:
 
     // directions provided should already be in CFR coord sys (+x at, +z up, +y right)
     void setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir, const LLVector3 &moon_dir);
+    void setSunDirectionCFR(const LLVector3 &sun_direction);
+    void setMoonDirectionCFR(const LLVector3 &moon_direction);
 
 	bool updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
 	void updateReflectionGeometry(LLDrawable *drawable, F32 H, const LLHeavenBody& HB);
