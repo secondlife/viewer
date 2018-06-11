@@ -225,8 +225,12 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
     }
 }
 
+static LLTrace::BlockTimerStatHandle FTM_FACE_RIGGING_INFO("Face Rigging Info");
+
 void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
 {
+    LL_RECORD_BLOCK_TIME(FTM_FACE_RIGGING_INFO);
+
     if (vol_face.mJointRiggingInfoTab.needsUpdate())
     {
         S32 num_verts = vol_face.mNumVertices;
@@ -235,8 +239,8 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
             initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
             if (vol_face.mJointRiggingInfoTab.size()==0)
             {
-                std::set<S32> active_joints;
-                S32 active_verts = 0;
+                //std::set<S32> active_joints;
+                //S32 active_verts = 0;
                 vol_face.mJointRiggingInfoTab.resize(LL_CHARACTER_MAX_ANIMATED_JOINTS);
                 LLJointRiggingInfoTab &rig_info_tab = vol_face.mJointRiggingInfoTab;
                 for (S32 i=0; i<vol_face.mNumVertices; i++)
@@ -246,32 +250,35 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                     for (U32 k=0; k<4; ++k)
                     {
                         S32 joint_index = llfloor(w[k]);
-                        S32 joint_num = skin->mJointNums[joint_index];
-                        if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
+                        if (w[k]-joint_index > 0.0f)
                         {
-                            rig_info_tab[joint_num].setIsRiggedTo(true);
-                            active_joints.insert(joint_num);
-                            active_verts++;
+                            S32 joint_num = skin->mJointNums[joint_index];
+                            if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
+                            {
+                                rig_info_tab[joint_num].setIsRiggedTo(true);
+                                //active_joints.insert(joint_num);
+                                //active_verts++;
 
-                            // AXON can precompute these matMuls.
-                            LLMatrix4a bind_shape;
-                            bind_shape.loadu(skin->mBindShapeMatrix);
-                            LLMatrix4a inv_bind;
-                            inv_bind.loadu(skin->mInvBindMatrix[joint_index]);
-                            LLMatrix4a mat;
-                            matMul(bind_shape, inv_bind, mat);
-                            LLVector4a pos_joint_space;
-                            mat.affineTransform(pos, pos_joint_space);
-                            LLVector4a *extents = rig_info_tab[joint_num].getRiggedExtents();
-                            update_min_max(extents[0], extents[1], pos_joint_space);
+                                // AXON can precompute these matMuls.
+                                LLMatrix4a bind_shape;
+                                bind_shape.loadu(skin->mBindShapeMatrix);
+                                LLMatrix4a inv_bind;
+                                inv_bind.loadu(skin->mInvBindMatrix[joint_index]);
+                                LLMatrix4a mat;
+                                matMul(bind_shape, inv_bind, mat);
+                                LLVector4a pos_joint_space;
+                                mat.affineTransform(pos, pos_joint_space);
+                                LLVector4a *extents = rig_info_tab[joint_num].getRiggedExtents();
+                                update_min_max(extents[0], extents[1], pos_joint_space);
+                            }
                         }
                     }
                 }
-                LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face 
-                                         << " num_verts " << vol_face.mNumVertices
-                                         << " active joints " << active_joints.size()
-                                         << " active verts " << active_verts
-                                         << LL_ENDL; 
+                //LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face 
+                //                         << " num_verts " << vol_face.mNumVertices
+                //                         << " active joints " << active_joints.size()
+                //                         << " active verts " << active_verts
+                //                         << LL_ENDL; 
                 vol_face.mJointRiggingInfoTab.setNeedsUpdate(false);
             }
         }

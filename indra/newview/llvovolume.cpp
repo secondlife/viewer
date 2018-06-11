@@ -3591,8 +3591,11 @@ void LLVOVolume::afterReparent()
 }
 
 //----------------------------------------------------------------------------
+static LLTrace::BlockTimerStatHandle FTM_VOVOL_RIGGING_INFO("VOVol Rigging Info");
+
 void LLVOVolume::updateRiggingInfo()
 {
+    LL_RECORD_BLOCK_TIME(FTM_VOVOL_RIGGING_INFO);
     if (isRiggedMesh())
     {
         const LLMeshSkinInfo* skin = getSkinInfo();

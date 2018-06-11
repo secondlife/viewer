@@ -1292,8 +1292,6 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	newMin.setSub(pos, buffer);
 	newMax.setAdd(pos, buffer);
 
-	float max_attachment_span = get_default_max_prim_scale() * 5.0f;
-	
 	//stretch bounding box by joint positions
     if (box_detail>=1)
     {
@@ -1321,6 +1319,8 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	//stretch bounding box by static attachments
     if (box_detail >= 2)
     {
+        float max_attachment_span = get_default_max_prim_scale() * 5.0f;
+	
         for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
              iter != mAttachmentPoints.end();
              ++iter)
@@ -1333,9 +1333,15 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
                      attachment_iter != attachment->mAttachedObjects.end();
                      ++attachment_iter)
                 {
+                    // AXON is this right? Don't we need to look at children of attached_object as well?
                     const LLViewerObject* attached_object = (*attachment_iter);
                     if (attached_object && !attached_object->isHUDAttachment())
                     {
+                        const LLVOVolume *vol = dynamic_cast<const LLVOVolume*>(attached_object);
+                        if (vol && vol->isRiggedMesh())
+                        {
+                            continue;
+                        }
                         LLDrawable* drawable = attached_object->mDrawable;
                         if (drawable && !drawable->isState(LLDrawable::RIGGED))
                         {
@@ -5806,6 +5812,18 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 // AXON update to use LLRiggingInfo
 bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name)
 {
+    LLJoint *joint = getJoint(joint_name);
+    if (joint)
+    {
+        LLJointRiggingInfoTab& tab = mJointRiggingInfoTab;
+        S32 joint_num = joint->getJointNum();
+        if (joint_num < tab.size() && tab[joint_num].isRiggedTo())
+        {
+            return true;
+        }
+    }
+    return false;
+#if 0
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -5823,6 +5841,7 @@ bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name)
         }
 	}
     return false;
+#endif
 }
 
 // AXON update to use LLRiggingInfo
@@ -9233,8 +9252,43 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 							 pelvis_fixup, mesh_id.asString().c_str());
 		}
 
-		apr_file_printf( file, "\t</archetype>\n" );
-		apr_file_printf( file, "\n</linden_genepool>\n" );
+        LLVector3 rp = getRootJoint()->getWorldPosition();
+        LLVector4a rpv;
+        rpv.load3(rp.mV);
+        
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLJoint *joint = getJoint(joint_num);
+            if (joint_num < mJointRiggingInfoTab.size())
+            {
+                LLJointRiggingInfo& rig_info = mJointRiggingInfoTab[joint_num];
+                if (rig_info.isRiggedTo())
+                {
+                    LLMatrix4a mat;
+                    LLVector4a new_extents[2];
+                    mat.loadu(joint->getWorldMatrix());
+                    matMulBoundBox(mat, rig_info.getRiggedExtents(), new_extents);
+                    LLVector4a rrp[2];
+                    rrp[0].setSub(new_extents[0],rpv);
+                    rrp[1].setSub(new_extents[1],rpv);
+                    apr_file_printf( file, "\t\t<joint_rig_info num=\"%d\" name=\"%s\" min=\"%f %f %f\" max=\"%f %f %f\" tmin=\"%f %f %f\" tmax=\"%f %f %f\"/>\n", 
+                                     joint_num,
+                                     joint->getName().c_str(),
+                                     rig_info.getRiggedExtents()[0][0],
+                                     rig_info.getRiggedExtents()[0][1],
+                                     rig_info.getRiggedExtents()[0][2],
+                                     rig_info.getRiggedExtents()[1][0],
+                                     rig_info.getRiggedExtents()[1][1],
+                                     rig_info.getRiggedExtents()[1][2],
+                                     rrp[0][0],
+                                     rrp[0][1],
+                                     rrp[0][2],
+                                     rrp[1][0],
+                                     rrp[1][1],
+                                     rrp[1][2] );
+                }
+            }
+        }
 
 		bool ultra_verbose = false;
 		if (isSelf() && ultra_verbose)
@@ -9242,6 +9296,10 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			// show the cloned params inside the wearables as well.
 			gAgentAvatarp->dumpWearableInfo(outfile);
 		}
+
+		apr_file_printf( file, "\t</archetype>\n" );
+		apr_file_printf( file, "\n</linden_genepool>\n" );
+
 		LLSD args;
 		args["PATH"] = fullpath;
 		LLNotificationsUtil::add("AppearanceToXMLSaved", args);
