@@ -105,7 +105,7 @@ vec4 getPosition(vec2 pos_screen)
 
 
 #ifdef WATER_FOG
-vec4 applyWaterFogDeferred(vec3 pos, vec4 color);
+vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
 void main() 
@@ -198,7 +198,7 @@ void main()
 		}
 
 		#ifdef WATER_FOG
-			vec4 fogged = applyWaterFogDeferred(pos,vec4(col, bloom));
+			vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
 			col = fogged.rgb;
 			bloom = fogged.a;
 		#endif

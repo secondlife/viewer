@@ -56,6 +56,9 @@ public:
     void setSunDirectionCFR(const LLVector3 &sun_direction);
     void setMoonDirectionCFR(const LLVector3 &moon_direction);
 
+    void setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next);
+    void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
+
 	LLColor4 getSkyFogColor() const;
 
 	void setCloudDensityAtAgent(F32 cloud_density);

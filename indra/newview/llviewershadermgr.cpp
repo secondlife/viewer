@@ -1060,12 +1060,12 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		//load under water vertex shader
 		gUnderWaterProgram.mName = "Underwater Shader";
 		gUnderWaterProgram.mFeatures.calculatesAtmospherics = true;
+        gUnderWaterProgram.mFeatures.hasWaterFog = true;
 		gUnderWaterProgram.mShaderFiles.clear();
 		gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/underWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gUnderWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_WATER];
-		gUnderWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		
+		gUnderWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_WATER];        
+		gUnderWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;		
 		success = gUnderWaterProgram.createShader(NULL, NULL);
 	}
 
@@ -1860,6 +1860,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		// load water shader
 		gDeferredUnderWaterProgram.mName = "Deferred Under Water Shader";
 		gDeferredUnderWaterProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredUnderWaterProgram.mFeatures.hasWaterFog = true;
 		gDeferredUnderWaterProgram.mFeatures.hasGamma = true;
 		gDeferredUnderWaterProgram.mFeatures.hasTransport = true;
 		gDeferredUnderWaterProgram.mFeatures.hasSrgb = true;

@@ -602,8 +602,8 @@ LLSD LLSettingsSky::defaults()
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
     dfltsetting[SETTING_CLOUD_TEXTUREID]    = DEFAULT_CLOUD_ID;
-    dfltsetting[SETTING_MOON_TEXTUREID]     = DEFAULT_MOON_ID; // gMoonTextureID;   // These two are returned by the login... wow!
-    dfltsetting[SETTING_SUN_TEXTUREID]      = DEFAULT_SUN_ID;  // gSunTextureID;
+    dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
+    dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
 
     dfltsetting[SETTING_TYPE] = "sky";
 
@@ -1052,4 +1052,14 @@ void LLSettingsSky::calculateLightSettings() const
 LLUUID LLSettingsSky::GetDefaultAssetId()
 {
     return DEFAULT_ASSET_ID;
+}
+
+LLUUID LLSettingsSky::GetDefaultSunTextureId()
+{
+    return DEFAULT_SUN_ID;
+}
+
+LLUUID LLSettingsSky::GetDefaultMoonTextureId()
+{
+    return DEFAULT_MOON_ID;
 }

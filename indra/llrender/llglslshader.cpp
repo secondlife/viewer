@@ -767,18 +767,19 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	S32 diffuseMap = glGetUniformLocationARB(mProgramObject, "diffuseMap");
 	S32 specularMap = glGetUniformLocationARB(mProgramObject, "specularMap");
 	S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
+    S32 altDiffuseMap = glGetUniformLocationARB(mProgramObject, "altDiffuseMap");
 	S32 environmentMap = glGetUniformLocationARB(mProgramObject, "environmentMap");
 
 	std::set<S32> skip_index;
 
-	if (-1 != diffuseMap && (-1 != specularMap || -1 != bumpMap || -1 != environmentMap))
+	if (-1 != diffuseMap && (-1 != specularMap || -1 != bumpMap || -1 != environmentMap || -1 != altDiffuseMap))
 	{
 		GLenum type;
 		GLsizei length;
 		GLint size = -1;
 		char name[1024];
 
-		diffuseMap = specularMap = bumpMap = environmentMap = -1;
+		diffuseMap = altDiffuseMap = specularMap = bumpMap = environmentMap = -1;
 
 		for (S32 i = 0; i < activeCount; i++)
 		{
@@ -813,6 +814,12 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 			if (-1 == environmentMap && std::string(name) == "environmentMap")
 			{
 				environmentMap = i;
+				continue;
+			}
+
+            if (-1 == altDiffuseMap && std::string(name) == "altDiffuseMap")
+			{
+				altDiffuseMap = i;
 				continue;
 			}
 		}

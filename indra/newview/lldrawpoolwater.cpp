@@ -68,15 +68,6 @@ F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 LLDrawPoolWater::LLDrawPoolWater() :
 	LLFacePool(POOL_WATER)
 {
-	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	gGL.getTexUnit(0)->bind(mHBTex[0]) ;
-	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
-
-	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	gGL.getTexUnit(0)->bind(mHBTex[1]);
-	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
-
-
 	mWaterImagep = LLViewerTextureManager::getFetchedTexture(TRANSPARENT_WATER_TEXTURE);
 	llassert(mWaterImagep);
 	mWaterImagep->setNoDelete();
@@ -461,7 +452,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 	LLGLSNoFog noFog;
 
-	gGL.getTexUnit(0)->bind(mHBTex[dr]);
+	gGL.getTexUnit(0)->bind((dr == 0) ? voskyp->getSunTex() : voskyp->getMoonTex());
 
 	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
 	face->renderIndexed();
@@ -536,14 +527,14 @@ void LLDrawPoolWater::shade()
 	
 	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
 	{
-	if (deferred_render)
-	{
-			shader = &gDeferredUnderWaterProgram;
-	}
+	    if (deferred_render)
+	    {
+            shader = &gDeferredUnderWaterProgram;
+	    }
 		else
-	{
-		shader = &gUnderWaterProgram;
-	}
+        {
+	        shader = &gUnderWaterProgram;
+        }
 	}
 	else if (deferred_render)
 	{

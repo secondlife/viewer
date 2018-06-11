@@ -412,6 +412,8 @@ public:
     virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();
+    static LLUUID GetDefaultSunTextureId();
+    static LLUUID GetDefaultMoonTextureId();
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;

@@ -306,6 +306,11 @@ void LLFace::setDiffuseMap(LLViewerTexture* tex)
 	setTexture(LLRender::DIFFUSE_MAP, tex);
 }
 
+void LLFace::setAlternateDiffuseMap(LLViewerTexture* tex)
+{
+    setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, tex);
+}
+
 void LLFace::setNormalMap(LLViewerTexture* tex)
 {
 	setTexture(LLRender::NORMAL_MAP, tex);

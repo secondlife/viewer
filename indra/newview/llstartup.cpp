@@ -3499,6 +3499,8 @@ bool process_login_success_response()
 		}
 	}
 
+// LAPRAS
+#if 0
 	LLSD global_textures = response["global-textures"][0];
 	if(global_textures.size())
 	{
@@ -3516,8 +3518,8 @@ bool process_login_success_response()
 		{
 			gMoonTextureID = id;
 		}
-
 	}
+#endif
 
 	// set the location of the Agent Appearance service, from which we can request
 	// avatar baked textures if they are supported by the current region

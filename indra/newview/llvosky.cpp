@@ -74,9 +74,10 @@ static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 static const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
 static const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
 
+// LAPRAS
 // Exported globals
-LLUUID gSunTextureID = IMG_SUN;
-LLUUID gMoonTextureID = IMG_MOON;
+//LLUUID gSunTextureID = IMG_SUN;
+//LLUUID gMoonTextureID = IMG_MOON;
 
 /***************************************
 		SkyTex
@@ -387,10 +388,11 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
 
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+	//mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+	//mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+	//mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+	//mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
@@ -481,10 +483,15 @@ void LLVOSky::restoreGL()
 	{
 		mSkyTex[i].restoreGL();
 	}
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    if (psky)
+    {
+        setSunTextures(psky->getSunTextureId(), psky->getNextSunTextureId());
+        setMoonTextures(psky->getMoonTextureId(), psky->getNextMoonTextureId());
+    }
+
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
@@ -715,10 +722,28 @@ bool LLVOSky::updateSky()
 
 void LLVOSky::updateTextures()
 {
-	if (mSunTexturep)
+	if (mSunTexturep[0])
 	{
-		mSunTexturep->addTextureStats( (F32)MAX_IMAGE_AREA );
-		mMoonTexturep->addTextureStats( (F32)MAX_IMAGE_AREA );
+		mSunTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
+    }
+
+    if (mSunTexturep[1])
+	{
+		mSunTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
+    }
+
+    if (mMoonTexturep[0])
+	{
+		mMoonTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
+    }
+
+    if (mMoonTexturep[1])
+	{
+		mMoonTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
+    }   
+
+    if (mBloomTexturep)
+    {
 		mBloomTexturep->addTextureStats( (F32)MAX_IMAGE_AREA );
 	}
 }
@@ -737,11 +762,58 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 		mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, NULL);
 	}
 
-	mFace[FACE_SUN] = mDrawable->addFace(poolp, mSunTexturep);
-	mFace[FACE_MOON] = mDrawable->addFace(poolp, mMoonTexturep);
-	mFace[FACE_BLOOM] = mDrawable->addFace(poolp, mBloomTexturep);
+	mFace[FACE_SUN]   = mDrawable->addFace(poolp, nullptr);
+	mFace[FACE_MOON]  = mDrawable->addFace(poolp, nullptr);
+	mFace[FACE_BLOOM] = mDrawable->addFace(poolp, nullptr);
 
 	return mDrawable;
+}
+
+void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
+{
+    mSunTexturep[0] = LLViewerTextureManager::getFetchedTexture(sun_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mSunTexturep[1] = LLViewerTextureManager::getFetchedTexture(sun_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+
+    if (mFace[FACE_SUN])
+    {
+        if (mSunTexturep[0])
+        {
+	        mSunTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        }
+        mFace[FACE_SUN]->setTexture(LLRender::DIFFUSE_MAP, mSunTexturep[0]);
+    
+        if (mSunTexturep[1])
+        {
+	        mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
+            mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
+        }
+    }
+}
+
+void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next)
+{
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    LLUUID moon_tex = moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture;
+    LLUUID moon_tex_next = moon_texture_next.isNull() ? (moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture) : moon_texture_next;
+
+    mMoonTexturep[0] = LLViewerTextureManager::getFetchedTexture(moon_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mMoonTexturep[1] = LLViewerTextureManager::getFetchedTexture(moon_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+
+    if (mFace[FACE_MOON])
+    {
+        if (mMoonTexturep[0])
+        {
+	        mMoonTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        }
+        mFace[FACE_MOON]->setTexture(LLRender::DIFFUSE_MAP, mMoonTexturep[0]);
+    
+        if (mMoonTexturep[1])
+        {
+	        mMoonTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
+            mFace[FACE_MOON]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mMoonTexturep[1]);
+        }
+    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Sky Geometry");
@@ -849,44 +921,18 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	const F32 height_above_water = camera_height - water_height;
 
 	bool sun_flag = FALSE;
-
 	if (mSun.isVisible())
-	{
-		if (mMoon.isVisible())
-		{
-			sun_flag = look_at * mSun.getDirection() > 0;
-		}
-		else
-		{
-			sun_flag = TRUE;
-		}
+	{        
+        sun_flag = !mMoon.isVisible() || ((look_at * mSun.getDirection()) > 0);
 	}
 	
-	if (height_above_water > 0)
-	{
-		bool render_ref = gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() == 0;
-
-		if (sun_flag)
-		{
-			setDrawRefl(0);
-			if (render_ref)
-			{
-				updateReflectionGeometry(drawable, height_above_water, mSun);
-			}
-		}
-		else
-		{
-			setDrawRefl(1);
-			if (render_ref)
-			{
-				updateReflectionGeometry(drawable, height_above_water, mMoon);
-			}
-		}
-	}
-	else
-	{
-		setDrawRefl(-1);
-	}
+    bool above_water = (height_above_water > 0);
+    bool render_ref  = above_water && gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() == 0;
+    setDrawRefl(above_water ? (sun_flag ? 0 : 1) : -1);
+    if (render_ref)
+	{        
+        updateReflectionGeometry(drawable, height_above_water, mSun);
+    }
 
 	LLPipeline::sCompiles++;
 	return TRUE;

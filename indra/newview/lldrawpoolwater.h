@@ -37,7 +37,6 @@ class LLWaterSurface;
 class LLDrawPoolWater: public LLFacePool
 {
 protected:
-	LLPointer<LLViewerTexture> mHBTex[2];
 	LLPointer<LLViewerTexture> mWaterImagep;
 	LLPointer<LLViewerTexture> mOpaqueWaterImagep;
 	LLPointer<LLViewerTexture> mWaterNormp;

@@ -338,6 +338,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 			moon_shader->bind();
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
             moon_shader->uniform3fv(LLShaderMgr::GLOW_LUM_WEIGHTS, 1, LLPipeline::RenderGlowLumWeights.mV);
+            F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+            moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 		}
 
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
@@ -388,10 +390,11 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		    gDeferredStarProgram.bind();
-		    // *NOTE: have to bind a texture here since register combiners blending in
+		    // *NOTE: have to bind moon textures here since register combiners blending in
 		    // renderStars() requires something to be bound and we might as well only
-		    // bind the moon's texture once.		
-		    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+		    // bind the moon textures once.		
+		    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::DIFFUSE_MAP));
+            gGL.getTexUnit(1)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP));
 
 		    renderHeavenlyBodies();
 
