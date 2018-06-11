@@ -45,8 +45,8 @@ const F32 HEAVENLY_BODY_SCALE	= HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR;
 // HACK: Allow server to change sun and moon IDs.
 // I can't figure out how to pass the appropriate
 // information into the LLVOSky constructor.  JC
-extern LLUUID gSunTextureID;
-extern LLUUID gMoonTextureID;
+//extern LLUUID gSunTextureID;
+//extern LLUUID gMoonTextureID;
 
 class LLFace;
 class LLHaze;
@@ -239,6 +239,8 @@ public:
 
     // directions provided should already be in CFR coord sys (+x at, +z up, +y right)
     void setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir, const LLVector3 &moon_dir);
+    void setSunDirectionCFR(const LLVector3 &sun_direction);
+    void setMoonDirectionCFR(const LLVector3 &moon_direction);
 
 	bool updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
 	void updateReflectionGeometry(LLDrawable *drawable, F32 H, const LLHeavenBody& HB);
@@ -267,9 +269,13 @@ public:
 	bool isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
 	LLFace* getReflFace() const							{ return mFace[FACE_REFLECTION]; }
 
-	LLViewerTexture*	getSunTex() const					{ return mSunTexturep; }
-	LLViewerTexture*	getMoonTex() const					{ return mMoonTexturep; }
-	LLViewerTexture*	getBloomTex() const					{ return mBloomTexturep; }
+	LLViewerTexture*	getSunTex() const					{ return mSunTexturep[0];   }
+	LLViewerTexture*	getMoonTex() const					{ return mMoonTexturep[0];  }
+	LLViewerTexture*	getBloomTex() const					{ return mBloomTexturep;    }
+
+    void setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next);
+    void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
+
 	void forceSkyUpdate(void)							{ mForceUpdate = TRUE; }
 
 public:
@@ -284,8 +290,8 @@ protected:
 	void initSkyTextureDirs(const S32 side, const S32 tile);
 	void createSkyTexture(const S32 side, const S32 tile);
 
-	LLPointer<LLViewerFetchedTexture> mSunTexturep;
-	LLPointer<LLViewerFetchedTexture> mMoonTexturep;
+	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
+	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mBloomTexturep;
 
 	static S32			sResolution;

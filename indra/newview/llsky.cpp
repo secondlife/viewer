@@ -129,10 +129,38 @@ void LLSky::resetVertexBuffers()
 	}
 }
 
+void LLSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunTextures(sun_texture, sun_texture_next);
+	}
+}
+
+void LLSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setMoonTextures(moon_texture, moon_texture_next);
+	}
+}
+
 void LLSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
 {
     if(mVOSkyp.notNull()) {
         mVOSkyp->setSunAndMoonDirectionsCFR(sun_direction, moon_direction);
+	}
+}
+
+void LLSky::setSunDirectionCFR(const LLVector3 &sun_direction)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunDirectionCFR(sun_direction);
+	}
+}
+
+void LLSky::setMoonDirectionCFR(const LLVector3 &moon_direction)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setMoonDirectionCFR(moon_direction);
 	}
 }
 

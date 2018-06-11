@@ -520,6 +520,8 @@ void LLSettingsVOSky::updateSettings()
     LLVector3 sun_direction_cfr(sun_direction.mV[0],   -sun_direction.mV[1],  sun_direction.mV[2]);
     LLVector3 moon_direction_cfr(moon_direction.mV[0], -moon_direction.mV[1], moon_direction.mV[2]);
     gSky.setSunAndMoonDirectionsCFR(sun_direction_cfr, moon_direction_cfr);
+    gSky.setSunTextures(getSunTextureId(), getNextSunTextureId());
+    gSky.setMoonTextures(getMoonTextureId(), getNextMoonTextureId());
 }
 
 void LLSettingsVOSky::applySpecial(void *ptarget)

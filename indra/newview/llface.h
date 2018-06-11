@@ -106,6 +106,7 @@ public:
 	void			setDiffuseMap(LLViewerTexture* tex);
 	void			setNormalMap(LLViewerTexture* tex);
 	void			setSpecularMap(LLViewerTexture* tex);
+    void			setAlternateDiffuseMap(LLViewerTexture* tex);
 	void            switchTexture(U32 ch, LLViewerTexture* new_texture);
 	void            dirtyTexture();
 	LLXformMatrix*	getXform()			const	{ return mXform; }

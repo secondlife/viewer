@@ -552,8 +552,8 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0)
 	{
-        LL_INFOS("ShaderErrors") << "Shader loading from " << fname << ":\n" << LL_ENDL;
-        LL_INFOS("ShaderErrors") << log << LL_ENDL;
+        LL_WARNS("ShaderLoading") << "Shader loading from " << fname << ":\n" << LL_ENDL;
+        LL_WARNS("ShaderLoading") << log << LL_ENDL;
 	}
  }
 
@@ -1144,6 +1144,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("color");
 		
 	mReservedUniforms.push_back("diffuseMap");
+    mReservedUniforms.push_back("altDiffuseMap");
 	mReservedUniforms.push_back("specularMap");
 	mReservedUniforms.push_back("bumpMap");
 	mReservedUniforms.push_back("environmentMap");
@@ -1309,6 +1310,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("scattering_texture");
     mReservedUniforms.push_back("single_mie_scattering_texture");
     mReservedUniforms.push_back("irradiance_texture");
+    mReservedUniforms.push_back("blend_factor");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
