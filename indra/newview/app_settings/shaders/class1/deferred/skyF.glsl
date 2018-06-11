@@ -37,7 +37,6 @@ out vec4 frag_data[3];
 
 VARYING vec4 vary_HazeColor;
 
-uniform sampler2D cloud_noise_texture;
 uniform vec4 gamma;
 
 /// Soft clips the light with a gamma correction

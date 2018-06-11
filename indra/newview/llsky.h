@@ -58,6 +58,7 @@ public:
 
     void setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next);
     void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
+    void setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next);
 
 	LLColor4 getSkyFogColor() const;
 

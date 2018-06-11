@@ -292,10 +292,7 @@ public:
         return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
     }
 
-    void setMoonRotation(const LLQuaternion &val)
-    {
-        setValue(SETTING_MOON_ROTATION, val);
-    }
+    void setMoonRotation(const LLQuaternion &val);
 
     LLUUID getMoonTextureId() const
     {
@@ -414,6 +411,7 @@ public:
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultSunTextureId();
     static LLUUID GetDefaultMoonTextureId();
+    static LLUUID GetDefaultCloudNoiseTextureId();
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;

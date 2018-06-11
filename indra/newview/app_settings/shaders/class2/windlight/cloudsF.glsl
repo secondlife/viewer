@@ -42,6 +42,8 @@ VARYING vec2 vary_texcoord2;
 VARYING vec2 vary_texcoord3;
 
 uniform sampler2D cloud_noise_texture;
+uniform sampler2D cloud_noise_texture_next;
+uniform float blend_factor;
 uniform vec4 cloud_pos_density1;
 uniform vec4 cloud_pos_density2;
 uniform vec4 gamma;
@@ -53,6 +55,14 @@ vec3 scaleSoftClip(vec3 light) {
 	light = 1. - pow(light, gamma.xxx);
 
 	return light;
+}
+
+vec4 cloudNoise(vec2 uv)
+{
+    vec4 a = texture2D(cloud_noise_texture, uv);
+    vec4 b = texture2D(cloud_noise_texture_next, uv);
+    vec4 samp = mix(a, b, blend_factor);
+	return samp;
 }
 
 void main()
@@ -75,7 +85,7 @@ void main()
 
 
 	// Compute alpha1, the main cloud opacity
-	float alpha1 = (texture2D(cloud_noise_texture, uv1).x - 0.5) + (texture2D(cloud_noise_texture, uv3).x - 0.5) * cloud_pos_density2.z;
+	float alpha1 = (cloudNoise(uv1).x - 0.5) + (cloudNoise(uv3).x - 0.5) * cloud_pos_density2.z;
 	alpha1 = min(max(alpha1 + cloudDensity, 0.) * 10. * cloud_pos_density1.z, 1.);
 
 	// And smooth
@@ -85,7 +95,7 @@ void main()
 
 	// Compute alpha2, for self shadowing effect
 	// (1 - alpha2) will later be used as percentage of incoming sunlight
-	float alpha2 = (texture2D(cloud_noise_texture, uv2).x - 0.5);
+	float alpha2 = (cloudNoise(uv2).x - 0.5);
 	alpha2 = min(max(alpha2 + cloudDensity, 0.) * 2.5 * cloud_pos_density1.z, 1.);
 
 	// And smooth

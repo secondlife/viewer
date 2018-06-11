@@ -32,6 +32,8 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#pragma optimize("", off)
+
 static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
 static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
 static const LLVector3 DUE_EAST = LLVector3::x_axis;
@@ -601,7 +603,7 @@ LLSD LLSettingsSky::defaults()
     dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
     dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
-    dfltsetting[SETTING_CLOUD_TEXTUREID]    = DEFAULT_CLOUD_ID;
+    dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
     dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
     dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
 
@@ -1062,4 +1064,14 @@ LLUUID LLSettingsSky::GetDefaultSunTextureId()
 LLUUID LLSettingsSky::GetDefaultMoonTextureId()
 {
     return DEFAULT_MOON_ID;
+}
+
+LLUUID LLSettingsSky::GetDefaultCloudNoiseTextureId()
+{
+    return DEFAULT_CLOUD_ID;
+}
+
+void LLSettingsSky::setMoonRotation(const LLQuaternion &val)
+{
+    setValue(SETTING_MOON_ROTATION, val);
 }
