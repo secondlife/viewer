@@ -104,7 +104,7 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
     create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
         parentFolder, tid,
         settings->getName(), "new settings collection.",
-        settings->getSettingTypeValue(), nextOwnerPerm, cb);
+        settings->getSettingsTypeValue(), nextOwnerPerm, cb);
 }
 
 void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings, inventory_result_fn callback)

@@ -176,8 +176,9 @@ public:
 	U32 getFilterObjectTypes() const;
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const;
-	void setFilterWearableTypes(U64 filter);
-	void setFilterSubString(const std::string& string);
+    void setFilterWearableTypes(U64 filter);
+    void setFilterSettingsTypes(U64 filter);
+    void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString();
 	void setSinceLogoff(BOOL sl);
 	void setHoursAgo(U32 hours);

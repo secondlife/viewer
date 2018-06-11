@@ -302,16 +302,16 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
         if (!parcel)
             return;
 
-        if (mSettings->getSettingType() == "sky")
+        if (mSettings->getSettingsType() == "sky")
             LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
-        else if (mSettings->getSettingType() == "water")
+        else if (mSettings->getSettingsType() == "water")
             LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
     }
     else if (where == ACTION_APPLY_REGION)
     {
-        if (mSettings->getSettingType() == "sky")
+        if (mSettings->getSettingsType() == "sky")
             LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
-        else if (mSettings->getSettingType() == "water")
+        else if (mSettings->getSettingsType() == "water")
             LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
     }
     else

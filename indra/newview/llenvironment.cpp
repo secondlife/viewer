@@ -550,7 +550,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
         return;
     }
 
-    if (settings->getSettingType() == "daycycle")
+    if (settings->getSettingsType() == "daycycle")
     {
         LLSettingsDay::Seconds daylength(LLSettingsDay::DEFAULT_DAYLENGTH);
         LLSettingsDay::Seconds dayoffset(LLSettingsDay::DEFAULT_DAYOFFSET);
@@ -561,7 +561,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
         }
         setEnvironment(env, std::static_pointer_cast<LLSettingsDay>(settings), daylength, dayoffset);
     }
-    else if (settings->getSettingType() == "sky")
+    else if (settings->getSettingsType() == "sky")
     {
         fixedEnvironment_t fixedenv(std::static_pointer_cast<LLSettingsSky>(settings), LLSettingsWater::ptr_t());
         if (environment)
@@ -570,7 +570,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
         }
         setEnvironment(env, fixedenv);
     }
-    else if (settings->getSettingType() == "water")
+    else if (settings->getSettingsType() == "water")
     {
         fixedEnvironment_t fixedenv(LLSettingsSky::ptr_t(), std::static_pointer_cast<LLSettingsWater>(settings));
         if (environment)
@@ -1201,7 +1201,7 @@ void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::p
 
     LLSettingsDay::ptr_t pday;
 
-    if (settings->getSettingType() == "daycycle")
+    if (settings->getSettingsType() == "daycycle")
         pday = std::static_pointer_cast<LLSettingsDay>(settings);
     else
     {
@@ -1561,7 +1561,7 @@ LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::st
 
 LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings)
 {
-    std::string type(settings->getSettingType());
+    std::string type(settings->getSettingsType());
 
     if (type == "daycycle")
         return std::static_pointer_cast<LLSettingsDay>(settings);

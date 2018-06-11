@@ -60,84 +60,85 @@ public:
     static const std::string    KEY_DAY_LENGTH;
     // **RIDER**
 
-    typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)>            edit_commit_signal_t;
-    typedef boost::signals2::connection     connection_t;
+    typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)> edit_commit_signal_t;
+    typedef boost::signals2::connection connection_t;
 
-    LLFloaterEditExtDayCycle(const LLSD &key);
-    ~LLFloaterEditExtDayCycle();
+                                LLFloaterEditExtDayCycle(const LLSD &key);
+    virtual                     ~LLFloaterEditExtDayCycle();
 
-    //void openFloater(LLSettingsDay::ptr_t settings, S64Seconds daylength = S64Seconds(0), S64Seconds dayoffset = S64Seconds(0));
+    virtual BOOL                postBuild() override;
+    virtual void                onOpen(const LLSD& key) override;
+    virtual void                onClose(bool app_quitting) override;
+    virtual void                onFocusReceived() override;
+    virtual void                onFocusLost() override;
+    virtual void                onVisibilityChange(BOOL new_visibility) override;
 
-    BOOL	postBuild();
-    void	onOpen(const LLSD& key);
-    void	onClose(bool app_quitting);
+    connection_t                setEditCommitSignal(edit_commit_signal_t::slot_type cb);
 
-    void    onVisibilityChange(BOOL new_visibility);
-
-    connection_t setEditCommitSignal(edit_commit_signal_t::slot_type cb);
-
-    virtual void refresh();
+    virtual void                refresh() override;
 
 private:
 
 	// flyout response/click
-	void onButtonApply(LLUICtrl *ctrl, const LLSD &data);
-	void onBtnCancel();
-    void onButtonImport();
-    void onButtonLoadFrame();
-    void onAddTrack();
-	void onRemoveTrack();
-	void onCommitName(class LLLineEditor* caller, void* user_data);
-	void onTrackSelectionCallback(const LLSD& user_data);
-	void onPlayActionCallback(const LLSD& user_data);
+	void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
+	void                        onBtnCancel();
+    void                        onButtonImport();
+    void                        onButtonLoadFrame();
+    void                        onAddTrack();
+	void                        onRemoveTrack();
+	void                        onCommitName(class LLLineEditor* caller, void* user_data);
+	void                        onTrackSelectionCallback(const LLSD& user_data);
+	void                        onPlayActionCallback(const LLSD& user_data);
 	// time slider moved
-	void onTimeSliderMoved();
+	void                        onTimeSliderMoved();
 	// a frame moved or frame selection changed
-	void onFrameSliderCallback(const LLSD &);
-    void onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
-    void onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
-    void onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
+	void                        onFrameSliderCallback(const LLSD &);
+    void                        onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
+    void                        onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
+    void                        onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
 
-	void selectTrack(U32 track_index, bool force = false);
-	void selectFrame(F32 frame);
-	void clearTabs();
-	void updateTabs();
-	void updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
-	void updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
-	void setWaterTabsEnabled(BOOL enable);
-	void setSkyTabsEnabled(BOOL enable);
-	void updateButtons();
-	void updateSlider(); //track to slider
-	void updateTimeAndLabel();
-	void addSliderFrame(const F32 frame, LLSettingsBase::ptr_t &setting, bool update_ui = true);
-	void removeCurrentSliderFrame();
+	void                        selectTrack(U32 track_index, bool force = false);
+	void                        selectFrame(F32 frame);
+	void                        clearTabs();
+	void                        updateTabs();
+	void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
+	void                        updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
+	void                        setWaterTabsEnabled(BOOL enable);
+	void                        setSkyTabsEnabled(BOOL enable);
+	void                        updateButtons();
+	void                        updateSlider(); //track to slider
+	void                        updateTimeAndLabel();
+	void                        addSliderFrame(const F32 frame, LLSettingsBase::ptr_t &setting, bool update_ui = true);
+	void                        removeCurrentSliderFrame();
 
-    // **RIDER**
-    void loadInventoryItem(const LLUUID  &inventoryId);
-    void onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
-    void loadLiveEnvironment(LLEnvironment::EnvSelection_t env);
+    void                        loadInventoryItem(const LLUUID  &inventoryId);
+    void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
+    void                        loadLiveEnvironment(LLEnvironment::EnvSelection_t env);
 
-    void doImportFromDisk();
-    void doApplyCreateNewInventory();
-    void doApplyUpdateInventory();
-    void doApplyEnvironment(const std::string &where);
-    void onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
-    void onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+    void                        doImportFromDisk();
+    void                        doApplyCreateNewInventory();
+    void                        doApplyUpdateInventory();
+    void                        doApplyEnvironment(const std::string &where);
+    void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
+    void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
-    bool canUseInventory() const;
-    bool canApplyRegion() const;
-    bool canApplyParcel() const;
+    void                        doOpenInventoryFloater(LLSettingsType::type_e type);
+    void                        onPickerCommitSetting(LLUUID asset_id);
 
-    void updateEditEnvironment();
-    void syncronizeTabs();
-    void reblendSettings();
+    bool                        canUseInventory() const;
+    bool                        canApplyRegion() const;
+    bool                        canApplyParcel() const;
 
-    void setTabsData(LLTabContainer * tabcontainer, const LLSettingsBase::ptr_t &settings, bool editable);
+    void                        updateEditEnvironment();
+    void                        syncronizeTabs();
+    void                        reblendSettings();
+
+    void                        setTabsData(LLTabContainer * tabcontainer, const LLSettingsBase::ptr_t &settings, bool editable);
 
     // play functions
-    void startPlay();
-    void stopPlay();
-    static void onIdlePlay(void *);
+    void                        startPlay();
+    void                        stopPlay();
+    static void                 onIdlePlay(void *);
 
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;
@@ -156,6 +157,8 @@ private:
     LLUUID                      mInventoryId;
     LLInventoryItem *           mInventoryItem;
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
+
+    LLHandle<LLFloater>         mInventoryFloater;
 
     LLTrackBlenderLoopingManual::ptr_t  mSkyBlender;
     LLTrackBlenderLoopingManual::ptr_t  mWaterBlender;

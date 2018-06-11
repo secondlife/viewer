@@ -377,6 +377,11 @@ void LLInventoryPanel::setFilterWearableTypes(U64 types)
 	getFilter().setFilterWearableTypes(types);
 }
 
+void LLInventoryPanel::setFilterSettingsTypes(U64 filter)
+{
+    getFilter().setFilterSettingsTypes(filter);
+}
+
 void LLInventoryPanel::setFilterSubString(const std::string& string)
 {
 	getFilter().setFilterSubString(string);

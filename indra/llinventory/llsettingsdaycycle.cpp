@@ -145,7 +145,7 @@ LLSD LLSettingsDay::getSettings() const
     if (mSettings.has(SETTING_ID))
         settings[SETTING_ID] = mSettings[SETTING_ID];
 
-    settings[SETTING_TYPE] = getSettingType();
+    settings[SETTING_TYPE] = getSettingsType();
 
     std::map<std::string, LLSettingsBase::ptr_t> in_use;
 
@@ -236,18 +236,18 @@ bool LLSettingsDay::initialize()
                 if (i == TRACK_WATER)
                 {
                     setting = used[(*it)[SETTING_KEYNAME]];
-                    if (setting && setting->getSettingType() != "water")
+                    if (setting && setting->getSettingsType() != "water")
                     {
-                        LL_WARNS("DAYCYCLE") << "Water track referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        LL_WARNS("DAYCYCLE") << "Water track referencing " << setting->getSettingsType() << " frame at " << keyframe << "." << LL_ENDL;
                         setting.reset();
                     }
                 }
                 else
                 {
                     setting = used[(*it)[SETTING_KEYNAME]];
-                    if (setting && setting->getSettingType() != "sky")
+                    if (setting && setting->getSettingsType() != "sky")
                     {
-                        LL_WARNS("DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingType() << " frame at " << keyframe << "." << LL_ENDL;
+                        LL_WARNS("DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingsType() << " frame at " << keyframe << "." << LL_ENDL;
                         setting.reset();
                     }
                 }

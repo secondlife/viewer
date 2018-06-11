@@ -78,11 +78,11 @@ public:
 
     virtual ptr_t               buildClone() = 0;
     virtual LLSD                getSettings() const SETTINGS_OVERRIDE;
-    virtual LLSettingsType::type_e  getSettingTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_DAYCYCLE; }
+    virtual LLSettingsType::type_e  getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_DAYCYCLE; }
 
 
     //---------------------------------------------------------------------
-    virtual std::string         getSettingType() const SETTINGS_OVERRIDE { return std::string("daycycle"); }
+    virtual std::string         getSettingsType() const SETTINGS_OVERRIDE { return std::string("daycycle"); }
 
     // Settings status 
     virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix) SETTINGS_OVERRIDE;
