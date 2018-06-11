@@ -130,6 +130,9 @@ void LLFloaterFixedEnvironment::onOpen(const LLSD& key)
 
 void LLFloaterFixedEnvironment::onClose(bool app_quitting)
 {
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+
     mSettings.reset();
     syncronizeTabs();
 }
@@ -142,10 +145,6 @@ void LLFloaterFixedEnvironment::onFocusReceived()
 
 void LLFloaterFixedEnvironment::onFocusLost()
 {
-    // *TODO*: If the window receiving focus is from a select color or select image control...
-    // We have technically not changed out of what we are doing so don't change back to displaying
-    // the local environment. (unfortunately the focus manager has 
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
 }
 
 void LLFloaterFixedEnvironment::refresh()

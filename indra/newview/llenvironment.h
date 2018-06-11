@@ -133,11 +133,10 @@ public:
 
     typedef std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t> fixedEnvironment_t;
 
-    typedef std::map<std::string, LLSettingsBase::ptr_t>    namedSettingMap_t;
-    typedef std::pair<std::string, LLUUID>                  name_id_t;
-    typedef std::vector<name_id_t>                          list_name_id_t;
-    typedef boost::signals2::signal<void()>                 change_signal_t;
     typedef std::function<void(S32, EnvironmentInfo::ptr_t)>     environment_apply_fn;
+
+    typedef boost::signals2::signal<void(EnvSelection_t, const LLSettingsBase::ptr_t &)>    environment_changed_signal_t;
+    typedef environment_changed_signal_t::slot_type         environment_changed_fn;
 
     typedef std::array<F32, 4>                              altitude_list_t;
 
@@ -185,20 +184,6 @@ public:
 
     void                        updateEnvironment(LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);
 
-    void                        addSky(const LLSettingsSky::ptr_t &sky);
-    void                        addWater(const LLSettingsWater::ptr_t &sky);
-    void                        addDayCycle(const LLSettingsDay::ptr_t &day);
-
-    list_name_id_t              getSkyList() const;
-    list_name_id_t              getWaterList() const;
-    list_name_id_t              getDayCycleList() const;
-
-    // *LAPRAS* TODO : Remove these vvv
-    LLSettingsSky::ptr_t        findSkyByName(std::string name) const;
-    LLSettingsWater::ptr_t      findWaterByName(std::string name) const;
-    LLSettingsDay::ptr_t        findDayCycleByName(std::string name) const;
-    // *LAPRAS* TODO : Remove these ^^^
-
     inline LLVector2            getCloudScrollDelta() const { return mCloudScrollDelta; }
 
     F32                         getCamHeight() const;
@@ -229,9 +214,7 @@ public:
     LLSettingsDay::ptr_t        createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings);
 
     //-------------------------------------------
-    connection_t                setSkyListChange(const change_signal_t::slot_type& cb);
-    connection_t                setWaterListChange(const change_signal_t::slot_type& cb);
-    connection_t                setDayCycleListChange(const change_signal_t::slot_type& cb);
+    connection_t                setEnvironmentChanged(environment_changed_fn cb);
 
     void                        requestRegionEnvironment();
 
@@ -341,8 +324,6 @@ private:
     static const F32            SUN_DELTA_YAW;
     F32                         mLastCamYaw = 0.0f;
 
-    typedef std::map<LLUUID, LLSettingsBase::ptr_t> AssetSettingMap_t;
-
     LLVector2                   mCloudScrollDelta;  // cumulative cloud delta
 
     InstanceArray_t             mEnvironments;
@@ -357,24 +338,7 @@ private:
     LLSettingsBlender::ptr_t    mBlenderSky;
     LLSettingsBlender::ptr_t    mBlenderWater;
 
-    typedef std::vector<LLSettingsSky::ptr_t> SkyList_t;
-    typedef std::vector<LLSettingsWater::ptr_t> WaterList_t;
-    typedef std::vector<LLSettingsDay::ptr_t> DayList_t;
-
-    namedSettingMap_t           mSkysByName;
-    AssetSettingMap_t           mSkysById;
-
-    namedSettingMap_t           mWaterByName;
-    AssetSettingMap_t           mWaterById;
-
-    namedSettingMap_t           mDayCycleByName;
-    AssetSettingMap_t           mDayCycleById;
-
     UserPrefs                   mUserPrefs;
-
-    change_signal_t             mSkyListChange;
-    change_signal_t             mWaterListChange;
-    change_signal_t             mDayCycleListChange;
 
     S32                         mCurrentTrack;
     altitude_list_t             mTrackAltitudes;
@@ -382,22 +346,6 @@ private:
     DayInstance::ptr_t          getEnvironmentInstance(EnvSelection_t env, bool create = false);
 
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
-
-
-    //void addSky(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
-    void removeSky(const std::string &name);
-    //void removeSky(const LLUUID &id);
-    void clearAllSkys();
-
-    //void addWater(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
-    void removeWater(const std::string &name);
-    //void removeWater(const LLUUID &id);
-    void clearAllWater();
-
-    //void addDayCycle(const LLUUID &id, const LLSettingsSky::ptr_t &sky);
-    void removeDayCycle(const std::string &name);
-    //void removeDayCycle(const LLUUID &id);
-    void clearAllDayCycles();
 
 
     void updateCloudScroll();
@@ -415,10 +363,6 @@ private:
     void onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
     void onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset);
 
-    //=========================================================================
-    void                        legacyLoadAllPresets();
-    static std::string          getSysDir(const std::string &subdir);
-    static std::string          getUserDir(const std::string &subdir);
 
 };
 

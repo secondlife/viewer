@@ -8383,12 +8383,6 @@ class LLWorldEnvSettings : public view_listener_t
 	{
 		std::string tod = userdata.asString();
 		
-		if (tod == "editor")
-		{
-			LLFloaterReg::toggleInstance("env_settings");
-			return true;
-		}
-
 		if (tod == "sunrise")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE);

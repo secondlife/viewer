@@ -36,6 +36,7 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 
+#include "lldraghandle.h"
 #include "llviewercontrol.h"
 #include "llagent.h"
 
@@ -205,14 +206,14 @@ void LLFloaterSettingsPicker::draw()
         }
     }
 
-//     if (gFocusMgr.childHasMouseCapture(getDragHandle()))
-//     {
-//         mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
-//     }
-//     else
-//     {
-         mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
-//     }
+    if (gFocusMgr.childHasMouseCapture(getDragHandle()))
+    {
+        mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
+    }
+    else
+    {
+        mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
+    }
 
     LLFloater::draw();
 }
@@ -411,10 +412,6 @@ LLUUID LLFloaterSettingsPicker::findItemID(const LLUUID& asset_id, bool copyable
 #include "llfloaterreg.h"
 #include "lllocalbitmaps.h"
 #include "llerror.h"
-
-static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-static const F32 CONTEXT_FADE_TIME = 0.08f;
 
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 

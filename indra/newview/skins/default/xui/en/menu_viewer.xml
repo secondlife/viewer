@@ -697,7 +697,7 @@
             </menu_item_check>
         </menu>
 	    
-   
+<!--   
 	    <menu
 	     create_jump_keys="true"
 	     label="Environment Editor"
@@ -714,8 +714,6 @@
 	     	
 	     	<menu_item_separator/>
 
-           <!-- *LAPRAS* These menus go away.  Keep till no longer needed -->
-	     	
 	     	<menu
 	     	 name="Water Presets"
 	     	 label="Water Presets">
@@ -772,9 +770,8 @@
 	     	 	 	parameter="edit_day_cycle"/>
 	     	 	</menu_item_call>
 	     	</menu>
-        <!-- *LAPRAS* -->
 	    </menu>
-    
+-->    
     
     </menu>
     <menu

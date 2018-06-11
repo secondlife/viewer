@@ -225,7 +225,6 @@ set(viewer_SOURCE_FILES
     llfloaterdestinations.cpp
     llfloatereditdaycycle.cpp
     llfloatereditextdaycycle.cpp
-    llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
     llfloaterexperiencepicker.cpp
     llfloaterexperienceprofile.cpp
@@ -845,7 +844,6 @@ set(viewer_HEADER_FILES
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
     llfloatereditextdaycycle.h
-    llfloaterenvironmentsettings.h
     llfloaterevent.h
     llfloaterexperiencepicker.h
     llfloaterexperienceprofile.h

@@ -392,7 +392,6 @@ const std::string LLInventoryPanel::getFilterSubString()
 	return getFilter().getFilterSubString();
 }
 
-
 void LLInventoryPanel::setSortOrder(U32 order)
 {
     LLInventorySort sorter(order);
