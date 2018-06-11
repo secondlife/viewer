@@ -35,6 +35,7 @@
 // external library headers
 #include <boost/bind.hpp>
 // other Linden headers
+#include "lltimer.h"
 #include "llevents.h"
 #include "llerror.h"
 #include "stringize.h"
@@ -280,6 +281,21 @@ void LLCoros::setStackSize(S32 stacksize)
     mStackSize = stacksize;
 }
 
+void LLCoros::printActiveCoroutines()
+{
+    LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
+    CoroMap::iterator iter;
+    CoroMap::iterator end = mCoros.end();
+    F64 time = LLTimer::getTotalSeconds();
+    for (iter = mCoros.begin(); iter != end; iter++)
+    {
+        F64 life_time = time - iter->second->mCreationTime;
+        LL_CONT << LL_NEWLINE << "Name: " << iter->first << " life: " << life_time;
+    }
+    LL_CONT << LL_ENDL;
+    LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
+}
+
 #if LL_WINDOWS
 
 static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
@@ -375,7 +391,8 @@ LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
     mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
     // don't consume events unless specifically directed
     mConsuming(false),
-    mSelf(0)
+    mSelf(0),
+    mCreationTime(LLTimer::getTotalSeconds())
 {
 }
 
