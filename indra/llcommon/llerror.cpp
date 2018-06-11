@@ -29,6 +29,7 @@
 
 #include "llerror.h"
 #include "llerrorcontrol.h"
+#include "llsdutil.h"
 
 #include <cctype>
 #ifdef __GNUC__
@@ -50,10 +51,6 @@
 #include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
-
-//#if LL_WINDOWS
-//#pragma optimize("", off)
-//#endif
 
 namespace {
 #if LL_WINDOWS
@@ -365,7 +362,6 @@ namespace
 			}
 		}
 		
-		LL_INFOS("LogControlFile") << "logging reconfiguring from " << filename() << LL_ENDL;
 		LLError::configure(configuration);
 		LL_INFOS("LogControlFile") << "logging reconfigured from " << filename() << LL_ENDL;
 		return true;
@@ -408,7 +404,7 @@ namespace
 			 i != callSites.end();
 			 ++i)
 		{
-			(*i)->invalidate();
+            (*i)->invalidate();
 		}
 		
 		callSites.clear();
@@ -1523,18 +1519,16 @@ namespace LLError
 
 bool debugLoggingEnabled(const std::string& tag)
 {
-    const char* tags[] = {tag.c_str()};
-    ::size_t tag_count = 1;
-    LLError::CallSite _site(LLError::LEVEL_DEBUG, __FILE__, __LINE__, 
-                            typeid(_LL_CLASS_TO_LOG), __FUNCTION__, false, tags, tag_count);
-    if (LL_UNLIKELY(_site.shouldLog()))
-    {
-        return true;
-    }
-    else
+    LogLock lock;
+    if (!lock.ok())
     {
         return false;
     }
+        
+    LLError::SettingsConfigPtr s = LLError::Settings::getInstance()->getSettingsConfig();
+    LLError::ELevel level = LLError::LEVEL_DEBUG;
+    bool res = checkLevelMap(s->mTagLevelMap, tag, level);
+    return res;
 }
 
 
