@@ -292,7 +292,10 @@ public:
         return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
     }
 
-    void setMoonRotation(const LLQuaternion &val);
+    void setMoonRotation(const LLQuaternion &val)
+    {
+        setValue(SETTING_MOON_ROTATION, val);
+    }
 
     LLUUID getMoonTextureId() const
     {
