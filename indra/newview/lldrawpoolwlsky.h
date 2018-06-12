@@ -81,10 +81,6 @@ private:
 	void renderStars(void) const;
 	void renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const;
 	void renderHeavenlyBodies();
-
-private:
-	static LLPointer<LLViewerTexture> sCloudNoiseTexture;
-	static LLPointer<LLImageRaw> sCloudNoiseRawImage;
 };
 
 #endif // LL_DRAWPOOLWLSKY_H

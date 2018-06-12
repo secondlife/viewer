@@ -46,10 +46,6 @@
 
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 
-LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
-
-LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
-
 static LLGLSLShader* cloud_shader = NULL;
 static LLGLSLShader* sky_shader = NULL;
 static LLGLSLShader* moon_shader = NULL;
@@ -57,40 +53,10 @@ static LLGLSLShader* moon_shader = NULL;
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 	LLDrawPool(POOL_WL_SKY)
 {
-	const std::string cloudNoiseFilename(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", "clouds2.tga"));
-	LL_INFOS() << "loading WindLight cloud noise from " << cloudNoiseFilename << LL_ENDL;
-
-	LLPointer<LLImageFormatted> cloudNoiseFile(LLImageFormatted::createFromExtension(cloudNoiseFilename));
-
-	if(cloudNoiseFile.isNull()) {
-		LL_ERRS() << "Error: Failed to load cloud noise image " << cloudNoiseFilename << LL_ENDL;
-	}
-
-	if(cloudNoiseFile->load(cloudNoiseFilename))
-	{
-		sCloudNoiseRawImage = new LLImageRaw();
-
-		if(cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
-		{
-			//debug use			
-			LL_DEBUGS() << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
-				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << LL_ENDL ;
-			llassert_always(sCloudNoiseRawImage->getData()) ;
-
-			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
-		}
-		else
-		{
-			sCloudNoiseRawImage = NULL ;
-		}
-	}
 }
 
 LLDrawPoolWLSky::~LLDrawPoolWLSky()
 {
-	//LL_INFOS() << "destructing wlsky draw pool." << LL_ENDL;
-	sCloudNoiseTexture = NULL;
-	sCloudNoiseRawImage = NULL;
 }
 
 LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
@@ -185,16 +151,19 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-        LLVector4 light_dir = LLEnvironment::instance().getClampedLightNorm();
+        LLVector4 sun_dir = LLEnvironment::instance().getClampedSunNorm();
+        LLVector4 moon_dir = LLEnvironment::instance().getClampedMoonNorm();
 
         F32 sunSize = (float)cosf(psky->getSunArcRadians());
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
-        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, light_dir.mV);
+        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, sun_dir.mV);
+        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, moon_dir.mV);
 
         // clouds are rendered along with sky in adv atmo
-        if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
+        if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
         {
-            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, sCloudNoiseTexture);
+            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
+            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
         }
 
         renderFsSky(camPosLocal, camHeightLocal, sky_shader);
@@ -280,22 +249,23 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
-#if REMOVE_BEFORE_FLIGHT
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		
-		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
+		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getCloudNoiseTex());
+        gGL.getTexUnit(1)->bind(gSky.mVOSkyp->getCloudNoiseTexNext());
 
 		cloud_shader->bind();
+        F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+        cloud_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
 		/// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloud_shader);
 
 		cloud_shader->unbind();
 	}
-#endif
 }
 
 void LLDrawPoolWLSky::renderHeavenlyBodies()
@@ -477,15 +447,9 @@ void LLDrawPoolWLSky::resetDrawOrders()
 //static
 void LLDrawPoolWLSky::cleanupGL()
 {
-	sCloudNoiseTexture = NULL;
 }
 
 //static
 void LLDrawPoolWLSky::restoreGL()
 {
-	if(sCloudNoiseRawImage.notNull())
-	{
-		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
-	}
 }
-

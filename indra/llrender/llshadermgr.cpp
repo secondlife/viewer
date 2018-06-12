@@ -1149,6 +1149,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("bumpMap");
 	mReservedUniforms.push_back("environmentMap");
 	mReservedUniforms.push_back("cloud_noise_texture");
+    mReservedUniforms.push_back("cloud_noise_texture_next");
 	mReservedUniforms.push_back("fullbright");
 	mReservedUniforms.push_back("lightnorm");
 	mReservedUniforms.push_back("sunlight_color");
@@ -1211,6 +1212,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("spot_shadow_bias");
 	mReservedUniforms.push_back("spot_shadow_offset");
 	mReservedUniforms.push_back("sun_dir");
+    mReservedUniforms.push_back("moon_dir");
 	mReservedUniforms.push_back("shadow_res");
 	mReservedUniforms.push_back("proj_shadow_res");
 	mReservedUniforms.push_back("depth_cutoff");

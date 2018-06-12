@@ -105,8 +105,8 @@ const std::string LLSettingsDay::SETTING_KEYHASH("key_hash");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
 const std::string LLSettingsDay::SETTING_FRAMES("frames");
 
-const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYLENGTH(300); // 5 mins
-const LLSettingsDay::Seconds LLSettingsDay::DEFAULT_DAYLENGTH(14400); // 4 hours
+const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYLENGTH(120);    // 2 mins
+const LLSettingsDay::Seconds LLSettingsDay::DEFAULT_DAYLENGTH(14400);  // 4 hours
 const LLSettingsDay::Seconds LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
 
 const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYOFFSET(0);

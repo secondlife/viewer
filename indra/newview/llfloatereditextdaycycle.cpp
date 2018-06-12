@@ -409,7 +409,9 @@ void LLFloaterEditExtDayCycle::onTrackSelectionCallback(const LLSD& user_data)
 void LLFloaterEditExtDayCycle::onPlayActionCallback(const LLSD& user_data)
 {
     std::string action = user_data.asString();
+
     F32 frame = mTimeSlider->getCurSliderValue();
+
     if (action == ACTION_PLAY)
     {
         startPlay();
@@ -423,13 +425,13 @@ void LLFloaterEditExtDayCycle::onPlayActionCallback(const LLSD& user_data)
         F32 new_frame = 0;
         if (action == ACTION_FORWARD)
         {
-            new_frame = mEditDay->getUpperBoundFrame(mCurrentTrack, frame);
+            new_frame = mEditDay->getUpperBoundFrame(mCurrentTrack, frame + (mTimeSlider->getIncrement() / 2));
         }
         else if (action == ACTION_BACK)
         {
             new_frame = mEditDay->getLowerBoundFrame(mCurrentTrack, frame - (mTimeSlider->getIncrement() / 2));
         }
-        selectFrame(new_frame);
+        selectFrame(new_frame, 0.0f);
         stopPlay();
     }
 }
@@ -537,12 +539,12 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 
     LL_WARNS("LAPRAS") << "  UP: X=" << x << "  Y=" << y << " MASK=" << mask << " Position=" << sliderpos << LL_ENDL;
     mTimeSlider->setCurSliderValue(sliderpos);
-    selectFrame(sliderpos);
+    selectFrame(sliderpos, FRAME_SLOP_FACTOR);
 }
 
 void LLFloaterEditExtDayCycle::onTimeSliderMoved()
 {
-    selectFrame(mTimeSlider->getCurSliderValue());
+    selectFrame(mTimeSlider->getCurSliderValue(), FRAME_SLOP_FACTOR);
 }
 
 void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
@@ -567,16 +569,16 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
     updateSlider();
 }
 
-void LLFloaterEditExtDayCycle::selectFrame(F32 frame)
+void LLFloaterEditExtDayCycle::selectFrame(F32 frame, F32 slop_factor)
 {
     mFramesSlider->resetCurSlider();
-
 
     keymap_t::iterator iter = mSliderKeyMap.begin();
     keymap_t::iterator end_iter = mSliderKeyMap.end();
     while (iter != end_iter)
     {
-        if (fabs(iter->second.mFrame - frame) <= FRAME_SLOP_FACTOR)
+        F32 keyframe = iter->second.mFrame;
+        if (fabs(keyframe - frame) <= slop_factor)
         {
             mFramesSlider->setCurSlider(iter->first);
             frame = iter->second.mFrame;  
@@ -588,6 +590,7 @@ void LLFloaterEditExtDayCycle::selectFrame(F32 frame)
     mTimeSlider->setCurSliderValue(frame);
     // block or update tabs according to new selection
     updateTabs();
+    LLEnvironment::instance().updateEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::clearTabs()
@@ -686,11 +689,16 @@ void LLFloaterEditExtDayCycle::setSkyTabsEnabled(BOOL enable)
 
 void LLFloaterEditExtDayCycle::updateButtons()
 {
-    LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
-    LLSettingsBase::ptr_t settings = mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack);
-    bool can_add = static_cast<bool>(settings);
-    mAddFrameButton->setEnabled(can_add);
-    mDeleteFrameButton->setEnabled(!can_add);
+    // This logic appears to work in reverse, the add frame button
+    // is only enabled when you're on an existing frame and disabled
+    // in all the interim positions where you'd want to add a frame...
+    //LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
+    //LLSettingsBase::ptr_t settings = mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack);
+    //bool can_add = static_cast<bool>(settings);
+    //mAddFrameButton->setEnabled(can_add);
+    //mDeleteFrameButton->setEnabled(!can_add);
+    mAddFrameButton->setEnabled(true);
+    mDeleteFrameButton->setEnabled(true);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -718,7 +726,7 @@ void LLFloaterEditExtDayCycle::updateSlider()
         mLastFrameSlider.clear();
     }
 
-    selectFrame(frame_position);
+    selectFrame(frame_position, FRAME_SLOP_FACTOR);
 }
 
 void LLFloaterEditExtDayCycle::updateTimeAndLabel()
@@ -1108,7 +1116,7 @@ void LLFloaterEditExtDayCycle::stopPlay()
     gIdleCallbacks.deleteFunction(onIdlePlay, this);
     mPlayTimer.stop();
     F32 frame = mTimeSlider->getCurSliderValue();
-    selectFrame(frame);
+    selectFrame(frame, FRAME_SLOP_FACTOR);
 
     getChild<LLView>("play_layout", true)->setVisible(TRUE);
     getChild<LLView>("pause_layout", true)->setVisible(FALSE);

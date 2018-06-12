@@ -143,6 +143,13 @@ void LLSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_textu
 	}
 }
 
+void LLSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next)
+{
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setCloudNoiseTextures(cloud_noise_texture, cloud_noise_texture_next);
+	}
+}
+
 void LLSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
 {
     if(mVOSkyp.notNull()) {

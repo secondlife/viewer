@@ -816,6 +816,27 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
     }
 }
 
+void LLVOSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next)
+{
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    LLUUID cloud_noise_tex = cloud_noise_texture.isNull() ? psky->GetDefaultCloudNoiseTextureId() : cloud_noise_texture;
+    LLUUID cloud_noise_tex_next = cloud_noise_texture_next.isNull() ? (cloud_noise_texture.isNull() ? psky->GetDefaultCloudNoiseTextureId() : cloud_noise_texture) : cloud_noise_texture_next;
+
+    mCloudNoiseTexturep[0] = LLViewerTextureManager::getFetchedTexture(cloud_noise_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mCloudNoiseTexturep[1] = LLViewerTextureManager::getFetchedTexture(cloud_noise_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+
+    if (mCloudNoiseTexturep[0])
+    {
+	    mCloudNoiseTexturep[0]->setAddressMode(LLTexUnit::TAM_WRAP);
+    }
+
+    if (mCloudNoiseTexturep[1])
+    {
+	    mCloudNoiseTexturep[1]->setAddressMode(LLTexUnit::TAM_WRAP);
+    }
+}
+
 static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Sky Geometry");
 
 BOOL LLVOSky::updateGeometry(LLDrawable *drawable)

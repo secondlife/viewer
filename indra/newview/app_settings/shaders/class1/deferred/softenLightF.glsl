@@ -56,6 +56,7 @@ uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
+uniform vec3 moon_dir;
 VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
@@ -106,7 +107,9 @@ void main()
 	float envIntensity = norm.z;
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
-	float da = dot(norm.xyz, sun_dir.xyz);
+	float da_sun = dot(norm.xyz, sun_dir.xyz);
+	float da_moon = dot(norm.xyz, moon_dir.xyz);
+	float da = max(da_sun, da_moon);
 
 	float final_da = max(0.0,da);
               final_da = min(final_da, 1.0f);
@@ -148,7 +151,10 @@ void main()
 			// the old infinite-sky shiny reflection
 			//
 			
-			float sa = dot(refnormpersp, sun_dir.xyz);
+			float sa_sun = dot(refnormpersp, sun_dir.xyz);
+			float sa_moon = dot(refnormpersp, moon_dir.xyz);
+			float sa = max(sa_sun, sa_moon);
+
 			vec3 dumbshiny = sunlit*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
 			// add the two types of shiny together
