@@ -67,6 +67,7 @@ public:
     static const std::string SETTING_NAME;
     static const std::string SETTING_HASH;
     static const std::string SETTING_TYPE;
+    static const std::string SETTING_ASSETID;
 
     typedef std::map<std::string, S32>  parammapping_t;
 
@@ -83,6 +84,7 @@ public:
     // Settings status 
     inline bool hasSetting(const std::string &param) const { return mSettings.has(param); }
     inline bool isDirty() const { return mDirty; }
+    inline bool isVeryDirty() const { return mReplaced; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; }
 
     size_t getHash() const; // Hash will not include Name, ID or a previously stored Hash
@@ -102,11 +104,20 @@ public:
         setValue(SETTING_NAME, val);
     }
 
+    inline LLUUID getAssetId() const
+    {
+        if (mSettings.has(SETTING_ASSETID))
+            return mSettings[SETTING_ASSETID].asUUID();
+        return LLUUID();
+    }
+
+
     inline void replaceSettings(LLSD settings)
     {
         mSettings = settings;
         mBlendedFactor = 0.0;
         setDirtyFlag(true);
+        mReplaced = true;
     }
 
     virtual LLSD getSettings() const;
@@ -117,6 +128,8 @@ public:
     {
         mSettings[name] = value;
         mDirty = true;
+        if (mSettings.has(SETTING_ASSETID))
+            mSettings.erase(SETTING_ASSETID);
     }
 
     inline void setValue(const std::string &name, const LLSD &value)
@@ -176,7 +189,7 @@ public:
     // special consideration from getters.
     inline void     update() const
     {
-        if (!mDirty)
+        if ((!mDirty) && (!mReplaced))
             return;
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
@@ -226,6 +239,12 @@ public:
     typedef std::vector<Validator> validation_list_t;
 
     static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
+
+    inline void setAssetId(LLUUID value)
+    {   // note that this skips setLLSD
+        mSettings[SETTING_ASSETID] = value;
+    }
+
 protected:
 
     LLSettingsBase();
@@ -249,7 +268,7 @@ protected:
     virtual stringset_t getSlerpKeys() const { return stringset_t(); }
 
     // Calculate any custom settings that may need to be cached.
-    virtual void updateSettings() { mDirty = false; };
+    virtual void updateSettings() { mDirty = false; mReplaced = false; };
 
     virtual validation_list_t getValidationList() const = 0;
 
@@ -269,10 +288,9 @@ protected:
         mBlendedFactor = blendfactor;
     }
 
-    void markDirty() { mDirty = true; }
-
 private:
     bool        mDirty;
+    bool        mReplaced; // super dirty!
 
     LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
 
@@ -367,7 +385,9 @@ public:
         LLSettingsBlender(target, initsetting, endsetting),
         mBlendSpan(blend_span),
         mLastUpdate(0.0f),
-        mTimeSpent(0.0f)
+        mTimeSpent(0.0f),
+        mTimeDeltaThreshold(0.0f),
+        mTimeDeltaPassed(0.0f)
     {
         mTimeStart = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
@@ -384,10 +404,22 @@ public:
         mBlendSpan  = blend_span;
         mTimeStart  = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
-        mTimeSpent  = LLSettingsBase::Seconds(0.0);
+        mTimeSpent  = LLSettingsBase::Seconds(0.0f);
+        mTimeDeltaPassed = LLSettingsBase::Seconds(0.0f);
     }
 
     virtual void applyTimeDelta(const LLSettingsBase::Seconds& timedelta) SETTINGS_OVERRIDE;
+
+    inline void setTimeDeltaThreshold(const LLSettingsBase::Seconds time)
+    {
+        mTimeDeltaThreshold = time;
+        mTimeDeltaPassed = time + LLSettingsBase::Seconds(1.0);  // take the next update call.
+    }
+
+    inline LLSettingsBase::Seconds getTimeDeltaThreshold() const
+    {
+        return mTimeDeltaThreshold;
+    }
 
 protected:
     LLSettingsBase::BlendFactor calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const;
@@ -396,6 +428,8 @@ protected:
     LLSettingsBase::Seconds mLastUpdate;
     LLSettingsBase::Seconds mTimeSpent;
     LLSettingsBase::Seconds mTimeStart;
+    LLSettingsBase::Seconds mTimeDeltaThreshold;
+    LLSettingsBase::Seconds mTimeDeltaPassed;
 };
 
 

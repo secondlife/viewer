@@ -159,6 +159,7 @@ public:
     void setAmbientColor(const LLColor3 &val)
     {
         setValue(SETTING_AMBIENT, val);
+        mLightingDirty = true;
     }
 
     LLColor3 getCloudColor() const
@@ -241,6 +242,7 @@ public:
     void setCloudShadow(F32 val)
     {
         setValue(SETTING_CLOUD_SHADOW, val);
+        mLightingDirty = true;
     }
 
     
@@ -265,6 +267,7 @@ public:
     {
         mSettings[SETTING_GAMMA] = LLSD::Real(val);
         setDirtyFlag(true);
+        mLightingDirty = true;
     }
 
     LLColor3 getGlow() const
@@ -285,6 +288,7 @@ public:
     void setMaxY(F32 val) 
     {
         setValue(SETTING_MAX_Y, val);
+        mLightingDirty = true;
     }
 
     LLQuaternion getMoonRotation() const
@@ -295,6 +299,7 @@ public:
     void setMoonRotation(const LLQuaternion &val)
     {
         setValue(SETTING_MOON_ROTATION, val);
+        mPositionsDirty = true;
     }
 
     LLUUID getMoonTextureId() const
@@ -325,6 +330,7 @@ public:
     void setSunlightColor(const LLColor3 &val)
     {
         setValue(SETTING_SUNLIGHT_COLOR, val);
+        mLightingDirty = true;
     }
 
     LLQuaternion getSunRotation() const
@@ -335,6 +341,7 @@ public:
     void setSunRotation(const LLQuaternion &val) 
     {
         setValue(SETTING_SUN_ROTATION, val);
+        mPositionsDirty = true;
     }
 
     LLUUID getSunTextureId() const

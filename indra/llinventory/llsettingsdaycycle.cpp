@@ -26,6 +26,7 @@
 */
 
 #include "llsettingsdaycycle.h"
+#include "llerror.h"
 #include <algorithm>
 #include <boost/make_shared.hpp>
 #include "lltrace.h"
@@ -607,6 +608,20 @@ void LLSettingsDay::setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings,
     if ((track < 0) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set track (#" << track << ") out of range!" << LL_ENDL;
+        return;
+    }
+
+    std::string type = settings->getSettingsType();
+    if ((track == TRACK_WATER) && (type != "water"))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to add frame of type '" << type << "' to water track!" << LL_ENDL;
+        llassert(type == "water");
+        return;
+    }
+    else if ((track != TRACK_WATER) && (type != "sky"))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to add frame of type '" << type << "' to sky track!" << LL_ENDL;
+        llassert(type == "sky");
         return;
     }
 

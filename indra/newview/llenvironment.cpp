@@ -65,6 +65,8 @@ namespace
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
 
+    LLSettingsBase::Seconds         DEFAULT_UPDATE_THRESHOLD(10.0);
+
     //---------------------------------------------------------------------
     inline LLSettingsBase::TrackPosition get_wrapping_distance(LLSettingsBase::TrackPosition begin, LLSettingsBase::TrackPosition end)
     {
@@ -132,13 +134,15 @@ namespace
     class LLTrackBlenderLoopingTime : public LLSettingsBlenderTimeDelta
     {
     public:
-        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, LLSettingsBase::Seconds cyclelength, LLSettingsBase::Seconds cycleoffset) :
+        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, 
+                LLSettingsBase::Seconds cyclelength, LLSettingsBase::Seconds cycleoffset, LLSettingsBase::Seconds updateThreshold) :
             LLSettingsBlenderTimeDelta(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t(), LLSettingsBase::Seconds(1.0)),
             mDay(day),
             mTrackNo(0),
             mCycleLength(cyclelength),
             mCycleOffset(cycleoffset)
         {
+            setTimeDeltaThreshold(updateThreshold);
             // must happen prior to getBoundingEntries call...
             mTrackNo = selectTrackNumber(trackno);
 
@@ -1556,10 +1560,11 @@ void LLEnvironment::DayInstance::animate()
     else
     {
         mWater = LLSettingsVOWater::buildDefaultWater();
-        mBlenderWater = std::make_shared<LLTrackBlenderLoopingTime>(mWater, mDayCycle, 0, mDayLength, mDayOffset);
+        mBlenderWater = std::make_shared<LLTrackBlenderLoopingTime>(mWater, mDayCycle, 0, 
+            mDayLength, mDayOffset, DEFAULT_UPDATE_THRESHOLD);
     }
 
-    // sky, initalize to track 1
+    // sky, initialize to track 1
     LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(1);
 
     if (track.empty())
@@ -1570,7 +1575,8 @@ void LLEnvironment::DayInstance::animate()
     else
     {
         mSky = LLSettingsVOSky::buildDefaultSky();
-        mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, 1, mDayLength, mDayOffset);
+        mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, 1, 
+            mDayLength, mDayOffset, DEFAULT_UPDATE_THRESHOLD);
         mBlenderSky->switchTrack(mSkyTrack, 0.0);
     }
 }

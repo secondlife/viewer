@@ -53,6 +53,7 @@ const std::string LLSettingsBase::SETTING_ID("id");
 const std::string LLSettingsBase::SETTING_NAME("name");
 const std::string LLSettingsBase::SETTING_HASH("hash");
 const std::string LLSettingsBase::SETTING_TYPE("type");
+const std::string LLSettingsBase::SETTING_ASSETID("asset_id");
 
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
@@ -307,6 +308,7 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
     static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
     static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
     static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
+    static Validator  validateAssetId(SETTING_ASSETID, false, LLSD::TypeUUID);
     stringset_t       validated;
     stringset_t       strip;
     bool              isValid(true);
@@ -334,6 +336,13 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         isValid = false;
     }
     validated.insert(validateHash.getName());
+
+    if (!validateAssetId.verify(settings))
+    {
+        errors.append(LLSD::String("Invalid asset Id"));
+        isValid = false;
+    }
+    validated.insert(validateAssetId.getName());
 
     if (!validateType.verify(settings))
     {
@@ -595,12 +604,19 @@ LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLS
 void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
 {
     mTimeSpent += timedelta;
+    mTimeDeltaPassed += timedelta;
 
     if (mTimeSpent > mBlendSpan)
     {
         triggerComplete();
         return;
     }
+    if (mTimeDeltaPassed < mTimeDeltaThreshold)
+    {
+        return;
+    }
+
+    mTimeDeltaPassed = LLSettingsBase::Seconds(0.0);
 
     LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
 

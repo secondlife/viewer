@@ -122,15 +122,17 @@ private:
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
-    void                        doOpenInventoryFloater(LLSettingsType::type_e type);
+    void                        doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID currasset);
+    void                        doCloseInventoryFloater(bool quitting = false);
     void                        onPickerCommitSetting(LLUUID asset_id);
+    void                        onAssetLoadedForFrame(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 track, LLSettingsBase::TrackPosition frame);
 
     bool                        canUseInventory() const;
     bool                        canApplyRegion() const;
     bool                        canApplyParcel() const;
 
     void                        updateEditEnvironment();
-    void                        syncronizeTabs();
+    void                        synchronizeTabs();
     void                        reblendSettings();
 
     void                        setTabsData(LLTabContainer * tabcontainer, const LLSettingsBase::ptr_t &settings, bool editable);
@@ -164,6 +166,7 @@ private:
     LLTrackBlenderLoopingManual::ptr_t  mWaterBlender;
     LLSettingsSky::ptr_t        mScratchSky;
     LLSettingsWater::ptr_t      mScratchWater;
+    LLSettingsBase::ptr_t       mCurrentEdit;
 
     LLFrameTimer                mPlayTimer;
     F32                         mPlayStartFrame; // an env frame

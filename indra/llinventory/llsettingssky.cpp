@@ -32,25 +32,24 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
-static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
-static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
-static const LLVector3 DUE_EAST = LLVector3::x_axis;
 //=========================================================================
 namespace
 {
     LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");    
-}
 
-static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
-{
-    LLQuaternion quat;
-    quat.setEulerAngles(0.0f, -altitude, azimuth);
-    return quat;
-}
+    const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
+    const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+    const LLVector3 DUE_EAST = LLVector3::x_axis;
 
-const F32 LLSettingsSky::DOME_OFFSET(0.96f);
-const F32 LLSettingsSky::DOME_RADIUS(15000.f);
+    LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
+    {
+        LLQuaternion quat;
+        quat.setEulerAngles(0.0f, -altitude, azimuth);
+        return quat;
+    }
+
+}
 
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
@@ -113,6 +112,9 @@ static const LLUUID DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
 static const LLUUID DEFAULT_ASSET_ID("cec9af47-90d4-9093-5245-397e5c9e7749");
 
 const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");
+
+const F32 LLSettingsSky::DOME_OFFSET(0.96f);
+const F32 LLSettingsSky::DOME_RADIUS(15000.f);
 
 namespace
 {
@@ -771,11 +773,14 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
-    mPositionsDirty = isDirty();
-    mLightingDirty  = isDirty();
+    mPositionsDirty |= isVeryDirty();
+    mLightingDirty  |= isVeryDirty();
 
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
+
+    calculateHeavenlyBodyPositions();
+    calculateLightSettings();
 }
 
 bool LLSettingsSky::getIsSunUp() const
@@ -798,6 +803,7 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     }
 
     mPositionsDirty = false;
+    mLightingDirty = true;  // changes light direction
 
     LLQuaternion sunq  = getSunRotation();
     LLQuaternion moonq = getMoonRotation();
@@ -807,21 +813,27 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
 
     mSunDirection.normalize();
     mMoonDirection.normalize();
+
+    LL_WARNS("LAPRAS") << "Sun info:  Rotation=" << sunq << " Vector=" << mSunDirection << LL_ENDL;
+    LL_WARNS("LAPRAS") << "Moon info: Rotation=" << moonq << " Vector=" << mMoonDirection << LL_ENDL;
+
+    llassert(mSunDirection.lengthSquared() > 0.0);
+    llassert(mMoonDirection.lengthSquared() > 0.0);
 }
 
 LLVector3 LLSettingsSky::getLightDirection() const
 {
-    calculateHeavenlyBodyPositions();
+    update();
 
     // is the normal from the sun or the moon
     if (getIsSunUp())
     {
-        llassert(mSunDirection.length() > 0.01f);
+        llassert(mSunDirection.lengthSquared() > 0.01f);
         return mSunDirection;
     }
     else if (getIsMoonUp())
     {
-        llassert(mMoonDirection.length() > 0.01f);
+        llassert(mMoonDirection.lengthSquared() > 0.01f);
         return mMoonDirection;
     }
 
@@ -885,36 +897,43 @@ F32 LLSettingsSky::getDistanceMultiplier() const
 void LLSettingsSky::setBlueDensity(const LLColor3 &val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_DENSITY] = val.getValue();
-    markDirty();
+    setDirtyFlag(true);
+    mLightingDirty = true;
 }
 
 void LLSettingsSky::setBlueHorizon(const LLColor3 &val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_HORIZON] = val.getValue();
-    markDirty();
+    setDirtyFlag(true);
+    mLightingDirty = true;
 }
 
 void LLSettingsSky::setDensityMultiplier(F32 val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_DENSITY_MULTIPLIER] = val;
-    markDirty();
+    setDirtyFlag(true);
+    mLightingDirty = true;
 }
 
 void LLSettingsSky::setDistanceMultiplier(F32 val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_DISTANCE_MULTIPLIER] = val;
-    markDirty();
+    setDirtyFlag(true);
+    mLightingDirty = true;
 }
 
 void LLSettingsSky::setHazeDensity(F32 val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_DENSITY] = val;
-    markDirty();
+    setDirtyFlag(true);
+    mLightingDirty = true;
 }
+
 void LLSettingsSky::setHazeHorizon(F32 val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_HORIZON] = val;
-    markDirty();
+    setDirtyFlag(true);
+    mLightingDirty = true;
 }
 
 // Sunlight attenuation effect (hue and brightness) due to atmosphere
@@ -955,49 +974,49 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
 
 LLVector3 LLSettingsSky::getSunDirection() const
 {
-    calculateHeavenlyBodyPositions();
+    update();
     return mSunDirection;
 }
 
 LLVector3 LLSettingsSky::getMoonDirection() const
 {
-    calculateHeavenlyBodyPositions();
+    update();
     return mMoonDirection;
 }
 
 LLColor4U LLSettingsSky::getFadeColor() const
 {
-    calculateLightSettings();
+    update();
     return mFadeColor;
 }
 
 LLColor4 LLSettingsSky::getMoonAmbient() const
 {
-    calculateLightSettings();
+    update();
     return mMoonAmbient;
 }
 
 LLColor3 LLSettingsSky::getMoonDiffuse() const
 {
-    calculateLightSettings();
+    update();
     return mMoonDiffuse;
 }
 
 LLColor4 LLSettingsSky::getSunAmbient() const
 {
-    calculateLightSettings();
+    update();
     return mSunAmbient;
 }
 
 LLColor3 LLSettingsSky::getSunDiffuse() const
 {
-    calculateLightSettings();
+    update();
     return mSunDiffuse;
 }
 
 LLColor4 LLSettingsSky::getTotalAmbient() const
 {
-    calculateLightSettings();
+    update();
     return mTotalAmbient;
 }
 
