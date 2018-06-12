@@ -1476,6 +1476,9 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 		case TEX_HEAD_TATTOO:
 		case TEX_LOWER_TATTOO:
 		case TEX_UPPER_TATTOO:
+		case TEX_HEAD_UNIVERSAL_TATTOO:
+		case TEX_UPPER_UNIVERSAL_TATTOO:
+		case TEX_LOWER_UNIVERSAL_TATTOO:
 		case TEX_SKIRT_TATTOO:
 		case TEX_HAIR_TATTOO:
 		case TEX_EYES_TATTOO:

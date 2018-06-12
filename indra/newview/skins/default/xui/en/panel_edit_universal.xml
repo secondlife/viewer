@@ -36,12 +36,79 @@
        default_image_name="Default"
        follows="left|top"
        height="115"
+       label="Head Tattoo"
+       layout="topleft"
+       left="20"
+       top_pad="10"
+       name="Head Universal Tattoo"
+       tool_tip="Click to choose a picture"
+       
+       width="115" >
+        <texture_picker.commit_callback
+            function="TexturePicker.Commit" />
+      </texture_picker>
+      <texture_picker
+       can_apply_immediately="true"
+       default_image_name="Default"
+       follows="left|top"
+       height="115"
+       label="Upper Tattoo"
+       layout="topleft"
+       left_pad="30"
+       top_delta="0"
+       name="Upper Universal Tattoo"
+       tool_tip="Click to choose a picture"
+       
+       width="115" >
+        <texture_picker.commit_callback
+            function="TexturePicker.Commit" />
+      </texture_picker>
+      <texture_picker
+       can_apply_immediately="true"
+       default_image_name="Default"
+       follows="left|top"
+       height="115"
+       label="Lower Tattoo"
+       layout="topleft"
+       left="20"
+       top_pad="10"
+       name="Lower Universal Tattoo"
+       tool_tip="Click to choose a picture"
+       
+       width="115" >
+        <texture_picker.commit_callback
+            function="TexturePicker.Commit" />
+      </texture_picker>
+
+      <texture_picker
+         can_apply_immediately="true"
+         default_image_name="Default"
+         follows="left|top"
+         height="115"
+         label="Skirt Tattoo"
+         layout="topleft"
+         left_pad="30"
+         top_delta="0"
+         name="Skirt Tattoo"
+         tool_tip="Click to choose a picture"
+         
+         width="115" >
+        <texture_picker.commit_callback
+            function="TexturePicker.Commit" />
+      </texture_picker>
+      
+      <texture_picker
+       can_apply_immediately="true"
+       default_image_name="Default"
+       follows="left|top"
+       height="115"
        label="Hair Tattoo"
        layout="topleft"
        left="20"
+       top_pad="10"
        name="Hair Tattoo"
        tool_tip="Click to choose a picture"
-       top_pad="10"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
@@ -54,9 +121,10 @@
        label="Eyes Tattoo"
        layout="topleft"
        left_pad="30"
+       top_delta="0"
        name="Eyes Tattoo"
        tool_tip="Click to choose a picture"
-       top_delta="0"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
@@ -69,9 +137,10 @@
        label="Left Arm Tattoo"
        layout="topleft"
        left="20"
+       top_pad="10"
        name="Left Arm Tattoo"
        tool_tip="Click to choose a picture"
-       top_pad="10"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
@@ -84,9 +153,10 @@
        label="Left Leg Tattoo"
        layout="topleft"
        left_pad="30"
+       top_delta="0"
        name="Left Leg Tattoo"
        tool_tip="Click to choose a picture"
-       top_delta="0"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
@@ -99,9 +169,10 @@
        label="Aux1 Tattoo"
        layout="topleft"
        left="20"
+       top_pad="10"
        name="Aux1 Tattoo"
        tool_tip="Click to choose a picture"
-       top_pad="10"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
@@ -114,9 +185,10 @@
        label="Aux2 Tattoo"
        layout="topleft"
        left_pad="30"
+       top_delta="0"
        name="Aux2 Tattoo"
        tool_tip="Click to choose a picture"
-       top_delta="0"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
@@ -129,38 +201,26 @@
        label="Aux3 Tattoo"
        layout="topleft"
        left="20"
+       top_pad="10"
        name="Aux3 Tattoo"
        tool_tip="Click to choose a picture"
-       top_pad="10"
+       
        width="115" >
         <texture_picker.commit_callback
             function="TexturePicker.Commit" />
       </texture_picker>
-      <texture_picker
-         can_apply_immediately="true"
-         default_image_name="Default"
-         follows="left|top"
-         height="115"
-         label="Skirt Tattoo"
-         layout="topleft"
-         left_pad="30"
-         name="Skirt Tattoo"
-         tool_tip="Click to choose a picture"
-         top_delta="0"
-         width="115" >
-        <texture_picker.commit_callback
-            function="TexturePicker.Commit" />
-      </texture_picker>
+      
       <color_swatch
        can_apply_immediately="true"
        follows="left|top"
        height="115"
        label="Color/Tint"
        layout="topleft"
-       left="30"
+       left_pad="30"
+       top_delta="0"
        name="Color/Tint"
        tool_tip="Click to open color picker"
-       top_pad="10"
+       
        width="115" >
         <color_swatch.commit_callback
             function="ColorSwatch.Commit" />

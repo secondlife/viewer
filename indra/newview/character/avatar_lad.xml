@@ -10084,7 +10084,65 @@ render_pass="bump">
       </param>
 
     </layer>
+    <layer
+      name="head_universal_tattoo">
+      <texture
+         local_texture="head_universal_tattoo" />
+      <param
+       id="1229"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_head_universal_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
 
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1230"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_head_universal_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1231"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_head_universal_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
 
   </layer_set>
 
@@ -10261,7 +10319,65 @@ render_pass="bump">
       </param>
 
     </layer>
+    <layer
+     name="upper_universal_tattoo">
+      <texture
+         local_texture="upper_universal_tattoo" />
+      <param
+       id="1232"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_upper_universal_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
 
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1233"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_upper_universal_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1234"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_upper_universal_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
 
     <layer
      name="upper_undershirt bump"
@@ -11513,7 +11629,65 @@ render_pass="bump">
       </param>
 
     </layer>
+    <layer
+    name="lower_universal_tattoo">
+      <texture
+         local_texture="lower_universal_tattoo" />
+      <param
+       id="1235"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_lower_universal_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
 
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1236"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_lower_universal_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1237"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_lower_universal_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
     <layer
      name="lower_underpants bump"
      render_pass="bump"

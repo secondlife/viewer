@@ -65,6 +65,10 @@ LLAvatarAppearanceDictionary::Textures::Textures()
 	addEntry(TEX_HEAD_TATTOO,                 new TextureEntry("head_tattoo",      TRUE,  BAKED_NUM_INDICES, "",     LLWearableType::WT_TATTOO));
 	addEntry(TEX_UPPER_TATTOO,                new TextureEntry("upper_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     LLWearableType::WT_TATTOO));
 	addEntry(TEX_LOWER_TATTOO,                new TextureEntry("lower_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     LLWearableType::WT_TATTOO));
+
+	addEntry(TEX_HEAD_UNIVERSAL_TATTOO,		  new TextureEntry("head_universal_tattoo", TRUE, BAKED_NUM_INDICES, "", LLWearableType::WT_UNIVERSAL));
+	addEntry(TEX_UPPER_UNIVERSAL_TATTOO,	  new TextureEntry("upper_universal_tattoo", TRUE, BAKED_NUM_INDICES, "", LLWearableType::WT_UNIVERSAL));
+	addEntry(TEX_LOWER_UNIVERSAL_TATTOO,      new TextureEntry("lower_universal_tattoo", TRUE, BAKED_NUM_INDICES, "", LLWearableType::WT_UNIVERSAL));
 	addEntry(TEX_SKIRT_TATTOO,				  new TextureEntry("skirt_tattoo",	   TRUE,  BAKED_NUM_INDICES, "",	 LLWearableType::WT_UNIVERSAL));
 	addEntry(TEX_HAIR_TATTOO,				  new TextureEntry("hair_tattoo",	   TRUE,  BAKED_NUM_INDICES, "",	 LLWearableType::WT_UNIVERSAL));
 	addEntry(TEX_EYES_TATTOO,				  new TextureEntry("eyes_tattoo",      TRUE,  BAKED_NUM_INDICES, "",	 LLWearableType::WT_UNIVERSAL));
@@ -93,20 +97,20 @@ LLAvatarAppearanceDictionary::BakedTextures::BakedTextures()
 	// Baked textures
 	addEntry(BAKED_HEAD,       new BakedEntry(TEX_HEAD_BAKED,  
 											  "head", "a4b9dc38-e13b-4df9-b284-751efb0566ff", 
-											  3, TEX_HEAD_BODYPAINT, TEX_HEAD_TATTOO, TEX_HEAD_ALPHA,
-											  5, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN, LLWearableType::WT_HAIR, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA));
+											  4, TEX_HEAD_BODYPAINT, TEX_HEAD_TATTOO, TEX_HEAD_ALPHA, TEX_HEAD_UNIVERSAL_TATTOO,
+											  6, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN, LLWearableType::WT_HAIR, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA, LLWearableType::WT_UNIVERSAL));
 
 	addEntry(BAKED_UPPER,      new BakedEntry(TEX_UPPER_BAKED, 
 											  "upper_body", "5943ff64-d26c-4a90-a8c0-d61f56bd98d4", 
-											  7, TEX_UPPER_SHIRT,TEX_UPPER_BODYPAINT, TEX_UPPER_JACKET,
-											  TEX_UPPER_GLOVES, TEX_UPPER_UNDERSHIRT, TEX_UPPER_TATTOO, TEX_UPPER_ALPHA,
-											  8, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN,	LLWearableType::WT_SHIRT, LLWearableType::WT_JACKET, LLWearableType::WT_GLOVES, LLWearableType::WT_UNDERSHIRT, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA));											  
+											  8, TEX_UPPER_SHIRT,TEX_UPPER_BODYPAINT, TEX_UPPER_JACKET,
+											  TEX_UPPER_GLOVES, TEX_UPPER_UNDERSHIRT, TEX_UPPER_TATTOO, TEX_UPPER_ALPHA, TEX_UPPER_UNIVERSAL_TATTOO,
+											  9, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN,	LLWearableType::WT_SHIRT, LLWearableType::WT_JACKET, LLWearableType::WT_GLOVES, LLWearableType::WT_UNDERSHIRT, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA, LLWearableType::WT_UNIVERSAL));											  
 
 	addEntry(BAKED_LOWER,      new BakedEntry(TEX_LOWER_BAKED, 
 											  "lower_body", "2944ee70-90a7-425d-a5fb-d749c782ed7d",
-											  8, TEX_LOWER_PANTS,TEX_LOWER_BODYPAINT,TEX_LOWER_SHOES, TEX_LOWER_SOCKS,
-											  TEX_LOWER_JACKET, TEX_LOWER_UNDERPANTS, TEX_LOWER_TATTOO, TEX_LOWER_ALPHA,
-											  9, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN,	LLWearableType::WT_PANTS, LLWearableType::WT_SHOES,	 LLWearableType::WT_SOCKS,  LLWearableType::WT_JACKET, LLWearableType::WT_UNDERPANTS, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA));
+											  9, TEX_LOWER_PANTS,TEX_LOWER_BODYPAINT,TEX_LOWER_SHOES, TEX_LOWER_SOCKS,
+											  TEX_LOWER_JACKET, TEX_LOWER_UNDERPANTS, TEX_LOWER_TATTOO, TEX_LOWER_ALPHA, TEX_LOWER_UNIVERSAL_TATTOO,
+											  10, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN,	LLWearableType::WT_PANTS, LLWearableType::WT_SHOES,	 LLWearableType::WT_SOCKS,  LLWearableType::WT_JACKET, LLWearableType::WT_UNDERPANTS, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA, LLWearableType::WT_UNIVERSAL));
 
 	addEntry(BAKED_EYES,       new BakedEntry(TEX_EYES_BAKED,  
 											  "eyes", "27b1bc0f-979f-4b13-95fe-b981c2ba9788",

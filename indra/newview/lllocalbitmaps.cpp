@@ -818,6 +818,22 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 					result = LLAvatarAppearanceDefines::TEX_AUX3_TATTOO;
 					break;
 				}
+				case LLAvatarAppearanceDefines::BAKED_UPPER:
+				{
+					result = LLAvatarAppearanceDefines::TEX_UPPER_UNIVERSAL_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LOWER:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LOWER_UNIVERSAL_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_HEAD:
+				{
+					result = LLAvatarAppearanceDefines::TEX_HEAD_UNIVERSAL_TATTOO;
+					break;
+				}
+
 
 				default:
 				{
