@@ -1855,23 +1855,21 @@ if (WINDOWS)
 
     add_dependencies(${VIEWER_BINARY_NAME}
       SLPlugin
-   windows-crash-logger
+      windows-crash-logger
     )
 
     # sets the 'working directory' for debugging from visual studio.
-    if (NOT UNATTENDED)
-        add_custom_command(
-            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-            COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
-            ARGS
-              --solution
-              ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
-              --workingdir
-              ${VIEWER_BINARY_NAME}
-              "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
-            )
-    endif (NOT UNATTENDED)
+    add_custom_command(
+        TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+        COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
+        ARGS
+          --solution
+          ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
+          --workingdir
+          ${VIEWER_BINARY_NAME}
+          "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
+        )
 
     if (PACKAGE)
       add_custom_command(

@@ -120,12 +120,10 @@ pre_build()
 
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
-     -DUNATTENDED:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
-     -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
@@ -204,6 +202,8 @@ then
     echo "This script relies on being run by the master Linden Lab buildscripts" 1>&2
     exit 1
 fi
+
+shopt -s nullglob # if nothing matches a glob, expand to nothing
 
 initialize_build # provided by master buildscripts build.sh
 
