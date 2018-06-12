@@ -3,7 +3,12 @@
 project(viewer)
 
 include(00-Common)
+# DON'T move Linking.cmake to its place in the alphabetized list below: it
+# sets variables on which the 3p .cmake files depend.
+include(Linking)
+
 include(Boost)
+include(bugsplat)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -37,7 +42,6 @@ include(LLUI)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
@@ -91,6 +95,7 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${BUGSPLAT_INCLUDE_DIR}
     )
 
 include_directories(SYSTEM
@@ -1356,6 +1361,14 @@ if (DARWIN)
 
   # This should be compiled with the viewer.
   LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
+  set_source_files_properties(
+    llappdelegate-objc.mm
+    PROPERTIES
+    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+    # BugsplatMac is a module, imported with @import. That language feature
+    # demands these switches.
+    COMPILE_FLAGS "-fmodules -fcxx-modules"
+    )
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1368,6 +1381,7 @@ if (DARWIN)
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
     ${COREAUDIO_LIBRARY}
+    ${BUGSPLAT_LIBRARIES}
     )
 
   # Add resource files to the project.
@@ -1395,6 +1409,11 @@ endif (DARWIN)
 
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
+    set_source_files_properties(
+      llappviewerlinux.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
@@ -1411,6 +1430,11 @@ if (WINDOWS)
          llappviewerwin32.cpp
          llwindebug.cpp
          )
+    set_source_files_properties(
+      llappviewerwin32.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1693,6 +1717,11 @@ if (SDL_FOUND)
     )
 endif (SDL_FOUND)
 
+if (DEFINED ENV{BUGSPLAT_DB})
+  set_property(TARGET ${VIEWER_BINARY_NAME}
+    PROPERTY COMPILE_DEFINITIONS "LL_BUGSPLAT")
+endif (DEFINED ENV{BUGSPLAT_DB})
+
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
@@ -1791,7 +1820,7 @@ if (WINDOWS)
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
           )
     endif (FMODEX)
-    
+
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}
@@ -1905,8 +1934,8 @@ else (WINDOWS)
 endif (WINDOWS)
 
 # *NOTE: - this list is very sensitive to ordering, test carefully on all
-# platforms if you change the releative order of the entries here.
-# In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
+# platforms if you change the relative order of the entries here.
+# In particular, cmake 2.6.4 (when building with linux/makefile generators)
 # appears to sometimes de-duplicate redundantly listed dependencies improperly.
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
@@ -1979,6 +2008,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    ${BUGSPLAT_LIBRARIES}
     )
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
@@ -2068,11 +2098,19 @@ if (DARWIN)
   set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2007")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
   set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
+
+  # https://blog.kitware.com/upcoming-in-cmake-2-8-12-osx-rpath-support/
+  set(CMAKE_MACOSX_RPATH 1)
   
   set_target_properties(
     ${VIEWER_BINARY_NAME}
     PROPERTIES
     OUTPUT_NAME "${product}"
+    # From Contents/MacOS/SecondLife, look in Contents/Frameworks
+    INSTALL_RPATH "@loader_path/../Frameworks"
+    # SIGH, as of 2018-05-24 (cmake 3.11.1) the INSTALL_RPATH property simply
+    # does not work. Try this:
+    LINK_FLAGS "-rpath @loader_path/../Frameworks"
     MACOSX_BUNDLE_INFO_PLIST
     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     )

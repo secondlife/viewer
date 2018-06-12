@@ -95,17 +95,28 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    # nat 2016-12-20: disable HAVOK on Mac until we get a 64-bit Mac build.
     RELEASE_CRASH_REPORTING=ON
     HAVOK=ON
     SIGNING=()
-    if [ "$arch" == "Darwin" ]
-    then
-         if [ "$variant" == "Release" ]
-         then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
-                       "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+    if [ "$arch" == "Darwin" -a "$variant" == "Release" ]
+    then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
+                  "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+    fi
+
+    # don't spew credentials into build log
+    bugsplat_sh="$build_secrets_checkout/bugsplat/bugsplat.sh"
+    set +x
+    if [ -r "$bugsplat_sh" ]
+    then # show that we're doing this, just not the contents
+         echo source "$bugsplat_sh"
+         source "$bugsplat_sh"
+         # important: we test this and use its value in [grand-]child processes
+         if [ -n "${BUGSPLAT_DB:-}" ]
+         then echo export BUGSPLAT_DB
+              export BUGSPLAT_DB
          fi
     fi
+    set -x
 
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \

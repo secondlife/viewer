@@ -225,6 +225,60 @@
         <key>version</key>
         <string>1.57</string>
       </map>
+      <key>bugsplat</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2003-2017, BugSplat</string>
+        <key>description</key>
+        <string>Bugsplat crash reporting package</string>
+        <key>license</key>
+        <string>Proprietary</string>
+        <key>license_file</key>
+        <string>LICENSES/BUGSPLAT_LICENSE.txt</string>
+        <key>name</key>
+        <string>bugsplat</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2ef055fe7ec22c64394095ad8d7ab34e</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/18481/127993/bugsplat-1.0.2.515662-darwin64-515662.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>84b73bc8141b5d19a8dafabfe27eee93</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/18483/128007/bugsplat-3.5.0.5.515662-windows-515662.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>bd44b033c07b417b675c3511fee468e2</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/18482/128001/bugsplat-3.5.0.5.515662-windows64-515662.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.2.515662</string>
+      </map>
       <key>chardet</key>
       <map>
         <key>copyright</key>
