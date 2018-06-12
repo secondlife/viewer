@@ -206,7 +206,9 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
 
                 if (slerps.find(key_name) != slerps.end())
                 {
-                    LLQuaternion q = slerp(mix, LLQuaternion(value), LLQuaternion(other_value));
+                    LLQuaternion a(value);
+                    LLQuaternion b(other_value);
+                    LLQuaternion q = slerp(mix, a, b);
                     newvalue = q.getValue();
                 }
                 else

@@ -700,16 +700,6 @@ void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool f
     }
 }
 
-LLVector3 LLEnvironment::getLightDirection() const
-{
-    LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
-    if (!psky)
-    {
-        return LLVector3(0, 0, 1);
-    }
-    return psky->getLightDirection();
-}
-
 LLVector4 LLEnvironment::toCFR(const LLVector3 vec) const
 {
     LLVector4 vec_cfr(vec.mV[1], vec.mV[0], vec.mV[2], 0.0f);
@@ -722,6 +712,36 @@ LLVector4 LLEnvironment::toLightNorm(const LLVector3 vec) const
     return vec_ogl;
 }
 
+LLVector3 LLEnvironment::getLightDirection() const
+{
+    LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
+    if (!psky)
+    {
+        return LLVector3(0, 0, 1);
+    }
+    return psky->getLightDirection();
+}
+
+LLVector3 LLEnvironment::getSunDirection() const
+{
+    LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
+    if (!psky)
+    {
+        return LLVector3(0, 0, 1);
+    }
+    return psky->getSunDirection();
+}
+
+LLVector3 LLEnvironment::getMoonDirection() const
+{
+    LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky();
+    if (!psky)
+    {
+        return LLVector3(0, 0, -1);
+    }
+    return psky->getMoonDirection();
+}
+
 LLVector4 LLEnvironment::getLightDirectionCFR() const
 {
     LLVector3 light_direction = getLightDirection();
@@ -729,9 +749,43 @@ LLVector4 LLEnvironment::getLightDirectionCFR() const
     return light_direction_cfr;
 }
 
+LLVector4 LLEnvironment::getSunDirectionCFR() const
+{
+    LLVector3 light_direction = getSunDirection();
+    LLVector4 light_direction_cfr = toCFR(light_direction);
+    return light_direction_cfr;
+}
+
+LLVector4 LLEnvironment::getMoonDirectionCFR() const
+{
+    LLVector3 light_direction = getMoonDirection();
+    LLVector4 light_direction_cfr = toCFR(light_direction);
+    return light_direction_cfr;
+}
+
 LLVector4 LLEnvironment::getClampedLightNorm() const
 {
     LLVector3 light_direction = getLightDirection();
+    if (light_direction.mV[2] < -0.1f)
+    {
+        light_direction.mV[2] = -0.1f;
+    }
+    return toLightNorm(light_direction);
+}
+
+LLVector4 LLEnvironment::getClampedSunNorm() const
+{
+    LLVector3 light_direction = getSunDirection();
+    if (light_direction.mV[2] < -0.1f)
+    {
+        light_direction.mV[2] = -0.1f;
+    }
+    return toLightNorm(light_direction);
+}
+
+LLVector4 LLEnvironment::getClampedMoonNorm() const
+{
+    LLVector3 light_direction = getMoonDirection();
     if (light_direction.mV[2] < -0.1f)
     {
         light_direction.mV[2] = -0.1f;

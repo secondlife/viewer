@@ -657,7 +657,10 @@ public:
 
 	LLColor4			mSunDiffuse;
 	LLVector4			mSunDir;
+    LLVector4			mMoonDir;
+
 	LLVector4			mTransformedSunDir;
+    LLVector4			mTransformedMoonDir;
 
 	bool					mInitialized;
 	bool					mVertexShadersEnabled;

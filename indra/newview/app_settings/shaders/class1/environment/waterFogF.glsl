@@ -25,7 +25,6 @@
  
 
 
-uniform vec4 lightnorm;
 uniform vec4 waterPlane;
 uniform vec4 waterFogColor;
 uniform float waterFogDensity;

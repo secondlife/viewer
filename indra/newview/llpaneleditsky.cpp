@@ -374,19 +374,23 @@ void LLPanelSettingsSkySunMoonTab::onStarBrightnessChanged()
 void LLPanelSettingsSkySunMoonTab::onSunRotationChanged()
 {
     mSkySettings->setSunRotation(getChild<LLJoystickQuaternion>(FIELD_SKY_SUN_ROTATION)->getRotation());
+    mSkySettings->update();
 }
 
 void LLPanelSettingsSkySunMoonTab::onSunImageChanged()
 {
     mSkySettings->setSunTextureId(getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->getValue().asUUID());
+    mSkySettings->update();
 }
 
 void LLPanelSettingsSkySunMoonTab::onMoonRotationChanged()
 {
     mSkySettings->setMoonRotation(getChild<LLJoystickQuaternion>(FIELD_SKY_MOON_ROTATION)->getRotation());
+    mSkySettings->update();
 }
 
 void LLPanelSettingsSkySunMoonTab::onMoonImageChanged()
 {
     mSkySettings->setMoonTextureId(getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->getValue().asUUID());
+    mSkySettings->update();
 }

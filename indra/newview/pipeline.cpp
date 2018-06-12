@@ -6258,8 +6258,11 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 	// Light 0 = Sun or Moon (All objects)
 	{
-        LLVector4 light_dir = environment.getLightDirectionCFR();
-        mSunDir.setVec(light_dir);
+        LLVector4 sun_dir = environment.getSunDirectionCFR();
+        LLVector4 moon_dir = environment.getMoonDirectionCFR();
+
+        mSunDir.setVec(sun_dir);
+        mMoonDir.setVec(moon_dir);
 
 		if (environment.getIsSunUp())
 		{			
@@ -6282,7 +6285,14 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		mHWLightColors[0] = light_diffuse;
 
 		LLLightState* light = gGL.getLight(0);
-		light->setPosition(mSunDir);
+        if (environment.getIsSunUp())
+		{
+		    light->setPosition(mSunDir);
+        }
+        else
+        {
+            light->setPosition(mMoonDir);
+        }
 		light->setDiffuse(light_diffuse);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
@@ -8377,6 +8387,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
+    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, mTransformedMoonDir.mV);
 	shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, mShadow[0].getWidth(), mShadow[0].getHeight());
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
@@ -8465,10 +8476,13 @@ void LLPipeline::renderDeferredLighting()
 		vert[2].set(3,1,0);
 		
 		{
-			setupHWLights(NULL); //to set mSunDir;
+			setupHWLights(NULL); //to set mSun/MoonDir;
 			glh::vec4f tc(mSunDir.mV);
 			mat.mult_matrix_vec(tc);
 			mTransformedSunDir.set(tc.v);
+
+            glh::vec4f tc_moon(mMoonDir.mV);
+            mTransformedMoonDir.set(tc_moon.v);
 		}
 
 		gGL.pushMatrix();
@@ -9078,10 +9092,13 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		vert[2].set(3,1,0);
 		
 		{
-			setupHWLights(NULL); //to set mSunDir;
+			setupHWLights(NULL); //to set mSun/MoonDir;
 			glh::vec4f tc(mSunDir.mV);
 			mat.mult_matrix_vec(tc);
 			mTransformedSunDir.set(tc.v);
+
+            glh::vec4f tc_moon(mMoonDir.mV);
+            mTransformedMoonDir.set(tc_moon.v);
 		}
 
 		gGL.pushMatrix();

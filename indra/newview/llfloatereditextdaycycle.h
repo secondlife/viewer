@@ -79,6 +79,8 @@ public:
 
 private:
 
+    F32 getCurrentFrame() const;
+
 	// flyout response/click
 	void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
 	void                        onBtnCancel();
@@ -98,7 +100,7 @@ private:
     void                        onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
 
 	void                        selectTrack(U32 track_index, bool force = false);
-	void                        selectFrame(F32 frame);
+	void                        selectFrame(F32 frame, F32 slop_factor);
 	void                        clearTabs();
 	void                        updateTabs();
 	void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);

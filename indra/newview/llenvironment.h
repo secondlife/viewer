@@ -193,14 +193,20 @@ public:
 
     // Returns either sun or moon direction (depending on which is up and stronger)
     // Light direction in +x right, +z up, +y at internal coord sys
-    LLVector3                   getLightDirection() const;
+    LLVector3                   getLightDirection() const; // returns sun or moon depending on which is up
+    LLVector3                   getSunDirection() const;
+    LLVector3                   getMoonDirection() const;
 
     // Returns light direction converted to CFR coord system
-    LLVector4                   getLightDirectionCFR() const;
+    LLVector4                   getLightDirectionCFR() const; // returns sun or moon depending on which is up
+    LLVector4                   getSunDirectionCFR() const;
+    LLVector4                   getMoonDirectionCFR() const;
 
     // Returns light direction converted to OGL coord system
     // and clamped above -0.1f in Y to avoid render artifacts in sky shaders
-    LLVector4                   getClampedLightNorm() const;
+    LLVector4                   getClampedLightNorm() const; // returns sun or moon depending on which is up
+    LLVector4                   getClampedSunNorm() const;
+    LLVector4                   getClampedMoonNorm() const;
 
     // Returns light direction converted to OGL coord system
     // and rotated by last cam yaw needed by water rendering shaders

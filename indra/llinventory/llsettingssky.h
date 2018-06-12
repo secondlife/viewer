@@ -105,267 +105,85 @@ public:
     
     static LLSD defaults();
 
-    F32 getPlanetRadius() const
-    {
-        return mSettings[SETTING_PLANET_RADIUS].asReal();
-    }
+    F32 getPlanetRadius() const;
+    F32 getSkyBottomRadius() const;
+    F32 getSkyTopRadius() const;
+    F32 getSunArcRadians() const;
+    F32 getMieAnisotropy() const;   
+    LLSD getRayleighConfigs() const;
+    LLSD getMieConfigs() const;
 
-    F32 getSkyBottomRadius() const
-    {
-        return mSettings[SETTING_SKY_BOTTOM_RADIUS].asReal();
-    }
-
-    F32 getSkyTopRadius() const
-    {
-        return mSettings[SETTING_SKY_TOP_RADIUS].asReal();
-    }
-
-    F32 getSunArcRadians() const
-    {
-        return mSettings[SETTING_SUN_ARC_RADIANS].asReal();
-    }
-
-    F32 getMieAnisotropy() const
-    {
-        return mSettings[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
-    }
-    
-    LLSD getRayleighConfigs() const
-    {
-        return mSettings[SETTING_RAYLEIGH_CONFIG];
-    }
-
-    LLSD getMieConfigs() const
-    {
-        return mSettings[SETTING_MIE_CONFIG];
-    }
-
-    LLSD getAbsorptionConfigs() const
-    {
-        return mSettings[SETTING_ABSORPTION_CONFIG];
-    }
-
-    LLUUID getBloomTextureId() const
-    {
-        return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
-    }
+    LLSD getAbsorptionConfigs() const;
+    LLUUID getBloomTextureId() const;
 
     //---------------------------------------------------------------------
-    LLColor3 getAmbientColor() const
-    {
-        return LLColor3(mSettings[SETTING_AMBIENT]);
-    }
+    LLColor3 getAmbientColor() const;
+    void setAmbientColor(const LLColor3 &val);
 
-    void setAmbientColor(const LLColor3 &val)
-    {
-        setValue(SETTING_AMBIENT, val);
-    }
+    LLColor3 getCloudColor() const;
+    void setCloudColor(const LLColor3 &val);
 
-    LLColor3 getCloudColor() const
-    {
-        return LLColor3(mSettings[SETTING_CLOUD_COLOR]);
-    }
+    LLUUID getCloudNoiseTextureId() const;
+    void setCloudNoiseTextureId(const LLUUID &id);
 
-    void setCloudColor(const LLColor3 &val)
-    {
-        setValue(SETTING_CLOUD_COLOR, val);
-    }
+    LLColor3 getCloudPosDensity1() const;
+    void setCloudPosDensity1(const LLColor3 &val);
 
-    LLUUID getCloudNoiseTextureId() const
-    {
-        return mSettings[SETTING_CLOUD_TEXTUREID].asUUID();
-    }
+    LLColor3 getCloudPosDensity2() const;
+    void setCloudPosDensity2(const LLColor3 &val);
 
-    void setCloudNoiseTextureId(const LLUUID &id)
-    {
-        setValue(SETTING_CLOUD_TEXTUREID, id);
-    }
+    F32 getCloudScale() const;
+    void setCloudScale(F32 val);
 
-    LLColor3 getCloudPosDensity1() const
-    {
-        return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY1]);
-    }
+    LLVector2 getCloudScrollRate() const;
+    void setCloudScrollRate(const LLVector2 &val);
 
-    void setCloudPosDensity1(const LLColor3 &val)
-    {
-        setValue(SETTING_CLOUD_POS_DENSITY1, val);
-    }
+    void setCloudScrollRateX(F32 val);
+    void setCloudScrollRateY(F32 val);
 
-    LLColor3 getCloudPosDensity2() const
-    {
-        return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY2]);
-    }
-
-    void setCloudPosDensity2(const LLColor3 &val)
-    {
-        setValue(SETTING_CLOUD_POS_DENSITY2, val);
-    }
-
-    F32 getCloudScale() const
-    {
-        return mSettings[SETTING_CLOUD_SCALE].asReal();
-    }
-
-    void setCloudScale(F32 val)
-    {
-        setValue(SETTING_CLOUD_SCALE, val);
-    }
-
-    LLVector2 getCloudScrollRate() const
-    {
-        return LLVector2(mSettings[SETTING_CLOUD_SCROLL_RATE]);
-    }
-
-    void setCloudScrollRate(const LLVector2 &val)
-    {
-        setValue(SETTING_CLOUD_SCROLL_RATE, val);
-    }
-
-    void setCloudScrollRateX(F32 val)
-    {
-        mSettings[SETTING_CLOUD_SCROLL_RATE][0] = val;
-        setDirtyFlag(true);
-    }
-
-    void setCloudScrollRateY(F32 val)
-    {
-        mSettings[SETTING_CLOUD_SCROLL_RATE][1] = val;
-        setDirtyFlag(true);
-    }
-
-    F32 getCloudShadow() const
-    {
-        return mSettings[SETTING_CLOUD_SHADOW].asReal();
-    }
-
-    void setCloudShadow(F32 val)
-    {
-        setValue(SETTING_CLOUD_SHADOW, val);
-    }
-
+    F32 getCloudShadow() const;
+    void setCloudShadow(F32 val);
     
-    F32 getDomeOffset() const
-    {
-        return DOME_OFFSET;
-        //return mSettings[SETTING_DOME_OFFSET].asReal();
-    }
+    F32 getDomeOffset() const;
+    F32 getDomeRadius() const;
 
-    F32 getDomeRadius() const
-    {
-        return DOME_RADIUS;
-        //return mSettings[SETTING_DOME_RADIUS].asReal();
-    }
+    F32 getGamma() const;
 
-    F32 getGamma() const
-    {
-        return mSettings[SETTING_GAMMA].asReal();
-    }
+    void setGamma(F32 val);
 
-    void setGamma(F32 val)
-    {
-        mSettings[SETTING_GAMMA] = LLSD::Real(val);
-        setDirtyFlag(true);
-    }
+    LLColor3 getGlow() const;
+    void setGlow(const LLColor3 &val);
 
-    LLColor3 getGlow() const
-    {
-        return LLColor3(mSettings[SETTING_GLOW]);
-    }
+    F32 getMaxY() const;
 
-    void setGlow(const LLColor3 &val)
-    {
-        setValue(SETTING_GLOW, val);
-    }
+    void setMaxY(F32 val);
 
-    F32 getMaxY() const
-    {
-        return mSettings[SETTING_MAX_Y].asReal();
-    }
+    LLQuaternion getMoonRotation() const;
+    void setMoonRotation(const LLQuaternion &val);
 
-    void setMaxY(F32 val) 
-    {
-        setValue(SETTING_MAX_Y, val);
-    }
+    LLUUID getMoonTextureId() const;
+    void setMoonTextureId(LLUUID id);
 
-    LLQuaternion getMoonRotation() const
-    {
-        return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
-    }
+    F32 getStarBrightness() const;
+    void setStarBrightness(F32 val);
 
-    void setMoonRotation(const LLQuaternion &val)
-    {
-        setValue(SETTING_MOON_ROTATION, val);
-    }
+    LLColor3 getSunlightColor() const;
+    void setSunlightColor(const LLColor3 &val);
 
-    LLUUID getMoonTextureId() const
-    {
-        return mSettings[SETTING_MOON_TEXTUREID].asUUID();
-    }
+    LLQuaternion getSunRotation() const;
+    void setSunRotation(const LLQuaternion &val) ;
 
-    void setMoonTextureId(LLUUID id)
-    {
-        setValue(SETTING_MOON_TEXTUREID, id);
-    }
-
-    F32 getStarBrightness() const
-    {
-        return mSettings[SETTING_STAR_BRIGHTNESS].asReal();
-    }
-
-    void setStarBrightness(F32 val)
-    {
-        setValue(SETTING_STAR_BRIGHTNESS, val);
-    }
-
-    LLColor3 getSunlightColor() const
-    {
-        return LLColor3(mSettings[SETTING_SUNLIGHT_COLOR]);
-    }
-
-    void setSunlightColor(const LLColor3 &val)
-    {
-        setValue(SETTING_SUNLIGHT_COLOR, val);
-    }
-
-    LLQuaternion getSunRotation() const
-    {
-        return LLQuaternion(mSettings[SETTING_SUN_ROTATION]);
-    }
-
-    void setSunRotation(const LLQuaternion &val) 
-    {
-        setValue(SETTING_SUN_ROTATION, val);
-    }
-
-    LLUUID getSunTextureId() const
-    {
-        return mSettings[SETTING_SUN_TEXTUREID].asUUID();
-    }
-
-    void setSunTextureId(LLUUID id) 
-    {
-        setValue(SETTING_SUN_TEXTUREID, id);
-    }
+    LLUUID getSunTextureId() const;
+    void setSunTextureId(LLUUID id);
 
     //=====================================================================
     // transient properties used in animations.
-    LLUUID getNextSunTextureId() const
-    {
-        return mNextSunTextureId;
-    }
-
-    LLUUID getNextMoonTextureId() const
-    {
-        return mNextMoonTextureId;
-    }
-
-    LLUUID getNextCloudNoiseTextureId() const
-    {
-        return mNextCloudTextureId;
-    }
+    LLUUID getNextSunTextureId() const;
+    LLUUID getNextMoonTextureId() const;
+    LLUUID getNextCloudNoiseTextureId() const;
 
     //=====================================================================
-    virtual void                loadTextures() { };
+    virtual void loadTextures() { };
 
     //=====================================================================
     virtual validation_list_t getValidationList() const SETTINGS_OVERRIDE;
@@ -379,7 +197,6 @@ public:
     LLColor3 getLightAttenuation(F32 distance) const;
     LLColor3 getLightTransmittance() const;
     LLColor3 gammaCorrect(const LLColor3& in) const;
-
 
     LLColor3 getBlueDensity() const;
     LLColor3 getBlueHorizon() const;

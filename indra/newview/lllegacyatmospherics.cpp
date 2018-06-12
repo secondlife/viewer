@@ -267,7 +267,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
     F32 density_multiplier = psky->getDensityMultiplier();
 
     F32         max_y = psky->getMaxY();
-    LLVector3   lightnorm = LLVector3(LLEnvironment::instance().getClampedLightNorm());
+    LLVector3   sun_norm = LLVector3(LLEnvironment::instance().getClampedSunNorm());
 
 	// project the direction ray onto the sky dome.
 	F32 phi = acos(Pn[1]);
@@ -316,7 +316,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
 
 	// Compute sunlight from P & lightnorm (for long rays like sky)
-	temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+	temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm[1] );
 
 	temp2.mV[1] = 1.f / temp2.mV[1];
 	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
@@ -329,7 +329,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 
 
 	// Compute haze glow
-	temp2.mV[0] = Pn * lightnorm;
+	temp2.mV[0] = Pn * sun_norm;
 
 	temp2.mV[0] = 1.f - temp2.mV[0];
 		// temp2.x is 0 at the sun and increases away from sun
@@ -360,7 +360,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
 
 	sunlight = psky->getSunlightColor();
-	temp2.mV[1] = llmax(0.f, lightnorm[1] * 2.f);
+	temp2.mV[1] = llmax(0.f, sun_norm[1] * 2.f);
 	temp2.mV[1] = 1.f / temp2.mV[1];
 	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
 

@@ -151,11 +151,13 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-        LLVector4 light_dir = LLEnvironment::instance().getClampedLightNorm();
+        LLVector4 sun_dir = LLEnvironment::instance().getClampedSunNorm();
+        LLVector4 moon_dir = LLEnvironment::instance().getClampedMoonNorm();
 
         F32 sunSize = (float)cosf(psky->getSunArcRadians());
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
-        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, light_dir.mV);
+        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, sun_dir.mV);
+        sky_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, moon_dir.mV);
 
         // clouds are rendered along with sky in adv atmo
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())

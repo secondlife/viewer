@@ -386,6 +386,9 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
 
     replaceSettings(blenddata);
+    mPositionsDirty = true;
+    mLightingDirty = true;
+
     setBlendFactor(blendf);
     mNextSunTextureId = other->getSunTextureId();
     mNextMoonTextureId = other->getMoonTextureId();
@@ -771,11 +774,14 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
-    mPositionsDirty = isDirty();
-    mLightingDirty  = isDirty();
-
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
+
+    // NOTE: these functions are designed to do nothing unless a dirty bit has been set
+    // so if you add new settings that are referenced by these update functions,
+    // you'll need to insure that your setter updates the dirty bits as well
+    calculateHeavenlyBodyPositions();
+    calculateLightSettings();
 }
 
 bool LLSettingsSky::getIsSunUp() const
@@ -792,10 +798,11 @@ bool LLSettingsSky::getIsMoonUp() const
 
 void LLSettingsSky::calculateHeavenlyBodyPositions()  const
 {
+    /* can't do this as it gets defeated during animation of env panel settings
     if (!mPositionsDirty)
     {
         return;
-    }
+    }*/
 
     mPositionsDirty = false;
 
@@ -811,7 +818,7 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
 
 LLVector3 LLSettingsSky::getLightDirection() const
 {
-    calculateHeavenlyBodyPositions();
+    update();
 
     // is the normal from the sun or the moon
     if (getIsSunUp())
@@ -955,60 +962,61 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
 
 LLVector3 LLSettingsSky::getSunDirection() const
 {
-    calculateHeavenlyBodyPositions();
+    update();
     return mSunDirection;
 }
 
 LLVector3 LLSettingsSky::getMoonDirection() const
 {
-    calculateHeavenlyBodyPositions();
+    update();
     return mMoonDirection;
 }
 
 LLColor4U LLSettingsSky::getFadeColor() const
 {
-    calculateLightSettings();
+    update();
     return mFadeColor;
 }
 
 LLColor4 LLSettingsSky::getMoonAmbient() const
 {
-    calculateLightSettings();
+    update();
     return mMoonAmbient;
 }
 
 LLColor3 LLSettingsSky::getMoonDiffuse() const
 {
-    calculateLightSettings();
+    update();
     return mMoonDiffuse;
 }
 
 LLColor4 LLSettingsSky::getSunAmbient() const
 {
-    calculateLightSettings();
+    update();
     return mSunAmbient;
 }
 
 LLColor3 LLSettingsSky::getSunDiffuse() const
 {
-    calculateLightSettings();
+    update();
     return mSunDiffuse;
 }
 
 LLColor4 LLSettingsSky::getTotalAmbient() const
 {
-    calculateLightSettings();
+    update();
     return mTotalAmbient;
 }
 
 void LLSettingsSky::calculateLightSettings() const
 {
+    /* can't do this as it gets defeated during animation of env panel settings
     if (!mLightingDirty)
     {
         return;
     }
 
-    calculateHeavenlyBodyPositions();
+    calculateHeavenlyBodyPositions();*/
 
     mLightingDirty = false;
 
@@ -1067,4 +1075,267 @@ LLUUID LLSettingsSky::GetDefaultMoonTextureId()
 LLUUID LLSettingsSky::GetDefaultCloudNoiseTextureId()
 {
     return DEFAULT_CLOUD_ID;
+}
+
+F32 LLSettingsSky::getPlanetRadius() const
+{
+    return mSettings[SETTING_PLANET_RADIUS].asReal();
+}
+
+F32 LLSettingsSky::getSkyBottomRadius() const
+{
+    return mSettings[SETTING_SKY_BOTTOM_RADIUS].asReal();
+}
+
+F32 LLSettingsSky::getSkyTopRadius() const
+{
+    return mSettings[SETTING_SKY_TOP_RADIUS].asReal();
+}
+
+F32 LLSettingsSky::getSunArcRadians() const
+{
+    return mSettings[SETTING_SUN_ARC_RADIANS].asReal();
+}
+
+F32 LLSettingsSky::getMieAnisotropy() const
+{
+    return mSettings[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
+}
+    
+LLSD LLSettingsSky::getRayleighConfigs() const
+{
+    return mSettings[SETTING_RAYLEIGH_CONFIG];
+}
+
+LLSD LLSettingsSky::getMieConfigs() const
+{
+    return mSettings[SETTING_MIE_CONFIG];
+}
+
+LLSD LLSettingsSky::getAbsorptionConfigs() const
+{
+    return mSettings[SETTING_ABSORPTION_CONFIG];
+}
+
+LLUUID LLSettingsSky::getBloomTextureId() const
+{
+    return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
+}
+
+//---------------------------------------------------------------------
+LLColor3 LLSettingsSky::getAmbientColor() const
+{
+    return LLColor3(mSettings[SETTING_AMBIENT]);
+}
+
+void LLSettingsSky::setAmbientColor(const LLColor3 &val)
+{
+    setValue(SETTING_AMBIENT, val);
+    mLightingDirty = true;
+}
+
+LLColor3 LLSettingsSky::getCloudColor() const
+{
+    return LLColor3(mSettings[SETTING_CLOUD_COLOR]);
+}
+
+void LLSettingsSky::setCloudColor(const LLColor3 &val)
+{
+    setValue(SETTING_CLOUD_COLOR, val);
+}
+
+LLUUID LLSettingsSky::getCloudNoiseTextureId() const
+{
+    return mSettings[SETTING_CLOUD_TEXTUREID].asUUID();
+}
+
+void LLSettingsSky::setCloudNoiseTextureId(const LLUUID &id)
+{
+    setValue(SETTING_CLOUD_TEXTUREID, id);
+}
+
+LLColor3 LLSettingsSky::getCloudPosDensity1() const
+{
+    return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY1]);
+}
+
+void LLSettingsSky::setCloudPosDensity1(const LLColor3 &val)
+{
+    setValue(SETTING_CLOUD_POS_DENSITY1, val);
+}
+
+LLColor3 LLSettingsSky::getCloudPosDensity2() const
+{
+    return LLColor3(mSettings[SETTING_CLOUD_POS_DENSITY2]);
+}
+
+void LLSettingsSky::setCloudPosDensity2(const LLColor3 &val)
+{
+    setValue(SETTING_CLOUD_POS_DENSITY2, val);
+}
+
+F32 LLSettingsSky::getCloudScale() const
+{
+    return mSettings[SETTING_CLOUD_SCALE].asReal();
+}
+
+void LLSettingsSky::setCloudScale(F32 val)
+{
+    setValue(SETTING_CLOUD_SCALE, val);
+}
+
+LLVector2 LLSettingsSky::getCloudScrollRate() const
+{
+    return LLVector2(mSettings[SETTING_CLOUD_SCROLL_RATE]);
+}
+
+void LLSettingsSky::setCloudScrollRate(const LLVector2 &val)
+{
+    setValue(SETTING_CLOUD_SCROLL_RATE, val);
+}
+
+void LLSettingsSky::setCloudScrollRateX(F32 val)
+{
+    mSettings[SETTING_CLOUD_SCROLL_RATE][0] = val;
+    setDirtyFlag(true);
+}
+
+void LLSettingsSky::setCloudScrollRateY(F32 val)
+{
+    mSettings[SETTING_CLOUD_SCROLL_RATE][1] = val;
+    setDirtyFlag(true);
+}
+
+F32 LLSettingsSky::getCloudShadow() const
+{
+    return mSettings[SETTING_CLOUD_SHADOW].asReal();
+}
+
+void LLSettingsSky::setCloudShadow(F32 val)
+{
+    setValue(SETTING_CLOUD_SHADOW, val);
+    mLightingDirty = true;
+}
+
+F32 LLSettingsSky::getDomeOffset() const
+{
+    //return mSettings[SETTING_DOME_OFFSET].asReal();
+    return DOME_OFFSET;    
+}
+
+F32 LLSettingsSky::getDomeRadius() const
+{
+    //return mSettings[SETTING_DOME_RADIUS].asReal();
+    return DOME_RADIUS;    
+}
+
+F32 LLSettingsSky::getGamma() const
+{
+    return mSettings[SETTING_GAMMA].asReal();
+}
+
+void LLSettingsSky::setGamma(F32 val)
+{
+    mSettings[SETTING_GAMMA] = LLSD::Real(val);
+    setDirtyFlag(true);
+    mLightingDirty = true;
+}
+
+LLColor3 LLSettingsSky::getGlow() const
+{
+    return LLColor3(mSettings[SETTING_GLOW]);
+}
+
+void LLSettingsSky::setGlow(const LLColor3 &val)
+{
+    setValue(SETTING_GLOW, val);
+    mLightingDirty = true;
+}
+
+F32 LLSettingsSky::getMaxY() const
+{
+    return mSettings[SETTING_MAX_Y].asReal();
+}
+
+void LLSettingsSky::setMaxY(F32 val) 
+{
+    setValue(SETTING_MAX_Y, val);
+}
+
+LLQuaternion LLSettingsSky::getMoonRotation() const
+{
+    return LLQuaternion(mSettings[SETTING_MOON_ROTATION]);
+}
+
+void LLSettingsSky::setMoonRotation(const LLQuaternion &val)
+{
+    setValue(SETTING_MOON_ROTATION, val);
+    mPositionsDirty = true;
+}
+
+LLUUID LLSettingsSky::getMoonTextureId() const
+{
+    return mSettings[SETTING_MOON_TEXTUREID].asUUID();
+}
+
+void LLSettingsSky::setMoonTextureId(LLUUID id)
+{
+    setValue(SETTING_MOON_TEXTUREID, id);
+}
+
+F32 LLSettingsSky::getStarBrightness() const
+{
+    return mSettings[SETTING_STAR_BRIGHTNESS].asReal();
+}
+
+void LLSettingsSky::setStarBrightness(F32 val)
+{
+    setValue(SETTING_STAR_BRIGHTNESS, val);
+}
+
+LLColor3 LLSettingsSky::getSunlightColor() const
+{
+    return LLColor3(mSettings[SETTING_SUNLIGHT_COLOR]);
+}
+
+void LLSettingsSky::setSunlightColor(const LLColor3 &val)
+{
+    setValue(SETTING_SUNLIGHT_COLOR, val);
+    mLightingDirty = true;
+}
+
+LLQuaternion LLSettingsSky::getSunRotation() const
+{
+    return LLQuaternion(mSettings[SETTING_SUN_ROTATION]);
+}
+
+void LLSettingsSky::setSunRotation(const LLQuaternion &val) 
+{
+    setValue(SETTING_SUN_ROTATION, val);
+    mPositionsDirty = true;
+}
+
+LLUUID LLSettingsSky::getSunTextureId() const
+{
+    return mSettings[SETTING_SUN_TEXTUREID].asUUID();
+}
+
+void LLSettingsSky::setSunTextureId(LLUUID id) 
+{
+    setValue(SETTING_SUN_TEXTUREID, id);
+}
+
+LLUUID LLSettingsSky::getNextSunTextureId() const
+{
+    return mNextSunTextureId;
+}
+
+LLUUID LLSettingsSky::getNextMoonTextureId() const
+{
+    return mNextMoonTextureId;
+}
+
+LLUUID LLSettingsSky::getNextCloudNoiseTextureId() const
+{
+    return mNextCloudTextureId;
 }

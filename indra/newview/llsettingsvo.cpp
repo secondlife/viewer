@@ -529,7 +529,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
-    LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
+    LLVector4 light_direction = LLEnvironment::instance().getClampedSunNorm();
 
     if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
 	{        
@@ -538,7 +538,6 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
 	} 
 	else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
 	{
-		LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
         shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);        
 
         LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);

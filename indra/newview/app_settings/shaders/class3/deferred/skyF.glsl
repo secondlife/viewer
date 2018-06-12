@@ -34,6 +34,7 @@ in vec3 view_dir;
 
 uniform vec3 cameraPosLocal;
 uniform vec3 sun_dir;
+uniform vec3 moon_dir;
 uniform float sun_size;
 
 uniform sampler2D transmittance_texture;
@@ -42,9 +43,9 @@ uniform sampler3D single_mie_scattering_texture;
 uniform sampler2D irradiance_texture;
 
 vec3 GetSolarLuminance();
-vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 sun_dir, out vec3 transmittance);
-vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 sun_dir, out vec3 transmittance);
-vec3 GetSunAndSkyIlluminance(vec3 pos, vec3 norm, vec3 sun_dir, out vec3 sky_irradiance);
+vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
+vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
+vec3 GetSunAndSkyIlluminance(vec3 pos, vec3 norm, vec3 dir, out vec3 sky_irradiance);
 
 void main()
 {
@@ -55,8 +56,9 @@ void main()
     vec3 camPos = cameraPosLocal + vec3(0, 0, 6360.0f);
     vec3 transmittance;
     vec3 sky_illum;
-    vec3 radiance = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
-    vec3 radiance2 = GetSunAndSkyIlluminance(camPos, view_direction, sun_direction, sky_illum);
+
+    vec3 radiance_sun = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
+    vec3 radiance2_sun = GetSunAndSkyIlluminance(camPos, view_direction, sun_direction, sky_illum);
 
     radiance *= transmittance;
 
