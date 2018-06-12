@@ -697,6 +697,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsImpostorUpdate = TRUE;
 	mNeedsAnimUpdate = TRUE;
 
+	mNeedsExtentUpdate = true;
+
 	mImpostorDistance = 0;
 	mImpostorPixelArea = 0;
 
@@ -1258,6 +1260,15 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
     {
         return;
     }
+
+    if (mNeedsExtentUpdate)
+    {
+        calculateSpatialExtents(newMin,newMax);
+        mLastAnimExtents[0].set(newMin.getF32ptr());
+        mLastAnimExtents[1].set(newMax.getF32ptr());
+        mNeedsExtentUpdate = false;
+    }
+          
 	if (isImpostor() && !needsImpostorUpdate())
 	{
 		LLVector3 delta = getRenderPosition() -
@@ -1268,9 +1279,8 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 	}
 	else
 	{
-		getSpatialExtents(newMin,newMax);
-		mLastAnimExtents[0].set(newMin.getF32ptr());
-		mLastAnimExtents[1].set(newMax.getF32ptr());
+        newMin.load3(mLastAnimExtents[0].mV);
+        newMax.load3(mLastAnimExtents[1].mV);
 		LLVector4a pos_group;
 		pos_group.setAdd(newMin,newMax);
 		pos_group.mul(0.5f);
@@ -1281,7 +1291,7 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 
 static LLTrace::BlockTimerStatHandle FTM_AVATAR_EXTENT_UPDATE("Avatar Update Extent");
 
-void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
+void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
     LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
 
@@ -2402,6 +2412,9 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		return;
 	}
 
+    // Update should be happening max once per frame.
+    mNeedsExtentUpdate = true;
+    
     LLScopedContextString str("avatar_idle_update " + getFullname());
     
 	checkTextureLoading() ;
@@ -2684,8 +2697,10 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			}
 			else
 			{
-				//VECTORIZE THIS
-				getSpatialExtents(ext[0], ext[1]);
+				ext[0].load3(mLastAnimExtents[0].mV);
+                ext[1].load3(mLastAnimExtents[1].mV);
+                // AXON just do this once per frame
+                //calculateSpatialExtents(ext[0], ext[1]);
 				LLVector4a diff;
 				diff.setSub(ext[1], mImpostorExtents[1]);
 				if (diff.getLength3().getF32() > 0.05f)

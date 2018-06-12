@@ -162,7 +162,7 @@ public:
 	/*virtual*/ void   	 	 	setPixelAreaAndAngle(LLAgent &agent);
 	/*virtual*/ void   	 	 	updateRegion(LLViewerRegion *regionp);
 	/*virtual*/ void   	 	 	updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax);
-	/*virtual*/ void   	 	 	getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
+	void			   	 	 	calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	/*virtual*/ BOOL   	 	 	lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 												 S32 face = -1,                    // which face to check, -1 = ALL_SIDES
 												 BOOL pick_transparent = FALSE,
@@ -528,7 +528,10 @@ public:
 private:
 	LLVector3	mImpostorOffset;
 	LLVector2	mImpostorDim;
+    // This becomes true in the constructor and false after the first
+    // idleUpdateMisc(). Not clear it serves any purpose.
 	BOOL		mNeedsAnimUpdate;
+    bool		mNeedsExtentUpdate;
 	LLVector3	mImpostorAngle;
 	F32			mImpostorDistance;
 	F32			mImpostorPixelArea;
