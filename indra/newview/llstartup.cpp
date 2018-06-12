@@ -3499,28 +3499,6 @@ bool process_login_success_response()
 		}
 	}
 
-// LAPRAS
-#if 0
-	LLSD global_textures = response["global-textures"][0];
-	if(global_textures.size())
-	{
-		// Extract sun and moon texture IDs.  These are used
-		// in the LLVOSky constructor, but I can't figure out
-		// how to pass them in.  JC
-		LLUUID id = global_textures["sun_texture_id"];
-		if(id.notNull())
-		{
-			gSunTextureID = id;
-		}
-
-		id = global_textures["moon_texture_id"];
-		if(id.notNull())
-		{
-			gMoonTextureID = id;
-		}
-	}
-#endif
-
 	// set the location of the Agent Appearance service, from which we can request
 	// avatar baked textures if they are supported by the current region
 	std::string agent_appearance_url = response["agent_appearance_service"];

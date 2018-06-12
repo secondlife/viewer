@@ -39,6 +39,7 @@ public:
     static const std::string SETTING_FOG_MOD;
     static const std::string SETTING_FRESNEL_OFFSET;
     static const std::string SETTING_FRESNEL_SCALE;
+    static const std::string SETTING_TRANSPARENT_TEXTURE;
     static const std::string SETTING_NORMAL_MAP;
     static const std::string SETTING_NORMAL_SCALE;
     static const std::string SETTING_SCALE_ABOVE;
@@ -124,6 +125,16 @@ public:
         setValue(SETTING_FRESNEL_SCALE, val);
     }
 
+    LLUUID getTransparentTextureID() const
+    {
+        return mSettings[SETTING_TRANSPARENT_TEXTURE].asUUID();
+    }
+
+    void setTransparentTextureID(LLUUID val)
+    {
+        setValue(SETTING_TRANSPARENT_TEXTURE, val);
+    }
+
     LLUUID getNormalMapID() const
     {
         return mSettings[SETTING_NORMAL_MAP].asUUID();
@@ -203,6 +214,10 @@ public:
         return mNextNormalMapID;
     }
 
+    LLUUID getNextTransparentTextureID() const
+    {
+        return mNextTransparentTextureID;
+    }
 
     virtual validation_list_t getValidationList() const SETTINGS_OVERRIDE;
     static validation_list_t validationList();
@@ -213,6 +228,8 @@ public:
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultWaterNormalAssetId();
+    static LLUUID GetDefaultTransparentTextureAssetId();
+    static LLUUID GetDefaultOpaqueTextureAssetId();
 
 protected:
     static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
@@ -234,6 +251,7 @@ protected:
     F32       mWaterFogKS;
 
 private:
+    LLUUID    mNextTransparentTextureID;
     LLUUID    mNextNormalMapID;
 };
 

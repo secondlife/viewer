@@ -57,6 +57,7 @@
 #include "llinventorymodel.h"
 #include "llassetstorage.h"
 #include "llvfile.h"
+#include "lldrawpoolwater.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -415,18 +416,24 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPresetFile(const std::strin
 
 LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
 {
-    LLSD settings = LLSettingsSky::defaults();
-    settings[SETTING_NAME] = std::string("_default_");
+    static LLSD default_settings;
 
-    LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
-    LLSD results = LLSettingsBase::settingValidation(settings, validations);
-    if (!results["success"].asBoolean())
+    if (!default_settings.size())
     {
-        LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsSky::ptr_t();
+        default_settings = LLSettingsSky::defaults();
+
+        default_settings[SETTING_NAME] = std::string("_default_");
+
+        LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
+        LLSD results = LLSettingsBase::settingValidation(default_settings, validations);
+        if (!results["success"].asBoolean())
+        {
+            LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
+            LLSettingsSky::ptr_t();
+        }
     }
 
-    LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(settings);
+    LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(default_settings);
     return skyp;
 }
 
@@ -662,18 +669,24 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPresetFile(const std::s
 
 LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
 {
-    LLSD settings = LLSettingsWater::defaults();
-    settings[SETTING_NAME] = std::string("_default_");
+    static LLSD default_settings;
 
-    LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
-    LLSD results = LLSettingsWater::settingValidation(settings, validations);
-    if (!results["success"].asBoolean())
+    if (!default_settings.size())
     {
-        LL_WARNS("SETTINGS") << "Water setting validation failed!: " << results << LL_ENDL;
-        return LLSettingsWater::ptr_t();
+        default_settings = LLSettingsWater::defaults();
+
+        default_settings[SETTING_NAME] = std::string("_default_");
+
+        LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
+        LLSD results = LLSettingsWater::settingValidation(default_settings, validations);
+        if (!results["success"].asBoolean())
+        {
+            LL_WARNS("SETTINGS") << "Water setting validation failed!: " << results << LL_ENDL;
+            return LLSettingsWater::ptr_t();
+        }
     }
 
-    LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(settings);
+    LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(default_settings);
 
     return waterp;
 }
@@ -726,6 +739,9 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
         shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, getWaterPlane().mV);
         shader->uniform1f(LLShaderMgr::WATER_FOGKS, getWaterFogKS());
 
+        F32 blend_factor = LLEnvironment::instance().getCurrentWater()->getBlendFactor();
+        shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+
         LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
         shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
         shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
@@ -767,6 +783,13 @@ void LLSettingsVOWater::updateSettings()
         LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
         mWaterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
+    }
+
+    LLDrawPoolWater* pwaterpool = (LLDrawPoolWater*)gPipeline.getPool(LLDrawPool::POOL_WATER);
+    if (pwaterpool)
+    {
+        pwaterpool->setTransparentTextures(getTransparentTextureID(), getNextTransparentTextureID());
+        pwaterpool->setNormalMaps(getNormalMapID(), getNextNormalMapID());
     }
 }
 
@@ -966,18 +989,23 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
 {
-    LLSD settings = LLSettingsDay::defaults();
-    settings[SETTING_NAME] = std::string("_default_");
+    static LLSD default_settings;
 
-    LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
-    LLSD results = LLSettingsDay::settingValidation(settings, validations);
-    if (!results["success"].asBoolean())
+    if (!default_settings.size())
     {
-        LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsDay::ptr_t();
+        default_settings = LLSettingsDay::defaults();
+        default_settings[SETTING_NAME] = std::string("_default_");
+
+        LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
+        LLSD results = LLSettingsDay::settingValidation(default_settings, validations);
+        if (!results["success"].asBoolean())
+        {
+            LL_WARNS("SETTINGS") << "Day setting validation failed!\n" << results << LL_ENDL;
+            LLSettingsDay::ptr_t();
+        }
     }
 
-    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
+    LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(default_settings);
 
     dayp->initialize();
     return dayp;

@@ -74,11 +74,6 @@ static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 static const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
 static const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
 
-// LAPRAS
-// Exported globals
-//LLUUID gSunTextureID = IMG_SUN;
-//LLUUID gMoonTextureID = IMG_MOON;
-
 /***************************************
 		SkyTex
 ***************************************/
@@ -387,11 +382,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
-
-	//mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	//mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	//mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	//mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;

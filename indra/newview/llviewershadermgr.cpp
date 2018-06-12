@@ -1051,6 +1051,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mShaderFiles.clear();
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
+        gWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		gWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_WATER];
 		success = gWaterProgram.createShader(NULL, NULL);
 	}
@@ -1852,6 +1853,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+        gDeferredWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		success = gDeferredWaterProgram.createShader(NULL, NULL);
 	}
 

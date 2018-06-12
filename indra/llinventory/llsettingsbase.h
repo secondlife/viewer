@@ -112,7 +112,7 @@ public:
     }
 
 
-    inline void replaceSettings(LLSD settings)
+    virtual void replaceSettings(LLSD settings)
     {
         mSettings = settings;
         mBlendedFactor = 0.0;

@@ -37,6 +37,8 @@ vec3 scaleSoftClip(vec3 inColor);
 vec3 atmosTransport(vec3 inColor);
 
 uniform sampler2D bumpMap;   
+uniform sampler2D bumpMap2;
+uniform float blend_factor;
 uniform sampler2D screenTex;
 uniform sampler2D refTex;
 uniform sampler2DRectShadow shadowMap0;
@@ -72,6 +74,15 @@ VARYING vec4 vary_position;
 vec3 srgb_to_linear(vec3 cs);
 vec2 encode_normal(vec3 n);
 
+vec3 BlendNormal(vec3 bump1, vec3 bump2)
+{
+    //vec3 normal   = bump1.xyz * vec3( 2.0,  2.0, 2.0) - vec3(1.0, 1.0,  0.0);
+    //vec3 normal2  = bump2.xyz * vec3(-2.0, -2.0, 2.0) + vec3(1.0, 1.0, -1.0);
+    //vec3 n        = normalize(normal * dot(normal, normal2) - (normal2 * normal.z));
+    vec3 n = normalize(mix(bump1, bump2, blend_factor));
+    return n;
+}
+
 void main() 
 {
 	vec4 color;
@@ -81,9 +92,19 @@ void main()
 	vec3 viewVec = normalize(view.xyz);
 	
 	//get wave normals
-	vec3 wave1 = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
-	vec3 wave2 = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
-	vec3 wave3 = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+	vec3 wave1_a = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+	vec3 wave2_a = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
+	vec3 wave3_a = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+
+
+	vec3 wave1_b = texture2D(bumpMap2, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+	vec3 wave2_b = texture2D(bumpMap2, littleWave.xy).xyz*2.0-1.0;
+	vec3 wave3_b = texture2D(bumpMap2, littleWave.zw).xyz*2.0-1.0;
+
+    vec3 wave1 = BlendNormal(wave1_a, wave1_b);
+    vec3 wave2 = BlendNormal(wave2_a, wave2_b);
+    vec3 wave3 = BlendNormal(wave3_a, wave3_b);
+
 	//get base fresnel components	
 	
 	vec3 df = vec3(

@@ -47,6 +47,7 @@ const std::string LLSettingsWater::SETTING_FOG_DENSITY("water_fog_density");
 const std::string LLSettingsWater::SETTING_FOG_MOD("underwater_fog_mod");
 const std::string LLSettingsWater::SETTING_FRESNEL_OFFSET("fresnel_offset");
 const std::string LLSettingsWater::SETTING_FRESNEL_SCALE("fresnel_scale");
+const std::string LLSettingsWater::SETTING_TRANSPARENT_TEXTURE("transparent_texture");
 const std::string LLSettingsWater::SETTING_NORMAL_MAP("normal_map");
 const std::string LLSettingsWater::SETTING_NORMAL_SCALE("normal_scale");
 const std::string LLSettingsWater::SETTING_SCALE_ABOVE("scale_above");
@@ -69,6 +70,8 @@ const std::string LLSettingsWater::SETTING_LEGACY_WAVE2_DIR("wave2Dir");
 
 // *LAPRAS* Change when Agni
 static const LLUUID DEFAULT_ASSET_ID("ce4cfe94-700a-292c-7c22-a2d9201bd661");
+static const LLUUID DEFAULT_TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
+static const LLUUID DEFAULT_OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");
 
 //=========================================================================
 LLSettingsWater::LLSettingsWater(const LLSD &data) :
@@ -95,7 +98,8 @@ LLSD LLSettingsWater::defaults()
     dfltsetting[SETTING_FOG_MOD] = LLSD::Real(0.25f);
     dfltsetting[SETTING_FRESNEL_OFFSET] = LLSD::Real(0.5f);
     dfltsetting[SETTING_FRESNEL_SCALE] = LLSD::Real(0.3999);
-    dfltsetting[SETTING_NORMAL_MAP] = LLSD::UUID(DEFAULT_WATER_NORMAL);
+    dfltsetting[SETTING_TRANSPARENT_TEXTURE] = GetDefaultTransparentTextureAssetId();
+    dfltsetting[SETTING_NORMAL_MAP] = GetDefaultWaterNormalAssetId();
     dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f, 2.0f, 2.0f).getValue();
     dfltsetting[SETTING_SCALE_ABOVE] = LLSD::Real(0.0299f);
     dfltsetting[SETTING_SCALE_BELOW] = LLSD::Real(0.2000f);
@@ -171,6 +175,7 @@ void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     replaceSettings(blenddata);
     setBlendFactor(blendf);
     mNextNormalMapID = other->getNormalMapID();
+    mNextTransparentTextureID = other->getTransparentTextureID();
 }
 
 LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const
@@ -234,3 +239,12 @@ LLUUID LLSettingsWater::GetDefaultWaterNormalAssetId()
     return DEFAULT_WATER_NORMAL;
 }
 
+LLUUID LLSettingsWater::GetDefaultTransparentTextureAssetId()
+{
+    return DEFAULT_TRANSPARENT_WATER_TEXTURE;
+}
+
+LLUUID LLSettingsWater::GetDefaultOpaqueTextureAssetId()
+{
+    return DEFAULT_OPAQUE_WATER_TEXTURE;
+}

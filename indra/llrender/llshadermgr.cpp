@@ -1147,6 +1147,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("altDiffuseMap");
 	mReservedUniforms.push_back("specularMap");
 	mReservedUniforms.push_back("bumpMap");
+    mReservedUniforms.push_back("bumpMap2");
 	mReservedUniforms.push_back("environmentMap");
 	mReservedUniforms.push_back("cloud_noise_texture");
     mReservedUniforms.push_back("cloud_noise_texture_next");

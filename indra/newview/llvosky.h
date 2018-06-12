@@ -42,12 +42,6 @@ const F32 HEAVENLY_BODY_DIST	= HORIZON_DIST - 10.f;
 const F32 HEAVENLY_BODY_FACTOR	= 0.1f;
 const F32 HEAVENLY_BODY_SCALE	= HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR;
 
-// HACK: Allow server to change sun and moon IDs.
-// I can't figure out how to pass the appropriate
-// information into the LLVOSky constructor.  JC
-//extern LLUUID gSunTextureID;
-//extern LLUUID gMoonTextureID;
-
 class LLFace;
 class LLHaze;
 

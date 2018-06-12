@@ -50,9 +50,6 @@
 #include "llsettingssky.h"
 #include "llsettingswater.h"
 
-const LLUUID TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
-const LLUUID OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");
-
 static float sTime;
 
 BOOL deferred_render = FALSE;
@@ -60,33 +57,51 @@ BOOL deferred_render = FALSE;
 BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
-//LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
 F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 
-//LLVector3 LLDrawPoolWater::sLightDir;
-
-LLDrawPoolWater::LLDrawPoolWater() :
-	LLFacePool(POOL_WATER)
+LLDrawPoolWater::LLDrawPoolWater() : LLFacePool(POOL_WATER)
 {
-	mWaterImagep = LLViewerTextureManager::getFetchedTexture(TRANSPARENT_WATER_TEXTURE);
-	llassert(mWaterImagep);
-	mWaterImagep->setNoDelete();
-	mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(OPAQUE_WATER_TEXTURE);
-	llassert(mOpaqueWaterImagep);
-	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL);
-	mWaterNormp->setNoDelete();
-
-	restoreGL();
 }
 
 LLDrawPoolWater::~LLDrawPoolWater()
 {
 }
 
+void LLDrawPoolWater::setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId)
+{
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    mWaterImagep[0] = LLViewerTextureManager::getFetchedTexture(!transparentTextureId.isNull() ? transparentTextureId : pwater->GetDefaultTransparentTextureAssetId());
+    mWaterImagep[1] = LLViewerTextureManager::getFetchedTexture(!nextTransparentTextureId.isNull() ? nextTransparentTextureId : (!transparentTextureId.isNull() ? transparentTextureId : pwater->GetDefaultTransparentTextureAssetId()));
+    mWaterImagep[0]->addTextureStats(1024.f*1024.f);
+    mWaterImagep[1]->addTextureStats(1024.f*1024.f);
+}
+
+void LLDrawPoolWater::setOpaqueTexture()
+{
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(pwater->GetDefaultOpaqueTextureAssetId());
+    mOpaqueWaterImagep->addTextureStats(1024.f*1024.f);
+}
+
+void LLDrawPoolWater::setNormalMaps(const LLUUID& normalMapId, const LLUUID& nextNormalMapId)
+{
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    mWaterNormp[0] = LLViewerTextureManager::getFetchedTexture(!normalMapId.isNull() ? normalMapId : pwater->GetDefaultWaterNormalAssetId());
+    mWaterNormp[1] = LLViewerTextureManager::getFetchedTexture(!nextNormalMapId.isNull() ? nextNormalMapId : (!normalMapId.isNull() ? normalMapId : pwater->GetDefaultWaterNormalAssetId()));
+    mWaterNormp[0]->addTextureStats(1024.f*1024.f);
+    mWaterNormp[1]->addTextureStats(1024.f*1024.f);
+}
+
 //static
 void LLDrawPoolWater::restoreGL()
 {
-	
+	/*LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    if (pwater)
+    {
+        setTransparentTextures(pwater->getTransparentTextureID(), pwater->getNextTransparentTextureID());
+        setOpaqueTexture(pwater->GetDefaultOpaqueTextureAssetId());
+        setNormalMaps(pwater->getNormalMapID(), pwater->getNextNormalMapID());
+    }*/
 }
 
 LLDrawPool *LLDrawPoolWater::instancePool()
@@ -98,12 +113,7 @@ LLDrawPool *LLDrawPoolWater::instancePool()
 
 void LLDrawPoolWater::prerender()
 {
-	mVertexShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ?
-		LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
-
-	// got rid of modulation by light color since it got a little too
-	// green at sunset and sl-57047 (underwater turns black at 8:00)
-
+	mVertexShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
 }
 
 S32 LLDrawPoolWater::getNumPasses()
@@ -194,10 +204,13 @@ void LLDrawPoolWater::render(S32 pass)
 	LLGLDisable cullFace(GL_CULL_FACE);
 	
 	// Set up second pass first
-	mWaterImagep->addTextureStats(1024.f*1024.f);
 	gGL.getTexUnit(1)->activate();
 	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->bind(mWaterImagep) ;
+	gGL.getTexUnit(1)->bind(mWaterImagep[0]) ;
+
+    gGL.getTexUnit(2)->activate();
+	gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(2)->bind(mWaterImagep[1]) ;
 
 	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
 	F32 up_dot = camera_up * LLVector3::z_axis;
@@ -254,6 +267,14 @@ void LLDrawPoolWater::render(S32 pass)
 	gGL.getTexUnit(1)->activate();
 	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(1)->disable();
+
+    glDisable(GL_TEXTURE_GEN_S); //texture unit 1
+	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
+
+    gGL.getTexUnit(1)->activate();
+	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(1)->disable();
+
 	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
 	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
 
@@ -352,8 +373,6 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	LLGLDisable no_blend(GL_BLEND);
 
 	gPipeline.disableLights();
-
-	mOpaqueWaterImagep->addTextureStats(1024.f*1024.f);
 
 	// Activate the texture binding and bind one
 	// texture since all images will have the same texture
@@ -568,23 +587,23 @@ void LLDrawPoolWater::shade()
 	//bind normal map
 	S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 
-	// change mWaterNormp if needed
-	if (mWaterNormp->getID() != pwater->getNormalMapID())
-	{
-		mWaterNormp = LLViewerTextureManager::getFetchedTexture(pwater->getNormalMapID());
+    if (mWaterNormp[0] && mWaterNormp[1])
+    {
+	    gGL.getTexUnit(bumpTex)->bind(mWaterNormp[0]) ;
+        gGL.getTexUnit(bumpTex + 1)->bind(mWaterNormp[1]) ;
+
+	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
+	    {
+		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	    }
+	    else 
+	    {
+		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_POINT);
+            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_POINT);
+	    }
 	}
 
-	mWaterNormp->addTextureStats(1024.f*1024.f);
-	gGL.getTexUnit(bumpTex)->bind(mWaterNormp) ;
-	if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
-	{
-		mWaterNormp->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-	}
-	else 
-	{
-		mWaterNormp->setFilteringOption(LLTexUnit::TFO_POINT);
-	}
-	
 	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);	
 		
 	if (screentex > -1)
