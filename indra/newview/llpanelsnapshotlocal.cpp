@@ -66,8 +66,8 @@ private:
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onSaveFlyoutCommit(LLUICtrl* ctrl);
 
-	void LLPanelSnapshotLocal::onLocalSaved();
-	void LLPanelSnapshotLocal::onLocalCanceled();
+	void onLocalSaved();
+	void onLocalCanceled();
 };
 
 static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal");
