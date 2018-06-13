@@ -34,10 +34,6 @@
 #include "llmeshrepository.h"
 #include "llviewerregion.h"
 
-#if LL_WINDOWS
-	#pragma optimize("", off)
-#endif
-
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
     mPlaying(false),
@@ -66,41 +62,6 @@ void LLControlAvatar::initInstance()
 	updateJointLODs();
 	updateGeometry(mDrawable);
 	hideSkirt();
-}
-
-// AXON move to math
-bool box_valid_and_non_zero(const LLVector3* box)
-{
-    if (!box[0].isFinite() || !box[1].isFinite())
-    {
-        return false;
-    }
-    LLVector3 zero_vec;
-    zero_vec.clear();
-    if ((box[0] != zero_vec) || (box[1] != zero_vec))
-    {
-        return true;
-    }
-    return false;
-}
-
-// AXON move to math
-LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box)
-{
-    LLVector3 offset;
-    for (S32 k=0; k<3; k++)
-    {
-        offset[k] = 0;
-        if (pos[k] < box[0][k])
-        {
-            offset[k] = pos[k] - box[0][k];
-        }
-        else if (pos[k] > box[1][k])
-        {
-            offset[k] = pos[k] - box[1][k];
-        }
-    }
-    return offset;
 }
 
 void LLControlAvatar::matchVolumeTransform()
@@ -157,11 +118,11 @@ void LLControlAvatar::matchVolumeTransform()
                     F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
                     pos_box_offset *= target_dist/offset_dist;
                 }
-                LL_DEBUGS("FixBox") << getFullname() << " fixup needed for offset " 
-                                    << pos_box_offset[0] << "," << pos_box_offset[1] << "," << pos_box_offset[2] 
-                                    << " current fixup "
-                                    << mPositionConstraintFixup[0] << "," << mPositionConstraintFixup[1] << "," << mPositionConstraintFixup[2] 
-                                    << " dist " << offset_dist << LL_ENDL;
+                //LL_DEBUGS("FixBox") << getFullname() << " fixup needed for offset " 
+                //                    << pos_box_offset[0] << "," << pos_box_offset[1] << "," << pos_box_offset[2] 
+                //                    << " current fixup "
+                //                    << mPositionConstraintFixup[0] << "," << mPositionConstraintFixup[1] << "," << mPositionConstraintFixup[2] 
+                //                    << " dist " << offset_dist << LL_ENDL;
             }
 
             mPositionConstraintFixup = pos_box_offset;
@@ -380,6 +341,12 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
+        if (mPositionConstraintFixup.length() > 0.0f)
+        {
+            addDebugText(llformat("pos fix (%.1f %.1f %.1f)", 
+                                  mPositionConstraintFixup[0], mPositionConstraintFixup[1], mPositionConstraintFixup[2]));
+        }
+        
 #if 0
         std::string region_name = "no region";
         if (mRootVolp->getRegion())

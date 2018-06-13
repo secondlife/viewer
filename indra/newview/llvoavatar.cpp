@@ -1346,7 +1346,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
                      attachment_iter != attachment->mAttachedObjects.end();
                      ++attachment_iter)
                 {
-                    // AXON is this right? Don't we need to look at children of attached_object as well?
+                    // AXON Don't we need to look at children of attached_object as well?
                     const LLViewerObject* attached_object = (*attachment_iter);
                     if (attached_object && !attached_object->isHUDAttachment())
                     {
@@ -1389,10 +1389,11 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     {
         // AXON try to cache unless something has changed about attached rigged meshes.
         // Needs more logic based on volume states.
+
         //if (mRiggingInfoTab.needsUpdate())
         {
             updateRiggingInfo();
-            mJointRiggingInfoTab.setNeedsUpdate(false);
+            //mJointRiggingInfoTab.setNeedsUpdate(false);
         }
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
         {
@@ -1402,12 +1403,6 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
             {
                 rig_info = &mJointRiggingInfoTab[joint_num];
             }
-
-            // FIXME TEMP HACK FOR TESTING
-            //if (joint)
-            //{
-            //    rig_info.setIsRiggedTo(true);
-            //}
 
             if (joint && rig_info && rig_info->isRiggedTo())
             {
@@ -1574,7 +1569,7 @@ void LLVOAvatar::renderBones()
         }
         else
         {
-            if (jointIsRiggedTo(jointp->getName()))
+            if (jointIsRiggedTo(jointp))
             {
                 occ_color = RIGGED_COLOR_OCCLUDED;
                 visible_color = RIGGED_COLOR_VISIBLE;
@@ -2702,7 +2697,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			{
 				ext[0].load3(mLastAnimExtents[0].mV);
                 ext[1].load3(mLastAnimExtents[1].mV);
-                // AXON just do this once per frame
+                // Expensive. Just call this once per frame, in updateSpatialExtents();
                 //calculateSpatialExtents(ext[0], ext[1]);
 				LLVector4a diff;
 				diff.setSub(ext[1], mImpostorExtents[1]);
@@ -5827,73 +5822,17 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 	return false;
 }
 
-// AXON update to use LLRiggingInfo
-bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name)
+bool LLVOAvatar::jointIsRiggedTo(const LLJoint *joint) const
 {
-    LLJoint *joint = getJoint(joint_name);
     if (joint)
     {
-        LLJointRiggingInfoTab& tab = mJointRiggingInfoTab;
+        const LLJointRiggingInfoTab& tab = mJointRiggingInfoTab;
         S32 joint_num = joint->getJointNum();
         if (joint_num < tab.size() && tab[joint_num].isRiggedTo())
         {
             return true;
         }
     }
-    return false;
-#if 0
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-             attachment_iter != attachment->mAttachedObjects.end();
-             ++attachment_iter)
-        {
-            const LLViewerObject* attached_object = (*attachment_iter);
-            if (attached_object && jointIsRiggedTo(joint_name, attached_object))
-            {
-                return true;
-            }
-        }
-	}
-    return false;
-#endif
-}
-
-// AXON update to use LLRiggingInfo
-bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo)
-{
-	// Process all children
-	LLViewerObject::const_child_list_t& children = vo->getChildren();
-	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-		 it != children.end(); ++it)
-	{
-		LLViewerObject *childp = *it;
-        if (jointIsRiggedTo(joint_name,childp))
-        {
-            return true;
-        }
-	}
-
-	const LLVOVolume *vobj = dynamic_cast<const LLVOVolume*>(vo);
-	if (!vobj)
-	{
-		return false;
-	}
-
-	const LLMeshSkinInfo* pSkinData = vobj->getSkinInfo();
-
-	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
-	{
-        if (std::find(pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), joint_name) !=
-            pSkinData->mJointNames.end())
-        {
-            return true;
-        }
-    }
-
     return false;
 }
 
@@ -9554,10 +9493,9 @@ void showRigInfoTabExtents(LLVOAvatar *avatar, LLJointRiggingInfoTab& tab, S32& 
     }
 }
 
-// AXON move to member
-void getAssociatedVolumes(LLVOAvatar *av, std::vector<LLVOVolume*>& volumes)
+void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 {
-	for ( LLVOAvatar::attachment_map_t::iterator iter = av->mAttachmentPoints.begin(); iter != av->mAttachmentPoints.end(); ++iter )
+	for ( LLVOAvatar::attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
 	{
 		LLViewerJointAttachment* attachment = iter->second;
 		LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_end = attachment->mAttachedObjects.end();
@@ -9584,7 +9522,7 @@ void getAssociatedVolumes(LLVOAvatar *av, std::vector<LLVOVolume*>& volumes)
             }
         }
 	}
-    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(av);
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
     if (control_av)
     {
         LLVOVolume *volp = control_av->mRootVolp;
@@ -9612,7 +9550,7 @@ void LLVOAvatar::updateRiggingInfo()
     LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
     mJointRiggingInfoTab.clear();
     std::vector<LLVOVolume*> volumes;
-    getAssociatedVolumes(this, volumes);
+    getAssociatedVolumes(volumes);
     for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
     {
         LLVOVolume *vol = *it;

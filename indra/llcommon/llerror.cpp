@@ -1293,7 +1293,7 @@ namespace LLError
 
 #if LL_WINDOWS
 		// VC80 was optimizing the error away.
-//		#pragma optimize("", off)
+		#pragma optimize("", off)
 #endif
 	void crashAndLoop(const std::string& message)
 	{
@@ -1311,7 +1311,7 @@ namespace LLError
 		exit(EXIT_FAILURE);
 	}
 #if LL_WINDOWS
-//		#pragma optimize("", on)
+		#pragma optimize("", on)
 #endif
 
 	std::string utcTime()

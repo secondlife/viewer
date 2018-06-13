@@ -208,14 +208,15 @@ public:
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen = NULL, bool recursive = true);
 	void					removeAttachmentOverridesForObject(const LLUUID& mesh_id);
 	void					removeAttachmentOverridesForObject(LLViewerObject *vo);
-    bool					jointIsRiggedTo(const std::string& joint_name);
-    bool					jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo);
+    bool					jointIsRiggedTo(const LLJoint *joint) const;
 	void					clearAttachmentOverrides();
 	void					rebuildAttachmentOverrides();
     void					updateAttachmentOverrides();
     void                    showAttachmentOverrides(bool verbose = false) const;
     void                    getAttachmentOverrideNames(std::set<std::string>& pos_names, 
                                                        std::set<std::string>& scale_names) const;
+
+    void 					getAssociatedVolumes(std::vector<LLVOVolume*>& volumes);
 
     // virtual
     void 					updateRiggingInfo();

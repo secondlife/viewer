@@ -158,9 +158,6 @@ public:
 	EModelStatus getStatus() const {return mStatus;}
 	static std::string getStatusString(U32 status) ;
 
-	void appendFaces(LLModel* model, LLMatrix4& transform, LLMatrix4& normal_transform);
-	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
-
 	void setNumVolumeFaces(S32 count);
 	void setVolumeFaceData(
 		S32 f, 

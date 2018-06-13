@@ -34,10 +34,6 @@
 #include "llvolume.h"
 #include "llrigginginfo.h"
 
-//#if LL_WINDOWS
-//#pragma optimize("", off)
-//#endif
-
 void LLSkinningUtil::initClass()
 {
 }

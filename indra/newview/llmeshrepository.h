@@ -652,7 +652,6 @@ public:
 
 extern LLMeshRepository gMeshRepo;
 
-// AXON make sure this is consistent with the final simulator-side values.
 const F32 ANIMATED_OBJECT_BASE_COST = 15.0f;
 const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f;
 
