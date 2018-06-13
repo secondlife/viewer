@@ -100,6 +100,10 @@ U8 string_value_to_click_action(std::string p_value)
 	{
 		return CLICK_ACTION_ZOOM;
 	}
+	if (p_value == "None")
+	{
+		return CLICK_ACTION_DISABLED;
+	}
 	return CLICK_ACTION_TOUCH;
 }
 
@@ -125,6 +129,9 @@ std::string click_action_to_string_value( U8 action)
 			break;
 		case CLICK_ACTION_ZOOM:
 			return "Zoom";
+			break;
+		case CLICK_ACTION_DISABLED:
+			return "None";
 			break;
 	}
 }

@@ -292,10 +292,14 @@
                  label="Open"
                  name="Open"
                  value="Open" />
-       <combo_box.item
-          label="Zoom"
-          name="Zoom"
-          value="Zoom" />
+                <combo_box.item
+                 label="Zoom"
+                 name="Zoom"
+                 value="Zoom" />
+                <combo_box.item
+                 label="None"
+                 name="None"
+                 value="Zoom" />
             </combo_box>
 	 <panel
          border="false"
