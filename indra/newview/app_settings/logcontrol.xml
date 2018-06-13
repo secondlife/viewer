@@ -35,7 +35,7 @@
 						</array>
 					<key>tags</key>
 						<array>
-              </array>
+						</array>
 				</map>
 				<map>
 					<key>level</key><string>DEBUG</string>
@@ -50,7 +50,6 @@
 						</array>
 					<key>tags</key>
 						<array>
-						     <string>ShaderErrors/string>
 						<!-- sample entry for debugging specific items	
 						     <string>Avatar</string>
 						     <string>Inventory</string>
