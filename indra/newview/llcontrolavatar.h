@@ -80,6 +80,8 @@ public:
 
     bool mMarkedForDeath;
 
+    LLVector3 mPositionConstraintFixup;
+
 };
 
 typedef std::map<LLUUID, S32> signaled_animation_map_t;

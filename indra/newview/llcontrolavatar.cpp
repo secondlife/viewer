@@ -34,6 +34,10 @@
 #include "llmeshrepository.h"
 #include "llviewerregion.h"
 
+#if LL_WINDOWS
+	#pragma optimize("", off)
+#endif
+
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
     mPlaying(false),
@@ -64,6 +68,41 @@ void LLControlAvatar::initInstance()
 	hideSkirt();
 }
 
+// AXON move to math
+bool box_valid_and_non_zero(const LLVector3* box)
+{
+    if (!box[0].isFinite() || !box[1].isFinite())
+    {
+        return false;
+    }
+    LLVector3 zero_vec;
+    zero_vec.clear();
+    if ((box[0] != zero_vec) || (box[1] != zero_vec))
+    {
+        return true;
+    }
+    return false;
+}
+
+// AXON move to math
+LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box)
+{
+    LLVector3 offset;
+    for (S32 k=0; k<3; k++)
+    {
+        offset[k] = 0;
+        if (pos[k] < box[0][k])
+        {
+            offset[k] = pos[k] - box[0][k];
+        }
+        else if (pos[k] > box[1][k])
+        {
+            offset[k] = pos[k] - box[1][k];
+        }
+    }
+    return offset;
+}
+
 void LLControlAvatar::matchVolumeTransform()
 {
     if (mRootVolp)
@@ -92,12 +131,47 @@ void LLControlAvatar::matchVolumeTransform()
         }
         else
         {
-            setPositionAgent(mRootVolp->getRenderPosition());
+
+            LLVector3 vol_pos = mRootVolp->getRenderPosition();
+            LLVector3 pos_box_offset;
+            pos_box_offset.clear();
+
+            // Fix up position if needed to prevent visual encroachment
+            if (box_valid_and_non_zero(getLastAnimExtents())) // wait for state to settle down
+            {
+                const F32 MAX_LEGAL_OFFSET = 2.0;
+                
+                // The goal here is to ensure that the extent of the avatar's 
+                // bounding box does not wander too far from the
+                // official position of the corresponding volume. We
+                // do this by tracking the distance and applying a
+                // correction to the control avatar position if
+                // needed.
+                LLVector3 uncorrected_extents[2];
+                uncorrected_extents[0] = getLastAnimExtents()[0] - mPositionConstraintFixup;
+                uncorrected_extents[1] = getLastAnimExtents()[1] - mPositionConstraintFixup;
+                pos_box_offset = point_to_box_offset(vol_pos, uncorrected_extents);
+                F32 offset_dist = pos_box_offset.length();
+                if (offset_dist > MAX_LEGAL_OFFSET)
+                {
+                    F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
+                    pos_box_offset *= target_dist/offset_dist;
+                }
+                LL_DEBUGS("FixBox") << getFullname() << " fixup needed for offset " 
+                                    << pos_box_offset[0] << "," << pos_box_offset[1] << "," << pos_box_offset[2] 
+                                    << " current fixup "
+                                    << mPositionConstraintFixup[0] << "," << mPositionConstraintFixup[1] << "," << mPositionConstraintFixup[2] 
+                                    << " dist " << offset_dist << LL_ENDL;
+            }
+
+            mPositionConstraintFixup = pos_box_offset;
+
+            setPositionAgent(vol_pos + mPositionConstraintFixup);
             LLQuaternion obj_rot = mRootVolp->getRotation();
             LLQuaternion result_rot = obj_rot;
             setRotation(result_rot);
             mRoot->setWorldRotation(result_rot);
-            mRoot->setPosition(mRootVolp->getRenderPosition());
+            mRoot->setPosition(vol_pos + mPositionConstraintFixup);
         }
     }
 }

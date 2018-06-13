@@ -204,7 +204,6 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
     llassert(valid_weights);
 }
 
-// AXON need to remember this has been done
 void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
 {
     if (!skin->mJointNumsInitialized)

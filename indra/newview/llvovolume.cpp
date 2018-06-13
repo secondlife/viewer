@@ -3604,44 +3604,9 @@ void LLVOVolume::updateRiggingInfo()
         if (skin && avatar && volume)
         {
             LL_DEBUGS("RigSpammish") << "starting, vovol " << this << " lod " << getLOD() << " last " << mLastRiggingInfoLOD << LL_ENDL;
-            // AXON SPAM
-            for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
+            if (getLOD()>mLastRiggingInfoLOD || getLOD()==3)
             {
-                LLVolumeFace& vol_face = volume->getVolumeFace(f);
-                if (vol_face.mJointRiggingInfoTab.size()>0)
-                {
-                    LL_DEBUGS("RigSpammish") << "vovol " << this << " lod " << getLOD() << " face " << f << " vf " << &vol_face << " has rig info" << LL_ENDL;
-                }
-                else
-                {
-                    LL_DEBUGS("RigSpammish") << "vovol " << this << " lod " << getLOD() << " face " << f << " vf " << &vol_face << " needs update" << LL_ENDL;
-                }
-            }
-            // We maintain rigging info based on the highest LOD
-            // handled so far. Need to update if either the LOD is
-            // the same but some faces need to be updated, or if
-            // the LOD has increased.
-            bool any_face_needs_rebuild = false;
-            if (getLOD()==mLastRiggingInfoLOD)
-            {
-                // See if any volume face needs its rigging info built.
-                for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
-                {
-                    LLVolumeFace& vol_face = volume->getVolumeFace(f);
-                    if (vol_face.mJointRiggingInfoTab.size()==0)
-                    {
-                        // AXON this is overkill since some faces don't contain any valid weights/rigged verts.
-                        any_face_needs_rebuild = true;
-                        break;
-                    }
-                }
-            }
-
-            //if (getLOD()>mLastRiggingInfoLOD ||
-            //    (getLOD()==mLastRiggingInfoLOD && any_face_needs_rebuild))
-            if (getLOD()==3)
-            {
-                // Rigging info has changed
+                // Rigging info may need update
                 mJointRiggingInfoTab.clear();
                 for (S32 f = 0; f < volume->getNumVolumeFaces(); ++f)
                 {
@@ -3656,7 +3621,6 @@ void LLVOVolume::updateRiggingInfo()
                 mLastRiggingInfoLOD = getLOD();
                 LL_DEBUGS("RigSpammish") << "updated rigging info for LLVOVolume " 
                                          << this << " lod " << mLastRiggingInfoLOD 
-                                         << " any faces rebuilt? " << any_face_needs_rebuild
                                          << LL_ENDL;
             }
         }

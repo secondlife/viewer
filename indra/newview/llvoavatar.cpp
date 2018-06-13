@@ -1296,14 +1296,16 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
 
     S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
-	LLVector4a buffer(0.0);
+	LLVector4a buffer(0.1);
 	LLVector4a pos;
-	pos.load3(getRenderPosition().mV);
+	pos.load3(mPelvisp->getWorldPosition().mV);
 	newMin.setSub(pos, buffer);
 	newMax.setAdd(pos, buffer);
 
-	//stretch bounding box by joint positions
-    if (box_detail>=1)
+	//stretch bounding box by joint positions. No point doing this for
+	//control avs, where the polymeshes aren't maintained or
+	//displayed.
+    if (box_detail>=1 && !isControlAvatar())
     {
         for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
         {
@@ -1316,6 +1318,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
             }
         }
 
+        // AXON shouldn't this section be after all the detail levels?
         LLVector4a center, size;
         center.setAdd(newMin, newMax);
         center.mul(0.5f);
