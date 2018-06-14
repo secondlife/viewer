@@ -1296,11 +1296,15 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
 
     S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
-	LLVector4a buffer(0.1);
+
+    // AXON the update_min_max function used below assumes there is a
+    // known starting point, but in general there isn't. Ideally the
+    // box update logic should be modified to handle the no-point-yet
+    // case. For most models, starting with the pelvis is safe though.
 	LLVector4a pos;
 	pos.load3(mPelvisp->getWorldPosition().mV);
-	newMin.setSub(pos, buffer);
-	newMax.setAdd(pos, buffer);
+	newMin = pos;
+	newMax = pos;
 
 	//stretch bounding box by joint positions. No point doing this for
 	//control avs, where the polymeshes aren't maintained or
@@ -1429,8 +1433,9 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 
 	//pad bounding box	
 
-	newMin.sub(buffer);
-	newMax.add(buffer);
+	LLVector4a padding(0.1);
+	newMin.sub(padding);
+	newMax.add(padding);
 }
 
 void render_sphere_and_line(const LLVector3& begin_pos, const LLVector3& end_pos, F32 sphere_scale, const LLVector3& occ_color, const LLVector3& visible_color)

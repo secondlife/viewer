@@ -4137,8 +4137,20 @@ const LLVector3 LLViewerObject::getRenderPosition() const
 {
 	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
 	{
+        LLControlAvatar *cav = getControlAvatar();
+        if (isRoot() && cav)
+        {
+            F32 fixup;
+            if ( cav->hasPelvisFixup( fixup) )
+            {
+                //Apply a pelvis fixup (as defined by the avs skin)
+                LLVector3 pos = mDrawable->getPositionAgent();
+                pos[VZ] += fixup;
+                return pos;
+            }
+        }
 		LLVOAvatar* avatar = getAvatar();
-		if (avatar && !getControlAvatar())
+		if ((avatar) && !getControlAvatar())
 		{
 			return avatar->getPositionAgent();
 		}
