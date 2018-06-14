@@ -357,7 +357,8 @@ private:
 		mCachedValue = convert_from_llsd<T>(controlp->get(), mType, name);
 
 		// Add a listener to the controls signal...
-		mConnection = controlp->getSignal()->connect(
+		// NOTE: All listeners connected to 0 group, for guaranty that variable handlers (gSavedSettings) call last
+		mConnection = controlp->getSignal()->connect(0,
 			boost::bind(&LLControlCache<T>::handleValueChange, this, _2)
 			);
 		mType = controlp->type();

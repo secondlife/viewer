@@ -225,6 +225,60 @@
         <key>version</key>
         <string>1.57</string>
       </map>
+      <key>bugsplat</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2003-2017, BugSplat</string>
+        <key>description</key>
+        <string>Bugsplat crash reporting package</string>
+        <key>license</key>
+        <string>Proprietary</string>
+        <key>license_file</key>
+        <string>LICENSES/BUGSPLAT_LICENSE.txt</string>
+        <key>name</key>
+        <string>bugsplat</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4a304f23c1a43dfd207837eb5673053a</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/19746/138164/bugsplat-1.0.2.516443-darwin64-516443.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>689ec5b71de416b2205dad46905c71f6</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/19748/138180/bugsplat-3.5.0.5.516443-windows-516443.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e49753b9b15fa06f078131d2d3a6f029</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/19747/138174/bugsplat-3.5.0.5.516443-windows64-516443.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.2.516443</string>
+      </map>
       <key>chardet</key>
       <map>
         <key>copyright</key>
@@ -1694,9 +1748,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b769c4284bdbd5fce536395d1eab695</string>
+              <string>3855bd40f950e3c22739ae8f3ee2afc9</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4054/11304/kdu-7.9.1.504041-darwin-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15258/98444/kdu-7.10.4.513518-darwin-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1706,9 +1760,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a48db5cf79a4631090bfc968572d9953</string>
+              <string>d1521becaf21bf7233173722af63f57d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4052/11292/kdu-7.9.1.504041-darwin64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1718,9 +1772,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ed952c0cb86329e63a8db190953962d8</string>
+              <string>43d7a6a69a54534a736f132e9c81795b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Linux/installer/kdu-7.2.296932-linux-296932.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1730,9 +1784,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99b0b22f87cebdd02c4cc954a7b3b465</string>
+              <string>a705a665810a71e7b0114a97ae9a2224</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4053/11298/kdu-7.9.1.504041-linux64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15256/98457/kdu-7.10.4.513518-linux64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1742,9 +1796,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3ff5982b3b5f02738044432dd77a2c1</string>
+              <string>0e5b37a03a3f873d15142473b193ec5f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4055/11310/kdu-7.9.1.504041-windows-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15259/98463/kdu-7.10.4.513518-windows-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1754,16 +1808,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3010fa35f412b36296342b07de06f1ca</string>
+              <string>da3b1ea90797b189d80ab5d50fdf05d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4056/11316/kdu-7.9.1.504041-windows64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.9.1.504041</string>
+        <string>7.A.4.513518</string>
       </map>
       <key>libhunspell</key>
       <map>
@@ -3260,9 +3314,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4aefe12a3825d1b4b8370986d84792a2</string>
+              <string>3919570e9edecac56c1ef2d334370dc5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15295/98583/viewer_manager-1.0.513540-darwin64-513540.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/19742/138074/viewer_manager-1.0.516441-darwin64-516441.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3284,9 +3338,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db96bc8a83e6577d31657586100bfc35</string>
+              <string>39add158bc6c4f975d7e17db34db8981</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15298/98589/viewer_manager-1.0.513540-windows-513540.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/19744/138154/viewer_manager-1.0.516441-windows-516441.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3297,7 +3351,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.513540</string>
+        <string>1.0.516441</string>
       </map>
       <key>vlc-bin</key>
       <map>
