@@ -27,6 +27,7 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 import errno
+import glob
 import json
 import os
 import os.path
@@ -1016,28 +1017,34 @@ open "%s" --args "$@"
                         # don't move the trampoline script we just made!
                         executables = [f for f in os.listdir(toplevel_MacOS)
                                        if f != os.path.basename(trampoline)]
-                        if not executables:
-                            raise ManifestError("Couldn't find viewer executable in {}!"
-                                                .format(toplevel_MacOS))
-                        for f in executables:
-                            fromwhere = os.path.join(toplevel_MacOS, f)
-                            towhere   = self.dst_path_of(f)
-                            print "Moving %s => %s" % \
-                                  (self.relpath(fromwhere, relbase),
-                                   self.relpath(towhere, relbase))
-                            # now do it, only without relativizing paths
-                            os.rename(fromwhere, towhere)
+                        if executables:
+                            # there are still executables in toplevel_MacOS
+                            for f in executables:
+                                fromwhere = os.path.join(toplevel_MacOS, f)
+                                towhere   = self.dst_path_of(f)
+                                print "Moving %s => %s" % \
+                                      (self.relpath(fromwhere, relbase),
+                                       self.relpath(towhere, relbase))
+                                # now do it, only without relativizing paths
+                                os.rename(fromwhere, towhere)
 
-                        # Pick the biggest of the executables as the real viewer.
-                        # Make (size, filename) pairs; sort by size; pick the
-                        # last pair; take the filename entry from that.
-                        SecondLife = sorted((os.path.getsize(self.dst_path_of(f)), f)
-                                            for f in executables)[-1][1]
-                        # now rename it to match the channel name
-                        exename = self.channel()
-                        exepath = self.dst_path_of(exename)
-                        print "{} => {}".format(SecondLife, exename)
-                        os.rename(self.dst_path_of(SecondLife), exepath)
+                            # Pick the biggest of the executables as the real viewer.
+                            # Make (size, filename) pairs; sort by size; pick the
+                            # last pair; take the filename entry from that.
+                            SecondLife = sorted((os.path.getsize(self.dst_path_of(f)), f)
+                                                for f in executables)[-1][1]
+                            # now rename it to match the channel name
+                            exename = self.channel()
+                            exepath = self.dst_path_of(exename)
+                            print "{} => {}".format(SecondLife, exename)
+                            os.rename(self.dst_path_of(SecondLife), exepath)
+
+                        else:
+                            # executables already located 'here' -- pick the
+                            # biggest, as above
+                            exepath = sorted((os.path.getsize(f), f)
+                                             for f in glob.glob(os.path.join(here, '*')))[-1][1]
+                            exename = os.path.basename(exepath)
 
                         if ("package" in self.args['actions'] or 
                             "unpacked" in self.args['actions']):
