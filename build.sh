@@ -114,6 +114,8 @@ pre_build()
          if [ -n "${BUGSPLAT_DB:-}" ]
          then echo export BUGSPLAT_DB
               export BUGSPLAT_DB
+              echo RELEASE_CRASH_REPORTING=OFF
+              RELEASE_CRASH_REPORTING=OFF
          fi
     fi
     set -x
