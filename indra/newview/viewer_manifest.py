@@ -1005,12 +1005,89 @@ open "%s" --args "$@"
 
                 # -------------------- nested viewer_app ---------------------
                 with self.prefix(dst=os.path.join(viewer_app, "Contents")):
+                    # defer Info.plist until after MacOS
+                    with self.prefix(dst="MacOS"):
+                        # CMake constructs the Second Life executable in the
+                        # MacOS directory belonging to the top-level Second
+                        # Life.app. Move it here.
+                        here = self.get_dst_prefix()
+                        relbase = os.path.realpath(os.path.dirname(Info_plist))
+                        self.cmakedirs(here)
+                        # don't move the trampoline script we just made!
+                        executables = [f for f in os.listdir(toplevel_MacOS)
+                                       if f != os.path.basename(trampoline)]
+                        if not executables:
+                            raise ManifestError("Couldn't find viewer executable in {}!"
+                                                .format(toplevel_MacOS))
+                        for f in executables:
+                            fromwhere = os.path.join(toplevel_MacOS, f)
+                            towhere   = self.dst_path_of(f)
+                            print "Moving %s => %s" % \
+                                  (self.relpath(fromwhere, relbase),
+                                   self.relpath(towhere, relbase))
+                            # now do it, only without relativizing paths
+                            os.rename(fromwhere, towhere)
+
+                        # Pick the biggest of the executables as the real viewer.
+                        # Make (size, filename) pairs; sort by size; pick the
+                        # last pair; take the filename entry from that.
+                        SecondLife = sorted((os.path.getsize(self.dst_path_of(f)), f)
+                                            for f in executables)[-1][1]
+                        # now rename it to match the channel name
+                        exename = self.channel()
+                        exepath = self.dst_path_of(exename)
+                        print "{} => {}".format(SecondLife, exename)
+                        os.rename(self.dst_path_of(SecondLife), exepath)
+
+                        if ("package" in self.args['actions'] or 
+                            "unpacked" in self.args['actions']):
+                            # only if we're engaging BugSplat
+                            if "BUGSPLAT_DB" in os.environ:
+                                # Create a symbol archive BEFORE stripping the
+                                # binary.
+                                self.run_command(['dsymutil', exepath])
+                                # This should produce a Second Life.dSYM bundle directory.
+                                try:
+                                    # Now pretend we're Xcode making a .xcarchive file.
+                                    # Put it as a sibling of the top-level .app.
+                                    # From "Dave" at BugSplat support:
+                                    # "More from our Mac lead: I think zipping
+                                    # a folder containing the binary and
+                                    # symbols would be sufficient. Assuming
+                                    # symbol files are created with CMake. I'm
+                                    # not sure if CMake strips symbols into
+                                    # separate files at build time, and if so
+                                    # they're in a supported format."
+                                    xcarchive = os.path.join(parentdir,
+                                                             exename + '.xcarchive.zip')
+                                    with zipfile.ZipFile(xcarchive, 'w',
+                                                         compression=zipfile.ZIP_DEFLATED) as zf:
+                                        print "Creating {}".format(xcarchive)
+                                        for base, dirs, files in os.walk(here):
+                                            for fn in files:
+                                                fullfn = os.path.join(base, fn)
+                                                relfn = os.path.relpath(fullfn, here)
+                                                print "  {}".format(relfn)
+                                                zf.write(fullfn, relfn)
+                                finally:
+                                    # Whether or not we were able to create the
+                                    # .xcarchive file, clean up the .dSYM bundle
+                                    shutil.rmtree(self.dst_path_of(exename + '.dSYM'))
+
+                            # NOTE: the -S argument to strip causes it to keep
+                            # enough info for annotated backtraces (i.e. function
+                            # names in the crash log). 'strip' with no arguments
+                            # yields a slightly smaller binary but makes crash
+                            # logs mostly useless. This may be desirable for the
+                            # final release. Or not.
+                            self.run_command(['strip', '-S', exepath])
+
                     # Info.plist is just like top-level one...
                     Info = plistlib.readPlist(Info_plist)
                     # except for these replacements:
                     # (CFBundleExecutable may be moot: SL_Launcher directly
                     # runs the executable, instead of launching the app)
-                    Info["CFBundleExecutable"] = "Second Life"
+                    Info["CFBundleExecutable"] = exename
                     Info["CFBundleIconFile"] = viewer_icon
                     try:
                         # https://www.bugsplat.com/docs/platforms/os-x#configuration
@@ -1032,69 +1109,6 @@ open "%s" --args "$@"
                         CEF_framework = self.dst_path_of(CEF_framework)
 
                         self.path2basename(relpkgdir, "BugsplatMac.framework")
-
-                    with self.prefix(dst="MacOS"):
-                        # CMake constructs the Second Life executable in the
-                        # MacOS directory belonging to the top-level Second
-                        # Life.app. Move it here.
-                        here = self.get_dst_prefix()
-                        relbase = os.path.realpath(os.path.dirname(Info_plist))
-                        self.cmakedirs(here)
-                        for f in os.listdir(toplevel_MacOS):
-                            if f == os.path.basename(trampoline):
-                                # don't move the trampoline script we just made!
-                                continue
-                            fromwhere = os.path.join(toplevel_MacOS, f)
-                            towhere   = os.path.join(here, f)
-                            print "Moving %s => %s" % \
-                                  (self.relpath(fromwhere, relbase),
-                                   self.relpath(towhere, relbase))
-                            # now do it, only without relativizing paths
-                            os.rename(fromwhere, towhere)
-
-                        if ("package" in self.args['actions'] or 
-                            "unpacked" in self.args['actions']):
-                            # only if we're engaging BugSplat
-                            if "BUGSPLAT_DB" in os.environ:
-                                # Create a symbol archive BEFORE stripping the
-                                # binary.
-                                self.run_command(['dsymutil', os.path.join(here, 'Second Life')])
-                                # This should produce a Second Life.dSYM bundle directory.
-                                try:
-                                    # Now pretend we're Xcode making a .xcarchive file.
-                                    # Put it as a sibling of the top-level .app.
-                                    # From "Dave" at BugSplat support:
-                                    # "More from our Mac lead: I think zipping
-                                    # a folder containing the binary and
-                                    # symbols would be sufficient. Assuming
-                                    # symbol files are created with CMake. I'm
-                                    # not sure if CMake strips symbols into
-                                    # separate files at build time, and if so
-                                    # they're in a supported format."
-                                    xcarchive = os.path.join(parentdir,
-                                                             'Second Life.xcarchive.zip')
-                                    with zipfile.ZipFile(xcarchive, 'w',
-                                                         compression=zipfile.ZIP_DEFLATED) as zf:
-                                        print "Creating {}".format(xcarchive)
-                                        for base, dirs, files in os.walk(here):
-                                            for fn in files:
-                                                fullfn = os.path.join(base, fn)
-                                                relfn = os.path.relpath(fullfn, here)
-                                                print "  {}".format(relfn)
-                                                zf.write(fullfn, relfn)
-                                finally:
-                                    # Whether or not we were able to create the
-                                    # .xcarchive file, clean up the .dSYM bundle
-                                    shutil.rmtree(os.path.join(here, 'Second Life.dSYM'))
-
-                            # NOTE: the -S argument to strip causes it to keep
-                            # enough info for annotated backtraces (i.e. function
-                            # names in the crash log). 'strip' with no arguments
-                            # yields a slightly smaller binary but makes crash
-                            # logs mostly useless. This may be desirable for the
-                            # final release. Or not.
-                            self.run_command(
-                                ['strip', '-S', self.dst_path_of('Second Life')])
 
                     with self.prefix(dst="Resources"):
                         # defer cross-platform file copies until we're in the right
