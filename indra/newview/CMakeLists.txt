@@ -8,7 +8,9 @@ include(00-Common)
 include(Linking)
 
 include(Boost)
-include(bugsplat)
+if (DEFINED ENV{BUGSPLAT_DB})
+  include(bugsplat)
+endif (DEFINED ENV{BUGSPLAT_DB})
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -95,8 +97,13 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
+if (DEFINED ENV{BUGSPLAT_DB})
+  include_directories(
     ${BUGSPLAT_INCLUDE_DIR}
     )
+endif (DEFINED ENV{BUGSPLAT_DB})
 
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -1381,8 +1388,13 @@ if (DARWIN)
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
     ${COREAUDIO_LIBRARY}
-    ${BUGSPLAT_LIBRARIES}
     )
+
+  if (DEFINED ENV{BUGSPLAT_DB})
+    list(APPEND viewer_LIBRARIES
+      ${BUGSPLAT_LIBRARIES}
+      )
+  endif (DEFINED ENV{BUGSPLAT_DB})
 
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
@@ -1993,8 +2005,13 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    )
+
+if (DEFINED ENV{BUGSPLAT_DB})
+  target_link_libraries(${VIEWER_BINARY_NAME}
     ${BUGSPLAT_LIBRARIES}
     )
+endif (DEFINED ENV{BUGSPLAT_DB})
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
