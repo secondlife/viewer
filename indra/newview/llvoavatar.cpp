@@ -1301,8 +1301,17 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     // known starting point, but in general there isn't. Ideally the
     // box update logic should be modified to handle the no-point-yet
     // case. For most models, starting with the pelvis is safe though.
+    LLVector3 zero_pos;
 	LLVector4a pos;
-	pos.load3(mPelvisp->getWorldPosition().mV);
+    if (dist_vec(zero_pos, mPelvisp->getWorldPosition())<0.001)
+    {
+        // Don't use pelvis until av initialized
+        pos.load3(getRenderPosition().mV);
+    }
+    else
+    {
+        pos.load3(mPelvisp->getWorldPosition().mV);
+    }
 	newMin = pos;
 	newMax = pos;
 
@@ -1322,15 +1331,6 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
             }
         }
 
-        // AXON shouldn't this section be after all the detail levels?
-        LLVector4a center, size;
-        center.setAdd(newMin, newMax);
-        center.mul(0.5f);
-
-        size.setSub(newMax,newMin);
-        size.mul(0.5f);
-
-        mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
     }
 
 	//stretch bounding box by static attachments
@@ -1432,10 +1432,19 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     }
 
 	//pad bounding box	
-
 	LLVector4a padding(0.1);
 	newMin.sub(padding);
 	newMax.add(padding);
+
+    // Update pixel area
+    LLVector4a center, size;
+    center.setAdd(newMin, newMax);
+    center.mul(0.5f);
+    
+    size.setSub(newMax,newMin);
+    size.mul(0.5f);
+    
+    mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
 }
 
 void render_sphere_and_line(const LLVector3& begin_pos, const LLVector3& end_pos, F32 sphere_scale, const LLVector3& occ_color, const LLVector3& visible_color)
