@@ -190,13 +190,15 @@
     return true;
 }
 
+@end
+
 #if defined(LL_BUGSPLAT)
 
 @implementation BugsplatStartupManagerDelegate
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
     std::string logfile = getLogFilePathname();
-    NSString *ns_logfile = [NSString stringWithCString:logfile->c_str()
+    NSString *ns_logfile = [NSString stringWithCString:logfile.c_str()
                                               encoding:NSUTF8StringEncoding];
     NSData *data = [NSData dataWithContentsOfFile:ns_logfile];
 
@@ -209,6 +211,6 @@
     return attachment;
 }
 
-#endif // LL_BUGSPLAT
-
 @end
+
+#endif // LL_BUGSPLAT
