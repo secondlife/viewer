@@ -565,61 +565,54 @@ bool LLAppViewerWin32::init()
 
 #else // LL_BUGSPLAT
 
-	if (! gDirUtilp)
+	std::string build_data_fname(
+		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
+	std::ifstream inf(build_data_fname.c_str());
+	if (! inf.is_open())
 	{
-		LL_WARNS() << "Can't initialize BugSplat, gDirUtilp not yet set" << LL_ENDL;
+		LL_WARNS() << "Can't initialize BugSplat, can't read '" << build_data_fname
+				   << "'" << LL_ENDL;
 	}
 	else
 	{
-		std::string build_data_fname(
-			gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
-		std::ifstream inf(build_data_fname.c_str());
-		if (! inf.is_open())
+		Json::Reader reader;
+		Json::Value build_data;
+		if (! reader.parse(inf, build_data, false)) // don't collect comments
 		{
-			LL_WARNS() << "Can't initialize BugSplat, can't read '" << build_data_fname
-					   << "'" << LL_ENDL;
+			// gah, the typo is baked into their API
+			LL_WARNS() << "Can't initialize BugSplat, can't parse '" << build_data_fname
+					   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
 		}
 		else
 		{
-			Json::Reader reader;
-			Json::Value build_data;
-			if (! reader.parse(inf, build_data, false)) // don't collect comments
+			Json::Value BugSplat_DB = build_data["BugSplat DB"];
+			if (! BugSplat_DB)
 			{
-				// gah, the typo is baked into their API
-				LL_WARNS() << "Can't initialize BugSplat, can't parse '" << build_data_fname
-						   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
+				LL_WARNS() << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
+						   << build_data_fname << "'" << LL_ENDL;
 			}
 			else
 			{
-				Json::Value BugSplat_DB = build_data["BugSplat DB"];
-				if (! BugSplat_DB)
-				{
-					LL_WARNS() << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
-							   << build_data_fname << "'" << LL_ENDL;
-				}
-				else
-				{
-					// Got BugSplat_DB, onward!
-					std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
-														   LL_VIEWER_VERSION_MINOR << '.' <<
-														   LL_VIEWER_VERSION_PATCH << '.' <<
-														   LL_VIEWER_VERSION_BUILD));
+				// Got BugSplat_DB, onward!
+				std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
+													   LL_VIEWER_VERSION_MINOR << '.' <<
+													   LL_VIEWER_VERSION_PATCH << '.' <<
+													   LL_VIEWER_VERSION_BUILD));
 
-					// have to convert normal wide strings to strings of __wchar_t
-					sBugSplatSender = new MiniDmpSender(
-						wunder(BugSplat_DB.asString()).c_str(),
-						wunder(LL_TO_WSTRING(LL_VIEWER_CHANNEL)).c_str(),
-						wunder(version_string).c_str(),
-						nullptr);
-					sBugSplatSender->setCallback(bugsplatSendLog);
+				// have to convert normal wide strings to strings of __wchar_t
+				sBugSplatSender = new MiniDmpSender(
+					wunder(BugSplat_DB.asString()).c_str(),
+					wunder(LL_TO_WSTRING(LL_VIEWER_CHANNEL)).c_str(),
+					wunder(version_string).c_str(),
+					nullptr);
+				sBugSplatSender->setCallback(bugsplatSendLog);
 
-					// engage stringize() overload that converts from wstring
-					LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
-							   << stringize(version_string) << ')' << LL_ENDL;
-				} // got BugSplat_DB
-			} // parsed build_data.json
-		} // opened build_data.json
-	}  // gDirUtilp set
+				// engage stringize() overload that converts from wstring
+				LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
+						   << stringize(version_string) << ')' << LL_ENDL;
+			} // got BugSplat_DB
+		} // parsed build_data.json
+	} // opened build_data.json
 
 #endif // LL_BUGSPLAT
 #endif // LL_SEND_CRASH_REPORTS
