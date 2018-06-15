@@ -233,11 +233,13 @@ bool LLSettingsDay::initialize()
             keyframe = llclamp(keyframe, 0.0f, 1.0f);
             LLSettingsBase::ptr_t setting;
 
+            
             if ((*it).has(SETTING_KEYNAME))
             {
+                std::string key_name = (*it)[SETTING_KEYNAME];
                 if (i == TRACK_WATER)
                 {
-                    setting = used[(*it)[SETTING_KEYNAME]];
+                    setting = used[key_name];
                     if (setting && setting->getSettingsType() != "water")
                     {
                         LL_WARNS("DAYCYCLE") << "Water track referencing " << setting->getSettingsType() << " frame at " << keyframe << "." << LL_ENDL;
@@ -246,7 +248,7 @@ bool LLSettingsDay::initialize()
                 }
                 else
                 {
-                    setting = used[(*it)[SETTING_KEYNAME]];
+                    setting = used[key_name];
                     if (setting && setting->getSettingsType() != "sky")
                     {
                         LL_WARNS("DAYCYCLE") << "Sky track #" << i << " referencing " << setting->getSettingsType() << " frame at " << keyframe << "." << LL_ENDL;
@@ -287,13 +289,36 @@ LLSD LLSettingsDay::defaults()
 
     dfltsetting[SETTING_NAME] = "_default_";
 
+    LLSD frames(LLSD::emptyMap());
     LLSD waterTrack;
-    waterTrack[SETTING_KEYKFRAME] = 0.0f;
-    waterTrack[SETTING_KEYNAME]   = "_default_";
-
     LLSD skyTrack;
-    skyTrack[SETTING_KEYKFRAME] = 0.0f;
-    skyTrack[SETTING_KEYNAME]   = "_default_";
+
+    
+    const U32 FRAME_COUNT = 8;
+    const F32 FRAME_STEP  = 1.0f / F32(FRAME_COUNT);
+    F32 time = 0.0f;
+    for (U32 i = 0; i < FRAME_COUNT; i++)
+    {
+        std::string name("_default_");
+        name += ('a' + i);
+
+        std::string water_frame_name("water:");
+        std::string sky_frame_name("sky:");
+
+        water_frame_name += name;
+        sky_frame_name   += name;
+
+        waterTrack[SETTING_KEYKFRAME] = time;
+        waterTrack[SETTING_KEYNAME]   = water_frame_name;
+
+        skyTrack[SETTING_KEYKFRAME] = time;
+        skyTrack[SETTING_KEYNAME]   = sky_frame_name;
+
+        frames[water_frame_name] = LLSettingsWater::defaults(time);
+        frames[sky_frame_name]   = LLSettingsSky::defaults(time);
+
+        time += FRAME_STEP;
+    }
 
     LLSD tracks;
     tracks.append(LLSDArray(waterTrack));
@@ -301,10 +326,7 @@ LLSD LLSettingsDay::defaults()
 
     dfltsetting[SETTING_TRACKS] = tracks;
 
-    LLSD frames(LLSD::emptyMap());
-
-    frames["water:_defaults_"] = LLSettingsWater::defaults();
-    frames["sky:_defaults_"] = LLSettingsSky::defaults();
+    
 
     dfltsetting[SETTING_FRAMES] = frames;
 
@@ -532,14 +554,6 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::TrackPo
     CycleTrack_t::iterator iter = track.find(old_frame);
     if (iter != track.end())
     {
-        /*TODO check that we are not moving too close to another keyframe */
-//         CycleTrack_t::value_type existing = getSettingsNearKeyfarme(new_frame, trackno, 2.5f);
-//         if ((*iter).first != existing.first)
-//         {
-//             LL_WARNS("DAYCYCLE") << "Track too close to existing track.  Not moving." << LL_ENDL;
-//             return false;
-//         }
-
         LLSettingsBase::ptr_t base = iter->second;
         track.erase(iter);
         track[llclamp(new_frame, 0.0f, 1.0f)] = base;

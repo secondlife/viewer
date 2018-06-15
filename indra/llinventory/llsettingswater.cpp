@@ -87,9 +87,12 @@ LLSettingsWater::LLSettingsWater() :
 }
 
 //=========================================================================
-LLSD LLSettingsWater::defaults()
+LLSD LLSettingsWater::defaults(const LLSettingsBase::TrackPosition& position)
 {
     LLSD dfltsetting;
+
+    // give the normal scale offset some variability over track time...
+    F32 normal_scale_offset = (position * 0.5f) - 0.25f;
 
     // Magic constants copied form defaults.xml 
     dfltsetting[SETTING_BLUR_MULTIPILER] = LLSD::Real(0.04000f);
@@ -100,7 +103,7 @@ LLSD LLSettingsWater::defaults()
     dfltsetting[SETTING_FRESNEL_SCALE] = LLSD::Real(0.3999);
     dfltsetting[SETTING_TRANSPARENT_TEXTURE] = GetDefaultTransparentTextureAssetId();
     dfltsetting[SETTING_NORMAL_MAP] = GetDefaultWaterNormalAssetId();
-    dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f, 2.0f, 2.0f).getValue();
+    dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f + normal_scale_offset, 2.0f + normal_scale_offset, 2.0f + normal_scale_offset).getValue();
     dfltsetting[SETTING_SCALE_ABOVE] = LLSD::Real(0.0299f);
     dfltsetting[SETTING_SCALE_BELOW] = LLSD::Real(0.2000f);
     dfltsetting[SETTING_WAVE1_DIR] = LLVector2(1.04999f, -0.42000f).getValue();

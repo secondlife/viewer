@@ -62,7 +62,7 @@ public:
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
-    static LLSD defaults();
+    static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
 
     //---------------------------------------------------------------------
     F32 getBlurMultiplier() const

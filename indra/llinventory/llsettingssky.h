@@ -105,7 +105,7 @@ public:
     
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
 
-    static LLSD defaults();
+    static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
 
     F32 getPlanetRadius() const;
     F32 getSkyBottomRadius() const;
@@ -247,9 +247,6 @@ protected:
     virtual void    updateSettings() SETTINGS_OVERRIDE;
 
 private:
-    mutable bool mPositionsDirty;
-    mutable bool mLightingDirty;
-
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
