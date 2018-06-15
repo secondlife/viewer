@@ -100,7 +100,7 @@ void LLControlAvatar::matchVolumeTransform()
             // Fix up position if needed to prevent visual encroachment
             if (box_valid_and_non_zero(getLastAnimExtents())) // wait for state to settle down
             {
-                const F32 MAX_LEGAL_OFFSET = 2.0;
+                const F32 MAX_LEGAL_OFFSET = 3.0;
                 
                 // The goal here is to ensure that the extent of the avatar's 
                 // bounding box does not wander too far from the
