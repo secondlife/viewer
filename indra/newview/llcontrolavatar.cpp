@@ -95,7 +95,7 @@ void LLControlAvatar::matchVolumeTransform()
 
             LLVector3 vol_pos = mRootVolp->getRenderPosition();
             LLVector3 pos_box_offset;
-            pos_box_offset.clear();
+            LLVector3 box_offset;
 
             // Fix up position if needed to prevent visual encroachment
             if (box_valid_and_non_zero(getLastAnimExtents())) // wait for state to settle down
@@ -116,18 +116,21 @@ void LLControlAvatar::matchVolumeTransform()
                 if (offset_dist > MAX_LEGAL_OFFSET)
                 {
                     F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
-                    pos_box_offset *= target_dist/offset_dist;
+                    box_offset = (target_dist/offset_dist)*pos_box_offset;
                 }
-                //LL_DEBUGS("FixBox") << getFullname() << " fixup needed for offset " 
-                //                    << pos_box_offset[0] << "," << pos_box_offset[1] << "," << pos_box_offset[2] 
-                //                    << " current fixup "
-                //                    << mPositionConstraintFixup[0] << "," << mPositionConstraintFixup[1] << "," << mPositionConstraintFixup[2] 
-                //                    << " dist " << offset_dist << LL_ENDL;
             }
 
-            mPositionConstraintFixup = pos_box_offset;
+            mPositionConstraintFixup = box_offset;
 
-            setPositionAgent(vol_pos + mPositionConstraintFixup);
+            // Currently if you're doing something like playing an
+            // animation that moves the pelvis (on an avatar or
+            // animated object), the name tag and debug text will be
+            // left behind. Ideally setPosition() would follow the
+            // skeleton around in a smarter way, so name tags,
+            // complexity info and such line up better. Should defer
+            // this until avatars also get fixed.
+            setPositionAgent(vol_pos);
+
             LLQuaternion obj_rot = mRootVolp->getRotation();
             LLQuaternion result_rot = obj_rot;
             setRotation(result_rot);
