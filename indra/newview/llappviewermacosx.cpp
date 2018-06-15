@@ -36,6 +36,7 @@
 #include "llappviewermacosx-objc.h"
 
 #include "llappviewermacosx.h"
+#include "llappviewermacosx-for-objc.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
 
@@ -145,6 +146,11 @@ void cleanupViewer()
 	
 	delete gViewerAppPtr;
 	gViewerAppPtr = NULL;
+}
+
+std::string getLogFilePathname()
+{
+    return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
 }
 
 int main( int argc, char **argv ) 

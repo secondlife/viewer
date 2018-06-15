@@ -29,6 +29,7 @@
 @import BugsplatMac;
 #endif
 #include "llwindowmacosx-objc.h"
+#include "llappviewermacosx-for-objc.h"
 #include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
 
 @implementation LLAppDelegate
@@ -189,18 +190,22 @@
     return true;
 }
 
-#if 0 // defined(LL_BUGSPLAT)
+#if defined(LL_BUGSPLAT)
 
 @implementation BugsplatStartupManagerDelegate
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    NSURL *fileURL = [[NSBundle mainBundle] URLForResource:@"example" withExtension:@"json"];
-    NSData *data = [NSData dataWithContentsOfURL:fileURL];
-    
+    std::string logfile = getLogFilePathname();
+    NSString *ns_logfile = [NSString stringWithCString:logfile->c_str()
+                                              encoding:NSUTF8StringEncoding];
+    NSData *data = [NSData dataWithContentsOfFile:ns_logfile];
+
+    // Apologies for the hard-coded log-file basename, but I do not know the
+    // incantation for "$(basename "$logfile")" in this language.
     BugsplatAttachment *attachment = 
-        [[BugsplatAttachment alloc] initWithFilename:@"example.json"
+        [[BugsplatAttachment alloc] initWithFilename:@"SecondLife.log"
                                       attachmentData:data
-                                         contentType:@"application/json"];
+                                         contentType:@"text/plain"];
     return attachment;
 }
 
