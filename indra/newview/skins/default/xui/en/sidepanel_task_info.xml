@@ -299,7 +299,7 @@
                 <combo_box.item
                  label="None"
                  name="None"
-                 value="Zoom" />
+                 value="None" />
             </combo_box>
 	 <panel
          border="false"
