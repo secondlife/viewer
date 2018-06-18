@@ -153,6 +153,11 @@ std::string getLogFilePathname()
     return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
 }
 
+void infos(const std::string& message)
+{
+    LL_INFOS() << message << LL_ENDL;
+}
+
 int main( int argc, char **argv ) 
 {
 	// Store off the command line args for use later.

@@ -202,9 +202,12 @@
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
     std::string logfile = getLogFilePathname();
+    infos("Reached attachmentForBugsplatStartupManager with:");
+    infos(logfile);
     NSString *ns_logfile = [NSString stringWithCString:logfile.c_str()
                                               encoding:NSUTF8StringEncoding];
     NSData *data = [NSData dataWithContentsOfFile:ns_logfile];
+    infos("Read logfile");
 
     // Apologies for the hard-coded log-file basename, but I do not know the
     // incantation for "$(basename "$logfile")" in this language.
@@ -212,6 +215,7 @@
         [[BugsplatAttachment alloc] initWithFilename:@"SecondLife.log"
                                       attachmentData:data
                                          contentType:@"text/plain"];
+    infos("returning attachment");
     return attachment;
 }
 

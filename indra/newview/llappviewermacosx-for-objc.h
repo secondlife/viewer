@@ -30,5 +30,6 @@ bool pumpMainLoop();
 void handleQuit();
 void cleanupViewer();
 std::string getLogFilePathname();
+void infos(const std::string& message);
 
 #endif /* ! defined(LL_LLAPPVIEWERMACOSX_FOR_OBJC_H) */
