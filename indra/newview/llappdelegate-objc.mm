@@ -194,7 +194,11 @@
 
 #if defined(LL_BUGSPLAT)
 
-@implementation BugsplatStartupManagerDelegate
+// per Geoff at BugSplat support
+@interface AppDelegate : NSObject <NSApplicationDelegate, BugsplatStartupManagerDelegate>
+@end
+
+@implementation AppDelegate
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
     std::string logfile = getLogFilePathname();
