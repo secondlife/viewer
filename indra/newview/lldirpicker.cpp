@@ -92,7 +92,7 @@ LLDirPicker::~LLDirPicker()
 	// nothing
 }
 
-BOOL LLDirPicker::getDir(std::string filename, bool blocking)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	if( mLocked )
 	{
@@ -175,7 +175,7 @@ void LLDirPicker::reset()
 
 
 //static
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
     LLFilePicker::ELoadFilter filter=LLFilePicker::FFLOAD_DIRECTORY;
     
@@ -209,7 +209,7 @@ void LLDirPicker::reset()
 		mFilePicker->reset();
 }
 
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	reset();
 
@@ -264,7 +264,7 @@ void LLDirPicker::reset()
 {
 }
 
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	return FALSE;
 }
@@ -300,7 +300,7 @@ void LLDirPickerThread::run()
 
 	LLDirPicker picker;
 
-	if (picker.getDir(mProposedName, blocking))
+	if (picker.getDir(&mProposedName, blocking))
 	{
 		mResponses.push_back(picker.getDirName());
 	}	
