@@ -35,8 +35,7 @@
 //=========================================================================
 namespace
 {
-    LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
-    LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");    
+
 
     const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
     const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
@@ -50,6 +49,11 @@ namespace
     }
 
 }
+
+static LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
+static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_SKYVALUES("Recalculate Sky");
+static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_BODIES("Recalculate Heavenly Bodies");
+static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_LIGHTING("Recalculate Lighting");
 
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
@@ -784,6 +788,8 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
+    LL_RECORD_BLOCK_TIME(FTM_RECALCULATE_SKYVALUES);
+
     mPositionsDirty |= isVeryDirty();
     mLightingDirty  |= isVeryDirty();
 
@@ -811,29 +817,31 @@ bool LLSettingsSky::getIsMoonUp() const
 
 void LLSettingsSky::calculateHeavenlyBodyPositions()  const
 {
-    /* can't do this as it gets defeated during animation of env panel settings
     if (!mPositionsDirty)
     {
         return;
-    }*/
+    }
+    {
+        LL_RECORD_BLOCK_TIME(FTM_RECALCULATE_BODIES);
 
-    mPositionsDirty = false;
-    mLightingDirty = true;  // changes light direction
+        mPositionsDirty = false;
+        mLightingDirty = true;  // changes light direction
 
-    LLQuaternion sunq  = getSunRotation();
-    LLQuaternion moonq = getMoonRotation();
+        LLQuaternion sunq = getSunRotation();
+        LLQuaternion moonq = getMoonRotation();
 
-    mSunDirection  = DUE_EAST * sunq;
-    mMoonDirection = DUE_EAST * moonq;
+        mSunDirection = DUE_EAST * sunq;
+        mMoonDirection = DUE_EAST * moonq;
 
-    mSunDirection.normalize();
-    mMoonDirection.normalize();
+        mSunDirection.normalize();
+        mMoonDirection.normalize();
 
-    LL_WARNS("LAPRAS") << "Sun info:  Rotation=" << sunq << " Vector=" << mSunDirection << LL_ENDL;
-    LL_WARNS("LAPRAS") << "Moon info: Rotation=" << moonq << " Vector=" << mMoonDirection << LL_ENDL;
+        LL_WARNS("LAPRAS") << "Sun info:  Rotation=" << sunq << " Vector=" << mSunDirection << LL_ENDL;
+        LL_WARNS("LAPRAS") << "Moon info: Rotation=" << moonq << " Vector=" << mMoonDirection << LL_ENDL;
 
-    llassert(mSunDirection.lengthSquared() > 0.0);
-    llassert(mMoonDirection.lengthSquared() > 0.0);
+        llassert(mSunDirection.lengthSquared() > 0.0);
+        llassert(mMoonDirection.lengthSquared() > 0.0);
+    }
 }
 
 LLVector3 LLSettingsSky::getLightDirection() const
@@ -1037,51 +1045,52 @@ LLColor4 LLSettingsSky::getTotalAmbient() const
 
 void LLSettingsSky::calculateLightSettings() const
 {
-    /* can't do this as it gets defeated during animation of env panel settings
     if (!mLightingDirty)
     {
         return;
     }
 
-    calculateHeavenlyBodyPositions();*/
-
-    mLightingDirty = false;
-
-    // Initialize temp variables
-    LLColor3    sunlight = getSunlightColor();
-    LLColor3    ambient = getAmbientColor();
-    F32         cloud_shadow = getCloudShadow();
-    LLVector3   lightnorm = getLightDirection();
-
-    // Sunlight attenuation effect (hue and brightness) due to atmosphere
-    // this is used later for sunlight modulation at various altitudes
-    F32      max_y = getMaxY();
-    LLColor3 light_atten = getLightAttenuation(max_y);
-    LLColor3 light_transmittance = getLightTransmittance();
-
-    // and vary_sunlight will work properly with moon light
-    F32 lighty = lightnorm[1];
-
-    lighty = llmax(0.f, lighty);
-    if(lighty > 0.f)
     {
-        lighty = 1.f / lighty;
+        LL_RECORD_BLOCK_TIME(FTM_RECALCULATE_LIGHTING);
+
+        mLightingDirty = false;
+
+        // Initialize temp variables
+        LLColor3    sunlight = getSunlightColor();
+        LLColor3    ambient = getAmbientColor();
+        F32         cloud_shadow = getCloudShadow();
+        LLVector3   lightnorm = getLightDirection();
+
+        // Sunlight attenuation effect (hue and brightness) due to atmosphere
+        // this is used later for sunlight modulation at various altitudes
+        F32      max_y = getMaxY();
+        LLColor3 light_atten = getLightAttenuation(max_y);
+        LLColor3 light_transmittance = getLightTransmittance();
+
+        // and vary_sunlight will work properly with moon light
+        F32 lighty = lightnorm[1];
+
+        lighty = llmax(0.f, lighty);
+        if (lighty > 0.f)
+        {
+            lighty = 1.f / lighty;
+        }
+        componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
+
+        //increase ambient when there are more clouds
+        LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
+
+        //brightness of surface both sunlight and ambient
+        mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));
+        mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
+
+        mMoonDiffuse = gammaCorrect(componentMult(LLColor3::white, light_transmittance));
+        mMoonAmbient = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);
+        mTotalAmbient = mSunAmbient;
+
+        mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
+        mFadeColor.setAlpha(0);
     }
-    componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
-
-    //increase ambient when there are more clouds
-    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
-
-    //brightness of surface both sunlight and ambient
-    mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
-    mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
-
-    mMoonDiffuse  = gammaCorrect(componentMult(LLColor3::white, light_transmittance));
-    mMoonAmbient  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);
-    mTotalAmbient = mSunAmbient;
-
-    mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
-    mFadeColor.setAlpha(0);
 }
 
 LLUUID LLSettingsSky::GetDefaultAssetId()

@@ -53,6 +53,9 @@
 #include "llsettingssky.h"
 #include "llenvironment.h"
 
+#include "lltrace.h"
+#include "llfasttimer.h"
+
 #undef min
 #undef max
 
@@ -73,6 +76,9 @@ static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 
 static const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
 static const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
+
+static LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATETIMER("VOSky Update Timer Tick");
+static LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATEFORCED("VOSky Update Forced");
 
 /***************************************
 		SkyTex
@@ -609,7 +615,7 @@ bool LLVOSky::updateSky()
 
 	if (mUpdateTimer.getElapsedTimeF32() > 0.025f)
 	{
-		mUpdateTimer.reset();
+        mUpdateTimer.reset();
 		const S32 frame = next_frame;
 
         mForceUpdate = mForceUpdate || (total_no_tiles == frame);
@@ -641,6 +647,8 @@ bool LLVOSky::updateSky()
 
 		if (mForceUpdate)
 		{
+            LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED)
+
 			LLSkyTex::stepCurrent();			
 		
 			if (!direction.isExactlyZero())
