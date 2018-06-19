@@ -220,7 +220,6 @@ Ansariel Hiller
 	STORM-2151
 	MAINT-6917
 	MAINT-8085
-	STORM-2122
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191

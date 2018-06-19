@@ -1877,7 +1877,7 @@ void LLViewerRegion::updateNetStats()
 	mLastPacketsLost =	mPacketsLost;
 
 	mPacketsIn =				cdp->getPacketsIn();
-	mBitsIn =					cdp->getBytesIn();
+	mBitsIn =					8 * cdp->getBytesIn();
 	mPacketsOut =				cdp->getPacketsOut();
 	mPacketsLost =				cdp->getPacketsLost();
 	mPingDelay =				cdp->getPingDelay();
