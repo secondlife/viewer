@@ -27,6 +27,9 @@
 #import "llappdelegate-objc.h"
 #if defined(LL_BUGSPLAT)
 @import BugsplatMac;
+// derived from BugsplatMac's BugsplatTester/AppDelegate.m
+@interface LLAppDelegate () <BugsplatStartupManagerDelegate>
+@end
 #endif
 #include "llwindowmacosx-objc.h"
 #include "llappviewermacosx-for-objc.h"
@@ -190,15 +193,14 @@
     return true;
 }
 
-@end
-
 #if defined(LL_BUGSPLAT)
 
-// per Geoff at BugSplat support
-@interface AppDelegate : NSObject <NSApplicationDelegate, BugsplatStartupManagerDelegate>
-@end
-
-@implementation AppDelegate
+- (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
+{
+//  return NSStringFromSelector(_cmd);
+    infos("Reached applicationLogForBugsplatStartupManager");
+    return @"[contents of SecondLife.log]";
+}
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
     std::string logfile = getLogFilePathname();
@@ -219,6 +221,6 @@
     return attachment;
 }
 
-@end
-
 #endif // LL_BUGSPLAT
+
+@end
