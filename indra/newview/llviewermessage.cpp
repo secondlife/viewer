@@ -3372,6 +3372,110 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 }
 
 
+// sounds can arrive before objects, store them for a short time
+// Note: this is a workaround for MAINT-4743, real fix would be to make
+// server send sound along with object update that creates (rezes) the object
+class PostponedSoundData
+{
+public:
+    PostponedSoundData() :
+        mExpirationTime(0)
+    {}
+    PostponedSoundData(const LLUUID &object_id, const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain, const U8 flags);
+    bool hasExpired() { return LLFrameTimer::getTotalSeconds() > mExpirationTime; }
+
+    LLUUID mObjectId;
+    LLUUID mSoundId;
+    LLUUID mOwnerId;
+    F32 mGain;
+    U8 mFlags;
+    static const F64 MAXIMUM_PLAY_DELAY;
+
+private:
+    F64 mExpirationTime; //seconds since epoch
+};
+const F64 PostponedSoundData::MAXIMUM_PLAY_DELAY = 15.0;
+static F64 postponed_sounds_update_expiration = 0.0;
+static std::map<LLUUID, PostponedSoundData> postponed_sounds;
+
+void set_attached_sound(LLViewerObject *objectp, const LLUUID &object_id, const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain, const U8 flags)
+{
+    if (LLMuteList::getInstance()->isMuted(object_id)) return;
+
+    if (LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagObjectSounds)) return;
+
+    // Don't play sounds from a region with maturity above current agent maturity
+    LLVector3d pos = objectp->getPositionGlobal();
+    if (!gAgent.canAccessMaturityAtGlobal(pos))
+    {
+        return;
+    }
+
+    objectp->setAttachedSound(sound_id, owner_id, gain, flags);
+}
+
+PostponedSoundData::PostponedSoundData(const LLUUID &object_id, const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain, const U8 flags)
+    :
+    mObjectId(object_id),
+    mSoundId(sound_id),
+    mOwnerId(owner_id),
+    mGain(gain),
+    mFlags(flags),
+    mExpirationTime(LLFrameTimer::getTotalSeconds() + MAXIMUM_PLAY_DELAY)
+{
+}
+
+// static
+void update_attached_sounds()
+{
+    if (postponed_sounds.empty())
+    {
+        return;
+    }
+
+    std::map<LLUUID, PostponedSoundData>::iterator iter = postponed_sounds.begin();
+    std::map<LLUUID, PostponedSoundData>::iterator end = postponed_sounds.end();
+    while (iter != end)
+    {
+        std::map<LLUUID, PostponedSoundData>::iterator cur_iter = iter++;
+        PostponedSoundData* data = &cur_iter->second;
+        if (data->hasExpired())
+        {
+            postponed_sounds.erase(cur_iter);
+        }
+        else
+        {
+            LLViewerObject *objectp = gObjectList.findObject(data->mObjectId);
+            if (objectp)
+            {
+                set_attached_sound(objectp, data->mObjectId, data->mSoundId, data->mOwnerId, data->mGain, data->mFlags);
+                postponed_sounds.erase(cur_iter);
+            }
+        }
+    }
+    postponed_sounds_update_expiration = LLFrameTimer::getTotalSeconds() + 2 * PostponedSoundData::MAXIMUM_PLAY_DELAY;
+}
+
+//static
+void clear_expired_postponed_sounds()
+{
+    if (postponed_sounds_update_expiration > LLFrameTimer::getTotalSeconds())
+    {
+        return;
+    }
+    std::map<LLUUID, PostponedSoundData>::iterator iter = postponed_sounds.begin();
+    std::map<LLUUID, PostponedSoundData>::iterator end = postponed_sounds.end();
+    while (iter != end)
+    {
+        std::map<LLUUID, PostponedSoundData>::iterator cur_iter = iter++;
+        PostponedSoundData* data = &cur_iter->second;
+        if (data->hasExpired())
+        {
+            postponed_sounds.erase(cur_iter);
+        }
+    }
+    postponed_sounds_update_expiration = LLFrameTimer::getTotalSeconds() + 2 * PostponedSoundData::MAXIMUM_PLAY_DELAY;
+}
 
 // *TODO: Remove this dependency, or figure out a better way to handle
 // this hack.
@@ -3390,7 +3494,12 @@ void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 	}
 
 	// Update the object...
+	S32 old_num_objects = gObjectList.mNumNewObjects;
 	gObjectList.processObjectUpdate(mesgsys, user_data, OUT_FULL);
+	if (old_num_objects != gObjectList.mNumNewObjects)
+	{
+		update_attached_sounds();
+	}
 }
 
 void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data)
@@ -3406,7 +3515,12 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 	}
 
 	// Update the object...
+	S32 old_num_objects = gObjectList.mNumNewObjects;
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_FULL_COMPRESSED);
+	if (old_num_objects != gObjectList.mNumNewObjects)
+	{
+		update_attached_sounds();
+	}
 }
 
 void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
@@ -3437,7 +3551,12 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 		gObjectData += (U32Bytes)mesgsys->getReceiveSize();
 	}
 
+	S32 old_num_objects = gObjectList.mNumNewObjects;
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
+	if (old_num_objects != gObjectList.mNumNewObjects)
+	{
+		update_attached_sounds();
+	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Kill Objects");
@@ -3659,27 +3778,26 @@ void process_attached_sound(LLMessageSystem *msg, void **user_data)
 	msg->getU8Fast(_PREHASH_DataBlock, _PREHASH_Flags, flags);
 
 	LLViewerObject *objectp = gObjectList.findObject(object_id);
-	if (!objectp)
+	if (objectp)
 	{
-		// we don't know about this object, just bail
-		return;
+		set_attached_sound(objectp, object_id, sound_id, owner_id, gain, flags);
 	}
-	
-	if (LLMuteList::getInstance()->isMuted(object_id)) return;
-	
-	if (LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagObjectSounds)) return;
-
-	
-	// Don't play sounds from a region with maturity above current agent maturity
-	LLVector3d pos = objectp->getPositionGlobal();
-	if( !gAgent.canAccessMaturityAtGlobal(pos) )
+	else if (sound_id.notNull())
 	{
-		return;
+		// we don't know about this object yet, probably it has yet to arrive
+		// std::map for dupplicate prevention.
+		postponed_sounds[object_id] = (PostponedSoundData(object_id, sound_id, owner_id, gain, flags));
+		clear_expired_postponed_sounds();
 	}
-	
-	objectp->setAttachedSound(sound_id, owner_id, gain, flags);
+	else
+	{
+		std::map<LLUUID, PostponedSoundData>::iterator iter = postponed_sounds.find(object_id);
+		if (iter != postponed_sounds.end())
+		{
+			postponed_sounds.erase(iter);
+		}
+	}
 }
-
 
 void process_attached_sound_gain_change(LLMessageSystem *mesgsys, void **user_data)
 {
