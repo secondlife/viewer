@@ -1629,6 +1629,11 @@ class LLAdvancedEnableAppearanceToXML : public view_listener_t
         {
             return gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
         }
+        else if (obj && obj->isAvatar())
+        {
+            // This has to be a non-control avatar, because control avs are invisible and unclickable.
+            return gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+        }
 		else
 		{
 			return false;
@@ -1642,12 +1647,33 @@ class LLAdvancedAppearanceToXML : public view_listener_t
 	{
 		std::string emptyname;
         LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-        LLVOAvatar* avatar = obj->getAvatar();
-		if (!avatar)
-		{
+        LLVOAvatar *avatar = NULL;
+        if (obj)
+        {
+            if (obj->isAvatar())
+            {
+                avatar = obj->asAvatar();
+            }
+            else
+            {
+                // If there is a selection, find the associated
+                // avatar. Normally there's only one obvious choice. But
+                // what should be returned if the object is in an attached
+                // animated object? getAvatar() will give the skeleton of
+                // the animated object. getAvatarAncestor() will give the
+                // actual human-driven avatar.
+                avatar = obj->getAvatar();
+            }
+        }
+        else
+        {
+            // If no selection, use the self avatar.
 			avatar = gAgentAvatarp;
-		}
-		avatar->dumpArchetypeXML(emptyname);
+        }
+        if (avatar)
+        {
+            avatar->dumpArchetypeXML(emptyname);
+        }
 		return true;
 	}
 };
