@@ -196,21 +196,27 @@
 
 #if defined(LL_BUGSPLAT)
 
+#if 0
+// Apparently this override method only contributes the User Description field
+// of BugSplat's All Crashes table. Despite the method name, it would seem to
+// be a bad place to try to stuff all of SecondLife.log.
 - (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
 {
 //  return NSStringFromSelector(_cmd);
     infos("Reached applicationLogForBugsplatStartupManager");
     return @"[contents of SecondLife.log]";
 }
+#endif
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    std::string logfile = getLogFilePathname();
-    infos("Reached attachmentForBugsplatStartupManager with:");
-    infos(logfile);
+    // We get the *old* log file pathname (for SecondLife.old) because it's on
+    // the run *following* the crash that BugsplatStartupManager notices that
+    // the previous run crashed and calls this override. By that time, we've
+    // already renamed SecondLife.log to SecondLife.old.
+    std::string logfile = getOldLogFilePathname();
     NSString *ns_logfile = [NSString stringWithCString:logfile.c_str()
                                               encoding:NSUTF8StringEncoding];
     NSData *data = [NSData dataWithContentsOfFile:ns_logfile];
-    infos("Read logfile");
 
     // Apologies for the hard-coded log-file basename, but I do not know the
     // incantation for "$(basename "$logfile")" in this language.
@@ -218,7 +224,7 @@
         [[BugsplatAttachment alloc] initWithFilename:@"SecondLife.log"
                                       attachmentData:data
                                          contentType:@"text/plain"];
-    infos("returning attachment");
+    infos("attachmentForBugsplatStartupManager: attaching " + logfile);
     return attachment;
 }
 

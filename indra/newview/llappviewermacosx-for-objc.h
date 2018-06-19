@@ -29,7 +29,7 @@ void handleUrl(const char* url_utf8);
 bool pumpMainLoop();
 void handleQuit();
 void cleanupViewer();
-std::string getLogFilePathname();
+std::string getOldLogFilePathname();
 void infos(const std::string& message);
 
 #endif /* ! defined(LL_LLAPPVIEWERMACOSX_FOR_OBJC_H) */

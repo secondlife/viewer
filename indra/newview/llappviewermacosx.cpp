@@ -148,9 +148,9 @@ void cleanupViewer()
 	gViewerAppPtr = NULL;
 }
 
-std::string getLogFilePathname()
+std::string getOldLogFilePathname()
 {
-    return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
+    return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.old");
 }
 
 void infos(const std::string& message)
