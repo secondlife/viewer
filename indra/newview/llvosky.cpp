@@ -633,12 +633,14 @@ bool LLVOSky::updateSky()
 		direction.normalize();
 		const F32 dot_lighting = direction * mLastLightingDirection;
 
+        //_WARNS("LAPRAS") << " <" << direction.getValue() << "> dot <" << mLastLightingDirection << "> = " << dot_lighting << " (threshold is " << LIGHT_DIRECTION_THRESHOLD << ")" << LL_ENDL;
+
 		LLColor3 delta_color;
 		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
 							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
                             mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
 
-        bool light_direction_changed = (dot_lighting >= LIGHT_DIRECTION_THRESHOLD);
+        bool light_direction_changed = (dot_lighting < LIGHT_DIRECTION_THRESHOLD);
         bool color_changed = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
 
         mForceUpdate = mForceUpdate || light_direction_changed;

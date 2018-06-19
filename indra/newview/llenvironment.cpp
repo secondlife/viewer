@@ -164,7 +164,7 @@ namespace
                 return;
             }
 
-            mTrackTransitionStart = mTarget->buildDerivedClone();
+            LLSettingsBase::ptr_t pstartsetting = mTarget->buildDerivedClone();
             mTrackNo = use_trackno;
 
             LLSettingsBase::Seconds now = getAdjustedNow() + LLEnvironment::TRANSITION_ALTITUDE;
@@ -177,7 +177,11 @@ namespace
             LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
             pendsetting->blend((*bounds.second).second, blendf);
 
-            reset(mTrackTransitionStart, pendsetting, LLEnvironment::TRANSITION_ALTITUDE);
+//          pstartsetting->setValue(LLSettingsSky::SETTING_AMBIENT, LLColor3(0.0, 1.0, 0.0));
+//          pendsetting->setValue(LLSettingsSky::SETTING_AMBIENT, LLColor3(1.0, 0.0, 0.0));
+
+            setIgnoreTimeDeltaThreshold(true); // for the next span ignore the time delta threshold.
+            reset(pstartsetting, pendsetting, LLEnvironment::TRANSITION_ALTITUDE);
         }
 
     protected:
@@ -185,12 +189,12 @@ namespace
         {
             if (trackno == 0)
             {   // We are dealing with the water track.  There is only ever one.
-                return 0;
+                return trackno;
             }
 
-            for (S32 test = trackno; test == 0; --test)
+            for (S32 test = trackno; test != 0; --test)
             {   // Find the track below the requested one with data.
-                LLSettingsDay::CycleTrack_t &track = mDay->getCycleTrack(mTrackNo);
+                LLSettingsDay::CycleTrack_t &track = mDay->getCycleTrack(test);
 
                 if (!track.empty())
                     return test;
@@ -226,7 +230,6 @@ namespace
         S32                         mTrackNo;
         LLSettingsBase::Seconds     mCycleLength;
         LLSettingsBase::Seconds     mCycleOffset;
-        LLSettingsBase::ptr_t       mTrackTransitionStart;
 
         void onFinishedSpan()
         {

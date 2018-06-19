@@ -610,10 +610,12 @@ void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& t
 
     if (mTimeSpent > mBlendSpan)
     {
+        mIgnoreTimeDelta = false;
         triggerComplete();
         return;
     }
-    if (mTimeDeltaPassed < mTimeDeltaThreshold)
+
+    if ((mTimeDeltaPassed < mTimeDeltaThreshold) && (!mIgnoreTimeDelta))
     {
         return;
     }
