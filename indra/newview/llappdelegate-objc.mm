@@ -76,6 +76,7 @@
 	// https://www.bugsplat.com/docs/platforms/os-x#initialization
 //	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
 //	[BugsplatStartupManager sharedManager].askUserDetails = NO;
+    [BugsplatStartupManager sharedManager].delegate = self;
 	[[BugsplatStartupManager sharedManager] start];
 #endif
 }
