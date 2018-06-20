@@ -868,6 +868,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 			case DAD_ANIMATION:
 			case DAD_GESTURE:
 			case DAD_MESH:
+            case DAD_SETTINGS:
 			{
 				LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 				if( item && allowsEmbeddedItems() )
