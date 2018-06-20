@@ -4436,6 +4436,15 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
 #else
 	boost::filesystem::path b_path(lastSnapshotDir);
 #endif
+	if (!boost::filesystem::is_directory(b_path))
+	{
+		LLSD args;
+		args["PATH"] = lastSnapshotDir;
+		LLNotificationsUtil::add("SnapshotToLocalDirNotExist", args);
+		resetSnapshotLoc();
+		failure_cb();
+		return;
+	}
 	boost::filesystem::space_info b_space = boost::filesystem::space(b_path);
 	if (b_space.free < image->getDataSize())
 	{
