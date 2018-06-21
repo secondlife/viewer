@@ -52,6 +52,7 @@
 //extern BOOL gAllowSelectAvatar;
 
 const F32 SELECTION_ROTATION_TRESHOLD = 0.1f;
+const F32 SELECTION_SITTING_ROTATION_TRESHOLD = 3.2f; //radian
 
 LLToolSelect::LLToolSelect( LLToolComposite* composite )
 :	LLTool( std::string("Select"), composite ),
@@ -194,7 +195,13 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			{
 				LLQuaternion target_rot;
 				target_rot.shortestArc(LLVector3::x_axis, selection_dir);
-				gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(), "", &target_rot, NULL, NULL, 1.f, SELECTION_ROTATION_TRESHOLD);
+				gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(),
+											"",
+											&target_rot,
+											NULL,
+											NULL,
+											MAX_FAR_CLIP /*stop_distance, don't care since we are looking, not moving*/,
+											gAgentAvatarp->isSitting() ? SELECTION_SITTING_ROTATION_TRESHOLD : SELECTION_ROTATION_TRESHOLD);
 			}
 		}
 

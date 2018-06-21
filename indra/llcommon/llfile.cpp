@@ -258,7 +258,7 @@ int	LLFile::remove(const std::string& filename, int supress_error)
 	return warnif("remove", filename, rc, supress_error);
 }
 
-int	LLFile::rename(const std::string& filename, const std::string& newname)
+int	LLFile::rename(const std::string& filename, const std::string& newname, int supress_error)
 {
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
@@ -269,7 +269,7 @@ int	LLFile::rename(const std::string& filename, const std::string& newname)
 #else
 	int rc = ::rename(filename.c_str(),newname.c_str());
 #endif
-	return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc);
+	return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, supress_error);
 }
 
 bool LLFile::copy(const std::string from, const std::string to)

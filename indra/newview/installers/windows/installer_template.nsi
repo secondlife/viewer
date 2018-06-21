@@ -282,7 +282,6 @@ StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 Call CheckIfAdministrator		# Make sure the user can install/uninstall
 Call CloseSecondLife			# Make sure Second Life not currently running
-Call CheckNetworkConnection		# Ping secondlife.com
 Call CheckWillUninstallV2		# Check if Second Life is already installed
 
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
@@ -347,16 +346,17 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\I
 # Write URL registry info
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
 
 # URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info"(default)" "URL:Second Life"
+# MAINT-8305: On SLURL click, directly invoke the viewer, not the launcher.
+WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "(default)" "URL:Second Life"
 WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
 
 # URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
+WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
 
 # Only allow Launcher to be the icon
 WriteRegStr HKEY_CLASSES_ROOT "Applications\$INSTEXE" "IsHostApp" ""
@@ -525,41 +525,6 @@ Function un.CloseSecondLife
 	  Goto LOOP
 
   DONE:
-    Pop $0
-    Return
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Test our connection to secondlife.com
-;; Also allows us to count attempted installs by examining web logs.
-;; *TODO: Return current SL version info and have installer check
-;; if it is up to date.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckNetworkConnection
-    Push $0
-    Push $1
-    Push $2	# Option value for GetOptions
-    DetailPrint $(CheckNetworkConnectionDP)
-# Look for a tag value from the stub installer, used for statistics to correlate installs.
-# Default to "" if not found on command line.
-    StrCpy $2 ""
-    ${GetOptions} $COMMANDLINE "/STUBTAG=" $2
-    GetTempFileName $0
-    !define HTTP_TIMEOUT 5000		# Milliseconds
-# Don't show secondary progress bar, this will be quick.
-    NSISdl::download_quiet \
-        /TIMEOUT=${HTTP_TIMEOUT} \
-        "http://install.secondlife.com/check/?stubtag=$2&version=${VERSION_LONG}" \
-        $0
-    Pop $1		# Return value, either "success", "cancel" or an error message
-    ; MessageBox MB_OK "Download result: $1"
-    ; Result ignored for now
-	; StrCmp $1 "success" +2
-	;	DetailPrint "Connection failed: $1"
-    Delete $0	# Temporary file
-    Pop $2
-    Pop $1
     Pop $0
     Return
 

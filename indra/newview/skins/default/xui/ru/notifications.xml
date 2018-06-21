@@ -684,6 +684,9 @@
 		</url>
 		<usetemplate ignoretext="Оборудование моего компьютера не поддерживается" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
+	<notification name="RunLauncher">
+		Пожалуйста, не запускайте напрямую исполняемый файл просмотра. Обновите все имеющиеся ярлыки, чтобы вместо этого запускать SL_Launcher.
+	</notification>
 	<notification name="OldGPUDriver">
 		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
 
@@ -1580,156 +1583,13 @@
 		Завершена загрузка файла ландшафта:
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		Появилась новая версия [APP_NAME].
-[MESSAGE]
-Это обновление необходимо загрузить для использования [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Выйти" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadWindows">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		Появилась новая версия [APP_NAME].
-[MESSAGE]
-Это обновление необходимо загрузить для использования [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Выйти" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadLinux">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		Появилась новая версия [APP_NAME].
-[MESSAGE]
-Это обновление необходимо загрузить для использования [APP_NAME].
-
-Загрузить его в папку приложений?
-		<usetemplate name="okcancelbuttons" notext="Выйти" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadMac">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-
-Загрузить его в папку приложений?
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-
-Загрузить его в папку приложений?
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Произошла ошибка при установке обновления.
-Загрузите новую версию программы на сайте
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		Для входа необходима версия \[VERSION]. Для вас обновление должно было произведено автоматически, но по какой-то причине этого не произошло. Скачайте обновление с веб-сайта https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Не удалось установить обязательное обновление. 
-Вы не сможете войти в [APP_NAME], пока обновление не будет установлено.
-
-Загрузите новую версию программы на сайте
-http://secondlife.com/download.
+	<notification name="LoginFailedUnknown">
+		Извините, ошибка входа по неустановленной причине. Если данное сообщение повторится, посетите веб-сайт [SUPPORT_SITE].
 		<usetemplate name="okbutton" yestext="Выйти"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		Появились обязательные обновления для вашей версии Second Life.
-
-Загрузите это обновление на сайте http://www.secondlife.com/downloads
-или установите его сейчас.
-		<usetemplate name="okcancelbuttons" notext="Выйти из Second Life" yestext="Загрузить и установить сейчас"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION]. [[RELEASE_NOTES_FULL_URL] Сведения об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION]. [[RELEASE_NOTES_FULL_URL] Сведения об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Загружено обязательное обновление.
-Версия [VERSION]. [[INFO_URL] Сведения об этом обновлении]
-
-Необходимо перезапустить [APP_NAME] для установки обновления.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Необходимо перезапустить [APP_NAME] для установки обновления.
-[[INFO_URL] Сведения об этом обновлении]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION] 
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION]
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] Сведения об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		Загружено обязательное обновление.
-Версия [VERSION]
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] Сведения об этом обновлении]
-
-Необходимо перезапустить [APP_NAME] для установки обновления.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Необходимо перезапустить [APP_NAME] для установки обновления.
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] Сведения об этом обновлении]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Появилось обновление!
-Оно сейчас загружается в фоновом режиме и, как только будет готово, вам будет предложено перезапустить клиент для завершения установки.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Обновление загружено. Оно будет установлено после перезапуска.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		При поиске обновлений произошла ошибка.
-Повторите попытку позже.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Ваш клиент уже обновлен!
-Если вы хотите немедленно испробовать наши новейшие функции и исправления, обратитесь на страницу «Альтернативные клиенты»: http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		В результате передачи этого объекта группа:
@@ -3509,6 +3369,10 @@ http://secondlife.com/download.
 Отключите любую функцию SIP ALG в маршрутизаторе. 
 
 Голосовое общение будет недоступно.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Проблемы соединения с речевым сервером: Голосовое общение будет недоступно. Проверьте настройки сети и брандмауэра.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

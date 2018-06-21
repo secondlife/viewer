@@ -391,8 +391,8 @@ public:
 		const std::string& session_handle = LLStringUtil::null,
 		const std::string& session_uri = LLStringUtil::null);
 
-	void processIMTypingStart(const LLIMInfo* im_info);
-	void processIMTypingStop(const LLIMInfo* im_info);
+	void processIMTypingStart(const LLUUID& from_id, const EInstantMessage im_type);
+	void processIMTypingStop(const LLUUID& from_id, const EInstantMessage im_type);
 
 	// automatically start a call once the session has initialized
 	void autoStartCallOnStartup(const LLUUID& session_id);
@@ -471,7 +471,7 @@ private:
 	void noteOfflineUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
 	void noteMutedUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
 
-	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
+	void processIMTypingCore(const LLUUID& from_id, const EInstantMessage im_type, BOOL typing);
 
 	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& name);
 
