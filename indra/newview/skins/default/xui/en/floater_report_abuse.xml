@@ -188,6 +188,7 @@
      tool_tip="Category -- select the category that best describes this report"
      top_pad="5"
      width="313">
+      <!-- Values can be populated from capability -->
         <combo_box.item
          label="Select category"
          name="Select_category"

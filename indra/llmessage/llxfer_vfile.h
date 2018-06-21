@@ -47,6 +47,8 @@ class LLXfer_VFile : public LLXfer
 
 	std::string mName;
 
+	BOOL	mDeleteTempFile;
+
  public:
 	LLXfer_VFile ();
 	LLXfer_VFile (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type);
@@ -66,8 +68,10 @@ class LLXfer_VFile : public LLXfer
 	virtual S32 startDownload();
 
 	virtual S32 processEOF();
-	
-	virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
+
+	virtual S32 startSend(U64 xfer_id, const LLHost &remote_host);
+	virtual void closeFileHandle();
+	virtual S32 reopenFileHandle();
 
 	virtual S32 suck(S32 start_position);
 	virtual S32 flush();

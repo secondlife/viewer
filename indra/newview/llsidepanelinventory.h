@@ -114,7 +114,6 @@ protected:
 	void 						onWearButtonClicked();
 	void 						onPlayButtonClicked();
 	void 						onTeleportButtonClicked();
-	void 						onOverflowButtonClicked();
 	void 						onBackButtonClicked();
 
 private:
@@ -123,7 +122,6 @@ private:
 	LLButton*					mWearBtn;
 	LLButton*					mPlayBtn;
 	LLButton*					mTeleportBtn;
-	LLButton*					mOverflowBtn;
 	LLButton*					mShopBtn;
 
 	bool						mInboxEnabled;

@@ -925,7 +925,20 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		new_item = old_item;
 		LLUUID old_parent_id = old_item->getParentUUID();
 		LLUUID new_parent_id = item->getParentUUID();
-			
+		bool update_parent_on_server = false;
+
+		if (new_parent_id.isNull())
+		{
+			// item with null parent will end in random location and then in Lost&Found,
+			// either move to default folder as if it is new item or don't move at all
+			LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+				<< " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
+				<< ". New name: " << item->getName()
+				<< "." << LL_ENDL;
+			new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+			update_parent_on_server = true;
+		}
+
 		if(old_parent_id != new_parent_id)
 		{
 			// need to update the parent-child tree
@@ -938,6 +951,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			item_array = get_ptr_in_map(mParentChildItemTree, new_parent_id);
 			if(item_array)
 			{
+				if (update_parent_on_server)
+				{
+					LLInventoryModel::LLCategoryUpdate update(new_parent_id, 1);
+					gInventory.accountForUpdate(update);
+				}
 				item_array->push_back(old_item);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
@@ -947,6 +965,12 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			mask |= LLInventoryObserver::LABEL;
 		}
 		old_item->copyViewerItem(item);
+		if (update_parent_on_server)
+		{
+			// Parent id at server is null, so update server even if item already is in the same folder
+			old_item->setParent(new_parent_id);
+			new_item->updateParentOnServer(FALSE);
+		}
 		mask |= LLInventoryObserver::INTERNAL;
 	}
 	else
@@ -2820,7 +2844,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32
 	item_array_t items;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	LLUUID folder_id;
 	// Does this loop ever execute more than once?
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -2846,10 +2869,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32
 		else
 		{
 			++update[titem->getParentUUID()];
-		}
-		if (folder_id.isNull())
-		{
-			folder_id = titem->getParentUUID();
 		}
 	}
 	if(account)
