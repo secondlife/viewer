@@ -38,7 +38,7 @@
 		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -77,10 +77,10 @@ Doku belleği: [TEXTURE_MEMORY]MB
 VFS (önbellek) oluşturma zamanı: [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		J2C Kod Çözücü Sürümü: [J2C_VERSION]
-Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
-CEF Sürümü: [LIBCEF_VERSION]
-LibVLC Sürümü: [LIBVLC_VERSION]
+		J2C Kod Çözücü Sürümü: [J2C_VERSION] 
+Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION] 
+[LIBCEF_VERSION] 
+LibVLC Sürümü: [LIBVLC_VERSION] 
 Ses Sunucusu Sürümü: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -1441,6 +1441,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="InventoryNoMatchingItems">
 		Aradığınızı bulamadınız mı? [secondlife:///app/search/all/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Aradığınızı bulamadınız mı? [secondlife:///app/inventory/filters Show filters] seçeneğini deneyin.
 	</string>
 	<string name="PlacesNoMatchingItems">
 		Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin.

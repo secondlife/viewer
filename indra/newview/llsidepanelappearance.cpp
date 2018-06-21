@@ -102,10 +102,6 @@ BOOL LLSidepanelAppearance::postBuild()
 
 	childSetAction("edit_outfit_btn", boost::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
 
-	mNewOutfitBtn = getChild<LLButton>("newlook_btn");
-	mNewOutfitBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onNewOutfitButtonClicked, this));
-	mNewOutfitBtn->setEnabled(false);
-
 	mFilterEditor = getChild<LLFilterEditor>("Filter");
 	if (mFilterEditor)
 	{
@@ -285,14 +281,6 @@ void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 	}
 }
 
-void LLSidepanelAppearance::onNewOutfitButtonClicked()
-{
-	if (!mOutfitEdit->getVisible())
-	{
-		mPanelOutfitsInventory->onSave();
-	}
-}
-
 void LLSidepanelAppearance::showOutfitsInventoryPanel()
 {
 	toggleWearableEditPanel(FALSE);
@@ -347,7 +335,6 @@ void LLSidepanelAppearance::toggleMyOutfitsPanel(BOOL visible)
 	// *TODO: Move these controls to panel_outfits_inventory.xml
 	// so that we don't need to toggle them explicitly.
 	mFilterEditor->setVisible(visible);
-	mNewOutfitBtn->setVisible(visible);
 	mCurrOutfitPanel->setVisible(visible);
 
 	if (visible)
@@ -473,8 +460,6 @@ void LLSidepanelAppearance::editWearable(LLViewerWearable *wearable, LLView *dat
 // fetched.  Alternatively, we could stuff this logic into llagentwearables::makeNewOutfitLinks.
 void LLSidepanelAppearance::fetchInventory()
 {
-
-	mNewOutfitBtn->setEnabled(false);
 	uuid_vec_t ids;
 	LLUUID item_id;
 	for(S32 type = (S32)LLWearableType::WT_SHAPE; type < (S32)LLWearableType::WT_COUNT; ++type)
@@ -525,7 +510,6 @@ void LLSidepanelAppearance::fetchInventory()
 
 void LLSidepanelAppearance::inventoryFetched()
 {
-	mNewOutfitBtn->setEnabled(true);
 }
 
 void LLSidepanelAppearance::setWearablesLoading(bool val)

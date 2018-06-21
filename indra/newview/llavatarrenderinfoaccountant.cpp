@@ -286,6 +286,9 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
         && regionp->getRenderInfoReportTimer().hasExpired() // Time to make request)
         )
 	{
+        // make sure we won't re-report, coro will update timer with correct time later
+        regionp->getRenderInfoReportTimer().resetWithExpiry(SECS_BETWEEN_REGION_REPORTS);
+
         std::string coroname =
             LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
             boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
@@ -305,6 +308,9 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
             << "Requesting avatar render info for region " << regionp->getName() 
             << " from " << url
             << LL_ENDL;
+
+        // make sure we won't re-request, coro will update timer with correct time later
+        regionp->getRenderInfoRequestTimer().resetWithExpiry(SECS_BETWEEN_REGION_REQUEST);
 
 		// First send a request to get the latest data
         std::string coroname =

@@ -57,6 +57,11 @@
 			Streaming in tempo reale
 		</label>
 	</scheme>
+	<scheme name="example">
+		<label name="example_label">
+			Tasto di comando schema plugin di esempio
+		</label>
+	</scheme>
 	<scheme name="libvlc">
 		<label name="libvlc_label">
 			Media supportati da LibVLC

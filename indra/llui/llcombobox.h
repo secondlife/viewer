@@ -126,6 +126,7 @@ public:
 	virtual LLSD	getValue() const;
 
 	void			setTextEntry(const LLStringExplicit& text);
+	void			setKeystrokeOnEsc(BOOL enable);
 
 	LLScrollListItem*	add(const std::string& name, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);	// add item "name" to menu
 	LLScrollListItem*	add(const std::string& name, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
