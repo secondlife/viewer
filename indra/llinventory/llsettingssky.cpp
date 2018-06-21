@@ -37,19 +37,20 @@ namespace
 {
     LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_SKYVALUES("Update Sky Environment");    
-
-    const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
-    const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
-    const LLVector3 DUE_EAST = LLVector3::x_axis;
-
-    LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
-    {
-        LLQuaternion quat;
-        quat.setEulerAngles(0.0f, -altitude, azimuth);
-        return quat;
-    }
-
 }
+
+static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
+static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+static const LLVector3 DUE_EAST = LLVector3::x_axis;
+static const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
+
+static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
+{
+    LLQuaternion quat;
+    quat.setEulerAngles(0.0f, -altitude, azimuth);
+    return quat;
+}
+
 
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
@@ -389,14 +390,20 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     llassert(getSettingsType() == end->getSettingsType());
 
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
-    LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+    if (other)
+    {
+        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+        replaceSettings(blenddata);
+        mNextSunTextureId = other->getSunTextureId();
+        mNextMoonTextureId = other->getMoonTextureId();
+        mNextCloudTextureId = other->getCloudNoiseTextureId();
+    }
+    else
+    {
+        LL_WARNS("SETTINGS") << "Could not cast end settings to sky. No blend performed." << LL_ENDL;
+    }
 
-    replaceSettings(blenddata);
-    
     setBlendFactor(blendf);
-    mNextSunTextureId = other->getSunTextureId();
-    mNextMoonTextureId = other->getMoonTextureId();
-    mNextCloudTextureId = other->getCloudNoiseTextureId();
 }
 
 LLSettingsSky::stringset_t LLSettingsSky::getSkipInterpolateKeys() const

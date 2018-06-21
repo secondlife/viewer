@@ -173,12 +173,19 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
     LLSettingsWater::ptr_t other = PTR_NAMESPACE::static_pointer_cast<LLSettingsWater>(end);
-    LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
-    
-    replaceSettings(blenddata);
+    if (other)
+    {
+        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+        replaceSettings(blenddata);
+        mNextNormalMapID = other->getNormalMapID();
+        mNextTransparentTextureID = other->getTransparentTextureID();
+    }
+    else
+    {
+        LL_WARNS("SETTINGS") << "Cound not cast end settings to water. No blend performed." << LL_ENDL;
+    }
     setBlendFactor(blendf);
     mNextNormalMapID = other->getNormalMapID();
-    mNextTransparentTextureID = other->getTransparentTextureID();
 }
 
 LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const
