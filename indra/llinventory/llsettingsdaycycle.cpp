@@ -285,52 +285,51 @@ bool LLSettingsDay::initialize()
 //=========================================================================
 LLSD LLSettingsDay::defaults()
 {
-    LLSD dfltsetting;
+    static LLSD dfltsetting;
 
-    dfltsetting[SETTING_NAME] = "_default_";
-
-    LLSD frames(LLSD::emptyMap());
-    LLSD waterTrack;
-    LLSD skyTrack;
-
-    
-    const U32 FRAME_COUNT = 8;
-    const F32 FRAME_STEP  = 1.0f / F32(FRAME_COUNT);
-    F32 time = 0.0f;
-    for (U32 i = 0; i < FRAME_COUNT; i++)
+    if (dfltsetting.size() == 0)
     {
-        std::string name("_default_");
-        name += ('a' + i);
+        dfltsetting[SETTING_NAME] = "_default_";
+        dfltsetting[SETTING_TYPE] = "daycycle";
 
-        std::string water_frame_name("water:");
-        std::string sky_frame_name("sky:");
-
-        water_frame_name += name;
-        sky_frame_name   += name;
-
-        waterTrack[SETTING_KEYKFRAME] = time;
-        waterTrack[SETTING_KEYNAME]   = water_frame_name;
-
-        skyTrack[SETTING_KEYKFRAME] = time;
-        skyTrack[SETTING_KEYNAME]   = sky_frame_name;
-
-        frames[water_frame_name] = LLSettingsWater::defaults(time);
-        frames[sky_frame_name]   = LLSettingsSky::defaults(time);
-
-        time += FRAME_STEP;
-    }
-
-    LLSD tracks;
-    tracks.append(LLSDArray(waterTrack));
-    tracks.append(LLSDArray(skyTrack));
-
-    dfltsetting[SETTING_TRACKS] = tracks;
+        LLSD frames(LLSD::emptyMap());
+        LLSD waterTrack;
+        LLSD skyTrack;
 
     
+        const U32 FRAME_COUNT = 8;
+        const F32 FRAME_STEP  = 1.0f / F32(FRAME_COUNT);
+        F32 time = 0.0f;
+        for (U32 i = 0; i < FRAME_COUNT; i++)
+        {
+            std::string name("_default_");
+            name += ('a' + i);
 
-    dfltsetting[SETTING_FRAMES] = frames;
+            std::string water_frame_name("water:");
+            std::string sky_frame_name("sky:");
 
-    dfltsetting[SETTING_TYPE] = "daycycle";
+            water_frame_name += name;
+            sky_frame_name   += name;
+
+            waterTrack[SETTING_KEYKFRAME] = time;
+            waterTrack[SETTING_KEYNAME]   = water_frame_name;
+
+            skyTrack[SETTING_KEYKFRAME] = time;
+            skyTrack[SETTING_KEYNAME]   = sky_frame_name;
+
+            frames[water_frame_name] = LLSettingsWater::defaults(time);
+            frames[sky_frame_name]   = LLSettingsSky::defaults(time);
+
+            time += FRAME_STEP;
+        }
+
+        LLSD tracks;
+        tracks.append(LLSDArray(waterTrack));
+        tracks.append(LLSDArray(skyTrack));
+
+        dfltsetting[SETTING_TRACKS] = tracks;
+        dfltsetting[SETTING_FRAMES] = frames;
+    }
 
     return dfltsetting;
 }

@@ -89,27 +89,30 @@ LLSettingsWater::LLSettingsWater() :
 //=========================================================================
 LLSD LLSettingsWater::defaults(const LLSettingsBase::TrackPosition& position)
 {
-    LLSD dfltsetting;
+    static LLSD dfltsetting;
 
-    // give the normal scale offset some variability over track time...
-    F32 normal_scale_offset = (position * 0.5f) - 0.25f;
+    if (dfltsetting.size() == 0)
+    {
+        // give the normal scale offset some variability over track time...
+        F32 normal_scale_offset = (position * 0.5f) - 0.25f;
 
-    // Magic constants copied form defaults.xml 
-    dfltsetting[SETTING_BLUR_MULTIPILER] = LLSD::Real(0.04000f);
-    dfltsetting[SETTING_FOG_COLOR] = LLColor3(0.0156f, 0.1490f, 0.2509f).getValue();
-    dfltsetting[SETTING_FOG_DENSITY] = LLSD::Real(2.0f);
-    dfltsetting[SETTING_FOG_MOD] = LLSD::Real(0.25f);
-    dfltsetting[SETTING_FRESNEL_OFFSET] = LLSD::Real(0.5f);
-    dfltsetting[SETTING_FRESNEL_SCALE] = LLSD::Real(0.3999);
-    dfltsetting[SETTING_TRANSPARENT_TEXTURE] = GetDefaultTransparentTextureAssetId();
-    dfltsetting[SETTING_NORMAL_MAP] = GetDefaultWaterNormalAssetId();
-    dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f + normal_scale_offset, 2.0f + normal_scale_offset, 2.0f + normal_scale_offset).getValue();
-    dfltsetting[SETTING_SCALE_ABOVE] = LLSD::Real(0.0299f);
-    dfltsetting[SETTING_SCALE_BELOW] = LLSD::Real(0.2000f);
-    dfltsetting[SETTING_WAVE1_DIR] = LLVector2(1.04999f, -0.42000f).getValue();
-    dfltsetting[SETTING_WAVE2_DIR] = LLVector2(1.10999f, -1.16000f).getValue();
+        // Magic constants copied form defaults.xml 
+        dfltsetting[SETTING_BLUR_MULTIPILER] = LLSD::Real(0.04000f);
+        dfltsetting[SETTING_FOG_COLOR] = LLColor3(0.0156f, 0.1490f, 0.2509f).getValue();
+        dfltsetting[SETTING_FOG_DENSITY] = LLSD::Real(2.0f);
+        dfltsetting[SETTING_FOG_MOD] = LLSD::Real(0.25f);
+        dfltsetting[SETTING_FRESNEL_OFFSET] = LLSD::Real(0.5f);
+        dfltsetting[SETTING_FRESNEL_SCALE] = LLSD::Real(0.3999);
+        dfltsetting[SETTING_TRANSPARENT_TEXTURE] = GetDefaultTransparentTextureAssetId();
+        dfltsetting[SETTING_NORMAL_MAP] = GetDefaultWaterNormalAssetId();
+        dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f + normal_scale_offset, 2.0f + normal_scale_offset, 2.0f + normal_scale_offset).getValue();
+        dfltsetting[SETTING_SCALE_ABOVE] = LLSD::Real(0.0299f);
+        dfltsetting[SETTING_SCALE_BELOW] = LLSD::Real(0.2000f);
+        dfltsetting[SETTING_WAVE1_DIR] = LLVector2(1.04999f, -0.42000f).getValue();
+        dfltsetting[SETTING_WAVE2_DIR] = LLVector2(1.10999f, -1.16000f).getValue();
 
-    dfltsetting[SETTING_TYPE] = "water";
+        dfltsetting[SETTING_TYPE] = "water";
+    }
 
     return dfltsetting;
 }

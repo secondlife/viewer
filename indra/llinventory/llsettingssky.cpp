@@ -40,7 +40,7 @@ static const LLVector3 DUE_EAST = LLVector3::x_axis;
 static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
 {
     LLQuaternion quat;
-    quat.setEulerAngles(0.0f, -altitude, azimuth);
+    quat.setEulerAngles(0.0f, altitude, azimuth);
     return quat;
 }
 
@@ -585,53 +585,57 @@ LLSD LLSettingsSky::mieConfigDefault()
 
 LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
 {
-    LLSD dfltsetting;
-    LLQuaternion sunquat;
-    LLQuaternion moonquat;
+    static LLSD dfltsetting;
 
-    F32 azimuth  = (F_PI * position) + (80.0f * DEG_TO_RAD);
-    F32 altitude = (F_PI * position);
+    if (dfltsetting.size() == 0)
+    {
+        LLQuaternion sunquat;
+        LLQuaternion moonquat;
 
-    // give the sun and moon slightly different tracks through the sky
-    // instead of positioning them at opposite poles from each other...
-    sunquat  = convert_azimuth_and_altitude_to_quat(altitude,                   azimuth);
-    moonquat = convert_azimuth_and_altitude_to_quat(altitude + (F_PI * 0.125f), azimuth + (F_PI * 0.125f));
+        F32 azimuth  = (F_PI * position) + (80.0f * DEG_TO_RAD);
+        F32 altitude = (F_PI * position);
 
-    // Magic constants copied form dfltsetting.xml 
-    dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
-    dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
-    dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
-    dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
-    dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(10.1999)(10.0109);
-    dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
+        // give the sun and moon slightly different tracks through the sky
+        // instead of positioning them at opposite poles from each other...
+        sunquat  = convert_azimuth_and_altitude_to_quat(altitude,                   azimuth);
+        moonquat = convert_azimuth_and_altitude_to_quat(altitude + (F_PI * 0.125f), azimuth + (F_PI * 0.125f));
+
+        // Magic constants copied form dfltsetting.xml 
+        dfltsetting[SETTING_CLOUD_COLOR]        = LLColor4(0.4099, 0.4099, 0.4099, 0.0).getValue();
+        dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
+        dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
+        dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
+        dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(10.1999)(10.0109);
+        dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
     
-    dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
-    dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
-    dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
-    dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();
+        dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
+        dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
+        dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
+        dfltsetting[SETTING_GLOW]               = LLColor4(5.000, 0.0010, -0.4799, 1.0).getValue();
     
-    dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
-    dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
-    dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(0.0000);
-    dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
-    dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
+        dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
+        dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
+        dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(0.0000);
+        dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
+        dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
-    dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
-    dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
-    dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
-    dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
+        dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
+        dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
+        dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
+        dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
 
-    dfltsetting[SETTING_TYPE] = "sky";
+        dfltsetting[SETTING_TYPE] = "sky";
 
-    // defaults are for earth...
-    dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
-    dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
-    dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
-    dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;    
+        // defaults are for earth...
+        dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
+        dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
+        dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
+        dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;    
 
-    dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
-    dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
-    dfltsetting[SETTING_ABSORPTION_CONFIG]  = absorptionConfigDefault();
+        dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
+        dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
+        dfltsetting[SETTING_ABSORPTION_CONFIG]  = absorptionConfigDefault();
+    }
 
     return dfltsetting;
 }
@@ -769,11 +773,17 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
     {   // convert the east and sun angles into a quaternion.
-        F32 azimuth  = legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
-        F32 altitude = legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
+        F32 two_pi   = F_PI * 2.0f;
 
+        // get counter-clockwise radian angle from clockwise legacy WL east angle...
+        F32 azimuth  = two_pi - legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
+
+        F32 altitude = legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
+        
         LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
-        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, altitude);
+
+        // original WL moon dir was diametrically opposed to the sun dir
+        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, -altitude);
 
         //LLVector3 sundir  = DUE_EAST * sunquat;
         //LLVector3 moondir = DUE_EAST * moonquat;
