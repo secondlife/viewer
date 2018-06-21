@@ -218,9 +218,17 @@ LLMeshFilePicker::LLMeshFilePicker(LLModelPreview* mp, S32 lod)
 		mLOD = lod;
 	}
 
-void LLMeshFilePicker::notify(const std::string& filename)
+void LLMeshFilePicker::notify(const std::vector<std::string>& filenames)
 {
-	mMP->loadModel(mFile, mLOD);
+	if (filenames.size() > 0)
+	{
+		mMP->loadModel(filenames[0], mLOD);
+	}
+	else
+	{
+		//closes floater
+		mMP->loadModel(std::string(), mLOD);
+	}
 }
 
 void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LLModel*& baseModelOut, LLMatrix4& matOut)

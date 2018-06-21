@@ -350,8 +350,8 @@ public:
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
 		BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
 	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
-	BOOL			isSnapshotLocSet() const { return ! sSnapshotDir.empty(); }
-	void			resetSnapshotLoc() const { sSnapshotDir.clear(); }
+	BOOL			isSnapshotLocSet() const;
+	void			resetSnapshotLoc() const;
 	BOOL			saveImageNumbered(LLImageFormatted *image, BOOL force_picker, BOOL& insufficient_memory);
 
 	// Reset the directory where snapshots are saved.
@@ -419,7 +419,7 @@ public:
 
 	bool getSystemUIScaleFactorChanged() { return mSystemUIScaleFactorChanged; }
 	static void showSystemUIScaleFactorChanged();
-	static std::string getLastSnapshotDir() { return sSnapshotDir; }
+	static std::string getLastSnapshotDir();
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
@@ -504,11 +504,6 @@ private:
 	boost::scoped_ptr<LLWindowListener> mWindowListener;
 	boost::scoped_ptr<LLViewerWindowListener> mViewerWindowListener;
 
-	static std::string sSnapshotBaseName;
-	static std::string sSnapshotDir;
-
-	static std::string sMovieBaseName;
-	
 	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 

@@ -29,7 +29,7 @@
 		Error de inicialización de gráficos. Actualiza tu controlador de gráficos.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -68,11 +68,11 @@ Memoria de textura: [TEXTURE_MEMORY]MB
 Tiempo de creación de VFS (caché): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Versión de J2C Decoder: [J2C_VERSION]
-Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
-Versión de CEF: [LIBCEF_VERSION]
-Versión de LibVLC: [LIBVLC_VERSION]
-Versión de Voice Server: [VOICE_VERSION]
+		Versión de descodificador J2C: [J2C_VERSION] 
+Versión del controlador audio: [AUDIO_DRIVER_VERSION] 
+[LIBCEF_VERSION] 
+Versión LibVLC: [LIBVLC_VERSION] 
+Versión del servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -1426,6 +1426,9 @@ http://secondlife.com/support para obtener ayuda sobre cómo solucionar este pro
 	</string>
 	<string name="InventoryNoMatchingItems">
 		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
+	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		¿No encuentras lo que buscas? Intenta [secondlife:///app/inventory/filters Show filters].
 	</string>
 	<string name="PlacesNoMatchingItems">
 		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/places/[SEARCH_TERM] Buscar].

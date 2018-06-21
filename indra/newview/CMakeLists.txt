@@ -202,7 +202,6 @@ set(viewer_SOURCE_FILES
     llflickrconnect.cpp
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
-    llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
@@ -826,7 +825,6 @@ set(viewer_HEADER_FILES
     llflickrconnect.h
     llfloaterabout.h
     llfloaterbvhpreview.h
-    llfloaterauction.h
     llfloaterautoreplacesettings.h
     llfloateravatar.h
     llfloateravatarpicker.h

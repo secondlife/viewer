@@ -292,7 +292,6 @@ void LLPanelVolume::getState( )
 	
 	if (is_light && editable && single_volume)
 	{
-		getChildView("label color")->setEnabled(true);
 		//mLabelColor		 ->setEnabled( TRUE );
 		LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		if(LightColorSwatch)
@@ -335,7 +334,6 @@ void LLPanelVolume::getState( )
 		getChild<LLSpinCtrl>("Light Radius", true)->clear();
 		getChild<LLSpinCtrl>("Light Falloff", true)->clear();
 
-		getChildView("label color")->setEnabled(false);	
 		LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		if(LightColorSwatch)
 		{
@@ -564,7 +562,6 @@ void LLPanelVolume::refresh()
 
 	BOOL visible = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 0 ? TRUE : FALSE;
 
-	getChildView("label texture")->setVisible( visible);
 	getChildView("Light FOV")->setVisible( visible);
 	getChildView("Light Focus")->setVisible( visible);
 	getChildView("Light Ambiance")->setVisible( visible);
@@ -605,9 +602,7 @@ void LLPanelVolume::clearCtrls()
 	getChildView("select_single")->setVisible(true);
 	getChildView("edit_object")->setEnabled(false);
 	getChildView("edit_object")->setVisible(false);
-	getChildView("Light Checkbox Ctrl")->setEnabled(false);
-	getChildView("label color")->setEnabled(false);
-	getChildView("label color")->setEnabled(false);
+	getChildView("Light Checkbox Ctrl")->setEnabled(false);;
 	LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 	if(LightColorSwatch)
 	{
