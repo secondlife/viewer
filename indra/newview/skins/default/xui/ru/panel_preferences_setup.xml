@@ -26,8 +26,9 @@
 		Обновления ПО:
 	</text>
 	<combo_box name="updater_service_combobox">
-		<combo_box.item label="Устанавливать автоматически" name="Install_automatically"/>
-		<combo_box.item label="Я буду загружать и устанавливать обновления вручную" name="Install_manual"/>
+		<combo_box.item label="Автоматическая установка каждого обновления" name="Install_automatically"/>
+		<combo_box.item label="Когда необязательное обновление будет готово к установке, запросите меня" name="Install_ask"/>
+		<combo_box.item label="Установка только обязательных обновлений" name="Install_manual"/>
 	</combo_box>
 	<check_box label="Устанавливать бета-версии" name="update_willing_to_test"/>
 	<check_box label="Показать заметки о выпуске после обновления" name="update_show_release_notes"/>

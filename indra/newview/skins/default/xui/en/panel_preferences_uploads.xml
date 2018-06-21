@@ -104,7 +104,7 @@
    height="12"
    layout="topleft"
    left="37"
-   name="title_animation"
+   name="title_model"
    top_pad="7"
    width="100">
     Models

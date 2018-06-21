@@ -80,28 +80,6 @@ void LLXfer_Mem::setXferSize (S32 xfer_size)
 
 ///////////////////////////////////////////////////////////
 
-U64 LLXfer_Mem::registerXfer(U64 xfer_id, const void *datap, const S32 length)
-{
-	mID = xfer_id;
-
-	if (datap)
-	{
-		setXferSize(length);
-		if (mBuffer)
-		{
-			memcpy(mBuffer,datap,length);		/* Flawfinder : ignore */
-			mBufferLength = length;
-		}
-		else
-		{
-			xfer_id = 0;
-		}
-	}
-	
-	mStatus = e_LL_XFER_REGISTERED;
-	return (xfer_id);
-}
-
 S32 LLXfer_Mem::startSend (U64 xfer_id, const LLHost &remote_host)
 {
 	S32 retval = LL_ERR_NOERR;  // presume success

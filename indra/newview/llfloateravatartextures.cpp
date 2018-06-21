@@ -78,7 +78,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 {
 	LLUUID id = IMG_DEFAULT_AVATAR;
 	const LLAvatarAppearanceDictionary::TextureEntry* tex_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture(te);
-	if (tex_entry->mIsLocalTexture)
+	if (tex_entry && tex_entry->mIsLocalTexture)
 	{
 		if (avatarp->isSelf())
 		{
@@ -96,7 +96,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 	}
 	else
 	{
-		id = avatarp->getTE(te)->getID();
+		id = tex_entry ? avatarp->getTE(te)->getID() : IMG_DEFAULT_AVATAR;
 	}
 	//id = avatarp->getTE(te)->getID();
 	if (id == IMG_DEFAULT_AVATAR)

@@ -253,7 +253,6 @@ BOOL	LLFloaterTools::postBuild()
 	mCheckStretchTexture	= getChild<LLCheckBoxCtrl>("checkbox stretch textures");
 	getChild<LLUICtrl>("checkbox stretch textures")->setValue((BOOL)gSavedSettings.getBOOL("ScaleStretchTextures"));
 	mComboGridMode			= getChild<LLComboBox>("combobox grid mode");
-	mCheckStretchUniformLabel = getChild<LLTextBox>("checkbox uniform label");
 
 	//
 	// Create Buttons
@@ -1214,7 +1213,7 @@ void LLFloaterTools::getMediaState()
 		  &&first_object->permModify() 
 	      ))
 	{
-		getChildView("Add_Media")->setEnabled(FALSE);
+		getChildView("add_media")->setEnabled(FALSE);
 		media_info->clear();
 		clearMediaSettings();
 		return;
@@ -1225,7 +1224,7 @@ void LLFloaterTools::getMediaState()
 	
 	if(!has_media_capability)
 	{
-		getChildView("Add_Media")->setEnabled(FALSE);
+		getChildView("add_media")->setEnabled(FALSE);
 		LL_WARNS("LLFloaterTools: media") << "Media not enabled (no capability) in this region!" << LL_ENDL;
 		clearMediaSettings();
 		return;
@@ -1320,7 +1319,7 @@ void LLFloaterTools::getMediaState()
 	// update UI depending on whether "object" (prim or face) has media
 	// and whether or not you are allowed to edit it.
 	
-	getChildView("Add_Media")->setEnabled(editable);
+	getChildView("add_media")->setEnabled(editable);
 	// IF all the faces have media (or all dont have media)
 	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
 	{
@@ -1342,10 +1341,7 @@ void LLFloaterTools::getMediaState()
 			media_title = multi_media_info_str;
 		}
 		
-		getChildView("media_tex")->setEnabled(bool_has_media && editable);
-		getChildView("edit_media")->setEnabled(bool_has_media && LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo && editable );
 		getChildView("delete_media")->setEnabled(bool_has_media && editable );
-		getChildView("add_media")->setEnabled(editable);
 			// TODO: display a list of all media on the face - use 'identical' flag
 	}
 	else // not all face has media but at least one does.
@@ -1367,10 +1363,7 @@ void LLFloaterTools::getMediaState()
 			}
 		}
 		
-		getChildView("media_tex")->setEnabled(TRUE);
-		getChildView("edit_media")->setEnabled(LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo);
 		getChildView("delete_media")->setEnabled(TRUE);
-		getChildView("add_media")->setEnabled(editable);
 	}
 
 	navigateToTitleMedia(media_title);

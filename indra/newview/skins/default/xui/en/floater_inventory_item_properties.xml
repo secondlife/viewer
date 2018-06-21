@@ -418,30 +418,5 @@
      width="90">
         N:
     </text-->
-        <!--text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="10"
-     name="SaleLabel"
-     top_pad="5"
-     width="330">
-        Mark Item:
-    </text-->
-
-    <!--text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="10"
-     name="TextPrice"
-     top_pad="5"
-     width="78">
-        Price: L$
-    </text-->
 
 </floater>
