@@ -7968,6 +7968,23 @@ void handle_web_browser_test(const LLSD& param)
 	LLWeb::loadURLInternal(url);
 }
 
+bool callback_clear_cache_immediately(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if ( option == 0 ) // YES
+	{
+		//clear cache
+		LLAppViewer::instance()->purgeCacheImmediate();
+	}
+
+	return false;
+}
+
+void handle_cache_clear_immediately()
+{
+	LLNotificationsUtil::add("ConfirmClearCache", LLSD(), LLSD(), callback_clear_cache_immediately);
+}
+
 void handle_web_content_test(const LLSD& param)
 {
 	std::string url = param.asString();
@@ -9016,6 +9033,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
 	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 	
+	//Develop (clear cache immediately)
+	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
+
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
 	view_listener_t::addMenu(new LLAdminHandleObjectOwnerSelf(), "Admin.HandleObjectOwnerSelf");

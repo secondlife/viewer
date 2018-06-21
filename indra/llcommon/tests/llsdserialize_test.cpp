@@ -513,19 +513,20 @@ namespace tut
 			const std::string& msg,
 			const std::string& in,
 			const LLSD& expected_value,
-			S32 expected_count)
+			S32 expected_count,
+			S32 depth_limit = -1)
 		{
 			std::stringstream input;
 			input.str(in);
 
 			LLSD parsed_result;
 			mParser->reset();	// reset() call is needed since test code re-uses mParser
-			S32 parsed_count = mParser->parse(input, parsed_result, in.size());
+			S32 parsed_count = mParser->parse(input, parsed_result, in.size(), depth_limit);
 			ensure_equals(msg.c_str(), parsed_result, expected_value);
 
 			// This count check is really only useful for expected
 			// parse failures, since the ensures equal will already
-			// require eqality.
+			// require equality.
 			std::string count_msg(msg);
 			count_msg += " (count)";
 			ensure_equals(count_msg, parsed_count, expected_count);
@@ -714,6 +715,43 @@ namespace tut
 			expected,
 			1);
 	}
+
+    template<> template<>
+    void TestLLSDXMLParsingObject::test<5>()
+    {
+        // test deeper nested levels
+        LLSD level_5 = LLSD::emptyMap();      level_5["level_5"] = 42.f;
+        LLSD level_4 = LLSD::emptyMap();      level_4["level_4"] = level_5;
+        LLSD level_3 = LLSD::emptyMap();      level_3["level_3"] = level_4;
+        LLSD level_2 = LLSD::emptyMap();      level_2["level_2"] = level_3;
+        LLSD level_1 = LLSD::emptyMap();      level_1["level_1"] = level_2;
+        LLSD level_0 = LLSD::emptyMap();      level_0["level_0"] = level_1;
+
+        LLSD v;
+        v["deep"] = level_0;
+
+        ensureParse(
+            "deep llsd xml map",
+            "<llsd><map>"
+            "<key>deep</key><map>"
+            "<key>level_0</key><map>"
+            "<key>level_1</key><map>"
+            "<key>level_2</key><map>"
+            "<key>level_3</key><map>"
+            "<key>level_4</key><map>"
+            "<key>level_5</key><real>42.0</real>"
+            "</map>"
+            "</map>"
+            "</map>"
+            "</map>"
+            "</map>"
+            "</map>"
+            "</map></llsd>",
+            v,
+            8);
+    }
+
+
 	/*
 	TODO:
 		test XML parsing
@@ -974,6 +1012,146 @@ namespace tut
 			LLSD(),
 			LLSDParser::PARSE_FAILURE);
 	}
+
+    template<> template<>
+    void TestLLSDNotationParsingObject::test<18>()
+    {
+        LLSD level_1 = LLSD::emptyMap();		level_1["level_2"] = 99;
+        LLSD level_0 = LLSD::emptyMap();		level_0["level_1"] = level_1;
+
+        LLSD deep = LLSD::emptyMap();
+        deep["level_0"] = level_0;
+
+        LLSD root = LLSD::emptyMap();
+        root["deep"] = deep;
+
+        ensureParse(
+            "nested notation 3 deep",
+            "{'deep' : {'level_0':{'level_1':{'level_2': i99} } } }",
+            root,
+            5,
+            5); // 4 '{' plus i99 also counts as llsd, so real depth is 5
+    }
+
+    template<> template<>
+    void TestLLSDNotationParsingObject::test<19>()
+    {
+        LLSD level_9 = LLSD::emptyMap();      level_9["level_9"] = (S32)99;
+        LLSD level_8 = LLSD::emptyMap();      level_8["level_8"] = level_9;
+        LLSD level_7 = LLSD::emptyMap();      level_7["level_7"] = level_8;
+        LLSD level_6 = LLSD::emptyMap();      level_6["level_6"] = level_7;
+        LLSD level_5 = LLSD::emptyMap();      level_5["level_5"] = level_6;
+        LLSD level_4 = LLSD::emptyMap();      level_4["level_4"] = level_5;
+        LLSD level_3 = LLSD::emptyMap();      level_3["level_3"] = level_4;
+        LLSD level_2 = LLSD::emptyMap();      level_2["level_2"] = level_3;
+        LLSD level_1 = LLSD::emptyMap();      level_1["level_1"] = level_2;
+        LLSD level_0 = LLSD::emptyMap();      level_0["level_0"] = level_1;
+
+        LLSD deep = LLSD::emptyMap();
+        deep["deep"] = level_0;
+
+        ensureParse(
+            "nested notation 10 deep",
+            "{'deep' : {'level_0':{'level_1':{'level_2':{'level_3':{'level_4':{'level_5':{'level_6':{'level_7':{'level_8':{'level_9':i99}"
+            "} } } } } } } } } }",
+            deep,
+            12,
+            15);
+    }
+
+    template<> template<>
+    void TestLLSDNotationParsingObject::test<20>()
+    {
+        LLSD end = LLSD::emptyMap();		  end["end"] = (S32)99;
+
+        LLSD level_49 = LLSD::emptyMap();     level_49["level_49"] = end;
+        LLSD level_48 = LLSD::emptyMap();     level_48["level_48"] = level_49;
+        LLSD level_47 = LLSD::emptyMap();     level_47["level_47"] = level_48;
+        LLSD level_46 = LLSD::emptyMap();     level_46["level_46"] = level_47;
+        LLSD level_45 = LLSD::emptyMap();     level_45["level_45"] = level_46;
+        LLSD level_44 = LLSD::emptyMap();     level_44["level_44"] = level_45;
+        LLSD level_43 = LLSD::emptyMap();     level_43["level_43"] = level_44;
+        LLSD level_42 = LLSD::emptyMap();     level_42["level_42"] = level_43;
+        LLSD level_41 = LLSD::emptyMap();     level_41["level_41"] = level_42;
+        LLSD level_40 = LLSD::emptyMap();     level_40["level_40"] = level_41;
+
+        LLSD level_39 = LLSD::emptyMap();     level_39["level_39"] = level_40;
+        LLSD level_38 = LLSD::emptyMap();     level_38["level_38"] = level_39;
+        LLSD level_37 = LLSD::emptyMap();     level_37["level_37"] = level_38;
+        LLSD level_36 = LLSD::emptyMap();     level_36["level_36"] = level_37;
+        LLSD level_35 = LLSD::emptyMap();     level_35["level_35"] = level_36;
+        LLSD level_34 = LLSD::emptyMap();     level_34["level_34"] = level_35;
+        LLSD level_33 = LLSD::emptyMap();     level_33["level_33"] = level_34;
+        LLSD level_32 = LLSD::emptyMap();     level_32["level_32"] = level_33;
+        LLSD level_31 = LLSD::emptyMap();     level_31["level_31"] = level_32;
+        LLSD level_30 = LLSD::emptyMap();     level_30["level_30"] = level_31;
+
+        LLSD level_29 = LLSD::emptyMap();     level_29["level_29"] = level_30;
+        LLSD level_28 = LLSD::emptyMap();     level_28["level_28"] = level_29;
+        LLSD level_27 = LLSD::emptyMap();     level_27["level_27"] = level_28;
+        LLSD level_26 = LLSD::emptyMap();     level_26["level_26"] = level_27;
+        LLSD level_25 = LLSD::emptyMap();     level_25["level_25"] = level_26;
+        LLSD level_24 = LLSD::emptyMap();     level_24["level_24"] = level_25;
+        LLSD level_23 = LLSD::emptyMap();     level_23["level_23"] = level_24;
+        LLSD level_22 = LLSD::emptyMap();     level_22["level_22"] = level_23;
+        LLSD level_21 = LLSD::emptyMap();     level_21["level_21"] = level_22;
+        LLSD level_20 = LLSD::emptyMap();     level_20["level_20"] = level_21;
+
+        LLSD level_19 = LLSD::emptyMap();     level_19["level_19"] = level_20;
+        LLSD level_18 = LLSD::emptyMap();     level_18["level_18"] = level_19;
+        LLSD level_17 = LLSD::emptyMap();     level_17["level_17"] = level_18;
+        LLSD level_16 = LLSD::emptyMap();     level_16["level_16"] = level_17;
+        LLSD level_15 = LLSD::emptyMap();     level_15["level_15"] = level_16;
+        LLSD level_14 = LLSD::emptyMap();     level_14["level_14"] = level_15;
+        LLSD level_13 = LLSD::emptyMap();     level_13["level_13"] = level_14;
+        LLSD level_12 = LLSD::emptyMap();     level_12["level_12"] = level_13;
+        LLSD level_11 = LLSD::emptyMap();     level_11["level_11"] = level_12;
+        LLSD level_10 = LLSD::emptyMap();     level_10["level_10"] = level_11;
+
+        LLSD level_9 = LLSD::emptyMap();      level_9["level_9"] = level_10;
+        LLSD level_8 = LLSD::emptyMap();      level_8["level_8"] = level_9;
+        LLSD level_7 = LLSD::emptyMap();      level_7["level_7"] = level_8;
+        LLSD level_6 = LLSD::emptyMap();      level_6["level_6"] = level_7;
+        LLSD level_5 = LLSD::emptyMap();      level_5["level_5"] = level_6;
+        LLSD level_4 = LLSD::emptyMap();      level_4["level_4"] = level_5;
+        LLSD level_3 = LLSD::emptyMap();      level_3["level_3"] = level_4;
+        LLSD level_2 = LLSD::emptyMap();      level_2["level_2"] = level_3;
+        LLSD level_1 = LLSD::emptyMap();      level_1["level_1"] = level_2;
+        LLSD level_0 = LLSD::emptyMap();      level_0["level_0"] = level_1;
+
+        LLSD deep = LLSD::emptyMap();
+        deep["deep"] = level_0;
+
+        ensureParse(
+            "nested notation deep",
+            "{'deep':"
+            "{'level_0' :{'level_1' :{'level_2' :{'level_3' :{'level_4' :{'level_5' :{'level_6' :{'level_7' :{'level_8' :{'level_9' :"
+            "{'level_10':{'level_11':{'level_12':{'level_13':{'level_14':{'level_15':{'level_16':{'level_17':{'level_18':{'level_19':"
+            "{'level_20':{'level_21':{'level_22':{'level_23':{'level_24':{'level_25':{'level_26':{'level_27':{'level_28':{'level_29':"
+            "{'level_30':{'level_31':{'level_32':{'level_33':{'level_34':{'level_35':{'level_36':{'level_37':{'level_38':{'level_39':"
+            "{'level_40':{'level_41':{'level_42':{'level_43':{'level_44':{'level_45':{'level_46':{'level_47':{'level_48':{'level_49':"
+            "{'end':i99}"
+            "} } } } } } } } } }"
+            "} } } } } } } } } }"
+            "} } } } } } } } } }"
+            "} } } } } } } } } }"
+            "} } } } } } } } } }"
+            "}",
+            deep,
+            53);
+    }
+
+    template<> template<>
+    void TestLLSDNotationParsingObject::test<21>()
+    {
+        ensureParse(
+            "nested notation 10 deep",
+            "{'deep' : {'level_0':{'level_1':{'level_2':{'level_3':{'level_4':{'level_5':{'level_6':{'level_7':{'level_8':{'level_9':i99}"
+            "} } } } } } } } } }",
+            LLSD(),
+            LLSDParser::PARSE_FAILURE,
+            9);
+    }
 
 	/**
 	 * @class TestLLSDBinaryParsing

@@ -4199,8 +4199,7 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermissionShort10">Control Camera</string>
   <string name="ExperiencePermissionShort11">Teleport</string>
   <string name="ExperiencePermissionShort12">Permission</string>
-  <string name="ExperiencePermissionShortUnknown">Unknown: [Permission]</string>
-  
+
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">
     Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.

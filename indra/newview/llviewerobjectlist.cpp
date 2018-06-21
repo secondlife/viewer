@@ -1046,9 +1046,11 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
         mPendingObjectCost.begin(), mPendingObjectCost.end(), 
         std::inserter(diff, diff.begin()));
 
+    mStaleObjectCost.clear();
+
     if (diff.empty())
     {
-        LL_INFOS() << "No outstanding object IDs to request." << LL_ENDL;
+        LL_INFOS() << "No outstanding object IDs to request. Pending count: " << mPendingObjectCost.size() << LL_ENDL;
         return;
     }
 
@@ -1057,7 +1059,6 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
     for (uuid_set_t::iterator it = diff.begin(); it != diff.end(); ++it)
     {
         idList.append(*it);
-        mStaleObjectCost.erase(*it);
     }
 
     mPendingObjectCost.insert(diff.begin(), diff.end());
@@ -1094,9 +1095,7 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
     {
         LLUUID objectId = it->asUUID();
 
-        // If the object was added to the StaleObjectCost set after it had been 
-        // added to mPendingObjectCost it would still be in the StaleObjectCost 
-        // set when we got the response back.
+        // Object could have been added to the mStaleObjectCost after request started
         mStaleObjectCost.erase(objectId);
         mPendingObjectCost.erase(objectId);
 
