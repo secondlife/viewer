@@ -356,6 +356,7 @@ void LLVoiceVisualizer::render()
 		//---------------------------------------------------------------
 		LLGLSPipelineAlpha alpha_blend;
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+		LLGLDisable gls_stencil(GL_STENCIL_TEST);
 		
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
