@@ -845,6 +845,7 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
     synchronizeTabs();
+    updateTabs();
     refresh();
 }
 
@@ -869,6 +870,7 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
     updateEditEnvironment();
     synchronizeTabs();
+    updateTabs();
     refresh();
 }
 

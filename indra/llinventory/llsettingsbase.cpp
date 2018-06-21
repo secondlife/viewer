@@ -580,10 +580,18 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
     }
     blendf = llclamp(blendf, 0.0f, 1.0f);
 
-    mTarget->replaceSettings(mInitial->getSettings());
-    if (!mFinal || (mInitial == mFinal) || (blendf == 0.0))
-    {   // this is a trivial blend.  Results will be identical to the initial.
-        return blendf;
+    if (mTarget)
+    {
+        mTarget->replaceSettings(mInitial->getSettings());
+        if (!mFinal || (mInitial == mFinal) || (blendf == 0.0))
+        {   // this is a trivial blend.  Results will be identical to the initial.
+            return blendf;
+        }
+        mTarget->blend(mFinal, blendf);
+    }
+    else
+    {
+        LL_WARNS("SETTINGS") << "No target for settings blender." << LL_ENDL;
     }
     mTarget->blend(mFinal, blendf);
 
@@ -592,7 +600,8 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
 
 void LLSettingsBlender::triggerComplete()
 {
-    mTarget->replaceSettings(mFinal->getSettings());
+    if (mTarget)
+        mTarget->replaceSettings(mFinal->getSettings());
     LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
     mOnFinished(shared_from_this());
 }
