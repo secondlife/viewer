@@ -389,7 +389,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
 
-	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
+	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(LLSettingsSky::GetDefaultBloomTextureId());
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -488,7 +488,7 @@ void LLVOSky::restoreGL()
         setMoonTextures(psky->getMoonTextureId(), psky->getNextMoonTextureId());
     }
 
-	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
+	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(LLSettingsSky::GetDefaultBloomTextureId());
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 

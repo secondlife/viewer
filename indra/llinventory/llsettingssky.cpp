@@ -33,13 +33,9 @@
 #include "v3colorutil.h"
 
 //=========================================================================
-namespace
-{
-
 static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
 static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
 static const LLVector3 DUE_EAST = LLVector3::x_axis;
-static const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
 
 static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
 {
@@ -1081,6 +1077,11 @@ LLUUID LLSettingsSky::GetDefaultMoonTextureId()
 LLUUID LLSettingsSky::GetDefaultCloudNoiseTextureId()
 {
     return DEFAULT_CLOUD_ID;
+}
+
+LLUUID LLSettingsSky::GetDefaultBloomTextureId()
+{
+    return IMG_BLOOM1;
 }
 
 F32 LLSettingsSky::getPlanetRadius() const

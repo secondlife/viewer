@@ -234,6 +234,7 @@ public:
     static LLUUID GetDefaultSunTextureId();
     static LLUUID GetDefaultMoonTextureId();
     static LLUUID GetDefaultCloudNoiseTextureId();
+    static LLUUID GetDefaultBloomTextureId();
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
