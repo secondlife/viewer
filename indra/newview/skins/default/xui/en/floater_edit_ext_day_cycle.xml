@@ -440,7 +440,7 @@
                 height="450"
                 width="700"
                 min_height="0"
-                visible="false">
+                visible="true">
             <tab_container
                     follows="all"
                     halign="left"
@@ -470,7 +470,7 @@
                 height="450"
                 width="700"
                 min_height="0"
-                visible="true">
+                visible="false">
             <tab_container
                     follows="all"
                     halign="left"
