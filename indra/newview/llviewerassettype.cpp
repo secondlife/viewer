@@ -85,6 +85,7 @@ LLViewerAssetDictionary::LLViewerAssetDictionary()
 	addEntry(LLViewerAssetType::AT_PERSON, 				new ViewerAssetEntry(DAD_PERSON));
 
 	addEntry(LLViewerAssetType::AT_NONE, 				new ViewerAssetEntry(DAD_NONE));
+    addEntry(LLViewerAssetType::AT_SETTINGS,            new ViewerAssetEntry(DAD_SETTINGS));
 };
 
 EDragAndDropType LLViewerAssetType::lookupDragAndDropType(EType asset_type)

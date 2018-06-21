@@ -388,7 +388,8 @@ public:
         mLastUpdate(0.0f),
         mTimeSpent(0.0f),
         mTimeDeltaThreshold(0.0f),
-        mTimeDeltaPassed(0.0f)
+        mTimeDeltaPassed(0.0f),
+        mIgnoreTimeDelta(false)
     {
         mTimeStart = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
@@ -422,6 +423,9 @@ public:
         return mTimeDeltaThreshold;
     }
 
+    inline void setIgnoreTimeDeltaThreshold(bool val) { mIgnoreTimeDelta = val; }
+    inline bool getIgnoreTimeDeltaThreshold() const { return mIgnoreTimeDelta; }
+
 protected:
     LLSettingsBase::BlendFactor calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const;
 
@@ -431,6 +435,7 @@ protected:
     LLSettingsBase::Seconds mTimeStart;
     LLSettingsBase::Seconds mTimeDeltaThreshold;
     LLSettingsBase::Seconds mTimeDeltaPassed;
+    bool                    mIgnoreTimeDelta;
 };
 
 

@@ -53,6 +53,9 @@
 #include "llsettingssky.h"
 #include "llenvironment.h"
 
+#include "lltrace.h"
+#include "llfasttimer.h"
+
 #undef min
 #undef max
 
@@ -73,6 +76,9 @@ static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 
 static const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
 static const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
+
+static LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATETIMER("VOSky Update Timer Tick");
+static LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATEFORCED("VOSky Update Forced");
 
 /***************************************
 		SkyTex
@@ -609,7 +615,7 @@ bool LLVOSky::updateSky()
 
 	if (mUpdateTimer.getElapsedTimeF32() > 0.025f)
 	{
-		mUpdateTimer.reset();
+        mUpdateTimer.reset();
 		const S32 frame = next_frame;
 
         mForceUpdate = mForceUpdate || (total_no_tiles == frame);
@@ -627,12 +633,14 @@ bool LLVOSky::updateSky()
 		direction.normalize();
 		const F32 dot_lighting = direction * mLastLightingDirection;
 
+        //_WARNS("LAPRAS") << " <" << direction.getValue() << "> dot <" << mLastLightingDirection << "> = " << dot_lighting << " (threshold is " << LIGHT_DIRECTION_THRESHOLD << ")" << LL_ENDL;
+
 		LLColor3 delta_color;
 		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
 							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
                             mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
 
-        bool light_direction_changed = (dot_lighting >= LIGHT_DIRECTION_THRESHOLD);
+        bool light_direction_changed = (dot_lighting < LIGHT_DIRECTION_THRESHOLD);
         bool color_changed = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
 
         mForceUpdate = mForceUpdate || light_direction_changed;
@@ -641,6 +649,8 @@ bool LLVOSky::updateSky()
 
 		if (mForceUpdate)
 		{
+            LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED)
+
 			LLSkyTex::stepCurrent();			
 		
 			if (!direction.isExactlyZero())

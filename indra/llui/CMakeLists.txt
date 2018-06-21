@@ -135,6 +135,7 @@ set(llui_SOURCE_FILES
     llviewereventrecorder.cpp
     llwindowshade.cpp
     llxuiparser.cpp
+    llxyvector.cpp
     )
     
 set(llui_HEADER_FILES
@@ -251,6 +252,7 @@ set(llui_HEADER_FILES
     llviewquery.h
     llwindowshade.h
     llxuiparser.h
+    llxyvector.h
     )
 
 set_source_files_properties(${llui_HEADER_FILES}

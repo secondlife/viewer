@@ -69,6 +69,8 @@
 #include "llvieweraudio.h"
 #include "llcorehttputil.h"
 
+#include "llenvironment.h"
+
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
 
 
@@ -1811,6 +1813,27 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			}
 		}//if gAudiop
 	};
+
+    if (LLEnvironment::instance().isExtendedEnvironmentEnabled())
+    {   
+        LL_WARNS("LAPRAS") << "TODO: Hey Rider! Fix this.  1) don't rerequest parcel information. 2) if sequent_id == -1 we are selecting a parcel.  Deal with that correctly." << LL_ENDL;
+
+        if (sequence_id == SELECTED_PARCEL_SEQ_ID)
+        {
+            LL_WARNS("LAPRAS") << "TODO: Hay Rider! Fix this.  Get environment for selected parcel." << LL_ENDL;
+        }
+        else if ((sequence_id == HOVERED_PARCEL_SEQ_ID) ||
+            (sequence_id == COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID) ||
+            (sequence_id == COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID) ||
+            (sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID))
+        {
+            /*NoOp*/
+        }
+        else 
+        {
+            LLEnvironment::instance().requestParcel(local_id);
+        }
+    }
 }
 
 void LLViewerParcelMgr::optionally_start_music(const std::string& music_url)

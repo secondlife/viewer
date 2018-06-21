@@ -125,6 +125,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mTextLeftEdge(0),		// computed in updateTextPadding() below
 	mTextRightEdge(0),		// computed in updateTextPadding() below
 	mCommitOnFocusLost( p.commit_on_focus_lost ),
+	mKeystrokeOnEsc(FALSE),
 	mRevertOnEsc( p.revert_on_esc ),
 	mKeystrokeCallback( p.keystroke_callback() ),
 	mIsSelecting( FALSE ),
@@ -1494,6 +1495,10 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		{
 			setText(mPrevText);
 			// Note, don't set handled, still want to loose focus (won't commit becase text is now unchanged)
+			if (mKeystrokeOnEsc)
+			{
+				onKeystroke();
+			}
 		}
 		break;
 		

@@ -678,6 +678,9 @@ Consultar [_URL] para mais informações?
 		</url>
 		<usetemplate ignoretext="O hardware do meu computador não é suportado" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="RunLauncher">
+		Não executar diretamente o visualizador executável. Atualizar quaisquer atalhos existentes para executar o SL_Launcher.
+	</notification>
 	<notification name="OldGPUDriver">
 		Provavelmente, há um driver mais recente para o seu chip gráfico.  A atualização dos drivers gráficos pode melhorar significativamente o desempenho.
 
@@ -1572,156 +1575,13 @@ Por favor, ponha o objeto à venda e tente novamente.
 		Download do arquivo de terreno RAW concluído em:
 [DOWNLOAD_PATH]
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Baixe a atualização para usar o [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadWindows">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Baixe a atualização para usar o [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Baixar"/>
-	</notification>
-	<notification name="DownloadLinux">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Baixar"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Baixar"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Baixe a atualização para usar o [APP_NAME].
-
-Salvar na pasta Aplicativos?
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadMac">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador. 
-
-Salvar na pasta Aplicativos?
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador. 
-
-Salvar na pasta Aplicativos?
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Ocorreu um erro de atualização do visualizador. 
-Baixe e instale a versão mais recente do visualizador em 
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		Versão [VERSION] é obrigatório para efetuar login. Isto deveria ter sido atualizado por você, mas aparentemente não foi. Baixe a versão mais recente em https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Não foi possível instalar uma atualização necessária. 
-Não será possível acessar a sua conta até que você atualize o [APP_NAME].
-
-Baixe e instale a versão mais recente do visualizador em 
-http://secondlife.com/download.
+	<notification name="LoginFailedUnknown">
+		Desculpe, motivo de falha de login desconhecido. Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 		<usetemplate name="okbutton" yestext="Sair"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		A instalação do Second Life requer uma atualização.
-
-Baixe a atualização em http://www.secondlife.com/downloads
-ou você pode instalar a instalação agora.
-		<usetemplate name="okcancelbuttons" notext="Sair do Second Life" yestext="Baixar e instalar agora"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		O software requer uma atualização que já foi baixada.
-Versão [VERSION] Informação [[INFO_URL] sobre essa atualização]
-
-Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-Informação [[INFO_URL] sobre essa atualização]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION] 
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte [[INFO_URL] para obter mais detalhes sobre essa atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION]
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte a informação [[INFO_URL] sobre essa atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		O software requer uma atualização que já foi baixada.
-Versão [VERSION]
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte a informação [[INFO_URL] sobre essa atualização]
-
-Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte a informação [[INFO_URL] sobre essa atualização]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Uma atualização está disponível!
-O download está ocorrendo em segundo plano e reiniciaremos seu visualizador automaticamente para terminar a instalação assim que ele estiver concluído.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Uma atualização foi baixada. Ela será instalada durante a reinicialização.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Erro ao verificar atualizações.
-Tente novamente mais tarde.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Seu visualizador está atualizado!
-Se você estiver muito ansioso para experimentar os novos recursos e correções, consulte a página de visualizadores alternativos. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Delegar este objeto causará ao grupo:
@@ -3498,6 +3358,10 @@ Verifique a configuração da sua rede e firewall.
 Desativar qualquer configuração SIP ALG em seu router. 
 
 Talvez não seja possível se comunicar via voz.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Estamos tendo problemas de conexão com o seu servidor de voz: Talvez não seja possível se comunicar via voz. Verifique a configuração da sua rede e firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

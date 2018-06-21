@@ -45,7 +45,6 @@
 #include "llcombobox.h"
 #include "llfloaterreg.h"
 #include "llfloateravatarpicker.h"
-#include "llfloaterauction.h"
 #include "llfloatergroups.h"
 #include "llfloaterscriptlimits.h"
 #include "llavataractions.h"
@@ -80,6 +79,7 @@
 #include "llpanelexperiencepicker.h"
 #include "llpanelenvironment.h"
 #include "llexperiencecache.h"
+#include "llweb.h"
 
 #include "llgroupactions.h"
 #include "llenvironment.h"
@@ -574,7 +574,6 @@ void LLPanelLandGeneral::refresh()
 
 	mBtnDeedToGroup->setEnabled(FALSE);
 	mBtnSetGroup->setEnabled(FALSE);
-	mBtnStartAuction->setEnabled(FALSE);
 
 	mCheckDeedToGroup	->set(FALSE);
 	mCheckDeedToGroup	->setEnabled(FALSE);
@@ -672,7 +671,6 @@ void LLPanelLandGeneral::refresh()
 			mTextClaimDate->setEnabled(FALSE);
 			mTextGroup->setText(getString("none_text"));
 			mTextGroup->setEnabled(FALSE);
-			mBtnStartAuction->setEnabled(FALSE);
 		}
 		else
 		{
@@ -724,11 +722,6 @@ void LLPanelLandGeneral::refresh()
 			LLStringUtil::format (claim_date_str, substitution);
 			mTextClaimDate->setText(claim_date_str);
 			mTextClaimDate->setEnabled(is_leased);
-
-			BOOL enable_auction = (gAgent.getGodLevel() >= GOD_LIAISON)
-								  && (owner_id == GOVERNOR_LINDEN_ID)
-								  && (parcel->getAuctionID() == 0);
-			mBtnStartAuction->setEnabled(enable_auction);
 		}
 
 		// Display options
@@ -1056,20 +1049,8 @@ void LLPanelLandGeneral::onClickBuyPass(void* data)
 // static
 void LLPanelLandGeneral::onClickStartAuction(void* data)
 {
-	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
-	LLParcel* parcelp = panelp->mParcel->getParcel();
-	if(parcelp)
-	{
-		if(parcelp->getForSale())
-		{
-			LLNotificationsUtil::add("CannotStartAuctionAlreadyForSale");
-		}
-		else
-		{
-			//LLFloaterAuction::showInstance();
-			LLFloaterReg::showInstance("auction");
-		}
-	}
+	std::string auction_url = "https://places.[GRID]/auctions/";
+	LLWeb::loadURLExternal(LLWeb::expandURLSubstitutions(auction_url, LLSD()));
 }
 
 // static
