@@ -289,6 +289,7 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
   public: 
 	LLFloaterPreferenceGraphicsAdvanced(const LLSD& key);
 	~LLFloaterPreferenceGraphicsAdvanced();
+	/*virtual*/ BOOL postBuild();
 	void onOpen(const LLSD& key);
 	void onClickCloseBtn(bool app_quitting);
 	void disableUnavailableSettings();

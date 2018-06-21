@@ -107,13 +107,11 @@ private:
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 
-	LLView		*mBtnStats;
 	LLIconCtrl	*mIconPresetsCamera;
 	LLIconCtrl	*mIconPresetsGraphic;
 	LLButton	*mBtnVolume;
 	LLTextBox	*mBoxBalance;
 	LLButton	*mMediaToggle;
-	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
 
 	S32				mBalance;

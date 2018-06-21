@@ -779,6 +779,14 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	if (obj)
 	{
+		
+		items.push_back(std::string("Copy Separator"));
+		items.push_back(std::string("Copy"));
+		if (!isItemCopyable())
+		{
+			disabled_items.push_back(std::string("Copy"));
+		}
+
 		if (obj->getIsLinkType())
 		{
 			items.push_back(std::string("Find Original"));
@@ -820,13 +828,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				{
 					disabled_items.push_back(std::string("Copy Asset UUID"));
 				}
-			}
-			items.push_back(std::string("Copy Separator"));
-			
-			items.push_back(std::string("Copy"));
-			if (!isItemCopyable())
-			{
-				disabled_items.push_back(std::string("Copy"));
 			}
 
 			items.push_back(std::string("Cut"));
@@ -2100,12 +2101,6 @@ BOOL LLItemBridge::isItemCopyable() const
 	{
 		// Can't copy worn objects. DEV-15183
 		if(get_is_item_worn(mUUID))
-		{
-			return FALSE;
-		}
-
-		// You can never copy a link.
-		if (item->getIsLinkType())
 		{
 			return FALSE;
 		}
@@ -3811,6 +3806,11 @@ void LLFolderBridge::perform_pasteFromClipboard()
                                     // Stop pasting into the marketplace as soon as we get an error
                                     break;
                                 }
+                            }
+                            else if (item->getIsLinkType())
+                            {
+                                link_inventory_object(parent_id, item_id,
+                                    LLPointer<LLInventoryCallback>(NULL));
                             }
                             else
                             {
