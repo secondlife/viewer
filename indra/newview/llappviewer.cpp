@@ -1083,7 +1083,7 @@ bool LLAppViewer::init()
 	}
 
 	// MAINT-8305: If we're processing a SLURL, skip the launcher check.
-	if (gSavedSettings.getString("CmdLineLoginLocation").empty())
+	if (gSavedSettings.getString("CmdLineLoginLocation").empty() && !beingDebugged())
 	{
 		const char* PARENT = getenv("PARENT");
 		if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
