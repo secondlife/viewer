@@ -423,7 +423,7 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 			LLFloaterPerms::getEveryonePerms("Uploads"),
 			expected_upload_cost));
 
-		upload_new_resource(uploadInfo, NULL, NULL);
+		upload_new_resource(uploadInfo);
 	}
 }
 
