@@ -288,9 +288,7 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
 
     //invitation with any non-default group role, doesn't have newline characters at the end unlike simple invitations
     std::string invitation_desc = mNoticeTextExp->getValue().asString();
-    boost::regex pattern = boost::regex("\n\n$", boost::regex::perl|boost::regex::icase);
-    boost::match_results<std::string::const_iterator> matches;
-    if(!boost::regex_search(invitation_desc, matches, pattern))
+    if (invitation_desc.substr(invitation_desc.size() - 2) != "\n\n")
     {
         invitation_desc += "\n\n";
         mNoticeTextExp->setValue(invitation_desc);

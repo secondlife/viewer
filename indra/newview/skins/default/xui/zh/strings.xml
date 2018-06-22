@@ -38,7 +38,7 @@
 		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]位元)
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -79,7 +79,7 @@ VFS（快取）建立時間：[VFS_TIME]
 	<string name="AboutLibs">
 		J2C 解碼器版本： [J2C_VERSION]
 音效驅動程式版本： [AUDIO_DRIVER_VERSION]
-CEF版本：[LIBCEF_VERSION]
+[LIBCEF_VERSION]
 LibVLC版本：[LIBVLC_VERSION]N]
 語音伺服器版本： [VOICE_VERSION]
 	</string>
@@ -276,7 +276,7 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedPendingLogout">
 		系統正在處理你的登出。
-你的帳號要等到 [TIME] （太平洋時間）才可使用。
+請稍待一分鐘再試圖重新登入。
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		無法建立有效的時域。
@@ -1438,6 +1438,9 @@ http://secondlife.com/support 求助解決問題。
 	<string name="InventoryNoMatchingItems">
 		找不到你要找的嗎？ 請試試 [secondlife:///app/search/places/ 搜尋]。
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		找不到你要找的嗎？ 請試試[secondlife:///app/inventory/filters 顯示過濾器]。
+	</string>
 	<string name="PlacesNoMatchingItems">
 		找不到你要找的嗎？ 請試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。
 	</string>
@@ -1503,6 +1506,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		將資料夾拖曳到這個區域，即可在[[MARKETPLACE_DASHBOARD_URL] Marketplace]刊登出售。
+	</string>
+	<string name="InventoryItemsCount">
+		（[ITEMS_COUNT]個物項）
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		限量資料夾必須放在版本資料夾裡

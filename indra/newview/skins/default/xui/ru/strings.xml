@@ -38,7 +38,7 @@
 		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -77,11 +77,11 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Время создания VFS (кэш): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Версия декодера J2C: [J2C_VERSION]
-Версия драйвера звука: [AUDIO_DRIVER_VERSION]
-Версия CEF: [LIBCEF_VERSION]
-Версия LibVLC: [LIBVLC_VERSION]
-Версия голосового сервера: [VOICE_VERSION]
+		Версия декодера J2C: [J2C_VERSION] 
+Версия аудиодрайвера: [AUDIO_DRIVER_VERSION] 
+[LIBCEF_VERSION] 
+Версия LibVLC: [LIBVLC_VERSION] 
+Версия речевого сервера: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Потеряно пакетов: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -278,9 +278,8 @@ support@secondlife.com.
 		В ответ на запрос выхода симулятор возвратил сообщение о сбое.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		В системе выполняется выход для вашего аккаунта.
-Она будет недоступна до
-[TIME] по тихоокеанскому времени.
+		В системе выполняется выход для вашего аккаунта. 
+Подождите минуту перед повторным входом в систему.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Не удается создать допустимый сеанс.
@@ -1443,6 +1442,9 @@ support@secondlife.com.
 	<string name="InventoryNoMatchingItems">
 		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/all/[SEARCH_TERM] поиском].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Не нашли то, что искали? Попробуйте на [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/places/[SEARCH_TERM] поиском].
 	</string>
@@ -1508,6 +1510,9 @@ support@secondlife.com.
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Перетащите папки в эту область, чтобы выставить их на продажу в [[MARKETPLACE_DASHBOARD_URL] Торговом центре].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] предметов(а))
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		В папке версии должна быть папка запасов

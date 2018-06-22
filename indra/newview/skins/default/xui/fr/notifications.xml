@@ -684,6 +684,9 @@ Consulter [_URL] pour en savoir plus ?
 		</url>
 		<usetemplate ignoretext="Mon matériel n&apos;est pas pris en charge" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
+	<notification name="RunLauncher">
+		Veuillez ne pas exécuter la visionneuse directement. Actualiser tout raccourci existant pour lancer SL_Launcher
+	</notification>
 	<notification name="OldGPUDriver">
 		Il existe probablement un pilote plus récent pour votre puce graphique.  La mise à jour des pilotes graphiques est susceptible d’améliorer considérablement les performances.
 
@@ -1578,156 +1581,13 @@ Veuillez choisir un objet à vendre et réessayer.
 		Téléchargement du fichier de terrain raw effectué vers :
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		Une nouvelle version de [APP_NAME] est disponible.
-[MESSAGE]
-Pour utiliser [APP_NAME], vous devez télécharger cette mise à jour.
-		<usetemplate name="okcancelbuttons" notext="Quitter" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadWindows">
-		Une mise à jour de [APP_NAME] est disponible.
-[MESSAGE]
-Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure performance et plus de stabilité, nous vous recommandons de l&apos;installer.
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		Une mise à jour de [APP_NAME] est disponible.
-[MESSAGE]
-Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure performance et plus de stabilité, nous vous recommandons de l&apos;installer.
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		Une nouvelle version de [APP_NAME] est disponible.
-[MESSAGE]
-Pour utiliser [APP_NAME], vous devez télécharger cette mise à jour.
-		<usetemplate name="okcancelbuttons" notext="Quitter" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadLinux">
-		Une mise à jour de [APP_NAME] est disponible.
-[MESSAGE]
-Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure performance et plus de stabilité, nous vous recommandons de l&apos;installer.
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		Une mise à jour de [APP_NAME] est disponible.
-[MESSAGE]
-Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure performance et plus de stabilité, nous vous recommandons de l&apos;installer.
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		Une nouvelle version de [APP_NAME] est disponible.
-[MESSAGE]
-Pour utiliser [APP_NAME], vous devez télécharger cette mise à jour.
-
-Télécharger vers le dossier Applications ?
-		<usetemplate name="okcancelbuttons" notext="Quitter" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadMac">
-		Une mise à jour de [APP_NAME] est disponible.
-[MESSAGE]
-Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure performance et plus de stabilité, nous vous recommandons de l&apos;installer.
-
-Télécharger vers le dossier Applications ?
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		Une mise à jour de [APP_NAME] est disponible.
-[MESSAGE]
-Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure performance et plus de stabilité, nous vous recommandons de l&apos;installer.
-
-Télécharger vers le dossier Applications ?
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Une erreur est survenue lors de l&apos;installation de la mise à jour du client.
-Veuillez télécharger et installer la dernière version du client à la page Web
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		La version [VERSION] est nécessaire pour vous connecter. Cette version aurait dû être mise à jour, mais visiblement, elle ne l&apos;a pas été. Veuillez télécharger la dernière version sur https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Impossible d&apos;installer une mise à jour requise. 
-Vous ne pourrez pas vous connecter tant que [APP_NAME] ne sera pas mis à jour.
-
-Veuillez télécharger et installer la dernière version du client à la page Web
-http://secondlife.com/download.
+	<notification name="LoginFailedUnknown">
+		Désolé, la connexion a échoué pour un raison non reconnue. Si ce message persiste, veuillez consulter la page [SUPPORT_SITE].
 		<usetemplate name="okbutton" yestext="Quitter"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		Une mise à jour requise pour votre installation Second Life existe.
-
-Pour la télécharger, accédez à http://www.secondlife.com/downloads.
-Vous pouvez également l&apos;installer dès maintenant.
-		<usetemplate name="okcancelbuttons" notext="Quitter Second Life" yestext="Télécharger et installer maintenant"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		Nous avons téléchargé une mise à jour de votre installation [APP_NAME].
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informations relatives à cette mise à jour]
-		<usetemplate name="okcancelbuttons" notext="Ultérieurement..." yestext="Installer maintenant et redémarrer [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		Nous avons téléchargé une mise à jour de votre installation [APP_NAME].
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informations relatives à cette mise à jour]
-		<usetemplate name="okcancelbuttons" notext="Ultérieurement..." yestext="Installer maintenant et redémarrer [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Nous avons téléchargé une mise à jour logicielle requise.
-Version [VERSION] [Informations au sujet de cette mise à jour [INFO_URL]]
-
-[APP_NAME] doit être redémarré pour que la mise à jour soit installée.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		[APP_NAME] doit être redémarré pour que la mise à jour soit installée.
-[Informations au sujet de cette mise à jour [INFO_URL]]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		Nous avons téléchargé une mise à jour de votre installation [APP_NAME].
-Version [VERSION] 
-Le client expérimental a été remplacé par un nouveau client [NEW_CHANNEL] ;
-consultez [[INFO_URL] pour en savoir plus sur cette mise à jour]
-		<usetemplate name="okcancelbuttons" notext="Ultérieurement..." yestext="Installer maintenant et redémarrer [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		Nous avons téléchargé une mise à jour de votre installation [APP_NAME].
-Version [VERSION]
-Le client expérimental a été remplacé par un nouveau client [NEW_CHANNEL] ;
-consultez [Informations au sujet de cette mise à jour [INFO_URL]]
-		<usetemplate name="okcancelbuttons" notext="Ultérieurement..." yestext="Installer maintenant et redémarrer [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		Nous avons téléchargé une mise à jour logicielle requise.
-Version [VERSION]
-Le client expérimental a été remplacé par un nouveau client [NEW_CHANNEL] ;
-consultez [Informations au sujet de cette mise à jour [INFO_URL]]
-
-[APP_NAME] doit être redémarré pour que la mise à jour soit installée.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		[APP_NAME] doit être redémarré pour que la mise à jour soit installée.
-Le client expérimental a été remplacé par un nouveau client [NEW_CHANNEL] ;
-consultez [Informations au sujet de cette mise à jour [INFO_URL]]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Une mise à jour est disponible.
-Elle est en cours de téléchargement en arrière-plan et nous vous inviterons à redémarrer votre client pour terminer son installation dès qu’elle est prête.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Une mise à jour a été téléchargée. Elle sera installée au redémarrage.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Une erreur est survenue lors de la recherche de mises à jour.
-Veuillez réessayer ultérieurement.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Votre client est à jour.
-Si vous êtes impatients de découvrir les dernières fonctionnalités et corrections, consultez la page Autres clients. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Si vous cédez cet objet, le groupe :
@@ -2492,7 +2352,7 @@ Voulez-vous désactiver Ne pas déranger avant de terminer cette transaction ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] objets seront supprimés définitivement. Êtes-vous certain de vouloir supprimer le contenu de votre corbeille de manière permanente ?
+		[COUNT] les objets et les dossiers seront supprimés définitivement. Êtes-vous certain de vouloir supprimer le contenu de votre corbeille de manière permanente ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3498,12 +3358,22 @@ Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Problèmes de connexion à votre serveur vocal :
+		La connexion au serveur vocal est impossible : 
 
 [HOSTID]
 
+Les ports autorisés pour la voix sont :
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Veuillez vérifier la configuration de votre réseau et de votre pare-feu. 
+Veuillez désactiver toute  fonctionnalité SIP ALG dans votre routeur. 
+
 Aucune communication vocale n&apos;est disponible.
-Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Nous rencontrons des difficultés pour vous connecter à votre serveur vocal. Aucune communication vocale n&apos;est disponible. Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

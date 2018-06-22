@@ -38,8 +38,7 @@
 		Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]Bit) [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
 		Build-Konfiguration [BUILD_CONFIG]
@@ -79,7 +78,7 @@ Erstellungszeit VFS (Cache): [VFS_TIME]
 	<string name="AboutLibs">
 		J2C-Decoderversion: [J2C_VERSION]
 Audiotreiberversion: [AUDIO_DRIVER_VERSION]
-CEF-Version: [LIBCEF_VERSION]
+[LIBCEF_VERSION]
 LibVLC-Version: [LIBVLC_VERSION]
 Voice-Server-Version: [VOICE_VERSION]
 	</string>
@@ -278,9 +277,8 @@ Wenn Sie der Ansicht sind, dass Sie diese Meldung fälschlicherweise erhalten ha
 		Abmeldeanforderung führte zu einem Simulatorfehler.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Das System meldet Sie gerade ab.
-Ihr Konto ist erst ab
-[TIME] Pacific Time wieder verfügbar.
+		Das System meldet Sie gerade ab. 
+Bitte warten Sie eine Minute, bevor Sie sich erneut einloggen.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Es kann keine gültige Sitzung erstellt werden.
@@ -1446,6 +1444,9 @@ besuchen Sie bitte http://secondlife.com/support
 	<string name="InventoryNoMatchingItems">
 		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Sie haben nicht das Richtige gefunden? Versuchen Sie [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/places/[SEARCH_TERM] Suche].
 	</string>
@@ -1511,6 +1512,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Ziehen Sie Ordner in diesen Bereich, um sie im [[MARKETPLACE_DASHBOARD_URL] Marktplatz] zum Verkauf anzubieten.
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Artikel )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		Bestandsordner müssen in einem Versionsordner gespeichert sein

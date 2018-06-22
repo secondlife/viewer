@@ -159,9 +159,6 @@ BOOL LLPanelGroup::postBuild()
 	button = getChild<LLButton>("btn_chat");
 	button->setClickedCallback(onBtnGroupChatClicked, this);
 
-	button = getChild<LLButton>("btn_cancel");
-	button->setVisible(false);	button->setEnabled(true);
-
 	button = getChild<LLButton>("btn_refresh");
 	button->setClickedCallback(onBtnRefresh, this);
 
@@ -170,8 +167,6 @@ BOOL LLPanelGroup::postBuild()
 	childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
 
 	childSetCommitCallback("btn_create",boost::bind(&LLPanelGroup::onBtnCreate,this),NULL);
-	
-	childSetCommitCallback("btn_cancel",boost::bind(&LLPanelGroup::onBtnCancel,this),NULL);
 
 	LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
 	LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");
@@ -297,11 +292,6 @@ void LLPanelGroup::onBtnJoin()
 {
 	LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
 	LLGroupActions::join(mID);
-}
-
-void LLPanelGroup::onBtnCancel()
-{
-	onBackBtnClick();
 }
 
 void LLPanelGroup::changed(LLGroupChange gc)

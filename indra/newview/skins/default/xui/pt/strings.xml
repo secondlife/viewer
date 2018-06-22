@@ -29,7 +29,7 @@
 		Falha na inicialização dos gráficos. Atualize seu driver gráfico!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -68,10 +68,10 @@ Memória de textura: [TEXTURE_MEMORY]MB
 Tempo de criação de VFS (cache): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Versão do J2C Decoder: [J2C_VERSION]
+		Versão do J2C Decoder: [J2C_VERSION] 
 Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
-Versão de CEF: [LIBCEF_VERSION]
-Versão da LibVLC: [LIBVLC_VERSION]
+[LIBCEF_VERSION] 
+Versão do LibVLC: [LIBVLC_VERSION] 
 Versão do servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -248,7 +248,8 @@ Entre em contato com o suporte do Second Life para obter ajuda em http://support
 		Reação à solicitação de saída foi uma falha do simulador.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		O sistema está passando para o modo offline.  Sua conta não está disponível para acesso até [TIME], horário do Pacífico nos EUA (GMT-08).
+		O sistema o está desconectando no momento. 
+Aguarde um minuto antes que tentar logar-se novamente.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Impossível criar sessão válida.
@@ -1394,6 +1395,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	<string name="InventoryNoMatchingItems">
 		Não encontrou o que procura? Tente buscar no [secondlife:///app/search/people/[SEARCH_TERM] Search].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Não encontrou o que procura? Tente [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Não encontrou o que procura? Tente buscar no [secondlife:///app/search/groups/[SEARCH_TERM] Search].
 	</string>
@@ -1459,6 +1463,9 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Arraste pastas para esta área para listá-las para venda no [Marketplace [MARKETPLACE_DASHBOARD_URL]].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Items )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		a pasta de estoque deve estar em uma pasta de versões

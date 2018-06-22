@@ -545,7 +545,7 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 {
 	// Generate an n-sided "circular" path.
 	// 0 is (1,0), and we go counter-clockwise along a circular path from there.
-	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
+	static const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
 	F32 scale = 0.5f;
 	F32 t, t_step, t_first, t_fraction, ang, ang_step;
 	LLVector4a pt1,pt2;
@@ -1304,7 +1304,7 @@ S32 LLPath::getNumNGonPoints(const LLPathParams& params, S32 sides, F32 startOff
 void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 {
 	// Generates a circular path, starting at (1, 0, 0), counterclockwise along the xz plane.
-	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
+	static const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
 
 	F32 revolutions = params.getRevolutions();
 	F32 skew		= params.getSkew();
@@ -1602,7 +1602,8 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			if (is_sculpted)
 				sides = llmax(sculpt_size, 1);
 			
-			genNGon(params, sides);
+			if (0 < sides)
+				genNGon(params, sides);
 		}
 		break;
 
@@ -2921,15 +2922,41 @@ F32 LLVolume::sculptGetSurfaceArea()
 	return area;
 }
 
-// create placeholder shape
-void LLVolume::sculptGeneratePlaceholder()
+// create empty placeholder shape
+void LLVolume::sculptGenerateEmptyPlaceholder()
 {
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
-	
+
 	S32 line = 0;
 
-	// for now, this is a sphere.
+	for (S32 s = 0; s < sizeS; s++)
+	{
+		for (S32 t = 0; t < sizeT; t++)
+		{
+			S32 i = t + line;
+			LLVector4a& pt = mMesh[i];
+					
+			F32* p = pt.getF32ptr();
+
+			p[0] = 0;
+			p[1] = 0;
+			p[2] = 0;
+
+			llassert(pt.isFinite3());
+		}
+		line += sizeT;
+	}
+}
+
+// create sphere placeholder shape
+void LLVolume::sculptGenerateSpherePlaceholder()
+{
+	S32 sizeS = mPathp->mPath.size();
+	S32 sizeT = mProfilep->mProfile.size();
+
+	S32 line = 0;
+
 	for (S32 s = 0; s < sizeS; s++)
 	{
 		for (S32 t = 0; t < sizeT; t++)
@@ -2937,12 +2964,12 @@ void LLVolume::sculptGeneratePlaceholder()
 			S32 i = t + line;
 			LLVector4a& pt = mMesh[i];
 
-			
-			F32 u = (F32)s/(sizeS-1);
-			F32 v = (F32)t/(sizeT-1);
+
+			F32 u = (F32)s / (sizeS - 1);
+			F32 v = (F32)t / (sizeT - 1);
 
 			const F32 RADIUS = (F32) 0.3;
-					
+
 			F32* p = pt.getF32ptr();
 
 			p[0] = (F32)(sin(F_PI * v) * cos(2.0 * F_PI * u) * RADIUS);
@@ -2950,7 +2977,6 @@ void LLVolume::sculptGeneratePlaceholder()
 			p[2] = (F32)(cos(F_PI * v) * RADIUS);
 
 			llassert(pt.isFinite3());
-
 		}
 		line += sizeT;
 	}
@@ -3113,9 +3139,9 @@ void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32
 }
 
 // sculpt replaces generate() for sculpted surfaces
-void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
+void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder)
 {
-    U8 sculpt_type = mParams.getSculptType();
+	U8 sculpt_type = mParams.getSculptType();
 
 	BOOL data_is_empty = FALSE;
 
@@ -3163,13 +3189,22 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 			if (area < SCULPT_MIN_AREA || area > SCULPT_MAX_AREA)
 			{
 				data_is_empty = TRUE;
+				visible_placeholder = true;
 			}
 		}
 	}
 
 	if (data_is_empty)
 	{
-		sculptGeneratePlaceholder();
+		if (visible_placeholder)
+		{
+			// Object should be visible since there will be nothing else to display
+			sculptGenerateSpherePlaceholder();
+		}
+		else
+		{
+			sculptGenerateEmptyPlaceholder();
+		}
 	}
 
 

@@ -400,12 +400,12 @@ void LLFloaterMove::initMovementMode()
 	{
 		initMovementMode = MM_FLY;
 	}
-	setMovementMode(initMovementMode);
+	
+	mCurrentMode = initMovementMode;
+	bool hide_mode_buttons = (MM_FLY == mCurrentMode) || (isAgentAvatarValid() && gAgentAvatarp->isSitting());
 
-	if (isAgentAvatarValid())
-	{
-		showModeButtons(!gAgentAvatarp->isSitting());
-	}
+	updateButtonsWithMovementMode(mCurrentMode);
+	showModeButtons(!hide_mode_buttons);
 }
 
 void LLFloaterMove::setModeTooltip(const EMovementMode mode)
@@ -716,9 +716,9 @@ void LLPanelStandStopFlying::updatePosition()
 		left_tb_width = toolbar_left->getRect().getWidth();
 	}
 
-	if (!mStateManagementButtons.get())
+	if (!mStateManagementButtons.get()) // Obsolete?!!
 	{
-		LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
+		LLPanel* panel_ssf_container = gToolBarView->getChild<LLPanel>("state_management_buttons_container");
 		if (panel_ssf_container)
 		{
 			mStateManagementButtons = panel_ssf_container->getHandle();

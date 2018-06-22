@@ -142,6 +142,9 @@ public:
 	void			setAllowNoTexture( BOOL b )					{ mAllowNoTexture = b; }
 	bool			getAllowNoTexture() const					{ return mAllowNoTexture; }
 
+	void			setAllowLocalTexture(BOOL b)					{ mAllowLocalTexture = b; }
+	BOOL			getAllowLocalTexture() const					{ return mAllowLocalTexture; }
+
 	const LLUUID&	getImageItemID() { return mImageItemID; }
 
 	virtual void	setImageAssetName(const std::string& name);
@@ -222,6 +225,7 @@ private:
 	LLTextBox*				 	mCaption;
 	std::string				 	mLabel;
 	BOOL					 	mAllowNoTexture; // If true, the user can select "none" as an option
+	BOOL						mAllowLocalTexture;
 	PermissionMask			 	mImmediateFilterPermMask;
 	PermissionMask				mDnDFilterPermMask;
 	PermissionMask			 	mNonImmediateFilterPermMask;

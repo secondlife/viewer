@@ -685,6 +685,9 @@ Daha fazla bilgi için [_URL] adresini ziyaret etmek ister misiniz?
 		</url>
 		<usetemplate ignoretext="Bilgisayar donanımım desteklenmiyor" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
+	<notification name="RunLauncher">
+		Lütfen çalıştırılabilir görüntüleyiciyi doğrudan çalıştırmayın. SL_Launcher&apos;ı çalıştırmak yerine tüm mevcut kısayolları güncelleyin.
+	</notification>
 	<notification name="OldGPUDriver">
 		Grafik yonganız için muhtemelen daha yeni bir sürücü mevcut.  Grafik sürücüleri güncellemek performansınızı kayda değer şekilde artırabilir.
 
@@ -1581,156 +1584,13 @@ Nesneyi satılık olarak ayarlayıp tekrar deneyin.
 		İşlenmemiş yüzey dosyasının şu konuma karşıdan yüklenmesi tamamlandı:
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		[APP_NAME] uygulamasının yeni bir sürümü mevcut.
-[MESSAGE]
-[APP_NAME] uygulamasını kullanabilmek için bu güncellemeyi karşıdan yüklemelisiniz.
-		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadWindows">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		[APP_NAME] uygulamasının yeni bir sürümü mevcut.
-[MESSAGE]
-[APP_NAME] uygulamasını kullanabilmek için bu güncellemeyi karşıdan yüklemelisiniz.
-		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadLinux">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		[APP_NAME] uygulamasının yeni bir sürümü mevcut.
-[MESSAGE]
-[APP_NAME] uygulamasını kullanabilmek için bu güncellemeyi karşıdan yüklemelisiniz.
-
-Uygulamalar klasörünüze karşıdan yüklensin mi?
-		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadMac">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-
-Uygulamalar klasörünüze karşıdan yüklensin mi?
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-
-Uygulamalar klasörünüze karşıdan yüklensin mi?
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Görüntüleyici güncellemesi yüklenirken bir hata oluştu.
-Lütfen en son görüntüleyiciyi şu adresten karşıdan yükleyin ve kurun: 
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		Oturum açma için [VERSION] sürümü gerekli. Bu sizin için güncellenmiş olmalıydı ancak görünüşe göre güncellenmemiş. Lütfen www.secondlife.com adresinden indirin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Gerekli bir güncellemeyi yükleyemedik. 
-[APP_NAME] güncellenene kadar oturum açamayacaksınız.
-
-Lütfen en son görüntüleyiciyi şu adresten karşıdan yükleyin ve kurun: 
-http://secondlife.com/download.
+	<notification name="LoginFailedUnknown">
+		Üzgünüz, oturum açma bilinmeyen bir nedenden dolayı başarısız oldu. Bu mesajı almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		<usetemplate name="okbutton" yestext="Çık"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		Second Life kurulumunuz için gerekli bir güncelleme var.
-
-Bu güncellemeyi http://www.secondlife.com/downloads adresinden karşıdan yükleyebilir
-veya şimdi kurabilirsiniz.
-		<usetemplate name="okcancelbuttons" notext="Second Life&apos;tan çık" yestext="Karşıdan yükle ve şimdi kur"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		[APP_NAME] kurulumunuz için bir güncellemeyi karşıdan yükledik.
-Sürüm [VERSION] [[RELEASE_NOTES_FULL_URL] Bu güncelleme hakkında ayrıntılı bilgi]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi kur ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		[APP_NAME] kurulumunuz için bir güncellemeyi karşıdan yükledik.
-Sürüm [VERSION] [[RELEASE_NOTES_FULL_URL] Bu güncelleme hakkında ayrıntılı bilgi]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi kur ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Gerekli bir yazılım güncellemesi indirdik.
-Sürüm [VERSION] [[INFO_URL] Bu güncelleme hakkında ayrıntılı bilgi]
-
-Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-[[INFO_URL] Bu güncelleme hakkında bilgi]
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		[APP_NAME] kurulumunuz için bir güncelleme indirdik.
-Sürüm [VERSION] 
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [bu güncelleme hakkında bilgi için [INFO_URL]]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi yükle ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		[APP_NAME] kurulumunuz için bir güncelleme indirdik.
-Sürüm [VERSION]
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi yükle ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		Gerekli bir yazılım güncellemesi indirdik.
-Sürüm [VERSION]
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
-
-Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Bir güncelleme mevcut.
-Şu anda arkaplanda indiriliyor ve hazır olduğunda yüklemeyi bitirmek için görüntüleyicinizi yeniden başlatmanız için sizi uyaracağız.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Bir güncelleme indirildi. Yeniden başlatma sırasında yüklenecek.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Güncelleme kontrolü yapılırken bir hata oluştu.
-Lütfen daha sonra tekrar deneyin.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Görüntüleyiciniz güncel.
-En yeni özellikleri ve düzeltmeleri görmek için sabırsızlanıyorsanız Alternatif Görüntüleyici sayfasına göz atın. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Bu nesnenin devredilmesi grubun şunu yapmasına sebep olacak:
@@ -2491,7 +2351,7 @@ Bu işlemi tamamlamadan önce Rahatsız Etme&apos;yi kapatmak ister misiniz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tamam"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] öğe kalıcı olarak silinecektir. Çöp kutunuzun içeriğini kalıcı olarak silmek istediğinize emin misiniz?
+		[COUNT] öğe ve klasör kalıcı olarak silinecektir. Çöp kutunuzun içeriğini kalıcı olarak silmek istediğinizden emin misiniz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tamam"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3497,12 +3357,22 @@ Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Ses sunucunuz ile bağlantı kurma konusunda sorun yaşıyoruz.
+		Ses sunucusuna bağlanamıyoruz: Ses için izin verilmesi gereken 
 
 [HOSTID]
 
-Ses bağlantıları kullanılamayacak.
-Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
+Portları:
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin. 
+Yönlendiricinizdeki her SIP ALG özelliğini devre dışı bırakın. 
+
+Sesli iletişim kullanılamayacak.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Ses sunucunuz ile bağlantı kurma konusunda sorun yaşıyoruz. Ses bağlantıları kullanılamayacak. Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

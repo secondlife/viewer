@@ -40,6 +40,25 @@
 #include "llworld.h"
 #include "pipeline.h"
 
+
+static LLVOAvatar* find_avatar(const LLUUID& id)
+{
+	LLViewerObject *obj = gObjectList.findObject(id);
+	while (obj && obj->isAttachment())
+	{
+		obj = (LLViewerObject *)obj->getParent();
+	}
+
+	if (obj && obj->isAvatar())
+	{
+		return (LLVOAvatar*)obj;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 LLViewerPartSource::LLViewerPartSource(const U32 type) :
 	mType(type),
 	mOwnerUUID(LLUUID::null),
@@ -113,6 +132,15 @@ void LLViewerPartSourceScript::update(const F32 dt)
 	if( mIsSuspended )
 		return;
 
+	if (mOwnerAvatarp.isNull() && mOwnerUUID != LLUUID::null)
+	{
+		mOwnerAvatarp = find_avatar(mOwnerUUID);
+	}
+	if (mOwnerAvatarp.notNull() && LLVOAvatar::AV_DO_NOT_RENDER == mOwnerAvatarp->getVisualMuteSettings())
+	{
+		return;
+	}
+			
 	F32 old_update_time = mLastUpdateTime;
 	mLastUpdateTime += dt;
 

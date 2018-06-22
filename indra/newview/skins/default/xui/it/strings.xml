@@ -35,7 +35,7 @@
 		Inizializzazione grafica non riuscita. Aggiorna il driver della scheda grafica!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -74,11 +74,10 @@ Memoria texture: [TEXTURE_MEMORY] MB
 Data/ora creazione VFS (cache): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Versione J2C Decoder: [J2C_VERSION]
-Versione Driver audio: [AUDIO_DRIVER_VERSION]
-Versione CEF: [LIBCEF_VERSION]
-Versione LibVLC: [LIBVLC_VERSION]
-Versione Server voice: [VOICE_VERSION]
+		J2C Versione decoder: [J2C_VERSION] 
+Versione del driver audio: [AUDIO_DRIVER_VERSION][LIBCEF_VERSION]
+Versione LibVLC: [LIBVLC_VERSION] 
+Versione server voce: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -275,9 +274,8 @@ Se ritieni che si tratta di un errore, contatta support@secondlife.com.
 		Errore del simulatore in seguito alla richiesta di logout.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Il sistema sta eseguendo il logout in questo momento.
-Il tuo account non sarà disponibile fino alle
-[TIME] fuso orario del Pacifico.
+		Il sistema sta eseguendo il logout in questo momento. 
+Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Non è possibile creare una sessione valida.
@@ -1437,6 +1435,9 @@ http://secondlife.com/support per risolvere il problema.
 	<string name="InventoryNoMatchingItems">
 		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all/[SEARCH_TERM] Cerca].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Non hai trovato ció che cercavi? Prova [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/places/[SEARCH_TERM] Cerca].
 	</string>
@@ -1502,6 +1503,9 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Trascina le cartelle in questa area per metterle in vendita su [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEM_COUNT] oggetti )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		la cartella di magazzino deve essere inclusa in una cartella di versione

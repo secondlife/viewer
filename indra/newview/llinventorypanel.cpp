@@ -1313,6 +1313,8 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
 
 void LLInventoryPanel::purgeSelectedItems()
 {
+    if (!mFolderRoot.get()) return;
+
     const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
     if (inventory_selected.empty()) return;
     LLSD args;
@@ -1333,6 +1335,8 @@ void LLInventoryPanel::purgeSelectedItems()
 
 void LLInventoryPanel::callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response)
 {
+    if (!mFolderRoot.get()) return;
+
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {
@@ -1445,14 +1449,16 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 //static
 void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL main_panel, BOOL take_keyboard_focus, BOOL reset_filter)
 {
-	LLInventoryPanel *active_panel;
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	sidepanel_inventory->showInventoryPanel();
+
 	bool in_inbox = (gInventory.isObjectDescendentOf(obj_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX)));
 
 	if (main_panel && !in_inbox)
 	{
-		LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory")->selectAllItemsPanel();
+		sidepanel_inventory->selectAllItemsPanel();
 	}
-	active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 
 	if (active_panel)
 	{
@@ -1465,7 +1471,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 
 		if (in_inbox)
 		{
-			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			
 			LLInventoryPanel * inventory_panel = NULL;
 			sidepanel_inventory->openInbox();
 			inventory_panel = sidepanel_inventory->getInboxPanel();

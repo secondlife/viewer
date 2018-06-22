@@ -29,7 +29,7 @@
 		Error de inicialización de gráficos. Actualiza tu controlador de gráficos.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -68,11 +68,11 @@ Memoria de textura: [TEXTURE_MEMORY]MB
 Tiempo de creación de VFS (caché): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Versión de J2C Decoder: [J2C_VERSION]
-Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
-Versión de CEF: [LIBCEF_VERSION]
-Versión de LibVLC: [LIBVLC_VERSION]
-Versión de Voice Server: [VOICE_VERSION]
+		Versión de descodificador J2C: [J2C_VERSION] 
+Versión del controlador audio: [AUDIO_DRIVER_VERSION] 
+[LIBCEF_VERSION] 
+Versión LibVLC: [LIBVLC_VERSION] 
+Versión del servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -269,9 +269,8 @@ Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
 		La solicitud de cierre de sesión ha obtenido como resultado un error del simulador.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		El sistema está cerrando tu sesión en estos momentos.
-Tu cuenta no estará disponible hasta las
-[HORA] (horario de la costa del Pacífico).
+		El sistema te desconectará. 
+Por favor, aguarda un momento antes de intentar conectarte nuevamente.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		No se ha podido crear una sesión válida.
@@ -1428,6 +1427,9 @@ http://secondlife.com/support para obtener ayuda sobre cómo solucionar este pro
 	<string name="InventoryNoMatchingItems">
 		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		¿No encuentras lo que buscas? Intenta [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/places/[SEARCH_TERM] Buscar].
 	</string>
@@ -1493,6 +1495,9 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Arrastra carpetas a esta sección para incluirlas en la lista de venta del [[MARKETPLACE_DASHBOARD_URL] Mercado].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Objetos)
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		La carpeta de stock debe estar contenida en una carpeta de versión

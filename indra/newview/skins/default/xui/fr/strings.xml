@@ -38,8 +38,8 @@
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
 		Configuration de la construction [BUILD_CONFIG]
@@ -77,11 +77,11 @@ Mémoire textures : [TEXTURE_MEMORY] Mo
 Durée de création VFS (cache) : [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Version J2C Decoder : [J2C_VERSION]
-Version Audio Driver : [AUDIO_DRIVER_VERSION]
-Version CEF : [LIBCEF_VERSION]
-Version LibVLC : [LIBVLC_VERSION]
-Version serveur vocal : [VOICE_VERSION]
+		J2C Decoder Version: [J2C_VERSION] 
+Audio Driver Version: [AUDIO_DRIVER_VERSION] 
+[LIBCEF_VERSION] 
+LibVLC Version: [LIBVLC_VERSION] 
+Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Paquets perdus : [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -278,9 +278,8 @@ Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assist
 		Le simulateur a renvoyé une erreur en réponse à la demande de déconnexion.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Le système est en train de vous déconnecter.
-Votre compte sera indisponible jusqu&apos;à
-[TIME], heure du Pacifique.
+		Le système est en train de vous déconnecter. 
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Impossible de créer de session valide.
@@ -1446,6 +1445,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	<string name="InventoryNoMatchingItems">
 		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/[SEARCH_TERM] Rechercher].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Avez-vous trouvé ce que vous cherchiez ? Essayez [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/[SEARCH_TERM] Rechercher].
 	</string>
@@ -1511,6 +1513,9 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone.
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] Articles )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		le dossier de stock doit être contenu dans un dossier de version

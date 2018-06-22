@@ -692,6 +692,9 @@ Weitere Informationen finden Sie auf [_URL].
 		</url>
 		<usetemplate ignoretext="Meine Hardware wird nicht unterstützt" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
+	<notification name="RunLauncher">
+		Bitte starten Sie die ausführbare Viewer-Datei nicht direkt. Aktualisieren Sie alle bestehenden Verknüpfungen, um stattdessen den LS_Launcher zu starten.
+	</notification>
 	<notification name="OldGPUDriver">
 		Wahrscheinlich gibt es einen neueren Treiber für Ihren Grafikchip.  Durch Aktualisieren der Grafiktreiber lässt sich die Leistung u. U. beträchtlich verbessern.
 
@@ -1595,153 +1598,13 @@ Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
 		Raw-Terrain-Datei wurde heruntergeladen nach:
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		Eine neue Version von [SUPPORT_SITE] ist verfügbar.
-[MESSAGE]
-Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
-		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadWindows">
-		Eine neue Version von [APP_NAME] ist verfügbar.
-[MESSAGE]
-Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		Eine neue Version von [APP_NAME] ist verfügbar.
-[MESSAGE]
-Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		Eine neue Version von [SUPPORT_SITE] ist verfügbar.
-[MESSAGE]
-Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
-		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadLinux">
-		Eine neue Version von [APP_NAME] ist verfügbar.
-[MESSAGE]
-Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		Eine neue Version von [APP_NAME] ist verfügbar.
-[MESSAGE]
-Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		Eine neue Version von [SUPPORT_SITE] ist verfügbar.
-[MESSAGE]
-Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
-
-In Ihren Anwendungsordner herunterladen?
-		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadMac">
-		Eine neue Version von [APP_NAME] ist verfügbar.
-[MESSAGE]
-Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
-
-In Ihren Anwendungsordner herunterladen?
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		Eine neue Version von [APP_NAME] ist verfügbar.
-[MESSAGE]
-Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
-
-In Ihren Anwendungsordner herunterladen?
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Beim Installieren des Viewer-Updates ist ein Fehler aufgetreten.
-Laden Sie den neuesten Viewer von http://secondlife.com/download herunter und installieren Sie ihn.
+	<notification name="RequiredUpdate">
+		Für die Anmeldung ist Version [VERSION] erforderlich. Diese sollte für Sie aktualisiert worden sein, was offenbar nicht geschehen ist. Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Ein erforderliches Update konnte nicht installiert werden. 
-Sie können sich erst anmelden, wenn [APP_NAME] aktualisiert wurde.
-
-Laden Sie den neuesten Viewer von http://secondlife.com/download herunter und installieren Sie ihn.
+	<notification name="LoginFailedUnknown">
+		Die Anmeldung ist aus nicht bekannten Gründen leider fehlgeschlagen. Falls diese Meldung weiterhin angezeigt wird, besuchen Sie bitte die [SUPPORT_SITE].
 		<usetemplate name="okbutton" yestext="Beenden"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		Für Ihre SecondLife-Installation ist ein Update erforderlich.
-
-Sie können dieses Update von http://www.secondlife.com/downloads herunterladen oder jetzt installieren.
-		<usetemplate name="okcancelbuttons" notext="Second Life beenden" yestext="Jetzt herunterladen und installieren"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informationen zu diesem Update]
-		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informationen zu diesem Update]
-		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Ein erforderliches Softwareupdate wurde heruntergeladen.
-Version [VERSION] [[INFO_URL] Infos zu diesem Update]
-
-Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
-[[INFO_URL] Infos zu diesem Update]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
-Version [VERSION] 
-Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
-weitere Details zu diesem Update finden Sie [[INFO_URL] hier].
-		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
-Version [VERSION]
-Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
-weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
-		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		Ein erforderliches Softwareupdate wurde heruntergeladen.
-Version [VERSION]
-Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
-weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
-
-Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
-Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
-weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Ein Update ist verfügbar.
-Es wird im Hintergrund heruntergeladen. Wenn der Download fertig ist, werden Sie aufgefordert, den Viewer neu zu starten, damit die Installation abgeschlossen werden kann.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Ein Update wurde heruntergeladen. Es wird beim Neustart installiert.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Beim Suchen nach einem Update ist ein Fehler aufgetreten.
-Versuchen Sie es später erneut.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Ihr Viewer ist auf dem neuesten Stand.
-Wenn Sie die neuesten Features und Fixes ausprobieren möchten, gehen Sie zur Seite „Alternate Viewers“. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Bei Übertragung dieses Objekts erhält die Gruppe:
@@ -2505,7 +2368,7 @@ Möchten Sie den Nicht-stören-Modus deaktivieren, bevor Sie diese Transaktion a
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] Objekte werden dauerhaft gelöscht. Möchten Sie den Inhalt Ihres Papierkorbs wirklich dauerhaft löschen?
+		[COUNT] Bestellungen und Ordner werden dauerhaft gelöscht. Sind Sie sicher, dass Sie den Inhalt Ihres Papierkorbs dauerhaft löschen möchten?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3511,12 +3374,22 @@ Bitte überprüfen Sie Ihre Netzwerk- und Firewalleinstellungen.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		Verbindung mit Voice-Server ist leider nicht möglich:
+		Wir können uns nicht mit dem Voice-Server verbinden: 
 
 [HOSTID]
 
-Voice-Kommunikation ist leider nicht verfügbar.
-Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
+Ports, die für Sprache erlaubt sein müssen, sind:
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Bitte überprüfen Sie Ihre Netzwerk- und Firewall-Einstellungen. 
+Deaktivieren Sie alle SIP-ALG-Funktionen in Ihrem Router. 
+
+Sprachkommunikation ist nicht möglich.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Es gibt Probleme mit der Verbindung zu Ihrem Voice-Server. Voice-Kommunikation ist leider nicht verfügbar. Überprüfen Sie Ihre Netzwerk- und Firewall-Konfiguration.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">

@@ -682,6 +682,9 @@ Visitare [_URL] per ulteriori informazioni?
 		</url>
 		<usetemplate ignoretext="L&apos;hardware di questo computer non è compatibile" name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
+	<notification name="RunLauncher">
+		Non avviare direttamente il viewer eseguibile. Aggiorna le scorciatoie attuali per avviare invece il Launcher_SL.
+	</notification>
 	<notification name="OldGPUDriver">
 		È probabile che ci sia un driver aggiornato per il processore grafico. L&apos;aggiornamento dei driver della grafica può migliorare le prestazioni in maniera significativa.
 
@@ -1581,156 +1584,13 @@ Imposta l&apos;oggetto per la vendita e riprova.
 		Hai terminato di scaricare il file del terreno nella cartella:
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		È disponibile una nuova versione di [APP_NAME].
-[MESSAGE]
-Devi scaricare questo aggiornamento per utilizzare [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Esci" yestext="Scarica l&apos;aggiornamento"/>
-	</notification>
-	<notification name="DownloadWindows">
-		È disponibile una versione aggiornata di [APP_NAME].
-[MESSAGE]
-Questo aggiornamento non è necessario, ma ti consigliamo di installarlo per migliorare il rendimento e la stabilità.
-		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Scarica l&apos;aggiornamento"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		È disponibile una versione aggiornata di [APP_NAME].
-[MESSAGE]
-Questo aggiornamento non è necessario, ma ti consigliamo di installarlo per migliorare il rendimento e la stabilità.
-		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Scarica l&apos;aggiornamento"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		È disponibile una nuova versione di [APP_NAME].
-[MESSAGE]
-Devi scaricare questo aggiornamento per utilizzare [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Esci" yestext="Scarica"/>
-	</notification>
-	<notification name="DownloadLinux">
-		È disponibile una versione aggiornata di [APP_NAME].
-[MESSAGE]
-Questo aggiornamento non è necessario, ma ti consigliamo di installarlo per migliorare il rendimento e la stabilità.
-		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Scarica"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		È disponibile una versione aggiornata di [APP_NAME].
-[MESSAGE]
-Questo aggiornamento non è necessario, ma ti consigliamo di installarlo per migliorare il rendimento e la stabilità.
-		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Scarica"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		È disponibile una nuova versione di [APP_NAME].
-[MESSAGE]
-Devi scaricare questo aggiornamento per utilizzare [APP_NAME].
-
-Scaricare nella cartella Applicazioni?
-		<usetemplate name="okcancelbuttons" notext="Esci" yestext="Scarica l&apos;aggiornamento"/>
-	</notification>
-	<notification name="DownloadMac">
-		È disponibile una versione aggiornata di [APP_NAME].
-[MESSAGE]
-Questo aggiornamento non è necessario, ma ti consigliamo di installarlo per migliorare il rendimento e la stabilità.
-
-Scaricare nella cartella Applicazioni?
-		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Scarica l&apos;aggiornamento"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		È disponibile una versione aggiornata di [APP_NAME].
-[MESSAGE]
-Questo aggiornamento non è necessario, ma ti consigliamo di installarlo per migliorare il rendimento e la stabilità.
-
-Scaricare nella cartella Applicazioni?
-		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Scarica l&apos;aggiornamento"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Si è verificato un errore durante l&apos;aggiornamento del viewer.
-Scarica e installa la versione più recente del viewer da
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		É richiesta la versione [VERSION] per l’accesso. Sembra che dovresti avere la versione aggiornata, ma cosí non é. Scaricala da https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Non è stato possibile installare un aggiornamento richiesto. 
-Non potrai accedere fino a quando non verrà aggiornato [APP_NAME].
-
-Scarica e installa la versione più recente del viewer da
-http://secondlife.com/download.
-		<usetemplate name="okbutton" yestext="Esci"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		È disponibile un aggiornamento obbligatorio per l&apos;installazione di Second Life.
-
-Puoi scaricare questo aggiornamento da http://www.secondlife.com/downloads
-oppure puoi installarlo adesso.
-		<usetemplate name="okcancelbuttons" notext="Esci da Second Life" yestext="Scarica e aggiorna adesso"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		È stato scaricato un aggiornamento dell&apos;installazione di [APP_NAME].
-Versione [VERSION] [[RELEASE_NOTES_FULL_URL] Informazioni su questo aggiornamento]
-		<usetemplate name="okcancelbuttons" notext="Più tardi..." yestext="Installa ora e riavvia [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		È stato scaricato un aggiornamento dell&apos;installazione di [APP_NAME].
-Versione [VERSION] [[RELEASE_NOTES_FULL_URL] Informazioni su questo aggiornamento]
-		<usetemplate name="okcancelbuttons" notext="Più tardi..." yestext="Installa ora e riavvia [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		È stato scaricato un aggiornamento obbligatorio del software.
-Versione [VERSION] [[INFO_URL] Informazioni su questo aggiornamento]
-
-Per installare l&apos;aggiornamento è necessario riavviare [APP_NAME].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Per installare l&apos;aggiornamento è necessario riavviare [APP_NAME].
-[[INFO_URL] Informazioni su questo aggiornamento]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		È stato scaricato un aggiornamento dell&apos;installazione di [APP_NAME].
-Versione [VERSION] 
-Questo viewer sperimentale è stato sostituito con un viewer [NEW_CHANNEL];
-vedi [[INFO_URL] per informazioni su queesto aggiornamento]
-		<usetemplate name="okcancelbuttons" notext="Più tardi..." yestext="Installa ora e riavvia [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		È stato scaricato un aggiornamento dell&apos;installazione di [APP_NAME].
-Versione [VERSION]
-Questo viewer sperimentale è stato sostituito con un viewer [NEW_CHANNEL];
-vedi [[INFO_URL] Informazioni su questo aggiornamento]
-		<usetemplate name="okcancelbuttons" notext="Più tardi..." yestext="Installa ora e riavvia [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		È stato scaricato un aggiornamento obbligatorio del software.
-Versione [VERSION]
-Questo viewer sperimentale è stato sostituito con un viewer [NEW_CHANNEL];
-vedi [[INFO_URL] Informazioni su questo aggiornamento]
-
-Per installare l&apos;aggiornamento è necessario riavviare [APP_NAME].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Per installare l&apos;aggiornamento è necessario riavviare [APP_NAME].
-Questo viewer sperimentale è stato sostituito con un viewer [NEW_CHANNEL];
-vedi [[INFO_URL] Informazioni su questo aggiornamento]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		È disponibile un aggiornamento.
-È in fase di download. Al termine ti verrà chiesto di riavviare il computer per completare l&apos;installazione.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		È stato scaricato un aggiornamento. Verrà installato durante il riavvio.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Si è verificato un errore durante la ricerca dell&apos;aggiornamento.
-Riprova più tardi.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Il Viewer è aggiornato.
-Per provare le funzioni e modifiche più recenti, visita la pagina Alternate Viewers. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
+	<notification name="LoginFailedUnknown">
+		Spiacenti, accesso non riuscito per ragioni sconosciute. Se continui a visualizzare questo messaggio, visita il [SUPPORT_SITE].
+		<usetemplate name="okbutton" yestext="Chiudi"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		La cessione di questo oggetto farà in modo che il gruppo:
@@ -2496,7 +2356,7 @@ Vuoi disattivare la modalità Non disturbare prima di completare questa transazi
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
-		[COUNT] oggetti verranno eliminati definitivamente. Vuoi veramente eliminare in modo permanente il contenuto del tuo Cestino?
+		[COUNT] oggetti e cartelle verranno eliminati definitivamente. Vuoi veramente eliminare in modo permanente il contenuto del tuo Cestino?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="TrashIsFull">
@@ -3501,12 +3361,22 @@ Ti consigliamo di controllare le tue impostazioni di rete e della firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
-		A causa di problemi di connessione al server vocale
+		Non riusciamo a collegarci al server voce:
 
 [HOSTID]
 
-le comunicazioni tramite voce non saranno disponibili.
-Ti consigliamo di controllare le tue impostazioni di rete e della firewall.
+porte che devono avere il permesso voce sono: 
+:TCP: 80, 443
+:UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
+
+Controlla le tue impostazione di rete e della firewall. 
+Disabilita la funzione SIP ALG del router. 
+
+La comunicazione voce non sará possibile.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Stiamo riscontrando dei problemi nel connetterci al tuo server di voce. La comunicazione voce non sará possibile. Controlla le tue impostazione di rete e della firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
