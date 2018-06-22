@@ -1877,7 +1877,7 @@ void LLViewerRegion::updateNetStats()
 	mLastPacketsLost =	mPacketsLost;
 
 	mPacketsIn =				cdp->getPacketsIn();
-	mBitsIn =					8 * cdp->getBytesIn();
+	mBitsIn =					cdp->getBytesIn();
 	mPacketsOut =				cdp->getPacketsOut();
 	mPacketsLost =				cdp->getPacketsLost();
 	mPingDelay =				cdp->getPingDelay();
@@ -2816,6 +2816,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
+	capabilityNames.append("AbuseCategories");
 	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
