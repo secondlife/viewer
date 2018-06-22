@@ -1289,6 +1289,7 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 	}
 }
 
+
 static LLTrace::BlockTimerStatHandle FTM_AVATAR_EXTENT_UPDATE("Avatar Update Extent");
 
 void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
