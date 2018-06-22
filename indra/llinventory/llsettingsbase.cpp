@@ -298,8 +298,9 @@ bool LLSettingsBase::validate()
     }
     if (result["warnings"].size() > 0)
     {
-        LL_WARNS("SETTINGS") << "Validation warnings: " << result["errors"] << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Validation warnings: " << result["warnings"] << LL_ENDL;
     }
+    LL_WARNS("SETTINGS") << "Validation success is " << result["success"] << LL_ENDL;
 
     return result["success"].asBoolean();
 }
@@ -593,7 +594,6 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
     {
         LL_WARNS("SETTINGS") << "No target for settings blender." << LL_ENDL;
     }
-    mTarget->blend(mFinal, blendf);
 
     return blendf;
 }
