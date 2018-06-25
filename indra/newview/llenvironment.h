@@ -185,6 +185,9 @@ public:
     void                        updateEnvironment(LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);
 
     inline LLVector2            getCloudScrollDelta() const { return mCloudScrollDelta; }
+    void                        pauseCloudScroll()          { mCloudScrollPaused = true; }
+    void                        resumeCloudScroll()         { mCloudScrollPaused = false; }
+    bool                        isCloudScrollPaused() const { return mCloudScrollPaused; }
 
     F32                         getCamHeight() const;
     F32                         getWaterHeight() const;
@@ -331,6 +334,7 @@ private:
     F32                         mLastCamYaw = 0.0f;
 
     LLVector2                   mCloudScrollDelta;  // cumulative cloud delta
+    bool                        mCloudScrollPaused;
 
     InstanceArray_t             mEnvironments;
 

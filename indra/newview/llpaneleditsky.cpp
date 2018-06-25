@@ -71,6 +71,8 @@ namespace
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
     const F32 SLIDER_SCALE_GLOW_R(20.0f);
     const F32 SLIDER_SCALE_GLOW_B(-5.0f);
+
+    const LLVector2     CLOUD_SCROLL_ADJUST(10, 10);
 }
 
 static LLPanelInjector<LLPanelSettingsSkyAtmosTab> t_settings_atmos("panel_settings_atmos");
@@ -226,6 +228,7 @@ void LLPanelSettingsSkyCloudTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setValue(mSkySettings->getCloudScale());
 
     LLVector2 cloudScroll(mSkySettings->getCloudScrollRate());
+    cloudScroll -= CLOUD_SCROLL_ADJUST;
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->setValue(cloudScroll.getValue());
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mSkySettings->getCloudNoiseTextureId());
@@ -260,7 +263,7 @@ void LLPanelSettingsSkyCloudTab::onCloudScaleChanged()
 void LLPanelSettingsSkyCloudTab::onCloudScrollChanged()
 {
     LLVector2 scroll(getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->getValue());
-
+    scroll += CLOUD_SCROLL_ADJUST;
     mSkySettings->setCloudScrollRate(scroll);
 }
 

@@ -258,6 +258,8 @@ const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg
 
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
+    mCloudScrollDelta(),
+    mCloudScrollPaused(false),
     mSelectedSky(),
     mSelectedWater(),
     mSelectedDay(),
@@ -851,7 +853,7 @@ void LLEnvironment::updateCloudScroll()
 
     F64 delta_t = s_cloud_timer.getElapsedTimeAndResetF64();
     
-    if (mCurrentEnvironment->getSky())
+    if (mCurrentEnvironment->getSky() && !mCloudScrollPaused)
     {
         LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentEnvironment->getSky()->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
         mCloudScrollDelta += cloud_delta;
