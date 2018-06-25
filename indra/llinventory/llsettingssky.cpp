@@ -35,12 +35,29 @@
 //=========================================================================
 static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
 static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
-static const LLVector3 DUE_EAST = LLVector3::x_axis;
 
 static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
 {
+
+	F32 sinTheta = sin(azimuth);
+	F32 cosTheta = cos(azimuth);
+	F32 sinPhi   = sin(altitude);
+	F32 cosPhi   = cos(altitude);
+
+    LLVector3 dir;
+    // +x right, +z up, +y at...	
+	dir.mV[0] = cosTheta * cosPhi;
+    dir.mV[1] = sinTheta * cosPhi;	
+    dir.mV[2] = sinPhi;
+
+    LLVector3 axis = LLVector3::x_axis % dir;
+    axis.normalize();
+
+    F32 angle = acos(LLVector3::x_axis * dir);
+
     LLQuaternion quat;
-    quat.setEulerAngles(0.0f, altitude, azimuth);
+    quat.setAngleAxis(angle, axis);
+
     return quat;
 }
 
@@ -772,21 +789,15 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     }
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
-    {   // convert the east and sun angles into a quaternion.
-        F32 two_pi   = F_PI * 2.0f;
-
+    {
         // get counter-clockwise radian angle from clockwise legacy WL east angle...
-        F32 azimuth  = two_pi - legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
-
-        F32 altitude = legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
+        F32 azimuth  = -legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
+        F32 altitude =  legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
         
         LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
 
         // original WL moon dir was diametrically opposed to the sun dir
-        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, -altitude);
-
-        //LLVector3 sundir  = DUE_EAST * sunquat;
-        //LLVector3 moondir = DUE_EAST * moonquat;
+        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, altitude + F_PI);
 
         newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
@@ -826,14 +837,19 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     LLQuaternion sunq  = getSunRotation();
     LLQuaternion moonq = getMoonRotation();
 
-    mSunDirection  = DUE_EAST * sunq;
-    mMoonDirection = DUE_EAST * moonq;
+    mSunDirection  = LLVector3::x_axis * sunq;
+    mMoonDirection = LLVector3::x_axis * moonq;
 
     mSunDirection.normalize();
     mMoonDirection.normalize();
 
-    //LL_WARNS("LAPRAS") << "Sun info:  Rotation=" << sunq << " Vector=" << mSunDirection << LL_ENDL;
+    //LL_WARNS("LAPRAS") << "Sun info:  Rotation=" << sunq  << " Vector=" << mSunDirection  << LL_ENDL;
     //LL_WARNS("LAPRAS") << "Moon info: Rotation=" << moonq << " Vector=" << mMoonDirection << LL_ENDL;
+
+    if (mSunDirection.lengthSquared() < 0.01f)
+        LL_WARNS("SETTINGS") << "Zero length sun direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
+    if (mMoonDirection.lengthSquared() < 0.01f)
+        LL_WARNS("SETTINGS") << "Zero length moon direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
 
     llassert(mSunDirection.lengthSquared() > 0.01f);
     llassert(mMoonDirection.lengthSquared() > 0.01f);
