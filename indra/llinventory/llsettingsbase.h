@@ -300,6 +300,7 @@ private:
 
 class LLSettingsBlender : public PTR_NAMESPACE::enable_shared_from_this<LLSettingsBlender>
 {
+    LOG_CLASS(LLSettingsBlender);
 public:
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsBlender>      ptr_t;
     typedef boost::signals2::signal<void(const ptr_t )> finish_signal_t;
@@ -380,6 +381,7 @@ protected:
 
 class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 {
+    LOG_CLASS(LLSettingsBlenderTimeDelta);
 public:
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
         const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& blend_span) :
