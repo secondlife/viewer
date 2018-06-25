@@ -38,15 +38,14 @@ static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_T
 
 static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
 {
-
-	F32 sinTheta = sin(azimuth);
-	F32 cosTheta = cos(azimuth);
-	F32 sinPhi   = sin(altitude);
-	F32 cosPhi   = cos(altitude);
+    F32 sinTheta = sin(azimuth);
+    F32 cosTheta = cos(azimuth);
+    F32 sinPhi   = sin(altitude);
+    F32 cosPhi   = cos(altitude);
 
     LLVector3 dir;
     // +x right, +z up, +y at...	
-	dir.mV[0] = cosTheta * cosPhi;
+    dir.mV[0] = cosTheta * cosPhi;
     dir.mV[1] = sinTheta * cosPhi;	
     dir.mV[2] = sinPhi;
 
