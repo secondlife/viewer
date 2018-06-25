@@ -59,27 +59,31 @@
 #undef min
 #undef max
 
-static const S32 NUM_TILES_X = 8;
-static const S32 NUM_TILES_Y = 4;
-static const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
+namespace
+{
+    const S32 NUM_TILES_X = 8;
+    const S32 NUM_TILES_Y = 4;
+    const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
 
-// Heavenly body constants
-static const F32 SUN_DISK_RADIUS	= 0.5f;
-static const F32 MOON_DISK_RADIUS	= SUN_DISK_RADIUS * 0.9f;
-static const F32 SUN_INTENSITY = 1e5;
+    // Heavenly body constants
+    const F32 SUN_DISK_RADIUS	= 0.5f;
+    const F32 MOON_DISK_RADIUS	= SUN_DISK_RADIUS * 0.9f;
+    const F32 SUN_INTENSITY = 1e5;
 
-// Texture coordinates:
-static const LLVector2 TEX00 = LLVector2(0.f, 0.f);
-static const LLVector2 TEX01 = LLVector2(0.f, 1.f);
-static const LLVector2 TEX10 = LLVector2(1.f, 0.f);
-static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
+    // Texture coordinates:
+    const LLVector2 TEX00 = LLVector2(0.f, 0.f);
+    const LLVector2 TEX01 = LLVector2(0.f, 1.f);
+    const LLVector2 TEX10 = LLVector2(1.f, 0.f);
+    const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 
-static const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
-static const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
+    const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
+    const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
 
-static LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATETIMER("VOSky Update Timer Tick");
-static LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATEFORCED("VOSky Update Forced");
+    LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATETIMER("VOSky Update Timer Tick");
+    LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATEFORCED("VOSky Update Forced");
 
+    F32Seconds UPDATE_EXPRY(2.0f);
+}
 /***************************************
 		SkyTex
 ***************************************/
@@ -590,6 +594,7 @@ void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
 
 bool LLVOSky::updateSky()
 {
+    LLTimer forceupdThrottle;
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     LLColor4 total_ambient = psky->getTotalAmbient();
@@ -647,9 +652,11 @@ bool LLVOSky::updateSky()
         mForceUpdate = mForceUpdate || color_changed;
         mForceUpdate = mForceUpdate || !mInitialized;
 
-		if (mForceUpdate)
+        if ((mForceUpdate) && forceupdThrottle.hasExpired() && !LLPipeline::RenderDeferred)
 		{
-            LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED)
+            LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
+
+            forceupdThrottle.setTimerExpirySec(UPDATE_EXPRY);
 
 			LLSkyTex::stepCurrent();			
 		

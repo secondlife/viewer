@@ -8420,10 +8420,17 @@ class LLWorldEnvSettings : public view_listener_t
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
         }
-		else
+        else if (tod == "region")
 		{
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+        }
+        else if (tod == "pauseclouds")
+        {
+            if (LLEnvironment::instance().isCloudScrollPaused())
+                LLEnvironment::instance().resumeCloudScroll();
+            else
+                LLEnvironment::instance().pauseCloudScroll();
         }
     
         LLEnvironment::instance().updateEnvironment();
@@ -8467,6 +8474,10 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		{
 			return false;
 		}
+        else if (tod == "pauseclouds")
+        {
+            return LLEnvironment::instance().isCloudScrollPaused();
+        }
 		else
 		{
 			LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;

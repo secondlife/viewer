@@ -66,6 +66,7 @@ namespace
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
 
     LLSettingsBase::Seconds         DEFAULT_UPDATE_THRESHOLD(10.0);
+    const LLSettingsBase::Seconds   MINIMUM_SPANLENGTH(0.01f);
 
     //---------------------------------------------------------------------
     inline LLSettingsBase::TrackPosition get_wrapping_distance(LLSettingsBase::TrackPosition begin, LLSettingsBase::TrackPosition end)
@@ -221,7 +222,8 @@ namespace
         LLSettingsBase::Seconds getSpanTime(const LLSettingsDay::TrackBound_t &bounds) const
         {
             LLSettingsBase::Seconds span = mCycleLength * get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
-            llassert(span > 0.01f);
+            if (span < MINIMUM_SPANLENGTH) // for very short spans set a minimum length.
+                span = MINIMUM_SPANLENGTH;
             return span;
         }
 

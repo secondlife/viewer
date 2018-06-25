@@ -639,9 +639,20 @@
 
         <menu
          create_jump_keys="true"
-         label="Sun"
-         name="Sun"
+         label="Environment"
+         name="Environment"
          tear_off="true">
+            <menu_item_check
+             label="Pause Clouds"
+             name="pauseclouds">
+                <menu_item_check.on_click
+                 function="World.EnvSettings"
+                 parameter="pauseclouds" />
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="pauseclouds" />
+            </menu_item_check>
+            <menu_item_separator/>
             <menu_item_check
              label="Sunrise"
              name="Sunrise">
