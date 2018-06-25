@@ -1334,6 +1334,14 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 
     }
 
+	// Pad bounding box for starting joint, plus polymesh if
+	// applicable. Subsequent calcs should be accurate enough to not
+	// need padding.
+	LLVector4a padding(0.25);
+	newMin.sub(padding);
+	newMax.add(padding);
+
+
 	//stretch bounding box by static attachments
     if (box_detail >= 2)
     {
@@ -1356,6 +1364,22 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
                     if (attached_object && !attached_object->isHUDAttachment())
                     {
                         const LLVOVolume *vol = dynamic_cast<const LLVOVolume*>(attached_object);
+                        if (vol && vol->isAnimatedObject())
+                        {
+                            // Animated objects already have a bounding box in their control av, use that. 
+                            // Could lag by a frame if there's no guarantee on order of processing for avatars.
+                            LLControlAvatar *cav = vol->getControlAvatar();
+                            if (cav)
+                            {
+                                LLVector4a cav_min;
+                                cav_min.load3(cav->mLastAnimExtents[0].mV);
+                                LLVector4a cav_max;
+                                cav_max.load3(cav->mLastAnimExtents[1].mV);
+                                update_min_max(newMin,newMax,cav_min);
+                                update_min_max(newMin,newMax,cav_max);
+                                continue;
+                            }
+                        }
                         if (vol && vol->isRiggedMesh())
                         {
                             continue;
@@ -1431,11 +1455,6 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
             }
         }
     }
-
-	//pad bounding box	
-	LLVector4a padding(0.1);
-	newMin.sub(padding);
-	newMax.add(padding);
 
     // Update pixel area
     LLVector4a center, size;
@@ -9555,6 +9574,13 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
             if (volume)
             {
                 volumes.push_back(volume);
+                if (volume->isAnimatedObject())
+                {
+                    // For animated object attachment, don't need
+                    // the children. Will just get bounding box
+                    // from the control avatar.
+                    continue;
+                }
             }
             LLViewerObject::const_child_list_t& children = attached_object->getChildren();
             for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
@@ -9568,12 +9594,13 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
                 }
             }
         }
-	}
+    }
+
     LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
     if (control_av)
     {
         LLVOVolume *volp = control_av->mRootVolp;
-        if (volp && !volp->isAttachment())
+        if (volp)
         {
             volumes.push_back(volp);
             LLViewerObject::const_child_list_t& children = volp->getChildren();
