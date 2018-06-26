@@ -1692,7 +1692,7 @@
           <key>darwin</key>
           <map>
             <key>archive</key>
-            <map>              
+            <map>
               <key>hash</key>
               <string>3855bd40f950e3c22739ae8f3ee2afc9</string>
               <key>url</key>
@@ -1705,10 +1705,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>              
+              <key>hash</key>
               <string>d1521becaf21bf7233173722af63f57d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1717,10 +1717,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>              
+              <key>hash</key>
               <string>43d7a6a69a54534a736f132e9c81795b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1752,11 +1752,11 @@
           <key>windows64</key>
           <map>
             <key>archive</key>
-            <map>              
+            <map>
               <key>hash</key>
               <string>da3b1ea90797b189d80ab5d50fdf05d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3260,9 +3260,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>86f6708f393c162cd4f92426b0a3cde7</string>
+              <string>f45c0a5e7b4601b355e163bf62f5718e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15341/99062/viewer_manager-1.0.513570-darwin64-513570.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/20587/147509/viewer_manager-1.0.517052-darwin64-517052.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3284,9 +3284,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c4dec51062ad78c09b11f7432aff4d1d</string>
+              <string>d2443caf062697430071d458a965f611</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/17857/121832/viewer_manager-1.0.515286-windows-515286.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/20588/147516/viewer_manager-1.0.517052-windows-517052.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3297,7 +3297,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.515286</string>
+        <string>1.0.517052</string>
       </map>
       <key>vlc-bin</key>
       <map>
