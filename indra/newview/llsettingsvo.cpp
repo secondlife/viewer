@@ -525,12 +525,7 @@ void LLSettingsVOSky::updateSettings()
 	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
     mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
 
-    // Axis swaps convert from "normal" (+x right, +z up, +y at)
-    // to CFR (+x at, +z up, +y right) coord sys
-    LLVector3 sun_direction_cfr(sun_direction.mV[1],   sun_direction.mV[0],  sun_direction.mV[2]);
-    LLVector3 moon_direction_cfr(moon_direction.mV[1], moon_direction.mV[0], moon_direction.mV[2]);
-
-    gSky.setSunAndMoonDirectionsCFR(sun_direction_cfr, moon_direction_cfr);
+    gSky.setSunAndMoonDirectionsCFR(sun_direction, moon_direction);
     gSky.setSunTextures(getSunTextureId(), getNextSunTextureId());
     gSky.setMoonTextures(getMoonTextureId(), getNextMoonTextureId());
     gSky.setCloudNoiseTextures(getCloudNoiseTextureId(), getNextCloudNoiseTextureId());
