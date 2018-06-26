@@ -16632,7 +16632,277 @@ render_pass="bump">
       </param_driver>
     </param>
 
+    <param
+     id="1029"
+     group="2"
+     wearable="universal"
+     edit_group="colorpicker"
+     name="tattoo_universal_red"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1229"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1232"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1235"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1208"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1211"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="924"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1214"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1217"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1220"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1223"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1226"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+        
+      </param_driver>
+    </param>
+
+    <param
+     id="1030"
+     group="2"
+     wearable="universal"
+     edit_group="colorpicker"
+     name="tattoo_universal_green"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1230"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1233"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1236"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1209"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1212"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="925"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1215"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1218"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1221"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1224"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1227"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+      </param_driver>
+    </param>
+
+    <param
+     id="1031"
+     group="2"
+     wearable="universal"
+     edit_group="colorpicker"
+     name="tattoo_universal_blue"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1231"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1234"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1237"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1210"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1213"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="926"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1216"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1219"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1222"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1225"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1228"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+      </param_driver>
+    </param>
   <!-- ==PHYSICS PARAMETERS======================================= -->
+    
 
    <param
      id="1100"
