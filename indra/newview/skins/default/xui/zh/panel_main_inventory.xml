@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="事物" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		正在擷取 [ITEM_COUNT] 個物項… [FILTER]
+		正在擷取[ITEM_COUNT]個物項及[CATEGORY_COUNT]個資料夾… [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] 物品 [FILTER]
+		[ITEM_COUNT]個物項及[CATEGORY_COUNT]個資料夾[FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
-		已取得 [ITEM_COUNT] 物品 [FILTER]
+		擷取了[ITEM_COUNT]個物項及[CATEGORY_COUNT]個資料夾[FILTER]
 	</panel.string>
 	<text name="ItemcountText">
 		物品：

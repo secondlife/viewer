@@ -11,14 +11,6 @@
          name="Texture"
          top="0"
          width="295">
-            <panel.string
-             name="string repeats per meter">
-                Repeats Per Meter
-            </panel.string>
-            <panel.string
-             name="string repeats per face">
-                Repeats Per Face
-            </panel.string>
             <text
              type="string"
              length="1"

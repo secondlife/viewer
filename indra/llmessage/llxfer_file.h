@@ -61,8 +61,10 @@ class LLXfer_File : public LLXfer
 	virtual S32 startDownload();
 
 	virtual S32 processEOF();
-	
-	virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
+
+	virtual S32 startSend(U64 xfer_id, const LLHost &remote_host);
+	virtual void closeFileHandle();
+	virtual S32 reopenFileHandle();
 
 	virtual S32 suck(S32 start_position);
 	virtual S32 flush();

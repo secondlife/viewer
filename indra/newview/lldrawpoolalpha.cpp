@@ -47,6 +47,7 @@
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 #include "llspatialpartition.h"
+#include "llglcommonfunc.h"
 
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
@@ -324,6 +325,9 @@ void LLDrawPoolAlpha::render(S32 pass)
 		pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
 		pushBatches(LLRenderPass::PASS_ALPHA_INVISIBLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
 
+		gGL.diffuseColor4f(0, 0, 1, 1);
+		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+
 		if(shaders) 
 		{
 			gHighlightProgram.unbind();
@@ -583,11 +587,14 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 
 				{
 					LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_PUSH);
-    gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);					
-				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
-                
-				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+
+					LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+
+					gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+					params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
+
+					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 				}
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
@@ -597,7 +604,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				{
 					// install glow-accumulating blend mode
 					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
-						      LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
+					LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
 
 					emissive_shader->bind();
 					

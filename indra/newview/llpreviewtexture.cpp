@@ -46,6 +46,7 @@
 #include "lltextureview.h"
 #include "llui.h"
 #include "llviewerinventory.h"
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
@@ -293,27 +294,27 @@ void LLPreviewTexture::saveAs()
 	if( mLoadingFullImage )
 		return;
 
-	LLFilePicker& file_picker = LLFilePicker::instance();
-	const LLInventoryItem* item = getItem() ;
-	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGAPNG, item ? LLDir::getScrubbedFileName(item->getName()) : LLStringUtil::null) )
-	{
-		// User canceled or we failed to acquire save file.
-		return;
-	}
-	if(mPreviewToSave)
+	std::string filename = getItem() ? LLDir::getScrubbedFileName(getItem()->getName()) : LLStringUtil::null;
+	(new LLFilePickerReplyThread(boost::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename))->getFile();
+}
+
+void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenames)
+{
+	const LLInventoryItem* item = getItem();
+	if (item && mPreviewToSave)
 	{
 		mPreviewToSave = FALSE;
 		LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", item->getUUID());
 	}
 
 	// remember the user-approved/edited file name.
-	mSaveFileName = file_picker.getFirstFile();
+	mSaveFileName = filenames[0];
 	mLoadingFullImage = TRUE;
 	getWindow()->incBusyCount();
 
-	mImage->forceToSaveRawImage(0) ;//re-fetch the raw image if the old one is removed.
-	mImage->setLoadedCallback( LLPreviewTexture::onFileLoadedForSave, 
-								0, TRUE, FALSE, new LLUUID( mItemUUID ), &mCallbackTextureList );
+	mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
+	mImage->setLoadedCallback(LLPreviewTexture::onFileLoadedForSave,
+		0, TRUE, FALSE, new LLUUID(mItemUUID), &mCallbackTextureList);
 }
 
 // virtual

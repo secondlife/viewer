@@ -58,6 +58,7 @@ protected:
 	void onBtnBrowse();
 	void onBtnCancel();
 	void onBtnOK();
+	void importSelectedDictionary(const std::vector<std::string>& filenames);
 	std::string parseXcuFile(const std::string& file_path) const;
 
 	std::string mDictionaryDir;

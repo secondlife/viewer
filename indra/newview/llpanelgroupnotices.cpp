@@ -575,6 +575,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 
 	mNoticesList->setNeedsSort(save_sort);
 	mNoticesList->updateSort();
+	mNoticesList->selectFirstItem();
 }
 
 void LLPanelGroupNotices::onSelectNotice(LLUICtrl* ctrl, void* data)

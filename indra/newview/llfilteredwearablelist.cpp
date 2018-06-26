@@ -32,6 +32,7 @@
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "lltrans.h"
 
 
 LLFilteredWearableListManager::LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector)
@@ -117,6 +118,11 @@ void LLFilteredWearableListManager::populateList()
 	}
 
 	// Probably will also need to get items from Library (waiting for reply in EXT-6724).
+
+	if (item_array.empty() && gInventory.isCategoryComplete(gInventory.getRootFolderID()))
+	{
+		mWearableList->setNoItemsCommentText(LLTrans::getString("NoneFound"));
+	}
 
 	mWearableList->refreshList(item_array);
 }

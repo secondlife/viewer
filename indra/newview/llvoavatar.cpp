@@ -1007,7 +1007,7 @@ void LLVOAvatar::dumpBakedStatus()
 				const ETextureIndex index = baked_dict->mTextureIndex;
 				if (!inst->isTextureDefined(index))
 				{
-					LL_CONT << " " << LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mName;
+					LL_CONT << " " << (LLAvatarAppearanceDictionary::getInstance()->getTexture(index) ? LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mName : "");
 				}
 			}
 			LL_CONT << " ) " << inst->getUnbakedPixelAreaRank();
@@ -4715,7 +4715,7 @@ void LLVOAvatar::collectLocalTextureUUIDs(std::set<LLUUID>& ids) const
 			if (imagep)
 			{
 				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)texture_index);
-				if (texture_dict->mIsLocalTexture)
+				if (texture_dict && texture_dict->mIsLocalTexture)
 				{
 					ids.insert(imagep->getID());
 				}
@@ -4872,8 +4872,8 @@ void LLVOAvatar::updateTextures()
 			if (imagep)
 			{
 				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)texture_index);
-				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-				if (texture_dict->mIsLocalTexture)
+				const EBakedTextureIndex baked_index = texture_dict ? texture_dict->mBakedTextureIndex : EBakedTextureIndex::BAKED_NUM_INDICES;
+				if (texture_dict && texture_dict->mIsLocalTexture)
 				{
 					addLocalTextureStats((ETextureIndex)texture_index, imagep, texel_area_ratio, render_avatar, mBakedTextureDatas[baked_index].mIsUsed);
 				}
@@ -5304,6 +5304,10 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 			if (use_new_walk_run)
 				result = ANIM_AGENT_FEMALE_RUN_NEW;
 		}
+		else if (id == ANIM_AGENT_SIT)
+		{
+			result = ANIM_AGENT_SIT_FEMALE;
+		}
 	}
 	else
 	{
@@ -5317,6 +5321,11 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 		{
 			if (use_new_walk_run)
 				result = ANIM_AGENT_RUN_NEW;
+		}
+		// keeps in sync with setSex() related code (viewer controls sit's sex)
+		else if (id == ANIM_AGENT_SIT_FEMALE)
+		{
+			result = ANIM_AGENT_SIT;
 		}
 	
 	}
@@ -6089,7 +6098,26 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::updateVisualParams()
 {
-	setSex( (getVisualParamWeight( "male" ) > 0.5f) ? SEX_MALE : SEX_FEMALE );
+	ESex avatar_sex = (getVisualParamWeight("male") > 0.5f) ? SEX_MALE : SEX_FEMALE;
+	if (getSex() != avatar_sex)
+	{
+		if (mIsSitting && findMotion(avatar_sex == SEX_MALE ? ANIM_AGENT_SIT_FEMALE : ANIM_AGENT_SIT) != NULL)
+		{
+			// In some cases of gender change server changes sit motion with motion message,
+			// but in case of some avatars (legacy?) there is no update from server side,
+			// likely because server doesn't know about difference between motions
+			// (female and male sit ids are same server side, so it is likely unaware that it
+			// need to send update)
+			// Make sure motion is up to date
+			stopMotion(ANIM_AGENT_SIT);
+			setSex(avatar_sex);
+			startMotion(ANIM_AGENT_SIT);
+		}
+		else
+		{
+			setSex(avatar_sex);
+		}
+	}
 
 	LLCharacter::updateVisualParams();
 
@@ -7366,7 +7394,7 @@ void LLVOAvatar::updateMeshTextures()
 	// set texture and color of hair manually if we are not using a baked image.
 	// This can happen while loading hair for yourself, or for clients that did not
 	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
-	if (!is_layer_baked[BAKED_HAIR] || isEditingAppearance())
+	if (!is_layer_baked[BAKED_HAIR])
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
@@ -8511,6 +8539,8 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		apr_file_printf( file, "<linden_genepool version=\"1.0\">\n" );
 		apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
+		bool agent_is_godlike = gAgent.isGodlikeWithoutAdminMenuFakery();
+
 		if (group_by_wearables)
 		{
 			for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
@@ -8536,8 +8566,11 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 						LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 						if( te_image )
 						{
-							std::string uuid_str;
-							te_image->getID().toString( uuid_str );
+							std::string uuid_str = LLUUID().asString();
+							if (agent_is_godlike)
+							{
+								te_image->getID().toString(uuid_str);
+							}
 							apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 						}
 					}
@@ -8559,8 +8592,11 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
-					std::string uuid_str;
-					te_image->getID().toString( uuid_str );
+					std::string uuid_str = LLUUID().asString();
+					if (agent_is_godlike)
+					{
+						te_image->getID().toString(uuid_str);
+					}
 					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 				}
 			}

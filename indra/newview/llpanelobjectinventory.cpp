@@ -101,9 +101,7 @@ public:
 	static LLTaskInvFVBridge* createObjectBridge(LLPanelObjectInventory* panel,
 												 LLInventoryObject* object);
 	void showProperties();
-	void buyItem();
 	S32 getPrice();
-	static bool commitBuyItem(const LLSD& notification, const LLSD& response);
 
 	// LLFolderViewModelItemInventory functionality
 	virtual const std::string& getName() const;
@@ -200,75 +198,6 @@ void LLTaskInvFVBridge::showProperties()
 	show_task_item_profile(mUUID, mPanel->getTaskUUID());
 }
 
-struct LLBuyInvItemData
-{
-	LLUUID mTaskID;
-	LLUUID mItemID;
-	LLAssetType::EType mType;
-
-	LLBuyInvItemData(const LLUUID& task,
-					 const LLUUID& item,
-					 LLAssetType::EType type) :
-		mTaskID(task), mItemID(item), mType(type)
-	{}
-};
-
-void LLTaskInvFVBridge::buyItem()
-{
-	LL_INFOS() << "LLTaskInvFVBridge::buyItem()" << LL_ENDL;
-	LLInventoryItem* item = findItem();
-	if(!item || !item->getSaleInfo().isForSale()) return;
-	LLBuyInvItemData* inv = new LLBuyInvItemData(mPanel->getTaskUUID(),
-												 mUUID,
-												 item->getType());
-
-	const LLSaleInfo& sale_info = item->getSaleInfo();
-	const LLPermissions& perm = item->getPermissions();
-	const std::string owner_name; // no owner name currently... FIXME?
-
-	LLViewerObject* obj;
-	if( ( obj = gObjectList.findObject( mPanel->getTaskUUID() ) ) && obj->isAttachment() )
-	{
-		LLNotificationsUtil::add("Cannot_Purchase_an_Attachment");
-		LL_INFOS() << "Attempt to purchase an attachment" << LL_ENDL;
-		delete inv;
-	}
-	else
-	{
-        LLSD args;
-        args["PRICE"] = llformat("%d",sale_info.getSalePrice());
-        args["OWNER"] = owner_name;
-        if (sale_info.getSaleType() != LLSaleInfo::FS_CONTENTS)
-        {
-        	U32 next_owner_mask = perm.getMaskNextOwner();
-        	args["MODIFYPERM"] = LLTrans::getString((next_owner_mask & PERM_MODIFY) ? "PermYes" : "PermNo");
-        	args["COPYPERM"] = LLTrans::getString((next_owner_mask & PERM_COPY) ? "PermYes" : "PermNo");
-        	args["RESELLPERM"] = LLTrans::getString((next_owner_mask & PERM_TRANSFER) ? "PermYes" : "PermNo");
-        }
-
-		std::string alertdesc;
-       	switch(sale_info.getSaleType())
-       	{
-       	  case LLSaleInfo::FS_ORIGINAL:
-       		alertdesc = owner_name.empty() ? "BuyOriginalNoOwner" : "BuyOriginal";
-       		break;
-       	  case LLSaleInfo::FS_CONTENTS:
-       		alertdesc = owner_name.empty() ? "BuyContentsNoOwner" : "BuyContents";
-       		break;
-		  case LLSaleInfo::FS_COPY:
-       	  default:
-       		alertdesc = owner_name.empty() ? "BuyCopyNoOwner" : "BuyCopy";
-       		break;
-       	}
-
-		LLSD payload;
-		payload["task_id"] = inv->mTaskID;
-		payload["item_id"] = inv->mItemID;
-		payload["type"] = inv->mType;
-		LLNotificationsUtil::add(alertdesc, args, payload, LLTaskInvFVBridge::commitBuyItem);
-	}
-}
-
 S32 LLTaskInvFVBridge::getPrice()
 {
 	LLInventoryItem* item = findItem();
@@ -280,31 +209,6 @@ S32 LLTaskInvFVBridge::getPrice()
 	{
 		return -1;
 	}
-}
-
-// static
-bool LLTaskInvFVBridge::commitBuyItem(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if(0 == option)
-	{
-		LLViewerObject* object = gObjectList.findObject(notification["payload"]["task_id"].asUUID());
-		if(!object || !object->getRegion()) return false;
-
-
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_BuyObjectInventory);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_Data);
-		msg->addUUIDFast(_PREHASH_ObjectID, notification["payload"]["task_id"].asUUID());
-		msg->addUUIDFast(_PREHASH_ItemID, notification["payload"]["item_id"].asUUID());
-		msg->addUUIDFast(_PREHASH_FolderID,
-			gInventory.findCategoryUUIDForType((LLFolderType::EType)notification["payload"]["type"].asInteger()));
-		msg->sendReliable(object->getRegion()->getHost());
-	}
-	return false;
 }
 
 const std::string& LLTaskInvFVBridge::getName() const
@@ -615,29 +519,7 @@ BOOL LLTaskInvFVBridge::dragOrDrop(MASK mask, BOOL drop,
 // virtual
 void LLTaskInvFVBridge::performAction(LLInventoryModel* model, std::string action)
 {
-	if (action == "task_buy")
-	{
-		// Check the price of the item.
-		S32 price = getPrice();
-		if (-1 == price)
-		{
-			LL_WARNS() << "label_buy_task_bridged_item: Invalid price" << LL_ENDL;
-		}
-		else
-		{
-			if (price > 0 && price > gStatusBar->getBalance())
-			{
-				LLStringUtil::format_map_t args;
-				args["AMOUNT"] = llformat("%d", price);
-				LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_costs", args), price );
-			}
-			else
-			{
-				buyItem();
-			}
-		}
-	}
-	else if (action == "task_open")
+	if (action == "task_open")
 	{
 		openItem();
 	}
@@ -659,43 +541,15 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		return;
 	}
 
-	if(!gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
-							 GP_OBJECT_MANIPULATE)
-	   && item->getSaleInfo().isForSale())
-	{
-		items.push_back(std::string("Task Buy"));
-
-		std::string label= LLTrans::getString("Buy");
-		// Check the price of the item.
-		S32 price = getPrice();
-		if (-1 == price)
-		{
-			LL_WARNS() << "label_buy_task_bridged_item: Invalid price" << LL_ENDL;
-		}
-		else
-		{
-			std::ostringstream info;
-			info << LLTrans::getString("BuyforL$") << price;
-			label.assign(info.str());
-		}
-
-		const LLView::child_list_t *list = menu.getChildList();
-		LLView::child_list_t::const_iterator itor;
-		for (itor = list->begin(); itor != list->end(); ++itor)
-		{
-			std::string name = (*itor)->getName();
-			LLMenuItemCallGL* menu_itemp = dynamic_cast<LLMenuItemCallGL*>(*itor);
-			if (name == "Task Buy" && menu_itemp)
-			{
-				menu_itemp->setLabel(label);
-			}
-		}
-	}
-	else if (canOpenItem())
+	if (canOpenItem())
 	{
 		items.push_back(std::string("Task Open"));
 	}
 	items.push_back(std::string("Task Properties"));
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		disabled_items.push_back(std::string("Task Properties"));
+	}
 	if(isItemRenameable())
 	{
 		items.push_back(std::string("Task Rename"));
@@ -974,42 +828,15 @@ void LLTaskSoundBridge::performAction(LLInventoryModel* model, std::string actio
 void LLTaskSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	LLInventoryItem* item = findItem();
-	if(!item) return;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-
-	if(item->getPermissions().getOwner() != gAgent.getID()
-	   && item->getSaleInfo().isForSale())
+	if (!item)
 	{
-		items.push_back(std::string("Task Buy"));
-
-		std::string label= LLTrans::getString("Buy");
-		// Check the price of the item.
-		S32 price = getPrice();
-		if (-1 == price)
-		{
-			LL_WARNS() << "label_buy_task_bridged_item: Invalid price" << LL_ENDL;
-		}
-		else
-		{
-			std::ostringstream info;
-			info <<  LLTrans::getString("BuyforL$") << price;
-			label.assign(info.str());
-		}
-
-		const LLView::child_list_t *list = menu.getChildList();
-		LLView::child_list_t::const_iterator itor;
-		for (itor = list->begin(); itor != list->end(); ++itor)
-		{
-			std::string name = (*itor)->getName();
-			LLMenuItemCallGL* menu_itemp = dynamic_cast<LLMenuItemCallGL*>(*itor);
-			if (name == "Task Buy" && menu_itemp)
-			{
-				menu_itemp->setLabel(label);
-			}
-		}
+		hide_context_entries(menu, items, disabled_items);
+		return;
 	}
-	else if (canOpenItem())
+
+	if (canOpenItem())
 	{
 		if (!isItemCopyable())
 		{
@@ -1017,6 +844,10 @@ void LLTaskSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		}
 	}
 	items.push_back(std::string("Task Properties"));
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		disabled_items.push_back(std::string("Task Properties"));
+	}
 	if(isItemRenameable())
 	{
 		items.push_back(std::string("Task Rename"));
@@ -1344,50 +1175,25 @@ void LLTaskMeshBridge::performAction(LLInventoryModel* model, std::string action
 void LLTaskMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	LLInventoryItem* item = findItem();
-	if(!item) return;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-
-	if(item->getPermissions().getOwner() != gAgent.getID()
-	   && item->getSaleInfo().isForSale())
+	if(!item)
 	{
-		items.push_back(std::string("Task Buy"));
-
-		std::string label= LLTrans::getString("Buy");
-		// Check the price of the item.
-		S32 price = getPrice();
-		if (-1 == price)
-		{
-			LL_WARNS() << "label_buy_task_bridged_item: Invalid price" << LL_ENDL;
-		}
-		else
-		{
-			std::ostringstream info;
-			info <<  LLTrans::getString("BuyforL$") << price;
-			label.assign(info.str());
-		}
-
-		const LLView::child_list_t *list = menu.getChildList();
-		LLView::child_list_t::const_iterator itor;
-		for (itor = list->begin(); itor != list->end(); ++itor)
-		{
-			std::string name = (*itor)->getName();
-			LLMenuItemCallGL* menu_itemp = dynamic_cast<LLMenuItemCallGL*>(*itor);
-			if (name == "Task Buy" && menu_itemp)
-			{
-				menu_itemp->setLabel(label);
-			}
-		}
+		hide_context_entries(menu, items, disabled_items);
+		return;
 	}
-	else
+
+	items.push_back(std::string("Task Open")); 
+	if (!isItemCopyable())
 	{
-		items.push_back(std::string("Task Open")); 
-		if (!isItemCopyable())
-		{
-			disabled_items.push_back(std::string("Task Open"));
-		}
+		disabled_items.push_back(std::string("Task Open"));
 	}
+
 	items.push_back(std::string("Task Properties"));
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		disabled_items.push_back(std::string("Task Properties"));
+	}
 	if(isItemRenameable())
 	{
 		items.push_back(std::string("Task Rename"));

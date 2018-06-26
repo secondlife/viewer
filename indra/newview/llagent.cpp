@@ -1580,6 +1580,8 @@ void LLAgent::setAutoPilotTargetGlobal(const LLVector3d &target_global)
 		LLViewerObject *obj;
 
 		LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
+		// Note: this might malfunction for sitting agent, since pelvis stays same, but agent's position becomes lower
+		// But for autopilot to work we assume that agent is standing and ready to go.
 		F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
 
 		// clamp z value of target to minimum height above ground
@@ -3943,8 +3945,7 @@ void LLAgent::teleportRequest(
 	bool look_at_from_camera)
 {
 	LLViewerRegion* regionp = getRegion();
-	bool is_local = (region_handle == regionp->getHandle());
-	if(regionp && teleportCore(is_local))
+	if (regionp && teleportCore(region_handle == regionp->getHandle()))
 	{
 		LL_INFOS("") << "TeleportLocationRequest: '" << region_handle << "':"
 					 << pos_local << LL_ENDL;

@@ -53,7 +53,7 @@
   <menu_item_check
    label="Block Particles"
    layout="topleft"
-   name="MuteText">
+   name="MuteParticles">
       <on_check
        function="Block.Check"
        parameter="block_particles" />
