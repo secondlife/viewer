@@ -564,13 +564,15 @@ void LLDrawPoolWater::shade()
 		shader = &gWaterProgram;
 	}
 
+    shader->bind();
+
 	if (deferred_render)
 	{
-		gPipeline.bindDeferredShader(*shader);
-	}
-	else
-	{
-		shader->bind();
+        if (shader->getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
+	    {
+		    glh::matrix4f norm_mat = get_current_modelview().inverse().transpose();
+		    shader->uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, 1, FALSE, norm_mat.m);
+	    }
 	}
 
 	sTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;
@@ -718,14 +720,7 @@ void LLDrawPoolWater::shade()
 	shader->disableTexture(LLShaderMgr::WATER_REFTEX);
 	shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
 
-	if (deferred_render)
-	{
-		gPipeline.unbindDeferredShader(*shader);
-	}
-	else
-	{
-		shader->unbind();
-	}
+	shader->unbind();
 
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
