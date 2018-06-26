@@ -655,6 +655,7 @@ public:
 	virtual void	dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 	void			updateMeshVisibility();
+	LLViewerTexture*		getBakedTexture(const U8 te);
 
 protected:
 	void 			releaseMeshData();
