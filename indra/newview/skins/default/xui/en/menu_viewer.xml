@@ -3972,6 +3972,16 @@
                  parameter="tattoo" />
             </menu_item_call>
             <menu_item_call
+             label="Universal"
+             name="Universal">
+              <menu_item_call.on_click
+               function="Edit.TakeOff"
+               parameter="tattoo" />
+              <menu_item_call.on_enable
+               function="Edit.EnableTakeOff"
+               parameter="universal" />
+            </menu_item_call>
+            <menu_item_call
              label="Physics"
              name="Physics">
                 <menu_item_call.on_click

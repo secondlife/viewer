@@ -466,8 +466,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("skirt"), new LLFindActualWearablesOfType(LLWearableType::WT_SKIRT)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("alpha"), new LLFindActualWearablesOfType(LLWearableType::WT_ALPHA)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("tattoo"), new LLFindActualWearablesOfType(LLWearableType::WT_TATTOO)));
-	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("universal"), new LLFindActualWearablesOfType(LLWearableType::WT_UNIVERSAL)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("physics"), new LLFindActualWearablesOfType(LLWearableType::WT_PHYSICS)));
+	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("universal"), new LLFindActualWearablesOfType(LLWearableType::WT_UNIVERSAL)));
 
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 	mStatus = getChild<LLTextBox>("status");
