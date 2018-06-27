@@ -806,13 +806,15 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             params.postend = sGatewayPump.getName();
             sGatewayPump.listen("VivoxDaemonPump", boost::bind(&LLVivoxVoiceClient::callbackEndDaemon, this, _1));
 
+            LL_INFOS("Voice") << "Launching SLVoice " << LL_ENDL;
+
             sGatewayPtr = LLProcess::create(params);
 
             mDaemonHost = LLHost(gSavedSettings.getString("VivoxVoiceHost").c_str(), gSavedSettings.getU32("VivoxVoicePort"));
         }
         else
         {
-            LL_INFOS("Voice") << exe_path << " not found." << LL_ENDL;
+            LL_WARNS("Voice") << exe_path << " not found." << LL_ENDL;
             return false;
         }
 #else
@@ -896,7 +898,6 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 bool LLVivoxVoiceClient::provisionVoiceAccount()
 {
     LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
-        LL_DEBUGS("Voice") << "no region for voice provisioning; waiting " << LL_ENDL;
 
     while (!gAgent.getRegion() || !gAgent.getRegion()->capabilitiesReceived())
     {
@@ -906,6 +907,8 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     }
 
     std::string url = gAgent.getRegionCapability("ProvisionVoiceAccountRequest");
+
+    LL_DEBUGS("Voice") << "region ready for voice provisioning; url=" << url << LL_ENDL;
 
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -954,7 +957,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     std::string voiceUserName = result["username"].asString();
     std::string voicePassword = result["password"].asString();
 
-    //LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
+    LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
 
     if (result.has("voice_sip_uri_hostname"))
         voiceSipUriHostname = result["voice_sip_uri_hostname"].asString();
@@ -973,8 +976,11 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     LLEventPump &voiceConnectPump = LLEventPumps::instance().obtain("vivoxClientPump");
 
     if (!mVoiceEnabled && mIsInitialized)
+    {
+        LL_WARNS("Voice") << "cannot establish connection; enabled "<<mVoiceEnabled<<" initialized "<<mIsInitialized<<LL_ENDL;
         return false;
-
+    }
+    
     LLSD result;
     bool connected(false);
     bool giving_up(false);
@@ -2569,8 +2575,7 @@ void LLVivoxVoiceClient::daemonDied()
 	// The daemon died, so the connection is gone.  Reset everything and start over.
 	LL_WARNS("Voice") << "Connection to vivox daemon lost.  Resetting state."<< LL_ENDL;
 
-	// Try to relaunch the daemon
-    /*TODO:*/
+	//TODO: Try to relaunch the daemon
 }
 
 void LLVivoxVoiceClient::giveUp()
@@ -2975,7 +2980,8 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 {
 	// Check all of the dirty states and then send messages to those needing to be changed.
 	// Tuningmode hands its own mute settings.
-
+    LL_DEBUGS("Voice")<<LL_ENDL;
+    
 	std::ostringstream stream;
 
 	if (mMuteMicDirty && !mTuningMode)
@@ -2984,7 +2990,7 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 
 		// Send a local mute command.
 
-		LL_DEBUGS("Voice") << "Sending MuteLocalMic command with parameter " << (mMuteMic ? "true" : "false") << LL_ENDL;
+		LL_INFOS("Voice") << "Sending MuteLocalMic command with parameter " << (mMuteMic ? "true" : "false") << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
 			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
@@ -3246,8 +3252,6 @@ void LLVivoxVoiceClient::sessionConnectResponse(std::string &requestId, int stat
 	{
 		LL_DEBUGS("Voice") << "Session.Connect response received (success)" << LL_ENDL;
 	}
-
-    /*TODO: Post response?*/
 }
 
 void LLVivoxVoiceClient::logoutResponse(int statusCode, std::string &statusString)
