@@ -971,8 +971,8 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response"
                        << " user " << (voiceUserName.empty() ? "not set" : "set")
                        << " password " << (voicePassword.empty() ? "not set" : "set")
-                       << " sip uri " voiceSipUriHostname
-                       << " account uri " voiceAccountServerUri
+                       << " sip uri " << voiceSipUriHostname
+                       << " account uri " << voiceAccountServerUri
                        << LL_ENDL;
 
     setLoginInfo(voiceUserName, voicePassword, voiceSipUriHostname, voiceAccountServerUri);
