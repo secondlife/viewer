@@ -284,17 +284,20 @@ void LLCoros::setStackSize(S32 stacksize)
 void LLCoros::printActiveCoroutines()
 {
     LL_INFOS("LLCoros") << "Number of active coroutines: " << (S32)mCoros.size() << LL_ENDL;
-    LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
-    CoroMap::iterator iter;
-    CoroMap::iterator end = mCoros.end();
-    F64 time = LLTimer::getTotalSeconds();
-    for (iter = mCoros.begin(); iter != end; iter++)
+    if (mCoros.size() > 0)
     {
-        F64 life_time = time - iter->second->mCreationTime;
-        LL_CONT << LL_NEWLINE << "Name: " << iter->first << " life: " << life_time;
+        LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
+        CoroMap::iterator iter;
+        CoroMap::iterator end = mCoros.end();
+        F64 time = LLTimer::getTotalSeconds();
+        for (iter = mCoros.begin(); iter != end; iter++)
+        {
+            F64 life_time = time - iter->second->mCreationTime;
+            LL_CONT << LL_NEWLINE << "Name: " << iter->first << " life: " << life_time;
+        }
+        LL_CONT << LL_ENDL;
+        LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
     }
-    LL_CONT << LL_ENDL;
-    LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
 }
 
 #if LL_WINDOWS
