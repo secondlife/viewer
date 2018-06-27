@@ -88,6 +88,7 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	{
 #if LL_RECORD_VIEWER_STATS
 		recordTextureFetch(msg_size);
+        writeToLog(0.1f);
 #endif
 	}
 

@@ -1625,18 +1625,20 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// fetched via HTTP is J2C
 			std::string extension = gDirUtilp->getExtension(mUrl);
 
-			if (! mHttpBufferArray || ! mHttpBufferArray->size())
+            // no data received. -> abort!
+            if (mHttpBufferArray && !mHttpBufferArray->size())
 			{
-				// no data received.
-				if (mHttpBufferArray)
-				{
-					mHttpBufferArray->release();
-					mHttpBufferArray = NULL;
-				}
-
-				// abort.
+				mHttpBufferArray->release();
+				mHttpBufferArray = NULL;
 				setState(DONE);
 				LL_WARNS(LOG_TXT) << mID << " abort: no data received" << LL_ENDL;
+				releaseHttpSemaphore();
+				return true;
+			}
+			else if (!mHttpBufferArray)
+			{				
+				setState(DONE);
+				LL_WARNS(LOG_TXT) << mID << " abort: no HTTP buffer array" << LL_ENDL;
 				releaseHttpSemaphore();
 				return true;
 			}
@@ -2092,22 +2094,31 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 {
 	S32 data_size = 0 ;
 
+    // we should not receive a callback for something not waiting for a callback
+    llassert(mState == WAIT_HTTP_REQ);
 	if (mState != WAIT_HTTP_REQ)
 	{
-		LL_WARNS(LOG_TXT) << "callbackHttpGet for unrequested fetch worker: " << mID
+		LL_ERRS(LOG_TXT) << "callbackHttpGet for unrequested fetch worker: " << mID
 						  << " req=" << mSentRequest << " state= " << mState << LL_ENDL;
 		return data_size;
 	}
+
+    // we should not receive a callback for something that is already loaded
+    llassert(!mLoaded);
 	if (mLoaded)
 	{
-		LL_WARNS(LOG_TXT) << "Duplicate callback for " << mID.asString() << LL_ENDL;
+		LL_ERRS(LOG_TXT) << "Duplicate callback for " << mID.asString() << LL_ENDL;
 		return data_size ; // ignore duplicate callback
 	}
+
 	if (success)
 	{
 		// get length of stream:
 		LLCore::BufferArray * body(response->getBody());
 		data_size = body ? body->size() : 0;
+
+        // what does success but zero size data mean, really?
+        llassert(data_size > 0);
 
 		LL_DEBUGS(LOG_TXT) << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
 		if (data_size > 0)
@@ -2141,7 +2152,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 				}
 			}
 
-			if (! partial)
+			if (!partial)
 			{
 				// Response indicates this is the entire asset regardless
 				// of our asking for a byte range.  Mark it so and drop
@@ -2162,32 +2173,32 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 			{
 				mHaveAllData = TRUE;
 			}
-			else if (data_size > mRequestedSize)
-			{
-				// *TODO: This shouldn't be happening any more  (REALLY don't expect this anymore)
-				LL_WARNS(LOG_TXT) << "data_size = " << data_size << " > requested: " << mRequestedSize << LL_ENDL;
-				mHaveAllData = TRUE;
-				llassert_always(mDecodeHandle == 0);
-				mFormattedImage = NULL; // discard any previous data we had
+			else
+            {
+                llassert(data_size <= mRequestedSize);
+                llassert_always(mDecodeHandle == 0);
+
+                if (data_size > mRequestedSize)
+			    {
+				    // *TODO: This shouldn't be happening any more  (REALLY don't expect this anymore)
+				    LL_ERRS(LOG_TXT) << "data_size = " << data_size << " > requested: " << mRequestedSize << LL_ENDL;
+				    mHaveAllData = TRUE;				    
+				    mFormattedImage = NULL; // discard any previous data we had
+		        }
+            }
 		}
-		}
-		else
-		{
-			// We requested data but received none (and no error),
-			// so presumably we have all of it
-			mHaveAllData = TRUE;
-		}
+
 		mRequestedSize = data_size;
+        mLoaded = TRUE;
+        setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 	}
 	else
 	{
 		mRequestedSize = -1; // error
+        mLoaded = FALSE;
+        setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 	}
-	
-	mLoaded = TRUE;
-	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
-	LLViewerStatsRecorder::instance().log(0.2f);
 	return data_size ;
 }
 
@@ -3136,8 +3147,7 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	}
 
 	LLViewerStatsRecorder::instance().textureFetch(data_size);
-	LLViewerStatsRecorder::instance().log(0.1f);
-
+	
 	worker->lockWorkMutex();
 
 
@@ -3188,8 +3198,7 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 	}
 	
 	LLViewerStatsRecorder::instance().textureFetch(data_size);
-	LLViewerStatsRecorder::instance().log(0.1f);
-
+	
 	worker->lockWorkMutex();
 
 	
