@@ -869,7 +869,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			updateAlphaControls();
 
 			if (texture_ctrl)
-			{
+				{
 				if (identical_diffuse)
 				{
 					texture_ctrl->setTentative(FALSE);
@@ -897,8 +897,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					
 				}
 				else if (id.isNull())
-				{
-					// None selected
+					{
+						// None selected
 					texture_ctrl->setTentative(FALSE);
 					texture_ctrl->setEnabled(FALSE);
 					texture_ctrl->setImageAssetID(LLUUID::null);
@@ -908,10 +908,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("label maskcutoff")->setEnabled(FALSE);
 
 					texture_ctrl->setBakeTextureEnabled(false);
-				}
-				else
-				{
-					// Tentative: multiple selected with different textures
+					}
+					else
+					{
+						// Tentative: multiple selected with different textures
 					texture_ctrl->setTentative(TRUE);
 					texture_ctrl->setEnabled(editable);
 					texture_ctrl->setImageAssetID(id);
@@ -930,8 +930,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 						{
 							allAttachments = false;
 							break;
-						}
-					}
+				}
+			}
 
 					texture_ctrl->setBakeTextureEnabled(allAttachments);
 				}
@@ -1199,16 +1199,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("combobox texgen")->setTentative(!identical);
 			getChildView("tex gen")->setEnabled(editable);
 
-			if (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR)
-			{
-				// EXP-1507 (change label based on the mapping mode)
-				getChild<LLUICtrl>("rpt")->setValue(getString("string repeats per meter"));
-			}
-			else
-			if (selected_texgen == LLTextureEntry::TEX_GEN_DEFAULT)
-			{
-				getChild<LLUICtrl>("rpt")->setValue(getString("string repeats per face"));
-			}
 			}
 
 		{
@@ -1424,8 +1414,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			mColorSwatch->setValid(FALSE);
 		}
 		getChildView("color trans")->setEnabled(FALSE);
-		getChildView("rpt")->setEnabled(FALSE);
-		getChildView("tex offset")->setEnabled(FALSE);
+		getChildView("rptctrl")->setEnabled(FALSE);
 		getChildView("tex gen")->setEnabled(FALSE);
 		getChildView("label shininess")->setEnabled(FALSE);
 		getChildView("label bumpiness")->setEnabled(FALSE);

@@ -180,13 +180,20 @@ Maximum 200 per group daily
         <line_editor
          follows="left|top|right"
          enabled="false"
-         height="19"
+         height="20"
          layout="topleft"
          max_length_bytes="90"
          mouse_opaque="false"
          name="create_inventory_name"
          top_pad="2"
          width="285" />
+        <icon
+         height="16"
+         layout="topleft"
+         left_delta="5"
+         name="create_inv_icon"
+         top_delta="2"
+         width="16" />
         <text
         text_color="EmphasisColor"
          follows="left|top"
@@ -350,6 +357,13 @@ Maximum 200 per group daily
          name="view_inventory_name"
          top_pad="8"
          width="250"/>
+        <icon
+         height="16"
+         layout="topleft"
+         left_delta="5"
+         name="view_inv_icon"
+         top_delta="2"
+         width="16" />
         <button
          follows="left|top"
          height="23"

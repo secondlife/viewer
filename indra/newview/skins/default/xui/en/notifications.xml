@@ -10414,14 +10414,6 @@ Not enough script resources available to attach object!
   </notification>
 
   <notification
-  icon="alertmodal.tga"
-  name="IllegalAttachment"
-  type="notify">
-   <tag>fail</tag>
-   The attachment has requested a nonexistent point on the avatar. It has been attached to the chest instead.
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="CantDropItemTrialUser"
    type="notify">
@@ -11031,7 +11023,7 @@ An internal error prevented us from properly updating your viewer.  The L$ balan
    name="LargePrimAgentIntersect"
    type="notify">
    <tag>fail</tag>
-Cannot create large prims that intersect other players.  Please re-try when other players have moved.
+Cannot create large prims that intersect other residents.  Please re-try when other residents have moved.
   </notification>
   
   <notification

@@ -3997,13 +3997,13 @@ void LLVivoxVoiceClient::sessionNotificationEvent(std::string &sessionHandle, st
 			{
 				// Other end started typing
 				// TODO: The proper way to add a typing notification seems to be LLIMMgr::processIMTypingStart().
-				// It requires an LLIMInfo for the message, which we don't have here.
+				// It requires some info for the message, which we don't have here.
 			}
 			else if (!stricmp(notificationType.c_str(), "NotTyping"))
 			{
 				// Other end stopped typing
 				// TODO: The proper way to remove a typing notification seems to be LLIMMgr::processIMTypingStop().
-				// It requires an LLIMInfo for the message, which we don't have here.
+				// It requires some info for the message, which we don't have here.
 			}
 			else
 			{

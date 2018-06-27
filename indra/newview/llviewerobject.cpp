@@ -134,6 +134,7 @@ std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 // JC 3/18/2003
 
 const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
+const U32 MAX_INV_FILE_READ_FAILS = 25;
 
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
@@ -3063,6 +3064,7 @@ BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 	llifstream ifs(filename_and_local_path.c_str());
 	if(ifs.good())
 	{
+		U32 fail_count = 0;
 		char buffer[MAX_STRING];	/* Flawfinder: ignore */
 		// *NOTE: This buffer size is hard coded into scanf() below.
 		char keyword[MAX_STRING];	/* Flawfinder: ignore */
@@ -3077,8 +3079,14 @@ BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 		while(ifs.good())
 		{
 			ifs.getline(buffer, MAX_STRING);
-			sscanf(buffer, " %254s", keyword);	/* Flawfinder: ignore */
-			if(0 == strcmp("inv_item", keyword))
+			if (sscanf(buffer, " %254s", keyword) == EOF) /* Flawfinder: ignore */
+			{
+				// Blank file?
+				LL_WARNS() << "Issue reading from file '"
+						<< filename << "'" << LL_ENDL;
+				break;
+			}
+			else if(0 == strcmp("inv_item", keyword))
 			{
 				LLPointer<LLInventoryObject> inv = new LLViewerInventoryItem;
 				inv->importLegacyStream(ifs);
@@ -3091,9 +3099,17 @@ BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 				inv->rename("Contents");
 				mInventory->push_front(inv);
 			}
+			else if (fail_count >= MAX_INV_FILE_READ_FAILS)
+			{
+				LL_WARNS() << "Encountered too many unknowns while reading from file: '"
+						<< filename << "'" << LL_ENDL;
+				break;
+			}
 			else
 			{
-				LL_WARNS() << "Unknown token in inventory file '"
+				// Is there really a point to continue processing? We already failing to display full inventory
+				fail_count++;
+				LL_WARNS_ONCE() << "Unknown token while reading from inventory file. Token: '"
 						<< keyword << "'" << LL_ENDL;
 			}
 		}

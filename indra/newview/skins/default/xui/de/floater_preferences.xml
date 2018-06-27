@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Preferences" title="EINSTELLUNGEN">
+	<floater.string name="email_unverified_tooltip">
+		Bitte bestätigen Sie Ihre E-Mail-Adresse unter https://accounts.secondlife.com/change_email/ zur Aktivierung der E-Mail-Funktion des IM.
+	</floater.string>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
 	<tab_container name="pref core">
