@@ -8375,27 +8375,12 @@ LLViewerTexture* LLVOAvatar::getBakedTexture(const U8 te)
 	}
 
 	BOOL is_layer_baked = isTextureDefined(mBakedTextureDatas[te].mTextureIndex);
-	BOOL use_lkg_baked_layer; // lkg = "last known good"
 	
 	LLViewerTexLayerSet* layerset = NULL;
 	layerset = getTexLayerSet(te);
-	BOOL layerset_invalid = layerset && (!layerset->getViewerComposite()->isInitialized() || !layerset->isLocalTextureDataAvailable());
-	use_lkg_baked_layer = (!is_layer_baked && (mBakedTextureDatas[te].mLastTextureID != IMG_DEFAULT_AVATAR) && layerset_invalid);
-	if (use_lkg_baked_layer)
-	{
-		layerset->setUpdatesEnabled(TRUE);
-	}
-	else
-	{
-		use_lkg_baked_layer = (!is_layer_baked && mBakedTextureDatas[te].mLastTextureID != IMG_DEFAULT_AVATAR);
-	}
+	
 
-	if (use_lkg_baked_layer && !isUsingLocalAppearance())
-	{
-		LLViewerFetchedTexture* baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[te].mLastTextureID);
-		return baked_img;
-	}
-	else if (!isUsingLocalAppearance() && is_layer_baked)
+	if (!isUsingLocalAppearance() && is_layer_baked)
 	{
 		LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage(mBakedTextureDatas[te].mTextureIndex, 0), TRUE);
 		return baked_img;
@@ -8646,6 +8631,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			}
 		}
 	}
+
 	dirtyMesh();
 }
 
