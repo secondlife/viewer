@@ -957,14 +957,23 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     std::string voiceUserName = result["username"].asString();
     std::string voicePassword = result["password"].asString();
 
-    LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
-
     if (result.has("voice_sip_uri_hostname"))
+    {
         voiceSipUriHostname = result["voice_sip_uri_hostname"].asString();
-
+    }
+    
     // this key is actually misnamed -- it will be an entire URI, not just a hostname.
     if (result.has("voice_account_server_name"))
+    {
         voiceAccountServerUri = result["voice_account_server_name"].asString();
+    }
+
+    LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response"
+                       << " user " << (voiceUserName.empty() ? "not set" : "set")
+                       << " password " << (voicePassword.empty() ? "not set" : "set")
+                       << " sip uri " voiceSipUriHostname
+                       << " account uri " voiceAccountServerUri
+                       << LL_ENDL;
 
     setLoginInfo(voiceUserName, voicePassword, voiceSipUriHostname, voiceAccountServerUri);
 
