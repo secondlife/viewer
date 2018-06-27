@@ -381,6 +381,8 @@ private:
 	floater_commit_callback mOnFloaterCommitCallback;
 	set_image_asset_id_callback mSetImageAssetIDCallback;
 	set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
+
+	BOOL mBakeTextureEnabled;
 };
 
 #endif  // LL_LLTEXTURECTRL_H

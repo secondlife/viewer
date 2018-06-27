@@ -81,6 +81,13 @@ static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
 //static const char NO_IMAGE_NAME[] = "None";
 
+static BOOL isBakedImageID(LLUUID mImageAssetID)
+{
+	return ((mImageAssetID == IMG_USE_BAKED_EYES) || (mImageAssetID == IMG_USE_BAKED_HAIR) || (mImageAssetID == IMG_USE_BAKED_HEAD) || (mImageAssetID == IMG_USE_BAKED_LOWER) || (mImageAssetID == IMG_USE_BAKED_SKIRT) || (mImageAssetID == IMG_USE_BAKED_UPPER)
+		|| (mImageAssetID == IMG_USE_BAKED_LEFTARM) || (mImageAssetID == IMG_USE_BAKED_LEFTLEG) || (mImageAssetID == IMG_USE_BAKED_AUX1) || (mImageAssetID == IMG_USE_BAKED_AUX2) || (mImageAssetID == IMG_USE_BAKED_AUX3));
+
+}
+
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
 	LLUUID image_asset_id,
@@ -119,7 +126,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mOnFloaterCommitCallback(NULL),
 	mOnFloaterCloseCallback(NULL),
 	mSetImageAssetIDCallback(NULL),
-	mOnUpdateImageStatsCallback(NULL)
+	mOnUpdateImageStatsCallback(NULL),
+	mBakeTextureEnabled(FALSE)
 {
 	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
@@ -137,26 +145,47 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 		mNoCopyTextureSelected = FALSE;
 		mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 		mImageAssetID = image_id; 
-		LLUUID item_id = findItemID(mImageAssetID, FALSE);
-		if (item_id.isNull())
+
+		if (isBakedImageID(mImageAssetID))
 		{
-			mInventoryPanel->getRootFolder()->clearSelection();
+			if ( mBakeTextureEnabled && mModeSelector->getSelectedIndex() != 2)
+			{
+				mModeSelector->setSelectedIndex(2, 0);
+				onModeSelect(0,this);
+			}
 		}
 		else
 		{
-			LLInventoryItem* itemp = gInventory.getItem(image_id);
-			if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
+			if (mModeSelector->getSelectedIndex() == 2)
 			{
-				// no copy texture
-				getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
-				mNoCopyTextureSelected = TRUE;
+				mModeSelector->setSelectedIndex(0, 0);
+				onModeSelect(0,this);
+			}
+			
+			LLUUID item_id = findItemID(mImageAssetID, FALSE);
+			if (item_id.isNull())
+			{
+				mInventoryPanel->getRootFolder()->clearSelection();
+			}
+			else
+			{
+				LLInventoryItem* itemp = gInventory.getItem(image_id);
+				if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
+				{
+					// no copy texture
+					getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
+					mNoCopyTextureSelected = TRUE;
+				}
+			}
+
+			if (set_selection)
+			{
+				mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
 			}
 		}
+		
 
-		if (set_selection)
-		{
-			mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
-		}
+		
 	}
 }
 
@@ -342,6 +371,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
+	mModeSelector = getChild<LLRadioGroup>("mode_selection");
+	mModeSelector->setCommitCallback(onModeSelect, this);
+	mModeSelector->setSelectedIndex(0, 0);
+
 	if(mInventoryPanel)
 	{
 		U32 filter_types = 0x0;
@@ -367,15 +400,14 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 		// don't put keyboard focus on selected item, because the selection callback
 		// will assume that this was user input
-		if(!mImageAssetID.isNull())
+
+		
+
+		if (!mImageAssetID.isNull())
 		{
 			mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
 		}
 	}
-
-	mModeSelector = getChild<LLRadioGroup>("mode_selection");
-	mModeSelector->setCommitCallback(onModeSelect, this);
-	mModeSelector->setSelectedIndex(0, 0);
 
 	childSetAction("l_add_btn", LLFloaterTexturePicker::onBtnAdd, this);
 	childSetAction("l_rem_btn", LLFloaterTexturePicker::onBtnRemove, this);
@@ -805,6 +837,8 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 
 	if (mode == 2)
 	{
+		self->stopUsingPipette();
+
 		S8 val = -1;
 
 		LLUUID imageID = self->mImageAssetID;
@@ -1113,8 +1147,23 @@ void LLFloaterTexturePicker::setLocalTextureEnabled(BOOL enabled)
 
 void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
 {
+	BOOL changed = (enabled != mBakeTextureEnabled);
+
+	mBakeTextureEnabled = enabled;
 	mModeSelector->setIndexEnabled(2, enabled);
-	mModeSelector->setSelectedIndex(mModeSelector->getSelectedIndex(), 0);
+
+	if (!mBakeTextureEnabled && (mModeSelector->getSelectedIndex() == 2))
+	{
+		mModeSelector->setSelectedIndex(0, 0);
+	}
+	
+	if (changed && mBakeTextureEnabled && isBakedImageID(mImageAssetID))
+	{
+		if (mModeSelector->getSelectedIndex() != 2)
+		{
+			mModeSelector->setSelectedIndex(2, 0);
+		}
+	}
 	onModeSelect(0, this);
 }
 
