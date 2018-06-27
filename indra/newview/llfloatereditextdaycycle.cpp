@@ -502,9 +502,10 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
 
     }
 
-
-
     mTimeSlider->setCurSliderValue(sliderpos);
+
+    updateTabs();
+    LLEnvironment::instance().updateEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderDoubleClick(S32 x, S32 y, MASK mask)
