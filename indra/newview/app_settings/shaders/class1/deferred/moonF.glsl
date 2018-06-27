@@ -51,9 +51,10 @@ void main()
 	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(moonA, moonB, blend_factor);
 
-    c.rgb = pow(c.rgb, vec3(0.45f));
+	c.rgb = pow(c.rgb, vec3(0.7f));
 	c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
+
     // mix factor which blends when sunlight is brighter
     // and shows true moon color at night
     vec3 luma_weights = vec3(0.1, 0.3, 0.0);

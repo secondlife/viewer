@@ -90,6 +90,10 @@ void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
 {
 	sky_shader = &gDeferredWLSkyProgram;
 	cloud_shader = &gDeferredWLCloudProgram;
+    moon_shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectFullbrightNoColorWaterProgram :
+				&gDeferredWLMoonProgram;
 }
 
 void LLDrawPoolWLSky::endDeferredPass(S32 pass)
