@@ -845,6 +845,14 @@ void LLComboBox::setTextEntry(const LLStringExplicit& text)
 	}
 }
 
+void LLComboBox::setKeystrokeOnEsc(BOOL enable)
+{
+	if (mTextEntry)
+	{
+		mTextEntry->setKeystrokeOnEsc(enable);
+	}
+}
+
 void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 {
 	if (mTextEntryCallback != NULL)
