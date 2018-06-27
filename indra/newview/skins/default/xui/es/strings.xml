@@ -781,6 +781,9 @@ http://secondlife.com/support para obtener ayuda sobre cómo solucionar este pro
 	<string name="mesh">
 		red
 	</string>
+    <string name="settings">
+        configuración
+    </string>
 	<string name="AvatarEditingAppearance">
 		(Edición de Apariencia)
 	</string>

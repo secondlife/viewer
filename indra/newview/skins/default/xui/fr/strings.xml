@@ -793,6 +793,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	<string name="mesh">
 		maillage
 	</string>
+    <string name="settings">
+        paramètres
+    </string>
 	<string name="AvatarEditingAppearance">
 		(Apparence en cours de modification)
 	</string>

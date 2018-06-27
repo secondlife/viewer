@@ -790,6 +790,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	<string name="mesh">
 		örgü
 	</string>
+    <string name="settings">
+        ayarlar
+    </string>
 	<string name="AvatarEditingAppearance">
 		(Görünümü Düzenliyor)
 	</string>
