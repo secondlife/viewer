@@ -484,12 +484,19 @@ void LLGridManager::getLoginURIs(const std::string& grid, std::vector<std::strin
 	std::string grid_name = getGrid(grid);
 	if (!grid_name.empty())
 	{
-		for (LLSD::array_iterator llsd_uri = mGridList[grid_name][GRID_LOGIN_URI_VALUE].beginArray();
-			 llsd_uri != mGridList[grid_name][GRID_LOGIN_URI_VALUE].endArray();
-			 llsd_uri++)
-		{
-			uris.push_back(llsd_uri->asString());
-		}
+        if (mGridList[grid_name][GRID_LOGIN_URI_VALUE].isArray())
+        {
+		    for (LLSD::array_iterator llsd_uri = mGridList[grid_name][GRID_LOGIN_URI_VALUE].beginArray();
+			     llsd_uri != mGridList[grid_name][GRID_LOGIN_URI_VALUE].endArray();
+			     llsd_uri++)
+		    {
+			    uris.push_back(llsd_uri->asString());
+		    }
+        }
+        else
+        {
+            uris.push_back(mGridList[grid_name][GRID_LOGIN_URI_VALUE].asString());
+        }
 	}
 	else
 	{
