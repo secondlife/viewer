@@ -66,58 +66,59 @@ public:
 	LLSD asLLSD() const;
 	void fromLLSD(const LLSD& material_data);
 
-	const LLUUID& getNormalID() const { return mNormalID; }
-	void		setNormalID(const LLUUID& normal_id) { mNormalID = normal_id; }
-	void		getNormalOffset(F32& offset_x, F32& offset_y) const { offset_x = mNormalOffsetX; offset_y = mNormalOffsetY; }
-	F32		getNormalOffsetX() const { return mNormalOffsetX; }
-	F32		getNormalOffsetY() const { return mNormalOffsetY; }
+	const LLUUID&   getNormalID() const;
+	void		    setNormalID(const LLUUID& normal_id);
 
-	void		setNormalOffset(F32 offset_x, F32 offset_y) { mNormalOffsetX = offset_x; mNormalOffsetY = offset_y; }
-	void		setNormalOffsetX(F32 offset_x) { mNormalOffsetX = offset_x; }
-	void		setNormalOffsetY(F32 offset_y) { mNormalOffsetY = offset_y; }
+	void		getNormalOffset(F32& offset_x, F32& offset_y) const;
+	F32		    getNormalOffsetX() const;
+	F32		    getNormalOffsetY() const;
 
-	void		getNormalRepeat(F32& repeat_x, F32& repeat_y) const { repeat_x = mNormalRepeatX; repeat_y = mNormalRepeatY; }
-	F32		getNormalRepeatX() const { return mNormalRepeatX; }
-	F32		getNormalRepeatY() const { return mNormalRepeatY; }
+	void		setNormalOffset(F32 offset_x, F32 offset_y);
+	void		setNormalOffsetX(F32 offset_x);
+	void		setNormalOffsetY(F32 offset_y);
 
-	void		setNormalRepeat(F32 repeat_x, F32 repeat_y) { mNormalRepeatX = repeat_x; mNormalRepeatY = repeat_y; }
-	void		setNormalRepeatX(F32 repeat_x) { mNormalRepeatX = repeat_x; }
-	void		setNormalRepeatY(F32 repeat_y) { mNormalRepeatY = repeat_y; }
+	void		getNormalRepeat(F32& repeat_x, F32& repeat_y) const;
+	F32		    getNormalRepeatX() const;
+	F32		    getNormalRepeatY() const;
 
-	F32		getNormalRotation() const { return mNormalRotation; }
-	void		setNormalRotation(F32 rot) { mNormalRotation = rot; }
+	void		setNormalRepeat(F32 repeat_x, F32 repeat_y);
+	void		setNormalRepeatX(F32 repeat_x);
+	void		setNormalRepeatY(F32 repeat_y);
 
-	const LLUUID& getSpecularID() const { return mSpecularID; }
-	void		setSpecularID(const LLUUID& specular_id)  { mSpecularID = specular_id; }
-	void		getSpecularOffset(F32& offset_x, F32& offset_y) const { offset_x = mSpecularOffsetX; offset_y = mSpecularOffsetY; }
-	F32		getSpecularOffsetX() const { return mSpecularOffsetX; }
-	F32		getSpecularOffsetY() const { return mSpecularOffsetY; }
+	F32		    getNormalRotation() const;
+	void		setNormalRotation(F32 rot);
 
-	void		setSpecularOffset(F32 offset_x, F32 offset_y) { mSpecularOffsetX = offset_x; mSpecularOffsetY = offset_y; }
-	void		setSpecularOffsetX(F32 offset_x) { mSpecularOffsetX = offset_x; }
-	void		setSpecularOffsetY(F32 offset_y) { mSpecularOffsetY = offset_y; }
+	const LLUUID& getSpecularID() const;
+	void		setSpecularID(const LLUUID& specular_id);
+	void		getSpecularOffset(F32& offset_x, F32& offset_y) const;
+	F32		    getSpecularOffsetX() const;
+	F32		    getSpecularOffsetY() const;
 
-	void		getSpecularRepeat(F32& repeat_x, F32& repeat_y) const { repeat_x = mSpecularRepeatX; repeat_y = mSpecularRepeatY; }
-	F32		getSpecularRepeatX() const { return mSpecularRepeatX; }
-	F32		getSpecularRepeatY() const { return mSpecularRepeatY; }
+	void		setSpecularOffset(F32 offset_x, F32 offset_y);
+	void		setSpecularOffsetX(F32 offset_x);
+	void		setSpecularOffsetY(F32 offset_y);
 
-	void		setSpecularRepeat(F32 repeat_x, F32 repeat_y) { mSpecularRepeatX = repeat_x; mSpecularRepeatY = repeat_y; }
-	void		setSpecularRepeatX(F32 repeat_x) { mSpecularRepeatX = repeat_x; }
-	void		setSpecularRepeatY(F32 repeat_y) { mSpecularRepeatY = repeat_y; }
+	void		getSpecularRepeat(F32& repeat_x, F32& repeat_y) const;
+	F32		    getSpecularRepeatX() const;
+	F32		    getSpecularRepeatY() const;
 
-	F32		getSpecularRotation() const { return mSpecularRotation; }
-	void		setSpecularRotation(F32 rot) { mSpecularRotation = rot; }
+	void		setSpecularRepeat(F32 repeat_x, F32 repeat_y);
+	void		setSpecularRepeatX(F32 repeat_x);
+	void		setSpecularRepeatY(F32 repeat_y);
 
-	const LLColor4U getSpecularLightColor() const { return mSpecularLightColor; }
-	void		setSpecularLightColor(const LLColor4U& color) { mSpecularLightColor = color; }
-	U8			getSpecularLightExponent() const { return mSpecularLightExponent; }
-	void		setSpecularLightExponent(U8 exponent) { mSpecularLightExponent = exponent; }
-	U8			getEnvironmentIntensity() const { return mEnvironmentIntensity; }
-	void		setEnvironmentIntensity(U8 intensity) { mEnvironmentIntensity = intensity; }
-	U8			getDiffuseAlphaMode() const { return mDiffuseAlphaMode; }
-	void		setDiffuseAlphaMode(U8 alpha_mode) { mDiffuseAlphaMode = alpha_mode; }
-	U8			getAlphaMaskCutoff() const { return mAlphaMaskCutoff; }
-	void		setAlphaMaskCutoff(U8 cutoff) { mAlphaMaskCutoff = cutoff; }
+	F32		    getSpecularRotation() const;
+	void		setSpecularRotation(F32 rot);
+
+	const LLColor4U getSpecularLightColor() const;
+	void		setSpecularLightColor(const LLColor4U& color);
+	U8			getSpecularLightExponent() const;
+	void		setSpecularLightExponent(U8 exponent);
+	U8			getEnvironmentIntensity() const;
+	void		setEnvironmentIntensity(U8 intensity);
+	U8			getDiffuseAlphaMode() const;
+	void		setDiffuseAlphaMode(U8 alpha_mode);
+	U8			getAlphaMaskCutoff() const;
+	void		setAlphaMaskCutoff(U8 cutoff);
 
 	bool		isNull() const;
 	static const LLMaterial null;
