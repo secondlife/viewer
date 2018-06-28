@@ -35,11 +35,7 @@
 #include "OpenGL/OpenGL.h"
 #endif
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
-#else
-#define UNIFORM_ERRS LL_ERRS("Shader")
-#endif
 
 // Lots of STL stuff in here, using namespace std to keep things more readable
 using std::vector;
@@ -559,6 +555,15 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
 {
+
+// endsure work-around for missing GLSL funcs gets propogated to feature shader files (e.g. srgbF.glsl)
+#if LL_DARWIN
+    if (defines)
+    {
+        (*defines)["OLD_SELECT"] = "1";
+    }
+#endif
+
 	GLenum error = GL_NO_ERROR;
 	if (gDebugGL)
 	{

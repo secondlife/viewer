@@ -652,7 +652,7 @@ bool LLVOSky::updateSky()
         mForceUpdate = mForceUpdate || color_changed;
         mForceUpdate = mForceUpdate || !mInitialized;
 
-        if ((mForceUpdate) && forceupdThrottle.hasExpired() && !LLPipeline::RenderDeferred)
+        if ((mForceUpdate) && (forceupdThrottle.hasExpired()) && (!gPipeline.canUseWindLightShaders()))
 		{
             LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 

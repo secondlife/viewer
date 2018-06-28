@@ -786,6 +786,9 @@ http://secondlife.com/support per risolvere il problema.
 	<string name="mesh">
 		reticolo
 	</string>
+    <string name="settings">
+        impostazioni
+    </string>
 	<string name="AvatarEditingAppearance">
 		(Modifica Aspetto)
 	</string>

@@ -129,24 +129,6 @@ public:
 	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader);
 
 private:
-	
-	std::vector<std::string> mShinyUniforms;
-
-	//water parameters
-	std::vector<std::string> mWaterUniforms;
-
-	std::vector<std::string> mWLUniforms;
-
-	//terrain parameters
-	std::vector<std::string> mTerrainUniforms;
-
-	//glow parameters
-	std::vector<std::string> mGlowUniforms;
-
-	std::vector<std::string> mGlowExtractUniforms;
-
-	std::vector<std::string> mAvatarUniforms;
-
 	// the list of shaders we need to propagate parameters to.
 	std::vector<LLGLSLShader *> mShaderList;
 
@@ -334,6 +316,7 @@ extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
+extern LLGLSLShader			gDeferredWLMoonProgram;
 extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gDeferredFullbrightShinyProgram;
 extern LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;

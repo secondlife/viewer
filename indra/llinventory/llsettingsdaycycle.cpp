@@ -661,7 +661,7 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
     return LLSettingsBase::ptr_t();
 }
 
-LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyfarme(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const
+LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyframe(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const
 {
     if ((track < 0) || (track >= TRACK_MAX))
     {
@@ -683,8 +683,7 @@ LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyfarme(c
 
     F32 dist = get_wrapping_distance(startframe, (*it).first);
 
-    LL_WARNS("LAPRAS") << "[" << startframe << " ... " << keyframe << " -> " << (*it).first << "@" << dist << LL_ENDL;
-
+    LL_DEBUGS("LAPRAS") << "[" << startframe << " ... " << keyframe << " -> " << (*it).first << "@" << dist << LL_ENDL;
 
     if (dist <= (fudge * 2.0f))
         return (*it);

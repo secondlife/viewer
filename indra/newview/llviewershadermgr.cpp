@@ -232,6 +232,7 @@ LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
+LLGLSLShader			gDeferredWLMoonProgram;
 LLGLSLShader			gDeferredStarProgram;
 LLGLSLShader			gDeferredFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
@@ -343,6 +344,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
+    mShaderList.push_back(&gDeferredWLMoonProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -1211,6 +1213,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredUnderWaterProgram.unload();
 		gDeferredWLSkyProgram.unload();
 		gDeferredWLCloudProgram.unload();
+        gDeferredWLMoonProgram.unload();
 		gDeferredStarProgram.unload();
 		gDeferredFullbrightShinyProgram.unload();
 		gDeferredSkinnedFullbrightShinyProgram.unload();
@@ -2151,6 +2154,28 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
         }
 		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success)
+	{
+		gDeferredWLMoonProgram.mName = "Deferred Windlight Moon Program";
+        gDeferredWLMoonProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredWLMoonProgram.mFeatures.hasTransport = true;
+        gDeferredWLMoonProgram.mFeatures.hasGamma = true;
+		gDeferredWLMoonProgram.mFeatures.hasAtmospherics = true;
+        gDeferredWLMoonProgram.mFeatures.isFullbright = true;
+		gDeferredWLMoonProgram.mFeatures.disableTextureIndex = true;
+		gDeferredWLMoonProgram.mShaderFiles.clear();
+		gDeferredWLMoonProgram.mShaderFiles.push_back(make_pair("deferred/moonV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredWLMoonProgram.mShaderFiles.push_back(make_pair("deferred/moonF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredWLMoonProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+        {
+            gDeferredWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
+        }
+		success = gDeferredWLMoonProgram.createShader(NULL, NULL);
         llassert(success);
 	}
 

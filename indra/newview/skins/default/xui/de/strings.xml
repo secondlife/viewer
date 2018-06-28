@@ -792,6 +792,9 @@ besuchen Sie bitte http://secondlife.com/support
 	<string name="mesh">
 		mesh
 	</string>
+    <string name="settings">
+        Einstellungen
+    </string> 
 	<string name="AvatarEditingAppearance">
 		(Aussehen wird bearbeitet)
 	</string>

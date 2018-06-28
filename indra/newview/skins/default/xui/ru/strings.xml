@@ -790,6 +790,9 @@ support@secondlife.com.
 	<string name="mesh">
 		сетка
 	</string>
+    <string name="settings">
+        настроек
+    </string>
 	<string name="AvatarEditingAppearance">
 		(внешний вид редактируется)
 	</string>

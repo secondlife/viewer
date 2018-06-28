@@ -786,6 +786,9 @@ http://secondlife.com/support 求助解決問題。
 	<string name="mesh">
 		網面
 	</string>
+    <string name="settings">
+        的設定
+    </string>
 	<string name="AvatarEditingAppearance">
 		（外觀編輯中）
 	</string>

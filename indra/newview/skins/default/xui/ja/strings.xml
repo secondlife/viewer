@@ -792,6 +792,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="mesh">
 		メッシュ
 	</string>
+    <string name="settings">
+        設定
+    </string>
 	<string name="AvatarEditingAppearance">
 		（容姿の編集中）
 	</string>

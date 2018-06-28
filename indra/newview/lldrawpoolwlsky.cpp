@@ -90,6 +90,10 @@ void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
 {
 	sky_shader = &gDeferredWLSkyProgram;
 	cloud_shader = &gDeferredWLCloudProgram;
+    moon_shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectFullbrightNoColorWaterProgram :
+				&gDeferredWLMoonProgram;
 }
 
 void LLDrawPoolWLSky::endDeferredPass(S32 pass)
@@ -412,6 +416,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 		// renderStars() requires something to be bound and we might as well only
 		// bind the moon's texture once.		
 		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+        gGL.getTexUnit(1)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP));
 
 		renderHeavenlyBodies();
 

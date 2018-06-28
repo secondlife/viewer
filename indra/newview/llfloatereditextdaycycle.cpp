@@ -358,7 +358,7 @@ void LLFloaterEditExtDayCycle::onAddTrack()
     std::string sldr_key = mFramesSlider->getCurSlider();
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     LLSettingsBase::ptr_t setting;
-    if ((mEditDay->getSettingsNearKeyfarme(frame, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
+    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
     {
         LL_WARNS("SETTINGS") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
@@ -502,9 +502,10 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
 
     }
 
-
-
     mTimeSlider->setCurSliderValue(sliderpos);
+
+    updateTabs();
+    LLEnvironment::instance().updateEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderDoubleClick(S32 x, S32 y, MASK mask)
@@ -900,7 +901,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
         canedit = !mIsPlaying;
-        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyfarme(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
+        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
         psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
         mCurrentEdit = psettingW;
         if (!psettingW)
@@ -924,7 +925,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     if (mCurrentTrack != LLSettingsDay::TRACK_WATER)
     {
         canedit = !mIsPlaying;
-        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyfarme(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
+        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
         psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
         mCurrentEdit = psettingS;
         if (!psettingS)
