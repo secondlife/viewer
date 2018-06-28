@@ -114,8 +114,6 @@ pre_build()
          if [ -n "${BUGSPLAT_DB:-}" ]
          then echo export BUGSPLAT_DB
               export BUGSPLAT_DB
-              echo RELEASE_CRASH_REPORTING=OFF
-              RELEASE_CRASH_REPORTING=OFF
          fi
     fi
     set -x
@@ -428,7 +426,9 @@ then
       if [ "$last_built_variant" = "Release" ]
       then
           # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
-          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
+          # Likewise, BUGSPLAT_DB suppresses generating the symbol file.
+          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" \
+               -a -z "${BUGSPLAT_DB:-}" ]
           then
               # Upload crash reporter file
               # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt

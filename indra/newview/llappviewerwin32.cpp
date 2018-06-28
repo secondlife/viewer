@@ -559,11 +559,13 @@ bool LLAppViewerWin32::init()
 
 #if LL_SEND_CRASH_REPORTS
 #if ! defined(LL_BUGSPLAT)
+#pragma message("Building without BugSplat")
 
 	LLAppViewer* pApp = LLAppViewer::instance();
 	pApp->initCrashReporting();
 
 #else // LL_BUGSPLAT
+#pragma message("Building with BugSplat")
 
 	std::string build_data_fname(
 		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
@@ -579,7 +581,7 @@ bool LLAppViewerWin32::init()
 		Json::Value build_data;
 		if (! reader.parse(inf, build_data, false)) // don't collect comments
 		{
-			// gah, the typo is baked into their API
+			// gah, the typo is baked into Json::Reader API
 			LL_WARNS() << "Can't initialize BugSplat, can't parse '" << build_data_fname
 					   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
 		}
@@ -609,7 +611,7 @@ bool LLAppViewerWin32::init()
 
 				// engage stringize() overload that converts from wstring
 				LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
-						   << stringize(version_string) << ')' << LL_ENDL;
+						   << ' ' << stringize(version_string) << ')' << LL_ENDL;
 			} // got BugSplat_DB
 		} // parsed build_data.json
 	} // opened build_data.json
