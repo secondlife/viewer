@@ -45,6 +45,7 @@
 #include "llatmosphere.h"
 
 static LLStaticHashedString sCamPosLocal("camPosLocal");
+static LLStaticHashedString sCustomAlpha("custom_alpha");
 
 static LLGLSLShader* cloud_shader = NULL;
 static LLGLSLShader* sky_shader = NULL;
@@ -226,7 +227,6 @@ void LLDrawPoolWLSky::renderStars(void) const
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gCustomAlphaProgram.bind();
-		static LLStaticHashedString sCustomAlpha("custom_alpha");
 		gCustomAlphaProgram.uniform1f(sCustomAlpha, star_alpha.mV[3]);
 	}
 	else
@@ -249,6 +249,28 @@ void LLDrawPoolWLSky::renderStars(void) const
 		// and disable the combiner states
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
+}
+
+void LLDrawPoolWLSky::renderStarsDeferred(void) const
+{
+	LLGLSPipelineSkyBox gls_sky;
+	LLGLEnable blend(GL_BLEND);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+		
+	// *LAPRAS
+    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
+
+	// If start_brightness is not set, exit
+	if(star_alpha < 0.001f)
+	{
+		LL_DEBUGS("SKY") << "star_brightness below threshold." << LL_ENDL;
+		return;
+	}
+
+	gDeferredStarProgram.bind();	
+	gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
+	gSky.mVOWLSkyp->drawStars();
+    gDeferredStarProgram.unbind();
 }
 
 void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const
@@ -358,30 +380,35 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
         {
             renderSkyHaze(origin, camHeightLocal);
     
-	        LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	        gGL.pushMatrix();
-
 		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
-		    gDeferredStarProgram.bind();
 		    // *NOTE: have to bind moon textures here since register combiners blending in
 		    // renderStars() requires something to be bound and we might as well only
 		    // bind the moon textures once.		
 		    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::DIFFUSE_MAP));
             gGL.getTexUnit(1)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP));
 
-		    renderHeavenlyBodies();
-
-		    renderStars();
-		
-		    gDeferredStarProgram.unbind();
-
-	        gGL.popMatrix();
-
-            renderSkyClouds(origin, camHeightLocal);
+		    renderHeavenlyBodies();	        
         }
     }    
     gGL.setColorMask(true, true);
+}
+
+void LLDrawPoolWLSky::renderPostDeferred(S32 pass)
+{
+    const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
+
+    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	gGL.pushMatrix();
+
+	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+
+    renderStarsDeferred();
+
+    gGL.popMatrix();
+
+    renderSkyClouds(origin, camHeightLocal);
 }
 
 void LLDrawPoolWLSky::render(S32 pass)
