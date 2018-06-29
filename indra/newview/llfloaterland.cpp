@@ -3297,6 +3297,7 @@ void LLPanelLandEnvironment::doApply()
     if (!parcel)
     {
         LL_WARNS("PARCEL") << "Could not get parcel." << LL_ENDL;
+        return;
     }
     S32 parcel_id = parcel->getLocalID();
 

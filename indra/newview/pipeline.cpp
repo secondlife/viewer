@@ -6258,8 +6258,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 	// Light 0 = Sun or Moon (All objects)
 	{
-        LLVector4 sun_dir = environment.getSunDirectionCFR();
-        LLVector4 moon_dir = environment.getMoonDirectionCFR();
+        LLVector4 sun_dir(environment.getSunDirection(), 0.0f);
+        LLVector4 moon_dir(environment.getMoonDirection(), 0.0f);
 
         mSunDir.setVec(sun_dir);
         mMoonDir.setVec(moon_dir);
@@ -8480,9 +8480,11 @@ void LLPipeline::renderDeferredLighting()
 			glh::vec4f tc(mSunDir.mV);
 			mat.mult_matrix_vec(tc);
 			mTransformedSunDir.set(tc.v);
+            mTransformedSunDir.normalize();
 
             glh::vec4f tc_moon(mMoonDir.mV);
             mTransformedMoonDir.set(tc_moon.v);
+            mTransformedMoonDir.normalize();
 		}
 
 		gGL.pushMatrix();
@@ -9096,9 +9098,11 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 			glh::vec4f tc(mSunDir.mV);
 			mat.mult_matrix_vec(tc);
 			mTransformedSunDir.set(tc.v);
+            mTransformedSunDir.normalize();
 
             glh::vec4f tc_moon(mMoonDir.mV);
             mTransformedMoonDir.set(tc_moon.v);
+            mTransformedMoonDir.normalize();
 		}
 
 		gGL.pushMatrix();

@@ -1275,11 +1275,13 @@ void LLRender::syncMatrices()
 		{ //update projection matrix, normal, and MVP
 			glh::matrix4f& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 
-            if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
-            {
-	            glh::matrix4f inv_proj = mat.inverse();
-	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
-            }
+            // it would be nice to have this automatically track the state of the proj matrix
+            // but certain render paths require it to be mismatched *sigh*
+            //if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
+            //{
+	        //    glh::matrix4f inv_proj = mat.inverse();
+	        //    shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+            //}
 
 			shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, mat.m);
 			shader->mMatHash[MM_PROJECTION] = mMatHash[MM_PROJECTION];
