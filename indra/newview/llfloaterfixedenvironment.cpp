@@ -270,16 +270,20 @@ void LLFloaterFixedEnvironment::onButtonCancel()
 
 void LLFloaterFixedEnvironment::doApplyCreateNewInventory()
 {
+    LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
     // This method knows what sort of settings object to create.
-    LLSettingsVOBase::createInventoryItem(mSettings, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    LLSettingsVOBase::createInventoryItem(mSettings, parent_id, 
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterFixedEnvironment::doApplyUpdateInventory()
 {
     if (mInventoryId.isNull())
-        LLSettingsVOBase::createInventoryItem(mSettings, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+        LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), 
+                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     else
-        LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
+        LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId, 
+                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)

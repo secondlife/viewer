@@ -8445,6 +8445,11 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		bool result = false;
 		std::string tod = userdata.asString();
 
+        if (tod == "pauseclouds")
+        {
+            return LLEnvironment::instance().isCloudScrollPaused();
+        }
+
         LLSettingsSky::ptr_t sky = LLEnvironment::instance().getEnvironmentFixedSky(LLEnvironment::ENV_LOCAL);
 
 		if (!sky)
@@ -8453,31 +8458,28 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		}
 
         std::string skyname = (sky) ? sky->getName() : "";
+        LLUUID skyid = (sky) ? sky->getAssetId() : LLUUID::null;
 
 		if (tod == "sunrise")
 		{
-            result = (skyname == "Sunrise");
+            result = (skyid == LLEnvironment::KNOWN_SKY_SUNRISE);
 		}
 		else if (tod == "noon")
 		{
-            result = (skyname == "Midday");
+            result = (skyid == LLEnvironment::KNOWN_SKY_MIDDAY);
 		}
 		else if (tod == "sunset")
 		{
-            result = (skyname == "Sunset");
+            result = (skyid == LLEnvironment::KNOWN_SKY_SUNSET);
 		}
 		else if (tod == "midnight")
 		{
-            result = (skyname == "Midnight");
+            result = (skyid == LLEnvironment::KNOWN_SKY_MIDNIGHT);
 		}
 		else if (tod == "region")
 		{
 			return false;
 		}
-        else if (tod == "pauseclouds")
-        {
-            return LLEnvironment::instance().isCloudScrollPaused();
-        }
 		else
 		{
 			LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;

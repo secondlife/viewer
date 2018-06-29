@@ -981,15 +981,20 @@ void LLFloaterEditExtDayCycle::reblendSettings()
 void LLFloaterEditExtDayCycle::doApplyCreateNewInventory()
 {
     // This method knows what sort of settings object to create.
-    LLSettingsVOBase::createInventoryItem(mEditDay, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+
+    LLSettingsVOBase::createInventoryItem(mEditDay, parent_id, 
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterEditExtDayCycle::doApplyUpdateInventory()
 {
     if (mInventoryId.isNull())
-        LLSettingsVOBase::createInventoryItem(mEditDay, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+        LLSettingsVOBase::createInventoryItem(mEditDay, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), 
+                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     else
-        LLSettingsVOBase::updateInventoryItem(mEditDay, mInventoryId, [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
+        LLSettingsVOBase::updateInventoryItem(mEditDay, mInventoryId, 
+                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
