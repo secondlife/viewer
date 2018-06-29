@@ -36,28 +36,32 @@
 static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
 static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
 
-static LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
-{
-    F32 sinTheta = sin(azimuth);
-    F32 cosTheta = cos(azimuth);
-    F32 sinPhi   = sin(altitude);
-    F32 cosPhi   = cos(altitude);
+namespace {
+    LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
+    {
+        F32 sinTheta = sin(azimuth);
+        F32 cosTheta = cos(azimuth);
+        F32 sinPhi   = sin(altitude);
+        F32 cosPhi   = cos(altitude);
 
-    LLVector3 dir;
-    // +x right, +z up, +y at...	
-    dir.mV[0] = cosTheta * cosPhi;
-    dir.mV[1] = sinTheta * cosPhi;	
-    dir.mV[2] = sinPhi;
+        LLVector3 dir;
+        // +x right, +z up, +y at...	
+        dir.mV[0] = cosTheta * cosPhi;
+        dir.mV[1] = sinTheta * cosPhi;	
+        dir.mV[2] = sinPhi;
 
-    LLVector3 axis = LLVector3::x_axis % dir;
-    axis.normalize();
+        LLVector3 axis = LLVector3::x_axis % dir;
+        axis.normalize();
+        if (mirror_axis)
+            axis *= -1;
 
-    F32 angle = acos(LLVector3::x_axis * dir);
+        F32 angle = acos(LLVector3::x_axis * dir);
 
-    LLQuaternion quat;
-    quat.setAngleAxis(angle, axis);
+        LLQuaternion quat;
+        quat.setAngleAxis(angle, axis);
 
-    return quat;
+        return quat;
+    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
@@ -794,11 +798,10 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
         F32 altitude =  legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
         
         LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
-
         // original WL moon dir was diametrically opposed to the sun dir
         LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, -altitude);
 
-        newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
+        newsettings[SETTING_SUN_ROTATION] = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
     }
 

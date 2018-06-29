@@ -1823,8 +1823,6 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 	}
     else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
     {
-        LL_WARNS("LAPRAS") << "Creating settings object of type: '" << type_name << "'" << LL_ENDL;
-
         LLSettingsBase::ptr_t settings;
         std::string name;
 
@@ -1852,8 +1850,10 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
             return;
         }
 
+        LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+
         settings->setName(name);
-        LLSettingsVOBase::createInventoryItem(settings);
+        LLSettingsVOBase::createInventoryItem(settings, parent_id);
     }
 	else
 	{

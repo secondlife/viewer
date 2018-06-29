@@ -90,10 +90,9 @@ namespace
 
 
 //=========================================================================
-void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, inventory_result_fn callback)
+void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, inventory_result_fn callback)
 {
     LLTransactionID tid;
-    LLUUID          parentFolder; //= gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
     U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
 
     tid.generate();
@@ -103,7 +102,7 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
         });
 
     create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
-        parentFolder, tid,
+        parent_id, tid,
         settings->getName(), "new settings collection.",
         settings->getSettingsTypeValue(), nextOwnerPerm, cb);
 }
