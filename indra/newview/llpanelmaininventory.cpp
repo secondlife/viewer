@@ -905,6 +905,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_sound")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SOUND));
 	getChild<LLUICtrl>("check_texture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
 	getChild<LLUICtrl>("check_snapshot")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
+    getChild<LLUICtrl>("check_settings")->setValue((S32)(filter_types & 0x1 << LLInventoryType::IT_SETTINGS));
 	getChild<LLUICtrl>("check_show_empty")->setValue(show_folders == LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	getChild<LLUICtrl>("check_created_by_me")->setValue(show_created_by_me);
@@ -996,6 +997,12 @@ void LLFloaterInventoryFinder::draw()
 		filter &= ~(0x1 << LLInventoryType::IT_SNAPSHOT);
 		filtered_by_all_types = FALSE;
 	}
+
+    if (!getChild<LLUICtrl>("check_settings")->getValue())
+    {
+        filter &= ~(0x1 << LLInventoryType::IT_SETTINGS);
+        filtered_by_all_types = FALSE;
+    }
 
 	if (!filtered_by_all_types || (mPanelMainInventory->getPanel()->getFilter().getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE))
 	{
@@ -1114,7 +1121,8 @@ void LLFloaterInventoryFinder::selectAllTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_script")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_sound")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_texture")->setValue(TRUE);
-	self->getChild<LLUICtrl>("check_snapshot")->setValue(TRUE);
+    self->getChild<LLUICtrl>("check_snapshot")->setValue(TRUE);
+    self->getChild<LLUICtrl>("check_settings")->setValue(TRUE);
 }
 
 //static
@@ -1135,6 +1143,7 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_sound")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_texture")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_snapshot")->setValue(FALSE);
+    self->getChild<LLUICtrl>("check_settings")->setValue(FALSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////////

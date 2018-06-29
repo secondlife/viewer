@@ -189,9 +189,6 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 {
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
-    LLEnvironment::instance().updateEnvironment();
-
     mEditDay.reset();
     if (key.has(KEY_INVENTORY_ID))
     {
@@ -844,7 +841,8 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     }
     mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
     updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT);
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
+    LLEnvironment::instance().updateEnvironment();
     synchronizeTabs();
     updateTabs();
     refresh();
@@ -870,6 +868,8 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
     }
 
     updateEditEnvironment();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
+    LLEnvironment::instance().updateEnvironment();
     synchronizeTabs();
     updateTabs();
     refresh();
