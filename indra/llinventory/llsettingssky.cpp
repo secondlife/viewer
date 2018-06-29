@@ -52,8 +52,6 @@ namespace {
 
         LLVector3 axis = LLVector3::x_axis % dir;
         axis.normalize();
-        if (mirror_axis)
-            axis *= -1;
 
         F32 angle = acos(LLVector3::x_axis * dir);
 
