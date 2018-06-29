@@ -52,6 +52,12 @@ public:
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 
+
+    /*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
+	/*virtual*/ void beginPostDeferredPass(S32 pass) {}
+	/*virtual*/ void endPostDeferredPass(S32 pass)   {}
+	/*virtual*/ void renderPostDeferred(S32 pass);
+
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void endRenderPass( S32 pass );
@@ -76,7 +82,9 @@ private:
     void renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
 	void renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
 	void renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const;
+
     void renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const;
+    void renderStarsDeferred(void) const;
 
 	void renderStars(void) const;
 	void renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal) const;

@@ -28,19 +28,19 @@
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
-#define frag_data gl_FragData
+#define frag_color gl_FragColor
 #endif
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
 uniform sampler2D diffuseMap;
+uniform float custom_alpha;
 
 void main() 
 {
 	vec4 col = vertex_color * texture2D(diffuseMap, vary_texcoord0.xy);
+    col.a *= custom_alpha;
 	
-	frag_data[0] = col;
-	frag_data[1] = vec4(0,0,0,0);
-	frag_data[2] = vec4(0,0,1,0);	
+	frag_color = col;
 }
