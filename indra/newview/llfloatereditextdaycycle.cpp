@@ -357,7 +357,7 @@ void LLFloaterEditExtDayCycle::onAddTrack()
     LLSettingsBase::ptr_t setting;
     if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
     {
-        LL_WARNS("SETTINGS") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
     }
 
@@ -588,7 +588,7 @@ void LLFloaterEditExtDayCycle::selectFrame(F32 frame, F32 slop_factor)
     mTimeSlider->setCurSliderValue(frame);
     // block or update tabs according to new selection
     updateTabs();
-    LLEnvironment::instance().updateEnvironment();
+//  LLEnvironment::instance().updateEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::clearTabs()
@@ -799,19 +799,22 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 {
     if (inventoryId.isNull())
     {
-        LL_WARNS("SETTINGS") << "Attempt to load NULL inventory ID" << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to load NULL inventory ID" << LL_ENDL;
         mInventoryItem = nullptr;
         mInventoryId.setNull();
         return;
     }
 
     mInventoryId = inventoryId;
-    LL_INFOS("SETTINGS") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
+    LL_INFOS("ENVIRONMENT") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
     mInventoryItem = gInventory.getItem(mInventoryId);
 
     if (!mInventoryItem)
     {
-        LL_WARNS("SETTINGS") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
+
+        LLNotificationsUtil::add("CantFindInvItem");
+        closeFloater();
         mInventoryId.setNull();
         mInventoryItem = nullptr;
         return;
@@ -819,7 +822,11 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 
     if (mInventoryItem->getAssetUUID().isNull())
     {
-        LL_WARNS("SETTINGS") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" <<  LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" <<  LL_ENDL;
+
+        LLNotificationsUtil::add("UnableEditItem");
+        closeFloater();
+
         mInventoryId.setNull();
         mInventoryItem = nullptr;
         return;
@@ -834,7 +841,7 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     if (!settings || status)
     {
         LLSD args;
-        args["DESC"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
+        args["NAME"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
         LLNotificationsUtil::add("FailedToFindSettings", args);
         closeFloater();
         return;
@@ -863,7 +870,7 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
     if (!mEditDay)
     {
-        LL_WARNS("SETTINGS") << "Unable to load environment " << env << " building default." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Unable to load environment " << env << " building default." << LL_ENDL;
         mEditDay = LLSettingsVODay::buildDefaultDayCycle();
     }
 
@@ -1010,11 +1017,14 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
 
         if (handle)
             parcel = handle->getParcel();
-        if (!parcel)
+        if (!parcel || (parcel->getLocalID() == INVALID_PARCEL_ID))
             parcel = LLViewerParcelMgr::instance().getAgentParcel();
 
-        if (!parcel)
+        if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
+        {
+            LL_WARNS("ENVIRONMENT") << "Can not identify parcel. Not applying." << LL_ENDL;
             return;
+        }
 
         LLEnvironment::instance().updateParcel(parcel->getLocalID(), mEditDay, -1, -1);
     }
@@ -1032,7 +1042,13 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
 
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
 {
-    LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
+    LL_INFOS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
+
+    if (inventory_id.isNull() || !results["success"].asBoolean())
+    {
+        LLNotificationsUtil::add("CantCreateInventory");
+        return;
+    }
 
     setFocus(TRUE);                 // Call back the focus...
     loadInventoryItem(inventory_id);
@@ -1060,7 +1076,9 @@ void LLFloaterEditExtDayCycle::doImportFromDisk()
         LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename);
 
         if (!legacyday)
-        {   // *TODO* Put up error dialog here.  Could not create water from filename
+        {   
+            LLSD args(LLSDMap("FILE", filename));
+            LLNotificationsUtil::add("WLImportFail", args);
             return;
         }
 
@@ -1189,7 +1207,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettings
 {
     if (!settings || status)
     {
-        LL_WARNS("SETTINGS") << "Could not load asset " << asset_id << " into frame. status=" << status << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Could not load asset " << asset_id << " into frame. status=" << status << LL_ENDL;
         return;
     }
 

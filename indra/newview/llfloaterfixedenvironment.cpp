@@ -202,10 +202,25 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
     if (!mInventoryItem)
     {
         LL_WARNS("SETTINGS") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
+        LLNotificationsUtil::add("CantFindInvItem");
+        closeFloater();
+
         mInventoryId.setNull();
         mInventoryItem = nullptr;
         return;
     }
+
+    if (mInventoryItem->getAssetUUID().isNull())
+    {
+        LL_WARNS("ENVIRONMENT") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" << LL_ENDL;
+        LLNotificationsUtil::add("UnableEditItem");
+        closeFloater();
+
+        mInventoryId.setNull();
+        mInventoryItem = nullptr;
+        return;
+    }
+
 
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat) { onAssetLoaded(asset_id, settins, status); });
@@ -216,7 +231,7 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     if (!settings || status)
     {
         LLSD args;
-        args["DESC"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
+        args["NAME"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
         LLNotificationsUtil::add("FailedToFindSettings", args);
         closeFloater();
         return;
@@ -329,6 +344,12 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
 {
     LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
     
+    if (inventory_id.isNull() || !results["success"].asBoolean())
+    {
+        LLNotificationsUtil::add("CantCreateInventory");
+        return;
+    }
+
     setFocus(TRUE);                 // Call back the focus...
     loadInventoryItem(inventory_id);
 }
@@ -427,7 +448,9 @@ void LLFloaterFixedEnvironmentWater::doImportFromDisk()
         LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename);
 
         if (!legacywater)
-        {   // *TODO* Put up error dialog here.  Could not create water from filename
+        {   
+            LLSD args(LLSDMap("FILE", filename));
+            LLNotificationsUtil::add("WLImportFail", args);
             return;
         }
 
@@ -504,7 +527,10 @@ void LLFloaterFixedEnvironmentSky::doImportFromDisk()
         LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename);
 
         if (!legacysky)
-        {   // *TODO* Put up error dialog here.  Could not create water from filename
+        {   
+            LLSD args(LLSDMap("FILE", filename));
+            LLNotificationsUtil::add("WLImportFail", args);
+
             return;
         }
 

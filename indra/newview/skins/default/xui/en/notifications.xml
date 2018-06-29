@@ -11101,7 +11101,7 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
    name="FailedToFindSettings"
    persist="true"
    type="alertmodal">
-Failed to find the settings named [DESC] in database.
+Could not load the settings for [NAME] from the database.
   <tag>fail</tag>
   </notification>
   
@@ -11129,6 +11129,15 @@ Unable to apply those settings to the environment.
    persist="true"
    type="alertmodal">
 This Region does not support environmental settings.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WLImportFail"
+   persist="true"
+   type="alertmodal">
+Unable to import legacy Windlight settings from [FILE].
   <tag>fail</tag>
   </notification>
   
