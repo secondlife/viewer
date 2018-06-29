@@ -38,7 +38,8 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     LLVOAvatar(id, pcode, regionp),
     mPlaying(false),
     mGlobalScale(1.0f),
-    mMarkedForDeath(false)
+    mMarkedForDeath(false),
+    mRootVolp(NULL)
 {
     mIsDummy = TRUE;
     mIsControlAvatar = true;
@@ -129,13 +130,27 @@ void LLControlAvatar::matchVolumeTransform()
             // skeleton around in a smarter way, so name tags,
             // complexity info and such line up better. Should defer
             // this until avatars also get fixed.
-            setPositionAgent(vol_pos);
 
             LLQuaternion obj_rot = mRootVolp->getRotation();
-            LLQuaternion result_rot = obj_rot;
-            setRotation(result_rot);
-            mRoot->setWorldRotation(result_rot);
-            mRoot->setPosition(vol_pos + mPositionConstraintFixup);
+			LLMatrix3 bind_mat;
+
+            LLQuaternion bind_rot;
+#define MATCH_BIND_SHAPE
+#ifdef MATCH_BIND_SHAPE
+            // MAINT-8671 - based on a patch from Beq Janus
+	        const LLMeshSkinInfo* skin_info = mRootVolp->getSkinInfo();
+			if (skin_info)
+			{
+				LLMatrix3 bind_mat = skin_info->mBindShapeMatrix.getMat3();
+                bind_mat.invert();
+                bind_rot = bind_mat.quaternion();
+                bind_rot.normalize();
+			}
+#endif
+			setRotation(bind_rot*obj_rot);
+            mRoot->setWorldRotation(bind_rot*obj_rot);
+			setPositionAgent(vol_pos);
+			mRoot->setPosition(vol_pos + mPositionConstraintFixup);
         }
     }
 }
