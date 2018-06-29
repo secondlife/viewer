@@ -643,17 +643,6 @@
          name="Environment"
          tear_off="true">
             <menu_item_check
-             label="Pause Clouds"
-             name="pauseclouds">
-                <menu_item_check.on_click
-                 function="World.EnvSettings"
-                 parameter="pauseclouds" />
-                <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
-                 parameter="pauseclouds" />
-            </menu_item_check>
-            <menu_item_separator/>
-            <menu_item_check
              label="Sunrise"
              name="Sunrise">
                 <menu_item_check.on_click
@@ -695,7 +684,6 @@
                  function="World.EnableEnvSettings" 
                  parameter="midnight" />
             </menu_item_check>
-            <menu_item_separator/>
             <menu_item_check
              label="Use Region Settings"
              name="Use Region Settings">
@@ -706,6 +694,26 @@
                  function="World.EnableEnvSettings" 
                  parameter="region" />
             </menu_item_check>
+            <menu_item_separator/>
+            <menu_item
+             label="My Environments..."
+             name="My Environments">
+                <menu_item_check.on_click
+                 function="World.MyEnvirons"
+                 parameter="my_environs" />
+            </menu_item>
+            <menu_item_separator/>
+            <menu_item_check
+             label="Pause Clouds"
+             name="pauseclouds">
+                <menu_item_check.on_click
+                 function="World.EnvSettings"
+                 parameter="pauseclouds" />
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="pauseclouds" />
+            </menu_item_check>
+            
         </menu>
 	    
 <!--   
