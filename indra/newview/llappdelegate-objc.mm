@@ -74,9 +74,9 @@
 
 #if defined(LL_BUGSPLAT)
 	// https://www.bugsplat.com/docs/platforms/os-x#initialization
-//	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
-//	[BugsplatStartupManager sharedManager].askUserDetails = NO;
-    [BugsplatStartupManager sharedManager].delegate = self;
+	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
+	[BugsplatStartupManager sharedManager].askUserDetails = NO;
+	[BugsplatStartupManager sharedManager].delegate = self;
 	[[BugsplatStartupManager sharedManager] start];
 #endif
 }
@@ -196,17 +196,20 @@
 
 #if defined(LL_BUGSPLAT)
 
-#if 0
-// Apparently this override method only contributes the User Description field
-// of BugSplat's All Crashes table. Despite the method name, it would seem to
-// be a bad place to try to stuff all of SecondLife.log.
 - (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
 {
-//  return NSStringFromSelector(_cmd);
     infos("Reached applicationLogForBugsplatStartupManager");
-    return @"[contents of SecondLife.log]";
+    // Apparently this override method only contributes the User Description
+    // field of BugSplat's All Crashes table. Despite the method name, it
+    // would seem to be a bad place to try to stuff all of SecondLife.log.
+    return [NSString stringWithCString:getFatalMessage().c_str()
+                              encoding:NSUTF8StringEncoding];
 }
-#endif
+
+- (void)bugsplatStartupManagerWillSendCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    infos("Reached bugsplatStartupManagerWillSendCrashReport");
+}
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
     // We get the *old* log file pathname (for SecondLife.old) because it's on
@@ -226,6 +229,17 @@
                                          contentType:@"text/plain"];
     infos("attachmentForBugsplatStartupManager: attaching " + logfile);
     return attachment;
+}
+
+- (void)bugsplatStartupManagerDidFinishSendingCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    infos("Sent crash report to BugSplat");
+}
+
+- (void)bugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager didFailWithError:(NSError *)error
+{
+    // TODO: message string from NSError
+    infos("Could not send crash report to BugSplat");
 }
 
 #endif // LL_BUGSPLAT

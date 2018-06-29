@@ -45,6 +45,8 @@
 #include "llmd5.h"
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
+#include "llerrorcontrol.h"
+#include "llvoavatarself.h"         // for gAgentAvatarp->getFullname()
 #include <ApplicationServices/ApplicationServices.h>
 #ifdef LL_CARBON_CRASH_HANDLER
 #include <Carbon/Carbon.h>
@@ -151,6 +153,16 @@ void cleanupViewer()
 std::string getOldLogFilePathname()
 {
     return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.old");
+}
+
+std::string getFatalMessage()
+{
+    return LLError::getFatalMessage();
+}
+
+std::string getAgentFullname()
+{
+    return gAgentAvatarp? gAgentAvatarp->getFullname() : std::string();
 }
 
 void infos(const std::string& message)

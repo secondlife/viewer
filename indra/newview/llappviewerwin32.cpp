@@ -67,6 +67,7 @@
 
 #include "stringize.h"
 #include "lldir.h"
+#include "llerrorcontrol.h"
 
 #include <fstream>
 #include <exception>
@@ -74,7 +75,10 @@
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
-#include "reader.h" // JsonCpp
+#include "reader.h"                 // JsonCpp
+#include "llagent.h"                // for agent location
+#include "llviewerregion.h"
+#include "llvoavatarself.h"         // for agent name
 
 namespace
 {
@@ -85,7 +89,8 @@ namespace
     // std::basic_string instance will survive until the function returns.
     // Calling c_str() on a std::basic_string local to wunder() would be
     // Undefined Behavior: we'd be left with a pointer into a destroyed
-    // std::basic_string instance.
+    // std::basic_string instance. But we can do that with a macro...
+    #define WCSTR(string) wunder(string).c_str()
 
     // It would be nice if, when wchar_t is the same as __wchar_t, this whole
     // function would optimize away. However, we use it only for the arguments
@@ -111,19 +116,35 @@ namespace
 
     bool bugsplatSendLog(UINT nCode, LPVOID lpVal1, LPVOID lpVal2)
     {
-        // If we haven't yet initialized LLDir, don't bother trying to
-        // find our log file.
-        // Alternatively -- if we might encounter trouble trying to query
-        // LLDir during crash cleanup -- consider making gDirUtilp an
-        // LLPounceable, and attach a callback that stores the pathname to
-        // the log file here.
-        if (nCode == MDSCB_EXCEPTIONCODE && gDirUtilp)
+        if (nCode == MDSCB_EXCEPTIONCODE)
         {
             // send the main viewer log file
             // widen to wstring, convert to __wchar_t, then pass c_str()
             sBugSplatSender->sendAdditionalFile(
-                wunder(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")).c_str());
-        }
+                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+
+            if (gAgentAvatarp)
+            {
+                // user name, when we have it
+                sBugSplatSender->setDefaultUserName(WCSTR(gAgentAvatarp->getFullname()));
+            }
+
+            // LL_ERRS message, when there is one
+            sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
+
+            if (gAgent.getRegion())
+            {
+                // region location, when we have it
+                LLVector3 loc = gAgent.getPositionAgent();
+                sBugSplatSender->resetAppIdentifier(
+                    WCSTR(STRINGIZE(gAgent.getRegion()->getName()
+                                    << '/' << loc.mV[0]
+                                    << '/' << loc.mV[1]
+                                    << '/' << loc.mV[2])));
+            }
+
+            LL_INFOS() << "Sending crash report to BugSplat." << LL_ENDL;
+        } // MDSCB_EXCEPTIONCODE
 
         return false;
     }
@@ -603,10 +624,12 @@ bool LLAppViewerWin32::init()
 
 				// have to convert normal wide strings to strings of __wchar_t
 				sBugSplatSender = new MiniDmpSender(
-					wunder(BugSplat_DB.asString()).c_str(),
-					wunder(LL_TO_WSTRING(LL_VIEWER_CHANNEL)).c_str(),
-					wunder(version_string).c_str(),
-					nullptr);
+					WCSTR(BugSplat_DB.asString()),
+					WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
+					WCSTR(version_string),
+					nullptr,              // szAppIdentifier -- set later
+					MDSF_NONINTERACTIVE | // automatically submit report without prompting
+					MDSF_PREVENTHIJACKING); // disallow swiping Exception filter
 				sBugSplatSender->setCallback(bugsplatSendLog);
 
 				// engage stringize() overload that converts from wstring
