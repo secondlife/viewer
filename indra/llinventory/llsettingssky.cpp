@@ -796,7 +796,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
         LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
 
         // original WL moon dir was diametrically opposed to the sun dir
-        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, altitude + F_PI);
+        LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, -altitude);
 
         newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();

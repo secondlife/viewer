@@ -11101,7 +11101,7 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
    name="FailedToFindSettings"
    persist="true"
    type="alertmodal">
-Failed to find the settisgs named [DESC] in database.
+Failed to find the settings named [DESC] in database.
   <tag>fail</tag>
   </notification>
   
