@@ -375,7 +375,7 @@ class LLManifest(object):
         in the file list by path()."""
         self.excludes.append(glob)
 
-    def prefix(self, src='', build=None, dst=None):
+    def prefix(self, src='', build='', dst='', src_dst=None):
         """
         Usage:
 
@@ -385,8 +385,21 @@ class LLManifest(object):
         For the duration of the 'with' block, pushes a prefix onto the stack.
         Within that block, all relevant method calls (esp. to path()) will
         prefix paths with the entire prefix stack. Source and destination
-        prefixes can be different, though if only one is provided they are
-        both equal. To specify a no-op, use an empty string, not None.
+        prefixes are independent; if omitted (or passed as the empty string),
+        the prefix has no effect. Thus:
+
+        with self.prefix(src='foo'):
+            # no effect on dst
+
+        with self.prefix(dst='bar'):
+            # no effect on src
+
+        If you want to set both at once, use src_dst:
+
+        with self.prefix(src_dst='subdir'):
+            # same as self.prefix(src='subdir', dst='subdir')
+            # Passing src_dst makes any src or dst argument in the same
+            # parameter list irrelevant.
 
         Also supports the older (pre-Python-2.5) syntax:
 
@@ -400,10 +413,9 @@ class LLManifest(object):
         returned True specifically so that the caller could indent the
         relevant block of code with 'if', just for aesthetic purposes.
         """
-        if dst is None:
-            dst = src
-        if build is None:
-            build = src
+        if src_dst is not None:
+            src = src_dst
+            dst = src_dst
         self.src_prefix.append(src)
         self.artwork_prefix.append(src)
         self.build_prefix.append(build)
@@ -609,7 +621,6 @@ class LLManifest(object):
 
     def process_file(self, src, dst):
         if self.includes(src, dst):
-#            print src, "=>", dst
             for action in self.actions:
                 methodname = action + "_action"
                 method = getattr(self, methodname, None)
@@ -677,7 +688,11 @@ class LLManifest(object):
         # Don't recopy file if it's up-to-date.
         # If we seem to be not not overwriting files that have been
         # updated, set the last arg to False, but it will take longer.
+##      reldst = (dst[len(self.dst_prefix[0]):]
+##                if dst.startswith(self.dst_prefix[0])
+##                else dst).lstrip(r'\/')
         if os.path.exists(dst) and filecmp.cmp(src, dst, True):
+##          print "{} (skipping, {} exists)".format(src, reldst)
             return
         # only copy if it's not excluded
         if self.includes(src, dst):
@@ -687,6 +702,7 @@ class LLManifest(object):
                 if err.errno != errno.ENOENT:
                     raise
 
+##          print "{} => {}".format(src, reldst)
             shutil.copy2(src, dst)
 
     def ccopytree(self, src, dst):
