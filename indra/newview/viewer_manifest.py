@@ -86,7 +86,7 @@ class ViewerManifest(LLManifest):
             
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                with self.prefix(build=pkgdir):
+                with self.prefix(src=pkgdir):
                     self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
@@ -494,7 +494,7 @@ class WindowsManifest(ViewerManifest):
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-            with self.prefix(build=os.path.join(pkgdir, "VMP")):
+            with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SL_Launcher.exe')
                 #IUM is not normally executed directly, just imported.  No exe needed.
@@ -519,7 +519,7 @@ class WindowsManifest(ViewerManifest):
                            "slplugin.exe")
         
         # Get shared libs from the shared libs staging directory
-        with self.prefix(build=os.path.join(os.pardir, 'sharedlibs', self.args['configuration'])):
+        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration'])):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
@@ -607,27 +607,27 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
 
-        with self.prefix(build=pkgdir):
+        with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
         # Media plugins - CEF
         with self.prefix(dst="llplugin"):
-            with self.prefix(build='../media_plugins/cef/%s' % self.args['configuration']):
+            with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration']):
                 self.path("media_plugin_cef.dll")
 
             # Media plugins - LibVLC
-            with self.prefix(build='../media_plugins/libvlc/%s' % self.args['configuration']):
+            with self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration']):
                 self.path("media_plugin_libvlc.dll")
 
             # Media plugins - Example (useful for debugging - not shipped with release viewer)
             if self.channel_type() != 'release':
-                with self.prefix(build='../media_plugins/example/%s' % self.args['configuration']):
+                with self.prefix(src='../media_plugins/example/%s' % self.args['configuration']):
                     self.path("media_plugin_example.dll")
 
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
             config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-            with self.prefix(build=os.path.join(pkgdir, 'bin', config)):
+            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
@@ -640,12 +640,12 @@ class WindowsManifest(ViewerManifest):
                 self.path("widevinecdmadapter.dll")
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
-            with self.prefix(build=os.path.join(os.pardir, 'sharedlibs', 'Release')):
+            with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release')):
                 self.path("msvcp120.dll")
                 self.path("msvcr120.dll")
 
             # CEF files common to all configurations
-            with self.prefix(build=os.path.join(pkgdir, 'resources')):
+            with self.prefix(src=os.path.join(pkgdir, 'resources')):
                 self.path("cef.pak")
                 self.path("cef_100_percent.pak")
                 self.path("cef_200_percent.pak")
@@ -653,7 +653,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("devtools_resources.pak")
                 self.path("icudtl.dat")
 
-            with self.prefix(build=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
                 self.path("am.pak")
                 self.path("ar.pak")
                 self.path("bg.pak")
@@ -708,7 +708,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
 
-            with self.prefix(build=os.path.join(pkgdir, 'bin', 'release')):
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins/")
@@ -967,15 +967,15 @@ open "%s" --args "$@"
                         #this copies over the python wrapper script,
                         #associated utilities and required libraries, see
                         #SL-321, SL-322, SL-323
-                        with self.prefix(build=os.path.join(pkgdir, "VMP")):
+                        with self.prefix(src=os.path.join(pkgdir, "VMP")):
                             self.path("SL_Launcher")
                             self.path("*.py")
                             # certifi will be imported by requests; this is
                             # our custom version to get our ca-bundle.crt
                             self.path("certifi")
-                        with self.prefix(build=os.path.join(pkgdir, "lib", "python")):
+                        with self.prefix(src=os.path.join(pkgdir, "lib", "python")):
                             # llbase provides our llrest service layer and llsd decoding
-                            with self.prefix(build="llbase", dst="llbase"):
+                            with self.prefix(src="llbase", dst="llbase"):
                                 # (Why is llbase treated specially here? What
                                 # DON'T we want to copy out of lib/python/llbase?)
                                 self.path("*.py")
@@ -1109,7 +1109,7 @@ open "%s" --args "$@"
                         with self.prefix(src=self.icon_path()) :
                             self.path(viewer_icon)
 
-                        with self.prefix(build=relpkgdir):
+                        with self.prefix(src=relpkgdir):
                             self.path("libndofdev.dylib")
                             self.path("libhunspell-1.3.0.dylib")   
 
@@ -1120,7 +1120,7 @@ open "%s" --args "$@"
                         self.path("featuretable_mac.txt")
                         self.path("SecondLife.nib")
 
-                        with self.prefix(build=pkgdir):
+                        with self.prefix(src=pkgdir):
                             self.path("ca-bundle.crt")
 
                         self.path("SecondLife.nib")
@@ -1330,10 +1330,10 @@ open "%s" --args "$@"
                                                "media_plugin_libvlc.dylib")
 
                             # copy LibVLC dynamic libraries
-                            with self.prefix(build=relpkgdir, dst="lib"):
+                            with self.prefix(src=relpkgdir, dst="lib"):
                                 self.path( "libvlc*.dylib*" )
                                 # copy LibVLC plugins folder
-                                with self.prefix(build='plugins'):
+                                with self.prefix(src='plugins'):
                                     self.path( "*.dylib" )
                                     self.path( "plugins.dat" )
 
@@ -1562,16 +1562,16 @@ class LinuxManifest(ViewerManifest):
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
         # plugins
-        with self.prefix(build="../media_plugins", dst="bin/llplugin"):
+        with self.prefix(src="../media_plugins", dst="bin/llplugin"):
             self.path("gstreamer010/libmedia_plugin_gstreamer010.so",
                       "libmedia_plugin_gstreamer.so")
             self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
 
-        with self.prefix(build=os.path.join(pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
             self.path( "plugins.dat" )
             self.path( "*/*.so" )
 
-        with self.prefix(build=os.path.join(pkgdir, 'lib' ), dst="lib"):
+        with self.prefix(src=os.path.join(pkgdir, 'lib' ), dst="lib"):
             self.path( "libvlc*.so*" )
 
         # llcommon
@@ -1580,7 +1580,7 @@ class LinuxManifest(ViewerManifest):
 
         self.path("featuretable_linux.txt")
 
-        with self.prefix(build=pkgdir):
+        with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
@@ -1636,7 +1636,7 @@ class Linux_i686_Manifest(LinuxManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        with self.prefix(build=relpkgdir, dst="lib"):
+        with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so")
             self.path("libapr-1.so.0")
             self.path("libapr-1.so.0.4.5")
@@ -1698,9 +1698,9 @@ class Linux_i686_Manifest(LinuxManifest):
 
 
         # Vivox runtimes
-        with self.prefix(build=relpkgdir, dst="bin"):
+        with self.prefix(src=relpkgdir, dst="bin"):
             self.path("SLVoice")
-        with self.prefix(build=relpkgdir, dst="lib"):
+        with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libortp.so")
             self.path("libsndfile.so.1")
             #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
