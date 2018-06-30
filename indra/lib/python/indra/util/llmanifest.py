@@ -421,25 +421,34 @@ class LLManifest(object):
         self.build_prefix.append(build)
         self.dst_prefix.append(dst)
 
+##      self.display_stacks()
+
         # The above code is unchanged from the original implementation. What's
         # new is the return value. We're going to return an instance of
         # PrefixManager that binds this LLManifest instance and Does The Right
         # Thing on exit.
         return self.PrefixManager(self)
 
+    def display_stacks(self):
+        width = 1 + max(len(stack) for stack in self.PrefixManager.stacks)
+        for stack in self.PrefixManager.stacks:
+            print "{} {}".format((stack + ':').ljust(width),
+                                 os.path.join(*getattr(self, stack)))
+
     class PrefixManager(object):
+        # stack attributes we manage in this LLManifest (sub)class
+        # instance
+        stacks = ("src_prefix", "artwork_prefix", "build_prefix", "dst_prefix")
+
         def __init__(self, manifest):
             self.manifest = manifest
-            # stack attributes we manage in this LLManifest (sub)class
-            # instance
-            stacks = ("src_prefix", "artwork_prefix", "build_prefix", "dst_prefix")
             # If the caller wrote:
             # with self.prefix(...):
             # as intended, then bind the state of each prefix stack as it was
             # just BEFORE the call to prefix(). Since prefix() appended an
             # entry to each prefix stack, capture len()-1.
             self.prevlen = { stack: len(getattr(self.manifest, stack)) - 1
-                             for stack in stacks }
+                             for stack in self.stacks }
 
         def __nonzero__(self):
             # If the caller wrote:
@@ -471,6 +480,8 @@ class LLManifest(object):
                 # find the attribute in 'self.manifest' named by 'stack', and
                 # truncate that list back to 'prevlen'
                 del getattr(self.manifest, stack)[prevlen:]
+
+##          self.manifest.display_stacks()
 
     def end_prefix(self, descr=None):
         """Pops a prefix off the stack.  If given an argument, checks
