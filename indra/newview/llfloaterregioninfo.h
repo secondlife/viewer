@@ -488,11 +488,16 @@ class LLPanelEstateAccess : public LLPanelRegionInfo
 	LOG_CLASS(LLPanelEnvironmentInfo);
 
 public:
+	LLPanelEstateAccess();
+
 	virtual BOOL postBuild();
 	virtual void updateChild(LLUICtrl* child_ctrl);
 
 	void updateControls(LLViewerRegion* region);
 	void updateLists();
+
+	void setPendingUpdate(bool pending) { mPendingUpdate = pending; }
+	bool getPendingUpdate() { return mPendingUpdate; }
 
 private:
 	void onClickAddAllowedAgent();
@@ -523,6 +528,8 @@ private:
 	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
 	static void requestEstateGetAccessCoro(std::string url);
+
+	bool mPendingUpdate;
 };
 
 #endif

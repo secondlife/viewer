@@ -121,6 +121,18 @@ public:
 		const sparam_t& strings);
 };
 
+class LLDispatchSetEstateAccess : public LLDispatchHandler
+{
+public:
+	LLDispatchSetEstateAccess() {}
+	virtual ~LLDispatchSetEstateAccess() {}
+	virtual bool operator()(
+		const LLDispatcher* dispatcher,
+		const std::string& key,
+		const LLUUID& invoice,
+		const sparam_t& strings);
+};
+
 class LLDispatchSetEstateExperience : public LLDispatchHandler
 {
 public:
@@ -1541,6 +1553,10 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	static LLDispatchEstateUpdateInfo estate_update_info;
 	dispatch.addHandler(name, &estate_update_info);
 
+	name.assign("setaccess");
+	static LLDispatchSetEstateAccess set_access;
+	dispatch.addHandler(name, &set_access);
+
 	name.assign("setexperience");
 	static LLDispatchSetEstateExperience set_experience;
 	dispatch.addHandler(name, &set_experience);
@@ -2312,6 +2328,21 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	// *TODO: Move estate message handling stuff to llestateinfomodel.cpp.
 	LLEstateInfoModel::instance().update(strings);
 
+	return true;
+}
+
+bool LLDispatchSetEstateAccess::operator()(
+	const LLDispatcher* dispatcher,
+	const std::string& key,
+	const LLUUID& invoice,
+	const sparam_t& strings)
+{
+	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
+	if (panel && panel->getPendingUpdate())
+	{
+		panel->setPendingUpdate(false);
+		panel->updateLists();
+	}
 	return true;
 }
 
@@ -3222,8 +3253,9 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 }
 
 
-
-
+LLPanelEstateAccess::LLPanelEstateAccess()
+: LLPanelRegionInfo(), mPendingUpdate(false)
+{}
 
 BOOL LLPanelEstateAccess::postBuild()
 {
@@ -3771,7 +3803,13 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 		iter++)
 	{
 		if (iter + 1 != end_it)
+		{
 			flags |= ESTATE_ACCESS_NO_REPLY;
+		}
+		else
+		{
+			flags &= ~ESTATE_ACCESS_NO_REPLY;
+		}
 
 		const LLUUID id = iter->asUUID();
 		if (((U32)notification["payload"]["operation"].asInteger() & ESTATE_ACCESS_BANNED_AGENT_ADD)
@@ -3794,6 +3832,11 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 			}
 			names += av_name.getCompleteName();
 		}
+	}
+	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
+	if (panel)
+	{
+		panel->setPendingUpdate(true);
 	}
 
 	if (!names.empty()) // show the conirmation
@@ -3869,13 +3912,6 @@ void LLPanelEstateAccess::sendEstateAccessDelta(U32 flags, const LLUUID& agent_o
 	msg->addString("Parameter", buf);
 
 	gAgent.sendReliableMessage();
-
-
-	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
-	if (panel)
-	{
-		panel->updateLists();
-	}
 }
 
 void LLPanelEstateAccess::updateChild(LLUICtrl* child_ctrl)
