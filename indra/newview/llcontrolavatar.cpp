@@ -141,7 +141,24 @@ void LLControlAvatar::matchVolumeTransform()
 	        const LLMeshSkinInfo* skin_info = mRootVolp->getSkinInfo();
 			if (skin_info)
 			{
+                LL_DEBUGS("BindShape") << getFullname() << " bind shape " << skin_info->mBindShapeMatrix << LL_ENDL;
 				LLMatrix3 bind_mat = skin_info->mBindShapeMatrix.getMat3();
+				for (auto i = 0; i < 3; i++)
+				{
+                    F32 len = 0.0f;
+					for (auto j = 0; j < 3; j++)
+					{
+                        len += bind_mat.mMatrix[i][j] * bind_mat.mMatrix[i][j];
+                    }
+                    if (len >= 0.0f)
+                    {
+                        len = sqrt(len);
+                        for (auto j = 0; j < 3; j++)
+                        {
+                            bind_mat.mMatrix[i][j] /= len;
+                        }
+                    }
+				}
                 bind_mat.invert();
                 bind_rot = bind_mat.quaternion();
                 bind_rot.normalize();
