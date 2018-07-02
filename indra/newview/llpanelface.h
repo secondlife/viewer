@@ -414,6 +414,7 @@ private:
 	bool mUpdateInFlight;
 	bool mUpdatePending;
 
+public:
 	#if defined(DEF_GET_MAT_STATE)
 		#undef DEF_GET_MAT_STATE
 	#endif

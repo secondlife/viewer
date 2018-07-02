@@ -550,8 +550,14 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 			if (set_aligned)
 			{
 				object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
-				object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
+                object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
 				object->setTERotation(te, uv_rot);
+                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX]);
+                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY]);
+                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX]);
+                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY]);
+				LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot);
+                LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot);
 			}
 		}
 		if (!set_aligned)
