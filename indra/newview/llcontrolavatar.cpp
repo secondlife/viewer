@@ -150,7 +150,7 @@ void LLControlAvatar::matchVolumeTransform()
 					{
                         len += bind_mat.mMatrix[i][j] * bind_mat.mMatrix[i][j];
                     }
-                    if (len >= 0.0f)
+                    if (len > 0.0f)
                     {
                         len = sqrt(len);
                         for (auto j = 0; j < 3; j++)
