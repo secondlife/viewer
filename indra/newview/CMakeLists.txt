@@ -260,6 +260,7 @@ set(viewer_SOURCE_FILES
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
     llfloatermodeluploadbase.cpp
+    llfloatermyenvironment.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
     llfloaternotificationstabbed.cpp
@@ -881,6 +882,7 @@ set(viewer_HEADER_FILES
     llfloatermemleak.h
     llfloatermodelpreview.h
     llfloatermodeluploadbase.h
+    llfloatermyenvironment.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
     llfloaternotificationstabbed.h

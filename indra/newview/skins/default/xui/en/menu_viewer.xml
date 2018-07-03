@@ -695,23 +695,23 @@
                  parameter="region" />
             </menu_item_check>
             <menu_item_separator/>
-            <menu_item
+            <menu_item_call
              label="My Environments..."
-             name="My Environments">
-                <menu_item_check.on_click
-                 function="World.MyEnvirons"
+             name="my_environs">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
                  parameter="my_environs" />
-            </menu_item>
+            </menu_item_call>
             <menu_item_separator/>
             <menu_item_check
              label="Pause Clouds"
-             name="pauseclouds">
+             name="pause_clouds">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
-                 parameter="pauseclouds" />
+                 parameter="pause_clouds" />
                 <menu_item_check.on_check
                  function="World.EnableEnvSettings" 
-                 parameter="pauseclouds" />
+                 parameter="pause_clouds" />
             </menu_item_check>
             
         </menu>

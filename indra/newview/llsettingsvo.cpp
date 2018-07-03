@@ -162,7 +162,6 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
     std::stringstream buffer;
     LLSD settingdata(settings->getSettings());
 
-    LL_WARNS("LAPRAS") << "Sending '" << settingdata << "' for asset." << LL_ENDL;
 
     LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
 
@@ -176,14 +175,16 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
 
 void LLSettingsVOBase::onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback)
 {
-    LL_WARNS("SETTINGS") << "itemId:" << itemId << " newAssetId:" << newAssetId << " newItemId:" << newItemId << " response:" << response << LL_ENDL;
+    LL_INFOS("SETTINGS") << "itemId:" << itemId << " newAssetId:" << newAssetId << " newItemId:" << newItemId << " response:" << response << LL_ENDL;
+    psettings->setAssetId(newAssetId);
     if (callback)
         callback( newAssetId, itemId, LLUUID::null, response );
 }
 
 void LLSettingsVOBase::onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback)
 {
-    LL_WARNS("SETTINGS") << "Upload to task complete!" << LL_ENDL;
+    LL_INFOS("SETTINGS") << "Upload to task complete!" << LL_ENDL;
+    psettings->setAssetId(newAssetId);
     if (callback)
         callback(newAssetId, itemId, taskId, response);
 }

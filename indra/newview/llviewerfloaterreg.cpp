@@ -87,6 +87,7 @@
 #include "llfloatermediasettings.h"
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
+#include "llfloatermyenvironment.h"
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloaternotificationstabbed.h"
@@ -224,7 +225,7 @@ void LLViewerFloaterReg::registerFloaters()
     //LLFloaterReg::add("env_fixed_environmentent", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironment>);
 
     LLFloaterReg::add("env_edit_extdaycycle", "floater_edit_ext_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditExtDayCycle>);
-
+    LLFloaterReg::add("my_environments", "floater_my_environments.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyEnvironment>);
 
     LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
     LLFloaterReg::add("experiences", "floater_experiences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiences>);

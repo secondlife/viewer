@@ -152,6 +152,7 @@ public:
     bool                        canAgentUpdateParcelEnvironment(bool useselected = false) const;
     bool                        canAgentUpdateRegionEnvironment() const;
 
+    LLSettingsDay::ptr_t        getCurrentDay() const { return mCurrentEnvironment->getDayCycle(); }
     LLSettingsSky::ptr_t        getCurrentSky() const { return mCurrentEnvironment->getSky(); }
     LLSettingsWater::ptr_t      getCurrentWater() const { return mCurrentEnvironment->getWater(); }
 

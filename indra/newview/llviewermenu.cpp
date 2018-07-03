@@ -8398,42 +8398,63 @@ class LLWorldEnvSettings : public view_listener_t
 {	
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string tod = userdata.asString();
+		std::string event_name = userdata.asString();
 		
-		if (tod == "sunrise")
+		if (event_name == "sunrise")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().updateEnvironment();
 		}
-		else if (tod == "noon")
+		else if (event_name == "noon")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDDAY);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().updateEnvironment();
         }
-		else if (tod == "sunset")
+		else if (event_name == "sunset")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().updateEnvironment();
         }
-		else if (tod == "midnight")
+		else if (event_name == "midnight")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().updateEnvironment();
         }
-        else if (tod == "region")
+        else if (event_name == "region")
 		{
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().updateEnvironment();
         }
-        else if (tod == "pauseclouds")
+        else if (event_name == "pause_clouds")
         {
             if (LLEnvironment::instance().isCloudScrollPaused())
                 LLEnvironment::instance().resumeCloudScroll();
             else
                 LLEnvironment::instance().pauseCloudScroll();
         }
+        else if (event_name == "my_environs")
+        {
+            LLUUID asset_id;
+
+            LLSettingsBase::ptr_t cur(LLEnvironment::instance().getCurrentDay());
+            if (!cur)
+            {
+                cur = LLEnvironment::instance().getCurrentSky();
+            } 
+
+            if (cur)
+            {
+                asset_id = cur->getAssetId();
+            }
+              
+            LLFloaterReg::showInstance("my_environments", LLSDMap("asset_id", LLSD::UUID(asset_id)));
+        }
     
-        LLEnvironment::instance().updateEnvironment();
 		return true;
 	}
 };
@@ -8443,9 +8464,9 @@ class LLWorldEnableEnvSettings : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool result = false;
-		std::string tod = userdata.asString();
+		std::string event_name = userdata.asString();
 
-        if (tod == "pauseclouds")
+        if (event_name == "pause_clouds")
         {
             return LLEnvironment::instance().isCloudScrollPaused();
         }
@@ -8454,35 +8475,35 @@ class LLWorldEnableEnvSettings : public view_listener_t
 
 		if (!sky)
 		{
-			return (tod == "region");
+			return (event_name == "region");
 		}
 
         std::string skyname = (sky) ? sky->getName() : "";
         LLUUID skyid = (sky) ? sky->getAssetId() : LLUUID::null;
 
-		if (tod == "sunrise")
+		if (event_name == "sunrise")
 		{
             result = (skyid == LLEnvironment::KNOWN_SKY_SUNRISE);
 		}
-		else if (tod == "noon")
+		else if (event_name == "noon")
 		{
             result = (skyid == LLEnvironment::KNOWN_SKY_MIDDAY);
 		}
-		else if (tod == "sunset")
+		else if (event_name == "sunset")
 		{
             result = (skyid == LLEnvironment::KNOWN_SKY_SUNSET);
 		}
-		else if (tod == "midnight")
+		else if (event_name == "midnight")
 		{
             result = (skyid == LLEnvironment::KNOWN_SKY_MIDNIGHT);
 		}
-		else if (tod == "region")
+		else if (event_name == "region")
 		{
 			return false;
 		}
 		else
 		{
-			LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;
+			LL_WARNS() << "Unknown time-of-day item:  " << event_name << LL_ENDL;
 		}
 		return result;
 	}

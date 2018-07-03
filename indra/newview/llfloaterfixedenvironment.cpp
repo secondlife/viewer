@@ -317,8 +317,12 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
         if (!parcel)
             parcel = LLViewerParcelMgr::instance().getAgentParcel();
 
-        if (!parcel)
+        if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
+        {
+            LL_WARNS("ENVIRONMENT") << "Can not identify parcel. Not applying." << LL_ENDL;
+            LLNotificationsUtil::add("WLParcelApplyFail");
             return;
+        }
 
         if (mSettings->getSettingsType() == "sky")
             LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);

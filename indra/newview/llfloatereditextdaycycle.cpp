@@ -1023,6 +1023,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
         if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
         {
             LL_WARNS("ENVIRONMENT") << "Can not identify parcel. Not applying." << LL_ENDL;
+            LLNotificationsUtil::add("WLParcelApplyFail");
             return;
         }
 

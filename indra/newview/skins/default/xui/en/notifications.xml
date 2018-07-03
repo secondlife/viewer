@@ -11140,5 +11140,15 @@ This Region does not support environmental settings.
 Unable to import legacy Windlight settings from [FILE].
   <tag>fail</tag>
   </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WLParcelApplyFail"
+   persist="true"
+   type="alertmodal">
+Unable to set the environment for this parcel.
+Please enter or select a parcel that you have rights to modify.
+  <tag>fail</tag>
+  </notification>
   
 </notifications>
