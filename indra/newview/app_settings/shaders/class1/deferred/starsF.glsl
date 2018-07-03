@@ -26,7 +26,7 @@
 /*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
@@ -41,6 +41,5 @@ void main()
 {
 	vec4 col = vertex_color * texture2D(diffuseMap, vary_texcoord0.xy);
     col.a *= custom_alpha;
-	
 	frag_color = col;
 }
