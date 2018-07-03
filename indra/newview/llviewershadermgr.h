@@ -261,6 +261,7 @@ extern LLGLSLShader			gImpostorProgram;
 // WindLight shader handles
 extern LLGLSLShader			gWLSkyProgram;
 extern LLGLSLShader			gWLCloudProgram;
+extern LLGLSLShader			gWLSunProgram;
 extern LLGLSLShader			gWLMoonProgram;
 
 // Post Process Shaders
@@ -316,6 +317,7 @@ extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
+extern LLGLSLShader			gDeferredWLSunProgram;
 extern LLGLSLShader			gDeferredWLMoonProgram;
 extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gDeferredFullbrightShinyProgram;

@@ -49,7 +49,7 @@ void main()
 {
 	vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
 	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
-    vec4 c     = mix(moonA, moonB, blend_factor);
+    vec4 c     = mix(moonB, moonA, blend_factor);
 
 	c.rgb = pow(c.rgb, vec3(0.7f));
 	c.rgb = fullbrightAtmosTransport(c.rgb);

@@ -640,7 +640,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
         dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
         dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
-        dfltsetting[SETTING_SUN_TEXTUREID]      = LLUUID::null; // GetDefaultSunTextureId();
+        dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
 
         dfltsetting[SETTING_TYPE] = "sky";
 
@@ -1092,7 +1092,8 @@ LLUUID LLSettingsSky::GetDefaultAssetId()
 
 LLUUID LLSettingsSky::GetDefaultSunTextureId()
 {
-    return DEFAULT_SUN_ID;
+    //return DEFAULT_SUN_ID;
+    return LLUUID::null;
 }
 
 LLUUID LLSettingsSky::GetDefaultMoonTextureId()

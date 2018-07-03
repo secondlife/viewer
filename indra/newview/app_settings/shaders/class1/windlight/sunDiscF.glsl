@@ -1,5 +1,5 @@
 /** 
- * @file moonF.glsl
+ * @file sunDiscF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -36,28 +36,19 @@ out vec4 frag_color;
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
-uniform vec4 color;
-uniform vec4 sunlight_color;
-uniform vec3 lumWeights;
-uniform float minLuminance;
 uniform sampler2D diffuseMap;
 uniform sampler2D altDiffuseMap;
-uniform float blend_factor; // interp factor between moon A/B
+uniform float blend_factor; // interp factor between sun A/B
 VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
-	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
-    vec4 c     = mix(moonB, moonA, blend_factor);
-
+	vec4 sunA = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 sunB = texture2D(altDiffuseMap, vary_texcoord0.xy);
+    vec4 c     = mix(sunB, sunA, blend_factor);
     c.rgb = pow(c.rgb, vec3(0.45f));
 	c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
-    // mix factor which blends when sunlight is brighter
-    // and shows true moon color at night
-    vec3 luma_weights = vec3(0.1, 0.3, 0.0);
-    float mix = 1.0f - dot(sunlight_color.rgb, luma_weights);
-	frag_color = vec4(c.rgb, mix * c.a);
+	frag_color = c;
 }
 
