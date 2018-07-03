@@ -48,8 +48,9 @@ static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
 
 static LLGLSLShader* cloud_shader = NULL;
-static LLGLSLShader* sky_shader = NULL;
-static LLGLSLShader* moon_shader = NULL;
+static LLGLSLShader* sky_shader   = NULL;
+static LLGLSLShader* sun_shader   = NULL;
+static LLGLSLShader* moon_shader  = NULL;
 
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 	LLDrawPool(POOL_WL_SKY)
@@ -77,6 +78,11 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
 
+    sun_shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectFullbrightNoColorWaterProgram :
+				&gWLSunProgram;
+
     moon_shader =
 			LLPipeline::sUnderWaterRender ?
 				&gObjectFullbrightNoColorWaterProgram :
@@ -91,6 +97,12 @@ void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
 {
 	sky_shader = &gDeferredWLSkyProgram;
 	cloud_shader = &gDeferredWLCloudProgram;
+
+    sun_shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectFullbrightNoColorWaterProgram :
+				&gDeferredWLSunProgram;
+
     moon_shader =
 			LLPipeline::sUnderWaterRender ?
 				&gObjectFullbrightNoColorWaterProgram :
@@ -300,53 +312,116 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLGLEnable blend_on(GL_BLEND);
 	gPipeline.disableLights();
 
-#if 0 // when we want to re-add a texture sun disc, here's where to do it.
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
-	if (gSky.mVOSkyp->getSun().getDraw() && face->getGeomCount())
+
+    F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+    bool can_use_vertex_shaders = gPipeline.canUseVertexShaders();
+
+	if (gSky.mVOSkyp->getSun().getDraw() && face && face->getGeomCount())
 	{
-		LLViewerTexture * tex  = face->getTexture();
-		gGL.getTexUnit(0)->bind(tex);
-		LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
-		LLFacePool::LLOverrideFaceColor color_override(this, color);
-		face->renderIndexed();
+		LLViewerTexture* tex_a = face->getTexture(LLRender::DIFFUSE_MAP);
+        LLViewerTexture* tex_b = face->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
+
+        // if we even have sun disc textures to work with...
+        if (tex_a || tex_b)
+        {
+            // if and only if we have a texture defined, render the sun disc
+            if (can_use_vertex_shaders)
+		    {
+			    sun_shader->bind();
+            }
+
+            if (tex_a && (!tex_b || (tex_a == tex_b)))
+            {
+                // Bind current and next sun textures
+		        gGL.getTexUnit(0)->bind(tex_a);
+                gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (tex_b && !tex_a)
+            {
+                gGL.getTexUnit(0)->bind(tex_b);
+                gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (tex_b != tex_a)
+            {
+                gGL.getTexUnit(0)->bind(tex_a);
+                gGL.getTexUnit(1)->bind(tex_b);
+            }
+
+		    LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
+
+            if (can_use_vertex_shaders)
+		    {
+                sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
+                sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+		    }
+
+		    LLFacePool::LLOverrideFaceColor color_override(this, color);
+		    face->renderIndexed();
+
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
+            if (can_use_vertex_shaders)
+		    {
+			    sun_shader->unbind();
+            }
+        }
 	}
-#endif
 
-	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON];
+	face = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON];
 
-	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount() && moon_shader)
-	{
-		// *NOTE: even though we already bound this texture above for the
-		// stars register combiners, we bind again here for defensive reasons,
-		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
-		gGL.getTexUnit(0)->bind(face->getTexture());
+	if (gSky.mVOSkyp->getMoon().getDraw() && face && face->getTexture(LLRender::DIFFUSE_MAP) && face->getGeomCount() && moon_shader)
+	{        
+        LLViewerTexture* tex_a = face->getTexture(LLRender::DIFFUSE_MAP);
+        LLViewerTexture* tex_b = face->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
+
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
-
-		/*F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
-		if (a > 0.f)
-		{
-			a = a*a*4.f;
-		}			
-		color.mV[3] = llclamp(a, 0.f, 1.f);*/
 		
-		if (gPipeline.canUseVertexShaders())
+        if (can_use_vertex_shaders)
 		{
 			moon_shader->bind();
-            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
-            moon_shader->uniform3fv(LLShaderMgr::GLOW_LUM_WEIGHTS, 1, LLPipeline::RenderGlowLumWeights.mV);
-            F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+        }
+
+        if (tex_a && (!tex_b || (tex_a == tex_b)))
+        {
+            // Bind current and next sun textures
+		    gGL.getTexUnit(0)->bind(tex_a);
+            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+            blend_factor = 0;
+        }
+        else if (tex_b && !tex_a)
+        {
+            gGL.getTexUnit(0)->bind(tex_b);
+            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+            blend_factor = 0;
+        }
+        else if (tex_b != tex_a)
+        {
+            gGL.getTexUnit(0)->bind(tex_a);
+            gGL.getTexUnit(1)->bind(tex_b);
+        }
+
+        if (can_use_vertex_shaders)
+		{
+            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);                
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
-		}
+        }
 
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		
 		face->renderIndexed();
 
-		if (gPipeline.canUseVertexShaders())
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
+		if (can_use_vertex_shaders)
 		{
 			moon_shader->unbind();
 		}
-	}
+	}    
 }
 
 void LLDrawPoolWLSky::renderDeferred(S32 pass)
@@ -382,12 +457,6 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
     
 	        gGL.pushMatrix();
 		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
-
-		    // *NOTE: have to bind moon textures here since register combiners blending in
-		    // renderStars() requires something to be bound and we might as well only
-		    // bind the moon textures once.		
-		    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::DIFFUSE_MAP));
-            gGL.getTexUnit(1)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP));
 
 		    renderHeavenlyBodies();	        
         }

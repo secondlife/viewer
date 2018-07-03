@@ -427,7 +427,7 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(side, tile);
+			createSkyTexture(side, tile, false);
 		}
 	}
 
@@ -556,7 +556,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
+void LLVOSky::createSkyTexture(const S32 side, const S32 tile, bool use_windlight_shaders)
 {
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
@@ -569,7 +569,10 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-			mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y)), x, y);
+            if (use_windlight_shaders)
+            {
+			    mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y)), x, y);
+            }
 			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y), true), x, y);
 		}
 	}
@@ -652,7 +655,9 @@ bool LLVOSky::updateSky()
         mForceUpdate = mForceUpdate || color_changed;
         mForceUpdate = mForceUpdate || !mInitialized;
 
-        if ((mForceUpdate) && (forceupdThrottle.hasExpired()) && (!gPipeline.canUseWindLightShaders()))
+        bool use_windlight_shaders = gPipeline.canUseWindLightShaders();
+
+        if (mForceUpdate && forceupdThrottle.hasExpired())
 		{
             LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 
@@ -674,16 +679,21 @@ bool LLVOSky::updateSky()
 					{
 						for (int tile = 0; tile < NUM_TILES; tile++) 
 						{
-							createSkyTexture(side, tile);
+							createSkyTexture(side, tile, use_windlight_shaders);
 						}
 					}
 
 					for (int side = 0; side < 6; side++) 
 					{
-						LLImageRaw* raw1 = mSkyTex[side].getImageRaw(TRUE);
-						LLImageRaw* raw2 = mSkyTex[side].getImageRaw(FALSE);
-						raw2->copy(raw1);
-						mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
+                        LLImageRaw* raw1 = nullptr;
+                        LLImageRaw* raw2 = nullptr;
+                        if (use_windlight_shaders)
+                        {
+						    raw1 = mSkyTex[side].getImageRaw(TRUE);
+						    raw2 = mSkyTex[side].getImageRaw(FALSE);
+						    raw2->copy(raw1);
+						    mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
+                        }
 
 						raw1 = mShinyTex[side].getImageRaw(TRUE);
 						raw2 = mShinyTex[side].getImageRaw(FALSE);
@@ -695,7 +705,10 @@ bool LLVOSky::updateSky()
 			        // update the sky texture
 			        for (S32 i = 0; i < 6; ++i)
 			        {
-				        mSkyTex[i].create(1.0f);
+                        if (use_windlight_shaders)
+                        {
+				            mSkyTex[i].create(1.0f);
+                        }
 				        mShinyTex[i].create(1.0f);
 			        }
 
@@ -778,8 +791,9 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 
 void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
 {
-    mSunTexturep[0] = LLViewerTextureManager::getFetchedTexture(sun_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    mSunTexturep[1] = LLViewerTextureManager::getFetchedTexture(sun_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    // We test the UUIDs here because we explicitly do not want the default image returned by getFetchedTexture in that case...
+    mSunTexturep[0] = sun_texture.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(sun_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mSunTexturep[1] = sun_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(sun_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
     if (mFace[FACE_SUN])
     {
@@ -791,9 +805,9 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
     
         if (mSunTexturep[1])
         {
-	        mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
-            mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
+	        mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);            
         }
+        mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
     }
 }
 

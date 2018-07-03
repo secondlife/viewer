@@ -140,21 +140,21 @@ LLSettingsSky::validation_list_t legacyHazeValidationList()
     static LLSettingsBase::validation_list_t legacyHazeValidation;
     if (legacyHazeValidation.empty())
     {
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_DENSITY,        true,  LLSD::TypeArray, 
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_DENSITY,        false,  LLSD::TypeArray, 
             boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_HORIZON,        true,  LLSD::TypeArray, 
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_HORIZON,        false,  LLSD::TypeArray, 
             boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_DENSITY,        true,  LLSD::TypeReal,  
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        true,  LLSD::TypeReal,  
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  true,  LLSD::TypeReal,  
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, true,  LLSD::TypeReal,
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
     }
     return legacyHazeValidation;
@@ -165,19 +165,19 @@ LLSettingsSky::validation_list_t rayleighValidationList()
     static LLSettingsBase::validation_list_t rayleighValidation;
     if (rayleighValidation.empty())
     {
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      true,  LLSD::TypeReal,  
+        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(32768.0f)))));
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   true,  LLSD::TypeReal,  
+        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
         
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, true,  LLSD::TypeReal,  
+        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(-1.0f)(1.0f)))));
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, true,  LLSD::TypeReal,  
+        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
+        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
     }
     return rayleighValidation;
@@ -188,19 +188,19 @@ LLSettingsSky::validation_list_t absorptionValidationList()
     static LLSettingsBase::validation_list_t absorptionValidation;
     if (absorptionValidation.empty())
     {
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      true,  LLSD::TypeReal,  
+        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(32768.0f)))));
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   true,  LLSD::TypeReal,  
+        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
         
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, true,  LLSD::TypeReal,  
+        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(-1.0f)(1.0f)))));
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, true,  LLSD::TypeReal,  
+        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
+        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
     }
     return absorptionValidation;
@@ -211,22 +211,22 @@ LLSettingsSky::validation_list_t mieValidationList()
     static LLSettingsBase::validation_list_t mieValidation;
     if (mieValidation.empty())
     {
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      true,  LLSD::TypeReal,  
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(32768.0f)))));
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   true,  LLSD::TypeReal,  
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
         
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, true,  LLSD::TypeReal,  
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(-1.0f)(1.0f)))));
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, true,  LLSD::TypeReal,  
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, true,  LLSD::TypeReal,  
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, true,  LLSD::TypeReal,  
+        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
     }
     return mieValidation;
@@ -640,7 +640,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
         dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
         dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
-        dfltsetting[SETTING_SUN_TEXTUREID]      = LLUUID::null; // GetDefaultSunTextureId();
+        dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
 
         dfltsetting[SETTING_TYPE] = "sky";
 
@@ -1092,7 +1092,8 @@ LLUUID LLSettingsSky::GetDefaultAssetId()
 
 LLUUID LLSettingsSky::GetDefaultSunTextureId()
 {
-    return DEFAULT_SUN_ID;
+    //return DEFAULT_SUN_ID;
+    return LLUUID::null;
 }
 
 LLUUID LLSettingsSky::GetDefaultMoonTextureId()
