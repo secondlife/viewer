@@ -2065,6 +2065,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectSimpleNonIndexedProgram.mFeatures.hasAtmospherics = true;
 		gObjectSimpleNonIndexedProgram.mFeatures.hasLighting = true;
 		gObjectSimpleNonIndexedProgram.mFeatures.disableTextureIndex = true;
+		gObjectSimpleNonIndexedProgram.mFeatures.hasAlphaMask = true;
 		gObjectSimpleNonIndexedProgram.mShaderFiles.clear();
 		gObjectSimpleNonIndexedProgram.mShaderFiles.push_back(make_pair("objects/simpleV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectSimpleNonIndexedProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
