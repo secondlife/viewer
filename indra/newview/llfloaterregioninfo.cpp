@@ -3463,6 +3463,20 @@ void LLPanelEstateAccess::onClickRemoveEstateManager()
 // Special case callback for groups, since it has different callback format than names
 void LLPanelEstateAccess::addAllowedGroup2(LLUUID id)
 {
+	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
+	if (panel)
+	{
+		LLNameListCtrl* group_list = panel->getChild<LLNameListCtrl>("allowed_group_name_list");
+		LLScrollListItem* item = group_list->getNameItemByAgentId(id);
+		if (item)
+		{
+			LLSD args;
+			args["GROUP"] = item->getColumn(0)->getValue().asString();
+			LLNotificationsUtil::add("GroupIsAlreadyInList", args);
+			return;
+		}
+	}
+	
 	LLSD payload;
 	payload["operation"] = (S32)ESTATE_ACCESS_ALLOWED_GROUP_ADD;
 	payload["dialog_name"] = "EstateAllowedGroupAdd";
@@ -4019,7 +4033,7 @@ void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
 		for (LLSD::array_const_iterator it = result["AllowedGroups"].beginArray(); it != result["AllowedGroups"].endArray(); ++it)
 		{
 			LLUUID id = (*it)["id"].asUUID();
-			allowed_group_name_list->addNameItem(id);
+			allowed_group_name_list->addGroupNameItem(id);
 		}
 		allowed_group_name_list->sortByName(TRUE);
 	}

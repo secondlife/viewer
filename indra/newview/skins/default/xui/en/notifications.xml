@@ -3812,6 +3812,13 @@ Unable to add banned resident to estate manager list.
    type="alertmodal">
 Unable to add estate manager [AGENT] to banned list.
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="GroupIsAlreadyInList"
+   type="alertmodal">
+[GROUP] is already in the Allowed Groups list.
+  </notification>
     
   <notification
    icon="alertmodal.tga"
