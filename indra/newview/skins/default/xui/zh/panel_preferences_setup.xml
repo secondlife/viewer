@@ -15,8 +15,8 @@
 		網頁：
 	</text>
 	<radio_group name="preferred_browser_behavior">
-		<radio_item label="所有連結都用我的網頁瀏覽器（例如 Chrome、Firefox、IE）開啟" name="internal" tool_tip="使用系統預設的瀏覽器瀏覽幫助，開啟網頁。全螢幕模式下不建議這麼做。" value="0"/>
-		<radio_item label="僅在開啟第二人生連結時使用內建瀏覽器" name="external" tool_tip="使用系統預設的瀏覽器瀏覽幫助，開啟網頁。僅在開啟 LindenLab/SecondLife 的連結時才會使用內建瀏覽器。" value="1"/>
+		<radio_item label="用內建瀏覽器開啟所有連結" name="internal" tool_tip="使用系統預設的瀏覽器瀏覽幫助，開啟網頁。全螢幕模式下不建議這麼做。" value="0"/>
+		<radio_item label="僅在開啟Second Life連結時使用內建瀏覽器" name="external" tool_tip="使用系統預設的瀏覽器瀏覽幫助，開啟網頁。僅在開啟「LindenLab/Second Life」的連結時才會使用內建瀏覽器。" value="1"/>
 		<radio_item label="用內建瀏覽器開啟所有連結" name="external_all" tool_tip="使用內建的瀏覽器瀏覽幫助，開啟網頁。該瀏覽器將透過 [APP_NAME] 開啟新視窗。" value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="啟用外掛" name="browser_plugins_enabled"/>

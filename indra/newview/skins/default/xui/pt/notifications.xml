@@ -4289,7 +4289,7 @@ Tente selecionar uma quantidade menor de terreno.
 		Um erro interno impediu que seu visualizador fosse atualizado corretamente.  O saldo em L$ ou a propriedade de lotes exibidos em seu visualizador pode não refletir o saldo real nos servidores.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Não é possível criar grandes prims que interceptam outros jogadores.  Tente novamente quando os outros jogadores tiverem se movido.
+		Não é possível prims maiores que cruzam com outros residentes. Tente novamente quando os outros residentes tiverem mudado.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Isso excluirá os registros das conversas anteriores e qualquer backup desse arquivo.

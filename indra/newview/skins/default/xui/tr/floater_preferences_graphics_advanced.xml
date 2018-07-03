@@ -31,7 +31,7 @@
 	<text name="AvatarPhysicsDetailText">
 		Düşük
 	</text>
-	<text name="ShadersText">
+	<text name="HardwareText">
 		Donanım
 	</text>
 	<slider label="Doku Belleği (MB):" name="GraphicsCardTextureMemory" tool_tip="Dokular için tahsis edilecek bellek miktarı. Varsayılan değer video kartı belleğidir. Bu değerin küçültülmesi performansı artırabilir, ama ayrıca dokuları bulanıklaştırabilir."/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		(yeniden başlatma gerektirir)
 	</text>
+	<text name="MeshText">
+		Ağ
+	</text>
 	<slider label="Yüzey Ağ Ayrıntısı:" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		Düşük
@@ -71,6 +74,9 @@
 	<slider label="Esnek primler:" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		Düşük
+	</text>
+	<text name="ShadersText">
+		Gölgelendiriciler:
 	</text>
 	<check_box initial_value="true" label="Saydam Su" name="TransparentWater"/>
 	<check_box initial_value="true" label="Tümsek eşleme ve parlaklık" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="Önerilen ayarlara dön" name="Defaults"/>
 	<button label="Tamam" label_selected="Tamam" name="OK"/>
 	<button label="İptal" label_selected="İptal" name="Cancel"/>
-	<check_box label="AvatarMaksKarmaşıklığıİşleme" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors"/>
 </floater>
