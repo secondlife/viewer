@@ -1072,7 +1072,7 @@ BOOL LLVOSky::updateSky()
 		LLHeavenBody::setInterpVal( mInterpVal );
 		calcAtmospherics();
 
-		if (!gPipeline.canUseWindLightShaders() && (mForceUpdate || total_no_tiles == frame))
+		if (mForceUpdate || total_no_tiles == frame)
 		{
 			LLSkyTex::stepCurrent();
 			
