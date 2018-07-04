@@ -1581,6 +1581,11 @@ bool LLAppViewer::doFrame()
 			saveFinalSnapshot();
 		}
 
+		if (LLVoiceClient::instanceExists())
+		{
+			LLVoiceClient::getInstance()->terminate();
+		}
+
 		delete gServicePump;
 
 		destroyMainloopTimeout();
@@ -1679,11 +1684,6 @@ bool LLAppViewer::cleanup()
 
     // Give any remaining SLPlugin instances a chance to exit cleanly.
     LLPluginProcessParent::shutdown();
-
-	if (LLVoiceClient::instanceExists())
-	{
-		LLVoiceClient::getInstance()->terminate();
-	}
 
 	disconnectViewer();
 
