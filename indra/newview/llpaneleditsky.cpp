@@ -330,13 +330,9 @@ void LLPanelSettingsSkySunMoonTab::refresh()
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
 
     LLColor3 glow(mSkySettings->getGlow());
-
-    glow.mV[0] = 2 - (glow.mV[0] / SLIDER_SCALE_GLOW_R);
-    glow.mV[2] /= SLIDER_SCALE_GLOW_B;
-
-    getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setValue(glow.mV[0]);
-    getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setValue(glow.mV[2]);
-
+    
+    getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setValue(2.0 - (glow.mV[0] / SLIDER_SCALE_GLOW_R));
+    getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setValue(glow.mV[2] / SLIDER_SCALE_GLOW_B);
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setValue(mSkySettings->getStarBrightness());
     getChild<LLJoystickQuaternion>(FIELD_SKY_SUN_ROTATION)->setRotation(mSkySettings->getSunRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setValue(mSkySettings->getSunTextureId());
@@ -356,10 +352,9 @@ void LLPanelSettingsSkySunMoonTab::onSunMoonColorChanged()
 
 void LLPanelSettingsSkySunMoonTab::onGlowChanged()
 {
-    LLColor3 glow(getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal(), 0.0f, 
-        getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal());
+    LLColor3 glow(getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal(), 0.0f, getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal());
 
-    glow.mV[0] = (2 - glow.mV[0]) * SLIDER_SCALE_GLOW_R; 
+    glow.mV[0] = (2.0f - glow.mV[0]) * SLIDER_SCALE_GLOW_R; 
     glow.mV[2] *= SLIDER_SCALE_GLOW_B;
 
     mSkySettings->setGlow(glow);
