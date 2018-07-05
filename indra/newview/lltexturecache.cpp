@@ -142,14 +142,22 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         if (image->getCodec() == IMG_CODEC_J2C)
         {
             S32* dataSizes = ((LLImageJ2C*)image)->getDataSizes();
-            for (U32 index = 0; index < MAX_DISCARD_LEVEL; index++)
+            for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
             {
                 info.mDiscardBytes[index] = dataSizes[index];
+            }
+            if (image->getDiscardLevel() == 0)
+            {
+                info.mDiscardBytes[0] = image->getDataSize();
+            }
+            else
+            {
+                info.mDiscardBytes[0] = dataSizes[0];
             }
         }
         else
         {
-            for (U32 index = 0; index < MAX_DISCARD_LEVEL; index++)
+            for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
             {
                 info.mDiscardBytes[index] = image->getDataSize();
             }
@@ -320,24 +328,26 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
 
     fclose(f);
 
-    if (bytes_read != info.mDiscardBytes[discard_level])
+    LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(info.mCodec);
+
+    if (bytes_read)
+    {	
+        image->setData((U8*)data, bytes_read);
+        if (!image->updateData())
+        {
+            LL_WARNS() << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;
+            remove(id);
+            return LLPointer<LLImageFormatted>();
+        }
+
+        info.mLastAccess = time(nullptr);
+    }
+    else
     {
-        LL_WARNS() << "Failed to read cached texture " << id << " at discard " << discard_level << " removing from cache." << LL_ENDL;
+        LL_WARNS() << "Failed to read cached texture " << id << " removing from cache." << LL_ENDL;
         ll_aligned_free_16(data);
         remove(id);
-        return LLPointer<LLImageFormatted>();
     }
-
-	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(info.mCodec);
-    image->setData((U8*)data, bytes_read);
-    if (!image->updateData())
-    {
-        LL_WARNS() << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;
-        remove(id);
-        return LLPointer<LLImageFormatted>();
-    }
-
-    info.mLastAccess = time(nullptr);
 
     return image;
 }

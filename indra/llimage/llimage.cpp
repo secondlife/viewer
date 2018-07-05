@@ -2170,13 +2170,19 @@ bool LLImageFormatted::copyData(U8 *data, S32 size)
 }
 
 // LLImageFormatted becomes the owner of data
-void LLImageFormatted::setData(U8 *data, S32 size)
+void LLImageFormatted::setData(U8 *data, S32 size, bool no_delete)
 {
-	if (data && data != getData())
+    // just updating the size of a growing buffer...
+    if ((data == getData()) && (size > getDataSize()))
+    {
+        S32 delta = size - getDataSize();
+        sGlobalFormattedMemory += delta;
+        setDataAndSize(data, size);
+    }
+	else if (data && data != getData())
 	{
 		deleteData();
 		setDataAndSize(data, size); // Access private LLImageBase members
-
 		sGlobalFormattedMemory += getDataSize();
 	}
 }

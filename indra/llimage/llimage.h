@@ -328,7 +328,7 @@ public:
 	bool save(const std::string& filename);
 
 	virtual bool updateData() = 0; // pure virtual
- 	void setData(U8 *data, S32 size);
+ 	void setData(U8 *data, S32 size, bool no_delete = false);
  	void appendData(U8 *data, S32 size);
 
 	// Loads first 4 channels.

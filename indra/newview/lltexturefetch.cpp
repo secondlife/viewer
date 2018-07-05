@@ -494,6 +494,10 @@ private:
     F32 mDecodeTime;    // time for decode only
     F32 mFetchTime;     // total time from req to finished fetch
 
+    U8* mEncodedImageBuffer;
+    S32 mEncodedImageBufferAllocated;
+    S32 mEncodedImageBufferSize;
+
 	S32 mRequestedSize;
 	S32 mRequestedOffset;
 	S32 mDesiredSize;
@@ -859,7 +863,10 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
 	  mResourceWaitCount(0U),
-	  mFetchRetryPolicy(10.0,3600.0,2.0,10)
+	  mFetchRetryPolicy(10.0,3600.0,2.0,10),
+      mEncodedImageBuffer(nullptr),
+      mEncodedImageBufferAllocated(0),
+      mEncodedImageBufferSize(0)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -872,6 +879,9 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 		addWork(0, work_priority );
 	}
 	setDesiredDiscard(discard, size);
+
+    mEncodedImageBuffer = (U8*)ll_aligned_malloc_16(1 << 19);
+    mEncodedImageBufferAllocated = 1 << 19;
 }
 
 LLTextureFetchWorker::~LLTextureFetchWorker()
@@ -895,8 +905,7 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 		// Issue a cancel on a live request...
         mFetcher->getHttpRequest().requestCancel(mHttpHandle, LLCore::HttpHandler::ptr_t());
 	}
-
-	mFormattedImage = NULL;
+	
 	clearPackets();
 	if (mHttpBufferArray)
 	{
@@ -907,6 +916,17 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 	mFetcher->removeFromHTTPQueue(mID, (S32Bytes)0);
 	mFetcher->removeHttpWaiter(mID);
 	mFetcher->updateStateStats(mCacheReadCount, mCacheWriteCount, mResourceWaitCount);
+
+    // if this buffer is not associated with the mFormattedImage instance, clean it up now
+    // otherwise it will be deallocated by the destruction of the formatted image below
+    if (mEncodedImageBuffer && (mFormattedImage.isNull() || mFormattedImage->getData() != mEncodedImageBuffer))
+    {
+        ll_aligned_free_16(mEncodedImageBuffer);
+        mEncodedImageBuffer = nullptr;
+    }
+    mEncodedImageBufferAllocated = 0;
+    mEncodedImageBufferSize = 0;
+    mFormattedImage = NULL;
 }
 
 // Locks:  Mw
@@ -1656,10 +1676,22 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return true;
             }
 
-            U8* buffer = (U8*)ll_aligned_malloc_16(total_size);
-			if (!buffer)
+            if (total_size > mEncodedImageBufferAllocated)
+            {                
+                U8* old_buffer = mEncodedImageBuffer;
+                mEncodedImageBuffer = (U8*)ll_aligned_malloc_16(total_size);
+                if (old_buffer)
+                {
+                    memcpy(mEncodedImageBuffer, old_buffer, mEncodedImageBufferSize);
+                    ll_aligned_free_16(old_buffer);
+                }
+                mEncodedImageBufferAllocated = total_size;                        
+            }
+
+			if (!mEncodedImageBuffer)
 			{
 				// abort. If we have no space for packet, we have not enough space to decode image
+                mEncodedImageBufferSize = 0;
 				setState(DONE);
 				LL_WARNS(LOG_TXT) << mID << " abort: out of memory" << LL_ENDL;
 				releaseHttpSemaphore();
@@ -1686,15 +1718,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mFileSize = total_size + 1 ; //flag the file is not fully loaded.
 			}
 
-			if (cur_size > 0)
-			{
-				// Copy previously collected data into buffer
-				memcpy(buffer, mFormattedImage->getData(), cur_size);
-			}
-			mHttpBufferArray->read(src_offset, (char *) buffer + cur_size, append_size);
+			mHttpBufferArray->read(src_offset, (char *) mEncodedImageBuffer + mEncodedImageBufferSize, append_size);
+            mEncodedImageBufferSize += append_size;
 
-			// NOTE: setData releases current data and owns new data (buffer)
-			mFormattedImage->setData(buffer, total_size);
+            // update image buffer and size to appended range
+			mFormattedImage->setData(mEncodedImageBuffer, mEncodedImageBufferSize, true);
 
 			// Parse headers to determine width/height/components
 			if (!mFormattedImage->updateData())
@@ -1818,6 +1846,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			setState(DONE);
 		}
+
+        if (mEncodedImageBuffer == mFormattedImage->getData())
+        {
+            mEncodedImageBuffer = nullptr;
+            mEncodedImageBufferSize = 0;
+            mEncodedImageBufferAllocated = 0;
+            mFormattedImage = nullptr;
+        }
 
 		// fall through
 	}
@@ -2027,7 +2063,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 	
 	if (mLastPacket >= mFirstPacket)
 	{
-		S32 buffer_size = mFormattedImage->getDataSize();
+		S32 buffer_size = mEncodedImageBufferSize;
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
             llassert_always((i>=0) && (i<mPackets.size()));
@@ -2045,27 +2081,39 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 		{
 			/// We have enough (or all) data
 			if (have_all_data)
-		{
-            mHaveAllData = TRUE;
+            {
+                mHaveAllData = TRUE;
 			}
-			S32 cur_size = mFormattedImage->getDataSize();
-			if (buffer_size > cur_size)
+
+            /// We have new data
+			if (buffer_size > mEncodedImageBufferSize)
 			{
-				/// We have new data
-                U8* buffer = (U8*)ll_aligned_malloc_16(buffer_size);
+                // grow our buffer if the already allocated space is insufficient
+                if (buffer_size > mEncodedImageBufferAllocated)
+                {
+                    U8* old_buffer = mEncodedImageBuffer;
+                    mEncodedImageBuffer = (U8*)ll_aligned_malloc_16(buffer_size);
+                    if (old_buffer)
+                    {
+                        memcpy(mEncodedImageBuffer, old_buffer, mEncodedImageBufferSize);
+                        ll_aligned_free_16(old_buffer);
+                    }
+                    mEncodedImageBufferAllocated = buffer_size;                        
+                }
+
 				S32 offset = 0;
-				if (cur_size > 0 && mFirstPacket > 0)
+				if (mEncodedImageBufferSize > 0 && mFirstPacket > 0)
 				{
-					memcpy(buffer, mFormattedImage->getData(), cur_size);
-					offset = cur_size;
+					//memcpy(buffer, mFormattedImage->getData(), cur_size);
+					offset = mEncodedImageBufferSize;
 				}
 				for (S32 i=mFirstPacket; i<=mLastPacket; i++)
 				{
-					memcpy(buffer + offset, mPackets[i]->mData, mPackets[i]->mSize);
+					memcpy(mEncodedImageBuffer + offset, mPackets[i]->mData, mPackets[i]->mSize);
 					offset += mPackets[i]->mSize;
 				}
-				// NOTE: setData releases current data
-				mFormattedImage->setData(buffer, buffer_size);
+				mFormattedImage->setData(mEncodedImageBuffer, buffer_size, true);
+                mEncodedImageBufferSize = buffer_size;
 			}
 			mLoadedDiscard = mRequestedDiscard;
 			return true;
