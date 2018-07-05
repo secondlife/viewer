@@ -313,8 +313,19 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	switch(name_item.target)
 	{
 	case GROUP:
-		gCacheName->getGroupName(id, fullname);
-		// fullname will be "nobody" if group not found
+		if (!gCacheName->getGroupName(id, fullname))
+		{
+			avatar_name_cache_connection_map_t::iterator it = mGroupNameCacheConnections.find(id);
+			if (it != mGroupNameCacheConnections.end())
+			{
+				if (it->second.connected())
+				{
+					it->second.disconnect();
+				}
+				mGroupNameCacheConnections.erase(it);
+			}
+			mGroupNameCacheConnections[id] = gCacheName->getGroup(id, boost::bind(&LLNameListCtrl::onGroupNameCache, this, _1, _2, item->getHandle()));
+		}
 		break;
 	case SPECIAL:
 		// just use supplied name
@@ -493,6 +504,31 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 	dirtyColumns();
 }
 
+void LLNameListCtrl::onGroupNameCache(const LLUUID& group_id, const std::string name, LLHandle<LLNameListItem> item)
+{
+	avatar_name_cache_connection_map_t::iterator it = mGroupNameCacheConnections.find(group_id);
+	if (it != mGroupNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mGroupNameCacheConnections.erase(it);
+	}
+
+	LLNameListItem* list_item = item.get();
+	if (list_item && list_item->getUUID() == group_id)
+	{
+		LLScrollListCell* cell = list_item->getColumn(mNameColumnIndex);
+		if (cell)
+		{
+			cell->setValue(name);
+			setNeedsSort();
+		}
+	}
+
+	dirtyColumns();
+}
 
 void LLNameListCtrl::updateColumns(bool force_update)
 {

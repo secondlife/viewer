@@ -3835,16 +3835,19 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 		
 		sendEstateAccessDelta(flags, id);
 
-		// fill the name list for confirmation
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(id, &av_name))
+		if ((flags & (ESTATE_ACCESS_ALLOWED_GROUP_ADD | ESTATE_ACCESS_ALLOWED_GROUP_REMOVE)) == 0)
 		{
-			if (!names.empty())
+			// fill the name list for confirmation
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(id, &av_name))
 			{
-				names += ", ";
-				single = false;
+				if (!names.empty())
+				{
+					names += ", ";
+					single = false;
+				}
+				names += av_name.getCompleteName();
 			}
-			names += av_name.getCompleteName();
 		}
 	}
 	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();

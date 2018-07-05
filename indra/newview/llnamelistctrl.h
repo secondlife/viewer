@@ -173,6 +173,7 @@ public:
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group, bool is_experience = false);
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, std::string prefix, LLHandle<LLNameListItem> item);
+	void onGroupNameCache(const LLUUID& group_id, const std::string name, LLHandle<LLNameListItem> item);
 
 private:
 	S32    			mNameColumnIndex;
@@ -181,6 +182,7 @@ private:
 	bool			mShortNames;  // display name only, no SLID
 	typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
 	avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
+	avatar_name_cache_connection_map_t mGroupNameCacheConnections;
 
 	S32 mPendingLookupsRemaining;
 	namelist_complete_signal_t mNameListCompleteSignal;
