@@ -3756,7 +3756,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 			if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
 			{
 				region_name = gAgent.getRegion()->getName();
-				const std::string mesh_cap(gAgent.getRegion()->getViewerAssetUrl());
+				const std::string& mesh_cap = gAgent.getRegion()->getViewerAssetUrl();
 				mThread->setGetMeshCap(mesh_cap);
 				LL_DEBUGS(LOG_MESH) << "Retrieving caps for region '" << region_name
 									<< "', ViewerAsset cap:  " << mesh_cap

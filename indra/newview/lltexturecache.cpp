@@ -358,7 +358,7 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec cod
 {
 	std::string idstr = id.asString();
 	std::string delem = gDirUtilp->getDirDelimiter();
-    std::string ext   = LLImageBase::getExtensionFromCodec(codec);
+    const std::string& ext   = LLImageBase::getExtensionFromCodec(codec);
 	std::string filename = mTexturesDirName + delem + idstr + ext;
 	return filename;
 }

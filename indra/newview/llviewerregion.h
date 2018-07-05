@@ -356,7 +356,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
     virtual std::string getDescription() const;
-    std::string getViewerAssetUrl() const { return mViewerAssetUrl; }
+    const std::string& getViewerAssetUrl() const { return mViewerAssetUrl; }
 
 	U32 getNumOfVisibleGroups() const;
 	U32 getNumOfActiveCachedObjects() const;

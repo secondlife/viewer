@@ -113,6 +113,11 @@ void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
 {
 	std::vector<std::string> uris;
 	LLGridManager::getInstance()->getLoginURIs(uris);
+    if (uris.empty())
+    {
+        LL_ERRS() << "Could not find login URIs " << LL_ENDL;
+        return;
+    }
 	connect(uris.front(), credentials);
 }
 

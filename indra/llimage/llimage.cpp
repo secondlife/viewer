@@ -1776,7 +1776,7 @@ bool LLImageRaw::validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw
 
 static struct
 {
-	const char* exten;
+	std::string exten;
 	EImageCodec codec;
 }
 file_extensions[] =
@@ -1825,22 +1825,54 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 	return IMG_CODEC_INVALID;
 }
 
-std::string LLImageBase::getExtensionFromCodec(EImageCodec codec)
+EImageCodec LLImageBase::getCodecFromFilename(const std::string& fname)
+{
+    if (fname.empty())
+    {
+		return IMG_CODEC_INVALID;
+    }
+
+	std::size_t offset = fname.find_last_of('.');
+    if (offset == std::string::npos)
+    {
+        return IMG_CODEC_INVALID;
+    }
+	std::string exten = fname.substr(offset+1);
+	LLStringUtil::toLower(exten);
+    llassert(!exten.empty());
+	for (int i = 0; i < (int)(NUM_FILE_EXTENSIONS); i++)
+	{
+		if (exten == file_extensions[i].exten)
+			return file_extensions[i].codec;
+	}
+	return IMG_CODEC_INVALID;
+}
+
+static const std::string S_IMG_CODEC_RGB  = ".rgb";
+static const std::string S_IMG_CODEC_J2C  = ".j2c";
+static const std::string S_IMG_CODEC_BMP  = ".bmp";
+static const std::string S_IMG_CODEC_TGA  = ".tga";
+static const std::string S_IMG_CODEC_JPEG = ".jpg";
+static const std::string S_IMG_CODEC_DXT  = ".dds";
+static const std::string S_IMG_CODEC_PNG  = ".png";
+static const std::string S_IMG_CODEC_INVALID;
+
+const std::string& LLImageBase::getExtensionFromCodec(EImageCodec codec)
 {
     switch (codec)
     {
         case IMG_CODEC_INVALID:
         case IMG_CODEC_EOF:
         default:
-            return std::string();
+            return S_IMG_CODEC_INVALID;
 
-	    case IMG_CODEC_RGB:  return ".rgb";
-	    case IMG_CODEC_J2C:  return ".j2c";
-	    case IMG_CODEC_BMP:  return ".bmp";
-	    case IMG_CODEC_TGA:  return ".tga";
-	    case IMG_CODEC_JPEG: return ".jpg";
-	    case IMG_CODEC_DXT:  return ".dds";
-	    case IMG_CODEC_PNG:  return ".png";
+	    case IMG_CODEC_RGB:  return S_IMG_CODEC_RGB;
+	    case IMG_CODEC_J2C:  return S_IMG_CODEC_J2C;
+	    case IMG_CODEC_BMP:  return S_IMG_CODEC_BMP;
+	    case IMG_CODEC_TGA:  return S_IMG_CODEC_TGA;
+	    case IMG_CODEC_JPEG: return S_IMG_CODEC_JPEG;
+	    case IMG_CODEC_DXT:  return S_IMG_CODEC_DXT;
+	    case IMG_CODEC_PNG:  return S_IMG_CODEC_PNG;
     }
 }
 

@@ -1284,7 +1284,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			if (region)
 			{
-				std::string http_url = region->getViewerAssetUrl();
+				const std::string& http_url = region->getViewerAssetUrl();
 				if (!http_url.empty())
 				{
 					if (mFTType != FTT_DEFAULT)
@@ -1445,23 +1445,23 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			cur_size = mFormattedImage->getDataSize(); // amount of data we already have
 			if (mFormattedImage->getDiscardLevel() == 0)
-		{
-				if (cur_size > 0)
-			{
-				// We already have all the data, just decode it
-				mLoadedDiscard = mFormattedImage->getDiscardLevel();
-				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-				setState(DECODE_IMAGE);
-					releaseHttpSemaphore();
-				return false;
-			}
-			else
-			{
-					releaseHttpSemaphore();
-				LL_WARNS(LOG_TXT) << mID << " SEND_HTTP_REQ abort: cur_size " << cur_size << " <=0" << LL_ENDL;
-				return true; // abort.
-			}
-		}
+            {
+		        if (cur_size > 0)
+	            {
+		            // We already have all the data, just decode it
+		            mLoadedDiscard = mFormattedImage->getDiscardLevel();
+		            setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+		            setState(DECODE_IMAGE);
+                    releaseHttpSemaphore();
+		            return false;
+	            }
+	            else
+	            {
+                    releaseHttpSemaphore();
+		            LL_WARNS(LOG_TXT) << mID << " SEND_HTTP_REQ abort: cur_size " << cur_size << " <=0" << LL_ENDL;
+		            return true; // abort.
+	            }
+            }
 		}
 		mRequestedSize = mDesiredSize;
 		mRequestedDiscard = mDesiredDiscard;
@@ -1646,26 +1646,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			S32 append_size(mHttpBufferArray->size());
 			S32 total_size(cur_size + append_size);
 			S32 src_offset(0);
-			llassert_always(append_size == mRequestedSize);
-			if (mHttpReplyOffset && mHttpReplyOffset != cur_size)
-			{
-				// In case of a partial response, our offset may
-				// not be trivially contiguous with the data we have.
-				// Get back into alignment.
-				if ( (mHttpReplyOffset > cur_size) || (cur_size > mHttpReplyOffset + append_size))
-				{
-					LL_WARNS(LOG_TXT) << "Partial HTTP response produces break in image data for texture "
-									  << mID << ".  Aborting load."  << LL_ENDL;
-					setState(DONE);
-					releaseHttpSemaphore();
-					return true;
-				}
-				src_offset = cur_size - mHttpReplyOffset;
-				append_size -= src_offset;
-				total_size -= src_offset;
-				mRequestedSize -= src_offset;			// Make requested values reflect useful part
-				mRequestedOffset += src_offset;
-			}
+
+            llassert(mHttpReplyOffset == cur_size);
+            if (mHttpReplyOffset != cur_size)
+            {
+                LL_WARNS(LOG_TXT) << "Partial HTTP response produces break in image data for texture " << mID << ".  Aborting load."  << LL_ENDL;
+				setState(DONE);
+				releaseHttpSemaphore();
+				return true;
+            }
 
             U8* buffer = (U8*)ll_aligned_malloc_16(total_size);
 			if (!buffer)
@@ -1719,17 +1708,17 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 // Done with buffer array
 			mHttpBufferArray->release();
 			mHttpBufferArray = NULL;
-			    mHttpReplySize = 0;
-			    mHttpReplyOffset = 0;
+            mHttpReplySize = 0;
+            mHttpReplyOffset = 0;
 			
 			mLoadedDiscard = mHaveAllData ? 0 : mRequestedDiscard;
 
-			    setState(DECODE_IMAGE);
-			    if (mLoadedDiscard == 0)
-			    {
-			        mWriteToCacheState = SHOULD_WRITE;
-			    }
-			    releaseHttpSemaphore();
+            setState(DECODE_IMAGE);
+            if (mLoadedDiscard == 0)
+            {
+	            mWriteToCacheState = SHOULD_WRITE;
+            }
+            releaseHttpSemaphore();
 			return false;
 		}
 		else
@@ -2439,8 +2428,8 @@ void LLTextureFetch::addToNetworkQueue(LLTextureFetchWorker* worker)
 	{
 		// only add to the queue if in the request map
 		// i.e. a delete has not been requested
-		    mNetworkQueue.insert(worker->mID);
-        }
+        mNetworkQueue.insert(worker->mID);
+    }
 	for (cancel_queue_t::iterator iter1 = mCancelQueue.begin();
 		 iter1 != mCancelQueue.end(); ++iter1)
 	{
