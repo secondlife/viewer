@@ -2173,7 +2173,7 @@ bool LLImageFormatted::copyData(U8 *data, S32 size)
 void LLImageFormatted::setData(U8 *data, S32 size, bool no_delete)
 {
     // just updating the size of a growing buffer...
-    if ((data == getData()) && (size > getDataSize()))
+    if (no_delete && (data == getData()) && (size > getDataSize()))
     {
         S32 delta = size - getDataSize();
         sGlobalFormattedMemory += delta;
