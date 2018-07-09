@@ -1692,7 +1692,7 @@
           <key>darwin</key>
           <map>
             <key>archive</key>
-            <map>              
+            <map>
               <key>hash</key>
               <string>3855bd40f950e3c22739ae8f3ee2afc9</string>
               <key>url</key>
@@ -1705,10 +1705,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>              
+              <key>hash</key>
               <string>d1521becaf21bf7233173722af63f57d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1717,10 +1717,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>              
+              <key>hash</key>
               <string>43d7a6a69a54534a736f132e9c81795b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1752,11 +1752,11 @@
           <key>windows64</key>
           <map>
             <key>archive</key>
-            <map>              
+            <map>
               <key>hash</key>
               <string>da3b1ea90797b189d80ab5d50fdf05d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>              
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3032,9 +3032,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9967239f089286df6602ecdc286d0e5e</string>
+              <string>a605ec940768c878527d3b8f2ff61288</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14696/94164/slvoice-4.9.0002.29501.513182-darwin64-513182.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21421/157284/slvoice-4.9.0002.30313.517593-darwin64-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3068,9 +3068,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2bc9ec543ec9caaf1bf9b3975e6309ae</string>
+              <string>5a78539626b5f23522d0b466247f48b4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14697/94170/slvoice-4.9.0002.29501.513182-windows-513182.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21422/157291/slvoice-4.9.0002.30313.517593-windows-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3080,16 +3080,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c591df530ba802e1cf50119f4248a952</string>
+              <string>1f8e09c053c00d9dc44ea74568e63dc1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/14698/94176/slvoice-4.9.0002.29501.513182-windows64-513182.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21423/157298/slvoice-4.9.0002.30313.517593-windows64-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.29501.513182</string>
+        <string>4.9.0002.30313.517593</string>
       </map>
       <key>tut</key>
       <map>
