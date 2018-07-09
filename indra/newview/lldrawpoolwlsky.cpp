@@ -116,9 +116,6 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 
 void LLDrawPoolWLSky::renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
 {
-    // Draw WL Sky	w/ normal cam pos (where you are) for adv atmo sky
-    //gGL.syncMatrices();
-    sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
     gSky.mVOWLSkyp->drawFsSky();
 }
 
@@ -176,12 +173,21 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, sun_dir.mV);
         sky_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, moon_dir.mV);
 
+        llassert(sky_shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX));
+
+        glh::matrix4f proj_mat = get_current_projection();
+		glh::matrix4f inv_proj = proj_mat.inverse();
+
+	    sky_shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+
         // clouds are rendered along with sky in adv atmo
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
         {
             sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
             sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
         }
+
+        sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
         renderFsSky(camPosLocal, camHeightLocal, sky_shader);
 
@@ -459,6 +465,8 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		    renderHeavenlyBodies();	        
+
+            gGL.popMatrix();
         }
     }    
     gGL.setColorMask(true, true);
