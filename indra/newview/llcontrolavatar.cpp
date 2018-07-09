@@ -316,7 +316,10 @@ void LLControlAvatar::updateDebugText()
         F32 est_tris = 0.f;
         F32 est_streaming_tris = 0.f;
         F32 streaming_cost = 0.f;
-        
+        std::string cam_dist_string = "";
+        S32 cam_dist_count = 0;
+        F32 lod_radius = mRootVolp->mLODRadius;
+
         for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
              it != volumes.end(); ++it)
         {
@@ -351,6 +354,7 @@ void LLControlAvatar::updateDebugText()
                 {
                     // Rigged/animatable mesh
                     type_string += "R";
+                    lod_radius = volp->mLODRadius;
                 }
                 else if (volp->isMesh())
                 {
@@ -361,6 +365,12 @@ void LLControlAvatar::updateDebugText()
                 {
                     // Any other prim
                     type_string += "P";
+                }
+                if (cam_dist_count < 4)
+                {
+                    cam_dist_string += LLStringOps::getReadableNumber(volp->mLODDistance) + "/" +
+                        LLStringOps::getReadableNumber(volp->mLODAdjustedDistance) + " ";
+                    cam_dist_count++;
                 }
             }
             else
@@ -376,6 +386,7 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
+        addDebugText(llformat("lod_radius %s dists %s", LLStringOps::getReadableNumber(lod_radius).c_str(),cam_dist_string.c_str()));
         if (mPositionConstraintFixup.length() > 0.0f)
         {
             addDebugText(llformat("pos fix (%.1f %.1f %.1f)", 

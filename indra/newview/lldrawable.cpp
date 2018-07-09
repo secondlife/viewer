@@ -32,6 +32,7 @@
 #include "material_codes.h"
 
 // viewer includes
+#include "llagent.h"
 #include "llcriticaldamp.h"
 #include "llface.h"
 #include "lllightconstants.h"
@@ -900,6 +901,25 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 					}
 				}
 			}	
+
+            // MAINT-7926 Handle volumes in an animated object as a special case
+            if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
+            {
+                const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
+                LLVector3d cam_pos = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin());
+                LLVector3 cam_region_pos = LLVector3(cam_pos - volume->getRegion()->getOriginGlobal());
+                
+                LLVector3 cam_to_box_offset = point_to_box_offset(cam_region_pos, av_box);
+                //LL_DEBUGS("DynamicBox") << volume->getAvatar()->getFullname() 
+                //                        << " pos (ignored) " << pos
+                //                        << " cam pos " << cam_pos
+                //                        << " cam region pos " << cam_region_pos
+                //                        << " box " << av_box[0] << "," << av_box[1] << LL_ENDL;
+                mDistanceWRTCamera = ll_round(cam_to_box_offset.magVec(), 0.01f);
+                mVObjp->updateLOD();
+                return;
+            }
+            
 		}
 		else
 		{

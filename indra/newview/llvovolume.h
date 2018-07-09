@@ -380,6 +380,9 @@ public:
 
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
+    F32 mLODDistance;
+    F32 mLODAdjustedDistance;
+    F32 mLODRadius;
 private:
 	friend class LLDrawable;
 	friend class LLFace;

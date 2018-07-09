@@ -108,6 +108,10 @@ static LLTrace::BlockTimerStatHandle FTM_VOLUME_TEXTURES("Volume Textures");
 
 extern BOOL gGLDebugLoggingEnabled;
 
+#if LL_MSVC
+#pragma optimize("", off)
+#endif
+
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {
@@ -219,6 +223,9 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mFaceMappingChanged = FALSE;
 	mLOD = MIN_LOD;
+    mLODDistance = 0.0f;
+    mLODAdjustedDistance = 0.0f;
+    mLODRadius = 0.0f;
 	mTextureAnimp = NULL;
 	mVolumeChanged = FALSE;
 	mVObjRadius = LLVector3(1,1,0.5f).length();
@@ -1293,7 +1300,19 @@ BOOL LLVOVolume::calcLOD()
 		}
 
 		distance = avatar->mDrawable->mDistanceWRTCamera;
-		radius = avatar->getBinRadius();
+        if (avatar->isControlAvatar())
+        {
+            // MAINT-7926 Handle volumes in an animated object as a special case
+            const LLVector3* box = avatar->getLastAnimExtents();
+            LLVector3 diag = box[1] - box[0];
+            radius = diag.magVec() * 0.5f;
+            //LL_DEBUGS("DynamicBox") << avatar->getFullname() << " diag " << diag << " radius " << radius << LL_ENDL;
+        }
+        else
+        {
+            // Note this isn't really a radius, so distance calcs are off by factor of 2
+            radius = avatar->getBinRadius();
+        }
         if (distance <= 0.f || radius <= 0.f)
         {
             LL_DEBUGS("CalcLOD") << "avatar distance/radius uninitialized, skipping" << LL_ENDL;
@@ -1313,7 +1332,10 @@ BOOL LLVOVolume::calcLOD()
 	
 	//hold onto unmodified distance for debugging
 	//F32 debug_distance = distance;
-	
+
+    mLODDistance = distance;
+    mLODRadius = radius;
+    
 	distance *= sDistanceFactor;
 
 	F32 rampDist = LLVOVolume::sLODFactor * 2;
@@ -1334,6 +1356,8 @@ BOOL LLVOVolume::calcLOD()
 	{
 		lod_factor *= DEFAULT_FIELD_OF_VIEW / LLViewerCamera::getInstance()->getDefaultFOV();
 	}
+
+    mLODAdjustedDistance = distance;
 
 	cur_detail = computeLODDetail(ll_round(distance, 0.01f), ll_round(radius, 0.01f), lod_factor);
 

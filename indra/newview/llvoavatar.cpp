@@ -1316,10 +1316,10 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	newMin = pos;
 	newMax = pos;
 
-	//stretch bounding box by joint positions. No point doing this for
+	//stretch bounding box by joint positions. Doing this for
 	//control avs, where the polymeshes aren't maintained or
-	//displayed.
-    if (box_detail>=1 && !isControlAvatar())
+	//displayed, can give inaccurate boxes due to joints stuck at (0,0,0).
+    if ((box_detail>=1) && !isControlAvatar())
     {
         for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
         {

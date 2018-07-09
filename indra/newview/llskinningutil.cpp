@@ -241,11 +241,29 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                 for (S32 i=0; i<vol_face.mNumVertices; i++)
                 {
                     LLVector4a& pos = vol_face.mPositions[i];
-                    F32 *w = vol_face.mWeights[i].getF32ptr();
+                    F32 *weights = vol_face.mWeights[i].getF32ptr();
+                    LLVector4 wght;
+                    S32 idx[4];
+                    F32 scale = 0.0f;
+                    for (U32 k = 0; k < 4; k++)
+                    {
+                        F32 w = weights[k];
+                        
+                        idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
+                        wght[k] = w - idx[k];
+                        scale += wght[k];
+                    }
+                    if (scale > 0.0f)
+                    {
+                        for (U32 k=0; k<4; ++k)
+                        {
+                            wght[k] /= scale;
+                        }
+                    }
                     for (U32 k=0; k<4; ++k)
                     {
-                        S32 joint_index = llfloor(w[k]);
-                        if (w[k]-joint_index > 0.0f)
+						S32 joint_index = idx[k];
+                        if (wght[k] > 0.0f)
                         {
                             S32 joint_num = skin->mJointNums[joint_index];
                             if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
@@ -263,6 +281,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                                 matMul(bind_shape, inv_bind, mat);
                                 LLVector4a pos_joint_space;
                                 mat.affineTransform(pos, pos_joint_space);
+                                pos_joint_space.mul(wght[k]);
                                 LLVector4a *extents = rig_info_tab[joint_num].getRiggedExtents();
                                 update_min_max(extents[0], extents[1], pos_joint_space);
                             }
