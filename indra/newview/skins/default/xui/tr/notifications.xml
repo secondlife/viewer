@@ -4295,7 +4295,7 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 		Dahili bir hata nedeniyle görüntüleyicinizi gerektiği gibi güncelleyemedik.  Görüntüleyicinizde gösterilen L$ bakiyesi veya parsel tutarı sunucular üzerinde gerçekteki bakiyenizi yansıtmayabilir.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Başka oyuncularla kesişen büyük primler oluşturulamaz.  Öbür oyuncular hareket ettiğinde lütfen tekrar deneyin.
+		Diğer sakinler ile kesişen büyük primler oluşturulamaz. Lütfen diğer sakinler taşındıktan sonra yeniden deneyin.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Bu, geçmiş sohbetlerin günlüklerini ve bu dosyanın tüm yedeklerini silecektir.

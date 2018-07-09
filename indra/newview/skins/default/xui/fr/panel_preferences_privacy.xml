@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		se connecter pour changer
 	</panel.string>
-	<button label="Vider l&apos;historique" name="clear_cache" tool_tip="Effacer le cache de l&apos;image de connexion, du dernier lieu, de l&apos;historique des téléportations, Web et de texture."/>
+	<button label="Vider l&apos;historique" name="clear_cache" tool_tip="Effacez le cache de l&apos;image de connexion, du dernier lieu, de l&apos;historique des téléportations,  du Web et des textures."/>
 	<text name="cache_size_label_l">
 		(endroits, images, web, historique des recherches)
 	</text>

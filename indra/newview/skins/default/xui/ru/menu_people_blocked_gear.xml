@@ -3,6 +3,7 @@
 	<menu_item_call label="Разблокировать" name="unblock"/>
 	<menu_item_check label="Блокировать голос" name="BlockVoice"/>
 	<menu_item_check label="Блокировать текст" name="MuteText"/>
+	<menu_item_check label="Блокировка участка" name="MuteParticles"/>
 	<menu_item_check label="Блокировать звуки объекта" name="BlockObjectSounds"/>
 	<menu_item_call label="Профиль…" name="profile"/>
 </toggleable_menu>

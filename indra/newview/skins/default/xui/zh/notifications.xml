@@ -4295,7 +4295,7 @@ SHA1 指紋：[MD5_DIGEST]
 		發生內部錯誤，我們無法如常更新你的瀏覽器。  你瀏覽器顯示的 L$ 餘額或擁有地段，可能和伺服器上的正確數額不一致。
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		無法建立和其他參與者發生交截的大型幾何元件。  請等其他參與者移開後再試。
+		無法建立和其他居民形成交截的大型幾何元件。  請等其他居民移開原地後再試。
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		這動作將刪除先前交談的記錄，和所有記錄備份。
