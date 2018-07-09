@@ -12014,3 +12014,4 @@ bool LLPipeline::useAdvancedAtmospherics() const
 {
     return sUseAdvancedAtmospherics;
 }
+
