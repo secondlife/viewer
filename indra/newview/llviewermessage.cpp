@@ -1732,7 +1732,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		//don't spam them if they are getting flooded
 		if (check_offer_throttle(mFromName, true))
 		{
-			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+			log_message = "<nolink>" + chatHistory_string + "</nolink> " + LLTrans::getString("InvOfferGaveYou") + " " + getSanitizedDescription() + LLTrans::getString(".");
 			LLSD args;
 			args["MESSAGE"] = log_message;
 			LLNotificationsUtil::add("SystemMessageTip", args);
@@ -1917,7 +1917,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			//don't spam them if they are getting flooded
 			if (check_offer_throttle(mFromName, true))
 			{
-				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+				log_message = "<nolink>" + chatHistory_string + "</nolink> " + LLTrans::getString("InvOfferGaveYou") + " " + getSanitizedDescription() + LLTrans::getString(".");
 				LLSD args;
 				args["MESSAGE"] = log_message;
 				LLNotificationsUtil::add("SystemMessageTip", args);
@@ -1989,6 +1989,23 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	}
 	return false;
 }
+
+std::string LLOfferInfo::getSanitizedDescription()
+{
+	// currently we get description from server as: 'Object' ( Location )
+	// object name shouldn't be shown as a hyperlink
+	std::string description = mDesc;
+
+	std::size_t start = mDesc.find_first_of("'");
+	std::size_t end = mDesc.find_last_of("'");
+	if ((start != std::string::npos) && (end != std::string::npos))
+	{
+		description.insert(start, "<nolink>");
+		description.insert(end + 8, "</nolink>");
+	}
+	return description;
+}
+
 
 void LLOfferInfo::initRespondFunctionMap()
 {
