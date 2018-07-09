@@ -95,6 +95,13 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
     LLTransactionID tid;
     U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
 
+    if (!LLEnvironment::instance().isInventoryEnabled())
+    {
+        LL_WARNS("SETTINGS") << "Region does not support settings inventory objects." << LL_ENDL;
+        LLNotificationsUtil::add("SettingsUnsuported");
+        return;
+    }
+
     tid.generate();
 
     LLPointer<LLInventoryCallback> cb = new LLSettingsInventoryCB([settings, callback](const LLUUID &inventoryId) {
@@ -127,6 +134,7 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
     if (!LLEnvironment::instance().isInventoryEnabled())
     {
         LL_WARNS("SETTINGS") << "Region does not support settings inventory objects." << LL_ENDL;
+        LLNotificationsUtil::add("SettingsUnsuported");
         return;
     }
 
@@ -156,6 +164,7 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
     if (!LLEnvironment::instance().isInventoryEnabled())
     {
         LL_WARNS("SETTINGS") << "Region does not support settings inventory objects." << LL_ENDL;
+        LLNotificationsUtil::add("SettingsUnsuported");
         return;
     }
 

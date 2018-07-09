@@ -58,6 +58,7 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
+#include "llenvironment.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -127,6 +128,9 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
+
+    mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
+
 
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -1553,6 +1557,11 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 			upload_menu->getChild<LLView>("Bulk Upload")->setLabelArg("[COST]", cost_str);
 		}
 	}
+}
+
+bool LLPanelMainInventory::hasSettingsInventory()
+{
+    return LLEnvironment::instance().isInventoryEnabled();
 }
 
 // List Commands                                                              //

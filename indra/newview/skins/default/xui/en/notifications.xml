@@ -11150,5 +11150,15 @@ Unable to set the environment for this parcel.
 Please enter or select a parcel that you have rights to modify.
   <tag>fail</tag>
   </notification>
+
+  <notification
+   icon="notify.tga"
+   name="SettingsUnsuported"
+   persist="true"
+   type="alertmodal">
+Settings are not supported on this region. 
+Please move to a settings enabled region and retry your action.
+  <tag>fail</tag>
+  </notification>
   
 </notifications>
