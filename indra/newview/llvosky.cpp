@@ -393,10 +393,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
 
-	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(LLSettingsSky::GetDefaultBloomTextureId());
-	mBloomTexturep->setNoDelete() ;
-	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-
 	mHeavenlyBodyUpdated = FALSE ;
 
 	mDrawRefl = 0;
@@ -491,10 +487,6 @@ void LLVOSky::restoreGL()
         setSunTextures(psky->getSunTextureId(), psky->getNextSunTextureId());
         setMoonTextures(psky->getMoonTextureId(), psky->getNextMoonTextureId());
     }
-
-	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(LLSettingsSky::GetDefaultBloomTextureId());
-	mBloomTexturep->setNoDelete() ;
-	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	updateDirections();
 
@@ -762,9 +754,14 @@ void LLVOSky::updateTextures()
 		mMoonTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
     }   
 
-    if (mBloomTexturep)
+    if (mBloomTexturep[0])
     {
-		mBloomTexturep->addTextureStats( (F32)MAX_IMAGE_AREA );
+		mBloomTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
+	}
+
+    if (mBloomTexturep[1])
+    {
+		mBloomTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
 	}
 }
 
@@ -855,6 +852,27 @@ void LLVOSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLU
     if (mCloudNoiseTexturep[1])
     {
 	    mCloudNoiseTexturep[1]->setAddressMode(LLTexUnit::TAM_WRAP);
+    }
+}
+
+void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next)
+{
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    LLUUID bloom_tex = bloom_texture.isNull() ? psky->GetDefaultBloomTextureId() : bloom_texture;
+    LLUUID bloom_tex_next = bloom_texture_next.isNull() ? (bloom_texture.isNull() ? psky->GetDefaultBloomTextureId() : bloom_texture) : bloom_texture_next;
+
+    mBloomTexturep[0] = LLViewerTextureManager::getFetchedTexture(bloom_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mBloomTexturep[1] = LLViewerTextureManager::getFetchedTexture(bloom_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+
+    if (mBloomTexturep[0])
+    {
+	    mBloomTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+    }
+
+    if (mBloomTexturep[1])
+    {
+	    mBloomTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
     }
 }
 

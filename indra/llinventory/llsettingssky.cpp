@@ -382,7 +382,8 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     LLSettingsBase(data),
     mNextSunTextureId(),
     mNextMoonTextureId(),
-    mNextCloudTextureId()
+    mNextCloudTextureId(),
+    mNextBloomTextureId()
 {
 }
 
@@ -390,7 +391,8 @@ LLSettingsSky::LLSettingsSky():
     LLSettingsBase(),
     mNextSunTextureId(),
     mNextMoonTextureId(),
-    mNextCloudTextureId()
+    mNextCloudTextureId(),
+    mNextBloomTextureId()
 {
 }
 
@@ -412,6 +414,7 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
         mNextSunTextureId = other->getSunTextureId();
         mNextMoonTextureId = other->getMoonTextureId();
         mNextCloudTextureId = other->getCloudNoiseTextureId();
+        mNextBloomTextureId = other->getBloomTextureId();
     }
     else
     {
@@ -637,7 +640,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
         dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
-        dfltsetting[SETTING_BLOOM_TEXTUREID]    = IMG_BLOOM1;
+        dfltsetting[SETTING_BLOOM_TEXTUREID]    = GetDefaultBloomTextureId();
         dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
         dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
         dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
@@ -1366,3 +1369,9 @@ LLUUID LLSettingsSky::getNextCloudNoiseTextureId() const
 {
     return mNextCloudTextureId;
 }
+
+LLUUID LLSettingsSky::getNextBloomTextureId() const
+{
+    return mNextBloomTextureId;
+}
+
