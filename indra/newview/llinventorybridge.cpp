@@ -6926,7 +6926,7 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
             return;
         LLUUID asset_id = item->getAssetUUID();
 
-        LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
+        LLParcel *parcel = LLViewerParcelMgr::instance().getAgentOrSelectedParcel();
         if (!parcel)
         {
             LL_WARNS("INVENTORY") << "could not identify parcel." << LL_ENDL;

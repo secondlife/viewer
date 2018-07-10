@@ -366,9 +366,9 @@ bool LLEnvironment::canAgentUpdateParcelEnvironment(bool useselected) const
 {
     if (!LLEnvironment::instance().isExtendedEnvironmentEnabled())
         return false;
-    // *TODO*
-    //LLParcel* parcel = (useselected) ? LLViewerParcelMgr::instance().getParcelSelection() : LLViewerParcelMgr::instance().getAgentParcel();
-    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+    LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
+
     if (parcel)
     {
         return parcel->allowTerraformBy(gAgent.getID());

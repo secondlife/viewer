@@ -48,6 +48,8 @@
 #include "llviewercontrol.h"
 #include "llfloaterperms.h"
 #include "llenvironment.h"
+#include "llparcel.h"
+#include "llviewerparcelmgr.h"
 
 //=========================================================================
 namespace
@@ -61,6 +63,23 @@ namespace
     const std::string BUTTON_GEAR("btn_newsettings");
     const std::string BUTTON_DELETE("btn_del");
 
+
+    const std::string ACTION_DOCREATE("MyEnvironments.DoCreate");
+    const std::string ACTION_DOEDIT("MyEnvironments.DoEdit");
+    const std::string ACTION_DOAPPLY("MyEnvironments.DoApply");
+    const std::string ACTION_COPYPASTE("MyEnvironments.CopyPaste");
+    const std::string ENABLE_ACTION("MyEnvironments.EnableAction");
+    const std::string ENABLE_CANAPPLY("MyEnvironments.CanApply");
+    const std::string ENABLE_ENVIRONMENT("MyEnvironments.EnvironmentEnabled");
+
+    const std::string PARAMETER_REGION("region");
+    const std::string PARAMETER_PARCEL("parcel");
+    const std::string PARAMETER_LOCAL("local");
+
+    const std::string PARAMETER_EDIT("edit");
+    const std::string PARAMETER_COPY("copy");
+    const std::string PARAMETER_PASTE("paste");
+    const std::string PARAMETER_COPYUUID("copy_uuid");
 }
 
 //=========================================================================
@@ -137,21 +156,15 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     mTypeFilter((0x01 << static_cast<U64>(LLSettingsType::ST_DAYCYCLE)) | (0x01 << static_cast<U64>(LLSettingsType::ST_SKY)) | (0x01 << static_cast<U64>(LLSettingsType::ST_WATER))),
     mSelectedAsset()
 {
-    mCommitCallbackRegistrar.add("MyEnvironments.DoCreate", [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); });
+    mCommitCallbackRegistrar.add(ACTION_DOCREATE, [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); });
+    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [this](LLUICtrl *, const LLSD &userdata) {});
+    mCommitCallbackRegistrar.add(ACTION_DOAPPLY, [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); });
+    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [this](LLUICtrl *, const LLSD &userdata) {});
 
-    mEnableCallbackRegistrar.add("MyEnvironments.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLEnvironment::instance().isInventoryEnabled(); });
+    mEnableCallbackRegistrar.add(ENABLE_ACTION, [this](LLUICtrl *, const LLSD &userdata) { return canAction(userdata.asString()); });
+    mEnableCallbackRegistrar.add(ENABLE_CANAPPLY, [this](LLUICtrl *, const LLSD &userdata) { return canApply(userdata.asString()); });
+    mEnableCallbackRegistrar.add(ENABLE_ENVIRONMENT, [](LLUICtrl *, const LLSD &) { return LLEnvironment::instance().isInventoryEnabled(); });
 
-#if 0
-	mObserver = new LLFloaterGestureObserver(this);
-	LLGestureMgr::instance().addObserver(mObserver);
-
-	mCommitCallbackRegistrar.add("Gesture.Action.ToogleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
-	mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
-	mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
-	mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));
-
-	mEnableCallbackRegistrar.add("Gesture.EnableAction", boost::bind(&LLFloaterGesture::isActionEnabled, this, _2));
-#endif
 }
 
 LLFloaterMyEnvironment::~LLFloaterMyEnvironment()
@@ -279,8 +292,6 @@ void LLFloaterMyEnvironment::onDeleteSelected()
 
             LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
             new_item->setParent(trash_id);
-            // no need to restamp it though it's a move into trash because
-            // it's a brand new item already.
             new_item->updateParentOnServer(FALSE);
             gInventory.updateItem(new_item);
         }
@@ -292,6 +303,91 @@ void LLFloaterMyEnvironment::onDeleteSelected()
 void LLFloaterMyEnvironment::onDoCreate(const LLSD &data)
 {
     menu_create_inventory_item(mInventoryList, NULL, data);
+}
+
+void LLFloaterMyEnvironment::onDoApply(const std::string &context)
+{
+    uuid_vec_t selected;
+    getSelectedIds(selected);
+
+    if (selected.size() != 1) // Exactly one item selected.
+        return;
+
+    LLUUID item_id(selected.front());
+
+    LLInventoryItem* itemp = gInventory.getItem(item_id);
+
+    if (itemp && itemp->getInventoryType() == LLInventoryType::IT_SETTINGS)
+    {
+        LLUUID asset_id = itemp->getAssetUUID();
+
+        if (context == PARAMETER_REGION)
+        {
+            LLEnvironment::instance().updateRegion(asset_id, -1, -1);
+        }
+        else if (context == PARAMETER_PARCEL)
+        {
+            LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
+            if (!parcel)
+            {
+                LL_WARNS("ENVIRONMENT") << "Unable to determine parcel." << LL_ENDL;
+                return;
+            }
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, -1, -1);
+        }
+        else if (context == PARAMETER_LOCAL)
+        {
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, asset_id);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+        }
+    }
+}
+
+
+bool LLFloaterMyEnvironment::canAction(const std::string &context)
+{
+//     uuid_vec_t selected;
+//     getSelectedIds(selected);
+// 
+//     if (selected.empty())
+//         return false;
+// 
+//     if (context == PARAMETER_EDIT)
+//     { 
+//     }
+//     else if (context == PARAMETER_COPY)
+//     {
+//     }
+//     else if (context == PARAMETER_PASTE)
+//     {
+//     }
+//     else if (context == PARAMETER_COPYUUID)
+//     {
+//     }
+
+    return false;
+}
+
+bool LLFloaterMyEnvironment::canApply(const std::string &context)
+{
+    uuid_vec_t selected;
+    getSelectedIds(selected);
+
+    if (selected.size() != 1) // Exactly one item selected.
+        return false;
+
+    if (context == PARAMETER_REGION)
+    { 
+        return LLEnvironment::instance().canAgentUpdateRegionEnvironment();
+    }
+    else if (context == PARAMETER_PARCEL)
+    { 
+        return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
+    }
+    else
+    {
+        return (context == PARAMETER_LOCAL);
+    }
 }
 
 //-------------------------------------------------------------------------

@@ -9,7 +9,7 @@
             layout="topleft"
             name="edit_settings">
         <on_click
-                function="MyEnvironments.ShowPreview" />
+                function="MyEnvironments.DoEdit" />
         <on_enable
                 function="MyEnvironments.EnableAction"
                 parameter="edit_settings" />
@@ -33,7 +33,7 @@
                 function="MyEnvironments.DoApply"
                 parameter="parcel" />
         <menu_item_call.on_enable
-                function="MyEnvironments.CanAppyl" 
+                function="MyEnvironments.CanApply" 
                 parameter="parcel"/>
     </menu_item_call>
     <menu_item_call
@@ -41,10 +41,10 @@
             layout="topleft"
             label="Apply To Region">
         <menu_item_call.on_click 
-                function="MyEnvironments.DoToSelected"
+                function="MyEnvironments.DoApply"
                 parameter="region" />
         <menu_item_call.on_enable
-                function="MyEnvironments.CanAppyl" 
+                function="MyEnvironments.CanApply" 
                 parameter="region"/>
     </menu_item_call>
     <menu_item_separator

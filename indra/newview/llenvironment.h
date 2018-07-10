@@ -149,14 +149,14 @@ public:
     bool                        canEdit() const;
     bool                        isExtendedEnvironmentEnabled() const;
     bool                        isInventoryEnabled() const;
-    bool                        canAgentUpdateParcelEnvironment(bool useselected = false) const;
+    bool                        canAgentUpdateParcelEnvironment(bool useselected = true) const;
     bool                        canAgentUpdateRegionEnvironment() const;
 
     LLSettingsDay::ptr_t        getCurrentDay() const { return mCurrentEnvironment->getDayCycle(); }
     LLSettingsSky::ptr_t        getCurrentSky() const { return mCurrentEnvironment->getSky(); }
     LLSettingsWater::ptr_t      getCurrentWater() const { return mCurrentEnvironment->getWater(); }
 
-    static void getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky);
+    static void                 getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky);
 
     void                        update(const LLViewerCamera * cam);
 

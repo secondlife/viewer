@@ -62,7 +62,7 @@ public:
                             LLPanelSettingsSkyAtmosTab();
 
     virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled);
+    virtual void	        setEnabled(BOOL enabled) override;
 
 protected:
     virtual void            refresh() override;
@@ -87,7 +87,7 @@ public:
                             LLPanelSettingsSkyCloudTab();
 
     virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled);
+    void	                setEnabled(BOOL enabled) override;
 
 protected:
     virtual void            refresh() override;
@@ -110,7 +110,7 @@ public:
                             LLPanelSettingsSkySunMoonTab();
 
     virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled);
+    virtual void	        setEnabled(BOOL enabled) override;
 
 protected:
     virtual void            refresh() override;

@@ -69,6 +69,9 @@ private:
     void                            onSelectionChange();
     void                            onDeleteSelected();
     void                            onDoCreate(const LLSD &data);
+    void                            onDoApply(const std::string &context);
+    bool                            canAction(const std::string &context);
+    bool                            canApply(const std::string &context);
 
     void                            getSelectedIds(uuid_vec_t& ids) const;
     void                            refreshButtonStates();
