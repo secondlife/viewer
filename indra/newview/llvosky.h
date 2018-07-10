@@ -263,19 +263,20 @@ public:
 	bool isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
 	LLFace* getReflFace() const							{ return mFace[FACE_REFLECTION]; }
 
-	LLViewerTexture*	getSunTex() const					{ return mSunTexturep[0];   }
-	LLViewerTexture*	getMoonTex() const					{ return mMoonTexturep[0];  }
-	LLViewerTexture*	getBloomTex() const					{ return mBloomTexturep;    }
+	LLViewerTexture*	getSunTex() const					{ return mSunTexturep[0]; }
+	LLViewerTexture*	getMoonTex() const					{ return mMoonTexturep[0]; }
+	LLViewerTexture*	getBloomTex() const					{ return mBloomTexturep[0]; }
     LLViewerTexture*	getCloudNoiseTex() const			{ return mCloudNoiseTexturep[0]; }
 
-    LLViewerTexture*	getSunTexNext() const					{ return mSunTexturep[1];   }
-	LLViewerTexture*	getMoonTexNext() const					{ return mMoonTexturep[1];  }
-	LLViewerTexture*	getBloomTexNext() const					{ return mBloomTexturep;    }
+    LLViewerTexture*	getSunTexNext() const					{ return mSunTexturep[1]; }
+	LLViewerTexture*	getMoonTexNext() const					{ return mMoonTexturep[1]; }
+	LLViewerTexture*	getBloomTexNext() const					{ return mBloomTexturep[1]; }
     LLViewerTexture*	getCloudNoiseTexNext() const			{ return mCloudNoiseTexturep[1]; }
 
     void setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next);
     void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
     void setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next);
+    void setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next);
 
 	void forceSkyUpdate(void)							{ mForceUpdate = TRUE; }
 
@@ -294,7 +295,7 @@ protected:
 	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
     LLPointer<LLViewerFetchedTexture> mCloudNoiseTexturep[2];
-	LLPointer<LLViewerFetchedTexture> mBloomTexturep;
+	LLPointer<LLViewerFetchedTexture> mBloomTexturep[2];
 
 	static S32			sResolution;
 	static S32			sTileResX;

@@ -238,7 +238,22 @@ void LLDrawPoolWLSky::renderStars(void) const
 		return;
 	}
 
-	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
+    LLViewerTexture* tex_a = gSky.mVOSkyp->getBloomTex();
+    LLViewerTexture* tex_b = gSky.mVOSkyp->getBloomTexNext();
+	
+    if (tex_a && (!tex_b || (tex_a == tex_b)))
+    {
+        // Bind current and next sun textures
+		gGL.getTexUnit(0)->bind(tex_a);
+    }
+    else if (tex_b && !tex_a)
+    {
+        gGL.getTexUnit(0)->bind(tex_b);
+    }
+    else if (tex_b != tex_a)
+    {
+        gGL.getTexUnit(0)->bind(tex_a);
+    }
 
 	gGL.pushMatrix();
 	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
@@ -255,6 +270,8 @@ void LLDrawPoolWLSky::renderStars(void) const
 	}
 
 	gSky.mVOWLSkyp->drawStars();
+
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.popMatrix();
 
@@ -287,10 +304,36 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 
 	gDeferredStarProgram.bind();	
 
-    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
+    LLViewerTexture* tex_a = gSky.mVOSkyp->getBloomTex();
+    LLViewerTexture* tex_b = gSky.mVOSkyp->getBloomTexNext();
 
+    F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+	
+    if (tex_a && (!tex_b || (tex_a == tex_b)))
+    {
+        // Bind current and next sun textures
+		gGL.getTexUnit(0)->bind(tex_a);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+        blend_factor = 0;
+    }
+    else if (tex_b && !tex_a)
+    {
+        gGL.getTexUnit(0)->bind(tex_b);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+        blend_factor = 0;
+    }
+    else if (tex_b != tex_a)
+    {
+        gGL.getTexUnit(0)->bind(tex_a);
+        gGL.getTexUnit(1)->bind(tex_b);
+    }
+
+    gDeferredStarProgram.uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 	gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
 	gSky.mVOWLSkyp->drawStars();
+
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
     gDeferredStarProgram.unbind();
 }

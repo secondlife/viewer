@@ -529,6 +529,7 @@ void LLSettingsVOSky::updateSettings()
     gSky.setSunTextures(getSunTextureId(), getNextSunTextureId());
     gSky.setMoonTextures(getMoonTextureId(), getNextMoonTextureId());
     gSky.setCloudNoiseTextures(getCloudNoiseTextureId(), getNextCloudNoiseTextureId());
+    gSky.setBloomTextures(getBloomTextureId(), getNextBloomTextureId());
 }
 
 void LLSettingsVOSky::applySpecial(void *ptarget)
