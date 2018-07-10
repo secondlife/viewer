@@ -94,6 +94,10 @@ void main()
 	alpha1 = 1. - alpha1 * alpha1;
 	alpha1 = 1. - alpha1 * alpha1;	
 
+    if (alpha1 < 0.001f)
+    {
+        discard;
+    }
 
 	// Compute alpha2, for self shadowing effect
 	// (1 - alpha2) will later be used as percentage of incoming sunlight

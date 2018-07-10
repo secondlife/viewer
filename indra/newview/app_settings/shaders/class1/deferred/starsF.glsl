@@ -36,10 +36,12 @@ VARYING vec2 vary_texcoord0;
 
 uniform sampler2D diffuseMap;
 uniform float custom_alpha;
+uniform vec4 sunlight_color;
 
 void main() 
 {
-	vec4 col = vertex_color * texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+    col.rgb *= vertex_color.rgb;
     col.a *= custom_alpha;
 	frag_color = col;
 }
