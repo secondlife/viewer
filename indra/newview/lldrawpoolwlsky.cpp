@@ -273,7 +273,7 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 {
 	LLGLSPipelineSkyBox gls_sky;
 	LLGLEnable blend(GL_BLEND);
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 		
 	// *LAPRAS
     F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
@@ -286,8 +286,12 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 	}
 
 	gDeferredStarProgram.bind();	
+
+    gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
+
 	gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
 	gSky.mVOWLSkyp->drawStars();
+
     gDeferredStarProgram.unbind();
 }
 
@@ -317,6 +321,10 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLGLSPipelineSkyBox gls_skybox;
 	LLGLEnable blend_on(GL_BLEND);
 	gPipeline.disableLights();
+
+    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	gGL.pushMatrix();
+	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);	        
 
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 
@@ -427,7 +435,9 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		{
 			moon_shader->unbind();
 		}
-	}    
+	}
+
+    gGL.popMatrix();
 }
 
 void LLDrawPoolWLSky::renderDeferred(S32 pass)
@@ -438,11 +448,9 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	}
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
-
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 
-	LLGLSNoFog disableFog;
-	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+	LLGLSNoFog disableFog;	
 	LLGLDisable clip(GL_CLIP_PLANE0);
 
 	gGL.setColorMask(true, false);
@@ -453,39 +461,46 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     if (gPipeline.canUseWindLightShaders())
     {
-        if (gPipeline.useAdvancedAtmospherics())
         {
-	        renderSkyHazeDeferred(origin, camHeightLocal);
+            // Disable depth-test for sky, but re-enable depth writes for the cloud
+            // rendering below so the cloud shader can write out depth for the stars to test against
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+            if (gPipeline.useAdvancedAtmospherics())
+            {
+	            renderSkyHazeDeferred(origin, camHeightLocal);
+            }
+            else
+            {
+                renderSkyHaze(origin, camHeightLocal);   
+		        
+            }
+            renderHeavenlyBodies();
         }
-        else
-        {
-            renderSkyHaze(origin, camHeightLocal);
-    
-	        gGL.pushMatrix();
-		    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
-		    renderHeavenlyBodies();	        
-
-            gGL.popMatrix();
-        }
+        renderSkyClouds(origin, camHeightLocal);
     }    
     gGL.setColorMask(true, true);
 }
 
 void LLDrawPoolWLSky::renderPostDeferred(S32 pass)
 {
-    const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
-
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+
+    LLGLSNoFog disableFog;	
+	LLGLDisable clip(GL_CLIP_PLANE0);
+    LLGLSquashToFarClip far_clip(get_current_projection());
+
 	gGL.pushMatrix();
-
 	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+    gGL.setColorMask(true, false);
 
+    // would be nice to do this here, but would need said bodies
+    // to render at a realistic distance for depth-testing against the clouds...
+    //renderHeavenlyBodies();
     renderStarsDeferred();
 
     gGL.popMatrix();
-
-    renderSkyClouds(origin, camHeightLocal);
+    gGL.setColorMask(true, true);
 }
 
 void LLDrawPoolWLSky::render(S32 pass)

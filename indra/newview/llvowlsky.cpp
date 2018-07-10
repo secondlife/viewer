@@ -36,7 +36,7 @@
 #include "llenvironment.h"
 #include "llsettingssky.h"
 
-const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f)*0.25f;
+const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f) * 0.8f;
 
 const U32 LLVOWLSky::MIN_SKY_DETAIL = 3;
 const U32 LLVOWLSky::MAX_SKY_DETAIL = 180;
