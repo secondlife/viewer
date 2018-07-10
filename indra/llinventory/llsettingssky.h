@@ -183,6 +183,7 @@ public:
     LLUUID getNextSunTextureId() const;
     LLUUID getNextMoonTextureId() const;
     LLUUID getNextCloudNoiseTextureId() const;
+    LLUUID getNextBloomTextureId() const;
 
     //=====================================================================
     virtual void loadTextures() { };
@@ -272,6 +273,7 @@ private:
     LLUUID      mNextSunTextureId;
     LLUUID      mNextMoonTextureId;
     LLUUID      mNextCloudTextureId;
+    LLUUID      mNextBloomTextureId;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
