@@ -257,6 +257,7 @@ public:
 private:
 
 	void initRespondFunctionMap();
+	std::string getSanitizedDescription();
 
 	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
 	typedef std::map<std::string, respond_function_t> respond_function_map_t;
