@@ -123,6 +123,9 @@ namespace
             sBugSplatSender->sendAdditionalFile(
                 WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
 
+            sBugSplatSender->sendAdditionalFile(
+                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
+
             if (gAgentAvatarp)
             {
                 // user name, when we have it
