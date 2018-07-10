@@ -221,8 +221,7 @@ class ViewerManifest(LLManifest):
         return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
 
     def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
-        global CHANNEL_VENDOR_BASE
-        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        channel_qualifier=self.channel_variant().lower()
         if channel_qualifier.startswith('release'):
             channel_type='release'
         elif channel_qualifier.startswith('beta'):
@@ -519,7 +518,8 @@ class WindowsManifest(ViewerManifest):
                            "slplugin.exe")
         
         # Get shared libs from the shared libs staging directory
-        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration'])):
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                          'sharedlibs', self.args['configuration'])):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
@@ -612,17 +612,18 @@ class WindowsManifest(ViewerManifest):
 
         # Media plugins - CEF
         with self.prefix(dst="llplugin"):
-            with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration']):
-                self.path("media_plugin_cef.dll")
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
+                with self.prefix(src=os.path.join('cef', self.args['configuration'])):
+                    self.path("media_plugin_cef.dll")
 
-            # Media plugins - LibVLC
-            with self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration']):
-                self.path("media_plugin_libvlc.dll")
+                # Media plugins - LibVLC
+                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
+                    self.path("media_plugin_libvlc.dll")
 
-            # Media plugins - Example (useful for debugging - not shipped with release viewer)
-            if self.channel_type() != 'release':
-                with self.prefix(src='../media_plugins/example/%s' % self.args['configuration']):
-                    self.path("media_plugin_example.dll")
+                # Media plugins - Example (useful for debugging - not shipped with release viewer)
+                if self.channel_type() != 'release':
+                    with self.prefix(src=os.path.join('example', self.args['configuration'])):
+                        self.path("media_plugin_example.dll")
 
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
@@ -640,7 +641,8 @@ class WindowsManifest(ViewerManifest):
                 self.path("widevinecdmadapter.dll")
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
-            with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release')):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                              'sharedlibs', 'Release')):
                 self.path("msvcp120.dll")
                 self.path("msvcr120.dll")
 
