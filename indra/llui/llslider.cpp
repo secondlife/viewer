@@ -331,8 +331,9 @@ void LLSlider::draw()
 		highlight_rect.set(track_rect.mLeft, track_rect.mTop, track_rect.mRight, track_rect.mBottom);
 	}
 
-	trackImage->draw(track_rect, LLColor4::white % alpha);
-	trackHighlightImage->draw(highlight_rect, LLColor4::white % alpha);
+	LLColor4 color = isInEnabledChain() ? LLColor4::white % alpha : LLColor4::white % (0.6f * alpha);
+	trackImage->draw(track_rect, color);
+	trackHighlightImage->draw(highlight_rect, color);
 
 	// Thumb
 	if (hasFocus())

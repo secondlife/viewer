@@ -112,6 +112,18 @@ BOOL LLPanelSettingsSkyAtmosTab::postBuild()
     return TRUE;
 }
 
+//virtual
+void LLPanelSettingsSkyAtmosTab::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsSky::setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->setEnabled(enabled);
+}
+
 void LLPanelSettingsSkyAtmosTab::refresh()
 {
     if (!mSkySettings)
@@ -209,6 +221,20 @@ BOOL LLPanelSettingsSkyCloudTab::postBuild()
     refresh();
 
     return TRUE;
+}
+
+//virtual
+void LLPanelSettingsSkyCloudTab::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsSky::setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_X)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_Y)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_D)->setEnabled(enabled);
 }
 
 void LLPanelSettingsSkyCloudTab::refresh()
@@ -313,6 +339,15 @@ BOOL LLPanelSettingsSkySunMoonTab::postBuild()
     refresh();
 
     return TRUE;
+}
+
+//virtual
+void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsSky::setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setEnabled(enabled);
 }
 
 void LLPanelSettingsSkySunMoonTab::refresh()

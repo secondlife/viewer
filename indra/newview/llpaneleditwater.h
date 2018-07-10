@@ -66,6 +66,7 @@ public:
                             LLPanelSettingsWaterMainTab();
 
     virtual BOOL	        postBuild() override;
+    virtual void	        setEnabled(BOOL enabled);
 
 protected:
     virtual void            refresh() override;

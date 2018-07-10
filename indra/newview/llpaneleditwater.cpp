@@ -107,6 +107,24 @@ BOOL LLPanelSettingsWaterMainTab::postBuild()
     return TRUE;
 }
 
+//virtual
+void LLPanelSettingsWaterMainTab::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsWater::setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_FRESNEL_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_FRESNEL_OFFSET)->setEnabled(enabled);
+
+    getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Z)->setEnabled(enabled);
+
+    getChild<LLUICtrl>(FIELD_WATER_SCALE_ABOVE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_SCALE_BELOW)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_WATER_BLUR_MULTIP)->setEnabled(enabled);
+}
+
 //==========================================================================
 void LLPanelSettingsWaterMainTab::refresh()
 {

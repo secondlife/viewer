@@ -964,7 +964,6 @@ void LLFloaterEditExtDayCycle::setTabsData(LLTabContainer * tabcontainer, const 
         {
             panel->setSettings(settings);
             panel->setEnabled(editable);
-            panel->refresh();
             panel->setAllChildrenEnabled(editable);
         }
     }
