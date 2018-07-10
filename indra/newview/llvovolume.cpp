@@ -108,10 +108,6 @@ static LLTrace::BlockTimerStatHandle FTM_VOLUME_TEXTURES("Volume Textures");
 
 extern BOOL gGLDebugLoggingEnabled;
 
-#if LL_MSVC
-#pragma optimize("", off)
-#endif
-
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {

@@ -245,10 +245,10 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                     LLVector4 wght;
                     S32 idx[4];
                     F32 scale = 0.0f;
+                    // AXON unpacking of weights should be pulled into a common function and optimized if possible.
                     for (U32 k = 0; k < 4; k++)
                     {
                         F32 w = weights[k];
-                        
                         idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
                         wght[k] = w - idx[k];
                         scale += wght[k];
@@ -269,8 +269,6 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                             if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
                             {
                                 rig_info_tab[joint_num].setIsRiggedTo(true);
-                                //active_joints.insert(joint_num);
-                                //active_verts++;
 
                                 // AXON can precompute these matMuls.
                                 LLMatrix4a bind_shape;
