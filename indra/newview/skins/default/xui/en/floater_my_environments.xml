@@ -110,13 +110,12 @@
                     top_pad="0"
                     left_delta="-3"
                     width="200" />
-                
         </layout_panel>
         <layout_panel
                 auto_resize="false"
                 user_resize="true"
                 tab_group="1"
-                height="62"
+                height="31"
                 name="pnl_control"
                 font="SansSerifBold">
             <panel
@@ -142,7 +141,7 @@
                         top="5"
                         tool_tip="More options"
                         width="18" />
-                <button
+                <menu_button
                         follows="bottom|left"
                         font="SansSerifBigBold"
                         height="18"
@@ -151,8 +150,9 @@
                         image_disabled="AddItem_Disabled"
                         layout="topleft"
                         left_pad="5"
+                        menu_filename="menu_settings_add.xml"
                         name="btn_newsettings"
-                        tool_tip="Make new gesture"
+                        tool_tip="Make new setting"
                         top_delta="0"
                         width="18" />
                 <button
@@ -165,20 +165,10 @@
                         layout="topleft"
                         name="btn_del"
                         right="-5"
-                        tool_tip="Delete this gesture"
+                        tool_tip="Delete this setting"
                         top_delta="0"
                         width="18" />
             </panel>
-            <button
-                    follows="top|left"
-                    height="23"
-                    label="Edit"
-                    layout="topleft"
-                    left="6"
-                    name="btn_edit"
-                    top_pad="5"
-                    width="83" />
-
         </layout_panel>
     </layout_stack>
 </floater>

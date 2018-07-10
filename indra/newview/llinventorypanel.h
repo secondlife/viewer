@@ -144,6 +144,8 @@ public:
 	virtual ~LLInventoryPanel();
 
 public:
+    typedef std::set<LLFolderViewItem*> selected_items_t;
+
 	LLInventoryModel* getModel() { return mInventory; }
 	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
@@ -168,6 +170,8 @@ public:
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 	void clearSelection();
+    selected_items_t getSelectedItems() const;
+
 	bool isSelectionRemovable();
 	LLInventoryFilter& getFilter();
 	const LLInventoryFilter& getFilter() const;

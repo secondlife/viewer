@@ -60,13 +60,18 @@ public:
 
 private:
     LLInventoryPanel *              mInventoryList;
-
-    void                            onShowFoldersChange();
-    void                            onFilterCheckChange();
-
     U64                             mTypeFilter;
     LLInventoryFilter::EFolderShow  mShowFolders;
     LLUUID                          mSelectedAsset;
+
+    void                            onShowFoldersChange();
+    void                            onFilterCheckChange();
+    void                            onSelectionChange();
+    void                            onDeleteSelected();
+    void                            onDoCreate(const LLSD &data);
+
+    void                            getSelectedIds(uuid_vec_t& ids) const;
+    void                            refreshButtonStates();
 
     static LLUUID                   findItemByAssetId(LLUUID asset_id, bool copyable_only, bool ignore_library);
 

@@ -1102,6 +1102,11 @@ void LLInventoryPanel::clearSelection()
 	mSelectThisID.setNull();
 }
 
+LLInventoryPanel::selected_items_t LLInventoryPanel::getSelectedItems() const
+{
+    return mFolderRoot.get()->getSelectionList();
+}
+
 void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& items, BOOL user_action)
 {
 	// Schedule updating the folder view context menu when all selected items become complete (STORM-373).

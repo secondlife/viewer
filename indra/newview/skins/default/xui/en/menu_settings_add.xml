@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+        layout="topleft"
+        mouse_opaque="false"
+        name="menu_settings_add"
+        visible="false">
+    <menu_item_call
+            label="New Sky"
+            layout="topleft"
+            name="New Sky">
+        <menu_item_call.on_click
+                function="MyEnvironments.DoCreate"
+                parameter="sky"/>
+        <menu_item_call.on_enable
+                function="MyEnvironments.EnvironmentEnabled" />
+    </menu_item_call>
+    <menu_item_call
+            label="New Water"
+            layout="topleft"
+            name="New Water">
+        <menu_item_call.on_click
+                function="MyEnvironments.DoCreate"
+                parameter="water"/>
+        <menu_item_call.on_enable
+                function="MyEnvironments.EnvironmentEnabled" />
+    </menu_item_call>
+    <menu_item_call
+            label="New Day Cycle"
+            layout="topleft"
+            name="New Day Cycle">
+        <menu_item_call.on_click
+                function="MyEnvironments.DoCreate"
+                parameter="daycycle"/>
+        <menu_item_call.on_enable
+                function="MyEnvironments.EnvironmentEnabled" />
+    </menu_item_call>
+</toggleable_menu>
