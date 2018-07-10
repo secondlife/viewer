@@ -60,17 +60,17 @@ void main()
     vec3 radiance_sun = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
     vec3 radiance2_sun = GetSunAndSkyIlluminance(camPos, view_direction, sun_direction, sky_illum);
 
-    radiance *= transmittance;
+    radiance_sun *= transmittance;
 
     vec3 solar_luminance = transmittance * GetSolarLuminance();
 
     // If the view ray intersects the Sun, add the Sun radiance.
     if (dot(view_direction, sun_direction) >= sun_size)
     {
-        radiance = radiance + solar_luminance;
+        radiance_sun = radiance_sun + solar_luminance;
     }
 
-    vec3 color = radiance;
+    vec3 color = radiance_sun;
     
     color = vec3(1.0) - exp(-color * 0.0001);
 
@@ -79,7 +79,7 @@ void main()
 
     frag_color.rgb = color;
     //frag_color.rgb = vec3(dot(view_direction, sun_direction) > 0.95f ? 1.0 : 0.0, 0,0);
-    frag_color.rgb = normalize(view_pos);
+    //frag_color.rgb = normalize(view_pos);
 
     frag_color.a = 1.0;
 }

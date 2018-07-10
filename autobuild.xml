@@ -64,9 +64,9 @@
           <key>archive</key>
           <map>
             <key>hash</key>
-            <string>b701ad7c573a79e4684345c3ad1e7b9b</string>
+            <string>2679e9960e5a1c14e8c6a4e8baf70040</string>
             <key>url</key>
-            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/16995/112878/libatmosphere-1.0.0.100-darwin-514680.tar.bz2</string>
+            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21515/158137/libatmosphere-1.0.0.100-darwin-517661.tar.bz2</string>
           </map>
           <key>name</key>
           <string>darwin</string>
@@ -76,9 +76,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df40032b237843f1a9d46d0881961341</string>
+              <string>3b509a8b85a05c53fa19f5f06f0e546b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/16994/112877/libatmosphere-1.0.0.100-darwin64-514680.tar.bz2</string>              
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21514/158129/libatmosphere-1.0.0.100-darwin64-517661.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -88,9 +88,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d3727abd5d423a64231706fafdfe771a</string>
+              <string>b0f7b131d0a7d8d6a6404f27f2697872</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/16996/112886/libatmosphere-1.0.0.100-windows-514680.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21517/158147/libatmosphere-1.0.0.100-windows-517661.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -100,9 +100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	            <string>03789c65de3d569a980d52a6c64b39cf</string>
+	            <string>a50d05abaca0ae167640171ab814a3db</string>
               <key>url</key>
-	            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/16997/112892/libatmosphere-1.0.0.100-windows64-514680.tar.bz2</string>              
+	            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21516/158140/libatmosphere-1.0.0.100-windows64-517661.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>windows64</string>
