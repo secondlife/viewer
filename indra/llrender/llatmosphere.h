@@ -52,6 +52,8 @@ public:
         F32             sunArcRadians,
         F32             mieAniso);
 
+    bool operator==(const AtmosphericModelSettings& rhs) const;
+
     F32             m_skyBottomRadius;
     F32             m_skyTopRadius;
     DensityProfile  m_rayleighProfile;
@@ -107,6 +109,8 @@ protected:
     std::vector<double> m_mie_extinction;
     std::vector<double> m_absorption_extinction;
     std::vector<double> m_ground_albedo;
+
+    AtmosphericModelSettings m_settings;
 };
 
 extern LLAtmosphere* gAtmosphere;

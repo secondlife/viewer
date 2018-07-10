@@ -44,7 +44,7 @@ void main()
 {
 	vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
 	vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 col = mix(col_a, col_b, blend_factor);
+    vec4 col = mix(col_b, col_a, blend_factor);
     col.rgb *= vertex_color.rgb;
     col.a *= custom_alpha;
 	frag_color = col;

@@ -815,8 +815,8 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
     LLUUID moon_tex = moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture;
     LLUUID moon_tex_next = moon_texture_next.isNull() ? (moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture) : moon_texture_next;
 
-    mMoonTexturep[0] = LLViewerTextureManager::getFetchedTexture(moon_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    mMoonTexturep[1] = LLViewerTextureManager::getFetchedTexture(moon_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mMoonTexturep[0] = moon_tex.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mMoonTexturep[1] = moon_tex_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
     if (mFace[FACE_MOON])
     {
@@ -862,8 +862,8 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
     LLUUID bloom_tex = bloom_texture.isNull() ? psky->GetDefaultBloomTextureId() : bloom_texture;
     LLUUID bloom_tex_next = bloom_texture_next.isNull() ? (bloom_texture.isNull() ? psky->GetDefaultBloomTextureId() : bloom_texture) : bloom_texture_next;
 
-    mBloomTexturep[0] = LLViewerTextureManager::getFetchedTexture(bloom_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    mBloomTexturep[1] = LLViewerTextureManager::getFetchedTexture(bloom_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mBloomTexturep[0] = bloom_tex.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(bloom_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mBloomTexturep[1] = bloom_tex_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(bloom_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
     if (mBloomTexturep[0])
     {

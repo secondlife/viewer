@@ -132,6 +132,46 @@ AtmosphericModelSettings::AtmosphericModelSettings(
 {
 }
 
+bool AtmosphericModelSettings::operator==(const AtmosphericModelSettings& rhs) const
+{
+    if (m_skyBottomRadius != rhs.m_skyBottomRadius)
+    {
+        return false;
+    }
+
+    if (m_skyTopRadius != rhs.m_skyTopRadius)
+    {
+        return false;
+    }
+
+    if (m_sunArcRadians != rhs.m_sunArcRadians)
+    {
+        return false;
+    }
+
+    if (m_mieAnisotropy != rhs.m_mieAnisotropy)
+    {
+        return false;
+    }
+
+    if (m_rayleighProfile != rhs.m_rayleighProfile)
+    {
+        return false;
+    }
+
+    if (m_mieProfile != rhs.m_mieProfile)
+    {
+        return false;
+    }
+
+    if (m_absorptionProfile != rhs.m_absorptionProfile)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void LLAtmosphere::initClass()
 {
     if (!gAtmosphere)
@@ -192,9 +232,10 @@ LLAtmosphere::~LLAtmosphere()
 
 bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
 {
-// Advanced Atmospherics TODO
-// Make this store a hash of the precomputed data
-// and avoid redundant calcs for identical settings
+    if ((m_model != nullptr) && (settings == m_settings))
+    {
+        return true;
+    }
 
     if (m_model)
     {
