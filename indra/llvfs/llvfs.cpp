@@ -43,6 +43,8 @@
     
 #include "llstl.h"
 #include "lltimer.h"
+
+#pragma optimize("", off)
     
 const S32 FILE_BLOCK_MASK = 0x000003FF;	 // 1024-byte blocks
 const S32 VFS_CLEANUP_SIZE = 5242880;  // how much space we free up in a single stroke
@@ -253,7 +255,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
     bool created = create(index_filename, data_filename, read_only, presize, remove_after_crash);
     if (!created)
     {
-        LL_ERRS("VFS") << "VFS init failed with " << ErrorToString(mValid) << LL_ENDL;
+        LL_WARNS("VFS") << "VFS init failed with " << ErrorToString(mValid) << LL_ENDL;
     }
     llassert(created);
 }
@@ -401,7 +403,17 @@ bool LLVFS::create(const std::string& index_filename, const std::string& data_fi
 					<< mIndexFilename
 					<< LL_ENDL;
 
-				mValid = VFSVALID_BAD_CORRUPT;
+				mDataFP = openAndLock(mDataFilename, "w+b", FALSE);
+                mIndexFP = openAndLock(mIndexFilename, "w+b", FALSE);
+		        if (mDataFP && mIndexFP)
+		        {
+                    LL_INFOS("VFS") << "Using VFS index file " << mIndexFilename << LL_ENDL;
+	                LL_INFOS("VFS") << "Using VFS data file " << mDataFilename << LL_ENDL;
+	                mValid = VFSVALID_OK;
+                    return true;
+		        }
+
+	            mValid = VFSVALID_BAD_CORRUPT;
 				return false;
 			}
 			else

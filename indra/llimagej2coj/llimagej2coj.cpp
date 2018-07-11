@@ -91,29 +91,36 @@ public:
     OPJ_OFF_T  offset   = 0;
 };
 
+#define WANT_VERBOSE_OPJ_SPAM LL_DEBUG
+
 static void opj_info(const char* msg, void* user_data)
 {
     llassert(user_data);
-    //JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
-    //(void)user_data;
-    // a tad too spammy...
-    //LL_INFOS("OpenJPEG") << msg << LL_ENDL;
+    JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
+    (void)jpeg_codec;
+#if WANT_VERBOSE_OPJ_SPAM
+    LL_INFOS("OpenJPEG") << msg << LL_ENDL;
+#endif
 }
 
 static void opj_warn(const char* msg, void* user_data)
 {
     llassert(user_data);
-    //JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
-    (void)user_data;
+    JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
+    (void)jpeg_codec;
+#if WANT_VERBOSE_OPJ_SPAM
     LL_WARNS("OpenJPEG") << msg << LL_ENDL;
+#endif
 }
 
 static void opj_error(const char* msg, void* user_data)
 {
     llassert(user_data);
-    //JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
-    (void)user_data;
-    LL_ERRS("OpenJPEG") << msg << LL_ENDL;
+    JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
+    (void)jpeg_codec;
+#if WANT_VERBOSE_OPJ_SPAM
+    LL_WARNS("OpenJPEG") << msg << LL_ENDL;
+#endif
 }
 
 static OPJ_SIZE_T opj_read(void * buffer, OPJ_SIZE_T bytes, void* user_data)
@@ -162,7 +169,7 @@ static OPJ_BOOL opj_seek(OPJ_OFF_T bytes, void * user_data)
 static void opj_free_user_data(void * user_data)
 {
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
-    free(jpeg_codec->buffer);
+    //free(jpeg_codec->buffer);
     jpeg_codec->buffer = nullptr;
     jpeg_codec->size = 0;
     jpeg_codec->offset = 0;
@@ -199,7 +206,7 @@ public:
 
         if (stream)
         {
-            delete stream;
+            opj_stream_destroy(stream);
         }
         stream = nullptr;
 
@@ -229,7 +236,7 @@ public:
 
         if (stream)
         {
-            delete stream;
+            opj_stream_destroy(stream);
         }
 
         stream = opj_stream_create(dataSize, true);
@@ -271,6 +278,12 @@ public:
         heightOut  = S32(tilesH * tileDimY);
         components = codestream_info->nbcomps;
 
+        // yeah, that's nice, anyway...
+        if (components > 4)
+        {
+            components = 4;
+        }
+
 		discard_level = 0;
 		while (tilesW > 1 && tilesH > 1 && discard_level < MAX_DISCARD_LEVEL)
 		{
@@ -295,7 +308,7 @@ public:
 
         if (stream)
         {
-            delete stream;
+            opj_stream_destroy(stream);
         }
 
         stream = opj_stream_create(dataSize, true);
@@ -417,7 +430,7 @@ public:
 
         if (stream)
         {
-            delete stream;
+            opj_stream_destroy(stream);
         }
         stream = nullptr;
 
@@ -461,7 +474,7 @@ public:
 
         if (stream)
         {
-            delete stream;
+            opj_stream_destroy(stream);
         }
 
         stream = opj_stream_create(data_size_guess, false);
