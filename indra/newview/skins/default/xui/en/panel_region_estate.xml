@@ -82,7 +82,7 @@
     <view_border
      bevel_style="none"
      follows="top|left"
-     height="105"
+     height="185"
      layout="topleft"
      left="10"
      top_pad="5"
@@ -96,7 +96,7 @@
      width="200">
         <radio_item
          height="16"
-         label="Allow only residents and groups listed below"
+         label="Allow only residents and groups listed on the Access tab"
          layout="topleft"
          name="estate_restricted_access" />
         <radio_item
@@ -137,10 +137,10 @@
      height="18"
      label="Allow Voice Chat"
      layout="topleft"
-     left="290"
+     left="20"
      name="voice_chat_check"
-     top_delta="-78"
-     width="200" />
+     top_pad="2"
+     width="240" />
     <check_box
      height="18"
      label="Allow Direct Teleport"
@@ -148,7 +148,7 @@
      left_delta="0"
      name="allow_direct_teleport"
      top_pad="2"
-     width="80" />
+     width="240" />
     <button
      enabled="false"
      follows="left|top"
@@ -156,7 +156,7 @@
      label="Apply"
      layout="topleft"
      name="apply_btn"
-     top_pad="30"
+     top_pad="10"
      left_delta="0"
      width="97" />
 
