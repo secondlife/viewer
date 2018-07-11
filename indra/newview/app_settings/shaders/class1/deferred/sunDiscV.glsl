@@ -32,6 +32,8 @@ ATTRIBUTE vec2 texcoord0;
 
 VARYING vec2 vary_texcoord0;
 
+void calcAtmospherics(vec3 eye_pos);
+
 void main()
 {
 	//transform vertex
@@ -40,5 +42,6 @@ void main()
 
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
+    calcAtmospherics(pos.xyz);
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }
