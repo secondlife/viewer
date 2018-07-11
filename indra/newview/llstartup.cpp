@@ -246,6 +246,7 @@ static bool mLoginStatePastUI = false;
 
 const S32 DEFAULT_MAX_AGENT_GROUPS = 42;
 const S32 ALLOWED_MAX_AGENT_GROUPS = 500;
+const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -1615,6 +1616,13 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_INVENTORY_SEND );
 		}
 		display_startup();
+
+		if (!gAgentMovementCompleted && timeout.getElapsedTimeF32() > STATE_AGENT_WAIT_TIMEOUT)
+		{
+			LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
+			LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+			reset_login();
+		}
 		return FALSE;
 	}
 
