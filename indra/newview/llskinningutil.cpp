@@ -63,6 +63,7 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
         if (!avatar->getJoint(skin->mJointNames[j]))
         {
             LL_DEBUGS("Avatar") << "Mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
+            LL_WARNS_ONCE("Avatar") << "Mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
             skin->mJointNames[j] = "mPelvis";
         }
     }
@@ -213,6 +214,14 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
                 if (joint)
                 {
                     skin->mJointNums[j] = joint->getJointNum();
+                    if (skin->mJointNums[j] < 0)
+                    {
+                        LL_WARNS_ONCE() << "joint has unusual number " << skin->mJointNames[j] << ": " << skin->mJointNums[j] << LL_ENDL;
+                    }
+                }
+                else
+                {
+                    LL_WARNS_ONCE() << "unable to find joint " << skin->mJointNames[j] << LL_ENDL;
                 }
             }
         }
