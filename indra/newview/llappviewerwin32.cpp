@@ -162,12 +162,12 @@ namespace
                     << gAgent.getRegion()->getName()
                     << '/' << loc.mV[0]
                     << '/' << loc.mV[1]
-                    << '/' << log.mV[2]
+                    << '/' << loc.mV[2]
                     << "'\n";
             }
             else
             {
-                log "gAgent.getRegion() is nullptr\n";
+                log << "gAgent.getRegion() is nullptr\n";
             }
 
             LL_INFOS() << "Sending crash report to BugSplat." << LL_ENDL;
