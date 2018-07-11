@@ -68,9 +68,15 @@
      layout="topleft"
      left_delta="0"
      multi_select="true"
+     draw_heading="true"
      name="estate_manager_name_list"
      top_delta="0"
-     width="498" />
+     width="498">
+        <columns
+         label="Name"
+         name="name"
+         width="498" />
+    </name_list>
     <!-- Estate Managers buttons -->
     <button
      follows="left|top"
@@ -135,9 +141,15 @@
      layout="topleft"
      left_delta="0"
      multi_select="true"
+     draw_heading="true"
      name="allowed_avatar_name_list"
      top_delta="0"
-     width="498" />
+     width="498">
+        <columns
+         label="Name"
+         name="name"
+         width="498" />
+    </name_list>
     <!-- Always allowed buttons -->
     <button
      follows="left|top"
@@ -200,9 +212,15 @@
      layout="topleft"
      left_delta="0"
      multi_select="true"
+     draw_heading="true"
      name="allowed_group_name_list"
      top_delta="0"
-     width="498" />
+     width="498">
+        <columns
+         label="Name"
+         name="name"
+         width="498" />
+    </name_list>
     <!-- Groups always allowed buttons -->
     <button
      follows="left|top"
@@ -261,12 +279,12 @@
      top_pad="-5"
      width="498" />
       <name_list
-       draw_heading="true"
        follows="left|top"
        height="400"
        layout="topleft"
        left_delta="0"
        multi_select="true"
+       draw_heading="true"
        name="banned_avatar_name_list"
        top_delta="0"
        width="498">
