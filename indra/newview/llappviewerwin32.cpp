@@ -116,24 +116,38 @@ namespace
 
     bool bugsplatSendLog(UINT nCode, LPVOID lpVal1, LPVOID lpVal2)
     {
+        // When BugSplat intercepts a crash, logging seems to stop?!
+        // Maybe because our test crashes use LL_ERROR(). Try writing a
+        // special log file "by hand."
+        std::ofstream log(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "BugSplat.log"),
+                          std::ios_base::app);
+        log << "Entered bugsplatSendLog() callback\n";
         if (nCode == MDSCB_EXCEPTIONCODE)
         {
             // send the main viewer log file
             // widen to wstring, convert to __wchar_t, then pass c_str()
             sBugSplatSender->sendAdditionalFile(
                 WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+            log << "Attached " << gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log") << '\n';
 
             sBugSplatSender->sendAdditionalFile(
                 WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
+            log << "Attached " << gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml") << '\n';
 
             if (gAgentAvatarp)
             {
                 // user name, when we have it
                 sBugSplatSender->setDefaultUserName(WCSTR(gAgentAvatarp->getFullname()));
+                log << "Set default user name to '" << gAgentAvatarp->getFullname() << "'\n";
+            }
+            else
+            {
+                log << "gAgentAvatarp is nullptr\n";
             }
 
             // LL_ERRS message, when there is one
             sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
+            log << "Set default user description to '" << LLError::getFatalMessage() << "'\n";
 
             if (gAgent.getRegion())
             {
@@ -144,10 +158,25 @@ namespace
                                     << '/' << loc.mV[0]
                                     << '/' << loc.mV[1]
                                     << '/' << loc.mV[2])));
+                log << "Set app identifier to '"
+                    << gAgent.getRegion()->getName()
+                    << '/' << loc.mV[0]
+                    << '/' << loc.mV[1]
+                    << '/' << log.mV[2]
+                    << "'\n";
+            }
+            else
+            {
+                log "gAgent.getRegion() is nullptr\n";
             }
 
             LL_INFOS() << "Sending crash report to BugSplat." << LL_ENDL;
+            log << "Sending crash report to BugSplat.\n";
         } // MDSCB_EXCEPTIONCODE
+        else
+        {
+            log << "nCode != MDSCB_EXCEPTIONCODE\n";
+        }
 
         return false;
     }
