@@ -607,6 +607,8 @@ void LLSettingsBlender::triggerComplete()
 }
 
 //-------------------------------------------------------------------------
+const LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::MIN_BLEND_DELTA(0.001);
+
 LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const
 {
     return LLSettingsBase::BlendFactor(fmod((F64)spanpos, (F64)spanlen) / (F64)spanlen);
@@ -629,9 +631,15 @@ void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& t
         return;
     }
 
+    LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
     mTimeDeltaPassed = LLSettingsBase::Seconds(0.0);
 
-    LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
+    if (fabs(mLastBlendF - blendf) < mBlendFMinDelta)
+    {
+        return;
+    }
+
+    mLastBlendF = blendf;
 
     update(blendf);
 }

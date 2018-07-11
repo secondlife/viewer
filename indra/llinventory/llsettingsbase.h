@@ -57,6 +57,8 @@ class LLSettingsBase :
 
     friend std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings);
 
+protected:
+    LOG_CLASS(LLSettingsBase);
 public:
     typedef F64Seconds Seconds;
     typedef F64        BlendFactor;
@@ -384,6 +386,8 @@ class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 {
     LOG_CLASS(LLSettingsBlenderTimeDelta);
 public:
+    static const LLSettingsBase::BlendFactor MIN_BLEND_DELTA;
+
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
         const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& blend_span) :
         LLSettingsBlender(target, initsetting, endsetting),
@@ -392,7 +396,9 @@ public:
         mTimeSpent(0.0f),
         mTimeDeltaThreshold(0.0f),
         mTimeDeltaPassed(0.0f),
-        mIgnoreTimeDelta(false)
+        mIgnoreTimeDelta(false),
+        mBlendFMinDelta(MIN_BLEND_DELTA),
+        mLastBlendF(-1.0f)
     {
         mTimeStart = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
@@ -411,6 +417,7 @@ public:
         mLastUpdate = mTimeStart;
         mTimeSpent  = LLSettingsBase::Seconds(0.0f);
         mTimeDeltaPassed = LLSettingsBase::Seconds(0.0f);
+        mLastBlendF = LLSettingsBase::BlendFactor(-1.0f);
     }
 
     virtual void applyTimeDelta(const LLSettingsBase::Seconds& timedelta) SETTINGS_OVERRIDE;
@@ -439,6 +446,8 @@ protected:
     LLSettingsBase::Seconds mTimeDeltaThreshold;
     LLSettingsBase::Seconds mTimeDeltaPassed;
     bool                    mIgnoreTimeDelta;
+    LLSettingsBase::BlendFactor mBlendFMinDelta;
+    LLSettingsBase::BlendFactor mLastBlendF;
 };
 
 
