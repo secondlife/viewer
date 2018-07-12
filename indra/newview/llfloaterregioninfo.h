@@ -508,6 +508,9 @@ private:
 	void onClickRemoveBannedAgent();
 	void onClickAddEstateManager();
 	void onClickRemoveEstateManager();
+	void onAllowedSearchEdit(const std::string& search_string);
+	void onAllowedGroupsSearchEdit(const std::string& search_string);
+	void onBannedSearchEdit(const std::string& search_string);
 	
 	// Group picker callback is different, can't use core methods below
 	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
@@ -528,6 +531,8 @@ private:
 	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
 	static void requestEstateGetAccessCoro(std::string url);
+
+	void searchAgent(LLNameListCtrl* listCtrl, const std::string& search_string);
 
 	bool mPendingUpdate;
 };
