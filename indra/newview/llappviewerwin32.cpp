@@ -104,7 +104,11 @@ namespace
     // specific wstringize() overload
     inline std::basic_string<__wchar_t> wunder(const std::string& str)
     {
-        return wunder(wstringize(str));
+//      return wunder(wstringize(str));
+        // Is wstringize(const std::string&) doing the right thing? Try
+        // widening each character individually -- which works only for 8-bit
+        // characters, of course -- just diagnostically.
+        return { str.begin(), str.end() };
     }
 
     // Irritatingly, MiniDmpSender::setCallback() is defined to accept a
