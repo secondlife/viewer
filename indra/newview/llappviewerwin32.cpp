@@ -130,7 +130,7 @@ namespace
         // Now dump the memory pointed to by wstr as raw bytes.
         char oldfill = out.fill();
         out << std::hex << std::setfill('0') << std::setw(2);
-        unsigned char* bytes = reinterpret_cast<unsigned char*>(wstr);
+        const unsigned char* bytes = reinterpret_cast<const unsigned char*>(wstr);
         // Increment by one __wchar_t so we display the final nul character;
         // remember to multiply by the number of bytes in a __wchar_t.
         for (size_t b = 0; b < ((size + 1) * sizeof(__wchar_t)); ++b)
