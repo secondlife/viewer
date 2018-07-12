@@ -70,6 +70,7 @@
 #include "llerrorcontrol.h"
 
 #include <fstream>
+#include <iomanip>
 #include <exception>
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
@@ -111,6 +112,38 @@ namespace
         return { str.begin(), str.end() };
     }
 
+    // can only be used in a context in which 'log' is a valid std::ostream
+    #define WVCSTR(string) wview(log, WCSTR(string))
+
+    const __wchar_t* wview(std::ostream& out, const __wchar_t* wstr)
+    {
+        const size_t maxlen = 50;
+        char buffer[maxlen];
+        size_t size;
+        // Classic-C loop to calculate size; also forcibly narrow each
+        // __wchar_t to plain char into 'buffer'.
+        for (size = 0; size < (maxlen - 1) && wstr[size]; ++size)
+            buffer[size] = char(wstr[size]);
+        buffer[size] = '\0';
+        // Log the length, show the plain chars
+        out << "(length " << size << ") '" << buffer << "' ";
+        // Now dump the memory pointed to by wstr as raw bytes.
+        char oldfill = out.fill();
+        out << std::hex << std::setfill('0') << std::setw(2);
+        unsigned char* bytes = reinterpret_cast<unsigned char*>(wstr);
+        // Increment by one __wchar_t so we display the final nul character;
+        // remember to multiply by the number of bytes in a __wchar_t.
+        for (size_t b = 0; b < ((size + 1) * sizeof(__wchar_t)); ++b)
+        {
+            // To display as hex, need to convert each byte to int -- if we engage
+            // the operator<<(ostream&, char) overload, we'll just get characters.
+            out << int(bytes[b]);
+        }
+        out << std::dec << std::setfill(oldfill) << std::setw(0);
+        out << '\n';
+        return wstr;
+    }
+
     // Irritatingly, MiniDmpSender::setCallback() is defined to accept a
     // classic-C function pointer instead of an arbitrary C++ callable. If it
     // did accept a modern callable, we could pass a lambda that binds our
@@ -131,18 +164,18 @@ namespace
             // send the main viewer log file
             // widen to wstring, convert to __wchar_t, then pass c_str()
             sBugSplatSender->sendAdditionalFile(
-                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
-            log << "Attached " << gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log") << '\n';
+                WVCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+            log << "sendAdditionalFile('" << gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log") << "')\n";
 
             sBugSplatSender->sendAdditionalFile(
-                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
-            log << "Attached " << gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml") << '\n';
+                WVCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
+            log << "sendAdditionalFile('" << gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml") << "')\n";
 
             if (gAgentAvatarp)
             {
                 // user name, when we have it
-                sBugSplatSender->setDefaultUserName(WCSTR(gAgentAvatarp->getFullname()));
-                log << "Set default user name to '" << gAgentAvatarp->getFullname() << "'\n";
+                sBugSplatSender->setDefaultUserName(WVCSTR(gAgentAvatarp->getFullname()));
+                log << "setDefaultUserName('" << gAgentAvatarp->getFullname() << "')\n";
             }
             else
             {
@@ -150,24 +183,24 @@ namespace
             }
 
             // LL_ERRS message, when there is one
-            sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
-            log << "Set default user description to '" << LLError::getFatalMessage() << "'\n";
+            sBugSplatSender->setDefaultUserDescription(WVCSTR(LLError::getFatalMessage()));
+            log << "setDefaultUserDescription('" << LLError::getFatalMessage() << "')\n";
 
             if (gAgent.getRegion())
             {
                 // region location, when we have it
                 LLVector3 loc = gAgent.getPositionAgent();
                 sBugSplatSender->resetAppIdentifier(
-                    WCSTR(STRINGIZE(gAgent.getRegion()->getName()
+                    WVCSTR(STRINGIZE(gAgent.getRegion()->getName()
                                     << '/' << loc.mV[0]
                                     << '/' << loc.mV[1]
                                     << '/' << loc.mV[2])));
-                log << "Set app identifier to '"
+                log << "resetAppIdentifier('"
                     << gAgent.getRegion()->getName()
                     << '/' << loc.mV[0]
                     << '/' << loc.mV[1]
                     << '/' << loc.mV[2]
-                    << "'\n";
+                    << "')\n";
             }
             else
             {
