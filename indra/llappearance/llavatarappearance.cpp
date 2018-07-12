@@ -190,7 +190,8 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
     mNumBones(0),
     mNumCollisionVolumes(0),
     mCollisionVolumes(NULL),
-    mIsBuilt(FALSE)
+    mIsBuilt(FALSE),
+    mInitFlags(0)
 {
 	llassert_always(mWearableData);
 	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
@@ -280,6 +281,8 @@ void LLAvatarAppearance::initInstance()
 	}
 
 	buildCharacter();
+
+    mInitFlags |= 1<<0;
 
 }
 

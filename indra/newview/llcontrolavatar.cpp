@@ -63,6 +63,8 @@ void LLControlAvatar::initInstance()
 	updateJointLODs();
 	updateGeometry(mDrawable);
 	hideSkirt();
+
+    mInitFlags |= 1<<4;
 }
 
 void LLControlAvatar::matchVolumeTransform()

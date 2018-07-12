@@ -102,6 +102,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
             // valid.  In other  cases of  skinned  rendering, invalid
             // joints should already have  been removed during scrubInvalidJoints().
             LL_WARNS_ONCE("Avatar") << "Rigged to invalid joint name " << skin->mJointNames[j] << LL_ENDL;
+            LL_WARNS_ONCE() << "avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
         }
     }
 }
@@ -217,11 +218,13 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
                     if (skin->mJointNums[j] < 0)
                     {
                         LL_WARNS_ONCE() << "joint has unusual number " << skin->mJointNames[j] << ": " << skin->mJointNums[j] << LL_ENDL;
+                        LL_WARNS_ONCE() << "avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
                     }
                 }
                 else
                 {
                     LL_WARNS_ONCE() << "unable to find joint " << skin->mJointNames[j] << LL_ENDL;
+                    LL_WARNS_ONCE() << "avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
                 }
             }
         }

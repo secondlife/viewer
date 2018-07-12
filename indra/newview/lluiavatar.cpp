@@ -56,4 +56,6 @@ void LLUIAvatar::initInstance()
 	slamPosition();
 	updateJointLODs();
 	updateGeometry(mDrawable);
+
+    mInitFlags |= 1<<3;
 }
