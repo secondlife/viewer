@@ -351,8 +351,6 @@ void LLFloaterEditExtDayCycle::onButtonLoadFrame()
 
 void LLFloaterEditExtDayCycle::onAddTrack()
 {
-    // todo: 2.5% safety zone
-    std::string sldr_key = mFramesSlider->getCurSlider();
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     LLSettingsBase::ptr_t setting;
     if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
@@ -377,19 +375,18 @@ void LLFloaterEditExtDayCycle::onAddTrack()
     }
 
     addSliderFrame(frame, setting);
-    reblendSettings();
     updateTabs();
 }
 
 void LLFloaterEditExtDayCycle::onRemoveTrack()
 {
     std::string sldr_key = mFramesSlider->getCurSlider();
-    if (!sldr_key.empty())
+    if (sldr_key.empty())
     {
         return;
     }
     removeCurrentSliderFrame();
-    updateButtons();
+    updateTabs();
 }
 
 void LLFloaterEditExtDayCycle::onCommitName(class LLLineEditor* caller, void* user_data)
@@ -778,9 +775,9 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
     if (iter != mSliderKeyMap.end())
     {
         LL_DEBUGS() << "Removing frame from " << iter->second.mFrame << LL_ENDL;
-        mSliderKeyMap.erase(iter);
         LLSettingsBase::Seconds seconds(iter->second.mFrame);
         mEditDay->removeTrackKeyframe(mCurrentTrack, seconds);
+        mSliderKeyMap.erase(iter);
     }
 
     mLastFrameSlider = mFramesSlider->getCurSlider();
