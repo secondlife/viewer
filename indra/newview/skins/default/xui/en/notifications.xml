@@ -3817,7 +3817,7 @@ Unable to add estate manager [AGENT] to banned list.
    icon="alertmodal.tga"
    name="GroupIsAlreadyInList"
    type="alertmodal">
-[GROUP] is already in the Allowed Groups list.
+&lt;nolink&gt;[GROUP]&lt;/nolink&gt; is already in the Allowed Groups list.
   </notification>
     
   <notification
