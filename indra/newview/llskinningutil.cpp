@@ -45,6 +45,8 @@ void dump_avatar_and_skin_state(const std::string& reason, LLVOAvatar *avatar, c
                            << " avatar build state: isBuilt() " << avatar->isBuilt() 
                            << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
         LL_WARNS("Avatar") << "Skin num joints " << skin->mJointNames.size() << " " << skin->mJointNums.size() << LL_ENDL;
+        LL_WARNS("Avatar") << "Skin scrubbed " << skin->mInvalidJointsScrubbed 
+                           << " nums init " << skin->mJointNumsInitialized << LL_ENDL;
         for (S32 j=0; j<skin->mJointNames.size(); j++)
         {
             LL_WARNS("Avatar") << "skin joint idx " << j << " name [" << skin->mJointNames[j] 
@@ -283,9 +285,9 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
             }
         }
         skin->mJointNumsInitialized = true;
-        LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " jointNums initialized, avatar built " << avatar->isBuilt() 
-                                << " mInitFlags " << avatar->mInitFlags 
-                                << " num joints " << skin->mJointNames.size() << LL_ENDL;
+        LL_WARNS("Avatar") << avatar->getFullname() << " jointNums initialized, avatar built " << avatar->isBuilt() 
+                           << " mInitFlags " << avatar->mInitFlags 
+                           << " num joints " << skin->mJointNames.size() << LL_ENDL;
     }
 }
 
