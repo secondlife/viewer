@@ -34,6 +34,53 @@
 #include "llvolume.h"
 #include "llrigginginfo.h"
 
+void dump_avatar_and_skin_state(const std::string& reason, LLVOAvatar *avatar, const LLMeshSkinInfo *skin)
+{
+    static S32 dump_count = 0;
+    const S32 max_dump = 10;
+
+    if (dump_count < max_dump)
+    {
+        LL_WARNS("Avatar") << avatar->getFullname() << " dumping, reason " << reason
+                           << " avatar build state: isBuilt() " << avatar->isBuilt() 
+                           << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
+        LL_WARNS("Avatar") << "Skin num joints " << skin->mJointNames.size() << " " << skin->mJointNums.size() << LL_ENDL;
+        for (S32 j=0; j<skin->mJointNames.size(); j++)
+        {
+            LL_WARNS("Avatar") << "skin joint idx " << j << " name [" << skin->mJointNames[j] 
+                               << "] num " << skin->mJointNums[j] << LL_ENDL;
+            const std::string& name = skin->mJointNames[j];
+            S32 joint_num = skin->mJointNums[j];
+
+            LLJoint *name_joint = avatar->getJoint(name);
+            LLJoint *num_joint = avatar->getJoint(joint_num);
+            if (!name_joint)
+            {
+                LL_WARNS("Avatar") << "failed to find joint by name" << LL_ENDL; 
+            }
+            if (!num_joint)
+            {
+                LL_WARNS("Avatar") << "failed to find joint by num" << LL_ENDL; 
+            }
+            if (num_joint != name_joint)
+            {
+                LL_WARNS("Avatar") << "joint pointers don't match" << LL_ENDL;
+            }
+            if (num_joint && num_joint->getJointNum() != joint_num)
+            {
+                LL_WARNS("Avatar") << "joint found by num has wrong num " << joint_num << "!=" << num_joint->getJointNum() << LL_ENDL;
+            }
+            if (name_joint && name_joint->getJointNum() != joint_num)
+            {
+                LL_WARNS("Avatar") << "joint found by name has wrong num " << joint_num << "!=" << name_joint->getJointNum() << LL_ENDL;
+            }
+        }
+        LL_WARNS("Avatar") << LL_ENDL;
+
+        dump_count++;
+    }
+}
+
 void LLSkinningUtil::initClass()
 {
 }
@@ -62,8 +109,8 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
         // needed for handling of any legacy bad data.
         if (!avatar->getJoint(skin->mJointNames[j]))
         {
-            LL_DEBUGS("Avatar") << "Mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
-            LL_WARNS_ONCE("Avatar") << "Mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
+            LL_DEBUGS("Avatar") << avatar->getFullname() << " mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
+            LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
             skin->mJointNames[j] = "mPelvis";
         }
     }
@@ -101,10 +148,16 @@ void LLSkinningUtil::initSkinningMatrixPalette(
             // rendering  should  be disabled  unless  all joints  are
             // valid.  In other  cases of  skinned  rendering, invalid
             // joints should already have  been removed during scrubInvalidJoints().
-            LL_WARNS_ONCE("Avatar") << "Rigged to invalid joint name " << skin->mJointNames[j] << LL_ENDL;
-            LL_WARNS_ONCE() << "avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
+            LL_WARNS_ONCE("Avatar") << avatar->getFullname() 
+                                    << " rigged to invalid joint name " << skin->mJointNames[j] 
+                                    << " num " << skin->mJointNums[j] << LL_ENDL;
+            LL_WARNS_ONCE("Avatar") << avatar->getFullname() 
+                                    << " avatar build state: isBuilt() " << avatar->isBuilt() 
+                                    << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
+            dump_avatar_and_skin_state("initSkinningMatrixPalette joint not found", avatar, skin);
         }
     }
+    //dump_avatar_and_skin_state("initSkinningMatrixPalette finished OK", avatar, skin);
 }
 
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
@@ -217,18 +270,22 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
                     skin->mJointNums[j] = joint->getJointNum();
                     if (skin->mJointNums[j] < 0)
                     {
-                        LL_WARNS_ONCE() << "joint has unusual number " << skin->mJointNames[j] << ": " << skin->mJointNums[j] << LL_ENDL;
-                        LL_WARNS_ONCE() << "avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
+                        LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " joint has unusual number " << skin->mJointNames[j] << ": " << skin->mJointNums[j] << LL_ENDL;
+                        LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
                     }
                 }
                 else
                 {
-                    LL_WARNS_ONCE() << "unable to find joint " << skin->mJointNames[j] << LL_ENDL;
-                    LL_WARNS_ONCE() << "avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
+                    LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " unable to find joint " << skin->mJointNames[j] << LL_ENDL;
+                    LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " avatar build state: isBuilt() " << avatar->isBuilt() << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
+                    dump_avatar_and_skin_state("initJointNums joint not found", avatar, skin);
                 }
             }
         }
         skin->mJointNumsInitialized = true;
+        LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " jointNums initialized, avatar built " << avatar->isBuilt() 
+                                << " mInitFlags " << avatar->mInitFlags 
+                                << " num joints " << skin->mJointNames.size() << LL_ENDL;
     }
 }
 
