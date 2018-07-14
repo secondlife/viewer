@@ -70,7 +70,6 @@
 #include "llerrorcontrol.h"
 
 #include <fstream>
-#include <iomanip>
 #include <exception>
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
@@ -95,7 +94,7 @@ namespace
 
     // It would be nice if, when wchar_t is the same as __wchar_t, this whole
     // function would optimize away. However, we use it only for the arguments
-    // to make exactly one call to initialize BugSplat.
+    // to the BugSplat API -- a handful of calls.
     inline std::basic_string<__wchar_t> wunder(const std::wstring& str)
     {
         return { str.begin(), str.end() };
@@ -105,43 +104,7 @@ namespace
     // specific wstringize() overload
     inline std::basic_string<__wchar_t> wunder(const std::string& str)
     {
-//      return wunder(wstringize(str));
-        // Is wstringize(const std::string&) doing the right thing? Try
-        // widening each character individually -- which works only for 8-bit
-        // characters, of course -- just diagnostically.
-        return { str.begin(), str.end() };
-    }
-
-    // can only be used in a context in which 'log' is a valid std::ostream
-    #define WVCSTR(string) wview(log, WCSTR(string))
-
-    const __wchar_t* wview(std::ostream& out, const __wchar_t* wstr)
-    {
-        const size_t maxlen = 50;
-        char buffer[maxlen];
-        size_t size;
-        // Classic-C loop to calculate size; also forcibly narrow each
-        // __wchar_t to plain char into 'buffer'.
-        for (size = 0; size < (maxlen - 1) && wstr[size]; ++size)
-            buffer[size] = char(wstr[size]);
-        buffer[size] = '\0';
-        // Log the length, show the plain chars
-        out << "(length " << size << ") '" << buffer << "' ";
-        // Now dump the memory pointed to by wstr as raw bytes.
-        char oldfill = out.fill();
-        out << std::hex << std::setfill('0') << std::setw(2);
-        const unsigned char* bytes = reinterpret_cast<const unsigned char*>(wstr);
-        // Increment by one __wchar_t so we display the final nul character;
-        // remember to multiply by the number of bytes in a __wchar_t.
-        for (size_t b = 0; b < ((size + 1) * sizeof(__wchar_t)); ++b)
-        {
-            // To display as hex, need to convert each byte to int -- if we engage
-            // the operator<<(ostream&, char) overload, we'll just get characters.
-            out << int(bytes[b]);
-        }
-        out << std::dec << std::setfill(oldfill) << std::setw(0);
-        out << '\n';
-        return wstr;
+        return wunder(wstringize(str));
     }
 
     // Irritatingly, MiniDmpSender::setCallback() is defined to accept a
@@ -153,67 +116,40 @@ namespace
 
     bool bugsplatSendLog(UINT nCode, LPVOID lpVal1, LPVOID lpVal2)
     {
-        // When BugSplat intercepts a crash, logging seems to stop?!
-        // Maybe because our test crashes use LL_ERROR(). Try writing a
-        // special log file "by hand."
-        std::ofstream log(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "BugSplat.log"),
-                          std::ios_base::app);
-        log << "Entered bugsplatSendLog() callback\n";
         if (nCode == MDSCB_EXCEPTIONCODE)
         {
             // send the main viewer log file
             // widen to wstring, convert to __wchar_t, then pass c_str()
             sBugSplatSender->sendAdditionalFile(
-                WVCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
-            log << "sendAdditionalFile('" << gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log") << "')\n";
+                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
 
             sBugSplatSender->sendAdditionalFile(
-                WVCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
-            log << "sendAdditionalFile('" << gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml") << "')\n";
+                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
+
+            // We don't have an email address for any user. Hijack this
+            // metadata field for the platform identifier.
+            sBugSplatSender->setDefaultUserEmail(WCSTR(STRINGIZE("Windows" << ADDRESS_SIZE)));
 
             if (gAgentAvatarp)
             {
                 // user name, when we have it
-                sBugSplatSender->setDefaultUserName(WVCSTR(gAgentAvatarp->getFullname()));
-                log << "setDefaultUserName('" << gAgentAvatarp->getFullname() << "')\n";
-            }
-            else
-            {
-                log << "gAgentAvatarp is nullptr\n";
+                sBugSplatSender->setDefaultUserName(WCSTR(gAgentAvatarp->getFullname()));
             }
 
             // LL_ERRS message, when there is one
-            sBugSplatSender->setDefaultUserDescription(WVCSTR(LLError::getFatalMessage()));
-            log << "setDefaultUserDescription('" << LLError::getFatalMessage() << "')\n";
+            sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
 
             if (gAgent.getRegion())
             {
                 // region location, when we have it
                 LLVector3 loc = gAgent.getPositionAgent();
                 sBugSplatSender->resetAppIdentifier(
-                    WVCSTR(STRINGIZE(gAgent.getRegion()->getName()
+                    WCSTR(STRINGIZE(gAgent.getRegion()->getName()
                                     << '/' << loc.mV[0]
                                     << '/' << loc.mV[1]
                                     << '/' << loc.mV[2])));
-                log << "resetAppIdentifier('"
-                    << gAgent.getRegion()->getName()
-                    << '/' << loc.mV[0]
-                    << '/' << loc.mV[1]
-                    << '/' << loc.mV[2]
-                    << "')\n";
             }
-            else
-            {
-                log << "gAgent.getRegion() is nullptr\n";
-            }
-
-            LL_INFOS() << "Sending crash report to BugSplat." << LL_ENDL;
-            log << "Sending crash report to BugSplat.\n";
         } // MDSCB_EXCEPTIONCODE
-        else
-        {
-            log << "nCode != MDSCB_EXCEPTIONCODE\n";
-        }
 
         return false;
     }
