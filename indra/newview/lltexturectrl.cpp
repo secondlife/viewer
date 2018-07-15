@@ -71,6 +71,8 @@
 #include "lllocalbitmaps.h"
 #include "llerror.h"
 
+#include "llavatarappearancedefines.h"
+
 static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
 static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
 static const F32 CONTEXT_FADE_TIME = 0.08f;
@@ -80,13 +82,6 @@ static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
 //static const char NO_IMAGE_NAME[] = "None";
-
-static BOOL isBakedImageID(LLUUID mImageAssetID)
-{
-	return ((mImageAssetID == IMG_USE_BAKED_EYES) || (mImageAssetID == IMG_USE_BAKED_HAIR) || (mImageAssetID == IMG_USE_BAKED_HEAD) || (mImageAssetID == IMG_USE_BAKED_LOWER) || (mImageAssetID == IMG_USE_BAKED_SKIRT) || (mImageAssetID == IMG_USE_BAKED_UPPER)
-		|| (mImageAssetID == IMG_USE_BAKED_LEFTARM) || (mImageAssetID == IMG_USE_BAKED_LEFTLEG) || (mImageAssetID == IMG_USE_BAKED_AUX1) || (mImageAssetID == IMG_USE_BAKED_AUX2) || (mImageAssetID == IMG_USE_BAKED_AUX3));
-
-}
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
@@ -146,7 +141,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 		mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 		mImageAssetID = image_id; 
 
-		if (isBakedImageID(mImageAssetID))
+		if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 		{
 			if ( mBakeTextureEnabled && mModeSelector->getSelectedIndex() != 2)
 			{
@@ -517,8 +512,7 @@ void LLFloaterTexturePicker::draw()
 		{
 			LLPointer<LLViewerFetchedTexture> texture = NULL;
 
-			if ((mImageAssetID == IMG_USE_BAKED_EYES) || (mImageAssetID == IMG_USE_BAKED_HAIR) || (mImageAssetID == IMG_USE_BAKED_HEAD) || (mImageAssetID == IMG_USE_BAKED_LOWER) || (mImageAssetID == IMG_USE_BAKED_SKIRT) || (mImageAssetID == IMG_USE_BAKED_UPPER)
-				|| (mImageAssetID == IMG_USE_BAKED_LEFTARM) || (mImageAssetID == IMG_USE_BAKED_LEFTLEG) || (mImageAssetID == IMG_USE_BAKED_AUX1) || (mImageAssetID == IMG_USE_BAKED_AUX2) || (mImageAssetID == IMG_USE_BAKED_AUX3))
+			if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 			{
 				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 				if (obj)
@@ -1157,7 +1151,7 @@ void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
 		mModeSelector->setSelectedIndex(0, 0);
 	}
 	
-	if (changed && mBakeTextureEnabled && isBakedImageID(mImageAssetID))
+	if (changed && mBakeTextureEnabled && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 	{
 		if (mModeSelector->getSelectedIndex() != 2)
 		{
@@ -1654,8 +1648,7 @@ void LLTextureCtrl::draw()
 	{
 		LLPointer<LLViewerFetchedTexture> texture = NULL;
 
-		if ((mImageAssetID == IMG_USE_BAKED_EYES) || (mImageAssetID == IMG_USE_BAKED_HAIR) || (mImageAssetID == IMG_USE_BAKED_HEAD) || (mImageAssetID == IMG_USE_BAKED_LOWER) || (mImageAssetID == IMG_USE_BAKED_SKIRT) || (mImageAssetID == IMG_USE_BAKED_UPPER)
-			|| (mImageAssetID == IMG_USE_BAKED_LEFTARM) || (mImageAssetID == IMG_USE_BAKED_LEFTLEG) || (mImageAssetID == IMG_USE_BAKED_AUX1) || (mImageAssetID == IMG_USE_BAKED_AUX2) || (mImageAssetID == IMG_USE_BAKED_AUX3))
+		if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 		{
 			LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 			if (obj)

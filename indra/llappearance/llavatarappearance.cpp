@@ -1491,9 +1491,9 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 		case TEX_AUX1_TATTOO:
 		case TEX_AUX2_TATTOO:
 		case TEX_AUX3_TATTOO:
-			param_name[0] = 1029; //"tattoo_universal_red";
-			param_name[1] = 1030; //"tattoo_universal_green";
-			param_name[2] = 1031; //"tattoo_universal_blue";
+			param_name[0] = 1238; //"tattoo_universal_red";
+			param_name[1] = 1239; //"tattoo_universal_green";
+			param_name[2] = 1240; //"tattoo_universal_blue";
 			break;	
 
 		default:

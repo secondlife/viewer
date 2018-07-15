@@ -4408,7 +4408,6 @@ LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 		return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	}
 
-	return NULL;
 }
 
 void LLViewerObject::updateAvatarMeshVisibility(const LLUUID& id, const LLUUID& old_id)
