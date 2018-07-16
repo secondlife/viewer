@@ -47,6 +47,8 @@ public:
     static const std::string SETTING_WAVE1_DIR;
     static const std::string SETTING_WAVE2_DIR;
 
+    static const LLUUID DEFAULT_ASSET_ID;
+
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsWater> ptr_t;
 
     //---------------------------------------------------------------------

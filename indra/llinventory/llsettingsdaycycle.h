@@ -63,6 +63,8 @@ public:
     static const S32     TRACK_MAX;
     static const S32     FRAME_MAX;
 
+    static const LLUUID DEFAULT_ASSET_ID;
+
     typedef std::map<LLSettingsBase::TrackPosition, LLSettingsBase::ptr_t>  CycleTrack_t;
     typedef std::vector<CycleTrack_t>                                       CycleList_t;
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsDay>                        ptr_t;

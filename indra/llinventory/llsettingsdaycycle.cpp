@@ -118,8 +118,7 @@ const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
 const S32 LLSettingsDay::FRAME_MAX(56);
 
-// *LAPRAS* Change when Agni
-static const LLUUID DEFAULT_ASSET_ID("94d296c2-6e05-963c-6b62-671199121dbb");
+const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("283a26a3-b147-47b7-8057-cfff0302ec0e");
 
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :

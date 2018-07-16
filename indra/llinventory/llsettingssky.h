@@ -88,6 +88,8 @@ public:
 
     static const std::string SETTING_LEGACY_HAZE;
 
+    static const LLUUID DEFAULT_ASSET_ID;
+
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
 
     //---------------------------------------------------------------------

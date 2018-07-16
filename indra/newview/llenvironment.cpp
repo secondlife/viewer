@@ -58,7 +58,6 @@
 
 #include "llatmosphere.h"
 
-//define EXPORT_PRESETS 1
 //=========================================================================
 namespace
 {
@@ -250,11 +249,10 @@ const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
-//*TODO* Change these when available on Agni (these are Damballah asset IDs).
-const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("645d7475-19d6-d05c-6eb2-29eeacf76e06");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("68f5a7ec-2785-d9d8-be7c-cca93976759a");
-const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("06420773-757b-4b7c-a1f9-85fceb2f7bd4");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("c13658f3-91b8-d559-3a12-b11ce3940c4c");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("4204c687-f9e4-4893-8c1b-46761c0d2021");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("07589e0e-8e2e-4864-8e58-07b516efd9c3");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("8113ba47-3223-46ba-bae6-12c875091b32");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("90187088-d7f3-4656-8c27-8ba0e19e21e9");
 
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
 
