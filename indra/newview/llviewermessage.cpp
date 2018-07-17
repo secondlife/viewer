@@ -802,6 +802,7 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
 
         if (!url.empty())
         {
+            LL_DEBUGS("GroupInvite") << "Capability url: " << url << LL_ENDL;
             LLCoros::instance().launch("LLMessageSystem::acceptGroupInvitation",
                 boost::bind(response_group_invitation_coro, url, group_id, accept_invite));
         }
@@ -813,6 +814,8 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
     }
     else
     {
+        LL_DEBUGS("GroupInvite") << "Replying to group invite via IM message" << LL_ENDL;
+
         EInstantMessage type = accept_invite ? IM_GROUP_INVITATION_ACCEPT : IM_GROUP_INVITATION_DECLINE;
 
         send_improved_im(group_id,
