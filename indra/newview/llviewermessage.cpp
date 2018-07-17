@@ -161,7 +161,7 @@ void accept_friendship_coro(std::string url, LLSD notification)
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     if (url.empty())
     {
-        LL_WARNS() << "Empty capability!" << LL_ENDL;
+        LL_WARNS("Friendship") << "Empty capability!" << LL_ENDL;
         return;
     }
 
@@ -176,17 +176,18 @@ void accept_friendship_coro(std::string url, LLSD notification)
 
     if (!status)
     {
-        LL_WARNS() << "HTTP status, " << status.toTerseString() <<
+        LL_WARNS("Friendship") << "HTTP status, " << status.toTerseString() <<
             ". friendship offer accept failed." << LL_ENDL;
     }
     else
     {
         if (!result.has("success") || result["success"].asBoolean() == false)
         {
-            LL_WARNS() << "Server failed to process accepted friendship. " << httpResults << LL_ENDL;
+            LL_WARNS("Friendship") << "Server failed to process accepted friendship. " << httpResults << LL_ENDL;
         }
         else
         {
+            LL_DEBUGS("Friendship") << "Adding friend to list" << httpResults << LL_ENDL;
             // add friend to recent people list
             LLRecentPeople::instance().add(payload["from_id"]);
 
@@ -200,7 +201,7 @@ void decline_friendship_coro(std::string url, LLSD notification, S32 option)
 {
     if (url.empty())
     {
-        LL_WARNS() << "Empty capability!" << LL_ENDL;
+        LL_WARNS("Friendship") << "Empty capability!" << LL_ENDL;
         return;
     }
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -218,17 +219,18 @@ void decline_friendship_coro(std::string url, LLSD notification, S32 option)
 
     if (!status)
     {
-        LL_WARNS() << "HTTP status, " << status.toTerseString() <<
+        LL_WARNS("Friendship") << "HTTP status, " << status.toTerseString() <<
             ". friendship offer decline failed." << LL_ENDL;
     }
     else
     {
         if (!result.has("success") || result["success"].asBoolean() == false)
         {
-            LL_WARNS() << "Server failed to process declined friendship. " << httpResults << LL_ENDL;
+            LL_WARNS("Friendship") << "Server failed to process declined friendship. " << httpResults << LL_ENDL;
         }
         else
         {
+            LL_DEBUGS("Friendship") << "Friendship declined" << httpResults << LL_ENDL;
             if (option == 1)
             {
                 LLNotificationsUtil::add("FriendshipDeclinedByMe",
@@ -264,13 +266,16 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 
 		    // This will also trigger an onlinenotification if the user is online
             std::string url = gAgent.getRegionCapability("AcceptFriendship");
-            if (!url.empty())
+            LL_DEBUGS("Friendship") << "Cap string: " << url << LL_ENDL;
+            if (!url.empty() && payload.has("online") && payload["online"].asBoolean() == false)
             {
+                LL_DEBUGS("Friendship") << "Accepting friendship via capability" << LL_ENDL;
                 LLCoros::instance().launch("LLMessageSystem::acceptFriendshipOffer",
                     boost::bind(accept_friendship_coro, url, notification));
             }
             else if (payload.has("session_id") && payload["session_id"].asUUID().notNull())
             {
+                LL_DEBUGS("Friendship") << "Accepting friendship via viewer message" << LL_ENDL;
                 msg->newMessageFast(_PREHASH_AcceptFriendship);
                 msg->nextBlockFast(_PREHASH_AgentData);
                 msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -288,7 +293,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
             }
             else
             {
-                LL_WARNS() << "Failed to accept friendship offer, neither capability nor transaction id are accessible" << LL_ENDL;
+                LL_WARNS("Friendship") << "Failed to accept friendship offer, neither capability nor transaction id are accessible" << LL_ENDL;
             }
 		    break;
 	    }
@@ -300,13 +305,16 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 			    // We no longer notify other viewers, but we DO still send
                 // the rejection to the simulator to delete the pending userop.
                 std::string url = gAgent.getRegionCapability("DeclineFriendship");
-                if (!url.empty())
+                LL_DEBUGS("Friendship") << "Cap string: " << url << LL_ENDL;
+                if (!url.empty() && payload.has("online") && payload["online"].asBoolean() == false)
                 {
+                    LL_DEBUGS("Friendship") << "Declining friendship via capability" << LL_ENDL;
                     LLCoros::instance().launch("LLMessageSystem::declineFriendshipOffer",
                         boost::bind(decline_friendship_coro, url, notification, option));
                 }
                 else if (payload.has("session_id") && payload["session_id"].asUUID().notNull())
                 {
+                    LL_DEBUGS("Friendship") << "Declining friendship via viewer message" << LL_ENDL;
                     msg->newMessageFast(_PREHASH_DeclineFriendship);
                     msg->nextBlockFast(_PREHASH_AgentData);
                     msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -328,7 +336,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
                 }
                 else
                 {
-                    LL_WARNS() << "Failed to decline friendship offer, neither capability nor transaction id are accessible" << LL_ENDL;
+                    LL_WARNS("Friendship") << "Failed to decline friendship offer, neither capability nor transaction id are accessible" << LL_ENDL;
                 }
 	    }
 	    default:
