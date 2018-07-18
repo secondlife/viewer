@@ -344,23 +344,13 @@ LLViewerInventoryCategory* LLInventoryModel::getCategory(const LLUUID& id) const
 
 bool LLInventoryModel::isCategoryHidden(const LLUUID& id) const
 {
-	bool res = false;
 	const LLViewerInventoryCategory* category = getCategory(id);
 	if (category)
 	{
 		LLFolderType::EType cat_type = category->getPreferredType();
-		switch (cat_type)
-		{
-			case LLFolderType::FT_INBOX:
-			case LLFolderType::FT_OUTBOX:
-			case LLFolderType::FT_MARKETPLACE_LISTINGS:
-				res = true;
-				break;
-			default:
-				break;
-		}
+		return (cat_type == LLFolderType::FT_INBOX || cat_type == LLFolderType::FT_OUTBOX);
 	}
-	return res;
+	return false;
 }
 
 S32 LLInventoryModel::getItemCount() const
