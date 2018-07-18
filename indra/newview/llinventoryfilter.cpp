@@ -153,7 +153,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	// we're showing all folders, overriding filter
 	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
-		return !gInventory.isCategoryHidden(folder_id);
+		return true;
 	}
 
 	// when applying a filter, matching folders get their contents downloaded first
