@@ -3694,7 +3694,7 @@ BOOL LLSelectMgr::selectGetEditMoveLinksetPermissions(bool &move, bool &modify)
         }
 
         LLViewerObject* object = nodep->getObject();
-        LLViewerObject *root_object = (object == NULL) ? NULL : object->getRootEdit();
+        LLViewerObject *root_object = object->getRootEdit();
         bool this_object_movable = false;
         if (object->permMove() && !object->isPermanentEnforced() &&
             ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
