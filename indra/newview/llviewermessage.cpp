@@ -169,7 +169,8 @@ void accept_friendship_coro(std::string url, LLSD notification)
     url += "?from=" + payload["from_id"].asString();
     url += "&agent_name=\"" + LLURI::escape(gAgentAvatarp->getFullname()) + "\"";
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    LLSD data;
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, data);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -212,7 +213,7 @@ void decline_friendship_coro(std::string url, LLSD notification, S32 option)
     LLSD payload = notification["payload"];
     url += "?from=" + payload["from_id"].asString();
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
