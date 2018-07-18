@@ -689,6 +689,16 @@ with the same filename but different name
   
   <texture name="Vertical Drag Handle" file_name="widgets/vertical_drag_handle.png" scale.left="2" scale.right="7" scale.bottom="8" scale.top="120"  scale_type="scale_outer"/>
 
+  <texture name="VirtualTrackball_Moon_Back" file_name="widgets/track_control_moon_back.png" />
+  <texture name="VirtualTrackball_Moon_Front" file_name="widgets/track_control_moon_front.png" />
+  <texture name="VirtualTrackball_Rotate_Bottom" file_name="widgets/track_control_rotate_bottom.png" />
+  <texture name="VirtualTrackball_Rotate_Left" file_name="widgets/track_control_rotate_left_side.png" />
+  <texture name="VirtualTrackball_Rotate_Right" file_name="widgets/track_control_rotate_right_side.png" />
+  <texture name="VirtualTrackball_Rotate_Top" file_name="widgets/track_control_rotate_top.png" />
+  <texture name="VirtualTrackball_Sphere" file_name="widgets/track_control_sphere.png" />
+  <texture name="VirtualTrackball_Sun_Back" file_name="widgets/track_control_sun_back.png" />
+  <texture name="VirtualTrackball_Sun_Front" file_name="widgets/track_control_sun_front.png" />
+    
     <texture name="Volume_Background" file_name="windows/Volume_Background.png" preload="false"
            scale.left="6" scale.top="33" scale.right="63" scale.bottom="10" />
 

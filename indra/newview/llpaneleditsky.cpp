@@ -31,7 +31,8 @@
 #include "llslider.h"
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
-#include "lljoystickbutton.h"
+#include "llvirtualtrackball.h"
+
 
 namespace
 {   
@@ -369,9 +370,9 @@ void LLPanelSettingsSkySunMoonTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setValue(2.0 - (glow.mV[0] / SLIDER_SCALE_GLOW_R));
     getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setValue(glow.mV[2] / SLIDER_SCALE_GLOW_B);
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setValue(mSkySettings->getStarBrightness());
-    getChild<LLJoystickQuaternion>(FIELD_SKY_SUN_ROTATION)->setRotation(mSkySettings->getSunRotation());
+    getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->setRotation(mSkySettings->getSunRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setValue(mSkySettings->getSunTextureId());
-    getChild<LLJoystickQuaternion>(FIELD_SKY_MOON_ROTATION)->setRotation(mSkySettings->getMoonRotation());
+    getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(mSkySettings->getMoonRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setValue(mSkySettings->getMoonTextureId());
 }
 
@@ -402,7 +403,7 @@ void LLPanelSettingsSkySunMoonTab::onStarBrightnessChanged()
 
 void LLPanelSettingsSkySunMoonTab::onSunRotationChanged()
 {
-    mSkySettings->setSunRotation(getChild<LLJoystickQuaternion>(FIELD_SKY_SUN_ROTATION)->getRotation());
+    mSkySettings->setSunRotation(getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->getRotation());
     mSkySettings->update();
 }
 
@@ -414,7 +415,7 @@ void LLPanelSettingsSkySunMoonTab::onSunImageChanged()
 
 void LLPanelSettingsSkySunMoonTab::onMoonRotationChanged()
 {
-    mSkySettings->setMoonRotation(getChild<LLJoystickQuaternion>(FIELD_SKY_MOON_ROTATION)->getRotation());
+    mSkySettings->setMoonRotation(getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->getRotation());
     mSkySettings->update();
 }
 

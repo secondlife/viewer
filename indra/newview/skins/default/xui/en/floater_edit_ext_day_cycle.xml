@@ -6,7 +6,7 @@
         save_rect="true"
         title="Edit Day Cycle"
         width="705"
-        height="602"
+        height="650"
         min_width="450"
         min_height="85"
         can_resize="true">
@@ -22,7 +22,7 @@
 
     <layout_stack name="outer_stack"
             width="705"
-            height="602"
+            height="650"
             follows="all"
             animate="false"
             top="0"
@@ -450,14 +450,14 @@
                 <layout_panel name="frame_settings_water"
                         auto_resize="true"
                         user_resize="true"
-                        height="420"
+                        height="500"
                         width="700"
                         min_height="0"
                         visible="true">
                     <tab_container
                             follows="all"
                             halign="left"
-                            height="420"
+                            height="430"
                             layout="topleft"
                             left="0"
                             name="water_tabs"
