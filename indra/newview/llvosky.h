@@ -290,7 +290,7 @@ protected:
 	void updateDirections(void);
 
 	void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(const S32 side, const S32 tile, bool use_windlight_shaders);
+	void createSkyTexture(const S32 side, const S32 tile);
 
 	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
