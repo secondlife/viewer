@@ -423,7 +423,7 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(side, tile, false);
+			createSkyTexture(side, tile);
 		}
 	}
 
@@ -548,7 +548,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(const S32 side, const S32 tile, bool use_windlight_shaders)
+void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 {
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
@@ -561,10 +561,7 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile, bool use_windligh
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-            if (use_windlight_shaders)
-            {
-			    mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y)), x, y);
-            }
+            mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y)), x, y);
 			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y), true), x, y);
 		}
 	}
@@ -647,8 +644,6 @@ bool LLVOSky::updateSky()
         mForceUpdate = mForceUpdate || color_changed;
         mForceUpdate = mForceUpdate || !mInitialized;
 
-        bool use_windlight_shaders = gPipeline.canUseWindLightShaders();
-
         if (mForceUpdate && forceupdThrottle.hasExpired())
 		{
             LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
@@ -671,7 +666,7 @@ bool LLVOSky::updateSky()
 					{
 						for (int tile = 0; tile < NUM_TILES; tile++) 
 						{
-							createSkyTexture(side, tile, use_windlight_shaders);
+							createSkyTexture(side, tile);
 						}
 					}
 
@@ -679,13 +674,10 @@ bool LLVOSky::updateSky()
 					{
                         LLImageRaw* raw1 = nullptr;
                         LLImageRaw* raw2 = nullptr;
-                        if (use_windlight_shaders)
-                        {
-						    raw1 = mSkyTex[side].getImageRaw(TRUE);
-						    raw2 = mSkyTex[side].getImageRaw(FALSE);
-						    raw2->copy(raw1);
-						    mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
-                        }
+						raw1 = mSkyTex[side].getImageRaw(TRUE);
+						raw2 = mSkyTex[side].getImageRaw(FALSE);
+						raw2->copy(raw1);
+						mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
 
 						raw1 = mShinyTex[side].getImageRaw(TRUE);
 						raw2 = mShinyTex[side].getImageRaw(FALSE);
@@ -697,10 +689,7 @@ bool LLVOSky::updateSky()
 			        // update the sky texture
 			        for (S32 i = 0; i < 6; ++i)
 			        {
-                        if (use_windlight_shaders)
-                        {
-				            mSkyTex[i].create(1.0f);
-                        }
+                        mSkyTex[i].create(1.0f);
 				        mShinyTex[i].create(1.0f);
 			        }
 

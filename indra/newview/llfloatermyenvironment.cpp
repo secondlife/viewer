@@ -157,9 +157,9 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     mSelectedAsset()
 {
     mCommitCallbackRegistrar.add(ACTION_DOCREATE, [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); });
-    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [this](LLUICtrl *, const LLSD &userdata) {});
+    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [this](LLUICtrl *, const LLSD &userdata) {(void)this;});
     mCommitCallbackRegistrar.add(ACTION_DOAPPLY, [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); });
-    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [this](LLUICtrl *, const LLSD &userdata) {});
+    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [this](LLUICtrl *, const LLSD &userdata) {(void)this;});
 
     mEnableCallbackRegistrar.add(ENABLE_ACTION, [this](LLUICtrl *, const LLSD &userdata) { return canAction(userdata.asString()); });
     mEnableCallbackRegistrar.add(ENABLE_CANAPPLY, [this](LLUICtrl *, const LLSD &userdata) { return canApply(userdata.asString()); });

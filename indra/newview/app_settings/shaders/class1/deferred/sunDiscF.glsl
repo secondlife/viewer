@@ -28,9 +28,9 @@
 /*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
+out vec4 frag_data[3];
 #else
-#define frag_color gl_FragColor
+#define frag_data gl_FragData
 #endif
 
 vec3 fullbrightAtmosTransport(vec3 light);
@@ -46,10 +46,12 @@ void main()
 	vec4 sunDiscA = texture2D(diffuseMap, vary_texcoord0.xy);
 	vec4 sunDiscB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(sunDiscB, sunDiscA, blend_factor);
-
+    c.rgb = clamp(c.rgb, vec3(0), vec3(1));
 	c.rgb = pow(c.rgb, vec3(0.7f));
 	c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
-	frag_color = c;
+	frag_data[0] = c;
+    frag_data[1] = vec4(0.0f);
+    frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
 }
 
