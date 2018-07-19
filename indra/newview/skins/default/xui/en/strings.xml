@@ -315,6 +315,17 @@ Please try logging in again in a minute.</string>
 	<string name="BUTTON_DOCK">Dock</string>
 	<string name="BUTTON_HELP">Show Help</string>
 
+	<!-- ToolTips for notecards -->
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+Items of this type can't be attached
+to notecards on this region.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+Only items with unrestricted
+'next owner' permissions
+"can be attached to notecards.
+	</string>
+
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
 	<string name="NoneFound">None found.</string>

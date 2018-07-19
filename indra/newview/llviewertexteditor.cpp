@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llaudioengine.h"
 #include "llavataractions.h"
+#include "llenvironment.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
@@ -854,8 +855,18 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	
 	if (getEnabled() && acceptsTextInput())
 	{
+		bool supported = false;
 		switch( cargo_type )
 		{
+			case DAD_SETTINGS:
+			{
+				supported = LLEnvironment::instance().isExtendedEnvironmentEnabled();
+				if (!supported && tooltip_msg.empty())
+				{
+					tooltip_msg.assign(LLTrans::getString("TooltipNotecardNotAllowedTypeDrop"));
+				}
+				break;
+			}
 			case DAD_CALLINGCARD:
 			case DAD_TEXTURE:
 			case DAD_SOUND:
@@ -868,54 +879,51 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 			case DAD_ANIMATION:
 			case DAD_GESTURE:
 			case DAD_MESH:
-            case DAD_SETTINGS:
 			{
-				LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-				if( item && allowsEmbeddedItems() )
-				{
-					U32 mask_next = item->getPermissions().getMaskNextOwner();
-					if((mask_next & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-					{
-						if( drop )
-						{
-							deselect();
-							S32 old_cursor = mCursorPos;
-							setCursorAtLocalPos( x, y, TRUE );
-							S32 insert_pos = mCursorPos;
-							setCursorPos(old_cursor);
-							BOOL inserted = insertEmbeddedItem( insert_pos, item );
-							if( inserted && (old_cursor > mCursorPos) )
-							{
-								setCursorPos(mCursorPos + 1);
-							}
-
-							needsReflow();
-							
-						}
-						*accept = ACCEPT_YES_COPY_MULTI;
-					}
-					else
-					{
-						*accept = ACCEPT_NO;
-						if (tooltip_msg.empty())
-						{
-							// *TODO: Translate
-							tooltip_msg.assign("Only items with unrestricted\n"
-												"'next owner' permissions \n"
-												"can be attached to notecards.");
-						}
-					}
-				}
-				else
-				{
-					*accept = ACCEPT_NO;
-				}
+				supported = true;
 				break;
 			}
 
 		default:
-			*accept = ACCEPT_NO;
+			supported = false;
 			break;
+		}
+
+		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
+		if (item && allowsEmbeddedItems() && supported)
+		{
+			U32 mask_next = item->getPermissions().getMaskNextOwner();
+			if((mask_next & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
+			{
+				if( drop )
+				{
+					deselect();
+					S32 old_cursor = mCursorPos;
+					setCursorAtLocalPos( x, y, TRUE );
+					S32 insert_pos = mCursorPos;
+					setCursorPos(old_cursor);
+					BOOL inserted = insertEmbeddedItem( insert_pos, item );
+					if( inserted && (old_cursor > mCursorPos) )
+					{
+						setCursorPos(mCursorPos + 1);
+					}
+
+					needsReflow();
+				}
+				*accept = ACCEPT_YES_COPY_MULTI;
+			}
+			else
+			{
+				*accept = ACCEPT_NO;
+				if (tooltip_msg.empty())
+				{
+					tooltip_msg.assign(LLTrans::getString("TooltipNotecardOwnerRestrictedDrop"));
+				}
+			}
+		}
+		else
+		{
+			*accept = ACCEPT_NO;
 		}
 	}
 	else
