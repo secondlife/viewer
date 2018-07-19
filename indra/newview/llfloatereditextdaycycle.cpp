@@ -254,6 +254,11 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         getChild<LLButton>(track_tabs[idx + 1], true)->setTextArg("[DSC]", label.str());
     }
 
+    bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
+    for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++) //skies #2 through #4
+    {
+        getChild<LLButton>(track_tabs[i])->setEnabled(extended_env);
+    }
 }
 
 void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
@@ -887,7 +892,14 @@ void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
     mSkyBlender = std::make_shared<LLTrackBlenderLoopingManual>(mScratchSky, mEditDay, skytrack);
     mWaterBlender = std::make_shared<LLTrackBlenderLoopingManual>(mScratchWater, mEditDay, LLSettingsDay::TRACK_WATER);
 
-    selectTrack(LLSettingsDay::TRACK_MAX, true);
+    if (LLEnvironment::instance().isExtendedEnvironmentEnabled())
+    {
+        selectTrack(LLSettingsDay::TRACK_MAX, true);
+    }
+    else
+    {
+        selectTrack(1, true);
+    }
 
     reblendSettings();
 
