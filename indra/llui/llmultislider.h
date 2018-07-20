@@ -50,6 +50,8 @@ public:
 						draw_track,
 						use_triangle;
 
+		Optional<F32>	overlap_threshold;
+
 		Optional<LLUIColor>	track_color,
 							thumb_disabled_color,
 							thumb_outline_color,
@@ -107,6 +109,7 @@ protected:
 
 	S32				mMaxNumSliders;
 	BOOL			mAllowOverlap;
+	F32				mOverlapThreshold;
 	BOOL			mDrawTrack;
 	BOOL			mUseTriangle;			/// hacked in toggle to use a triangle
 

@@ -53,6 +53,7 @@ LLMultiSliderCtrl::Params::Params()
 	can_edit_text("can_edit_text", false),
 	max_sliders("max_sliders", 1),
 	allow_overlap("allow_overlap", false),
+	overlap_threshold("overlap_threshold", 0),
 	draw_track("draw_track", true),
 	use_triangle("use_triangle", false),
 	decimal_digits("decimal_digits", 3),
@@ -167,6 +168,10 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 	params.increment(p.increment);
 	params.max_sliders(p.max_sliders);
 	params.allow_overlap(p.allow_overlap);
+	if (p.overlap_threshold.isProvided())
+	{
+		params.overlap_threshold = p.overlap_threshold;
+	}
 	params.draw_track(p.draw_track);
 	params.use_triangle(p.use_triangle);
 	params.control_name(p.control_name);

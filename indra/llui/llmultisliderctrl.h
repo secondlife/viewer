@@ -57,6 +57,8 @@ public:
 								draw_track,
 								use_triangle;
 
+		Optional<F32>			overlap_threshold;
+
 		Optional<LLUIColor>		text_color,
 								text_disabled_color;
 
