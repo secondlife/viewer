@@ -393,7 +393,6 @@ void LLMaterial::fromLLSD(const LLSD& material_data)
     mSpecularOffsetY   = F32(specularOffsetYInt) / MATERIALS_MULTIPLIER;
     mSpecularRotation  = F32(specularRotInt)     / MATERIALS_MULTIPLIER;
 
-    mSpecularOffsetY  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
     mSpecularRepeatX  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
     mSpecularRepeatY  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
     mSpecularRotation = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
