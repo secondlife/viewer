@@ -29,6 +29,7 @@
 #define LL_LLFLOATERREGIONINFO_H
 
 #include <vector>
+#include "llagent.h"
 #include "llassettype.h"
 #include "llfloater.h"
 #include "llhost.h"
@@ -163,8 +164,13 @@ protected:
 					 const LLUUID& invoice,
 					 const strings_t& strings);
 	
+	void onGodLevelChange(U8 god_level);
+	
 	// member data
 	LLHost mHost;
+
+private:
+	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -498,6 +504,8 @@ public:
 
 	void setPendingUpdate(bool pending) { mPendingUpdate = pending; }
 	bool getPendingUpdate() { return mPendingUpdate; }
+
+	virtual bool refreshFromRegion(LLViewerRegion* region);
 
 private:
 	void onClickAddAllowedAgent();
