@@ -103,6 +103,8 @@
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
+const U32 MAX_LISTED_NAMES = 100;
+
 #define TMP_DISABLE_WLES // STORM-1180
 
 ///----------------------------------------------------------------------------
@@ -3828,12 +3830,11 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 	}
 
 	std::string names;
-	bool single = true;
-
+	U32 listed_names = 0;
 	LLSD::array_const_iterator end_it = notification["payload"]["allowed_ids"].endArray();
 	for (LLSD::array_const_iterator iter = notification["payload"]["allowed_ids"].beginArray();
-		iter != end_it;
-		iter++)
+		 iter != end_it;
+		 iter++)
 	{
 		if (iter + 1 != end_it)
 		{
@@ -3851,28 +3852,32 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 			LLNotificationsUtil::add("OwnerCanNotBeDenied");
 			break;
 		}
-		
+
 		sendEstateAccessDelta(flags, id);
 
 		if ((flags & (ESTATE_ACCESS_ALLOWED_GROUP_ADD | ESTATE_ACCESS_ALLOWED_GROUP_REMOVE)) == 0)
 		{
 			// fill the name list for confirmation
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(id, &av_name))
+			if (listed_names < MAX_LISTED_NAMES)
 			{
-				if (!names.empty())
+				LLAvatarName av_name;
+				if (LLAvatarNameCache::get(id, &av_name))
 				{
-					names += ", ";
-					single = false;
-				}
-				names += av_name.getCompleteName();
+					if (!names.empty())
+					{
+						names += ", ";
+					}
+					names += av_name.getCompleteName();
+				}				
 			}
+			listed_names++;
 		}
 	}
-	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
-	if (panel)
+	if (listed_names > MAX_LISTED_NAMES)
 	{
-		panel->setPendingUpdate(true);
+		LLSD args;
+		args["EXTRA_COUNT"] = llformat("%d", listed_names - MAX_LISTED_NAMES);
+		names += " " + LLTrans::getString("AndNMore", args);
 	}
 
 	if (!names.empty()) // show the conirmation
@@ -3902,6 +3907,7 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 			args["ESTATE"] = LLTrans::getString("RegionInfoThisEstate");
 		}
 
+		bool single = (listed_names == 1);
 		if (flags & (ESTATE_ACCESS_ALLOWED_AGENT_ADD | ESTATE_ACCESS_BANNED_AGENT_ADD))
 		{
 			LLNotificationsUtil::add(single ? "AgentWasAddedToList" : "AgentsWereAddedToList", args);
@@ -3910,6 +3916,12 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
 		{
 			LLNotificationsUtil::add(single ? "AgentWasRemovedFromList" : "AgentsWereRemovedFromList", args);
 		}		
+	}
+
+	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
+	if (panel)
+	{
+		panel->setPendingUpdate(true);
 	}
 
 	return false;
