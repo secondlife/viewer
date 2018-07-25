@@ -37,6 +37,7 @@
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
 #include "llfilepicker.h"
+#include "llsettingspicker.h"
 
 #include "llviewerparcelmgr.h"
 
@@ -64,6 +65,7 @@ namespace
     const std::string BUTTON_NAME_COMMIT("btn_commit");
     const std::string BUTTON_NAME_CANCEL("btn_cancel");
     const std::string BUTTON_NAME_FLYOUT("btn_flyout");
+    const std::string BUTTON_NAME_LOAD("btn_load");
 
     const std::string ACTION_SAVE("save_settings");
     const std::string ACTION_SAVEAS("save_as_new_settings");
@@ -102,6 +104,7 @@ BOOL LLFloaterFixedEnvironment::postBuild()
 
     getChild<LLButton>(BUTTON_NAME_IMPORT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonImport(); });
     getChild<LLButton>(BUTTON_NAME_CANCEL)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonCancel(); });
+    getChild<LLButton>(BUTTON_NAME_LOAD)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonLoad(); });
 
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BUTTON_NAME_COMMIT, BUTTON_NAME_FLYOUT, XML_FLYOUTMENU_FILE);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
@@ -130,6 +133,8 @@ void LLFloaterFixedEnvironment::onOpen(const LLSD& key)
 
 void LLFloaterFixedEnvironment::onClose(bool app_quitting)
 {
+    doCloseInventoryFloater(app_quitting);
+
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
     LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
 
@@ -226,6 +231,12 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat) { onAssetLoaded(asset_id, settins, status); });
 }
 
+void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID asset_id)
+{
+    LLSettingsVOBase::getSettingsAsset(asset_id,
+        [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
+}
+
 void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
     if (!settings || status)
@@ -281,6 +292,27 @@ void LLFloaterFixedEnvironment::onButtonCancel()
 {
     // *TODO*: If changed issue a warning?
     this->closeFloater();
+}
+
+void LLFloaterFixedEnvironment::onButtonLoad()
+{
+    //  LLUI::sWindow->setCursor(UI_CURSOR_WAIT);
+    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
+
+    // Show the dialog
+    if (!picker)
+    {
+        picker = new LLFloaterSettingsPicker(this,
+            LLUUID::null, "SELECT SETTINGS");
+
+        mInventoryFloater = picker->getHandle();
+
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data.asUUID()); });
+    }
+
+    picker->setSettingsFilter(mSettings->getSettingsTypeValue());
+    picker->openFloater();
+    picker->setFocus(TRUE);
 }
 
 void LLFloaterFixedEnvironment::doApplyCreateNewInventory()
@@ -342,6 +374,16 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
         return;
     }
 
+}
+
+void LLFloaterFixedEnvironment::doCloseInventoryFloater(bool quitting)
+{
+    LLFloater* floaterp = mInventoryFloater.get();
+
+    if (floaterp)
+    {
+        floaterp->closeFloater(quitting);
+    }
 }
 
 void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
