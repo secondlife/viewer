@@ -256,7 +256,10 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 
 		setSize(cinfo.image_width, cinfo.image_height, 3); // Force to 3 components (RGB)
 
-		raw_image->resize(getWidth(), getHeight(), getComponents());
+		if (!raw_image->resize(getWidth(), getHeight(), getComponents()))
+		{
+			throw std::bad_alloc();
+		}
 		raw_image_data = raw_image->getData();
 		
 		
@@ -309,6 +312,13 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 		////////////////////////////////////////
 		// Step 8: Release JPEG decompression object 
 		jpeg_destroy_decompress(&cinfo);
+	}
+
+	catch (std::bad_alloc)
+	{
+		setLastError( "Out of memory");
+		jpeg_destroy_decompress(&cinfo);
+		return true; // done
 	}
 
 	catch (int)
@@ -370,7 +380,7 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
   
   // Double the buffer size;
   S32 new_buffer_size = self->mOutputBufferSize * 2;
-  U8* new_buffer = new U8[ new_buffer_size ];
+  U8* new_buffer = new(std::nothrow) U8[ new_buffer_size ];
   if (!new_buffer)
   {
   	LL_ERRS() << "Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )" << LL_ENDL;
@@ -493,7 +503,14 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 	disclaimMem(mOutputBufferSize);
 	mOutputBufferSize = getWidth() * getHeight() * getComponents() + 1024;
 	claimMem(mOutputBufferSize);
-	mOutputBuffer = new U8[ mOutputBufferSize ];
+	mOutputBuffer = new(std::nothrow) U8[ mOutputBufferSize ];
+	if (mOutputBuffer == NULL)
+	{
+		disclaimMem(mOutputBufferSize);
+		mOutputBufferSize = 0;
+		setLastError("Failed to allocate output buffer");
+		return false;
+	}
 
 	const U8* raw_image_data = NULL;
 	S32 row_stride = 0;

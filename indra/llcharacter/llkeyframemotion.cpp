@@ -579,8 +579,15 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 	else
 	{
 		anim_file_size = anim_file->getSize();
-		anim_data = new U8[anim_file_size];
-		success = anim_file->read(anim_data, anim_file_size);	/*Flawfinder: ignore*/
+		anim_data = new(std::nothrow) U8[anim_file_size];
+		if (anim_data)
+		{
+			success = anim_file->read(anim_data, anim_file_size);	/*Flawfinder: ignore*/
+		}
+		else
+		{
+			LL_WARNS() << "Failed to allocate buffer: " << anim_file_size << mID << LL_ENDL;
+		}
 		delete anim_file;
 		anim_file = NULL;
 	}

@@ -889,7 +889,7 @@ void LLImageRaw::setDataAndSize(U8 *data, S32 width, S32 height, S8 components)
 
 bool LLImageRaw::resize(U16 width, U16 height, S8 components)
 {
-	if ((getWidth() == width) && (getHeight() == height) && (getComponents() == components))
+	if ((getWidth() == width) && (getHeight() == height) && (getComponents() == components) && !isBufferInvalid())
 	{
 		return true;
 	}
@@ -898,7 +898,7 @@ bool LLImageRaw::resize(U16 width, U16 height, S8 components)
 
 	allocateDataSize(width,height,components);
 
-	return true;
+	return !isBufferInvalid();
 }
 
 bool LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
