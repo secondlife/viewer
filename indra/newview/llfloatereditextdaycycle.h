@@ -77,7 +77,7 @@ public:
 
     virtual void                refresh() override;
 
-    /* virtual */ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
+    BOOL			handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
 
 private:
 
