@@ -53,7 +53,8 @@ public:
         U32 nextOWnerPerms,
         U32 groupPerms,
         U32 everyonePerms,
-        S32 expectedCost);
+        S32 expectedCost,
+        bool showInventory = true);
 
     virtual ~LLResourceUploadInfo()
     { }
@@ -79,7 +80,7 @@ public:
     S32                 getExpectedUploadCost() const { return mExpectedUploadCost; };
 
     virtual bool        showUploadDialog() const { return true; }
-    virtual bool        showInventoryPanel() const { return true; }
+    virtual bool        showInventoryPanel() const { return mShowInventory; }
 
     virtual std::string getDisplayName() const;
 
@@ -97,7 +98,8 @@ protected:
         U32 nextOWnerPerms,
         U32 groupPerms,
         U32 everyonePerms,
-        S32 expectedCost);
+        S32 expectedCost,
+        bool showInventory = true);
 
     LLResourceUploadInfo(
         LLAssetID assetId,
@@ -130,6 +132,7 @@ private:
     LLUUID              mFolderId;
     LLUUID              mItemId;
     LLAssetID           mAssetId;
+    bool                mShowInventory;
 };
 
 //-------------------------------------------------------------------------
@@ -146,7 +149,8 @@ public:
         U32 nextOWnerPerms,
         U32 groupPerms,
         U32 everyonePerms,
-        S32 expectedCost);
+        S32 expectedCost,
+        bool show_inventory = true);
 
     virtual LLSD        prepareUpload();
 
