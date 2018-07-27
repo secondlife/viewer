@@ -29,6 +29,7 @@
 #include "llimagejpeg.h"
 
 #include "llerror.h"
+#include "llexception.h"
 
 jmp_buf	LLImageJPEG::sSetjmpBuffer ;
 LLImageJPEG::LLImageJPEG(S32 quality) 
@@ -383,7 +384,8 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
   U8* new_buffer = new(std::nothrow) U8[ new_buffer_size ];
   if (!new_buffer)
   {
-  	LL_ERRS() << "Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )" << LL_ENDL;
+    self->setLastError("Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )");
+    LLTHROW(LLContinueError("Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )"));
   	return false;
   }
   memcpy( new_buffer, self->mOutputBuffer, self->mOutputBufferSize );	/* Flawfinder: ignore */
