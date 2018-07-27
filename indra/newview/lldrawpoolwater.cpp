@@ -645,7 +645,7 @@ void LLDrawPoolWater::shade()
 	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
     if (LLEnvironment::instance().isCloudScrollPaused())
     {
-        static const std::array<F32, 2> zerowave({{0.0f, 0.0f}});
+        static const std::array<F32, 2> zerowave{ {0.0f, 0.0f} };
         
         shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, zerowave.data());
         shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, zerowave.data());
