@@ -196,7 +196,7 @@
                         min_val_y="-4"
                         max_val_y="4"
                         increment_y="0.5f"
-                        arrow_color="red"/>
+                        arrow_color="white"/>
                     
                     <text
                             follows="left|top"
@@ -218,7 +218,7 @@
                         max_val_x="4"
                         min_val_y="-4"
                         max_val_y="4" 
-                        arrow_color="green"/>
+                        arrow_color="white"/>
 
                     <text
                             follows="left|top|right"
