@@ -167,12 +167,12 @@
                         Normal Map
                     </text>
                     <texture_picker
-                            height="75"
+                            height="84"
                             layout="topleft"
                             left_delta="0"
                             name="water_normal_map"
                             top_pad="5"
-                            width="75"/>
+                            width="61"/>
 
                     <text
                             follows="left|top"
