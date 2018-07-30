@@ -41,8 +41,6 @@
 
 static LLDefaultChildRegistry::Register<LLMultiSlider> r("multi_slider_bar");
 
-const F32 FLOAT_THRESHOLD = 0.00001f;
-
 S32 LLMultiSlider::mNameCounter = 0;
 
 LLMultiSlider::SliderParams::SliderParams()
@@ -54,6 +52,7 @@ LLMultiSlider::SliderParams::SliderParams()
 LLMultiSlider::Params::Params()
 :	max_sliders("max_sliders", 1),
 	allow_overlap("allow_overlap", false),
+	overlap_threshold("overlap_threshold", 0),
 	draw_track("draw_track", true),
 	use_triangle("use_triangle", false),
 	track_color("track_color"),
@@ -97,6 +96,15 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	{
 		setMouseUpCallback(initCommitCallback(p.mouse_up_callback));
 	}
+
+    if (p.overlap_threshold.isProvided())
+    {
+        mOverlapThreshold = p.overlap_threshold;
+    }
+    else
+    {
+        mOverlapThreshold = 0;
+    }
 
 	for (LLInitParam::ParamIterator<SliderParams>::const_iterator it = p.sliders.begin();
 		it != p.sliders.end();
@@ -143,11 +151,14 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 		// look at the current spot
 		// and see if anything is there
 		LLSD::map_iterator mIt = mValue.beginMap();
+		F32 threshold = mOverlapThreshold + (mIncrement / 4); // increment is our distance between points, use to eliminate round error
 		for(;mIt != mValue.endMap(); mIt++) {
 			
 			F32 testVal = (F32)mIt->second.asReal() - newValue;
-			if(testVal > -FLOAT_THRESHOLD && testVal < FLOAT_THRESHOLD &&
-				mIt->first != name) {
+			if (testVal > -threshold
+				&& testVal < threshold
+				&& mIt->first != name)
+			{
 				hit = true;
 				break;
 			}
@@ -300,11 +311,13 @@ bool LLMultiSlider::findUnusedValue(F32& initVal)
 
 		// look at the current spot
 		// and see if anything is there
+		F32 threshold = mOverlapThreshold + (mIncrement / 4);
 		LLSD::map_iterator mIt = mValue.beginMap();
 		for(;mIt != mValue.endMap(); mIt++) {
 			
 			F32 testVal = (F32)mIt->second.asReal() - initVal;
-			if(testVal > -FLOAT_THRESHOLD && testVal < FLOAT_THRESHOLD) {
+			if(testVal > -threshold && testVal < threshold)
+			{
 				hit = true;
 				break;
 			}

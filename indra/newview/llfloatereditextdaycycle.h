@@ -77,6 +77,8 @@ public:
 
     virtual void                refresh() override;
 
+    BOOL			handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+
 private:
 
     F32 getCurrentFrame() const;
@@ -148,6 +150,7 @@ private:
     LLSettingsDay::Seconds      mDayLength;
     U32                         mCurrentTrack;
     std::string                 mLastFrameSlider;
+    bool                        mShiftCopyEnabled;
 
     LLButton*                   mAddFrameButton;
     LLButton*                   mDeleteFrameButton;

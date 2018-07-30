@@ -108,7 +108,7 @@ namespace {
 
     const F32 DAY_CYCLE_PLAY_TIME_SECONDS = 60;
 
-    const F32 FRAME_SLOP_FACTOR = 0.025f;
+    const F32 FRAME_SLOP_FACTOR = 0.0251f;
 }
 
 //=========================================================================
@@ -122,6 +122,7 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mFlyoutControl(nullptr),
     mDayLength(0),
     mCurrentTrack(1),
+    mShiftCopyEnabled(false),
     mTimeSlider(nullptr),
     mFramesSlider(nullptr),
     mCurrentTimeLabel(nullptr),
@@ -246,7 +247,6 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     }
 
     const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
-
     for (S32 idx = 1; idx < 4; ++idx)
     {
         std::stringstream label;
@@ -305,6 +305,40 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion());
 
     LLFloater::refresh();
+}
+
+/* virtual */
+BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+{
+    LL_DEBUGS("LAPRAS") << "Key: " << key << " mask: " << mask << LL_ENDL;
+    if (mask == MASK_SHIFT && mShiftCopyEnabled)
+    {
+        mShiftCopyEnabled = false;
+        std::string curslider = mFramesSlider->getCurSlider();
+        if (!curslider.empty())
+        {
+            F32 sliderpos = mFramesSlider->getCurSliderValue();
+
+            keymap_t::iterator it = mSliderKeyMap.find(curslider);
+            if (it != mSliderKeyMap.end())
+            {
+                LL_DEBUGS("LAPRAS") << "Moving frame from " << (*it).second.mFrame << " to " << sliderpos << LL_ENDL;
+                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
+                {
+                    (*it).second.mFrame = sliderpos;
+                }
+                else
+                {
+                    mFramesSlider->setCurSliderValue((*it).second.mFrame);
+                }
+            }
+            else
+            {
+                LL_WARNS("LAPRAS") << "Failed to find frame " << sliderpos << " for slider " << curslider << LL_ENDL;
+            }
+        }
+    }
+    return LLFloater::handleKeyUp(key, mask, called_from_parent);
 }
 
 
@@ -459,46 +493,53 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
         keymap_t::iterator it = mSliderKeyMap.find(curslider);
         if (it != mSliderKeyMap.end())
         {
-            //         if (gKeyboard->currentMask(TRUE) == MASK_SHIFT)
-            //         {
-            //             LL_DEBUGS() << "Copying frame from " << iter->second.mFrame << " to " << new_frame << LL_ENDL;
-            //             LLSettingsBase::ptr_t new_settings;
-            // 
-            //             // mEditDay still remembers old position, add copy at new position
-            //             if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
-            //             {
-            //                 LLSettingsWaterPtr_t water_ptr = std::dynamic_pointer_cast<LLSettingsWater>(iter->second.pSettings)->buildClone();
-            //                 mEditDay->setWaterAtKeyframe(water_ptr, new_frame);
-            //                 new_settings = water_ptr;
-            //             }
-            //             else
-            //             {
-            //                 LLSettingsSkyPtr_t sky_ptr = std::dynamic_pointer_cast<LLSettingsSky>(iter->second.pSettings)->buildClone();
-            //                 mEditDay->setSkyAtKeyframe(sky_ptr, new_frame, mCurrentTrack);
-            //                 new_settings = sky_ptr;
-            //             }
-            // 
-            //             // mSliderKeyMap still remembers old position, for simplicity, just move it to be identical to slider
-            //             F32 old_frame = iter->second.mFrame;
-            //             iter->second.mFrame = new_frame;
-            //             // slider already moved old frame, create new one in old place
-            //             addSliderFrame(old_frame, new_settings, false /*because we are going to reselect new one*/);
-            //             // reselect new frame
-            //             mFramesSlider->setCurSlider(iter->first);
-            //         }
-            //         else
-            //        {
-            LL_WARNS("LAPRAS") << "Moving frame from " << (*it).second.mFrame << " to " << sliderpos << LL_ENDL;
-            if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
+            if (gKeyboard->currentMask(TRUE) == MASK_SHIFT && mShiftCopyEnabled)
             {
-                (*it).second.mFrame = sliderpos;
+                // don't move the point/frame as long as shift is pressed and user is attempting to copy
+                // handleKeyUp will do the move if user releases key too early.
+                if (!(mEditDay->getSettingsNearKeyframe(sliderpos, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
+                {
+                    LL_DEBUGS() << "Copying frame from " << it->second.mFrame << " to " << sliderpos << LL_ENDL;
+                    LLSettingsBase::ptr_t new_settings;
+
+                    // mEditDay still remembers old position, add copy at new position
+                    if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
+                    {
+                        LLSettingsWaterPtr_t water_ptr = std::dynamic_pointer_cast<LLSettingsWater>(it->second.pSettings)->buildClone();
+                        mEditDay->setWaterAtKeyframe(water_ptr, sliderpos);
+                        new_settings = water_ptr;
+                    }
+                    else
+                    {
+                        LLSettingsSkyPtr_t sky_ptr = std::dynamic_pointer_cast<LLSettingsSky>(it->second.pSettings)->buildClone();
+                        mEditDay->setSkyAtKeyframe(sky_ptr, sliderpos, mCurrentTrack);
+                        new_settings = sky_ptr;
+                    }
+                    // mSliderKeyMap still remembers old position, for simplicity, just move it to be identical to slider
+                    F32 old_frame = it->second.mFrame;
+                    it->second.mFrame = sliderpos;
+                    // slider already moved old frame, create new one in old place
+                    addSliderFrame(old_frame, new_settings, false /*because we are going to reselect new one*/);
+                    // reselect new frame
+                    mFramesSlider->setCurSlider(it->first);
+                    mShiftCopyEnabled = false;
+                }
             }
-            else 
+            else
             {
-                mFramesSlider->setCurSliderValue((*it).second.mFrame);
+                LL_WARNS("LAPRAS") << "Moving frame from " << (*it).second.mFrame << " to " << sliderpos << LL_ENDL;
+                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
+                {
+                    (*it).second.mFrame = sliderpos;
+                }
+                else
+                {
+                    mFramesSlider->setCurSliderValue((*it).second.mFrame);
+                }
+
+                mShiftCopyEnabled = false;
             }
         }
-
     }
 
     mTimeSlider->setCurSliderValue(sliderpos);
@@ -509,6 +550,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
 
 void LLFloaterEditExtDayCycle::onFrameSliderDoubleClick(S32 x, S32 y, MASK mask)
 {
+    stopPlay();
     onAddTrack();
 }
 
@@ -518,6 +560,8 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
     F32 sliderpos = mFramesSlider->getSliderValueFromX(x);
 
     std::string slidername = mFramesSlider->getCurSlider();
+
+    mShiftCopyEnabled = !slidername.empty() && gKeyboard->currentMask(TRUE) == MASK_SHIFT;
 
     if (!slidername.empty())
     {

@@ -75,6 +75,7 @@ protected:
     virtual void            doApplyCreateNewInventory();
     virtual void            doApplyUpdateInventory();
     virtual void            doApplyEnvironment(const std::string &where);
+    void                    doCloseInventoryFloater(bool quitting = false);
 
     bool                    canUseInventory() const;
     bool                    canApplyRegion() const;
@@ -84,6 +85,7 @@ protected:
 
     LLUUID                  mInventoryId;
     LLInventoryItem *       mInventoryItem;
+    LLHandle<LLFloater>     mInventoryFloater;
 
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
@@ -94,7 +96,9 @@ private:
     void                    onButtonImport();
     void                    onButtonApply(LLUICtrl *ctrl, const LLSD &data);
     void                    onButtonCancel();
+    void                    onButtonLoad();
 
+    void                    onPickerCommitSetting(LLUUID asset_id);
     void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status);
 };
 
