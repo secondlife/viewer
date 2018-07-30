@@ -2080,29 +2080,33 @@ void LLSelectMgr::selectionSetGlow(F32 glow)
 	mSelectedObjects->applyToObjects( &func2 );
 }
 
-void LLSelectMgr::selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func)
+void LLSelectMgr::selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func, int te)
 {
 	struct f1 : public LLSelectedTEFunctor
 	{
 		LLMaterialPtr mMaterial;
-		f1(LLSelectedTEMaterialFunctor* material_func) : _material_func(material_func) {}
+		f1(LLSelectedTEMaterialFunctor* material_func, int te) : _material_func(material_func), _specific_te(te) {}
 
-		bool apply(LLViewerObject* object, S32 face)
+		bool apply(LLViewerObject* object, S32 te)
 		{
-			if (object && object->permModify() && _material_func)
-			{
-				LLTextureEntry* tep = object->getTE(face);
-				if (tep)
-				{
-					LLMaterialPtr current_material = tep->getMaterialParams();
-					_material_func->apply(object, face, tep, current_material);
-				}
-			}
+            if (_specific_te == -1 || (te == _specific_te))
+            {
+			    if (object && object->permModify() && _material_func)
+			    {
+				    LLTextureEntry* tep = object->getTE(te);
+				    if (tep)
+				    {
+					    LLMaterialPtr current_material = tep->getMaterialParams();
+					    _material_func->apply(object, te, tep, current_material);
+				    }
+			    }
+            }
 			return true;
 		}
 
 		LLSelectedTEMaterialFunctor* _material_func;
-	} func1(material_func);
+        int _specific_te;
+	} func1(material_func, te);
 	mSelectedObjects->applyToTEs( &func1 );
 
 	struct f2 : public LLSelectedObjectFunctor

@@ -591,7 +591,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
-	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func);
+	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func, int specific_te = -1);
 	void selectionRemoveMaterial();
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);

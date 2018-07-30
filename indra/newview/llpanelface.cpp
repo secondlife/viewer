@@ -552,12 +552,12 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 				object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
                 object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
 				object->setTERotation(te, uv_rot);
-                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX]);
-                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY]);
-                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX]);
-                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY]);
-				LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot);
-                LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot);
+                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX], te);
+                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY], te);
+                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX], te);
+                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te);
+				LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot, te);
+                LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot, te);
 			}
 		}
 		if (!set_aligned)
@@ -2057,10 +2057,10 @@ void LLPanelFace::onCommitMaterialShinyScaleY(LLUICtrl* ctrl, void* userdata)
 }
 
 //static
-void LLPanelFace::syncMaterialRot(LLPanelFace* self, F32 rot)
+void LLPanelFace::syncMaterialRot(LLPanelFace* self, F32 rot, int te)
 {
-	LLSelectedTEMaterial::setNormalRotation(self,rot * DEG_TO_RAD);
-	LLSelectedTEMaterial::setSpecularRotation(self,rot * DEG_TO_RAD);
+	LLSelectedTEMaterial::setNormalRotation(self,rot * DEG_TO_RAD, te);
+	LLSelectedTEMaterial::setSpecularRotation(self,rot * DEG_TO_RAD, te);
 	self->sendTextureInfo();
 }
 

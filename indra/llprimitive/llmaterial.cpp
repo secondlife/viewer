@@ -374,28 +374,28 @@ void LLMaterial::fromLLSD(const LLSD& material_data)
     S32 normalOffsetXInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD, LLSD::TypeInteger);
     S32 normalOffsetYInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD, LLSD::TypeInteger);
     S32 normalRotInt     = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD, LLSD::TypeInteger);
+    S32 normalRepeatXInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD, LLSD::TypeInteger);
+    S32 normalRepeatYInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD, LLSD::TypeInteger);
 
     mNormalOffsetX  = F32(normalOffsetXInt) / MATERIALS_MULTIPLIER;
     mNormalOffsetY  = F32(normalOffsetYInt) / MATERIALS_MULTIPLIER;
     mNormalRotation = F32(normalRotInt)     / MATERIALS_MULTIPLIER;
-
-    mNormalOffsetY  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
-    mNormalRepeatX  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
-    mNormalRepeatY  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
+    mNormalRepeatX  = F32(normalRepeatXInt) / MATERIALS_MULTIPLIER;
+    mNormalRepeatY  = F32(normalRepeatYInt) / MATERIALS_MULTIPLIER;
 
     mSpecularID = getMaterialField<LLSD::UUID>(material_data, MATERIALS_CAP_SPECULAR_MAP_FIELD, LLSD::TypeUUID);
 
     S32 specularOffsetXInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD, LLSD::TypeInteger);
     S32 specularOffsetYInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD, LLSD::TypeInteger);
     S32 specularRotInt     = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD, LLSD::TypeInteger);
+    S32 specularRepeatXInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD, LLSD::TypeInteger);
+    S32 specularRepeatYInt = getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD, LLSD::TypeInteger);
 
     mSpecularOffsetX   = F32(specularOffsetXInt) / MATERIALS_MULTIPLIER;
     mSpecularOffsetY   = F32(specularOffsetYInt) / MATERIALS_MULTIPLIER;
     mSpecularRotation  = F32(specularRotInt)     / MATERIALS_MULTIPLIER;
-
-    mSpecularRepeatX  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
-    mSpecularRepeatY  = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
-    mSpecularRotation = ((F32)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD, LLSD::TypeInteger)) / MATERIALS_MULTIPLIER;
+    mSpecularRepeatX  = F32(specularRepeatXInt) / MATERIALS_MULTIPLIER;
+    mSpecularRepeatY  = F32(specularRepeatYInt) / MATERIALS_MULTIPLIER;
 
     mSpecularLightColor.setValue(getMaterialField<LLSD>(material_data, MATERIALS_CAP_SPECULAR_COLOR_FIELD, LLSD::TypeArray));
     mSpecularLightExponent = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_EXP_FIELD,       LLSD::TypeInteger);

@@ -179,7 +179,7 @@ protected:
 	static void		syncRepeatY(LLPanelFace* self, F32 scaleV);
 	static void		syncOffsetX(LLPanelFace* self, F32 offsetU);
 	static void		syncOffsetY(LLPanelFace* self, F32 offsetV);
-	static void 	syncMaterialRot(LLPanelFace* self, F32 rot);
+	static void 	syncMaterialRot(LLPanelFace* self, F32 rot, int te = -1);
 
 	static void		onCommitMaterialShinyScaleX(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialShinyScaleY(	LLUICtrl* ctrl, void* userdata);
@@ -252,7 +252,7 @@ private:
 		typename DataType,
 		typename SetValueType,
 		void (LLMaterial::*MaterialEditFunc)(SetValueType data) >
-	static void edit(LLPanelFace* p, DataType data)
+	static void edit(LLPanelFace* p, DataType data, int te = -1)
 	{
 		LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc > edit(data);
 		struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
@@ -327,7 +327,7 @@ private:
 			LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >*	_edit;
 			LLPanelFace*																			_panel;
 		} editor(p, &edit);
-		LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor);
+        LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor, te);
 	}
 
 	template<
@@ -427,29 +427,29 @@ public:
 		DEF_EDIT_MAT_STATE
 	#endif
 
-	// Accessors for selected TE material state
-	//
-	#define DEF_GET_MAT_STATE(DataType,ReturnType,MaterialMemberFunc,DefaultValue)												\
-		static void MaterialMemberFunc(DataType& data, bool& identical)																\
-		{																																					\
-			getTEMaterialValue< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(data, identical,DefaultValue);	\
-		}
+    // Accessors for selected TE material state
+    //
+    #define DEF_GET_MAT_STATE(DataType,ReturnType,MaterialMemberFunc,DefaultValue)                                      \
+        static void MaterialMemberFunc(DataType& data, bool& identical)                                                 \
+        {                                                                                                               \
+            getTEMaterialValue< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(data, identical,DefaultValue);  \
+        }
 
-	// Mutators for selected TE material
-	//
-	#define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)																\
-		static void MaterialMemberFunc(LLPanelFace* p,DataType data)																	\
-		{																																					\
-			edit< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(p,data);													\
-		}
+    // Mutators for selected TE material
+    //
+    #define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)                                                  \
+        static void MaterialMemberFunc(LLPanelFace* p, DataType data, int te = -1)                                      \
+        {                                                                                                               \
+            edit< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(p, data, te);                                 \
+        }
 
-	// Accessors for selected TE state proper (legacy settings etc)
-	//
-	#define DEF_GET_TE_STATE(DataType,ReturnType,TexEntryMemberFunc,DefaultValue)													\
-		static void TexEntryMemberFunc(DataType& data, bool& identical)																\
-		{																																					\
-			getTEValue< DataType, ReturnType, &LLTextureEntry::TexEntryMemberFunc >(data, identical,DefaultValue);		\
-		}
+    // Accessors for selected TE state proper (legacy settings etc)
+    //
+    #define DEF_GET_TE_STATE(DataType,ReturnType,TexEntryMemberFunc,DefaultValue)                                       \
+        static void TexEntryMemberFunc(DataType& data, bool& identical)                                                 \
+        {                                                                                                               \
+            getTEValue< DataType, ReturnType, &LLTextureEntry::TexEntryMemberFunc >(data, identical,DefaultValue);      \
+        }
 
 	class LLSelectedTEMaterial
 	{
