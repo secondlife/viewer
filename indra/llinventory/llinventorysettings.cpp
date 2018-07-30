@@ -89,7 +89,6 @@ LLSettingsType::type_e LLSettingsType::fromInventoryFlags(U32 flags)
     return  (LLSettingsType::type_e)(flags & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK);
 }
 
-
 LLInventoryType::EIconName LLSettingsType::getIconName(LLSettingsType::type_e type)
 {
     const SettingsEntry *entry = LLSettingsDictionary::instance().lookup(type);
@@ -98,6 +97,13 @@ LLInventoryType::EIconName LLSettingsType::getIconName(LLSettingsType::type_e ty
     return entry->mIconName;
 }
 
+std::string LLSettingsType::getDefaultName(LLSettingsType::type_e type)
+{
+    const SettingsEntry *entry = LLSettingsDictionary::instance().lookup(type);
+    if (!entry)
+        return getDefaultName(ST_INVALID);
+    return entry->mDefaultNewName;
+}
 
 void LLSettingsType::initClass(LLTranslationBridge::ptr_t &trans)
 {

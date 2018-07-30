@@ -46,6 +46,7 @@ public:
 
     static type_e fromInventoryFlags(U32 flags);
     static LLInventoryType::EIconName getIconName(type_e type);
+    static std::string getDefaultName(type_e type);
 
     static void initClass(LLTranslationBridge::ptr_t &trans);
     static void cleanupClass();

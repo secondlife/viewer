@@ -90,6 +90,31 @@ namespace
 
 
 //=========================================================================
+void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback)
+{
+    LLTransactionID tid;
+    U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
+
+    if (!LLEnvironment::instance().isInventoryEnabled())
+    {
+        LL_WARNS("SETTINGS") << "Region does not support settings inventory objects." << LL_ENDL;
+        LLNotificationsUtil::add("SettingsUnsuported");
+        return;
+    }
+
+    tid.generate();
+
+    LLPointer<LLInventoryCallback> cb = new LLSettingsInventoryCB([callback](const LLUUID &inventoryId) {
+        LLSettingsVOBase::onInventoryItemCreated(inventoryId, LLSettingsBase::ptr_t(), callback);
+    });
+
+    create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
+        parent_id, LLTransactionID::tnull,
+        LLSettingsType::getDefaultName(stype), "new settings collection.",
+        stype, nextOwnerPerm, cb);
+}
+
+
 void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, inventory_result_fn callback)
 {
     LLTransactionID tid;
@@ -116,6 +141,20 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
 
 void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings, inventory_result_fn callback)
 {
+    if (!settings)
+    {   // The item was created as new with no settings passed in.  Simulator should have given it the default for the type... check ID, 
+        // no need to upload asset.
+        LLUUID asset_id;
+        LLViewerInventoryItem *pitem = gInventory.getItem(inventoryId);
+
+        if (pitem)
+        {
+            asset_id = pitem->getAssetUUID();
+        }
+        if (callback)
+            callback(asset_id, inventoryId, LLUUID::null, LLSD());
+        return;
+    }
     // We need to update some inventory stuff here.... maybe.
     updateInventoryItem(settings, inventoryId, callback);
 }
