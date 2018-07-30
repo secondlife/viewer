@@ -48,9 +48,9 @@
                             max_width="200"
                             width="200">
                         <radio_item
-                                label="Default Environment"
+                                label="Use Region Settings"
                                 layout="topleft"
-                                name="use_default_setting"
+                                name="use_region_setting"
                                 height="20"/>
                         <radio_item
                                 label="Custom Environment"
