@@ -62,7 +62,7 @@ Escala de interface: [UI_SCALE]
 Dist. máxima: [DRAW_DISTANCE]m
 Largura de banda: [NET_BANDWITH]kbit/s
 Fator LOD: [LOD_FACTOR]
-Qualidade de renderização: [RENDER_QUALITY] / 7
+Qualidade de renderização: [RENDER_QUALITY]
 Modelo de iluminação avançado: [GPU_SHADERS]
 Memória de textura: [TEXTURE_MEMORY]MB
 Tempo de criação de VFS (cache): [VFS_TIME]

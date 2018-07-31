@@ -71,7 +71,7 @@ UI スケーリング： [UI_SCALE]
 描画距離：[DRAW_DISTANCE]m
 帯域幅：[NET_BANDWITH]kbit/s
 LOD 係数： [LOD_FACTOR]
-表示品質： [RENDER_QUALITY] / 7
+表示品質： [RENDER_QUALITY]
 高度なライティングモデル： [GPU_SHADERS]
 テクスチャメモリ： [TEXTURE_MEMORY]MB
 VFS（キャッシュ）作成時間： [VFS_TIME]
