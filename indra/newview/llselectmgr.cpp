@@ -7942,13 +7942,7 @@ bool LLCheckIdenticalFunctor<F32>::same(const F32& a, const F32& b, const F32& t
 {
     F32 delta = (a - b);
     F32 abs_delta = fabs(delta);
-    bool is_samish = abs_delta <= tolerance;
-    if (!is_samish)
-    {
-        int q = 0;
-        q++;
-    }
-    return is_samish;
+    return abs_delta <= tolerance;
 }
 
 #define DEF_DUMMY_CHECK_FUNCTOR(T)                                                  \
