@@ -124,6 +124,11 @@ template <typename T> struct LLSelectedTEGetFunctor
 	virtual T get(LLViewerObject* object, S32 te) = 0;
 };
 
+template <typename T> struct LLCheckIdenticalFunctor
+{
+	static bool same(const T& a, const T& b, const T& tolerance);
+};
+
 typedef enum e_send_type
 {
 	SEND_ONLY_ROOTS,
@@ -313,7 +318,7 @@ public:
 	LLViewerObject* getPrimaryObject() { return mPrimaryObject; }
 
 	// iterate through texture entries
-	template <typename T> bool getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res);
+	template <typename T> bool getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res, bool has_tolerance = false, T tolerance = T());
 	template <typename T> bool isMultipleTEValue(LLSelectedTEGetFunctor<T>* func, const T& ignore_value);
 	
 	S32 getNumNodes();
@@ -856,7 +861,7 @@ void dialog_refresh_all();
 //-----------------------------------------------------------------------------
 // getSelectedTEValue
 //-----------------------------------------------------------------------------
-template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res)
+template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res, bool has_tolerance, T tolerance)
 {
 	bool have_first = false;
 	bool have_selected = false;
@@ -892,7 +897,14 @@ template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGet
 			{
 				if ( value != selected_value )
 				{
-					identical = false;
+                    if (!has_tolerance)
+                    {
+					    identical = false;
+                    }
+                    else if (!LLCheckIdenticalFunctor<T>::same(value, selected_value, tolerance))
+                    {
+                        identical = false;
+                    }
 				}
 				if (te == selected_te)
 				{

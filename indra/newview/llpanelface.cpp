@@ -605,12 +605,19 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
 			tep->getOffset(&st_offset.mV[VX], &st_offset.mV[VY]);
 			tep->getScale(&st_scale.mV[VX], &st_scale.mV[VY]);
 			F32 st_rot = tep->getRotation();
+
+            bool eq_offset_x = is_approx_equal_fraction(st_offset.mV[VX], aligned_st_offset.mV[VX], 12);
+            bool eq_offset_y = is_approx_equal_fraction(st_offset.mV[VY], aligned_st_offset.mV[VY], 12);
+            bool eq_scale_x  = is_approx_equal_fraction(st_scale.mV[VX], aligned_st_scale.mV[VX], 12);
+            bool eq_scale_y  = is_approx_equal_fraction(st_scale.mV[VY], aligned_st_scale.mV[VY], 12);
+            bool eq_rot      = is_approx_equal_fraction(st_rot, aligned_st_rot, 6);
+
 			// needs a fuzzy comparison, because of fp errors
-			if (is_approx_equal_fraction(st_offset.mV[VX], aligned_st_offset.mV[VX], 12) && 
-				is_approx_equal_fraction(st_offset.mV[VY], aligned_st_offset.mV[VY], 12) && 
-				is_approx_equal_fraction(st_scale.mV[VX], aligned_st_scale.mV[VX], 12) &&
-				is_approx_equal_fraction(st_scale.mV[VY], aligned_st_scale.mV[VY], 12) &&
-				is_approx_equal_fraction(st_rot, aligned_st_rot, 14))
+			if (eq_offset_x && 
+				eq_offset_y && 
+				eq_scale_x &&
+				eq_scale_y &&
+				eq_rot)
 			{
 				return true;
 			}
@@ -973,9 +980,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			F32 spec_scale_s = 1.f;
 			F32 norm_scale_s = 1.f;
 
-			LLSelectedTE::getScaleS(						diff_scale_s, identical_diff_scale_s);			
-			LLSelectedTEMaterial::getSpecularRepeatX( spec_scale_s, identical_spec_scale_s);
-			LLSelectedTEMaterial::getNormalRepeatX(	norm_scale_s, identical_norm_scale_s);
+			LLSelectedTE::getScaleS(diff_scale_s, identical_diff_scale_s);			
+			LLSelectedTEMaterial::getSpecularRepeatX(spec_scale_s, identical_spec_scale_s);
+			LLSelectedTEMaterial::getNormalRepeatX(norm_scale_s, identical_norm_scale_s);
 
 			diff_scale_s = editable ? diff_scale_s : 1.0f;
 			diff_scale_s *= identical_planar_texgen ? 2.0f : 1.0f;
@@ -2438,7 +2445,7 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
 			return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
 		}
 	} get_te_face_func;
-	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return);
+	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return, false, (LLFace*)nullptr);
 }
 
 void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face)

@@ -7936,3 +7936,43 @@ void LLSelectMgr::sendSelectionMove()
 
 	//saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 }
+
+bool LLCheckIdenticalFunctor<F32>::same(const F32& a, const F32& b, const F32& tolerance)
+{
+    F32 delta = (a - b);
+    F32 abs_delta = fabs(delta);
+    bool is_samish = abs_delta <= tolerance;
+    if (!is_samish)
+    {
+        int q = 0;
+        q++;
+    }
+    return is_samish;
+}
+
+#define DEF_DUMMY_CHECK_FUNCTOR(T)                                                  \
+bool LLCheckIdenticalFunctor<T>::same(const T& a, const T& b, const T& tolerance)   \
+{                                                                                   \
+    (void)tolerance;                                                                \
+    return a == b;                                                                  \
+}
+
+DEF_DUMMY_CHECK_FUNCTOR(LLUUID)
+DEF_DUMMY_CHECK_FUNCTOR(LLGLenum)
+DEF_DUMMY_CHECK_FUNCTOR(LLTextureEntry)
+DEF_DUMMY_CHECK_FUNCTOR(LLTextureEntry::e_texgen)
+DEF_DUMMY_CHECK_FUNCTOR(bool)
+DEF_DUMMY_CHECK_FUNCTOR(U8)
+DEF_DUMMY_CHECK_FUNCTOR(int)
+DEF_DUMMY_CHECK_FUNCTOR(LLColor4)
+DEF_DUMMY_CHECK_FUNCTOR(LLMediaEntry)
+DEF_DUMMY_CHECK_FUNCTOR(LLPointer<LLMaterial>)
+DEF_DUMMY_CHECK_FUNCTOR(std::string)
+DEF_DUMMY_CHECK_FUNCTOR(std::vector<std::string>)
+
+bool LLCheckIdenticalFunctor<class LLFace *>::same(class LLFace* const & a, class LLFace* const & b, class LLFace* const & tolerance)   \
+{                                                                                   \
+    (void)tolerance;                                                                \
+    return a == b;                                                                  \
+}
+
