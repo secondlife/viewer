@@ -332,9 +332,9 @@ private:
 
 	template<
 		typename DataType,
-		typename ReturnType,
+		typename ReturnType,        
 		ReturnType (LLMaterial::* const MaterialGetFunc)() const  >
-	static void getTEMaterialValue(DataType& data_to_return, bool& identical,DataType default_value, bool has_tolerance = HasTolerance, DataType tolerance = DataType())
+	static void getTEMaterialValue(DataType& data_to_return, bool& identical,DataType default_value, bool has_tolerance = false, DataType tolerance = DataType())
 	{
 		DataType data_value;
 		struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
