@@ -1296,6 +1296,8 @@ BOOL LLVOVolume::calcLOD()
 		}
 
 		distance = avatar->mDrawable->mDistanceWRTCamera;
+
+
         if (avatar->isControlAvatar())
         {
             // MAINT-7926 Handle volumes in an animated object as a special case
@@ -1306,8 +1308,16 @@ BOOL LLVOVolume::calcLOD()
         }
         else
         {
+            // Volume in a rigged mesh attached to a regular avatar.
+#if 0
             // Note this isn't really a radius, so distance calcs are off by factor of 2
             radius = avatar->getBinRadius();
+#else
+            // SL-937: add dynamic box handling for rigged mesh on regular avatars.
+            const LLVector3* box = avatar->getLastAnimExtents();
+            LLVector3 diag = box[1] - box[0];
+            radius = diag.magVec(); // preserve old BinRadius behavior - 2x off
+#endif
         }
         if (distance <= 0.f || radius <= 0.f)
         {

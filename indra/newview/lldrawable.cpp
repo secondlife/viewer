@@ -902,8 +902,11 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 				}
 			}	
 
+
             // MAINT-7926 Handle volumes in an animated object as a special case
-            if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
+            // SL-937: add dynamic box handling for rigged mesh on regular avatars.
+            //if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
+            if (volume->getAvatar())
             {
                 const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
                 LLVector3d cam_pos = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin());
