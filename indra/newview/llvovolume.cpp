@@ -1272,6 +1272,46 @@ S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius, F32 lod_factor)
 	return cur_detail;
 }
 
+std::string get_debug_object_lod_text(LLVOVolume *rootp)
+{
+    std::string cam_dist_string = "";
+    cam_dist_string += LLStringOps::getReadableNumber(rootp->mLODDistance) +  " ";
+    std::string lod_string = llformat("%d",rootp->getLOD());
+    F32 lod_radius = rootp->mLODRadius;
+    S32 cam_dist_count = 0;
+    LLViewerObject::const_child_list_t& child_list = rootp->getChildren();
+    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+         iter != child_list.end(); ++iter)
+    {
+        LLViewerObject *childp = *iter;
+        LLVOVolume *volp = dynamic_cast<LLVOVolume*>(childp);
+        if (volp)
+        {
+            lod_string += llformat("%d",volp->getLOD());
+            if (volp->isRiggedMesh())
+            {
+                // Rigged/animatable mesh. This is computed from the
+                // avatar dynamic box, so value from any vol will be
+                // the same.
+                lod_radius = volp->mLODRadius;
+            }
+            if (volp->mDrawable)
+            {
+                if (cam_dist_count < 4)
+                {
+                    cam_dist_string += LLStringOps::getReadableNumber(volp->mLODDistance) +  " ";
+                    cam_dist_count++;
+                }
+            }
+        }
+    }
+    std::string result = llformat("lod_radius %s dists %s lods %s",
+                                  LLStringOps::getReadableNumber(lod_radius).c_str(),
+                                  cam_dist_string.c_str(),
+                                  lod_string.c_str());
+    return result;
+}
+
 BOOL LLVOVolume::calcLOD()
 {
 	if (mDrawable.isNull())
@@ -1341,8 +1381,17 @@ BOOL LLVOVolume::calcLOD()
 
     mLODDistance = distance;
     mLODRadius = radius;
-    
-	distance *= sDistanceFactor;
+
+    if (gSavedSettings.getBOOL("DebugObjectLODs"))
+    {
+        if (getAvatar() && isRootEdit())
+        {
+            std::string debug_object_text = get_debug_object_lod_text(this);
+            setDebugText(debug_object_text);
+        }
+    }
+
+    distance *= sDistanceFactor;
 
 	F32 rampDist = LLVOVolume::sLODFactor * 2;
 	
