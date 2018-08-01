@@ -1321,8 +1321,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	{	
 		mNeedsCreateTexture = TRUE;
 		gTextureList.mCreateTextures.push_back(this);
-	}	
-	return;
+	}
 }
 
 // ONLY called from LLViewerTextureList
@@ -2188,8 +2187,6 @@ void LLViewerFetchedTexture::clearCallbackEntryList()
 	{
 		destroySavedRawImage();
 	}
-
-	return;
 }
 
 void LLViewerFetchedTexture::deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
@@ -2570,7 +2567,6 @@ void LLViewerFetchedTexture::forceImmediateUpdate()
 	}
 
 	gTextureList.forceImmediateUpdate(this);
-	return;
 }
 
 LLImageRaw* LLViewerFetchedTexture::reloadRawImage(S8 discard_level)
@@ -3527,7 +3523,6 @@ void LLViewerMediaTexture::setPlaying(BOOL playing)
 			switchTexture(ch, mFaceList[ch][i - 1]); //current face could be removed in this function.
 		}
 	}
-	return;
 }
 
 //virtual 
