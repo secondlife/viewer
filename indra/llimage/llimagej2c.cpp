@@ -54,7 +54,6 @@ std::string LLImageJ2C::getEngineInfo()
 
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
-							mRawDiscardLevel(-1),
 							mRate(DEFAULT_COMPRESSION_RATE),
 							mReversible(false),
 							mAreaUsedForDataSizeCalcs(0)
@@ -95,12 +94,6 @@ void LLImageJ2C::setLastError(const std::string& message, const std::string& fil
 	mLastError = message;
 	if (!filename.empty())
 		mLastError += std::string(" FILE: ") + filename;
-}
-
-// virtual
-S8  LLImageJ2C::getRawDiscardLevel()
-{
-	return mRawDiscardLevel;
 }
 
 bool LLImageJ2C::updateData()
@@ -179,7 +172,6 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 	else
 	{
 		// Update the raw discard level
-		updateRawDiscardLevel();
 		mDecoding = true;
 		res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
 	}
@@ -455,11 +447,6 @@ bool LLImageJ2C::validate(U8 *data, U32 file_size)
 void LLImageJ2C::decodeFailed()
 {
 	mDecoding = false;
-}
-
-void LLImageJ2C::updateRawDiscardLevel()
-{
-	mRawDiscardLevel = mMaxBytes ? calcDiscardLevelBytes(mMaxBytes) : mDiscardLevel;
 }
 
 LLImageJ2CImpl::~LLImageJ2CImpl()

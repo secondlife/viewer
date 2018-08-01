@@ -321,8 +321,6 @@ public:
 	virtual S32 calcDataSize(S32 discard_level);
 	// calcDiscardLevelBytes() returns the smallest valid discard level based on the number of input bytes
 	virtual S32 calcDiscardLevelBytes(S32 bytes);
-	// getRawDiscardLevel() by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
-	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
 	bool load(const std::string& filename, int load_size = 0);
 	bool save(const std::string& filename);

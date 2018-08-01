@@ -278,12 +278,6 @@ public:
         heightOut  = S32(tilesH * tileDimY);
         components = codestream_info->nbcomps;
 
-        // yeah, that's nice, anyway...
-        if (components > 4)
-        {
-            components = 4;
-        }
-
 		discard_level = 0;
 		while (tilesW > 1 && tilesH > 1 && discard_level < MAX_DISCARD_LEVEL)
 		{
@@ -295,7 +289,7 @@ public:
         return true;
     }
 
-    bool decode(U8* data, U32 dataSize, U32* channels)
+    bool decode(U8* data, U32 dataSize, U32* channels, U8 discard_level)
     {
         parameters.flags &= ~OPJ_DPARAMETERS_DUMP_FLAG;
 
@@ -339,6 +333,14 @@ public:
             return false;
         }
 
+        // needs to happen before decode which may fail
+        if (channels)
+        {
+            *channels = image->numcomps;
+        }
+
+        opj_set_decoded_resolution_factor(decoder, discard_level);
+
     	OPJ_BOOL decoded = opj_decode(decoder, stream, image);
 
         // count was zero.  The latter is just a sanity check before we
@@ -348,11 +350,6 @@ public:
             opj_end_decompress(decoder, stream);
 		    return false;
 	    }
-
-        if (channels)
-        {
-            *channels = image->numcomps;
-        }
 
         opj_end_decompress(decoder, stream);
 
@@ -689,11 +686,22 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
     JPEG2KDecode decoder(0);
 
     U32 image_channels = 0;
-	bool decoded = decoder.decode(base.getData(), base.getDataSize(), &image_channels);
+	bool decoded = decoder.decode(base.getData(), base.getDataSize(), &image_channels, base.mDiscardLevel);
+
+    // set correct channel count early so failed decodes don't miss it...
+    S32 channels = (S32)image_channels - first_channel;
+    channels = llmin(channels, max_channel_count);
+
     if(!decoded)
 	{
+        // reset the channel count if necessary
+        if (raw_image.getComponents() != channels)
+        {
+            raw_image.resize(raw_image.getWidth(), raw_image.getHeight(), S8(channels));
+        }
+
 		LL_DEBUGS("Texture") << "ERROR -> decodeImpl: failed to decode image!" << LL_ENDL;
-		return true; // done
+		return false; // done
 	}
 
     opj_image_t *image = decoder.getImage();
@@ -709,13 +717,10 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 	U32 f          = image->comps[0].factor;
 
     // do size the texture to the mem we'll acrually use...
-	U32 width      = image->comps[0].w >> f;
-	U32 height     = image->comps[0].h >> f;
+	U32 width      = image->comps[0].w;
+	U32 height     = image->comps[0].h;
 
-    S32 channels = (S32)image_channels - first_channel;
-    channels = llmin(channels, max_channel_count);
-
-	raw_image.resize(U16(width), U16(height), S8(channels));
+    raw_image.resize(U16(width), U16(height), S8(channels));
 
 	U8 *rawp = raw_image.getData();
 
@@ -743,10 +748,7 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 		}
 	}
 
-    llassert(f == 0);
-
     base.setDiscardLevel(f);
-    base.updateRawDiscardLevel();
 
 	return true; // done
 }

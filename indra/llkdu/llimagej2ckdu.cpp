@@ -429,10 +429,6 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 	// To regain control, we throw an exception, and catch it here.
 	try
 	{
-		// Merov : Test!! DO NOT COMMIT!!
-		//findDiscardLevelsBoundaries(base);
-
-		base.updateRawDiscardLevel();
 		setupCodeStream(base, true, mode);
 
 		mRawImagep = &raw_image;
@@ -448,8 +444,8 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			region_kdu->size.x = region[2] - region[0];
 			region_kdu->size.y = region[3] - region[1];
 		}
-		int discard = (discard_level != -1 ? discard_level : base.getRawDiscardLevel());
-		//LL_INFOS() << "Merov debug : initDecode, discard used = " << discard << ", asked = " << discard_level << LL_ENDL;
+		int discard = discard_level != -1 ? discard_level : 0;
+
 		// Apply loading restrictions
 		mCodeStreamp->apply_input_restrictions( first_channel, max_channel_count, discard, 0, region_kdu);
 		
