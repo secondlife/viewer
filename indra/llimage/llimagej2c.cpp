@@ -33,8 +33,6 @@
 #include "llsd.h"
 #include <boost/scoped_ptr.hpp>
 
-#pragma optimize("", off)
-
 // Declare the prototype for this factory functions here.
 
 // Each one is implemented in the library which implements the LLImageJ2CImpl
