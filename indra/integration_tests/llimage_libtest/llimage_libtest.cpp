@@ -137,8 +137,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
 		}
 		S32 h = ((LLImageJ2C*)(image.get()))->calcHeaderSize();
 		S32 d = (load_size > 0 ? ((LLImageJ2C*)(image.get()))->calcDiscardLevelBytes(load_size) : 0);
-		S8  r = ((LLImageJ2C*)(image.get()))->getRawDiscardLevel();
-		std::cout << "Merov debug : header = " << h << ", load_size = " << load_size << ", discard level = " << d << ", raw discard level = " << r << std::endl;
+		std::cout << "Merov debug : header = " << h << ", load_size = " << load_size << ", discard level = " << d << std::endl;
 		for (d = 0; d < MAX_DISCARD_LEVEL; d++)
 		{
 			S32 data_size = ((LLImageJ2C*)(image.get()))->calcDataSize(d);

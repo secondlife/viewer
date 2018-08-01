@@ -73,12 +73,6 @@ private:
 	void setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode);
 	void cleanupCodeStream();
 
-	// This method was public, but the only call to it is commented out in our
-	// own initDecode() method. I (nat 2016-08-04) don't know what it does or
-	// why. Even if it should be uncommented, it should probably still be
-	// private.
-//	void findDiscardLevelsBoundaries(LLImageJ2C &base);
-
 	// Helper class to hold a kdu_codestream, which is a handle to the
 	// underlying implementation object. When CodeStreamHolder is reset() or
 	// destroyed, it calls kdu_codestream::destroy() -- which kdu_codestream
