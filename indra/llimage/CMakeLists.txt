@@ -8,6 +8,7 @@ include(LLImage)
 include(LLMath)
 include(LLVFS)
 include(LLKDU)
+include(OpenJPEG)
 include(LLImageJ2COJ)
 include(ZLIB)
 include(LLAddBuildTest)
@@ -61,9 +62,13 @@ add_library (llimage ${llimage_SOURCE_FILES})
 # Sort by high-level to low-level
 if (USE_KDU)
     target_link_libraries(llimage ${LLKDU_LIBRARIES})
-else (USE_KDU)
-    target_link_libraries(llimage ${LLIMAGEJ2COJ_LIBRARIES})
+    add_definitions(-DUSE_KDU=1)
 endif (USE_KDU)
+
+if (USE_OPENJPEG)
+    target_link_libraries(llimage ${LLIMAGEJ2COJ_LIBRARIES})
+    add_definitions(-DUSE_OPENJPEG=1)
+endif (USE_OPENJPEG)
 
 target_link_libraries(llimage
     ${LLVFS_LIBRARIES}

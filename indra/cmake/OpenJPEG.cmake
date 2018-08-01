@@ -1,6 +1,8 @@
 # -*- cmake -*-
 include(Prebuilt)
 
+set(USE_OPENJPEG OFF CACHE BOOL "Use OpenJPEG library.")
+
 set(OPENJPEG_FIND_QUIETLY ON)
 set(OPENJPEG_FIND_REQUIRED ON)
 

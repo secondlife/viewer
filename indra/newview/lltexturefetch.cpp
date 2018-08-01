@@ -1164,7 +1164,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					S32 bytes_read = LLAPRFile::readEx(filename, data, 0, mFileSize);
 					if (bytes_read == mFileSize)
 					{
-						mFormattedImage = LLImageFormatted::createFromType(mImageCodec);
+						mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, gSavedSettings.getS32("JpegDecoderType"));
 						mFormattedImage->setData(data, bytes_read);
 						if (!mFormattedImage->updateData())
 						{
@@ -1701,7 +1701,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			if (mFormattedImage.isNull())
 			{
 				// For now, create formatted image based on extension				
-				mFormattedImage = LLImageFormatted::createFromType(LLImageBase::getCodecFromExtension(extension));
+                S8 codec = LLImageFormatted::getCodecFromExtension(extension);
+                if (codec == IMG_CODEC_J2C)
+                {
+                    mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, gSavedSettings.getS32("JpegDecoderType"));
+                }
+                else
+                {
+				    mFormattedImage = LLImageFormatted::createFromType(codec);
+                }
+
 				if (mFormattedImage.isNull())
 				{
 					mFormattedImage = new LLImageJ2C; // default
@@ -1992,6 +2001,12 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 // Threads:  Tmain
 void LLTextureFetchWorker::endWork(S32 param, bool aborted)
 {
+    if (mFormattedImage && (mEncodedImageBuffer == mFormattedImage->getData()))
+    {
+        mEncodedImageBuffer = nullptr;
+        mEncodedImageBufferSize = 0;
+        mEncodedImageBufferAllocated = 0;
+    }
 	mFormattedImage = NULL;
 }
 
@@ -2373,7 +2388,6 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 	S32 desired_size;
 	std::string exten = gDirUtilp->getExtension(url);
-	//if (f_type == FTT_SERVER_BAKE)
     if (f_type == FTT_SERVER_BAKE)
 	{
 		// SH-4030: This case should be redundant with the following one, just
@@ -2382,8 +2396,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 		// Do full requests for baked textures to reduce interim blurring.
 		LL_DEBUGS(LOG_TXT) << "full request for " << id << " texture is FTT_SERVER_BAKE" << LL_ENDL;
-		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);;
-		desired_discard = 0;
+        desired_discard = 0;
+		desired_size = LLImageJ2C::calcDataSizeJ2C(1024, 1024, 4, desired_discard);		
 	}
 	else if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
 	{
@@ -2392,27 +2406,19 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		desired_size = MAX_IMAGE_DATA_SIZE;
 		desired_discard = 0;
 	}
-	else if (desired_discard == 0)
-	{
-		// if we want the entire image, and we know its size, then get it all
-		// (calcDataSizeJ2C() below makes assumptions about how the image
-		// was compressed - this code ensures that when we request the entire image,
-		// we really do get it.)
-		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);
-	}
 	else if (w*h*c > 0)
 	{
 		// If the requester knows the dimensions of the image,
 		// this will calculate how much data we need without having to parse the header
-
+        desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? 0 : desired_discard;
 		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);
 	}
 	else
 	{
 		// If the requester knows nothing about the file, fetch enough to parse the header
 		// and determine how many discard levels are actually available
-		desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, 0) * 2;
-		desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? 0 : desired_discard;
+        desired_discard = (desired_discard >= MAX_DISCARD_LEVEL) ? 0 : desired_discard;
+		desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, desired_discard);		
 	}
 
 	if (worker)

@@ -295,6 +295,7 @@ class LLImageFormatted : public LLImageBase
 {
 public:
 	static LLImageFormatted* createFromType(S8 codec);
+    static LLImageFormatted* createFromTypeWithImpl(S8 codec, S8 implHint);
 	static LLImageFormatted* createFromExtension(const std::string& instring);	
 
 protected:

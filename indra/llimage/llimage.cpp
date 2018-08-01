@@ -2038,6 +2038,36 @@ LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
 	return image;
 }
 
+LLImageFormatted* LLImageFormatted::createFromTypeWithImpl(S8 codec, S8 implHint)
+{
+LLImageFormatted* image;
+	switch(codec)
+	{
+	  case IMG_CODEC_BMP:
+		image = new LLImageBMP();
+		break;
+	  case IMG_CODEC_TGA:
+		image = new LLImageTGA();
+		break;
+	  case IMG_CODEC_JPEG:
+		image = new LLImageJPEG();
+		break;
+	  case IMG_CODEC_PNG:
+		image = new LLImagePNG();
+		break;
+	  case IMG_CODEC_J2C:
+		image = new LLImageJ2C(LLImageJ2C::ImplType(implHint));
+		break;
+	  case IMG_CODEC_DXT:
+		image = new LLImageDXT();
+		break;
+	  default:
+		image = NULL;
+		break;
+	}
+	return image;
+}
+
 // static
 LLImageFormatted* LLImageFormatted::createFromExtension(const std::string& instring)
 {

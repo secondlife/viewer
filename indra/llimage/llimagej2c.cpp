@@ -33,11 +33,35 @@
 #include "llsd.h"
 #include <boost/scoped_ptr.hpp>
 
-// Declare the prototype for this factory function here. It is implemented in
-// other files which define a LLImageJ2CImpl subclass, but only ONE static
-// library which has the implementation for this function should ever be
-// linked.
-LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
+#pragma optimize("", off)
+
+// Declare the prototype for this factory functions here.
+
+// Each one is implemented in the library which implements the LLImageJ2CImpl
+// subclass for integrating with specific codecs.
+#if USE_KDU
+LLImageJ2CImpl* createLLImageJ2CImplKDU();
+#endif
+
+#if USE_OPENJPEG
+LLImageJ2CImpl* createLLImageJ2CImplOJ();
+#endif
+
+LLImageJ2CImpl* createLLImageJ2CImpl(LLImageJ2C::ImplType t = LLImageJ2C::KDU)
+{
+// both codecs are available, select which with the 't' argument
+#if USE_KDU && USE_OPENJPEG
+    return (t == LLImageJ2C::KDU) ? createLLImageJ2CImplKDU() : createLLImageJ2CImplOJ();
+// only KDU is available, so you get KDU
+#elif USE_KDU
+    return createLLImageJ2CImplKDU();
+// only OpenJPEG is available, so you get OpenJPEG
+#elif USE_OPENJPEG
+    return createLLImageJ2CImplOJ();
+#else
+    return nullptr;
+#endif
+}
 
 // Test data gathering handle
 LLImageCompressionTester* LLImageJ2C::sTesterp = NULL ;
@@ -48,8 +72,38 @@ std::string LLImageJ2C::getEngineInfo()
 {
 	// All known LLImageJ2CImpl implementation subclasses are cheap to
 	// construct.
-	boost::scoped_ptr<LLImageJ2CImpl> impl(fallbackCreateLLImageJ2CImpl());
+	boost::scoped_ptr<LLImageJ2CImpl> impl(createLLImageJ2CImpl());
 	return impl->getEngineInfo();
+}
+
+// If both implementation are enabled, use the codec_type to select which instance gets created
+LLImageJ2C::LLImageJ2C(ImplType codec_type)
+ : 	LLImageFormatted(IMG_CODEC_J2C),
+							mMaxBytes(0),
+							mRate(DEFAULT_COMPRESSION_RATE),
+							mReversible(false),
+							mAreaUsedForDataSizeCalcs(0)
+{
+	mImpl.reset(createLLImageJ2CImpl(codec_type));
+
+	claimMem(mImpl);
+
+	// Clear data size table
+	for( S32 i = 0; i <= MAX_DISCARD_LEVEL; i++)
+	{	// Array size is MAX_DISCARD_LEVEL+1
+		mDataSizes[i] = 0;
+	}
+
+	// If that test log has ben requested but not yet created, create it
+	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
+	{
+		sTesterp = new LLImageCompressionTester() ;
+		if (!sTesterp->isValid())
+		{
+			delete sTesterp;
+			sTesterp = NULL;
+		}
+	}
 }
 
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
@@ -58,7 +112,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mReversible(false),
 							mAreaUsedForDataSizeCalcs(0)
 {
-	mImpl.reset(fallbackCreateLLImageJ2CImpl());
+	mImpl.reset(createLLImageJ2CImpl());
 	claimMem(mImpl);
 
 	// Clear data size table

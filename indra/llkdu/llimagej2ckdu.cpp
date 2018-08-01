@@ -138,7 +138,7 @@ private:
 void set_default_colour_weights(kdu_params *siz);
 
 // Factory function: see declaration in llimagej2c.cpp
-LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
+LLImageJ2CImpl* createLLImageJ2CImplKDU()
 {
 	return new LLImageJ2CKDU();
 }

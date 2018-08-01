@@ -1226,7 +1226,16 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 										 const U8 codec)
 {	
 	// Load the image
-	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
+	LLPointer<LLImageFormatted> image;
+    if (codec == IMG_CODEC_J2C)
+    {
+        image = LLImageFormatted::createFromTypeWithImpl(codec, gSavedSettings.getS32("JpegDecoderType"));
+    }
+    else
+    {
+		image = LLImageFormatted::createFromType(codec);
+    }
+
 	if (image.isNull())
 	{
 		image->setLastError("Couldn't open the image to be uploaded.");
@@ -1279,7 +1288,9 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImageRaw> raw_image)
 {
 	raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-	LLPointer<LLImageJ2C> compressedImage = new LLImageJ2C();
+    LLImageJ2C::ImplType encoder = LLImageJ2C::ImplType(gSavedSettings.getS32("JpegEncoderType"));
+    LLImageJ2C* j2c = new LLImageJ2C(encoder);
+	LLPointer<LLImageJ2C> compressedImage(j2c);
 	
 	if (gSavedSettings.getBOOL("LosslessJ2CUpload") &&
 		(raw_image->getWidth() * raw_image->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF))

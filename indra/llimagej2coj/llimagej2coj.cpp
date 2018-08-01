@@ -645,7 +645,7 @@ private:
 };
 
 // Factory function: see declaration in llimagej2c.cpp
-LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
+LLImageJ2CImpl* createLLImageJ2CImplOJ()
 {
 	return new LLImageJ2COJ();
 }

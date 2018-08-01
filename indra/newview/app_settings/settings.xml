@@ -5075,6 +5075,28 @@
       <key>Value</key>
         <real>0.25</real>
       </map>
+    <key>JpegDecoderType</key>
+    <map>
+      <key>Comment</key>
+        <string>Declare decoder to prefer if both are enabled, 0 == KDU, 1 == OpenJPEG</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>S32</string>
+      <key>Value</key>
+        <integer>0</integer>
+	  </map>
+    <key>JpegEncoderType</key>
+    <map>
+      <key>Comment</key>
+        <string>Declare encoder to prefer for uploads, if both are enabled, 0 == KDU, 1 == OpenJPEG</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>S32</string>
+      <key>Value</key>
+        <integer>0</integer>
+	  </map>
 	<key>Jpeg2000AdvancedCompression</key>
 	  <map>
       <key>Comment</key>

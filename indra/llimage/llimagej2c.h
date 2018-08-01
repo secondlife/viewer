@@ -40,13 +40,18 @@ class LLImageCompressionTester ;
 
 class LLImageJ2C : public LLImageFormatted
 {
-protected:
-	virtual ~LLImageJ2C();
-
-    void updateDataSizes();
-
 public:
-	LLImageJ2C();
+    enum ImplType
+    {
+        KDU,
+        OPENJPEG
+    };
+
+    LLImageJ2C();
+
+    // For forcing which codec to use when both are enabled
+    // will fall back to whatever codec is available if they're not all enabled.
+    LLImageJ2C(ImplType codec_type);
 
 	// Base class overrides
 	/*virtual*/ std::string getExtension() { return std::string("j2c"); }
@@ -84,10 +89,15 @@ public:
 	static std::string getEngineInfo();
 
 protected:
-	friend class LLImageJ2CImpl;
+    friend class LLImageJ2CImpl;
 	friend class LLImageJ2COJ;
 	friend class LLImageJ2CKDU;
 	friend class LLImageCompressionTester;
+
+    // insure only friends (impl subclasses) can destruct
+	virtual ~LLImageJ2C();
+
+    void updateDataSizes();
 	void decodeFailed();
 
 	S32 mMaxBytes; // Maximum number of bytes of data to use...
