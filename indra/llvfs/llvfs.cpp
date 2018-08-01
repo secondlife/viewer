@@ -1345,7 +1345,11 @@ void LLVFS::eraseBlock(LLVFSBlock *block)
 	eraseBlockLength(block);
 	// find the corresponding map entry in the location map and erase it	
 	U32 location = block->mLocation;
-	llverify(mFreeBlocksByLocation.erase(location) == 1); // we should only have one entry per location.
+    // we should only have one entry per location.
+	if (mFreeBlocksByLocation.erase(location) != 1)
+    {
+        LL_WARNS() << "VFS erase block had other than 1 entry for block location!" << LL_ENDL;
+    }
 }
 
 
