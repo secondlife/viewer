@@ -1406,7 +1406,9 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			}
 			new_listener = new LLMeshBridge(inventory, root, uuid);
 			break;
-
+		case LLAssetType::AT_UNKNOWN:
+			new_listener = new LLUnknownItemBridge(inventory, root, uuid);
+			break;
 		case LLAssetType::AT_IMAGE_TGA:
 		case LLAssetType::AT_IMAGE_JPEG:
 			//LL_WARNS() << LLAssetType::lookup(asset_type) << " asset type is unhandled for uuid " << uuid << LL_ENDL;
@@ -6949,6 +6951,21 @@ const LLUUID &LLLinkFolderBridge::getFolderID() const
 	return LLUUID::null;
 }
 
+void LLUnknownItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+	items.push_back(std::string("Properties"));
+	items.push_back(std::string("Rename"));
+	hide_context_entries(menu, items, disabled_items);
+}
+
+LLUIImagePtr LLUnknownItemBridge::getIcon() const
+{
+	return LLInventoryIcon::getIcon(LLAssetType::AT_UNKNOWN, mInvType);
+}
+
+
 /********************************************************************************
  **
  **                    BRIDGE ACTIONS
@@ -7310,7 +7327,7 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
 	menuentry_vec_t disabled_items;
     if (get_selection_item_uuids(selected_items, ids))
     {
-        if (!LLAppearanceMgr::instance().canAddWearables(ids))
+		if (!LLAppearanceMgr::instance().canAddWearables(ids) && canWearSelected(ids))
         {
 			disabled_items.push_back(std::string("Wearable Add"));
         }
@@ -7318,4 +7335,17 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
 	disable_context_entries_if_present(menu, disabled_items);
 }
 
+bool LLFolderViewGroupedItemBridge::canWearSelected(uuid_vec_t item_ids)
+{
+	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(*it);
+		LLAssetType::EType asset_type = item->getType();
+		if (!item || (asset_type >= LLAssetType::AT_COUNT) || (asset_type <= LLAssetType::AT_NONE))
+		{
+			return false;
+		}
+	}
+	return true;
+}
 // EOF

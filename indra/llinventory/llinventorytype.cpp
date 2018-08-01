@@ -181,7 +181,7 @@ LLInventoryType::EType LLInventoryType::defaultForAssetType(LLAssetType::EType a
 	}
 	else
 	{
-		return IT_NONE;
+		return IT_UNKNOWN;
 	}
 }
 
