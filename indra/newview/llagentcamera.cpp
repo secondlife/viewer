@@ -1946,6 +1946,13 @@ LLVector3 LLAgentCamera::getCameraOffsetInitial()
 	return convert_from_llsd<LLVector3>(mCameraOffsetInitial[mCameraPreset]->get(), TYPE_VEC3, "");
 }
 
+F32 LLAgentCamera::getCameraMaxZoomDistance()
+{
+    // Ignore "DisableCameraConstraints", we don't want to be out of draw range when we focus onto objects or avatars
+    return llmin(MAX_CAMERA_DISTANCE_FROM_OBJECT,
+                 mDrawDistance - 1, // convenience, don't hit draw limit when focusing on something
+                 LLWorld::getInstance()->getRegionWidthInMeters() - CAMERA_FUDGE_FROM_OBJECT);
+}
 
 //-----------------------------------------------------------------------------
 // handleScrollWheel()

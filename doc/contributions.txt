@@ -220,8 +220,6 @@ Ansariel Hiller
 	STORM-2151
 	MAINT-6917
 	MAINT-8085
-	STORM-2122
-    STORM-2145
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -775,7 +773,6 @@ Jonathan Yap
 	STORM-2100
 	STORM-2104
 	STORM-2142
-	STORM-2145
 Kadah Coba
 	STORM-1060
     STORM-1843

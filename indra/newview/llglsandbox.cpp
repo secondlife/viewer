@@ -966,15 +966,6 @@ private:
 //-----------------------------------------------------------------------------
 F32 gpu_benchmark()
 {
-#if LL_WINDOWS
-	if (gGLManager.mIsIntel
-		&& std::string::npos != LLOSInfo::instance().getOSStringSimple().find("Microsoft Windows 8")) // or 8.1
-	{ // don't run benchmark on Windows 8/8.1 based PCs with Intel GPU (MAINT-8197)
-		LL_WARNS() << "Skipping gpu_benchmark() for Intel graphics on Windows 8." << LL_ENDL;
-		return -1.f;
-	}
-#endif
-
 	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
 	{ // don't bother benchmarking the fixed function
       // or venerable drivers which don't support accurate timing anyway

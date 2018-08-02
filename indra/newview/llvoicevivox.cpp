@@ -542,6 +542,10 @@ void LLVivoxVoiceClient::connectorShutdown()
 		
 		writeString(stream.str());
 	}
+	else
+	{
+		mShutdownComplete = true;
+	}
 }
 
 void LLVivoxVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &agentID)
@@ -1046,16 +1050,25 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
         retval = result.has("connector");
     }
     else
-    {   // If we are not doing a corowait then we must sleep until the connector has responded
+    {
+        mRelogRequested = false; //stop the control coro
+        // If we are not doing a corowait then we must sleep until the connector has responded
         // otherwise we may very well close the socket too early.
 #if LL_WINDOWS
-        int count = 0;
-        while (!mShutdownComplete && 10 > count++)
-        {   // Rider: This comes out to a max wait time of 10 seconds.  
-            // The situation that brings us here is a call from ::terminate() 
-            // and so the viewer is attempting to go away.  Don't slow it down 
-            // longer than this.
+        if (!mShutdownComplete)
+        {
+            // The situation that brings us here is a call from ::terminate()
+            // At this point message system is already down so we can't wait for
+            // the message, yet we need to receive "connector shutdown response".
+            // Either wait a bit and emulate it or check gMessageSystem for specific message
             _sleep(1000);
+            if (mConnected)
+            {
+                mConnected = false;
+                LLSD vivoxevent(LLSDMap("connector", LLSD::Boolean(false)));
+                LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+            }
+            mShutdownComplete = true;
         }
 #endif
     }
@@ -3243,6 +3256,7 @@ void LLVivoxVoiceClient::connectorShutdownResponse(int statusCode, std::string &
 	}
 	
 	mConnected = false;
+	mShutdownComplete = true;
 	
     LLSD vivoxevent(LLSDMap("connector", LLSD::Boolean(false)));
 
@@ -6193,6 +6207,7 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 
 	LLSD args;
 	args["URL"] = LLTrans::getString("voice_morphing_url");
+	args["PREMIUM_URL"] = LLTrans::getString("premium_voice_morphing_url");
 
 	// Give a notification if any voice fonts have expired.
 	if (have_expired)
