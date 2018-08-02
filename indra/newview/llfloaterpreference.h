@@ -133,6 +133,7 @@ public:
 	void setCacheLocation(const LLStringExplicit& location);
 
 	void onClickSetCache();
+	void changeCachePath(const std::vector<std::string>& filenames, std::string proposed_name);
 	void onClickResetCache();
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
@@ -145,6 +146,7 @@ public:
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();
+	void changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name);
 	bool moveTranscriptsAndLog();
 	void enableHistory();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email, bool is_verified_email);

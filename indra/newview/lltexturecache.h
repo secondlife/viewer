@@ -99,4 +99,7 @@ private:
     U64         mUsageMax = 0; // 0 -> unlimited
     U64         mUsage    = 0;
 };
+
+extern const S32 TEXTURE_CACHE_ENTRY_SIZE;
+
 #endif // LL_LLTEXTURECACHE_H
