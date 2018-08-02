@@ -204,6 +204,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
+	sendChildToBack(getChildView("sign_up_text"));
 
 	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
@@ -270,6 +271,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
+
+	LLTextBox* sign_up_text = getChild<LLTextBox>("sign_up_text");
+	sign_up_text->setClickedCallback(onClickSignUp, NULL);
 
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
@@ -918,6 +922,15 @@ void LLPanelLogin::onClickForgotPassword(void*)
 	if (sInstance )
 	{
 		LLWeb::loadURLExternal(sInstance->getString( "forgot_password_url" ));
+	}
+}
+
+//static
+void LLPanelLogin::onClickSignUp(void*)
+{
+	if (sInstance)
+	{
+		LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
 	}
 }
 

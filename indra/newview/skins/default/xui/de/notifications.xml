@@ -4317,7 +4317,7 @@ Wählen Sie eine kleinere Landfläche aus.
 		Aufgrund eines internen Fehlers konnte Ihr Viewer nicht ordnungsgemäß aktualisiert werden.  Der in Ihrem Viewer angezeigte L$-Kontostand oder Parzellenbesitz stimmt möglicherweise nicht mit dem aktuellen Stand auf den Servern überein.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Große Prims, die sich mit anderen Spielern überschneiden, können nicht erstellt werden.  Bitte erneut versuchen, wenn sich die anderen Spieler bewegt haben.
+		Große Prims, die sich mit anderen Einwohnern überschneiden, können nicht erstellt werden. Bitte erneut versuchen, wenn sich die anderen Einwohner fort bewegt haben.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Dadurch werden die Protokolle vorheriger Unterhaltungen und alle Backups dieser Datei gelöscht.

@@ -4302,7 +4302,7 @@ Veuillez sélectionner un terrain plus petit.
 		Une erreur interne nous a empêchés de mettre votre client à jour correctement.  Le solde de L$ et le patrimoine affichés dans votre client peuvent ne pas correspondre à votre solde réel sur les serveurs.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Impossible de créer de grandes prims qui coupent d&apos;autres joueurs.  Réessayez une fois que les autres joueurs se seront déplacés.
+		Impossible de créer de grands prims qui rejoignent d&apos;autres résidents. Veuillez essayer à nouveau lorsque les autres résidents seront partis.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Cela supprimera les journaux des conversations précédentes, ainsi que toute copie de sauvegarde de ce fichier.

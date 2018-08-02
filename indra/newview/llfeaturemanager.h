@@ -145,9 +145,6 @@ public:
 	// in the skip list if true
 	void applyFeatures(bool skipFeatures);
 
-	// load the dynamic GPU/feature table from a website
-	void fetchHTTPTables();
-
 	LLSD getRecommendedSettingsMap();
 
 protected:
@@ -157,8 +154,6 @@ protected:
 	///< @returns TRUE is file parsed correctly, FALSE if not
 
 	void initBaseMask();
-
-    void fetchFeatureTableCoro(std::string name);
 
 	std::map<std::string, LLFeatureList *> mMaskList;
 	std::set<std::string> mSkippedFeatures;

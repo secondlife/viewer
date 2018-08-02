@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Анимация
 	</text>
+	<text name="title_model">
+		Модели
+	</text>
 	<text name="upload_help">
 		Чтобы сменить папку назначения, щелкните ее в инвентаре правой кнопкой мыши и выберите
  &quot;Использовать по умолчанию для&quot;

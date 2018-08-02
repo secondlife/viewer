@@ -31,7 +31,7 @@
 	<text name="AvatarPhysicsDetailText">
 		低
 	</text>
-	<text name="ShadersText">
+	<text name="HardwareText">
 		ハードウェア
 	</text>
 	<slider label="テクスチャメモリ (MB)：" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てられたメモリの量。ビデオカードのメモリに既定。数値を下げるとパフォーマンスが向上しますが、テクスチャの精度が落ちることがあります。"/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		(再起動後に反映)
 	</text>
+	<text name="MeshText">
+		メッシュ
+	</text>
 	<slider label="地形のメッシュの詳細：" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		低
@@ -71,6 +74,9 @@
 	<slider label="フレキシプリム：" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		低
+	</text>
+	<text name="ShadersText">
+		シェーダー
 	</text>
 	<check_box initial_value="true" label="透明な水" name="TransparentWater"/>
 	<check_box initial_value="true" label="バンプマッピングと光沢" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="推奨設定にリセット" name="Defaults"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
-	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors"/>
 </floater>
