@@ -26,19 +26,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
-import sys
-import os
-import os.path
-import shutil
 import errno
 import json
+import os
+import os.path
 import plistlib
 import random
 import re
+import shutil
 import stat
 import subprocess
+import sys
 import tarfile
 import time
+import zipfile
 
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
@@ -63,7 +64,7 @@ class ViewerManifest(LLManifest):
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
         if self.is_packaging_viewer():
-            with self.prefix(src="app_settings"):
+            with self.prefix(src_dst="app_settings"):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
@@ -85,7 +86,7 @@ class ViewerManifest(LLManifest):
             
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                with self.prefix(src=pkgdir,dst=""):
+                with self.prefix(src=pkgdir):
                     self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
@@ -129,20 +130,20 @@ class ViewerManifest(LLManifest):
                                  src="environment")
 
 
-            with self.prefix(src="character"):
+            with self.prefix(src_dst="character"):
                 self.path("*.llm")
                 self.path("*.xml")
                 self.path("*.tga")
 
             # Include our fonts
-            with self.prefix(src="fonts"):
+            with self.prefix(src_dst="fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
 
             # skins
-            with self.prefix(src="skins"):
+            with self.prefix(src_dst="skins"):
                     # include the entire textures directory recursively
-                    with self.prefix(src="*/textures"):
+                    with self.prefix(src_dst="*/textures"):
                             self.path("*/*.tga")
                             self.path("*/*.j2c")
                             self.path("*/*.jpg")
@@ -170,7 +171,7 @@ class ViewerManifest(LLManifest):
 
 
             # local_assets dir (for pre-cached textures)
-            with self.prefix(src="local_assets"):
+            with self.prefix(src_dst="local_assets"):
                 self.path("*.j2c")
                 self.path("*.tga")
 
@@ -186,6 +187,11 @@ class ViewerManifest(LLManifest):
                             "Address Size":self.address_size,
                             "Update Service":"https://update.secondlife.com/update",
                             }
+            try:
+                build_data_dict["BugSplat DB"] = os.environ["BUGSPLAT_DB"]
+            except KeyError:
+                # skip the assignment if there's no BUGSPLAT_DB variable
+                pass
             build_data_dict = self.finish_build_data_dict(build_data_dict)
             with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
                 json.dump(build_data_dict,build_data_handle)
@@ -215,8 +221,7 @@ class ViewerManifest(LLManifest):
         return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
 
     def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
-        global CHANNEL_VENDOR_BASE
-        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        channel_qualifier=self.channel_variant().lower()
         if channel_qualifier.startswith('release'):
             channel_type='release'
         elif channel_qualifier.startswith('beta'):
@@ -488,19 +493,19 @@ class WindowsManifest(ViewerManifest):
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
+            with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SL_Launcher.exe')
                 #IUM is not normally executed directly, just imported.  No exe needed.
                 self.path("InstallerUserMessage.py")
 
-            with self.prefix(src=self.icon_path(), dst="vmp_icons"):
-                self.path("secondlife.ico")
-
-            #VMP  Tkinter icons
-            with self.prefix("vmp_icons"):
-                self.path("*.png")
-                self.path("*.gif")
+            with self.prefix(dst="vmp_icons"):
+                with self.prefix(src=self.icon_path()):
+                    self.path("secondlife.ico")
+                #VMP  Tkinter icons
+                with self.prefix(src="vmp_icons"):
+                    self.path("*.png")
+                    self.path("*.gif")
 
             #before, we only needed llbase at build time.  With VMP, we need it at run time.
             with self.prefix(src=os.path.join(pkgdir, "lib", "python", "llbase"), dst="llbase"):
@@ -513,8 +518,8 @@ class WindowsManifest(ViewerManifest):
                            "slplugin.exe")
         
         # Get shared libs from the shared libs staging directory
-        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
-                       dst=""):
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                          'sharedlibs', self.args['configuration'])):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
@@ -580,6 +585,16 @@ class WindowsManifest(ViewerManifest):
             # Hunspell
             self.path("libhunspell.dll")
 
+            # BugSplat
+            if(self.address_size == 64):
+                self.path("BsSndRpt64.exe")
+                self.path("BugSplat64.dll")
+                self.path("BugSplatRc64.dll")
+            else:
+                self.path("BsSndRpt.exe")
+                self.path("BugSplat.dll")
+                self.path("BugSplatRc.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -589,114 +604,116 @@ class WindowsManifest(ViewerManifest):
             except:
                 print "Skipping libtcmalloc_minimal.dll"
 
-
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
 
-        with self.prefix(src=pkgdir,dst=""):
+        with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
         # Media plugins - CEF
-        with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_cef.dll")
+        with self.prefix(dst="llplugin"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
+                with self.prefix(src=os.path.join('cef', self.args['configuration'])):
+                    self.path("media_plugin_cef.dll")
 
-        # Media plugins - LibVLC
-        with self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_libvlc.dll")
+                # Media plugins - LibVLC
+                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
+                    self.path("media_plugin_libvlc.dll")
 
-        # Media plugins - Example (useful for debugging - not shipped with release viewer)
-        if self.channel_type() != 'release':
-            with self.prefix(src='../media_plugins/example/%s' % self.args['configuration'], dst="llplugin"):
-                self.path("media_plugin_example.dll")
+                # Media plugins - Example (useful for debugging - not shipped with release viewer)
+                if self.channel_type() != 'release':
+                    with self.prefix(src=os.path.join('example', self.args['configuration'])):
+                        self.path("media_plugin_example.dll")
 
-        # CEF runtime files - debug
-        # CEF runtime files - not debug (release, relwithdebinfo etc.)
-        config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-        with self.prefix(src=os.path.join(pkgdir, 'bin', config), dst="llplugin"):
-            self.path("chrome_elf.dll")
-            self.path("d3dcompiler_43.dll")
-            self.path("d3dcompiler_47.dll")
-            self.path("libcef.dll")
-            self.path("libEGL.dll")
-            self.path("libGLESv2.dll")
-            self.path("dullahan_host.exe")
-            self.path("natives_blob.bin")
-            self.path("snapshot_blob.bin")
-            self.path("widevinecdmadapter.dll")
+            # CEF runtime files - debug
+            # CEF runtime files - not debug (release, relwithdebinfo etc.)
+            config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
+            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
+                self.path("chrome_elf.dll")
+                self.path("d3dcompiler_43.dll")
+                self.path("d3dcompiler_47.dll")
+                self.path("libcef.dll")
+                self.path("libEGL.dll")
+                self.path("libGLESv2.dll")
+                self.path("dullahan_host.exe")
+                self.path("natives_blob.bin")
+                self.path("snapshot_blob.bin")
+                self.path("widevinecdmadapter.dll")
 
-        # MSVC DLLs needed for CEF and have to be in same directory as plugin
-        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release'), dst="llplugin"):
-            self.path("msvcp120.dll")
-            self.path("msvcr120.dll")
+            # MSVC DLLs needed for CEF and have to be in same directory as plugin
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                              'sharedlibs', 'Release')):
+                self.path("msvcp120.dll")
+                self.path("msvcr120.dll")
 
-        # CEF files common to all configurations
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="llplugin"):
-            self.path("cef.pak")
-            self.path("cef_100_percent.pak")
-            self.path("cef_200_percent.pak")
-            self.path("cef_extensions.pak")
-            self.path("devtools_resources.pak")
-            self.path("icudtl.dat")
+            # CEF files common to all configurations
+            with self.prefix(src=os.path.join(pkgdir, 'resources')):
+                self.path("cef.pak")
+                self.path("cef_100_percent.pak")
+                self.path("cef_200_percent.pak")
+                self.path("cef_extensions.pak")
+                self.path("devtools_resources.pak")
+                self.path("icudtl.dat")
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('llplugin', 'locales')):
-            self.path("am.pak")
-            self.path("ar.pak")
-            self.path("bg.pak")
-            self.path("bn.pak")
-            self.path("ca.pak")
-            self.path("cs.pak")
-            self.path("da.pak")
-            self.path("de.pak")
-            self.path("el.pak")
-            self.path("en-GB.pak")
-            self.path("en-US.pak")
-            self.path("es-419.pak")
-            self.path("es.pak")
-            self.path("et.pak")
-            self.path("fa.pak")
-            self.path("fi.pak")
-            self.path("fil.pak")
-            self.path("fr.pak")
-            self.path("gu.pak")
-            self.path("he.pak")
-            self.path("hi.pak")
-            self.path("hr.pak")
-            self.path("hu.pak")
-            self.path("id.pak")
-            self.path("it.pak")
-            self.path("ja.pak")
-            self.path("kn.pak")
-            self.path("ko.pak")
-            self.path("lt.pak")
-            self.path("lv.pak")
-            self.path("ml.pak")
-            self.path("mr.pak")
-            self.path("ms.pak")
-            self.path("nb.pak")
-            self.path("nl.pak")
-            self.path("pl.pak")
-            self.path("pt-BR.pak")
-            self.path("pt-PT.pak")
-            self.path("ro.pak")
-            self.path("ru.pak")
-            self.path("sk.pak")
-            self.path("sl.pak")
-            self.path("sr.pak")
-            self.path("sv.pak")
-            self.path("sw.pak")
-            self.path("ta.pak")
-            self.path("te.pak")
-            self.path("th.pak")
-            self.path("tr.pak")
-            self.path("uk.pak")
-            self.path("vi.pak")
-            self.path("zh-CN.pak")
-            self.path("zh-TW.pak")
+            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+                self.path("am.pak")
+                self.path("ar.pak")
+                self.path("bg.pak")
+                self.path("bn.pak")
+                self.path("ca.pak")
+                self.path("cs.pak")
+                self.path("da.pak")
+                self.path("de.pak")
+                self.path("el.pak")
+                self.path("en-GB.pak")
+                self.path("en-US.pak")
+                self.path("es-419.pak")
+                self.path("es.pak")
+                self.path("et.pak")
+                self.path("fa.pak")
+                self.path("fi.pak")
+                self.path("fil.pak")
+                self.path("fr.pak")
+                self.path("gu.pak")
+                self.path("he.pak")
+                self.path("hi.pak")
+                self.path("hr.pak")
+                self.path("hu.pak")
+                self.path("id.pak")
+                self.path("it.pak")
+                self.path("ja.pak")
+                self.path("kn.pak")
+                self.path("ko.pak")
+                self.path("lt.pak")
+                self.path("lv.pak")
+                self.path("ml.pak")
+                self.path("mr.pak")
+                self.path("ms.pak")
+                self.path("nb.pak")
+                self.path("nl.pak")
+                self.path("pl.pak")
+                self.path("pt-BR.pak")
+                self.path("pt-PT.pak")
+                self.path("ro.pak")
+                self.path("ru.pak")
+                self.path("sk.pak")
+                self.path("sl.pak")
+                self.path("sr.pak")
+                self.path("sv.pak")
+                self.path("sw.pak")
+                self.path("ta.pak")
+                self.path("te.pak")
+                self.path("th.pak")
+                self.path("tr.pak")
+                self.path("uk.pak")
+                self.path("vi.pak")
+                self.path("zh-CN.pak")
+                self.path("zh-TW.pak")
 
-        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
-            self.path("libvlc.dll")
-            self.path("libvlccore.dll")
-            self.path("plugins/")
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins/")
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
@@ -888,6 +905,9 @@ class DarwinManifest(ViewerManifest):
         launcher_app, launcher_icon = "Second Life Launcher.app", "secondlife.icns"
         viewer_app,   viewer_icon   = "Second Life Viewer.app",   "secondlife.icns"
 
+        # capture the path to the directory containing toplevel_app
+        parentdir = os.path.join(self.get_dst_prefix(), os.pardir)
+
         # copy over the build result (this is a no-op if run within the xcode script)
         self.path(os.path.join(self.args['configuration'], toplevel_app), dst="")
 
@@ -897,12 +917,9 @@ class DarwinManifest(ViewerManifest):
 
         # -------------------- top-level Second Life.app ---------------------
         # top-level Second Life application is only a container
-        with self.prefix(src="", dst="Contents"):  # everything goes in Contents
+        with self.prefix(dst="Contents"):  # everything goes in Contents
             # top-level Info.plist is as generated by CMake
-            Info_plist = "Info.plist"
-            ## This self.path() call reports 0 files... skip?
-            self.path(Info_plist)
-            Info_plist = self.dst_path_of(Info_plist)
+            Info_plist = self.dst_path_of("Info.plist")
 
             # the one file in top-level MacOS directory is the trampoline to
             # our nested launcher_app
@@ -929,10 +946,10 @@ open "%s" --args "$@"
             # rather than relsymlinkf().
             self.symlinkf(os.path.join("Resources", viewer_app, "Contents", "Frameworks"))
 
-            with self.prefix(src="", dst="Resources"):
+            with self.prefix(dst="Resources"):
                 # top-level Resources directory should be pretty sparse
                 # need .icns file referenced by top-level Info.plist
-                with self.prefix(src=self.icon_path(), dst="") :
+                with self.prefix(src=self.icon_path()) :
                     self.path(toplevel_icon)
 
                 # ------------------- nested launcher_app --------------------
@@ -952,15 +969,15 @@ open "%s" --args "$@"
                         #this copies over the python wrapper script,
                         #associated utilities and required libraries, see
                         #SL-321, SL-322, SL-323
-                        with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
+                        with self.prefix(src=os.path.join(pkgdir, "VMP")):
                             self.path("SL_Launcher")
                             self.path("*.py")
                             # certifi will be imported by requests; this is
                             # our custom version to get our ca-bundle.crt
                             self.path("certifi")
-                        with self.prefix(src=os.path.join(pkgdir, "lib", "python"), dst=""):
+                        with self.prefix(src=os.path.join(pkgdir, "lib", "python")):
                             # llbase provides our llrest service layer and llsd decoding
-                            with self.prefix("llbase"):
+                            with self.prefix(src="llbase", dst="llbase"):
                                 # (Why is llbase treated specially here? What
                                 # DON'T we want to copy out of lib/python/llbase?)
                                 self.path("*.py")
@@ -973,36 +990,18 @@ open "%s" --args "$@"
 
                     # launcher_app/Contents/Resources
                     with self.prefix(dst="Resources"):
-                        with self.prefix(src=self.icon_path(), dst="") :
+                        with self.prefix(src=self.icon_path()) :
                             self.path(launcher_icon)
                             with self.prefix(dst="vmp_icons"):
                                 self.path("secondlife.ico")
                         #VMP Tkinter icons
-                        with self.prefix("vmp_icons"):
+                        with self.prefix(src_dst="vmp_icons"):
                             self.path("*.png")
                             self.path("*.gif")
 
                 # -------------------- nested viewer_app ---------------------
                 with self.prefix(dst=os.path.join(viewer_app, "Contents")):
-                    # Info.plist is just like top-level one...
-                    Info = plistlib.readPlist(Info_plist)
-                    # except for these replacements:
-                    # (CFBundleExecutable may be moot: SL_Launcher directly
-                    # runs the executable, instead of launching the app)
-                    Info["CFBundleExecutable"] = "Second Life"
-                    Info["CFBundleIconFile"] = viewer_icon
-                    self.put_in_file(
-                        plistlib.writePlistToString(Info),
-                        os.path.basename(Info_plist),
-                        "Info.plist")
-
-                    # CEF framework goes inside viewer_app/Contents/Frameworks.
-                    # Remember where we parked this car.
-                    with self.prefix(src="", dst="Frameworks"):
-                        CEF_framework = "Chromium Embedded Framework.framework"
-                        self.path2basename(relpkgdir, CEF_framework)
-                        CEF_framework = self.dst_path_of(CEF_framework)
-
+                    # defer Info.plist until after MacOS
                     with self.prefix(dst="MacOS"):
                         # CMake constructs the Second Life executable in the
                         # MacOS directory belonging to the top-level Second
@@ -1015,44 +1014,115 @@ open "%s" --args "$@"
                                 # don't move the trampoline script we just made!
                                 continue
                             fromwhere = os.path.join(toplevel_MacOS, f)
-                            towhere   = os.path.join(here, f)
+                            towhere   = self.dst_path_of(f)
                             print "Moving %s => %s" % \
                                   (self.relpath(fromwhere, relbase),
                                    self.relpath(towhere, relbase))
                             # now do it, only without relativizing paths
                             os.rename(fromwhere, towhere)
 
-                        # NOTE: the -S argument to strip causes it to keep
-                        # enough info for annotated backtraces (i.e. function
-                        # names in the crash log). 'strip' with no arguments
-                        # yields a slightly smaller binary but makes crash
-                        # logs mostly useless. This may be desirable for the
-                        # final release. Or not.
+                        # Pick the biggest of the executables as the real viewer.
+                        # Make (basename, fullpath) pairs; for each pair,
+                        # expand to (size, basename, fullpath) triples; sort
+                        # by size; pick the last triple; take the basename and
+                        # fullpath from that.
+                        _, exename, exepath = \
+                            sorted((os.path.getsize(path), name, path)
+                                   for name, path in
+                                   ((name, os.path.join(here, name))
+                                    for name in os.listdir(here)))[-1]
+
                         if ("package" in self.args['actions'] or 
                             "unpacked" in self.args['actions']):
-                            self.run_command(
-                                ['strip', '-S', self.dst_path_of('Second Life')])
+                            # only if we're engaging BugSplat
+                            if "BUGSPLAT_DB" in os.environ:
+                                # Create a symbol archive BEFORE stripping the
+                                # binary.
+                                self.run_command(['dsymutil', exepath])
+                                # This should produce a Second Life.dSYM bundle directory.
+                                try:
+                                    # Now pretend we're Xcode making a .xcarchive file.
+                                    # Put it as a sibling of the top-level .app.
+                                    # From "Dave" at BugSplat support:
+                                    # "More from our Mac lead: I think zipping
+                                    # a folder containing the binary and
+                                    # symbols would be sufficient. Assuming
+                                    # symbol files are created with CMake. I'm
+                                    # not sure if CMake strips symbols into
+                                    # separate files at build time, and if so
+                                    # they're in a supported format."
+                                    xcarchive = os.path.join(parentdir,
+                                                             exename + '.xcarchive.zip')
+                                    with zipfile.ZipFile(xcarchive, 'w',
+                                                         compression=zipfile.ZIP_DEFLATED) as zf:
+                                        print "Creating {}".format(xcarchive)
+                                        for base, dirs, files in os.walk(here):
+                                            for fn in files:
+                                                fullfn = os.path.join(base, fn)
+                                                relfn = os.path.relpath(fullfn, here)
+                                                print "  {}".format(relfn)
+                                                zf.write(fullfn, relfn)
+                                finally:
+                                    # Whether or not we were able to create the
+                                    # .xcarchive file, clean up the .dSYM bundle
+                                    shutil.rmtree(self.dst_path_of(exename + '.dSYM'))
+
+                            # NOTE: the -S argument to strip causes it to keep
+                            # enough info for annotated backtraces (i.e. function
+                            # names in the crash log). 'strip' with no arguments
+                            # yields a slightly smaller binary but makes crash
+                            # logs mostly useless. This may be desirable for the
+                            # final release. Or not.
+                            self.run_command(['strip', '-S', exepath])
+
+                    # Info.plist is just like top-level one...
+                    Info = plistlib.readPlist(Info_plist)
+                    # except for these replacements:
+                    # (CFBundleExecutable may be moot: SL_Launcher directly
+                    # runs the executable, instead of launching the app)
+                    Info["CFBundleExecutable"] = exename
+                    Info["CFBundleIconFile"] = viewer_icon
+                    try:
+                        # https://www.bugsplat.com/docs/platforms/os-x#configuration
+                        Info["BugsplatServerURL"] = \
+                            "https://{BUGSPLAT_DB}.bugsplatsoftware.com/".format(**os.environ)
+                    except KeyError:
+                        # skip the assignment if there's no BUGSPLAT_DB variable
+                        pass
+                    self.put_in_file(
+                        plistlib.writePlistToString(Info),
+                        os.path.basename(Info_plist),
+                        "Info.plist")
+
+                    with self.prefix(dst="Frameworks"):
+                        # CEF framework goes inside viewer_app/Contents/Frameworks.
+                        CEF_framework = "Chromium Embedded Framework.framework"
+                        self.path2basename(relpkgdir, CEF_framework)
+                        # Remember where we parked this car.
+                        CEF_framework = self.dst_path_of(CEF_framework)
+
+                        self.path2basename(relpkgdir, "BugsplatMac.framework")
 
                     with self.prefix(dst="Resources"):
                         # defer cross-platform file copies until we're in the right
                         # nested Resources directory
                         super(DarwinManifest, self).construct()
 
-                        with self.prefix(src=self.icon_path(), dst="") :
+                        with self.prefix(src=self.icon_path()) :
                             self.path(viewer_icon)
 
-                        with self.prefix(src=relpkgdir, dst=""):
+                        with self.prefix(src=relpkgdir):
                             self.path("libndofdev.dylib")
                             self.path("libhunspell-1.3.0.dylib")   
 
-                        with self.prefix("cursors_mac"):
+                        with self.prefix(src_dst="cursors_mac"):
                             self.path("*.tif")
 
                         self.path("licenses-mac.txt", dst="licenses.txt")
                         self.path("featuretable_mac.txt")
                         self.path("SecondLife.nib")
 
-                        with self.prefix(src=pkgdir,dst=""):
+                        with self.prefix(src=pkgdir):
                             self.path("ca-bundle.crt")
 
                         self.path("SecondLife.nib")
@@ -1265,7 +1335,7 @@ open "%s" --args "$@"
                             with self.prefix(src=relpkgdir, dst="lib"):
                                 self.path( "libvlc*.dylib*" )
                                 # copy LibVLC plugins folder
-                                with self.prefix(src='plugins', dst=""):
+                                with self.prefix(src='plugins'):
                                     self.path( "*.dylib" )
                                     self.path( "plugins.dat" )
 
@@ -1458,24 +1528,24 @@ class LinuxManifest(ViewerManifest):
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         self.path("licenses-linux.txt","licenses.txt")
-        with self.prefix("linux_tools", dst=""):
+        with self.prefix("linux_tools"):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
-            with self.prefix(src="", dst="etc"):
+            with self.prefix(dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
                 self.path("refresh_desktop_app_entry.sh")
                 self.path("launch_url.sh")
             self.path("install.sh")
 
-        with self.prefix(src="", dst="bin"):
+        with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin") 
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-            with self.prefix(src="../viewer_components/manager", dst=""):
+            with self.prefix(src="../viewer_components/manager"):
                 self.path("SL_Launcher")
                 self.path("*.py")
             with self.prefix(src=os.path.join("lib", "python", "llbase"), dst="llbase"):
@@ -1488,9 +1558,9 @@ class LinuxManifest(ViewerManifest):
         # Get the icons based on the channel type
         icon_path = self.icon_path()
         print "DEBUG: icon_path '%s'" % icon_path
-        with self.prefix(src=icon_path, dst="") :
+        with self.prefix(src=icon_path) :
             self.path("secondlife_256.png","secondlife_icon.png")
-            with self.prefix(src="",dst="res-sdl") :
+            with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
         # plugins
@@ -1512,7 +1582,7 @@ class LinuxManifest(ViewerManifest):
 
         self.path("featuretable_linux.txt")
 
-        with self.prefix(src=pkgdir,dst=""):
+        with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
@@ -1568,7 +1638,7 @@ class Linux_i686_Manifest(LinuxManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        with self.prefix(relpkgdir, dst="lib"):
+        with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so")
             self.path("libapr-1.so.0")
             self.path("libapr-1.so.0.4.5")

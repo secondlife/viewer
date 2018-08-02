@@ -12,6 +12,7 @@ set(cmake_SOURCE_FILES
     Audio.cmake
     BerkeleyDB.cmake
     Boost.cmake
+    bugsplat.cmake
     BuildVersion.cmake
     CEFPlugin.cmake
     CEFPlugin.cmake

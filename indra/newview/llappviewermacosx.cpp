@@ -36,6 +36,7 @@
 #include "llappviewermacosx-objc.h"
 
 #include "llappviewermacosx.h"
+#include "llappviewermacosx-for-objc.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
 
@@ -44,6 +45,8 @@
 #include "llmd5.h"
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
+#include "llerrorcontrol.h"
+#include "llvoavatarself.h"         // for gAgentAvatarp->getFullname()
 #include <ApplicationServices/ApplicationServices.h>
 #ifdef LL_CARBON_CRASH_HANDLER
 #include <Carbon/Carbon.h>
@@ -145,6 +148,26 @@ void cleanupViewer()
 	
 	delete gViewerAppPtr;
 	gViewerAppPtr = NULL;
+}
+
+std::string getOldLogFilePathname()
+{
+    return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.old");
+}
+
+std::string getFatalMessage()
+{
+    return LLError::getFatalMessage();
+}
+
+std::string getAgentFullname()
+{
+    return gAgentAvatarp? gAgentAvatarp->getFullname() : std::string();
+}
+
+void infos(const std::string& message)
+{
+    LL_INFOS() << message << LL_ENDL;
 }
 
 int main( int argc, char **argv ) 
