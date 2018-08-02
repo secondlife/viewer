@@ -722,7 +722,7 @@ bool LLVivoxVoiceClient::callbackEndDaemon(const LLSD& data)
     LL_DEBUGS("Voice") << LL_ENDL;
     if (!LLAppViewer::isExiting())
     {
-        LL_DEBUGS("Voice") << "callbackEndDaemon terminating audio session" << LL_ENDL;
+        LL_DEBUGS("Voice") << "SLVoice terminated " << ll_stream_notation_sd(data) << LL_ENDL;
         terminateAudioSession(false);
         closeSocket();
         cleanUp();
@@ -747,11 +747,6 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     {
 #ifndef VIVOXDAEMON_REMOTEHOST
         // Launch the voice daemon
-
-        // *FIX:Mani - Using the executable dir instead 
-        // of mAppRODataDir, the working directory from which the app
-        // is launched.
-        //std::string exe_path = gDirUtilp->getAppRODataDir();
         std::string exe_path = gDirUtilp->getExecutableDir();
         exe_path += gDirUtilp->getDirDelimiter();
 #if LL_WINDOWS
@@ -806,7 +801,8 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             params.postend = sGatewayPump.getName();
             sGatewayPump.listen("VivoxDaemonPump", boost::bind(&LLVivoxVoiceClient::callbackEndDaemon, this, _1));
 
-            LL_INFOS("Voice") << "Launching SLVoice " << LL_ENDL;
+            LL_INFOS("Voice") << "Launching SLVoice" << LL_ENDL;
+            LL_DEBUGS("Voice") << "SLVoice params " << params << LL_ENDL;
 
             sGatewayPtr = LLProcess::create(params);
 
