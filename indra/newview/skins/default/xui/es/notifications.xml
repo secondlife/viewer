@@ -4299,7 +4299,7 @@ Prueba a seleccionar un terreno más pequeño.
 		Un error interno nos ha impedido actualizar tu visor correctamente. El saldo en L$ o las parcelas en propiedad presentadas en el visor podrían no coincidir con tu saldo real en los servidores.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		No se pueden crear prims grandes que intersectan a otros jugadores. Reinténtalo cuando se hayan movido otros jugadores.
+		No se pudo crear primitivas grandes que se crucen con otros residentes. Por favor, vuelve a intentar cuando otros residentes se hayan desplazado.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Esto eliminará los registros de conversaciones anteriores y las copias de seguridad de ese archivo.

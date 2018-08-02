@@ -31,7 +31,7 @@
 	<text name="AvatarPhysicsDetailText">
 		Basso
 	</text>
-	<text name="ShadersText">
+	<text name="HardwareText">
 		Hardware
 	</text>
 	<slider label="Memoria texture (MB):" name="GraphicsCardTextureMemory" tool_tip="Spazio di memoria da assegnare alle texture. Utilizza la memoria della scheda video come impostazione predefinita. La riduzione di questa impostazione potrebbe migliorare il rendimento ma potrebbe anche rendere le texture poco definite."/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		(richiede il riavvio)
 	</text>
+	<text name="MeshText">
+		Mesh
+	</text>
 	<slider label="Dettagli mesh terreno:" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		Basso
@@ -71,6 +74,9 @@
 	<slider label="Prim flessibili:" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		Basso
+	</text>
+	<text name="ShadersText">
+		Shader
 	</text>
 	<check_box initial_value="true" label="Acqua trasparente" name="TransparentWater"/>
 	<check_box initial_value="true" label="Mappatura urti e brillantezza" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="Ripristina impostazioni consigliate" name="Defaults"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
-	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors"/>
 </floater>

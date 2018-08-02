@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="412"
+ layout="topleft"
+ min_height="412"
+ min_width="420"
+ name="floater_auction"
+ help_topic="floater_auction"
+ title="START LINDEN LAND SALE"
+ width="420">
+    <floater.string
+     name="already for sale">
+        You cannot auction parcels which are already for sale.
+    </floater.string>
+    <icon
+     bottom="280"
+     follows="left|right|top|bottom"
+     layout="topleft"
+     left="4"
+     name="snapshot_icon"
+     right="-4"
+     top="24" />
+    <text
+     follows="left|right|bottom"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="parcel_text"
+     top_pad="12"
+     width="400" />
+    <check_box
+     control_name="AuctionShowFence" 
+     follows="left|bottom"
+     height="16"
+     initial_value="true"
+     label="Include yellow selection fence"
+     layout="topleft"
+     left_delta="0"
+     name="fence_check"
+     top_pad="12"
+     width="199" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Snapshot"
+     label_selected="Snapshot"
+     layout="topleft"
+     left_delta="0"
+     name="snapshot_btn"
+     top_pad="4"
+     width="150">
+      <button.commit_callback
+         function="ClickSnapshot" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Sell to Anyone"
+     label_selected="Sell to Anyone"
+     layout="topleft"
+     left_delta="0"
+     name="sell_to_anyone_btn"
+     top_pad="4"
+     width="150">
+      <button.commit_callback
+         function="ClickSellToAnyone" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Clear Settings"
+     label_selected="Clear Settings"
+     layout="topleft"
+     left_delta="0"
+     name="reset_parcel_btn"
+     top_pad="4"
+     width="150">
+      <button.commit_callback
+         function="ClickResetParcel" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Start Auction"
+     label_selected="Start Auction"
+     layout="topleft"
+     left_pad="4"
+     name="start_auction_btn"
+     top_delta="0"
+     width="150">
+      <button.commit_callback
+          function="ClickStartAuction" />
+    </button>
+</floater>
