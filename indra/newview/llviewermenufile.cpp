@@ -203,38 +203,55 @@ void LLFilePickerThread::clearDead()
 	}
 }
 
-LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ELoadFilter filter, bool get_multiple)
+LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ELoadFilter filter, bool get_multiple, const file_picked_signal_t::slot_type& failure_cb)
 	: LLFilePickerThread(filter, get_multiple),
 	mLoadFilter(filter),
 	mSaveFilter(LLFilePicker::FFSAVE_ALL),
-	mFilePickedSignal(NULL)
+	mFilePickedSignal(NULL),
+	mFailureSignal(NULL)
 {
 	mFilePickedSignal = new file_picked_signal_t();
 	mFilePickedSignal->connect(cb);
+
+	mFailureSignal = new file_picked_signal_t();
+	mFailureSignal->connect(failure_cb);
 }
 
-LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ESaveFilter filter, const std::string &proposed_name, const file_picked_signal_t::slot_type& failure_cb)
 	: LLFilePickerThread(filter, proposed_name),
 	mLoadFilter(LLFilePicker::FFLOAD_ALL),
 	mSaveFilter(filter),
-	mFilePickedSignal(NULL)
+	mFilePickedSignal(NULL),
+	mFailureSignal(NULL)
 {
 	mFilePickedSignal = new file_picked_signal_t();
 	mFilePickedSignal->connect(cb);
+
+	mFailureSignal = new file_picked_signal_t();
+	mFailureSignal->connect(failure_cb);
 }
 
 LLFilePickerReplyThread::~LLFilePickerReplyThread()
 {
 	delete mFilePickedSignal;
+	delete mFailureSignal;
 }
 
 void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
 {
-	if (filenames.empty()) return;
-
-	if (mFilePickedSignal)
+	if (filenames.empty())
 	{
-		(*mFilePickedSignal)(filenames, mLoadFilter, mSaveFilter);
+		if (mFailureSignal)
+		{
+			(*mFailureSignal)(filenames, mLoadFilter, mSaveFilter);
+		}
+	}
+	else
+	{
+		if (mFilePickedSignal)
+		{
+			(*mFilePickedSignal)(filenames, mLoadFilter, mSaveFilter);
+		}
 	}
 }
 
@@ -592,7 +609,6 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
 									   FALSE))
 		{
-			gViewerWindow->playSnapshotAnimAndSound();
 			LLPointer<LLImageFormatted> formatted;
             LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
 			switch (fmt)

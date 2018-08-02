@@ -92,10 +92,23 @@
          shortcut="alt|shift|S"
          name="Sit Down Here">
           <menu_item_call.on_click
-           function="Self.SitDown"
-           parameter="" />
+           function="Self.SitDown"/>
+          <menu_item_call.on_visible
+           function="Self.ShowSitDown"/>
           <menu_item_call.on_enable
            function="Self.EnableSitDown" />
+        </menu_item_call>
+        <menu_item_call
+         label="Stand Up"
+         layout="topleft"
+         shortcut="alt|shift|S"
+         name="Stand up">
+          <menu_item_call.on_click
+           function="Self.StandUp"/>
+          <menu_item_call.on_visible
+           function="Self.EnableStandUp"/>
+          <menu_item_call.on_enable
+           function="Self.EnableStandUp" />
         </menu_item_call>
         <menu_item_check
          label="Fly"
