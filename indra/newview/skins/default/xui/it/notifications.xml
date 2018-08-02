@@ -4301,7 +4301,7 @@ Prova a selezionare un pezzo di terreno più piccolo.
 		Un errore interno ha impedito l&apos;aggiornamento del Viewer.  Il saldo in L$ o i lotti posseduti mostrati nel Viewer potrebbero non corrispondere ai valori correnti sui server.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Non puoi creare prim grandi che intersecano altri giocatori.  Riprova quando gli altri giocatori si sono spostati.
+		Impossibile creare prim larghi che si intersechino con altri residenti. Si prega di riprovare quando gli altri residenti si saranno mossi.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Verranno cancellati i registri delle conversazioni precedenti e tutti gli eventuali backup di quel file.
