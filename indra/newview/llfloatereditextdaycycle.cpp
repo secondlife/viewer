@@ -975,9 +975,13 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     LLTabContainer * tabs = mWaterTabLayoutContainer->getChild<LLTabContainer>(TABS_WATER);
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
-        canedit = !mIsPlaying;
-        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
-        psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
+        if (!mFramesSlider->getCurSlider().empty())
+        {
+            canedit = !mIsPlaying;
+            // either search mEditDay or retrieve from mSliderKeyMap
+            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
+            psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
+        }
         mCurrentEdit = psettingW;
         if (!psettingW)
         {
@@ -999,9 +1003,13 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     tabs = mSkyTabLayoutContainer->getChild<LLTabContainer>(TABS_SKYS);
     if (mCurrentTrack != LLSettingsDay::TRACK_WATER)
     {
-        canedit = !mIsPlaying;
-        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
-        psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
+        if (!mFramesSlider->getCurSlider().empty())
+        {
+            canedit = !mIsPlaying;
+            // either search mEditDay or retrieve from mSliderKeyMap
+            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
+            psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
+        }
         mCurrentEdit = psettingS;
         if (!psettingS)
         {
