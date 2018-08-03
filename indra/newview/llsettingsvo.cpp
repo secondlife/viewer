@@ -269,7 +269,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
         if (!settings)
         {
             status = 1;
-            LL_WARNS("SETTINGS") << "Unable to creat settings object." << LL_ENDL;
+            LL_WARNS("SETTINGS") << "Unable to create settings object." << LL_ENDL;
         }
         else
         {

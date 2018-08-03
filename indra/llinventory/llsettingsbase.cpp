@@ -300,7 +300,6 @@ bool LLSettingsBase::validate()
     {
         LL_WARNS("SETTINGS") << "Validation warnings: " << result["warnings"] << LL_ENDL;
     }
-    LL_WARNS("SETTINGS") << "Validation success is " << result["success"] << LL_ENDL;
 
     return result["success"].asBoolean();
 }
