@@ -1479,12 +1479,12 @@ LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromEnvironment(EnvSelection_t
     if (type == "sky")
     {
         for (S32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
-            day->clearTrack(idx);
+            day->clearCycleTrack(idx);
         day->setSettingsAtKeyframe(settings, 0.0f, 1);
     }
     else if (type == "water")
     {
-        day->clearTrack(LLSettingsDay::TRACK_WATER);
+        day->clearCycleTrack(LLSettingsDay::TRACK_WATER);
         day->setSettingsAtKeyframe(settings, 0.0f, LLSettingsDay::TRACK_WATER);
     }
 
