@@ -613,6 +613,7 @@ protected:
 	static bool loadFromFile(const std::string& filename,
 							 cat_array_t& categories,
 							 item_array_t& items,
+							 changed_items_t& cats_to_update,
 							 bool& is_cache_obsolete); 
 	static bool saveToFile(const std::string& filename,
 						   const cat_array_t& categories,
