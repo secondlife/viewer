@@ -76,6 +76,8 @@ const F32 AVATAR_ZOOM_MIN_Y_FACTOR = 0.7f;
 const F32 AVATAR_ZOOM_MIN_Z_FACTOR = 1.15f;
 
 const F32 MAX_CAMERA_DISTANCE_FROM_AGENT = 50.f;
+const F32 MAX_CAMERA_DISTANCE_FROM_OBJECT = 496.f;
+const F32 CAMERA_FUDGE_FROM_OBJECT = 16.f;
 
 const F32 MAX_CAMERA_SMOOTH_DISTANCE = 50.0f;
 
@@ -738,10 +740,7 @@ F32 LLAgentCamera::getCameraZoomFraction()
 	else
 	{
 		F32 min_zoom;
-		const F32 DIST_FUDGE = 16.f; // meters
-		F32 max_zoom = llmin(mDrawDistance - DIST_FUDGE, 
-								LLWorld::getInstance()->getRegionWidthInMeters() - DIST_FUDGE,
-								MAX_CAMERA_DISTANCE_FROM_AGENT);
+		F32 max_zoom = getCameraMaxZoomDistance();
 
 		F32 distance = (F32)mCameraFocusOffsetTarget.magVec();
 		if (mFocusObject.notNull())
@@ -787,10 +786,7 @@ void LLAgentCamera::setCameraZoomFraction(F32 fraction)
 	else
 	{
 		F32 min_zoom = LAND_MIN_ZOOM;
-		const F32 DIST_FUDGE = 16.f; // meters
-		F32 max_zoom = llmin(mDrawDistance - DIST_FUDGE, 
-								LLWorld::getInstance()->getRegionWidthInMeters() - DIST_FUDGE,
-								MAX_CAMERA_DISTANCE_FROM_AGENT);
+		F32 max_zoom = getCameraMaxZoomDistance();
 
 		if (mFocusObject.notNull())
 		{
@@ -909,10 +905,7 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 
 	new_distance = llmax(new_distance, min_zoom); 
 
-	// Don't zoom too far back
-	const F32 DIST_FUDGE = 16.f; // meters
-	F32 max_distance = llmin(mDrawDistance - DIST_FUDGE, 
-							 LLWorld::getInstance()->getRegionWidthInMeters() - DIST_FUDGE );
+	F32 max_distance = getCameraMaxZoomDistance();
 
     max_distance = llmin(max_distance, current_distance * 4.f); //Scaled max relative to current distance.  MAINT-3154
 
@@ -978,10 +971,7 @@ void LLAgentCamera::cameraOrbitIn(const F32 meters)
 
 		new_distance = llmax(new_distance, min_zoom);
 
-		// Don't zoom too far back
-		const F32 DIST_FUDGE = 16.f; // meters
-		F32 max_distance = llmin(mDrawDistance - DIST_FUDGE, 
-								 LLWorld::getInstance()->getRegionWidthInMeters() - DIST_FUDGE );
+		F32 max_distance = getCameraMaxZoomDistance();
 
 		if (new_distance > max_distance)
 		{
