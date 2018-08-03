@@ -107,8 +107,6 @@ namespace {
     const std::string ACTION_APPLY_REGION("apply_region");
 
     const F32 DAY_CYCLE_PLAY_TIME_SECONDS = 60;
-
-    const F32 FRAME_SLOP_FACTOR = 0.0251f;
 }
 
 //=========================================================================
@@ -407,7 +405,7 @@ void LLFloaterEditExtDayCycle::onAddTrack()
 {
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     LLSettingsBase::ptr_t setting;
-    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
+    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
         LL_WARNS("ENVIRONMENT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
@@ -512,7 +510,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
             {
                 // don't move the point/frame as long as shift is pressed and user is attempting to copy
                 // handleKeyUp will do the move if user releases key too early.
-                if (!(mEditDay->getSettingsNearKeyframe(sliderpos, mCurrentTrack, FRAME_SLOP_FACTOR)).second)
+                if (!(mEditDay->getSettingsNearKeyframe(sliderpos, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
                 {
                     LL_DEBUGS() << "Copying frame from " << it->second.mFrame << " to " << sliderpos << LL_ENDL;
                     LLSettingsBase::ptr_t new_settings;
@@ -584,7 +582,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 
         LL_WARNS("LAPRAS") << "Selected vs mouse delta = " << (sliderval - sliderpos) << LL_ENDL;
 
-        if (fabs(sliderval - sliderpos) > FRAME_SLOP_FACTOR)
+        if (fabs(sliderval - sliderpos) > LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)
         {
             mFramesSlider->resetCurSlider();
         }
@@ -598,12 +596,12 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 
     LL_WARNS("LAPRAS") << "  UP: X=" << x << "  Y=" << y << " MASK=" << mask << " Position=" << sliderpos << LL_ENDL;
     mTimeSlider->setCurSliderValue(sliderpos);
-    selectFrame(sliderpos, FRAME_SLOP_FACTOR);
+    selectFrame(sliderpos, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
 
 void LLFloaterEditExtDayCycle::onTimeSliderMoved()
 {
-    selectFrame(mTimeSlider->getCurSliderValue(), FRAME_SLOP_FACTOR);
+    selectFrame(mTimeSlider->getCurSliderValue(), LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
 
 void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
@@ -785,7 +783,7 @@ void LLFloaterEditExtDayCycle::updateSlider()
         mLastFrameSlider.clear();
     }
 
-    selectFrame(frame_position, FRAME_SLOP_FACTOR);
+    selectFrame(frame_position, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
 
 void LLFloaterEditExtDayCycle::updateTimeAndLabel()
@@ -979,7 +977,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
         {
             canedit = !mIsPlaying;
             // either search mEditDay or retrieve from mSliderKeyMap
-            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
+            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
             psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
         }
         mCurrentEdit = psettingW;
@@ -1007,7 +1005,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
         {
             canedit = !mIsPlaying;
             // either search mEditDay or retrieve from mSliderKeyMap
-            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
+            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
             psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
         }
         mCurrentEdit = psettingS;
@@ -1218,7 +1216,7 @@ void LLFloaterEditExtDayCycle::stopPlay()
     gIdleCallbacks.deleteFunction(onIdlePlay, this);
     mPlayTimer.stop();
     F32 frame = mTimeSlider->getCurSliderValue();
-    selectFrame(frame, FRAME_SLOP_FACTOR);
+    selectFrame(frame, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 
     getChild<LLView>("play_layout", true)->setVisible(TRUE);
     getChild<LLView>("pause_layout", true)->setVisible(FALSE);

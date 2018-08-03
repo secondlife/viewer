@@ -47,6 +47,7 @@ public:
 		Optional<S32>	max_sliders;
 
 		Optional<bool>	allow_overlap,
+						loop_overlap,
 						draw_track,
 						use_triangle;
 
@@ -109,6 +110,7 @@ protected:
 
 	S32				mMaxNumSliders;
 	BOOL			mAllowOverlap;
+	BOOL			mLoopOverlap;
 	F32				mOverlapThreshold;
 	BOOL			mDrawTrack;
 	BOOL			mUseTriangle;			/// hacked in toggle to use a triangle
