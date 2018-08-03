@@ -103,7 +103,6 @@ public:
     void                        setSettingsAtKeyframe(const LLSettingsBase::ptr_t &settings, const LLSettingsBase::TrackPosition& keyframe, S32 track);
     LLSettingsBase::ptr_t       getSettingsAtKeyframe(const LLSettingsBase::TrackPosition& keyframe, S32 track) const;
     CycleTrack_t::value_type    getSettingsNearKeyframe(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const;
-    void                        clearTrack(S32 track);
 
         //---------------------------------------------------------------------
     void                        startDayCycle();
@@ -116,6 +115,9 @@ public:
 
     void                        setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
+    bool                        clearCycleTrack(S32 track);
+    bool                        replaceCycleTrack(S32 track, const CycleTrack_t &source);
+    bool                        isTrackEmpty(S32 track) const;
 
     virtual validation_list_t   getValidationList() const SETTINGS_OVERRIDE;
     static validation_list_t    validationList();

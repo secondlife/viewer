@@ -498,6 +498,58 @@ LLSettingsDay::CycleTrack_t &LLSettingsDay::getCycleTrack(S32 track)
     return mDayTracks[track];
 }
 
+bool LLSettingsDay::clearCycleTrack(S32 track)
+{
+    if ((track < 0) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to clear track (#" << track << ") out of range!" << LL_ENDL;
+        return false;
+    }
+    mDayTracks[track].clear();
+    clearAssetId();
+    setDirtyFlag(true);
+    return true;
+}
+
+bool LLSettingsDay::replaceCycleTrack(S32 track, const CycleTrack_t &source)
+{
+    if (source.empty())
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to copy an empty track." << LL_ENDL;
+        return false;
+    }
+
+    {
+        LLSettingsBase::ptr_t   first((*source.begin()).second);
+        std::string setting_type = first->getSettingsType();
+
+        if (((setting_type == "water") && (track != 0)) ||
+            ((setting_type == "sky") && (track == 0)))
+        {
+            LL_WARNS("DAYCYCLE") << "Attempt to copy track missmatch" << LL_ENDL;
+            return false;
+        }
+    }
+
+    if (!clearCycleTrack(track))
+        return false;
+
+    mDayTracks[track] = source;
+    return true;
+}
+
+
+bool LLSettingsDay::isTrackEmpty(S32 track) const
+{
+    if ((track < 0) || (track >= TRACK_MAX))
+    {
+        LL_WARNS("DAYCYCLE") << "Attempt to test track (#" << track << ") out of range!" << LL_ENDL;
+        return true;
+    }
+
+    return mDayTracks[track].empty();
+}
+
 //=========================================================================
 void LLSettingsDay::startDayCycle()
 {
@@ -688,17 +740,6 @@ LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyframe(c
         return (*it);
 
     return CycleTrack_t::value_type(TrackPosition(INVALID_TRACKPOS), LLSettingsBase::ptr_t());
-}
-
-void LLSettingsDay::clearTrack(S32 track)
-{
-    if ((track < 0) || (track >= TRACK_MAX))
-    {
-        LL_WARNS("DAYCYCLE") << "Attempt to clear track (#" << track << ") out of range!" << LL_ENDL;
-        return;
-    }
-
-    mDayTracks[track].clear();
 }
 
 LLSettingsBase::TrackPosition LLSettingsDay::getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe)
