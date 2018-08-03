@@ -79,6 +79,11 @@
 		</text>
 		<scroll_list name="member_allowed_actions" tool_tip="想瞭解每一項允許的能力的詳情請查閱能力頁籤。"/>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			這個能力可以「將會員踢出本群組」。 必須具備所有人身分才能把另一位所有人踢出。
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			角色名稱
@@ -97,6 +102,11 @@
 			允許的能力
 		</text>
 		<scroll_list name="role_allowed_actions" tool_tip="想瞭解每一項允許的能力的詳情請查閱能力頁籤。"/>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			這個能力可以「將會員踢出本群組」。 必須具備所有人身分才能把另一位所有人踢出。
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

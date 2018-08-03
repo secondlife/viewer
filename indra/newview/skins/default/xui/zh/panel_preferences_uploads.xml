@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		動作
 	</text>
+	<text name="title_model">
+		模型
+	</text>
 	<text name="upload_help">
 		要變更目的資料夾，請在收納區用滑鼠右鍵按一下新的資料夾並選擇
  「用作預設值」

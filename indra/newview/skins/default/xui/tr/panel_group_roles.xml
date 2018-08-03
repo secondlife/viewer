@@ -77,6 +77,11 @@ Ctrl tuşuna basıp adlarına tıklayarak birden fazla Üye seçebilirsiniz.
 		</text>
 		<scroll_list name="member_allowed_actions" tool_tip="İzin verilen her bir yeteneğin ayrıntıları için yetenekler sekmesine bakın"/>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			Bu Yetenek &apos;Üyeleri bu Gruptan Çıkar&apos; özelliğidir. Bir Sahibi sadece başka bir Sahip çıkarabilir.
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			Rol Adı
@@ -95,6 +100,11 @@ Ctrl tuşuna basıp adlarına tıklayarak birden fazla Üye seçebilirsiniz.
 			İzin Verilen Yetenekler
 		</text>
 		<scroll_list name="role_allowed_actions" tool_tip="İzin verilen her bir yeteneğin ayrıntıları için yetenekler sekmesine bakın"/>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			Bu Yetenek &apos;Üyeleri bu Gruptan Çıkar&apos; özelliğidir. Bir Sahibi sadece başka bir Sahip çıkarabilir.
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

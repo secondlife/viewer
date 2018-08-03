@@ -31,7 +31,7 @@
 	<text name="AvatarPhysicsDetailText">
 		低
 	</text>
-	<text name="ShadersText">
+	<text name="HardwareText">
 		硬體
 	</text>
 	<slider label="材質記憶體（MB）：" name="GraphicsCardTextureMemory" tool_tip="配置給材質使用的記憶體量。 預設為顯像卡記憶體。 降低此值可以提升效能，但材質也會變模糊。"/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		（須重新啟動）
 	</text>
+	<text name="MeshText">
+		網面
+	</text>
 	<slider label="地形網面細節：" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		低
@@ -71,6 +74,9 @@
 	<slider label="彈性幾何元件：" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		低
+	</text>
+	<text name="ShadersText">
+		著色器
 	</text>
 	<check_box initial_value="true" label="清澈透明的水" name="TransparentWater"/>
 	<check_box initial_value="true" label="凹凸映射與光澤效果" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="重設為我們建議的設定" name="Defaults"/>
 	<button label="確定" label_selected="確定" name="OK"/>
 	<button label="取消" label_selected="取消" name="Cancel"/>
-	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors"/>
 </floater>

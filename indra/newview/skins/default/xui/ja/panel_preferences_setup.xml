@@ -15,9 +15,9 @@
 		Web：
 	</text>
 	<radio_group name="preferred_browser_behavior">
-		<radio_item label="すべてのリンクにマイ ブラウザ (Chrome、Firefox、IE) を使用" name="internal" tool_tip="デフォルトのシステム Web ブラウザでヘルプや Web リンク先などを見ます。全画面で起動中にはおすすめしません。" value="0"/>
-		<radio_item label="Second Life リンクにのみ内蔵ブラウザを使用" name="external" tool_tip="ヘルプ、Web リンクなどにはデフォルトシステムのブラウザを使用します。 内蔵ブラウザは LindenLab/SecondLife リンクにのみ使用されます。" value="1"/>
-		<radio_item label="すべてのリンクに内蔵ブラウザを使用" name="external_all" tool_tip="内蔵ブラウザでヘルプや Web リンクなどを見ます。[APP_NAME] 内に新しいウィンドウでこのブラウザが開きます。" value="2"/>
+		<radio_item label="すべてのリンクにデフォルトシステムのブラウザを使用します" name="internal" tool_tip="デフォルトのシステム Web ブラウザでヘルプや Web リンク先などを見ます。全画面で起動中にはおすすめしません。" value="0"/>
+		<radio_item label="Second Life リンクにのみ内蔵ブラウザを使用します" name="external" tool_tip="ヘルプ、Web リンクなどにはデフォルトシステムのブラウザを使用します内蔵ブラウザは LindenLab/Second Life リンクにのみ使用されます。" value="1"/>
+		<radio_item label="すべてのリンクに内蔵ブラウザを使用します" name="external_all" tool_tip="内蔵ブラウザでヘルプや Web リンクなどを見ます。[APP_NAME] 内に新しいウィンドウでこのブラウザが開きます。" value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="プラグインを有効にする" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Cookie を受け入れる" name="cookies_enabled"/>

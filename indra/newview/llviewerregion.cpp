@@ -1878,7 +1878,7 @@ void LLViewerRegion::updateNetStats()
 	mLastPacketsLost =	mPacketsLost;
 
 	mPacketsIn =				cdp->getPacketsIn();
-	mBitsIn =					cdp->getBytesIn();
+	mBitsIn =					8 * cdp->getBytesIn();
 	mPacketsOut =				cdp->getPacketsOut();
 	mPacketsLost =				cdp->getPacketsLost();
 	mPingDelay =				cdp->getPingDelay();
@@ -2818,6 +2818,7 @@ void LLViewerRegion::unpackRegionHandshake()
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
 	capabilityNames.append("AbuseCategories");
+	//capabilityNames.append("AcceptFriendship");
 	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
@@ -2827,6 +2828,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");
+	//capabilityNames.append("DeclineFriendship");
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("DirectDelivery");
 	capabilityNames.append("EnvironmentSettings");

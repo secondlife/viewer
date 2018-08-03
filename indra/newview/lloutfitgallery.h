@@ -130,6 +130,7 @@ protected:
 private:
     void loadPhotos();
     void uploadPhoto(LLUUID outfit_id);
+    void uploadOutfitImage(const std::vector<std::string>& filenames, LLUUID outfit_id);
     void updateSnapshotFolderObserver();
     LLUUID getPhotoAssetId(const LLUUID& outfit_id);
     LLUUID getDefaultPhoto();
