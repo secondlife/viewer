@@ -1080,6 +1080,7 @@ bool LLAppViewer::init()
 		}
 	}
 
+// don't nag developers who need to run the executable directly
 #if LL_RELEASE_FOR_DOWNLOAD
 	// MAINT-8305: If we're processing a SLURL, skip the launcher check.
 	if (gSavedSettings.getString("CmdLineLoginLocation").empty())
@@ -1387,10 +1388,10 @@ bool LLAppViewer::doFrame()
 		//memory leaking simulation
 		if (gSimulateMemLeak)
 		{
-		LLFloaterMemLeak* mem_leak_instance =
-			LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
 			if (mem_leak_instance)
-		{
+			{
 				mem_leak_instance->idle();
 			}
 		}
