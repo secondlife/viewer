@@ -80,6 +80,11 @@
 		</text>
 		<scroll_list name="member_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			Esta Habilidade é ‘Expulsar Membros deste Grupo&apos;. Somente os Proprietários podem expulsar outro Proprietário.
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			Nome da função
@@ -101,6 +106,11 @@
 			Habilidades permitidas
 		</text>
 		<scroll_list name="role_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			Esta Habilidade é ‘Expulsar Membros deste Grupo&apos;. Somente os Proprietários podem expulsar outro Proprietário.
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

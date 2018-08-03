@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		değiştirmek için oturum açın
 	</panel.string>
-	<button label="Geçmişi Temizle" name="clear_cache" tool_tip="Oturum açma görüntüsünü, son konumu, ışınlama geçmişini, web ve dokulama önbelleğini temizleyin."/>
+	<button label="Geçmişi Temizle" name="clear_cache" tool_tip="Oturum açma görüntüsünü, son konumu, ışınlama geçmişini, web ve doku önbelleğini temizleyin."/>
 	<text name="cache_size_label_l">
 		(Konumlar, görüntüler, web, arama geçmişi)
 	</text>

@@ -31,8 +31,8 @@
 	<text name="AvatarPhysicsDetailText">
 		Низкая
 	</text>
-	<text name="ShadersText">
-		Аппаратура
+	<text name="HardwareText">
+		Аппаратное оборудование
 	</text>
 	<slider label="Память для текстур (МБ):" name="GraphicsCardTextureMemory" tool_tip="Объем памяти, отводимый для текстур. По умолчанию – объем памяти видеокарты. Уменьшение поможет увеличить производительность, но текстуры могут стать размытыми."/>
 	<slider label="Дистанция тумана:" name="fog"/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		(требуется перезапуск)
 	</text>
+	<text name="MeshText">
+		Сетка
+	</text>
 	<slider label="Детализация меша:" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		Низкая
@@ -71,6 +74,9 @@
 	<slider label="Гибкие примитивы:" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		Низкая
+	</text>
+	<text name="ShadersText">
+		Шейдеры
 	</text>
 	<check_box initial_value="true" label="Прозрачность воды" name="TransparentWater"/>
 	<check_box initial_value="true" label="Рельефность и сияние" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="Вернуть рекомендуемые настройки" name="Defaults"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
-	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity (Отрисовка аватара макс. сложности)" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors (Отрисовка макс. кол-ва 3-D аватаров)" name="RenderAvatarMaxNonImpostors"/>
 </floater>
