@@ -283,7 +283,6 @@ LLEnvironment::LLEnvironment():
 {
 }
 
-#pragma optimize ("", off)
 void LLEnvironment::initSingleton()
 {
     LLSettingsSky::ptr_t p_default_sky = LLSettingsVOSky::buildDefaultSky();
@@ -305,7 +304,6 @@ void LLEnvironment::initSingleton()
 
     gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
 }
-#pragma optimize ("", on)
 
 LLEnvironment::~LLEnvironment()
 {
@@ -407,7 +405,6 @@ bool LLEnvironment::isInventoryEnabled() const
         !gAgent.getRegionCapability("UpdateSettingsTaskInventory").empty());
 }
 
-#pragma optimize ("", off)
 void LLEnvironment::onParcelChange()
 {
     S32 parcel_id(INVALID_PARCEL_ID);
@@ -420,7 +417,6 @@ void LLEnvironment::onParcelChange()
 
     requestParcel(parcel_id);
 }
-#pragma optimize ("", on)
 
 void LLEnvironment::onLegacyRegionSettings(LLSD data)
 {
@@ -996,7 +992,6 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
 }
 
 //=========================================================================
-#pragma optimize ("", off)
 void LLEnvironment::requestRegion()
 {
     if (!isExtendedEnvironmentEnabled())
@@ -1007,7 +1002,6 @@ void LLEnvironment::requestRegion()
 
     requestParcel(INVALID_PARCEL_ID);
 }
-#pragma optimize ("", on)
 
 void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
 {
