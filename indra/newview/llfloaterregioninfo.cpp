@@ -184,6 +184,7 @@ public:
     void refresh();
 
     bool refreshFromRegion(LLViewerRegion* region);
+    void refreshFromEstate();
 
     virtual BOOL postBuild();
 
@@ -191,6 +192,7 @@ protected:
     virtual void doApply();
 
     virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
+    BOOL    sendUpdate();
 
 private:
     LLViewerRegion * mLastRegion;
@@ -2388,8 +2390,6 @@ bool LLPanelEstateInfo::callbackChangeLindenEstate(const LLSD& notification, con
 			estate_info.setDenyAgeUnverified(getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean());
 			estate_info.setAllowVoiceChat(getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean());
             estate_info.setAllowAccessOverride(getChild<LLUICtrl>("parcel_access_override")->getValue().asBoolean());
-            // JIGGLYPUFF
-            //estate_info.setAllowAccessOverride(getChild<LLUICtrl>("")->getValue().asBoolean());
 			// send the update to sim
 			estate_info.sendEstateInfo();
 		}
@@ -3370,6 +3370,9 @@ LLPanelRegionEnvironment::LLPanelRegionEnvironment():
     LLPanelEnvironmentInfo(),
     mLastRegion(NULL)
 {
+    LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+    estate_info.setCommitCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
+    estate_info.setUpdateCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
 }
 
 
@@ -3385,6 +3388,7 @@ BOOL LLPanelRegionEnvironment::postBuild()
 void LLPanelRegionEnvironment::refresh()
 {
     refreshFromRegion(mLastRegion);
+    refreshFromEstate();
 }
 
 bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
@@ -3403,9 +3407,6 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
 
     mDayLengthSlider->setValue(daylength.value());
     mDayOffsetSlider->setValue(dayoffset.value());
-    
-    //mRegionSettingsRadioGroup->setSelectedIndex(region->getIsDefaultDayCycle() ? 0 : 1);
-    mRegionSettingsRadioGroup->setSelectedIndex(1);
 
     setControlsEnabled(owner_or_god_or_manager);
     mLastRegion = region;
@@ -3413,9 +3414,24 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
     LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(LLEnvironment::ENV_REGION);
 
     if (pday)
-        mEditingDayCycle = pday->buildClone();
+    {
+        mRegionSettingsRadioGroup->setSelectedIndex((pday->getAssetId() == LLSettingsDay::GetDefaultAssetId()) ? 0 : 1);
+        mEditingDayCycle = std::static_pointer_cast<LLSettingsDay>(pday->buildDerivedClone()); 
+    }
+    else
+    {
+        mRegionSettingsRadioGroup->setSelectedIndex(1);
+    }
 
     return true;
+}
+
+void LLPanelRegionEnvironment::refreshFromEstate()
+{
+    const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+    getChild<LLUICtrl>("allow_override_chk")->setValue(estate_info.getAllowEnvironmentOverride());
+
 }
 
 void LLPanelRegionEnvironment::doApply()
@@ -3446,4 +3462,24 @@ void LLPanelRegionEnvironment::doApply()
 void LLPanelRegionEnvironment::doEditCommited(LLSettingsDay::ptr_t &newday)
 {
     mEditingDayCycle = newday;
+}
+
+BOOL LLPanelRegionEnvironment::sendUpdate()
+{
+//     LL_INFOS() << "LLPanelEsateInfo::sendUpdate()" << LL_ENDL;
+// 
+//     LLNotification::Params params("ChangeLindenEstate");
+//     params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
+// 
+//     if (isLindenEstate())
+//     {
+//         // trying to change reserved estate, warn
+//         LLNotifications::instance().add(params);
+//     }
+//     else
+//     {
+//         // for normal estates, just make the change
+//         LLNotifications::instance().forceResponse(params, 0);
+//     }
+    return TRUE;
 }

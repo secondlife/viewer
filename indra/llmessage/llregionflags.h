@@ -54,6 +54,9 @@ const U64 REGION_FLAGS_BLOCK_LAND_RESELL		= (1 << 7);
 
 // All content wiped once per night
 const U64 REGION_FLAGS_SANDBOX					= (1 << 8);
+
+const U64 REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE = (1 << 9);
+
 const U64 REGION_FLAGS_SKIP_COLLISIONS			= (1 << 12); // Pin all non agent rigid bodies
 const U64 REGION_FLAGS_SKIP_SCRIPTS				= (1 << 13);
 const U64 REGION_FLAGS_SKIP_PHYSICS				= (1 << 14); // Skip all physics
