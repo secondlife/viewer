@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Animations
 	</text>
+	<text name="title_model">
+		Modèles
+	</text>
 	<text name="upload_help">
 		Pour modifier un dossier de destination, cliquez-droit sur ce dossier dans l’inventaire et faites votre choix
  &quot;Utiliser comme défaut pour&quot;

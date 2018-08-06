@@ -244,8 +244,13 @@ public:
 
     inline void setAssetId(LLUUID value)
     {   // note that this skips setLLSD
-        LL_WARNS("LAPRAS") << "Settings asset id set to:{" << value << "}" << LL_ENDL;
         mSettings[SETTING_ASSETID] = value;
+    }
+
+    inline void clearAssetId()
+    {
+        if (mSettings.has(SETTING_ASSETID))
+            mSettings.erase(SETTING_ASSETID);
     }
 
 protected:

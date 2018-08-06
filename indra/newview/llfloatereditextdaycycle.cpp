@@ -191,13 +191,15 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 {
     mEditDay.reset();
+
+    LLEnvironment::EnvSelection_t env = LLEnvironment::ENV_DEFAULT;
     if (key.has(KEY_INVENTORY_ID))
     {
         loadInventoryItem(key[KEY_INVENTORY_ID].asUUID());
     }
     else if (key.has(KEY_LIVE_ENVIRONMENT))
     {
-        LLEnvironment::EnvSelection_t env = static_cast<LLEnvironment::EnvSelection_t>(key[KEY_LIVE_ENVIRONMENT].asInteger());
+        env = static_cast<LLEnvironment::EnvSelection_t>(key[KEY_LIVE_ENVIRONMENT].asInteger());
 
         loadLiveEnvironment(env);
     }
@@ -212,7 +214,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         mDayLength.value(key[KEY_DAY_LENGTH].asReal());
     }
 
-    // time labels
+    // Time&Percentage labels
     mCurrentTimeLabel->setTextArg("[PRCNT]", std::string("0"));
     const S32 max_elm = 5;
     if (mDayLength.value() != 0)
@@ -246,15 +248,28 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         mCurrentTimeLabel->setTextArg("[DSC]", std::string());
     }
 
+    // Altitudes&Track labels
+    LLUIString formatted_label = getString("sky_track_label");
     const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
+    bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
+    bool use_altitudes = extended_env
+                         && altitudes.size() > 0
+                         && (env == LLEnvironment::ENV_REGION || env == LLEnvironment::ENV_PARCEL);
     for (S32 idx = 1; idx < 4; ++idx)
     {
-        std::stringstream label;
-        label << altitudes[idx] << "m";
-        getChild<LLButton>(track_tabs[idx + 1], true)->setTextArg("[DSC]", label.str());
+        std::ostringstream convert;
+        if (use_altitudes)
+        {
+            convert << altitudes[idx] << "m";
+        }
+        else
+        {
+            convert << (idx + 1);
+        }
+        formatted_label.setArg("[ALT]", convert.str());
+        getChild<LLButton>(track_tabs[idx + 1], true)->setLabel(formatted_label.getString());
     }
 
-    bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
     for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++) //skies #2 through #4
     {
         getChild<LLButton>(track_tabs[i])->setEnabled(extended_env);
@@ -971,9 +986,13 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     LLTabContainer * tabs = mWaterTabLayoutContainer->getChild<LLTabContainer>(TABS_WATER);
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
-        canedit = !mIsPlaying;
-        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
-        psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
+        if (!mFramesSlider->getCurSlider().empty())
+        {
+            canedit = !mIsPlaying;
+            // either search mEditDay or retrieve from mSliderKeyMap
+            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, FRAME_SLOP_FACTOR);
+            psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
+        }
         mCurrentEdit = psettingW;
         if (!psettingW)
         {
@@ -995,9 +1014,13 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     tabs = mSkyTabLayoutContainer->getChild<LLTabContainer>(TABS_SKYS);
     if (mCurrentTrack != LLSettingsDay::TRACK_WATER)
     {
-        canedit = !mIsPlaying;
-        LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
-        psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
+        if (!mFramesSlider->getCurSlider().empty())
+        {
+            canedit = !mIsPlaying;
+            // either search mEditDay or retrieve from mSliderKeyMap
+            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, FRAME_SLOP_FACTOR);
+            psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
+        }
         mCurrentEdit = psettingS;
         if (!psettingS)
         {

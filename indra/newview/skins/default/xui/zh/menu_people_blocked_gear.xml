@@ -3,6 +3,7 @@
 	<menu_item_call label="解除封鎖" name="unblock"/>
 	<menu_item_check label="禁止語音" name="BlockVoice"/>
 	<menu_item_check label="禁止文字" name="MuteText"/>
+	<menu_item_check label="封鎖粒子效果" name="MuteParticles"/>
 	<menu_item_check label="禁止物件聲音" name="BlockObjectSounds"/>
 	<menu_item_call label="檔案..." name="profile"/>
 </toggleable_menu>

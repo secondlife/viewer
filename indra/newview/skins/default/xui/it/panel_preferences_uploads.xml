@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Animazioni
 	</text>
+	<text name="title_model">
+		Modelli
+	</text>
 	<text name="upload_help">
 		Per cambiare una cartella di destinazione, fai clic col pulsante destro del mouse sulla cartella desiderata nell&apos;inventario e sceglila
  &quot;Usa come impostazione predefinita per&quot;

@@ -65,25 +65,24 @@ public:
     static const LLUUID         KNOWN_SKY_SUNSET;
     static const LLUUID         KNOWN_SKY_MIDNIGHT;
 
+    static const S32            NO_TRACK;
+
     struct EnvironmentInfo
     {
         EnvironmentInfo();
 
         typedef std::shared_ptr<EnvironmentInfo>  ptr_t;
 
-        S32                 mParcelId;
-        LLUUID              mRegionId;
-        S64Seconds          mDayLength;
-        S64Seconds          mDayOffset;
-        size_t              mDayHash;
-        LLSD                mDaycycleData;
-        std::array<F32, 4>  mAltitudes;
-        bool                mIsDefault;
-        bool                mIsRegion;
+        S32                     mParcelId;
+        LLUUID                  mRegionId;
+        S64Seconds              mDayLength;
+        S64Seconds              mDayOffset;
+        size_t                  mDayHash;
+        LLSettingsDay::ptr_t    mDayCycle;
+        std::array<F32, 4>      mAltitudes;
+        bool                    mIsDefault;
 
-
-        static ptr_t        extract(LLSD);
-
+        static ptr_t            extract(LLSD);
     };
 
     enum EnvSelection_t
@@ -226,8 +225,6 @@ public:
     //-------------------------------------------
     connection_t                setEnvironmentChanged(environment_changed_fn cb);
 
-    void                        requestRegionEnvironment();
-
     void                        onLegacyRegionSettings(LLSD data);
 
     void                        requestRegion();
@@ -359,21 +356,20 @@ private:
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
 
 
-    void updateCloudScroll();
+    void                        updateCloudScroll();
 
-    void onParcelChange();
+    void                        onParcelChange();
 
-    void coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
-    void coroUpdateEnvironment(S32 parcel_id, LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, environment_apply_fn apply);
-    void coroResetEnvironment(S32 parcel_id, environment_apply_fn apply);
+    void                        coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
+    void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, LLUUID settings_asset, S32 day_length, S32 day_offset, environment_apply_fn apply);
+    void                        coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
 
-    void recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
+    void                        recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
 
-    void onAgentPositionHasChanged(const LLVector3 &localpos);
+    void                        onAgentPositionHasChanged(const LLVector3 &localpos);
 
-    void onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
-    void onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset);
-
+    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
+    void                        onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset);
 
 };
 

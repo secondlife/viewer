@@ -1823,37 +1823,29 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 	}
     else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
     {
-        LLSettingsBase::ptr_t settings;
-        std::string name;
+        LLSettingsType::type_e stype(LLSettingsType::ST_NONE);
 
         if ("sky" == type_name)
         {
-            settings = LLSettingsVOSky::buildDefaultSky();
-            name = LLTrans::getString("New Sky");
+            stype = LLSettingsType::ST_SKY;
         }
         else if ("water" == type_name)
         {
-            settings = LLSettingsVOWater::buildDefaultWater();
-            name = LLTrans::getString("New Water");
+            stype = LLSettingsType::ST_WATER;
         }
         else if ("daycycle" == type_name)
         {
-            settings = LLSettingsVODay::buildDefaultDayCycle();
-            name = LLTrans::getString("New Daycycle");
+            stype = LLSettingsType::ST_DAYCYCLE;
         }
         else
-            LL_ERRS(LOG_INV) << "Unknown settings type: '" << type_name << "'" << LL_ENDL;
-
-        if (!settings)
         {
-            LL_WARNS(LOG_INV) << "Unable to create a default setting object of type '" << type_name << "'" << LL_ENDL;
+            LL_ERRS(LOG_INV) << "Unknown settings type: '" << type_name << "'" << LL_ENDL;
             return;
         }
 
         LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
 
-        settings->setName(name);
-        LLSettingsVOBase::createInventoryItem(settings, parent_id);
+        LLSettingsVOBase::createNewInventoryItem(stype, parent_id);
     }
 	else
 	{

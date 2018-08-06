@@ -17,9 +17,11 @@
     <string name="hint_new">Name your day cycle, adjust the controls to create it, and click "Save".</string>
     <string name="hint_edit">To edit your day cycle, adjust the controls below and click "Save".</string>
 
-    <!-- Todo: These 5 strings might be subjected to a change to get dynamic labels, consider using layout_stack to get dynamic width adjustment-->
+    <!-- Substitutions -->
     <string name="time_label"> ([HH]:[MM])</string>
+    <string name="sky_track_label">Sky [ALT]</string>
 
+    <!-- Layout -->
     <layout_stack name="outer_stack"
             width="705"
             height="650"

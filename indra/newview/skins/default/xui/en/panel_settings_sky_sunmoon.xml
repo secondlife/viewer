@@ -169,7 +169,7 @@
                         Image:
                     </text>
                     <texture_picker
-                            height="100"
+                            height="123"
                             layout="topleft"
                             left_delta="5"
                             name="sun_image"
@@ -220,7 +220,7 @@
                         Image:
                     </text>
                     <texture_picker
-                            height="100"
+                            height="123"
                             layout="topleft"
                             left_delta="5"
                             name="moon_image"

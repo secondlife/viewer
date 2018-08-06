@@ -4503,6 +4503,11 @@ version 2.0
         RegionAllowAccessBlock Single
         {   RegionAllowAccessOverride BOOL  }  
     }
+    {
+        ParcelEnvironmentBlock Single
+        {   ParcelEnvironmentVersion        S32  }
+        {   RegionAllowEnvironmentOverride  BOOL }
+    }
 }
 
 // ParcelPropertiesUpdate
