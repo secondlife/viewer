@@ -29,13 +29,14 @@
 
 #include "llpanel.h"
 #include "llsettingssky.h"
-
 #include "llfloaterfixedenvironment.h"
+#include "lldensityctrl.h"
 
 //=========================================================================
 class LLSlider;
 class LLColorSwatchCtrl;
 class LLTextureCtrl;
+class LLDensityCtrl; // custom control for specifying various sky density settings
 
 //=========================================================================
 class LLPanelSettingsSky : public LLSettingsEditPanel
@@ -123,5 +124,45 @@ private:
     void                    onSunImageChanged();
     void                    onMoonRotationChanged();
     void                    onMoonImageChanged();
+};
+
+// single subtab of the density settings tab
+class LLPanelSettingsDensityTab : public LLPanelSettingsSky
+{
+    LOG_CLASS(LLPanelSettingsDensityTab);
+
+public:
+    LLPanelSettingsDensityTab();
+
+    virtual BOOL postBuild() override;
+    virtual void setEnabled(BOOL enabled) override;
+
+    void setProfileType(LLDensityCtrl::DensityProfileType t) { mProfileType = t; }
+
+protected:
+    virtual void refresh() override;
+
+    // update the settings for our profile type
+    void updateProfile();
+
+    LLDensityCtrl::DensityProfileType mProfileType;
+    std::string mControlName;
+};
+
+class LLPanelSettingsDensity : public LLPanelSettingsSky
+{
+    LOG_CLASS(LLPanelSettingsDensity);
+
+public:
+    LLPanelSettingsDensity();
+
+    virtual BOOL postBuild() override;
+    virtual void setEnabled(BOOL enabled) override;
+
+protected:
+    virtual void refresh() override;
+
+    // update the settings for our profile type
+    void updateProfile();
 };
 #endif // LLPANEL_EDIT_SKY_H

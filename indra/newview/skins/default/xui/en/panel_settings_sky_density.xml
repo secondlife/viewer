@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="all"
+ label="Density"
+ name="panel_settings_sky_density"
+ layout="topleft"
+ left="0"
+ top="0"
+ width="320"
+ height="240">
+<tab_container>
+  <panel>
+    name="panel_settings_sky_density_rayleigh"
+    <densityctrl>
+      name = "density_rayleigh"
+    </densityctrl>
+  </panel>
+  <panel>
+    name="panel_settings_sky_density_mie"
+    <densityctrl>
+      name = "density_mie"
+    </densityctrl>
+  </panel>
+  <panel>    
+    name="panel_settings_sky_density_absorption"
+    <densityctrl>
+       name = "density_absorption"
+    </densityctrl>
+  </panel>
+</tab_container>
+</panel>

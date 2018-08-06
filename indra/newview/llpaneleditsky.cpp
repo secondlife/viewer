@@ -29,10 +29,13 @@
 #include "llpaneleditsky.h"
 
 #include "llslider.h"
+#include "llsliderctrl.h"
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
 #include "llvirtualtrackball.h"
+#include "llsettingssky.h"
 
+static LLDefaultChildRegistry::Register<LLDensityCtrl> register_density_control("densityctrl");
 
 namespace
 {   
@@ -59,7 +62,7 @@ namespace
     const std::string   FIELD_SKY_CLOUD_DETAIL_Y("cloud_detail_y");
     const std::string   FIELD_SKY_CLOUD_DETAIL_D("cloud_detail_d");
 
-    const std::string   FIELD_SKY_SUN_MOON_COLOR("sun_moon_color");
+    const std::string   FIELD_SKY_SUN_MOON_COLOR("-m_moon_color");
     const std::string   FIELD_SKY_GLOW_FOCUS("glow_focus");
     const std::string   FIELD_SKY_GLOW_SIZE("glow_size");
     const std::string   FIELD_SKY_STAR_BRIGHTNESS("star_brightness");
@@ -79,6 +82,7 @@ namespace
 static LLPanelInjector<LLPanelSettingsSkyAtmosTab> t_settings_atmos("panel_settings_atmos");
 static LLPanelInjector<LLPanelSettingsSkyCloudTab> t_settings_cloud("panel_settings_cloud");
 static LLPanelInjector<LLPanelSettingsSkySunMoonTab> t_settings_sunmoon("panel_settings_sunmoon");
+static LLPanelInjector<LLPanelSettingsDensityTab> t_settings_density("panel_settings_density");
 
 //==========================================================================
 LLPanelSettingsSky::LLPanelSettingsSky() :
@@ -424,3 +428,91 @@ void LLPanelSettingsSkySunMoonTab::onMoonImageChanged()
     mSkySettings->setMoonTextureId(getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->getValue().asUUID());
     mSkySettings->update();
 }
+ 
+LLPanelSettingsDensityTab::LLPanelSettingsDensityTab()
+{    
+}
+
+BOOL LLPanelSettingsDensityTab::postBuild()
+{
+    mControlName = LLDensityCtrl::NameForDensityProfileType(mProfileType);
+    getChild<LLDensityCtrl>(mControlName)->setProfileType(mProfileType);
+    refresh();
+    return TRUE;
+}
+
+void LLPanelSettingsDensityTab::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsSky::setEnabled(enabled);
+    getChild<LLDensityCtrl>(mControlName)->setEnabled(enabled);
+}
+
+void LLPanelSettingsDensityTab::refresh()
+{
+    if (!mSkySettings)
+    {
+        setAllChildrenEnabled(FALSE);
+        setEnabled(FALSE);
+        return;
+    }
+
+    setEnabled(TRUE);
+    setAllChildrenEnabled(TRUE);
+    getChild<LLDensityCtrl>(mControlName)->setSky(mSkySettings);
+    getChild<LLDensityCtrl>(mControlName)->refresh();
+}
+
+void LLPanelSettingsDensityTab::updateProfile()
+{
+    getChild<LLDensityCtrl>(mControlName)->setSky(mSkySettings);
+    getChild<LLDensityCtrl>(mControlName)->updateProfile();
+    mSkySettings->update();
+}
+
+LLPanelSettingsDensity::LLPanelSettingsDensity()
+{    
+}
+
+BOOL LLPanelSettingsDensity::postBuild()
+{
+    //static_cast<LLPanelSettingsDensityTab*>(getChild<LLPanelSettingsDensityTab>(LLDensityCtrl::DENSITY_RAYLEIGH))->setProfileType(LLDensityCtrl::Rayleigh);
+    //static_cast<LLPanelSettingsDensityTab*>(getChild<LLPanelSettingsDensityTab>(LLDensityCtrl::DENSITY_MIE))->setProfileType(LLDensityCtrl::Mie);
+    //static_cast<LLPanelSettingsDensityTab*>(getChild<LLPanelSettingsDensityTab>(LLDensityCtrl::DENSITY_ABSORPTION))->setProfileType(LLDensityCtrl::Absorption);
+    refresh();
+    return TRUE;
+}
+
+void LLPanelSettingsDensity::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsSky::setEnabled(enabled);
+
+    //getChild<LLPanelSettingsDensityTab>(LLDensityCtrl::DENSITY_RAYLEIGH)->setEnabled(enabled);
+    //getChild<LLPanelSettingsDensityTab>(LLDensityCtrl::DENSITY_MIE)->setEnabled(enabled);
+    //getChild<LLPanelSettingsDensityTab>(LLDensityCtrl::DENSITY_ABSORPTION)->setEnabled(enabled);
+}
+
+void LLPanelSettingsDensity::refresh()
+{
+    if (!mSkySettings)
+    {
+        setAllChildrenEnabled(FALSE);
+        setEnabled(FALSE);
+        return;
+    }
+
+    setEnabled(TRUE);
+    setAllChildrenEnabled(TRUE);
+
+    //getChild<LLDensityCtrl>(LLDensityCtrl::DENSITY_RAYLEIGH)->refresh();
+    //getChild<LLDensityCtrl>(LLDensityCtrl::DENSITY_MIE)->refresh();
+    //getChild<LLDensityCtrl>(LLDensityCtrl::DENSITY_ABSORPTION)->refresh();
+}
+
+void LLPanelSettingsDensity::updateProfile()
+{
+    //getChild<LLDensityCtrl>(LLDensityCtrl::DENSITY_RAYLEIGH)->updateProfile();
+    //getChild<LLDensityCtrl>(LLDensityCtrl::DENSITY_MIE)->updateProfile();
+    //getChild<LLDensityCtrl>(LLDensityCtrl::DENSITY_ABSORPTION)->updateProfile();
+    mSkySettings->update();
+}
+

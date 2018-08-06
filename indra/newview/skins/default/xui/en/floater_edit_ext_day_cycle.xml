@@ -526,6 +526,15 @@
                                 left_delta="0"
                                 top_pad="5"
                                 name="moon_panel" />
+                      <panel
+                                border="true"
+                                class="panel_settings_density"
+                                filename="panel_settings_sky_density.xml"
+                                label="Advanced Atmospherics"
+                                layout="topleft"
+                                left_delta="0"
+                                top_pad="5"
+                                name="advanced_atmo_panel" />
                     </tab_container>
                 </layout_panel>        
             </layout_stack>

@@ -72,7 +72,6 @@ public:
     static const std::string SETTING_SKY_BOTTOM_RADIUS;
     static const std::string SETTING_SKY_TOP_RADIUS;
     static const std::string SETTING_SUN_ARC_RADIANS;
-    static const std::string SETTING_MIE_ANISOTROPY_FACTOR;
 
     static const std::string SETTING_RAYLEIGH_CONFIG;
     static const std::string SETTING_MIE_CONFIG;
@@ -84,7 +83,7 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR;
         static const std::string SETTING_DENSITY_PROFILE_LINEAR_TERM;
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
-        
+        static const std::string SETTING_MIE_ANISOTROPY_FACTOR;    
 
     static const std::string SETTING_LEGACY_HAZE;
 
@@ -116,9 +115,12 @@ public:
     F32 getMieAnisotropy() const;   
     LLSD getRayleighConfigs() const;
     LLSD getMieConfigs() const;
-
     LLSD getAbsorptionConfigs() const;
     LLUUID getBloomTextureId() const;
+
+    void setRayleighConfigs(const LLSD& rayleighConfig);
+    void setMieConfigs(const LLSD& mieConfig);
+    void setAbsorptionConfigs(const LLSD& absorptionConfig);
 
     //---------------------------------------------------------------------
     LLColor3 getAmbientColor() const;
@@ -238,6 +240,22 @@ public:
     static LLUUID GetDefaultMoonTextureId();
     static LLUUID GetDefaultCloudNoiseTextureId();
     static LLUUID GetDefaultBloomTextureId();
+
+    static LLSD createDensityProfileLayer(
+                    F32 width,
+                    F32 exponential_term,
+                    F32 exponential_scale_factor,
+                    F32 linear_term,
+                    F32 constant_term,
+                    F32 aniso_factor = 0.0f);
+
+    static LLSD createSingleLayerDensityProfile(
+                    F32 width,
+                    F32 exponential_term,
+                    F32 exponential_scale_factor,
+                    F32 linear_term,
+                    F32 constant_term,
+                    F32 aniso_factor = 0.0f);
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
