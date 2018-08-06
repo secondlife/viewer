@@ -56,6 +56,7 @@ public:
 	bool				getDenyAgeUnverified()		const;
 	bool				getAllowVoiceChat()			const;
     bool                getAllowAccessOverride()    const;
+    bool                getAllowEnvironmentOverride() const;
 
 	const std::string&	getName()					const { return mName; }
 	const LLUUID&		getOwnerID()				const { return mOwnerID; }
@@ -70,6 +71,7 @@ public:
 	void setDenyAgeUnverified(bool val);
 	void setAllowVoiceChat(bool val);
     void setAllowAccessOverride(bool val);
+    void setAllowEnvironmentOverride(bool val);
 
 	void setSunHour(F32 sun_hour) { mSunHour = sun_hour; }
 

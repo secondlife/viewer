@@ -150,7 +150,6 @@
                 min_height="0"
                 background_visible="false">
     <check_box
-        control_name="may_override_chk"
         height="16"
         label="Parcel Owners May Override"
         layout="topleft"
