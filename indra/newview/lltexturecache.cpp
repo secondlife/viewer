@@ -324,7 +324,8 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
         return LLPointer<LLImageFormatted>();
     }
 
-    size_t bytes_read = fread(data, 1, info.mDiscardBytes[discard_level], f);
+    size_t bytes_cached = info.mDiscardBytes[info.mDiscardLevel];
+    size_t bytes_read   = fread(data, 1, bytes_cached, f);
 
     fclose(f);
 

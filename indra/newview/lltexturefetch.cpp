@@ -1812,7 +1812,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard << " All Data: " << mHaveAllData << LL_ENDL;
 
         mDecodeTimer.reset();
-		mFormattedImage->decode(mRawImage, 1.0f);
+		bool decoded = mFormattedImage->decode(mRawImage, 1.0f);
+
+        if (!decoded)
+        {
+            LL_DEBUGS(LOG_TXT) << mID << " DECODE_IMAGE failed to decode JPEG data " << LL_ENDL;
+        }
 
 		mDecodedDiscard = mHaveAllData ? 0 : mFormattedImage->getDiscardLevel();
 

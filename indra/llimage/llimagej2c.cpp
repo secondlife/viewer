@@ -45,7 +45,9 @@ LLImageJ2CImpl* createLLImageJ2CImplKDU();
 LLImageJ2CImpl* createLLImageJ2CImplOJ();
 #endif
 
-LLImageJ2CImpl* createLLImageJ2CImpl(LLImageJ2C::ImplType t = LLImageJ2C::KDU)
+static const LLImageJ2C::ImplType DEFAULT_J2C_IMPL = LLImageJ2C::KDU;
+
+LLImageJ2CImpl* createLLImageJ2CImpl(LLImageJ2C::ImplType t = DEFAULT_J2C_IMPL)
 {
 // both codecs are available, select which with the 't' argument
 #if USE_KDU && USE_OPENJPEG
@@ -382,19 +384,15 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	{
 		return MAX_DISCARD_LEVEL;
 	}
-	while (1)
+
+	while (discard_level < MAX_DISCARD_LEVEL)
 	{
 		S32 bytes_needed = calcDataSize(discard_level);
-		// Use TextureReverseByteRange percent (see settings.xml) of the optimal size to qualify as correct rendering for the given discard level
-		if (bytes >= (bytes_needed*LLImage::getReverseByteRangePercent()/100))
-		{
-			break;
-		}
+        if (bytes_needed < bytes)
+        {
+            break;
+        }
 		discard_level++;
-		if (discard_level >= MAX_DISCARD_LEVEL)
-		{
-			break;
-		}
 	}
 	return discard_level;
 }

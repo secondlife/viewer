@@ -328,6 +328,9 @@ public:
             image = nullptr;
         }
 
+        // needs to happen before opj_read_header and opj_decode...
+        opj_set_decoded_resolution_factor(decoder, discard_level);
+
         if (!opj_read_header(stream, decoder, &image))
         {
             return false;
@@ -338,8 +341,6 @@ public:
         {
             *channels = image->numcomps;
         }
-
-        opj_set_decoded_resolution_factor(decoder, discard_level);
 
     	OPJ_BOOL decoded = opj_decode(decoder, stream, image);
 
