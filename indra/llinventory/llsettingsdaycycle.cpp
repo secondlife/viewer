@@ -262,7 +262,12 @@ bool LLSettingsDay::initialize()
                     haswater |= true;
                 else
                     hassky |= true;
-                mDayTracks[i][keyframe] = setting;
+
+                // Build clone since:
+                // - can use settings from "used" multiple times
+                // - settings can reuse LLSDs they were initialized from
+                // - LLSDs are 'smart' and can reuse them self multiple times
+                mDayTracks[i][keyframe] = setting->buildDerivedClone();
             }
         }
     }
