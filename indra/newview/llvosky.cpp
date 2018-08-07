@@ -1418,8 +1418,11 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 void LLVOSky::updateFog(const F32 distance)
 {
     LLEnvironment& environment = LLEnvironment::instance();
-    LLVector3 light_dir = LLVector3(environment.getClampedLightNorm());
-    m_legacyAtmospherics.updateFog(distance, light_dir);
+    if (environment.getCurrentSky() != nullptr)
+    {
+        LLVector3 light_dir = LLVector3(environment.getClampedLightNorm());
+        m_legacyAtmospherics.updateFog(distance, light_dir);
+    }
 }
 
 void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLVector3 &moon_dir_cfr)
