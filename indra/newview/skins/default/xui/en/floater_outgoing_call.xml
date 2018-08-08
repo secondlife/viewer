@@ -57,7 +57,8 @@
      top="27"
      visible="false"
      width="315"
-     word_wrap="true">
+     word_wrap="true"
+     parse_urls="false">
 Connecting to [CALLEE_NAME]
     </text>
     <text
@@ -68,7 +69,8 @@ Connecting to [CALLEE_NAME]
      name="calling"
      top="27"
      width="315"
-     word_wrap="true">
+     word_wrap="true"
+     parse_urls="false">
 Calling [CALLEE_NAME]
     </text>
     <text
@@ -90,7 +92,8 @@ No Answer.  Please try again later.
    name="nearby"
    top="27"
    width="315"
-   word_wrap="true">
+   word_wrap="true"
+   parse_urls="false">
     You have been disconnected from [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
   </text>
   <text
@@ -101,7 +104,8 @@ No Answer.  Please try again later.
    name="nearby_P2P_by_other"
    top="27"
    width="315"
-   word_wrap="true">
+   word_wrap="true"
+   parse_urls="false">
     Your call has ended.  [RECONNECT_NEARBY]
   </text>
   <text
@@ -112,7 +116,8 @@ No Answer.  Please try again later.
    name="nearby_P2P_by_agent"
    top="27"
    width="315"
-   word_wrap="true">
+   word_wrap="true"
+   parse_urls="false">
     You have ended the call.  [RECONNECT_NEARBY]
   </text>
   <text
@@ -123,7 +128,8 @@ No Answer.  Please try again later.
      name="leaving"
      top="62"
      width="315"
-     word_wrap="true">
+     word_wrap="true"
+     parse_urls="false">
 Leaving [CURRENT_CHAT].
     </text>
   <button
