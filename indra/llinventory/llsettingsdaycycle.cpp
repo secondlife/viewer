@@ -304,8 +304,8 @@ bool LLSettingsDay::initialize(bool validate_frames)
                                     iter = mDayTracks[i].begin();
                                 }
 
-                                if ((iter->first >= (new_frame - DEFAULT_MULTISLIDER_INCREMENT) && (new_frame + DEFAULT_FRAME_SLOP_FACTOR) >= iter->first)
-                                    || iter->first < new_frame && (new_frame + DEFAULT_FRAME_SLOP_FACTOR) >= (iter->first + 1))
+                                if (((iter->first >= (new_frame - DEFAULT_MULTISLIDER_INCREMENT)) && ((new_frame + DEFAULT_FRAME_SLOP_FACTOR) >= iter->first))
+                                    || ((iter->first < new_frame) && ((new_frame + DEFAULT_FRAME_SLOP_FACTOR) >= (iter->first + 1))))
                                 {
                                     // we are encroaching at new point as well
                                     found = iter->first;

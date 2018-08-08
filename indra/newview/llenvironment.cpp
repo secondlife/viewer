@@ -423,13 +423,17 @@ void LLEnvironment::onLegacyRegionSettings(LLSD data)
     LLUUID regionId = data[0]["regionID"].asUUID();
 
     LLSettingsDay::ptr_t regionday;
-    if (data[1].isUndefined())
-        regionday = LLSettingsVODay::buildDefaultDayCycle();
-    else
+    if (!data[1].isUndefined())
         regionday = LLSettingsVODay::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
 
     clearEnvironment(ENV_PARCEL);
-    setEnvironment(ENV_REGION, regionday, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+    if (!regionday)
+    {
+        LL_WARNS("ENVIRONMENT") << "Unable to create day from legacy.  Using default day cycle." << LL_ENDL;
+        setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+    }
+    else
+        setEnvironment(ENV_REGION, regionday, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
 
     updateEnvironment();
 }
@@ -570,12 +574,17 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 
 void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId)
 {
-    LLSettingsVOBase::getSettingsAsset(assetId,
-        [this, env](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onSetEnvAssetLoaded(env, asset_id, settings, status); });
-
+    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
 }
 
-void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
+
+void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
+{
+    LLSettingsVOBase::getSettingsAsset(assetId,
+        [this, env, daylength, dayoffset](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, status); });
+}
+
+void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 status)
 {
     if (!settings || status)
     {
