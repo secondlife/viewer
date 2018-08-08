@@ -329,7 +329,16 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
 
     fclose(f);
 
-    LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(info.mCodec);
+    LLPointer<LLImageFormatted> image;
+
+    if (info.mCodec == IMG_CODEC_J2C)
+    {
+        image = LLImageFormatted::createFromTypeWithImpl(info.mCodec, gSavedSettings.getS32("JpegDecoderType"));
+    }
+    else
+    {
+		image = LLImageFormatted::createFromType(info.mCodec);
+    }
 
     if (bytes_read)
     {	

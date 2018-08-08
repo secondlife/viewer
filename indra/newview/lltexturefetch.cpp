@@ -1357,7 +1357,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
         if (mFormattedImage.isNull())
         {
-			mFormattedImage = new LLImageJ2C;
+			mFormattedImage = new LLImageJ2C(LLImageJ2C::ImplType(gSavedSettings.getS32("JpegDecoderType"))); // default
         }
 		if (processSimulatorPackets())
 		{
@@ -1713,7 +1713,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				if (mFormattedImage.isNull())
 				{
-					mFormattedImage = new LLImageJ2C; // default
+					mFormattedImage = new LLImageJ2C(LLImageJ2C::ImplType(gSavedSettings.getS32("JpegDecoderType"))); // default
 				}
 			}
 						

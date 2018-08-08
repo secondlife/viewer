@@ -72,8 +72,27 @@ std::string LLImageJ2C::getEngineInfo()
 {
 	// All known LLImageJ2CImpl implementation subclasses are cheap to
 	// construct.
-	boost::scoped_ptr<LLImageJ2CImpl> impl(createLLImageJ2CImpl());
+    std::string info;
+#if USE_KDU && USE_OPENJPEG
+	boost::scoped_ptr<LLImageJ2CImpl> implA(createLLImageJ2CImpl(KDU));
+    boost::scoped_ptr<LLImageJ2CImpl> implB(createLLImageJ2CImpl(OPENJPEG));
+
+    if (implA)
+    {
+	    info += implA->getEngineInfo();
+    }
+
+    if (implB)
+    {
+        info += " and ";
+        info += implB->getEngineInfo();
+    }
+    return info;
+#else
+    boost::scoped_ptr<LLImageJ2CImpl> impl(createLLImageJ2CImpl());
 	return impl->getEngineInfo();
+#endif
+
 }
 
 // If both implementation are enabled, use the codec_type to select which instance gets created
