@@ -85,7 +85,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND}
   ARGS
     -E
-    copy_directory
+    copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/CrashReporter.nib
     ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/mac-crash-logger.app/Contents/Resources/CrashReporter.nib
   )
