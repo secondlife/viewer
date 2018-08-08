@@ -321,29 +321,66 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
-        LLQuaternion delta;
+        if (mask == MASK_CONTROL)
+        { // trackball (move to roll) mode
+            LLQuaternion delta;
 
-        F32 rotX = x - mPrevX;
-        F32 rotY = y - mPrevY;
+            F32 rotX = x - mPrevX;
+            F32 rotY = y - mPrevY;
 
-        if (abs(rotX) > 1)
-        {
-            F32 direction = (rotX < 0) ? -1 : 1;
-            delta.setAngleAxis(mIncrementMouse * abs(rotX), 0, direction, 0);  // changing X - rotate around Y axis
-            mValue *= delta;
+            if (abs(rotX) > 1)
+            {
+                F32 direction = (rotX < 0) ? -1 : 1;
+                delta.setAngleAxis(mIncrementMouse * abs(rotX), 0, direction, 0);  // changing X - rotate around Y axis
+                mValue *= delta;
+            }
+
+            if (abs(rotY) > 1)
+            {
+                F32 direction = (rotY < 0) ? 1 : -1; // reverse for Y (value increases from bottom to top)
+                delta.setAngleAxis(mIncrementMouse * abs(rotY), direction, 0, 0);  // changing Y - rotate around X axis
+                mValue *= delta;
+            }
         }
+        else
+        { // set on click mode
+            if (!pointInTouchCircle(x, y))
+            {
+                return TRUE; // don't drag outside the circle
+            }
 
-        if (abs(rotY) > 1)
-        {
-            F32 direction = (rotY < 0) ? 1 : -1; // reverse for Y (value increases from bottom to top)
-            delta.setAngleAxis(mIncrementMouse * abs(rotY), direction, 0, 0);  // changing Y - rotate around X axis
-            mValue *= delta;
+            F32 radius = mTouchArea->getRect().getWidth() / 2;
+            F32 xx = x - mTouchArea->getRect().getCenterX();
+            F32 yy = y - mTouchArea->getRect().getCenterY();
+            F32 dist = sqrt(pow(xx, 2) + pow(yy, 2));
+
+            F32 azimuth = llclamp(acosf(xx / dist), 0.0f, F_PI);
+            F32 altitude = llclamp(acosf(dist / radius), 0.0f, F_PI_BY_TWO);
+
+            if (yy < 0)
+            {
+                azimuth = F_TWO_PI - azimuth;
+            }
+
+            LLVector3 draw_point = VectorZero * mValue;
+            if (draw_point.mV[VZ] >= 0.f)
+            {
+                if (is_approx_zero(altitude)) // don't change the hemisphere
+                {
+                    altitude = F_APPROXIMATELY_ZERO;
+                }
+                altitude *= -1;
+            }
+
+            mValue.setAngleAxis(altitude, 0, 1, 0);
+            LLQuaternion az_quat;
+            az_quat.setAngleAxis(azimuth, 0, 0, 1);
+            mValue *= az_quat;
         }
-        
-        onCommit();
 
         mPrevX = x;
         mPrevY = y;
+        onCommit();
     }
     return TRUE;
 }
