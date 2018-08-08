@@ -685,6 +685,11 @@ void LLFloaterModelPreview::draw()
 			childSetTextArg("status", "[STATUS]", getString("status_parse_error"));
 			toggleCalculateButton(false);
 		}
+        else
+        if (mModelPreview->getLoadState() == LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION)
+        {
+			childSetTextArg("status", "[STATUS]", getString("status_bind_shape_orientation"));
+        }
 		else
 		{
 			childSetTextArg("status", "[STATUS]", getString("status_idle"));
@@ -1622,6 +1627,19 @@ void LLModelPreview::rebuildUploadData()
 						mFMP->childDisable( "calculate_btn" );
 					}
 				}
+                LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) mFMP;
+                bool upload_skinweights = fmp && fmp->childGetValue("upload_skin").asBoolean();
+                if (upload_skinweights && high_lod_model->mSkinInfo.mJointNames.size() > 0)
+                {
+                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(high_lod_model->mSkinInfo.mBindShapeMatrix);
+                    LLQuaternion identity;
+                    if (!bind_rot.isEqualEps(identity,0.01))
+                    {
+                        LL_WARNS() << "non-identity bind shape rot. mat is " << high_lod_model->mSkinInfo.mBindShapeMatrix 
+                                   << " bind_rot " << bind_rot << LL_ENDL;
+                        setLoadState( LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION );
+                    }
+                }
 			}
 			instance.mTransform = mat;
 			mUploadData.push_back(instance);
