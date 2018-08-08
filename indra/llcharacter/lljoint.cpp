@@ -428,26 +428,6 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 	{
 		return;
 	}
-    // BENTO
-    // Not clear pelvis overrides are meaningful/useful.
-    //if (mName == "mPelvis")
-    //{
-    //    return;
-    //}
-
-#if 0 // AXON MAINT-8554 - this may be overly restrictive for large models
-    LLVector3 constrained_pos = LLVector3(llclamp(pos[0],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET),
-                                          llclamp(pos[1],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET),
-                                          llclamp(pos[2],-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET));
-    if (constrained_pos != pos)
-    {
-        LL_DEBUGS("Avatar") << mesh_id << " joint " << getName() << " attachment pos override constrained to " 
-                            << constrained_pos << " was " << pos << LL_ENDL;
-    }
-#else
-    LLVector3 constrained_pos = pos;
-#endif
-    
     LLVector3 before_pos;
     LLUUID before_mesh_id;
     bool has_active_override_before = hasAttachmentPosOverride( before_pos, before_mesh_id );
@@ -459,7 +439,7 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 		}
 		m_posBeforeOverrides = getPosition();
 	}
-	m_attachmentPosOverrides.add(mesh_id,constrained_pos);
+	m_attachmentPosOverrides.add(mesh_id,pos);
     LLVector3 after_pos;
     LLUUID after_mesh_id;
     hasAttachmentPosOverride(after_pos, after_mesh_id);
@@ -468,7 +448,7 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
         active_override_changed = true; 
         if (do_debug_joint(getName()))
         {
-            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentPosOverride for mesh " << mesh_id << " pos " << constrained_pos << LL_ENDL;
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentPosOverride for mesh " << mesh_id << " pos " << pos << LL_ENDL;
         }
         updatePos(av_info);
     }

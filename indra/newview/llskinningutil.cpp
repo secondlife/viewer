@@ -317,7 +317,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                     LLVector4 wght;
                     S32 idx[4];
                     F32 scale = 0.0f;
-                    // AXON unpacking of weights should be pulled into a common function and optimized if possible.
+                    // FIXME unpacking of weights should be pulled into a common function and optimized if possible.
                     for (U32 k = 0; k < 4; k++)
                     {
                         F32 w = weights[k];
@@ -342,7 +342,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                             {
                                 rig_info_tab[joint_num].setIsRiggedTo(true);
 
-                                // AXON can precompute these matMuls.
+                                // FIXME could precompute these matMuls.
                                 LLMatrix4a bind_shape;
                                 bind_shape.loadu(skin->mBindShapeMatrix);
                                 LLMatrix4a inv_bind;

@@ -3995,7 +3995,6 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 }
 
 
-// AXON make logging less spammy after issues resolved, before release.
 void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLUUID	animation_id;
