@@ -914,7 +914,8 @@ namespace tut
 			mSocket = LLSocket::create(
 				mPool,
 				LLSocket::STREAM_TCP,
-				SERVER_LISTEN_PORT);
+				SERVER_LISTEN_PORT,
+				"127.0.0.1");
 		}
 
 		~pipe_and_pump_fitness()
