@@ -54,6 +54,7 @@ public:
 		Optional<S32>			decimal_digits;
 		Optional<S32>			max_sliders;	
 		Optional<bool>			allow_overlap,
+								loop_overlap,
 								draw_track,
 								use_triangle;
 

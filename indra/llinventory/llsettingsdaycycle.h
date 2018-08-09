@@ -63,6 +63,8 @@ public:
     static const S32     TRACK_MAX;
     static const S32     FRAME_MAX;
 
+    static const F32     DEFAULT_FRAME_SLOP_FACTOR;
+
     static const LLUUID DEFAULT_ASSET_ID;
 
     typedef std::map<LLSettingsBase::TrackPosition, LLSettingsBase::ptr_t>  CycleTrack_t;
@@ -76,7 +78,7 @@ public:
     LLSettingsDay(const LLSD &data);
     virtual ~LLSettingsDay() { };
 
-    bool                        initialize();
+    bool                        initialize(bool validate_frames = false);
 
     virtual ptr_t               buildClone() = 0;
     virtual LLSD                getSettings() const SETTINGS_OVERRIDE;

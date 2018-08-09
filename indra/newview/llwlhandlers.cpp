@@ -80,6 +80,9 @@ bool LLEnvironmentRequest::doRequest()
 	{
 		LL_INFOS("WindlightCaps") << "Skipping windlight setting request - we don't have this capability" << LL_ENDL;
 		// region is apparently not capable of this; don't respond at all
+        // (there shouldn't be any regions where this is the case... but
+        LL_INFOS("ENVIRONMENT") << "No legacy windlight caps... just set the region to be the default day." << LL_ENDL;
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId());
 		return false;
 	}
 
@@ -117,8 +120,8 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
     if (!status)
     {
         LL_WARNS("WindlightCaps") << "Got an error, not using region windlight... " << LL_ENDL;
-        LLEnvironment::instance().onLegacyRegionSettings(LLSD());
-        
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId());
+
         return;
     }
     result = result["content"];
