@@ -384,6 +384,7 @@ public:
         opj_set_default_encoder_parameters(&parameters);
         parameters.cod_format = 0;
 	    parameters.cp_disto_alloc = 1;
+        parameters.max_cs_size = (1 << 15);
 
 	    if (reversible)
 	    {
@@ -394,10 +395,10 @@ public:
 	    {
 		    parameters.tcp_numlayers = 5;
             parameters.tcp_rates[0]  = 1920.0f;
-            parameters.tcp_rates[1]  = 480.0f;
-            parameters.tcp_rates[2]  = 120.0f;
-            parameters.tcp_rates[3]  = 30.0f;
-		    parameters.tcp_rates[4]  = 1.0f;
+            parameters.tcp_rates[1]  = 960.0f;
+            parameters.tcp_rates[2]  = 480.0f;
+            parameters.tcp_rates[3]  = 120.0f;
+		    parameters.tcp_rates[4]  = 30.0f;
 		    parameters.irreversible  = 1;
 			parameters.tcp_mct       = 1;
 	    }
