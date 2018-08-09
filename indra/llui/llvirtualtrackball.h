@@ -44,6 +44,11 @@ public:
         SUN,
         MOON
     };
+    enum DragMode
+    {
+        DRAG_SET,
+        DRAG_SCROLL
+    };
 
     struct Params
         : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -140,6 +145,7 @@ private:
 
     LLQuaternion   mValue;
     ThumbMode      mThumbMode;
+    DragMode       mDragMode;
 
     F32            mIncrementMouse;
     F32            mIncrementBtn;
