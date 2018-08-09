@@ -33,7 +33,6 @@ in vec3 view_dir;
 
 uniform vec3 cameraPosLocal;
 uniform vec3 sun_dir;
-uniform vec3 moon_dir;
 uniform float sun_size;
 
 uniform sampler2D transmittance_texture;
