@@ -235,6 +235,7 @@ public:
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultSunTextureId();
+    static LLUUID GetBlankSunTextureId();
     static LLUUID GetDefaultMoonTextureId();
     static LLUUID GetDefaultCloudNoiseTextureId();
     static LLUUID GetDefaultBloomTextureId();

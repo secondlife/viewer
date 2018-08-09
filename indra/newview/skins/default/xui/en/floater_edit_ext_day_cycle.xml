@@ -7,8 +7,8 @@
         title="Edit Day Cycle"
         width="705"
         height="650"
-        min_width="450"
-        min_height="85"
+        min_width="705"
+        min_height="650"
         can_resize="true">
 
     <!-- obsolete?, add as hint for 'save' button? -->
@@ -455,14 +455,14 @@
                 <layout_panel name="frame_settings_water"
                         auto_resize="true"
                         user_resize="true"
-                        height="500"
+                        height="420"
                         width="700"
                         min_height="0"
-                        visible="true">
+                        visible="false">
                     <tab_container
                             follows="all"
                             halign="left"
-                            height="430"
+                            height="420"
                             layout="topleft"
                             left="0"
                             name="water_tabs"
@@ -488,7 +488,7 @@
                         height="420"
                         width="700"
                         min_height="0"
-                        visible="false">
+                        visible="true">
                     <tab_container
                             follows="all"
                             halign="left"

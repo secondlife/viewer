@@ -1095,8 +1095,13 @@ LLUUID LLSettingsSky::GetDefaultAssetId()
 
 LLUUID LLSettingsSky::GetDefaultSunTextureId()
 {
-    //return DEFAULT_SUN_ID;
     return LLUUID::null;
+}
+
+
+LLUUID LLSettingsSky::GetBlankSunTextureId()
+{
+    return DEFAULT_SUN_ID;
 }
 
 LLUUID LLSettingsSky::GetDefaultMoonTextureId()
