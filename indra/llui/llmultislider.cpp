@@ -41,6 +41,8 @@
 
 static LLDefaultChildRegistry::Register<LLMultiSlider> r("multi_slider_bar");
 
+const F32 FLOAT_THRESHOLD = 0.00001f;
+
 S32 LLMultiSlider::mNameCounter = 0;
 
 LLMultiSlider::SliderParams::SliderParams()
@@ -52,6 +54,7 @@ LLMultiSlider::SliderParams::SliderParams()
 LLMultiSlider::Params::Params()
 :	max_sliders("max_sliders", 1),
 	allow_overlap("allow_overlap", false),
+	loop_overlap("loop_overlap", false),
 	overlap_threshold("overlap_threshold", 0),
 	draw_track("draw_track", true),
 	use_triangle("use_triangle", false),
@@ -73,6 +76,7 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	mDragStartThumbRect( 0, getRect().getHeight(), p.thumb_width, 0 ),
 	mMaxNumSliders(p.max_sliders),
 	mAllowOverlap(p.allow_overlap),
+	mLoopOverlap(p.loop_overlap),
 	mDrawTrack(p.draw_track),
 	mUseTriangle(p.use_triangle),
 	mTrackColor(p.track_color()),
@@ -151,13 +155,32 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 		// look at the current spot
 		// and see if anything is there
 		LLSD::map_iterator mIt = mValue.beginMap();
-		F32 threshold = mOverlapThreshold + (mIncrement / 4); // increment is our distance between points, use to eliminate round error
+
+		// increment is our distance between points, use to eliminate round error
+		F32 threshold = mOverlapThreshold + (mIncrement / 4);
+		// If loop overlap is enabled, check if we overlap with points 'after' max value (project to lower)
+		F32 loop_up_check = (mLoopOverlap && (value + threshold) > mMaxValue) ? (value + threshold - mMaxValue + mMinValue) : 0.0f;
+		// If loop overlap is enabled, check if we overlap with points 'before' min value (project to upper)
+		F32 loop_down_check = (mLoopOverlap && (value - threshold) < mMinValue) ? (value - threshold - mMinValue + mMaxValue) : 0.0f;
+
 		for(;mIt != mValue.endMap(); mIt++) {
 			
 			F32 testVal = (F32)mIt->second.asReal() - newValue;
 			if (testVal > -threshold
 				&& testVal < threshold
 				&& mIt->first != name)
+			{
+				hit = true;
+				break;
+			}
+			if (loop_up_check != 0
+				&& testVal < loop_up_check)
+			{
+				hit = true;
+				break;
+			}
+			if (loop_down_check != 0
+				&& testVal > loop_down_check)
 			{
 				hit = true;
 				break;
@@ -311,7 +334,7 @@ bool LLMultiSlider::findUnusedValue(F32& initVal)
 
 		// look at the current spot
 		// and see if anything is there
-		F32 threshold = mOverlapThreshold + (mIncrement / 4);
+		F32 threshold = mAllowOverlap ? FLOAT_THRESHOLD : mOverlapThreshold + (mIncrement / 4);
 		LLSD::map_iterator mIt = mValue.beginMap();
 		for(;mIt != mValue.endMap(); mIt++) {
 			

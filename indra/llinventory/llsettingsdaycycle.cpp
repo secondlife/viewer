@@ -118,8 +118,12 @@ const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
 const S32 LLSettingsDay::FRAME_MAX(56);
 
+const F32 LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR(0.02501f);
+
 const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("283a26a3-b147-47b7-8057-cfff0302ec0e");
 
+// Minimum value to prevent multislider in edit floaters from eating up frames that 'encroach' on one another's space
+static const F32 DEFAULT_MULTISLIDER_INCREMENT(0.005f);
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
     LLSettingsBase(data),
@@ -185,7 +189,7 @@ LLSD LLSettingsDay::getSettings() const
     return settings;
 }
 
-bool LLSettingsDay::initialize()
+bool LLSettingsDay::initialize(bool validate_frames)
 {
     LLSD tracks = mSettings[SETTING_TRACKS];
     LLSD frames = mSettings[SETTING_FRAMES];
@@ -262,6 +266,106 @@ bool LLSettingsDay::initialize()
                     haswater |= true;
                 else
                     hassky |= true;
+
+                if (validate_frames && mDayTracks[i].size() > 0)
+                {
+                    // check if we hit close to anything in the list
+                    LLSettingsDay::CycleTrack_t::value_type frame = getSettingsNearKeyframe(keyframe, i, DEFAULT_FRAME_SLOP_FACTOR);
+                    if (frame.second)
+                    {
+                        // figure out direction of search
+                        LLSettingsBase::TrackPosition found = frame.first;
+                        LLSettingsBase::TrackPosition new_frame = keyframe;
+                        F32 total_frame_shift = 0;
+                        // We consider frame DEFAULT_FRAME_SLOP_FACTOR away as still encroaching, so add minimum increment
+                        F32 move_factor = DEFAULT_FRAME_SLOP_FACTOR + DEFAULT_MULTISLIDER_INCREMENT;
+                        bool move_forward = true;
+                        if ((new_frame < found && (found - new_frame) <= DEFAULT_FRAME_SLOP_FACTOR)
+                            || (new_frame > found && (new_frame - found) > DEFAULT_FRAME_SLOP_FACTOR))
+                        {
+                            move_forward = false;
+                        }
+
+                        if (move_forward)
+                        {
+                            CycleTrack_t::iterator iter = mDayTracks[i].find(found);
+                            new_frame = found; // for total_frame_shift
+                            while (total_frame_shift < 1)
+                            {
+                                // calculate shifted position from previous found point
+                                total_frame_shift += move_factor + (found >= new_frame ? found : found + 1) - new_frame;
+                                new_frame = found + move_factor;
+                                if (new_frame > 1) new_frame--;
+
+                                // we know that current point is too close, go for next one
+                                iter++;
+                                if (iter == mDayTracks[i].end())
+                                {
+                                    iter = mDayTracks[i].begin();
+                                }
+
+                                if (((iter->first >= (new_frame - DEFAULT_MULTISLIDER_INCREMENT)) && ((new_frame + DEFAULT_FRAME_SLOP_FACTOR) >= iter->first))
+                                    || ((iter->first < new_frame) && ((new_frame + DEFAULT_FRAME_SLOP_FACTOR) >= (iter->first + 1))))
+                                {
+                                    // we are encroaching at new point as well
+                                    found = iter->first;
+                                }
+                                else // (new_frame + DEFAULT_FRAME_SLOP_FACTOR < iter->first)
+                                {
+                                    //we found clear spot
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            CycleTrack_t::reverse_iterator iter = mDayTracks[i].rbegin();
+                            while (iter->first != found)
+                            {
+                                iter++;
+                            }
+                            new_frame = found; // for total_frame_shift
+                            while (total_frame_shift < 1)
+                            {
+                                // calculate shifted position from current found point
+                                total_frame_shift += move_factor + new_frame - (found <= new_frame ? found : found - 1);
+                                new_frame = found - move_factor;
+                                if (new_frame < 0) new_frame++;
+
+                                // we know that current point is too close, go for next one
+                                iter++;
+                                if (iter == mDayTracks[i].rend())
+                                {
+                                    iter = mDayTracks[i].rbegin();
+                                }
+
+                                if ((iter->first <= (new_frame + DEFAULT_MULTISLIDER_INCREMENT) && (new_frame - DEFAULT_FRAME_SLOP_FACTOR) <= iter->first)
+                                    || ((iter->first > new_frame) && ((new_frame - DEFAULT_FRAME_SLOP_FACTOR) <= (iter->first - 1))))
+                                {
+                                    // we are encroaching at new point as well
+                                    found = iter->first;
+                                }
+                                else // (new_frame - DEFAULT_FRAME_SLOP_FACTOR > iter->first)
+                                {
+                                    //we found clear spot
+                                    break;
+                                }
+                            }
+
+
+                        }
+
+                        if (total_frame_shift >= 1)
+                        {
+                            LL_WARNS() << "Could not fix frame position, adding as is to position: " << keyframe << LL_ENDL;
+                        }
+                        else
+                        {
+                            // Mark as new position
+                            keyframe = new_frame;
+                        }
+                    }
+                }
 
                 // Build clone since:
                 // - can use settings from "used" multiple times

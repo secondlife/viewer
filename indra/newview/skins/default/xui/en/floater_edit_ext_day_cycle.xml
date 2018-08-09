@@ -240,6 +240,7 @@
                                 height="10"
                                 increment="0.005"
                                 overlap_threshold="0.026"
+                                loop_overlap="true"
                                 initial_value="0"
                                 layout="topleft"
                                 left="10"

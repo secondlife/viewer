@@ -1025,7 +1025,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     
     if (dayp)
     {
-        dayp->initialize();
+        // true for validation - either validate here, or when cloning for floater.
+        dayp->initialize(true);
     }
     return dayp;
 }

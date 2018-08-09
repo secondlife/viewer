@@ -110,7 +110,7 @@ private:
 	void                        setWaterTabsEnabled(BOOL enable);
 	void                        setSkyTabsEnabled(BOOL enable);
 	void                        updateButtons();
-	void                        updateSlider(); //track to slider
+	void                        updateSlider(); //generate sliders from current track
 	void                        updateTimeAndLabel();
 	void                        addSliderFrame(const F32 frame, LLSettingsBase::ptr_t &setting, bool update_ui = true);
 	void                        removeCurrentSliderFrame();
