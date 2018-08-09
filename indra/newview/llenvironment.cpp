@@ -595,6 +595,7 @@ void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLS
     }
 
     setEnvironment(env, settings);
+    updateEnvironment();
 }
 
 void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
