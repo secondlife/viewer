@@ -59,7 +59,6 @@ uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform vec2 proj_shadow_res;
 uniform vec3 sun_dir;
-uniform vec3 moon_dir;
 
 uniform vec2 shadow_res;
 
@@ -201,13 +200,10 @@ void main()
 	}*/
 	
 	float shadow = 0.0;
-    float da_sun = dot(norm, sun_dir.xyz);
-    float da_moon = dot(norm, moon_dir.xyz);
-    float da = max(da_sun, da_moon);
-	float dp_directional_light = max(0.0, da);
+	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
 	
 	vec3 shadow_pos = pos.xyz;
-	vec3 offset = ((da_sun > da_moon) ? sun_dir.xyz : moon_dir.xyz) * (1.0-dp_directional_light);
+	vec3 offset = sun_dir.xyz * (1.0-dp_directional_light);
 	
 	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
 	
