@@ -76,7 +76,7 @@ void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 
 	setTitle(floater_title);
 
-	EDefaultOptions option = DEFAULT_TOP;
+	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 
 	onPresetNameEdited();
@@ -98,7 +98,7 @@ void LLFloaterSavePrefPreset::onBtnSave()
 
 void LLFloaterSavePrefPreset::onPresetsListChange()
 {
-	EDefaultOptions option = DEFAULT_TOP;
+	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 }
 
