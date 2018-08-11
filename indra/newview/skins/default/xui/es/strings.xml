@@ -62,7 +62,7 @@ Ajuste de escala de IU: [UI_SCALE]
 Distancia de dibujo: [DRAW_DISTANCE]m
 Ancho de banda: [NET_BANDWITH]kbit/s
 Factor de LOD: [LOD_FACTOR]
-Calidad de renderizado: [RENDER_QUALITY] / 7
+Calidad de renderizado: [RENDER_QUALITY]
 Modelo de iluminación avanzado: [GPU_SHADERS]
 Memoria de textura: [TEXTURE_MEMORY]MB
 Tiempo de creación de VFS (caché): [VFS_TIME]

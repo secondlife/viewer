@@ -66,6 +66,11 @@ enum InventoryOfferResponse
 BOOL can_afford_transaction(S32 cost);
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group = FALSE,
 				S32 trx_type = TRANS_GIFT, const std::string& desc = LLStringUtil::null);
+void send_join_group_response(LLUUID group_id,
+							  LLUUID transaction_id,
+							  bool accept_invite,
+							  S32 fee,
+							  bool use_offline_cap);
 
 void process_logout_reply(LLMessageSystem* msg, void**);
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data);
@@ -257,6 +262,7 @@ public:
 private:
 
 	void initRespondFunctionMap();
+	std::string getSanitizedDescription();
 
 	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
 	typedef std::map<std::string, respond_function_t> respond_function_map_t;

@@ -169,7 +169,8 @@ void accept_friendship_coro(std::string url, LLSD notification)
     url += "?from=" + payload["from_id"].asString();
     url += "&agent_name=\"" + LLURI::escape(gAgentAvatarp->getFullname()) + "\"";
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    LLSD data;
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, data);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -199,20 +200,20 @@ void accept_friendship_coro(std::string url, LLSD notification)
 
 void decline_friendship_coro(std::string url, LLSD notification, S32 option)
 {
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("friendshipResponceErrorProcessing", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     if (url.empty())
     {
         LL_WARNS("Friendship") << "Empty capability!" << LL_ENDL;
         return;
     }
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("friendshipResponceErrorProcessing", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
     LLSD payload = notification["payload"];
     url += "?from=" + payload["from_id"].asString();
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -732,6 +733,122 @@ void send_sound_trigger(const LLUUID& sound_id, F32 gain)
 static LLSD sSavedGroupInvite;
 static LLSD sSavedResponse;
 
+void response_group_invitation_coro(std::string url, LLUUID group_id, bool notify_and_update)
+{
+    if (url.empty())
+    {
+        LL_WARNS("GroupInvite") << "Empty capability!" << LL_ENDL;
+        return;
+    }
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("responseGroupInvitation", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD payload;
+    payload["group"] = group_id;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, payload);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("GroupInvite") << "HTTP status, " << status.toTerseString() <<
+            ". Group " << group_id << " invitation response processing failed." << LL_ENDL;
+    }
+    else
+    {
+        if (!result.has("success") || result["success"].asBoolean() == false)
+        {
+            LL_WARNS("GroupInvite") << "Server failed to process group " << group_id << " invitation response. " << httpResults << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("GroupInvite") << "Successfully sent response to group " << group_id << " invitation" << LL_ENDL;
+            if (notify_and_update)
+            {
+                LLNotificationsUtil::add("JoinGroupSuccess");
+                gAgent.sendAgentDataUpdateRequest();
+
+                LLGroupMgr::getInstance()->clearGroupData(group_id);
+                // refresh the floater for this group, if any.
+                LLGroupActions::refresh(group_id);
+            }
+        }
+    }
+}
+
+void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accept_invite, S32 fee, bool use_offline_cap, LLSD &payload)
+{
+    if (accept_invite && fee > 0)
+    {
+        // If there is a fee to join this group, make
+        // sure the user is sure they want to join.
+            LLSD args;
+            args["COST"] = llformat("%d", fee);
+            // Set the fee for next time to 0, so that we don't keep
+            // asking about a fee.
+            LLSD next_payload = payload;
+            next_payload["fee"] = 0;
+            LLNotificationsUtil::add("JoinGroupCanAfford",
+                args,
+                next_payload);
+    }
+    else if (use_offline_cap)
+    {
+        std::string url;
+        if (accept_invite)
+        {
+            url = gAgent.getRegionCapability("AcceptGroupInvite");
+        }
+        else
+        {
+            url = gAgent.getRegionCapability("DeclineGroupInvite");
+        }
+
+        if (!url.empty())
+        {
+            LL_DEBUGS("GroupInvite") << "Capability url: " << url << LL_ENDL;
+            LLCoros::instance().launch("LLMessageSystem::acceptGroupInvitation",
+                boost::bind(response_group_invitation_coro, url, group_id, accept_invite));
+        }
+        else
+        {
+            // if sim has no this cap, we can do nothing - regular request will fail
+            LL_WARNS("GroupInvite") << "No capability, can't reply to offline invitation!" << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_DEBUGS("GroupInvite") << "Replying to group invite via IM message" << LL_ENDL;
+
+        EInstantMessage type = accept_invite ? IM_GROUP_INVITATION_ACCEPT : IM_GROUP_INVITATION_DECLINE;
+
+        send_improved_im(group_id,
+            std::string("name"),
+            std::string("message"),
+            IM_ONLINE,
+            type,
+            transaction_id);
+    }
+}
+
+void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accept_invite, S32 fee, bool use_offline_cap)
+{
+    LLSD payload;
+    if (accept_invite)
+    {
+        payload["group_id"] = group_id;
+        payload["transaction_id"] =  transaction_id;
+        payload["fee"] =  fee;
+        payload["use_offline_cap"] = use_offline_cap;
+    }
+    send_join_group_response(group_id, transaction_id, accept_invite, fee, use_offline_cap, payload);
+}
+
 bool join_group_response(const LLSD& notification, const LLSD& response)
 {
 //	A bit of variable saving and restoring is used to deal with the case where your group list is full and you
@@ -770,6 +887,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	std::string name = notification_adjusted["payload"]["name"].asString();
 	std::string message = notification_adjusted["payload"]["message"].asString();
 	S32 fee = notification_adjusted["payload"]["fee"].asInteger();
+	U8 use_offline_cap = notification_adjusted["payload"]["use_offline_cap"].asInteger();
 
 	if (option == 2 && !group_id.isNull())
 	{
@@ -798,42 +916,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 			return false;
 		}
 	}
-
-	if (accept_invite)
-	{
-		// If there is a fee to join this group, make
-		// sure the user is sure they want to join.
-		if (fee > 0)
-		{
-			LLSD args;
-			args["COST"] = llformat("%d", fee);
-			// Set the fee for next time to 0, so that we don't keep
-			// asking about a fee.
-			LLSD next_payload = notification_adjusted["payload"];
-			next_payload["fee"] = 0;
-			LLNotificationsUtil::add("JoinGroupCanAfford",
-									args,
-									next_payload);
-		}
-		else
-		{
-			send_improved_im(group_id,
-							 std::string("name"),
-							 std::string("message"),
-							IM_ONLINE,
-							IM_GROUP_INVITATION_ACCEPT,
-							transaction_id);
-		}
-	}
-	else
-	{
-		send_improved_im(group_id,
-						 std::string("name"),
-						 std::string("message"),
-						IM_ONLINE,
-						IM_GROUP_INVITATION_DECLINE,
-						transaction_id);
-	}
+	send_join_group_response(group_id, transaction_id, accept_invite, fee, use_offline_cap, notification_adjusted["payload"]);
 
 	sSavedGroupInvite[id] = LLSD::emptyMap();
 	sSavedResponse[id] = LLSD::emptyMap();
@@ -1740,7 +1823,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		//don't spam them if they are getting flooded
 		if (check_offer_throttle(mFromName, true))
 		{
-			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+			log_message = "<nolink>" + chatHistory_string + "</nolink> " + LLTrans::getString("InvOfferGaveYou") + " " + getSanitizedDescription() + LLTrans::getString(".");
 			LLSD args;
 			args["MESSAGE"] = log_message;
 			LLNotificationsUtil::add("SystemMessageTip", args);
@@ -1925,7 +2008,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			//don't spam them if they are getting flooded
 			if (check_offer_throttle(mFromName, true))
 			{
-				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+				log_message = "<nolink>" + chatHistory_string + "</nolink> " + LLTrans::getString("InvOfferGaveYou") + " " + getSanitizedDescription() + LLTrans::getString(".");
 				LLSD args;
 				args["MESSAGE"] = log_message;
 				LLNotificationsUtil::add("SystemMessageTip", args);
@@ -1997,6 +2080,23 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	}
 	return false;
 }
+
+std::string LLOfferInfo::getSanitizedDescription()
+{
+	// currently we get description from server as: 'Object' ( Location )
+	// object name shouldn't be shown as a hyperlink
+	std::string description = mDesc;
+
+	std::size_t start = mDesc.find_first_of("'");
+	std::size_t end = mDesc.find_last_of("'");
+	if ((start != std::string::npos) && (end != std::string::npos))
+	{
+		description.insert(start, "<nolink>");
+		description.insert(end + 8, "</nolink>");
+	}
+	return description;
+}
+
 
 void LLOfferInfo::initRespondFunctionMap()
 {

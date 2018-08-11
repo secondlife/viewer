@@ -3676,6 +3676,39 @@ void LLSelectMgr::selectForceDelete()
 		SEND_ONLY_ROOTS);
 }
 
+BOOL LLSelectMgr::selectGetEditMoveLinksetPermissions(bool &move, bool &modify)
+{
+    move = true;
+    modify = true;
+    bool selecting_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
+
+    for (LLObjectSelection::iterator iter = getSelection()->begin();
+        iter != getSelection()->end(); iter++)
+    {
+        LLSelectNode* nodep = *iter;
+        LLViewerObject* object = nodep->getObject();
+        if (!object || !nodep->mValid)
+        {
+            move = false;
+            modify = false;
+            return FALSE;
+        }
+
+        LLViewerObject *root_object = object->getRootEdit();
+        bool this_object_movable = false;
+        if (object->permMove() && !object->isPermanentEnforced() &&
+            ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+            (object->permModify() || selecting_linked_set))
+        {
+            this_object_movable = true;
+        }
+        move = move && this_object_movable;
+        modify = modify && object->permModify();
+    }
+
+    return TRUE;
+}
+
 void LLSelectMgr::selectGetAggregateSaleInfo(U32 &num_for_sale,
 											 BOOL &is_for_sale_mixed, 
 											 BOOL &is_sale_price_mixed,

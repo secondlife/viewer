@@ -312,38 +312,15 @@ void LLGroupInviteNotificationListItem::onClickJoinBtn()
 		return;
 	}
 
-	if(mParams.fee > 0)
-	{
-		LLSD args;
-		args["COST"] = llformat("%d", mParams.fee);
-		// Set the fee for next time to 0, so that we don't keep
-		// asking about a fee.
-		LLSD next_payload;
-		next_payload["group_id"]=  mParams.group_id;
-		next_payload["transaction_id"]= mParams.transaction_id;
-		next_payload["fee"] = 0;
-		LLNotificationsUtil::add("JoinGroupCanAfford", args, next_payload);
-	}
-	else
-	{
-		send_improved_im(mParams.group_id,
-						std::string("name"),
-						std::string("message"),
-						IM_ONLINE,
-						IM_GROUP_INVITATION_ACCEPT,
-						mParams.transaction_id);
-	}
+	send_join_group_response(mParams.group_id, mParams.transaction_id, true, mParams.fee, mParams.use_offline_cap);
+
 	LLNotificationListItem::onClickCloseBtn();
 }
 
 void LLGroupInviteNotificationListItem::onClickDeclineBtn()
 {
-	send_improved_im(mParams.group_id,
-					std::string("name"),
-					std::string("message"),
-					IM_ONLINE,
-					IM_GROUP_INVITATION_DECLINE,
-					mParams.transaction_id);
+	send_join_group_response(mParams.group_id, mParams.transaction_id, false, mParams.fee, mParams.use_offline_cap);
+
 	LLNotificationListItem::onClickCloseBtn();
 }
 

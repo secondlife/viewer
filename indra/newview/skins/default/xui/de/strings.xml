@@ -70,7 +70,7 @@ UI-Skalierung: [UI_SCALE]
 Sichtweite: [DRAW_DISTANCE] m
 Bandbreite: [NET_BANDWITH] kbit/s
 LOD-Faktor: [LOD_FACTOR]
-Darstellungsqualität: [RENDER_QUALITY] / 7
+Darstellungsqualität: [RENDER_QUALITY]
 Erweitertes Beleuchtungsmodell: [GPU_SHADERS]
 Texturspeicher: [TEXTURE_MEMORY] MB
 Erstellungszeit VFS (Cache): [VFS_TIME]

@@ -324,6 +324,7 @@ with the same filename but different name
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
   <texture name="Inv_Link" file_name="icons/Inv_Link.png" preload="false" />
   <texture name="Inv_Invalid" file_name="icons/Inv_Invalid.png" preload="false" />
+  <texture name="Inv_Unknown" file_name="icons/Inv_UnknownObject.png" preload="false" />
   <texture name="Inv_VersionFolderClosed" file_name="icons/Inv_VersionFolderClosed.png" preload="false" />
   <texture name="Inv_VersionFolderOpen" file_name="icons/Inv_VersionFolderOpen.png" preload="false" />
   

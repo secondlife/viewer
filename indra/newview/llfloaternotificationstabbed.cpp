@@ -387,7 +387,8 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
     p.notification_name = notify->getName();
     p.transaction_id = payload["transaction_id"];
     p.group_id = payload["group_id"];
-    p.fee =  payload["fee"];
+    p.fee = payload["fee"];
+    p.use_offline_cap = payload["use_offline_cap"].asInteger();
     p.subject = payload["subject"].asString();
     p.message = payload["message"].asString();
     p.sender = payload["sender_name"].asString();

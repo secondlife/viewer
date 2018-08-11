@@ -71,7 +71,7 @@ Kullanıcı Arayüzü Ölçekleme: [UI_SCALE]
 Çizme mesafesi: [DRAW_DISTANCE] m
 Bant genişliği: [NET_BANDWITH] kbit/sn
 Ayrıntı seviyesi faktörü: [LOD_FACTOR]
-İşleme kalitesi: [RENDER_QUALITY] / 7
+İşleme kalitesi: [RENDER_QUALITY]
 Gelişmiş Aydınlatma Modeli: [GPU_SHADERS]
 Doku belleği: [TEXTURE_MEMORY]MB
 VFS (önbellek) oluşturma zamanı: [VFS_TIME]

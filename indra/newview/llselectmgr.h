@@ -675,6 +675,11 @@ public:
 	// returns TRUE if all the nodes are valid. Accumulates
 	// permissions in the parameter.
 	BOOL selectGetPermissions(LLPermissions& perm);
+
+	// returns TRUE if all the nodes are valid. Depends onto "edit linked" state
+	// Children in linksets are a bit special - they require not only move permission
+	// but also modify if "edit linked" is set, since you move them relative to parent
+	BOOL selectGetEditMoveLinksetPermissions(bool &move, bool &modify);
 	
 	// Get a bunch of useful sale information for the object(s) selected.
 	// "_mixed" is true if not all objects have the same setting.

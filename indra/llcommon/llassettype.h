@@ -130,7 +130,7 @@ public:
 			// | 4. ADD TO LLViewerAssetType.cpp                         |
 			// | 5. ADD TO DEFAULT_ASSET_FOR_INV in LLInventoryType.cpp  |
 			// +*********************************************************+
-
+		AT_UNKNOWN = 255,
 		AT_NONE = -1
 	};
 

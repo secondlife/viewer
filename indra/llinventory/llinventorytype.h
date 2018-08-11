@@ -66,6 +66,7 @@ public:
 		IT_PERSON = 24,
 		IT_COUNT = 25,
 
+		IT_UNKNOWN = 255,
 		IT_NONE = -1
 	};
 
@@ -111,6 +112,7 @@ public:
 		ICONNAME_MESH,
 
 		ICONNAME_INVALID,
+		ICONNAME_UNKNOWN,
 		ICONNAME_COUNT,
 		ICONNAME_NONE = -1
 	};
