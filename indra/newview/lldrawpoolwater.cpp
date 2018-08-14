@@ -50,8 +50,6 @@
 #include "llsettingssky.h"
 #include "llsettingswater.h"
 
-#pragma optimize("", off)
-
 static float sTime;
 
 BOOL deferred_render = FALSE;
