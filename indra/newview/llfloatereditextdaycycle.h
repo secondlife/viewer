@@ -172,6 +172,8 @@ private:
     LLSettingsSky::ptr_t        mScratchSky;
     LLSettingsWater::ptr_t      mScratchWater;
     LLSettingsBase::ptr_t       mCurrentEdit;
+    LLSettingsSky::ptr_t        mEditSky;
+    LLSettingsWater::ptr_t      mEditWater;
 
     LLFrameTimer                mPlayTimer;
     F32                         mPlayStartFrame; // an env frame

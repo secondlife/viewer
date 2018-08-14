@@ -554,53 +554,36 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
     return validation;
 }
 
-LLSD LLSettingsSky::createDensityProfileLayer(
-    F32 width,
-    F32 exponential_term,
-    F32 exponential_scale_factor,
-    F32 linear_term,
-    F32 constant_term,
-    F32 aniso_factor)
-{
-    LLSD dflt_layer;
-    dflt_layer[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
-    dflt_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
-    dflt_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
-    dflt_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
-    dflt_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
-
-    if (aniso_factor != 0.0f)
-    {
-        dflt_layer[SETTING_MIE_ANISOTROPY_FACTOR] = aniso_factor;
-    }
-
-    return dflt_layer;
-}
-
-LLSD LLSettingsSky::createSingleLayerDensityProfile(
-    F32 width,
-    F32 exponential_term,
-    F32 exponential_scale_factor,
-    F32 linear_term,
-    F32 constant_term,
-    F32 aniso_factor)
-{
-    LLSD dflt;
-    LLSD dflt_layer = createDensityProfileLayer(width, exponential_term, exponential_scale_factor, linear_term, constant_term, aniso_factor);
-    dflt.append(dflt_layer);
-    return dflt;
-}
-
 LLSD LLSettingsSky::rayleighConfigDefault()
 {
-    return createSingleLayerDensityProfile(0.0f,  1.0f, -1.0f / 8000.0f, 0.0f, 0.0f);
+    LLSD dflt_rayleigh;
+    LLSD dflt_rayleigh_layer;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_rayleigh_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_rayleigh.append(dflt_rayleigh_layer);
+    return dflt_rayleigh;
 }
 
 LLSD LLSettingsSky::absorptionConfigDefault()
 {
 // absorption (ozone) has two linear ramping zones
-    LLSD dflt_absorption_layer_a = createDensityProfileLayer(25000.0f, 0.0f, 0.0f, -1.0f / 25000.0f, -2.0f / 3.0f);
-    LLSD dflt_absorption_layer_b = createDensityProfileLayer(0.0f, 0.0f, 0.0f, -1.0f / 15000.0f, 8.0f / 3.0f);
+    LLSD dflt_absorption_layer_a;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_WIDTH]            = 25000.0f; // 0 -> the entire atmosphere
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 25000.0f;
+    dflt_absorption_layer_a[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = -2.0f / 3.0f;
+
+    LLSD dflt_absorption_layer_b;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> remainder of the atmosphere
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_EXP_TERM]         = 0.0f;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = 0.0f;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = -1.0f / 15000.0f;
+    dflt_absorption_layer_b[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 8.0f  / 3.0f;
+
     LLSD dflt_absorption;
     dflt_absorption.append(dflt_absorption_layer_a);
     dflt_absorption.append(dflt_absorption_layer_b);
@@ -609,7 +592,15 @@ LLSD LLSettingsSky::absorptionConfigDefault()
 
 LLSD LLSettingsSky::mieConfigDefault()
 {
-    LLSD dflt_mie = createSingleLayerDensityProfile(0.0f,  1.0f, -1.0f / 1200.0f, 0.0f, 0.0f, 0.8f);
+    LLSD dflt_mie;
+    LLSD dflt_mie_layer;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 1200.0f;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
+    dflt_mie_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_mie_layer[SETTING_MIE_ANISOTROPY_FACTOR]            = 0.8f;
+    dflt_mie.append(dflt_mie_layer);
     return dflt_mie;
 }
 
@@ -1104,8 +1095,13 @@ LLUUID LLSettingsSky::GetDefaultAssetId()
 
 LLUUID LLSettingsSky::GetDefaultSunTextureId()
 {
-    //return DEFAULT_SUN_ID;
     return LLUUID::null;
+}
+
+
+LLUUID LLSettingsSky::GetBlankSunTextureId()
+{
+    return DEFAULT_SUN_ID;
 }
 
 LLUUID LLSettingsSky::GetDefaultMoonTextureId()

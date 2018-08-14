@@ -321,7 +321,7 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
-        if (mask == MASK_CONTROL)
+        if (mDragMode == DRAG_SCROLL)
         { // trackball (move to roll) mode
             LLQuaternion delta;
 
@@ -394,7 +394,7 @@ BOOL LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
         gFocusMgr.setMouseCapture(NULL);
         make_ui_sound("UISndClickRelease");
     }
-    return TRUE;
+    return LLView::handleMouseUp(x, y, mask);
 }
 
 BOOL LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -404,9 +404,10 @@ BOOL LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
         mPrevX = x;
         mPrevY = y;
         gFocusMgr.setMouseCapture(this);
+        mDragMode = (mask == MASK_CONTROL) ? DRAG_SCROLL : DRAG_SET;
         make_ui_sound("UISndClick");
     }
-    return TRUE;
+    return LLView::handleMouseDown(x, y, mask);
 }
 
 BOOL LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -416,7 +417,7 @@ BOOL LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
         //make_ui_sound("UISndClick");
     }
-    return TRUE;
+    return LLView::handleRightMouseDown(x, y, mask);
 }
 
 BOOL LLVirtualTrackball::handleKeyHere(KEY key, MASK mask)
