@@ -2704,6 +2704,15 @@ void LLPanelPreferenceGraphics::cancel()
 void LLPanelPreferenceGraphics::saveSettings()
 {
 	resetDirtyChilds();
+	if (gSavedSettings.getString("PresetGraphicActive").empty())
+	{
+		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+		if (instance)
+		{
+			//don't restore previous preset after closing Preferences
+			instance->saveGraphicsPreset(std::string());
+		}
+	}
 	LLPanelPreference::saveSettings();
 }
 void LLPanelPreferenceGraphics::setHardwareDefaults()
