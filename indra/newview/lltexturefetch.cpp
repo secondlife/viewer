@@ -2426,6 +2426,12 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		desired_size = LLImageJ2C::calcDataSizeJ2C(2048, 2048, 4, desired_discard);		
 	}
 
+    // terrible hack to work around OpenJPEG issues with failing to decode in the face of incomplete data
+    if (gSavedSettings.getS32("JpegDecoderType") > 0)
+    {
+        desired_size = MAX_IMAGE_DATA_SIZE;
+    }
+
 	if (worker)
 	{
 		if (worker->wasAborted())
