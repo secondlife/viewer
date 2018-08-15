@@ -589,19 +589,32 @@ void LLDrawPoolWater::shade()
 	//bind normal map
 	S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 
-    if (mWaterNormp[0] && mWaterNormp[1])
+    if (mWaterNormp[0])
     {
 	    gGL.getTexUnit(bumpTex)->bind(mWaterNormp[0]) ;
-        gGL.getTexUnit(bumpTex + 1)->bind(mWaterNormp[1]) ;
 
 	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
 	    {
 		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
 	    }
 	    else 
 	    {
 		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+	}
+
+    if (mWaterNormp[1])
+    {
+        bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP2);
+
+        gGL.getTexUnit(bumpTex)->bind(mWaterNormp[1]) ;
+
+	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
+	    {
+            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	    }
+	    else 
+	    {
             mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_POINT);
 	    }
 	}

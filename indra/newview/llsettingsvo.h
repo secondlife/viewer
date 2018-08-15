@@ -159,6 +159,7 @@ public:
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
     static void     buildFromOtherSetting(LLSettingsBase::ptr_t settings, asset_built_fn cb);
     virtual ptr_t   buildClone() override;
+    virtual ptr_t   buildDeepCloneAndUncompress();
 
     static LLSD     convertToLegacy(const ptr_t &);
     
