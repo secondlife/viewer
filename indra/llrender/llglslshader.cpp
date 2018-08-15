@@ -561,7 +561,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
                 mAttribute[i] = index;
 #endif
                 mAttributeMask |= 1 << i;
-                LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
+                LL_DEBUGS("ShaderUniform") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
         }
         if (attributes != NULL)
@@ -573,7 +573,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
                 if (index != -1)
                 {
                     mAttribute[LLShaderMgr::instance()->mReservedAttribs.size() + i] = index;
-                    LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
+                    LL_DEBUGS("ShaderUniform") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
                 }
             }
         }
@@ -658,7 +658,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
         mUniformNameMap[location] = name;
         mUniformMap[hashedName] = location;
 
-        LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
+        LL_DEBUGS("ShaderUniform") << "Uniform " << name << " is at location " << location << LL_ENDL;
     
         //find the index of this uniform
         for (S32 i = 0; i < (S32) LLShaderMgr::instance()->mReservedUniforms.size(); i++)
@@ -706,7 +706,7 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
         type == GL_SAMPLER_2D_MULTISAMPLE)
     {   //this here is a texture
         glUniform1iARB(location, mActiveTextureChannels);
-        LL_DEBUGS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
+        LL_DEBUGS("ShaderUniform") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
         return mActiveTextureChannels++;
     }
     return -1;
@@ -849,7 +849,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 	unbind();
 
-	LL_DEBUGS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
+	LL_DEBUGS("ShaderUniform") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
 	return res;
 }
 
