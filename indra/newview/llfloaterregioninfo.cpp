@@ -181,12 +181,16 @@ class LLPanelRegionEnvironment : public LLPanelEnvironmentInfo
 public:
     LLPanelRegionEnvironment();
 
-    void refresh();
+    virtual void        refresh() override;
+
+    virtual bool        isRegion() const override { return true; }
+    virtual LLParcel *  getParcel() override { return nullptr; }
+    virtual bool        canEdit() override { return LLEnvironment::instance().canAgentUpdateRegionEnvironment(); }
 
     bool refreshFromRegion(LLViewerRegion* region);
     void refreshFromEstate();
 
-    virtual BOOL postBuild();
+    virtual BOOL postBuild() override;
 
 protected:
     virtual void doApply();
@@ -194,8 +198,6 @@ protected:
     virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
     BOOL    sendUpdate();
 
-private:
-    LLViewerRegion * mLastRegion;
 };
 
 
@@ -246,6 +248,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 
     mEnvironmentPanel = new LLPanelRegionEnvironment;
     mEnvironmentPanel->buildFromFile("panel_region_environment.xml");
+//  mEnvironmentPanel->configureForRegion();
     mTab->addTabPanel(mEnvironmentPanel);
 
 	panel = new LLPanelRegionDebugInfo;
@@ -3367,8 +3370,7 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 
 //=========================================================================
 LLPanelRegionEnvironment::LLPanelRegionEnvironment():
-    LLPanelEnvironmentInfo(),
-    mLastRegion(NULL)
+    LLPanelEnvironmentInfo()
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
     estate_info.setCommitCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
@@ -3381,48 +3383,28 @@ BOOL LLPanelRegionEnvironment::postBuild()
     if (!LLPanelEnvironmentInfo::postBuild())
         return FALSE;
 
+    getChild<LLUICtrl>(RDO_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEDEFAULT));
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(TRUE);
+
     return TRUE;
 }
 
 
 void LLPanelRegionEnvironment::refresh()
 {
-    refreshFromRegion(mLastRegion);
+    if (!mCurrentEnvironment)
+    {
+        refreshFromSource();
+        return;
+    }
+
     refreshFromEstate();
+    LLPanelEnvironmentInfo::refresh();
 }
 
 bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
 {
-    BOOL owner_or_god = gAgent.isGodlike() || (region && (region->getOwner() == gAgent.getID()));
-    BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
-
-    F64Hours daylength;
-    F64Hours dayoffset;
-
-    daylength = LLEnvironment::instance().getEnvironmentDayLength(LLEnvironment::ENV_REGION);
-    dayoffset = LLEnvironment::instance().getEnvironmentDayOffset(LLEnvironment::ENV_REGION);
-
-    if (dayoffset.value() > 12.0)
-        dayoffset = dayoffset - F64Hours(24.0f);
-
-    mDayLengthSlider->setValue(daylength.value());
-    mDayOffsetSlider->setValue(dayoffset.value());
-
-    setControlsEnabled(owner_or_god_or_manager);
-    mLastRegion = region;
-
-    LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(LLEnvironment::ENV_REGION);
-
-    if (pday)
-    {
-        mRegionSettingsRadioGroup->setSelectedIndex((pday->getAssetId() == LLSettingsDay::GetDefaultAssetId()) ? 0 : 1);
-        mEditingDayCycle = std::static_pointer_cast<LLSettingsDay>(pday->buildDerivedClone()); 
-    }
-    else
-    {
-        mRegionSettingsRadioGroup->setSelectedIndex(1);
-    }
-
+    refresh();
     return true;
 }
 
@@ -3430,38 +3412,38 @@ void LLPanelRegionEnvironment::refreshFromEstate()
 {
     const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
 
-    getChild<LLUICtrl>("allow_override_chk")->setValue(estate_info.getAllowEnvironmentOverride());
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(estate_info.getAllowEnvironmentOverride());
 
 }
 
 void LLPanelRegionEnvironment::doApply()
 {
-    if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
-    {
-        LLEnvironment::instance().resetRegion();
-    }
-    else
-    {
-        LLSettingsDay::Seconds daylength;
-        F32Hours   dayoffset_h;
-
-        daylength = F32Hours(mDayLengthSlider->getValueF32());
-        dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
-
-        if (dayoffset_h.value() < 0)
-        {
-            dayoffset_h = F32Hours(24.0f) + dayoffset_h;
-        }
-
-        LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
-
-        LLEnvironment::instance().updateRegion(mEditingDayCycle, daylength.value(), dayoffset_s.value());
-    }
+//     if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
+//     {
+//         LLEnvironment::instance().resetRegion();
+//     }
+//     else
+//     {
+//         LLSettingsDay::Seconds daylength;
+//         F32Hours   dayoffset_h;
+// 
+//         daylength = F32Hours(mDayLengthSlider->getValueF32());
+//         dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
+// 
+//         if (dayoffset_h.value() < 0)
+//         {
+//             dayoffset_h = F32Hours(24.0f) + dayoffset_h;
+//         }
+// 
+//         LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
+// 
+//         LLEnvironment::instance().updateRegion(mEditingDayCycle, daylength.value(), dayoffset_s.value());
+//     }
 }
 
 void LLPanelRegionEnvironment::doEditCommited(LLSettingsDay::ptr_t &newday)
 {
-    mEditingDayCycle = newday;
+//     mEditingDayCycle = newday;
 }
 
 BOOL LLPanelRegionEnvironment::sendUpdate()

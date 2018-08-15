@@ -57,6 +57,8 @@
 #include <boost/make_shared.hpp>
 
 #include "llatmosphere.h"
+#include "llagent.h"
+#include "roles_constants.h"
 
 //=========================================================================
 namespace
@@ -374,23 +376,33 @@ void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settin
     }
 }
 
-bool LLEnvironment::canAgentUpdateParcelEnvironment(bool useselected) const
+bool LLEnvironment::canAgentUpdateParcelEnvironment() const
 {
+    LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
+
+    return canAgentUpdateParcelEnvironment(parcel);
+}
+
+
+bool LLEnvironment::canAgentUpdateParcelEnvironment(LLParcel *parcel) const
+{
+    if (!parcel)
+        return false;
+
     if (!LLEnvironment::instance().isExtendedEnvironmentEnabled())
         return false;
 
-    LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
+    if (gAgent.isGodlike())
+        return true;
 
-    if (parcel)
-    {
-        return parcel->allowTerraformBy(gAgent.getID());
-    }
-
-    return false;
+    return LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS);
 }
 
 bool LLEnvironment::canAgentUpdateRegionEnvironment() const
 {
+    if (gAgent.isGodlike())
+        return true;
+
     return gAgent.getRegion()->canManageEstate();
 }
 
@@ -595,6 +607,7 @@ void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLS
     }
 
     setEnvironment(env, settings);
+    updateEnvironment();
 }
 
 void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
@@ -1001,7 +1014,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
 }
 
 //=========================================================================
-void LLEnvironment::requestRegion()
+void LLEnvironment::requestRegion(environment_apply_fn cb)
 {
     if (!isExtendedEnvironmentEnabled())
     {   /*TODO: When EEP is live on the entire grid, this can go away. */
@@ -1009,7 +1022,7 @@ void LLEnvironment::requestRegion()
         return;
     }
 
-    requestParcel(INVALID_PARCEL_ID);
+    requestParcel(INVALID_PARCEL_ID, cb);
 }
 
 void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
@@ -1051,12 +1064,16 @@ void LLEnvironment::resetRegion()
     resetParcel(INVALID_PARCEL_ID);
 }
 
-void LLEnvironment::requestParcel(S32 parcel_id)
+void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
 {
+    if (!cb)
+    {
+        cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); };
+    }
+
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
-        boost::bind(&LLEnvironment::coroRequestEnvironment, this, parcel_id,
-        [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }));
+        [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset)
@@ -1065,10 +1082,6 @@ void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         [this, parcel_id, asset_id, day_length, day_offset]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
             LLSettingsDay::ptr_t(), asset_id, day_length, day_offset, environment_apply_fn()); });
-//                 [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }); });
-
-//     LLSettingsVOBase::getSettingsAsset(asset_id,
-//         [this, parcel_id, day_length, day_offset](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onUpdateParcelAssetLoaded(asset_id, settings, status, parcel_id, day_length, day_offset); });
 }
 
 void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset)
@@ -1117,7 +1130,6 @@ void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         [this, parcel_id, pday, day_length, day_offset]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
             pday, LLUUID::null, day_length, day_offset, environment_apply_fn()); });
-//             [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }); });
 }
 
 
@@ -1127,7 +1139,6 @@ void LLEnvironment::resetParcel(S32 parcel_id)
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
         [this, parcel_id]() { coroResetEnvironment(parcel_id, NO_TRACK, environment_apply_fn()); });
-//             [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); }); });
 }
 
 void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environment_apply_fn apply)
@@ -1419,6 +1430,12 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
         pinfo->mDayHash = environment.has(KEY_DAYHASH) ? environment[KEY_DAYHASH].asInteger() : 0;
     }
 
+    if (environment.has(KEY_DAYASSET))
+    {
+        pinfo->mAssetId = environment[KEY_DAYASSET].asUUID();
+        LL_WARNS("LAPRAS") << "Environment asset ID is " << pinfo->mAssetId << LL_ENDL;
+        LL_WARNS("LAPRAS") << "(day cycle claims " << pinfo->mDayCycle->getAssetId() << ")" << LL_ENDL;
+    }
 
     return pinfo;
 }

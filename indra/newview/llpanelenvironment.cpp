@@ -31,6 +31,7 @@
 #include "lluictrlfactory.h"
 #include "llexperiencecache.h"
 #include "llagent.h"
+#include "llparcel.h"
 
 #include "llviewerregion.h"
 #include "llpanelenvironment.h"
@@ -40,31 +41,63 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfloatereditextdaycycle.h"
+#include "llsettingsvo.h"
 
-//static LLPanelInjector<LLPanelEnvironmentInfo> register_environment_panel("environment_panel");
+#include "llappviewer.h"
 
+//=========================================================================
+namespace 
+{
+    const std::string FLOATER_DAY_CYCLE_EDIT("env_edit_extdaycycle");
+}
+
+//=========================================================================
+const std::string LLPanelEnvironmentInfo::RDG_ENVIRONMENT_SELECT("rdg_environment_select");
+const std::string LLPanelEnvironmentInfo::RDO_USEDEFAULT("rdo_use_xxx_setting");
+const std::string LLPanelEnvironmentInfo::RDO_USEINV("rdo_use_inv_setting");
+const std::string LLPanelEnvironmentInfo::RDO_USECUSTOM("rdo_use_custom_setting");
+const std::string LLPanelEnvironmentInfo::EDT_INVNAME("edt_inventory_name");
+const std::string LLPanelEnvironmentInfo::BTN_SELECTINV("btn_select_inventory");
+const std::string LLPanelEnvironmentInfo::BTN_EDIT("btn_edit");
+const std::string LLPanelEnvironmentInfo::SLD_DAYLENGTH("sld_day_length");
+const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
+const std::string LLPanelEnvironmentInfo::CHK_ALLOWOVERRIDE("chk_allow_override");
+const std::string LLPanelEnvironmentInfo::BTN_APPLY("btn_apply");
+const std::string LLPanelEnvironmentInfo::BTN_CANCEL("btn_cancel");
+
+const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
+const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
+const std::string LLPanelEnvironmentInfo::STR_LABEL_UNKNOWNINV("str_unknow_inventory");
+
+const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
+const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
+const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET(0x01 << 2);
+
+const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
+        LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE | 
+        LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH | 
+        LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET );
+
+//=========================================================================
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
-    mEnableEditing(false),
-    mRegionSettingsRadioGroup(NULL),
-    mDayLengthSlider(NULL),
-    mDayOffsetSlider(NULL),
-    mAllowOverRide(NULL)
+    mCurrentEnvironment(),
+    mCurrentParcelId(INVALID_PARCEL_ID),
+    mDirtyFlag(0),
+    mSettingsFloater(),
+    mEditFloater()
 {
 }
 
-// virtual
 BOOL LLPanelEnvironmentInfo::postBuild()
 {
-    mRegionSettingsRadioGroup = getChild<LLRadioGroup>("environment_select_radio_group");
-    mRegionSettingsRadioGroup->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSwitchDefaultSelection, this));
+    getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onSwitchDefaultSelection(); });
+    getChild<LLUICtrl>(BTN_SELECTINV)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
+    getChild<LLUICtrl>(BTN_EDIT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
+    getChild<LLUICtrl>(BTN_APPLY)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnApply(); });
+    getChild<LLUICtrl>(BTN_CANCEL)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnReset(); });
 
-    mDayLengthSlider = getChild<LLSliderCtrl>("day_length_sld");
-    mDayOffsetSlider = getChild<LLSliderCtrl>("day_offset_sld");
-    mAllowOverRide = getChild<LLCheckBoxCtrl>("allow_override_chk");
-
-    childSetCommitCallback("edit_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnEdit, this), NULL);
-    childSetCommitCallback("apply_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this), NULL);
-    childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
+    getChild<LLUICtrl>(SLD_DAYLENGTH)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(value.asReal()); });
+    getChild<LLUICtrl>(SLD_DAYOFFSET)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged(value.asReal()); });
 
     return TRUE;
 }
@@ -72,8 +105,7 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 // virtual
 void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 {
-    LL_DEBUGS("Windlight") << "Panel opened, refreshing" << LL_ENDL;
-    refresh();
+    refreshFromSource();
 }
 
 // virtual
@@ -87,53 +119,120 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
 
 void LLPanelEnvironmentInfo::refresh()
 {
-#if 0
     if (gDisconnected)
-    {
         return;
+
+    if (((mCurrentEnvironment->mParcelId != INVALID_PARCEL_ID) && (!mCurrentEnvironment->mDayCycle)) ||
+        ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
+    {
+        getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(0);
+        getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
+    }
+    else if (!mCurrentEnvironment->mDayCycle->getAssetId().isNull())
+    {
+        getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(1);
+
+        LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
+
+        std::string inventoryname = getInventoryNameForAssetId(asset_id);
+
+        if (inventoryname.empty())
+            inventoryname = "(" + mCurrentEnvironment->mDayCycle->getName() + ")";
+
+        getChild<LLUICtrl>(EDT_INVNAME)->setValue(inventoryname);
+    }
+    else
+    {   // asset id is null so this is a custom environment
+        getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(2);
+        getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
     }
 
-    populateWaterPresetsList();
-    populateSkyPresetsList();
-    populateDayCyclesList();
+    F32Hours daylength(mCurrentEnvironment->mDayLength);
+    F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
-    // Init radio groups.
-    const LLEnvironmentSettings& settings = LLEnvManagerNew::instance().getRegionSettings();
-    const LLSD& dc = settings.getWLDayCycle();
-    LLSD::Real first_frame_time = dc.size() > 0 ? dc[0][0].asReal() : 0.0f;
-    const bool use_fixed_sky = dc.size() == 1 && first_frame_time < 0;
-    mRegionSettingsRadioGroup->setSelectedIndex(settings.getSkyMap().size() == 0 ? 0 : 1);
-    mDayCycleSettingsRadioGroup->setSelectedIndex(use_fixed_sky ? 0 : 1);
+    if (dayoffset.value() > 8.0f)
+        dayoffset -= F32Hours(24.0);
 
-    setControlsEnabled(mEnableEditing);
+    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
+    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
+   
+    setControlsEnabled(canEdit());
+}
 
-    setDirty(false);
-#endif
+void LLPanelEnvironmentInfo::refreshFromSource()
+{
+    LLEnvironment::instance().requestParcel(mCurrentParcelId, 
+        [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+}
+
+std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
+{
+    LLFloaterSettingsPicker *picker = getSettingsPicker();
+
+    if (!picker)
+    {   
+        LL_WARNS("ENVPANEL") << "Couldn't instantiate picker." << LL_ENDL;
+        return std::string();
+    }
+
+    std::string name(picker->findItemName(asset_id, false, false));
+
+    if (name.empty())
+        return getString(STR_LABEL_UNKNOWNINV);
+    return name;
+}
+
+LLFloaterSettingsPicker *LLPanelEnvironmentInfo::getSettingsPicker()
+{
+    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mSettingsFloater.get());
+
+    // Show the dialog
+    if (!picker)
+    {
+        picker = new LLFloaterSettingsPicker(this,
+            LLUUID::null, "SELECT SETTINGS");
+
+        mSettingsFloater = picker->getHandle();
+
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommited(data.asUUID()); });
+    }
+
+    return picker;
+}
+
+LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
+{
+    LLFloaterEditExtDayCycle *editor = static_cast<LLFloaterEditExtDayCycle *>(mEditFloater.get());
+
+    // Show the dialog
+    if (!editor)
+    {
+        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, "parcel")
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, static_cast<S32>(mCurrentEnvironment->mDayLength.value())));
+
+        editor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance(FLOATER_DAY_CYCLE_EDIT, params);
+
+        if (!editor)
+            return nullptr;
+    }
+
+    return editor;
 }
 
 void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 {
-    mRegionSettingsRadioGroup->setEnabled(enabled);
-
-    mDayLengthSlider->setEnabled(false);
-    mDayOffsetSlider->setEnabled(false);
-    mAllowOverRide->setEnabled(enabled);
-
-    getChildView("edit_btn")->setEnabled(false);
-
-    getChildView("apply_btn")->setEnabled(enabled);
-    getChildView("cancel_btn")->setEnabled(enabled);
-
-    if (enabled)
-    {
-        // Enable/disable some controls based on currently selected radio buttons.
-        bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
-        getChild<LLView>("edit_btn")->setEnabled(!use_defaults);
-
-        mDayLengthSlider->setEnabled(!use_defaults);
-        mDayOffsetSlider->setEnabled(!use_defaults);
-
-    }
+    getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(enabled);
+    getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(enabled);
+    getChild<LLUICtrl>(RDO_USEINV)->setEnabled(enabled);
+    getChild<LLUICtrl>(RDO_USECUSTOM)->setEnabled(enabled);
+    getChild<LLUICtrl>(EDT_INVNAME)->setEnabled(FALSE);
+    getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(enabled);
+    getChild<LLUICtrl>(BTN_EDIT)->setEnabled(enabled);
+    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled);
+    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled);
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && (mCurrentParcelId == INVALID_PARCEL_ID));
+    getChild<LLUICtrl>(BTN_APPLY)->setEnabled(enabled && (mDirtyFlag != 0));
+    getChild<LLUICtrl>(BTN_CANCEL)->setEnabled(enabled && (mDirtyFlag != 0));
 }
 
 void LLPanelEnvironmentInfo::setApplyProgress(bool started)
@@ -152,221 +251,85 @@ void LLPanelEnvironmentInfo::setApplyProgress(bool started)
 //     }
 }
 
-void LLPanelEnvironmentInfo::setDirty(bool dirty)
+void LLPanelEnvironmentInfo::setDirtyFlag(S32 flag)
 {
-    getChildView("apply_btn")->setEnabled(dirty);
-    getChildView("cancel_btn")->setEnabled(dirty);
+    bool can_edit = canEdit();
+    mDirtyFlag |= flag;
+    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && can_edit);
+    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
 }
-
-// void LLPanelEnvironmentInfo::sendRegionSunUpdate()
-// {
-// #if 0
-//     LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
-// 
-//     // If the region is being switched to fixed sky,
-//     // change the region's sun hour according to the (fixed) sun position.
-//     // This is needed for llGetSunDirection() LSL function to work properly (STORM-1330).
-//     const LLSD& sky_map = mNewRegionSettings.getSkyMap();
-//     bool region_use_fixed_sky = sky_map.size() == 1;
-//     if (region_use_fixed_sky)
-//     {
-//         LLWLParamSet param_set;
-//         llassert(sky_map.isMap());
-//         param_set.setAll(sky_map.beginMap()->second);
-//         F32 sun_angle = param_set.getSunAngle();
-// 
-//         LL_DEBUGS("Windlight Sync") << "Old sun hour: " << region_info.mSunHour << LL_ENDL;
-//         // convert value range from 0..2pi to 6..30
-//         region_info.mSunHour = fmodf((sun_angle / F_TWO_PI) * 24.f, 24.f) + 6.f;
-//     }
-// 
-//     region_info.setUseFixedSun(region_use_fixed_sky);
-//     region_info.mUseEstateSun = !region_use_fixed_sky;
-//     LL_DEBUGS("Windlight Sync") << "Sun hour: " << region_info.mSunHour << LL_ENDL;
-// 
-//     region_info.sendRegionTerrain(LLFloaterRegionInfo::getLastInvoice());
-// #endif
-// }
-
-// void LLPanelEnvironmentInfo::fixEstateSun()
-// {
-//     // We don't support fixed sun estates anymore and need to fix
-//     // such estates for region day cycle to take effect.
-//     // *NOTE: Assuming that current estate settings have arrived already.
-//     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
-//     if (estate_info.getUseFixedSun())
-//     {
-//         LL_INFOS() << "Switching estate to global sun" << LL_ENDL;
-//         estate_info.setUseFixedSun(false);
-//         estate_info.sendEstateInfo();
-//     }
-// }
-
-// void LLPanelEnvironmentInfo::populateWaterPresetsList()
-// {
-// #if 0
-//     mWaterPresetCombo->removeall();
-// 
-//     // If the region already has water params, add them to the list.
-//     const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
-//     if (region_settings.getWaterParams().size() != 0)
-//     {
-//         const std::string& region_name = gAgent.getRegion()->getName();
-//         mWaterPresetCombo->add(region_name, LLWLParamKey(region_name, LLEnvKey::SCOPE_REGION).toLLSD());
-//         mWaterPresetCombo->addSeparator();
-//     }
-// 
-//     std::list<std::string> user_presets, system_presets;
-//     LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
-// 
-//     // Add local user presets first.
-//     for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
-//     {
-//         mWaterPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
-//     }
-// 
-//     if (user_presets.size() > 0)
-//     {
-//         mWaterPresetCombo->addSeparator();
-//     }
-// 
-//     // Add local system presets.
-//     for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
-//     {
-//         mWaterPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
-//     }
-// 
-//     // There's no way to select current preset because its name is not stored on server.
-// #endif
-// }
-// 
-// void LLPanelEnvironmentInfo::populateSkyPresetsList()
-// {
-// #if 0
-//     mSkyPresetCombo->removeall();
-// 
-//     LLWLParamManager::preset_name_list_t region_presets;
-//     LLWLParamManager::preset_name_list_t user_presets, sys_presets;
-//     LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
-// 
-//     // Add region presets.
-//     std::string region_name = gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
-//     for (LLWLParamManager::preset_name_list_t::const_iterator it = region_presets.begin(); it != region_presets.end(); ++it)
-//     {
-//         std::string preset_name = *it;
-//         std::string item_title = preset_name + " (" + region_name + ")";
-//         mSkyPresetCombo->add(item_title, LLWLParamKey(preset_name, LLEnvKey::SCOPE_REGION).toStringVal());
-//     }
-// 
-//     if (!region_presets.empty())
-//     {
-//         mSkyPresetCombo->addSeparator();
-//     }
-// 
-//     // Add user presets.
-//     for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
-//     {
-//         mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
-//     }
-// 
-//     if (!user_presets.empty())
-//     {
-//         mSkyPresetCombo->addSeparator();
-//     }
-// 
-//     // Add system presets.
-//     for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
-//     {
-//         mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
-//     }
-// 
-//     // Select current preset.
-//     LLSD sky_map = LLEnvManagerNew::instance().getRegionSettings().getSkyMap();
-//     if (sky_map.size() == 1) // if the region is set to fixed sky
-//     {
-//         std::string preset_name = sky_map.beginMap()->first;
-//         mSkyPresetCombo->selectByValue(LLWLParamKey(preset_name, LLEnvKey::SCOPE_REGION).toStringVal());
-//     }
-// #endif
-// }
-// 
-// void LLPanelEnvironmentInfo::populateDayCyclesList()
-// {
-// #if 0
-//     mDayCyclePresetCombo->removeall();
-// 
-//     // If the region already has env. settings, add its day cycle to the list.
-//     const LLSD& cur_region_dc = LLEnvManagerNew::instance().getRegionSettings().getWLDayCycle();
-//     if (cur_region_dc.size() != 0)
-//     {
-//         LLViewerRegion* region = gAgent.getRegion();
-//         llassert(region != NULL);
-// 
-//         LLWLParamKey key(region->getName(), LLEnvKey::SCOPE_REGION);
-//         mDayCyclePresetCombo->add(region->getName(), key.toStringVal());
-//         mDayCyclePresetCombo->addSeparator();
-//     }
-// 
-//     // Add local user day cycles.
-//     LLDayCycleManager::preset_name_list_t user_days, sys_days;
-//     LLDayCycleManager::instance().getPresetNames(user_days, sys_days);
-//     for (LLDayCycleManager::preset_name_list_t::const_iterator it = user_days.begin(); it != user_days.end(); ++it)
-//     {
-//         mDayCyclePresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
-//     }
-// 
-//     if (user_days.size() > 0)
-//     {
-//         mDayCyclePresetCombo->addSeparator();
-//     }
-// 
-//     // Add local system day cycles.
-//     for (LLDayCycleManager::preset_name_list_t::const_iterator it = sys_days.begin(); it != sys_days.end(); ++it)
-//     {
-//         mDayCyclePresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
-//     }
-// 
-//     // Current day cycle is already selected.
-// #endif
-// }
 
 void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
 {
-    bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
-    
-    getChild<LLView>("edit_btn")->setEnabled(!use_defaults);
-
-    mDayLengthSlider->setEnabled(!use_defaults);
-    mDayOffsetSlider->setEnabled(!use_defaults);
-
-    setDirty(true);
+    setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
+//     bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+//     
+//     getChild<LLView>("edit_btn")->setEnabled(!use_defaults);
+// 
+//     mDayLengthSlider->setEnabled(!use_defaults);
+//     mDayOffsetSlider->setEnabled(!use_defaults);
+// 
+//     setDirty(true);
 }
 
+
+void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
+{
+    F32Hours daylength(value);
+
+    mCurrentEnvironment->mDayLength = daylength;
+    setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
+}
+
+
+void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
+{
+    F32Hours dayoffset(value);
+
+    if (dayoffset.value() < 0.0f)
+        dayoffset += F32Hours(24.0);
+
+    mCurrentEnvironment->mDayLength = dayoffset;
+    setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
+}
 
 void LLPanelEnvironmentInfo::onBtnApply()
 {
-    doApply();
+//    doApply();
 }
 
-void LLPanelEnvironmentInfo::onBtnCancel()
+void LLPanelEnvironmentInfo::onBtnReset()
 {
-    // Reload last saved region settings.
-    refresh();
+    mCurrentEnvironment.reset();
+    refreshFromSource();
 }
 
 void LLPanelEnvironmentInfo::onBtnEdit()
 {
-    LLFloaterEditExtDayCycle *dayeditor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance("env_edit_extdaycycle");
+    LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
-    if (dayeditor)
-    {   //*TODO Determine if region or parcel.
-        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_LIVE_ENVIRONMENT, "parcel")
-            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mDayLengthSlider->getValueF32() * (60.0 * 60.0)));
+    dayeditor->openFloater(dayeditor->getKey());
+}
 
-        LLFloaterReg::showInstance("env_edit_extdaycycle", params, TAKE_FOCUS_YES);
-
-//         dayeditor->openFloater(mEditingDayCycle, F32Hours(mDayLengthSlider->getValue().asReal()), F32Hours(mDayOffsetSlider->getValue().asReal()));
+void LLPanelEnvironmentInfo::onBtnSelect()
+{
+    LLFloaterSettingsPicker *picker = getSettingsPicker();
+    if (picker)
+    {
+        picker->setSettingsFilter(LLSettingsType::ST_NONE);
+        picker->setSettingsAssetId((mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getAssetId() : LLUUID::null);
+        picker->openFloater();
+        picker->setFocus(TRUE);
     }
+}
+
+void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)
+{
+    LLSettingsVOBase::getSettingsAsset(asset_id, [this](LLUUID, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { 
+        if (status)
+            return;
+        onPickerAssetDownloaded(settings);
+    });
 }
 
 void LLPanelEnvironmentInfo::onEditiCommited(LLSettingsDay::ptr_t newday)
@@ -374,48 +337,33 @@ void LLPanelEnvironmentInfo::onEditiCommited(LLSettingsDay::ptr_t newday)
     doEditCommited(newday);
 }
 
-void LLPanelEnvironmentInfo::doEditCommited(LLSettingsDay::ptr_t &newday)
+void LLPanelEnvironmentInfo::onPickerAssetDownloaded(LLSettingsBase::ptr_t settings)
 {
-    mEditingDayCycle = newday;
-    /*TODO pure virtual*/
+    LLSettingsVODay::buildFromOtherSetting(settings, [this](LLSettingsDay::ptr_t pday)
+        {
+            if (pday)
+            {
+                mCurrentEnvironment->mDayCycle = pday;
+                setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
+            }
+            refresh();
+        });
 }
 
-// void LLPanelEnvironmentInfo::onRegionSettingschange()
-// {
-//     LL_DEBUGS("Windlight") << "Region settings changed, refreshing" << LL_ENDL;
-//     refresh();
-// 
-//     // Stop applying progress indicator (it may be running if it's us who initiated settings update).
-//     setApplyProgress(false);
-// }
-// 
-// void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
-// {
-//     // If applying new settings has failed, stop the indicator right away.
-//     // Otherwise it will be stopped when we receive the updated settings from server.
-//     if (ok)
-//     {
-//         // Set the region sun phase/flags according to the chosen new preferences.
-//         //
-//         // If we do this earlier we may get jerky transition from fixed sky to a day cycle (STORM-1481).
-//         // That is caused by the simulator re-sending the region info, which in turn makes us
-//         // re-request and display old region environment settings while the new ones haven't been applied yet.
-//         sendRegionSunUpdate();
-// 
-//         // Switch estate to not using fixed sun for the region day cycle to work properly (STORM-1506).
-//         fixEstateSun();
-//     }
-//     else
-//     {
-//         setApplyProgress(false);
-// 
-//         // We need to re-request environment setting here,
-//         // otherwise our subsequent attempts to change region settings will fail with the following error:
-//         // "Unable to update environment settings because the last update your viewer saw was not the same
-//         // as the last update sent from the simulator.  Try sending your update again, and if this
-//         // does not work, try leaving and returning to the region."
-//         //		LLEnvManagerNew::instance().requestRegionSettings();
-//     }
-// }
+void LLPanelEnvironmentInfo::handleEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+{  
+    if (parcel_id != mCurrentParcelId)
+    {
+        LL_WARNS("ENVPANEL") << "Have environment for parcel " << parcel_id << " expecting " << mCurrentParcelId << ". Discarding." << LL_ENDL;
+        return;
+    }
+    mCurrentEnvironment = envifo;
+    setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
+    refresh();
+}
 
-
+void LLPanelEnvironmentInfo::doEditCommited(LLSettingsDay::ptr_t &newday)
+{
+//     mEditingDayCycle = newday;
+    /*TODO pure virtual*/
+}

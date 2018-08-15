@@ -146,6 +146,8 @@ private:
 class LLSettingsVODay : public LLSettingsDay
 {
 public:
+    typedef std::function<void(LLSettingsDay::ptr_t day)>  asset_built_fn;
+
     LLSettingsVODay(const LLSD &data);
 
     static ptr_t    buildDay(LLSD settings);
@@ -155,6 +157,7 @@ public:
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
+    static void     buildFromOtherSetting(LLSettingsBase::ptr_t settings, asset_built_fn cb);
     virtual ptr_t   buildClone() override;
 
     static LLSD     convertToLegacy(const ptr_t &);
@@ -166,6 +169,9 @@ public:
 
 protected:
     LLSettingsVODay();
+
+private:
+    static void     combineIntoDayCycle(LLSettingsDay::ptr_t, LLSettingsBase::ptr_t, asset_built_fn);
 };
 
 

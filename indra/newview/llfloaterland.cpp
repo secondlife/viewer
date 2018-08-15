@@ -145,14 +145,19 @@ class LLPanelLandEnvironment
     : public LLPanelEnvironmentInfo
 {
 public:
-                    LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
+                        LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
     
-    virtual BOOL    postBuild();
-    virtual void    refresh();
+    virtual bool        isRegion() const override { return false; }
 
+    virtual BOOL        postBuild() override;
+    virtual void        refresh() override;
+
+    virtual LLParcel *  getParcel() override;
+
+    virtual bool        canEdit();
 protected:
 
-    virtual void    doApply();
+    virtual void        doApply();
 
 
     LLSafeHandle<LLParcelSelection>&	mParcel;
@@ -3257,88 +3262,80 @@ BOOL LLPanelLandEnvironment::postBuild()
     if (!LLPanelEnvironmentInfo::postBuild())
         return FALSE;
 
-    mAllowOverRide->setVisible(FALSE);
+    getChild<LLUICtrl>(RDO_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEREGION));
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(FALSE);
     return TRUE;
 }
 
 void LLPanelLandEnvironment::refresh()
 {
-    /*TODO: if legacy don't do any of this.*/
+    if (gDisconnected)
+        return;
 
-    LLParcel* parcel = mParcel->getParcel();
+    LLParcel *parcel = getParcel();
     if (!parcel)
     {
-        mRegionSettingsRadioGroup->setEnabled(FALSE);
-        mDayLengthSlider->setEnabled(FALSE);
-        mDayOffsetSlider->setEnabled(FALSE);
-        mAllowOverRide->setEnabled(FALSE);
-
+        LL_INFOS("ENVPANEL") << "No parcel selected." << LL_ENDL;
+        mCurrentEnvironment.reset();
+        mCurrentParcelId = INVALID_PARCEL_ID;
+        setControlsEnabled(false);
         return;
     }
 
-    //BOOL owner_or_god = gAgent.isGodlike() || (parcel owner or group)
-    BOOL owner_or_god = true;
-    //BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mParcelId != parcel->getLocalID()))
+    {
+        mCurrentParcelId = parcel->getLocalID();
+        refreshFromSource();
+        return;
+    }
 
-    F64Hours daylength;
-    F64Hours dayoffset;
+    LLPanelEnvironmentInfo::refresh();
 
-    LLEnvironment::EnvSelection_t env = LLEnvironment::ENV_PARCEL;
+}
 
-    if (!LLEnvironment::instance().hasEnvironment(env))
-        env = LLEnvironment::ENV_REGION;
+LLParcel *LLPanelLandEnvironment::getParcel()
+{
+    return mParcel->getParcel();
+}
 
-    daylength = LLEnvironment::instance().getEnvironmentDayLength(env);
-    dayoffset = LLEnvironment::instance().getEnvironmentDayOffset(env);
 
-    LLSettingsDay::ptr_t pday = LLEnvironment::instance().getEnvironmentDay(env);
-
-    mEditingDayCycle = pday->buildClone();
-
-    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditingDayCycle, daylength, dayoffset);
-
-    if (dayoffset.value() > 12.0)
-        dayoffset = dayoffset - F32Hours(24.0f);
-
-    mDayLengthSlider->setValue(daylength.value());
-    mDayOffsetSlider->setValue(dayoffset.value());
-
-    //mRegionSettingsRadioGroup->setSelectedIndex(parcel->getUsesDefaultDayCycle() ? 0 : 1);
-    mRegionSettingsRadioGroup->setSelectedIndex(1);
-
-    setControlsEnabled(owner_or_god);
-
+bool LLPanelLandEnvironment::canEdit()
+{
+    LLParcel *parcel = getParcel();
+    if (!parcel)
+        return false;
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel);
 }
 
 void LLPanelLandEnvironment::doApply()
 {
-    LLParcel* parcel = mParcel->getParcel();
-    if (!parcel)
-    {
-        LL_WARNS("PARCEL") << "Could not get parcel." << LL_ENDL;
-        return;
-    }
-    S32 parcel_id = parcel->getLocalID();
-
-    if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
-    {
-        LLEnvironment::instance().resetParcel(parcel_id);
-    }
-    else
-    {
-        LLSettingsDay::Seconds daylength;
-        F32Hours   dayoffset_h;
-
-        daylength = F32Hours(mDayLengthSlider->getValueF32());
-        dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
-
-        if (dayoffset_h.value() < 0)
-        {
-            dayoffset_h = F32Hours(24.0f) + dayoffset_h;
-        }
-
-        LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
-
-        LLEnvironment::instance().updateParcel(parcel_id, mEditingDayCycle, daylength.value(), dayoffset_s.value());
-    }
+//     LLParcel* parcel = mParcel->getParcel();
+//     if (!parcel)
+//     {
+//         LL_WARNS("PARCEL") << "Could not get parcel." << LL_ENDL;
+//         return;
+//     }
+//     S32 parcel_id = parcel->getLocalID();
+// 
+//     if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
+//     {
+//         LLEnvironment::instance().resetParcel(parcel_id);
+//     }
+//     else
+//     {
+//         LLSettingsDay::Seconds daylength;
+//         F32Hours   dayoffset_h;
+// 
+//         daylength = F32Hours(mDayLengthSlider->getValueF32());
+//         dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
+// 
+//         if (dayoffset_h.value() < 0)
+//         {
+//             dayoffset_h = F32Hours(24.0f) + dayoffset_h;
+//         }
+// 
+//         LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
+// 
+//         LLEnvironment::instance().updateParcel(parcel_id, mEditingDayCycle, daylength.value(), dayoffset_s.value());
+//     }
 }

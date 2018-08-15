@@ -111,7 +111,7 @@ namespace {
 
 //=========================================================================
 const std::string LLFloaterEditExtDayCycle::KEY_INVENTORY_ID("inventory_id");
-const std::string LLFloaterEditExtDayCycle::KEY_LIVE_ENVIRONMENT("live_environment");
+const std::string LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT("edit_context");
 const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
 
 //=========================================================================
@@ -198,9 +198,9 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     {
         loadInventoryItem(key[KEY_INVENTORY_ID].asUUID());
     }
-    else if (key.has(KEY_LIVE_ENVIRONMENT))
+    else if (key.has(KEY_EDIT_CONTEXT))
     {
-        env = static_cast<LLEnvironment::EnvSelection_t>(key[KEY_LIVE_ENVIRONMENT].asInteger());
+        env = static_cast<LLEnvironment::EnvSelection_t>(key[KEY_EDIT_CONTEXT].asInteger());
 
         loadLiveEnvironment(env);
     }
@@ -1261,6 +1261,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
     }
 
     picker->setSettingsFilter(type);
+    picker->setSettingsAssetId(currasset);
     picker->openFloater();
     picker->setFocus(TRUE);
 }

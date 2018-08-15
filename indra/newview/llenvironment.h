@@ -43,6 +43,7 @@
 //-------------------------------------------------------------------------
 class LLViewerCamera;
 class LLGLSLShader;
+class LLParcel;
 
 //-------------------------------------------------------------------------
 class LLEnvironment : public LLSingleton<LLEnvironment>
@@ -81,6 +82,7 @@ public:
         LLSettingsDay::ptr_t    mDayCycle;
         std::array<F32, 4>      mAltitudes;
         bool                    mIsDefault;
+        LLUUID                  mAssetId;
 
         static ptr_t            extract(LLSD);
     };
@@ -148,7 +150,8 @@ public:
     bool                        canEdit() const;
     bool                        isExtendedEnvironmentEnabled() const;
     bool                        isInventoryEnabled() const;
-    bool                        canAgentUpdateParcelEnvironment(bool useselected = true) const;
+    bool                        canAgentUpdateParcelEnvironment() const;
+    bool                        canAgentUpdateParcelEnvironment(LLParcel *parcel) const;
     bool                        canAgentUpdateRegionEnvironment() const;
 
     LLSettingsDay::ptr_t        getCurrentDay() const { return mCurrentEnvironment->getDayCycle(); }
@@ -228,13 +231,13 @@ public:
 
     void                        onLegacyRegionSettings(LLSD data);
 
-    void                        requestRegion();
+    void                        requestRegion(environment_apply_fn cb = environment_apply_fn());
     void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset);
     void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
     void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
     void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
     void                        resetRegion();
-    void                        requestParcel(S32 parcel_id);
+    void                        requestParcel(S32 parcel_id, environment_apply_fn cb = environment_apply_fn());
     void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset);
     void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
     void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);

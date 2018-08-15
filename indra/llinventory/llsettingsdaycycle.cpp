@@ -120,7 +120,7 @@ const S32 LLSettingsDay::FRAME_MAX(56);
 
 const F32 LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR(0.02501f);
 
-const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("283a26a3-b147-47b7-8057-cfff0302ec0e");
+const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("94d296c2-6e05-963c-6b62-671199121dbb");
 
 // Minimum value to prevent multislider in edit floaters from eating up frames that 'encroach' on one another's space
 static const F32 DEFAULT_MULTISLIDER_INCREMENT(0.005f);
@@ -149,6 +149,9 @@ LLSD LLSettingsDay::getSettings() const
 
     if (mSettings.has(SETTING_ID))
         settings[SETTING_ID] = mSettings[SETTING_ID];
+
+    if (mSettings.has(SETTING_ASSETID))
+        settings[SETTING_ASSETID] = mSettings[SETTING_ASSETID];
 
     settings[SETTING_TYPE] = getSettingsType();
 
@@ -193,6 +196,14 @@ bool LLSettingsDay::initialize(bool validate_frames)
 {
     LLSD tracks = mSettings[SETTING_TRACKS];
     LLSD frames = mSettings[SETTING_FRAMES];
+
+    // save for later... 
+    LLUUID assetid;
+    if (mSettings.has(SETTING_ASSETID))
+    {
+        assetid = mSettings[SETTING_ASSETID].asUUID();
+        LL_WARNS("LAPRAS") << "initializing daycycle with asset id " << assetid << LL_ENDL;
+    }
 
     std::map<std::string, LLSettingsBase::ptr_t> used;
 
@@ -384,6 +395,11 @@ bool LLSettingsDay::initialize(bool validate_frames)
     // these are no longer needed and just take up space now.
     mSettings.erase(SETTING_TRACKS);
     mSettings.erase(SETTING_FRAMES);
+
+    if (!assetid.isNull())
+    {
+        mSettings[SETTING_ASSETID] = assetid;
+    }
 
     mInitialized = true;
     return true;

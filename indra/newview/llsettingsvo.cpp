@@ -273,6 +273,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
         }
         else
         {
+            LL_WARNS("LAPRAS") << "Setting asset ID to " << asset_id << LL_ENDL;
             settings->setAssetId(asset_id);
         }
     }
@@ -1071,6 +1072,44 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromEnvironmentMessage(LLSD settings)
 
     dayp->initialize();
     return dayp;
+}
+
+
+void LLSettingsVODay::buildFromOtherSetting(LLSettingsBase::ptr_t settings, LLSettingsVODay::asset_built_fn cb)
+{
+    if (settings->getSettingsType() == "daycycle")
+    {
+        if (cb)
+            cb(std::static_pointer_cast<LLSettingsDay>(settings));
+    }
+    else
+    {
+        LLSettingsVOBase::getSettingsAsset(LLSettingsDay::GetDefaultAssetId(),
+            [settings, cb](LLUUID, LLSettingsBase::ptr_t pday, S32, LLExtStat){ combineIntoDayCycle(std::static_pointer_cast<LLSettingsDay>(pday), settings, cb); });
+    }
+}
+
+void LLSettingsVODay::combineIntoDayCycle(LLSettingsDay::ptr_t pday, LLSettingsBase::ptr_t settings, asset_built_fn cb)
+{
+    if (settings->getSettingsType() == "sky")
+    {
+        pday->setName("sky: " + settings->getName());
+        pday->clearCycleTrack(1);
+        pday->setSettingsAtKeyframe(settings, 0.0, 1);
+    }
+    else if (settings->getSettingsType() == "water")
+    {
+        pday->setName("water: " + settings->getName());
+        pday->clearCycleTrack(0);
+        pday->setSettingsAtKeyframe(settings, 0.0, 0);
+    }
+    else
+    {
+        pday.reset();
+    }
+
+    if (cb)
+        cb(pday);
 }
 
 

@@ -56,7 +56,7 @@ class LLFloaterEditExtDayCycle : public LLFloater
 public:
     // **RIDER**
     static const std::string    KEY_INVENTORY_ID;
-    static const std::string    KEY_LIVE_ENVIRONMENT;
+    static const std::string    KEY_EDIT_CONTEXT;
     static const std::string    KEY_DAY_LENGTH;
     // **RIDER**
 
