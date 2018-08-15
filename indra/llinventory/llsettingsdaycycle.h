@@ -81,6 +81,7 @@ public:
     bool                        initialize(bool validate_frames = false);
 
     virtual ptr_t               buildClone() = 0;
+    virtual ptr_t               buildDeepCloneAndUncompress() = 0;
     virtual LLSD                getSettings() const SETTINGS_OVERRIDE;
     virtual LLSettingsType::type_e  getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_DAYCYCLE; }
 

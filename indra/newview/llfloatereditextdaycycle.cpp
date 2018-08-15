@@ -908,7 +908,7 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         closeFloater();
         return;
     }
-    mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
+    mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings)->buildDeepCloneAndUncompress();
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
@@ -925,7 +925,7 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
         if (day)
         {
-            mEditDay = day->buildClone();
+            mEditDay = day->buildDeepCloneAndUncompress();
             break;
         }
     }

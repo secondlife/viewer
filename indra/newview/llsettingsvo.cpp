@@ -1092,6 +1092,30 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
     return dayp;
 }
 
+LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
+{
+    // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
+    LLSD settings = llsd_clone(mSettings);
+
+    LLSettingsDay::ptr_t day_clone = std::make_shared<LLSettingsVODay>(settings);
+
+    for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
+    {
+        LLSettingsDay::CycleTrack_t track = getCycleTrack(i);
+        LLSettingsDay::CycleTrack_t::iterator iter = track.begin();
+        while (iter != track.end())
+        {
+            // 'Unpack', usually for editing
+            // - frames 'share' settings multiple times
+            // - settings can reuse LLSDs they were initialized from
+            // We do not want for edited frame to change multiple frames in same track, so do a clone
+            day_clone->setSettingsAtKeyframe(iter->second->buildDerivedClone(), iter->first, i);
+            iter++;
+        }
+    }
+    return day_clone;
+}
+
 LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
 {
     CycleTrack_t &trackwater = pday->getCycleTrack(TRACK_WATER);

@@ -156,6 +156,7 @@ public:
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
     virtual ptr_t   buildClone() override;
+    virtual ptr_t   buildDeepCloneAndUncompress();
 
     static LLSD     convertToLegacy(const ptr_t &);
     
