@@ -919,10 +919,10 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         closeFloater();
         return;
     }
-    mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings);
+    mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings)->buildDeepCloneAndUncompress();
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
-    LLEnvironment::instance().updateEnvironment();
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
     synchronizeTabs();
     updateTabs();
     refresh();
@@ -936,7 +936,7 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
         if (day)
         {
-            mEditDay = day->buildClone();
+            mEditDay = day->buildDeepCloneAndUncompress();
             break;
         }
     }
@@ -949,7 +949,7 @@ void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t
 
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
-    LLEnvironment::instance().updateEnvironment();
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
     synchronizeTabs();
     updateTabs();
     refresh();
@@ -974,7 +974,8 @@ void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
 
     reblendSettings();
 
-    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mScratchSky, mScratchWater);
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditSky, mEditWater);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEditExtDayCycle::synchronizeTabs()
@@ -1007,6 +1008,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     {
         psettingW = mScratchWater;
     }
+    mEditWater = psettingW;
 
     setTabsData(tabs, psettingW, canedit);
 
@@ -1035,11 +1037,13 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     {
         psettingS = mScratchSky;
     }
+    mEditSky = psettingS;
 
     doCloseInventoryFloater();
 
     setTabsData(tabs, psettingS, canedit);
-    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, psettingS, psettingW);
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditSky, mEditWater);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEditExtDayCycle::setTabsData(LLTabContainer * tabcontainer, const LLSettingsBase::ptr_t &settings, bool editable)
