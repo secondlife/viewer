@@ -232,16 +232,12 @@ def main():
         print "Option:", opt, "=", args[opt]
 
     # pass in sourceid as an argument now instead of an environment variable
-    try:
-        args['sourceid'] = os.environ["sourceid"]
-    except KeyError:
-        args['sourceid'] = ""
+    args['sourceid'] = os.environ.get("sourceid", "")
 
     # Build base package.
     touch = args.get('touch')
     if touch:
         print 'Creating base package'
-    args['package_id'] = "" # base package has no package ID
     wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
     wm.do(*args['actions'])
     # Store package file for later if making touched file.
@@ -251,64 +247,25 @@ def main():
         base_package_file = "" + wm.package_file
 
     # handle multiple packages if set
-    try:
-        additional_packages = os.environ["additional_packages"]
-    except KeyError:
-        additional_packages = ""
+    # ''.split() produces empty list
+    additional_packages = os.environ.get("additional_packages", "").split()
     if additional_packages:
         # Determine destination prefix / suffix for additional packages.
-        base_dest_postfix = args['dest']
-        base_dest_prefix = ""
         base_dest_parts = args['dest'].split(os.sep)
-        if len(base_dest_parts) > 1:
-            base_dest_postfix = base_dest_parts[len(base_dest_parts) - 1]
-            base_dest_prefix = base_dest_parts[0]
-            i = 1
-            while i < len(base_dest_parts) - 1:
-                base_dest_prefix = base_dest_prefix + os.sep + base_dest_parts[i]
-                i = i + 1
+        base_dest_parts.insert(-1, "{}")
+        base_dest_template = os.sep.join(base_dest_parts)
         # Determine touched prefix / suffix for additional packages.
-        base_touch_postfix = ""
-        base_touch_prefix = ""
         if touch:
-            base_touch_postfix = touch
-            base_touch_parts = touch.split('/')
+            base_touch_parts = touch.split(os.sep)
             if "arwin" in args['platform']:
-                if len(base_touch_parts) > 1:
-                    base_touch_postfix = base_touch_parts[len(base_touch_parts) - 1]
-                    base_touch_prefix = base_touch_parts[0]
-                    i = 1
-                    while i < len(base_touch_parts) - 1:
-                        base_touch_prefix = base_touch_prefix + '/' + base_touch_parts[i]
-                        i = i + 1
+                base_touch_parts.insert(-1, "{}")
             else:
-                if len(base_touch_parts) > 2:
-                    base_touch_postfix = base_touch_parts[len(base_touch_parts) - 2] + '/' + base_touch_parts[len(base_touch_parts) - 1]
-                    base_touch_prefix = base_touch_parts[0]
-                    i = 1
-                    while i < len(base_touch_parts) - 2:
-                        base_touch_prefix = base_touch_prefix + '/' + base_touch_parts[i]
-                        i = i + 1
-        # Store base channel name.
-        base_channel_name = args['channel']
-        # Build each additional package.
-        package_id_list = additional_packages.split(" ")
-        args['channel'] = base_channel_name
-        for package_id in package_id_list:
-            try:
-                if package_id + "_viewer_channel_suffix" in os.environ:
-                    args['channel_suffix'] = os.environ[package_id + "_viewer_channel_suffix"]
-                else:
-                    args['channel_suffix'] = None
-                if package_id + "_sourceid" in os.environ:
-                    args['sourceid'] = os.environ[package_id + "_sourceid"]
-                else:
-                    args['sourceid'] = None
-                args['dest'] = base_dest_prefix + os.sep + package_id + os.sep + base_dest_postfix
-            except KeyError:
-                sys.stderr.write("Failed to create package for package_id: %s" % package_id)
-                sys.stderr.flush()
-                continue
+                base_touch_parts.insert(-2, "{}")
+            base_touch_template = os.sep.join(base_touch_parts)
+        for package_id in additional_packages:
+            args['channel_suffix'] = os.environ.get(package_id + "_viewer_channel_suffix")
+            args['sourceid']       = os.environ.get(package_id + "_sourceid")
+            args['dest'] = base_dest_template.format(package_id)
             if touch:
                 print 'Creating additional package for "', package_id, '" in ', args['dest']
             try:
@@ -318,18 +275,14 @@ def main():
                 sys.exit(str(err))
             if touch:
                 print 'Created additional package ', wm.package_file, ' for ', package_id
-                faketouch = base_touch_prefix + '/' + package_id + '/' + base_touch_postfix
-                fp = open(faketouch, 'w')
-                fp.write('set package_file=%s\n' % wm.package_file)
-                fp.close()
+                with open(base_touch_template.format(package_id), 'w') as fp:
+                    fp.write('set package_file=%s\n' % wm.package_file)
     
     # Write out the package file in this format, so that it can easily be called
     # and used in a .bat file - yeah, it sucks, but this is the simplest...
-    touch = args.get('touch')
     if touch:
-        fp = open(touch, 'w')
-        fp.write('set package_file=%s\n' % base_package_file)
-        fp.close()
+        with open(touch, 'w') as fp:
+            fp.write('set package_file=%s\n' % base_package_file)
         print 'touched', touch
     return 0
 
