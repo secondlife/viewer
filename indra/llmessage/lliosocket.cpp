@@ -101,7 +101,7 @@ void ll_debug_socket(const char* msg, apr_socket_t* apr_sock)
 ///
 
 // static
-LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port)
+LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port, const char *hostname)
 {
 	LLSocket::ptr_t rv;
 	apr_socket_t* socket = NULL;
@@ -150,7 +150,7 @@ LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port)
 		apr_sockaddr_t* sa = NULL;
 		status = apr_sockaddr_info_get(
 			&sa,
-			APR_ANYADDR,
+			hostname,
 			APR_UNSPEC,
 			port,
 			0,
