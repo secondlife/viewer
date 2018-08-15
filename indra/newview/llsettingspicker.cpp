@@ -63,7 +63,8 @@ LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_
     mLabel(label),
     mActive(true),
     mContextConeOpacity(0.0f),
-    mSettingAssetID(initial_asset_id)
+    mSettingAssetID(initial_asset_id),
+    mImmediateFilterPermMask(PERM_NONE)
 {
     buildFromFile(FLOATER_DEFINITION_XML);
     setCanMinimize(FALSE);
