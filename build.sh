@@ -106,8 +106,7 @@ pre_build()
     # don't spew credentials into build log
     bugsplat_sh="$build_secrets_checkout/bugsplat/bugsplat.sh"
     set +x
-    # HACK: Suppress for Mac until BugSplat fixes the Mac client API
-    if [ -r "$bugsplat_sh" -a "$arch" != "Darwin" ]
+    if [ -r "$bugsplat_sh" ]
     then # show that we're doing this, just not the contents
          echo source "$bugsplat_sh"
          source "$bugsplat_sh"
