@@ -1081,17 +1081,18 @@ void LLFloaterEditExtDayCycle::doApplyCreateNewInventory()
     // This method knows what sort of settings object to create.
     LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
 
-    LLSettingsVOBase::createInventoryItem(mEditDay, parent_id, 
+    // buildClone creates compressed copy
+    LLSettingsVOBase::createInventoryItem(mEditDay->buildClone(), parent_id, 
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
 }
 
 void LLFloaterEditExtDayCycle::doApplyUpdateInventory()
 {
     if (mInventoryId.isNull())
-        LLSettingsVOBase::createInventoryItem(mEditDay, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), 
+        LLSettingsVOBase::createInventoryItem(mEditDay->buildClone(), gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS),
                 [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     else
-        LLSettingsVOBase::updateInventoryItem(mEditDay, mInventoryId, 
+        LLSettingsVOBase::updateInventoryItem(mEditDay->buildClone(), mInventoryId,
                 [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
 }
 
@@ -1099,7 +1100,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
 {
     if (where == ACTION_APPLY_LOCAL)
     {
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditDay);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditDay->buildClone());
     }
     else if (where == ACTION_APPLY_PARCEL)
     {
@@ -1118,11 +1119,11 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
             return;
         }
 
-        LLEnvironment::instance().updateParcel(parcel->getLocalID(), mEditDay, -1, -1);
+        LLEnvironment::instance().updateParcel(parcel->getLocalID(), mEditDay->buildClone(), -1, -1);
     }
     else if (where == ACTION_APPLY_REGION)
     {
-        LLEnvironment::instance().updateRegion(mEditDay, -1, -1);
+        LLEnvironment::instance().updateRegion(mEditDay->buildClone(), -1, -1);
     }
     else
     {
