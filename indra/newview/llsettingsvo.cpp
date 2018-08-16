@@ -1101,8 +1101,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
 
     for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
     {
-        LLSettingsDay::CycleTrack_t track = getCycleTrack(i);
-        LLSettingsDay::CycleTrack_t::iterator iter = track.begin();
+        const LLSettingsDay::CycleTrack_t& track = getCycleTrackConst(i);
+        LLSettingsDay::CycleTrack_t::const_iterator iter = track.begin();
         while (iter != track.end())
         {
             // 'Unpack', usually for editing

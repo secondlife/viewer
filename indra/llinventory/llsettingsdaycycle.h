@@ -118,6 +118,7 @@ public:
 
     void                        setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
+    const CycleTrack_t &        getCycleTrackConst(S32 track) const;
     bool                        clearCycleTrack(S32 track);
     bool                        replaceCycleTrack(S32 track, const CycleTrack_t &source);
     bool                        isTrackEmpty(S32 track) const;
