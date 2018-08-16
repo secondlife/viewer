@@ -485,7 +485,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     return skyp;
 }
 
-LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
+LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
 {
     LLSD settings = cloneSettings();
 
@@ -736,7 +736,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     return waterp;
 }
 
-LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
+LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
 {
     LLSD settings = cloneSettings();
     LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
@@ -1074,7 +1074,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromEnvironmentMessage(LLSD settings)
 }
 
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
+LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
 {
     LLSD settings = cloneSettings();
 
@@ -1092,7 +1092,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
     return dayp;
 }
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
+LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
 {
     // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
     LLSD settings = llsd_clone(mSettings);
