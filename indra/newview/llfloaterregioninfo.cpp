@@ -187,13 +187,13 @@ public:
     virtual LLParcel *  getParcel() override { return nullptr; }
     virtual bool        canEdit() override { return LLEnvironment::instance().canAgentUpdateRegionEnvironment(); }
 
-    bool refreshFromRegion(LLViewerRegion* region);
-    void refreshFromEstate();
+    bool                refreshFromRegion(LLViewerRegion* region);
+    void                refreshFromEstate();
 
-    virtual BOOL postBuild() override;
+    virtual BOOL        postBuild() override;
 
 protected:
-    virtual void doApply();
+    virtual void        doApply() override;
 
     virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
     BOOL    sendUpdate();
@@ -3418,6 +3418,7 @@ void LLPanelRegionEnvironment::refreshFromEstate()
 
 void LLPanelRegionEnvironment::doApply()
 {
+    LLPanelEnvironmentInfo::doApply();
 //     if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
 //     {
 //         LLEnvironment::instance().resetRegion();

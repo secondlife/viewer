@@ -89,8 +89,10 @@ protected:
     void                        setControlsEnabled(bool enabled);
     void                        setApplyProgress(bool started);
     void                        setDirtyFlag(S32 flag);
-    bool                        getIsDirty() const { return (mDirtyFlag != 0); }
-    bool                        getIsDirtyFlag(S32 flag) const { return ((mDirtyFlag & flag) != 0); }
+    void                        clearDirtyFlag(S32 flag);
+    bool                        getIsDirty() const              { return (mDirtyFlag != 0); }
+    bool                        getIsDirtyFlag(S32 flag) const  { return ((mDirtyFlag & flag) != 0); }
+    S32                         getDirtyFlag() const            { return mDirtyFlag; }
 
     void                        onSwitchDefaultSelection();
     void                        onSldDayLengthChanged(F32 value);
@@ -100,10 +102,11 @@ protected:
     void                        onBtnEdit();
     void                        onBtnSelect();
 
+    virtual void                doApply();
+
     void                        onPickerCommited(LLUUID asset_id);
     void                        onEditiCommited(LLSettingsDay::ptr_t newday);
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
-
     void                        handleEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
     virtual void                doEditCommited(LLSettingsDay::ptr_t &newday);

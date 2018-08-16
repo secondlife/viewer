@@ -157,9 +157,6 @@ public:
     virtual bool        canEdit();
 protected:
 
-    virtual void        doApply();
-
-
     LLSafeHandle<LLParcelSelection>&	mParcel;
 
 };
@@ -3305,37 +3302,4 @@ bool LLPanelLandEnvironment::canEdit()
     if (!parcel)
         return false;
     return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel);
-}
-
-void LLPanelLandEnvironment::doApply()
-{
-//     LLParcel* parcel = mParcel->getParcel();
-//     if (!parcel)
-//     {
-//         LL_WARNS("PARCEL") << "Could not get parcel." << LL_ENDL;
-//         return;
-//     }
-//     S32 parcel_id = parcel->getLocalID();
-// 
-//     if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
-//     {
-//         LLEnvironment::instance().resetParcel(parcel_id);
-//     }
-//     else
-//     {
-//         LLSettingsDay::Seconds daylength;
-//         F32Hours   dayoffset_h;
-// 
-//         daylength = F32Hours(mDayLengthSlider->getValueF32());
-//         dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
-// 
-//         if (dayoffset_h.value() < 0)
-//         {
-//             dayoffset_h = F32Hours(24.0f) + dayoffset_h;
-//         }
-// 
-//         LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
-// 
-//         LLEnvironment::instance().updateParcel(parcel_id, mEditingDayCycle, daylength.value(), dayoffset_s.value());
-//     }
 }

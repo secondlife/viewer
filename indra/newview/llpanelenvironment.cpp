@@ -221,6 +221,8 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
 
 void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 {
+    S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+
     getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(enabled);
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(enabled);
     getChild<LLUICtrl>(RDO_USEINV)->setEnabled(enabled);
@@ -228,8 +230,8 @@ void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(EDT_INVNAME)->setEnabled(FALSE);
     getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(enabled);
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(enabled);
-    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled);
-    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled);
+    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled && (rdo_selection != 0));
+    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled && (rdo_selection != 0));
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && (mCurrentParcelId == INVALID_PARCEL_ID));
     getChild<LLUICtrl>(BTN_APPLY)->setEnabled(enabled && (mDirtyFlag != 0));
     getChild<LLUICtrl>(BTN_CANCEL)->setEnabled(enabled && (mDirtyFlag != 0));
@@ -259,19 +261,23 @@ void LLPanelEnvironmentInfo::setDirtyFlag(S32 flag)
     getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
 }
 
-void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
+void LLPanelEnvironmentInfo::clearDirtyFlag(S32 flag)
 {
-    setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
-//     bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
-//     
-//     getChild<LLView>("edit_btn")->setEnabled(!use_defaults);
-// 
-//     mDayLengthSlider->setEnabled(!use_defaults);
-//     mDayOffsetSlider->setEnabled(!use_defaults);
-// 
-//     setDirty(true);
+    bool can_edit = canEdit();
+    mDirtyFlag &= ~flag;
+    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && can_edit);
+    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
 }
 
+void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
+{
+    bool can_edit = canEdit();
+    setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
+
+    S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_edit && (rdo_selection != 0));
+    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_edit && (rdo_selection != 0));
+}
 
 void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
 {
@@ -280,7 +286,6 @@ void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
     mCurrentEnvironment->mDayLength = daylength;
     setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
 }
-
 
 void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 {
@@ -295,7 +300,7 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 
 void LLPanelEnvironmentInfo::onBtnApply()
 {
-//    doApply();
+    doApply();
 }
 
 void LLPanelEnvironmentInfo::onBtnReset()
@@ -321,6 +326,35 @@ void LLPanelEnvironmentInfo::onBtnSelect()
         picker->openFloater();
         picker->setFocus(TRUE);
     }
+}
+
+
+void LLPanelEnvironmentInfo::doApply()
+{
+    if (getIsDirtyFlag(DIRTY_FLAG_MASK))
+    {
+        S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+
+        if (rdo_selection == 0)
+        {
+            LLEnvironment::instance().resetParcel(mCurrentParcelId,
+                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+        }
+        else if (rdo_selection == 1)
+        {
+            LLEnvironment::instance().updateParcel(mCurrentParcelId, 
+                mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(),
+                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+        }
+        else
+        {
+            LLEnvironment::instance().updateParcel(mCurrentParcelId, 
+                mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), 
+                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+        }
+
+    }
+    setControlsEnabled(false);
 }
 
 void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)
@@ -358,7 +392,7 @@ void LLPanelEnvironmentInfo::handleEnvironmentReceived(S32 parcel_id, LLEnvironm
         return;
     }
     mCurrentEnvironment = envifo;
-    setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
+    clearDirtyFlag(DIRTY_FLAG_MASK);
     refresh();
 }
 

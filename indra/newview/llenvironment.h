@@ -232,17 +232,17 @@ public:
     void                        onLegacyRegionSettings(LLSD data);
 
     void                        requestRegion(environment_apply_fn cb = environment_apply_fn());
-    void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset);
-    void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
-    void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
-    void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
-    void                        resetRegion();
+    void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        resetRegion(environment_apply_fn cb = environment_apply_fn());
     void                        requestParcel(S32 parcel_id, environment_apply_fn cb = environment_apply_fn());
-    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset);
-    void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset);
-    void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset);
-    void                        updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset);
-    void                        resetParcel(S32 parcel_id);
+    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        resetParcel(S32 parcel_id, environment_apply_fn cb = environment_apply_fn());
 
     void                        selectAgentEnvironment();
 

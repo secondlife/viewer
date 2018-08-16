@@ -1025,7 +1025,7 @@ void LLEnvironment::requestRegion(environment_apply_fn cb)
     requestParcel(INVALID_PARCEL_ID, cb);
 }
 
-void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
+void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
     if (!isExtendedEnvironmentEnabled())
     {
@@ -1033,10 +1033,10 @@ void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_lengt
         return;
     }
 
-    updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset);
+    updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset, cb);
 }
 
-void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset)
+void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
     if (!isExtendedEnvironmentEnabled())
     {
@@ -1045,23 +1045,23 @@ void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day
         return;
     }
 
-    updateParcel(INVALID_PARCEL_ID, asset_id, day_length, day_offset);
+    updateParcel(INVALID_PARCEL_ID, asset_id, day_length, day_offset, cb);
 }
 
-void LLEnvironment::updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset)
+void LLEnvironment::updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
-    updateParcel(INVALID_PARCEL_ID, psky, day_length, day_offset);
+    updateParcel(INVALID_PARCEL_ID, psky, day_length, day_offset, cb);
 }
 
-void LLEnvironment::updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset)
+void LLEnvironment::updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
-    updateParcel(INVALID_PARCEL_ID, pwater, day_length, day_offset);
+    updateParcel(INVALID_PARCEL_ID, pwater, day_length, day_offset, cb);
 }
 
 
-void LLEnvironment::resetRegion()
+void LLEnvironment::resetRegion(environment_apply_fn cb)
 {
-    resetParcel(INVALID_PARCEL_ID);
+    resetParcel(INVALID_PARCEL_ID, cb);
 }
 
 void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
@@ -1076,12 +1076,12 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
         [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        [this, parcel_id, asset_id, day_length, day_offset]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
-            LLSettingsDay::ptr_t(), asset_id, day_length, day_offset, environment_apply_fn()); });
+        [this, parcel_id, asset_id, day_length, day_offset, cb]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
+            LLSettingsDay::ptr_t(), asset_id, day_length, day_offset, cb); });
 }
 
 void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset)
@@ -1112,33 +1112,33 @@ void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     updateParcel(parcel_id, pday, day_length, day_offset);
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
     LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, psky);
-    updateParcel(parcel_id, pday, day_length, day_offset);
+    updateParcel(parcel_id, pday, day_length, day_offset, cb);
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
     LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, pwater);
-    updateParcel(parcel_id, pday, day_length, day_offset);
+    updateParcel(parcel_id, pday, day_length, day_offset, cb);
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        [this, parcel_id, pday, day_length, day_offset]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
-            pday, LLUUID::null, day_length, day_offset, environment_apply_fn()); });
+        [this, parcel_id, pday, day_length, day_offset, cb]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
+            pday, LLUUID::null, day_length, day_offset, cb); });
 }
 
 
 
-void LLEnvironment::resetParcel(S32 parcel_id)
+void LLEnvironment::resetParcel(S32 parcel_id, environment_apply_fn cb)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
-        [this, parcel_id]() { coroResetEnvironment(parcel_id, NO_TRACK, environment_apply_fn()); });
+        [this, parcel_id, cb]() { coroResetEnvironment(parcel_id, NO_TRACK, cb); });
 }
 
 void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environment_apply_fn apply)
