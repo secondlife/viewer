@@ -6317,7 +6317,9 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
+    bool wireframe_selection = gFloaterTools && gFloaterTools->getVisible() || LLSelectMgr::sRenderHiddenSelections;
+
+    if (LLSelectMgr::sRenderHiddenSelections)
     {
         gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
         LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
@@ -6350,8 +6352,6 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
     gGL.diffuseColor4f(color.mV[VRED] * 2, color.mV[VGREEN] * 2, color.mV[VBLUE] * 2, LLSelectMgr::sHighlightAlpha * 2);
 
     {
-        bool wireframe_selection = gFloaterTools && gFloaterTools->getVisible();
-
         LLGLDisable depth(wireframe_selection ? 0 : GL_BLEND);
         LLGLEnable stencil(wireframe_selection ? 0 : GL_STENCIL_TEST);
 
