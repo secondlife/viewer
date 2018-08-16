@@ -136,6 +136,8 @@ public:
 	
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
+    const F32 getAlpha() const { return mColor.mV[VALPHA]; }
+
 	void getScale(F32 *s, F32 *t) const { *s = mScaleS; *t = mScaleT; }
 	F32  getScaleS() const { return mScaleS; }
 	F32  getScaleT() const { return mScaleT; }
