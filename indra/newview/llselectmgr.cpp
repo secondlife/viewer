@@ -6317,7 +6317,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    bool wireframe_selection = gFloaterTools && gFloaterTools->getVisible() || LLSelectMgr::sRenderHiddenSelections;
+    bool wireframe_selection = (gFloaterTools && gFloaterTools->getVisible()) || LLSelectMgr::sRenderHiddenSelections;
 
     if (LLSelectMgr::sRenderHiddenSelections)
     {
