@@ -69,11 +69,11 @@ const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_de
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_UNKNOWNINV("str_unknow_inventory");
 
-const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
-const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
-const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET(0x01 << 2);
+const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
+const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
+const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET(0x01 << 2);
 
-const S32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
+const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
         LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE | 
         LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH | 
         LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET );
@@ -253,7 +253,7 @@ void LLPanelEnvironmentInfo::setApplyProgress(bool started)
 //     }
 }
 
-void LLPanelEnvironmentInfo::setDirtyFlag(S32 flag)
+void LLPanelEnvironmentInfo::setDirtyFlag(U32 flag)
 {
     bool can_edit = canEdit();
     mDirtyFlag |= flag;
@@ -261,7 +261,7 @@ void LLPanelEnvironmentInfo::setDirtyFlag(S32 flag)
     getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
 }
 
-void LLPanelEnvironmentInfo::clearDirtyFlag(S32 flag)
+void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
 {
     bool can_edit = canEdit();
     mDirtyFlag &= ~flag;
@@ -294,7 +294,7 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
     if (dayoffset.value() < 0.0f)
         dayoffset += F32Hours(24.0);
 
-    mCurrentEnvironment->mDayLength = dayoffset;
+    mCurrentEnvironment->mDayOffset = dayoffset;
     setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 }
 
@@ -353,8 +353,8 @@ void LLPanelEnvironmentInfo::doApply()
                 [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
         }
 
+        setControlsEnabled(false);
     }
-    setControlsEnabled(false);
 }
 
 void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)

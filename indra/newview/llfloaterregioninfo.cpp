@@ -179,7 +179,7 @@ void unpack_request_params(
 class LLPanelRegionEnvironment : public LLPanelEnvironmentInfo
 {
 public:
-    LLPanelRegionEnvironment();
+                        LLPanelRegionEnvironment();
 
     virtual void        refresh() override;
 
@@ -193,10 +193,19 @@ public:
     virtual BOOL        postBuild() override;
 
 protected:
+    static const U32    DIRTY_FLAG_OVERRIDE;
+
     virtual void        doApply() override;
 
-    virtual void doEditCommited(LLSettingsDay::ptr_t &newday);
-    BOOL    sendUpdate();
+
+//    virtual void        doEditCommited(LLSettingsDay::ptr_t &newday);
+//    BOOL                sendUpdate();
+    bool                doUpdateEstate(const LLSD& notification, const LLSD& response);
+
+    void                onChkAllowOverride(bool value);
+
+private:
+    bool                mAllowOverride;
 
 };
 
@@ -3369,8 +3378,11 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 }
 
 //=========================================================================
+const U32 LLPanelRegionEnvironment::DIRTY_FLAG_OVERRIDE(0x01 << 3);
+
 LLPanelRegionEnvironment::LLPanelRegionEnvironment():
-    LLPanelEnvironmentInfo()
+    LLPanelEnvironmentInfo(),
+    mAllowOverride(false)
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
     estate_info.setCommitCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
@@ -3386,6 +3398,7 @@ BOOL LLPanelRegionEnvironment::postBuild()
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEDEFAULT));
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(TRUE);
 
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setCommitCallback([this](LLUICtrl *, const LLSD &value){ onChkAllowOverride(value.asBoolean()); });
     return TRUE;
 }
 
@@ -3400,11 +3413,13 @@ void LLPanelRegionEnvironment::refresh()
 
     refreshFromEstate();
     LLPanelEnvironmentInfo::refresh();
+
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(mAllowOverride);
 }
 
 bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
 {
-    refresh();
+    refreshFromSource();
     return true;
 }
 
@@ -3412,57 +3427,65 @@ void LLPanelRegionEnvironment::refreshFromEstate()
 {
     const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
 
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(estate_info.getAllowEnvironmentOverride());
-
+    mAllowOverride = estate_info.getAllowEnvironmentOverride();
 }
 
 void LLPanelRegionEnvironment::doApply()
 {
     LLPanelEnvironmentInfo::doApply();
-//     if (mRegionSettingsRadioGroup->getSelectedIndex() == 0)
-//     {
-//         LLEnvironment::instance().resetRegion();
-//     }
-//     else
-//     {
-//         LLSettingsDay::Seconds daylength;
-//         F32Hours   dayoffset_h;
-// 
-//         daylength = F32Hours(mDayLengthSlider->getValueF32());
-//         dayoffset_h = F32Hours(mDayOffsetSlider->getValueF32());
-// 
-//         if (dayoffset_h.value() < 0)
-//         {
-//             dayoffset_h = F32Hours(24.0f) + dayoffset_h;
-//         }
-// 
-//         LLSettingsDay::Seconds dayoffset_s = dayoffset_h;
-// 
-//         LLEnvironment::instance().updateRegion(mEditingDayCycle, daylength.value(), dayoffset_s.value());
-//     }
+
+    if (getIsDirtyFlag(DIRTY_FLAG_OVERRIDE))
+    {
+        LLNotification::Params params("ChangeLindenEstate");
+        //params.functor.function(boost::bind(&LLPanelEstateInfo::doUpdateEstate, this, _1, _2));
+        params.functor.function([this](const LLSD& notification, const LLSD& response) { doUpdateEstate(notification, response); });
+
+        if (LLPanelEstateInfo::isLindenEstate())
+        {
+            // trying to change reserved estate, warn
+            LLNotifications::instance().add(params);
+        }
+        else
+        {
+            // for normal estates, just make the change
+            LLNotifications::instance().forceResponse(params, 0);
+        }
+
+    }
 }
 
-void LLPanelRegionEnvironment::doEditCommited(LLSettingsDay::ptr_t &newday)
+bool LLPanelRegionEnvironment::doUpdateEstate(const LLSD& notification, const LLSD& response)
 {
-//     mEditingDayCycle = newday;
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+    switch (option)
+    {
+    case 0:
+    {
+        LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+        // update model
+        estate_info.setAllowEnvironmentOverride(mAllowOverride);
+        // send the update to sim
+        estate_info.sendEstateInfo();
+        clearDirtyFlag(DIRTY_FLAG_OVERRIDE);
+    }
+    break;
+
+    case 1:
+    default:
+        break;
+    }
+    return false;
 }
 
-BOOL LLPanelRegionEnvironment::sendUpdate()
+void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
 {
-//     LL_INFOS() << "LLPanelEsateInfo::sendUpdate()" << LL_ENDL;
-// 
-//     LLNotification::Params params("ChangeLindenEstate");
-//     params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
-// 
-//     if (isLindenEstate())
-//     {
-//         // trying to change reserved estate, warn
-//         LLNotifications::instance().add(params);
-//     }
-//     else
-//     {
-//         // for normal estates, just make the change
-//         LLNotifications::instance().forceResponse(params, 0);
-//     }
-    return TRUE;
+    if (!value)
+    {
+        LLNotificationsUtil::add("EstateParcelEnvironmentOverride");
+    }
+
+    setDirtyFlag(DIRTY_FLAG_OVERRIDE);
+    mAllowOverride = value;
 }

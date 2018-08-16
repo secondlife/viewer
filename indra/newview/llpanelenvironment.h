@@ -80,19 +80,19 @@ protected:
     static const std::string    STR_LABEL_USEREGION;
     static const std::string    STR_LABEL_UNKNOWNINV;
 
-    static const S32            DIRTY_FLAG_DAYCYCLE;
-    static const S32            DIRTY_FLAG_DAYLENGTH;
-    static const S32            DIRTY_FLAG_DAYOFFSET;
+    static const U32            DIRTY_FLAG_DAYCYCLE;
+    static const U32            DIRTY_FLAG_DAYLENGTH;
+    static const U32            DIRTY_FLAG_DAYOFFSET;
 
-    static const S32            DIRTY_FLAG_MASK;
+    static const U32            DIRTY_FLAG_MASK;
 
     void                        setControlsEnabled(bool enabled);
     void                        setApplyProgress(bool started);
-    void                        setDirtyFlag(S32 flag);
-    void                        clearDirtyFlag(S32 flag);
+    void                        setDirtyFlag(U32 flag);
+    void                        clearDirtyFlag(U32 flag);
     bool                        getIsDirty() const              { return (mDirtyFlag != 0); }
-    bool                        getIsDirtyFlag(S32 flag) const  { return ((mDirtyFlag & flag) != 0); }
-    S32                         getDirtyFlag() const            { return mDirtyFlag; }
+    bool                        getIsDirtyFlag(U32 flag) const  { return ((mDirtyFlag & flag) != 0); }
+    U32                         getDirtyFlag() const            { return mDirtyFlag; }
 
     void                        onSwitchDefaultSelection();
     void                        onSldDayLengthChanged(F32 value);

@@ -59,6 +59,7 @@
 #include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
+#include "llestateinfomodel.h"
 
 //=========================================================================
 namespace
@@ -394,6 +395,9 @@ bool LLEnvironment::canAgentUpdateParcelEnvironment(LLParcel *parcel) const
 
     if (gAgent.isGodlike())
         return true;
+
+    if (!LLEstateInfoModel::instance().getAllowEnvironmentOverride())
+        return false;
 
     return LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS);
 }
