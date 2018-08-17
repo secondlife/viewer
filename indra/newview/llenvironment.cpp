@@ -192,9 +192,6 @@ namespace
             LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
             pendsetting->blend((*bounds.second).second, blendf);
 
-//          pstartsetting->setValue(LLSettingsSky::SETTING_AMBIENT, LLColor3(0.0, 1.0, 0.0));
-//          pendsetting->setValue(LLSettingsSky::SETTING_AMBIENT, LLColor3(1.0, 0.0, 0.0));
-
             setIgnoreTimeDeltaThreshold(true); // for the next span ignore the time delta threshold.
             reset(pstartsetting, pendsetting, LLEnvironment::TRANSITION_ALTITUDE);
         }

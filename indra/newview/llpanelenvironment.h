@@ -75,6 +75,8 @@ protected:
     static const std::string    CHK_ALLOWOVERRIDE;
     static const std::string    BTN_APPLY;
     static const std::string    BTN_CANCEL;
+    static const std::string    LBL_TIMEOFDAY;
+
 
     static const std::string    STR_LABEL_USEDEFAULT;
     static const std::string    STR_LABEL_USEREGION;
@@ -104,6 +106,8 @@ protected:
 
     virtual void                doApply();
 
+    void                        udpateApparentTimeOfDay();
+
     void                        onPickerCommited(LLUUID asset_id);
     void                        onEditCommited(LLSettingsDay::ptr_t newday);
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
@@ -121,6 +125,8 @@ protected:
 
 
 private:
+    static void                 onIdlePlay(void *);
+
     LLHandle<LLFloater>                     mSettingsFloater;
     LLHandle<LLFloater>                     mEditFloater;
     S32                                     mDirtyFlag;

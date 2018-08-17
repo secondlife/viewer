@@ -44,6 +44,7 @@
 #include "llsettingsvo.h"
 
 #include "llappviewer.h"
+#include "llcallbacklist.h"
 
 //=========================================================================
 namespace 
@@ -64,6 +65,7 @@ const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
 const std::string LLPanelEnvironmentInfo::CHK_ALLOWOVERRIDE("chk_allow_override");
 const std::string LLPanelEnvironmentInfo::BTN_APPLY("btn_apply");
 const std::string LLPanelEnvironmentInfo::BTN_CANCEL("btn_cancel");
+const std::string LLPanelEnvironmentInfo::LBL_TIMEOFDAY("lbl_apparent_time");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
@@ -111,10 +113,11 @@ void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 // virtual
 void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
 {
-    // If hiding (user switched to another tab or closed the floater),
-    // display user's preferred environment.
-    // switching back and forth between agent's environment and the one being edited. 
-    // 
+    if (new_visibility)
+        gIdleCallbacks.addFunction(onIdlePlay, this);
+    else
+        gIdleCallbacks.deleteFunction(onIdlePlay, this);
+
 }
 
 void LLPanelEnvironmentInfo::refresh()
@@ -156,6 +159,8 @@ void LLPanelEnvironmentInfo::refresh()
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
    
+    udpateApparentTimeOfDay();
+
     setControlsEnabled(canEdit());
 }
 
@@ -286,6 +291,8 @@ void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
 
     mCurrentEnvironment->mDayLength = daylength;
     setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
+
+    udpateApparentTimeOfDay();
 }
 
 void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
@@ -297,6 +304,8 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 
     mCurrentEnvironment->mDayOffset = dayoffset;
     setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
+
+    udpateApparentTimeOfDay();
 }
 
 void LLPanelEnvironmentInfo::onBtnApply()
@@ -363,6 +372,46 @@ void LLPanelEnvironmentInfo::doApply()
 
         setControlsEnabled(false);
     }
+}
+
+
+void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
+{
+    static const F32 SECONDSINDAY(24.0 * 60.0 * 60.0);
+
+    if (!mCurrentEnvironment)
+        return;
+
+    S32Seconds  now(LLDate::now().secondsSinceEpoch());
+
+    now += mCurrentEnvironment->mDayOffset;
+
+    F32 perc = (F32)(now.value() % mCurrentEnvironment->mDayLength.value()) / (F32)(mCurrentEnvironment->mDayLength.value());
+
+    S32Seconds  secondofday((S32)(perc * SECONDSINDAY));
+    S32Hours    hourofday(secondofday);
+    S32Seconds  secondofhour(secondofday - hourofday);
+    S32Minutes  minutesofhour(secondofhour);
+    bool        am_pm(hourofday.value() >= 12);
+
+    if (hourofday.value() < 1)
+        hourofday = S32Hours(12);
+    if (hourofday.value() > 12)
+        hourofday -= S32Hours(12);
+
+    std::string lblminute(((minutesofhour.value() < 10) ? "0" : "") + LLSD(minutesofhour.value()).asString());
+
+
+    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[HH]", LLSD(hourofday.value()).asString());
+    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[MM]", lblminute);
+    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
+    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[PRC]", LLSD((S32)(100 * perc)).asString());
+
+}
+
+void LLPanelEnvironmentInfo::onIdlePlay(void *data)
+{
+    ((LLPanelEnvironmentInfo *)data)->udpateApparentTimeOfDay();
 }
 
 void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)

@@ -109,8 +109,8 @@ private:
 
     F32                     mContextConeOpacity;
     PermissionMask          mImmediateFilterPermMask;
-    PermissionMask          mDnDFilterPermMask;
-    PermissionMask          mNonImmediateFilterPermMask;
+//     PermissionMask          mDnDFilterPermMask;
+//     PermissionMask          mNonImmediateFilterPermMask;
 
     bool                    mActive;
     bool				    mNoCopySettingsSelected;

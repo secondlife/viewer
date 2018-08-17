@@ -119,7 +119,6 @@
                     </text>
                     <slider
                             can_edit_text="true"
-                            control_name="DayLengthSLD"
                             decimal_digits="1"
                             follows="left|top"
                             height="20"
@@ -145,7 +144,6 @@
                     </text>
                     <slider
                             can_edit_text="true"
-                            control_name="DayOffsetSLD"
                             decimal_digits="1"
                             follows="left|top"
                             height="20"
@@ -158,6 +156,29 @@
                             min_val="-12"
                             max_val="12"
                             width="180" />
+                    <text
+                            type="string"
+                            length="1"
+                            follows="left|top"
+                            height="12"
+                            layout="topleft"
+                            left_delta="0"
+                            top_pad="20"
+                            width="200">
+                        Apparent Time of Day Would Be:
+                    </text>
+                    <text
+                            name="lbl_apparent_time"
+                            type="string"
+                            length="1"
+                            follows="left|top"
+                            height="12"
+                            layout="topleft"
+                            left_delta="10"
+                            top_pad="5"
+                            width="200">
+                        [HH]:[MM][AP] ([PRC]%)
+                    </text>
 
                 </layout_panel>
             </layout_stack>
