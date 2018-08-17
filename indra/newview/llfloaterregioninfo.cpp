@@ -198,8 +198,6 @@ protected:
     virtual void        doApply() override;
 
 
-//    virtual void        doEditCommited(LLSettingsDay::ptr_t &newday);
-//    BOOL                sendUpdate();
     bool                doUpdateEstate(const LLSD& notification, const LLSD& response);
 
     void                onChkAllowOverride(bool value);

@@ -105,11 +105,9 @@ protected:
     virtual void                doApply();
 
     void                        onPickerCommited(LLUUID asset_id);
-    void                        onEditiCommited(LLSettingsDay::ptr_t newday);
+    void                        onEditCommited(LLSettingsDay::ptr_t newday);
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
-    void                        handleEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
-
-    virtual void                doEditCommited(LLSettingsDay::ptr_t &newday);
+    void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
     void                        refreshFromSource();
 

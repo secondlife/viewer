@@ -396,7 +396,7 @@ bool LLEnvironment::canAgentUpdateParcelEnvironment(LLParcel *parcel) const
     if (gAgent.isGodlike())
         return true;
 
-    if (!LLEstateInfoModel::instance().getAllowEnvironmentOverride())
+    if (!parcel->getRegionAllowEnvironmentOverride())
         return false;
 
     return LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS);

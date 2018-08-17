@@ -8541,11 +8541,11 @@ class LLWorldEnvPreset : public view_listener_t
         }
 		else if (item == "new_day_cycle")
 		{
-			LLFloaterReg::showInstance("env_edit_extdaycycle", "new");
+            LLFloaterReg::showInstance("env_edit_extdaycycle", LLSDMap("edit_context", "inventory"));
 		}
 		else if (item == "edit_day_cycle")
 		{
-			LLFloaterReg::showInstance("env_edit_extdaycycle", "edit");
+			LLFloaterReg::showInstance("env_edit_extdaycycle", LLSDMap("edit_context", "inventory"));
 		}
 		else
 		{

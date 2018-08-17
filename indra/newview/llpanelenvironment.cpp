@@ -162,7 +162,7 @@ void LLPanelEnvironmentInfo::refresh()
 void LLPanelEnvironmentInfo::refreshFromSource()
 {
     LLEnvironment::instance().requestParcel(mCurrentParcelId, 
-        [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+        [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
 }
 
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
@@ -207,13 +207,14 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
     // Show the dialog
     if (!editor)
     {
-        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, "parcel")
+        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
             (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, static_cast<S32>(mCurrentEnvironment->mDayLength.value())));
 
         editor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance(FLOATER_DAY_CYCLE_EDIT, params);
 
         if (!editor)
             return nullptr;
+        editor->setEditCommitSignal([this](LLSettingsDay::ptr_t pday) { onEditCommited(pday); });
     }
 
     return editor;
@@ -313,7 +314,14 @@ void LLPanelEnvironmentInfo::onBtnEdit()
 {
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
-    dayeditor->openFloater(dayeditor->getKey());
+    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION: LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL)
+        (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, static_cast<S32>(mCurrentEnvironment->mDayLength.value())));
+
+    dayeditor->openFloater(params);
+    if (mCurrentEnvironment->mDayCycle)
+        dayeditor->setEditDayCycle(mCurrentEnvironment->mDayCycle);
+    else
+        dayeditor->setEditDefaultDayCycle();
 }
 
 void LLPanelEnvironmentInfo::onBtnSelect()
@@ -338,19 +346,19 @@ void LLPanelEnvironmentInfo::doApply()
         if (rdo_selection == 0)
         {
             LLEnvironment::instance().resetParcel(mCurrentParcelId,
-                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
         else if (rdo_selection == 1)
         {
             LLEnvironment::instance().updateParcel(mCurrentParcelId, 
                 mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(),
-                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
         else
         {
             LLEnvironment::instance().updateParcel(mCurrentParcelId, 
                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), 
-                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {handleEnvironmentReceived(parcel_id, envifo); });
+                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
 
         setControlsEnabled(false);
@@ -366,9 +374,17 @@ void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)
     });
 }
 
-void LLPanelEnvironmentInfo::onEditiCommited(LLSettingsDay::ptr_t newday)
+void LLPanelEnvironmentInfo::onEditCommited(LLSettingsDay::ptr_t newday)
 {
-    doEditCommited(newday);
+    size_t newhash(newday->getHash());
+    size_t oldhash((mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getHash() : 0);
+
+    if (newhash != oldhash)
+    {
+        mCurrentEnvironment->mDayCycle = newday;
+        setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
+        refresh();
+    }
 }
 
 void LLPanelEnvironmentInfo::onPickerAssetDownloaded(LLSettingsBase::ptr_t settings)
@@ -384,7 +400,7 @@ void LLPanelEnvironmentInfo::onPickerAssetDownloaded(LLSettingsBase::ptr_t setti
         });
 }
 
-void LLPanelEnvironmentInfo::handleEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
 {  
     if (parcel_id != mCurrentParcelId)
     {
@@ -394,10 +410,4 @@ void LLPanelEnvironmentInfo::handleEnvironmentReceived(S32 parcel_id, LLEnvironm
     mCurrentEnvironment = envifo;
     clearDirtyFlag(DIRTY_FLAG_MASK);
     refresh();
-}
-
-void LLPanelEnvironmentInfo::doEditCommited(LLSettingsDay::ptr_t &newday)
-{
-//     mEditingDayCycle = newday;
-    /*TODO pure virtual*/
 }
