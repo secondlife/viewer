@@ -89,7 +89,7 @@ public:
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildDefaultSky();
-    virtual ptr_t   buildClone() override;
+    virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
 
     static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
 
@@ -123,7 +123,7 @@ public:
 
     static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
     static ptr_t    buildDefaultWater();
-    virtual ptr_t   buildClone() override;
+    virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
 
     static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
 
@@ -158,8 +158,8 @@ public:
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
     static void     buildFromOtherSetting(LLSettingsBase::ptr_t settings, asset_built_fn cb);
-    virtual ptr_t   buildClone() override;
-    virtual ptr_t   buildDeepCloneAndUncompress() override;
+    virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
+    virtual ptr_t   buildDeepCloneAndUncompress() const SETTINGS_OVERRIDE;
 
     static LLSD     convertToLegacy(const ptr_t &);
     

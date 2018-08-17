@@ -80,8 +80,8 @@ public:
 
     bool                        initialize(bool validate_frames = false);
 
-    virtual ptr_t               buildClone() = 0;
-    virtual ptr_t               buildDeepCloneAndUncompress() = 0;
+    virtual ptr_t               buildClone() const = 0;
+    virtual ptr_t               buildDeepCloneAndUncompress() const = 0;
     virtual LLSD                getSettings() const SETTINGS_OVERRIDE;
     virtual LLSettingsType::type_e  getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_DAYCYCLE; }
 
@@ -118,6 +118,7 @@ public:
 
     void                        setInitialized(bool value = true) { mInitialized = value; }
     CycleTrack_t &              getCycleTrack(S32 track);
+    const CycleTrack_t &        getCycleTrackConst(S32 track) const;
     bool                        clearCycleTrack(S32 track);
     bool                        replaceCycleTrack(S32 track, const CycleTrack_t &source);
     bool                        isTrackEmpty(S32 track) const;
@@ -125,7 +126,7 @@ public:
     virtual validation_list_t   getValidationList() const SETTINGS_OVERRIDE;
     static validation_list_t    validationList();
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
 	
     LLSettingsBase::TrackPosition getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
     LLSettingsBase::TrackPosition getLowerBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);

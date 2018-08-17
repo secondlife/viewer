@@ -96,7 +96,7 @@ public:
     LLSettingsSky(const LLSD &data);
     virtual ~LLSettingsSky() { };
 
-    virtual ptr_t   buildClone() = 0;
+    virtual ptr_t   buildClone() const = 0;
 
     //---------------------------------------------------------------------
     virtual std::string getSettingsType() const SETTINGS_OVERRIDE { return std::string("sky"); }
@@ -231,7 +231,7 @@ public:
     LLColor3  getSunDiffuse() const;
     LLColor4  getTotalAmbient() const;
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultSunTextureId();

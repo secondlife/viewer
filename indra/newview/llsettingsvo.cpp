@@ -486,7 +486,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     return skyp;
 }
 
-LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
+LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
 {
     LLSD settings = cloneSettings();
 
@@ -737,7 +737,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     return waterp;
 }
 
-LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
+LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
 {
     LLSD settings = cloneSettings();
     LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
@@ -1113,7 +1113,7 @@ void LLSettingsVODay::combineIntoDayCycle(LLSettingsDay::ptr_t pday, LLSettingsB
 }
 
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
+LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
 {
     LLSD settings = cloneSettings();
 
@@ -1131,7 +1131,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
     return dayp;
 }
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
+LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
 {
     // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
     LLSD settings = llsd_clone(mSettings);
@@ -1140,8 +1140,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
 
     for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
     {
-        LLSettingsDay::CycleTrack_t track = getCycleTrack(i);
-        LLSettingsDay::CycleTrack_t::iterator iter = track.begin();
+        const LLSettingsDay::CycleTrack_t& track = getCycleTrackConst(i);
+        LLSettingsDay::CycleTrack_t::const_iterator iter = track.begin();
         while (iter != track.end())
         {
             // 'Unpack', usually for editing
