@@ -899,6 +899,33 @@ namespace LLError
 
 namespace
 {
+	std::string sanitizeMessage(const std::string& message)
+	{
+		std::string message_new;
+		S32 len = message.length();
+		for (S32 i = 0; i < len; i++)
+		{
+			char c = message[i];
+			if (c == '\\')
+			{
+				message_new += "\\\\";
+			}
+			else if (c == '\n')
+			{
+				message_new += "\\n";
+			}
+			else if (c == '\r')
+			{
+				message_new += "\\r";
+			}
+			else
+			{
+				message_new += c;
+			}
+		}
+		return message_new;
+	}
+	
 	void writeToRecorders(const LLError::CallSite& site, const std::string& message, bool show_location = true, bool show_time = true, bool show_tags = true, bool show_level = true, bool show_function = true)
 	{
 		LLError::ELevel level = site.mLevel;
@@ -937,7 +964,7 @@ namespace
 				message_stream << site.mFunctionString << " ";
 			}
 
-			message_stream << message;
+			message_stream << sanitizeMessage(message);
 
 			r->recordMessage(level, message_stream.str());
 		}
