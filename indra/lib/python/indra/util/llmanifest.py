@@ -251,17 +251,21 @@ def main():
     additional_packages = os.environ.get("additional_packages", "").split()
     if additional_packages:
         # Determine destination prefix / suffix for additional packages.
-        base_dest_parts = args['dest'].split(os.sep)
+        base_dest_parts = list(os.path.split(args['dest']))
         base_dest_parts.insert(-1, "{}")
-        base_dest_template = os.sep.join(base_dest_parts)
+        base_dest_template = os.path.join(*base_dest_parts)
         # Determine touched prefix / suffix for additional packages.
         if touch:
-            base_touch_parts = touch.split(os.sep)
+            base_touch_parts = list(os.path.split(touch))
+            # Because of the special insert() logic below, we don't just want
+            # [dirpath, basename]; we want [dirpath, directory, basename].
+            # Further split the dirpath and replace it in the list.
+            base_touch_parts[0:1] = os.path.split(base_touch_parts[0])
             if "arwin" in args['platform']:
                 base_touch_parts.insert(-1, "{}")
             else:
                 base_touch_parts.insert(-2, "{}")
-            base_touch_template = os.sep.join(base_touch_parts)
+            base_touch_template = os.path.join(*base_touch_parts)
         for package_id in additional_packages:
             args['channel_suffix'] = os.environ.get(package_id + "_viewer_channel_suffix")
             args['sourceid']       = os.environ.get(package_id + "_sourceid")
