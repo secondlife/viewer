@@ -154,7 +154,7 @@ public:
 
     virtual LLParcel *  getParcel() override;
 
-    virtual bool        canEdit();
+    virtual bool        canEdit() override;
 protected:
 
     LLSafeHandle<LLParcelSelection>&	mParcel;
