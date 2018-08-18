@@ -244,9 +244,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7daaef9f73a799c18f733994aa3f993b</string>
+              <string>f72e68cfc7343015cd49d02edc020378</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/23170/177964/bugsplat-1.0.4.518798-darwin64-518798.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/23219/178251/bugsplat-1.0.4.518831-darwin64-518831.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -256,9 +256,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0621c201b96a324182172ac975550c94</string>
+              <string>d84272f70f884213a5efabfa70690620</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/23172/177978/bugsplat-3.6.0.4.518798-windows-518798.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/23220/178260/bugsplat-3.6.0.4.518831-windows-518831.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -268,16 +268,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1e4bff4a9c05e5ca4d70794dffd010a8</string>
+              <string>6afe20f53e5a3135090bc5422424d5d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/23171/177973/bugsplat-3.6.0.4.518798-windows64-518798.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/23221/178264/bugsplat-3.6.0.4.518831-windows64-518831.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.4.518798</string>
+        <string>1.0.4.518831</string>
       </map>
       <key>chardet</key>
       <map>
