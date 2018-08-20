@@ -1421,6 +1421,11 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
         pinfo->mDayOffset = LLSettingsDay::Seconds(environment.has(KEY_DAYOFFSET) ? environment[KEY_DAYOFFSET].asInteger() : -1);
         pinfo->mDayHash = environment.has(KEY_DAYHASH) ? environment[KEY_DAYHASH].asInteger() : 0;
     }
+    else
+    {
+        pinfo->mDayLength = LLEnvironment::instance().getEnvironmentDayLength(ENV_REGION);
+        pinfo->mDayOffset = LLEnvironment::instance().getEnvironmentDayOffset(ENV_REGION);
+    }
 
     if (environment.has(KEY_DAYASSET))
     {

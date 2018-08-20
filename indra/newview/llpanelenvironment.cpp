@@ -326,7 +326,7 @@ void LLPanelEnvironmentInfo::onBtnEdit()
 
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
-    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
+    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION)
         (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
     dayeditor->openFloater(params);
@@ -382,8 +382,12 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
 {
     static const F32 SECONDSINDAY(24.0 * 60.0 * 60.0);
 
-    if (!mCurrentEnvironment)
+    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0) || (mCurrentEnvironment->mDayOffset.value() < 1.0))
+    {
+        getChild<LLUICtrl>(LBL_TIMEOFDAY)->setVisible(false);
         return;
+    }
+    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setVisible(true);
 
     S32Seconds  now(LLDate::now().secondsSinceEpoch());
 
