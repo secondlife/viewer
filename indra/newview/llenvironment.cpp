@@ -431,26 +431,6 @@ void LLEnvironment::onParcelChange()
     requestParcel(parcel_id);
 }
 
-void LLEnvironment::onLegacyRegionSettings(LLSD data)
-{
-    LLUUID regionId = data[0]["regionID"].asUUID();
-
-    LLSettingsDay::ptr_t regionday;
-    if (!data[1].isUndefined())
-        regionday = LLSettingsVODay::buildFromLegacyMessage(regionId, data[1], data[2], data[3]);
-
-    clearEnvironment(ENV_PARCEL);
-    if (!regionday)
-    {
-        LL_WARNS("ENVIRONMENT") << "Unable to create day from legacy.  Using default day cycle." << LL_ENDL;
-        setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
-    }
-    else
-        setEnvironment(ENV_REGION, regionday, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
-
-    updateEnvironment();
-}
-
 //-------------------------------------------------------------------------
 F32 LLEnvironment::getCamHeight() const
 {
@@ -1017,23 +997,11 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
 //=========================================================================
 void LLEnvironment::requestRegion(environment_apply_fn cb)
 {
-    if (!isExtendedEnvironmentEnabled())
-    {   /*TODO: When EEP is live on the entire grid, this can go away. */
-        LLEnvironmentRequest::initiate();
-        return;
-    }
-
     requestParcel(INVALID_PARCEL_ID, cb);
 }
 
 void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb)
 {
-    if (!isExtendedEnvironmentEnabled())
-    {
-        LLEnvironmentApply::initiateRequest( LLSettingsVODay::convertToLegacy(pday) );
-        return;
-    }
-
     updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset, cb);
 }
 
@@ -1067,6 +1035,27 @@ void LLEnvironment::resetRegion(environment_apply_fn cb)
 
 void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
 {
+    if (!isExtendedEnvironmentEnabled())
+    {   /*TODO: When EEP is live on the entire grid, this can go away. */
+        if (!cb)
+        {
+            cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo) 
+            { 
+                if (envinfo->mDayCycle) recordEnvironment(pid, envinfo); 
+                else
+                {
+                    clearEnvironment(ENV_PARCEL);
+                    setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+                    updateEnvironment();
+                }
+            };
+        }
+
+        if (parcel_id == INVALID_PARCEL_ID)
+            LLEnvironmentRequest::initiate(cb);
+        return;
+    }
+
     if (!cb)
     {
         cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); };
@@ -1358,7 +1347,7 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
 
 
 //=========================================================================
-LLEnvironment::UserPrefs::UserPrefs():
+LLEnvironment::UserPrefs::UserPrefs() :
     mUseRegionSettings(true),
     mUseDayCycle(true),
     mPersistEnvironment(false),
@@ -1402,7 +1391,8 @@ LLEnvironment::EnvironmentInfo::EnvironmentInfo():
     mDayHash(0),
     mDayCycle(),
     mAltitudes({ { 0.0, 0.0, 0.0, 0.0 } }),
-    mIsDefault(false)
+    mIsDefault(false),
+    mIsLegacy(false)
 {
 }
 
@@ -1413,6 +1403,7 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
     pinfo->mIsDefault = environment.has(KEY_ISDEFAULT) ? environment[KEY_ISDEFAULT].asBoolean() : true;
     pinfo->mParcelId = environment.has(KEY_PARCELID) ? environment[KEY_PARCELID].asInteger() : INVALID_PARCEL_ID;
     pinfo->mRegionId = environment.has(KEY_REGIONID) ? environment[KEY_REGIONID].asUUID() : LLUUID::null;
+    pinfo->mIsLegacy = false;
 
     if (environment.has(KEY_TRACKALTS))
     {
@@ -1434,9 +1425,37 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
     if (environment.has(KEY_DAYASSET))
     {
         pinfo->mAssetId = environment[KEY_DAYASSET].asUUID();
-        LL_WARNS("LAPRAS") << "Environment asset ID is " << pinfo->mAssetId << LL_ENDL;
-        LL_WARNS("LAPRAS") << "(day cycle claims " << pinfo->mDayCycle->getAssetId() << ")" << LL_ENDL;
     }
+
+    return pinfo;
+}
+
+
+LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extractLegacy(LLSD legacy)
+{
+    if (!legacy.isArray() || !legacy[0].has("regionID"))
+    {
+        LL_WARNS("ENVIRONMENT") << "Invalid legacy settings for environment: " << legacy << LL_ENDL;
+        return ptr_t();
+    }
+
+    ptr_t pinfo = std::make_shared<EnvironmentInfo>();
+
+    pinfo->mIsDefault = false;
+    pinfo->mParcelId = INVALID_PARCEL_ID;
+    pinfo->mRegionId = legacy[0]["regionID"].asUUID();
+    pinfo->mIsLegacy = true;
+
+    pinfo->mDayLength = LLSettingsDay::DEFAULT_DAYLENGTH;
+    pinfo->mDayOffset = LLSettingsDay::DEFAULT_DAYOFFSET;
+    pinfo->mDayCycle = LLSettingsVODay::buildFromLegacyMessage(pinfo->mRegionId, legacy[1], legacy[2], legacy[3]);
+    if (pinfo->mDayCycle)
+        pinfo->mDayHash = pinfo->mDayCycle->getHash();
+
+    pinfo->mAltitudes[0] = 0;
+    pinfo->mAltitudes[2] = 10001;
+    pinfo->mAltitudes[3] = 10002;
+    pinfo->mAltitudes[4] = 10003;
 
     return pinfo;
 }

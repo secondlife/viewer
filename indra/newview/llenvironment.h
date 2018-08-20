@@ -83,8 +83,10 @@ public:
         std::array<F32, 4>      mAltitudes;
         bool                    mIsDefault;
         LLUUID                  mAssetId;
+        bool                    mIsLegacy;
 
         static ptr_t            extract(LLSD);
+        static ptr_t            extractLegacy(LLSD);
     };
 
     enum EnvSelection_t
@@ -228,8 +230,6 @@ public:
 
     //-------------------------------------------
     connection_t                setEnvironmentChanged(environment_changed_fn cb);
-
-    void                        onLegacyRegionSettings(LLSD data);
 
     void                        requestRegion(environment_apply_fn cb = environment_apply_fn());
     void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());

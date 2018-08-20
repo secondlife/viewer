@@ -207,13 +207,14 @@ LLFloaterSettingsPicker *LLPanelEnvironmentInfo::getSettingsPicker()
 
 LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
 {
+    static const S32 FOURHOURS(4 * 60 * 60);
     LLFloaterEditExtDayCycle *editor = static_cast<LLFloaterEditExtDayCycle *>(mEditFloater.get());
 
     // Show the dialog
     if (!editor)
     {
         LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
-            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, static_cast<S32>(mCurrentEnvironment->mDayLength.value())));
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
         editor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance(FLOATER_DAY_CYCLE_EDIT, params);
 
@@ -321,10 +322,12 @@ void LLPanelEnvironmentInfo::onBtnReset()
 
 void LLPanelEnvironmentInfo::onBtnEdit()
 {
+    static const S32 FOURHOURS(4 * 60 * 60);
+
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
-    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION: LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL)
-        (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, static_cast<S32>(mCurrentEnvironment->mDayLength.value())));
+    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
+        (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
     dayeditor->openFloater(params);
     if (mCurrentEnvironment->mDayCycle)

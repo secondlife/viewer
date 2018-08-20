@@ -33,13 +33,12 @@
 #include "llnotificationsutil.h"
 #include "llcorehttputil.h"
 
-#include "llenvironment.h"
-
+#include "llparcel.h"
 /****
  * LLEnvironmentRequest
  ****/
 // static
-bool LLEnvironmentRequest::initiate()
+bool LLEnvironmentRequest::initiate(LLEnvironment::environment_apply_fn cb)
 {
 	LLViewerRegion* cur_region = gAgent.getRegion();
 
@@ -52,15 +51,15 @@ bool LLEnvironmentRequest::initiate()
 	if (!cur_region->capabilitiesReceived())
 	{
 		LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
-        cur_region->setCapabilitiesReceivedCallback([](LLUUID region_id) { LLEnvironmentRequest::onRegionCapsReceived(region_id); });
+        cur_region->setCapabilitiesReceivedCallback([cb](LLUUID region_id) { LLEnvironmentRequest::onRegionCapsReceived(region_id, cb); });
 		return false;
 	}
 
-	return doRequest();
+	return doRequest(cb);
 }
 
 // static
-void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id)
+void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id, LLEnvironment::environment_apply_fn cb)
 {
 	if (region_id != gAgent.getRegion()->getRegionID())
 	{
@@ -69,11 +68,11 @@ void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id)
 	}
 
 	LL_DEBUGS("WindlightCaps") << "Received region capabilities" << LL_ENDL;
-	doRequest();
+	doRequest(cb);
 }
 
 // static
-bool LLEnvironmentRequest::doRequest()
+bool LLEnvironmentRequest::doRequest(LLEnvironment::environment_apply_fn cb)
 {
 	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
 	if (url.empty())
@@ -88,7 +87,7 @@ bool LLEnvironmentRequest::doRequest()
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentRequest::environmentRequestCoro",
-        [url]() { LLEnvironmentRequest::environmentRequestCoro(url); });
+        [url, cb]() { LLEnvironmentRequest::environmentRequestCoro(url, cb); });
 
     LL_INFOS("WindlightCaps") << "Requesting region windlight settings via " << url << LL_ENDL;
     return true;
@@ -97,7 +96,7 @@ bool LLEnvironmentRequest::doRequest()
 S32 LLEnvironmentRequest::sLastRequest = 0;
 
 //static 
-void LLEnvironmentRequest::environmentRequestCoro(std::string url)
+void LLEnvironmentRequest::environmentRequestCoro(std::string url, LLEnvironment::environment_apply_fn cb)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     S32 requestId = ++LLEnvironmentRequest::sLastRequest;
@@ -141,7 +140,12 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
         return;
     }
 
-    LLEnvironment::instance().onLegacyRegionSettings(result);
+    if (cb)
+    {
+        LLEnvironment::EnvironmentInfo::ptr_t pinfo = LLEnvironment::EnvironmentInfo::extractLegacy(result);
+
+        cb(INVALID_PARCEL_ID, pinfo);
+    }
 }
 
 
@@ -153,7 +157,7 @@ clock_t LLEnvironmentApply::UPDATE_WAIT_SECONDS = clock_t(3.f);
 clock_t LLEnvironmentApply::sLastUpdate = clock_t(0.f);
 
 // static
-bool LLEnvironmentApply::initiateRequest(const LLSD& content)
+bool LLEnvironmentApply::initiateRequest(const LLSD& content, LLEnvironment::environment_apply_fn cb)
 {
 	clock_t current = clock();
 
@@ -181,11 +185,11 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentApply::environmentApplyCoro",
-        [url, content]() { LLEnvironmentApply::environmentApplyCoro(url, content); });
+        [url, content, cb]() { LLEnvironmentApply::environmentApplyCoro(url, content, cb); });
 	return true;
 }
 
-void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content)
+void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content, LLEnvironment::environment_apply_fn cb)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
