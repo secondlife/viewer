@@ -125,7 +125,7 @@ void LLPanelEnvironmentInfo::refresh()
     if (gDisconnected)
         return;
 
-    if (((mCurrentEnvironment->mParcelId != INVALID_PARCEL_ID) && (!mCurrentEnvironment->mDayCycle)) ||
+    if ((!mCurrentEnvironment->mDayCycle) ||
         ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
     {
         getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(0);
