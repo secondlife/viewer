@@ -110,6 +110,12 @@ const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve 
 const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of levels to reduce image quality by
 const F64 log_2 = log(2.0);
 
+#if ADDRESS_SIZE == 32
+const U32 DESIRED_NORMAL_FETCHED_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
+#else
+const U32 DESIRED_NORMAL_FETCHED_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
+#endif
+
 //----------------------------------------------------------------------------------------------
 //namespace: LLViewerTextureAccess
 //----------------------------------------------------------------------------------------------
@@ -1578,12 +1584,17 @@ void LLViewerFetchedTexture::processTextureStats()
 			mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel);
 		}
 		else
-		{	
+		{
+			U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+			if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
+			{
+				desired_size = DESIRED_NORMAL_FETCHED_TEXTURE_SIZE;
+			}
 			if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
 			{
-				if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+				if (mFullWidth > desired_size || mFullHeight > desired_size)
 				{
-					mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+					mDesiredDiscardLevel = 1;
 				}
 				else
 				{
@@ -3197,8 +3208,13 @@ void LLViewerLODTexture::processTextureStats()
 		discard_level = floorf(discard_level);
 
 		F32 min_discard = 0.f;
-		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
-			min_discard = 1.f; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+		U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+		if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
+		{
+			desired_size = DESIRED_NORMAL_FETCHED_TEXTURE_SIZE;
+		}
+		if (mFullWidth > desired_size || mFullHeight > desired_size)
+			min_discard = 1.f;
 
 		discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
 		
