@@ -55,7 +55,7 @@ public:
     LLSettingsWater(const LLSD &data);
     virtual ~LLSettingsWater() { };
 
-    virtual ptr_t   buildClone() = 0;
+    virtual ptr_t   buildClone() const = 0;
 
     //---------------------------------------------------------------------
     virtual std::string     getSettingsType() const SETTINGS_OVERRIDE { return std::string("water"); }
@@ -226,7 +226,7 @@ public:
 
     static LLSD         translateLegacySettings(LLSD legacy);
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultWaterNormalAssetId();

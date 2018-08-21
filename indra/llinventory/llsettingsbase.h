@@ -87,7 +87,7 @@ public:
     inline bool hasSetting(const std::string &param) const { return mSettings.has(param); }
     inline bool isDirty() const { return mDirty; }
     inline bool isVeryDirty() const { return mReplaced; }
-    inline void setDirtyFlag(bool dirty) { mDirty = dirty; }
+    inline void setDirtyFlag(bool dirty) { mDirty = dirty; clearAssetId(); }
 
     size_t getHash() const; // Hash will not include Name, ID or a previously stored Hash
 
@@ -116,10 +116,10 @@ public:
 
     virtual void replaceSettings(LLSD settings)
     {
-        mSettings = settings;
         mBlendedFactor = 0.0;
         setDirtyFlag(true);
         mReplaced = true;
+        mSettings = settings;
     }
 
     virtual LLSD getSettings() const;
@@ -130,8 +130,8 @@ public:
     {
         mSettings[name] = value;
         mDirty = true;
-        if (mSettings.has(SETTING_ASSETID))
-            mSettings.erase(SETTING_ASSETID);
+        if (name != SETTING_ASSETID)
+            clearAssetId();
     }
 
     inline void setValue(const std::string &name, const LLSD &value)
@@ -200,7 +200,7 @@ public:
 
     virtual bool    validate();
 
-    virtual ptr_t   buildDerivedClone() = 0;
+    virtual ptr_t   buildDerivedClone() const = 0;
 
     class Validator
     {

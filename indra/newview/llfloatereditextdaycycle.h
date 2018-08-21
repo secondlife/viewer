@@ -54,11 +54,20 @@ class LLFloaterEditExtDayCycle : public LLFloater
 	LOG_CLASS(LLFloaterEditExtDayCycle);
 
 public:
-    // **RIDER**
     static const std::string    KEY_INVENTORY_ID;
-    static const std::string    KEY_LIVE_ENVIRONMENT;
+    static const std::string    KEY_EDIT_CONTEXT;
     static const std::string    KEY_DAY_LENGTH;
-    // **RIDER**
+
+    static const std::string    VALUE_CONTEXT_INVENTORY;
+    static const std::string    VALUE_CONTEXT_PARCEL;
+    static const std::string    VALUE_CONTEXT_REGION;
+
+    enum edit_context_t {
+        CONTEXT_UNKNOWN,
+        CONTEXT_INVENTORY,
+        CONTEXT_PARCEL,
+        CONTEXT_REGION
+    };
 
     typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)> edit_commit_signal_t;
     typedef boost::signals2::connection connection_t;
@@ -77,7 +86,10 @@ public:
 
     virtual void                refresh() override;
 
-    BOOL			handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+    void                        setEditDayCycle(const LLSettingsDay::ptr_t &pday);
+    void                        setEditDefaultDayCycle();
+
+    BOOL			            handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
 
 private:
 
@@ -117,12 +129,12 @@ private:
 
     void                        loadInventoryItem(const LLUUID  &inventoryId);
     void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
-    void                        loadLiveEnvironment(LLEnvironment::EnvSelection_t env);
 
     void                        doImportFromDisk();
     void                        doApplyCreateNewInventory();
     void                        doApplyUpdateInventory();
     void                        doApplyEnvironment(const std::string &where);
+    void                        doApplyCommit();
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
@@ -180,6 +192,8 @@ private:
     bool                        mIsPlaying;
 
     edit_commit_signal_t        mCommitSignal;
+
+    edit_context_t              mEditContext;
 
     // For map of sliders to parameters
     class FrameData

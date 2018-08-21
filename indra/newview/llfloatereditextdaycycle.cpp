@@ -102,6 +102,7 @@ namespace {
     // From menu_save_settings.xml, consider moving into flyout since it should be supported by flyout either way
     const std::string ACTION_SAVE("save_settings");
     const std::string ACTION_SAVEAS("save_as_new_settings");
+    const std::string ACTION_COMMIT("commit_changes");
     const std::string ACTION_APPLY_LOCAL("apply_local");
     const std::string ACTION_APPLY_PARCEL("apply_parcel");
     const std::string ACTION_APPLY_REGION("apply_region");
@@ -111,8 +112,12 @@ namespace {
 
 //=========================================================================
 const std::string LLFloaterEditExtDayCycle::KEY_INVENTORY_ID("inventory_id");
-const std::string LLFloaterEditExtDayCycle::KEY_LIVE_ENVIRONMENT("live_environment");
+const std::string LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT("edit_context");
 const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
+
+const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_INVENTORY("inventory");
+const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
+const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION("region");
 
 //=========================================================================
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
@@ -192,21 +197,31 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 {
     mEditDay.reset();
+    mEditContext = CONTEXT_UNKNOWN;
+    if (key.has(KEY_EDIT_CONTEXT))
+    {
+        std::string context = key[KEY_EDIT_CONTEXT].asString();
 
-    LLEnvironment::EnvSelection_t env = LLEnvironment::ENV_DEFAULT;
+        if (context == VALUE_CONTEXT_INVENTORY)
+            mEditContext = CONTEXT_INVENTORY;
+        else if (context == VALUE_CONTEXT_PARCEL)
+            mEditContext = CONTEXT_PARCEL;
+        else if (context == VALUE_CONTEXT_REGION)
+            mEditContext = CONTEXT_REGION;
+    }
+
+    if (mEditContext == CONTEXT_UNKNOWN)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Unknown editing context!" << LL_ENDL;
+    }
+
     if (key.has(KEY_INVENTORY_ID))
     {
         loadInventoryItem(key[KEY_INVENTORY_ID].asUUID());
     }
-    else if (key.has(KEY_LIVE_ENVIRONMENT))
-    {
-        env = static_cast<LLEnvironment::EnvSelection_t>(key[KEY_LIVE_ENVIRONMENT].asInteger());
-
-        loadLiveEnvironment(env);
-    }
     else
     {
-        loadLiveEnvironment(env);
+        setEditDefaultDayCycle();
     }
 
     mDayLength.value(0);
@@ -255,7 +270,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
     bool use_altitudes = extended_env
                          && altitudes.size() > 0
-                         && (env == LLEnvironment::ENV_REGION || env == LLEnvironment::ENV_PARCEL);
+                         && ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
     for (S32 idx = 1; idx < 4; ++idx)
     {
         std::ostringstream convert;
@@ -274,6 +289,21 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++) //skies #2 through #4
     {
         getChild<LLButton>(track_tabs[i])->setEnabled(extended_env);
+    }
+
+    if (mEditContext == CONTEXT_INVENTORY)
+    {
+        mFlyoutControl->setShownBtnEnabled(true);
+        mFlyoutControl->setSelectedItem(ACTION_SAVE);
+    }
+    else if ((mEditContext == CONTEXT_REGION) || (mEditContext == CONTEXT_PARCEL))
+    {
+        mFlyoutControl->setShownBtnEnabled(true);
+        mFlyoutControl->setSelectedItem(ACTION_COMMIT);
+    }
+    else
+    {
+        mFlyoutControl->setShownBtnEnabled(false);
     }
 }
 
@@ -315,18 +345,48 @@ void LLFloaterEditExtDayCycle::refresh()
 
     bool is_inventory_avail = canUseInventory();
 
+    bool show_commit = ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
+    bool show_apply = (mEditContext == CONTEXT_INVENTORY);
+
+    mFlyoutControl->setMenuItemVisible(ACTION_COMMIT, show_commit);
+    mFlyoutControl->setMenuItemVisible(ACTION_SAVE, is_inventory_avail);
+    mFlyoutControl->setMenuItemVisible(ACTION_SAVEAS, is_inventory_avail);
+    mFlyoutControl->setMenuItemVisible(ACTION_APPLY_LOCAL, true);
+    mFlyoutControl->setMenuItemVisible(ACTION_APPLY_PARCEL, show_apply);
+    mFlyoutControl->setMenuItemVisible(ACTION_APPLY_REGION, show_apply);
+
+    mFlyoutControl->setMenuItemEnabled(ACTION_COMMIT, show_commit);
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
-    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel());
-    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion());
+    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_LOCAL, true);
+    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel() && show_apply);
+    mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion() && show_apply);
 
     LLFloater::refresh();
+}
+
+
+void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
+{
+    mEditDay = pday->buildDeepCloneAndUncompress();
+    updateEditEnvironment();
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
+    synchronizeTabs();
+    updateTabs();
+    refresh();
+}
+
+
+void LLFloaterEditExtDayCycle::setEditDefaultDayCycle()
+{
+    LLSettingsVOBase::getSettingsAsset(LLSettingsDay::GetDefaultAssetId(),
+        [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
 /* virtual */
 BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
 {
-    LL_DEBUGS("LAPRAS") << "Key: " << key << " mask: " << mask << LL_ENDL;
     if (mask == MASK_SHIFT && mShiftCopyEnabled)
     {
         mShiftCopyEnabled = false;
@@ -338,7 +398,6 @@ BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_
             keymap_t::iterator it = mSliderKeyMap.find(curslider);
             if (it != mSliderKeyMap.end())
             {
-                LL_DEBUGS("LAPRAS") << "Moving frame from " << (*it).second.mFrame << " to " << sliderpos << LL_ENDL;
                 if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
                 {
                     (*it).second.mFrame = sliderpos;
@@ -350,7 +409,7 @@ BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_
             }
             else
             {
-                LL_WARNS("LAPRAS") << "Failed to find frame " << sliderpos << " for slider " << curslider << LL_ENDL;
+                LL_WARNS("ENVDAYEDIT") << "Failed to find frame " << sliderpos << " for slider " << curslider << LL_ENDL;
             }
         }
     }
@@ -376,9 +435,13 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     {
         doApplyEnvironment(ctrl_action);
     }
+    else if (ctrl_action == ACTION_COMMIT)
+    {
+        doApplyCommit();
+    }
     else
     {
-        LL_WARNS("ENVIRONMENT") << "Unknown settings action '" << ctrl_action << "'" << LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Unknown settings action '" << ctrl_action << "'" << LL_ENDL;
     }
 }
 
@@ -410,7 +473,7 @@ void LLFloaterEditExtDayCycle::onAddTrack()
     LLSettingsBase::ptr_t setting;
     if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
     }
 
@@ -487,11 +550,8 @@ void LLFloaterEditExtDayCycle::onPlayActionCallback(const LLSD& user_data)
 
 void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
 {
-    //LL_WARNS("LAPRAS") << "LLFloaterEditExtDayCycle::onFrameSliderCallback(" << data << ")" << LL_ENDL;
-
     std::string curslider = mFramesSlider->getCurSlider();
 
-    LL_WARNS("LAPRAS") << "Current slider set to \"" << curslider << "\"" << LL_ENDL;
     F32 sliderpos(0.0);
 
 
@@ -515,7 +575,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
                 // handleKeyUp will do the move if user releases key too early.
                 if (!(mEditDay->getSettingsNearKeyframe(sliderpos, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
                 {
-                    LL_DEBUGS() << "Copying frame from " << it->second.mFrame << " to " << sliderpos << LL_ENDL;
+                    LL_DEBUGS("ENVDAYEDIT") << "Copying frame from " << it->second.mFrame << " to " << sliderpos << LL_ENDL;
                     LLSettingsBase::ptr_t new_settings;
 
                     // mEditDay still remembers old position, add copy at new position
@@ -543,7 +603,6 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
             }
             else
             {
-                LL_WARNS("LAPRAS") << "Moving frame from " << (*it).second.mFrame << " to " << sliderpos << LL_ENDL;
                 if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
                 {
                     (*it).second.mFrame = sliderpos;
@@ -583,21 +642,17 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
     {
         F32 sliderval = mFramesSlider->getSliderValue(slidername);
 
-        LL_WARNS("LAPRAS") << "Selected vs mouse delta = " << (sliderval - sliderpos) << LL_ENDL;
-
         if (fabs(sliderval - sliderpos) > LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)
         {
             mFramesSlider->resetCurSlider();
         }
     }
-    LL_WARNS("LAPRAS") << "DOWN: X=" << x << "  Y=" << y << " MASK=" << mask << " Position=" << sliderpos << LL_ENDL;
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 {
     F32 sliderpos = mFramesSlider->getSliderValueFromX(x);
 
-    LL_WARNS("LAPRAS") << "  UP: X=" << x << "  Y=" << y << " MASK=" << mask << " Position=" << sliderpos << LL_ENDL;
     mTimeSlider->setCurSliderValue(sliderpos);
     selectFrame(sliderpos, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
@@ -850,7 +905,7 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
     keymap_t::iterator iter = mSliderKeyMap.find(sldr);
     if (iter != mSliderKeyMap.end())
     {
-        LL_DEBUGS() << "Removing frame from " << iter->second.mFrame << LL_ENDL;
+        LL_DEBUGS("ENVDAYEDIT") << "Removing frame from " << iter->second.mFrame << LL_ENDL;
         LLSettingsBase::Seconds seconds(iter->second.mFrame);
         mEditDay->removeTrackKeyframe(mCurrentTrack, seconds);
         mSliderKeyMap.erase(iter);
@@ -872,19 +927,19 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 {
     if (inventoryId.isNull())
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to load NULL inventory ID" << LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Attempt to load NULL inventory ID" << LL_ENDL;
         mInventoryItem = nullptr;
         mInventoryId.setNull();
         return;
     }
 
     mInventoryId = inventoryId;
-    LL_INFOS("ENVIRONMENT") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
+    LL_INFOS("ENVDAYEDIT") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
     mInventoryItem = gInventory.getItem(mInventoryId);
 
     if (!mInventoryItem)
     {
-        LL_WARNS("ENVIRONMENT") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
 
         LLNotificationsUtil::add("CantFindInvItem");
         closeFloater();
@@ -895,7 +950,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 
     if (mInventoryItem->getAssetUUID().isNull())
     {
-        LL_WARNS("ENVIRONMENT") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" <<  LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" <<  LL_ENDL;
 
         LLNotificationsUtil::add("UnableEditItem");
         closeFloater();
@@ -919,40 +974,8 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         closeFloater();
         return;
     }
-    mEditDay = std::dynamic_pointer_cast<LLSettingsDay>(settings)->buildDeepCloneAndUncompress();
-    updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
-    synchronizeTabs();
-    updateTabs();
-    refresh();
-}
 
-void LLFloaterEditExtDayCycle::loadLiveEnvironment(LLEnvironment::EnvSelection_t env)
-{
-    for (S32 idx = static_cast<S32>(env); idx <= LLEnvironment::ENV_DEFAULT; ++idx)
-    {
-        LLSettingsDay::ptr_t day = LLEnvironment::instance().getEnvironmentDay(static_cast<LLEnvironment::EnvSelection_t>(idx));
-
-        if (day)
-        {
-            mEditDay = day->buildDeepCloneAndUncompress();
-            break;
-        }
-    }
-
-    if (!mEditDay)
-    {
-        LL_WARNS("ENVIRONMENT") << "Unable to load environment " << env << " building default." << LL_ENDL;
-        mEditDay = LLSettingsVODay::buildDefaultDayCycle();
-    }
-
-    updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
-    synchronizeTabs();
-    updateTabs();
-    refresh();
+    setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
 }
 
 void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
@@ -1114,7 +1137,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
 
         if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
         {
-            LL_WARNS("ENVIRONMENT") << "Can not identify parcel. Not applying." << LL_ENDL;
+            LL_WARNS("ENVDAYEDIT") << "Can not identify parcel. Not applying." << LL_ENDL;
             LLNotificationsUtil::add("WLParcelApplyFail");
             return;
         }
@@ -1127,15 +1150,25 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
     }
     else
     {
-        LL_WARNS("ENVIRONMENT") << "Unknown apply '" << where << "'" << LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Unknown apply '" << where << "'" << LL_ENDL;
         return;
     }
 
 }
 
+void LLFloaterEditExtDayCycle::doApplyCommit()
+{
+    if (!mCommitSignal.empty())
+    {
+        mCommitSignal(mEditDay->buildClone());
+
+        closeFloater();
+    }
+}
+
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
 {
-    LL_INFOS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
+    LL_INFOS("ENVDAYEDIT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
 
     if (inventory_id.isNull() || !results["success"].asBoolean())
     {
@@ -1149,7 +1182,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
 
 void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
 {
-    LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
+    LL_WARNS("ENVDAYEDIT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
 
     if (inventory_id != mInventoryId)
     {
@@ -1175,12 +1208,8 @@ void LLFloaterEditExtDayCycle::doImportFromDisk()
             return;
         }
 
-        mEditDay = legacyday;
         mCurrentTrack = 1;
-        updateSlider();
-        updateEditEnvironment();
-        synchronizeTabs();
-        refresh();
+        setEditDayCycle(legacyday);
     }
 }
 
@@ -1273,6 +1302,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
     }
 
     picker->setSettingsFilter(type);
+    picker->setSettingsAssetId(currasset);
     picker->openFloater();
     picker->setFocus(TRUE);
 }
@@ -1300,7 +1330,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettings
 {
     if (!settings || status)
     {
-        LL_WARNS("ENVIRONMENT") << "Could not load asset " << asset_id << " into frame. status=" << status << LL_ENDL;
+        LL_WARNS("ENVDAYEDIT") << "Could not load asset " << asset_id << " into frame. status=" << status << LL_ENDL;
         return;
     }
 

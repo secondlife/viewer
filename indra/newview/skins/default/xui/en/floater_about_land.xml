@@ -2106,7 +2106,7 @@ Only large parcels can be listed in search.
           top="0"
           help_topic="land_experiences_tab"
           name="land_experiences_panel"
-            class="land_experiences_panel"
+          class="land_experiences_panel"
           filename="panel_region_experiences.xml">
        </panel>
        <panel
@@ -2118,7 +2118,7 @@ Only large parcels can be listed in search.
           top="0"
           help_topic="land_environment_tab"
           name="land_environment_panel"
-            class="land_environment_panel"
+          class="land_environment_panel"
           filename="panel_region_environment.xml">
        </panel>
     </tab_container>

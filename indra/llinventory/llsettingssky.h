@@ -96,7 +96,7 @@ public:
     LLSettingsSky(const LLSD &data);
     virtual ~LLSettingsSky() { };
 
-    virtual ptr_t   buildClone() = 0;
+    virtual ptr_t   buildClone() const = 0;
 
     //---------------------------------------------------------------------
     virtual std::string getSettingsType() const SETTINGS_OVERRIDE { return std::string("sky"); }
@@ -116,12 +116,9 @@ public:
     F32 getMieAnisotropy() const;   
     LLSD getRayleighConfigs() const;
     LLSD getMieConfigs() const;
+
     LLSD getAbsorptionConfigs() const;
     LLUUID getBloomTextureId() const;
-
-    void setRayleighConfigs(const LLSD& rayleighConfig);
-    void setMieConfigs(const LLSD& mieConfig);
-    void setAbsorptionConfigs(const LLSD& absorptionConfig);
 
     //---------------------------------------------------------------------
     LLColor3 getAmbientColor() const;
@@ -234,7 +231,7 @@ public:
     LLColor3  getSunDiffuse() const;
     LLColor4  getTotalAmbient() const;
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultSunTextureId();

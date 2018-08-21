@@ -100,6 +100,11 @@ void LLFlyoutComboBtnCtrl::setShownBtnEnabled(bool enabled)
     mParent->getChildView(mActionButton)->setEnabled(enabled);
 }
 
+void LLFlyoutComboBtnCtrl::setMenuItemVisible(const std::string &item, bool visible)
+{
+    mFlyoutMenu->setItemVisible(item, visible);
+}
+
 void LLFlyoutComboBtnCtrl::onFlyoutButton(LLUICtrl *ctrl, const LLSD &data)
 {
 	S32 x, y;

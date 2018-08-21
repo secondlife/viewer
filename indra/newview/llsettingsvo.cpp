@@ -273,6 +273,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
         }
         else
         {
+            LL_WARNS("LAPRAS") << "Setting asset ID to " << asset_id << LL_ENDL;
             settings->setAssetId(asset_id);
         }
     }
@@ -485,7 +486,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     return skyp;
 }
 
-LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
+LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
 {
     LLSD settings = cloneSettings();
 
@@ -736,7 +737,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     return waterp;
 }
 
-LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
+LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
 {
     LLSD settings = cloneSettings();
     LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
@@ -1074,7 +1075,45 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromEnvironmentMessage(LLSD settings)
 }
 
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
+void LLSettingsVODay::buildFromOtherSetting(LLSettingsBase::ptr_t settings, LLSettingsVODay::asset_built_fn cb)
+{
+    if (settings->getSettingsType() == "daycycle")
+    {
+        if (cb)
+            cb(std::static_pointer_cast<LLSettingsDay>(settings));
+    }
+    else
+    {
+        LLSettingsVOBase::getSettingsAsset(LLSettingsDay::GetDefaultAssetId(),
+            [settings, cb](LLUUID, LLSettingsBase::ptr_t pday, S32, LLExtStat){ combineIntoDayCycle(std::static_pointer_cast<LLSettingsDay>(pday), settings, cb); });
+    }
+}
+
+void LLSettingsVODay::combineIntoDayCycle(LLSettingsDay::ptr_t pday, LLSettingsBase::ptr_t settings, asset_built_fn cb)
+{
+    if (settings->getSettingsType() == "sky")
+    {
+        pday->setName("sky: " + settings->getName());
+        pday->clearCycleTrack(1);
+        pday->setSettingsAtKeyframe(settings, 0.0, 1);
+    }
+    else if (settings->getSettingsType() == "water")
+    {
+        pday->setName("water: " + settings->getName());
+        pday->clearCycleTrack(0);
+        pday->setSettingsAtKeyframe(settings, 0.0, 0);
+    }
+    else
+    {
+        pday.reset();
+    }
+
+    if (cb)
+        cb(pday);
+}
+
+
+LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
 {
     LLSD settings = cloneSettings();
 
@@ -1092,7 +1131,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
     return dayp;
 }
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
+LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
 {
     // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
     LLSD settings = llsd_clone(mSettings);
@@ -1101,8 +1140,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
 
     for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
     {
-        LLSettingsDay::CycleTrack_t track = getCycleTrack(i);
-        LLSettingsDay::CycleTrack_t::iterator iter = track.begin();
+        const LLSettingsDay::CycleTrack_t& track = getCycleTrackConst(i);
+        LLSettingsDay::CycleTrack_t::const_iterator iter = track.begin();
         while (iter != track.end())
         {
             // 'Unpack', usually for editing
