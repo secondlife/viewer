@@ -76,6 +76,9 @@ protected:
     static const std::string    BTN_APPLY;
     static const std::string    BTN_CANCEL;
     static const std::string    LBL_TIMEOFDAY;
+    static const std::string    PNL_SETTINGS;
+    static const std::string    PNL_BUTTONS;
+    static const std::string    PNL_DISABLED;
 
 
     static const std::string    STR_LABEL_USEDEFAULT;
