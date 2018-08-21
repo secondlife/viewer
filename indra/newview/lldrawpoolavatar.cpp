@@ -563,11 +563,13 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
         LLDrawPoolAvatar::sSkipOpaque = true;
         renderRigged(avatarp, RIGGED_MATERIAL_ALPHA);
-        renderRigged(avatarp, RIGGED_MATERIAL_ALPHA);
         renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_EMISSIVE);
         renderRigged(avatarp, RIGGED_ALPHA);
         renderRigged(avatarp, RIGGED_FULLBRIGHT_ALPHA);
         renderRigged(avatarp, RIGGED_GLOW);
+        renderRigged(avatarp, RIGGED_SPECMAP_BLEND);
+        renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
+        renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
         LLDrawPoolAvatar::sSkipOpaque = false;
 	}
     else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_MASK) // rigged alpha mask
@@ -585,13 +587,10 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
         LLDrawPoolAvatar::sSkipTransparent = true;
 		renderRigged(avatarp, RIGGED_MATERIAL);
         renderRigged(avatarp, RIGGED_SPECMAP);
-        renderRigged(avatarp, RIGGED_SPECMAP_BLEND);		
 		renderRigged(avatarp, RIGGED_SPECMAP_EMISSIVE);
-		renderRigged(avatarp, RIGGED_NORMMAP);
-		renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
+		renderRigged(avatarp, RIGGED_NORMMAP);		
 		renderRigged(avatarp, RIGGED_NORMMAP_EMISSIVE);
 		renderRigged(avatarp, RIGGED_NORMSPEC);
-		renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
 		renderRigged(avatarp, RIGGED_NORMSPEC_EMISSIVE);
 		renderRigged(avatarp, RIGGED_SIMPLE);
 		renderRigged(avatarp, RIGGED_FULLBRIGHT);
@@ -1804,6 +1803,10 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 	for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
 	{
 		LLFace* face = mRiggedFace[type][i];
+
+        S32 offset = face->getIndicesStart();
+		U32 count = face->getIndicesCount();
+
 		LLDrawable* drawable = face->getDrawable();
 		if (!drawable)
 		{
@@ -1969,9 +1972,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			}
 
 			U16 start = face->getGeomStart();
-			U16 end = start + face->getGeomCount()-1;
-			S32 offset = face->getIndicesStart();
-			U32 count = face->getIndicesCount();
+			U16 end = start + face->getGeomCount()-1;			
 
 			/*if (glow)
 			{
