@@ -230,6 +230,7 @@ public:
         static bool verifyQuaternionNormal(LLSD &value);
         static bool verifyFloatRange(LLSD &value, LLSD range);
         static bool verifyIntegerRange(LLSD &value, LLSD range);
+        static bool verifyStringLength(LLSD &value, S32 length);
 
     private:
         std::string mName;

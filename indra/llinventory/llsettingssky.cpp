@@ -93,10 +93,12 @@ const std::string LLSettingsSky::SETTING_GLOW("glow");
 const std::string LLSettingsSky::SETTING_LIGHT_NORMAL("lightnorm");
 const std::string LLSettingsSky::SETTING_MAX_Y("max_y");
 const std::string LLSettingsSky::SETTING_MOON_ROTATION("moon_rotation");
+const std::string LLSettingsSky::SETTING_MOON_SCALE("moon_scale");
 const std::string LLSettingsSky::SETTING_MOON_TEXTUREID("moon_id");
 const std::string LLSettingsSky::SETTING_STAR_BRIGHTNESS("star_brightness");
 const std::string LLSettingsSky::SETTING_SUNLIGHT_COLOR("sunlight_color");
 const std::string LLSettingsSky::SETTING_SUN_ROTATION("sun_rotation");
+const std::string LLSettingsSky::SETTING_SUN_SCALE("sun_scale");
 const std::string LLSettingsSky::SETTING_SUN_TEXTUREID("sun_id");
 
 const std::string LLSettingsSky::SETTING_LEGACY_EAST_ANGLE("east_angle");
@@ -524,6 +526,8 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_MAX_Y,               true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4000.0f)))));
         validation.push_back(Validator(SETTING_MOON_ROTATION,       true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
+        validation.push_back(Validator(SETTING_MOON_SCALE,          false, LLSD::TypeReal,
+                boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.25f)(20.0f))), LLSD::Real(1.0)));
         validation.push_back(Validator(SETTING_MOON_TEXTUREID,      false, LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_STAR_BRIGHTNESS,     true,  LLSD::TypeReal, 
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
@@ -532,7 +536,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         validation.push_back(Validator(SETTING_SUN_ROTATION,        true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
-        validation.push_back(Validator(SETTING_SUN_TEXTUREID,      false, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_SUN_SCALE,           false, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.25f)(20.0f))), LLSD::Real(1.0)));
+        validation.push_back(Validator(SETTING_SUN_TEXTUREID, false, LLSD::TypeUUID));
 
         validation.push_back(Validator(SETTING_PLANET_RADIUS,       true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1000.0f)(32768.0f)))));
@@ -1334,6 +1340,16 @@ void LLSettingsSky::setMoonRotation(const LLQuaternion &val)
     setValue(SETTING_MOON_ROTATION, val);
 }
 
+F32 LLSettingsSky::getMoonScale() const
+{
+    return mSettings[SETTING_MOON_SCALE].asReal();
+}
+
+void LLSettingsSky::setMoonScale(F32 val)
+{
+    setValue(SETTING_MOON_SCALE, val);
+}
+
 LLUUID LLSettingsSky::getMoonTextureId() const
 {
     return mSettings[SETTING_MOON_TEXTUREID].asUUID();
@@ -1372,6 +1388,17 @@ LLQuaternion LLSettingsSky::getSunRotation() const
 void LLSettingsSky::setSunRotation(const LLQuaternion &val) 
 {
     setValue(SETTING_SUN_ROTATION, val);
+}
+
+
+F32 LLSettingsSky::getSunScale() const
+{
+    return mSettings[SETTING_SUN_SCALE].asReal();
+}
+
+void LLSettingsSky::setSunScale(F32 val)
+{
+    setValue(SETTING_SUN_SCALE, val);
 }
 
 LLUUID LLSettingsSky::getSunTextureId() const

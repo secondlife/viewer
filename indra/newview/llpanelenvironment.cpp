@@ -66,6 +66,9 @@ const std::string LLPanelEnvironmentInfo::CHK_ALLOWOVERRIDE("chk_allow_override"
 const std::string LLPanelEnvironmentInfo::BTN_APPLY("btn_apply");
 const std::string LLPanelEnvironmentInfo::BTN_CANCEL("btn_cancel");
 const std::string LLPanelEnvironmentInfo::LBL_TIMEOFDAY("lbl_apparent_time");
+const std::string LLPanelEnvironmentInfo::PNL_SETTINGS("pnl_environment_config");
+const std::string LLPanelEnvironmentInfo::PNL_BUTTONS("pnl_environment_buttons");
+const std::string LLPanelEnvironmentInfo::PNL_DISABLED("pnl_environment_disabled");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
@@ -125,6 +128,12 @@ void LLPanelEnvironmentInfo::refresh()
     if (gDisconnected)
         return;
 
+    setControlsEnabled(canEdit());
+    if (!mCurrentEnvironment)
+    {
+        return;
+    }
+
     if ((!mCurrentEnvironment->mDayCycle) ||
         ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
     {
@@ -161,7 +170,6 @@ void LLPanelEnvironmentInfo::refresh()
    
     udpateApparentTimeOfDay();
 
-    setControlsEnabled(canEdit());
 }
 
 void LLPanelEnvironmentInfo::refreshFromSource()
@@ -229,19 +237,27 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
 void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 {
     S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+    bool is_legacy = (mCurrentEnvironment) ? mCurrentEnvironment->mIsLegacy : true;
+
+    bool is_unavailable = (is_legacy && (!mCurrentEnvironment || (mCurrentEnvironment->mParcelId != INVALID_PARCEL_ID)));
 
     getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(enabled);
-    getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(enabled);
-    getChild<LLUICtrl>(RDO_USEINV)->setEnabled(enabled);
-    getChild<LLUICtrl>(RDO_USECUSTOM)->setEnabled(enabled);
+    getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(enabled && !is_legacy);
+    getChild<LLUICtrl>(RDO_USEINV)->setEnabled(false);      // these two are selected automatically based on 
+    getChild<LLUICtrl>(RDO_USECUSTOM)->setEnabled(false);
     getChild<LLUICtrl>(EDT_INVNAME)->setEnabled(FALSE);
-    getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(enabled);
+    getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(enabled && !is_legacy);
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(enabled);
-    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled && (rdo_selection != 0));
-    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled && (rdo_selection != 0));
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && (mCurrentParcelId == INVALID_PARCEL_ID));
+    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled && (rdo_selection != 0) && !is_legacy);
+    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled && (rdo_selection != 0) && !is_legacy);
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && (mCurrentParcelId == INVALID_PARCEL_ID) && !is_legacy);
     getChild<LLUICtrl>(BTN_APPLY)->setEnabled(enabled && (mDirtyFlag != 0));
     getChild<LLUICtrl>(BTN_CANCEL)->setEnabled(enabled && (mDirtyFlag != 0));
+
+    getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(!is_unavailable);
+    getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(!is_unavailable);
+    getChild<LLUICtrl>(PNL_DISABLED)->setVisible(is_unavailable);
+
 }
 
 void LLPanelEnvironmentInfo::setApplyProgress(bool started)

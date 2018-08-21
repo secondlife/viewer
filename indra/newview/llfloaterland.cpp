@@ -3279,7 +3279,7 @@ void LLPanelLandEnvironment::refresh()
         return;
     }
 
-    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mParcelId != parcel->getLocalID()))
+    if (LLEnvironment::instance().isExtendedEnvironmentEnabled() && ((!mCurrentEnvironment) || (mCurrentEnvironment->mParcelId != parcel->getLocalID())))
     {
         mCurrentParcelId = parcel->getLocalID();
         refreshFromSource();

@@ -1037,22 +1037,26 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
 {
     if (!isExtendedEnvironmentEnabled())
     {   /*TODO: When EEP is live on the entire grid, this can go away. */
-        if (!cb)
-        {
-            cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo) 
-            { 
-                if (envinfo->mDayCycle) recordEnvironment(pid, envinfo); 
-                else
-                {
-                    clearEnvironment(ENV_PARCEL);
-                    setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
-                    updateEnvironment();
-                }
-            };
-        }
-
         if (parcel_id == INVALID_PARCEL_ID)
+        {
+            if (!cb)
+            {
+                cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo)
+                {
+                    if (envinfo->mDayCycle) recordEnvironment(pid, envinfo);
+                    else
+                    {
+                        clearEnvironment(ENV_PARCEL);
+                        setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+                        updateEnvironment();
+                    }
+                };
+            }
+
             LLEnvironmentRequest::initiate(cb);
+        }
+        else if (cb)
+            cb(parcel_id, EnvironmentInfo::ptr_t());
         return;
     }
 

@@ -18,9 +18,26 @@
             height="450"
             follows="left|right|top|bottom"
             orientation="vertical">
+        <layout_panel
+                auto_resize="true"
+                user_resize="false"
+                name="pnl_environment_disabled"
+                visible="false">
+            <text follows="top|left|bottom|right"
+                            font="SansSerif"
+                            halign="center"
+                            valign="top"
+                            top_pad="20"
+                            text_color="white">
+Parcel environmental settings are 
+disabled on legacy regions.
+            </text>
+        </layout_panel>
         <layout_panel 
                 auto_resize="true"
-                user_resize="false">
+                user_resize="false"
+                name="pnl_environment_config"
+                visible="true">
             <layout_stack 
                     left="5"
                     top="5"
@@ -165,7 +182,7 @@
                             left_delta="0"
                             top_pad="20"
                             width="200">
-                        Apparent Time of Day Would Be:
+                        Apparent Time of Day:
                     </text>
                     <text
                             name="lbl_apparent_time"
@@ -187,7 +204,8 @@
                 auto_resize="true"
                 user_resize="false"
                 height="21"
-                min_height="0">
+                min_height="0"
+                name="pnl_environment_buttons">
             <check_box
                     height="20"
                     label="Parcel Owners May Override Environment"
