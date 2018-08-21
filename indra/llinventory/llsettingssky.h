@@ -120,6 +120,10 @@ public:
     LLSD getAbsorptionConfigs() const;
     LLUUID getBloomTextureId() const;
 
+    void setRayleighConfigs(const LLSD& rayleighConfig);
+    void setMieConfigs(const LLSD& mieConfig);
+    void setAbsorptionConfigs(const LLSD& absorptionConfig);
+
     //---------------------------------------------------------------------
     LLColor3 getAmbientColor() const;
     void setAmbientColor(const LLColor3 &val);
