@@ -126,9 +126,14 @@ namespace
             sBugSplatSender->sendAdditionalFile(
                 WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
 
+            sBugSplatSender->sendAdditionalFile(
+                WCSTR(*LLAppViewer::instance()->getStaticDebugFile()));
+
             // We don't have an email address for any user. Hijack this
             // metadata field for the platform identifier.
-            sBugSplatSender->setDefaultUserEmail(WCSTR(STRINGIZE("Windows" << ADDRESS_SIZE)));
+            sBugSplatSender->setDefaultUserEmail(
+                WCSTR(STRINGIZE(LLOSInfo::instance().getOSStringSimple() << " ("
+                                << ADDRESS_SIZE << "-bit)")));
 
             if (gAgentAvatarp)
             {
