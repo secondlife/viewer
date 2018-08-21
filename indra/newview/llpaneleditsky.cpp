@@ -65,8 +65,10 @@ namespace
     const std::string   FIELD_SKY_STAR_BRIGHTNESS("star_brightness");
     const std::string   FIELD_SKY_SUN_ROTATION("sun_rotation");
     const std::string   FIELD_SKY_SUN_IMAGE("sun_image");
+    const std::string   FIELD_SKY_SUN_SCALE("sun_scale");
     const std::string   FIELD_SKY_MOON_ROTATION("moon_rotation");
     const std::string   FIELD_SKY_MOON_IMAGE("moon_image");
+    const std::string   FIELD_SKY_MOON_SCALE("moon_scale");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
@@ -334,6 +336,7 @@ BOOL LLPanelSettingsSkySunMoonTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onStarBrightnessChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_SUN_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunRotationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_SUN_IMAGE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunImageChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunScaleChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setBlankImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setDefaultImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setAllowNoTexture(TRUE);
@@ -344,7 +347,7 @@ BOOL LLPanelSettingsSkySunMoonTab::postBuild()
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setBlankImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowNoTexture(TRUE);
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowLocalTexture(FALSE);
-
+    getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonScaleChanged(); });
 
     refresh();
 
@@ -381,8 +384,10 @@ void LLPanelSettingsSkySunMoonTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setValue(mSkySettings->getStarBrightness());
     getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->setRotation(mSkySettings->getSunRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setValue(mSkySettings->getSunTextureId());
+    getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setValue(mSkySettings->getSunScale());
     getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(mSkySettings->getMoonRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setValue(mSkySettings->getMoonTextureId());
+    getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setValue(mSkySettings->getMoonScale());
 }
 
 //-------------------------------------------------------------------------
@@ -418,6 +423,12 @@ void LLPanelSettingsSkySunMoonTab::onSunRotationChanged()
     mSkySettings->update();
 }
 
+void LLPanelSettingsSkySunMoonTab::onSunScaleChanged()
+{
+    mSkySettings->setSunScale((getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->getValue().asReal()));
+    mSkySettings->update();
+}
+
 void LLPanelSettingsSkySunMoonTab::onSunImageChanged()
 {
     mSkySettings->setSunTextureId(getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->getValue().asUUID());
@@ -433,5 +444,11 @@ void LLPanelSettingsSkySunMoonTab::onMoonRotationChanged()
 void LLPanelSettingsSkySunMoonTab::onMoonImageChanged()
 {
     mSkySettings->setMoonTextureId(getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->getValue().asUUID());
+    mSkySettings->update();
+}
+
+void LLPanelSettingsSkySunMoonTab::onMoonScaleChanged()
+{
+    mSkySettings->setMoonScale((getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->getValue().asReal()));
     mSkySettings->update();
 }

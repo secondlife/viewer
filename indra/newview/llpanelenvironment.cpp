@@ -243,8 +243,8 @@ void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 
     getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(enabled);
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(enabled && !is_legacy);
-    getChild<LLUICtrl>(RDO_USEINV)->setEnabled(enabled && !is_legacy);
-    getChild<LLUICtrl>(RDO_USECUSTOM)->setEnabled(enabled);
+    getChild<LLUICtrl>(RDO_USEINV)->setEnabled(false);      // these two are selected automatically based on 
+    getChild<LLUICtrl>(RDO_USECUSTOM)->setEnabled(false);
     getChild<LLUICtrl>(EDT_INVNAME)->setEnabled(FALSE);
     getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(enabled && !is_legacy);
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(enabled);

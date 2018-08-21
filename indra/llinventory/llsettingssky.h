@@ -62,10 +62,12 @@ public:
     static const std::string SETTING_LIGHT_NORMAL;
     static const std::string SETTING_MAX_Y;
     static const std::string SETTING_MOON_ROTATION;
+    static const std::string SETTING_MOON_SCALE;
     static const std::string SETTING_MOON_TEXTUREID;
     static const std::string SETTING_STAR_BRIGHTNESS;
     static const std::string SETTING_SUNLIGHT_COLOR;
     static const std::string SETTING_SUN_ROTATION;
+    static const std::string SETTING_SUN_SCALE;
     static const std::string SETTING_SUN_TEXTUREID;
 
     static const std::string SETTING_PLANET_RADIUS;
@@ -165,6 +167,9 @@ public:
     LLQuaternion getMoonRotation() const;
     void setMoonRotation(const LLQuaternion &val);
 
+    F32 getMoonScale() const;
+    void setMoonScale(F32 val);
+
     LLUUID getMoonTextureId() const;
     void setMoonTextureId(LLUUID id);
 
@@ -176,6 +181,9 @@ public:
 
     LLQuaternion getSunRotation() const;
     void setSunRotation(const LLQuaternion &val) ;
+
+    F32 getSunScale() const;
+    void setSunScale(F32 val);
 
     LLUUID getSunTextureId() const;
     void setSunTextureId(LLUUID id);

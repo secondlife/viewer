@@ -306,7 +306,7 @@ bool LLSettingsBase::validate()
 
 LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &validations)
 {
-    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString);
+    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString, boost::bind(&Validator::verifyStringLength, _1, 32));
     static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
     static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
     static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
@@ -561,6 +561,18 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
         return true;
 
     value = LLSD::Integer(clampedval);
+    return true;
+}
+
+bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, S32 length)
+{
+    std::string sval = value.asString();
+
+    if (!sval.empty())
+    {
+        sval = sval.substr(0, length);
+        value = LLSD::String(sval);
+    }
     return true;
 }
 

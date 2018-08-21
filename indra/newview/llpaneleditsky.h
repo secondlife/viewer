@@ -120,8 +120,10 @@ private:
     void                    onGlowChanged();
     void                    onStarBrightnessChanged();
     void                    onSunRotationChanged();
+    void                    onSunScaleChanged();
     void                    onSunImageChanged();
     void                    onMoonRotationChanged();
+    void                    onMoonScaleChanged();
     void                    onMoonImageChanged();
 };
 #endif // LLPANEL_EDIT_SKY_H
