@@ -249,9 +249,10 @@ void LLThread::shutdown()
             // This thread just wouldn't stop, even though we gave it time
             //LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
             // Put a stake in its heart.
-            delete mRecorder;
-
             apr_thread_exit(mAPRThreadp, -1);
+            delete mRecorder;
+            mRecorder = NULL;
+            mStatus = STOPPED;
             return;
         }
         mAPRThreadp = NULL;
