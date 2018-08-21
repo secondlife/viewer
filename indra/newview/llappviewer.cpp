@@ -781,12 +781,18 @@ bool LLAppViewer::init()
 	initMaxHeapSize() ;
 	LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
 
+#if LL_BUGSPLAT
+	// MAINT-8917: don't create a dump directory just for the
+	// static_debug_info.log file
+	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+#else // ! LL_BUGSPLAT
 	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+#endif // ! LL_BUGSPLAT
 	mDumpPath = logdir;
 	setMiniDumpDir(logdir);
 	logdir += gDirUtilp->getDirDelimiter();
-    setDebugFileNames(logdir);
+	setDebugFileNames(logdir);
 
 
 	// Although initLoggingAndGetLastDuration() is the right place to mess with
@@ -2171,6 +2177,12 @@ void errorCallback(const std::string &error_string)
 
 	//Set the ErrorActivated global so we know to create a marker file
 	gLLErrorActivated = true;
+
+	gDebugInfo["FatalMessage"] = error_string;
+	// We're not already crashing -- we simply *intend* to crash. Since we
+	// haven't actually trashed anything yet, we can afford to write the whole
+	// static info file.
+	LLAppViewer::instance()->writeDebugInfo();
 
 	LLError::crashAndLoop(error_string);
 }
