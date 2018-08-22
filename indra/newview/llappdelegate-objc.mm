@@ -198,10 +198,11 @@
 
 - (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
 {
-    infos("Reached applicationLogForBugsplatStartupManager");
+    std::string fatalMessage(CrashMetadata_instance().fatalMessage);
+    infos("applicationLogForBugsplatStartupManager -> '" + fatalMessage + "'");
     // This strangely-named override method contributes the User Description
     // metadata field.
-    return [NSString stringWithCString:CrashMetadata_instance().fatalMessage.c_str()
+    return [NSString stringWithCString:fatalMessage.c_str()
                               encoding:NSUTF8StringEncoding];
 }
 
@@ -214,25 +215,31 @@
     // written (and rewritten) to the static_debug_info.log file that we read
     // at the start of the next viewer run. It seems ridiculously expensive to
     // rewrite that file on every frame in which the avatar moves.
-    return [NSString stringWithCString:CrashMetadata_instance().regionName.c_str()
+    std::string regionName(CrashMetadata_instance().regionName);
+    infos("applicationKeyForBugsplatStartupManager -> '" + regionName + "'");
+    return [NSString stringWithCString:regionName.c_str()
                               encoding:NSUTF8StringEncoding];
 }
 
 - (NSString *)defaultUserNameForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    return [NSString stringWithCString:CrashMetadata_instance().agentFullname.c_str()
+    std::string agentFullname(CrashMetadata_instance().agentFullname);
+    infos("defaultUserNameForBugsplatStartupManager -> '" + agentFullname + "'");
+    return [NSString stringWithCString:agentFullname.c_str()
                               encoding:NSUTF8StringEncoding];
 }
 
 - (NSString *)defaultUserEmailForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
     // Use the email field for OS version, just as we do on Windows, until
     // BugSplat provides more metadata fields.
-    return [NSString stringWithCString:CrashMetadata_instance().OSInfo.c_str()
+    std::string OSInfo(CrashMetadata_instance().OSInfo);
+    infos("defaultUserEmailForBugsplatStartupManager -> '" + OSInfo + "'");
+    return [NSString stringWithCString:OSInfo.c_str()
                               encoding:NSUTF8StringEncoding];
 }
 
 - (void)bugsplatStartupManagerWillSendCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
 {
-    infos("Reached bugsplatStartupManagerWillSendCrashReport");
+    infos("bugsplatStartupManagerWillSendCrashReport");
 }
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
@@ -252,7 +259,7 @@
         [[BugsplatAttachment alloc] initWithFilename:@"SecondLife.log"
                                       attachmentData:data
                                          contentType:@"text/plain"];
-    infos("attachmentForBugsplatStartupManager: attaching " + logfile);
+    infos("attachmentForBugsplatStartupManager attaching " + logfile);
     return attachment;
 }
 
