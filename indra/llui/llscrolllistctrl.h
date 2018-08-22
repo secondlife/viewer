@@ -90,6 +90,7 @@ public:
 
 	
 	typedef boost::signals2::signal<S32 (S32,const LLScrollListItem*,const LLScrollListItem*),maximum<S32> > sort_signal_t;
+	typedef boost::signals2::signal<bool(const LLUUID& user_id)> is_friend_signal_t;
 	
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
@@ -393,6 +394,8 @@ public:
 		return mSortCallback->connect(cb);
 	}
 
+	boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
+
 
 protected:
 	// "Full" interface: use this when you're creating a list that has one or more of the following:
@@ -515,6 +518,8 @@ private:
 	std::vector<sort_column_t>	mSortColumns;
 
 	sort_signal_t*	mSortCallback;
+
+	is_friend_signal_t*	mIsFriendSignal;
 }; // end class LLScrollListCtrl
 
 #endif  // LL_SCROLLLISTCTRL_H
