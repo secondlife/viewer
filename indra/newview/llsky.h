@@ -61,6 +61,9 @@ public:
     void setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next);
     void setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next);
 
+    void setSunScale(F32 sun_scale);
+    void setMoonScale(F32 moon_scale);
+
 	LLColor4 getSkyFogColor() const;
 
 	void setCloudDensityAtAgent(F32 cloud_density);

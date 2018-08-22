@@ -236,7 +236,7 @@ public:
     void setSunDirectionCFR(const LLVector3 &sun_direction);
     void setMoonDirectionCFR(const LLVector3 &moon_direction);
 
-	bool updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
+	bool updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const S32 side, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right);
 	void updateReflectionGeometry(LLDrawable *drawable, F32 H, const LLHeavenBody& HB);
 	
 	F32 getWorldScale() const							{ return mWorldScale; }
@@ -278,6 +278,9 @@ public:
     void setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next);
     void setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next);
 
+    void setSunScale(F32 sun_scale);
+    void setMoonScale(F32 sun_scale);
+
 	void forceSkyUpdate(void)							{ mForceUpdate = TRUE; }
 
 public:
@@ -296,6 +299,9 @@ protected:
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
     LLPointer<LLViewerFetchedTexture> mCloudNoiseTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mBloomTexturep[2];
+
+    F32 mSunScale  = 1.0f;
+    F32 mMoonScale = 1.0f;
 
 	static S32			sResolution;
 	static S32			sTileResX;
