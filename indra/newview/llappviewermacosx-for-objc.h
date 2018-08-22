@@ -29,9 +29,24 @@ void handleUrl(const char* url_utf8);
 bool pumpMainLoop();
 void handleQuit();
 void cleanupViewer();
-std::string getOldLogFilePathname();
-std::string getFatalMessage();
-std::string getAgentFullname();
 void infos(const std::string& message);
+
+// This struct is malleable; it only serves as a way to convey a number of
+// fields from llappviewermacosx.cpp's CrashMetadata_instance() function to the
+// consuming functions in llappdelegate-objc.mm. As long as both those sources
+// are compiled with this same header, the content and order of CrashMetadata
+// can change as needed.
+struct CrashMetadata
+{
+    std::string logFilePathname;
+    std::string userSettingsPathname;
+    std::string staticDebugPathname;
+    std::string OSInfo;
+    std::string agentFullname;
+    std::string regionName;
+    std::string fatalMessage;
+};
+
+CrashMetadata& CrashMetadata_instance();
 
 #endif /* ! defined(LL_LLAPPVIEWERMACOSX_FOR_OBJC_H) */

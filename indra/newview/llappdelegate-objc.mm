@@ -199,10 +199,34 @@
 - (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
 {
     infos("Reached applicationLogForBugsplatStartupManager");
-    // Apparently this override method only contributes the User Description
-    // field of BugSplat's All Crashes table. Despite the method name, it
-    // would seem to be a bad place to try to stuff all of SecondLife.log.
-    return [NSString stringWithCString:getFatalMessage().c_str()
+    // This strangely-named override method contributes the User Description
+    // metadata field.
+    return [NSString stringWithCString:CrashMetadata_instance().fatalMessage.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)applicationKeyForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager signal:(NSString *)signal exceptionName:(NSString *)exceptionName exceptionReason:(NSString *)exceptionReason {
+    // TODO: exceptionName, exceptionReason
+
+    // Windows sends location within region as well, but that's because
+    // BugSplat for Windows intercepts crashes during the same run, and that
+    // information can be queried once. On the Mac, any metadata we have is
+    // written (and rewritten) to the static_debug_info.log file that we read
+    // at the start of the next viewer run. It seems ridiculously expensive to
+    // rewrite that file on every frame in which the avatar moves.
+    return [NSString stringWithCString:CrashMetadata_instance().regionName.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)defaultUserNameForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
+    return [NSString stringWithCString:CrashMetadata_instance().agentFullname.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)defaultUserEmailForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
+    // Use the email field for OS version, just as we do on Windows, until
+    // BugSplat provides more metadata fields.
+    return [NSString stringWithCString:CrashMetadata_instance().OSInfo.c_str()
                               encoding:NSUTF8StringEncoding];
 }
 
@@ -212,11 +236,12 @@
 }
 
 - (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    // We get the *old* log file pathname (for SecondLife.old) because it's on
-    // the run *following* the crash that BugsplatStartupManager notices that
-    // the previous run crashed and calls this override. By that time, we've
-    // already renamed SecondLife.log to SecondLife.old.
-    std::string logfile = getOldLogFilePathname();
+    std::string logfile = CrashMetadata_instance().logFilePathname;
+    // Still to do:
+    // userSettingsPathname
+    // staticDebugPathname
+    // but the BugsplatMac version 1.0.5 BugsplatStartupManagerDelegate API
+    // doesn't yet provide a way to attach more than one file.
     NSString *ns_logfile = [NSString stringWithCString:logfile.c_str()
                                               encoding:NSUTF8StringEncoding];
     NSData *data = [NSData dataWithContentsOfFile:ns_logfile];

@@ -39,6 +39,7 @@
 #include "llappviewermacosx-for-objc.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
+#include "llsdserialize.h"
 
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
@@ -53,6 +54,7 @@
 #endif
 #include <vector>
 #include <exception>
+#include <fstream>
 
 #include "lldir.h"
 #include <signal.h>
@@ -150,19 +152,48 @@ void cleanupViewer()
 	gViewerAppPtr = NULL;
 }
 
-std::string getOldLogFilePathname()
+// The BugsplatMac API is structured as a number of different method
+// overrides, each returning a different piece of metadata. But since we
+// obtain such metadata by opening and parsing a file, it seems ridiculous to
+// reopen and reparse it for every individual string desired. What we want is
+// to open and parse the file once, retaining the data for subsequent
+// requests. That's why this is an LLSingleton.
+// Another approach would be to provide a function that simply returns
+// CrashMetadata, storing the struct in LLAppDelegate, but nat doesn't know
+// enough Objective-C++ to code that. We'd still have to detect which of the
+// method overrides is called first so that the results are order-insensitive.
+class CrashMetadataSingleton: public CrashMetadata, public LLSingleton<CrashMetadataSingleton>
 {
-    return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.old");
+    LLSINGLETON(CrashMetadataSingleton);
+};
+
+// Populate the fields of our public base-class struct.
+CrashMetadataSingleton::CrashMetadataSingleton()
+{
+    // Note: we depend on being able to read the static_debug_info.log file
+    // from the *previous* run before we overwrite it with the new one for
+    // *this* run. LLAppViewer initialization must happen in the Right Order.
+    staticDebugPathname = *gViewerAppPtr->getStaticDebugFile();
+    std::ifstream static_file(staticDebugPathname);
+    LLSD info;
+    if (static_file.is_open() &&
+        LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
+    {
+        logFilePathname      = info["SLLog"].asString();
+        userSettingsPathname = info["SettingsFilename"].asString();
+        OSInfo               = info["OSInfo"].asString();
+        agentFullname        = info["LoginName"].asString();
+        // Translate underscores back to spaces
+        LLStringUtil::replaceChar(agentFullname, '_', ' ');
+        regionName           = info["CurrentRegion"].asString();
+        fatalMessage         = info["FatalMessage"].asString();
+    }
 }
 
-std::string getFatalMessage()
+// Avoid having to compile all of our LLSingleton machinery in Objective-C++.
+CrashMetadata& CrashMetadata_instance()
 {
-    return LLError::getFatalMessage();
-}
-
-std::string getAgentFullname()
-{
-    return gAgentAvatarp? gAgentAvatarp->getFullname() : std::string();
+    return CrashMetadataSingleton::instance();
 }
 
 void infos(const std::string& message)
