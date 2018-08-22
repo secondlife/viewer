@@ -129,6 +129,22 @@ void LLSky::resetVertexBuffers()
 	}
 }
 
+void LLSky::setSunScale(F32 sun_scale)
+{
+    if(mVOSkyp.notNull())
+    {
+        mVOSkyp->setSunScale(sun_scale);
+	}
+}
+
+void LLSky::setMoonScale(F32 moon_scale)
+{
+    if(mVOSkyp.notNull())
+    {
+        mVOSkyp->setMoonScale(moon_scale);
+	}
+}
+
 void LLSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
 {
     if(mVOSkyp.notNull()) {
