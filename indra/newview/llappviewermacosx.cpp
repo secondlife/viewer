@@ -165,6 +165,14 @@ void cleanupViewer()
 class CrashMetadataSingleton: public CrashMetadata, public LLSingleton<CrashMetadataSingleton>
 {
     LLSINGLETON(CrashMetadataSingleton);
+
+    // convenience method to log each metadata field retrieved by constructor
+    std::string get_metadata(const LLSD& info, const LLSD::String& key) const
+    {
+        std::string data(info[key].asString());
+        LL_INFOS() << "  " << key << "='" << data << "'" << LL_ENDL;
+        return data;
+    }
 };
 
 // Populate the fields of our public base-class struct.
@@ -176,17 +184,26 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     staticDebugPathname = *gViewerAppPtr->getStaticDebugFile();
     std::ifstream static_file(staticDebugPathname);
     LLSD info;
-    if (static_file.is_open() &&
-        LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
+    if (! static_file.is_open())
     {
-        logFilePathname      = info["SLLog"].asString();
-        userSettingsPathname = info["SettingsFilename"].asString();
-        OSInfo               = info["OSInfo"].asString();
-        agentFullname        = info["LoginName"].asString();
+        LL_INFOS() << "Can't open '" << staticDebugPathname
+                   << "'; no metadata about previous run" << LL_ENDL;
+    }
+    else if (! LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
+    {
+        LL_INFOS() << "Can't parse '" << staticDebugPathname
+                   << "'; no metadata about previous run" << LL_ENDL;
+    }
+    {
+        LL_INFOS() << "Metadata from '" << staticDebugPathname << "':" << LL_ENDL;
+        logFilePathname      = get_metadata(info, "SLLog");
+        userSettingsPathname = get_metadata(info, "SettingsFilename");
+        OSInfo               = get_metadata(info, "OSInfo");
+        agentFullname        = get_metadata(info, "LoginName");
         // Translate underscores back to spaces
         LLStringUtil::replaceChar(agentFullname, '_', ' ');
-        regionName           = info["CurrentRegion"].asString();
-        fatalMessage         = info["FatalMessage"].asString();
+        regionName           = get_metadata(info, "CurrentRegion");
+        fatalMessage         = get_metadata(info, "FatalMessage");
     }
 }
 

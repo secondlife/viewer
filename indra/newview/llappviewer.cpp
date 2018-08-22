@@ -3051,14 +3051,11 @@ void LLAppViewer::writeDebugInfo(bool isStatic)
         ? getStaticDebugFile()
         : getDynamicDebugFile() );
 
-	LL_INFOS() << "Opening debug file " << *debug_filename << LL_ENDL;
-	llofstream out_file(debug_filename->c_str());
+    LL_INFOS() << "Writing debug file " << *debug_filename << LL_ENDL;
+    llofstream out_file(debug_filename->c_str());
 
     isStatic ?  LLSDSerialize::toPrettyXML(gDebugInfo, out_file)
              :  LLSDSerialize::toPrettyXML(gDebugInfo["Dynamic"], out_file);
-
-
-	out_file.close();
 }
 
 LLSD LLAppViewer::getViewerInfo() const
