@@ -3032,9 +3032,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1b0134bc55f55a7c1a04ee78d70c64d</string>
+              <string>a605ec940768c878527d3b8f2ff61288</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12438/73598/slvoice-4.9.0002.27586.511884-darwin64-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21421/157284/slvoice-4.9.0002.30313.517593-darwin64-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3068,9 +3068,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec50c31efce74bdedee470b5388aeeec</string>
+              <string>5a78539626b5f23522d0b466247f48b4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12434/73576/slvoice-4.9.0002.27586.511884-windows-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21422/157291/slvoice-4.9.0002.30313.517593-windows-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3080,16 +3080,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4bf45d641bf5b2bd6b2cc39edcb01a6e</string>
+              <string>1f8e09c053c00d9dc44ea74568e63dc1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12433/73570/slvoice-4.9.0002.27586.511884-windows64-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21423/157298/slvoice-4.9.0002.30313.517593-windows64-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.27586.511884</string>
+        <string>4.9.0002.30313.517593</string>
       </map>
       <key>tut</key>
       <map>
@@ -3664,10 +3664,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration</string>
@@ -3724,10 +3720,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration</string>
