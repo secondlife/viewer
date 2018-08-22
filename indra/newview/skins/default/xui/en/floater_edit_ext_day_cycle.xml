@@ -3,13 +3,14 @@
         layout="topleft"
         name="env_edit_extdaycycle"
         help_topic="day_presets"
-        save_rect="true"
+        save_rect="false"
         title="Edit Day Cycle"
         width="705"
         height="650"
         min_width="705"
         min_height="650"
-        can_resize="true">
+        single_instance="true" 
+        can_resize="false">
 
     <!-- obsolete?, add as hint for 'save' button? -->
     <string name="title_new">Create a New Day Cycle</string>

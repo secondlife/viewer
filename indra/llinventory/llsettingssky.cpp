@@ -892,7 +892,7 @@ LLColor3 LLSettingsSky::getBlueDensity() const
 
 LLColor3 LLSettingsSky::getBlueHorizon() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_BLUE_DENSITY))
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_BLUE_HORIZON))
     {
         return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_HORIZON]);
     }
