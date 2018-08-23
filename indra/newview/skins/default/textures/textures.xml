@@ -695,6 +695,10 @@ with the same filename but different name
   <texture name="VirtualTrackball_Rotate_Left" file_name="widgets/track_control_rotate_left_side.png" />
   <texture name="VirtualTrackball_Rotate_Right" file_name="widgets/track_control_rotate_right_side.png" />
   <texture name="VirtualTrackball_Rotate_Top" file_name="widgets/track_control_rotate_top.png" />
+  <texture name="VirtualTrackball_Rotate_Bottom_Active" file_name="widgets/track_control_rotate_bottom_active.png" />
+  <texture name="VirtualTrackball_Rotate_Left_Active" file_name="widgets/track_control_rotate_left_side_active.png" />
+  <texture name="VirtualTrackball_Rotate_Right_Active" file_name="widgets/track_control_rotate_right_side_active.png" />
+  <texture name="VirtualTrackball_Rotate_Top_Active" file_name="widgets/track_control_rotate_top_active.png" />
   <texture name="VirtualTrackball_Sphere" file_name="widgets/track_control_sphere.png" />
   <texture name="VirtualTrackball_Sun_Back" file_name="widgets/track_control_sun_back.png" />
   <texture name="VirtualTrackball_Sun_Front" file_name="widgets/track_control_sun_front.png" />
