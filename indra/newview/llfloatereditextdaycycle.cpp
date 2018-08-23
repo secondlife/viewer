@@ -616,11 +616,6 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
             }
         }
     }
-
-    mTimeSlider->setCurSliderValue(sliderpos);
-
-    updateTabs();
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderDoubleClick(S32 x, S32 y, MASK mask)
@@ -647,6 +642,11 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
             mFramesSlider->resetCurSlider();
         }
     }
+
+    mTimeSlider->setCurSliderValue(sliderpos);
+
+    updateTabs();
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)

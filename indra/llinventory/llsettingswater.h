@@ -64,6 +64,8 @@ public:
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
+    virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
+
     static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
 
     //---------------------------------------------------------------------

@@ -401,7 +401,10 @@ LLSettingsSky::LLSettingsSky():
 void LLSettingsSky::replaceSettings(LLSD settings)
 {
     LLSettingsBase::replaceSettings(settings);
-
+    mNextSunTextureId.setNull();
+    mNextMoonTextureId.setNull();
+    mNextCloudTextureId.setNull();
+    mNextBloomTextureId.setNull();
 }
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
