@@ -53,6 +53,7 @@ class LLRecentPeople: public LLSingleton<LLRecentPeople>, public LLOldEvents::LL
 	LLSINGLETON_EMPTY_CTOR(LLRecentPeople);
 	LOG_CLASS(LLRecentPeople);
 public:
+	typedef std::map <LLUUID, F32> id_to_time_map_t;
 	typedef boost::signals2::signal<void ()> signal_t;
 	
 	/**
@@ -116,6 +117,9 @@ public:
 	 */
 	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
+	void updateAvatarsArrivalTime(uuid_vec_t& uuids);
+	F32 getArrivalTimeByID(const LLUUID& id);
+
 private:
 
 	const LLUUID& getIDByPhoneNumber(const LLSD& userdata);
@@ -123,6 +127,7 @@ private:
 	typedef std::map<LLUUID, LLSD> recent_people_t;
 	recent_people_t		mPeople;
 	signal_t			mChangedSignal;
+	id_to_time_map_t	mAvatarsArrivalTime;
 };
 
 #endif // LL_LLRECENTPEOPLE_H

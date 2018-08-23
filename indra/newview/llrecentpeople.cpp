@@ -126,3 +126,33 @@ bool LLRecentPeople::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	add(event->getValue().asUUID());
 	return true;
 }
+
+void LLRecentPeople::updateAvatarsArrivalTime(uuid_vec_t& uuids)
+{
+	id_to_time_map_t buf = mAvatarsArrivalTime;
+	mAvatarsArrivalTime.clear();
+
+	for (uuid_vec_t::const_iterator id_it = uuids.begin(); id_it != uuids.end(); ++id_it)
+	{
+		if (buf.find(*id_it) != buf.end())
+		{
+			mAvatarsArrivalTime[*id_it] = buf[*id_it];
+		}
+		else
+		{
+			mAvatarsArrivalTime[*id_it] = LLDate::now().secondsSinceEpoch();
+		}
+	}
+}
+
+F32 LLRecentPeople::getArrivalTimeByID(const LLUUID& id)
+{
+	id_to_time_map_t::const_iterator it = mAvatarsArrivalTime.find(id);
+
+	if (it != mAvatarsArrivalTime.end())
+	{
+		return it->second;
+	}
+	return LLDate::now().secondsSinceEpoch();
+}
+
