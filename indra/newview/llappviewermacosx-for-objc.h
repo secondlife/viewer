@@ -24,6 +24,7 @@
 
 #include <string>
 
+void constructViewer();
 bool initViewer();
 void handleUrl(const char* url_utf8);
 bool pumpMainLoop();

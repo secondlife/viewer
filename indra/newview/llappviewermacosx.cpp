@@ -86,7 +86,7 @@ static void exceptionTerminateHandler()
 	gOldTerminateHandler(); // call old terminate() handler
 }
 
-bool initViewer()
+void constructViewer()
 {
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
@@ -102,18 +102,20 @@ bool initViewer()
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
+}
 
-	
+bool initViewer()
+{
 	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
 		LL_WARNS() << "Application init failed." << LL_ENDL;
 	}
-    else if (!gHandleSLURL.empty())
-    {
-        dispatchUrl(gHandleSLURL);
-        gHandleSLURL = "";
-    }
+	else if (!gHandleSLURL.empty())
+	{
+		dispatchUrl(gHandleSLURL);
+		gHandleSLURL = "";
+	}
 	return ok;
 }
 
@@ -194,6 +196,7 @@ CrashMetadataSingleton::CrashMetadataSingleton()
         LL_INFOS() << "Can't parse '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
+    else
     {
         LL_INFOS() << "Metadata from '" << staticDebugPathname << "':" << LL_ENDL;
         logFilePathname      = get_metadata(info, "SLLog");

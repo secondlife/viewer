@@ -54,6 +54,25 @@
 
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
 {
+	// Call constructViewer() first so our logging subsystem is in place. This
+	// risks missing crashes in the LLAppViewerMacOSX constructor, but for
+	// present purposes it's more important to get the startup sequence
+	// properly logged.
+	// Someday I would like to modify the logging system so that calls before
+	// it's initialized are cached in a std::ostringstream and then, once it's
+	// initialized, "played back" into whatever handlers have been set up.
+	constructViewer();
+
+#if defined(LL_BUGSPLAT)
+	// Engage BugsplatStartupManager *before* calling initViewer() to handle
+	// any crashes during initialization.
+	// https://www.bugsplat.com/docs/platforms/os-x#initialization
+	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
+	[BugsplatStartupManager sharedManager].askUserDetails = NO;
+	[BugsplatStartupManager sharedManager].delegate = self;
+	[[BugsplatStartupManager sharedManager] start];
+#endif
+
 	frameTimer = nil;
 
 	[self languageUpdated];
@@ -71,14 +90,6 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
 
  //   [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
-
-#if defined(LL_BUGSPLAT)
-	// https://www.bugsplat.com/docs/platforms/os-x#initialization
-	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
-	[BugsplatStartupManager sharedManager].askUserDetails = NO;
-	[BugsplatStartupManager sharedManager].delegate = self;
-	[[BugsplatStartupManager sharedManager] start];
-#endif
 }
 
 - (void) handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
@@ -198,11 +209,29 @@
 
 - (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
 {
-    std::string fatalMessage(CrashMetadata_instance().fatalMessage);
-    infos("applicationLogForBugsplatStartupManager -> '" + fatalMessage + "'");
-    // This strangely-named override method contributes the User Description
-    // metadata field.
-    return [NSString stringWithCString:fatalMessage.c_str()
+    CrashMetadata& meta(CrashMetadata_instance());
+    // As of BugsplatMac 1.0.6, userName and userEmail properties are now
+    // exposed by the BugsplatStartupManager. Set them here, since the
+    // defaultUserNameForBugsplatStartupManager and
+    // defaultUserEmailForBugsplatStartupManager methods are called later, for
+    // the *current* run, rather than for the previous crashed run whose crash
+    // report we are about to send.
+    infos("applicationLogForBugsplatStartupManager setting userName = '" +
+          meta.agentFullname + '"');
+    bugsplatStartupManager.userName =
+        [NSString stringWithCString:meta.agentFullname.c_str()
+                           encoding:NSUTF8StringEncoding];
+    // Use the email field for OS version, just as we do on Windows, until
+    // BugSplat provides more metadata fields.
+    infos("applicationLogForBugsplatStartupManager setting userEmail = '" +
+          meta.OSInfo + '"');
+    bugsplatStartupManager.userEmail =
+        [NSString stringWithCString:meta.OSInfo.c_str()
+                           encoding:NSUTF8StringEncoding];
+    // This strangely-named override method's return value contributes the
+    // User Description metadata field.
+    infos("applicationLogForBugsplatStartupManager -> '" + meta.fatalMessage + "'");
+    return [NSString stringWithCString:meta.fatalMessage.c_str()
                               encoding:NSUTF8StringEncoding];
 }
 
