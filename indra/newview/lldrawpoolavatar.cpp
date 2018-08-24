@@ -1859,6 +1859,20 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
             bool is_alpha_blend = false;
             bool is_alpha_mask  = false;
 
+            LLViewerTexture* tex = face->getTexture(LLRender::DIFFUSE_MAP);
+            if (tex)
+            {
+                LLGLenum image_format = tex->getPrimaryFormat();
+                if (tex->getIsAlphaMask())
+                {
+                    is_alpha_mask = true;
+                }
+                else if (!is_alpha_mask && (image_format == GL_RGBA || image_format == GL_ALPHA))
+                {
+                    is_alpha_blend = true;
+                }
+            }
+
             if (mat)
             {                
                 switch (LLMaterial::eDiffuseAlphaMode(mat->getDiffuseAlphaMode()))
@@ -1879,6 +1893,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                     case LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT:
                     case LLMaterial::DIFFUSE_ALPHA_MODE_NONE:
                     default:
+                        is_alpha_blend = false;
                         break;
                 }
             }
@@ -1886,20 +1901,6 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
             if (tex_entry)
             {
                 if (tex_entry->getAlpha() <= 0.99f)
-                {
-                    is_alpha_blend = true;
-                }
-            }
-
-            LLViewerTexture* tex = face->getTexture(LLRender::DIFFUSE_MAP);
-            if (tex)
-            {
-                LLGLenum image_format = tex->getPrimaryFormat();
-                if (tex->getIsAlphaMask())
-                {
-                    is_alpha_mask = true;
-                }
-                else if (!is_alpha_mask && (image_format == GL_RGBA || image_format == GL_ALPHA))
                 {
                     is_alpha_blend = true;
                 }
