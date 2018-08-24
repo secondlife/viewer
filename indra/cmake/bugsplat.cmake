@@ -1,7 +1,6 @@
-# BugSplat is engaged by setting environment variable BUGSPLAT_DB to the
-# target BugSplat database name prior to running CMake (and during autobuild
-# build).
-if (DEFINED ENV{BUGSPLAT_DB})
+# BugSplat is engaged by setting BUGSPLAT_DB to the target BugSplat database
+# name.
+if (BUGSPLAT_DB)
   if (USESYSTEMLIBS)
     message(STATUS "Looking for system BugSplat")
     set(BUGSPLAT_FIND_QUIETLY ON)
@@ -23,4 +22,4 @@ if (DEFINED ENV{BUGSPLAT_DB})
     endif (WINDOWS)
     set(BUGSPLAT_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/bugsplat)
   endif (USESYSTEMLIBS)
-endif (DEFINED ENV{BUGSPLAT_DB})
+endif (BUGSPLAT_DB)

@@ -188,11 +188,10 @@ class ViewerManifest(LLManifest):
                             "Address Size":self.address_size,
                             "Update Service":"https://update.secondlife.com/update",
                             }
-            try:
-                build_data_dict["BugSplat DB"] = os.environ["BUGSPLAT_DB"]
-            except KeyError:
-                # skip the assignment if there's no BUGSPLAT_DB variable
-                pass
+            # Only store this if it's both present and non-empty
+            bugsplat_db = self.args.get('bugsplat')
+            if bugsplat_db:
+                build_data_dict["BugSplat DB"] = bugsplat_db
             build_data_dict = self.finish_build_data_dict(build_data_dict)
             with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
                 json.dump(build_data_dict,build_data_handle)
@@ -589,14 +588,15 @@ class WindowsManifest(ViewerManifest):
             self.path("libhunspell.dll")
 
             # BugSplat
-            if(self.address_size == 64):
-                self.path("BsSndRpt64.exe")
-                self.path("BugSplat64.dll")
-                self.path("BugSplatRc64.dll")
-            else:
-                self.path("BsSndRpt.exe")
-                self.path("BugSplat.dll")
-                self.path("BugSplatRc.dll")
+            if self.args.get('bugsplat'):
+                if(self.address_size == 64):
+                    self.path("BsSndRpt64.exe")
+                    self.path("BugSplat64.dll")
+                    self.path("BugSplatRc64.dll")
+                else:
+                    self.path("BsSndRpt.exe")
+                    self.path("BugSplat.dll")
+                    self.path("BugSplatRc.dll")
 
             # For google-perftools tcmalloc allocator.
             try:
@@ -1038,7 +1038,7 @@ open "%s" --args "$@"
                         if ("package" in self.args['actions'] or 
                             "unpacked" in self.args['actions']):
                             # only if we're engaging BugSplat
-                            if "BUGSPLAT_DB" in os.environ:
+                            if self.args.get('bugsplat'):
                                 # Create a symbol archive BEFORE stripping the
                                 # binary.
                                 self.run_command(['dsymutil', exepath])
@@ -1085,13 +1085,11 @@ open "%s" --args "$@"
                     # runs the executable, instead of launching the app)
                     Info["CFBundleExecutable"] = exename
                     Info["CFBundleIconFile"] = viewer_icon
-                    try:
+                    bugsplat_db = self.args.get('bugsplat')
+                    if bugsplat_db:
                         # https://www.bugsplat.com/docs/platforms/os-x#configuration
                         Info["BugsplatServerURL"] = \
-                            "https://{BUGSPLAT_DB}.bugsplatsoftware.com/".format(**os.environ)
-                    except KeyError:
-                        # skip the assignment if there's no BUGSPLAT_DB variable
-                        pass
+                            "https://{}.bugsplatsoftware.com/".format(bugsplat_db)
                     self.put_in_file(
                         plistlib.writePlistToString(Info),
                         os.path.basename(Info_plist),
@@ -1104,7 +1102,8 @@ open "%s" --args "$@"
                         # Remember where we parked this car.
                         CEF_framework = self.dst_path_of(CEF_framework)
 
-                        self.path2basename(relpkgdir, "BugsplatMac.framework")
+                        if self.args.get('bugsplat'):
+                            self.path2basename(relpkgdir, "BugsplatMac.framework")
 
                     with self.prefix(dst="Resources"):
                         # defer cross-platform file copies until we're in the right
@@ -1727,4 +1726,8 @@ class Linux_x86_64_Manifest(LinuxManifest):
 ################################################################
 
 if __name__ == "__main__":
-    main()
+    extra_arguments = [
+        dict(name='bugsplat', description="""BugSplat database to which to post crashes,
+             if BugSplat crash reporting is desired""", default=''),
+        ]
+    main(extra=extra_arguments)

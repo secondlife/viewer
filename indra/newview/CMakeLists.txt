@@ -8,9 +8,9 @@ include(00-Common)
 include(Linking)
 
 include(Boost)
-if (DEFINED ENV{BUGSPLAT_DB})
+if (BUGSPLAT_DB)
   include(bugsplat)
-endif (DEFINED ENV{BUGSPLAT_DB})
+endif (BUGSPLAT_DB)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -99,11 +99,11 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-if (DEFINED ENV{BUGSPLAT_DB})
+if (BUGSPLAT_DB)
   include_directories(
     ${BUGSPLAT_INCLUDE_DIR}
     )
-endif (DEFINED ENV{BUGSPLAT_DB})
+endif (BUGSPLAT_DB)
 
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -1390,11 +1390,11 @@ if (DARWIN)
     ${COREAUDIO_LIBRARY}
     )
 
-  if (DEFINED ENV{BUGSPLAT_DB})
+  if (BUGSPLAT_DB)
     list(APPEND viewer_LIBRARIES
       ${BUGSPLAT_LIBRARIES}
       )
-  endif (DEFINED ENV{BUGSPLAT_DB})
+  endif (BUGSPLAT_DB)
 
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
@@ -1729,10 +1729,10 @@ if (SDL_FOUND)
     )
 endif (SDL_FOUND)
 
-if (DEFINED ENV{BUGSPLAT_DB})
+if (BUGSPLAT_DB)
   set_property(TARGET ${VIEWER_BINARY_NAME}
     PROPERTY COMPILE_DEFINITIONS "LL_BUGSPLAT")
-endif (DEFINED ENV{BUGSPLAT_DB})
+endif (BUGSPLAT_DB)
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
@@ -1841,15 +1841,16 @@ if (WINDOWS)
         --actions=copy
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
+        "--bugsplat=${BUGSPLAT_DB}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
+        "--channel=${VIEWER_CHANNEL}"
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         --grid=${GRID}
-        "--channel=${VIEWER_CHANNEL}"
-        --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
+        --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
@@ -1892,15 +1893,16 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
+          "--bugsplat=${BUGSPLAT_DB}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           "--channel=${VIEWER_CHANNEL}"
-          --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
           --configuration=${CMAKE_CFG_INTDIR}
           --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
           --grid=${GRID}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
+          --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
         DEPENDS
             ${VIEWER_BINARY_NAME}
             ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -2007,11 +2009,11 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAPPEARANCE_LIBRARIES}
     )
 
-if (DEFINED ENV{BUGSPLAT_DB})
+if (BUGSPLAT_DB)
   target_link_libraries(${VIEWER_BINARY_NAME}
     ${BUGSPLAT_LIBRARIES}
     )
-endif (DEFINED ENV{BUGSPLAT_DB})
+endif (BUGSPLAT_DB)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
@@ -2036,15 +2038,16 @@ if (LINUX)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
+        "--bugsplat=${BUGSPLAT_DB}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         "--channel=${VIEWER_CHANNEL}"
-        --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
+        --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         ${COPY_INPUT_DEPENDENCIES}
@@ -2058,17 +2061,18 @@ if (LINUX)
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      --arch=${ARCH}
       --actions=copy
+      --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
+      "--bugsplat=${BUGSPLAT_DB}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
+      "--channel=${VIEWER_CHANNEL}"
       --configuration=${CMAKE_CFG_INTDIR}
       --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
       --grid=${GRID}
-      "--channel=${VIEWER_CHANNEL}"
-      --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
       --source=${CMAKE_CURRENT_SOURCE_DIR}
+      --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       ${COPY_INPUT_DEPENDENCIES}
@@ -2137,15 +2141,16 @@ if (DARWIN)
       --actions=copy
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
+      "--bugsplat=${BUGSPLAT_DB}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
+      --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
+      "--channel=${VIEWER_CHANNEL}"
       --configuration=${CMAKE_CFG_INTDIR}
       --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
       --grid=${GRID}
-      "--channel=${VIEWER_CHANNEL}"
-      --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-      --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
+      --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
     DEPENDS
       ${VIEWER_BINARY_NAME}
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -2170,15 +2175,16 @@ if (DARWIN)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
+          "--bugsplat=${BUGSPLAT_DB}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
+          "--channel=${VIEWER_CHANNEL}"
           --configuration=${CMAKE_CFG_INTDIR}
           --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
           --grid=${GRID}
-          "--channel=${VIEWER_CHANNEL}"
-          --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
+          --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
           ${SIGNING_SETTING}
         DEPENDS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -2190,7 +2196,7 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND NOT DEFINED ENV{BUGSPLAT_DB})
+if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND NOT BUGSPLAT_DB)
   set(SYMBOL_SEARCH_DIRS "")
   # Note that the path to VIEWER_SYMBOL_FILE must match that in ../../build.sh
   if (WINDOWS)

@@ -33,13 +33,14 @@ import filecmp
 import fnmatch
 import getopt
 import glob
+import itertools
+import operator
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tarfile
-import errno
-import subprocess
 
 class ManifestError(RuntimeError):
     """Use an exception more specific than generic Python RuntimeError"""
@@ -90,7 +91,7 @@ DEFAULT_SRCTREE = os.path.dirname(sys.argv[0])
 CHANNEL_VENDOR_BASE = 'Second Life'
 RELEASE_CHANNEL = CHANNEL_VENDOR_BASE + ' Release'
 
-ARGUMENTS=[
+BASE_ARGUMENTS=[
     dict(name='actions',
          description="""This argument specifies the actions that are to be taken when the
         script is run.  The meaningful actions are currently:
@@ -108,20 +109,25 @@ ARGUMENTS=[
         Example use: %(name)s --arch=i686
         On Linux this would try to use Linux_i686Manifest.""",
          default=""),
+    dict(name='artwork', description='Artwork directory.', default=DEFAULT_SRCTREE),
     dict(name='build', description='Build directory.', default=DEFAULT_SRCTREE),
     dict(name='buildtype', description='Build type (i.e. Debug, Release, RelWithDebInfo).', default=None),
+    dict(name='bundleid',
+         description="""The Mac OS X Bundle identifier.""",
+         default="com.secondlife.indra.viewer"),
+    dict(name='channel',
+         description="""The channel to use for updates, packaging, settings name, etc.""",
+         default='CHANNEL UNSET'),
+    dict(name='channel_suffix',
+         description="""Addition to the channel for packaging and channel value,
+         but not application name (used internally)""",
+         default=None),
     dict(name='configuration',
          description="""The build configuration used.""",
          default="Release"),
     dict(name='dest', description='Destination directory.', default=DEFAULT_SRCTREE),
     dict(name='grid',
          description="""Which grid the client will try to connect to.""",
-         default=None),
-    dict(name='channel',
-         description="""The channel to use for updates, packaging, settings name, etc.""",
-         default='CHANNEL UNSET'),
-    dict(name='channel_suffix',
-         description="""Addition to the channel for packaging and channel value, but not application name (used internally)""",
          default=None),
     dict(name='installer_name',
          description=""" The name of the file that the installer should be
@@ -134,10 +140,14 @@ ARGUMENTS=[
          description="""The current platform, to be used for looking up which
         manifest class to run.""",
          default=get_default_platform),
+    dict(name='signature',
+         description="""This specifies an identity to sign the viewer with, if any.
+        If no value is supplied, the default signature will be used, if any. Currently
+        only used on Mac OS X.""",
+         default=None),
     dict(name='source',
          description='Source directory.',
          default=DEFAULT_SRCTREE),
-    dict(name='artwork', description='Artwork directory.', default=DEFAULT_SRCTREE),
     dict(name='touch',
          description="""File to touch when action is finished. Touch file will
         contain the name of the final package in a form suitable
@@ -145,23 +155,15 @@ ARGUMENTS=[
          default=None),
     dict(name='versionfile',
          description="""The name of a file containing the full version number."""),
-    dict(name='bundleid',
-         description="""The Mac OS X Bundle identifier.""",
-         default="com.secondlife.indra.viewer"),
-    dict(name='signature',
-         description="""This specifies an identity to sign the viewer with, if any.
-        If no value is supplied, the default signature will be used, if any. Currently
-        only used on Mac OS X.""",
-         default=None)
     ]
 
-def usage(srctree=""):
+def usage(arguments, srctree=""):
     nd = {'name':sys.argv[0]}
     print """Usage:
     %(name)s [options] [destdir]
     Options:
     """ % nd
-    for arg in ARGUMENTS:
+    for arg in arguments:
         default = arg['default']
         if hasattr(default, '__call__'):
             default = "(computed value) \"" + str(default(srctree)) + '"'
@@ -172,11 +174,15 @@ def usage(srctree=""):
             default,
             arg['description'] % nd)
 
-def main():
-##  import itertools
+def main(extra=[]):
 ##  print ' '.join((("'%s'" % item) if ' ' in item else item)
 ##                 for item in itertools.chain([sys.executable], sys.argv))
-    option_names = [arg['name'] + '=' for arg in ARGUMENTS]
+    # Supplement our default command-line switches with any desired by
+    # application-specific caller.
+    arguments = list(itertools.chain(BASE_ARGUMENTS, extra))
+    # Alphabetize them by option name in case we display usage.
+    arguments.sort(key=operator.itemgetter('name'))
+    option_names = [arg['name'] + '=' for arg in arguments]
     option_names.append('help')
     options, remainder = getopt.getopt(sys.argv[1:], "", option_names)
 
@@ -199,11 +205,11 @@ def main():
     # early out for help
     if 'help' in args:
         # *TODO: it is a huge hack to pass around the srctree like this
-        usage(args['source'])
+        usage(arguments, srctree=args['source'])
         return
 
     # defaults
-    for arg in ARGUMENTS:
+    for arg in arguments:
         if arg['name'] not in args:
             default = arg['default']
             if hasattr(default, '__call__'):

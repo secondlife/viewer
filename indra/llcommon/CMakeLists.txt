@@ -255,10 +255,10 @@ set(llcommon_HEADER_FILES
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if (DEFINED ENV{BUGSPLAT_DB})
+if (BUGSPLAT_DB)
   set_source_files_properties(llapp.cpp
     PROPERTIES COMPILE_DEFINITIONS "LL_BUGSPLAT")
-endif (DEFINED ENV{BUGSPLAT_DB})
+endif (BUGSPLAT_DB)
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
