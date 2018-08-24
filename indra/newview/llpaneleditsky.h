@@ -48,7 +48,7 @@ public:
     virtual void            setSettings(const LLSettingsBase::ptr_t &settings) override   { setSky(std::static_pointer_cast<LLSettingsSky>(settings)); }
 
     LLSettingsSky::ptr_t    getSky() const                                          { return mSkySettings; }
-    void                    setSky(const LLSettingsSky::ptr_t &sky)                 { mSkySettings = sky; refresh(); }
+    void                    setSky(const LLSettingsSky::ptr_t &sky)                 { mSkySettings = sky; clearIsDirty(); refresh(); }
 
 protected:
     LLSettingsSky::ptr_t  mSkySettings;

@@ -32,9 +32,12 @@
 #include "llflyoutcombobtn.h"
 #include "llinventory.h"
 
+#include "boost/signals2.hpp"
+
 class LLTabContainer;
 class LLButton;
 class LLLineEditor;
+class LLFloaterSettingsPicker;
 
 /**
  * Floater container for creating and editing fixed environment settings.
@@ -56,15 +59,23 @@ public:
     virtual void            onFocusReceived()           override;
     virtual void            onFocusLost()               override;
 
-    void                    setEditSettings(const LLSettingsBase::ptr_t &settings)  { mSettings = settings; syncronizeTabs(); refresh(); }
+    void                    setEditSettings(const LLSettingsBase::ptr_t &settings)  { mSettings = settings; clearDirtyFlag(); syncronizeTabs(); refresh(); }
     LLSettingsBase::ptr_t   getEditSettings()   const                           { return mSettings; }
 
+    virtual BOOL            isDirty() const override            { return getIsDirty(); }
+
 protected:
+    typedef std::function<void()> on_confirm_fn;
+
     virtual void            updateEditEnvironment() = 0;
     virtual void            refresh()                   override;
     virtual void            syncronizeTabs();
 
+    LLFloaterSettingsPicker *getSettingsPicker();
+
     void                    loadInventoryItem(const LLUUID  &inventoryId);
+
+    void                    checkAndConfirmSettingsLoss(on_confirm_fn cb);
 
     LLTabContainer *        mTab;
     LLLineEditor *          mTxtName;
@@ -90,6 +101,13 @@ protected:
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
+    bool                    getIsDirty() const  { return mIsDirty; }
+    void                    setDirtyFlag()      { mIsDirty = true; }
+    virtual void            clearDirtyFlag()    { mIsDirty = false; }
+
+    void                    doSelectFromInventory();
+    void                    onPanelDirtyFlagChanged(bool);
+
 private:
     void                    onNameChanged(const std::string &name);
 
@@ -100,6 +118,8 @@ private:
 
     void                    onPickerCommitSetting(LLUUID asset_id);
     void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status);
+
+    bool                    mIsDirty;
 };
 
 class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
@@ -112,7 +132,6 @@ public:
     BOOL	                postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
-    virtual void            onClose(bool app_quitting)  override;
 
 protected:
     virtual void            updateEditEnvironment()     override;
@@ -132,7 +151,6 @@ public:
     BOOL	                postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
-    virtual void            onClose(bool app_quitting)  override;
 
 protected:
     virtual void            updateEditEnvironment()     override;
@@ -147,13 +165,26 @@ class LLSettingsEditPanel : public LLPanel
 public:
     virtual void setSettings(const LLSettingsBase::ptr_t &) = 0;
 
-//     virtual void refresh() override;
+    typedef boost::signals2::signal<void(LLPanel *, bool)> on_dirty_charged_sg;
+    typedef boost::signals2::connection connection_t;
+
+    inline bool         getIsDirty() const      { return mIsDirty; }
+    inline void         setIsDirty()            { mIsDirty = true; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
+    inline void         clearIsDirty()          { mIsDirty = false; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
+
+    inline connection_t setOnDirtyFlagChanged(on_dirty_charged_sg::slot_type cb)    { return mOnDirtyChanged.connect(cb); }
 
 protected:
     LLSettingsEditPanel() :
-        LLPanel()
+        LLPanel(),
+        mIsDirty(false),
+        mOnDirtyChanged()
     {}
 
+private:
+    bool                mIsDirty;
+    
+    on_dirty_charged_sg mOnDirtyChanged;
 };
 
 #endif // LL_FLOATERFIXEDENVIRONMENT_H

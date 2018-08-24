@@ -49,7 +49,7 @@ public:
     virtual void            setSettings(const LLSettingsBase::ptr_t &settings) override   { setWater(std::static_pointer_cast<LLSettingsWater>(settings)); }
 
     LLSettingsWater::ptr_t  getWater() const                                        { return mWaterSettings; }
-    void                    setWater(const LLSettingsWater::ptr_t &water)           { mWaterSettings = water; refresh(); }
+    void                    setWater(const LLSettingsWater::ptr_t &water)           { mWaterSettings = water; clearIsDirty(); refresh(); }
 
 protected:
     LLSettingsWater::ptr_t  mWaterSettings;

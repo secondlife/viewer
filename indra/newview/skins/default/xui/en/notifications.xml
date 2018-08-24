@@ -11183,5 +11183,19 @@ Settings are not supported on this region.
 Please move to a settings enabled region and retry your action.
   <tag>fail</tag>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsConfirmLoss"
+   type="alertmodal">
+You are about to lose the changes you have made to this [TYPE] named "[NAME]".
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to lose changes?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
   
 </notifications>

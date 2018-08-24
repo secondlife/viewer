@@ -227,6 +227,14 @@ void LLSettingsVOBase::onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAsset
     psettings->setAssetId(newAssetId);
     if (callback)
         callback( newAssetId, itemId, LLUUID::null, response );
+
+#if 0
+    std::string exprtFile = gDirUtilp->getTempDir() + gDirUtilp->getDirDelimiter() + newAssetId.asString() + ".llsd";
+
+    LLSettingsVOBase::exportFile(psettings, exprtFile, LLSDSerialize::LLSD_NOTATION);
+
+    LL_WARNS("LAPRAS") << "SETTINGS File written as: '" << exprtFile << "'" << LL_ENDL;
+#endif
 }
 
 void LLSettingsVOBase::onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback)

@@ -69,6 +69,7 @@ namespace
 
     const std::string ACTION_SAVE("save_settings");
     const std::string ACTION_SAVEAS("save_as_new_settings");
+    const std::string ACTION_COMMIT("commit_changes");
     const std::string ACTION_APPLY_LOCAL("apply_local");
     const std::string ACTION_APPLY_PARCEL("apply_parcel");
     const std::string ACTION_APPLY_REGION("apply_region");
@@ -85,7 +86,8 @@ LLFloaterFixedEnvironment::LLFloaterFixedEnvironment(const LLSD &key) :
     LLFloater(key),
     mFlyoutControl(nullptr),
     mInventoryId(),
-    mInventoryItem(nullptr)
+    mInventoryItem(nullptr),
+    mIsDirty(false)
 {
 }
 
@@ -108,6 +110,7 @@ BOOL LLFloaterFixedEnvironment::postBuild()
 
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BUTTON_NAME_COMMIT, BUTTON_NAME_FLYOUT, XML_FLYOUTMENU_FILE);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
+    mFlyoutControl->setMenuItemVisible(ACTION_COMMIT, false);
 
     return TRUE;
 }
@@ -191,6 +194,24 @@ void LLFloaterFixedEnvironment::syncronizeTabs()
     }
 }
 
+LLFloaterSettingsPicker * LLFloaterFixedEnvironment::getSettingsPicker()
+{
+    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
+
+    // Show the dialog
+    if (!picker)
+    {
+        picker = new LLFloaterSettingsPicker(this,
+            LLUUID::null, "SELECT SETTINGS");
+
+        mInventoryFloater = picker->getHandle();
+
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data.asUUID()); });
+    }
+
+    return picker;
+}
+
 void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
 {
     if (inventoryId.isNull())
@@ -231,6 +252,30 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat) { onAssetLoaded(asset_id, settins, status); });
 }
 
+
+void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnvironment::on_confirm_fn cb)
+{
+    if (isDirty())
+    {
+        LLSD args(LLSDMap("TYPE", mSettings->getSettingsType())
+            ("NAME", mSettings->getName()));
+
+        // create and show confirmation textbox
+        LLNotificationsUtil::add("SettingsConfirmLoss", args, LLSD(),
+            [this, cb](const LLSD&notif, const LLSD&resp)
+            {
+                S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+                if (opt == 0)
+                    cb();
+            });
+    }
+    else if (cb)
+    {
+        cb();
+    }
+
+}
+
 void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID asset_id)
 {
     LLSettingsVOBase::getSettingsAsset(asset_id,
@@ -257,11 +302,12 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
 void LLFloaterFixedEnvironment::onNameChanged(const std::string &name)
 {
     mSettings->setName(name);
+    setDirtyFlag();
 }
 
 void LLFloaterFixedEnvironment::onButtonImport()
 {
-    doImportFromDisk();
+    checkAndConfirmSettingsLoss([this](){ doImportFromDisk(); });
 }
 
 void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
@@ -290,29 +336,12 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 
 void LLFloaterFixedEnvironment::onButtonCancel()
 {
-    // *TODO*: If changed issue a warning?
-    this->closeFloater();
+    checkAndConfirmSettingsLoss([this](){ closeFloater(); });
 }
 
 void LLFloaterFixedEnvironment::onButtonLoad()
 {
-    //  LLUI::sWindow->setCursor(UI_CURSOR_WAIT);
-    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
-
-    // Show the dialog
-    if (!picker)
-    {
-        picker = new LLFloaterSettingsPicker(this,
-            LLUUID::null, "SELECT SETTINGS");
-
-        mInventoryFloater = picker->getHandle();
-
-        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data.asUUID()); });
-    }
-
-    picker->setSettingsFilter(mSettings->getSettingsTypeValue());
-    picker->openFloater();
-    picker->setFocus(TRUE);
+    checkAndConfirmSettingsLoss([this](){ doSelectFromInventory(); });
 }
 
 void LLFloaterFixedEnvironment::doApplyCreateNewInventory()
@@ -396,6 +425,7 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
         return;
     }
 
+    clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
     loadInventoryItem(inventory_id);
 }
@@ -404,10 +434,27 @@ void LLFloaterFixedEnvironment::onInventoryUpdated(LLUUID asset_id, LLUUID inven
 {
     LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
 
+    clearDirtyFlag();
     if (inventory_id != mInventoryId)
     {
         loadInventoryItem(inventory_id);
     }
+}
+
+
+void LLFloaterFixedEnvironment::doSelectFromInventory()
+{
+    LLFloaterSettingsPicker *picker = getSettingsPicker();
+
+    picker->setSettingsFilter(mSettings->getSettingsTypeValue());
+    picker->openFloater();
+    picker->setFocus(TRUE);
+}
+
+void LLFloaterFixedEnvironment::onPanelDirtyFlagChanged(bool value)
+{
+    if (value)
+        setDirtyFlag();
 }
 
 //-------------------------------------------------------------------------
@@ -452,6 +499,7 @@ BOOL LLFloaterFixedEnvironmentWater::postBuild()
     panel = new LLPanelSettingsWaterMainTab;
     panel->buildFromFile("panel_settings_water.xml");
     panel->setWater(std::static_pointer_cast<LLSettingsWater>(mSettings));
+    panel->setOnDirtyFlagChanged( [this] (LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
     return TRUE;
@@ -477,11 +525,6 @@ void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
     LLFloaterFixedEnvironment::onOpen(key);
 }
 
-void LLFloaterFixedEnvironmentWater::onClose(bool app_quitting)
-{
-    LLFloaterFixedEnvironment::onClose(app_quitting);
-}
-
 void LLFloaterFixedEnvironmentWater::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
 
@@ -500,8 +543,9 @@ void LLFloaterFixedEnvironmentWater::doImportFromDisk()
             return;
         }
 
+        clearDirtyFlag();
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
-        this->setEditSettings(legacywater);
+        setEditSettings(legacywater);
         LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
     }
 }
@@ -520,16 +564,19 @@ BOOL LLFloaterFixedEnvironmentSky::postBuild()
     panel = new LLPanelSettingsSkyAtmosTab;
     panel->buildFromFile("panel_settings_sky_atmos.xml");
     panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+    panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
     panel = new LLPanelSettingsSkyCloudTab;
     panel->buildFromFile("panel_settings_sky_clouds.xml");
     panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+    panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
 
     panel = new LLPanelSettingsSkySunMoonTab;
     panel->buildFromFile("panel_settings_sky_sunmoon.xml");
     panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+    panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
 
     return TRUE;
@@ -553,12 +600,6 @@ void LLFloaterFixedEnvironmentSky::onOpen(const LLSD& key)
     }
 
     LLFloaterFixedEnvironment::onOpen(key);
-
-}
-
-void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
-{
-    LLFloaterFixedEnvironment::onClose(app_quitting);
 }
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()
@@ -580,8 +621,9 @@ void LLFloaterFixedEnvironmentSky::doImportFromDisk()
             return;
         }
 
+        clearDirtyFlag();
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
-        this->setEditSettings(legacysky);
+        setEditSettings(legacysky);
         LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
     }
 }
