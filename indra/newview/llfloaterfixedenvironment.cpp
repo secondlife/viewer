@@ -105,7 +105,7 @@ BOOL LLFloaterFixedEnvironment::postBuild()
     mTxtName->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNameChanged(mTxtName->getValue().asString()); });
 
     getChild<LLButton>(BUTTON_NAME_IMPORT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonImport(); });
-    getChild<LLButton>(BUTTON_NAME_CANCEL)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonCancel(); });
+    getChild<LLButton>(BUTTON_NAME_CANCEL)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onClickCloseBtn(); });
     getChild<LLButton>(BUTTON_NAME_LOAD)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonLoad(); });
 
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BUTTON_NAME_COMMIT, BUTTON_NAME_FLYOUT, XML_FLYOUTMENU_FILE);
@@ -334,9 +334,12 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     }
 }
 
-void LLFloaterFixedEnvironment::onButtonCancel()
+void LLFloaterFixedEnvironment::onClickCloseBtn(bool app_quitting)
 {
-    checkAndConfirmSettingsLoss([this](){ closeFloater(); });
+    if (!app_quitting)
+        checkAndConfirmSettingsLoss([this](){ closeFloater(); });
+    else
+        closeFloater();
 }
 
 void LLFloaterFixedEnvironment::onButtonLoad()
@@ -558,7 +561,7 @@ void LLFloaterFixedEnvironmentWater::doImportFromDisk()
             return;
         }
 
-        clearDirtyFlag();
+        setDirtyFlag();
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
         setEditSettings(legacywater);
         LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);

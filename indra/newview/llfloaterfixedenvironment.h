@@ -108,12 +108,13 @@ protected:
     void                    doSelectFromInventory();
     void                    onPanelDirtyFlagChanged(bool);
 
+    virtual void            onClickCloseBtn(bool app_quitting = false) override;
+
 private:
     void                    onNameChanged(const std::string &name);
 
     void                    onButtonImport();
     void                    onButtonApply(LLUICtrl *ctrl, const LLSD &data);
-    void                    onButtonCancel();
     void                    onButtonLoad();
 
     void                    onPickerCommitSetting(LLUUID asset_id);
