@@ -120,15 +120,19 @@ protected:
     std::string                 getInventoryNameForAssetId(LLUUID asset_id);
 
     LLFloaterSettingsPicker *   getSettingsPicker();
-    LLFloaterEditExtDayCycle *  getEditFloater();
+    LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
     S32                                     mCurrentParcelId;
 
 
+
 private:
     static void                 onIdlePlay(void *);
 
+    typedef boost::signals2::connection connection_t;
+
+    connection_t                mCommitConnection;
     LLHandle<LLFloater>         mSettingsFloater;
     LLHandle<LLFloater>         mEditFloater;
     S32                         mDirtyFlag;

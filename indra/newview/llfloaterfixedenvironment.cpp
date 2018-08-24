@@ -273,7 +273,6 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
     {
         cb();
     }
-
 }
 
 void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID asset_id)

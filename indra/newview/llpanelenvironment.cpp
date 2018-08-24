@@ -119,7 +119,19 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
     if (new_visibility)
         gIdleCallbacks.addFunction(onIdlePlay, this);
     else
+    {
         gIdleCallbacks.deleteFunction(onIdlePlay, this);
+        LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
+        if (mCommitConnection.connected())
+            mCommitConnection.disconnect();
+        if (dayeditor)
+        {
+            if (dayeditor->isDirty())
+                dayeditor->refresh();
+            else
+                dayeditor->closeFloater();
+        }
+    }
 
 }
 
@@ -213,13 +225,13 @@ LLFloaterSettingsPicker *LLPanelEnvironmentInfo::getSettingsPicker()
     return picker;
 }
 
-LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
+LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater(bool create)
 {
     static const S32 FOURHOURS(4 * 60 * 60);
     LLFloaterEditExtDayCycle *editor = static_cast<LLFloaterEditExtDayCycle *>(mEditFloater.get());
 
     // Show the dialog
-    if (!editor)
+    if (!editor && create)
     {
         LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
             (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
@@ -228,8 +240,10 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater()
 
         if (!editor)
             return nullptr;
-        editor->setEditCommitSignal([this](LLSettingsDay::ptr_t pday) { onEditCommited(pday); });
     }
+
+    if (editor && !mCommitConnection.connected())
+        mCommitConnection = editor->setEditCommitSignal([this](LLSettingsDay::ptr_t pday) { onEditCommited(pday); });
 
     return editor;
 }
