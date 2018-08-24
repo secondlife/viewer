@@ -442,6 +442,21 @@ void LLFloaterFixedEnvironment::onInventoryUpdated(LLUUID asset_id, LLUUID inven
 }
 
 
+void LLFloaterFixedEnvironment::clearDirtyFlag()
+{
+    mIsDirty = false;
+
+    S32 count = mTab->getTabCount();
+
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(mTab->getPanelByIndex(idx));
+        if (panel)
+            panel->clearIsDirty();
+    }
+
+}
+
 void LLFloaterFixedEnvironment::doSelectFromInventory()
 {
     LLFloaterSettingsPicker *picker = getSettingsPicker();

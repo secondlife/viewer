@@ -103,7 +103,7 @@ protected:
 
     bool                    getIsDirty() const  { return mIsDirty; }
     void                    setDirtyFlag()      { mIsDirty = true; }
-    virtual void            clearDirtyFlag()    { mIsDirty = false; }
+    virtual void            clearDirtyFlag();
 
     void                    doSelectFromInventory();
     void                    onPanelDirtyFlagChanged(bool);
