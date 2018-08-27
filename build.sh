@@ -103,6 +103,23 @@ pre_build()
                   "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
     fi
 
+    if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
+    then
+        case "$arch" in
+            CYGWIN)
+                symplat="windows"
+                ;;
+            Darwin)
+                symplat="darwin"
+                ;;
+            Linux)
+                symplat="linux"
+                ;;
+        esac
+        # This name is consumed by indra/newview/CMakeLists.txt
+        VIEWER_SYMBOL_FILE="$build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+    fi
+
     # don't spew credentials into build log
     bugsplat_sh="$build_secrets_checkout/bugsplat/bugsplat.sh"
     set +x
@@ -122,6 +139,7 @@ pre_build()
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
+     -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
      -DBUGSPLAT_DB:STRING="${BUGSPLAT_DB:-}" \
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
@@ -245,7 +263,6 @@ initialize_version # provided by buildscripts build.sh; sets version id
 
 # Now run the build
 succeeded=true
-build_processes=
 last_built_variant=
 for variant in $variants
 do
@@ -253,7 +270,6 @@ do
   last_built_variant="$variant"
 
   build_dir=`build_dir_$arch $variant`
-  build_dir_stubs="$build_dir/win_setup/$variant"
 
   begin_section "Initialize $variant Build Directory"
   rm -rf "$build_dir"
@@ -432,19 +448,7 @@ then
                -a -z "${BUGSPLAT_DB:-}" ]
           then
               # Upload crash reporter file
-              # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt
-              case "$arch" in
-                  CYGWIN)
-                      symbolfile="$build_dir/newview/Release/secondlife-symbols-windows-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                      ;;
-                  Darwin)
-                      symbolfile="$build_dir/newview/Release/secondlife-symbols-darwin-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                      ;;
-                  Linux)
-                      symbolfile="$build_dir/newview/Release/secondlife-symbols-linux-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                      ;;
-              esac
-              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbolfile" \
+              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
           fi
 
