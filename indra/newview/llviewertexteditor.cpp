@@ -1123,7 +1123,9 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLPointer<LLInventoryItem> item, llwch
 		case LLAssetType::AT_CALLINGCARD:
 			openEmbeddedCallingcard( item, wc );
 			return TRUE;
-
+		case LLAssetType::AT_SETTINGS:
+			openEmbeddedSetting(item, wc);
+			return TRUE;
 		case LLAssetType::AT_NOTECARD:
 		case LLAssetType::AT_LSL_TEXT:
 		case LLAssetType::AT_CLOTHING:
@@ -1195,6 +1197,18 @@ void LLViewerTextEditor::openEmbeddedCallingcard( LLInventoryItem* item, llwchar
 	if(item && !item->getCreatorUUID().isNull())
 	{
 		LLAvatarActions::showProfile(item->getCreatorUUID());
+	}
+}
+
+void LLViewerTextEditor::openEmbeddedSetting(LLInventoryItem* item, llwchar wc)
+{
+	if (LLEnvironment::instance().isInventoryEnabled())
+	{
+		showCopyToInvDialog(item, wc);
+	}
+	else
+	{
+		LLNotificationsUtil::add("NoEnvironmentSettings");
 	}
 }
 
