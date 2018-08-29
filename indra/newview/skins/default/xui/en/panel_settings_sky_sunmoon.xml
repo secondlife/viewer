@@ -260,7 +260,7 @@
                             left_delta="5"
                             min_val="0.25"
                             max_val="20"
-                            name="sun_scale"
+                            name="moon_scale"
                             top_delta="15"
                             width="130"
                             can_edit_text="true"/>

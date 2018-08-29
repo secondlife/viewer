@@ -775,6 +775,16 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
+void LLVOSky::setSunScale(F32 sun_scale)
+{
+    mSunScale  = sun_scale;
+}
+
+void LLVOSky::setMoonScale(F32 moon_scale)
+{
+    mMoonScale = moon_scale;
+}
+
 void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
 {
     // We test the UUIDs here because we explicitly do not want the default image returned by getFetchedTexture in that case...
@@ -955,8 +965,8 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	right.normalize();
 	up.normalize();
     
-    bool draw_sun  = updateHeavenlyBodyGeometry(drawable, FACE_SUN, mSun, up, right);
-    bool draw_moon = updateHeavenlyBodyGeometry(drawable, FACE_MOON, mMoon, up, right);
+    bool draw_sun  = updateHeavenlyBodyGeometry(drawable, mSunScale, FACE_SUN, mSun, up, right);
+    bool draw_moon = updateHeavenlyBodyGeometry(drawable, mMoonScale, FACE_MOON, mMoon, up, right);
 
     draw_sun  &= LLEnvironment::getInstance()->getIsSunUp();
     draw_moon &= LLEnvironment::getInstance()->getIsMoonUp();
@@ -987,7 +997,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	return TRUE;
 }
 
-bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right)
+bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const S32 f, LLHeavenBody& hb, const LLVector3 &up, const LLVector3 &right)
 {
 	mHeavenlyBodyUpdated = TRUE ;
 
@@ -1010,8 +1020,8 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, LLHe
 	F32 horiz_enlargement = 1 + enlargm_factor * 0.3f;
 	F32 vert_enlargement = 1 + enlargm_factor * 0.2f;
 
-	const LLVector3 scaled_right = horiz_enlargement * HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR * hb.getDiskRadius() * hb_right;
-	const LLVector3 scaled_up    = vert_enlargement  * HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR * hb.getDiskRadius() * hb_up;
+	const LLVector3 scaled_right = horiz_enlargement * scale * HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR * hb.getDiskRadius() * hb_right;
+	const LLVector3 scaled_up    = vert_enlargement  * scale * HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR * hb.getDiskRadius() * hb_up;
 
 	LLVector3 v_clipped[4];
 

@@ -735,6 +735,10 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
                 LLUploadDialog::modalUploadFinished();
             return;
         }
+        if (!result.has("success"))
+        {
+            result["success"] = LLSD::Boolean((ulstate == "complete") && status);
+        }
 
         S32 uploadPrice = result["upload_price"].asInteger();//uploadInfo->getEconomyUploadCost();
 

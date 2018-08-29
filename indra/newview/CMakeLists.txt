@@ -163,7 +163,6 @@ set(viewer_SOURCE_FILES
     lldebugview.cpp
     lldeferredsounds.cpp
     lldelayedgestureerror.cpp
-    lldensityctrl.cpp
     lldirpicker.cpp
     lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
@@ -785,7 +784,6 @@ set(viewer_HEADER_FILES
     lldebugview.h
     lldeferredsounds.h
     lldelayedgestureerror.h
-    lldensityctrl.h
     lldirpicker.h
     lldonotdisturbnotificationstorage.h
     lldndbutton.h

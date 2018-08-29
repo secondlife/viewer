@@ -572,7 +572,8 @@ void LLDrawPoolWLSky::render(S32 pass)
     {
 	    gGL.pushMatrix();
 
-		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+        // MAINT-9006 keep sun position consistent between ALM and non-ALM rendering
+		//gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only

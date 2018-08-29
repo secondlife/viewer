@@ -137,7 +137,8 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mWaterBlender(),
     mScratchSky(),
     mScratchWater(),
-    mIsPlaying(false)
+    mIsPlaying(false),
+    mIsDirty(false)
 {
 
     mCommitCallbackRegistrar.add(EVNT_DAYTRACK, [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); });
@@ -175,7 +176,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BTN_SAVE, BTN_FLYOUT, XML_FLYOUTMENU_FILE);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
 
-    getChild<LLButton>(BTN_CANCEL, true)->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onBtnCancel(); });
+    getChild<LLButton>(BTN_CANCEL, true)->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onClickCloseBtn(); });
     mTimeSlider->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onTimeSliderMoved(); });
     mAddFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onAddTrack(); });
     mDeleteFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onRemoveTrack(); });
@@ -188,6 +189,26 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mFramesSlider->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask){ onFrameSliderMouseUp(x, y, mask); });
 
     mTimeSlider->addSlider(0);
+
+    LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs"); 
+    S32 tab_count = tab_container->getTabCount();
+
+    for (S32 idx = 0; idx < tab_count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
+        if (panel)
+            panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
+    }
+
+    tab_container = mWaterTabLayoutContainer->getChild<LLTabContainer>("water_tabs");
+    tab_count = tab_container->getTabCount();
+
+    for (S32 idx = 0; idx < tab_count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
+        if (panel)
+            panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
+    }
 
     //getChild<LLButton>("sky1_track", true)->setToggleState(true);
 
@@ -312,12 +333,12 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
     doCloseInventoryFloater(app_quitting);
     // there's no point to change environment if we're quitting
     // or if we already restored environment
-    if (!app_quitting && LLEnvironment::instance().getSelectedEnvironment() == LLEnvironment::ENV_EDIT)
+    stopPlay();
+    if (!app_quitting)
     {
-        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_FAST);
         LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
     }
-    stopPlay();
 }
 
 void LLFloaterEditExtDayCycle::onFocusReceived()
@@ -355,7 +376,7 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemVisible(ACTION_APPLY_PARCEL, show_apply);
     mFlyoutControl->setMenuItemVisible(ACTION_APPLY_REGION, show_apply);
 
-    mFlyoutControl->setMenuItemEnabled(ACTION_COMMIT, show_commit);
+    mFlyoutControl->setMenuItemEnabled(ACTION_COMMIT, show_commit && !mCommitSignal.empty());
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_LOCAL, true);
@@ -445,14 +466,18 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     }
 }
 
-void LLFloaterEditExtDayCycle::onBtnCancel()
+
+void LLFloaterEditExtDayCycle::onClickCloseBtn(bool app_quitting /*= false*/)
 {
-    closeFloater(); // will restore env
+    if (!app_quitting)
+        checkAndConfirmSettingsLoss([this](){ closeFloater(); });
+    else
+        closeFloater();
 }
 
 void LLFloaterEditExtDayCycle::onButtonImport()
 {
-    doImportFromDisk();
+    checkAndConfirmSettingsLoss([this]() { doImportFromDisk(); });
 }
 
 void LLFloaterEditExtDayCycle::onButtonLoadFrame()
@@ -616,11 +641,6 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
             }
         }
     }
-
-    mTimeSlider->setCurSliderValue(sliderpos);
-
-    updateTabs();
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderDoubleClick(S32 x, S32 y, MASK mask)
@@ -647,6 +667,11 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
             mFramesSlider->resetCurSlider();
         }
     }
+
+    mTimeSlider->setCurSliderValue(sliderpos);
+
+    updateTabs();
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
@@ -655,6 +680,35 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 
     mTimeSlider->setCurSliderValue(sliderpos);
     selectFrame(sliderpos, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
+}
+
+
+void LLFloaterEditExtDayCycle::onPanelDirtyFlagChanged(bool value)
+{
+    if (value)
+        setDirtyFlag();
+}
+
+void LLFloaterEditExtDayCycle::checkAndConfirmSettingsLoss(on_confirm_fn cb)
+{
+    if (isDirty())
+    {
+        LLSD args(LLSDMap("TYPE", mEditDay->getSettingsType())
+            ("NAME", mEditDay->getName()));
+
+        // create and show confirmation textbox
+        LLNotificationsUtil::add("SettingsConfirmLoss", args, LLSD(),
+            [this, cb](const LLSD&notif, const LLSD&resp)
+            {
+                S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+                if (opt == 0)
+                    cb();
+            });
+    }
+    else if (cb)
+    {
+        cb();
+    }
 }
 
 void LLFloaterEditExtDayCycle::onTimeSliderMoved()
@@ -1176,6 +1230,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
         return;
     }
 
+    clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
     loadInventoryItem(inventory_id);
 }
@@ -1184,6 +1239,7 @@ void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID invent
 {
     LL_WARNS("ENVDAYEDIT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
 
+    clearDirtyFlag();
     if (inventory_id != mInventoryId)
     {
         loadInventoryItem(inventory_id);
@@ -1209,6 +1265,7 @@ void LLFloaterEditExtDayCycle::doImportFromDisk()
         }
 
         mCurrentTrack = 1;
+        setDirtyFlag();
         setEditDayCycle(legacyday);
     }
 }
@@ -1282,6 +1339,33 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
     self->mSkyBlender->setPosition(new_frame);
     self->mWaterBlender->setPosition(new_frame);
     self->synchronizeTabs();
+
+}
+
+
+void LLFloaterEditExtDayCycle::clearDirtyFlag()
+{
+    mIsDirty = false;
+
+    LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs");
+    S32 tab_count = tab_container->getTabCount();
+
+    for (S32 idx = 0; idx < tab_count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
+        if (panel)
+            panel->clearIsDirty();
+    }
+
+    tab_container = mWaterTabLayoutContainer->getChild<LLTabContainer>("water_tabs");
+    tab_count = tab_container->getTabCount();
+
+    for (S32 idx = 0; idx < tab_count; ++idx)
+    {
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
+        if (panel)
+            panel->clearIsDirty();
+    }
 
 }
 

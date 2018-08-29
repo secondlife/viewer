@@ -38,9 +38,9 @@ void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz, 1.0);
-	vec4 pos = (modelview_matrix * vert);
+	vec4 pos = modelview_projection_matrix*vert;
 
-	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+	gl_Position = pos;
 	
     calcAtmospherics(pos.xyz);
 

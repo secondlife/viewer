@@ -43,26 +43,26 @@
     <sun_moon_trackball.button_rotate_top
         name="btn_rotate_top"
         image_unselected="VirtualTrackball_Rotate_Top"
-        image_selected="VirtualTrackball_Rotate_Top"
-        image_disabled="VirtualTrackball_Rotate_Top" />
+        image_selected="VirtualTrackball_Rotate_Top_Active"
+        image_disabled="Blank" />
 
     <sun_moon_trackball.button_rotate_bottom
         name="btn_rotate_bottom"
         image_unselected="VirtualTrackball_Rotate_Bottom"
-        image_selected="VirtualTrackball_Rotate_Bottom"
-        image_disabled="VirtualTrackball_Rotate_Bottom" />
+        image_selected="VirtualTrackball_Rotate_Bottom_Active"
+        image_disabled="Blank" />
 
     <sun_moon_trackball.button_rotate_left
         name="btn_rotate_left"
         image_unselected="VirtualTrackball_Rotate_Left"
-        image_selected="VirtualTrackball_Rotate_Left"
-        image_disabled="VirtualTrackball_Rotate_Left" />
+        image_selected="VirtualTrackball_Rotate_Left_Active"
+        image_disabled="Blank" />
 
     <sun_moon_trackball.button_rotate_right
         name="btn_rotate_right"
         image_unselected="VirtualTrackball_Rotate_Right"
-        image_selected="VirtualTrackball_Rotate_Right"
-        image_disabled="VirtualTrackball_Rotate_Right" />
+        image_selected="VirtualTrackball_Rotate_Right_Active"
+        image_disabled="Blank" />
 
 </sun_moon_trackball>
 

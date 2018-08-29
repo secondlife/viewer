@@ -30,13 +30,11 @@
 #include "llpanel.h"
 #include "llsettingssky.h"
 #include "llfloaterfixedenvironment.h"
-#include "lldensityctrl.h"
 
 //=========================================================================
 class LLSlider;
 class LLColorSwatchCtrl;
 class LLTextureCtrl;
-class LLDensityCtrl; // custom control for specifying various sky density settings
 
 //=========================================================================
 class LLPanelSettingsSky : public LLSettingsEditPanel
@@ -49,7 +47,7 @@ public:
     virtual void            setSettings(const LLSettingsBase::ptr_t &settings) override   { setSky(std::static_pointer_cast<LLSettingsSky>(settings)); }
 
     LLSettingsSky::ptr_t    getSky() const                                          { return mSkySettings; }
-    void                    setSky(const LLSettingsSky::ptr_t &sky)                 { mSkySettings = sky; refresh(); }
+    void                    setSky(const LLSettingsSky::ptr_t &sky)                 { mSkySettings = sky; clearIsDirty(); refresh(); }
 
 protected:
     LLSettingsSky::ptr_t  mSkySettings;
@@ -144,25 +142,23 @@ public:
 protected:
     virtual void refresh() override;
 
-    // update the settings for our profile type
-    void updateProfile();
+    void onRayleighExponentialChanged();
+    void onRayleighExponentialScaleChanged();
+    void onRayleighLinearChanged();
+    void onRayleighConstantChanged();
 
-    LLDensityCtrl::DensityProfileType mProfileType;
-    std::string mControlName;
-};
+    void onMieExponentialChanged();
+    void onMieExponentialScaleChanged();
+    void onMieLinearChanged();
+    void onMieConstantChanged();
+    void onMieAnisoFactorChanged();
 
-class LLPanelSettingsDensity : public LLPanelSettingsSky
-{
-    LOG_CLASS(LLPanelSettingsDensity);
+    void onAbsorptionExponentialChanged();
+    void onAbsorptionExponentialScaleChanged();
+    void onAbsorptionLinearChanged();
+    void onAbsorptionConstantChanged();
 
-public:
-    LLPanelSettingsDensity();
-
-    virtual BOOL postBuild() override;
-    virtual void setEnabled(BOOL enabled) override;
-
-protected:
-    virtual void refresh() override;
+    void onMaxAltitudeChanged();
 
     // update the settings for our profile type
     void updateProfile();

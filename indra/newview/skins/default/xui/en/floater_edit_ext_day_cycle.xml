@@ -3,13 +3,14 @@
         layout="topleft"
         name="env_edit_extdaycycle"
         help_topic="day_presets"
-        save_rect="true"
+        save_rect="false"
         title="Edit Day Cycle"
         width="705"
         height="650"
         min_width="705"
         min_height="650"
-        can_resize="true">
+        single_instance="true" 
+        can_resize="false">
 
     <!-- obsolete?, add as hint for 'save' button? -->
     <string name="title_new">Create a New Day Cycle</string>
@@ -400,8 +401,16 @@
                                 width="90"
                                 label="Add Frame"
                                 left_pad="175"
-                                top_delta="-12"
+                                top_delta="-20"
                                 name="add_frame" />
+                        <button
+                                follows="top|left"
+                                height="23"
+                                width="90"
+                                label="Load Frame"
+                                top_pad="0"
+                                left_delta="0"
+                                name="btn_load_frame" />
                         <button
                                 follows="left|top"
                                 height="23"
@@ -421,36 +430,18 @@
                         visible="true">
                     <!--bg_alpha_color="blue"
                 background_visible="true" -->
-                    <icon 
-                            border="1"
-                            bevel_style="out"
+                    <text
                             name="icn_lock_edit"
-                            layout="bottomleft"
                             follows="bottom"
-                            image_name="Locked_Icon"
-                            bottom="4"
-                            left="5"
-                            height="15"
-                            width="15"
-                            tab_stop="false" 
-                            visible="false"
-                            tool_tip="Select a key frame above to edit settings"/>
-                    <button
-                            name="btn_load_frame"
-                            follows="top"
-                            image_overlay="Command_Inventory_Icon"
-                            image_disabled="PushButton_Disabled"
-                            image_disabled_selected="PushButton_Disabled"
-                            image_selected="PushButton_Selected"
-                            image_unselected="PushButton_Off"
-                            hover_glow_amount="0.15"
-                            auto_resize="false"
-                            layout="topleft"
-                            height="30"
-                            width="30"
-                            left="25"
-                            top="1"
-                            tool_tip="Replace frame with settings from inventory"/>
+                            height="10"
+                            layout="bottomleft"
+                            left_delta="15"
+                            top_pad="15"
+                            font="SansSerif"
+                            text_color="Yellow"
+                            width="500">
+Select a key frame from the timeline above to edit settings.
+                    </text>
                 </layout_panel>
                 <layout_panel name="frame_settings_water"
                         auto_resize="true"
@@ -537,7 +528,7 @@
                                 layout="topleft"
                                 left_delta="0"
                                 top_pad="5"
-                                name="advanced_atmo_panel" />
+                                name="sky_density_panel" />
                     </tab_container>
                 </layout_panel>        
             </layout_stack>

@@ -91,13 +91,15 @@ public:
 
     BOOL			            handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
 
-private:
+    BOOL                        isDirty() const override { return getIsDirty(); } 
 
+private:
+    typedef std::function<void()> on_confirm_fn;
     F32 getCurrentFrame() const;
 
 	// flyout response/click
 	void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
-	void                        onBtnCancel();
+    virtual void                onClickCloseBtn(bool app_quitting = false) override;
     void                        onButtonImport();
     void                        onButtonLoadFrame();
     void                        onAddTrack();
@@ -112,6 +114,10 @@ private:
     void                        onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
     void                        onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
     void                        onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
+
+    void                        onPanelDirtyFlagChanged(bool);
+
+    void                        checkAndConfirmSettingsLoss(on_confirm_fn cb);
 
 	void                        selectTrack(U32 track_index, bool force = false);
 	void                        selectFrame(F32 frame, F32 slop_factor);
@@ -158,6 +164,10 @@ private:
     void                        stopPlay();
     static void                 onIdlePlay(void *);
 
+    bool                        getIsDirty() const  { return mIsDirty; }
+    void                        setDirtyFlag()      { mIsDirty = true; }
+    virtual void                clearDirtyFlag();
+
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;
     U32                         mCurrentTrack;
@@ -190,6 +200,7 @@ private:
     LLFrameTimer                mPlayTimer;
     F32                         mPlayStartFrame; // an env frame
     bool                        mIsPlaying;
+    bool                        mIsDirty;
 
     edit_commit_signal_t        mCommitSignal;
 

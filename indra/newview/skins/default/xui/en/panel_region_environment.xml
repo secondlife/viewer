@@ -29,8 +29,8 @@
                             valign="top"
                             top_pad="20"
                             text_color="white">
-Parcel environmental settings are 
-disabled on legacy regions.
+No Parcel parcel is selected. Environmental 
+settings are disabled.
             </text>
         </layout_panel>
         <layout_panel 

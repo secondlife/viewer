@@ -130,6 +130,11 @@ private:
     void onRotateLeftClick();
     void onRotateRightClick();
 
+    void onRotateTopMouseEnter();
+    void onRotateBottomMouseEnter();
+    void onRotateLeftMouseEnter();
+    void onRotateRightMouseEnter();
+
     S32 mPrevX;
     S32 mPrevY;
 

@@ -2780,6 +2780,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<!-- Environment settings -->
 	<string name="LocalSettings">Local Settings</string>
 	<string name="RegionSettings">Region Settings</string>
+	<string name="NoEnvironmentSettings">This Region does not support environmental settings.</string>
 
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>

@@ -185,10 +185,16 @@ void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     }
     else
     {
-        LL_WARNS("SETTINGS") << "Cound not cast end settings to water. No blend performed." << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Could not cast end settings to water. No blend performed." << LL_ENDL;
     }
     setBlendFactor(blendf);
-    mNextNormalMapID = other->getNormalMapID();
+}
+
+void LLSettingsWater::replaceSettings(LLSD settings)
+{
+    LLSettingsBase::replaceSettings(settings);
+    mNextNormalMapID.setNull();
+    mNextTransparentTextureID.setNull();
 }
 
 LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const

@@ -5097,6 +5097,11 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
 		}
+		else if ((inv_item->getActualType() == LLAssetType::AT_SETTINGS) && !LLEnvironment::instance().isInventoryEnabled())
+		{
+			tooltip_msg = LLTrans::getString("NoEnvironmentSettings");
+			accept = FALSE;
+		}
 		else
 		{
 			// Don't allow placing an original item from a notecard to Current Outfit or an outfit folder

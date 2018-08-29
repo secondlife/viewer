@@ -44,17 +44,16 @@ class LLPanelEnvironmentInfo : public LLPanel
 public:
                                 LLPanelEnvironmentInfo();
 
-    // LLPanel
     virtual BOOL                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
 
-    // LLView
+    virtual BOOL                isDirty() const override            { return getIsDirty(); }
     virtual void                onVisibilityChange(BOOL new_visibility) override;
 
     virtual void                refresh() override;
 
-    S32                         getCurrentParcelId() const { return mCurrentParcelId; }
-    void                        setCurrentParcelId(S32 parcel_id) { mCurrentParcelId = parcel_id; }
+    S32                         getCurrentParcelId() const          { return mCurrentParcelId; }
+    void                        setCurrentParcelId(S32 parcel_id)   { mCurrentParcelId = parcel_id; }
 
     virtual bool                isRegion() const = 0;
     virtual LLParcel *          getParcel() = 0;
@@ -95,9 +94,9 @@ protected:
     void                        setApplyProgress(bool started);
     void                        setDirtyFlag(U32 flag);
     void                        clearDirtyFlag(U32 flag);
-    bool                        getIsDirty() const              { return (mDirtyFlag != 0); }
-    bool                        getIsDirtyFlag(U32 flag) const  { return ((mDirtyFlag & flag) != 0); }
-    U32                         getDirtyFlag() const            { return mDirtyFlag; }
+    bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
+    bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
+    U32                         getDirtyFlag() const                { return mDirtyFlag; }
 
     void                        onSwitchDefaultSelection();
     void                        onSldDayLengthChanged(F32 value);
@@ -121,17 +120,21 @@ protected:
     std::string                 getInventoryNameForAssetId(LLUUID asset_id);
 
     LLFloaterSettingsPicker *   getSettingsPicker();
-    LLFloaterEditExtDayCycle *  getEditFloater();
+    LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
     S32                                     mCurrentParcelId;
 
 
+
 private:
     static void                 onIdlePlay(void *);
 
-    LLHandle<LLFloater>                     mSettingsFloater;
-    LLHandle<LLFloater>                     mEditFloater;
-    S32                                     mDirtyFlag;
+    typedef boost::signals2::connection connection_t;
+
+    connection_t                mCommitConnection;
+    LLHandle<LLFloater>         mSettingsFloater;
+    LLHandle<LLFloater>         mEditFloater;
+    S32                         mDirtyFlag;
 };
 #endif // LL_LLPANELEXPERIENCES_H
