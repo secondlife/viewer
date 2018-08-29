@@ -4150,6 +4150,7 @@ void LLAgent::setTeleportState(ETeleportState state)
             " for previously failed teleport.  Ignore!" << LL_ENDL;
         return;
     }
+    LL_DEBUGS("Teleport") << "Setting teleport state to " << state << " Previous state: " << mTeleportState << LL_ENDL;
 	mTeleportState = state;
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{

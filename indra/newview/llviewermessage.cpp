@@ -2709,6 +2709,12 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 	U32 teleport_flags = 0x0;
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 
+	if (gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING)
+	{
+		// Race condition?
+		LL_WARNS("Messaging") << "Got TeleportStart, but teleport already in progress. TeleportFlags=" << teleport_flags << LL_ENDL;
+	}
+
 	LL_DEBUGS("Messaging") << "Got TeleportStart with TeleportFlags=" << teleport_flags << ". gTeleportDisplay: " << gTeleportDisplay << ", gAgent.mTeleportState: " << gAgent.getTeleportState() << LL_ENDL;
 
 	// *NOTE: The server sends two StartTeleport packets when you are teleporting to a LM
@@ -2766,7 +2772,7 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	}
 	std::string buffer;
 	msg->getString("Info", "Message", buffer);
-	LL_DEBUGS("Messaging") << "teleport progress: " << buffer << LL_ENDL;
+	LL_DEBUGS("Messaging") << "teleport progress: " << buffer << " flags: " << teleport_flags << LL_ENDL;
 
 	//Sorta hacky...default to using simulator raw messages
 	//if we don't find the coresponding mapping in our progress mappings
@@ -2889,9 +2895,21 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
     if (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)
     {
-        // Server either ignored teleport cancel message or did not receive it in time.
-        // This message can't be ignored since teleport is complete at server side
-        gAgent.restoreCanceledTeleportRequest();
+        if (gAgent.canRestoreCanceledTeleport())
+        {
+            // Server either ignored teleport cancel message or did not receive it in time.
+            // This message can't be ignored since teleport is complete at server side
+            gAgent.restoreCanceledTeleportRequest();
+        }
+        else
+        {
+            // Race condition? Make sure all variables are set correctly for teleport to work
+            LL_WARNS("Messaging") << "Teleport 'finish' message without 'start'" << LL_ENDL;
+            gTeleportDisplay = TRUE;
+            LLViewerMessage::getInstance()->mTeleportStartedSignal();
+            gAgent.setTeleportState(LLAgent::TELEPORT_REQUESTED);
+            make_ui_sound("UISndTeleportOut");
+        }
     }
 	
 	// Teleport is finished; it can't be cancelled now.
