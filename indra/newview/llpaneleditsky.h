@@ -137,8 +137,6 @@ public:
     virtual BOOL postBuild() override;
     virtual void setEnabled(BOOL enabled) override;
 
-    void setProfileType(LLDensityCtrl::DensityProfileType t) { mProfileType = t; }
-
 protected:
     virtual void refresh() override;
 
