@@ -46,7 +46,7 @@
                     increment="0.01"
                     initial_value="0"
                     layout="topleft"
-                    min_val="0"
+                    min_val="-1"
                     max_val="1"
                     name="rayleigh_exponential_scale"
                     label="Rayleigh Exponential Scale:"
