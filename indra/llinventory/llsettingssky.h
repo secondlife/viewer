@@ -116,10 +116,17 @@ public:
     F32 getSkyTopRadius() const;
     F32 getSunArcRadians() const;
     F32 getMieAnisotropy() const;   
+
+    // Return first (only) profile layer represented in LLSD
+    LLSD getRayleighConfig() const;
+    LLSD getMieConfig() const;
+    LLSD getAbsorptionConfig() const;
+
+    // Return entire LLSDArray of profile layers represented in LLSD
     LLSD getRayleighConfigs() const;
     LLSD getMieConfigs() const;
-
     LLSD getAbsorptionConfigs() const;
+
     LLUUID getBloomTextureId() const;
 
     void setRayleighConfigs(const LLSD& rayleighConfig);

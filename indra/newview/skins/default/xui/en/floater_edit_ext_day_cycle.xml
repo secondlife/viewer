@@ -524,11 +524,11 @@ Select a key frame from the timeline above to edit settings.
                                 border="true"
                                 class="panel_settings_density"
                                 filename="panel_settings_sky_density.xml"
-                                label="Advanced Atmospherics"
+                                label="Density"
                                 layout="topleft"
                                 left_delta="0"
                                 top_pad="5"
-                                name="sky_density_panel" />
+                                name="panel_settings_sky_density" />
                     </tab_container>
                 </layout_panel>        
             </layout_stack>

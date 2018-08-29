@@ -1161,20 +1161,41 @@ F32 LLSettingsSky::getMieAnisotropy() const
 {
     return mSettings[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
 }
-    
+ 
+LLSD LLSettingsSky::getRayleighConfig() const
+{
+    LLSD copy = *(mSettings[SETTING_RAYLEIGH_CONFIG].beginArray());
+    return copy;
+}
+
+LLSD LLSettingsSky::getMieConfig() const
+{
+    LLSD copy = *(mSettings[SETTING_MIE_CONFIG].beginArray());
+    return copy;
+}
+
+LLSD LLSettingsSky::getAbsorptionConfig() const
+{
+    LLSD copy = *(mSettings[SETTING_ABSORPTION_CONFIG].beginArray());
+    return copy;
+}
+   
 LLSD LLSettingsSky::getRayleighConfigs() const
 {
-    return mSettings[SETTING_RAYLEIGH_CONFIG];
+    LLSD copy = *(mSettings[SETTING_RAYLEIGH_CONFIG].beginArray());
+    return copy;
 }
 
 LLSD LLSettingsSky::getMieConfigs() const
 {
-    return mSettings[SETTING_MIE_CONFIG];
+    LLSD copy = *(mSettings[SETTING_MIE_CONFIG].beginArray());
+    return copy;
 }
 
 LLSD LLSettingsSky::getAbsorptionConfigs() const
 {
-    return mSettings[SETTING_ABSORPTION_CONFIG];
+    LLSD copy = *(mSettings[SETTING_ABSORPTION_CONFIG].beginArray());
+    return copy;
 }
 
 void LLSettingsSky::setRayleighConfigs(const LLSD& rayleighConfig)

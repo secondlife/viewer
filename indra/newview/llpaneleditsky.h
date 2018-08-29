@@ -127,12 +127,12 @@ private:
 };
 
 // single subtab of the density settings tab
-class LLPanelSettingsDensityTab : public LLPanelSettingsSky
+class LLPanelSettingsSkyDensityTab : public LLPanelSettingsSky
 {
-    LOG_CLASS(LLPanelSettingsDensityTab);
+    LOG_CLASS(LLPanelSettingsSkyDensityTab);
 
 public:
-    LLPanelSettingsDensityTab();
+    LLPanelSettingsSkyDensityTab();
 
     virtual BOOL postBuild() override;
     virtual void setEnabled(BOOL enabled) override;

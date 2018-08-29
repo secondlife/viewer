@@ -818,7 +818,7 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
     {
         panel->setSky(p_sky);
     }
-    panel = dynamic_cast<LLPanelSettingsDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
+    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
     if (panel)
     {
         panel->setSky(p_sky);
@@ -859,7 +859,7 @@ void LLFloaterEditExtDayCycle::setSkyTabsEnabled(BOOL enable)
         panel->setEnabled(enable);
         panel->setAllChildrenEnabled(enable);
     }
-    panel = dynamic_cast<LLPanelSettingsDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
+    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
     if (panel)
     {
         panel->setEnabled(enable);
