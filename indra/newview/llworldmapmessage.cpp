@@ -54,7 +54,7 @@ LLWorldMapMessage::~LLWorldMapMessage()
 
 void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle)
 {
-	//LL_INFOS("World Map") << "Send item request : type = " << type << LL_ENDL;
+	//LL_INFOS("WorldMap") << "Send item request : type = " << type << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 
 	msg->newMessageFast(_PREHASH_MapItemRequest);
@@ -74,7 +74,7 @@ void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle)
 
 void LLWorldMapMessage::sendNamedRegionRequest(std::string region_name)
 {
-	//LL_INFOS("World Map") << "LLWorldMap::sendNamedRegionRequest()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 
 	// Request for region data
@@ -95,7 +95,7 @@ void LLWorldMapMessage::sendNamedRegionRequest(std::string region_name,
 		const std::string& callback_url,
 		bool teleport)	// immediately teleport when result returned
 {
-	//LL_INFOS("World Map") << "LLWorldMap::sendNamedRegionRequest()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << LL_ENDL;
 	mSLURLRegionName = region_name;
 	mSLURLRegionHandle = 0;
 	mSLURL = callback_url;
@@ -110,7 +110,7 @@ void LLWorldMapMessage::sendHandleRegionRequest(U64 region_handle,
 		const std::string& callback_url,
 		bool teleport)	// immediately teleport when result returned
 {
-	//LL_INFOS("World Map") << "LLWorldMap::sendHandleRegionRequest()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << LL_ENDL;
 	mSLURLRegionName.clear();
 	mSLURLRegionHandle = region_handle;
 	mSLURL = callback_url;
@@ -128,7 +128,7 @@ void LLWorldMapMessage::sendHandleRegionRequest(U64 region_handle,
 
 void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent)
 {
-	//LL_INFOS("World Map") << "LLWorldMap::sendMapBlockRequest()" << ", min = (" << min_x << ", " << min_y << "), max = (" << max_x << ", " << max_y << "), nonexistent = " << return_nonexistent << LL_ENDL;
+	//LL_INFOS("WorldMap" << " min = (" << min_x << ", " << min_y << "), max = (" << max_x << ", " << max_y << ", nonexistent = " << return_nonexistent << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MapBlockRequest);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -161,7 +161,7 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 	}
 
 	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_Data);
-	//LL_INFOS("World Map") << "LLWorldMap::processMapBlockReply(), num_blocks = " << num_blocks << LL_ENDL;
+	//LL_INFOS("WorldMap") << "num_blocks = " << num_blocks << LL_ENDL;
 
 	bool found_null_sim = false;
 
@@ -233,7 +233,7 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 // public static
 void LLWorldMapMessage::processMapItemReply(LLMessageSystem* msg, void**)
 {
-	//LL_INFOS("World Map") << "LLWorldMap::processMapItemReply()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << LL_ENDL;
 	U32 type;
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_ItemType, type);
 

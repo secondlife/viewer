@@ -36,6 +36,26 @@
 
 #include "../test/lltut.h"
 
+enum LogFieldIndex
+{
+    TIME_FIELD,
+    LEVEL_FIELD,
+    TAGS_FIELD,
+    LOCATION_FIELD,
+    FUNCTION_FIELD,
+    MSG_FIELD
+};
+
+static const char* FieldName[] = 
+{
+    "TIME",
+    "LEVEL",
+    "TAGS",
+    "LOCATION",
+    "FUNCTION",
+    "MSG"
+};
+
 namespace
 {
 #ifdef __clang__
@@ -58,7 +78,7 @@ namespace tut
 	class TestRecorder : public LLError::Recorder
 	{
 	public:
-		TestRecorder() { mWantsTime = false; }
+		TestRecorder() { mWantsTime = false; mWantsTags = true; }
 		virtual ~TestRecorder() {  }
 
 		virtual void recordMessage(LLError::ELevel level,
@@ -133,13 +153,64 @@ namespace tut
 			ensure_equals("message count", countMessages(), expectedCount);
 		}
 
-		void ensure_message_contains(int n, const std::string& expectedText)
-		{
-			std::ostringstream test_name;
-			test_name << "testing message " << n;
+        std::string message_field(int msgnum, LogFieldIndex fieldnum)
+        {
+            std::ostringstream test_name;
+            test_name << "testing message " << msgnum << ", not enough messages";            
+            tut::ensure(test_name.str(), msgnum < countMessages());
 
-			ensure_contains(test_name.str(), message(n), expectedText);
-		}
+            std::string msg(message(msgnum));
+
+            std::string field_value;
+
+            // find the start of the field; fields are separated by a single space
+            size_t scan = 0;
+            int on_field = 0;
+            while ( scan < msg.length() && on_field < fieldnum )
+            {
+                // fields are delimited by one space
+                if ( ' ' == msg[scan] )
+                {
+                    if ( on_field < FUNCTION_FIELD )
+                    {
+                        on_field++;
+                    }
+                    // except function, which may have embedded spaces so ends with " : "
+                    else if (   ( on_field == FUNCTION_FIELD ) 
+                             && ( ':' == msg[scan+1] && ' ' == msg[scan+2] )
+                             )
+                    {
+                        on_field++;
+                        scan +=2;
+                    }
+                }
+                scan++;
+            }
+            size_t start_field = scan;
+            size_t fieldlen = 0;
+            if ( fieldnum < FUNCTION_FIELD )
+            {
+                fieldlen = msg.find(' ', start_field) - start_field;
+            }
+            else if ( fieldnum == FUNCTION_FIELD ) 
+            {
+                fieldlen = msg.find(" : ", start_field) - start_field;                
+            }
+            else if ( MSG_FIELD == fieldnum ) // no delimiter, just everything to the end
+            {
+                fieldlen = msg.length() - start_field;
+            }
+
+            return msg.substr(start_field, fieldlen);
+        }
+        
+		void ensure_message_field_equals(int msgnum, LogFieldIndex fieldnum, const std::string& expectedText)
+         {
+             std::ostringstream test_name;
+             test_name << "testing message " << msgnum << " field " << FieldName[fieldnum] << "\n  message: \"" << message(msgnum) << "\"\n  ";
+
+             ensure_equals(test_name.str(), message_field(msgnum, fieldnum), expectedText);
+         }
 
 		void ensure_message_does_not_contain(int n, const std::string& expectedText)
 		{
@@ -162,8 +233,8 @@ namespace tut
 		LL_INFOS() << "test" << LL_ENDL;
 		LL_INFOS() << "bob" << LL_ENDL;
 
-		ensure_message_contains(0, "test");
-		ensure_message_contains(1, "bob");
+		ensure_message_field_equals(0, MSG_FIELD, "test");
+		ensure_message_field_equals(1, MSG_FIELD, "bob");
 	}
 }
 
@@ -171,11 +242,10 @@ namespace
 {
 	void writeSome()
 	{
-		LL_DEBUGS() << "one" << LL_ENDL;
-		LL_INFOS() << "two" << LL_ENDL;
-		LL_WARNS() << "three" << LL_ENDL;
-		// fatal messages write out an additional "error" message
-		LL_ERRS() << "four" << LL_ENDL;
+		LL_DEBUGS("WriteTag","AnotherTag") << "one" << LL_ENDL;
+		LL_INFOS("WriteTag") << "two" << LL_ENDL;
+		LL_WARNS("WriteTag") << "three" << LL_ENDL;
+		LL_ERRS("WriteTag") << "four" << LL_ENDL;
 	}
 };
 
@@ -187,37 +257,41 @@ namespace tut
 	{
 		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 		writeSome();
-		ensure_message_contains(0, "one");
-		ensure_message_contains(1, "two");
-		ensure_message_contains(2, "three");
-		ensure_message_contains(3, "error");
-		ensure_message_contains(4, "four");
-		ensure_message_count(5);
+		ensure_message_field_equals(0, MSG_FIELD, "one");
+		ensure_message_field_equals(0, LEVEL_FIELD, "DEBUG");
+		ensure_message_field_equals(0, TAGS_FIELD, "#WriteTag#AnotherTag#");
+		ensure_message_field_equals(1, MSG_FIELD, "two");
+		ensure_message_field_equals(1, LEVEL_FIELD, "INFO");
+		ensure_message_field_equals(1, TAGS_FIELD, "#WriteTag#");
+		ensure_message_field_equals(2, MSG_FIELD, "three");
+		ensure_message_field_equals(2, LEVEL_FIELD, "WARNING");
+		ensure_message_field_equals(2, TAGS_FIELD, "#WriteTag#");
+		ensure_message_field_equals(3, MSG_FIELD, "four");
+		ensure_message_field_equals(3, LEVEL_FIELD, "ERROR");
+		ensure_message_field_equals(3, TAGS_FIELD, "#WriteTag#");
+		ensure_message_count(4);
 
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 		writeSome();
-		ensure_message_contains(5, "two");
-		ensure_message_contains(6, "three");
-		ensure_message_contains(7, "error");
-		ensure_message_contains(8, "four");
-		ensure_message_count(9);
+		ensure_message_field_equals(4, MSG_FIELD, "two");
+		ensure_message_field_equals(5, MSG_FIELD, "three");
+		ensure_message_field_equals(6, MSG_FIELD, "four");
+		ensure_message_count(7);
 
 		LLError::setDefaultLevel(LLError::LEVEL_WARN);
 		writeSome();
-		ensure_message_contains(9, "three");
-		ensure_message_contains(10, "error");
-		ensure_message_contains(11, "four");
-		ensure_message_count(12);
+		ensure_message_field_equals(7, MSG_FIELD, "three");
+		ensure_message_field_equals(8, MSG_FIELD, "four");
+		ensure_message_count(9);
 
 		LLError::setDefaultLevel(LLError::LEVEL_ERROR);
 		writeSome();
-		ensure_message_contains(12, "error");
-		ensure_message_contains(13, "four");
-		ensure_message_count(14);
+		ensure_message_field_equals(9, MSG_FIELD, "four");
+		ensure_message_count(10);
 
 		LLError::setDefaultLevel(LLError::LEVEL_NONE);
 		writeSome();
-		ensure_message_count(14);
+		ensure_message_count(10);
 	}
 
 	template<> template<>
@@ -225,12 +299,11 @@ namespace tut
 		// error type string in output
 	{
 		writeSome();
-		ensure_message_contains(0, "DEBUG: ");
-		ensure_message_contains(1, "INFO: ");
-		ensure_message_contains(2, "WARNING: ");
-		ensure_message_does_not_contain(3, "ERROR");
-		ensure_message_contains(4, "ERROR: ");
-		ensure_message_count(5);
+		ensure_message_field_equals(0, LEVEL_FIELD, "DEBUG");
+		ensure_message_field_equals(1, LEVEL_FIELD, "INFO");
+		ensure_message_field_equals(2, LEVEL_FIELD, "WARNING");
+		ensure_message_field_equals(3, LEVEL_FIELD, "ERROR");
+		ensure_message_count(4);
 	}
 
 	template<> template<>
@@ -280,7 +353,7 @@ namespace
 	{
 		std::ostringstream location;
 		location << LLError::abbreviateFile(__FILE__)
-				 << "(" << line << ") : ";
+				 << "(" << line << ")";
 
 		return location.str();
 	}
@@ -321,7 +394,7 @@ namespace tut
 		writeReturningLocation();
 
 		ensure_message_does_not_contain(0, location);
-		ensure_message_contains(1, location);
+		ensure_message_field_equals(1, LOCATION_FIELD, location);
 		ensure_message_does_not_contain(2, location);
 	}
 }
@@ -496,13 +569,13 @@ namespace tut
 	void ErrorTestObject::test<7>()
 	{
 		outerLogger();
-		ensure_message_contains(0, "inside");
-		ensure_message_contains(1, "outside(moo)");
+		ensure_message_field_equals(0, MSG_FIELD, "inside");
+		ensure_message_field_equals(1, MSG_FIELD, "outside(moo)");
 		ensure_message_count(2);
 
 		metaLogger();
-		ensure_message_contains(2, "logging");
-		ensure_message_contains(3, "meta(baz)");
+		ensure_message_field_equals(2, MSG_FIELD, "logging");
+		ensure_message_field_equals(3, MSG_FIELD, "meta(baz)");
 		ensure_message_count(4);
 	}
 
@@ -513,9 +586,9 @@ namespace tut
 		LLError::setPrintLocation(false);
 		std::string location = errorReturningLocation();
 
-		ensure_message_contains(0, location + "error");
-		ensure_message_contains(1, "die");
-		ensure_message_count(2);
+		ensure_message_field_equals(0, LOCATION_FIELD, location);
+		ensure_message_field_equals(0, MSG_FIELD, "die");
+		ensure_message_count(1);
 
 		ensure("fatal callback called", fatalWasCalled);
 	}
@@ -544,13 +617,13 @@ namespace tut
 
 		setWantsTime(false);
 		ufoSighting();
-		ensure_message_contains(0, "ufo");
+		ensure_message_field_equals(0, MSG_FIELD, "ufo");
 		ensure_message_does_not_contain(0, roswell());
 
 		setWantsTime(true);
 		ufoSighting();
-		ensure_message_contains(1, "ufo");
-		ensure_message_contains(1, roswell());
+		ensure_message_field_equals(1, MSG_FIELD, "ufo");
+		ensure_message_field_equals(1, TIME_FIELD, roswell());
 	}
 
 	template<> template<>
@@ -564,9 +637,9 @@ namespace tut
 					function;
 		writeReturningLocationAndFunction(location, function);
 
-		ensure_equals("order is time location type function message",
+		ensure_equals("order is time level tags location function message",
 			message(0),
-			roswell() + " INFO: " + location + function + ": apple");
+                      roswell() + " INFO " + "# " /* no tag */ + location + " " + function + " : " + "apple");
 	}
 
 	template<> template<>
@@ -578,7 +651,7 @@ namespace tut
 
 		LL_INFOS() << "boo" << LL_ENDL;
 
-		ensure_message_contains(0, "boo");
+		ensure_message_field_equals(0, MSG_FIELD, "boo");
 		ensure_equals("alt recorder count", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 1);
 		ensure_contains("alt recorder message 0", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(0), "boo");
 
@@ -637,14 +710,12 @@ namespace tut
 		TestAlpha::doAll();
 		TestBeta::doAll();
 
-		ensure_message_contains(0, "aim west");
-		ensure_message_contains(1, "error");
-		ensure_message_contains(2, "ate eels");
-		ensure_message_contains(3, "buy iron");
-		ensure_message_contains(4, "bad word");
-		ensure_message_contains(5, "error");
-		ensure_message_contains(6, "big easy");
-		ensure_message_count(7);
+		ensure_message_field_equals(0, MSG_FIELD, "aim west");
+		ensure_message_field_equals(1, MSG_FIELD, "ate eels");
+		ensure_message_field_equals(2, MSG_FIELD, "buy iron");
+		ensure_message_field_equals(3, MSG_FIELD, "bad word");
+		ensure_message_field_equals(4, MSG_FIELD, "big easy");
+		ensure_message_count(5);
 	}
 
 	template<> template<>
@@ -657,8 +728,8 @@ namespace tut
 		LLError::setFunctionLevel("TestBeta::doError", LLError::LEVEL_NONE);
 
 		TestBeta::doAll();
-		ensure_message_contains(0, "buy iron");
-		ensure_message_contains(1, "bad word");
+		ensure_message_field_equals(0, MSG_FIELD, "buy iron");
+		ensure_message_field_equals(1, MSG_FIELD, "bad word");
 		ensure_message_count(2);
 	}
 
@@ -678,9 +749,9 @@ namespace tut
 
 		TestAlpha::doAll();
 		TestBeta::doAll();
-		ensure_message_contains(0, "any idea");
-		ensure_message_contains(1, "aim west");
-		ensure_message_contains(2, "bad word");
+		ensure_message_field_equals(0, MSG_FIELD, "any idea");
+		ensure_message_field_equals(1, MSG_FIELD, "aim west");
+		ensure_message_field_equals(2, MSG_FIELD, "bad word");
 		ensure_message_count(3);
 	}
 
@@ -718,14 +789,13 @@ namespace tut
 		// configuration from LLSD
 	void ErrorTestObject::test<16>()
 	{
-		std::string this_file = LLError::abbreviateFile(__FILE__);
 		LLSD config;
 		config["print-location"] = true;
 		config["default-level"] = "DEBUG";
 
 		LLSD set1;
 		set1["level"] = "WARN";
-		set1["files"][0] = this_file;
+        set1["files"][0] = LLError::abbreviateFile(__FILE__);
 
 		LLSD set2;
 		set2["level"] = "INFO";
@@ -744,10 +814,9 @@ namespace tut
 
 		TestAlpha::doAll();
 		TestBeta::doAll();
-		ensure_message_contains(0, "any idea");
-		ensure_message_contains(0, this_file);
-		ensure_message_contains(1, "aim west");
-		ensure_message_contains(2, "bad word");
+		ensure_message_field_equals(0, MSG_FIELD, "any idea");
+		ensure_message_field_equals(1, MSG_FIELD, "aim west");
+		ensure_message_field_equals(2, MSG_FIELD, "bad word");
 		ensure_message_count(3);
 
 		// make sure reconfiguring works
@@ -758,15 +827,73 @@ namespace tut
 
 		TestAlpha::doAll();
 		TestBeta::doAll();
-		ensure_message_contains(3, "aim west");
-		ensure_message_does_not_contain(3, this_file);
-		ensure_message_contains(4, "error");
-		ensure_message_contains(5, "ate eels");
-		ensure_message_contains(6, "bad word");
-		ensure_message_contains(7, "error");
-		ensure_message_contains(8, "big easy");
-		ensure_message_count(9);
+		ensure_message_field_equals(3, MSG_FIELD, "aim west");
+		ensure_message_field_equals(4, MSG_FIELD, "ate eels");
+		ensure_message_field_equals(5, MSG_FIELD, "bad word");
+		ensure_message_field_equals(6, MSG_FIELD, "big easy");
+		ensure_message_count(7);
 	}
+}
+
+namespace
+{
+    void writeMsgNeedsEscaping()
+    {
+        LL_DEBUGS("WriteTag") << "backslash\\" << LL_ENDL;
+        LL_INFOS("WriteTag") << "newline\nafternewline" << LL_ENDL;
+        LL_WARNS("WriteTag") << "return\rafterreturn" << LL_ENDL;
+
+        LL_DEBUGS("WriteTag") << "backslash\\backslash\\" << LL_ENDL;
+        LL_INFOS("WriteTag") << "backslash\\newline\nanothernewline\nafternewline" << LL_ENDL;
+        LL_WARNS("WriteTag") << "backslash\\returnnewline\r\n\\afterbackslash" << LL_ENDL;
+    }
+};
+
+namespace tut
+{
+    template<> template<>
+    void ErrorTestObject::test<17>()
+        // backslash, return, and newline are escaped with backslashes
+    {
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        writeMsgNeedsEscaping();
+        ensure_message_field_equals(0, MSG_FIELD, "backslash\\\\");
+        ensure_message_field_equals(1, MSG_FIELD, "newline\\nafternewline");
+        ensure_message_field_equals(2, MSG_FIELD, "return\\rafterreturn");
+        ensure_message_field_equals(3, MSG_FIELD, "backslash\\\\backslash\\\\");
+        ensure_message_field_equals(4, MSG_FIELD, "backslash\\\\newline\\nanothernewline\\nafternewline");
+        ensure_message_field_equals(5, MSG_FIELD, "backslash\\\\returnnewline\\r\\n\\\\afterbackslash");
+        ensure_message_count(6);
+    }
+}
+
+namespace
+{
+    std::string writeTagWithSpaceReturningLocation()
+	{
+        LL_DEBUGS("Write Tag") << "not allowed" << LL_ENDL;	int this_line = __LINE__;
+        
+        std::ostringstream location;
+        location << LLError::abbreviateFile(__FILE__).c_str() << "(" << this_line << ")";
+        return location.str();
+	}
+};
+
+namespace tut
+{
+    template<> template<>
+    void ErrorTestObject::test<18>()
+        // space character is not allowed in a tag
+    {
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        fatalWasCalled = false;
+
+        std::string location = writeTagWithSpaceReturningLocation();
+        std::string expected = "Space is not allowed in a log tag at " + location;
+		ensure_message_field_equals(0, LEVEL_FIELD, "ERROR");
+		ensure_message_field_equals(0, MSG_FIELD, expected);
+		ensure("fatal callback called", fatalWasCalled);
+    }
 }
 
 /* Tests left:

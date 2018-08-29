@@ -2,7 +2,6 @@
 	<map>
 		<!-- default-level can be ALL, DEBUG, INFO, WARN, ERROR, or NONE -->
 		<key>default-level</key>    <string>INFO</string>
-		<key>print-location</key>   <boolean>false</boolean>
 		<key>settings</key>
 			<array>
 				<!-- Suppress anything but ERROR for some very verbose components -->
