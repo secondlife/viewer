@@ -2128,9 +2128,14 @@ if (DARWIN)
     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     )
 
+  set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
+  set(VIEWER_APP_EXECUTABLE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
+  set(VIEWER_APP_DSYM "${VIEWER_APP_EXECUTABLE}.dSYM")
+  set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
+
   configure_file(
      "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
-     "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
+     "${VIEWER_APP_BUNDLE}/Contents/Info.plist"
     )
 
   add_custom_command(
@@ -2147,7 +2152,7 @@ if (DARWIN)
       --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
       "--channel=${VIEWER_CHANNEL}"
       --configuration=${CMAKE_CFG_INTDIR}
-      --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
+      --dest=${VIEWER_APP_BUNDLE}
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
@@ -2180,7 +2185,7 @@ if (DARWIN)
           --buildtype=${CMAKE_BUILD_TYPE}
           "--channel=${VIEWER_CHANNEL}"
           --configuration=${CMAKE_CFG_INTDIR}
-          --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
+          --dest=${VIEWER_APP_BUNDLE}
           --grid=${GRID}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
@@ -2197,60 +2202,135 @@ if (INSTALL)
 endif (INSTALL)
 
 # Note that the conventional VIEWER_SYMBOL_FILE is set by ../../build.sh
-if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND NOT BUGSPLAT_DB AND VIEWER_SYMBOL_FILE)
-  set(SYMBOL_SEARCH_DIRS "")
-  if (WINDOWS)
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-    # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
-    # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
-    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
-    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
-    set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
-  endif (WINDOWS)
-  if (DARWIN)
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-    # *TODO: Generate these search dirs in the cmake files related to each binary.
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
-    set(VIEWER_EXE_GLOBS "'${product}' SLPlugin mac-crash-logger")
-    set(VIEWER_EXE_GLOBS "'${product}' mac-crash-logger")
-    set(VIEWER_LIB_GLOB "*.dylib")
-  endif (DARWIN)
-  if (LINUX)
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
-    set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
-    set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin")
-    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
-    set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
-  endif (LINUX)
+if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIEWER_SYMBOL_FILE)
+  if (NOT BUGSPLAT_DB)
+    # Breakpad symbol-file generation
+    set(SYMBOL_SEARCH_DIRS "")
+    if (WINDOWS)
+      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+      # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
+      # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
+      set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+      set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
+      set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
+    endif (WINDOWS)
+    if (DARWIN)
+      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+      # *TODO: Generate these search dirs in the cmake files related to each binary.
+      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
+      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
+      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
+      set(VIEWER_EXE_GLOBS "'${product}' SLPlugin mac-crash-logger")
+      set(VIEWER_EXE_GLOBS "'${product}' mac-crash-logger")
+      set(VIEWER_LIB_GLOB "*.dylib")
+    endif (DARWIN)
+    if (LINUX)
+      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
+      set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
+      set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin")
+      set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
+      set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
+    endif (LINUX)
 
-  if(CMAKE_CFG_INTDIR STREQUAL ".")
-      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-  else(CMAKE_CFG_INTDIR STREQUAL ".")
-      # set LLBUILD_CONFIG to be a shell variable evaluated at build time
-      # reflecting the configuration we are currently building.
-      set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-  endif(CMAKE_CFG_INTDIR STREQUAL ".")
-  add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-    COMMAND "${PYTHON_EXECUTABLE}"
-    ARGS
-      "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
-      "${LLBUILD_CONFIG}"
-      "${SYMBOL_SEARCH_DIRS}"
-      "${VIEWER_EXE_GLOBS}"
-      "${VIEWER_LIB_GLOB}"
-      "${AUTOBUILD_INSTALL_DIR}/bin/dump_syms"
-      "${VIEWER_SYMBOL_FILE}"
-    DEPENDS generate_breakpad_symbols.py
-        VERBATIM)
+    if(CMAKE_CFG_INTDIR STREQUAL ".")
+        set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
+    else(CMAKE_CFG_INTDIR STREQUAL ".")
+        # set LLBUILD_CONFIG to be a shell variable evaluated at build time
+        # reflecting the configuration we are currently building.
+        set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
+    endif(CMAKE_CFG_INTDIR STREQUAL ".")
+    add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
+      COMMAND "${PYTHON_EXECUTABLE}"
+      ARGS
+        "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+        "${LLBUILD_CONFIG}"
+        "${SYMBOL_SEARCH_DIRS}"
+        "${VIEWER_EXE_GLOBS}"
+        "${VIEWER_LIB_GLOB}"
+        "${AUTOBUILD_INSTALL_DIR}/bin/dump_syms"
+        "${VIEWER_SYMBOL_FILE}"
+      DEPENDS generate_breakpad_symbols.py
+          VERBATIM)
 
-  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
-  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}")
-  if (WINDOWS OR LINUX)
-    add_dependencies(generate_breakpad_symbols "${VIEWER_COPY_MANIFEST}")
-  endif (WINDOWS OR LINUX)
-  add_dependencies(llpackage generate_breakpad_symbols)
+    add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+    add_dependencies(generate_symbols "${VIEWER_BINARY_NAME}")
+    if (WINDOWS OR LINUX)
+      add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
+    endif (WINDOWS OR LINUX)
+
+  else (NOT BUGSPLAT_DB)
+    # BugSplat symbol-file generation
+    if (WINDOWS)
+      # Just pack up a tarball containing only the .pdb file for the executable.
+      add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
+        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.bz2;
+        # testing a string suffix is painful enough in CMake language that
+        # we'll continue assuming it until forced to generalize.
+        COMMAND "tar"
+        ARGS
+          "cjf"
+          "${VIEWER_SYMBOL_FILE}"
+          "-C"
+          "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+          "secondlife-bin.pdb"
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-bin.pdb"
+        COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE}"
+        )
+      add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
+    endif (WINDOWS)
+    if (DARWIN)
+      # Have to run dsymutil first, then pack up the resulting .dSYM directory
+      add_custom_command(OUTPUT "${VIEWER_APP_DSYM}"
+        COMMAND "dsymutil"
+        ARGS
+          "${VIEWER_APP_EXECUTABLE}"
+        DEPENDS "${VIEWER_APP_EXECUTABLE}"
+        COMMENT "Generating ${VIEWER_APP_DSYM}"
+        )
+      add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
+        # See above comments about "tar ...j"
+        COMMAND "tar"
+        ARGS
+          "cjf"
+          "${VIEWER_SYMBOL_FILE}"
+          "-C"
+          "${VIEWER_APP_DSYM}/.."
+          "${product}.dSYM"
+        DEPENDS "${VIEWER_APP_DSYM}"
+        COMMENT "Packing dSYM into ${VIEWER_SYMBOL_FILE}"
+        )
+      add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
+        COMMAND "zip"
+        ARGS
+          "-r"
+          "${VIEWER_APP_XCARCHIVE}"
+          "."
+        WORKING_DIRECTORY "${VIEWER_APP_DSYM}/.."
+        DEPENDS "${VIEWER_APP_DSYM}"
+        COMMENT "Generating xcarchive.zip for upload to BugSplat"
+        )
+      # Have to create a stamp file, and depend on it, to force CMake to run
+      # the cleanup step.
+      add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
+        COMMAND rm -rf "${VIEWER_APP_DSYM}"
+        COMMAND touch "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
+        DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_APP_XCARCHIVE}"
+        COMMENT "Cleaning up dSYM"
+        )
+      add_custom_target(generate_symbols DEPENDS
+        "${VIEWER_APP_DSYM}"
+        "${VIEWER_SYMBOL_FILE}"
+        "${VIEWER_APP_XCARCHIVE}"
+        "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
+        )
+    endif (DARWIN)
+    if (LINUX)
+      # TBD
+    endif (LINUX)
+  endif (NOT BUGSPLAT_DB)
+
+  # for both BUGSPLAT_DB and Breakpad
+  add_dependencies(llpackage generate_symbols)
 endif ()
 
 if (LL_TESTS)

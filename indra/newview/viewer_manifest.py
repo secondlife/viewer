@@ -1037,39 +1037,6 @@ open "%s" --args "$@"
 
                         if ("package" in self.args['actions'] or 
                             "unpacked" in self.args['actions']):
-                            # only if we're engaging BugSplat
-                            if self.args.get('bugsplat'):
-                                # Create a symbol archive BEFORE stripping the
-                                # binary.
-                                self.run_command(['dsymutil', exepath])
-                                # This should produce a Second Life.dSYM bundle directory.
-                                try:
-                                    # Now pretend we're Xcode making a .xcarchive file.
-                                    # Put it as a sibling of the top-level .app.
-                                    # From "Dave" at BugSplat support:
-                                    # "More from our Mac lead: I think zipping
-                                    # a folder containing the binary and
-                                    # symbols would be sufficient. Assuming
-                                    # symbol files are created with CMake. I'm
-                                    # not sure if CMake strips symbols into
-                                    # separate files at build time, and if so
-                                    # they're in a supported format."
-                                    xcarchive = os.path.join(parentdir,
-                                                             exename + '.xcarchive.zip')
-                                    with zipfile.ZipFile(xcarchive, 'w',
-                                                         compression=zipfile.ZIP_DEFLATED) as zf:
-                                        print "Creating {}".format(xcarchive)
-                                        for base, dirs, files in os.walk(here):
-                                            for fn in files:
-                                                fullfn = os.path.join(base, fn)
-                                                relfn = os.path.relpath(fullfn, here)
-                                                print "  {}".format(relfn)
-                                                zf.write(fullfn, relfn)
-                                finally:
-                                    # Whether or not we were able to create the
-                                    # .xcarchive file, clean up the .dSYM bundle
-                                    shutil.rmtree(self.dst_path_of(exename + '.dSYM'))
-
                             # NOTE: the -S argument to strip causes it to keep
                             # enough info for annotated backtraces (i.e. function
                             # names in the crash log). 'strip' with no arguments
@@ -1089,7 +1056,7 @@ open "%s" --args "$@"
                     if bugsplat_db:
                         # https://www.bugsplat.com/docs/platforms/os-x#configuration
                         Info["BugsplatServerURL"] = \
-                            "https://{}.bugsplatsoftware.com/".format(bugsplat_db)
+                            "https://{}.bugsplat.com/".format(bugsplat_db)
                     self.put_in_file(
                         plistlib.writePlistToString(Info),
                         os.path.basename(Info_plist),

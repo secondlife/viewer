@@ -443,9 +443,7 @@ then
       if [ "$last_built_variant" = "Release" ]
       then
           # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
-          # Likewise, BUGSPLAT_DB suppresses generating the symbol file.
-          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" \
-               -a -z "${BUGSPLAT_DB:-}" ]
+          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
           then
               # Upload crash reporter file
               python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
