@@ -200,19 +200,6 @@ public:
     }
 
     //-------------------------------------------
-    LLVector4 getWaterPlane() const
-    {
-        update();
-        return mWaterPlane;
-    }
-
-    F32 getWaterFogKS() const
-    {
-        update();
-        return mWaterFogKS;
-    }
-
-    //-------------------------------------------
     LLUUID getNextNormalMapID() const
     {
         return mNextNormalMapID;
@@ -250,9 +237,6 @@ protected:
     static const std::string SETTING_LEGACY_WAVE2_DIR;
 
     LLSettingsWater();
-
-    LLVector4 mWaterPlane;
-    F32       mWaterFogKS;
 
 private:
     LLUUID    mNextTransparentTextureID;
