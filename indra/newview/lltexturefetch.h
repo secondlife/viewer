@@ -292,6 +292,8 @@ private:
 	 */
 	void cmdDoWork();
 	
+    S32 getJpegDecoderType() const { return mJpegDecoderType; }
+
 public:
 	LLUUID mDebugID;
 	S32 mDebugCount;
@@ -325,6 +327,7 @@ private:
 	F32 mMaxBandwidth;													// Mfnq
 	LLTextureInfo mTextureInfo;
 	LLTextureInfo mTextureInfoMainThread;
+    S32 mJpegDecoderType = 0;
 
 	// XXX possible delete
 	U32Bits mHTTPTextureBits;												// Mfnq

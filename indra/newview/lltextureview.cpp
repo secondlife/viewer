@@ -232,20 +232,20 @@ void LLTextureBar::draw()
 		{ "INI", LLColor4::white },	// INIT
 		{ "CCH", LLColor4::cyan },	// LOAD_FROM_TEXTURE_CACHE
 		{ "DSK", LLColor4::blue },	// CACHE_POST
-		{ "NET", LLColor4::green },	// LOAD_FROM_NETWORK
-		{ "SIM", LLColor4::green },	// LOAD_FROM_SIMULATOR
-		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE
-		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE2
+		{ "NET", LLColor4::green1 },	// LOAD_FROM_NETWORK
+		{ "SIM", LLColor4::green2 },	// LOAD_FROM_SIMULATOR
+		{ "HTW", LLColor4::green3 },	// WAIT_HTTP_RESOURCE
+		{ "HTI", LLColor4::green4 },	// WAIT_HTTP_RESOURCE2
 		{ "REQ", LLColor4::yellow },// SEND_HTTP_REQ
-		{ "HTP", LLColor4::green },	// WAIT_HTTP_REQ
+		{ "HTP", LLColor4::green5 },	// WAIT_HTTP_REQ
 		{ "DEC", LLColor4::yellow },// DECODE_IMAGE
-		{ "DEU", LLColor4::green }, // DECODE_IMAGE_UPDATE
+		{ "DEU", LLColor4::green6 }, // DECODE_IMAGE_UPDATE
 		{ "WRT", LLColor4::purple },// WRITE_TO_CACHE
 		{ "WWT", LLColor4::orange },// WAIT_ON_WRITE
 		{ "END", LLColor4::red },   // DONE
 #define LAST_STATE 14
 		{ "CRE", LLColor4::magenta }, // LAST_STATE+1
-		{ "FUL", LLColor4::green }, // LAST_STATE+2
+		{ "FUL", LLColor4::blue6 }, // LAST_STATE+2
 		{ "BAD", LLColor4::red }, // LAST_STATE+3
 		{ "MIS", LLColor4::red }, // LAST_STATE+4
 		{ "---", LLColor4::white }, // LAST_STATE+5

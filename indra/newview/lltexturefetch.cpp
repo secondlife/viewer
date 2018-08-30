@@ -255,10 +255,11 @@ namespace
 
 // Tuning/Parameterization Constants
 
-static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER = 100;		// Maximum requests to have active in HTTP (pipelined)
-static const S32 HTTP_PIPE_REQUESTS_LOW_WATER = 50;			// Active level at which to refill
-static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER = 40;
-static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER = 20;
+static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER      = 100;  // Maximum requests to have active in HTTP (pipelined)
+static const S32 HTTP_PIPE_REQUESTS_LOW_WATER       = 50;	// Active level at which to refill
+static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER   = 40;
+static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER    = 20;
+static const S32 MAX_HTTP_WAITER_COUNT              = 8;
 
 // BUG-3323/SH-4375
 // *NOTE:  This is a heuristic value.  Texture fetches have a habit of using a
@@ -1164,7 +1165,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					S32 bytes_read = LLAPRFile::readEx(filename, data, 0, mFileSize);
 					if (bytes_read == mFileSize)
 					{
-						mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, gSavedSettings.getS32("JpegDecoderType"));
+						mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, getFetcher().getJpegDecoderType());
 						mFormattedImage->setData(data, bytes_read);
 						if (!mFormattedImage->updateData())
 						{
@@ -1357,7 +1358,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
         if (mFormattedImage.isNull())
         {
-			mFormattedImage = new LLImageJ2C(LLImageJ2C::ImplType(gSavedSettings.getS32("JpegDecoderType"))); // default
+			mFormattedImage = new LLImageJ2C(LLImageJ2C::ImplType(getFetcher().getJpegDecoderType())); // default
         }
 		if (processSimulatorPackets())
 		{
@@ -1425,7 +1426,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		//
 		// If it looks like we're busy, keep this request here.
 		// Otherwise, advance into the HTTP states.
-		if (mFetcher->getHttpWaitersCount() || ! acquireHttpSemaphore())
+		if ((mFetcher->getHttpWaitersCount() > MAX_HTTP_WAITER_COUNT) || !acquireHttpSemaphore())
 		{
 			setState(WAIT_HTTP_RESOURCE2);
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
@@ -1704,7 +1705,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 S8 codec = LLImageFormatted::getCodecFromExtension(extension);
                 if (codec == IMG_CODEC_J2C)
                 {
-                    mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, gSavedSettings.getS32("JpegDecoderType"));
+                    mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, getFetcher().getJpegDecoderType());
                 }
                 else
                 {
@@ -1713,7 +1714,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				if (mFormattedImage.isNull())
 				{
-					mFormattedImage = new LLImageJ2C(LLImageJ2C::ImplType(gSavedSettings.getS32("JpegDecoderType"))); // default
+					mFormattedImage = new LLImageJ2C(LLImageJ2C::ImplType(getFetcher().getJpegDecoderType())); // default
 				}
 			}
 						
@@ -2324,6 +2325,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool qa_mode)
 	  mFetcherLocked(FALSE),
 	  mTextureInfoMainThread(false)
 {
+    mJpegDecoderType = gSavedSettings.getS32("JpegDecoderType");
+
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setLogging(true);
 
@@ -2427,7 +2430,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	}
 
     // terrible hack to work around OpenJPEG issues with failing to decode in the face of incomplete data
-    if (gSavedSettings.getS32("JpegDecoderType") > 0)
+    if (mJpegDecoderType > 0)
     {
         desired_size = MAX_IMAGE_DATA_SIZE;
     }
@@ -3169,13 +3172,13 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	
 	if (!worker)
 	{
-        LL_WARNS(LOG_TXT) << "Received header for non active worker: " << id << LL_ENDL;
+        LL_DEBUGS(LOG_TXT) << "Received header for non active worker: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (worker->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK ||
 			 worker->mSentRequest != LLTextureFetchWorker::SENT_SIM)
 	{
-        LL_WARNS(LOG_TXT) << "receiveImageHeader for worker: " << id
+        LL_DEBUGS(LOG_TXT) << "receiveImageHeader for worker: " << id
             << " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState]
             << " sent: " << worker->mSentRequest << LL_ENDL;
 		res = false;
@@ -3183,12 +3186,12 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	else if (worker->mLastPacket != -1)
 	{
 		// check to see if we've gotten this packet before
-        LL_WARNS(LOG_TXT) << "Received duplicate header for: " << id << LL_ENDL;
+        LL_DEBUGS(LOG_TXT) << "Received duplicate header for: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (!data_size)
 	{
-        LL_WARNS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
+        LL_DEBUGS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
 		res = false;
 	}
 	if (!res)
@@ -3229,17 +3232,17 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 	
 	if (!worker)
 	{
-        LL_WARNS(LOG_TXT) << "Received packet " << packet_num << " for non active worker: " << id << LL_ENDL;
+        LL_DEBUGS(LOG_TXT) << "Received packet " << packet_num << " for non active worker: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (worker->mLastPacket == -1)
 	{
-        LL_WARNS(LOG_TXT) << "Received packet " << packet_num << " before header for: " << id << LL_ENDL;
+        LL_DEBUGS(LOG_TXT) << "Received packet " << packet_num << " before header for: " << id << LL_ENDL;
 		res = false;
 	}
 	else if (!data_size)
 	{
-        LL_WARNS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
+        LL_DEBUGS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
 		res = false;
 	}
 	if (!res)
@@ -3265,8 +3268,8 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 	}
 	else
 	{
-// 		LL_WARNS(LOG_TXT) << "receiveImagePacket " << packet_num << "/" << worker->mLastPacket << " for worker: " << id
-// 				<< " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState] << LL_ENDL;
+ 		LL_DEBUGS(LOG_TXT) << "receiveImagePacket " << packet_num << "/" << worker->mLastPacket << " for worker: " << id
+ 				<< " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState] << LL_ENDL;
 		removeFromNetworkQueue(worker, true); // failsafe
 	}
 

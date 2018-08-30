@@ -2369,7 +2369,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DEPRECATED: DebugShowPrivateMem</key>    <!-- deprecated (see MAINT-8091) -->
+    <key>DEPRECATED: DebugShowPrivateMem</key>  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>Show Private Mem Info</string>
@@ -6430,7 +6430,7 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    <key>MemoryPrivatePoolEnabled</key>    <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolEnabled</key>  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>DEPRECATED: Enable the private memory pool management</string>
@@ -6441,7 +6441,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryPrivatePoolSize</key>    <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolSize</key>  <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
       <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
@@ -12130,7 +12130,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.5</real>
+      <real>0.2</real>
     </map>
     <key>TextureCameraMotionBoost</key>
     <map>
@@ -12218,7 +12218,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>64</integer>
+      <integer>32</integer>
     </map>
     <key>TextureFetchUpdateMaxMediumPriority</key>
     <map>
@@ -12240,7 +12240,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>128</integer>
+      <integer>64</integer>
     </map>
     <key>TextureFetchUpdatePriorityThreshold</key>
     <map>

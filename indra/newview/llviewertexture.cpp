@@ -60,7 +60,6 @@
 #include "llvovolume.h"
 #include "llviewermedia.h"
 #include "lltexturecache.h"
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
@@ -955,9 +954,9 @@ void LLViewerTexture::reorganizeVolumeList()
 	for (U32 i = 0; i < LLRender::NUM_VOLUME_TEXTURE_CHANNELS; ++i)
 	{
 		if (mNumVolumes[i] + MAX_EXTRA_BUFFER_SIZE > mVolumeList[i].size())
-	    {
-		    return;
-	    }
+        {
+            return;
+        }
 	}
 
 	if(mLastVolumeListUpdateTimer.getElapsedTimeF32() < MAX_WAIT_TIME)
@@ -1554,11 +1553,37 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 
 	if (mIsMissingAsset)
 	{
-		return 0.0f;
+		priority = 0.0f;
+	}
+	else if(mDesiredDiscardLevel >= cur_discard && cur_discard > -1)
+	{
+		priority = -2.0f;
+	}
+	else if(mCachedRawDiscardLevel > -1 && mDesiredDiscardLevel >= mCachedRawDiscardLevel)
+	{
+		priority = -3.0f;
+	}
+	else if (mDesiredDiscardLevel > getMaxDiscardLevel())
+	{
+		// Don't decode anything we don't need
+		priority = -4.0f;
 	}
 	else if ((mBoostLevel == LLGLTexture::BOOST_UI || mBoostLevel == LLGLTexture::BOOST_ICON) && !have_all_data)
 	{
 		priority = 1.f;
+	}
+	else if (pixel_priority < 0.001f && !have_all_data)
+	{
+		// Not on screen but we might want some data
+		if (mBoostLevel > BOOST_SELECTED)
+		{
+			// Always want high boosted images
+			priority = 1.f;
+		}
+		else
+		{
+			priority = -5.f; //stop fetching
+		}
 	}
 	else if (cur_discard < 0)
 	{
@@ -1599,20 +1624,50 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	// [10,000,000] + [1,000,000-9,000,000]  + [100,000-500,000]   + [1-20,000]  + [0-999]
 	if (priority > 0.0f)
 	{
+		bool large_enough = mCachedRawImageReady && ((S32)mTexelsPerImage > sMinLargeImageSize);
+		if(large_enough)
+		{
+			//Note: 
+			//to give small, low-priority textures some chance to be fetched, 
+			//cut the priority in half if the texture size is larger than 256 * 256 and has a 64*64 ready.
+			priority *= 0.5f; 
+		}
+
 		pixel_priority = llclamp(pixel_priority, 0.0f, MAX_PRIORITY_PIXEL); 
 
 		priority += pixel_priority + PRIORITY_BOOST_LEVEL_FACTOR * mBoostLevel;
 
 		if ( mBoostLevel > BOOST_HIGH)
 		{
+			if(mBoostLevel > BOOST_SUPER_HIGH)
+			{
+				//for very important textures, always grant the highest priority.
 				priority += PRIORITY_BOOST_HIGH_FACTOR;
+			}
+			else if(mCachedRawImageReady)
+			{
+				//Note: 
+				//to give small, low-priority textures some chance to be fetched, 
+				//if high priority texture has a 64*64 ready, lower its fetching priority.
+				setAdditionalDecodePriority(0.5f);
+			}
+			else
+			{
+				priority += PRIORITY_BOOST_HIGH_FACTOR;
+			}
 		}		
 
 		if(mAdditionalDecodePriority > 0.0f)
 		{
 			// priority range += 1,000,000.f-9,000,000.f
 			F32 additional = PRIORITY_ADDITIONAL_FACTOR * (1.0 + mAdditionalDecodePriority * MAX_ADDITIONAL_LEVEL_FOR_PRIORITY);
-
+			if(large_enough)
+			{
+				//Note: 
+				//to give small, low-priority textures some chance to be fetched, 
+				//cut the additional priority to a quarter if the texture size is larger than 256 * 256 and has a 64*64 ready.
+				additional *= 0.25f;
+			}
 			priority += additional;
 		}
 	}
@@ -3038,6 +3093,13 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		S32 desiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
         setDesiredDiscardLevel(desiredDiscardLevel);
+	}
+    else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
+	{
+		if(scaleDown())
+		{
+			mDesiredDiscardLevel = mCachedRawDiscardLevel;
+		}
 	}
 }
 
