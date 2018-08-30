@@ -2129,7 +2129,11 @@ if (DARWIN)
     )
 
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
-  set(VIEWER_APP_EXECUTABLE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
+  # VIEWER_APP_EXECUTABLE was originally a prediction of the executable
+  # pathname that would result from running viewer_manifest.py, but CMake
+  # complained that there was no rule to make that executable. Try using the
+  # existing target.
+  set(VIEWER_APP_EXECUTABLE "${VIEWER_BINARY_NAME}")
   set(VIEWER_APP_DSYM "${VIEWER_APP_EXECUTABLE}.dSYM")
   set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
 
@@ -2291,6 +2295,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         DEPENDS "${VIEWER_APP_EXECUTABLE}"
         COMMENT "Generating ${VIEWER_APP_DSYM}"
         )
+      add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
+      add_dependencies(dsym_generate "${VIEWER_APP_EXECUTABLE}")
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
         # See above comments about "tar ...j"
         COMMAND "tar"
@@ -2303,6 +2309,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         DEPENDS "${VIEWER_APP_DSYM}"
         COMMENT "Packing dSYM into ${VIEWER_SYMBOL_FILE}"
         )
+      add_custom_target(dsym_tarball DEPENDS "${VIEWER_SYMBOL_FILE}")
+      add_dependencies(dsym_tarball dsym_generate)
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
         COMMAND "zip"
         ARGS
@@ -2313,6 +2321,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         DEPENDS "${VIEWER_APP_DSYM}"
         COMMENT "Generating xcarchive.zip for upload to BugSplat"
         )
+      add_custom_target(dsym_xcarchive DEPENDS "${VIEWER_APP_XCARCHIVE}")
+      add_dependencies(dsym_xcarchive dsym_generate)
       # Have to create a stamp file, and depend on it, to force CMake to run
       # the cleanup step.
       add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
@@ -2327,6 +2337,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         "${VIEWER_APP_XCARCHIVE}"
         "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         )
+      add_dependencies(generate_symbols dsym_tarball dsym_xcarchive)
     endif (DARWIN)
     if (LINUX)
       # TBD
