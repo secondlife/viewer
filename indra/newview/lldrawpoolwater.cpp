@@ -619,17 +619,11 @@ void LLDrawPoolWater::shade()
 	    }
 	}
 
-	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);	
-		
-	if (screentex > -1)
-	{
-		shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
-        shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getWaterFogDensity());
-		gPipeline.mWaterDis.bindTexture(0, screentex);
-	}
+    shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
+    shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getWaterFogDensity());
 	
-	stop_glerror();
-	
+    // bind reflection texture from RenderTarget
+	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
 	gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);	
 
 	if (mVertexShaderLevel == 1)

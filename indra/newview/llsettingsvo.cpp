@@ -793,30 +793,6 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
 
     if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, getWaterPlane().mV);
-        shader->uniform1f(LLShaderMgr::WATER_FOGKS, getWaterFogKS());
-
-        F32 blend_factor = LLEnvironment::instance().getCurrentWater()->getBlendFactor();
-        shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
-
-        LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
-        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-        shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
-    }
-}
-
-void LLSettingsVOWater::updateSettings()
-{
-    //    LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERVALUES);
-    //    LL_INFOS("WINDLIGHT", "WATER", "EEP") << "Water Parameters are dirty.  Reticulating Splines..." << LL_ENDL;
-
-    // base class clears dirty flag so as to not trigger recursive update
-    LLSettingsBase::updateSettings();
-
-    // only do this if we're dealing with shaders
-    if (gPipeline.canUseVertexShaders())
-    {
         //transform water plane to eye space
         glh::vec3f norm(0.f, 0.f, 1.f);
         glh::vec3f p(0.f, 0.f, LLEnvironment::instance().getWaterHeight() + 0.1f);
@@ -835,12 +811,30 @@ void LLSettingsVOWater::updateSettings()
         enorm.normalize();
         mat.mult_matrix_vec(p, ep);
 
-        mWaterPlane = LLVector4(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
+        LLVector4 waterPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
+
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, waterPlane.mV);
 
         LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
-        mWaterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
+        F32 waterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
+
+        shader->uniform1f(LLShaderMgr::WATER_FOGKS, waterFogKS);
+
+        F32 blend_factor = LLEnvironment::instance().getCurrentWater()->getBlendFactor();
+        shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+
+        LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
+        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
+        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+        shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
     }
+}
+
+void LLSettingsVOWater::updateSettings()
+{
+    // base class clears dirty flag so as to not trigger recursive update
+    LLSettingsBase::updateSettings();
 
     LLDrawPoolWater* pwaterpool = (LLDrawPoolWater*)gPipeline.getPool(LLDrawPool::POOL_WATER);
     if (pwaterpool)
