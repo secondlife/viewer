@@ -2911,6 +2911,10 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
             make_ui_sound("UISndTeleportOut");
         }
     }
+    else if (gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING)
+    {
+        LL_WARNS("Messaging") << "Teleport message in the middle of other teleport" << LL_ENDL;
+    }
 	
 	// Teleport is finished; it can't be cancelled now.
 	gViewerWindow->setProgressCancelButtonVisible(FALSE);
