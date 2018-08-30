@@ -2284,7 +2284,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-bin.pdb"
         COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE_CYGWIN}"
         )
-      add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
+      add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}")
+      add_dependencies(generate_symbols "${VIEWER_BINARY_NAME}")
     endif (WINDOWS)
     if (DARWIN)
       # Have to run dsymutil first, then pack up the resulting .dSYM directory
