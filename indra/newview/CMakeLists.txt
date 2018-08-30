@@ -2261,7 +2261,12 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
   else (NOT BUGSPLAT_DB)
     # BugSplat symbol-file generation
     if (WINDOWS)
-      # Just pack up a tarball containing only the .pdb file for the executable.
+      # Just pack up a tarball containing only the .pdb file for the
+      # executable. Because we intend to use cygwin tar, we must render
+      # VIEWER_SYMBOL_FILE in cygwin path syntax.
+      execute_process(COMMAND "cygpath" "-u" "${VIEWER_SYMBOL_FILE}"
+        OUTPUT_VARIABLE VIEWER_SYMBOL_FILE_CYGWIN
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
         # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.bz2;
         # testing a string suffix is painful enough in CMake language that
@@ -2269,12 +2274,11 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         COMMAND "tar"
         ARGS
           "cjf"
-          "${VIEWER_SYMBOL_FILE}"
-          "-C"
-          "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+          "${VIEWER_SYMBOL_FILE_CYGWIN}"
           "secondlife-bin.pdb"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-bin.pdb"
-        COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE}"
+        COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE_CYGWIN}"
         )
       add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
     endif (WINDOWS)
