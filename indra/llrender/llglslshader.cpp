@@ -799,12 +799,6 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 				continue;
 			}
 
-			if (-1 == specularMap && std::string(name) == "specularMap")
-			{
-				specularMap = i;
-				continue;
-			}
-
 			if (-1 == bumpMap && std::string(name) == "bumpMap")
 			{
 				bumpMap = i;

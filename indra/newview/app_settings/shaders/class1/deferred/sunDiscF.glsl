@@ -45,7 +45,7 @@ void main()
 {
 	vec4 sunDiscA = texture2D(diffuseMap, vary_texcoord0.xy);
 	vec4 sunDiscB = texture2D(altDiffuseMap, vary_texcoord0.xy);
-    vec4 c     = mix(sunDiscB, sunDiscA, blend_factor);
+    vec4 c     = mix(sunDiscA, sunDiscB, blend_factor);
     c.rgb = clamp(c.rgb, vec3(0), vec3(1));
 	c.rgb = pow(c.rgb, vec3(0.7f));
 	c.rgb = fullbrightAtmosTransport(c.rgb);

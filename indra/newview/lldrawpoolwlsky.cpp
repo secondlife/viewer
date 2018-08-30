@@ -379,6 +379,9 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		LLViewerTexture* tex_a = face->getTexture(LLRender::DIFFUSE_MAP);
         LLViewerTexture* tex_b = face->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
 
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
         // if we even have sun disc textures to work with...
         if (tex_a || tex_b)
         {
@@ -391,20 +394,18 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             if (tex_a && (!tex_b || (tex_a == tex_b)))
             {
                 // Bind current and next sun textures
-		        gGL.getTexUnit(0)->bind(tex_a);
-                gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
                 blend_factor = 0;
             }
             else if (tex_b && !tex_a)
             {
-                gGL.getTexUnit(0)->bind(tex_b);
-                gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
                 blend_factor = 0;
             }
             else if (tex_b != tex_a)
             {
-                gGL.getTexUnit(0)->bind(tex_a);
-                gGL.getTexUnit(1)->bind(tex_b);
+                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
             }
 
 		    LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
@@ -445,20 +446,18 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
         if (tex_a && (!tex_b || (tex_a == tex_b)))
         {
             // Bind current and next sun textures
-		    gGL.getTexUnit(0)->bind(tex_a);
-            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
             blend_factor = 0;
         }
         else if (tex_b && !tex_a)
         {
-            gGL.getTexUnit(0)->bind(tex_b);
-            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
             blend_factor = 0;
         }
         else if (tex_b != tex_a)
         {
-            gGL.getTexUnit(0)->bind(tex_a);
-            gGL.getTexUnit(1)->bind(tex_b);
+            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+            moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
         }
 
         if (can_use_vertex_shaders)

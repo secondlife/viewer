@@ -1622,7 +1622,10 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mType = TYPE_FIXED;
     mInitialized = false;
 
+    bool different_sky = mSky != psky;
+    
     mSky = psky;
+    mSky->mReplaced |= different_sky;
     mSky->update();
     mBlenderSky.reset();
 
