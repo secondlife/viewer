@@ -435,6 +435,7 @@ LLSettingsSky::stringset_t LLSettingsSky::getSkipInterpolateKeys() const
 
     if (skipSet.empty())
     {
+        skipSet = LLSettingsBase::getSkipInterpolateKeys();
         skipSet.insert(SETTING_RAYLEIGH_CONFIG);
         skipSet.insert(SETTING_MIE_CONFIG);
         skipSet.insert(SETTING_ABSORPTION_CONFIG);

@@ -70,6 +70,10 @@ public:
     static const std::string SETTING_HASH;
     static const std::string SETTING_TYPE;
     static const std::string SETTING_ASSETID;
+    static const std::string SETTING_FLAGS;
+
+    static const U32 FLAG_NOCOPY;
+    static const U32 FLAG_NOMOD;
 
     typedef std::map<std::string, S32>  parammapping_t;
 
@@ -113,6 +117,48 @@ public:
         return LLUUID();
     }
 
+    inline U32 getFlags() const
+    {
+        if (mSettings.has(SETTING_FLAGS))
+            return static_cast<U32>(mSettings[SETTING_FLAGS].asInteger());
+        return 0;
+    }
+
+    inline void setFlags(U32 value)
+    {
+        setLLSD(SETTING_FLAGS, LLSD::Integer(value));
+    }
+
+    inline bool getFlag(U32 flag) const
+    {
+        if (mSettings.has(SETTING_FLAGS))
+            return ((U32)mSettings[SETTING_FLAGS].asInteger() & flag) == flag;
+        return false;
+    }
+
+    inline void setFlag(U32 flag)
+    {
+        U32 flags((mSettings.has(SETTING_FLAGS)) ? (U32)mSettings[SETTING_FLAGS].asInteger() : 0);
+
+        flags |= flag;
+
+        if (flags)
+            mSettings[SETTING_FLAGS] = LLSD::Integer(flags);
+        else
+            mSettings.erase(SETTING_FLAGS);
+    }
+
+    inline void clearFlag(U32 flag)
+    {
+        U32 flags((mSettings.has(SETTING_FLAGS)) ? (U32)mSettings[SETTING_FLAGS].asInteger() : 0);
+
+        flags &= ~flag;
+
+        if (flags)
+            mSettings[SETTING_FLAGS] = LLSD::Integer(flags);
+        else
+            mSettings.erase(SETTING_FLAGS);
+    }
 
     virtual void replaceSettings(LLSD settings)
     {
@@ -270,7 +316,7 @@ protected:
     /// when lerping between settings, some may require special handling.  
     /// Get a list of these key to be skipped by the default settings lerp.
     /// (handling should be performed in the override of lerpSettings.
-    virtual stringset_t getSkipInterpolateKeys() const { return stringset_t(); }  
+    virtual stringset_t getSkipInterpolateKeys() const; 
 
     // A list of settings that represent quaternions and should be slerped 
     // rather than lerped.

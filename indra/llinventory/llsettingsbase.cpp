@@ -54,6 +54,10 @@ const std::string LLSettingsBase::SETTING_NAME("name");
 const std::string LLSettingsBase::SETTING_HASH("hash");
 const std::string LLSettingsBase::SETTING_TYPE("type");
 const std::string LLSettingsBase::SETTING_ASSETID("asset_id");
+const std::string LLSettingsBase::SETTING_FLAGS("flags");
+
+const U32 LLSettingsBase::FLAG_NOCOPY(0x01 << 0);
+const U32 LLSettingsBase::FLAG_NOMOD(0x01 << 1);
 
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
@@ -239,11 +243,21 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
 //      case LLSD::TypeBinary:
 //      case LLSD::TypeDate:
         default:
-            /* TODO: If the UUID points to an image ID, blend the images. */
             // atomic or unknown data types. Lerping between them does not make sense so switch at the break.
             newSettings[key_name] = (mix > BREAK_POINT) ? other_value : value;
             break;
         }
+    }
+
+    // Special handling cases
+    // Flags
+    if (settings.has(SETTING_FLAGS))
+    {
+        U32 flags = (U32)settings[SETTING_FLAGS].asInteger();
+        if (other.has(SETTING_FLAGS))
+            flags |= (U32)other[SETTING_FLAGS].asInteger();
+
+        newSettings[SETTING_FLAGS] = LLSD::Integer(flags);
     }
 
     // Now add anything that is in other but not in the settings
@@ -260,6 +274,19 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
     }
 
     return newSettings;
+}
+
+LLSettingsBase::stringset_t LLSettingsBase::getSkipInterpolateKeys() const
+{
+    static stringset_t skipSet;
+
+    if (skipSet.empty())
+    {
+        skipSet.insert(SETTING_FLAGS);
+        skipSet.insert(SETTING_HASH);
+    }
+
+    return skipSet;
 }
 
 LLSD LLSettingsBase::getSettings() const
@@ -311,6 +338,7 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
     static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
     static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
     static Validator  validateAssetId(SETTING_ASSETID, false, LLSD::TypeUUID);
+    static Validator  validateFlags(SETTING_FLAGS, false, LLSD::TypeInteger);
     stringset_t       validated;
     stringset_t       strip;
     bool              isValid(true);
@@ -352,6 +380,13 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         isValid = false;
     }
     validated.insert(validateType.getName());
+
+    if (!validateFlags.verify(settings))
+    {
+        errors.append(LLSD::String("Unable to validate 'flags'."));
+        isValid = false;
+    }
+    validated.insert(validateFlags.getName());
 
     // Fields for specific settings.
     for (validation_list_t::iterator itv = validations.begin(); itv != validations.end(); ++itv)
@@ -415,7 +450,6 @@ bool LLSettingsBase::Validator::verify(LLSD &data)
     {
         if (!mDefault.isUndefined())
         {
-            LL_INFOS("SETTINGS") << "Inserting missing default for '" << mName << "'." << LL_ENDL;
             data[mName] = mDefault;
             return true;
         }

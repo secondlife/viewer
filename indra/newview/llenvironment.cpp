@@ -444,11 +444,15 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsSunUp() const
 {
+    if (!mCurrentEnvironment || !mCurrentEnvironment->getSky())
+        return false;
     return mCurrentEnvironment->getSky()->getIsSunUp();
 }
 
 bool LLEnvironment::getIsMoonUp() const
 {
+    if (!mCurrentEnvironment || !mCurrentEnvironment->getSky())
+        return false;
     return mCurrentEnvironment->getSky()->getIsMoonUp();
 }
 
