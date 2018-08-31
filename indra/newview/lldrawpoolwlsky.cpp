@@ -91,6 +91,10 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 
 void LLDrawPoolWLSky::endRenderPass( S32 pass )
 {
+    sky_shader   = nullptr;
+	cloud_shader = nullptr;
+    sun_shader   = nullptr;
+    moon_shader  = nullptr;
 }
 
 void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
@@ -111,7 +115,10 @@ void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
 
 void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 {
-
+    sky_shader   = nullptr;
+	cloud_shader = nullptr;
+    sun_shader   = nullptr;
+    moon_shader  = nullptr;
 }
 
 void LLDrawPoolWLSky::renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
