@@ -389,23 +389,23 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             if (can_use_vertex_shaders)
 		    {
 			    sun_shader->bind();
-            }
 
-            if (tex_a && (!tex_b || (tex_a == tex_b)))
-            {
-                // Bind current and next sun textures
-                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                blend_factor = 0;
-            }
-            else if (tex_b && !tex_a)
-            {
-                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-                blend_factor = 0;
-            }
-            else if (tex_b != tex_a)
-            {
-                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                if (tex_a && (!tex_b || (tex_a == tex_b)))
+                {
+                    // Bind current and next sun textures
+                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                    blend_factor = 0;
+                }
+                else if (tex_b && !tex_a)
+                {
+                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                    blend_factor = 0;
+                }
+                else if (tex_b != tex_a)
+                {
+                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                    sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                }
             }
 
 		    LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
@@ -439,29 +439,26 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		
         if (can_use_vertex_shaders)
-		{
-			moon_shader->bind();
-        }
+        {
+            moon_shader->bind();
 
-        if (tex_a && (!tex_b || (tex_a == tex_b)))
-        {
-            // Bind current and next sun textures
-            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-            blend_factor = 0;
-        }
-        else if (tex_b && !tex_a)
-        {
-            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-            blend_factor = 0;
-        }
-        else if (tex_b != tex_a)
-        {
-            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-            moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-        }
+            if (tex_a && (!tex_b || (tex_a == tex_b)))
+            {
+                // Bind current and next sun textures
+                moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (tex_b && !tex_a)
+            {
+                moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (tex_b != tex_a)
+            {
+                moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+            }
 
-        if (can_use_vertex_shaders)
-		{
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);                
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         }
