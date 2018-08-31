@@ -119,7 +119,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
     fi
 
     # don't spew credentials into build log
