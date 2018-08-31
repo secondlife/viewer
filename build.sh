@@ -116,8 +116,10 @@ pre_build()
                 symplat="linux"
                 ;;
         esac
-        # This name is consumed by indra/newview/CMakeLists.txt
-        VIEWER_SYMBOL_FILE="$build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2"
+        # This name is consumed by indra/newview/CMakeLists.txt. Make it
+        # absolute because we've had troubles with relative pathnames.
+        abs_build_dir="$(cd "$build_dir"; pwd)"
+        VIEWER_SYMBOL_FILE="$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2"
     fi
 
     # don't spew credentials into build log
