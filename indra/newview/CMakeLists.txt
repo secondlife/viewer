@@ -2129,12 +2129,7 @@ if (DARWIN)
     )
 
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
-  # VIEWER_APP_EXECUTABLE was originally a prediction of the executable
-  # pathname that would result from running viewer_manifest.py, but CMake
-  # complained that there was no rule to make that executable. Try using the
-  # existing target.
-  set(VIEWER_APP_EXECUTABLE "${VIEWER_BINARY_NAME}")
-  set(VIEWER_APP_DSYM "${VIEWER_APP_EXECUTABLE}.dSYM")
+  set(VIEWER_APP_DSYM "${VIEWER_BINARY_NAME}.dSYM")
   set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
 
   configure_file(
@@ -2296,12 +2291,12 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       add_custom_command(OUTPUT "${VIEWER_APP_DSYM}"
         COMMAND "dsymutil"
         ARGS
-          "${VIEWER_APP_EXECUTABLE}"
-        DEPENDS "${VIEWER_APP_EXECUTABLE}"
+          "${VIEWER_BINARY_NAME}"
+        DEPENDS "${VIEWER_BINARY_NAME}"
         COMMENT "Generating ${VIEWER_APP_DSYM}"
         )
       add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
-      add_dependencies(dsym_generate "${VIEWER_APP_EXECUTABLE}")
+      add_dependencies(dsym_generate "${VIEWER_BINARY_NAME}")
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
         # See above comments about "tar ...j"
         COMMAND "tar"
