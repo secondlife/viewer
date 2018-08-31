@@ -2251,8 +2251,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       DEPENDS generate_breakpad_symbols.py
           VERBATIM)
 
-    add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
-    add_dependencies(generate_symbols "${VIEWER_BINARY_NAME}")
+    add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME} "${VIEWER_COPY_MANIFEST}")
+    add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
     if (WINDOWS OR LINUX)
       add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
     endif (WINDOWS OR LINUX)
@@ -2283,20 +2283,20 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-bin.pdb"
         COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE_CYGWIN}"
         )
-      add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}")
-      add_dependencies(generate_symbols "${VIEWER_BINARY_NAME}")
+      add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME})
+      add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
     endif (WINDOWS)
     if (DARWIN)
       # Have to run dsymutil first, then pack up the resulting .dSYM directory
       add_custom_command(OUTPUT "${VIEWER_APP_DSYM}"
         COMMAND "dsymutil"
         ARGS
-          "${VIEWER_BINARY_NAME}"
-        DEPENDS "${VIEWER_BINARY_NAME}"
+          ${VIEWER_BINARY_NAME}
+        DEPENDS ${VIEWER_BINARY_NAME}
         COMMENT "Generating ${VIEWER_APP_DSYM}"
         )
       add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
-      add_dependencies(dsym_generate "${VIEWER_BINARY_NAME}")
+      add_dependencies(dsym_generate ${VIEWER_BINARY_NAME})
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
         # See above comments about "tar ...j"
         COMMAND "tar"
