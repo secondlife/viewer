@@ -538,7 +538,7 @@ Select a key frame from the timeline above to edit settings.
                     left="5"
                     top_pad="0"
                     name="save_btn"
-                    width="150" />
+                    width="156" />
 
             <button
                     follows="top|left"
