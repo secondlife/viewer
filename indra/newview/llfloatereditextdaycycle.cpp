@@ -343,8 +343,11 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 
 void LLFloaterEditExtDayCycle::onFocusReceived()
 {
-    updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    if (isInVisibleChain())
+    {
+        updateEditEnvironment();
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    }
 }
 
 void LLFloaterEditExtDayCycle::onFocusLost()

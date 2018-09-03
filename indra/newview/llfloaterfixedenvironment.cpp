@@ -147,8 +147,11 @@ void LLFloaterFixedEnvironment::onClose(bool app_quitting)
 
 void LLFloaterFixedEnvironment::onFocusReceived()
 {
-    updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    if (isInVisibleChain())
+    {
+        updateEditEnvironment();
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    }
 }
 
 void LLFloaterFixedEnvironment::onFocusLost()
