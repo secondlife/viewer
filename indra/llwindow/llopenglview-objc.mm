@@ -154,8 +154,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowResized:) name:NSWindowDidResizeNotification
-											   object:[self window]];    
- 
+											   object:[self window]];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowWillMiniaturize:) name:NSWindowWillMiniaturizeNotification
 											   object:[self window]];
@@ -167,6 +167,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
     [[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification
 											   object:[self window]];
+
+
+    NSRect wnd_rect = [[self window] frame];
+    NSRect dev_rect = [self convertRectToBacking:wnd_rect];
+    if (!NSEqualSizes(wnd_rect.size,dev_rect.size))
+    {
+        callResize(dev_rect.size.width, dev_rect.size.height);
+    }
 }
 
 - (void)setOldResize:(bool)oldresize
@@ -178,8 +186,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     if (!mOldResize)  //Maint-3288
     {
-        NSSize size = [self frame].size;
-        callResize(size.width, size.height);
+        NSSize dev_sz = [self convertSizeToBacking:[self frame].size];
+        callResize(dev_sz.width, dev_sz.height);
     }
 }
 
@@ -258,7 +266,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	}
 	
 	[self setPixelFormat:pixelFormat];
-	
+
+	//for retina support
+	[self setWantsBestResolutionOpenGLSurface:YES];
+
 	[self setOpenGLContext:glContext];
 	
 	[glContext setView:self];
@@ -350,7 +361,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         callRightMouseUp(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = false;
     } else {
-        NSPoint mPoint = [theEvent locationInWindow];
+        NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
         mMousePos[0] = mPoint.x;
         mMousePos[1] = mPoint.y;
         callLeftMouseUp(mMousePos, [theEvent modifierFlags]);
@@ -369,14 +380,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)mouseMoved:(NSEvent *)theEvent
 {
-	float mouseDeltas[2] = {
-		float([theEvent deltaX]),
-		float([theEvent deltaY])
+	NSPoint dev_delta = [self convertPointToBacking:NSMakePoint([theEvent deltaX], [theEvent deltaY])];
+
+	float mouseDeltas[] = {
+		float(dev_delta.x),
+		float(dev_delta.y)
 	};
 	
 	callDeltaUpdate(mouseDeltas, 0);
 	
-	NSPoint mPoint = [theEvent locationInWindow];
+	NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
 	mMousePos[0] = mPoint.x;
 	mMousePos[1] = mPoint.y;
 	callMouseMoved(mMousePos, 0);
@@ -390,14 +403,17 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	// Trust the deltas supplied by NSEvent.
 	// The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
 	// NSEvent isn't obsolete, and provides us with the correct deltas.
-	float mouseDeltas[2] = {
-		float([theEvent deltaX]),
-		float([theEvent deltaY])
+
+	NSPoint dev_delta = [self convertPointToBacking:NSMakePoint([theEvent deltaX], [theEvent deltaY])];
+
+	float mouseDeltas[] = {
+		float(dev_delta.x),
+		float(dev_delta.y)
 	};
 	
 	callDeltaUpdate(mouseDeltas, 0);
 	
-	NSPoint mPoint = [theEvent locationInWindow];
+	NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
 	mMousePos[0] = mPoint.x;
 	mMousePos[1] = mPoint.y;
 	callMouseDragged(mMousePos, 0);

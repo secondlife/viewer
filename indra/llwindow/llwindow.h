@@ -166,6 +166,9 @@ public:
 	// Provide native key event data
 	virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
 
+	// Default scale
+	virtual float getDeviceScaleFactor() { return 1.0f; }
+	
 	// Get system UI size based on DPI (for 96 DPI UI size should be 1.0)
 	virtual F32 getSystemUISize() { return 1.0; }
 protected:
