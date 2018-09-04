@@ -642,23 +642,9 @@ bool LLVOSky::updateSky()
         bool light_direction_changed = (dot_lighting < LIGHT_DIRECTION_THRESHOLD);
         bool color_changed = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
 
-        if (light_direction_changed)
-        {
-            mForceUpdate = true;
-        }
-
-        if (color_changed)
-        {
-            mForceUpdate = true;
-        }
-
-        if (!mInitialized)
-        {
-            mForceUpdate = true;
-        }
-        //mForceUpdate = mForceUpdate || light_direction_changed;
-        //mForceUpdate = mForceUpdate || color_changed;
-        //mForceUpdate = mForceUpdate || !mInitialized;
+        mForceUpdate = mForceUpdate || light_direction_changed;
+        mForceUpdate = mForceUpdate || color_changed;
+        mForceUpdate = mForceUpdate || !mInitialized;
 
         if (mForceUpdate && mForceUpdateThrottle.hasExpired())
 		{
