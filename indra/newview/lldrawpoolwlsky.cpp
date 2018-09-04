@@ -380,6 +380,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
     F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
     bool can_use_vertex_shaders = gPipeline.canUseVertexShaders();
+    bool can_use_windlight_shaders = gPipeline.canUseWindLightShaders();
+
 
 	if (gSky.mVOSkyp->getSun().getDraw() && face && face->getGeomCount())
 	{
@@ -393,9 +395,9 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
         if (tex_a || tex_b)
         {
             // if and only if we have a texture defined, render the sun disc
-            if (can_use_vertex_shaders)
-		    {
-			    sun_shader->bind();
+            if (can_use_vertex_shaders && can_use_windlight_shaders)
+            {
+                sun_shader->bind();
 
                 if (tex_a && (!tex_b || (tex_a == tex_b)))
                 {
@@ -413,25 +415,19 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
                     sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
                     sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
                 }
-            }
 
-		    LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
+                LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 
-            if (can_use_vertex_shaders)
-		    {
                 sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
-		    }
 
-		    LLFacePool::LLOverrideFaceColor color_override(this, color);
-		    face->renderIndexed();
+                LLFacePool::LLOverrideFaceColor color_override(this, color);
+                face->renderIndexed();
 
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
-            if (can_use_vertex_shaders)
-		    {
-			    sun_shader->unbind();
+                sun_shader->unbind();
             }
         }
 	}
@@ -445,7 +441,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		
-        if (can_use_vertex_shaders)
+        if (can_use_vertex_shaders && can_use_windlight_shaders)
         {
             moon_shader->bind();
 
@@ -468,20 +464,16 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);                
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+
+            LLFacePool::LLOverrideFaceColor color_override(this, color);
+            face->renderIndexed();
+
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
+            moon_shader->unbind();
         }
-
-		LLFacePool::LLOverrideFaceColor color_override(this, color);
-		
-		face->renderIndexed();
-
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-
-		if (can_use_vertex_shaders)
-		{
-			moon_shader->unbind();
-		}
-	}
+    }
 
     gGL.popMatrix();
 }
