@@ -637,7 +637,7 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 		LLVector3 left = at%LLVector3(0,0,1);
 		LLVector3 up = at%left;
 
-		F32 sc = 0.5f+ll_frand()*1.25f;
+		F32 sc = 0.8f + ll_frand()*2.5f;
 		left *= sc;
 		up *= sc;
 

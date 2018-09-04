@@ -52,6 +52,8 @@ static LLGLSLShader* sky_shader   = NULL;
 static LLGLSLShader* sun_shader   = NULL;
 static LLGLSLShader* moon_shader  = NULL;
 
+static float sStarTime;
+
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 	LLDrawPool(POOL_WL_SKY)
 {
@@ -235,10 +237,9 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// clamping and allow the star_alpha param to brighten the stars.
 	LLColor4 star_alpha(LLColor4::black);
 
-    // *LAPRAS
-    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
-
-	// If start_brightness is not set, exit
+    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 512.f;
+    
+	// If star brightness is not set, exit
 	if( star_alpha.mV[3] < 0.001 )
 	{
 		LL_DEBUGS("SKY") << "star_brightness below threshold." << LL_ENDL;
@@ -298,9 +299,8 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 	LLGLSPipelineSkyBox gls_sky;
 	LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-		
-	// *LAPRAS
-    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
+
+    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 512.0f;
 
 	// If start_brightness is not set, exit
 	if(star_alpha < 0.001f)
@@ -337,6 +337,11 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 
     gDeferredStarProgram.uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 	gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
+
+    sStarTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;
+
+    gDeferredStarProgram.uniform1f(LLShaderMgr::WATER_TIME, sStarTime);
+
 	gSky.mVOWLSkyp->drawStars();
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
