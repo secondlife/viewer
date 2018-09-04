@@ -2129,7 +2129,8 @@ if (DARWIN)
     )
 
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
-  set(VIEWER_APP_DSYM "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}.dSYM")
+  set(VIEWER_APP_EXE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
+  set(VIEWER_APP_DSYM "${VIEWER_APP_EXE}.dSYM")
   set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
 
   configure_file(
@@ -2291,9 +2292,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       add_custom_command(OUTPUT "${VIEWER_APP_DSYM}"
         COMMAND "dsymutil"
         ARGS
-          ${VIEWER_BINARY_NAME}
-##        redundant with add_dependencies() below, and possibly harmful
-##        DEPENDS ${VIEWER_BINARY_NAME}
+          ${VIEWER_APP_EXE}
         COMMENT "Generating ${VIEWER_APP_DSYM}"
         )
       add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
