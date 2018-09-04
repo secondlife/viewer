@@ -37,7 +37,11 @@ class LLFlyoutComboBtnCtrl
 {
     LOG_CLASS(LLFlyoutComboBtnCtrl);
 public:
-    LLFlyoutComboBtnCtrl(LLPanel* parent, const std::string &action_button, const std::string &flyout_button, const std::string &menu_file);
+    LLFlyoutComboBtnCtrl(LLPanel* parent,
+                         const std::string &action_button,
+                         const std::string &flyout_button,
+                         const std::string &menu_file,
+                         bool apply_immediately = true);
 
 	void setMenuItemEnabled(const std::string &item, bool enabled);
 	void setShownBtnEnabled(bool enabled);
@@ -52,6 +56,7 @@ public:
 protected:
     void onFlyoutButton(LLUICtrl *, const LLSD &);
     void onFlyoutItemSelected(LLUICtrl *, const LLSD &);
+    bool onFlyoutItemCheck(LLUICtrl *, const LLSD &);
     void onFlyoutAction(LLUICtrl *, const LLSD &);
 
     void setSelectedItem(LLMenuItemGL *pitem);
@@ -63,6 +68,7 @@ private:
     std::string                 mFlyoutButton;
 
     std::string                 mSelectedName;
+    bool                        mApplyImmediately;
 
     LLUICtrl::commit_signal_t   mActionSignal;
 };

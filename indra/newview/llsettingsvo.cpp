@@ -67,7 +67,7 @@
 namespace 
 {
     LLSD ensure_array_4(LLSD in, F32 fill);
-    LLSD read_legacy_preset_data(const std::string& path);
+    LLSD read_legacy_preset_data(const std::string &name, const std::string& path);
 
     //-------------------------------------------------------------------------
     class LLSettingsInventoryCB : public LLInventoryCallback
@@ -440,30 +440,13 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     return skyp;
 }
 
-namespace
-{
-    // This is a disturbing hack
-    std::string legacy_name_to_filename(const std::string &name)
-    {
-        std::string fixedname(LLURI::escape(name));
-
-        boost::algorithm::replace_all(fixedname, "-", "%2D");
-        return fixedname;
-    }
-}
-
 LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
 {
-    std::string full_path(path);
-    std::string full_name(legacy_name_to_filename(name));
-    full_name += ".xml";
-
-    gDirUtilp->append(full_path, full_name);
-    LLSD legacy_data = read_legacy_preset_data(full_path);
+    LLSD legacy_data = read_legacy_preset_data(name, path);
 
     if (!legacy_data)
     {
-        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << full_path << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
 
@@ -707,16 +690,11 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
 
 LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
 {
-    std::string full_path(path);
-    std::string full_name(legacy_name_to_filename(name));
-    full_name += ".xml";
-
-    gDirUtilp->append(full_path, full_name);
-    LLSD legacy_data = read_legacy_preset_data(full_path);
+    LLSD legacy_data = read_legacy_preset_data(name, path);
 
     if (!legacy_data)
     {
-        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << full_path << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
 
@@ -961,16 +939,11 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
 LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
 {
-    std::string full_path(path);
-    std::string full_name(legacy_name_to_filename(name));
-    full_name += ".xml";
-
-    gDirUtilp->append(full_path, full_name);
-    LLSD legacy_data = read_legacy_preset_data(full_path);
+    LLSD legacy_data = read_legacy_preset_data(name, path);
 
     if (!legacy_data)
     {
-        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << full_path << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
 
@@ -1261,15 +1234,55 @@ namespace
         return out;
     }
 
+    // This is a disturbing hack
+    std::string legacy_name_to_filename(const std::string &name, bool convertdash = false)
+    {
+        std::string fixedname(LLURI::escape(name));
+
+        if (convertdash)
+            boost::algorithm::replace_all(fixedname, "-", "%2D");
+
+        return fixedname;
+    }
+
     //---------------------------------------------------------------------
-    LLSD read_legacy_preset_data(const std::string& path)
+    LLSD read_legacy_preset_data(const std::string &name, const std::string& path)
     {
         llifstream xml_file;
-//      std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
 
-        xml_file.open(path.c_str());
+        std::string full_path(path);
+        std::string full_name(name);
+        full_name += ".xml";
+        gDirUtilp->append(full_path, full_name);
+
+        xml_file.open(full_path.c_str());
         if (!xml_file)
-            return LLSD();
+        {
+            std::string bad_path(full_path);
+            full_path = path;
+            full_name = legacy_name_to_filename(name);
+            full_name += ".xml";
+            gDirUtilp->append(full_path, full_name);
+
+            LL_INFOS("LEGACYSETTING") << "Could not open \"" << bad_path << "\" trying escaped \"" << full_path << "\"" << LL_ENDL;
+
+            xml_file.open(full_path.c_str());
+            if (!xml_file)
+            {
+                LL_WARNS("LEGACYSETTING") << "Unable to open legacy windlight \"" << name << "\" from " << path << LL_ENDL;
+
+                full_path = path;
+                full_name = legacy_name_to_filename(name, true);
+                full_name += ".xml";
+                gDirUtilp->append(full_path, full_name);
+                xml_file.open(full_path.c_str());
+                if (!xml_file)
+                {
+                    LL_WARNS("LEGACYSETTING") << "Unable to open legacy windlight \"" << name << "\" from " << path << LL_ENDL;
+                    return LLSD();
+                }
+            }
+        }
 
         LLSD params_data;
         LLPointer<LLSDParser> parser = new LLSDXMLParser();

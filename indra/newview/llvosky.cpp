@@ -59,6 +59,8 @@
 #undef min
 #undef max
 
+#pragma optimize("", off)
+
 namespace
 {
     const S32 NUM_TILES_X = 8;
@@ -376,6 +378,9 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mbCanSelect = FALSE;
 	mUpdateTimer.reset();
 
+    mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
+    mForceUpdateThrottle.reset();
+
 	for (S32 i = 0; i < 6; i++)
 	{
 		mSkyTex[i].init();
@@ -585,8 +590,7 @@ void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
 }
 
 bool LLVOSky::updateSky()
-{
-    LLTimer forceupdThrottle;
+{    
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     LLColor4 total_ambient = psky->getTotalAmbient();
@@ -640,15 +644,29 @@ bool LLVOSky::updateSky()
         bool light_direction_changed = (dot_lighting < LIGHT_DIRECTION_THRESHOLD);
         bool color_changed = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
 
-        mForceUpdate = mForceUpdate || light_direction_changed;
-        mForceUpdate = mForceUpdate || color_changed;
-        mForceUpdate = mForceUpdate || !mInitialized;
+        if (light_direction_changed)
+        {
+            mForceUpdate = true;
+        }
 
-        if (mForceUpdate && forceupdThrottle.hasExpired())
+        if (color_changed)
+        {
+            mForceUpdate = true;
+        }
+
+        if (!mInitialized)
+        {
+            mForceUpdate = true;
+        }
+        //mForceUpdate = mForceUpdate || light_direction_changed;
+        //mForceUpdate = mForceUpdate || color_changed;
+        //mForceUpdate = mForceUpdate || !mInitialized;
+
+        if (mForceUpdate && mForceUpdateThrottle.hasExpired())
 		{
             LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 
-            forceupdThrottle.setTimerExpirySec(UPDATE_EXPRY);
+            mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
 
 			LLSkyTex::stepCurrent();			
 		

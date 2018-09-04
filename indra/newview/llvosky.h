@@ -338,7 +338,7 @@ protected:
 	S32					 mDrawRefl;
 
 	LLFrameTimer		mUpdateTimer;
-
+    LLTimer             mForceUpdateThrottle;
 	bool                mHeavenlyBodyUpdated ;
 
     LLAtmospherics      m_legacyAtmospherics;

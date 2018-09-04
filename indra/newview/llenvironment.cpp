@@ -444,11 +444,15 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsSunUp() const
 {
+    if (!mCurrentEnvironment || !mCurrentEnvironment->getSky())
+        return false;
     return mCurrentEnvironment->getSky()->getIsSunUp();
 }
 
 bool LLEnvironment::getIsMoonUp() const
 {
+    if (!mCurrentEnvironment || !mCurrentEnvironment->getSky())
+        return false;
     return mCurrentEnvironment->getSky()->getIsMoonUp();
 }
 
@@ -1628,14 +1632,13 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->mReplaced |= different_sky;
     mSky->update();
     mBlenderSky.reset();
-/*
+
     if (gAtmosphere)
     {
         AtmosphericModelSettings settings;
         LLEnvironment::getAtmosphericModelSettings(settings, psky);
         gAtmosphere->configureAtmosphericModel(settings);
     }
-*/
 }
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)

@@ -173,7 +173,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mImportButton = getChild<LLButton>(BTN_IMPORT, true);
     mLoadFrame = getChild<LLButton>(BTN_LOADFRAME, true);
 
-    mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BTN_SAVE, BTN_FLYOUT, XML_FLYOUTMENU_FILE);
+    mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BTN_SAVE, BTN_FLYOUT, XML_FLYOUTMENU_FILE, false);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
 
     getChild<LLButton>(BTN_CANCEL, true)->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onClickCloseBtn(); });
@@ -343,8 +343,11 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 
 void LLFloaterEditExtDayCycle::onFocusReceived()
 {
-    updateEditEnvironment();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    if (isInVisibleChain())
+    {
+        updateEditEnvironment();
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    }
 }
 
 void LLFloaterEditExtDayCycle::onFocusLost()

@@ -46,6 +46,8 @@
 #include "llenvironment.h"
 #include "llatmosphere.h"
 
+#pragma optimize("", off)
+
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
 #else

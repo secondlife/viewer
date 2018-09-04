@@ -29,14 +29,21 @@
 #include "llflyoutcombobtn.h"
 #include "llviewermenu.h"
 
-LLFlyoutComboBtnCtrl::LLFlyoutComboBtnCtrl(LLPanel* parent, const std::string &action_button, const std::string &flyout_button, const std::string &menu_file) :
-	mParent(parent),
+LLFlyoutComboBtnCtrl::LLFlyoutComboBtnCtrl(LLPanel* parent,
+                                           const std::string &action_button,
+                                           const std::string &flyout_button,
+                                           const std::string &menu_file,
+                                           bool apply_immediately) :
+    mParent(parent),
     mActionButton(action_button),
-    mFlyoutButton(flyout_button)
+    mFlyoutButton(flyout_button),
+    mApplyImmediately(apply_immediately)
 {
-	// register action mapping before creating menu
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
+    // register action mapping before creating menu
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
     save_registar.add("FlyoutCombo.Button.Action", [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutItemSelected(ctrl, data); });
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enabled_rgistar;
+    enabled_rgistar.add("FlyoutCombo.Button.Check", [this](LLUICtrl *ctrl, const LLSD &data) { return onFlyoutItemCheck(ctrl, data); });
 
     mParent->childSetAction(flyout_button, [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutButton(ctrl, data); });
     mParent->childSetAction(action_button, [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutAction(ctrl, data); });
@@ -119,7 +126,24 @@ void LLFlyoutComboBtnCtrl::onFlyoutItemSelected(LLUICtrl *ctrl, const LLSD &data
     LLMenuItemGL *pmenuitem = static_cast<LLMenuItemGL*>(ctrl);
     setSelectedItem(pmenuitem);
 
-    onFlyoutAction(pmenuitem, data);
+    if (mApplyImmediately)
+    {
+        onFlyoutAction(pmenuitem, data);
+    }
+}
+
+bool LLFlyoutComboBtnCtrl::onFlyoutItemCheck(LLUICtrl *ctrl, const LLSD &data)
+{
+    if (mApplyImmediately)
+    {
+        return false;
+    }
+    else
+    {
+        LLMenuItemGL *pmenuitem = static_cast<LLMenuItemGL*>(ctrl);
+
+        return pmenuitem->getName() == mSelectedName;
+    }
 }
 
 void LLFlyoutComboBtnCtrl::onFlyoutAction(LLUICtrl *ctrl, const LLSD &data)

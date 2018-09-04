@@ -44,8 +44,6 @@
 #include "llenvironment.h" 
 #include "llatmosphere.h"
 
-#pragma optimize("", off)
-
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
 
@@ -53,6 +51,8 @@ static LLGLSLShader* cloud_shader = NULL;
 static LLGLSLShader* sky_shader   = NULL;
 static LLGLSLShader* sun_shader   = NULL;
 static LLGLSLShader* moon_shader  = NULL;
+
+static float sStarTime;
 
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 	LLDrawPool(POOL_WL_SKY)
