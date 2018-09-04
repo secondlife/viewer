@@ -2292,7 +2292,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         COMMAND "dsymutil"
         ARGS
           ${VIEWER_BINARY_NAME}
-        DEPENDS ${VIEWER_BINARY_NAME}
+##        redundant with add_dependencies() below, and possibly harmful
+##        DEPENDS ${VIEWER_BINARY_NAME}
         COMMENT "Generating ${VIEWER_APP_DSYM}"
         )
       add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
