@@ -59,8 +59,6 @@
 #undef min
 #undef max
 
-#pragma optimize("", off)
-
 namespace
 {
     const S32 NUM_TILES_X = 8;
