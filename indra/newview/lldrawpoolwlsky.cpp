@@ -44,6 +44,8 @@
 #include "llenvironment.h" 
 #include "llatmosphere.h"
 
+#pragma optimize("", off)
+
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
 
@@ -180,12 +182,12 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
 	    sky_shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
 
-        // clouds are rendered along with sky in adv atmo
+        /* clouds are rendered along with sky in adv atmo
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
         {
             sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
             sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
-        }
+        }*/
 
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 

@@ -144,19 +144,20 @@ protected:
     void onRayleighExponentialScaleChanged();
     void onRayleighLinearChanged();
     void onRayleighConstantChanged();
+    void onRayleighMaxAltitudeChanged();
 
     void onMieExponentialChanged();
     void onMieExponentialScaleChanged();
     void onMieLinearChanged();
     void onMieConstantChanged();
     void onMieAnisoFactorChanged();
+    void onMieMaxAltitudeChanged();
 
     void onAbsorptionExponentialChanged();
     void onAbsorptionExponentialScaleChanged();
     void onAbsorptionLinearChanged();
     void onAbsorptionConstantChanged();
-
-    void onMaxAltitudeChanged();
+    void onAbsorptionMaxAltitudeChanged();
 
     // update the settings for our profile type
     void updateProfile();

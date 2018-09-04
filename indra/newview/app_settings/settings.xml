@@ -8664,7 +8664,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
   <key>RenderLocalLights</key>
   <map>
@@ -10165,7 +10165,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
   <key>RenderUseTriStrips</key>
   <map>

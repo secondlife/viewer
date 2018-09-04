@@ -34,6 +34,8 @@
 #include "llshadermgr.h"
 #include "llglslshader.h"
 
+#pragma optimize("", off)
+
 LLAtmosphere* gAtmosphere = nullptr;
 
 // Values from "Reference Solar Spectral Irradiance: ASTM G-173", ETR column
@@ -78,6 +80,8 @@ const double kMieScaleHeight = 1200.0;
 const double kMieAngstromAlpha = 0.0;
 const double kMieAngstromBeta = 5.328e-3;
 const double kMieSingleScatteringAlbedo = 0.9;
+const double kGroundAlbedo = 0.1;
+
 const double max_sun_zenith_angle = F_PI * 2.0 / 3.0;
 
 AtmosphericModelSettings::AtmosphericModelSettings()
@@ -201,7 +205,7 @@ LLAtmosphere::LLAtmosphere()
         m_mie_scattering.push_back(mie * kMieSingleScatteringAlbedo);
         m_mie_extinction.push_back(mie);
         m_absorption_extinction.push_back(kMaxOzoneNumberDensity * kOzoneCrossSection[(l - kLambdaMin) / 10]);
-        m_ground_albedo.push_back(0.6f);
+        m_ground_albedo.push_back(kGroundAlbedo);
     }
 
     AtmosphericModelSettings defaults;
@@ -268,7 +272,7 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
                                 m_ground_albedo,
                                 max_sun_zenith_angle,
                                 1000.0,   
-                                15,
+                                3,
                                 false,
                                 true);
 

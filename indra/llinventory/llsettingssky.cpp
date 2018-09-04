@@ -32,6 +32,8 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#pragma optimize("", off)
+
 //=========================================================================
 static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
 static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
