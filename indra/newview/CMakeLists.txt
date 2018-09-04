@@ -2129,7 +2129,7 @@ if (DARWIN)
     )
 
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
-  set(VIEWER_APP_DSYM "${VIEWER_BINARY_NAME}.dSYM")
+  set(VIEWER_APP_DSYM "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}.dSYM")
   set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
 
   configure_file(
