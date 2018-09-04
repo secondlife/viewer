@@ -646,7 +646,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
     
         dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
         dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
-        dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(0.0000);
+        dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(256.0000);
         dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
         dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
@@ -775,7 +775,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     }
     if (legacy.has(SETTING_STAR_BRIGHTNESS))
     {
-        newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(legacy[SETTING_STAR_BRIGHTNESS].asReal());
+        newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(legacy[SETTING_STAR_BRIGHTNESS].asReal()) * 256.0f;
     }
     if (legacy.has(SETTING_SUNLIGHT_COLOR))
     {
