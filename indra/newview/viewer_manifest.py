@@ -899,6 +899,12 @@ class DarwinManifest(ViewerManifest):
         # darwin requires full app bundle packaging even for debugging.
         return True
 
+    def is_rearranging(self):
+        # That said, some stuff should still only be performed once.
+        # Are either of these actions in 'actions'? Is the set intersection
+        # non-empty?
+        return bool(set(["package", "unpacked"]).intersection(self.args['actions']))
+
     def construct(self):
         # These are the names of the top-level application and the embedded
         # applications for the VMP and for the actual viewer, respectively.
@@ -926,18 +932,19 @@ class DarwinManifest(ViewerManifest):
 
             # the one file in top-level MacOS directory is the trampoline to
             # our nested launcher_app
-            with self.prefix(dst="MacOS"):
-                toplevel_MacOS = self.get_dst_prefix()
-                trampoline = self.put_in_file("""\
+            if self.is_rearranging():
+                with self.prefix(dst="MacOS"):
+                    toplevel_MacOS = self.get_dst_prefix()
+                    trampoline = self.put_in_file("""\
 #!/bin/bash
 open "%s" --args "$@"
 """ %
-                    # up one directory from MacOS to its sibling Resources directory
-                    os.path.join('$(dirname "$0")', os.pardir, 'Resources', launcher_app),
-                    "SL_Launcher",      # write this file
-                    "trampoline")       # flag to add to list of copied files
-                # Script must be executable
-                self.run_command(["chmod", "+x", trampoline])
+                        # up one directory from MacOS to its sibling Resources directory
+                        os.path.join('$(dirname "$0")', os.pardir, 'Resources', launcher_app),
+                        "SL_Launcher",      # write this file
+                        "trampoline")       # flag to add to list of copied files
+                    # Script must be executable
+                    self.run_command(["chmod", "+x", trampoline])
 
             # Make a symlink to a nested app Frameworks directory that doesn't
             # yet exist. We shouldn't need this; the only things that need
@@ -1018,12 +1025,19 @@ open "%s" --args "$@"
                                 continue
                             fromwhere = os.path.join(toplevel_MacOS, f)
                             towhere   = self.dst_path_of(f)
-                            print "Moving %s => %s" % \
-                                  (self.relpath(fromwhere, relbase),
-                                   self.relpath(towhere, relbase))
-                            # now do it, only without relativizing paths
-                            os.rename(fromwhere, towhere)
+                            fromrel   = self.relpath(fromwhere, relbase)
+                            torel     = self.relpath(towhere, relbase)
+                            if not self.is_rearranging():
+                                print "Not yet moving {} => {}".format(fromrel, torel)
+                            else:
+                                print "Moving {} => {}".format(fromrel, torel)
+                                # now do it, only without relativizing paths
+                                os.rename(fromwhere, towhere)
 
+                        # If we haven't yet moved executables, find our viewer
+                        # executable where it was linked, in toplevel_MacOS.
+                        # If we have, find it here.
+                        whichdir = here if self.is_rearranging() else toplevel_MacOS
                         # Pick the biggest of the executables as the real viewer.
                         # Make (basename, fullpath) pairs; for each pair,
                         # expand to (size, basename, fullpath) triples; sort
@@ -1032,11 +1046,10 @@ open "%s" --args "$@"
                         _, exename, exepath = \
                             sorted((os.path.getsize(path), name, path)
                                    for name, path in
-                                   ((name, os.path.join(here, name))
-                                    for name in os.listdir(here)))[-1]
+                                   ((name, os.path.join(whichdir, name))
+                                    for name in os.listdir(whichdir)))[-1]
 
-                        if ("package" in self.args['actions'] or 
-                            "unpacked" in self.args['actions']):
+                        if self.is_rearranging():
                             # NOTE: the -S argument to strip causes it to keep
                             # enough info for annotated backtraces (i.e. function
                             # names in the crash log). 'strip' with no arguments
@@ -1192,13 +1205,14 @@ open "%s" --args "$@"
 
                         # our apps
                         executable_path = {}
-                        for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                                 # plugin launcher
-                                                 (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
-                                                 ):
-                            self.path2basename(os.path.join(os.pardir,
-                                                            app_bld_dir, self.args['configuration']),
-                                               app)
+                        for app_bld_dir, app in (
+                            ("mac_crash_logger", "mac-crash-logger.app"),
+                            # plugin launcher
+                            (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
+                            ):
+                            self.path2basename(
+                                os.path.join(os.pardir, app_bld_dir, self.args['configuration']),
+                                app)
                             executable_path[app] = \
                                 self.dst_path_of(os.path.join(app, "Contents", "MacOS"))
 
