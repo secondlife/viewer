@@ -42,6 +42,7 @@ list(APPEND
 add_library(lllogin 
             ${login_SOURCE_FILES}
             )
+buildscripts_block(lllogin)
 
 target_link_libraries(lllogin
     ${LLMESSAGE_LIBRARIES}

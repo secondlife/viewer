@@ -71,6 +71,7 @@ list(APPEND
 find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
 
 add_executable(windows-crash-logger WIN32 ${win_crash_logger_SOURCE_FILES})
+buildscripts_block(windows-crash-logger)
 
 target_link_libraries(windows-crash-logger
     ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}

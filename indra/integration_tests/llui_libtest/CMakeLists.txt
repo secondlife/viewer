@@ -56,6 +56,7 @@ set_source_files_properties(${llui_libtest_HEADER_FILES}
 list(APPEND llui_libtest_SOURCE_FILES ${llui_libtest_HEADER_FILES})
 
 add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})
+buildscripts_block(llui_libtest)
 
 # Link with OS-specific libraries for LLWindow dependency
 if (DARWIN)

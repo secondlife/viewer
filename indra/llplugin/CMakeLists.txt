@@ -65,6 +65,7 @@ endif(NOT ADDRESS_SIZE EQUAL 32)
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})
+buildscripts_block(llplugin)
 
 add_subdirectory(slplugin)
 

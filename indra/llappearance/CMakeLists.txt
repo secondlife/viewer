@@ -77,6 +77,7 @@ set_source_files_properties(${llappearance_HEADER_FILES}
 list(APPEND llappearance_SOURCE_FILES ${llappearance_HEADER_FILES})
 
 add_library (llappearance ${llappearance_SOURCE_FILES})
+buildscripts_block(llappearance)
 
 target_link_libraries(llappearance
     ${LLCHARACTER_LIBRARIES}
@@ -94,6 +95,7 @@ target_link_libraries(llappearance
 
 if (BUILD_HEADLESS)
   add_library (llappearanceheadless ${llappearance_SOURCE_FILES})
+  buildscripts_block(llappearanceheadless)
   
   target_link_libraries(llappearanceheadless
       ${LLCHARACTER_LIBRARIES}

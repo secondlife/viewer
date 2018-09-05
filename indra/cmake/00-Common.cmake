@@ -217,4 +217,25 @@ else (USESYSTEMLIBS)
       )
 endif (USESYSTEMLIBS)
 
+macro (buildscripts_block target_name)
+    # add custom commands to bracket a target build to make logs easier to read
+
+    if (DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
+        add_custom_command(TARGET ${target_name} PRE_BUILD
+            COMMAND echo ARGS "##teamcity[blockOpened name='${target_name}']" VERBATIM
+            )
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND echo ARGS "##teamcity[blockClosed name='${target_name}']" VERBATIM
+            )
+    else (DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
+        add_custom_command(TARGET ${target_name} PRE_BUILD
+            COMMAND echo ARGS "################## START ${target_name}" VERBATIM
+            )
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND echo ARGS "################## FINISH ${target_name}" VERBATIM
+            )
+    endif (DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
+
+endmacro (buildscripts_block target_name)
+
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

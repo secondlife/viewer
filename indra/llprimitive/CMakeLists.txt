@@ -71,6 +71,7 @@ set_source_files_properties(${llprimitive_HEADER_FILES}
 list(APPEND llprimitive_SOURCE_FILES ${llprimitive_HEADER_FILES})
 
 add_library (llprimitive ${llprimitive_SOURCE_FILES})
+buildscripts_block(llprimitive)
 
 target_link_libraries(llprimitive
     ${LLCOMMON_LIBRARIES}

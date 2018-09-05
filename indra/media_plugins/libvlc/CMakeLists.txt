@@ -48,7 +48,8 @@ set(media_plugin_libvlc_SOURCE_FILES
 add_library(media_plugin_libvlc
     SHARED
     ${media_plugin_libvlc_SOURCE_FILES}
-)
+    )
+buildscripts_block(media_plugin_libvlc)
 
 target_link_libraries(media_plugin_libvlc
   ${LLPLUGIN_LIBRARIES}

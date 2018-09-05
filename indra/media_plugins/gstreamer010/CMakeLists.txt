@@ -56,7 +56,8 @@ set(media_plugin_gstreamer010_HEADER_FILES
 add_library(media_plugin_gstreamer010
     SHARED
     ${media_plugin_gstreamer010_SOURCE_FILES}
-)
+    )
+buildscripts_block(media_plugin_gstreamer010)
 
 target_link_libraries(media_plugin_gstreamer010
   ${LLPLUGIN_LIBRARIES}

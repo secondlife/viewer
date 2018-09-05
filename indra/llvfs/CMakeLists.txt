@@ -64,6 +64,7 @@ set_source_files_properties(${llvfs_HEADER_FILES}
 list(APPEND llvfs_SOURCE_FILES ${llvfs_HEADER_FILES})
 
 add_library (llvfs ${llvfs_SOURCE_FILES})
+buildscripts_block(llvfs)
 
 set(vfs_BOOST_LIBRARIES
     ${BOOST_FILESYSTEM_LIBRARY}

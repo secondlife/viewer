@@ -81,7 +81,8 @@ list(APPEND media_plugin_cef_SOURCE_FILES ${media_plugin_cef_HEADER_FILES})
 add_library(media_plugin_cef
     SHARED
     ${media_plugin_cef_SOURCE_FILES}
-)
+    )
+buildscripts_block(media_plugin_cef)
 
 #add_dependencies(media_plugin_cef
 #  ${MEDIA_PLUGIN_BASE_LIBRARIES}

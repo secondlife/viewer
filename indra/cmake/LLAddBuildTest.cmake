@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(00-Common)
 include(LLTestCommand)
 include(GoogleMock)
 include(Tut)
@@ -104,6 +105,7 @@ INCLUDE(GoogleMock)
 
     # Setup target
     ADD_EXECUTABLE(PROJECT_${project}_TEST_${name} ${${name}_test_SOURCE_FILES})
+    buildscripts_block(PROJECT_${project}_TEST_${name})
     SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
 
     #
@@ -165,6 +167,7 @@ INCLUDE(GoogleMock)
   # Add the test runner target per-project
   # (replaces old _test_ok targets all over the place)
   ADD_CUSTOM_TARGET(${project}_tests ALL DEPENDS ${${project}_TEST_OUTPUT})
+  buildscripts_block(${project}_tests)
   ADD_DEPENDENCIES(${project} ${project}_tests)
 ENDMACRO(LL_ADD_PROJECT_UNIT_TESTS)
 
@@ -212,6 +215,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     message(STATUS "ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})")
   endif(TEST_DEBUG)
   ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
+  buildscripts_block(INTEGRATION_TEST_${testname})
   SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname}
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"

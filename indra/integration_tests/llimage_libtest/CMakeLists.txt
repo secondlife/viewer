@@ -40,7 +40,8 @@ add_executable(llimage_libtest
     WIN32
     MACOSX_BUNDLE
     ${llimage_libtest_SOURCE_FILES}
-)
+    )
+buildscripts_block(llimage_libtest)
 
 set_target_properties(llimage_libtest
     PROPERTIES
