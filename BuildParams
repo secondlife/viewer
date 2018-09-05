@@ -62,11 +62,6 @@ Linux.additional_packages = ""
 EDU_sourceid = ""
 EDU_viewer_channel_suffix = "edu"
 
-# The EDU package allows us to create a separate release channel whose expirations
-# are synchronized as much as possible with the academic year
-EDU_sourceid = ""
-EDU_viewer_channel_suffix = "edu"
-
 # Notifications - to configure email notices use the TeamCity parameter
 # setting screen for your project or build configuration to set the
 # environment variable 'email' to a space-separated list of email addresses
