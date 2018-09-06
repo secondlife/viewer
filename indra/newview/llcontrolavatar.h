@@ -40,9 +40,10 @@ public:
 	virtual void 			initInstance(); // Called after construction to initialize the class.
 	virtual	~LLControlAvatar();
 
+    void getNewConstraintFixups(LLVector3& new_pos_constraint, F32& new_scale_constraint) const;
     void matchVolumeTransform();
     void updateVolumeGeom();
-        
+
     void setGlobalScale(F32 scale);
     void recursiveScaleJoint(LLJoint *joint, F32 factor);
     static LLControlAvatar *createControlAvatar(LLVOVolume *obj);
@@ -81,7 +82,11 @@ public:
     bool mMarkedForDeath;
 
     LLVector3 mPositionConstraintFixup;
+    F32 mScaleConstraintFixup;
 
+    static const F32 MAX_LEGAL_OFFSET;
+    static const F32 MAX_LEGAL_SIZE;
+    
 };
 
 typedef std::map<LLUUID, S32> signaled_animation_map_t;

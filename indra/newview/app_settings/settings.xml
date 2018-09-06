@@ -2226,6 +2226,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>AnimatedObjectsGlobalScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Temporary testing: allow an extra scale factor to be forced on animated objects.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.00</real>
+  </map>
   <key>AvatarBoundingBoxComplexity</key>
   <map>
     <key>Comment</key>

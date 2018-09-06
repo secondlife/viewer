@@ -35,12 +35,16 @@
 #include "llviewerregion.h"
 #include "llskinningutil.h"
 
+const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
+const F32 LLControlAvatar::MAX_LEGAL_SIZE = 16.0f;
+
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
     mPlaying(false),
     mGlobalScale(1.0f),
     mMarkedForDeath(false),
-    mRootVolp(NULL)
+    mRootVolp(NULL),
+    mScaleConstraintFixup(1.0)
 {
     mIsDummy = TRUE;
     mIsControlAvatar = true;
@@ -66,6 +70,44 @@ void LLControlAvatar::initInstance()
 	hideSkirt();
 
     mInitFlags |= 1<<4;
+}
+
+void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
+{
+    new_pos_fixup = LLVector3();
+    new_scale_fixup = 1.0f;
+    LLVector3 vol_pos = mRootVolp->getRenderPosition();
+
+    // Fix up position if needed to prevent visual encroachment
+    if (box_valid_and_non_zero(getLastAnimExtents())) // wait for state to settle down
+    {
+        // The goal here is to ensure that the extent of the avatar's 
+        // bounding box does not wander too far from the
+        // official position of the corresponding volume. We
+        // do this by tracking the distance and applying a
+        // correction to the control avatar position if
+        // needed.
+        LLVector3 uncorrected_extents[2];
+        uncorrected_extents[0] = (getLastAnimExtents()[0] - mPositionConstraintFixup)/mScaleConstraintFixup;
+        uncorrected_extents[1] = (getLastAnimExtents()[1] - mPositionConstraintFixup)/mScaleConstraintFixup;
+        LLVector3 uncorrected_size = uncorrected_extents[1]-uncorrected_extents[0];
+        F32 uncorrected_max_size = llmax(uncorrected_size[0],uncorrected_size[1],uncorrected_size[2]);
+        LLVector3 pos_box_offset = point_to_box_offset(vol_pos, uncorrected_extents);
+        F32 offset_dist = pos_box_offset.length();
+        if (offset_dist > MAX_LEGAL_OFFSET)
+        {
+            F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
+            new_pos_fixup = (target_dist/offset_dist)*pos_box_offset;
+            LL_INFOS("ConstraintFix") << "pos fix, offset_dist " << offset_dist << " pos fixup " 
+                                      << new_pos_fixup << LL_ENDL;
+        }
+        if (uncorrected_max_size > MAX_LEGAL_SIZE)
+        {
+            new_scale_fixup = MAX_LEGAL_SIZE/uncorrected_max_size;
+            LL_INFOS("ConstraintFix") << "scale fix, uncorrected_size " << uncorrected_size << " fixup " 
+                                      << mScaleConstraintFixup << LL_ENDL;
+        }
+    }
 }
 
 void LLControlAvatar::matchVolumeTransform()
@@ -96,37 +138,16 @@ void LLControlAvatar::matchVolumeTransform()
         }
         else
         {
-
             LLVector3 vol_pos = mRootVolp->getRenderPosition();
-            LLVector3 pos_box_offset;
-            LLVector3 box_offset;
 
-            // Fix up position if needed to prevent visual encroachment
-            if (box_valid_and_non_zero(getLastAnimExtents())) // wait for state to settle down
-            {
-                const F32 MAX_LEGAL_OFFSET = 3.0;
-                
-                // The goal here is to ensure that the extent of the avatar's 
-                // bounding box does not wander too far from the
-                // official position of the corresponding volume. We
-                // do this by tracking the distance and applying a
-                // correction to the control avatar position if
-                // needed.
-                LLVector3 uncorrected_extents[2];
-                uncorrected_extents[0] = getLastAnimExtents()[0] - mPositionConstraintFixup;
-                uncorrected_extents[1] = getLastAnimExtents()[1] - mPositionConstraintFixup;
-                pos_box_offset = point_to_box_offset(vol_pos, uncorrected_extents);
-                F32 offset_dist = pos_box_offset.length();
-                if (offset_dist > MAX_LEGAL_OFFSET)
-                {
-                    F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
-                    box_offset = (target_dist/offset_dist)*pos_box_offset;
-                }
-            }
+            LLVector3 new_pos_fixup;
+            F32 new_scale_fixup;
+            getNewConstraintFixups(new_pos_fixup, new_scale_fixup);
 
-            mPositionConstraintFixup = box_offset;
-
-            // Currently if you're doing something like playing an
+            mPositionConstraintFixup = new_pos_fixup;
+            mScaleConstraintFixup = new_scale_fixup;
+            
+            // FIXME: Currently if you're doing something like playing an
             // animation that moves the pelvis (on an avatar or
             // animated object), the name tag and debug text will be
             // left behind. Ideally setPosition() would follow the
@@ -152,6 +173,9 @@ void LLControlAvatar::matchVolumeTransform()
             mRoot->setWorldRotation(bind_rot*obj_rot);
 			setPositionAgent(vol_pos);
 			mRoot->setPosition(vol_pos + mPositionConstraintFixup);
+
+            F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
+            setGlobalScale(global_scale * mScaleConstraintFixup);
         }
     }
 }
@@ -371,10 +395,13 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
         addDebugText(llformat("lod_radius %s dists %s", LLStringOps::getReadableNumber(lod_radius).c_str(),cam_dist_string.c_str()));
-        if (mPositionConstraintFixup.length() > 0.0f)
+        if (mPositionConstraintFixup.length() > 0.0f || mScaleConstraintFixup != 1.0f)
         {
-            addDebugText(llformat("pos fix (%.1f %.1f %.1f)", 
-                                  mPositionConstraintFixup[0], mPositionConstraintFixup[1], mPositionConstraintFixup[2]));
+            addDebugText(llformat("pos fix (%.1f %.1f %.1f) scale %f", 
+                                  mPositionConstraintFixup[0], 
+                                  mPositionConstraintFixup[1],
+                                  mPositionConstraintFixup[2],
+                                  mScaleConstraintFixup));
         }
         
 #if 0
