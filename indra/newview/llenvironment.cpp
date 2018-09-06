@@ -1633,12 +1633,15 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->update();
     mBlenderSky.reset();
 
+#if 0
     if (gAtmosphere)
     {
         AtmosphericModelSettings settings;
         LLEnvironment::getAtmosphericModelSettings(settings, psky);
         gAtmosphere->configureAtmosphericModel(settings);
     }
+#endif
+
 }
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)

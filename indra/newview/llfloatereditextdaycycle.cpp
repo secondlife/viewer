@@ -62,6 +62,8 @@
 #include "llenvironment.h"
 #include "lltrans.h"
 
+extern LLControlGroup gSavedSettings;
+
 //=========================================================================
 namespace {
     const std::string track_tabs[] = {
@@ -821,10 +823,17 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
     {
         panel->setSky(p_sky);
     }
-    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
+    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("density_panel"));
     if (panel)
     {
-        panel->setSky(p_sky);
+        if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
+        {
+            panel->setSky(p_sky);
+        }
+        else
+        {
+            panel->setVisible(false);
+        }
     }
 }
 

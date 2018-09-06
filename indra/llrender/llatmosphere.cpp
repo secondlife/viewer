@@ -34,8 +34,6 @@
 #include "llshadermgr.h"
 #include "llglslshader.h"
 
-#pragma optimize("", off)
-
 LLAtmosphere* gAtmosphere = nullptr;
 
 // Values from "Reference Solar Spectral Irradiance: ASTM G-173", ETR column
@@ -234,6 +232,26 @@ LLAtmosphere::~LLAtmosphere()
     m_model = nullptr;
 }
 
+#if DEBUG_ATMO_TEX_GEN
+uint8_t* GetTexture2d(int width, int height, int components, GLuint texture)
+{
+    glActiveTextureARB(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    uint8_t* storage = (uint8_t*)malloc(width * height * components * sizeof(float));
+    glGetTexImage(GL_TEXTURE_2D, 0, components == 3 ? GL_RGB : GL_RGBA, GL_FLOAT, storage);
+    return storage;
+}
+
+uint8_t* GetTexture3d(int width, int height, int depth, int components, GLuint texture)
+{
+    glActiveTextureARB(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_3D, texture);
+    uint8_t* storage = (uint8_t*)malloc(width * height * depth * components * sizeof(float));
+    glGetTexImage(GL_TEXTURE_3D, 0, components == 3 ? GL_RGB : GL_RGBA, GL_FLOAT, storage);
+    return storage;
+}
+#endif
+
 bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
 {
     if ((m_model != nullptr) && (settings == m_settings))
@@ -256,6 +274,7 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
     m_config.num_scattering_orders = 4;
 
     m_model = new atmosphere::Model(
+                                m_config,
                                 m_wavelengths,
                                 m_solar_irradiance,
                                 settings.m_sunArcRadians,
@@ -273,8 +292,9 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
                                 max_sun_zenith_angle,
                                 1000.0,   
                                 3,
-                                false,
-                                true);
+                                false, // do not combine_scattering...we want indep textures
+                                false, // use 32F for 2d textures to avoid artifacts
+                                true); // use 16F for 3d textures to reduce footprint
 
     if (m_model)
     {
@@ -283,6 +303,19 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
         getScattering()->setTexName(m_textures.scattering_texture);   
         getMieScattering()->setTexName(m_textures.single_mie_scattering_texture);
         getIlluminance()->setTexName(m_textures.illuminance_texture);
+
+#if DEBUG_ATMO_TEX_GEN
+        // for debug only...
+        U8* transmittance         = GetTexture2d(m_config.transmittanceTextureWidth, m_config.transmittanceTextureHeight, 3, m_textures.transmittance_texture);
+        U8* scattering            = GetTexture3d(m_config.scatteringTextureWidth, m_config.scatteringTextureHeight, m_config.scatteringTextureDepth, 3, m_textures.scattering_texture);
+        U8* single_mie_scattering = GetTexture3d(m_config.scatteringTextureWidth, m_config.scatteringTextureHeight, m_config.scatteringTextureDepth, 3, m_textures.single_mie_scattering_texture);
+        U8* illuminance           = GetTexture2d(m_config.illuminanceTextureWidth, m_config.illuminanceTextureHeight, 3, m_textures.illuminance_texture);
+        free(transmittance);
+        free(scattering);
+        free(single_mie_scattering);
+        free(illuminance);
+#endif
+
     }
 
     return m_model != nullptr;
@@ -296,7 +329,7 @@ LLGLTexture* LLAtmosphere::getTransmittance()
         m_transmittance->generateGLTexture();
         m_transmittance->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         m_transmittance->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
-        m_transmittance->setExplicitFormat(GL_RGB16F_ARB, GL_RGB, GL_FLOAT);
+        m_transmittance->setExplicitFormat(GL_RGB32F_ARB, GL_RGB, GL_FLOAT);
         m_transmittance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
     }
     return m_transmittance;
@@ -338,7 +371,7 @@ LLGLTexture* LLAtmosphere::getIlluminance()
         m_illuminance->generateGLTexture();
         m_illuminance->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         m_illuminance->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
-        m_illuminance->setExplicitFormat(GL_RGB16F_ARB, GL_RGB, GL_FLOAT);
+        m_illuminance->setExplicitFormat(GL_RGB32F_ARB, GL_RGB, GL_FLOAT);
         m_illuminance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
     }
     return m_illuminance;

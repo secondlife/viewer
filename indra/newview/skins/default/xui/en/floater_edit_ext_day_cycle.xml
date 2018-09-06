@@ -520,6 +520,15 @@ Select a key frame from the timeline above to edit settings.
                                 left_delta="0"
                                 top_pad="5"
                                 name="moon_panel" />
+                        <panel
+                                border="true"
+                                class="panel_settings_density"
+                                filename="panel_settings_sky_density.xml"
+                                label="Density"
+                                layout="topleft"
+                                left_delta="0"
+                                top_pad="5"
+                                name="density_panel" />
                     </tab_container>
                 </layout_panel>        
             </layout_stack>

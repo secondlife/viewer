@@ -30,22 +30,14 @@ uniform mat4 inv_proj;
 uniform mat4 inv_modelview;
 
 ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
-// Inputs
-uniform vec3 camPosLocal;
-
-out vec3 view_pos;
-out vec3 view_dir;
+VARYING vec2 vary_frag;
 
 void main()
 {
     // pass through untransformed fullscreen pos (clipspace)
 	gl_Position = vec4(position.xyz, 1.0);
-
-    view_pos = (inv_proj * vec4(position, 1.0f)).xyz;
-
-	// this will be normalized in the frag shader...
-	//view_dir = (inv_modelview * view_pos).xyz;
-    view_dir = view_pos - camPosLocal;
+    vary_frag = texcoord0;
 }
 

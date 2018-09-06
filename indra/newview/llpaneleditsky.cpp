@@ -37,8 +37,6 @@
 #include "llenvironment.h"
 #include "llatmosphere.h"
 
-#pragma optimize("", off)
-
 namespace
 {   
     // Atmosphere Tab

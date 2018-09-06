@@ -93,6 +93,10 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 
 void LLDrawPoolWLSky::endRenderPass( S32 pass )
 {
+    sky_shader   = nullptr;
+    cloud_shader = nullptr;
+    sun_shader   = nullptr;
+    moon_shader  = nullptr;
 }
 
 void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
@@ -113,7 +117,10 @@ void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
 
 void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 {
-
+    sky_shader   = nullptr;
+    cloud_shader = nullptr;
+    sun_shader   = nullptr;
+    moon_shader  = nullptr;
 }
 
 void LLDrawPoolWLSky::renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
@@ -167,8 +174,8 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-        LLVector4 sun_dir = LLEnvironment::instance().getClampedSunNorm();
-        LLVector4 moon_dir = LLEnvironment::instance().getClampedMoonNorm();
+        LLVector3 sun_dir  = LLEnvironment::instance().getSunDirection();
+        LLVector3 moon_dir = LLEnvironment::instance().getMoonDirection();
 
         F32 sunSize = (float)cosf(psky->getSunArcRadians());
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
@@ -181,13 +188,6 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 		glh::matrix4f inv_proj = proj_mat.inverse();
 
 	    sky_shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
-
-        /* clouds are rendered along with sky in adv atmo
-        if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
-        {
-            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
-            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
-        }*/
 
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
