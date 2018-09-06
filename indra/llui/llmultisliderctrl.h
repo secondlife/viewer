@@ -58,6 +58,8 @@ public:
 								draw_track,
 								use_triangle;
 
+		Optional<std::string>	orientation;
+
 		Optional<F32>			overlap_threshold;
 
 		Optional<LLUIColor>		text_color,
@@ -102,7 +104,7 @@ public:
 	void			setMaxValue(F32 max_value) {mMultiSlider->setMaxValue(max_value);}
 	void			setIncrement(F32 increment) {mMultiSlider->setIncrement(increment);}
 
-    F32             getSliderValueFromX(S32 x) const { return mMultiSlider->getSliderValueFromX(x); }
+	F32			getSliderValueFromPos(S32 x, S32 y) const { return mMultiSlider->getSliderValueFromPos(x, y); }
 
 	/// for adding and deleting sliders
 	const std::string&	addSlider();

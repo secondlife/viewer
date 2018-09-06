@@ -60,6 +60,8 @@ public:
 							thumb_center_selected_color,
 							triangle_color;
 
+		Optional<std::string>	orientation;
+
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
 		Optional<S32>		thumb_width;
@@ -75,7 +77,7 @@ public:
 	virtual ~LLMultiSlider();
 	void				setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32					getSliderValue(const std::string& name) const;
-    F32                 getSliderValueFromX(S32 xpos) const;
+	F32					getSliderValueFromPos(S32 xpos, S32 ypos) const;
 
 	const std::string&	getCurSlider() const					{ return mCurSlider; }
 	F32					getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
@@ -127,7 +129,9 @@ protected:
 	LLUIColor		mThumbCenterSelectedColor;
 	LLUIColor		mDisabledThumbColor;
 	LLUIColor		mTriangleColor;
-	
+
+	const EOrientation	mOrientation;
+
 	commit_signal_t*	mMouseDownSignal;
 	commit_signal_t*	mMouseUpSignal;
 };

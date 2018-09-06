@@ -588,7 +588,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
         S32 x(0), y(0);
         LLUI::getMousePositionLocal(mFramesSlider, &x, &y);
 
-        sliderpos = mFramesSlider->getSliderValueFromX(x);
+        sliderpos = mFramesSlider->getSliderValueFromPos(x, y);
     }
     else
     {
@@ -655,7 +655,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderDoubleClick(S32 x, S32 y, MASK mask)
 void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 {
     stopPlay();
-    F32 sliderpos = mFramesSlider->getSliderValueFromX(x);
+    F32 sliderpos = mFramesSlider->getSliderValueFromPos(x, y);
 
     std::string slidername = mFramesSlider->getCurSlider();
 
@@ -679,7 +679,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 
 void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 {
-    F32 sliderpos = mFramesSlider->getSliderValueFromX(x);
+    F32 sliderpos = mFramesSlider->getSliderValueFromPos(x, y);
 
     mTimeSlider->setCurSliderValue(sliderpos);
     selectFrame(sliderpos, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);

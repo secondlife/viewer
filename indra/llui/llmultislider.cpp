@@ -55,6 +55,7 @@ LLMultiSlider::Params::Params()
 :	max_sliders("max_sliders", 1),
 	allow_overlap("allow_overlap", false),
 	loop_overlap("loop_overlap", false),
+	orientation("orientation"),
 	overlap_threshold("overlap_threshold", 0),
 	draw_track("draw_track", true),
 	use_triangle("use_triangle", false),
@@ -86,6 +87,7 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	mDisabledThumbColor(p.thumb_disabled_color()),
 	mTriangleColor(p.triangle_color()),
 	mThumbWidth(p.thumb_width),
+	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL),
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL)
 {
@@ -204,13 +206,26 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 	}
 	
 	F32 t = (newValue - mMinValue) / (mMaxValue - mMinValue);
+	if (mOrientation == HORIZONTAL)
+	{
+		S32 left_edge = mThumbWidth/2;
+		S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
 
-	S32 left_edge = mThumbWidth/2;
-	S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
+		S32 x = left_edge + S32( t * (right_edge - left_edge) );
 
-	S32 x = left_edge + S32( t * (right_edge - left_edge) );
-	mThumbRects[name].mLeft = x - (mThumbWidth/2);
-	mThumbRects[name].mRight = x + (mThumbWidth/2);
+		mThumbRects[name].mLeft = x - (mThumbWidth / 2);
+		mThumbRects[name].mRight = x + (mThumbWidth / 2);
+	}
+	else
+	{
+		S32 bottom_edge = mThumbWidth/2;
+		S32 top_edge = getRect().getHeight() - (mThumbWidth/2);
+
+		S32 x = bottom_edge + S32( t * (top_edge - bottom_edge) );
+
+		mThumbRects[name].mTop = x + (mThumbWidth / 2);
+		mThumbRects[name].mBottom = x - (mThumbWidth / 2);
+	}
 }
 
 void LLMultiSlider::setValue(const LLSD& value)
@@ -244,15 +259,29 @@ void LLMultiSlider::setCurSlider(const std::string& name)
 	}
 }
 
-F32 LLMultiSlider::getSliderValueFromX(S32 xpos) const
+F32 LLMultiSlider::getSliderValueFromPos(S32 xpos, S32 ypos) const
 {
-    S32 left_edge = mThumbWidth / 2;
-    S32 right_edge = getRect().getWidth() - (mThumbWidth / 2);
+    F32 t = 0;
+    if (mOrientation == HORIZONTAL)
+    {
+        S32 left_edge = mThumbWidth / 2;
+        S32 right_edge = getRect().getWidth() - (mThumbWidth / 2);
 
-    xpos += mMouseOffset;
-    xpos = llclamp(xpos, left_edge, right_edge);
+        xpos += mMouseOffset;
+        xpos = llclamp(xpos, left_edge, right_edge);
 
-    F32 t = F32(xpos - left_edge) / (right_edge - left_edge);
+        t = F32(xpos - left_edge) / (right_edge - left_edge);
+    }
+    else
+    {
+        S32 bottom_edge = mThumbWidth / 2;
+        S32 top_edge = getRect().getHeight() - (mThumbWidth / 2);
+
+        ypos += mMouseOffset;
+        ypos = llclamp(ypos, bottom_edge, top_edge);
+
+        t = F32(ypos - bottom_edge) / (top_edge - bottom_edge);
+    }
 
     return((t * (mMaxValue - mMinValue)) + mMinValue);
 }
@@ -286,7 +315,14 @@ const std::string& LLMultiSlider::addSlider(F32 val)
 	}
 
 	// add a new thumb rect
-	mThumbRects[newName.str()] = LLRect( 0, getRect().getHeight(), mThumbWidth, 0 );
+	if (mOrientation == HORIZONTAL)
+	{
+		mThumbRects[newName.str()] = LLRect(0, getRect().getHeight(), mThumbWidth, 0);
+	}
+	else
+	{
+		mThumbRects[newName.str()] = LLRect(0, mThumbWidth, getRect().getWidth(), 0);
+	}
 
 	// add the value and set the current slider to this one
 	mValue.insert(newName.str(), initVal);
@@ -312,7 +348,14 @@ void LLMultiSlider::addSlider(F32 val, const std::string& name)
 	}
 
 	// add a new thumb rect
-	mThumbRects[name] = LLRect( 0, getRect().getHeight(), mThumbWidth, 0 );
+	if (mOrientation == HORIZONTAL)
+	{
+		mThumbRects[name] = LLRect(0, getRect().getHeight(), mThumbWidth, 0);
+	}
+	else
+	{
+		mThumbRects[name] = LLRect(0, mThumbWidth, getRect().getWidth(), 0);
+	}
 
 	// add the value and set the current slider to this one
 	mValue.insert(name, initVal);
@@ -416,7 +459,7 @@ BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 // 
 // 		F32 t = F32(x - left_edge) / (right_edge - left_edge);
 // 		setCurSliderValue(t * (mMaxValue - mMinValue) + mMinValue );
-        setCurSliderValue(getSliderValueFromX(x));
+		setCurSliderValue(getSliderValueFromPos(x, y));
 		onCommit();
 
 		getWindow()->setCursor(UI_CURSOR_ARROW);
@@ -485,7 +528,14 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 			// Find the offset of the actual mouse location from the center of the thumb.
 			if (mThumbRects[mCurSlider].pointInRect(x,y))
 			{
-				mMouseOffset = (mThumbRects[mCurSlider].mLeft + mThumbWidth/2) - x;
+				if (mOrientation == HORIZONTAL)
+				{
+					mMouseOffset = (mThumbRects[mCurSlider].mLeft + mThumbWidth / 2) - x;
+				}
+				else
+				{
+					mMouseOffset = (mThumbRects[mCurSlider].mBottom + mThumbWidth / 2) - y;
+				}
 			}
 			else
 			{
@@ -550,9 +600,18 @@ void LLMultiSlider::draw()
 	// Track
 	LLUIImagePtr thumb_imagep = LLUI::getUIImage("Rounded_Square");
 
-	static LLUICachedControl<S32> multi_track_height ("UIMultiTrackHeight", 0);
-	S32 height_offset = (getRect().getHeight() - multi_track_height) / 2;
-	LLRect track_rect(0, getRect().getHeight() - height_offset, getRect().getWidth(), height_offset );
+	static LLUICachedControl<S32> multi_track_height_width ("UIMultiTrackHeight", 0);
+	S32 height_offset = 0;
+	S32 width_offset = 0;
+	if (mOrientation == HORIZONTAL)
+	{
+		height_offset = (getRect().getHeight() - multi_track_height_width) / 2;
+	}
+	else
+	{
+		width_offset = (getRect().getWidth() - multi_track_height_width) / 2;
+	}
+	LLRect track_rect(width_offset, getRect().getHeight() - height_offset, getRect().getWidth() - width_offset, height_offset);
 
 
 	if(mDrawTrack)
