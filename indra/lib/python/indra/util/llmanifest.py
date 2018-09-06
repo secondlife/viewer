@@ -50,7 +50,9 @@ class ManifestError(RuntimeError):
 
 class MissingError(ManifestError):
     """You specified a file that doesn't exist"""
-    pass
+    def __init__(self, msg):
+        self.msg = msg
+        super(MissingError, self).__init__(self.msg)
 
 def path_ancestors(path):
     drive, path = os.path.splitdrive(os.path.normpath(path))
@@ -801,22 +803,18 @@ class LLManifest(object):
                     count += self.process_file(src, dst)
             return count
 
-        for pfx in self.get_src_prefix(), self.get_artwork_prefix(), self.get_build_prefix():
+        try_prefixes = [self.get_src_prefix(), self.get_artwork_prefix(), self.get_build_prefix()]
+        tried=[]
+        count=0
+        while not count and try_prefixes: 
+            pfx = try_prefixes.pop(0)
             try:
                 count = try_path(os.path.join(pfx, src))
             except MissingError:
-                # If src isn't a wildcard, and if that file doesn't exist in
-                # this pfx, try next pfx.
-                count = 0
-                continue
-
-            # Here try_path() didn't raise MissingError. Did it process any files?
-            if count:
-                break
-            # Even though try_path() didn't raise MissingError, it returned 0
-            # files. src is probably a wildcard meant for some other pfx. Loop
-            # back to try the next.
-
+                tried.append(pfx)
+                if not try_prefixes:
+                    # no more prefixes left to try
+                    print "unable to find '%s'; looked in:\n  %s" % (src, '\n  '.join(tried))
         print "%d files" % count
 
         # Let caller check whether we processed as many files as expected. In
