@@ -133,7 +133,15 @@
             text_color="Black"
             text_pad_left="10"
             top="4"
-            width="498" />
+            width="440" />
+           <button
+            follows="left|top"
+            height="23"
+            label="Copy"
+            layout="topleft"
+            left_pad="10"
+            name="copy_allowed_list_btn"
+            width="40" />
         </panel>
    <text
      type="string"
@@ -227,7 +235,15 @@
             text_color="Black"
             text_pad_left="10"
             top="4"
-            width="498" />
+            width="440" />
+           <button
+            follows="left|top"
+            height="23"
+            label="Copy"
+            layout="topleft"
+            left_pad="10"
+            name="copy_allowed_group_list_btn"
+            width="40" />
         </panel>
     <text
      type="string"
@@ -321,7 +337,15 @@
             text_color="Black"
             text_pad_left="10"
             top="4"
-            width="498" />
+            width="440" />
+               <button
+                follows="left|top"
+                height="23"
+                label="Copy"
+                layout="topleft"
+                left_pad="10"
+                name="copy_banned_list_btn"
+                width="40" />
         </panel>
     <text
      type="string"

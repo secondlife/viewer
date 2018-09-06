@@ -512,10 +512,13 @@ public:
 private:
 	void onClickAddAllowedAgent();
 	void onClickRemoveAllowedAgent();
+	void onClickCopyAllowedList();
 	void onClickAddAllowedGroup();
 	void onClickRemoveAllowedGroup();
+	void onClickCopyAllowedGroupList();
 	void onClickAddBannedAgent();
 	void onClickRemoveBannedAgent();
+    void onClickCopyBannedList();
 	void onClickAddEstateManager();
 	void onClickRemoveEstateManager();
 	void onAllowedSearchEdit(const std::string& search_string);
@@ -543,6 +546,7 @@ private:
 	static void requestEstateGetAccessCoro(std::string url);
 
 	void searchAgent(LLNameListCtrl* listCtrl, const std::string& search_string);
+	void copyListToClipboard(std::string list_name);
 
 	bool mPendingUpdate;
 };

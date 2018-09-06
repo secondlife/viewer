@@ -51,6 +51,7 @@
 #include "llfloateravatarpicker.h"
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
+#include "llclipboard.h"
 #include "llcombobox.h"
 #include "lldaycyclemanager.h"
 #include "llenvmanager.h"
@@ -3288,6 +3289,7 @@ BOOL LLPanelEstateAccess::postBuild()
 	getChild<LLUICtrl>("allowed_search_input")->setCommitCallback(boost::bind(&LLPanelEstateAccess::onAllowedSearchEdit, this, _2));
 	childSetAction("add_allowed_avatar_btn", boost::bind(&LLPanelEstateAccess::onClickAddAllowedAgent, this));
 	childSetAction("remove_allowed_avatar_btn", boost::bind(&LLPanelEstateAccess::onClickRemoveAllowedAgent, this));
+	childSetAction("copy_allowed_list_btn", boost::bind(&LLPanelEstateAccess::onClickCopyAllowedList, this));
 
 	getChild<LLUICtrl>("allowed_group_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl* group_name_list = getChild<LLNameListCtrl>("allowed_group_name_list");
@@ -3300,6 +3302,7 @@ BOOL LLPanelEstateAccess::postBuild()
 	getChild<LLUICtrl>("allowed_group_search_input")->setCommitCallback(boost::bind(&LLPanelEstateAccess::onAllowedGroupsSearchEdit, this, _2));
 	getChild<LLUICtrl>("add_allowed_group_btn")->setCommitCallback(boost::bind(&LLPanelEstateAccess::onClickAddAllowedGroup, this));
 	childSetAction("remove_allowed_group_btn", boost::bind(&LLPanelEstateAccess::onClickRemoveAllowedGroup, this));
+	childSetAction("copy_allowed_group_list_btn", boost::bind(&LLPanelEstateAccess::onClickCopyAllowedGroupList, this));
 
 	getChild<LLUICtrl>("banned_avatar_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl* banned_name_list = getChild<LLNameListCtrl>("banned_avatar_name_list");
@@ -3312,6 +3315,7 @@ BOOL LLPanelEstateAccess::postBuild()
 	getChild<LLUICtrl>("banned_search_input")->setCommitCallback(boost::bind(&LLPanelEstateAccess::onBannedSearchEdit, this, _2));
 	childSetAction("add_banned_avatar_btn", boost::bind(&LLPanelEstateAccess::onClickAddBannedAgent, this));
 	childSetAction("remove_banned_avatar_btn", boost::bind(&LLPanelEstateAccess::onClickRemoveBannedAgent, this));
+	childSetAction("copy_banned_list_btn", boost::bind(&LLPanelEstateAccess::onClickCopyBannedList, this));
 
 	getChild<LLUICtrl>("estate_manager_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl* manager_name_list = getChild<LLNameListCtrl>("estate_manager_name_list");
@@ -3455,6 +3459,21 @@ void LLPanelEstateAccess::onClickAddBannedAgent()
 void LLPanelEstateAccess::onClickRemoveBannedAgent()
 {
 	accessRemoveCore(ESTATE_ACCESS_BANNED_AGENT_REMOVE, "EstateBannedAgentRemove", "banned_avatar_name_list");
+}
+
+void LLPanelEstateAccess::onClickCopyAllowedList()
+{
+	copyListToClipboard("allowed_avatar_name_list");
+}
+
+void LLPanelEstateAccess::onClickCopyAllowedGroupList()
+{
+	copyListToClipboard("allowed_group_name_list");
+}
+
+void LLPanelEstateAccess::onClickCopyBannedList()
+{
+	copyListToClipboard("banned_avatar_name_list");
 }
 
 // static
@@ -4162,6 +4181,35 @@ void LLPanelEstateAccess::searchAgent(LLNameListCtrl* listCtrl, const std::strin
 	{
 		listCtrl->deselectAllItems(TRUE);
 	}
+}
+
+void LLPanelEstateAccess::copyListToClipboard(std::string list_name)
+{
+	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
+	if (!panel) return;
+	LLNameListCtrl* name_list = panel->getChild<LLNameListCtrl>(list_name);
+	if (!name_list) return;
+
+	std::vector<LLScrollListItem*> list_vector = name_list->getAllData();
+	if (list_vector.size() == 0) return;
+
+	LLSD::String list_to_copy;
+	for (std::vector<LLScrollListItem*>::const_iterator iter = list_vector.begin();
+		 iter != list_vector.end();
+		 iter++)
+	{
+		LLScrollListItem *item = (*iter);
+		if (item)
+		{
+			list_to_copy += item->getColumn(0)->getValue().asString();
+		}
+		if (std::next(iter) != list_vector.end())
+		{
+			list_to_copy += "\n";
+		}
+	}
+
+	LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, list_to_copy.length());
 }
 
 bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region)
