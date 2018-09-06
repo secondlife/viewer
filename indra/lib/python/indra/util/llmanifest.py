@@ -775,13 +775,13 @@ class LLManifest(object):
         return self.path(os.path.join(path, file), file)
 
     def path(self, src, dst=None):
-        sys.stdout.write("Processing %s => %s ... " % (src, dst))
         sys.stdout.flush()
         if src == None:
             raise ManifestError("No source file, dst is " + dst)
         if dst == None:
             dst = src
         dst = os.path.join(self.get_dst_prefix(), dst)
+        sys.stdout.write("Processing %s => %s ... " % (src, dst))
 
         def try_path(src):
             # expand globs
