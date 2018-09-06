@@ -245,13 +245,13 @@ def main(extra=[]):
     # Build base package.
     touch = args.get('touch')
     if touch:
-        print 'Creating base package'
+        print '================ Creating base package'
     wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
     wm.do(*args['actions'])
     # Store package file for later if making touched file.
     base_package_file = ""
     if touch:
-        print 'Created base package ', wm.package_file
+        print '================ Created base package ', wm.package_file
         base_package_file = "" + wm.package_file
 
     # handle multiple packages if set
@@ -279,14 +279,14 @@ def main(extra=[]):
             args['sourceid']       = os.environ.get(package_id + "_sourceid")
             args['dest'] = base_dest_template.format(package_id)
             if touch:
-                print 'Creating additional package for "', package_id, '" in ', args['dest']
+                print '================ Creating additional package for "', package_id, '" in ', args['dest']
             try:
                 wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
                 wm.do(*args['actions'])
             except Exception as err:
                 sys.exit(str(err))
             if touch:
-                print 'Created additional package ', wm.package_file, ' for ', package_id
+                print '================ Created additional package ', wm.package_file, ' for ', package_id
                 with open(base_touch_template.format(package_id), 'w') as fp:
                     fp.write('set package_file=%s\n' % wm.package_file)
     
