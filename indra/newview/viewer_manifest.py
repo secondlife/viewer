@@ -910,7 +910,8 @@ class DarwinManifest(ViewerManifest):
         # applications for the VMP and for the actual viewer, respectively.
         # These names, without the .app suffix, determine the flyover text for
         # their corresponding Dock icons.
-        toplevel_app, toplevel_icon = "Second Life.app",          "secondlife.icns"
+        toplevel_app = self.channel()+".app" 
+        toplevel_icon = "secondlife.icns"
         launcher_app, launcher_icon = "Second Life Launcher.app", "secondlife.icns"
         viewer_app,   viewer_icon   = "Second Life Viewer.app",   "secondlife.icns"
 
