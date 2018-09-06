@@ -246,6 +246,8 @@ def main(extra=[]):
     touch = args.get('touch')
     if touch:
         print '================ Creating base package'
+    else:
+        print '================ Starting base copy'
     wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
     wm.do(*args['actions'])
     # Store package file for later if making touched file.
@@ -253,6 +255,8 @@ def main(extra=[]):
     if touch:
         print '================ Created base package ', wm.package_file
         base_package_file = "" + wm.package_file
+    else:
+        print '================ Finished base copy'
 
     # handle multiple packages if set
     # ''.split() produces empty list
@@ -280,6 +284,8 @@ def main(extra=[]):
             args['dest'] = base_dest_template.format(package_id)
             if touch:
                 print '================ Creating additional package for "', package_id, '" in ', args['dest']
+            else:
+                print '================ Starting additional copy for "', package_id, '" in ', args['dest']
             try:
                 wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
                 wm.do(*args['actions'])
@@ -289,7 +295,8 @@ def main(extra=[]):
                 print '================ Created additional package ', wm.package_file, ' for ', package_id
                 with open(base_touch_template.format(package_id), 'w') as fp:
                     fp.write('set package_file=%s\n' % wm.package_file)
-    
+            else:
+                print '================ Finished additional copy "', package_id, '" in ', args['dest']
     # Write out the package file in this format, so that it can easily be called
     # and used in a .bat file - yeah, it sucks, but this is the simplest...
     if touch:
