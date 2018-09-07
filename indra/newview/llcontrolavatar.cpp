@@ -36,7 +36,7 @@
 #include "llskinningutil.h"
 
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
-const F32 LLControlAvatar::MAX_LEGAL_SIZE = 16.0f;
+const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
 
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
