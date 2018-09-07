@@ -358,6 +358,7 @@ void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settin
         layer.width             = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
         settingsOut.m_mieProfile.push_back(layer);
     }
+    settingsOut.m_mieAnisotropy = psky->getMieAnisotropy();
 
     LLSD absorption = psky->getAbsorptionConfigs();
     settingsOut.m_absorptionProfile.clear();
@@ -1633,15 +1634,12 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->update();
     mBlenderSky.reset();
 
-#if 0
     if (gAtmosphere)
     {
         AtmosphericModelSettings settings;
         LLEnvironment::getAtmosphericModelSettings(settings, psky);
         gAtmosphere->configureAtmosphericModel(settings);
     }
-#endif
-
 }
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)

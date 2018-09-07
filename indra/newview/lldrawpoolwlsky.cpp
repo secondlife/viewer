@@ -505,22 +505,19 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     if (gPipeline.canUseWindLightShaders())
     {
+        if (gPipeline.useAdvancedAtmospherics())
+        {
+	        renderSkyHazeDeferred(origin, camHeightLocal);
+            renderHeavenlyBodies();
+        }
+        else
         {
             // Disable depth-test for sky, but re-enable depth writes for the cloud
             // rendering below so the cloud shader can write out depth for the stars to test against
             LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-            if (gPipeline.useAdvancedAtmospherics())
-            {
-	            renderSkyHazeDeferred(origin, camHeightLocal);
-            }
-            else
-            {
-                renderSkyHaze(origin, camHeightLocal);   
-		        
-            }
-            renderHeavenlyBodies();
+            renderSkyHaze(origin, camHeightLocal);   
+		    renderHeavenlyBodies();
         }
-
         renderSkyClouds(origin, camHeightLocal);
     }    
     gGL.setColorMask(true, true);

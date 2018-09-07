@@ -36,8 +36,8 @@ VARYING vec2 vary_frag;
 
 void main()
 {
-    // pass through untransformed fullscreen pos (clipspace)
-	gl_Position = vec4(position.xyz, 1.0);
+    // pass through untransformed fullscreen pos at back of frustum for proper sky depth testing
+	gl_Position = vec4(position.xy, 0.99f, 1.0);
     vary_frag = texcoord0;
 }
 

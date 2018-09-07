@@ -573,11 +573,11 @@ LLSD LLSettingsSky::createDensityProfileLayer(
     F32 aniso_factor)
 {
     LLSD dflt_layer;
-    dflt_layer[SETTING_DENSITY_PROFILE_WIDTH]            = 0.0f; // 0 -> the entire atmosphere
-    dflt_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = 1.0f;
-    dflt_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = -1.0f / 8000.0f;
-    dflt_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = 0.0f;
-    dflt_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = 0.0f;
+    dflt_layer[SETTING_DENSITY_PROFILE_WIDTH]            = width; // 0 -> the entire atmosphere
+    dflt_layer[SETTING_DENSITY_PROFILE_EXP_TERM]         = exponential_term;
+    dflt_layer[SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR] = exponential_scale_factor;
+    dflt_layer[SETTING_DENSITY_PROFILE_LINEAR_TERM]      = linear_term;
+    dflt_layer[SETTING_DENSITY_PROFILE_CONSTANT_TERM]    = constant_term;
 
     if (aniso_factor != 0.0f)
     {
@@ -670,7 +670,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_PLANET_RADIUS]      = 6360.0f;
         dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
         dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
-        dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00935f / 2.0f;    
+        dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00045f;
 
         dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
         dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
@@ -1160,7 +1160,7 @@ F32 LLSettingsSky::getSunArcRadians() const
 
 F32 LLSettingsSky::getMieAnisotropy() const
 {
-    return mSettings[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
+    return getMieConfig()[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
 }
  
 LLSD LLSettingsSky::getRayleighConfig() const
@@ -1183,20 +1183,17 @@ LLSD LLSettingsSky::getAbsorptionConfig() const
    
 LLSD LLSettingsSky::getRayleighConfigs() const
 {
-    LLSD copy = *(mSettings[SETTING_RAYLEIGH_CONFIG].beginArray());
-    return copy;
+    return mSettings[SETTING_RAYLEIGH_CONFIG];
 }
 
 LLSD LLSettingsSky::getMieConfigs() const
 {
-    LLSD copy = *(mSettings[SETTING_MIE_CONFIG].beginArray());
-    return copy;
+    return mSettings[SETTING_MIE_CONFIG];
 }
 
 LLSD LLSettingsSky::getAbsorptionConfigs() const
 {
-    LLSD copy = *(mSettings[SETTING_ABSORPTION_CONFIG].beginArray());
-    return copy;
+    return mSettings[SETTING_ABSORPTION_CONFIG];
 }
 
 void LLSettingsSky::setRayleighConfigs(const LLSD& rayleighConfig)
