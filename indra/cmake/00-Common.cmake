@@ -217,27 +217,4 @@ else (USESYSTEMLIBS)
       )
 endif (USESYSTEMLIBS)
 
-macro (buildscripts_block target_name)
-    # add custom commands to bracket a target build to make logs easier to read
-    # this is disabled for windows because VS interleaves output in a way that defeats it
-    if (NOT WINDOWS AND DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
-        add_custom_command(TARGET ${target_name} PRE_BUILD
-            COMMAND echo ARGS "-n" "##"
-            COMMAND echo ARGS "teamcity[blockOpened name='${target_name}']" 
-            )
-        add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND echo ARGS "-n" "##"
-            COMMAND echo ARGS "teamcity[blockClosed name='${target_name}']"
-            )
-    else (NOT WINDOWS AND DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
-        add_custom_command(TARGET ${target_name} PRE_BUILD
-            COMMAND echo ARGS "################## START ${target_name}"
-            )
-        add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND echo ARGS "################## FINISH ${target_name}"
-            )
-    endif (NOT WINDOWS AND DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
-
-endmacro (buildscripts_block target_name)
-
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

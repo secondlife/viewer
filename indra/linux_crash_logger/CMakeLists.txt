@@ -55,7 +55,6 @@ list(APPEND linux_crash_logger_SOURCE_FILES
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
 add_executable(linux-crash-logger ${linux_crash_logger_SOURCE_FILES})
-buildscripts_block(linux-crash-logger)
 
 # llcommon uses `clock_gettime' which is provided by librt on linux.
 set(LIBRT_LIBRARY rt)
@@ -80,4 +79,3 @@ target_link_libraries(linux-crash-logger
 
 add_custom_target(linux-crash-logger-target ALL
     DEPENDS linux-crash-logger)
-buildscripts_block(linux-crash-logger-target)

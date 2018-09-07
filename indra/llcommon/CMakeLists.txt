@@ -24,7 +24,6 @@ include_directories(
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
-# buildscripts_block(lltreeiterators)
 # 
 # target_link_libraries(lltreeiterators
 #     ${LLCOMMON_LIBRARIES})
@@ -280,7 +279,6 @@ if(LLCOMMON_LINK_SHARED)
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
 endif(LLCOMMON_LINK_SHARED)
-buildscripts_block(llcommon)
 
 target_link_libraries(
     llcommon

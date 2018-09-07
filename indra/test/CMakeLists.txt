@@ -81,7 +81,6 @@ set_source_files_properties(${test_HEADER_FILES}
 list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(lltest ${test_SOURCE_FILES})
-buildscripts_block(lltest)
 
 target_link_libraries(lltest
     ${LLDATABASE_LIBRARIES}

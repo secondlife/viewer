@@ -50,7 +50,6 @@ set_source_files_properties(${llkdu_SOURCE_FILES}
 
 if (USE_KDU)
   add_library (llkdu ${llkdu_SOURCE_FILES})
-  buildscripts_block(llkdu)
 
   target_link_libraries(llkdu
     ${KDU_LIBRARY})

@@ -29,7 +29,6 @@ set_source_files_properties(${llimagej2coj_HEADER_FILES}
 list(APPEND llimagej2coj_SOURCE_FILES ${llimagej2coj_HEADER_FILES})
 
 add_library (llimagej2coj ${llimagej2coj_SOURCE_FILES})
-buildscripts_block(llimagej2coj)
 
 target_link_libraries(
     llimagej2coj

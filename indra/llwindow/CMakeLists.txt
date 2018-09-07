@@ -175,7 +175,6 @@ if (BUILD_HEADLESS)
     ${llwindow_SOURCE_FILES}
     ${llwindowheadless_SOURCE_FILES}
     )
-  buildscripts_block(llwindowheadless)
   set_property(TARGET llwindowheadless
     PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
     )
@@ -192,7 +191,6 @@ endif (llwindow_HEADER_FILES)
     ${llwindow_SOURCE_FILES}
     ${viewer_SOURCE_FILES}
     )
-  buildscripts_block(llwindow)
 
 if (SDL_FOUND)
   set_property(TARGET llwindow

@@ -60,7 +60,6 @@ set_source_files_properties(${llinventory_HEADER_FILES}
 list(APPEND llinventory_SOURCE_FILES ${llinventory_HEADER_FILES})
 
 add_library (llinventory ${llinventory_SOURCE_FILES})
-buildscripts_block(llinventory)
 
 
 

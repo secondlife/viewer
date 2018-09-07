@@ -91,7 +91,6 @@ if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
     )
-  buildscripts_block(llrenderheadless)
 
   set_property(TARGET llrenderheadless
     PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
@@ -111,7 +110,6 @@ if (BUILD_HEADLESS)
 endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
-buildscripts_block(llrender)
 
 if (SDL_FOUND)
   set_property(TARGET llrender

@@ -49,7 +49,6 @@ add_executable(SLPlugin
     MACOSX_BUNDLE
     ${SLPlugin_SOURCE_FILES}
     )
-buildscripts_block(SLPlugin)
 
 if (WINDOWS)
 set_target_properties(SLPlugin

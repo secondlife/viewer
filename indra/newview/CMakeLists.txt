@@ -1722,7 +1722,6 @@ add_executable(${VIEWER_BINARY_NAME}
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
-buildscripts_block(${VIEWER_BINARY_NAME})
 
 if (SDL_FOUND)
   set_property(TARGET ${VIEWER_BINARY_NAME}
@@ -1915,7 +1914,6 @@ if (WINDOWS)
         ${CMAKE_CFG_INTDIR}/touched.bat
         windows-setup-build-all
         )
-      buildscripts_block(llpackage)
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
@@ -2255,7 +2253,6 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
           VERBATIM)
 
     add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME} "${VIEWER_COPY_MANIFEST}")
-    buildscripts_block(generate_symbols)
     add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
     if (WINDOWS OR LINUX)
       add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
@@ -2288,7 +2285,6 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE_CYGWIN}"
         )
       add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME})
-      buildscripts_block(generate_symbols)
       add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
     endif (WINDOWS)
     if (DARWIN)
@@ -2300,7 +2296,6 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         COMMENT "Generating ${VIEWER_APP_DSYM}"
         )
       add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
-      buildscripts_block(dsym_generate)
       add_dependencies(dsym_generate ${VIEWER_BINARY_NAME})
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
         # See above comments about "tar ...j"
@@ -2315,7 +2310,6 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         COMMENT "Packing dSYM into ${VIEWER_SYMBOL_FILE}"
         )
       add_custom_target(dsym_tarball DEPENDS "${VIEWER_SYMBOL_FILE}")
-      buildscripts_block(dsym_tarball)
       add_dependencies(dsym_tarball dsym_generate)
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
         COMMAND "zip"
@@ -2343,7 +2337,6 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         "${VIEWER_APP_XCARCHIVE}"
         "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         )
-      buildscripts_block(generate_symbols)
       add_dependencies(generate_symbols dsym_tarball dsym_xcarchive)
     endif (DARWIN)
     if (LINUX)

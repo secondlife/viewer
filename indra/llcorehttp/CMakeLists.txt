@@ -90,7 +90,6 @@ endif (DARWIN OR LINUX)
 list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
 
 add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
-buildscripts_block(llcorehttp)
 target_link_libraries(
   llcorehttp
   ${CURL_LIBRARIES}
@@ -215,7 +214,6 @@ endif (DARWIN)
   add_executable(http_texture_load
                  ${llcorehttp_EXAMPLE_SOURCE_FILES}
                  )
-  buildscripts_block(http_texture_load)
   set_target_properties(http_texture_load
                         PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"

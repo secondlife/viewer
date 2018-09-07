@@ -58,7 +58,6 @@ list(APPEND mac_crash_logger_SOURCE_FILES ${mac_crash_logger_RESOURCE_FILES})
 add_executable(mac-crash-logger
   MACOSX_BUNDLE
   ${mac_crash_logger_SOURCE_FILES})
-buildscripts_block(mac-crash-logger)
 
 set_target_properties(mac-crash-logger
   PROPERTIES
