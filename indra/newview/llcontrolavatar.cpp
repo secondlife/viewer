@@ -87,25 +87,33 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
         // do this by tracking the distance and applying a
         // correction to the control avatar position if
         // needed.
-        LLVector3 uncorrected_extents[2];
-        uncorrected_extents[0] = (getLastAnimExtents()[0] - mPositionConstraintFixup)/mScaleConstraintFixup;
-        uncorrected_extents[1] = (getLastAnimExtents()[1] - mPositionConstraintFixup)/mScaleConstraintFixup;
-        LLVector3 uncorrected_size = uncorrected_extents[1]-uncorrected_extents[0];
-        F32 uncorrected_max_size = llmax(uncorrected_size[0],uncorrected_size[1],uncorrected_size[2]);
-        LLVector3 pos_box_offset = point_to_box_offset(vol_pos, uncorrected_extents);
+        const LLVector3 *extents = getLastAnimExtents();
+        LLVector3 box_dims = extents[1]-extents[0];
+        F32 max_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
+        LLVector3 pos_box_offset = point_to_box_offset(vol_pos, getLastAnimExtents());
         F32 offset_dist = pos_box_offset.length();
         if (offset_dist > MAX_LEGAL_OFFSET)
         {
             F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
-            new_pos_fixup = (target_dist/offset_dist)*pos_box_offset;
-            LL_INFOS("ConstraintFix") << "pos fix, offset_dist " << offset_dist << " pos fixup " 
-                                      << new_pos_fixup << LL_ENDL;
+            new_pos_fixup = mPositionConstraintFixup + (target_dist/offset_dist)*pos_box_offset;
+            LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
+                                      << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
         }
-        if (uncorrected_max_size > MAX_LEGAL_SIZE)
+        else if (offset_dist < MAX_LEGAL_OFFSET-1 && mPositionConstraintFixup.length()>0.01f)
         {
-            new_scale_fixup = MAX_LEGAL_SIZE/uncorrected_max_size;
-            LL_INFOS("ConstraintFix") << "scale fix, uncorrected_size " << uncorrected_size << " fixup " 
-                                      << mScaleConstraintFixup << LL_ENDL;
+            new_pos_fixup = mPositionConstraintFixup * 0.9;
+            LL_DEBUGS("ConstraintFix") << getFullname() << " pos fixup reduced " 
+                                      << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
+        }
+        else
+        {
+            new_pos_fixup = mPositionConstraintFixup;
+        }
+        if (max_size/mScaleConstraintFixup > MAX_LEGAL_SIZE)
+        {
+            new_scale_fixup = mScaleConstraintFixup*MAX_LEGAL_SIZE/max_size;
+            LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, max_size " << max_size << " fixup " 
+                                      << mScaleConstraintFixup << " -> " << new_scale_fixup << LL_ENDL;
         }
     }
 }
