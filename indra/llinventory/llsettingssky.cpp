@@ -155,7 +155,7 @@ LLSettingsSky::validation_list_t legacyHazeValidationList()
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(0.9f)))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
     }
@@ -923,11 +923,12 @@ F32 LLSettingsSky::getHazeHorizon() const
 
 F32 LLSettingsSky::getDensityMultiplier() const
 {
+    F32 density_multiplier = 0.0001f;
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_DENSITY_MULTIPLIER))
     {
-        return mSettings[SETTING_LEGACY_HAZE][SETTING_DENSITY_MULTIPLIER].asReal();
+        density_multiplier = mSettings[SETTING_LEGACY_HAZE][SETTING_DENSITY_MULTIPLIER].asReal();
     }
-    return 0.0001f;
+    return density_multiplier;
 }
 
 F32 LLSettingsSky::getDistanceMultiplier() const

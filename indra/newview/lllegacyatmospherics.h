@@ -187,6 +187,21 @@ public:
     , cloudColorSun(0,0,0)
     , cloudColorAmbient(0,0,0)
     , cloudDensity(0.0f)
+    , blue_density()
+    , blue_horizon()
+    , haze_density(0.0f)
+    , haze_horizon(0.0f)
+    , density_multiplier(0.0f)
+    , max_y(0.0f)
+    , sun_norm(0.0f, 1.0f, 0.0f, 1.0f)
+    , sunlight()
+    , ambient()
+    , glow()
+    , cloud_shadow(1.0f)
+    , dome_radius(1.0f)
+    , dome_offset(1.0f)
+    , light_atten()
+    , light_transmittance()
     {
         horizontalProjection[0] = LLVector2(0,0);
         horizontalProjection[1] = LLVector2(0,0);
@@ -198,6 +213,21 @@ public:
 	LLColor3  cloudColorAmbient;
 	F32       cloudDensity;
 	LLVector2 horizontalProjection[2];
+    LLColor3  blue_density;
+    LLColor3  blue_horizon;
+    F32       haze_density;
+    F32       haze_horizon;
+    F32       density_multiplier;
+    F32       max_y;
+    LLVector4 sun_norm;
+    LLColor3  sunlight;
+    LLColor3  ambient;
+    LLColor3  glow;
+    F32       cloud_shadow;
+    F32       dome_radius;
+    F32       dome_offset;
+    LLColor3 light_atten;
+    LLColor3 light_transmittance;
 };
 
 class LLAtmospherics
@@ -222,7 +252,7 @@ public:
     void setCloudDensity(F32 cloud_density)          { mCloudDensity = cloud_density; }
     void setWind ( const LLVector3& wind )           { mWind = wind.length(); }
 
-    LLColor4 calcSkyColorInDir(const LLVector3& dir, bool isShiny = false);
+    LLColor4 calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3& dir, bool isShiny = false);
 
 protected:    
 

@@ -420,13 +420,34 @@ void LLVOSky::init()
 
 	updateDirections();
 
+    AtmosphericsVars vars;
+
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    // invariants across whole sky tex process...
+    vars.blue_density = psky->getBlueDensity();    
+    vars.blue_horizon = psky->getBlueHorizon();
+    vars.haze_density = psky->getHazeDensity();
+    vars.haze_horizon = psky->getHazeHorizon();
+    vars.density_multiplier = psky->getDensityMultiplier();
+    vars.max_y = psky->getMaxY();
+    vars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    vars.sunlight = psky->getSunlightColor();
+    vars.ambient = psky->getAmbientColor();    
+    vars.glow = psky->getGlow();
+    vars.cloud_shadow = psky->getCloudShadow();
+    vars.dome_radius = psky->getDomeRadius();
+    vars.dome_offset = psky->getDomeOffset();
+    vars.light_atten = psky->getLightAttenuation(vars.max_y);
+    vars.light_transmittance = psky->getLightTransmittance();
+
 	// Initialize the cached normalized direction vectors
 	for (S32 side = 0; side < 6; ++side)
 	{
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(side, tile);
+			createSkyTexture(vars, side, tile);
 		}
 	}
 
@@ -551,7 +572,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
+void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile)
 {
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
@@ -564,8 +585,8 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-            mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y)), x, y);
-			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(mSkyTex[side].getDir(x, y), true), x, y);
+            mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y)), x, y);
+			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y), true), x, y);
 		}
 	}
 }
@@ -664,11 +685,32 @@ bool LLVOSky::updateSky()
 				{
 					updateFog(LLViewerCamera::getInstance()->getFar());
 
+                    AtmosphericsVars vars;
+
+                    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+                    // invariants across whole sky tex process...
+                    vars.blue_density = psky->getBlueDensity();    
+                    vars.blue_horizon = psky->getBlueHorizon();
+                    vars.haze_density = psky->getHazeDensity();
+                    vars.haze_horizon = psky->getHazeHorizon();
+                    vars.density_multiplier = psky->getDensityMultiplier();
+                    vars.max_y = psky->getMaxY();
+                    vars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+                    vars.sunlight = psky->getSunlightColor();
+                    vars.ambient = psky->getAmbientColor();    
+                    vars.glow = psky->getGlow();
+                    vars.cloud_shadow = psky->getCloudShadow();
+                    vars.dome_radius = psky->getDomeRadius();
+                    vars.dome_offset = psky->getDomeOffset();
+                    vars.light_atten = psky->getLightAttenuation(vars.max_y);
+                    vars.light_transmittance = psky->getLightTransmittance();
+
 					for (int side = 0; side < 6; side++) 
 					{
 						for (int tile = 0; tile < NUM_TILES; tile++) 
 						{
-							createSkyTexture(side, tile);
+							createSkyTexture(vars, side, tile);
 						}
 					}
 

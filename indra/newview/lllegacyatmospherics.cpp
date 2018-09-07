@@ -203,7 +203,7 @@ void LLAtmospherics::init()
 	mInitialized = true;
 }
 
-LLColor4 LLAtmospherics::calcSkyColorInDir(const LLVector3 &dir, bool isShiny)
+LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
 {
 	F32 saturation = 0.3f;
 	if (dir.mV[VZ] < -0.02f)
@@ -241,7 +241,6 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLVector3 &dir, bool isShiny)
 	// undo OGL_TO_CFR_ROTATION and negate vertical direction.
 	LLVector3 Pn = LLVector3(-dir[1] , -dir[2], -dir[0]);
 
-    AtmosphericsVars vars;
 	calcSkyColorWLVert(Pn, vars);
 	
 	LLColor3 sky_color =  calcSkyColorWLFrag(Pn, vars);
@@ -258,16 +257,15 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLVector3 &dir, bool isShiny)
 void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 {
 // LEGACY_ATMOSPHERICS
-    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    //LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    LLColor3    blue_density = psky->getBlueDensity();    
-    LLColor3 blue_horizon = psky->getBlueHorizon();
-    F32 haze_density = psky->getHazeDensity();
-    F32 haze_horizon = psky->getHazeHorizon();
-    F32 density_multiplier = psky->getDensityMultiplier();
-
-    F32         max_y = psky->getMaxY();
-    LLVector3   sun_norm = LLVector3(LLEnvironment::instance().getClampedSunNorm());
+    LLColor3    blue_density = vars.blue_density;
+    LLColor3    blue_horizon = vars.blue_horizon;
+    F32         haze_horizon = vars.haze_horizon;
+    F32         haze_density = vars.haze_density;
+    F32         density_multiplier = vars.density_multiplier;
+    F32         max_y = vars.max_y;
+    LLVector4   sun_norm = vars.sun_norm;
 
 	// project the direction ray onto the sky dome.
 	F32 phi = acos(Pn[1]);
@@ -277,7 +275,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 		sinA = 0.01f;
 	}
 
-	F32 Plen = psky->getDomeRadius() * sin(F_PI + phi + asin(psky->getDomeOffset() * sinA)) / sinA;
+	F32 Plen = vars.dome_radius * sin(F_PI + phi + asin(vars.dome_offset * sinA)) / sinA;
 
 	Pn *= Plen;
 
@@ -298,19 +296,19 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	Pn /= Plen;
 
 	// Initialize temp variables
-	LLColor3 sunlight = psky->getSunlightColor();
-    LLColor3 ambient = psky->getAmbientColor();
+	LLColor3 sunlight = vars.sunlight;
+    LLColor3 ambient = vars.ambient;
     
-    LLColor3 glow = psky->getGlow();
-    F32 cloud_shadow = psky->getCloudShadow();
+    LLColor3 glow = vars.glow;
+    F32 cloud_shadow = vars.cloud_shadow;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	LLColor3 light_atten = psky->getLightAttenuation(psky->getMaxY());
+	LLColor3 light_atten = vars.light_atten;
 
 	// Calculate relative weights
 	LLColor3 temp2(0.f, 0.f, 0.f);
-	LLColor3 temp1 = psky->getLightTransmittance();
+	LLColor3 temp1 = vars.light_transmittance;
 
 	LLColor3 blue_weight = componentDiv(blue_density, temp1);
 	LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
@@ -329,7 +327,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 
 
 	// Compute haze glow
-	temp2.mV[0] = Pn * sun_norm;
+	temp2.mV[0] = Pn * LLVector3(sun_norm);
 
 	temp2.mV[0] = 1.f - temp2.mV[0];
 		// temp2.x is 0 at the sun and increases away from sun
@@ -359,7 +357,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	// Final atmosphere additive
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
 
-	sunlight = psky->getSunlightColor();
+	sunlight = vars.sunlight;
 	temp2.mV[1] = llmax(0.f, sun_norm[1] * 2.f);
 	temp2.mV[1] = 1.f / temp2.mV[1];
 	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
@@ -493,9 +491,30 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 	tosun_45.normalize();
 
 	// Sky colors, just slightly above the horizon in the direction of the sun, perpendicular to the sun, and at a 45 degree angle to the sun.
-	res_color[0] = calcSkyColorInDir(tosun);
-	res_color[1] = calcSkyColorInDir(perp_tosun);
-	res_color[2] = calcSkyColorInDir(tosun_45);
+    AtmosphericsVars vars;
+
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    // invariants across whole sky tex process...
+    vars.blue_density = psky->getBlueDensity();    
+    vars.blue_horizon = psky->getBlueHorizon();
+    vars.haze_density = psky->getHazeDensity();
+    vars.haze_horizon = psky->getHazeHorizon();
+    vars.density_multiplier = psky->getDensityMultiplier();
+    vars.max_y = psky->getMaxY();
+    vars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    vars.sunlight = psky->getSunlightColor();
+    vars.ambient = psky->getAmbientColor();    
+    vars.glow = psky->getGlow();
+    vars.cloud_shadow = psky->getCloudShadow();
+    vars.dome_radius = psky->getDomeRadius();
+    vars.dome_offset = psky->getDomeOffset();
+    vars.light_atten = psky->getLightAttenuation(vars.max_y);
+    vars.light_transmittance = psky->getLightTransmittance();
+
+	res_color[0] = calcSkyColorInDir(vars, tosun);
+	res_color[1] = calcSkyColorInDir(vars, perp_tosun);
+	res_color[2] = calcSkyColorInDir(vars, tosun_45);
 
 	sky_fog_color = color_norm(res_color[0] + res_color[1] + res_color[2]);
 

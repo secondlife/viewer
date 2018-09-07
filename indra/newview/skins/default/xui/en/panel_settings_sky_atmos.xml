@@ -187,14 +187,14 @@
                         Density Multiplier:
                     </text>
                     <slider
-                            decimal_digits="2"
+                            decimal_digits="4"
                             follows="left|top"
                             height="16"
-                            increment="0.01"
+                            increment="0.0001"
                             initial_value="0"
                             layout="topleft"
                             left_delta="5"
-                            min_val="0"
+                            min_val="0.0001"
                             max_val="0.9"
                             name="density_multip"
                             top_delta="20"
