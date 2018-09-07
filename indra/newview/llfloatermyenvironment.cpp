@@ -157,9 +157,9 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     mSelectedAsset()
 {
     mCommitCallbackRegistrar.add(ACTION_DOCREATE, [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); });
-    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [](LLUICtrl *, const LLSD &userdata) { });
+    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->openSelected(); });
     mCommitCallbackRegistrar.add(ACTION_DOAPPLY, [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); });
-    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [](LLUICtrl *, const LLSD &userdata) { });
+    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->doToSelected(userdata.asString()); });
 
     mEnableCallbackRegistrar.add(ENABLE_ACTION, [this](LLUICtrl *, const LLSD &userdata) { return canAction(userdata.asString()); });
     mEnableCallbackRegistrar.add(ENABLE_CANAPPLY, [this](LLUICtrl *, const LLSD &userdata) { return canApply(userdata.asString()); });
@@ -343,27 +343,49 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
     }
 }
 
-
 bool LLFloaterMyEnvironment::canAction(const std::string &context)
 {
-//     uuid_vec_t selected;
-//     getSelectedIds(selected);
-// 
-//     if (selected.empty())
-//         return false;
-// 
-//     if (context == PARAMETER_EDIT)
-//     { 
-//     }
-//     else if (context == PARAMETER_COPY)
-//     {
-//     }
-//     else if (context == PARAMETER_PASTE)
-//     {
-//     }
-//     else if (context == PARAMETER_COPYUUID)
-//     {
-//     }
+    uuid_vec_t selected;
+    getSelectedIds(selected);
+
+    if (selected.empty())
+        return false;
+
+    if (context == PARAMETER_EDIT)
+    { 
+        return (selected.size() == 1) && isSettingSelected(selected.front());
+    }
+    else if (context == PARAMETER_COPY)
+    {
+        for (std::vector<LLUUID>::iterator it = selected.begin(); it != selected.end(); it++)
+        {
+            if(!isSettingSelected(*it))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    else if (context == PARAMETER_PASTE)
+    {
+        if (!LLClipboard::instance().hasContents())
+            return false;
+
+        std::vector<LLUUID> ids;
+        LLClipboard::instance().pasteFromClipboard(ids);
+        for (std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
+        {
+            if (!isSettingSelected(*it))
+            {
+                return false;
+            }
+        }
+        return (selected.size() == 1);
+    }
+    else if (context == PARAMETER_COPYUUID)
+    {
+        return (selected.size() == 1) && isSettingSelected(selected.front());
+    }
 
     return false;
 }
@@ -447,6 +469,17 @@ LLUUID LLFloaterMyEnvironment::findItemByAssetId(LLUUID asset_id, bool copyable_
     }
 
     return LLUUID::null;
+}
+
+bool LLFloaterMyEnvironment::isSettingSelected(LLUUID item_id)
+{
+    LLInventoryItem* itemp = gInventory.getItem(item_id);
+
+    if (itemp && itemp->getInventoryType() == LLInventoryType::IT_SETTINGS)
+    {
+        return true;
+    }
+    return false;
 }
 
 void LLFloaterMyEnvironment::getSelectedIds(uuid_vec_t& ids) const

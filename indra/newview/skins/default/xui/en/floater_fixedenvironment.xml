@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-        can_minimize="false"
         can_tear_off="false"
         can_resize="false"
         can_drag_on_left="false"
@@ -13,6 +12,7 @@
         save_rect="true"
         title="Fixed Environment"
         save_visibility="false"
+        help_topic="fixed_environment"
         single_instance="true" 
         width="750">
     <layout_stack name="floater_stack"

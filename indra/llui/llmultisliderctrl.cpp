@@ -54,6 +54,7 @@ LLMultiSliderCtrl::Params::Params()
 	max_sliders("max_sliders", 1),
 	allow_overlap("allow_overlap", false),
 	loop_overlap("loop_overlap", false),
+	orientation("orientation"),
 	overlap_threshold("overlap_threshold", 0),
 	draw_track("draw_track", true),
 	use_triangle("use_triangle", false),
@@ -170,6 +171,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 	params.max_sliders(p.max_sliders);
 	params.allow_overlap(p.allow_overlap);
 	params.loop_overlap(p.loop_overlap);
+	params.orientation(p.orientation());
 	if (p.overlap_threshold.isProvided())
 	{
 		params.overlap_threshold = p.overlap_threshold;

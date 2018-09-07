@@ -76,6 +76,8 @@ private:
     void                            getSelectedIds(uuid_vec_t& ids) const;
     void                            refreshButtonStates();
 
+    bool                            isSettingSelected(LLUUID item_id);
+
     static LLUUID                   findItemByAssetId(LLUUID asset_id, bool copyable_only, bool ignore_library);
 
 #if 0
