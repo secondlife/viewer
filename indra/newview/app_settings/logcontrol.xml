@@ -17,7 +17,7 @@
              For example, value of 10 = 2|8 would enable logging only to SecondLife.log and the viewer debug console.
              Note: RecordToFile is always enabled in release builds.
         -->
-		<key>enabled-log-types-mask</key>   <integer>0xFFFFFFFF</integer>
+		<key>enabled-log-types-mask</key>   <integer>255</integer>
 		<key>settings</key>
 			<array>
 				<!-- Suppress anything but ERROR for some very verbose components -->
