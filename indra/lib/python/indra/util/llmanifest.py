@@ -500,6 +500,19 @@ class LLManifest(object):
         relative to the destination directory."""
         return os.path.join(self.get_dst_prefix(), relpath)
 
+    def _relative_dst_path(self, dstpath):
+        """
+        Returns the path to a file or directory relative to the destination directory.
+        This should only be used for generating diagnostic output in the path method.
+        """
+        dest_root=self.dst_prefix[0]
+        if dstpath.startswith(dest_root+os.path.sep):
+            return dstpath[len(dest_root)+1:]
+        elif dstpath.startswith(dest_root):
+            return dstpath[len(dest_root):]
+        else:
+            return dstpath
+
     def ensure_src_dir(self, reldir):
         """Construct the path for a directory relative to the
         source path, and ensures that it exists.  Returns the
@@ -790,7 +803,7 @@ class LLManifest(object):
         if dst == None:
             dst = src
         dst = os.path.join(self.get_dst_prefix(), dst)
-        sys.stdout.write("Processing %s => %s ... " % (src, dst))
+        sys.stdout.write("Processing %s => %s ... " % (src, self._relative_dst_path(dst)))
 
         def try_path(src):
             # expand globs
