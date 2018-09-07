@@ -502,7 +502,7 @@ namespace LLError
 		mPrintLocation(false),
 		mDefaultLevel(LLError::LEVEL_DEBUG),
 		mLogAlwaysFlush(true),
-		mEnabledLogTypesMask(0xFFFFFFFF),
+		mEnabledLogTypesMask(255),
 		mFunctionLevelMap(),
 		mClassLevelMap(),
 		mFileLevelMap(),
