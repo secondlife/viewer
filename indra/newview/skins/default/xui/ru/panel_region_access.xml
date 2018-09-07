@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Доступ" name="Access">
+	<tab_container name="tabs">
+		<panel label="МЕНЕДЖЕРЫ ЗЕМЛЕВЛАДЕНИЯ" name="estate_managers_panel">
+			<text name="estate_manager_label">
+				Менеджеры землевладения:
+			</text>
+			<name_list name="estate_manager_name_list">
+				<columns label="Имя" name="name"/>
+			</name_list>
+			<button label="Добавить..." name="add_estate_manager_btn"/>
+			<button label="Удалить..." name="remove_estate_manager_btn"/>
+		</panel>
+		<panel label="РАЗРЕШЕННЫЕ" name="allowed_panel">
+			<panel label="top_panel" name="allowed_search_panel">
+				<filter_editor label="Поиск допущенных агентов" name="allowed_search_input"/>
+			</panel>
+			<text name="allow_resident_label">
+				Разрешено всегда:
+			</text>
+			<name_list name="allowed_avatar_name_list">
+				<columns label="Имя" name="name"/>
+			</name_list>
+			<button label="Добавить..." name="add_allowed_avatar_btn"/>
+			<button label="Удалить..." name="remove_allowed_avatar_btn"/>
+		</panel>
+		<panel label="ДОПУЩЕННЫЕ ГРУППЫ" name="allowed_groups_panel">
+			<panel label="top_panel" name="allowed_group_search_panel">
+				<filter_editor label="Поиск допущенных групп" name="allowed_group_search_input"/>
+			</panel>
+			<text name="allow_group_label">
+				Допуск групп всегда разрешен:
+			</text>
+			<name_list name="allowed_group_name_list">
+				<columns label="Имя" name="name"/>
+			</name_list>
+			<button label="Добавить..." name="add_allowed_group_btn"/>
+			<button label="Удалить..." name="remove_allowed_group_btn"/>
+		</panel>
+		<panel label="ЗАБЛОКИРОВАНЫ" name="banned_panel">
+			<panel label="top_panel" name="banned_search_panel">
+				<filter_editor label="Поиск заблокированных агентов" name="banned_search_input"/>
+			</panel>
+			<text name="ban_resident_label">
+				Всегда заблокированы:
+			</text>
+			<name_list name="banned_avatar_name_list">
+				<columns label="Имя" name="name"/>
+				<columns label="Дата последнего входа" name="last_login_date"/>
+				<columns label="Дата блокировки" name="ban_date"/>
+				<columns label="Заблокированы по инициативе" name="bannedby"/>
+			</name_list>
+			<button label="Добавить..." name="add_banned_avatar_btn"/>
+			<button label="Удалить..." name="remove_banned_avatar_btn"/>
+		</panel>
+	</tab_container>
+</panel>

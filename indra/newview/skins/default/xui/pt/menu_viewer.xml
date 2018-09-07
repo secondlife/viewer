@@ -12,6 +12,7 @@
 		<menu_item_call label="Controles da câmera..." name="Camera Controls"/>
 		<menu label="Movimentos" name="Movement">
 			<menu_item_call label="Sentar" name="Sit Down Here"/>
+			<menu_item_call label="Ficar de pé" name="Stand up"/>
 			<menu_item_check label="Voar" name="Fly"/>
 			<menu_item_check label="Correr sempre" name="Always Run"/>
 			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
@@ -273,7 +274,6 @@
 			<menu_item_check label="Mostrar info da textura" name="Show Texture Info"/>
 			<menu_item_check label="Mostrar cor sob o cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="Mostrar memória" name="Show Memory"/>
-			<menu_item_check label="Exibir informações de memória privadas" name="Show Private Mem Info"/>
 			<menu_item_check label="Mostrar mudanças a objetos" name="Show Updates"/>
 		</menu>
 		<menu label="Force an Error" name="Force Errors">

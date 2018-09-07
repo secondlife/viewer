@@ -2205,6 +2205,18 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="RegionInfoListTypeBannedAgents">
 		Siempre prohibido
 	</string>
+	<string name="RegionInfoAllEstates">
+		todos los estados
+	</string>
+	<string name="RegionInfoManagedEstates">
+		estados administrados
+	</string>
+	<string name="RegionInfoThisEstate">
+		este estado
+	</string>
+	<string name="AndNMore">
+		y [EXTRA_COUNT] más
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria de los scripts de la parcela
 	</string>

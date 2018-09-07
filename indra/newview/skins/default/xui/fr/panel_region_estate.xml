@@ -18,7 +18,7 @@ domaine.
 		(inconnu)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Autoriser uniquement les résidents et les groupes indiqués ci-dessous" name="estate_restricted_access"/>
+		<radio_item label="Autoriser uniquement les résidents et les groupes indiqués dans l&apos;onglet Accès" name="estate_restricted_access"/>
 		<radio_item label="Visite ouverte à tous" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="Doit avoir plus de 18 ans" name="limit_age_verified" tool_tip="Pour accéder à ce domaine, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>

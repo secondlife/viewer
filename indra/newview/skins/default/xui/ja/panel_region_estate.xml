@@ -16,7 +16,7 @@
 		（不明）
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="下記の住人とグループのみ許可する" name="estate_restricted_access"/>
+		<radio_item label="アクセスタブに記載された住人とグループのみ許可する" name="estate_restricted_access"/>
 		<radio_item label="誰でも訪問可" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="18 歳以上である必要があります" name="limit_age_verified" tool_tip="この不動産（エステート）にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>

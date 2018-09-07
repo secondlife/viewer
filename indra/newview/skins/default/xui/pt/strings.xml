@@ -2173,6 +2173,18 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	<string name="RegionInfoListTypeBannedAgents">
 		Sempre banido
 	</string>
+	<string name="RegionInfoAllEstates">
+		todos os terrenos
+	</string>
+	<string name="RegionInfoManagedEstates">
+		administre terrenos
+	</string>
+	<string name="RegionInfoThisEstate">
+		este terreno
+	</string>
+	<string name="AndNMore">
+		e [EXTRA_COUNT] mais
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memória de scripts no lote
 	</string>

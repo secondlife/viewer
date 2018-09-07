@@ -2229,6 +2229,18 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	<string name="RegionInfoListTypeBannedAgents">
 		Toujours interdit
 	</string>
+	<string name="RegionInfoAllEstates">
+		tous les domaines
+	</string>
+	<string name="RegionInfoManagedEstates">
+		domaines gérés
+	</string>
+	<string name="RegionInfoThisEstate">
+		ce domaine
+	</string>
+	<string name="AndNMore">
+		et [EXTRA_COUNT] plus
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Mémoire des scripts de parcelles
 	</string>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php
+	</panel.string>
+	<panel.string name="sign_up_url">
+		https://join.secondlife.com/
+	</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="Kullanıcı Adı" name="username_combo" tool_tip="Kaydolduğunuzda seçtiğiniz kullanıcı adı, örn. mustafayalcin12 veya Faruk Gungoren"/>
@@ -11,8 +16,13 @@
 			</combo_box>
 			<button label="Oturum Aç" name="connect_btn"/>
 			<check_box label="Beni hatırla" name="remember_check"/>
-			<text name="forgot_password_text">Parolamı unuttum</text>
+			<text name="forgot_password_text">
+				Parolamı unuttum
+			</text>
 			<combo_box label="Ağ seç" name="server_combo"/>
+			<text name="sign_up_text">
+				Kaydol
+			</text>
 		</layout_panel>
 	</layout_stack>
 </panel>

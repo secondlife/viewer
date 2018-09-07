@@ -2228,6 +2228,18 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	<string name="RegionInfoListTypeBannedAgents">
 		Immer verbannt
 	</string>
+	<string name="RegionInfoAllEstates">
+		alle Grundbesitze
+	</string>
+	<string name="RegionInfoManagedEstates">
+		verwaltete Grundbesitze
+	</string>
+	<string name="RegionInfoThisEstate">
+		dieser Grundbesitz
+	</string>
+	<string name="AndNMore">
+		und [EXTRA_COUNT] weitere
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Parzellenskript-Speicher
 	</string>

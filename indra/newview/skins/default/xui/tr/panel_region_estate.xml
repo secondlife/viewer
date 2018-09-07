@@ -16,7 +16,7 @@
 		(bilinmiyor)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Yalnızca aşağıda listelenen sakinlere ve gruplara izin ver" name="estate_restricted_access"/>
+		<radio_item label="Sadece Erişim sekmesinde listelenen sakinlere ve gruplara izin ver" name="estate_restricted_access"/>
 		<radio_item label="Herkes ziyaret edebilir" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="18 yaşından büyük olmalıdır" name="limit_age_verified" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>

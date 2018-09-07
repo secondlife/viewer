@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="アクセス" name="Access">
+	<tab_container name="tabs">
+		<panel label="不動産マネージャー" name="estate_managers_panel">
+			<text name="estate_manager_label">
+				不動産マネージャー:
+			</text>
+			<name_list name="estate_manager_name_list">
+				<columns label="名前" name="name"/>
+			</name_list>
+			<button label="追加..." name="add_estate_manager_btn"/>
+			<button label="削除…" name="remove_estate_manager_btn"/>
+		</panel>
+		<panel label="許可" name="allowed_panel">
+			<panel label="top_panel" name="allowed_search_panel">
+				<filter_editor label="許可されたエージェントを検索" name="allowed_search_input"/>
+			</panel>
+			<text name="allow_resident_label">
+				常に許可：
+			</text>
+			<name_list name="allowed_avatar_name_list">
+				<columns label="名前" name="name"/>
+			</name_list>
+			<button label="追加..." name="add_allowed_avatar_btn"/>
+			<button label="削除…" name="remove_allowed_avatar_btn"/>
+		</panel>
+		<panel label="許可されたグループ" name="allowed_groups_panel">
+			<panel label="top_panel" name="allowed_group_search_panel">
+				<filter_editor label="許可されたグループを検索" name="allowed_group_search_input"/>
+			</panel>
+			<text name="allow_group_label">
+				常に許可されたグループ：
+			</text>
+			<name_list name="allowed_group_name_list">
+				<columns label="名前" name="name"/>
+			</name_list>
+			<button label="追加..." name="add_allowed_group_btn"/>
+			<button label="削除…" name="remove_allowed_group_btn"/>
+		</panel>
+		<panel label="禁止" name="banned_panel">
+			<panel label="top_panel" name="banned_search_panel">
+				<filter_editor label="禁止されたエージェントを検索" name="banned_search_input"/>
+			</panel>
+			<text name="ban_resident_label">
+				常に禁止：
+			</text>
+			<name_list name="banned_avatar_name_list">
+				<columns label="名前" name="name"/>
+				<columns label="最後にログインした日" name="last_login_date"/>
+				<columns label="禁止された日付" name="ban_date"/>
+				<columns label="禁止した人：" name="bannedby"/>
+			</name_list>
+			<button label="追加..." name="add_banned_avatar_btn"/>
+			<button label="削除…" name="remove_banned_avatar_btn"/>
+		</panel>
+	</tab_container>
+</panel>

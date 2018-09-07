@@ -3,6 +3,9 @@
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=it
 	</panel.string>
+	<panel.string name="sign_up_url">
+		http://join.secondlife.com/
+	</panel.string>
 	<layout_stack name="logo_stack">
 		<layout_panel name="parent_panel2">
 			<layout_stack name="widget_stack">
@@ -13,6 +16,9 @@
 					<check_box label="Ricordami" name="remember_check"/>
 					<text name="forgot_password_text">
 						Password dimenticata
+					</text>
+					<text name="sign_up_text">
+						Registrati
 					</text>
 				</layout_panel>
 			</layout_stack>

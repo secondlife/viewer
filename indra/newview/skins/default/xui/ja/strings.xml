@@ -2227,6 +2227,18 @@ support@secondlife.com にお問い合わせください。
 	<string name="RegionInfoListTypeBannedAgents">
 		常に禁止
 	</string>
+	<string name="RegionInfoAllEstates">
+		すべての不動産
+	</string>
+	<string name="RegionInfoManagedEstates">
+		管理されている不動産
+	</string>
+	<string name="RegionInfoThisEstate">
+		この不動産
+	</string>
+	<string name="AndNMore">
+		および [EXTRA_COUNT] つの不動産
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		区画スクリプトメモリ
 	</string>

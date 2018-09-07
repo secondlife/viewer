@@ -12,6 +12,7 @@
 		<menu_item_call label="Kamerasteuerungen..." name="Camera Controls"/>
 		<menu label="Bewegung" name="Movement">
 			<menu_item_call label="Hinsetzen" name="Sit Down Here"/>
+			<menu_item_call label="Aufstehen" name="Stand up"/>
 			<menu_item_check label="Fliegen" name="Fly"/>
 			<menu_item_check label="Immer rennen" name="Always Run"/>
 			<menu_item_call label="Animation meines Avatars stoppen" name="Stop Animating My Avatar"/>
@@ -278,7 +279,6 @@
 			<menu_item_check label="Matrizen anzeigen" name="Show Matrices"/>
 			<menu_item_check label="Farbe unter Cursor anzeigen" name="Show Color Under Cursor"/>
 			<menu_item_check label="Speicher anzeigen" name="Show Memory"/>
-			<menu_item_check label="Info über privaten Speicher anzeigen" name="Show Private Mem Info"/>
 			<menu_item_check label="Akutalisierungen an Objekten anzeigen" name="Show Updates"/>
 		</menu>
 		<menu label="Fehler erzwingen" name="Force Errors">

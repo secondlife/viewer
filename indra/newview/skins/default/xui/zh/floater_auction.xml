@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_auction" title="開始 Linden 土地出售">
+<floater name="floater_auction" title="開始Linden土地出售">
 	<floater.string name="already for sale">
 		出售中的地段無法進行拍賣。
 	</floater.string>

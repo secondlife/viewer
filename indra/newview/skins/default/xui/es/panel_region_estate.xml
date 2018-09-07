@@ -16,7 +16,7 @@
 		(desconocido)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Permitir únicamente a los residentes y grupos indicados a continuación" name="estate_restricted_access"/>
+		<radio_item label="Permitir únicamente a los residentes y grupos indicados en la pestaña Acceso" name="estate_restricted_access"/>
 		<radio_item label="Cualquiera puede visitar" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="Debe ser mayor de 18" name="limit_age_verified" tool_tip="Para poder acceder a este estado, los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>

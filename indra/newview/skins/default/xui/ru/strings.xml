@@ -2226,6 +2226,18 @@ support@secondlife.com.
 	<string name="RegionInfoListTypeBannedAgents">
 		Всегда заблокированы
 	</string>
+	<string name="RegionInfoAllEstates">
+		все землевладения
+	</string>
+	<string name="RegionInfoManagedEstates">
+		управляемые землевладения
+	</string>
+	<string name="RegionInfoThisEstate">
+		это землевладение
+	</string>
+	<string name="AndNMore">
+		и \[EXTRA_COUNT] более
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Память под скрипты на участке
 	</string>

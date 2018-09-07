@@ -3,8 +3,8 @@
 	<floater.string name="already for sale">
 		Zaten satışa çıkarılmış olan parselleri açık artırmaya sunamazsınız.
 	</floater.string>
-	<check_box initial_value="true" label="Sarı seçim çiti dahil edilsin" name="fence_check"/>
-	<button label="Anlık Görüntü" label_selected="Anlık Görüntü" name="snapshot_btn"/>
+	<check_box initial_value="true" label="Sarı seçim çitini dahil et" name="fence_check"/>
+	<button label="Anlık görüntü" label_selected="Anlık görüntü" name="snapshot_btn"/>
 	<button label="Herkese Sat" label_selected="Herkese Sat" name="sell_to_anyone_btn"/>
 	<button label="Ayarları Temizle" label_selected="Ayarları Temizle" name="reset_parcel_btn"/>
 	<button label="Açık Artırmayı Başlat" label_selected="Açık Artırmayı Başlat" name="start_auction_btn"/>
