@@ -55,6 +55,8 @@
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
 
+extern LLControlGroup gSavedSettings;
+
 namespace
 {
     const std::string FIELD_SETTINGS_NAME("settings_name");
@@ -600,6 +602,14 @@ BOOL LLFloaterFixedEnvironmentSky::postBuild()
     panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
 
+    if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
+    {
+        panel = new LLPanelSettingsSkyDensityTab;
+        panel->buildFromFile("panel_settings_sky_density.xml");
+        panel->setSky(std::static_pointer_cast<LLSettingsSky>(mSettings));
+        panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
+        mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
+    }
     return TRUE;
 }
 

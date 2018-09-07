@@ -116,11 +116,22 @@ public:
     F32 getSkyTopRadius() const;
     F32 getSunArcRadians() const;
     F32 getMieAnisotropy() const;   
+
+    // Return first (only) profile layer represented in LLSD
+    LLSD getRayleighConfig() const;
+    LLSD getMieConfig() const;
+    LLSD getAbsorptionConfig() const;
+
+    // Return entire LLSDArray of profile layers represented in LLSD
     LLSD getRayleighConfigs() const;
     LLSD getMieConfigs() const;
-
     LLSD getAbsorptionConfigs() const;
+
     LLUUID getBloomTextureId() const;
+
+    void setRayleighConfigs(const LLSD& rayleighConfig);
+    void setMieConfigs(const LLSD& mieConfig);
+    void setAbsorptionConfigs(const LLSD& absorptionConfig);
 
     //---------------------------------------------------------------------
     LLColor3 getAmbientColor() const;
@@ -247,6 +258,22 @@ public:
     static LLUUID GetDefaultMoonTextureId();
     static LLUUID GetDefaultCloudNoiseTextureId();
     static LLUUID GetDefaultBloomTextureId();
+
+    static LLSD createDensityProfileLayer(
+                    F32 width,
+                    F32 exponential_term,
+                    F32 exponential_scale_factor,
+                    F32 linear_term,
+                    F32 constant_term,
+                    F32 aniso_factor = 0.0f);
+
+    static LLSD createSingleLayerDensityProfile(
+                    F32 width,
+                    F32 exponential_term,
+                    F32 exponential_scale_factor,
+                    F32 linear_term,
+                    F32 constant_term,
+                    F32 aniso_factor = 0.0f);
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;

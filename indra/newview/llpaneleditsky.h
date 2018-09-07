@@ -29,7 +29,6 @@
 
 #include "llpanel.h"
 #include "llsettingssky.h"
-
 #include "llfloaterfixedenvironment.h"
 
 //=========================================================================
@@ -125,5 +124,42 @@ private:
     void                    onMoonRotationChanged();
     void                    onMoonScaleChanged();
     void                    onMoonImageChanged();
+};
+
+// single subtab of the density settings tab
+class LLPanelSettingsSkyDensityTab : public LLPanelSettingsSky
+{
+    LOG_CLASS(LLPanelSettingsSkyDensityTab);
+
+public:
+    LLPanelSettingsSkyDensityTab();
+
+    virtual BOOL postBuild() override;
+    virtual void setEnabled(BOOL enabled) override;
+
+protected:
+    virtual void refresh() override;
+
+    void onRayleighExponentialChanged();
+    void onRayleighExponentialScaleChanged();
+    void onRayleighLinearChanged();
+    void onRayleighConstantChanged();
+    void onRayleighMaxAltitudeChanged();
+
+    void onMieExponentialChanged();
+    void onMieExponentialScaleChanged();
+    void onMieLinearChanged();
+    void onMieConstantChanged();
+    void onMieAnisoFactorChanged();
+    void onMieMaxAltitudeChanged();
+
+    void onAbsorptionExponentialChanged();
+    void onAbsorptionExponentialScaleChanged();
+    void onAbsorptionLinearChanged();
+    void onAbsorptionConstantChanged();
+    void onAbsorptionMaxAltitudeChanged();
+
+    // update the settings for our profile type
+    void updateProfile();
 };
 #endif // LLPANEL_EDIT_SKY_H

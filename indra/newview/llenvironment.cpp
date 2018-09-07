@@ -358,6 +358,7 @@ void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settin
         layer.width             = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
         settingsOut.m_mieProfile.push_back(layer);
     }
+    settingsOut.m_mieAnisotropy = psky->getMieAnisotropy();
 
     LLSD absorption = psky->getAbsorptionConfigs();
     settingsOut.m_absorptionProfile.clear();

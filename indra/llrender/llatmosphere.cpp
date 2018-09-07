@@ -78,6 +78,8 @@ const double kMieScaleHeight = 1200.0;
 const double kMieAngstromAlpha = 0.0;
 const double kMieAngstromBeta = 5.328e-3;
 const double kMieSingleScatteringAlbedo = 0.9;
+const double kGroundAlbedo = 0.1;
+
 const double max_sun_zenith_angle = F_PI * 2.0 / 3.0;
 
 AtmosphericModelSettings::AtmosphericModelSettings()
@@ -201,7 +203,7 @@ LLAtmosphere::LLAtmosphere()
         m_mie_scattering.push_back(mie * kMieSingleScatteringAlbedo);
         m_mie_extinction.push_back(mie);
         m_absorption_extinction.push_back(kMaxOzoneNumberDensity * kOzoneCrossSection[(l - kLambdaMin) / 10]);
-        m_ground_albedo.push_back(0.6f);
+        m_ground_albedo.push_back(kGroundAlbedo);
     }
 
     AtmosphericModelSettings defaults;
@@ -249,9 +251,8 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
     getIlluminance()->setTexName(0);
 
     // Init libatmosphere model
-    m_config.num_scattering_orders = 4;
-
     m_model = new atmosphere::Model(
+                                m_config,
                                 m_wavelengths,
                                 m_solar_irradiance,
                                 settings.m_sunArcRadians,
@@ -268,9 +269,10 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
                                 m_ground_albedo,
                                 max_sun_zenith_angle,
                                 1000.0,   
-                                15,
-                                false,
-                                true);
+                                3,
+                                false, // do not combine_scattering...we want indep textures
+                                false, // use 32F for 2d textures to avoid artifacts
+                                true); // use 16F for 3d textures to reduce footprint
 
     if (m_model)
     {
@@ -279,6 +281,7 @@ bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
         getScattering()->setTexName(m_textures.scattering_texture);   
         getMieScattering()->setTexName(m_textures.single_mie_scattering_texture);
         getIlluminance()->setTexName(m_textures.illuminance_texture);
+        m_settings = settings;
     }
 
     return m_model != nullptr;
@@ -292,7 +295,7 @@ LLGLTexture* LLAtmosphere::getTransmittance()
         m_transmittance->generateGLTexture();
         m_transmittance->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         m_transmittance->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
-        m_transmittance->setExplicitFormat(GL_RGB16F_ARB, GL_RGB, GL_FLOAT);
+        m_transmittance->setExplicitFormat(GL_RGB32F_ARB, GL_RGB, GL_FLOAT);
         m_transmittance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
     }
     return m_transmittance;
@@ -334,7 +337,7 @@ LLGLTexture* LLAtmosphere::getIlluminance()
         m_illuminance->generateGLTexture();
         m_illuminance->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         m_illuminance->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
-        m_illuminance->setExplicitFormat(GL_RGB16F_ARB, GL_RGB, GL_FLOAT);
+        m_illuminance->setExplicitFormat(GL_RGB32F_ARB, GL_RGB, GL_FLOAT);
         m_illuminance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
     }
     return m_illuminance;

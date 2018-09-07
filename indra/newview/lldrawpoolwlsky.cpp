@@ -94,7 +94,7 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 void LLDrawPoolWLSky::endRenderPass( S32 pass )
 {
     sky_shader   = nullptr;
-	cloud_shader = nullptr;
+    cloud_shader = nullptr;
     sun_shader   = nullptr;
     moon_shader  = nullptr;
 }
@@ -118,7 +118,7 @@ void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
 void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 {
     sky_shader   = nullptr;
-	cloud_shader = nullptr;
+    cloud_shader = nullptr;
     sun_shader   = nullptr;
     moon_shader  = nullptr;
 }
@@ -174,8 +174,8 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-        LLVector4 sun_dir = LLEnvironment::instance().getClampedSunNorm();
-        LLVector4 moon_dir = LLEnvironment::instance().getClampedMoonNorm();
+        LLVector3 sun_dir  = LLEnvironment::instance().getSunDirection();
+        LLVector3 moon_dir = LLEnvironment::instance().getMoonDirection();
 
         F32 sunSize = (float)cosf(psky->getSunArcRadians());
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
@@ -188,13 +188,6 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 		glh::matrix4f inv_proj = proj_mat.inverse();
 
 	    sky_shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
-
-        // clouds are rendered along with sky in adv atmo
-        if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
-        {
-            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
-            sky_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
-        }
 
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
@@ -237,9 +230,10 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// clamping and allow the star_alpha param to brighten the stars.
 	LLColor4 star_alpha(LLColor4::black);
 
-    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 512.f;
-    
-	// If star brightness is not set, exit
+    // *LAPRAS
+    star_alpha.mV[3] = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
+
+	// If start_brightness is not set, exit
 	if( star_alpha.mV[3] < 0.001 )
 	{
 		LL_DEBUGS("SKY") << "star_brightness below threshold." << LL_ENDL;
@@ -299,8 +293,9 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 	LLGLSPipelineSkyBox gls_sky;
 	LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-
-    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 512.0f;
+		
+	// *LAPRAS
+    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / (2.f + ((rand() >> 16)/65535.0f)); // twinkle twinkle
 
 	// If start_brightness is not set, exit
 	if(star_alpha < 0.001f)
@@ -337,11 +332,6 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 
     gDeferredStarProgram.uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 	gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
-
-    sStarTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;
-
-    gDeferredStarProgram.uniform1f(LLShaderMgr::WATER_TIME, sStarTime);
-
 	gSky.mVOWLSkyp->drawStars();
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -385,8 +375,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
     F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
     bool can_use_vertex_shaders = gPipeline.canUseVertexShaders();
-    bool can_use_windlight_shaders = gPipeline.canUseWindLightShaders();
-
 
 	if (gSky.mVOSkyp->getSun().getDraw() && face && face->getGeomCount())
 	{
@@ -400,39 +388,45 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
         if (tex_a || tex_b)
         {
             // if and only if we have a texture defined, render the sun disc
-            if (can_use_vertex_shaders && can_use_windlight_shaders)
+            if (can_use_vertex_shaders)
+		    {
+			    sun_shader->bind();
+            }
+
+            if (tex_a && (!tex_b || (tex_a == tex_b)))
             {
-                sun_shader->bind();
+                // Bind current and next sun textures
+                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (tex_b && !tex_a)
+            {
+                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (tex_b != tex_a)
+            {
+                sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+            }
 
-                if (tex_a && (!tex_b || (tex_a == tex_b)))
-                {
-                    // Bind current and next sun textures
-                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                    blend_factor = 0;
-                }
-                else if (tex_b && !tex_a)
-                {
-                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-                    blend_factor = 0;
-                }
-                else if (tex_b != tex_a)
-                {
-                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                    sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-                }
+		    LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 
-                LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
-
+            if (can_use_vertex_shaders)
+		    {
                 sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+		    }
 
-                LLFacePool::LLOverrideFaceColor color_override(this, color);
-                face->renderIndexed();
+		    LLFacePool::LLOverrideFaceColor color_override(this, color);
+		    face->renderIndexed();
 
-                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-                gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
-                sun_shader->unbind();
+            if (can_use_vertex_shaders)
+		    {
+			    sun_shader->unbind();
             }
         }
 	}
@@ -446,39 +440,46 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		
-        if (can_use_vertex_shaders && can_use_windlight_shaders)
+        if (can_use_vertex_shaders)
+		{
+			moon_shader->bind();
+        }
+
+        if (tex_a && (!tex_b || (tex_a == tex_b)))
         {
-            moon_shader->bind();
+            // Bind current and next sun textures
+            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+            blend_factor = 0;
+        }
+        else if (tex_b && !tex_a)
+        {
+            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+            blend_factor = 0;
+        }
+        else if (tex_b != tex_a)
+        {
+            moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+            moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+        }
 
-            if (tex_a && (!tex_b || (tex_a == tex_b)))
-            {
-                // Bind current and next sun textures
-                moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                blend_factor = 0;
-            }
-            else if (tex_b && !tex_a)
-            {
-                moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-                blend_factor = 0;
-            }
-            else if (tex_b != tex_a)
-            {
-                moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-            }
-
+        if (can_use_vertex_shaders)
+		{
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);                
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
-
-            LLFacePool::LLOverrideFaceColor color_override(this, color);
-            face->renderIndexed();
-
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-            gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-
-            moon_shader->unbind();
         }
-    }
+
+		LLFacePool::LLOverrideFaceColor color_override(this, color);
+		
+		face->renderIndexed();
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
+		if (can_use_vertex_shaders)
+		{
+			moon_shader->unbind();
+		}
+	}
 
     gGL.popMatrix();
 }
@@ -504,22 +505,19 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     if (gPipeline.canUseWindLightShaders())
     {
+        if (gPipeline.useAdvancedAtmospherics())
+        {
+	        renderSkyHazeDeferred(origin, camHeightLocal);
+            renderHeavenlyBodies();
+        }
+        else
         {
             // Disable depth-test for sky, but re-enable depth writes for the cloud
             // rendering below so the cloud shader can write out depth for the stars to test against
             LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-            if (gPipeline.useAdvancedAtmospherics())
-            {
-	            renderSkyHazeDeferred(origin, camHeightLocal);
-            }
-            else
-            {
-                renderSkyHaze(origin, camHeightLocal);   
-		        
-            }
-            renderHeavenlyBodies();
+            renderSkyHaze(origin, camHeightLocal);   
+		    renderHeavenlyBodies();
         }
-
         renderSkyClouds(origin, camHeightLocal);
     }    
     gGL.setColorMask(true, true);
