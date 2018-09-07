@@ -219,22 +219,24 @@ endif (USESYSTEMLIBS)
 
 macro (buildscripts_block target_name)
     # add custom commands to bracket a target build to make logs easier to read
-
-    if (DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
+    # this is disabled for windows because VS interleaves output in a way that defeats it
+    if (NOT WINDOWS AND DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
         add_custom_command(TARGET ${target_name} PRE_BUILD
-            COMMAND echo ARGS "##teamcity[blockOpened name='${target_name}']" VERBATIM
+            COMMAND echo ARGS "-n" "##"
+            COMMAND echo ARGS "teamcity[blockOpened name='${target_name}']" 
             )
         add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND echo ARGS "##teamcity[blockClosed name='${target_name}']" VERBATIM
+            COMMAND echo ARGS "-n" "##"
+            COMMAND echo ARGS "teamcity[blockClosed name='${target_name}']"
             )
-    else (DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
+    else (NOT WINDOWS AND DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
         add_custom_command(TARGET ${target_name} PRE_BUILD
-            COMMAND echo ARGS "################## START ${target_name}" VERBATIM
+            COMMAND echo ARGS "################## START ${target_name}"
             )
         add_custom_command(TARGET ${target_name} POST_BUILD
-            COMMAND echo ARGS "################## FINISH ${target_name}" VERBATIM
+            COMMAND echo ARGS "################## FINISH ${target_name}"
             )
-    endif (DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
+    endif (NOT WINDOWS AND DEFINED ENV{TEAMCITY_BUILDCONF_NAME})
 
 endmacro (buildscripts_block target_name)
 
