@@ -277,6 +277,7 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
         LLNotificationsUtil::add("SettingsConfirmLoss", args, LLSD(),
             [cb](const LLSD&notif, const LLSD&resp)
             {
+                (void)this;
                 S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
                 if (opt == 0)
                     cb();
