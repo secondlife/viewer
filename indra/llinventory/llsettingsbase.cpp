@@ -58,6 +58,7 @@ const std::string LLSettingsBase::SETTING_FLAGS("flags");
 
 const U32 LLSettingsBase::FLAG_NOCOPY(0x01 << 0);
 const U32 LLSettingsBase::FLAG_NOMOD(0x01 << 1);
+const U32 LLSettingsBase::FLAG_NOTRANS(0x01 << 2);
 
 //=========================================================================
 LLSettingsBase::LLSettingsBase():

@@ -11197,5 +11197,22 @@ Are you sure you want to continue?
      notext="No"
      yestext="Yes"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsMakeNoTrans"
+   type="alertmodal">
+You are about to import non-transferable settings into this daycycle. Continuing will cause the settings you are editing to become non-transferable also. 
+
+This change can not be undone.
+
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to make settings non-transferable?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
   
 </notifications>

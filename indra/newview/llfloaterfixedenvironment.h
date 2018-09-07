@@ -97,6 +97,8 @@ protected:
     LLUUID                  mInventoryId;
     LLInventoryItem *       mInventoryItem;
     LLHandle<LLFloater>     mInventoryFloater;
+    bool                    mCanCopy;
+    bool                    mCanMod;
 
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
@@ -173,7 +175,10 @@ public:
     inline void         setIsDirty()            { mIsDirty = true; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
     inline void         clearIsDirty()          { mIsDirty = false; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
 
+    virtual void        setCanChangeSettings(bool flag);
+
     inline connection_t setOnDirtyFlagChanged(on_dirty_charged_sg::slot_type cb)    { return mOnDirtyChanged.connect(cb); }
+
 
 protected:
     LLSettingsEditPanel() :

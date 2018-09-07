@@ -125,8 +125,6 @@ private:
 	void                        updateTabs();
 	void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
 	void                        updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
-	void                        setWaterTabsEnabled(BOOL enable);
-	void                        setSkyTabsEnabled(BOOL enable);
 	void                        updateButtons();
 	void                        updateSlider(); //generate sliders from current track
 	void                        updateTimeAndLabel();
@@ -201,6 +199,9 @@ private:
     F32                         mPlayStartFrame; // an env frame
     bool                        mIsPlaying;
     bool                        mIsDirty;
+    bool                        mCanCopy;
+    bool                        mCanMod;
+    bool                        mMakeNoTrans;
 
     edit_commit_signal_t        mCommitSignal;
 

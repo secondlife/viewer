@@ -39,12 +39,14 @@
 #include <boost/signals2.hpp>
 
 class LLVFS;
+class LLInventoryItem;
 
 //=========================================================================
 class LLSettingsVOBase : public LLSettingsBase
 {
 public:
     typedef std::function<void(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat extstat)>  asset_download_fn;
+    typedef std::function<void(LLInventoryItem *inv_item, LLSettingsBase::ptr_t settings, S32 status, LLExtStat extstat)> inventory_download_fn;
     typedef std::function<void(LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)>           inventory_result_fn;
 
     static void     createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback = inventory_result_fn());
@@ -54,6 +56,7 @@ public:
     static void     updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID object_id, LLUUID inv_item_id, inventory_result_fn callback = inventory_result_fn());
 
     static void     getSettingsAsset(const LLUUID &assetId, asset_download_fn callback);
+    static void     getSettingsInventory(const LLUUID &inventoryId, inventory_download_fn callback = inventory_download_fn());
 
     static bool     exportFile(const LLSettingsBase::ptr_t &settings, const std::string &filename, LLSDSerialize::ELLSD_Serialize format = LLSDSerialize::LLSD_NOTATION);
     static LLSettingsBase::ptr_t importFile(const std::string &filename);
