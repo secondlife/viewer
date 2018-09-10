@@ -1253,6 +1253,18 @@ void LLFloaterEditExtDayCycle::doApplyCommit()
     }
 }
 
+bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
+{
+    if (mCurrentTrack <= LLSettingsDay::TRACK_GROUND_LEVEL)
+    {
+        return (mSliderKeyMap.size() > 1);
+    }
+    else
+    {
+        return (mSliderKeyMap.size() > 0);
+    }
+}
+
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
 {
     LL_INFOS("ENVDAYEDIT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
