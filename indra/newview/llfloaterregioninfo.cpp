@@ -3376,7 +3376,7 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 }
 
 //=========================================================================
-const U32 LLPanelRegionEnvironment::DIRTY_FLAG_OVERRIDE(0x01 << 3);
+const U32 LLPanelRegionEnvironment::DIRTY_FLAG_OVERRIDE(0x01 << 4);
 
 LLPanelRegionEnvironment::LLPanelRegionEnvironment():
     LLPanelEnvironmentInfo(),
@@ -3395,6 +3395,7 @@ BOOL LLPanelRegionEnvironment::postBuild()
 
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEDEFAULT));
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(TRUE);
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(TRUE);
 
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setCommitCallback([this](LLUICtrl *, const LLSD &value){ onChkAllowOverride(value.asBoolean()); });
     return TRUE;

@@ -3261,6 +3261,7 @@ BOOL LLPanelLandEnvironment::postBuild()
 
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEREGION));
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(FALSE);
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
     return TRUE;
 }
 

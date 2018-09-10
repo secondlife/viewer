@@ -3,20 +3,22 @@
 <panel
         border="true"
         follows="top|left"
-        height="300"
+        height="375"
         label="Environment"
         layout="topleft"
         help_topic="panel_region_environment_tab"
         name="panel_env_info"
-        width="420"> 
+        width="530"> 
     <string name="str_label_use_default">Use Default Settings</string>
     <string name="str_label_use_region">Use Region Settings</string>
     <string name="str_unknow_inventory">Unknown</string>
+    <string name="str_altitude_desription">Sky [INDEX]([ALTITUDE]m)</string>
 
     <layout_stack 
-            width="420"
-            height="450"
-            follows="left|right|top|bottom"
+            width="530"
+            height="367"
+            follows="all"
+            layout="topleft"
             orientation="vertical">
         <layout_panel
                 auto_resize="true"
@@ -34,15 +36,19 @@ settings are disabled.
             </text>
         </layout_panel>
         <layout_panel 
-                auto_resize="true"
+                auto_resize="false"
                 user_resize="false"
+                height="155"
+                min_height="0"
                 name="pnl_environment_config"
                 visible="true">
             <layout_stack 
                     left="5"
-                    top="5"
+                    top="0"
                     right="-5"
-                    follows="left|right|top|bottom"
+                    bottom="-1"
+                    layout="topleft"
+                    follows="all"
                     orientation="horizontal">
                 <layout_panel 
                         background_visible="true"
@@ -51,11 +57,13 @@ settings are disabled.
                         auto_resize="true"
                         user_resize="false"
                         width="260"
-                        min_width="260">
+                        min_width="260"
+                        name="pnl_environment_current">
                     <text follows="top|left"
                             font="SansSerif"
                             halign="left"
-                            text_color="white">Current Environment</text>
+                            text_color="white"
+                            top="2">Current Environment</text>
                     <radio_group
                             height="90"
                             layout="topleft"
@@ -117,12 +125,16 @@ settings are disabled.
                         bevel_style="in"
                         auto_resize="true"
                         user_resize="false"
-                        background_visible="true">
+                        width="260"
+                        min_width="260"
+                        background_visible="true"
+                        name="pnl_environment_length">
                     <text 
                             font="SansSerif"
                             follows="top|left|right"
                             halign="left"
-                            text_color="white">Day Settings</text>
+                            text_color="white"
+                            top="2">Day Settings</text>
                     <text
                             type="string"
                             length="1"
@@ -180,7 +192,7 @@ settings are disabled.
                             height="12"
                             layout="topleft"
                             left_delta="0"
-                            top_pad="20"
+                            top_pad="10"
                             width="200">
                         Apparent Time of Day:
                     </text>
@@ -200,25 +212,134 @@ settings are disabled.
                 </layout_panel>
             </layout_stack>
         </layout_panel>
-        <layout_panel 
+        <layout_panel
+                auto_resize="false"
+                user_resize="false"
+                height="155"
+                min_height="0"
+                name="pnl_environment_altitudes"
+                visible="true">
+            <panel
+                left="5"
+                top="0"
+                bottom="-1"
+                width="260"
+                follows="left|top|bottom"
+                background_visible="true"
+                border="true"
+                bevel_style="in"
+                name="cnt_panel">
+                <text follows="top|left"
+                    font="SansSerif"
+                    halign="left"
+                    text_color="white"
+                    top="2">Sky Altitudes</text>
+                <multi_slider
+                    decimal_digits="0"
+                    follows="bottom"
+                    height="120"
+                    width="10"
+                    orientation="vertical"
+                    increment="10"
+                    initial_value="100"
+                    max_val="4000"
+                    layout="topleft"
+                    left="15"
+                    top="20"
+                    max_sliders="20"
+                    name="sld_altitudes"
+                    show_text="false">
+                    <slider name="sld1" value="200"/>
+                    <slider name="sld2" value="400"/>
+                    <slider name="sld3" value="600"/>
+                </multi_slider>
+                <icon
+                    follows="left|top"
+                    height="10"
+                    width="10"
+                    image_name="Rounded_Square"
+                    layout="topleft"
+                    name="camera_icon"
+                    mouse_opaque="false"
+                    visible="true"
+                    left_delta="0"
+                    top_pad="-3"/>
+                <text
+                        type="string"
+                        length="1"
+                        follows="left|top"
+                        height="12"
+                        layout="topleft"
+                        left_pad="3"
+                        top_delta="0"
+                        width="200"
+                        name="ground">
+                    Ground
+                </text>
+                <text
+                        type="string"
+                        length="1"
+                        follows="left"
+                        height="12"
+                        layout="topleft"
+                        left="25"
+                        top="30"
+                        width="200"
+                        name="alt1">
+                    Sky [INDEX]([ALTITUDE]m)
+                </text>
+                <text
+                        type="string"
+                        length="1"
+                        follows="left|top"
+                        height="12"
+                        layout="topleft"
+                        left="25"
+                        top="40"
+                        width="200"
+                        name="alt2">
+                    Sky [INDEX]([ALTITUDE]m)
+                </text>
+                <text
+                        type="string"
+                        length="1"
+                        follows="left|top"
+                        height="12"
+                        layout="topleft"
+                        left="25"
+                        top="50"
+                        width="200"
+                        name="alt3">
+                    Sky [INDEX]([ALTITUDE]m)
+                </text>
+            </panel>
+        </layout_panel>
+        <layout_panel
                 auto_resize="true"
                 user_resize="false"
-                height="21"
+                height="0"
                 min_height="0"
+                name="pnl_auto_adjust"
+                visible="true"/>
+        <layout_panel
+                auto_resize="false"
+                user_resize="false"
+                height="59"
+                min_height="59"
                 name="pnl_environment_buttons">
             <check_box
                     height="20"
                     label="Parcel Owners May Override Environment"
                     layout="topleft"
                     left="10"
-                    top="10"
+                    top="0"
                     name="chk_allow_override"
                     width="200" />
             <button
                     follows="top|left"
                     height="23"
                     label="Apply"
-                    top_pad="10"
+                    top_pad="5"
                     name="btn_apply"
                     width="100" />
             <button

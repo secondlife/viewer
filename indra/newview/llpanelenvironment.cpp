@@ -41,6 +41,7 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfloatereditextdaycycle.h"
+#include "llmultisliderctrl.h"
 #include "llsettingsvo.h"
 
 #include "llappviewer.h"
@@ -62,26 +63,45 @@ const std::string LLPanelEnvironmentInfo::BTN_SELECTINV("btn_select_inventory");
 const std::string LLPanelEnvironmentInfo::BTN_EDIT("btn_edit");
 const std::string LLPanelEnvironmentInfo::SLD_DAYLENGTH("sld_day_length");
 const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
+const std::string LLPanelEnvironmentInfo::SLD_ALTITUDES("sld_altitudes");
 const std::string LLPanelEnvironmentInfo::CHK_ALLOWOVERRIDE("chk_allow_override");
 const std::string LLPanelEnvironmentInfo::BTN_APPLY("btn_apply");
 const std::string LLPanelEnvironmentInfo::BTN_CANCEL("btn_cancel");
 const std::string LLPanelEnvironmentInfo::LBL_TIMEOFDAY("lbl_apparent_time");
 const std::string LLPanelEnvironmentInfo::PNL_SETTINGS("pnl_environment_config");
+const std::string LLPanelEnvironmentInfo::PNL_ENVIRONMENT_ALTITUDES("pnl_environment_altitudes");
 const std::string LLPanelEnvironmentInfo::PNL_BUTTONS("pnl_environment_buttons");
 const std::string LLPanelEnvironmentInfo::PNL_DISABLED("pnl_environment_disabled");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_UNKNOWNINV("str_unknow_inventory");
+const std::string LLPanelEnvironmentInfo::STR_ALTITUDE_DESCRIPTION("str_altitude_desription");
 
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET(0x01 << 2);
+const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_ALTITUDES(0x01 << 3);
 
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
         LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE | 
         LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH | 
-        LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET );
+        LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET |
+        LLPanelEnvironmentInfo::DIRTY_FLAG_ALTITUDES);
+
+const U32 ALTITUDE_SLIDER_COUNT = 3;
+const std::string alt_sliders[] = {
+    "sld1",
+    "sld2",
+    "sld3",
+};
+
+const std::string alt_labels[] = {
+    "alt1",
+    "alt2",
+    "alt3",
+    "ground",
+};
 
 //=========================================================================
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
@@ -103,6 +123,8 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(value.asReal()); });
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged(value.asReal()); });
+
+    getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
 
     return TRUE;
 }
@@ -182,6 +204,18 @@ void LLPanelEnvironmentInfo::refresh()
     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
    
     udpateApparentTimeOfDay();
+
+    LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
+    if (altitudes.size() > 0)
+    {
+        for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
+        {
+            LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+            sld->setSliderValue(alt_sliders[idx], altitudes[idx+1], FALSE);
+            updateAltLabel(alt_labels[idx], idx + 2, altitudes[idx+1]);
+            mAltitudes[alt_sliders[idx]] = AltitudeData(idx+1, idx, altitudes[idx+1]);
+        }
+    }
 
 }
 
@@ -333,6 +367,37 @@ void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
     getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
 }
 
+void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value)
+{
+    LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+    LLRect sld_rect = sld->getRect();
+    U32 sld_range = sld_rect.getHeight();
+    U32 sld_bottom = sld_rect.mBottom;
+    U32 sld_offset = 8 + 1; // Default slider-thumb width plus stretch. Placeholder until images are implemented.
+    U32 pos = (sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100));
+
+    // get related text box
+    LLTextBox* text = getChild<LLTextBox>(alt_name);
+    if (text)
+    {
+        // move related text box
+        LLRect rect = text->getRect();
+        U32 height = rect.getHeight();
+        rect.mBottom = sld_bottom + sld_offset + pos - (height / 2);
+        rect.mTop = rect.mBottom + height;
+        text->setRect(rect);
+
+        // update text
+        std::ostringstream convert;
+        convert << alt_value;
+        text->setTextArg("[ALTITUDE]", convert.str());
+        convert.str("");
+        convert.clear();
+        convert << sky_index;
+        text->setTextArg("[INDEX]", convert.str());
+    }
+}
+
 void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
 {
     bool can_edit = canEdit();
@@ -364,6 +429,59 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
     setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
     udpateApparentTimeOfDay();
+}
+
+void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &data)
+{
+    LLMultiSliderCtrl *sld = (LLMultiSliderCtrl *)cntrl;
+    std::string sld_name = sld->getCurSlider();
+    F32 sld_value = sld->getCurSliderValue();
+    U32 alt_index = 1;
+
+    mAltitudes[sld_name].mAltitude = sld_value;
+
+    // find index of sky layer/altitude
+    altitudes_data_t::iterator iter = mAltitudes.begin();
+    altitudes_data_t::iterator end = mAltitudes.end();
+    while (iter!=end)
+    {
+        if (sld_value > iter->second.mAltitude)
+        {
+            alt_index++;
+        }
+        iter++;
+    }
+
+    if (mAltitudes[sld_name].mAltitudeIndex != alt_index)
+    {
+        // update all labels since we could have jumped multiple
+        // (or sort by altitude, too little elements, so I didn't bother with efficiency)
+        altitudes_data_t::iterator iter = mAltitudes.begin();
+        altitudes_data_t::iterator iter2;
+        U32 new_index;
+        while (iter != end)
+        {
+            iter2 = mAltitudes.begin();
+            new_index = 1;
+            while (iter2 != end)
+            {
+                if (iter->second.mAltitude > iter2->second.mAltitude)
+                {
+                    new_index++;
+                }
+                iter2++;
+            }
+            iter->second.mAltitudeIndex = new_index;
+            updateAltLabel(alt_labels[iter->second.mLabelIndex], iter->second.mAltitudeIndex + 1, iter->second.mAltitude);
+            iter++;
+        }
+    }
+    else
+    {
+        updateAltLabel(alt_labels[mAltitudes[sld_name].mLabelIndex], alt_index + 1, sld_value);
+    }
+
+    setDirtyFlag(DIRTY_FLAG_ALTITUDES);
 }
 
 void LLPanelEnvironmentInfo::onBtnApply()
@@ -430,6 +548,8 @@ void LLPanelEnvironmentInfo::doApply()
                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), 
                 [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
+
+        // Todo: save altitudes once LLEnvironment::setRegionAltitudes() gets implemented
 
         setControlsEnabled(false);
     }

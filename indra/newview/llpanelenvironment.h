@@ -71,11 +71,13 @@ protected:
     static const std::string    BTN_EDIT;
     static const std::string    SLD_DAYLENGTH;
     static const std::string    SLD_DAYOFFSET;
+    static const std::string    SLD_ALTITUDES;
     static const std::string    CHK_ALLOWOVERRIDE;
     static const std::string    BTN_APPLY;
     static const std::string    BTN_CANCEL;
     static const std::string    LBL_TIMEOFDAY;
     static const std::string    PNL_SETTINGS;
+    static const std::string    PNL_ENVIRONMENT_ALTITUDES;
     static const std::string    PNL_BUTTONS;
     static const std::string    PNL_DISABLED;
 
@@ -83,10 +85,12 @@ protected:
     static const std::string    STR_LABEL_USEDEFAULT;
     static const std::string    STR_LABEL_USEREGION;
     static const std::string    STR_LABEL_UNKNOWNINV;
+    static const std::string    STR_ALTITUDE_DESCRIPTION;
 
     static const U32            DIRTY_FLAG_DAYCYCLE;
     static const U32            DIRTY_FLAG_DAYLENGTH;
     static const U32            DIRTY_FLAG_DAYOFFSET;
+    static const U32            DIRTY_FLAG_ALTITUDES;
 
     static const U32            DIRTY_FLAG_MASK;
 
@@ -97,10 +101,12 @@ protected:
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
     bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
     U32                         getDirtyFlag() const                { return mDirtyFlag; }
+    void                        updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value);
 
     void                        onSwitchDefaultSelection();
     void                        onSldDayLengthChanged(F32 value);
     void                        onSldDayOffsetChanged(F32 value);
+    void                        onAltSliderCallback(LLUICtrl *cntrl, const LLSD &data);
     void                        onBtnApply();
     void                        onBtnReset();
     void                        onBtnEdit();
@@ -125,6 +131,23 @@ protected:
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
     S32                                     mCurrentParcelId;
+
+    class AltitudeData
+    {
+    public:
+        AltitudeData() :
+            mAltitudeIndex(0), mLabelIndex(0), mAltitude(0)
+        {}
+        AltitudeData(U32 altitude_index, U32 label_index, F32 altitude) :
+            mAltitudeIndex(altitude_index), mLabelIndex(label_index), mAltitude(altitude)
+        {}
+
+        U32 mAltitudeIndex;
+        U32 mLabelIndex;
+        F32 mAltitude;
+    };
+    typedef std::map<std::string, AltitudeData>      altitudes_data_t;
+    altitudes_data_t                        mAltitudes;
 
 
 

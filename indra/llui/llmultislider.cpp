@@ -74,7 +74,6 @@ LLMultiSlider::Params::Params()
 LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 :	LLF32UICtrl(p),
 	mMouseOffset( 0 ),
-	mDragStartThumbRect( 0, getRect().getHeight(), p.thumb_width, 0 ),
 	mMaxNumSliders(p.max_sliders),
 	mAllowOverlap(p.allow_overlap),
 	mLoopOverlap(p.loop_overlap),
@@ -93,7 +92,16 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 {
 	mValue.emptyMap();
 	mCurSlider = LLStringUtil::null;
-	
+
+	if (mOrientation == HORIZONTAL)
+	{
+		mDragStartThumbRect = LLRect(0, getRect().getHeight(), p.thumb_width, 0);
+	}
+	else
+	{
+		mDragStartThumbRect = LLRect(0, p.thumb_width, getRect().getWidth(), 0);
+	}
+
 	if (p.mouse_down_callback.isProvided())
 	{
 		setMouseDownCallback(initCommitCallback(p.mouse_down_callback));
