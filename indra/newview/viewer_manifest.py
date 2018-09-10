@@ -880,8 +880,8 @@ class DarwinManifest(ViewerManifest):
         return True
 
     def construct(self):
-        # copy over the build result (this is a no-op if run within the xcode script)
-        self.path(os.path.join(self.args['configuration'], "Second Life.app"), dst="")
+##      # copy over the build result (this is a no-op if run within the xcode script)
+##      self.path(os.path.join(self.args['configuration'], "Second Life.app"), dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -1238,6 +1238,11 @@ class DarwinManifest(ViewerManifest):
             # the signature are preserved; moving the files using python will leave them behind
             # and invalidate the signatures.
             if 'signature' in self.args:
+                print 72*'='
+                print 'In {}:'.format(volpath)
+                for f in os.listdir(volpath):
+                    print '  {}'.format(f)
+                print 72*'='
                 app_in_dmg=os.path.join(volpath,self.app_name()+".app")
                 print "Attempting to sign '%s'" % app_in_dmg
                 identity = self.args['signature']
