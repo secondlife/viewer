@@ -530,13 +530,6 @@ void LLFloaterPreference::onDoNotDisturbResponseChanged()
 
 LLFloaterPreference::~LLFloaterPreference()
 {
-	// clean up user data
-	LLComboBox* ctrl_window_size = getChild<LLComboBox>("windowsize combo");
-	for (S32 i = 0; i < ctrl_window_size->getItemCount(); i++)
-	{
-		ctrl_window_size->setCurrentByIndex(i);
-	}
-
 	LLConversationLog::instance().removeObserver(this);
 }
 
