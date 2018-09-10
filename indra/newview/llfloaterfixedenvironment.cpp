@@ -89,7 +89,9 @@ LLFloaterFixedEnvironment::LLFloaterFixedEnvironment(const LLSD &key) :
     mFlyoutControl(nullptr),
     mInventoryId(),
     mInventoryItem(nullptr),
-    mIsDirty(false)
+    mIsDirty(false),
+    mCanCopy(false),
+    mCanMod(false)
 {
 }
 
@@ -170,12 +172,13 @@ void LLFloaterFixedEnvironment::refresh()
 
     bool is_inventory_avail = canUseInventory();
 
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail && mCanMod && !mInventoryId.isNull());
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail && mCanCopy);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel());
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion());
 
     mTxtName->setValue(mSettings->getName());
+    mTxtName->setEnabled(mCanMod);
 
     S32 count = mTab->getTabCount();
 
@@ -183,7 +186,10 @@ void LLFloaterFixedEnvironment::refresh()
     {
         LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(mTab->getPanelByIndex(idx));
         if (panel)
+        {
             panel->refresh();
+            panel->setCanChangeSettings(mCanMod);
+        }
     }
 }
 
@@ -223,6 +229,8 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
     {
         mInventoryItem = nullptr;
         mInventoryId.setNull();
+        mCanMod = true;
+        mCanCopy = true;
         return;
     }
 
@@ -252,9 +260,11 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
         return;
     }
 
+    mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
+    mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
 
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
-        [this](LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat) { onAssetLoaded(asset_id, settins, status); });
+        [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
 
@@ -267,9 +277,8 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
 
         // create and show confirmation textbox
         LLNotificationsUtil::add("SettingsConfirmLoss", args, LLSD(),
-            [this, cb](const LLSD&notif, const LLSD&resp)
+            [cb](const LLSD&notif, const LLSD&resp)
             {
-                (void)this;
                 S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
                 if (opt == 0)
                     cb();
@@ -299,6 +308,9 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     }
 
     mSettings = settings;
+    if (mInventoryItem)
+        mSettings->setName(mInventoryItem->getName());
+
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
@@ -362,12 +374,19 @@ void LLFloaterFixedEnvironment::doApplyCreateNewInventory()
 
 void LLFloaterFixedEnvironment::doApplyUpdateInventory()
 {
+    LL_WARNS("LAPRAS") << "Update inventory for " << mInventoryId << LL_ENDL;
     if (mInventoryId.isNull())
-        LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), 
-                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    {
+        LL_WARNS("LAPRAS") << "Inventory ID is NULL. Creating New!!!" << LL_ENDL;
+        LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS),
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
     else
-        LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId, 
-                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
+    {
+        LL_WARNS("LAPRAS") << "Updating inventory ID " << mInventoryId << LL_ENDL;
+        LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId,
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
+    }
 }
 
 void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
@@ -433,6 +452,18 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
         return;
     }
 
+    if (mInventoryItem)
+    {
+        LLPermissions perms = mInventoryItem->getPermissions();
+
+        LLInventoryItem *created_item = gInventory.getItem(mInventoryId);
+
+        if (created_item)
+        {
+            created_item->setPermissions(perms);
+            created_item->updateServer(false);
+        }
+    }
     clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
     loadInventoryItem(inventory_id);
@@ -566,10 +597,13 @@ void LLFloaterFixedEnvironmentWater::doImportFromDisk()
             return;
         }
 
+        loadInventoryItem(LLUUID::null);
+
         setDirtyFlag();
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
         setEditSettings(legacywater);
         LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
+
     }
 }
 
@@ -652,6 +686,8 @@ void LLFloaterFixedEnvironmentSky::doImportFromDisk()
             return;
         }
 
+        loadInventoryItem(LLUUID::null);
+
         clearDirtyFlag();
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
         setEditSettings(legacysky);
@@ -661,3 +697,8 @@ void LLFloaterFixedEnvironmentSky::doImportFromDisk()
 
 //=========================================================================
 
+void LLSettingsEditPanel::setCanChangeSettings(bool enabled)
+{
+    setEnabled(enabled);
+    setAllChildrenEnabled(enabled);
+}

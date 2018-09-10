@@ -74,6 +74,7 @@ public:
 
     static const U32 FLAG_NOCOPY;
     static const U32 FLAG_NOMOD;
+    static const U32 FLAG_NOTRANS;
 
     typedef std::map<std::string, S32>  parammapping_t;
 

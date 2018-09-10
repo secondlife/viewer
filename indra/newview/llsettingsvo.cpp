@@ -60,6 +60,8 @@
 #include "lldrawpoolwater.h"
 
 #include <boost/algorithm/string/replace.hpp>
+#include "llinventoryobserver.h"
+#include "llinventorydefines.h"
 
 #undef  VERIFY_LEGACY_CONVERSION
 
@@ -177,6 +179,34 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         return;
     }
 
+    LLViewerInventoryItem *inv_item = gInventory.getItem(inv_item_id);
+    if (inv_item)
+    {
+        bool need_update(false);
+        LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
+
+        if (settings->getFlag(LLSettingsBase::FLAG_NOTRANS) && new_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+        {
+            LLPermissions perm(inv_item->getPermissions());
+            perm.setBaseBits(LLUUID::null, FALSE, PERM_TRANSFER);
+            perm.setOwnerBits(LLUUID::null, FALSE, PERM_TRANSFER);
+            new_item->setPermissions(perm);
+            need_update |= true;
+        }
+        if (settings->getName() != new_item->getName())
+        {
+            new_item->rename(settings->getName());
+            settings->setName(new_item->getName()); // account for corrections
+            need_update |= true;
+        }
+        if (need_update)
+        {
+            new_item->updateServer(FALSE);
+            gInventory.updateItem(new_item);
+            gInventory.notifyObservers();
+        }
+    }
+
     std::stringstream buffer; 
     LLSD settingdata(settings->getSettings());
     LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
@@ -209,7 +239,6 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
 
     std::stringstream buffer;
     LLSD settingdata(settings->getSettings());
-
 
     LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
 
@@ -293,6 +322,10 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
         callback(asset_id, settings, status, ext_status);
 }
 
+void LLSettingsVOBase::getSettingsInventory(const LLUUID &inventoryId, inventory_download_fn callback)
+{
+
+}
 
 bool LLSettingsVOBase::exportFile(const LLSettingsBase::ptr_t &settings, const std::string &filename, LLSDSerialize::ELLSD_Serialize format)
 {
@@ -1104,6 +1137,10 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
     }
 
     LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
+
+    U32 flags = getFlags();
+    if (flags)
+        dayp->setFlags(flags);
 
     dayp->initialize();
     return dayp;

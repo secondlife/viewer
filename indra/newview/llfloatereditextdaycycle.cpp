@@ -140,7 +140,10 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mScratchSky(),
     mScratchWater(),
     mIsPlaying(false),
-    mIsDirty(false)
+    mIsDirty(false),
+    mCanCopy(false),
+    mCanMod(false),
+    mMakeNoTrans(false)
 {
 
     mCommitCallbackRegistrar.add(EVNT_DAYTRACK, [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); });
@@ -195,28 +198,11 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs"); 
     S32 tab_count = tab_container->getTabCount();
 
-    LLSettingsEditPanel *panel = nullptr;
     for (S32 idx = 0; idx < tab_count; ++idx)
     {
-        panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
+        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
         if (panel)
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
-    }
-
-    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
-    if (panel)
-    {
-        if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
-        {
-            panel->setEnabled(true);
-            panel->setAllChildrenEnabled(true);
-        }
-        else
-        {
-            panel->setEnabled(false);
-            panel->setAllChildrenEnabled(false);
-            panel->setVisible(false);
-        }
     }
 
     tab_container = mWaterTabLayoutContainer->getChild<LLTabContainer>("water_tabs");
@@ -384,7 +370,9 @@ void LLFloaterEditExtDayCycle::refresh()
     {
         LLLineEditor* name_field = getChild<LLLineEditor>(TXT_DAY_NAME);
         name_field->setText(mEditDay->getName());
+        name_field->setEnabled(mCanMod);
     }
+
 
     bool is_inventory_avail = canUseInventory();
 
@@ -399,11 +387,14 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemVisible(ACTION_APPLY_REGION, show_apply);
 
     mFlyoutControl->setMenuItemEnabled(ACTION_COMMIT, show_commit && !mCommitSignal.empty());
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail);
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail && mCanMod && !mInventoryId.isNull());
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail && mCanCopy);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_LOCAL, true);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel() && show_apply);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion() && show_apply);
+
+    mImportButton->setEnabled(mCanMod);
+    mLoadFrame->setEnabled(mCanMod);
 
     LLFloater::refresh();
 }
@@ -616,7 +607,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
         keymap_t::iterator it = mSliderKeyMap.find(curslider);
         if (it != mSliderKeyMap.end())
         {
-            if (gKeyboard->currentMask(TRUE) == MASK_SHIFT && mShiftCopyEnabled)
+            if (gKeyboard->currentMask(TRUE) == MASK_SHIFT && mShiftCopyEnabled && mCanMod)
             {
                 // don't move the point/frame as long as shift is pressed and user is attempting to copy
                 // handleKeyUp will do the move if user releases key too early.
@@ -650,7 +641,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
             }
             else
             {
-                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
+                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos) && mCanMod)
                 {
                     (*it).second.mFrame = sliderpos;
                 }
@@ -720,9 +711,8 @@ void LLFloaterEditExtDayCycle::checkAndConfirmSettingsLoss(on_confirm_fn cb)
 
         // create and show confirmation textbox
         LLNotificationsUtil::add("SettingsConfirmLoss", args, LLSD(),
-            [this, cb](const LLSD&notif, const LLSD&resp)
+            [cb](const LLSD&notif, const LLSD&resp)
             {
-                (void)this;
                 S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
                 if (opt == 0)
                     cb();
@@ -841,70 +831,6 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
     {
         panel->setSky(p_sky);
     }
-    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("density_panel"));
-    if (panel)
-    {
-        if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
-        {
-            panel->setSky(p_sky);
-        }
-        else
-        {
-            panel->setEnabled(false);
-            panel->setVisible(false);
-        }
-    }
-}
-
-void LLFloaterEditExtDayCycle::setWaterTabsEnabled(BOOL enable)
-{
-    LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>(TABS_WATER); //can't extract panels directly, since it is in 'tuple'
-    LLPanelSettingsWaterMainTab* panel = dynamic_cast<LLPanelSettingsWaterMainTab*>(tab_container->getChildView("water_panel"));
-    if (panel)
-    {
-        panel->setEnabled(enable);
-        panel->setAllChildrenEnabled(enable);
-    }
-}
-
-void LLFloaterEditExtDayCycle::setSkyTabsEnabled(BOOL enable)
-{
-    LLView* tab_container = mSkyTabLayoutContainer->getChild<LLView>(TABS_SKYS); //can't extract panels directly, since they are in 'tuple'
-
-    LLPanelSettingsSky* panel;
-    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("atmosphere_panel"));
-    if (panel)
-    {
-        panel->setEnabled(enable);
-        panel->setAllChildrenEnabled(enable);
-    }
-    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("clouds_panel"));
-    if (panel)
-    {
-        panel->setEnabled(enable);
-        panel->setAllChildrenEnabled(enable);
-    }
-    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("moon_panel"));
-    if (panel)
-    {
-        panel->setEnabled(enable);
-        panel->setAllChildrenEnabled(enable);
-    }
-    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
-    if (panel)
-    {
-        if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
-        {
-            panel->setEnabled(enable);
-            panel->setAllChildrenEnabled(enable);
-        }
-        else
-        {
-            panel->setEnabled(false);
-            panel->setAllChildrenEnabled(false);
-            panel->setVisible(false);
-        }
-    }
 }
 
 void LLFloaterEditExtDayCycle::updateButtons()
@@ -917,8 +843,8 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //bool can_add = static_cast<bool>(settings);
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
-    mAddFrameButton->setEnabled(true);
-    mDeleteFrameButton->setEnabled(true);
+    mAddFrameButton->setEnabled(true && mCanMod);
+    mDeleteFrameButton->setEnabled(true && mCanMod);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -1021,9 +947,11 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 {
     if (inventoryId.isNull())
     {
-        LL_WARNS("ENVDAYEDIT") << "Attempt to load NULL inventory ID" << LL_ENDL;
         mInventoryItem = nullptr;
         mInventoryId.setNull();
+        mCanCopy = true;
+        mCanMod = true;
+        mMakeNoTrans = false;
         return;
     }
 
@@ -1054,6 +982,9 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
         return;
     }
 
+    mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
+    mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
+
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
@@ -1068,6 +999,16 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         closeFloater();
         return;
     }
+
+    if (mCanCopy)
+        settings->clearFlag(LLSettingsBase::FLAG_NOCOPY);
+    else
+        settings->setFlag(LLSettingsBase::FLAG_NOCOPY);
+
+    if (mCanMod)
+        settings->clearFlag(LLSettingsBase::FLAG_NOMOD);
+    else
+        settings->setFlag(LLSettingsBase::FLAG_NOMOD);
 
     setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
 }
@@ -1172,8 +1113,7 @@ void LLFloaterEditExtDayCycle::setTabsData(LLTabContainer * tabcontainer, const 
         if (panel)
         {
             panel->setSettings(settings);
-            panel->setEnabled(editable);
-            panel->setAllChildrenEnabled(editable);
+            panel->setCanChangeSettings(editable & mCanMod);
         }
     }
 }
@@ -1270,6 +1210,19 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
         return;
     }
 
+    if (mInventoryItem)
+    {
+        LLPermissions perms = mInventoryItem->getPermissions();
+
+        LLInventoryItem *created_item = gInventory.getItem(mInventoryId);
+        
+        if (created_item)
+        {
+            created_item->setPermissions(perms);
+            created_item->updateServer(false);
+        }
+    }
+
     clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
     loadInventoryItem(inventory_id);
@@ -1303,6 +1256,8 @@ void LLFloaterEditExtDayCycle::doImportFromDisk()
             LLNotificationsUtil::add("WLImportFail", args);
             return;
         }
+
+        loadInventoryItem(LLUUID::null);
 
         mCurrentTrack = 1;
         setDirtyFlag();
@@ -1452,13 +1407,52 @@ void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID asset_id)
 
 void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 track, LLSettingsBase::TrackPosition frame)
 {
+    std::function<void()> cb = [this, settings, frame, track]()
+    {
+        mEditDay->setSettingsAtKeyframe(settings, frame, track);
+        reblendSettings();
+        synchronizeTabs();
+    };
+
     if (!settings || status)
     {
         LL_WARNS("ENVDAYEDIT") << "Could not load asset " << asset_id << " into frame. status=" << status << LL_ENDL;
         return;
     }
 
-    mEditDay->setSettingsAtKeyframe(settings, frame, track);
-    reblendSettings();
-    synchronizeTabs();
+    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
+    LLInventoryItem *inv_item(nullptr);
+
+    if (picker)
+    {
+        inv_item = picker->findItem(asset_id, false, false);
+    }
+
+    if (inv_item)
+    {
+        if (mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+        {
+            if (!inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+            {
+                LLSD args;
+
+                // create and show confirmation textbox
+                LLNotificationsUtil::add("SettingsMakeNoTrans", args, LLSD(),
+                    [this, cb](const LLSD&notif, const LLSD&resp)
+                    {
+                        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+                        if (opt == 0)
+                        {
+                            mMakeNoTrans = true;
+                            mEditDay->setFlag(LLSettingsBase::FLAG_NOTRANS);
+                            cb();
+                        }
+                    });
+                return;
+            }
+        }
+
+    }
+    
+    cb();
 }
