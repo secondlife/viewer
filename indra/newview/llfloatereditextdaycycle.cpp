@@ -195,11 +195,28 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs"); 
     S32 tab_count = tab_container->getTabCount();
 
+    LLSettingsEditPanel *panel = nullptr;
     for (S32 idx = 0; idx < tab_count; ++idx)
     {
-        LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
+        panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
         if (panel)
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
+    }
+
+    panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
+    if (panel)
+    {
+        if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
+        {
+            panel->setEnabled(true);
+            panel->setAllChildrenEnabled(true);
+        }
+        else
+        {
+            panel->setEnabled(false);
+            panel->setAllChildrenEnabled(false);
+            panel->setVisible(false);
+        }
     }
 
     tab_container = mWaterTabLayoutContainer->getChild<LLTabContainer>("water_tabs");
@@ -833,6 +850,7 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
         }
         else
         {
+            panel->setEnabled(false);
             panel->setVisible(false);
         }
     }
@@ -875,8 +893,17 @@ void LLFloaterEditExtDayCycle::setSkyTabsEnabled(BOOL enable)
     panel = dynamic_cast<LLPanelSettingsSkyDensityTab*>(tab_container->getChildView("advanced_atmo_panel"));
     if (panel)
     {
-        panel->setEnabled(enable);
-        panel->setAllChildrenEnabled(enable);
+        if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
+        {
+            panel->setEnabled(enable);
+            panel->setAllChildrenEnabled(enable);
+        }
+        else
+        {
+            panel->setEnabled(false);
+            panel->setAllChildrenEnabled(false);
+            panel->setVisible(false);
+        }
     }
 }
 
