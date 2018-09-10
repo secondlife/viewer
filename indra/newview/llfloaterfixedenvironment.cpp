@@ -55,6 +55,8 @@
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
 
+#pragma optimize("", off)
+
 extern LLControlGroup gSavedSettings;
 
 namespace

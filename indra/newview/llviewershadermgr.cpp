@@ -2139,7 +2139,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
         gDeferredWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+        if (mVertexShaderLevel[SHADER_WINDLIGHT] > 1)
         {
             gDeferredWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
         }
@@ -3537,13 +3537,13 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		return TRUE;
 	}
 
-    if (mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+    if (mVertexShaderLevel[SHADER_WINDLIGHT] > 1)
     {
         // Prepare precomputed atmospherics textures using libatmosphere
         LLAtmosphere::initClass();
     }
 
-	if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+	if (success)
 	{
 		gWLSkyProgram.mName = "Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
@@ -3567,7 +3567,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		success = gWLCloudProgram.createShader(NULL, NULL);
 	}
 
-    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+    if (success)
 	{
 		gWLSunProgram.mName = "Windlight Sun Program";
 		gWLSunProgram.mShaderFiles.clear();
@@ -3585,7 +3585,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		success = gWLSunProgram.createShader(NULL, NULL);
 	}
 
-    if (success && (mVertexShaderLevel[SHADER_WINDLIGHT] < 3))
+    if (success)
 	{
 		gWLMoonProgram.mName = "Windlight Moon Program";
 		gWLMoonProgram.mShaderFiles.clear();

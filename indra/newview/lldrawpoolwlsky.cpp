@@ -163,7 +163,7 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 
 void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
-    if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders() && gAtmosphere)
+    if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
     {
 		sky_shader->bind();
 
@@ -192,7 +192,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
         renderFsSky(camPosLocal, camHeightLocal, sky_shader);
-
+        
 		sky_shader->unbind();
 	}
 }
@@ -497,18 +497,22 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     if (gPipeline.canUseWindLightShaders())
     {
-        if (gPipeline.useAdvancedAtmospherics())
         {
-	        renderSkyHazeDeferred(origin, camHeightLocal);
-            renderHeavenlyBodies();
-        }
-        else
-        {
-            // Disable depth-test for sky, but re-enable depth writes for the cloud
-            // rendering below so the cloud shader can write out depth for the stars to test against
             LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-            renderSkyHaze(origin, camHeightLocal);   
-		    renderHeavenlyBodies();
+
+            if (gPipeline.useAdvancedAtmospherics())
+            {
+                //LLGLSquashToFarClip far_clip(get_current_projection());
+	            renderSkyHazeDeferred(origin, camHeightLocal);
+            }
+            else
+            {
+                // Disable depth-test for sky, but re-enable depth writes for the cloud
+                // rendering below so the cloud shader can write out depth for the stars to test against            
+                renderSkyHaze(origin, camHeightLocal);   
+		    
+            }
+            renderHeavenlyBodies();
         }
         renderSkyClouds(origin, camHeightLocal);
     }    

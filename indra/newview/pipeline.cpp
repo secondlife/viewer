@@ -1048,7 +1048,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
 	WindLightUseAtmosShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 	RenderDeferred = gSavedSettings.getBOOL("RenderDeferred");
-    sUseAdvancedAtmospherics = gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
+    sUseAdvancedAtmospherics = WindLightUseAtmosShaders && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
 	RenderDeferredSunWash = gSavedSettings.getF32("RenderDeferredSunWash");
 	RenderFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
