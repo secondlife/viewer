@@ -871,9 +871,6 @@ class Windows_x86_64_Manifest(WindowsManifest):
 class DarwinManifest(ViewerManifest):
     build_data_json_platform = 'mac'
 
-    def app_bundle(self):
-        return self.app_name() + ".app"
-
     def finish_build_data_dict(self, build_data_dict):
         build_data_dict.update({'Bundle Id':self.args['bundleid']})
         return build_data_dict
@@ -884,10 +881,7 @@ class DarwinManifest(ViewerManifest):
 
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
-        # Second Life.app is what CMake / Xcode builds
-        # self.app_bundle() is what we ultimately expect to sign and package
-        self.path(os.path.join(self.args['configuration'], "Second Life.app"),
-                  dst=self.app_bundle())
+        self.path(os.path.join(self.args['configuration'], "Second Life.app"), dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -935,6 +929,8 @@ class DarwinManifest(ViewerManifest):
 
                 with self.prefix(src=pkgdir,dst=""):
                     self.path("ca-bundle.crt")
+
+                self.path("SecondLife.nib")
 
                 # Translations
                 self.path("English.lproj/language.txt")
@@ -1184,6 +1180,8 @@ class DarwinManifest(ViewerManifest):
 
             # Copy everything in to the mounted .dmg
 
+            app_name = self.app_name()
+
             # Hack:
             # Because there is no easy way to coerce the Finder into positioning
             # the app bundle in the same place with different app names, we are
@@ -1197,7 +1195,7 @@ class DarwinManifest(ViewerManifest):
             if not os.path.exists (self.src_path_of(dmg_template)):
                 dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
 
-            for s,d in {self.get_dst_prefix(): self.app_bundle(),
+            for s,d in {self.get_dst_prefix():app_name + ".app",
                         os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
                         os.path.join(dmg_template, "background.jpg"): "background.jpg",
                         os.path.join(dmg_template, "_DS_Store"): ".DS_Store"}.items():
@@ -1240,7 +1238,7 @@ class DarwinManifest(ViewerManifest):
             # the signature are preserved; moving the files using python will leave them behind
             # and invalidate the signatures.
             if 'signature' in self.args:
-                app_in_dmg=os.path.join(volpath,self.app_bundle())
+                app_in_dmg=os.path.join(volpath,self.app_name()+".app")
                 print "Attempting to sign '%s'" % app_in_dmg
                 identity = self.args['signature']
                 if identity == '':
@@ -1294,6 +1292,9 @@ class DarwinManifest(ViewerManifest):
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                                 raise
                     self.run_command(['spctl', '-a', '-texec', '-vv', app_in_dmg])
+
+            imagename="SecondLife_" + '_'.join(self.args['version'])
+
 
         finally:
             # Unmount the image even if exceptions from any of the above 
