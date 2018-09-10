@@ -74,6 +74,18 @@ void LLControlAvatar::initInstance()
 
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
 {
+
+    F32 max_legal_offset = MAX_LEGAL_OFFSET;
+    if (gSavedSettings.getControl("AnimatedObjectsMaxLegalOffset"))
+    {
+        max_legal_offset = gSavedSettings.getF32("AnimatedObjectsMaxLegalOffset");
+    }
+    F32 max_legal_size = MAX_LEGAL_SIZE;
+    if (gSavedSettings.getControl("AnimatedObjectsMaxLegalSize"))
+    {
+        max_legal_size = gSavedSettings.getF32("AnimatedObjectsMaxLegalSize");
+    }
+    
     new_pos_fixup = LLVector3();
     new_scale_fixup = 1.0f;
     LLVector3 vol_pos = mRootVolp->getRenderPosition();
@@ -90,16 +102,16 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
         const LLVector3 *extents = getLastAnimExtents();
         LLVector3 box_dims = extents[1]-extents[0];
         F32 max_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
-        LLVector3 pos_box_offset = point_to_box_offset(vol_pos, getLastAnimExtents());
+        LLVector3 pos_box_offset = point_to_box_offset(vol_pos, extents);
         F32 offset_dist = pos_box_offset.length();
-        if (offset_dist > MAX_LEGAL_OFFSET)
+        if (offset_dist > max_legal_offset)
         {
-            F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
+            F32 target_dist = (offset_dist - max_legal_offset);
             new_pos_fixup = mPositionConstraintFixup + (target_dist/offset_dist)*pos_box_offset;
             LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
                                       << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
         }
-        else if (offset_dist < MAX_LEGAL_OFFSET-1 && mPositionConstraintFixup.length()>0.01f)
+        else if (offset_dist < max_legal_offset-1 && mPositionConstraintFixup.length()>0.01f)
         {
             new_pos_fixup = mPositionConstraintFixup * 0.9;
             LL_DEBUGS("ConstraintFix") << getFullname() << " pos fixup reduced " 
@@ -109,9 +121,9 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
         {
             new_pos_fixup = mPositionConstraintFixup;
         }
-        if (max_size/mScaleConstraintFixup > MAX_LEGAL_SIZE)
+        if (max_size/mScaleConstraintFixup > max_legal_size)
         {
-            new_scale_fixup = mScaleConstraintFixup*MAX_LEGAL_SIZE/max_size;
+            new_scale_fixup = mScaleConstraintFixup*max_legal_size/max_size;
             LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, max_size " << max_size << " fixup " 
                                       << mScaleConstraintFixup << " -> " << new_scale_fixup << LL_ENDL;
         }

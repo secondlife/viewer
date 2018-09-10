@@ -524,11 +524,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="process SL animations")
     parser.add_argument("--verbose", help="verbose flag", action="store_true")
-    parser.add_argument("--dump", help="dump to specified file")
+    parser.add_argument("--dump", help="dump to stdout", action="store_true")
     parser.add_argument("--rot", help="specify sequence of rotations", type=float_triple, nargs="+")
-    parser.add_argument("--rand_pos", help="request random positions", action="store_true")
+    parser.add_argument("--rand_pos", help="request random positions within specified scale", type=float)
     parser.add_argument("--reset_pos", help="request original positions", action="store_true")
     parser.add_argument("--pos", help="specify sequence of positions", type=float_triple, nargs="+")
+    parser.add_argument("--duration", help="specify duration", type=float)
+    parser.add_argument("--loop_in", help="specify loop in time", type=float)
+    parser.add_argument("--loop_out", help="specify loop out time", type=float)
     parser.add_argument("--num_pos", help="number of positions to create", type=int, default=2)
     parser.add_argument("--delete_joints", help="specify joints to be deleted", nargs="+")
     parser.add_argument("--joints", help="specify joints to be added or modified", nargs="+")
@@ -572,15 +575,21 @@ if __name__ == "__main__":
             for name in joints:
                 anim.add_joint(name,0)
         if args.delete_joints:
-            for name in args.delete_joints:
+            del_joints = resolve_joints(args.delete_joints, skel_tree, lad_tree)
+            if args.verbose:
+                print "delete_joints resolved to",del_joints
+            for name in del_joints:
                 anim.delete_joint(name)
+                joints.remove(name)
         if joints and args.rot:
             anim.add_rot(joints, args.rot)
         if joints and args.pos:
             anim.add_pos(joints, args.pos)
-        if joints and args.rand_pos:
+        print "joints ",joints,"rand_pos",args.rand_pos,"num_pos",args.num_pos
+        if joints and args.rand_pos is not None:
+            print "rand_pos",args.rand_pos
             for joint in joints:
-                pos_array = list(tuple(random.uniform(-1,1) for i in xrange(3)) for j in xrange(args.num_pos))
+                pos_array = list(tuple(random.uniform(-args.rand_pos,args.rand_pos) for i in xrange(3)) for j in xrange(args.num_pos))
                 pos_array.append(pos_array[0])
                 anim.add_pos([joint], pos_array)
         if joints and args.reset_pos:
@@ -605,8 +614,17 @@ if __name__ == "__main__":
             print "set joint priority",args.joint_priority
             for joint in anim.joints:
                 joint.joint_priority = args.joint_priority
+        if args.duration is not None:
+            print "set duration",args.duration
+            anim.duration = args.duration
+        if args.loop_in is not None:
+            print "set loop_in",args.loop_in
+            anim.loop_in_point = args.loop_in
+        if args.loop_out is not None:
+            print "set loop_out",args.loop_out
+            anim.loop_out_point = args.loop_out
         if args.dump:
-            anim.dump(args.dump)
+            anim.dump("-")
         if args.summary:
             anim.summary()
         if args.outfilename:

@@ -2237,6 +2237,28 @@
     <key>Value</key>
     <real>1.00</real>
   </map>
+  <key>AnimatedObjectsMaxLegalOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Max visual offset between object position and rendered position</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>3.0</real>
+  </map>
+  <key>AnimatedObjectsMaxLegalSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Max bounding box size for animated object's rendered position</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>64.0</real>
+  </map>
   <key>AvatarBoundingBoxComplexity</key>
   <map>
     <key>Comment</key>
