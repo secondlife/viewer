@@ -324,8 +324,6 @@ void LLVOWLSky::drawFsSky(void)
 		updateGeometry(mDrawable);
 	}
 
-    //LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
-    LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE, GL_ALWAYS);
     LLGLDisable disable_blend(GL_BLEND);
 
 	mFsSkyVerts->setBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK);
