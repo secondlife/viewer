@@ -384,7 +384,8 @@ void LLPanelEnvironmentInfo::onBtnEdit()
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
     LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION)
-        (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH,  mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS)
+            (LLFloaterEditExtDayCycle::KEY_CANMOD,      LLSD::Boolean(true)));
 
     dayeditor->openFloater(params);
     if (mCurrentEnvironment->mDayCycle)
