@@ -166,6 +166,8 @@ private:
     void                        setDirtyFlag()      { mIsDirty = true; }
     virtual void                clearDirtyFlag();
 
+    bool                        isRemovingFrameAllowed();
+
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;
     U32                         mCurrentTrack;

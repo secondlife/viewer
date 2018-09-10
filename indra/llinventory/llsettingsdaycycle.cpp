@@ -115,6 +115,7 @@ const LLSettingsDay::Seconds LLSettingsDay::DEFAULT_DAYOFFSET(57600);  // +16 ho
 const LLSettingsDay::Seconds LLSettingsDay::MAXIMUM_DAYOFFSET(86400);  // 24 hours
 
 const S32 LLSettingsDay::TRACK_WATER(0);   // water track is 0
+const S32 LLSettingsDay::TRACK_GROUND_LEVEL(1);
 const S32 LLSettingsDay::TRACK_MAX(5);     // 5 tracks, 4 skys, 1 water
 const S32 LLSettingsDay::FRAME_MAX(56);
 

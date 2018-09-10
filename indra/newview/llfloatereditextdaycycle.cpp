@@ -842,7 +842,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
     mAddFrameButton->setEnabled(true && mCanMod);
-    mDeleteFrameButton->setEnabled(true && mCanMod);
+    mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -1195,6 +1195,18 @@ void LLFloaterEditExtDayCycle::doApplyCommit()
         mCommitSignal(mEditDay->buildClone());
 
         closeFloater();
+    }
+}
+
+bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
+{
+    if (mCurrentTrack <= LLSettingsDay::TRACK_GROUND_LEVEL)
+    {
+        return (mSliderKeyMap.size() > 1);
+    }
+    else
+    {
+        return (mSliderKeyMap.size() > 0);
     }
 }
 

@@ -60,6 +60,7 @@ public:
     static const Seconds MAXIMUM_DAYOFFSET;
 
     static const S32     TRACK_WATER;
+    static const S32     TRACK_GROUND_LEVEL;
     static const S32     TRACK_MAX;
     static const S32     FRAME_MAX;
 
