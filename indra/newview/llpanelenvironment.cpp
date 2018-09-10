@@ -141,6 +141,7 @@ void LLPanelEnvironmentInfo::refresh()
         return;
 
     setControlsEnabled(canEdit());
+
     if (!mCurrentEnvironment)
     {
         return;
@@ -240,12 +241,37 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater(bool create)
 
         if (!editor)
             return nullptr;
+        mEditFloater = editor->getHandle();
     }
 
     if (editor && !mCommitConnection.connected())
         mCommitConnection = editor->setEditCommitSignal([this](LLSettingsDay::ptr_t pday) { onEditCommited(pday); });
 
     return editor;
+}
+
+
+void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv)
+{
+    LLFloaterEditExtDayCycle *dayeditor(getEditFloater(false));
+
+    if (!dayeditor)
+        return;
+
+    if (!nextenv || !nextenv->mDayCycle)
+    {
+        if (mCommitConnection.connected())
+            mCommitConnection.disconnect();
+
+        if (dayeditor->isDirty())
+            dayeditor->refresh();
+        else
+            dayeditor->closeFloater();
+    }
+    else
+    {
+        /*TODO: Swap in new day to edit?*/
+    }
 }
 
 void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
@@ -272,6 +298,7 @@ void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(!is_unavailable);
     getChild<LLUICtrl>(PNL_DISABLED)->setVisible(is_unavailable);
 
+    updateEditFloater(mCurrentEnvironment);
 }
 
 void LLPanelEnvironmentInfo::setApplyProgress(bool started)
