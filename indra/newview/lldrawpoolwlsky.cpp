@@ -350,10 +350,11 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		
-		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getCloudNoiseTex());
-        gGL.getTexUnit(1)->bind(gSky.mVOSkyp->getCloudNoiseTexNext());
-
 		cloud_shader->bind();
+
+        cloud_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
+        cloud_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
+
         F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
         cloud_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 

@@ -160,49 +160,45 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 	LLStrider<LLVector2>	texCoords;
 	LLStrider<U16>			indices;
 
-    if (gPipeline.useAdvancedAtmospherics())
+    if (mFsSkyVerts.isNull())
     {
-        if (mFsSkyVerts.isNull())
-        {
-            mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+        mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 
-            if (!mFsSkyVerts->allocateBuffer(4, 6, TRUE))
-		    {
-			    LL_WARNS() << "Failed to allocate Vertex Buffer on full screen sky update" << LL_ENDL;
-		    }
+        if (!mFsSkyVerts->allocateBuffer(4, 6, TRUE))
+		{
+			LL_WARNS() << "Failed to allocate Vertex Buffer on full screen sky update" << LL_ENDL;
+		}
 
-		    BOOL success = mFsSkyVerts->getVertexStrider(vertices)
-			            && mFsSkyVerts->getTexCoord0Strider(texCoords)
-			            && mFsSkyVerts->getIndexStrider(indices);
+		BOOL success = mFsSkyVerts->getVertexStrider(vertices)
+			        && mFsSkyVerts->getTexCoord0Strider(texCoords)
+			        && mFsSkyVerts->getIndexStrider(indices);
 
-		    if(!success) 
-		    {
-			    LL_ERRS() << "Failed updating WindLight fullscreen sky geometry." << LL_ENDL;
-		    }
+		if(!success) 
+		{
+			LL_ERRS() << "Failed updating WindLight fullscreen sky geometry." << LL_ENDL;
+		}
 
-            *vertices++ = LLVector3(-1.0f, -1.0f, 0.0f);
-            *vertices++ = LLVector3( 1.0f, -1.0f, 0.0f);
-            *vertices++ = LLVector3(-1.0f,  1.0f, 0.0f);
-            *vertices++ = LLVector3( 1.0f,  1.0f, 0.0f);
+        *vertices++ = LLVector3(-1.0f, -1.0f, 0.0f);
+        *vertices++ = LLVector3( 1.0f, -1.0f, 0.0f);
+        *vertices++ = LLVector3(-1.0f,  1.0f, 0.0f);
+        *vertices++ = LLVector3( 1.0f,  1.0f, 0.0f);
 
-		    *texCoords++ = LLVector2(0.0f, 0.0f);
-            *texCoords++ = LLVector2(1.0f, 0.0f);
-            *texCoords++ = LLVector2(0.0f, 1.0f);
-            *texCoords++ = LLVector2(1.0f, 1.0f);
+		*texCoords++ = LLVector2(0.0f, 0.0f);
+        *texCoords++ = LLVector2(1.0f, 0.0f);
+        *texCoords++ = LLVector2(0.0f, 1.0f);
+        *texCoords++ = LLVector2(1.0f, 1.0f);
 
-		    *indices++ = 0;
-		    *indices++ = 1;
-		    *indices++ = 2;
-            *indices++ = 1;
-		    *indices++ = 3;
-		    *indices++ = 2;
+		*indices++ = 0;
+		*indices++ = 1;
+		*indices++ = 2;
+        *indices++ = 1;
+		*indices++ = 3;
+		*indices++ = 2;
 
-            mFsSkyVerts->flush();
-        }
-
-        return TRUE;
+        mFsSkyVerts->flush();
     }
 
+    if(mFanVerts.isNull())
 	{
 		mFanVerts = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 		if (!mFanVerts->allocateBuffer(getFanNumVerts(), getFanNumIndices(), TRUE))
