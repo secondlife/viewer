@@ -62,8 +62,6 @@
 #include "llenvironment.h"
 #include "lltrans.h"
 
-extern LLControlGroup gSavedSettings;
-
 //=========================================================================
 namespace {
     const std::string track_tabs[] = {
@@ -116,6 +114,7 @@ namespace {
 const std::string LLFloaterEditExtDayCycle::KEY_INVENTORY_ID("inventory_id");
 const std::string LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT("edit_context");
 const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
+const std::string LLFloaterEditExtDayCycle::KEY_CANMOD("canmod");
 
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_INVENTORY("inventory");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
@@ -258,6 +257,11 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
             mEditContext = CONTEXT_PARCEL;
         else if (context == VALUE_CONTEXT_REGION)
             mEditContext = CONTEXT_REGION;
+    }
+
+    if (key.has(KEY_CANMOD))
+    {
+        mCanMod = key[KEY_CANMOD].asBoolean();
     }
 
     if (mEditContext == CONTEXT_UNKNOWN)
@@ -891,7 +895,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
     mAddFrameButton->setEnabled(true && mCanMod);
-    mDeleteFrameButton->setEnabled(true && mCanMod);
+    mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()

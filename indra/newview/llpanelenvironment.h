@@ -121,6 +121,7 @@ protected:
 
     LLFloaterSettingsPicker *   getSettingsPicker();
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
+    void                        updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv);
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
     S32                                     mCurrentParcelId;
