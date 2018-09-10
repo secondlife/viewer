@@ -62,6 +62,8 @@
 #include "llenvironment.h"
 #include "lltrans.h"
 
+extern LLControlGroup gSavedSettings;
+
 //=========================================================================
 namespace {
     const std::string track_tabs[] = {
