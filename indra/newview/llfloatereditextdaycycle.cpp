@@ -62,8 +62,6 @@
 #include "llenvironment.h"
 #include "lltrans.h"
 
-#pragma optimize("", off)
-
 extern LLControlGroup gSavedSettings;
 
 //=========================================================================

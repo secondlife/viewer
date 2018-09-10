@@ -55,7 +55,7 @@ void main()
     vec3 view_ray = (inv_modelview * vec4(view_pos.xyz, 0.0f)).xyz;
 
     vec3 view_direction = normalize(view_ray);
-    vec3 sun_direction = normalize(sun_dir);
+    vec3 sun_direction  = normalize(sun_dir);
 
     vec3 camPos = (camPosLocal / 1000.0f) + vec3(0, 0, 6360.0f);
     vec3 transmittance;
@@ -63,15 +63,20 @@ void main()
     vec3 solar_luminance = transmittance * GetSolarLuminance();
 
     // If the view ray intersects the Sun, add the Sun radiance.
-    if (dot(view_direction, sun_direction) >= sun_size)
+    float s = dot(view_direction, sun_direction);
+
+    // cheesy solar disc...
+    if (s >= (sun_size * 0.999))
     {
-        radiance_sun += solar_luminance;
+        radiance_sun += pow(smoothstep(0.0, 1.3, (s - (sun_size * 0.9))), 2.0) * solar_luminance;
     }
+    s = smoothstep(0.9, 1.0, s) * 16.0f;
 
     vec3 color = vec3(1.0) - exp(-radiance_sun * 0.0001);
+
     color = pow(color, vec3(1.0 / 2.2));
 
-    frag_data[0] = vec4(color, 1.0);
+    frag_data[0] = vec4(color, 1.0 + s);
     frag_data[1] = vec4(0.0);
     frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
 }
