@@ -1296,7 +1296,7 @@ class DarwinManifest(ViewerManifest):
                             else:
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                                 raise
-                    self.run_command(['spctl', '-a', '-texec', '-vv', app_in_dmg])
+                    self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
 
             imagename="SecondLife_" + '_'.join(self.args['version'])
 
