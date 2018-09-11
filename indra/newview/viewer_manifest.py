@@ -1238,11 +1238,6 @@ class DarwinManifest(ViewerManifest):
             # the signature are preserved; moving the files using python will leave them behind
             # and invalidate the signatures.
             if 'signature' in self.args:
-                print 72*'='
-                print 'In {}:'.format(volpath)
-                for f in os.listdir(volpath):
-                    print '  {}'.format(f)
-                print 72*'='
                 app_in_dmg=os.path.join(volpath,self.app_name()+".app")
                 print "Attempting to sign '%s'" % app_in_dmg
                 identity = self.args['signature']
@@ -1296,10 +1291,35 @@ class DarwinManifest(ViewerManifest):
                             else:
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                                 raise
+                    print 72*'='
+                    import stat
+                    print app_in_dmg
+                    # Second Life.app
+                    for sub0 in os.listdir(app_in_dmg):
+                        print '--{}'.format(sub0)
+                        path0 = os.path.join(app_in_dmg, sub0)
+                        if os.path.isfile(path0):
+                            # shouldn't be any file here
+                            with open(path0) as inf:
+                                for line in inf:
+                                    print '  {}'.format(line.rstrip())
+                        elif os.path.isdir(path0):
+                            # Contents
+                            for sub1 in os.listdir(path0):
+                                print '----{}'.format(sub1)
+                                path1 = os.path.join(path0, sub1)
+                                if os.path.isfile(path1):
+                                    # Info.plist, PkgInfo
+                                    with open(path1) as inf:
+                                        for line in inf:
+                                            print '    {}'.format(line.rstrip())
+                                elif os.path.isdir(path1):
+                                    # Frameworks, MacOS, Resources
+                                    for sub2 in os.listdir(path1):
+                                        path2 = os.path.join(path1, sub2)
+                                        print '    {:04o} {}'.format(stat.S_IMODE(os.stat(path2).st_mode), sub2)
+                    print 72*'='
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
-
-            imagename="SecondLife_" + '_'.join(self.args['version'])
-
 
         finally:
             # Unmount the image even if exceptions from any of the above 
