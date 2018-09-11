@@ -29,10 +29,13 @@
 #include "llpaneleditsky.h"
 
 #include "llslider.h"
+#include "llsliderctrl.h"
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
 #include "llvirtualtrackball.h"
-
+#include "llsettingssky.h"
+#include "llenvironment.h"
+#include "llatmosphere.h"
 
 namespace
 {   
@@ -70,6 +73,25 @@ namespace
     const std::string   FIELD_SKY_MOON_IMAGE("moon_image");
     const std::string   FIELD_SKY_MOON_SCALE("moon_scale");
 
+    const std::string   FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL("rayleigh_exponential");
+    const std::string   FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE("rayleigh_exponential_scale");
+    const std::string   FIELD_SKY_DENSITY_RAYLEIGH_LINEAR("rayleigh_linear");
+    const std::string   FIELD_SKY_DENSITY_RAYLEIGH_CONSTANT("rayleigh_constant");
+    const std::string   FIELD_SKY_DENSITY_RAYLEIGH_MAX_ALTITUDE("rayleigh_max_altitude");
+
+    const std::string   FIELD_SKY_DENSITY_MIE_EXPONENTIAL("mie_exponential");
+    const std::string   FIELD_SKY_DENSITY_MIE_EXPONENTIAL_SCALE("mie_exponential_scale");
+    const std::string   FIELD_SKY_DENSITY_MIE_LINEAR("mie_linear");
+    const std::string   FIELD_SKY_DENSITY_MIE_CONSTANT("mie_constant");
+    const std::string   FIELD_SKY_DENSITY_MIE_ANISO("mie_aniso_factor");
+    const std::string   FIELD_SKY_DENSITY_MIE_MAX_ALTITUDE("mie_max_altitude");
+
+    const std::string   FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL("absorption_exponential");
+    const std::string   FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL_SCALE("absorption_exponential_scale");
+    const std::string   FIELD_SKY_DENSITY_ABSORPTION_LINEAR("absorption_linear");
+    const std::string   FIELD_SKY_DENSITY_ABSORPTION_CONSTANT("absorption_constant");
+    const std::string   FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE("absorption_max_altitude");
+
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
     const F32 SLIDER_SCALE_GLOW_R(20.0f);
@@ -81,6 +103,7 @@ namespace
 static LLPanelInjector<LLPanelSettingsSkyAtmosTab> t_settings_atmos("panel_settings_atmos");
 static LLPanelInjector<LLPanelSettingsSkyCloudTab> t_settings_cloud("panel_settings_cloud");
 static LLPanelInjector<LLPanelSettingsSkySunMoonTab> t_settings_sunmoon("panel_settings_sunmoon");
+static LLPanelInjector<LLPanelSettingsSkyDensityTab> t_settings_density("panel_settings_density");
 
 //==========================================================================
 LLPanelSettingsSky::LLPanelSettingsSky() :
@@ -488,4 +511,241 @@ void LLPanelSettingsSkySunMoonTab::onMoonScaleChanged()
     mSkySettings->setMoonScale((getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
+}
+
+ 
+LLPanelSettingsSkyDensityTab::LLPanelSettingsSkyDensityTab()
+{    
+}
+
+BOOL LLPanelSettingsSkyDensityTab::postBuild()
+{
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighExponentialChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighExponentialScaleChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_LINEAR)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighLinearChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_CONSTANT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighConstantChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_MAX_ALTITUDE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighMaxAltitudeChanged(); });
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMieExponentialChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMieExponentialScaleChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_LINEAR)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMieLinearChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_CONSTANT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMieConstantChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_ANISO)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMieAnisoFactorChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_MAX_ALTITUDE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMieMaxAltitudeChanged(); });
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionExponentialChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionExponentialScaleChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_LINEAR)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionLinearChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_CONSTANT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionConstantChanged(); });
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionMaxAltitudeChanged(); });
+
+    refresh();
+    return TRUE;
+}
+
+void LLPanelSettingsSkyDensityTab::setEnabled(BOOL enabled)
+{
+    LLPanelSettingsSky::setEnabled(enabled);
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_LINEAR)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_CONSTANT)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_MAX_ALTITUDE)->setEnabled(enabled);
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_LINEAR)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_CONSTANT)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_ANISO)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_MAX_ALTITUDE)->setEnabled(enabled);
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_LINEAR)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_CONSTANT)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setEnabled(enabled);
+}
+
+void LLPanelSettingsSkyDensityTab::refresh()
+{
+    if (!mSkySettings)
+    {
+        setAllChildrenEnabled(FALSE);
+        setEnabled(FALSE);
+        return;
+    }
+
+    setEnabled(TRUE);
+    setAllChildrenEnabled(TRUE);
+
+    // Get first (only) profile layer of each type for editing
+    LLSD rayleigh_config    = mSkySettings->getRayleighConfig();
+    LLSD mie_config         = mSkySettings->getMieConfig();
+    LLSD absorption_config  = mSkySettings->getAbsorptionConfig();
+
+    F32 rayleigh_exponential_term    = rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+    F32 rayleigh_exponential_scale   = rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+    F32 rayleigh_linear_term         = rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+    F32 rayleigh_constant_term       = rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
+    F32 rayleigh_max_alt             = rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+
+    F32 mie_exponential_term         = mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+    F32 mie_exponential_scale        = mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+    F32 mie_linear_term              = mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+    F32 mie_constant_term            = mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
+    F32 mie_aniso_factor             = mie_config[LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR].asReal();
+    F32 mie_max_alt                  = mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+
+    F32 absorption_exponential_term  = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+    F32 absorption_exponential_scale = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+    F32 absorption_linear_term       = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+    F32 absorption_constant_term     = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+    F32 absorption_max_alt           = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->setValue(rayleigh_exponential_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->setValue(rayleigh_exponential_scale);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_LINEAR)->setValue(rayleigh_linear_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_CONSTANT)->setValue(rayleigh_constant_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_MAX_ALTITUDE)->setValue(rayleigh_max_alt);
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL)->setValue(mie_exponential_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL_SCALE)->setValue(mie_exponential_scale);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_LINEAR)->setValue(mie_linear_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_CONSTANT)->setValue(mie_constant_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_ANISO)->setValue(mie_aniso_factor);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MIE_MAX_ALTITUDE)->setValue(mie_max_alt);
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL)->setValue(absorption_exponential_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL_SCALE)->setValue(absorption_exponential_scale);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_LINEAR)->setValue(absorption_linear_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_CONSTANT)->setValue(absorption_constant_term);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setValue(absorption_max_alt);
+}
+
+void LLPanelSettingsSkyDensityTab::updateProfile()
+{
+    F32 rayleigh_exponential_term    = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->getValueF32();
+    F32 rayleigh_exponential_scale   = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->getValueF32();
+    F32 rayleigh_linear_term         = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_RAYLEIGH_LINEAR)->getValueF32();
+    F32 rayleigh_constant_term       = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_RAYLEIGH_CONSTANT)->getValueF32();
+    F32 rayleigh_max_alt             = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_RAYLEIGH_MAX_ALTITUDE)->getValueF32();
+
+    F32 mie_exponential_term         = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL)->getValueF32();
+    F32 mie_exponential_scale        = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MIE_EXPONENTIAL_SCALE)->getValueF32();
+    F32 mie_linear_term              = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MIE_LINEAR)->getValueF32();
+    F32 mie_constant_term            = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MIE_CONSTANT)->getValueF32();
+    F32 mie_aniso_factor             = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MIE_ANISO)->getValueF32();
+    F32 mie_max_alt                  = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MIE_MAX_ALTITUDE)->getValueF32();
+
+    F32 absorption_exponential_term  = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL)->getValueF32();
+    F32 absorption_exponential_scale = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ABSORPTION_EXPONENTIAL_SCALE)->getValueF32();
+    F32 absorption_linear_term       = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ABSORPTION_LINEAR)->getValueF32();
+    F32 absorption_constant_term     = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ABSORPTION_CONSTANT)->getValueF32();
+    F32 absorption_max_alt           = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->getValueF32();
+
+    LLSD rayleigh_config    = LLSettingsSky::createSingleLayerDensityProfile(rayleigh_max_alt, rayleigh_exponential_term, rayleigh_exponential_scale, rayleigh_linear_term, rayleigh_constant_term);
+    LLSD mie_config         = LLSettingsSky::createSingleLayerDensityProfile(mie_max_alt, mie_exponential_term, mie_exponential_scale, mie_linear_term, mie_constant_term, mie_aniso_factor);
+    LLSD absorption_layer   = LLSettingsSky::createSingleLayerDensityProfile(absorption_max_alt, absorption_exponential_term, absorption_exponential_scale, absorption_linear_term, absorption_constant_term);
+
+    static LLSD absorption_layer_ozone = LLSettingsSky::createDensityProfileLayer(0.0f, 0.0f, 0.0f, -1.0f / 15000.0f, 8.0f / 3.0f);
+
+    LLSD absorption_config;
+    absorption_config.append(absorption_layer);
+    absorption_config.append(absorption_layer_ozone);
+
+    mSkySettings->setRayleighConfigs(rayleigh_config);
+    mSkySettings->setMieConfigs(mie_config);
+    mSkySettings->setAbsorptionConfigs(absorption_config);
+
+    mSkySettings->update();
+    setIsDirty();
+
+    if (gAtmosphere)
+    {
+        AtmosphericModelSettings atmospheric_settings;
+        LLEnvironment::getAtmosphericModelSettings(atmospheric_settings, mSkySettings);
+        gAtmosphere->configureAtmosphericModel(atmospheric_settings);
+    }
+}
+
+void LLPanelSettingsSkyDensityTab::onRayleighExponentialChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onRayleighExponentialScaleChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onRayleighLinearChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onRayleighConstantChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onRayleighMaxAltitudeChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onMieExponentialChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onMieExponentialScaleChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onMieLinearChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onMieConstantChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onMieAnisoFactorChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onMieMaxAltitudeChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onAbsorptionExponentialChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onAbsorptionExponentialScaleChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onAbsorptionLinearChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onAbsorptionConstantChanged()
+{
+    updateProfile();
+}
+
+void LLPanelSettingsSkyDensityTab::onAbsorptionMaxAltitudeChanged()
+{
+    updateProfile();
 }

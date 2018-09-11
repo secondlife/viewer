@@ -1241,15 +1241,9 @@ void LLRender::syncMatrices()
 			}
 
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))
-            {
-                glh::matrix4f ogl_to_cfr = copy_matrix((F32*)OGL_TO_CFR_ROTATION);
-                glh::matrix4f modelview  = ogl_to_cfr.inverse() * get_current_modelview();
-
-	            glh::matrix4f inv_modelview = modelview.inverse();
-	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, FALSE, inv_modelview.m);
+            {                
+	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, cached_inv_mdv.m); 
             }
-
-            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, cached_inv_mdv.m);
 
 			//update MVP matrix
 			mvp_done = true;

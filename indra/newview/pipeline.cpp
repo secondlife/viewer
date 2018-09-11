@@ -424,8 +424,7 @@ void LLPipeline::init()
 	gOctreeMinSize = gSavedSettings.getF32("OctreeMinimumNodeSize");
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
-	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
-	sUseAdvancedAtmospherics = gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
+	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");	
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
@@ -1049,6 +1048,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
 	WindLightUseAtmosShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 	RenderDeferred = gSavedSettings.getBOOL("RenderDeferred");
+    sUseAdvancedAtmospherics = WindLightUseAtmosShaders && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
 	RenderDeferredSunWash = gSavedSettings.getF32("RenderDeferredSunWash");
 	RenderFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
