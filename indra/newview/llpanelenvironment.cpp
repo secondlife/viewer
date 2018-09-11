@@ -93,6 +93,8 @@ const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
 // Because the OSX is Very cranky when I don't use a variable.
 const U32 ALTITUDE_SLIDER_COUNT = 3;
 
+#endif
+
 const std::string alt_sliders[] = {
     "sld1",
     "sld2",
@@ -105,7 +107,6 @@ const std::string alt_labels[] = {
     "alt3",
     "ground",
 };
-#endif
 
 //=========================================================================
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
