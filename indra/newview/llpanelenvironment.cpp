@@ -205,6 +205,10 @@ void LLPanelEnvironmentInfo::refresh()
    
     udpateApparentTimeOfDay();
 
+#if 1 
+    // hiding the controls until Rider can get the simulator code to adjust altitudes done.
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
+#else
     LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
     if (altitudes.size() > 0)
     {
@@ -216,6 +220,7 @@ void LLPanelEnvironmentInfo::refresh()
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx+1, idx, altitudes[idx+1]);
         }
     }
+#endif
 
 }
 
@@ -610,6 +615,11 @@ void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)
 
 void LLPanelEnvironmentInfo::onEditCommited(LLSettingsDay::ptr_t newday)
 {
+    if (!newday)
+    {
+        LL_WARNS("ENVPANEL") << "Editor committed an empty day. Do nothing." << LL_ENDL;
+        return;
+    }
     size_t newhash(newday->getHash());
     size_t oldhash((mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getHash() : 0);
 

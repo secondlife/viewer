@@ -484,24 +484,31 @@ BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_
 void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 {
     std::string ctrl_action = ctrl->getName();
+    LLSettingsDay::ptr_t dayclone = mEditDay->buildClone(); // create a compressed copy
+
+    if (!dayclone)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Unable to clone daycylce from editor." << LL_ENDL;
+        return;
+    }
 
     if (ctrl_action == ACTION_SAVE)
     {
-        doApplyUpdateInventory();
+        doApplyUpdateInventory(dayclone);
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {
-        doApplyCreateNewInventory();
+        doApplyCreateNewInventory(dayclone);
     }
     else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
         (ctrl_action == ACTION_APPLY_PARCEL) ||
         (ctrl_action == ACTION_APPLY_REGION))
     {
-        doApplyEnvironment(ctrl_action);
+        doApplyEnvironment(ctrl_action, dayclone);
     }
     else if (ctrl_action == ACTION_COMMIT)
     {
-        doApplyCommit();
+        doApplyCommit(dayclone);
     }
     else
     {
@@ -1186,31 +1193,30 @@ void LLFloaterEditExtDayCycle::reblendSettings()
     mWaterBlender->setPosition(position);    
 }
 
-void LLFloaterEditExtDayCycle::doApplyCreateNewInventory()
+void LLFloaterEditExtDayCycle::doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day)
 {
     // This method knows what sort of settings object to create.
     LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
 
-    // buildClone creates compressed copy
-    LLSettingsVOBase::createInventoryItem(mEditDay->buildClone(), parent_id, 
+    LLSettingsVOBase::createInventoryItem(day, parent_id, 
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
 }
 
-void LLFloaterEditExtDayCycle::doApplyUpdateInventory()
+void LLFloaterEditExtDayCycle::doApplyUpdateInventory(const LLSettingsDay::ptr_t &day)
 {
     if (mInventoryId.isNull())
-        LLSettingsVOBase::createInventoryItem(mEditDay->buildClone(), gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS),
+        LLSettingsVOBase::createInventoryItem(day, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS),
                 [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     else
-        LLSettingsVOBase::updateInventoryItem(mEditDay->buildClone(), mInventoryId,
+        LLSettingsVOBase::updateInventoryItem(day, mInventoryId,
                 [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
 }
 
-void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
+void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day)
 {
     if (where == ACTION_APPLY_LOCAL)
     {
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mEditDay->buildClone());
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, day);
     }
     else if (where == ACTION_APPLY_PARCEL)
     {
@@ -1229,11 +1235,11 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
             return;
         }
 
-        LLEnvironment::instance().updateParcel(parcel->getLocalID(), mEditDay->buildClone(), -1, -1);
+        LLEnvironment::instance().updateParcel(parcel->getLocalID(), day, -1, -1);
     }
     else if (where == ACTION_APPLY_REGION)
     {
-        LLEnvironment::instance().updateRegion(mEditDay->buildClone(), -1, -1);
+        LLEnvironment::instance().updateRegion(day, -1, -1);
     }
     else
     {
@@ -1243,11 +1249,11 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where)
 
 }
 
-void LLFloaterEditExtDayCycle::doApplyCommit()
+void LLFloaterEditExtDayCycle::doApplyCommit(LLSettingsDay::ptr_t day)
 {
     if (!mCommitSignal.empty())
     {
-        mCommitSignal(mEditDay->buildClone());
+        mCommitSignal(day);
 
         closeFloater();
     }

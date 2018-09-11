@@ -136,10 +136,10 @@ private:
     void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
 
     void                        doImportFromDisk();
-    void                        doApplyCreateNewInventory();
-    void                        doApplyUpdateInventory();
-    void                        doApplyEnvironment(const std::string &where);
-    void                        doApplyCommit();
+    void doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day);
+    void doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
+    void doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
+    void doApplyCommit(LLSettingsDay::ptr_t day);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
