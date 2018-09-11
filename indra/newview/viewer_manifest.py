@@ -880,8 +880,8 @@ class DarwinManifest(ViewerManifest):
         return True
 
     def construct(self):
-##      # copy over the build result (this is a no-op if run within the xcode script)
-##      self.path(os.path.join(self.args['configuration'], "Second Life.app"), dst="")
+        # copy over the build result (this is a no-op if run within the xcode script)
+        self.path(os.path.join(self.args['configuration'], "Second Life.app"), dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
