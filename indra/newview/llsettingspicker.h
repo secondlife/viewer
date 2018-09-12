@@ -98,7 +98,7 @@ private:
     void                    onButtonSelect();
 
 
-    LLView*				    mOwner;
+    LLHandle<LLView>        mOwnerHandle;
     std::string             mLabel;
     LLUUID				    mSettingAssetID; 
     LLUUID                  mDefaultSettingsAssetID;

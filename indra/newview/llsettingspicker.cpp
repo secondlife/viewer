@@ -59,13 +59,15 @@ namespace
 
 LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_asset_id, const std::string &label, const LLSD &params):
     LLFloater(params),
-    mOwner(owner),
+    mOwnerHandle(),
     mLabel(label),
     mActive(true),
     mContextConeOpacity(0.0f),
     mSettingAssetID(initial_asset_id),
     mImmediateFilterPermMask(PERM_NONE)
 {
+    mOwnerHandle = owner->getHandle();
+
     buildFromFile(FLOATER_DEFINITION_XML);
     setCanMinimize(FALSE);
 }
@@ -136,9 +138,10 @@ void LLFloaterSettingsPicker::onClose(bool app_quitting)
         return;
 
     mCloseSignal();
-    if (mOwner)
+    LLView *owner = mOwnerHandle.get();
+    if (owner)
     {
-        mOwner->setFocus(TRUE);
+        owner->setFocus(TRUE);
     }
 }
 
@@ -165,13 +168,14 @@ void LLFloaterSettingsPicker::setSettingsFilter(LLSettingsType::type_e type)
 
 void LLFloaterSettingsPicker::draw()
 {
-    if (mOwner)
+    LLView *owner = mOwnerHandle.get();
+    if (owner)
     {
         // draw cone of context pointing back to texture swatch	
         LLRect owner_rect;
-        mOwner->localRectToOtherView(mOwner->getLocalRect(), &owner_rect, this);
+        owner->localRectToOtherView(owner->getLocalRect(), &owner_rect, this);
         LLRect local_rect = getLocalRect();
-        if (gFocusMgr.childHasKeyboardFocus(this) && mOwner->isInVisibleChain() && mContextConeOpacity > 0.001f)
+        if (gFocusMgr.childHasKeyboardFocus(this) && owner->isInVisibleChain() && mContextConeOpacity > 0.001f)
         {
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
             LLGLEnable(GL_CULL_FACE);

@@ -125,7 +125,7 @@ protected:
 
     std::string                 getInventoryNameForAssetId(LLUUID asset_id);
 
-    LLFloaterSettingsPicker *   getSettingsPicker();
+    LLFloaterSettingsPicker *   getSettingsPicker(bool create = true);
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
     void                        updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv);
 

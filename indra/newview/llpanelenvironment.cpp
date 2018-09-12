@@ -147,6 +147,12 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
         gIdleCallbacks.addFunction(onIdlePlay, this);
     else
     {
+        LLFloaterSettingsPicker *picker = getSettingsPicker(false);
+        if (picker)
+        {
+            picker->closeFloater();
+        }
+
         gIdleCallbacks.deleteFunction(onIdlePlay, this);
         LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
         if (mCommitConnection.connected())
@@ -252,12 +258,12 @@ std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id)
     return name;
 }
 
-LLFloaterSettingsPicker *LLPanelEnvironmentInfo::getSettingsPicker()
+LLFloaterSettingsPicker * LLPanelEnvironmentInfo::getSettingsPicker(bool create)
 {
     LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mSettingsFloater.get());
 
     // Show the dialog
-    if (!picker)
+    if (!picker && create)
     {
         picker = new LLFloaterSettingsPicker(this,
             LLUUID::null, "SELECT SETTINGS");
