@@ -31,6 +31,9 @@
 #include <map>
 #include <vector>
 
+//fir CGSize
+#include <CoreGraphics/CGGeometry.h>
+
 typedef std::vector<std::pair<int, bool> > segment_t;
 
 typedef std::vector<int> segment_lengths;
@@ -101,11 +104,14 @@ void setResizeMode(bool oldresize, void* glview);
 NSWindowRef createNSWindow(int x, int y, int width, int height);
 
 #include <OpenGL/OpenGL.h>
+
 GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync);
 void glSwapBuffers(void* context);
 CGLContextObj getCGLContextObj(GLViewRef view);
 unsigned long getVramSize(GLViewRef view);
+float getDeviceUnitSize(GLViewRef view);
 void getContentViewBounds(NSWindowRef window, float* bounds);
+const CGSize & getDeviceContentViewSize(NSWindowRef window, GLViewRef view);
 void getWindowSize(NSWindowRef window, float* size);
 void setWindowSize(NSWindowRef window, int width, int height);
 void getCursorPos(NSWindowRef window, float* pos);

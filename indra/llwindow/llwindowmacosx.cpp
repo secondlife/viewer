@@ -845,7 +845,6 @@ BOOL LLWindowMacOSX::getPosition(LLCoordScreen *position)
 
 BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
 {
-	float rect[4];
 	S32 err = -1;
 
 	if(mFullscreen)
@@ -856,10 +855,10 @@ BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
 	}
 	else if(mWindow)
 	{
-		getContentViewBounds(mWindow, rect);
+		const CGSize & sz = getDeviceContentViewSize(mWindow, mGLView);
 
-		size->mX = rect[2];
-		size->mY = rect[3];
+		size->mX = sz.width;
+		size->mY = sz.height;
 	}
 	else
 	{
@@ -871,7 +870,6 @@ BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
 
 BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
 {
-	float rect[4];
 	S32 err = -1;
 	
 	if(mFullscreen)
@@ -882,10 +880,10 @@ BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
 	}
 	else if(mWindow)
 	{
-		getContentViewBounds(mWindow, rect);
+		const CGSize & sz = getDeviceContentViewSize(mWindow, mGLView);
 		
-		size->mX = rect[2];
-		size->mY = rect[3];
+		size->mX = sz.width;
+		size->mY = sz.height;
 	}
 	else
 	{
@@ -1124,8 +1122,9 @@ BOOL LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
 		cursor_point[1] += mCursorLastEventDeltaY;
 	}
 
-	position->mX = cursor_point[0];
-	position->mY = cursor_point[1];
+	float scale = getDeviceScaleFactor();
+	position->mX = cursor_point[0] * scale;
+	position->mY = cursor_point[1] * scale;
 
 	return TRUE;
 }
@@ -1318,8 +1317,9 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 		
 		convertScreenToWindow(mWindow, mouse_point);
 
-		to->mX = mouse_point[0];
-		to->mY = mouse_point[1];
+		float scale_factor = getDeviceScaleFactor();
+		to->mX = mouse_point[0] * scale_factor;
+		to->mY = mouse_point[1] * scale_factor;
 
 		return TRUE;
 	}
@@ -1334,10 +1334,12 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 
 		mouse_point[0] = from.mX;
 		mouse_point[1] = from.mY;
+		
 		convertWindowToScreen(mWindow, mouse_point);
 
-		to->mX = mouse_point[0];
-		to->mY = mouse_point[1];
+		float scale_factor = getDeviceScaleFactor();
+		to->mX = mouse_point[0] / scale_factor;
+		to->mY = mouse_point[1] / scale_factor;
 
 		return TRUE;
 	}
@@ -1889,6 +1891,11 @@ MASK LLWindowMacOSX::modifiersToMask(S16 modifiers)
 	if(modifiers & (MAC_CMD_KEY | MAC_CTRL_KEY)) { mask |= MASK_CONTROL; }
 	if(modifiers & MAC_ALT_KEY) { mask |= MASK_ALT; }
 	return mask;
+}
+
+F32 LLWindowMacOSX::getDeviceScaleFactor()
+{
+    return ::getDeviceUnitSize(mGLView);
 }
 
 #if LL_OS_DRAGDROP_ENABLED
