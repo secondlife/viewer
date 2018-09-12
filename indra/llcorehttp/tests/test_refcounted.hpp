@@ -30,6 +30,7 @@
 
 #include "test_allocator.h"
 
+#if WANT_TESTS_WITH_RACES_THAT_HANG
 using namespace LLCoreInt;
 
 namespace tut
@@ -152,5 +153,6 @@ namespace tut
 		ensure(mMemTotal == (GetMemTotal() - sizeof(RefCounted)));
 	}
 }
+#endif
 
 #endif	// TEST_LLCOREINT_REF_COUNTED_H_
