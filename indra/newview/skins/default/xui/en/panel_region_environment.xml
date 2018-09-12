@@ -235,8 +235,8 @@ No parcel is selected. Environmental settings are disabled.
                 <multi_slider
                     decimal_digits="0"
                     follows="bottom"
-                    height="120"
-                    width="10"
+                    height="123"
+                    width="17"
                     orientation="vertical"
                     increment="10"
                     initial_value="100"
@@ -246,22 +246,25 @@ No parcel is selected. Environmental settings are disabled.
                     top="20"
                     max_sliders="20"
                     name="sld_altitudes"
-                    show_text="false">
+                    show_text="false"
+                    thumb_image="Inv_SettingsSky"
+                    thumb_width="17"
+                    thumb_highlight_color="white">
                     <slider name="sld1" value="200"/>
                     <slider name="sld2" value="400"/>
                     <slider name="sld3" value="600"/>
                 </multi_slider>
                 <icon
                     follows="left|top"
-                    height="10"
-                    width="10"
-                    image_name="Rounded_Square"
+                    height="17"
+                    width="17"
+                    image_name="Inv_SettingsSky"
                     layout="topleft"
-                    name="camera_icon"
+                    name="icon_ground"
                     mouse_opaque="false"
                     visible="true"
                     left_delta="0"
-                    top_pad="-3"/>
+                    top_pad="-9"/>
                 <text
                         type="string"
                         length="1"
@@ -280,7 +283,7 @@ No parcel is selected. Environmental settings are disabled.
                         follows="left"
                         height="12"
                         layout="topleft"
-                        left="25"
+                        left="35"
                         top="30"
                         width="200"
                         name="alt1">
@@ -292,7 +295,7 @@ No parcel is selected. Environmental settings are disabled.
                         follows="left|top"
                         height="12"
                         layout="topleft"
-                        left="25"
+                        left="35"
                         top="40"
                         width="200"
                         name="alt2">
@@ -304,7 +307,7 @@ No parcel is selected. Environmental settings are disabled.
                         follows="left|top"
                         height="12"
                         layout="topleft"
-                        left="25"
+                        left="35"
                         top="50"
                         width="200"
                         name="alt3">

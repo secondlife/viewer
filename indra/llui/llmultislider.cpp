@@ -61,9 +61,11 @@ LLMultiSlider::Params::Params()
 	use_triangle("use_triangle", false),
 	track_color("track_color"),
 	thumb_disabled_color("thumb_disabled_color"),
+	thumb_highlight_color("thumb_highlight_color"),
 	thumb_outline_color("thumb_outline_color"),
 	thumb_center_color("thumb_center_color"),
 	thumb_center_selected_color("thumb_center_selected_color"),
+	thumb_image("thumb_image"),
 	triangle_color("triangle_color"),
 	mouse_down_callback("mouse_down_callback"),
 	mouse_up_callback("mouse_up_callback"),
@@ -133,6 +135,12 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 			addSlider(it->value);
 		}
 	}
+
+	if (p.thumb_image.isProvided())
+	{
+		mThumbImagep = LLUI::getUIImage(p.thumb_image());
+	}
+	mThumbHighlightColor = p.thumb_highlight_color.isProvided() ? p.thumb_highlight_color() : gFocusMgr.getFocusColor();
 }
 
 LLMultiSlider::~LLMultiSlider()
@@ -644,7 +652,7 @@ void LLMultiSlider::draw()
 				mTriangleColor.get() % opacity, TRUE);
 		}
 	}
-	else if (!thumb_imagep)
+	else if (!thumb_imagep && !mThumbImagep)
 	{
 		// draw all the thumbs
 		curSldrIt = mThumbRects.end();
@@ -674,15 +682,33 @@ void LLMultiSlider::draw()
 			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor.get() % opacity, FALSE);
 		}
 	}
-	else if( gFocusMgr.getMouseCapture() == this )
+	else
 	{
-		// draw drag start
-		thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
+		LLMouseHandler* capture = gFocusMgr.getMouseCapture();
+		if (capture == this)
+		{
+			// draw drag start (ghost)
+			if (mThumbImagep)
+			{
+				mThumbImagep->draw(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
+			}
+			else
+			{
+				thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
+			}
+		}
 
 		// draw the highlight
 		if (hasFocus() && !mCurSlider.empty())
 		{
-			thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+			if (mThumbImagep)
+			{
+				mThumbImagep->drawBorder(mThumbRects[mCurSlider], mThumbHighlightColor, gFocusMgr.getFocusFlashWidth());
+			}
+			else
+			{
+				thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+			}
 		}
 
 		// draw the thumbs
@@ -699,44 +725,35 @@ void LLMultiSlider::draw()
 			}
 			
 			// the draw command
-			thumb_imagep->drawSolid(mIt->second, curThumbColor);
+			if (mThumbImagep)
+			{
+				mThumbImagep->draw(mIt->second);
+			}
+			else if (capture == this)
+			{
+				thumb_imagep->drawSolid(mIt->second, curThumbColor);
+			}
+			else
+			{
+				thumb_imagep->drawSolid(mIt->second, curThumbColor % opacity);
+			}
 		}
 		
 		// draw cur slider last
 		if(curSldrIt != mThumbRects.end()) 
 		{
-			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get());
-		}
-		
-	}
-	else
-	{ 
-		// draw highlight
-		if (hasFocus() && !mCurSlider.empty())
-		{
-			thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
-		}
-
-		// draw thumbs
-		curSldrIt = mThumbRects.end();
-		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
-		{
-			
-			// choose the color
-			curThumbColor = mThumbCenterColor.get();
-			if(mIt->first == mCurSlider) 
+			if (mThumbImagep)
 			{
-				curSldrIt = mIt;
-				continue;
-				//curThumbColor = mThumbCenterSelectedColor;
-			}				
-			
-			thumb_imagep->drawSolid(mIt->second, curThumbColor % opacity);
-		}
-
-		if(curSldrIt != mThumbRects.end()) 
-		{
-			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get() % opacity);
+				mThumbImagep->draw(curSldrIt->second);
+			}
+			else if (capture == this)
+			{
+				thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get());
+			}
+			else
+			{
+				thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get() % opacity);
+			}
 		}
 	}
 

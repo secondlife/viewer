@@ -51,19 +51,22 @@ public:
 								text_width;
 		Optional<bool>			show_text,
 								can_edit_text;
-		Optional<S32>			decimal_digits;
+		Optional<S32>			decimal_digits,
+								thumb_width;
 		Optional<S32>			max_sliders;	
 		Optional<bool>			allow_overlap,
 								loop_overlap,
 								draw_track,
 								use_triangle;
 
-		Optional<std::string>	orientation;
+		Optional<std::string>	orientation,
+								thumb_image;
 
 		Optional<F32>			overlap_threshold;
 
 		Optional<LLUIColor>		text_color,
-								text_disabled_color;
+								text_disabled_color,
+								thumb_highlight_color;
 
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
