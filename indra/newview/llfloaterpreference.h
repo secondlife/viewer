@@ -244,6 +244,7 @@ private:
 	//for "Show my Favorite Landmarks at Login"
 	static void handleFavoritesOnLoginChanged(LLUICtrl* checkbox, const LLSD& value);
 
+	static void toggleMuteWhenMinimized();
 	typedef std::map<std::string, LLColor4> string_color_map_t;
 	string_color_map_t mSavedColors;
 

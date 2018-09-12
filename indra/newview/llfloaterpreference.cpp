@@ -2329,6 +2329,11 @@ BOOL LLPanelPreference::postBuild()
 		bool show_favorites_at_login = LLPanelLogin::getShowFavorites();
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setValue(show_favorites_at_login);
 	}
+	if (hasChild("mute_chb_label", TRUE))
+	{
+		getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
+		getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
+	}
 
 	//////////////////////PanelAdvanced ///////////////////
 	if (hasChild("modifier_combo", TRUE))
@@ -2436,6 +2441,12 @@ void LLPanelPreference::handleFavoritesOnLoginChanged(LLUICtrl* checkbox, const 
 			LLNotificationsUtil::add("FavoritesOnLogin");
 		}
 	}
+}
+
+void LLPanelPreference::toggleMuteWhenMinimized()
+{
+	std::string mute("MuteWhenMinimized");
+	gSavedSettings.setBOOL(mute, !gSavedSettings.getBOOL(mute));
 }
 
 void LLPanelPreference::cancel()
