@@ -264,6 +264,10 @@ extern LLGLSLShader			gHighlightProgram;
 extern LLGLSLShader			gHighlightNormalProgram;
 extern LLGLSLShader			gHighlightSpecularProgram;
 
+extern LLGLSLShader			gDeferredHighlightProgram;
+extern LLGLSLShader			gDeferredHighlightNormalProgram;
+extern LLGLSLShader			gDeferredHighlightSpecularProgram;
+
 extern LLGLSLShader			gPathfindingProgram;
 extern LLGLSLShader			gPathfindingNoNormalsProgram;
 
