@@ -490,7 +490,7 @@ class WindowsManifest(ViewerManifest):
 
             with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
                 # include the compiled launcher scripts so that it gets included in the file_list
-                self.path('SL_Launcher.exe')
+                self.path('updater.exe')
                 #IUM is not normally executed directly, just imported.  No exe needed.
                 self.path("InstallerUserMessage.py")
 
@@ -768,7 +768,7 @@ class WindowsManifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
         
         version_vars = """
-        !define INSTEXE "SL_Launcher.exe"
+        !define INSTEXE "updater.exe"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
@@ -812,7 +812,7 @@ class WindowsManifest(ViewerManifest):
         # note that the enclosing setup exe is signed later, after the makensis makes it.
         # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
         for exe in (
-            "SL_Launcher.exe",
+            "updater.exe",
             ):
             self.sign(exe)
             
@@ -1376,7 +1376,6 @@ class LinuxManifest(ViewerManifest):
             self.path2basename("../llplugin/slplugin", "SLPlugin") 
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             with self.prefix(src="../viewer_components/manager", dst=""):
-                self.path("SL_Launcher")
                 self.path("*.py")
             with self.prefix(src=os.path.join("lib", "python", "llbase"), dst="llbase"):
                 self.path("*.py")
@@ -1455,7 +1454,7 @@ class LinuxManifest(ViewerManifest):
             self.run_command(
                 ["find"] +
                 [os.path.join(self.get_dst_prefix(), dir) for dir in ('bin', 'lib')] +
-                ['-type', 'f', '!', '-name', '*.py', '!', '-name', 'SL_Launcher',
+                ['-type', 'f', '!', '-name', '*.py',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
 
 class Linux_i686_Manifest(LinuxManifest):
