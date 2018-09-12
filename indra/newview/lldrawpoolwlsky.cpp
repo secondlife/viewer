@@ -163,7 +163,7 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 
 void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
-    if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders())
+    if (gPipeline.useAdvancedAtmospherics() && gPipeline.canUseWindLightShaders() && gAtmosphere)
     {
 		sky_shader->bind();
 
