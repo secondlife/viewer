@@ -115,6 +115,10 @@ public:
 	F32				getMinValue() const { return mMultiSlider->getMinValue(); }
 	F32				getMaxValue() const { return mMultiSlider->getMaxValue(); }
 
+	S32				getMaxNumSliders() { return mMultiSlider->getMaxNumSliders(); }
+	S32				getCurNumSliders() { return mMultiSlider->getCurNumSliders(); }
+	bool			canAddSliders() { return mMultiSlider->canAddSliders(); }
+
 	void			setLabel(const std::string& label)				{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }

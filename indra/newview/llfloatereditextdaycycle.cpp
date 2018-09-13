@@ -551,6 +551,12 @@ void LLFloaterEditExtDayCycle::onAddTrack()
         LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
     }
+    if (!mFramesSlider->canAddSliders())
+    {
+        // Shouldn't happen, button should be disabled
+        LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
+        return;
+    }
 
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
@@ -903,7 +909,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //bool can_add = static_cast<bool>(settings);
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
-    mAddFrameButton->setEnabled(true && mCanMod);
+    mAddFrameButton->setEnabled(mCanMod && mFramesSlider->canAddSliders());
     mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
 }
 
@@ -964,13 +970,16 @@ void LLFloaterEditExtDayCycle::addSliderFrame(const F32 frame, LLSettingsBase::p
     // multi slider distinguishes elements by key/name in string format
     // store names to map to be able to recall dependencies
     std::string new_slider = mFramesSlider->addSlider(frame);
-    mSliderKeyMap[new_slider] = FrameData(frame, setting);
-
-    if (update_ui)
+    if (!new_slider.empty())
     {
-        mLastFrameSlider = new_slider;
-        mTimeSlider->setCurSliderValue(frame);
-        updateTabs();
+        mSliderKeyMap[new_slider] = FrameData(frame, setting);
+
+        if (update_ui)
+        {
+            mLastFrameSlider = new_slider;
+            mTimeSlider->setCurSliderValue(frame);
+            updateTabs();
+        }
     }
 }
 
