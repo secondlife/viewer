@@ -26,13 +26,11 @@
                 name="pnl_environment_disabled"
                 visible="false">
             <text follows="top|left|bottom|right"
-                            font="SansSerif"
                             halign="center"
                             valign="top"
-                            top_pad="20"
+                            top_pad="40"
                             text_color="white">
-No Parcel parcel is selected. Environmental 
-settings are disabled.
+No parcel is selected. Environmental settings are disabled.
             </text>
         </layout_panel>
         <layout_panel 

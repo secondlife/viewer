@@ -116,8 +116,8 @@ protected:
 
     void                        udpateApparentTimeOfDay();
 
-    void                        onPickerCommited(LLUUID asset_id);
-    void                        onEditCommited(LLSettingsDay::ptr_t newday);
+    void                        onPickerCommitted(LLUUID asset_id);
+    void                        onEditCommitted(LLSettingsDay::ptr_t newday);
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 

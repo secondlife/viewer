@@ -698,8 +698,8 @@
                  parameter="midnight" />
             </menu_item_check>
             <menu_item_check
-             label="Use Region Settings"
-             name="Use Region Settings">
+             label="Use Shared Environment"
+             name="Use Shared Environment">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />

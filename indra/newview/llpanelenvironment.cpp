@@ -270,7 +270,7 @@ LLFloaterSettingsPicker * LLPanelEnvironmentInfo::getSettingsPicker(bool create)
 
         mSettingsFloater = picker->getHandle();
 
-        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommited(data.asUUID()); });
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitted(data.asUUID()); });
     }
 
     return picker;
@@ -295,7 +295,7 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater(bool create)
     }
 
     if (editor && !mCommitConnection.connected())
-        mCommitConnection = editor->setEditCommitSignal([this](LLSettingsDay::ptr_t pday) { onEditCommited(pday); });
+        mCommitConnection = editor->setEditCommitSignal([this](LLSettingsDay::ptr_t pday) { onEditCommitted(pday); });
 
     return editor;
 }
@@ -615,7 +615,7 @@ void LLPanelEnvironmentInfo::onIdlePlay(void *data)
     ((LLPanelEnvironmentInfo *)data)->udpateApparentTimeOfDay();
 }
 
-void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)
+void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID asset_id)
 {
     LLSettingsVOBase::getSettingsAsset(asset_id, [this](LLUUID, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { 
         if (status)
@@ -624,7 +624,7 @@ void LLPanelEnvironmentInfo::onPickerCommited(LLUUID asset_id)
     });
 }
 
-void LLPanelEnvironmentInfo::onEditCommited(LLSettingsDay::ptr_t newday)
+void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 {
     if (!newday)
     {
