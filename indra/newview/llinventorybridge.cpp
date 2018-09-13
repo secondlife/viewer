@@ -3940,6 +3940,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Folder"));
 		disabled_items.push_back(std::string("New Script"));
 		disabled_items.push_back(std::string("New Note"));
+		disabled_items.push_back(std::string("New Settings"));
 		disabled_items.push_back(std::string("New Gesture"));
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
