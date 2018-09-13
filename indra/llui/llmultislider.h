@@ -107,6 +107,10 @@ public:
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void	draw();
 
+	S32				getMaxNumSliders() { return mMaxNumSliders; }
+	S32				getCurNumSliders() { return mValue.size(); }
+	bool			canAddSliders() { return mValue.size() < mMaxNumSliders; }
+
 protected:
 	LLSD			mValue;
 	std::string		mCurSlider;
