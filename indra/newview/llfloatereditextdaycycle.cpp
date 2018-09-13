@@ -277,6 +277,11 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     }
     else
     {
+        mInventoryItem = nullptr;
+        mInventoryId.setNull();
+        mCanCopy = true;
+        mCanMod = true;
+        mMakeNoTrans = false;
         setEditDefaultDayCycle();
     }
 
