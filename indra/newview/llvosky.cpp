@@ -56,8 +56,6 @@
 #include "lltrace.h"
 #include "llfasttimer.h"
 
-#pragma optimize("", off)
-
 #undef min
 #undef max
 
