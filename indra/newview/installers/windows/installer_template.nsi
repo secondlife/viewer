@@ -708,7 +708,7 @@ Function .onInstSuccess
         # Quote the updater executable and the viewer executable because each
         # must be a distinct command-line token, but DO NOT quote the language
         # string because it must decompose into separate command-line tokens.
-        Exec '"$INSTDIR\$INSTEXE" "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
+        Exec '"$INSTDIR\$INSTEXE" precheck "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
         Pop $R0
 # 
 FunctionEnd
