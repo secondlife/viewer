@@ -56,6 +56,8 @@
 #include "lltrace.h"
 #include "llfasttimer.h"
 
+#pragma optimize("", off)
+
 #undef min
 #undef max
 
@@ -139,6 +141,32 @@ LLSkyTex::~LLSkyTex()
 	mSkyDirs = NULL;
 }
 
+S32 LLSkyTex::getResolution()
+{
+    return sResolution;
+}
+
+S32 LLSkyTex::getCurrent()
+{
+    return sCurrent;
+}
+
+S32 LLSkyTex::stepCurrent() {
+    sCurrent++;
+    sCurrent &= 1;
+    return sCurrent;
+}
+
+S32 LLSkyTex::getNext()
+{
+    return ((sCurrent+1) & 1);
+}
+
+S32 LLSkyTex::getWhich(const BOOL curr)
+{
+    int tex = curr ? sCurrent : getNext();
+    return tex;
+}
 
 void LLSkyTex::initEmpty(const S32 tex)
 {
@@ -179,9 +207,6 @@ void LLSkyTex::create(const F32 brightness)
 	createGLImage(sCurrent);
 }
 
-
-
-
 void LLSkyTex::createGLImage(S32 which)
 {	
 	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);
@@ -190,7 +215,14 @@ void LLSkyTex::createGLImage(S32 which)
 
 void LLSkyTex::bindTexture(BOOL curr)
 {
-	gGL.getTexUnit(0)->bind(mTexture[getWhich(curr)], true);
+    int tex = getWhich(curr);
+	gGL.getTexUnit(0)->bind(mTexture[tex], true);
+}
+
+LLImageRaw* LLSkyTex::getImageRaw(BOOL curr)
+{
+    int tex = getWhich(curr);
+    return mImageRaw[tex];
 }
 
 /***************************************
@@ -458,6 +490,7 @@ void LLVOSky::init()
 	}
 
 	initCubeMap();
+
 	mInitialized = true;
 
 	mHeavenlyBodyUpdated = FALSE ;
@@ -673,7 +706,7 @@ bool LLVOSky::updateSky()
 
             mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
 
-			LLSkyTex::stepCurrent();			
+			LLSkyTex::stepCurrent();
 		
 			if (!direction.isExactlyZero())
 			{
@@ -714,6 +747,8 @@ bool LLVOSky::updateSky()
 						}
 					}
 
+                    int tex = mSkyTex[0].getWhich(TRUE);
+
 					for (int side = 0; side < 6; side++) 
 					{
                         LLImageRaw* raw1 = nullptr;
@@ -721,12 +756,12 @@ bool LLVOSky::updateSky()
 						raw1 = mSkyTex[side].getImageRaw(TRUE);
 						raw2 = mSkyTex[side].getImageRaw(FALSE);
 						raw2->copy(raw1);
-						mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
+						mSkyTex[side].createGLImage(tex);
 
 						raw1 = mShinyTex[side].getImageRaw(TRUE);
 						raw2 = mShinyTex[side].getImageRaw(FALSE);
 						raw2->copy(raw1);
-						mShinyTex[side].createGLImage(mShinyTex[side].getWhich(FALSE));
+						mShinyTex[side].createGLImage(tex);
 					}
 					next_frame = 0;	
 
@@ -748,7 +783,7 @@ bool LLVOSky::updateSky()
 				        }
 				        mCubeMap->init(images);
 				        gGL.getTexUnit(0)->disable();
-			        }
+			        }                    
 				}
             }
 
@@ -1504,7 +1539,7 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
 
 	updateDirections();
 
-    LLSkyTex::stepCurrent();
+    mForceUpdate = true;
 }
 
 void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
@@ -1531,7 +1566,7 @@ void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
 
 	updateDirections();
 
-    LLSkyTex::stepCurrent();
+    mForceUpdate = true;
 }
 
 void LLVOSky::setMoonDirectionCFR(const LLVector3 &moon_dir_cfr)
@@ -1540,5 +1575,5 @@ void LLVOSky::setMoonDirectionCFR(const LLVector3 &moon_dir_cfr)
 
 	updateDirections();
 
-    LLSkyTex::stepCurrent();
+    mForceUpdate = true;
 }
