@@ -470,7 +470,7 @@ class WindowsManifest(ViewerManifest):
                     pass
                 except NoMatchingAssemblyException as err:
                     pass
-                    
+
                 self.ccopy(src,dst)
             else:
                 raise Exception("Directories are not supported by test_CRT_and_copy_action()")
@@ -915,6 +915,15 @@ class DarwinManifest(ViewerManifest):
                 # need .icns file referenced by Info.plist
                 with self.prefix(src=self.icon_path(), dst="") :
                     self.path("secondlife.icns")
+
+                # Copy in the updater script and helper modules
+                self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
+
+                with self.prefix(src="", dst=os.path.join("updater", "icons")):
+                    self.path2basename(os.path.join(self.icon_path(), "secondlife.ico"))
+                    with self.prefix(src="vmp_icons", dst=""):
+                        self.path("*.png")
+                        self.path("*.gif")
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
