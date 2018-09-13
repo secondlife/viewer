@@ -1130,6 +1130,21 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
+#if LL_WINDOWS
+	std::string updater(
+		"\"" + gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe") + "\"");
+#elif LL_DARWIN
+	std::string updater(
+		"python \"" + gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py") + "\"");
+#else
+	std::string updater(
+		"\"" + gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater") + "\"");
+#endif
+
+	// Run the updater, specifying LEAP mode. An exception from the updater
+	// should bother us.
+	LLLeap::create("updater process", (updater + " leap"), true);
+
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.
 	LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
