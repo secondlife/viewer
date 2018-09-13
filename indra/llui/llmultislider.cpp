@@ -140,7 +140,7 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	{
 		mThumbImagep = LLUI::getUIImage(p.thumb_image());
 	}
-	mThumbHighlightColor = p.thumb_highlight_color.isProvided() ? p.thumb_highlight_color() : gFocusMgr.getFocusColor();
+	mThumbHighlightColor = p.thumb_highlight_color.isProvided() ? p.thumb_highlight_color() : static_cast<LLUIColor>(gFocusMgr.getFocusColor());
 }
 
 LLMultiSlider::~LLMultiSlider()
