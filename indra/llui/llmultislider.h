@@ -55,12 +55,14 @@ public:
 
 		Optional<LLUIColor>	track_color,
 							thumb_disabled_color,
+							thumb_highlight_color,
 							thumb_outline_color,
 							thumb_center_color,
 							thumb_center_selected_color,
 							triangle_color;
 
-		Optional<std::string>	orientation;
+		Optional<std::string>	orientation,
+								thumb_image;
 
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
@@ -125,10 +127,12 @@ protected:
 					mThumbRects;
 	LLUIColor		mTrackColor;
 	LLUIColor		mThumbOutlineColor;
+	LLUIColor		mThumbHighlightColor;
 	LLUIColor		mThumbCenterColor;
 	LLUIColor		mThumbCenterSelectedColor;
 	LLUIColor		mDisabledThumbColor;
 	LLUIColor		mTriangleColor;
+	LLUIImagePtr	mThumbImagep; //blimps on the slider, for now no 'disabled' support
 
 	const EOrientation	mOrientation;
 

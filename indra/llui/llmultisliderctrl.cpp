@@ -55,6 +55,9 @@ LLMultiSliderCtrl::Params::Params()
 	allow_overlap("allow_overlap", false),
 	loop_overlap("loop_overlap", false),
 	orientation("orientation"),
+	thumb_image("thumb_image"),
+	thumb_width("thumb_width"),
+	thumb_highlight_color("thumb_highlight_color"),
 	overlap_threshold("overlap_threshold", 0),
 	draw_track("draw_track", true),
 	use_triangle("use_triangle", false),
@@ -171,10 +174,17 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 	params.max_sliders(p.max_sliders);
 	params.allow_overlap(p.allow_overlap);
 	params.loop_overlap(p.loop_overlap);
-	params.orientation(p.orientation());
 	if (p.overlap_threshold.isProvided())
 	{
 		params.overlap_threshold = p.overlap_threshold;
+	}
+	params.orientation(p.orientation);
+	params.thumb_image(p.thumb_image);
+	params.thumb_highlight_color(p.thumb_highlight_color);
+	if (p.thumb_width.isProvided())
+	{
+		// otherwise should be provided by template
+		params.thumb_width(p.thumb_width);
 	}
 	params.draw_track(p.draw_track);
 	params.use_triangle(p.use_triangle);

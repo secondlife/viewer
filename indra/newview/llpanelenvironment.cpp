@@ -389,7 +389,7 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
     LLRect sld_rect = sld->getRect();
     U32 sld_range = sld_rect.getHeight();
     U32 sld_bottom = sld_rect.mBottom;
-    U32 sld_offset = 8 + 1; // Default slider-thumb width plus stretch. Placeholder until images are implemented.
+    U32 sld_offset = sld_rect.getWidth(); // Roughly identical to thumb's width in slider.
     U32 pos = (sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100));
 
     // get related text box
@@ -399,7 +399,7 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
         // move related text box
         LLRect rect = text->getRect();
         U32 height = rect.getHeight();
-        rect.mBottom = sld_bottom + sld_offset + pos - (height / 2);
+        rect.mBottom = sld_bottom + (sld_offset / 2 + 1) + pos - (height / 2);
         rect.mTop = rect.mBottom + height;
         text->setRect(rect);
 
