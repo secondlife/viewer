@@ -32,6 +32,7 @@
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
 #include "llxyvector.h"
+#include "llviewercontrol.h"
 
 namespace
 {
@@ -88,6 +89,7 @@ BOOL LLPanelSettingsWaterMainTab::postBuild()
     getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onFogUnderWaterChanged(); });
 
     mTxtNormalMap->setDefaultImageAssetID(LLSettingsWater::GetDefaultWaterNormalAssetId());
+    mTxtNormalMap->setBlankImageAssetID(LLUUID( gSavedSettings.getString( "DefaultBlankNormalTexture" )));
     mTxtNormalMap->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNormalMapChanged(); });
 
     getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSmallWaveChanged(); });
