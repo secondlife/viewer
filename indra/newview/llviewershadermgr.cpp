@@ -2110,6 +2110,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLSkyProgram.mName = "Deferred Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
         gDeferredWLSkyProgram.mShaderFiles.clear();
+        gDeferredWLSkyProgram.mFeatures.hasGamma = true;
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
         gDeferredWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
@@ -2126,6 +2127,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredWLCloudProgram.mName = "Deferred Windlight Cloud Program";
 		gDeferredWLCloudProgram.mShaderFiles.clear();
+        gDeferredWLCloudProgram.mFeatures.hasGamma = true;
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
@@ -3526,6 +3528,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLSkyProgram.mName = "Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
 		gWLSkyProgram.mShaderFiles.clear();
+        gWLSkyProgram.mFeatures.hasGamma = true;
 		gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyV.glsl", GL_VERTEX_SHADER_ARB));
 		gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
@@ -3538,6 +3541,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLCloudProgram.mName = "Windlight Cloud Program";
 		//gWLCloudProgram.mFeatures.hasGamma = true;
 		gWLCloudProgram.mShaderFiles.clear();
+        gWLCloudProgram.mFeatures.hasGamma = true;
 		gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
 		gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
