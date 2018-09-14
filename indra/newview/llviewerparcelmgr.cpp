@@ -659,7 +659,7 @@ LLParcel * LLViewerParcelMgr::getAgentOrSelectedParcel() const
         if (selection)
         {
             parcel = selection->getParcel();
-            if (parcel->getLocalID() == INVALID_PARCEL_ID)
+            if (parcel && (parcel->getLocalID() == INVALID_PARCEL_ID))
             {
                 parcel = NULL;
             }
