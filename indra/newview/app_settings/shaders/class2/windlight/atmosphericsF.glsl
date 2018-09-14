@@ -43,9 +43,14 @@ uniform float max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
 uniform mat3 ssao_effect_mat;
+uniform int no_atmo;
 
 vec3 scaleFragSoftClip(vec3 light)
 {
+    if (no_atmo == 1)
+    {
+        return light;
+    }
 	//soft clip effect:
 	light = 1. - clamp(light, vec3(0.), vec3(1.));
 	light = 1. - pow(light, gamma.xxx);
@@ -54,14 +59,17 @@ vec3 scaleFragSoftClip(vec3 light)
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 {
-	light *= atten.r;
-	light += additive;
+    if (no_atmo == 0)
+    {
+	   light *= atten.r;
+	   light += additive;
+    }
 	return (2.0 * light);
 }
 
 vec3 atmosLighting(vec3 light)
 {
-    return atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
+    return (no_atmo == 1) ? light : atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
 }
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {

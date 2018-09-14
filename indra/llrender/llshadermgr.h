@@ -233,6 +233,7 @@ public:
         ILLUMINANCE_TEX,
         BLEND_FACTOR,
 
+        NO_ATMO,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

@@ -1319,6 +1319,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("single_mie_scattering_texture");
     mReservedUniforms.push_back("irradiance_texture");
     mReservedUniforms.push_back("blend_factor");
+    mReservedUniforms.push_back("no_atmo");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

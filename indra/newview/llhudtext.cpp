@@ -588,8 +588,6 @@ void LLHUDText::renderAllHUD()
 	
 	LLVertexBuffer::unbind();
 
-    LLVertexBuffer::unbind();
-
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();

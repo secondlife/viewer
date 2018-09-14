@@ -58,13 +58,7 @@ vec4 cloudNoise(vec2 uv)
 
 
 /// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
-}
+vec3 scaleSoftClip(vec3 light);
 
 void main()
 {
