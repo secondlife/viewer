@@ -177,13 +177,15 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 		// increment is our distance between points, use to eliminate round error
 		F32 threshold = mOverlapThreshold + (mIncrement / 4);
 		// If loop overlap is enabled, check if we overlap with points 'after' max value (project to lower)
-		F32 loop_up_check = (mLoopOverlap && (value + threshold) > mMaxValue) ? (value + threshold - mMaxValue + mMinValue) : 0.0f;
+		F32 loop_up_check = (mLoopOverlap && (value + threshold) > mMaxValue) ? (value + threshold - mMaxValue + mMinValue) : mMinValue - 1.0f;
 		// If loop overlap is enabled, check if we overlap with points 'before' min value (project to upper)
-		F32 loop_down_check = (mLoopOverlap && (value - threshold) < mMinValue) ? (value - threshold - mMinValue + mMaxValue) : 0.0f;
+		F32 loop_down_check = (mLoopOverlap && (value - threshold) < mMinValue) ? (value - threshold - mMinValue + mMaxValue) : mMaxValue + 1.0f;
 
-		for(;mIt != mValue.endMap(); mIt++) {
-			
-			F32 testVal = (F32)mIt->second.asReal() - newValue;
+		for(;mIt != mValue.endMap(); mIt++)
+		{
+			F32 locationVal = (F32)mIt->second.asReal();
+			// Check nearby values
+			F32 testVal = locationVal - newValue;
 			if (testVal > -threshold
 				&& testVal < threshold
 				&& mIt->first != name)
@@ -191,17 +193,19 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 				hit = true;
 				break;
 			}
-			if (loop_up_check != 0
-				&& testVal < loop_up_check)
+			if (mLoopOverlap)
 			{
-				hit = true;
-				break;
-			}
-			if (loop_down_check != 0
-				&& testVal > loop_down_check)
-			{
-				hit = true;
-				break;
+				// Check edge overlap values
+				if (locationVal < loop_up_check)
+				{
+					hit = true;
+					break;
+				}
+				if (locationVal > loop_down_check)
+				{
+					hit = true;
+					break;
+				}
 			}
 		}
 
