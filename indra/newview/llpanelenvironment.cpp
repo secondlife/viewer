@@ -46,6 +46,7 @@
 
 #include "llappviewer.h"
 #include "llcallbacklist.h"
+#include "llviewerparcelmgr.h"
 
 //=========================================================================
 namespace 
@@ -72,11 +73,15 @@ const std::string LLPanelEnvironmentInfo::PNL_SETTINGS("pnl_environment_config")
 const std::string LLPanelEnvironmentInfo::PNL_ENVIRONMENT_ALTITUDES("pnl_environment_altitudes");
 const std::string LLPanelEnvironmentInfo::PNL_BUTTONS("pnl_environment_buttons");
 const std::string LLPanelEnvironmentInfo::PNL_DISABLED("pnl_environment_disabled");
+const std::string LLPanelEnvironmentInfo::TXT_DISABLED("txt_environment_disabled");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_UNKNOWNINV("str_unknow_inventory");
 const std::string LLPanelEnvironmentInfo::STR_ALTITUDE_DESCRIPTION("str_altitude_desription");
+const std::string LLPanelEnvironmentInfo::STR_NO_PARCEL("str_no_parcel");
+const std::string LLPanelEnvironmentInfo::STR_CROSS_REGION("str_cross_region");
+const std::string LLPanelEnvironmentInfo::STR_LEGACY("str_legacy");
 
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
@@ -111,8 +116,9 @@ const std::string alt_labels[] = {
 //=========================================================================
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
     mCurrentEnvironment(),
-    mCurrentParcelId(INVALID_PARCEL_ID),
     mDirtyFlag(0),
+    mCrossRegion(false),
+    mNoSelection(false),
     mSettingsFloater(),
     mEditFloater()
 {
@@ -173,7 +179,8 @@ void LLPanelEnvironmentInfo::refresh()
     if (gDisconnected)
         return;
 
-    setControlsEnabled(canEdit());
+    if (!setControlsEnabled(canEdit()))
+        return;
 
     if (!mCurrentEnvironment)
     {
@@ -235,12 +242,6 @@ void LLPanelEnvironmentInfo::refresh()
 
 }
 
-void LLPanelEnvironmentInfo::refreshFromSource()
-{
-    LLEnvironment::instance().requestParcel(mCurrentParcelId, 
-        [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
-}
-
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
 {
     LLFloaterSettingsPicker *picker = getSettingsPicker();
@@ -284,7 +285,7 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater(bool create)
     // Show the dialog
     if (!editor && create)
     {
-        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
+        LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, isRegion() ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
             (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
         editor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance(FLOATER_DAY_CYCLE_EDIT, params);
@@ -324,12 +325,42 @@ void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentI
     }
 }
 
-void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
+bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 {
-    S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+    bool is_unavailable(false);
     bool is_legacy = (mCurrentEnvironment) ? mCurrentEnvironment->mIsLegacy : true;
 
-    bool is_unavailable = (is_legacy && (!mCurrentEnvironment || (mCurrentEnvironment->mParcelId != INVALID_PARCEL_ID)));
+    if (!LLEnvironment::instance().isExtendedEnvironmentEnabled() && !isRegion())
+    {
+        is_unavailable = true;
+        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_LEGACY));
+    }
+    else if (mNoSelection)
+    {
+        is_unavailable = true;
+        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_NO_PARCEL));
+    }
+    else if (mCrossRegion)
+    {
+        is_unavailable = true;
+        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_CROSS_REGION));
+    }
+
+    if (is_unavailable)
+    {
+        getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(false);
+        getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(false);
+        getChild<LLUICtrl>(PNL_DISABLED)->setVisible(true);
+
+        updateEditFloater(mCurrentEnvironment);
+
+        return false;
+    }
+    getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(true);
+    getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(true);
+    getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
+
+    S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
 
     getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(enabled);
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(enabled && !is_legacy);
@@ -340,15 +371,11 @@ void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(enabled);
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled && (rdo_selection != 0) && !is_legacy);
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled && (rdo_selection != 0) && !is_legacy);
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && (mCurrentParcelId == INVALID_PARCEL_ID) && !is_legacy);
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && isRegion() && !is_legacy);
     getChild<LLUICtrl>(BTN_APPLY)->setEnabled(enabled && (mDirtyFlag != 0));
     getChild<LLUICtrl>(BTN_CANCEL)->setEnabled(enabled && (mDirtyFlag != 0));
 
-    getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(!is_unavailable);
-    getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(!is_unavailable);
-    getChild<LLUICtrl>(PNL_DISABLED)->setVisible(is_unavailable);
-
-    updateEditFloater(mCurrentEnvironment);
+    return true;
 }
 
 void LLPanelEnvironmentInfo::setApplyProgress(bool started)
@@ -517,7 +544,7 @@ void LLPanelEnvironmentInfo::onBtnEdit()
 
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
-    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, (mCurrentParcelId == INVALID_PARCEL_ID) ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION)
+    LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, isRegion() ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION)
             (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH,  mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS)
             (LLFloaterEditExtDayCycle::KEY_CANMOD,      LLSD::Boolean(true)));
 
@@ -543,24 +570,26 @@ void LLPanelEnvironmentInfo::onBtnSelect()
 
 void LLPanelEnvironmentInfo::doApply()
 {
+    S32 parcel_id = getParcelId();
+
     if (getIsDirtyFlag(DIRTY_FLAG_MASK))
     {
         S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
 
         if (rdo_selection == 0)
         {
-            LLEnvironment::instance().resetParcel(mCurrentParcelId,
+            LLEnvironment::instance().resetParcel(parcel_id,
                 [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
         else if (rdo_selection == 1)
         {
-            LLEnvironment::instance().updateParcel(mCurrentParcelId, 
+            LLEnvironment::instance().updateParcel(parcel_id,
                 mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(),
                 [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
         else
         {
-            LLEnvironment::instance().updateParcel(mCurrentParcelId, 
+            LLEnvironment::instance().updateParcel(parcel_id,
                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), 
                 [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
         }
@@ -657,9 +686,9 @@ void LLPanelEnvironmentInfo::onPickerAssetDownloaded(LLSettingsBase::ptr_t setti
 
 void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
 {  
-    if (parcel_id != mCurrentParcelId)
+    if (parcel_id != getParcelId())
     {
-        LL_WARNS("ENVPANEL") << "Have environment for parcel " << parcel_id << " expecting " << mCurrentParcelId << ". Discarding." << LL_ENDL;
+        LL_WARNS("ENVPANEL") << "Have environment for parcel " << parcel_id << " expecting " << getParcelId() << ". Discarding." << LL_ENDL;
         return;
     }
     mCurrentEnvironment = envifo;

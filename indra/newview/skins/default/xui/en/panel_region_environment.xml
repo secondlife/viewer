@@ -13,7 +13,9 @@
     <string name="str_label_use_region">Use Region Settings</string>
     <string name="str_unknow_inventory">Unknown</string>
     <string name="str_altitude_desription">Sky [INDEX]([ALTITUDE]m)</string>
-
+    <string name="str_no_parcel">No parcel is selected. Environmental settings are disabled.</string>
+    <string name="str_cross_region">Environmental settings are not available across region boundries.</string>
+    <string name="str_legacy">Environmental settings are not available on this region.</string>
     <layout_stack 
             width="530"
             height="367"
@@ -29,8 +31,9 @@
                             halign="center"
                             valign="top"
                             top_pad="40"
+                            name="txt_environment_disabled"
                             text_color="white">
-No parcel is selected. Environmental settings are disabled.
+            ...
             </text>
         </layout_panel>
         <layout_panel 

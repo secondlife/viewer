@@ -155,10 +155,15 @@ public:
     virtual LLParcel *  getParcel() override;
 
     virtual bool        canEdit() override;
+    virtual S32         getParcelId() override; 
+
 protected:
+    virtual void        refreshFromSource() override;
 
-    LLSafeHandle<LLParcelSelection>&	mParcel;
+    bool                isSameRegion();
 
+    LLSafeHandle<LLParcelSelection> &   mParcel;
+    S32                 mLastParcelId;
 };
 
 
@@ -3248,9 +3253,10 @@ void LLPanelLandExperiences::refresh()
 
 //=========================================================================
 
-LLPanelLandEnvironment::LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp):
+LLPanelLandEnvironment::LLPanelLandEnvironment(LLParcelSelectionHandle& parcel) :
     LLPanelEnvironmentInfo(),
-    mParcel(parcelp)
+    mParcel(parcel),
+    mLastParcelId(INVALID_PARCEL_ID)
 {
 }
 
@@ -3270,25 +3276,64 @@ void LLPanelLandEnvironment::refresh()
     if (gDisconnected)
         return;
 
-    LLParcel *parcel = getParcel();
-    if (!parcel)
+    if (!isSameRegion())
     {
-        LL_INFOS("ENVPANEL") << "No parcel selected." << LL_ENDL;
+        setCrossRegion(true);
         mCurrentEnvironment.reset();
-        mCurrentParcelId = INVALID_PARCEL_ID;
+        mLastParcelId = INVALID_PARCEL_ID;
         setControlsEnabled(false);
         return;
     }
 
-    if (LLEnvironment::instance().isExtendedEnvironmentEnabled() && ((!mCurrentEnvironment) || (mCurrentEnvironment->mParcelId != parcel->getLocalID())))
+    if (mLastParcelId != getParcelId())
     {
-        mCurrentParcelId = parcel->getLocalID();
+        mCurrentEnvironment.reset();
+    }
+
+    if (!mCurrentEnvironment)
+    {
         refreshFromSource();
         return;
     }
 
     LLPanelEnvironmentInfo::refresh();
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
+}
 
+void LLPanelLandEnvironment::refreshFromSource()
+{
+    LLParcel *parcel = getParcel();
+
+    if (!parcel)
+    {
+        setNoSelection(true);
+        setControlsEnabled(false);
+        return;
+    }
+
+    setNoSelection(false);
+    if (isSameRegion())
+    {
+        setCrossRegion(false);
+
+        LLEnvironment::instance().requestParcel(parcel->getLocalID(),
+            [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { mLastParcelId = parcel_id; onEnvironmentReceived(parcel_id, envifo); });
+    }
+    else
+    {
+        setCrossRegion(true);
+        mCurrentEnvironment.reset();
+        mLastParcelId = INVALID_PARCEL_ID;
+        setControlsEnabled(false);
+    }
+}
+
+
+bool LLPanelLandEnvironment::isSameRegion()
+{
+    LLViewerRegion* regionp = LLViewerParcelMgr::instance().getSelectionRegion();
+
+    return (!regionp || (regionp->getRegionID() == gAgent.getRegion()->getRegionID()));
 }
 
 LLParcel *LLPanelLandEnvironment::getParcel()
@@ -3303,4 +3348,13 @@ bool LLPanelLandEnvironment::canEdit()
     if (!parcel)
         return false;
     return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel);
+}
+
+S32 LLPanelLandEnvironment::getParcelId() 
+{
+    LLParcel *parcel = getParcel();
+    if (!parcel)
+        return INVALID_PARCEL_ID;
+
+    return parcel->getLocalID();
 }

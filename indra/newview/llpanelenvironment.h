@@ -52,12 +52,10 @@ public:
 
     virtual void                refresh() override;
 
-    S32                         getCurrentParcelId() const          { return mCurrentParcelId; }
-    void                        setCurrentParcelId(S32 parcel_id)   { mCurrentParcelId = parcel_id; }
-
     virtual bool                isRegion() const = 0;
     virtual LLParcel *          getParcel() = 0;
     virtual bool                canEdit() = 0;
+    virtual S32                 getParcelId() = 0;
 
 protected:
     LOG_CLASS(LLPanelEnvironmentInfo);
@@ -80,12 +78,15 @@ protected:
     static const std::string    PNL_ENVIRONMENT_ALTITUDES;
     static const std::string    PNL_BUTTONS;
     static const std::string    PNL_DISABLED;
-
+    static const std::string    TXT_DISABLED;
 
     static const std::string    STR_LABEL_USEDEFAULT;
     static const std::string    STR_LABEL_USEREGION;
     static const std::string    STR_LABEL_UNKNOWNINV;
     static const std::string    STR_ALTITUDE_DESCRIPTION;
+    static const std::string    STR_NO_PARCEL;
+    static const std::string    STR_CROSS_REGION;
+    static const std::string    STR_LEGACY;
 
     static const U32            DIRTY_FLAG_DAYCYCLE;
     static const U32            DIRTY_FLAG_DAYLENGTH;
@@ -94,7 +95,7 @@ protected:
 
     static const U32            DIRTY_FLAG_MASK;
 
-    void                        setControlsEnabled(bool enabled);
+    bool setControlsEnabled(bool enabled);
     void                        setApplyProgress(bool started);
     void                        setDirtyFlag(U32 flag);
     void                        clearDirtyFlag(U32 flag);
@@ -121,7 +122,7 @@ protected:
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
-    void                        refreshFromSource();
+    virtual void                refreshFromSource() = 0;
 
     std::string                 getInventoryNameForAssetId(LLUUID asset_id);
 
@@ -129,8 +130,10 @@ protected:
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
     void                        updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv);
 
+    void                        setCrossRegion(bool val) { mCrossRegion = val; }
+    void                        setNoSelection(bool val) { mNoSelection = val; }
+
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
-    S32                                     mCurrentParcelId;
 
     class AltitudeData
     {
@@ -156,9 +159,12 @@ private:
 
     typedef boost::signals2::connection connection_t;
 
-    connection_t                mCommitConnection;
-    LLHandle<LLFloater>         mSettingsFloater;
-    LLHandle<LLFloater>         mEditFloater;
-    S32                         mDirtyFlag;
+    connection_t                    mCommitConnection;
+    LLHandle<LLFloater>             mSettingsFloater;
+    LLHandle<LLFloater>             mEditFloater;
+    S32                             mDirtyFlag;
+    bool                            mCrossRegion;
+    bool                            mNoSelection;
+
 };
 #endif // LL_LLPANELEXPERIENCES_H

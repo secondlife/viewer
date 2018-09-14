@@ -1166,18 +1166,18 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
     // results that come back may contain the new settings
 
-    LLSD notify;
+//     LLSD notify;
 
     LLSD httpResults = result["http_result"];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        LL_WARNS("WindlightCaps") << "Couldn't retrieve Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
+        LL_WARNS("WindlightCaps") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
-        std::stringstream msg;
-        msg << status.toString() << " (Code " << status.toTerseString() << ")";
-        notify = LLSD::emptyMap();
-        notify["FAIL_REASON"] = msg.str();
+//         std::stringstream msg;
+//         msg << status.toString() << " (Code " << status.toTerseString() << ")";
+//         notify = LLSD::emptyMap();
+//         notify["FAIL_REASON"] = msg.str();
 
     }
     else
@@ -1190,11 +1190,11 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         }
     }
 
-    if (!notify.isUndefined())
-    {
-        LLNotificationsUtil::add("WLRegionApplyFail", notify);
-        //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
-    }
+//     if (!notify.isUndefined())
+//     {
+//         LLNotificationsUtil::add("WLRegionApplyFail", notify);
+//         //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
+//     }
 }
 
 void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, LLUUID settings_asset, S32 day_length, S32 day_offset, LLEnvironment::environment_apply_fn apply)

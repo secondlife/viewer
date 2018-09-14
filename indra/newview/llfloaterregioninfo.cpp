@@ -192,11 +192,14 @@ public:
 
     virtual BOOL        postBuild() override;
 
+    virtual S32         getParcelId() override { return INVALID_PARCEL_ID; }
+
 protected:
     static const U32    DIRTY_FLAG_OVERRIDE;
 
     virtual void        doApply() override;
 
+    virtual void        refreshFromSource() override;
 
     bool                doUpdateEstate(const LLSD& notification, const LLSD& response);
 
@@ -3418,6 +3421,19 @@ void LLPanelRegionEnvironment::refresh()
 
 bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
 {
+    if (!region)
+    {
+        setNoSelection(true);
+        setControlsEnabled(false);
+    }
+    setNoSelection(false);
+
+    if (gAgent.getRegion()->getRegionID() != region->getRegionID())
+    {
+        setCrossRegion(true);
+    }
+    setCrossRegion(false);
+        
     refreshFromSource();
     return true;
 }
@@ -3427,6 +3443,12 @@ void LLPanelRegionEnvironment::refreshFromEstate()
     const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
 
     mAllowOverride = estate_info.getAllowEnvironmentOverride();
+}
+
+void LLPanelRegionEnvironment::refreshFromSource()
+{
+    LLEnvironment::instance().requestRegion(
+        [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
 }
 
 void LLPanelRegionEnvironment::doApply()
