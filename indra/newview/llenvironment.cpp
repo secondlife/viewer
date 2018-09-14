@@ -1818,7 +1818,14 @@ LLSettingsBase::BlendFactor LLTrackBlenderLoopingManual::setPosition(const LLSet
 
     F64 spanPos = ((mPosition < (*bounds.first).first) ? (mPosition + 1.0) : mPosition) - (*bounds.first).first;
 
-    F64 blendf = fmod(spanPos, spanLength) / spanLength;
+    if (spanPos > spanLength)
+    {
+        // we are clamping position to 0-1 and spanLength is 1
+        // so don't account for case of spanPos == spanLength
+        spanPos = fmod(spanPos, spanLength);
+    }
+
+    F64 blendf = spanPos / spanLength;
     return LLSettingsBlender::setBlendFactor(blendf);
 }
 
