@@ -1131,19 +1131,21 @@ bool LLAppViewer::init()
 	gGLActive = FALSE;
 
 #if LL_WINDOWS
-	std::string updater(
-		"\"" + gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe") + "\"");
+	std::vector<std::string> updater
+		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe") };
 #elif LL_DARWIN
-	std::string updater(
-		"python \"" + gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py") + "\"");
+	// explicitly run the system Python interpreter on updater.py
+	std::vector<std::string> updater
+		{ "python", gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py") };
 #else
-	std::string updater(
-		"\"" + gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater") + "\"");
+	std::vector<std::string> updater
+		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater") };
 #endif
+	// add LEAP mode command-line argument to whichever of these we selected
+	updater.push_back("leap");
 
-	// Run the updater, specifying LEAP mode. An exception from the updater
-	// should bother us.
-	LLLeap::create("updater process", (updater + " leap"), true);
+	// Run the updater. An exception from the updater should bother us.
+	LLLeap::create("updater process", updater, true);
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.
