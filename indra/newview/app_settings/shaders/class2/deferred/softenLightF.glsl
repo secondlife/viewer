@@ -165,8 +165,6 @@ void main()
 		if (spec.a > 0.0) // specular reflection
 		{
 			// the old infinite-sky shiny reflection
-			//
-			
 			float sa = dot(refnormpersp, sun_dir.xyz);
 			vec3 dumbshiny = sunlit*scol_ambocc.r*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
@@ -182,17 +180,14 @@ void main()
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
-			
 			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
-
-			col = mix(col.rgb, refcol, 
-				envIntensity);  
-
+			col = mix(col.rgb, refcol, envIntensity); 
 		}
 						
 		if (norm.w < 0.5)
 		{
-			col = mix(atmosFragLighting(col, additive, atten), fullbrightFragAtmosTransport(col, atten, additive), diffuse.a);
+            vec3 add = additive * spec.a;
+			col = mix(atmosFragLighting(col, add, atten), fullbrightFragAtmosTransport(col, atten, add), diffuse.a);
 			col = mix(scaleFragSoftClip(col), fullbrightScaleSoftClipFrag(col, atten), diffuse.a);
 		}
 
