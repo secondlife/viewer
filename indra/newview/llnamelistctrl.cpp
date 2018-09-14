@@ -32,6 +32,7 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
@@ -212,7 +213,10 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
-	if (hit_item
+	LLFloater* floater = gFloaterView->getParentFloater(this);
+	if (floater 
+		&& floater->isFrontmost()
+		&& hit_item
 		&& column_index == mNameColumnIndex)
 	{
 		// ...this is the column with the avatar name
