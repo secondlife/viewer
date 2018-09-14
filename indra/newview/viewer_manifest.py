@@ -920,7 +920,7 @@ class DarwinManifest(ViewerManifest):
                 self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
 
                 with self.prefix(src="", dst=os.path.join("updater", "icons")):
-                    self.path2basename(os.path.join(self.icon_path(), "secondlife.ico"))
+                    self.path2basename(self.icon_path(), "secondlife.ico")
                     with self.prefix(src="vmp_icons", dst=""):
                         self.path("*.png")
                         self.path("*.gif")
