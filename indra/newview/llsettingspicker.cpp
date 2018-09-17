@@ -302,6 +302,37 @@ void LLFloaterSettingsPicker::onButtonSelect()
     closeFloater();
 }
 
+BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+    if (mSettingAssetID.notNull()
+        && mInventoryPanel)
+    {
+        LLUUID item_id = findItemID(mSettingAssetID, FALSE);
+        S32 inventory_x = x - mInventoryPanel->getRect().mLeft;
+        S32 inventory_y = y - mInventoryPanel->getRect().mBottom;
+        if (item_id.notNull()
+            && mInventoryPanel->parentPointInView(inventory_x, inventory_y))
+        {
+            // make sure item (not folder) is selected
+            LLFolderViewItem* item_viewp = mInventoryPanel->getItemByID(item_id);
+            if (item_viewp && item_viewp->isSelected())
+            {
+                LLRect target_rect;
+                item_viewp->localRectToOtherView(item_viewp->getLocalRect(), &target_rect, this);
+                if (target_rect.pointInRect(x, y))
+                {
+                    // Quick-apply
+                    if (mCommitSignal)
+                        (*mCommitSignal)(this, LLSD(mSettingAssetID));
+                    closeFloater();
+                    return TRUE;
+                }
+            }
+        }
+    }
+    return LLFloater::handleDoubleClick(x, y, mask);
+}
+
 //=========================================================================
 void LLFloaterSettingsPicker::setActive(bool active)
 {

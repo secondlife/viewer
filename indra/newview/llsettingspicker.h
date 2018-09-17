@@ -96,6 +96,7 @@ private:
     void                    onSelectionChange(const itemlist_t &items, bool user_action);
     void                    onButtonCancel();
     void                    onButtonSelect();
+    virtual BOOL            handleDoubleClick(S32 x, S32 y, MASK mask);
 
 
     LLHandle<LLView>        mOwnerHandle;
