@@ -140,6 +140,7 @@ protected:
     virtual void            updateEditEnvironment()     override;
 
     virtual void            doImportFromDisk()          override;
+    void                    loadWaterSettingFromFile(const std::vector<std::string>& filenames);
 
 private:
 };
@@ -159,6 +160,7 @@ protected:
     virtual void            updateEditEnvironment()     override;
 
     virtual void            doImportFromDisk()          override;
+    void                    loadSkySettingFromFile(const std::vector<std::string>& filenames);
 
 private:
 };

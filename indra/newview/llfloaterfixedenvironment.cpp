@@ -38,7 +38,7 @@
 #include "lltabcontainer.h"
 #include "llfilepicker.h"
 #include "llsettingspicker.h"
-
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewerparcelmgr.h"
 
 // newview
@@ -581,30 +581,29 @@ void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
 
 void LLFloaterFixedEnvironmentWater::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
+    (new LLFilePickerReplyThread(boost::bind(&LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+}
 
-    LLFilePicker& picker = LLFilePicker::instance();
-    if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
-    {
-        std::string filename = picker.getFirstFile();
+void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<std::string>& filenames)
+{
+    if (filenames.size() < 1) return;
+    std::string filename = filenames[0];
+    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename);
 
-        LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
-        LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename);
-
-        if (!legacywater)
-        {   
-            LLSD args(LLSDMap("FILE", filename));
-            LLNotificationsUtil::add("WLImportFail", args);
-            return;
-        }
-
-        loadInventoryItem(LLUUID::null);
-
-        setDirtyFlag();
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
-        setEditSettings(legacywater);
-        LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
-
+    if (!legacywater)
+    {   
+        LLSD args(LLSDMap("FILE", filename));
+        LLNotificationsUtil::add("WLImportFail", args);
+        return;
     }
+
+    loadInventoryItem(LLUUID::null);
+
+    setDirtyFlag();
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
+    setEditSettings(legacywater);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
 }
 
 //=========================================================================
@@ -669,30 +668,31 @@ void LLFloaterFixedEnvironmentSky::onOpen(const LLSD& key)
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
+    (new LLFilePickerReplyThread(boost::bind(&LLFloaterFixedEnvironmentSky::loadSkySettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+}
 
-    LLFilePicker& picker = LLFilePicker::instance();
-    if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
-    {
-        std::string filename = picker.getFirstFile();
+void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std::string>& filenames)
+{
+    if (filenames.size() < 1) return;
+    std::string filename = filenames[0];
 
-        LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
-        LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename);
+    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename);
 
-        if (!legacysky)
-        {   
-            LLSD args(LLSDMap("FILE", filename));
-            LLNotificationsUtil::add("WLImportFail", args);
+    if (!legacysky)
+    {   
+        LLSD args(LLSDMap("FILE", filename));
+        LLNotificationsUtil::add("WLImportFail", args);
 
-            return;
-        }
-
-        loadInventoryItem(LLUUID::null);
-
-        clearDirtyFlag();
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
-        setEditSettings(legacysky);
-        LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
+        return;
     }
+
+    loadInventoryItem(LLUUID::null);
+
+    clearDirtyFlag();
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
+    setEditSettings(legacysky);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
 }
 
 //=========================================================================

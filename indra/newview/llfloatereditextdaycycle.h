@@ -136,6 +136,7 @@ private:
     void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
 
     void                        doImportFromDisk();
+    void                        loadSettingFromFile(const std::vector<std::string>& filenames);
     void doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day);
     void doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
     void doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);

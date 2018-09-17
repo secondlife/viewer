@@ -53,6 +53,7 @@
 #include "llparcel.h"
 #include "llflyoutcombobtn.h" //Todo: make a proper UI element/button/panel instead
 #include "llregioninfomodel.h"
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewerregion.h"
 #include "llpaneleditwater.h"
 #include "llpaneleditsky.h"
@@ -1326,28 +1327,28 @@ void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID invent
 
 void LLFloaterEditExtDayCycle::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
+    (new LLFilePickerReplyThread(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+}
 
-    LLFilePicker& picker = LLFilePicker::instance();
-    if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
-    {
-        std::string filename = picker.getFirstFile();
+void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string>& filenames)
+{
+    if (filenames.size() < 1) return;
+    std::string filename = filenames[0];
+    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename);
 
-        LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
-        LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename);
-
-        if (!legacyday)
-        {   
-            LLSD args(LLSDMap("FILE", filename));
-            LLNotificationsUtil::add("WLImportFail", args);
-            return;
-        }
-
-        loadInventoryItem(LLUUID::null);
-
-        mCurrentTrack = 1;
-        setDirtyFlag();
-        setEditDayCycle(legacyday);
+    if (!legacyday)
+    {   
+        LLSD args(LLSDMap("FILE", filename));
+        LLNotificationsUtil::add("WLImportFail", args);
+        return;
     }
+
+    loadInventoryItem(LLUUID::null);
+
+    mCurrentTrack = 1;
+    setDirtyFlag();
+    setEditDayCycle(legacyday);
 }
 
 bool LLFloaterEditExtDayCycle::canUseInventory() const
