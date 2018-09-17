@@ -21,6 +21,7 @@
             height="367"
             follows="all"
             layout="topleft"
+            animate="false"
             orientation="vertical">
         <layout_panel
                 auto_resize="true"
@@ -50,6 +51,7 @@
                     bottom="-1"
                     layout="topleft"
                     follows="all"
+                    animate="false"
                     orientation="horizontal">
                 <layout_panel 
                         background_visible="true"
