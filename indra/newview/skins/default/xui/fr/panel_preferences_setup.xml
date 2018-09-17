@@ -15,9 +15,9 @@
 		Web :
 	</text>
 	<radio_group name="preferred_browser_behavior">
-		<radio_item label="Utiliser mon navigateur (Chrome, Firefox, IE) pour tous les liens" name="internal" tool_tip="Utiliser le navigateur web système par défaut pour l&apos;aide, les liens, etc. Non recommandé en mode plein écran." value="0"/>
-		<radio_item label="Utiliser le navigateur intégré pour les liens Second Life uniquement" name="external" tool_tip="Utilisez le navigateur web système par défaut pour l&apos;aide, les liens Web, etc. Le navigateur intégré sera uniquement utilisé pour les liens LindenLab/SecondLife." value="1"/>
-		<radio_item label="Utiliser le navigateur intégré pour tous les liens" name="external_all" tool_tip="Utilisez le navigateur intégré pour obtenir de l’aide, ouvrir des liens etc. Ce navigateur s’ouvre dans [APP_NAME]." value="2"/>
+		<radio_item label="Utilisez le navigateur intégré par défaut pour tous les liens" name="internal" tool_tip="Utiliser le navigateur web système par défaut pour l&apos;aide, les liens, etc. Non recommandé en mode plein écran." value="0"/>
+		<radio_item label="Utilisez le navigateur intégré pour les liens Second Life uniquement" name="external" tool_tip="Utilisez le navigateur web système par défaut pour trouver de l&apos;aide, les liens web, etc. Le navigateur intégré ne sera utilisé que pour les liens LindenLab / SeconLife." value="1"/>
+		<radio_item label="Utilisez le navigateur intégré pour tous les liens" name="external_all" tool_tip="Utilisez le navigateur intégré pour obtenir de l’aide, ouvrir des liens etc. Ce navigateur s’ouvre dans [APP_NAME]." value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="Activer les plugins" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Accepter les cookies" name="cookies_enabled"/>

@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Animações
 	</text>
+	<text name="title_model">
+		Modelos
+	</text>
 	<text name="upload_help">
 		Para alterar a pasta de destino, clique com o botão direito nela no inventário e selecione
 &quot;Usar como padrão para&quot;

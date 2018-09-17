@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		アニメーション
 	</text>
+	<text name="title_model">
+		モデル
+	</text>
 	<text name="upload_help">
 		宛先フォルダを変更するには、持ち物でそのフォルダを右クリックして、&quot;デフォルトとして使用&quot; を選択します
 	</text>

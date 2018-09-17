@@ -1130,6 +1130,8 @@ static U8 string_value_to_click_action(std::string p_value)
 		return CLICK_ACTION_OPEN;
 	if (p_value == "Zoom")
 		return CLICK_ACTION_ZOOM;
+	if (p_value == "None")
+		return CLICK_ACTION_DISABLED;
 	return CLICK_ACTION_TOUCH;
 }
 

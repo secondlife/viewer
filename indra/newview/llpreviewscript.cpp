@@ -1741,14 +1741,22 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 			buffer[file_length] = 0;
 			preview->mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), TRUE);
 			preview->mScriptEd->mEditor->makePristine();
+
+			std::string script_name = DEFAULT_SCRIPT_NAME;
 			LLInventoryItem* item = gInventory.getItem(*item_uuid);
 			BOOL is_modifiable = FALSE;
-			if(item
-			   && gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
-				   					GP_OBJECT_MANIPULATE))
+			if (item)
 			{
-				is_modifiable = TRUE;		
+				if (!item->getName().empty())
+				{
+					script_name = item->getName();
+				}
+				if (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
+				{
+					is_modifiable = TRUE;
+				}
 			}
+			preview->mScriptEd->setScriptName(script_name);
 			preview->mScriptEd->setEnableEditing(is_modifiable);
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}

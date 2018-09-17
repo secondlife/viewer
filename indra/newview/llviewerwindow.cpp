@@ -193,6 +193,7 @@
 #include "llviewerdisplay.h"
 #include "llspatialpartition.h"
 #include "llviewerjoystick.h"
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
 #include "llfloaterimnearbychat.h"
@@ -4365,77 +4366,110 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picker, BOOL& insufficient_memory)
+void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picker, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb)
 {
-	insufficient_memory = FALSE;
-
 	if (!image)
 	{
 		LL_WARNS() << "No image to save" << LL_ENDL;
-		return FALSE;
+		return;
 	}
-
-	LLFilePicker::ESaveFilter pick_type;
 	std::string extension("." + image->getExtension());
-	if (extension == ".j2c")
-		pick_type = LLFilePicker::FFSAVE_J2C;
-	else if (extension == ".bmp")
-		pick_type = LLFilePicker::FFSAVE_BMP;
-	else if (extension == ".jpg")
-		pick_type = LLFilePicker::FFSAVE_JPEG;
-	else if (extension == ".png")
-		pick_type = LLFilePicker::FFSAVE_PNG;
-	else if (extension == ".tga")
-		pick_type = LLFilePicker::FFSAVE_TGA;
-	else
-		pick_type = LLFilePicker::FFSAVE_ALL; // ???
-	
-	BOOL is_snapshot_name_loc_set = isSnapshotLocSet();
-
+	LLImageFormatted* formatted_image = image;
 	// Get a base file location if needed.
 	if (force_picker || !isSnapshotLocSet())
 	{
-		std::string proposed_name( sSnapshotBaseName );
+		std::string proposed_name(sSnapshotBaseName);
 
 		// getSaveFile will append an appropriate extension to the proposed name, based on the ESaveFilter constant passed in.
+		LLFilePicker::ESaveFilter pick_type;
 
-		// pick a directory in which to save
-		LLFilePicker& picker = LLFilePicker::instance();
-		if (!picker.getSaveFile(pick_type, proposed_name))
-		{
-			// Clicked cancel
-			return FALSE;
-		}
+		if (extension == ".j2c")
+			pick_type = LLFilePicker::FFSAVE_J2C;
+		else if (extension == ".bmp")
+			pick_type = LLFilePicker::FFSAVE_BMP;
+		else if (extension == ".jpg")
+			pick_type = LLFilePicker::FFSAVE_JPEG;
+		else if (extension == ".png")
+			pick_type = LLFilePicker::FFSAVE_PNG;
+		else if (extension == ".tga")
+			pick_type = LLFilePicker::FFSAVE_TGA;
+		else
+			pick_type = LLFilePicker::FFSAVE_ALL;
 
-		// Copy the directory + file name
-		std::string filepath = picker.getFirstFile();
-
-		gSavedPerAccountSettings.setString("SnapshotBaseName", gDirUtilp->getBaseFileName(filepath, true));
-		gSavedPerAccountSettings.setString("SnapshotBaseDir", gDirUtilp->getDirName(filepath));
+		(new LLFilePickerReplyThread(boost::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
+										boost::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb)))->getFile();
 	}
-
-	std::string snapshot_dir = sSnapshotDir;
-	if(snapshot_dir.empty())
+	else
 	{
-		return FALSE;
+		saveImageLocal(formatted_image, success_cb, failure_cb);
+	}	
+}
+
+void LLViewerWindow::onDirectorySelected(const std::vector<std::string>& filenames, LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb)
+{
+	// Copy the directory + file name
+	std::string filepath = filenames[0];
+
+	gSavedPerAccountSettings.setString("SnapshotBaseName", gDirUtilp->getBaseFileName(filepath, true));
+	gSavedPerAccountSettings.setString("SnapshotBaseDir", gDirUtilp->getDirName(filepath));
+	saveImageLocal(image, success_cb, failure_cb);
+}
+
+void LLViewerWindow::onSelectionFailure(const snapshot_saved_signal_t::slot_type& failure_cb)
+{
+	failure_cb();
+}
+
+
+void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb)
+{
+	std::string lastSnapshotDir = LLViewerWindow::getLastSnapshotDir();
+	if (lastSnapshotDir.empty())
+	{
+		failure_cb();
+		return;
 	}
 
 // Check if there is enough free space to save snapshot
 #ifdef LL_WINDOWS
-	boost::filesystem::space_info b_space = boost::filesystem::space(utf8str_to_utf16str(snapshot_dir));
+	boost::filesystem::path b_path(utf8str_to_utf16str(lastSnapshotDir));
 #else
-	boost::filesystem::space_info b_space = boost::filesystem::space(snapshot_dir);
+	boost::filesystem::path b_path(lastSnapshotDir);
 #endif
+	if (!boost::filesystem::is_directory(b_path))
+	{
+		LLSD args;
+		args["PATH"] = lastSnapshotDir;
+		LLNotificationsUtil::add("SnapshotToLocalDirNotExist", args);
+		resetSnapshotLoc();
+		failure_cb();
+		return;
+	}
+	boost::filesystem::space_info b_space = boost::filesystem::space(b_path);
 	if (b_space.free < image->getDataSize())
 	{
-		insufficient_memory = TRUE;
-		return FALSE;
+		LLSD args;
+		args["PATH"] = lastSnapshotDir;
+
+		std::string needM_bytes_string;
+		LLResMgr::getInstance()->getIntegerString(needM_bytes_string, (image->getDataSize()) >> 10);
+		args["NEED_MEMORY"] = needM_bytes_string;
+
+		std::string freeM_bytes_string;
+		LLResMgr::getInstance()->getIntegerString(freeM_bytes_string, (b_space.free) >> 10);
+		args["FREE_MEMORY"] = freeM_bytes_string;
+
+		LLNotificationsUtil::add("SnapshotToComputerFailed", args);
+
+		failure_cb();
 	}
+	
 	// Look for an unused file name
+	BOOL is_snapshot_name_loc_set = isSnapshotLocSet();
 	std::string filepath;
 	S32 i = 1;
 	S32 err = 0;
-
+	std::string extension("." + image->getExtension());
 	do
 	{
 		filepath = sSnapshotDir;
@@ -4457,7 +4491,15 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 			&& is_snapshot_name_loc_set); // Or stop if we are rewriting.
 
 	LL_INFOS() << "Saving snapshot to " << filepath << LL_ENDL;
-	return image->save(filepath);
+	if (image->save(filepath))
+	{
+		playSnapshotAnimAndSound();
+		success_cb();
+	}
+	else
+	{
+		failure_cb();
+	}
 }
 
 void LLViewerWindow::resetSnapshotLoc()

@@ -79,7 +79,7 @@ LLVoiceHandler gVoiceHandler;
 
 std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserver::EStatusType inStatus)
 {
-	std::string result = "UNKNOWN";
+	std::string result = "UNTRANSLATED";
 	
 	// Prevent copy-paste errors when updating this list...
 #define CASE(x)  case x:  result = #x;  break
@@ -92,12 +92,18 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 			CASE(STATUS_JOINED);
 			CASE(STATUS_LEFT_CHANNEL);
 			CASE(STATUS_VOICE_DISABLED);
+			CASE(STATUS_VOICE_ENABLED);
 			CASE(BEGIN_ERROR_STATUS);
 			CASE(ERROR_CHANNEL_FULL);
 			CASE(ERROR_CHANNEL_LOCKED);
 			CASE(ERROR_NOT_AVAILABLE);
 			CASE(ERROR_UNKNOWN);
 		default:
+            {
+                std::ostringstream stream;
+                stream << "UNKNOWN(" << (int)inStatus << ")";
+                result = stream.str();
+            }
 			break;
 	}
 	

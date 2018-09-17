@@ -192,7 +192,13 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 				ret = (U8*) ll_aligned_malloc<64>(size);
 				if (!ret)
 				{
-					LL_ERRS() << "Failed to allocate for LLVBOPool buffer" << LL_ENDL;
+					LL_ERRS() << "Failed to allocate "<< size << " bytes for LLVBOPool buffer " << name <<"." << LL_NEWLINE
+							  << "Free list size: " << mFreeList.size() // this happens if we are out of memory so a solution might be to clear some from freelist
+							  << " Allocated Bytes: " << LLVertexBuffer::sAllocatedBytes
+							  << " Allocated Index Bytes: " << LLVertexBuffer::sAllocatedIndexBytes
+							  << " Pooled Bytes: " << sBytesPooled
+							  << " Pooled Index Bytes: " << sIndexBytesPooled
+							  << LL_ENDL;
 				}
 			}
 		}

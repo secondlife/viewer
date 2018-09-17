@@ -1115,6 +1115,10 @@
                  label="Zoom"
                  name="Zoom"
                  value="Zoom" />
+                <combo_box.item
+                 label="None"
+                 name="None"
+                 value="None" />
             </combo_box>
             <check_box
              height="23"

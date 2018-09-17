@@ -151,6 +151,9 @@ public:
     /// for delayed initialization
     void setStackSize(S32 stacksize);
 
+    /// for delayed initialization
+    void printActiveCoroutines();
+
     /// get the current coro::self& for those who really really care
     static coro::self& get_self();
 
@@ -223,6 +226,7 @@ private:
         // function signature down to that point -- and of course through every
         // other caller of every such function.
         LLCoros::coro::self* mSelf;
+        F64 mCreationTime; // since epoch
     };
     typedef boost::ptr_map<std::string, CoroData> CoroMap;
     CoroMap mCoros;

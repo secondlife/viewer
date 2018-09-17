@@ -1096,16 +1096,15 @@ void LLFloaterPreference::onClickSetCache()
 	
 	std::string proposed_name(cur_name);
 
-	LLDirPicker& picker = LLDirPicker::instance();
-	if (! picker.getDir(&proposed_name ) )
-	{
-		return; //Canceled!
-	}
+	(new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeCachePath, this, _1, _2), proposed_name))->getFile();
+}
 
-	std::string dir_name = picker.getDirName();
-	if (!dir_name.empty() && dir_name != cur_name)
+void LLFloaterPreference::changeCachePath(const std::vector<std::string>& filenames, std::string proposed_name)
+{
+	std::string dir_name = filenames[0];
+	if (!dir_name.empty() && dir_name != proposed_name)
 	{
-		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));	
+		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));
 		LLNotificationsUtil::add("CacheWillBeMoved");
 		gSavedSettings.setString("NewCacheLocation", dir_name);
 		gSavedSettings.setString("NewCacheLocationTopFolder", new_top_folder);
@@ -1744,25 +1743,21 @@ void LLFloaterPreference::onClickLogPath()
 	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
 	mPriorInstantMessageLogPath.clear();
 	
-	LLDirPicker& picker = LLDirPicker::instance();
-	//Launches a directory picker and waits for feedback
-	if (!picker.getDir(&proposed_name ) )
-	{
-		return; //Canceled!
-	}
 
-	//Gets the path from the directory picker
-	std::string dir_name = picker.getDirName();
-
-	//Path changed
-	if(proposed_name != dir_name)
-	{
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
-		mPriorInstantMessageLogPath = proposed_name;
-	
-	// enable/disable 'Delete transcripts button
-	updateDeleteTranscriptsButton();
+	(new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeLogPath, this, _1, _2), proposed_name))->getFile();
 }
+
+void LLFloaterPreference::changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name)
+{
+	//Path changed
+	if (proposed_name != filenames[0])
+	{
+		gSavedPerAccountSettings.setString("InstantMessageLogPath", filenames[0]);
+		mPriorInstantMessageLogPath = proposed_name;
+
+		// enable/disable 'Delete transcripts button
+		updateDeleteTranscriptsButton();
+	}
 }
 
 bool LLFloaterPreference::moveTranscriptsAndLog()

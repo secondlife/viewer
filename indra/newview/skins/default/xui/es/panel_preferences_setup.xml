@@ -15,8 +15,8 @@
 		Web:
 	</text>
 	<radio_group name="preferred_browser_behavior">
-		<radio_item label="Usar mi navegador (Chrome, Firefox, IE) para todos los enlaces" name="internal" tool_tip="Usa el navegador predeterminado para obtener ayuda, visitar enlaces web, etc. No es aconsejable si estás a pantalla completa." value="0"/>
-		<radio_item label="Usar el navegador integrado solo para los enlaces de Second Life" name="external" tool_tip="Usa el navegador predeterminado del sistema para obtener ayuda, visitar enlaces web, etc. El navegador integrado solo se utilizará para los enlaces de LindenLab/SecondLife." value="1"/>
+		<radio_item label="Usar el navegador incorporado para todos los enlaces" name="internal" tool_tip="Usa el navegador predeterminado para obtener ayuda, visitar enlaces web, etc. No es aconsejable si estás a pantalla completa." value="0"/>
+		<radio_item label="Usar el navegador integrado solo para los enlaces de Second Life" name="external" tool_tip="Usa el navegador predeterminado para obtener ayuda, visitar enlaces web, etc. Se utilizará el navegador incorporado sólo para los enlaces LindenLab/Second Life." value="1"/>
 		<radio_item label="Usar el navegador incorporado para todos los vínculos" name="external_all" tool_tip="Usa el navegador incorporado para ayuda, enlaces web, etc. Este navegador se abre en una nueva ventana dentro de [APP_NAME]." value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="Activar plugins" name="browser_plugins_enabled"/>

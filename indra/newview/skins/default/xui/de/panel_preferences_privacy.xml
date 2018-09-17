@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		Anmelden, um Änderungen vorzunehmen
 	</panel.string>
-	<button label="Cache leeren" name="clear_cache" tool_tip="Bild bei Anmeldung, letzter Standort, Teleport-Liste, Internet- und Texturen-Cache löschen"/>
+	<button label="Cache leeren" name="clear_cache" tool_tip="Anmeldungsbild, letzten Standort, Teleport-Liste, Internet- und Texturen-Cache löschen"/>
 	<text name="cache_size_label_l">
 		(Standorte, Bilder, Web, Suchverlauf)
 	</text>

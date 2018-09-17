@@ -162,6 +162,8 @@ protected:
 									 MASK mask, BOOL drop);
 	EAcceptance dad3dRezObjectOnObject(LLViewerObject* obj, S32 face,
 									   MASK mask, BOOL drop);
+	EAcceptance dad3dRezCategoryOnObject(LLViewerObject* obj, S32 face,
+										 MASK mask, BOOL drop);
 	EAcceptance dad3dRezScript(LLViewerObject* obj, S32 face,
 							   MASK mask, BOOL drop);
 	EAcceptance dad3dTextureObject(LLViewerObject* obj, S32 face,

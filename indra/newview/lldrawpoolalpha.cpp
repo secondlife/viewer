@@ -328,6 +328,9 @@ void LLDrawPoolAlpha::render(S32 pass)
 		gGL.diffuseColor4f(0, 0, 1, 1);
 		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
 
+		gGL.diffuseColor4f(0, 1, 0, 1);
+		pushBatches(LLRenderPass::PASS_INVISIBLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+
 		if(shaders) 
 		{
 			gHighlightProgram.unbind();

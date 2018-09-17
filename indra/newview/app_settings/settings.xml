@@ -3703,13 +3703,13 @@
 	<key>FeatureManagerHTTPTable</key>
       <map>
         <key>Comment</key>
-        <string>Base directory for HTTP feature/gpu table fetches</string>
+        <string>Deprecated</string>
         <key>Persist</key>
-        <integer>1</integer>
+        <integer>0</integer>
         <key>Type</key>
         <string>String</string>
         <key>Value</key>
-        <string>http://viewer-settings.secondlife.com</string>
+        <string></string>
     </map>
     <key>FPSLogFrequency</key>
         <map>
@@ -12280,7 +12280,7 @@
       <key>Comment</key>
       <string>If TRUE, always load textures at full resolution (discard = 0)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

@@ -1309,17 +1309,15 @@ void LLFloaterSnapshot::saveTexture()
 	previewp->saveTexture();
 }
 
-BOOL LLFloaterSnapshot::saveLocal()
+void LLFloaterSnapshot::saveLocal(const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb)
 {
 	LL_DEBUGS() << "saveLocal" << LL_ENDL;
 	LLSnapshotLivePreview* previewp = getPreviewView();
-	if (!previewp)
+	llassert(previewp != NULL);
+	if (previewp)
 	{
-		llassert(previewp != NULL);
-		return FALSE;
+		previewp->saveLocal(success_cb, failure_cb);
 	}
-
-	return previewp->saveLocal();
 }
 
 void LLFloaterSnapshotBase::postSave()

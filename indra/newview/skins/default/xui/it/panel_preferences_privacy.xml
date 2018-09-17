@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		accedi per cambiare
 	</panel.string>
-	<button label="Pulisci la cronologia" name="clear_cache" tool_tip="Elimina immagine login, ultimo luogo, cronologia teleport, web e texture cache"/>
+	<button label="Pulisci la cronologia" name="clear_cache" tool_tip="Elimina immagine login, ultimo luogo, cronologia teletrasporto, cache web e texture"/>
 	<text name="cache_size_label_l">
 		(Luoghi, immagini, web, cronologia ricerche)
 	</text>

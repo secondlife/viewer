@@ -528,10 +528,24 @@ public:
 		registrar_enable.add("ObjectIcon.Visible", boost::bind(&LLChatHistoryHeader::onObjectIconContextMenuItemVisible, this, _2));
 
 		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-		mPopupMenuHandleAvatar = menu->getHandle();
+		if (menu)
+		{
+			mPopupMenuHandleAvatar = menu->getHandle();
+		}
+		else
+		{
+			LL_WARNS() << " Failed to create menu_avatar_icon.xml" << LL_ENDL;
+		}
 
 		menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-		mPopupMenuHandleObject = menu->getHandle();
+		if (menu)
+		{
+			mPopupMenuHandleObject = menu->getHandle();
+		}
+		else
+		{
+			LL_WARNS() << " Failed to create menu_object_icon.xml" << LL_ENDL;
+		}
 
 		setDoubleClickCallback(boost::bind(&LLChatHistoryHeader::showInspector, this));
 
@@ -619,7 +633,12 @@ public:
 		}  
 
 		mUserNameFont = style_params.font();
-		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		if (!mUserNameTextBox)
+		{
+			mUserNameTextBox = getChild<LLTextBox>("user_name");
+			mTimeBoxTextBox = getChild<LLTextBox>("time_box");
+		}
+		LLTextBox* user_name = mUserNameTextBox;
 		user_name->setReadOnlyColor(style_params.readonly_color());
 		user_name->setColor(style_params.color());
 
