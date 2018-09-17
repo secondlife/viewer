@@ -115,7 +115,7 @@ void main()
 		
 	vec4 fb = texture2D(screenTex, distort);
 
-	frag_data[0] = vec4(linear_to_srgb(fb.rgb), 1.0); // diffuse
+	frag_data[0] = vec4(fb.rgb, 1.0); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
 	frag_data[2] = vec4(encode_normal(wavef), 0.0, 0.0); // normalxyz, displace
 }
