@@ -534,7 +534,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
                 boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.25f)(20.0f))), LLSD::Real(1.0)));
         validation.push_back(Validator(SETTING_MOON_TEXTUREID,      false, LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_STAR_BRIGHTNESS,     true,  LLSD::TypeReal, 
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(512.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(500.0f)))));
         validation.push_back(Validator(SETTING_SUNLIGHT_COLOR,      true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
@@ -784,7 +784,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     }
     if (legacy.has(SETTING_STAR_BRIGHTNESS))
     {
-        newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(legacy[SETTING_STAR_BRIGHTNESS].asReal()) * 256.0f;
+        newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(legacy[SETTING_STAR_BRIGHTNESS].asReal() * 250.0f);
     }
     if (legacy.has(SETTING_SUNLIGHT_COLOR))
     {
