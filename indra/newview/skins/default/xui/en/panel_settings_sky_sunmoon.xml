@@ -171,7 +171,7 @@
                     layout="topleft"
                     left_delta="5"
                     min_val="0"
-                    max_val="512"
+                    max_val="500"
                     name="star_brightness"
                     top_delta="15"
                     width="250"
