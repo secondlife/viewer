@@ -293,7 +293,7 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 	LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
-    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 512.0f;
+    F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 500.0f;
 
 	// If start_brightness is not set, exit
 	if(star_alpha < 0.001f)
