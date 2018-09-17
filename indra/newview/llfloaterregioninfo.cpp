@@ -3447,8 +3447,10 @@ void LLPanelRegionEnvironment::refreshFromEstate()
 
 void LLPanelRegionEnvironment::refreshFromSource()
 {
+    LLHandle<LLPanel> that_h = getHandle();
+
     LLEnvironment::instance().requestRegion(
-        [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
+        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
 }
 
 void LLPanelRegionEnvironment::doApply()

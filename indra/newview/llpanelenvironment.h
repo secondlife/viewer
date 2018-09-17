@@ -121,6 +121,7 @@ protected:
     void                        onEditCommitted(LLSettingsDay::ptr_t newday);
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
+    static void                 _onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
     virtual void                refreshFromSource() = 0;
 
@@ -132,6 +133,7 @@ protected:
 
     void                        setCrossRegion(bool val) { mCrossRegion = val; }
     void                        setNoSelection(bool val) { mNoSelection = val; }
+    void                        setNoEnvironmentSupport(bool val) { mNoEnvironment = val; }
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
 
@@ -165,6 +167,6 @@ private:
     S32                             mDirtyFlag;
     bool                            mCrossRegion;
     bool                            mNoSelection;
-
+    bool                            mNoEnvironment;
 };
 #endif // LL_LLPANELEXPERIENCES_H

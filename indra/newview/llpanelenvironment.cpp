@@ -119,6 +119,7 @@ LLPanelEnvironmentInfo::LLPanelEnvironmentInfo():
     mDirtyFlag(0),
     mCrossRegion(false),
     mNoSelection(false),
+    mNoEnvironment(false),
     mSettingsFloater(),
     mEditFloater()
 {
@@ -330,7 +331,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     bool is_unavailable(false);
     bool is_legacy = (mCurrentEnvironment) ? mCurrentEnvironment->mIsLegacy : true;
 
-    if (!LLEnvironment::instance().isExtendedEnvironmentEnabled() && !isRegion())
+    if (mNoEnvironment || (!LLEnvironment::instance().isExtendedEnvironmentEnabled() && !isRegion()))
     {
         is_unavailable = true;
         getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_LEGACY));
@@ -574,24 +575,26 @@ void LLPanelEnvironmentInfo::doApply()
 
     if (getIsDirtyFlag(DIRTY_FLAG_MASK))
     {
+        LLHandle<LLPanel> that_h = getHandle();
+
         S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
 
         if (rdo_selection == 0)
         {
             LLEnvironment::instance().resetParcel(parcel_id,
-                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
+                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
         else if (rdo_selection == 1)
         {
             LLEnvironment::instance().updateParcel(parcel_id,
                 mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(),
-                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
+                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
         else
         {
             LLEnvironment::instance().updateParcel(parcel_id,
                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), 
-                [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) {onEnvironmentReceived(parcel_id, envifo); });
+                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
 
         // Todo: save altitudes once LLEnvironment::setRegionAltitudes() gets implemented
@@ -694,4 +697,12 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment:
     mCurrentEnvironment = envifo;
     clearDirtyFlag(DIRTY_FLAG_MASK);
     refresh();
+}
+
+void LLPanelEnvironmentInfo::_onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+{
+    LLPanelEnvironmentInfo *that = (LLPanelEnvironmentInfo *)that_h.get();
+    if (!that)
+        return;
+    that->onEnvironmentReceived(parcel_id, envifo);
 }

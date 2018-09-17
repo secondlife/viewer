@@ -3304,6 +3304,14 @@ void LLPanelLandEnvironment::refreshFromSource()
 {
     LLParcel *parcel = getParcel();
 
+    if (!LLEnvironment::instance().isExtendedEnvironmentEnabled())
+    {
+        setNoEnvironmentSupport(true);
+        setControlsEnabled(false);
+        return;
+    }
+    setNoEnvironmentSupport(false);
+
     if (!parcel)
     {
         setNoSelection(true);
@@ -3316,8 +3324,16 @@ void LLPanelLandEnvironment::refreshFromSource()
     {
         setCrossRegion(false);
 
+        LLHandle<LLPanel> that_h = getHandle();
+
         LLEnvironment::instance().requestParcel(parcel->getLocalID(),
-            [this](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { mLastParcelId = parcel_id; onEnvironmentReceived(parcel_id, envifo); });
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) 
+            {  
+                LLPanelLandEnvironment *that = (LLPanelLandEnvironment*)that_h.get();
+                if (!that) return;
+                that->mLastParcelId = parcel_id; 
+                that->onEnvironmentReceived(parcel_id, envifo); 
+            });
     }
     else
     {
