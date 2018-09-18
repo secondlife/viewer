@@ -41,7 +41,7 @@ VARYING vec4 vertex_color;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * vertex_color.a;
+	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a;
 
 	if (alpha < 0.05) // treat as totally transparent
 	{
@@ -50,7 +50,7 @@ void main()
 
 	if (alpha < minimum_alpha) // treat as semi-transparent
 	{
-	  if (fract(0.5*floor(target_pos_x / pos_w )) < 0.25)
+	  //if (fract(0.5*floor(target_pos_x / pos_w )) < 0.25)
 	  {
 	    discard;
 	  }
