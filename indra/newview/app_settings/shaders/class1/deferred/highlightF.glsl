@@ -36,7 +36,7 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	frag_data[0] = color*texture2D(diffuseMap, vary_texcoord0.xy));
+	frag_data[0] = color*texture2D(diffuseMap, vary_texcoord0.xy);
 	frag_data[1] = vec4(0.0);
 	frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
 }
