@@ -851,6 +851,7 @@ void LLSettingsVOWater::updateSettings()
     if (pwaterpool)
     {
         pwaterpool->setTransparentTextures(getTransparentTextureID(), getNextTransparentTextureID());
+        pwaterpool->setOpaqueTexture(GetDefaultOpaqueTextureAssetId());
         pwaterpool->setNormalMaps(getNormalMapID(), getNextNormalMapID());
     }
 }
