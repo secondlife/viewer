@@ -1768,6 +1768,8 @@ void LLEnvironment::DayTransition::animate()
 
             if (!mBlenderSky && !mBlenderWater)
                 LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
+            else
+                setWater(mNextInstance->getWater());
     });
 
     mSky = mStartSky->buildClone();
@@ -1778,6 +1780,8 @@ void LLEnvironment::DayTransition::animate()
 
         if (!mBlenderSky && !mBlenderWater)
             LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
+        else
+            setSky(mNextInstance->getSky());
     });
 }
 
