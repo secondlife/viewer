@@ -1085,6 +1085,9 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     else
         settings->setFlag(LLSettingsBase::FLAG_NOMOD);
 
+    if (mInventoryItem)
+        settings->setName(mInventoryItem->getName());
+
     setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
 }
 
