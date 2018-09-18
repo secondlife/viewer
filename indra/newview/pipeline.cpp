@@ -339,6 +339,7 @@ bool	LLPipeline::sRenderFrameTest = false;
 bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
+bool	LLPipeline::sRenderingWaterReflection = false;
 bool    LLPipeline::sMemAllocationThrottled = false;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
@@ -9838,6 +9839,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
 
+            LLPipeline::sRenderingWaterReflection = true;
+
 			//disable occlusion culling for reflection map for now
 			S32 occlusion = LLPipeline::sUseOcclusion;
 			LLPipeline::sUseOcclusion = 0;
@@ -9972,6 +9975,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 				gPipeline.popRenderTypeMask();
 			}	
+
+            LLPipeline::sRenderingWaterReflection = false;
+
 			glCullFace(GL_BACK);
 			gGL.popMatrix();
 			mWaterRef.flush();
