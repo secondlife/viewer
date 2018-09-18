@@ -329,6 +329,11 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
     }
 
     gDeferredStarProgram.uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+
+    if (LLPipeline::sRenderingWaterReflection)
+    {
+        star_alpha = 1.0f;
+    }
 	gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
 
     sStarTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;

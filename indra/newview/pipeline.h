@@ -582,6 +582,7 @@ public:
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
+    static bool				sRenderingWaterReflection;
 	static bool             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
