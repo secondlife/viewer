@@ -278,8 +278,6 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     }
     else
     {
-        mInventoryItem = nullptr;
-        mInventoryId.setNull();
         mCanCopy = true;
         mCanMod = true;
         mMakeNoTrans = false;
@@ -450,6 +448,8 @@ void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
 
 void LLFloaterEditExtDayCycle::setEditDefaultDayCycle()
 {
+    mInventoryItem = nullptr;
+    mInventoryId.setNull();
     LLSettingsVOBase::getSettingsAsset(LLSettingsDay::GetDefaultAssetId(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
@@ -1066,6 +1066,13 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 
 void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
+    if ((mInventoryItem && mInventoryItem->getAssetUUID() != asset_id)
+        || (!mInventoryItem && LLSettingsDay::GetDefaultAssetId() != asset_id))
+    {
+        LL_WARNS("ENVDAYEDIT") << "Discarding obsolete asset callback" << LL_ENDL;
+        return;
+    }
+
     if (!settings || status)
     {
         LLSD args;

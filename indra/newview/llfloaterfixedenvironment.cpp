@@ -292,12 +292,30 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
 
 void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID asset_id)
 {
+    mInventoryItem = NULL;
+    mInventoryId.setNull();
+    if (!mInventoryFloater.isDead())
+    {
+        LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
+        if (picker)
+        {
+            mInventoryId = picker->findItemID(asset_id, false);
+            mInventoryItem = gInventory.getItem(mInventoryId);
+        }
+    }
+
     LLSettingsVOBase::getSettingsAsset(asset_id,
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
 void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
+    if (mInventoryItem && mInventoryItem->getAssetUUID() != asset_id)
+    {
+        LL_WARNS("ENVIRONMENT") << "Discarding obsolete asset callback" << LL_ENDL;
+        return;
+    }
+
     if (!settings || status)
     {
         LLSD args;
