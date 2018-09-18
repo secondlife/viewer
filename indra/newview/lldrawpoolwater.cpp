@@ -76,10 +76,10 @@ void LLDrawPoolWater::setTransparentTextures(const LLUUID& transparentTextureId,
     mWaterImagep[1]->addTextureStats(1024.f*1024.f);
 }
 
-void LLDrawPoolWater::setOpaqueTexture()
+void LLDrawPoolWater::setOpaqueTexture(const LLUUID& opaqueTextureId)
 {
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
-    mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(pwater->GetDefaultOpaqueTextureAssetId());
+    mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(opaqueTextureId);
     mOpaqueWaterImagep->addTextureStats(1024.f*1024.f);
 }
 

@@ -83,7 +83,7 @@ public:
 	void shade();
 
     void setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId);
-    void setOpaqueTexture();
+    void setOpaqueTexture(const LLUUID& opaqueTextureId);
     void setNormalMaps(const LLUUID& normalMapId, const LLUUID& nextNormalMapId);
 
 protected:
