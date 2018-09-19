@@ -1344,24 +1344,22 @@ BOOL LLVOVolume::calcLOD()
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
             radius = diag.magVec() * 0.5f;
-            //LL_DEBUGS("DynamicBox") << avatar->getFullname() << " diag " << diag << " radius " << radius << LL_ENDL;
+            LL_DEBUGS("DynamicBox") << avatar->getFullname() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         else
         {
             // Volume in a rigged mesh attached to a regular avatar.
-#if 0
             // Note this isn't really a radius, so distance calcs are off by factor of 2
-            radius = avatar->getBinRadius();
-#else
+            //radius = avatar->getBinRadius();
             // SL-937: add dynamic box handling for rigged mesh on regular avatars.
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
             radius = diag.magVec(); // preserve old BinRadius behavior - 2x off
-#endif
+            LL_DEBUGS("DynamicBox") << avatar->getFullname() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         if (distance <= 0.f || radius <= 0.f)
         {
-            LL_DEBUGS("CalcLOD") << "avatar distance/radius uninitialized, skipping" << LL_ENDL;
+            LL_DEBUGS("DynamicBox","CalcLOD") << "avatar distance/radius uninitialized, skipping" << LL_ENDL;
             return FALSE;
         }
 	}
@@ -1371,7 +1369,7 @@ BOOL LLVOVolume::calcLOD()
 		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
         if (distance <= 0.f || radius <= 0.f)
         {
-            LL_DEBUGS("CalcLOD") << "non-avatar distance/radius uninitialized, skipping" << LL_ENDL;
+            LL_DEBUGS("DynamicBox","CalcLOD") << "non-avatar distance/radius uninitialized, skipping" << LL_ENDL;
             return FALSE;
         }
 	}
@@ -1414,7 +1412,15 @@ BOOL LLVOVolume::calcLOD()
 
     mLODAdjustedDistance = distance;
 
-	cur_detail = computeLODDetail(ll_round(distance, 0.01f), ll_round(radius, 0.01f), lod_factor);
+    if (isHUDAttachment())
+    {
+        // HUDs always show at highest detail
+        cur_detail = 3;
+    }
+    else
+    {
+        cur_detail = computeLODDetail(ll_round(distance, 0.01f), ll_round(radius, 0.01f), lod_factor);
+    }
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT) && mDrawable->getFace(0))
     {
@@ -1434,7 +1440,7 @@ BOOL LLVOVolume::calcLOD()
 
 	if (cur_detail != mLOD)
 	{
-        LL_DEBUGS("CalcLOD") << "new LOD " << cur_detail << " change from " << mLOD 
+        LL_DEBUGS("DynamicBox","CalcLOD") << "new LOD " << cur_detail << " change from " << mLOD 
                              << " distance " << distance << " radius " << radius << " rampDist " << rampDist
                              << " drawable rigged? " << (mDrawable ? (S32) mDrawable->isState(LLDrawable::RIGGED) : (S32) -1)
 							 << " mRiggedVolume " << (void*)getRiggedVolume()
