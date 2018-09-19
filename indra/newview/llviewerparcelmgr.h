@@ -263,6 +263,7 @@ public:
 
 	// accessors for mAgentParcel
 	const std::string& getAgentParcelName() const;
+    const S32 getAgentParcelId() const;
 
 	// Create a landmark at the "appropriate" location for the
 	// currently selected parcel.

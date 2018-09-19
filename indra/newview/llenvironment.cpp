@@ -502,7 +502,9 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
     environment->setDay(pday, daylength, dayoffset);
     environment->setSkyTrack(mCurrentTrack);
     environment->animate();
-    /*TODO: readjust environment*/
+
+    if (!mSignalEnvChanged.empty())
+        mSignalEnvChanged(env);
 }
 
 
@@ -519,6 +521,8 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
     environment->clear();
     environment->setSky((fixed.first) ? fixed.first : mEnvironments[ENV_DEFAULT]->getSky());
     environment->setWater((fixed.second) ? fixed.second : mEnvironments[ENV_DEFAULT]->getWater());
+    if (!mSignalEnvChanged.empty())
+        mSignalEnvChanged(env);
 
     /*TODO: readjust environment*/
 }
@@ -605,6 +609,10 @@ void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
     }
 
     mEnvironments[env].reset();
+
+    if (!mSignalEnvChanged.empty())
+        mSignalEnvChanged(env);
+
     /*TODO: readjust environment*/
 }
 

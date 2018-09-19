@@ -135,15 +135,12 @@ public:
     };
 
     typedef std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t> fixedEnvironment_t;
+    typedef std::function<void(S32, EnvironmentInfo::ptr_t)>        environment_apply_fn;
+    typedef boost::signals2::signal<void(EnvSelection_t)>           env_changed_signal_t;
+    typedef env_changed_signal_t::slot_type                         env_changed_fn;
+    typedef std::array<F32, 4>                                      altitude_list_t;
 
-    typedef std::function<void(S32, EnvironmentInfo::ptr_t)>     environment_apply_fn;
-
-    typedef boost::signals2::signal<void(EnvSelection_t, const LLSettingsBase::ptr_t &)>    environment_changed_signal_t;
-    typedef environment_changed_signal_t::slot_type         environment_changed_fn;
-
-    typedef std::array<F32, 4>                              altitude_list_t;
-
-    virtual ~LLEnvironment();
+    virtual                     ~LLEnvironment();
 
     void                        loadPreferences();
     void                        updatePreferences();
@@ -229,7 +226,7 @@ public:
     LLSettingsDay::ptr_t        createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings);
 
     //-------------------------------------------
-    connection_t                setEnvironmentChanged(environment_changed_fn cb);
+    connection_t                setEnvironmentChanged(env_changed_fn cb)    { return mSignalEnvChanged.connect(cb); }
 
     void                        requestRegion(environment_apply_fn cb = environment_apply_fn());
     void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
@@ -349,6 +346,8 @@ private:
 
     LLSettingsBlender::ptr_t    mBlenderSky;
     LLSettingsBlender::ptr_t    mBlenderWater;
+
+    env_changed_signal_t        mSignalEnvChanged;
 
     UserPrefs                   mUserPrefs;
 

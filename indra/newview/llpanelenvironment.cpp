@@ -125,6 +125,12 @@ LLPanelEnvironmentInfo::LLPanelEnvironmentInfo():
 {
 }
 
+LLPanelEnvironmentInfo::~LLPanelEnvironmentInfo()
+{
+    if (mChangeMonitor.connected())
+        mChangeMonitor.disconnect();
+}
+
 BOOL LLPanelEnvironmentInfo::postBuild()
 {
     getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onSwitchDefaultSelection(); });
@@ -137,6 +143,8 @@ BOOL LLPanelEnvironmentInfo::postBuild()
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged(value.asReal()); });
 
     getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
+
+    mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env) { onEnvironmentChanged(env); });
 
     return TRUE;
 }
@@ -151,7 +159,9 @@ void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
 {
     if (new_visibility)
+    {
         gIdleCallbacks.addFunction(onIdlePlay, this);
+    }
     else
     {
         LLFloaterSettingsPicker *picker = getSettingsPicker(false);
@@ -164,6 +174,7 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
         LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
         if (mCommitConnection.connected())
             mCommitConnection.disconnect();
+
         if (dayeditor)
         {
             if (dayeditor->isDirty())
@@ -673,6 +684,17 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
         refresh();
     }
 }
+
+void LLPanelEnvironmentInfo::onEnvironmentChanged(LLEnvironment::EnvSelection_t env)
+{
+    if ((isRegion() && (env == LLEnvironment::ENV_REGION)) || 
+        ((env == LLEnvironment::ENV_PARCEL) && (getParcelId() == LLViewerParcelMgr::instance().getAgentParcelId())))
+    {
+        mCurrentEnvironment.reset();
+        refreshFromSource();
+    }
+}
+
 
 void LLPanelEnvironmentInfo::onPickerAssetDownloaded(LLSettingsBase::ptr_t settings)
 {

@@ -1312,6 +1312,13 @@ const std::string& LLViewerParcelMgr::getAgentParcelName() const
 }
 
 
+const S32 LLViewerParcelMgr::getAgentParcelId() const
+{
+    if (mAgentParcel)
+        return mAgentParcel->getLocalID();
+    return INVALID_PARCEL_ID;
+}
+
 void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
 {
 	if(!parcel) 

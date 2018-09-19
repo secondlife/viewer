@@ -43,6 +43,7 @@ class LLPanelEnvironmentInfo : public LLPanel
 {
 public:
                                 LLPanelEnvironmentInfo();
+    virtual                     ~LLPanelEnvironmentInfo();
 
     virtual BOOL                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
@@ -137,6 +138,8 @@ protected:
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
 
+    void                        onEnvironmentChanged(LLEnvironment::EnvSelection_t env);
+
     class AltitudeData
     {
     public:
@@ -162,6 +165,7 @@ private:
     typedef boost::signals2::connection connection_t;
 
     connection_t                    mCommitConnection;
+    connection_t                    mChangeMonitor;
     LLHandle<LLFloater>             mSettingsFloater;
     LLHandle<LLFloater>             mEditFloater;
     S32                             mDirtyFlag;
