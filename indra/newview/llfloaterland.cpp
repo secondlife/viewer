@@ -3340,8 +3340,8 @@ void LLPanelLandEnvironment::refreshFromSource()
         setCrossRegion(true);
         mCurrentEnvironment.reset();
         mLastParcelId = INVALID_PARCEL_ID;
-        setControlsEnabled(false);
     }
+    setControlsEnabled(false);
 }
 
 
