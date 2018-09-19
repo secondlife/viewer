@@ -9806,27 +9806,31 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		stop_glerror();
 		LLPlane plane;
 
-		F32 height = gAgent.getRegion()->getWaterHeight(); 
-		F32 to_clip = fabsf(camera.getOrigin().mV[2]-height);
-		F32 pad = -to_clip*0.05f; //amount to "pad" clip plane by
+        F32 water_height      = gAgent.getRegion()->getWaterHeight(); 
+        F32 camera_height     = camera_in.getOrigin().mV[2];
+        F32 distance_to_water = (water_height < camera_height) ? (camera_height - water_height) : (water_height - camera_height);
+
+        LLVector3 reflection_offset      = LLVector3(0, 0, distance_to_water * 2.0f);
+        LLVector3 camera_look_at         = camera_in.getAtAxis();
+        LLVector3 reflection_look_at     = LLVector3(camera_look_at.mV[VX], camera_look_at.mV[VY], -camera_look_at.mV[VZ]);
+        LLVector3 reflect_origin         = camera_in.getOrigin() - reflection_offset;
+        LLVector3 reflect_interest_point = reflect_origin + (reflection_look_at * 5.0f);
+
+        camera.setOriginAndLookAt(reflect_origin, LLVector3::z_axis, reflect_interest_point);
 
 		//plane params
 		LLVector3 pnorm;
-		F32 pd;
-
 		S32 water_clip = 0;
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{ //camera is above water, clip plane points up
 			pnorm.setVec(0,0,1);
-			pd = -height;
-			plane.setVec(pnorm, pd);
+			plane.setVec(pnorm, -distance_to_water);
 			water_clip = -1;
 		}
 		else
 		{	//camera is below water, clip plane points down
 			pnorm = LLVector3(0,0,-1);
-			pd = height;
-			plane.setVec(pnorm, pd);
+			plane.setVec(pnorm, distance_to_water);
 			water_clip = 1;
 		}
 
@@ -9860,24 +9864,22 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			gGL.pushMatrix();
 
-			mat.set_scale(glh::vec3f(1,1,-1));
-			mat.set_translate(glh::vec3f(0,0,height*2.f));
-
 			glh::matrix4f current = get_current_modelview();
 
-			mat = current * mat;
+            glh::matrix4f mat;
+		    camera.getOpenGLTransform(mat.m);            
+
+            glh::matrix4f scal;
+            scal.set_scale(glh::vec3f(1, 1, -1));
+            mat = scal * mat;
+
+            // convert from CFR to OGL coord sys...
+            mat = glh::matrix4f((GLfloat*) OGL_TO_CFR_ROTATION) * mat;
 
 			set_current_modelview(mat);
 			gGL.loadMatrix(mat.m);
 
 			LLViewerCamera::updateFrustumPlanes(camera, FALSE, TRUE);
-
-			glh::matrix4f inv_mat = mat.inverse();
-
-			glh::vec3f origin(0,0,0);
-			inv_mat.mult_matrix_vec(origin);
-
-			camera.setOrigin(origin.v);
 
 			glCullFace(GL_FRONT);
 
@@ -10022,7 +10024,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			{
 				//clip out geometry on the same side of water as the camera
 				mat = get_current_modelview();
-				LLPlane plane(-pnorm, -(pd+pad));
+				LLPlane plane(-pnorm, -distance_to_water);
 
 				LLGLUserClipPlane clip_plane(plane, mat, projection);
 				static LLCullResult result;
@@ -10087,7 +10089,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		gPipeline.popRenderTypeMask();
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
-		LLPlane npnorm(-pnorm, -pd);
+		LLPlane npnorm(-pnorm, -distance_to_water);
 		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		
 		LLGLState::checkStates();

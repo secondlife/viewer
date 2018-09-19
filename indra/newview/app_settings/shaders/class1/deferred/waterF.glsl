@@ -1,5 +1,5 @@
 /** 
- * @file waterF.glsl
+ * @file class1/deferred/waterF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
