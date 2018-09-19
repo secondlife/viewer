@@ -550,7 +550,7 @@ void LLPanelEnvironmentInfo::onBtnEdit()
             (LLFloaterEditExtDayCycle::KEY_CANMOD,      LLSD::Boolean(true)));
 
     dayeditor->openFloater(params);
-    if (mCurrentEnvironment->mDayCycle)
+    if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
         dayeditor->setEditDayCycle(mCurrentEnvironment->mDayCycle);
     else
         dayeditor->setEditDefaultDayCycle();
@@ -562,7 +562,7 @@ void LLPanelEnvironmentInfo::onBtnSelect()
     if (picker)
     {
         picker->setSettingsFilter(LLSettingsType::ST_NONE);
-        picker->setSettingsAssetId((mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getAssetId() : LLUUID::null);
+        picker->setSettingsAssetId((mCurrentEnvironment && mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getAssetId() : LLUUID::null);
         picker->openFloater();
         picker->setFocus(TRUE);
     }
