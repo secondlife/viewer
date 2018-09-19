@@ -7021,6 +7021,16 @@ BOOL LLSettingsBridge::renameItem(const std::string& new_name)
     return LLItemBridge::renameItem(new_name);
 }
 
+BOOL LLSettingsBridge::isItemRenameable() const
+{
+    LLViewerInventoryItem* item = getItem();
+    if (item)
+    {
+        return (item->getPermissions().allowModifyBy(gAgent.getID()));
+    }
+    return FALSE;
+}
+
 bool LLSettingsBridge::canUpdateParcel() const
 {
     return LLEnvironment::instance().canAgentUpdateParcelEnvironment();

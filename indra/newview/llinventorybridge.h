@@ -625,6 +625,7 @@ public:
     virtual BOOL	isMultiPreviewAllowed() { return FALSE; }
     virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
     virtual BOOL    renameItem(const std::string& new_name);
+    virtual BOOL    isItemRenameable() const;
     virtual LLSettingsType::type_e getSettingsType() const { return mSettingsType; }
 
 protected:
