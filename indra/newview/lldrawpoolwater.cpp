@@ -718,12 +718,11 @@ void LLDrawPoolWater::shade()
 				sNeedsDistortionUpdate = TRUE;
 				face->renderIndexed();
 			}
-            // MAINT-9006 using squash clip even for deferred keeps
-            // horizon consistent between ALM and non-ALM rendering
-            // I can't think of a reason we'd want to avoid it. - g
-			//else if (gGLManager.mHasDepthClamp || deferred_render)
-            else if (gGLManager.mHasDepthClamp)
-			{
+            // using squash clip for deferred rendering makes the horizon lines match
+            // between ALM and non-ALM rendering (SL-1655), but introduces an ugly seem between
+            // near and far water(SL-9696)...we're going to live with the former and not cause the latter 
+            else if (gGLManager.mHasDepthClamp || deferred_render)
+            {
 				face->renderIndexed();
 			}
 			else
