@@ -1260,11 +1260,25 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
             return;
         }
 
-        LLEnvironment::instance().updateParcel(parcel->getLocalID(), day, -1, -1);
+        if (mInventoryItem && !isDirty())
+        {
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), -1, -1);
+        }
+        else
+        {
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), day, -1, -1);
+        }
     }
     else if (where == ACTION_APPLY_REGION)
     {
-        LLEnvironment::instance().updateRegion(day, -1, -1);
+        if (mInventoryItem && !isDirty())
+        {
+            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), -1, -1);
+        }
+        else
+        {
+            LLEnvironment::instance().updateRegion(day, -1, -1);
+        }
     }
     else
     {

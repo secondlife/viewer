@@ -430,17 +430,33 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
             return;
         }
 
-        if (mSettings->getSettingsType() == "sky")
+        if (mInventoryItem && !isDirty())
+        {
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), -1, -1);
+        }
+        else if (mSettings->getSettingsType() == "sky")
+        {
             LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
+        }
         else if (mSettings->getSettingsType() == "water")
+        {
             LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
+        }
     }
     else if (where == ACTION_APPLY_REGION)
     {
-        if (mSettings->getSettingsType() == "sky")
+        if (mInventoryItem && !isDirty())
+        {
+            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), -1, -1);
+        }
+        else if (mSettings->getSettingsType() == "sky")
+        {
             LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
+        }
         else if (mSettings->getSettingsType() == "water")
+        {
             LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
+        }
     }
     else
     {
