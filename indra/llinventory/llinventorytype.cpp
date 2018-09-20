@@ -209,6 +209,12 @@ bool LLInventoryType::cannotRestrictPermissions(LLInventoryType::EType type)
 	}
 }
 
+// Should show permissions that apply only to objects rezed in world.
+bool LLInventoryType::showInWorldPermissions(LLInventoryType::EType type)
+{
+    return (type != IT_SETTINGS);
+}
+
 bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
 									 LLAssetType::EType asset_type)
 {

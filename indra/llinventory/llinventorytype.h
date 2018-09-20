@@ -134,6 +134,8 @@ public:
 	// true if this type cannot have restricted permissions.
 	static bool cannotRestrictPermissions(EType type);
 
+    static bool showInWorldPermissions(EType type);
+
 private:
 	// don't instantiate or derive one of these objects
 	LLInventoryType( void );
