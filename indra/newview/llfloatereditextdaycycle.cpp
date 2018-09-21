@@ -437,6 +437,19 @@ void LLFloaterEditExtDayCycle::refresh()
 void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
 {
     mEditDay = pday->buildDeepCloneAndUncompress();
+
+    if (mEditDay->isTrackEmpty(LLSettingsDay::TRACK_WATER))
+    {
+        LL_WARNS("ENVDAYEDIT") << "No water frames found, generating replacement" << LL_ENDL;
+        mEditDay->setWaterAtKeyframe(LLSettingsVOWater::buildDefaultWater(), .5f);
+    }
+
+    if (mEditDay->isTrackEmpty(LLSettingsDay::TRACK_GROUND_LEVEL))
+    {
+        LL_WARNS("ENVDAYEDIT") << "No sky frames found, generating replacement" << LL_ENDL;
+        mEditDay->setSkyAtKeyframe(LLSettingsVOSky::buildDefaultSky(), .5f, LLSettingsDay::TRACK_GROUND_LEVEL);
+    }
+
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
