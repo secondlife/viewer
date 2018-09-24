@@ -880,7 +880,7 @@ void LLEnvironment::updateCloudScroll()
     
     if (mCurrentEnvironment->getSky() && !mCloudScrollPaused)
     {
-        LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentEnvironment->getSky()->getCloudScrollRate() - LLVector2(10.0, 10.0)) / 100.0;
+        LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentEnvironment->getSky()->getCloudScrollRate()) / 100.0;
         mCloudScrollDelta += cloud_delta;
     }
 

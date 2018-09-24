@@ -645,7 +645,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
         dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
         dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
-        dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(10.1999)(10.0109);
+        dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(0.0f)(0.0f);
         dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
     
         dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
@@ -752,6 +752,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     {
         LLVector2 cloud_scroll(legacy[SETTING_CLOUD_SCROLL_RATE]);
 
+        cloud_scroll -= LLVector2(10, 10);
         if (legacy.has(SETTING_LEGACY_ENABLE_CLOUD_SCROLL))
         {
             LLSD enabled = legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL];
