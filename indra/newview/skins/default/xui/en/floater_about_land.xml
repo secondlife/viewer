@@ -2092,11 +2092,11 @@ Only large parcels can be listed in search.
              <columns
               label="Name"
               name="name"
-              width="160" />
+              width="155" />
              <columns
               label="Duration"
               name="duration"
-              width="70" />
+              width="75" />
             </name_list>
             <button
              follows="bottom"
