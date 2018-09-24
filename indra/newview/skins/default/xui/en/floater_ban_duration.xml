@@ -55,7 +55,7 @@
    </radio_group>
 
    <spinner
-    allow_text_entry="true"
+    allow_digits_only="true"
     decimal_digits="0"
     follows="left|top"
     height="20"
