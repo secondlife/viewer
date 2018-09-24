@@ -2513,10 +2513,10 @@ void LLPanelLandAccess::refresh()
 
 					if (seconds >= 7200)
 					{
-						args["[HOURS]"] = llformat("%d", (seconds / 7200));
+						args["[HOURS]"] = llformat("%d", (seconds / 3600));
 						duration = parent_floater->getString("Hours", args);
 					}
-					if (seconds >= 3600)
+					else if (seconds >= 3600)
 					{
 						duration = "1 " + parent_floater->getString("Hour");
 					}
