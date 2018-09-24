@@ -1871,29 +1871,12 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 }
             }
 
-            if (mat)
-            {                
-                switch (LLMaterial::eDiffuseAlphaMode(mat->getDiffuseAlphaMode()))
+            if (tex)
+            {
+                LLGLenum image_format = tex->getPrimaryFormat();
+                if (!is_alpha_mask && (image_format == GL_RGBA || image_format == GL_ALPHA))
                 {
-                    case LLMaterial::DIFFUSE_ALPHA_MODE_MASK:
-                    {
-                        is_alpha_mask = true;
-                    }
-                    break;
-
-                    case LLMaterial::DIFFUSE_ALPHA_MODE_BLEND:
-                    {
-                        is_alpha_blend = true;
-                    }
-                    break;
-
-                    case LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE:
-                    case LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT:
-                    case LLMaterial::DIFFUSE_ALPHA_MODE_NONE:
-                    default:
-                        is_alpha_blend = false;
-                        is_alpha_mask  = false;
-                        break;
+                    is_alpha_blend = true;
                 }
             }
 
@@ -1905,12 +1888,31 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 }
             }
 
-            if (tex)
-            {
-                LLGLenum image_format = tex->getPrimaryFormat();
-                if (!is_alpha_mask && (image_format == GL_RGBA || image_format == GL_ALPHA))
+            if (mat)
+            {                
+                switch (LLMaterial::eDiffuseAlphaMode(mat->getDiffuseAlphaMode()))
                 {
-                    is_alpha_blend = true;
+                    case LLMaterial::DIFFUSE_ALPHA_MODE_MASK:
+                    {
+                        is_alpha_mask  = true;
+                        is_alpha_blend = false;
+                    }
+                    break;
+
+                    case LLMaterial::DIFFUSE_ALPHA_MODE_BLEND:
+                    {
+                        is_alpha_blend = true;
+                        is_alpha_mask  = false;
+                    }
+                    break;
+
+                    case LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE:
+                    case LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT:
+                    case LLMaterial::DIFFUSE_ALPHA_MODE_NONE:
+                    default:
+                        is_alpha_blend = false;
+                        is_alpha_mask  = false;
+                        break;
                 }
             }
 
