@@ -184,7 +184,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
 
     getChild<LLButton>(BTN_CANCEL, true)->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onClickCloseBtn(); });
-    mTimeSlider->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onTimeSliderMoved(); });
+    mTimeSlider->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onTimeSliderCallback(); });
     mAddFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onAddTrack(); });
     mDeleteFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onRemoveTrack(); });
     mImportButton->setCommitCallback([this](LLUICtrl *, const LLSD &){ onButtonImport(); });
@@ -786,8 +786,9 @@ void LLFloaterEditExtDayCycle::checkAndConfirmSettingsLoss(on_confirm_fn cb)
     }
 }
 
-void LLFloaterEditExtDayCycle::onTimeSliderMoved()
+void LLFloaterEditExtDayCycle::onTimeSliderCallback()
 {
+    stopPlay();
     selectFrame(mTimeSlider->getCurSliderValue(), LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
 
