@@ -43,6 +43,7 @@
 
 #include "llagent.h"
 #include "llassettype.h"
+#include "llfloaterperms.h"
 #include "llnotificationsutil.h"
 
 #include "llviewerregion.h"
@@ -95,7 +96,8 @@ namespace
 void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback)
 {
     LLTransactionID tid;
-    U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
+    U32 nextOwnerPerm = LLFloaterPerms::getNextOwnerPerms("Settings");
+    nextOwnerPerm |= PERM_COPY;
 
     if (!LLEnvironment::instance().isInventoryEnabled())
     {

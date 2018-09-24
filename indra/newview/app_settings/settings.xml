@@ -1252,6 +1252,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BulkChangeIncludeSettings</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect environment settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>BulkChangeEveryoneCopy</key>
     <map>
       <key>Comment</key>
@@ -15667,6 +15678,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>SettingsNextOwnerModify</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created Environment setting can be modified by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>SettingsNextOwnerTransfer</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created Environment setting can be resold or given away by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>DefaultUploadPermissionsConverted</key>
     <map>

@@ -70,7 +70,7 @@
                     <radio_group
                             height="90"
                             layout="topleft"
-                            top_pad="5"
+                            top_pad="8"
                             left_delta="10"
                             name="rdg_environment_select">
                         <radio_item
@@ -145,7 +145,7 @@
                             height="12"
                             layout="topleft"
                             left_delta="10"
-                            top_pad="10"
+                            top_pad="14"
                             width="200">
                         Day Length (hours)
                     </text>

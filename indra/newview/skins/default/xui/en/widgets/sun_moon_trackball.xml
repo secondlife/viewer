@@ -5,7 +5,7 @@
     height="150"
     user_resize="false"     
     increment_angle_mouse="1.5f"
-    increment_angle_btn="3.0f"    
+    increment_angle_btn="1.0f"    
     image_sphere="VirtualTrackball_Sphere"
     image_moon_back="VirtualTrackball_Moon_Back"
     image_moon_front="VirtualTrackball_Moon_Front"

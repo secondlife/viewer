@@ -6068,7 +6068,7 @@ This day cycle file references a missing sky file: [SKY].
    icon="alertmodal.tga"
    name="WLRegionApplyFail"
    type="alertmodal">
-Sorry, the settings couldn't be applied to the region.  Leaving the region and then returning may help rectify the problem.  The reason given was: [FAIL_REASON]
+Sorry, the settings couldn't be applied to the region. Reason: [FAIL_REASON]
   </notification>
 
   <notification

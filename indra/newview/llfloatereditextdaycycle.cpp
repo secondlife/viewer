@@ -184,7 +184,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
 
     getChild<LLButton>(BTN_CANCEL, true)->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onClickCloseBtn(); });
-    mTimeSlider->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onTimeSliderMoved(); });
+    mTimeSlider->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onTimeSliderCallback(); });
     mAddFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onAddTrack(); });
     mDeleteFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onRemoveTrack(); });
     mImportButton->setCommitCallback([this](LLUICtrl *, const LLSD &){ onButtonImport(); });
@@ -437,6 +437,19 @@ void LLFloaterEditExtDayCycle::refresh()
 void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
 {
     mEditDay = pday->buildDeepCloneAndUncompress();
+
+    if (mEditDay->isTrackEmpty(LLSettingsDay::TRACK_WATER))
+    {
+        LL_WARNS("ENVDAYEDIT") << "No water frames found, generating replacement" << LL_ENDL;
+        mEditDay->setWaterAtKeyframe(LLSettingsVOWater::buildDefaultWater(), .5f);
+    }
+
+    if (mEditDay->isTrackEmpty(LLSettingsDay::TRACK_GROUND_LEVEL))
+    {
+        LL_WARNS("ENVDAYEDIT") << "No sky frames found, generating replacement" << LL_ENDL;
+        mEditDay->setSkyAtKeyframe(LLSettingsVOSky::buildDefaultSky(), .5f, LLSettingsDay::TRACK_GROUND_LEVEL);
+    }
+
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
@@ -773,8 +786,9 @@ void LLFloaterEditExtDayCycle::checkAndConfirmSettingsLoss(on_confirm_fn cb)
     }
 }
 
-void LLFloaterEditExtDayCycle::onTimeSliderMoved()
+void LLFloaterEditExtDayCycle::onTimeSliderCallback()
 {
+    stopPlay();
     selectFrame(mTimeSlider->getCurSliderValue(), LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
 
@@ -1260,11 +1274,25 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
             return;
         }
 
-        LLEnvironment::instance().updateParcel(parcel->getLocalID(), day, -1, -1);
+        if (mInventoryItem && !isDirty())
+        {
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), -1, -1);
+        }
+        else
+        {
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), day, -1, -1);
+        }
     }
     else if (where == ACTION_APPLY_REGION)
     {
-        LLEnvironment::instance().updateRegion(day, -1, -1);
+        if (mInventoryItem && !isDirty())
+        {
+            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), -1, -1);
+        }
+        else
+        {
+            LLEnvironment::instance().updateRegion(day, -1, -1);
+        }
     }
     else
     {

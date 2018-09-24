@@ -51,6 +51,7 @@
                     right="-2" />
             <inventory_panel
                     allow_multi_select="false"
+                    suppress_folder_menu="true"
                     bg_visible="true"
                     bg_alpha_color="DkGray2"
                     border="false"

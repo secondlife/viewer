@@ -97,6 +97,7 @@ public:
 		Optional<StartFolder>               start_folder;
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_empty_message;
+		Optional<bool>						suppress_folder_menu;
 		Optional<bool>						show_root_folder;
 		Optional<bool>						allow_drop_on_root;
 		Optional<bool>						use_marketplace_folders;
@@ -111,6 +112,7 @@ public:
 			inventory("", &gInventory),
 			allow_multi_select("allow_multi_select", true),
 			show_item_link_overlays("show_item_link_overlays", false),
+			suppress_folder_menu("suppress_folder_menu", false),
 			filter("filter"),
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
@@ -261,6 +263,7 @@ protected:
 	bool 						mAllowMultiSelect;
 	bool 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 	bool						mShowEmptyMessage;
+	bool						mSuppressFolderMenu;
 
 	LLHandle<LLFolderView>      mFolderRoot;
 	LLScrollContainer*			mScroller;
