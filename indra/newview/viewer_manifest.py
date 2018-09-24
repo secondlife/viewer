@@ -502,11 +502,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("*.png")
                 self.path("*.gif")
 
-            #before, we only needed llbase at build time.  With VMP, we need it at run time.
-            with self.prefix(src=os.path.join(pkgdir, "lib", "python", "llbase"), dst="llbase"):
-                self.path("*.py")
-                self.path("_cllsd.so")
-
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -1386,9 +1381,6 @@ class LinuxManifest(ViewerManifest):
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             with self.prefix(src="../viewer_components/manager", dst=""):
                 self.path("*.py")
-            with self.prefix(src=os.path.join("lib", "python", "llbase"), dst="llbase"):
-                self.path("*.py")
-                self.path("_cllsd.so")         
 
         # recurses, packaged again
         self.path("res-sdl")
