@@ -108,8 +108,8 @@ private:
 	void                        onCommitName(class LLLineEditor* caller, void* user_data);
 	void                        onTrackSelectionCallback(const LLSD& user_data);
 	void                        onPlayActionCallback(const LLSD& user_data);
-	// time slider moved
-	void                        onTimeSliderMoved();
+	// time slider clicked
+	void                        onTimeSliderCallback();
 	// a frame moved or frame selection changed
 	void                        onFrameSliderCallback(const LLSD &);
     void                        onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
