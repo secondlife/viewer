@@ -66,13 +66,13 @@
     name="ban_hours"
     top_delta="50"
     left="40"
-    width="40"/>
+    width="60"/>
    <text
     type="string"
     length="1"
     follows="left|top"
     height="15"
-    left_delta="50"
+    left_delta="70"
     name="hours_textbox"
     top_delta="5"
     width="75">
