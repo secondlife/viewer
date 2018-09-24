@@ -144,6 +144,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mAllowMultiSelect(p.allow_multi_select),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mShowEmptyMessage(p.show_empty_message),
+	mSuppressFolderMenu(p.suppress_folder_menu),
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL),
 	mInventoryViewModel(p.name),
@@ -191,6 +192,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.use_label_suffix = mParams.use_label_suffix;
     p.allow_multiselect = mAllowMultiSelect;
     p.show_empty_message = mShowEmptyMessage;
+    p.suppress_folder_menu = mSuppressFolderMenu;
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
     p.allow_drop = mParams.allow_drop_on_root;

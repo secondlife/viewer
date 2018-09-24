@@ -149,6 +149,7 @@ LLFolderView::Params::Params()
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
 	show_empty_message("show_empty_message", true),
+	suppress_folder_menu("suppress_folder_menu", false),
 	use_ellipses("use_ellipses", false),
     options_menu("options_menu", "")
 {
@@ -167,6 +168,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mRenameItem( NULL ),
 	mNeedsScroll( FALSE ),
 	mUseLabelSuffix(p.use_label_suffix),
+	mSuppressFolderMenu(p.suppress_folder_menu),
 	mPinningSelectedItem(FALSE),
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
@@ -1432,10 +1434,13 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
 	S32 count = mSelectedItems.size();
+
 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-	if (   handled
+	bool hide_folder_menu = mSuppressFolderMenu && isFolderSelected();
+	if ((handled
 		&& ( count > 0 && (hasVisibleChildren()) ) // show menu only if selected items are visible
-		&& menu )
+		&& menu ) &&
+		!hide_folder_menu)
 	{
 		if (mCallbackRegistrar)
         {
@@ -1449,7 +1454,7 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		if (mCallbackRegistrar)
         {
 			mCallbackRegistrar->popScope();
-	}
+	    }
 	}
 	else
 	{
@@ -1860,6 +1865,20 @@ void LLFolderView::updateMenu()
 		updateMenuOptions(menu);
 		menu->needsArrange(); // update menu height if needed
 	}
+}
+
+bool LLFolderView::isFolderSelected()
+{
+	selected_items_t::iterator item_iter;
+	for (item_iter = mSelectedItems.begin(); item_iter != mSelectedItems.end(); ++item_iter)
+	{
+		LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(*item_iter);
+		if (folder != NULL)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool LLFolderView::selectFirstItem()
