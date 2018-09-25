@@ -3297,7 +3297,6 @@ void LLPanelLandEnvironment::refresh()
     }
 
     LLPanelEnvironmentInfo::refresh();
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
 }
 
 void LLPanelLandEnvironment::refreshFromSource()
