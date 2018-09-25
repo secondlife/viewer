@@ -9818,25 +9818,22 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
         camera.setOriginAndLookAt(reflect_origin, LLVector3::z_axis, reflect_interest_point);
 
-	    F32 to_clip = fabsf(camera_height-water_height);
-		F32 pad = -to_clip*0.05f; //amount to "pad" clip plane by
-
 		//plane params
 		LLVector3 pnorm;
-		F32 pd;
+		F32 plane_d;
 
 		S32 water_clip = 0;
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{ //camera is above water, clip plane points up
 			pnorm.setVec(0,0,1);
-            pd = -water_height;
+            plane_d = -water_height;
 			plane.setVec(pnorm, -distance_to_water);
 			water_clip = -1;
 		}
 		else
 		{	//camera is below water, clip plane points down
 			pnorm = LLVector3(0,0,-1);
-            pd = water_height;
+            plane_d = water_height;
 			plane.setVec(pnorm, distance_to_water);
 			water_clip = 1;
 		}
@@ -9869,6 +9866,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			stop_glerror();
 
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
 			gGL.pushMatrix();
 
 			glh::matrix4f current = get_current_modelview();
@@ -9988,6 +9986,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             LLPipeline::sRenderingWaterReflection = false;
 
 			glCullFace(GL_BACK);
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
 			gGL.popMatrix();
 			mWaterRef.flush();
 			set_current_modelview(current);
@@ -10031,7 +10030,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			{
 				//clip out geometry on the same side of water as the camera
 				mat = get_current_modelview();
-				LLPlane plane(-pnorm, -(pd+pad));
+				LLPlane plane(-pnorm, -distance_to_water);
 
 				LLGLUserClipPlane clip_plane(plane, mat, projection);
 				static LLCullResult result;
@@ -10096,7 +10095,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		gPipeline.popRenderTypeMask();
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
-		LLPlane npnorm(-pnorm, -pd);
+		LLPlane npnorm(-pnorm, -plane_d);
 		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		
 		LLGLState::checkStates();
