@@ -161,7 +161,7 @@
                             top_pad="6"
                             name="sld_day_length"
                             min_val="4"
-                            max_val="178"
+                            max_val="168"
                             width="180" />
                     <text
                             type="string"
