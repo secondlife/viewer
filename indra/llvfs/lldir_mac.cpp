@@ -171,9 +171,9 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 	if (!app_read_only_data_dir.empty())
 	{
 		mAppRODataDir = app_read_only_data_dir;
-		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+		mSkinBaseDir = add(mAppRODataDir, "skins");
 	}
-	mCAFile = getExpandedFilename(LL_PATH_EXECUTABLE, "../Resources", "ca-bundle.crt");
+	mCAFile = add(mAppRODataDir, "ca-bundle.crt");
 }
 
 std::string LLDir_Mac::getCurPath()
