@@ -33,8 +33,11 @@
 #include "v3colorutil.h"
 
 //=========================================================================
-static const F32 NIGHTTIME_ELEVATION     = -8.0f; // degrees
-static const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+namespace {
+    const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
+    const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+    const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
+}
 
 namespace {
     LLQuaternion convert_azimuth_and_altitude_to_quat(F32 azimuth, F32 altitude)
@@ -480,17 +483,17 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
         validation.push_back(Validator(SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(5.0f)))));
         validation.push_back(Validator(SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(5.0f)))));
         validation.push_back(Validator(SETTING_AMBIENT, false, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.0009f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
         validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1000.0f)))));
 
 
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
@@ -501,17 +504,17 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_CLOUD_POS_DENSITY1,  true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(1.68841f)(1.0f)(1.0f)("*")))));
+                LLSD(LLSDArray(1.0f)(1.0f)(3.0f)("*")))));
         validation.push_back(Validator(SETTING_CLOUD_POS_DENSITY2,  true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(1.68841f)(1.0f)(1.0f)("*")))));
+                LLSD(LLSDArray(1.0f)(1.0f)(1.0f)("*")))));
         validation.push_back(Validator(SETTING_CLOUD_SCALE,         true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.001f)(0.999f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.001f)(3.0f)))));
         validation.push_back(Validator(SETTING_CLOUD_SCROLL_RATE,   true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.0f)(0.0f)),
-                LLSD(LLSDArray(20.0f)(20.0f)))));
+                LLSD(LLSDArray(-50.0f)(-50.0f)),
+                LLSD(LLSDArray(50.0f)(50.0f)))));
         validation.push_back(Validator(SETTING_CLOUD_SHADOW,        true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_CLOUD_TEXTUREID,     false, LLSD::TypeUUID));
@@ -521,14 +524,14 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_DOME_RADIUS,         false, LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1000.0f)(2000.0f)))));
         validation.push_back(Validator(SETTING_GAMMA,               true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(10.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(20.0f)))));
         validation.push_back(Validator(SETTING_GLOW,                true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.2f)("*")(-2.5f)("*")),
-                LLSD(LLSDArray(20.0f)("*")(0.0f)("*")))));
+                LLSD(LLSDArray(0.2f)("*")(-10.0f)("*")),
+                LLSD(LLSDArray(40.0f)("*")(10.0f)("*")))));
         
         validation.push_back(Validator(SETTING_MAX_Y,               true,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4000.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(10000.0f)))));
         validation.push_back(Validator(SETTING_MOON_ROTATION,       true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
         validation.push_back(Validator(SETTING_MOON_SCALE,          false, LLSD::TypeReal,
                 boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.25f)(20.0f))), LLSD::Real(1.0)));

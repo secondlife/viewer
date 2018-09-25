@@ -213,7 +213,7 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
         // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
 
         validation.push_back(Validator(SETTING_BLUR_MULTIPILER, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.16f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-0.5f)(0.5f)))));
         validation.push_back(Validator(SETTING_FOG_COLOR, true, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)(1.0f)),
@@ -232,17 +232,17 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)),
                 LLSD(LLSDArray(10.0f)(10.0f)(10.0f)))));
         validation.push_back(Validator(SETTING_SCALE_ABOVE, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(3.0f)))));
         validation.push_back(Validator(SETTING_SCALE_BELOW, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(3.0f)))));
         validation.push_back(Validator(SETTING_WAVE1_DIR, true, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(-4.0f)(-4.0f)),
-                LLSD(LLSDArray(4.0f)(4.0f)))));
+                LLSD(LLSDArray(-20.0f)(-20.0f)),
+                LLSD(LLSDArray(20.0f)(20.0f)))));
         validation.push_back(Validator(SETTING_WAVE2_DIR, true, LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(-4.0f)(-4.0f)),
-                LLSD(LLSDArray(4.0f)(4.0f)))));
+                LLSD(LLSDArray(-20.0f)(-20.0f)),
+                LLSD(LLSDArray(20.0f)(20.0f)))));
     }
 
     return validation;

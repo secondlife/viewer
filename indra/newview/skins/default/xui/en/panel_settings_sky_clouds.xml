@@ -83,7 +83,7 @@
                     layout="topleft"
                     left_delta="5"
                     min_val="0"
-                    max_val="1"
+                    max_val="3"
                     name="cloud_scale"
                     top_delta="20"
                     width="214"
@@ -105,10 +105,10 @@
                     visible="true"
                     left_delta="0"
                     top_delta="21"
-                    min_val_x="-10"
-                    max_val_x="10"
-                    min_val_y="-10"
-                    max_val_y="10" />
+                    min_val_x="-30"
+                    max_val_x="30"
+                    min_val_y="-30"
+                    max_val_y="30" />
 
             <text
                     follows="left|top"
@@ -183,7 +183,7 @@
                     layout="topleft"
                     left_delta="0"
                     min_val="0"
-                    max_val="1"
+                    max_val="3"
                     name="cloud_density_d"
                     top_delta="20"
                     width="200"
@@ -237,7 +237,7 @@
                     layout="topleft"
                     left_delta="0"
                     min_val="0"
-                    max_val="1"
+                    max_val="2"
                     name="cloud_detail_d"
                     top_delta="20"
                     width="200"
