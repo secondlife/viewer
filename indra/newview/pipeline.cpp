@@ -9820,16 +9820,20 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		//plane params
 		LLVector3 pnorm;
+		F32 plane_d;
+
 		S32 water_clip = 0;
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{ //camera is above water, clip plane points up
 			pnorm.setVec(0,0,1);
+            plane_d = -water_height;
 			plane.setVec(pnorm, -distance_to_water);
 			water_clip = -1;
 		}
 		else
 		{	//camera is below water, clip plane points down
 			pnorm = LLVector3(0,0,-1);
+            plane_d = water_height;
 			plane.setVec(pnorm, distance_to_water);
 			water_clip = 1;
 		}
@@ -9862,6 +9866,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			stop_glerror();
 
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
 			gGL.pushMatrix();
 
 			glh::matrix4f current = get_current_modelview();
@@ -9981,6 +9986,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             LLPipeline::sRenderingWaterReflection = false;
 
 			glCullFace(GL_BACK);
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
 			gGL.popMatrix();
 			mWaterRef.flush();
 			set_current_modelview(current);
@@ -10089,7 +10095,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		gPipeline.popRenderTypeMask();
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
-		LLPlane npnorm(-pnorm, -distance_to_water);
+		LLPlane npnorm(-pnorm, -plane_d);
 		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		
 		LLGLState::checkStates();
