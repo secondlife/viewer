@@ -355,7 +355,9 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {
-        doApplyCreateNewInventory();
+        LLSD args;
+        args["DESC"] = mSettings->getName();
+        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterFixedEnvironment::onSaveAsCommit, this, _1, _2));
     }
     else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
         (ctrl_action == ACTION_APPLY_PARCEL) ||
@@ -366,6 +368,17 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     else
     {
         LL_WARNS("ENVIRONMENT") << "Unknown settings action '" << ctrl_action << "'" << LL_ENDL;
+    }
+}
+
+void LLFloaterFixedEnvironment::onSaveAsCommit(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        std::string settings_name = response["message"].asString();
+        LLStringUtil::trim(settings_name);
+        doApplyCreateNewInventory(settings_name);
     }
 }
 
@@ -382,11 +395,11 @@ void LLFloaterFixedEnvironment::onButtonLoad()
     checkAndConfirmSettingsLoss([this](){ doSelectFromInventory(); });
 }
 
-void LLFloaterFixedEnvironment::doApplyCreateNewInventory()
+void LLFloaterFixedEnvironment::doApplyCreateNewInventory(std::string settings_name)
 {
     LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
     // This method knows what sort of settings object to create.
-    LLSettingsVOBase::createInventoryItem(mSettings, parent_id, 
+    LLSettingsVOBase::createInventoryItem(mSettings, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
 }
 
@@ -396,7 +409,7 @@ void LLFloaterFixedEnvironment::doApplyUpdateInventory()
     if (mInventoryId.isNull())
     {
         LL_WARNS("LAPRAS") << "Inventory ID is NULL. Creating New!!!" << LL_ENDL;
-        LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS),
+        LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), std::string(),
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     }
     else

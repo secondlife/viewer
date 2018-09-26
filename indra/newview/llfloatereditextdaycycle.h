@@ -108,6 +108,7 @@ private:
 	void                        onCommitName(class LLLineEditor* caller, void* user_data);
 	void                        onTrackSelectionCallback(const LLSD& user_data);
 	void                        onPlayActionCallback(const LLSD& user_data);
+	void                        onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsDay::ptr_t &day);
 	// time slider clicked
 	void                        onTimeSliderCallback();
 	// a frame moved or frame selection changed
@@ -137,7 +138,7 @@ private:
 
     void                        doImportFromDisk();
     void                        loadSettingFromFile(const std::vector<std::string>& filenames);
-    void doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day);
+    void doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name);
     void doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
     void doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
     void doApplyCommit(LLSettingsDay::ptr_t day);

@@ -50,9 +50,9 @@ public:
     typedef std::function<void(LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)>           inventory_result_fn;
 
     static void     createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback = inventory_result_fn());
-    static void     createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, inventory_result_fn callback = inventory_result_fn());
+    static void     createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback = inventory_result_fn());
     
-    static void     updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id, inventory_result_fn callback = inventory_result_fn());
+    static void     updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id, inventory_result_fn callback = inventory_result_fn(), bool update_name = true);
     static void     updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID object_id, LLUUID inv_item_id, inventory_result_fn callback = inventory_result_fn());
 
     static void     getSettingsAsset(const LLUUID &assetId, asset_download_fn callback);

@@ -11154,6 +11154,30 @@ Unable to apply those settings to the environment.
 This Region does not support environmental settings.
   <tag>fail</tag>
   </notification>
+ 
+  <notification
+   icon="alertmodal.tga"
+   label="Save Outfit"
+   name="SaveSettingAs"
+   type="alertmodal">
+    <unique/>
+    Save current environmental settings as:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC] (new)
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
 
   <notification
    icon="notify.tga"

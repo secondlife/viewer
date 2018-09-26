@@ -119,7 +119,7 @@ void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, cons
 }
 
 
-void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, inventory_result_fn callback)
+void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback)
 {
     LLTransactionID tid;
     U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
@@ -137,9 +137,13 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
             LLSettingsVOBase::onInventoryItemCreated(inventoryId, settings, callback);
         });
 
+    if (settings_name.empty())
+    {
+        settings_name = settings->getName();
+    }
     create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
         parent_id, tid,
-        settings->getName(), "new settings collection.",
+        settings_name, "new settings collection.",
         settings->getSettingsTypeValue(), nextOwnerPerm, cb);
 }
 
@@ -160,10 +164,10 @@ void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSetti
         return;
     }
     // We need to update some inventory stuff here.... maybe.
-    updateInventoryItem(settings, inventoryId, callback);
+    updateInventoryItem(settings, inventoryId, callback, false);
 }
 
-void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id, inventory_result_fn callback)
+void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings, LLUUID inv_item_id, inventory_result_fn callback, bool update_name)
 {
     const LLViewerRegion* region = gAgent.getRegion();
     if (!region)
@@ -195,7 +199,7 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
             new_item->setPermissions(perm);
             need_update |= true;
         }
-        if (settings->getName() != new_item->getName())
+        if (update_name && (settings->getName() != new_item->getName()))
         {
             new_item->rename(settings->getName());
             settings->setName(new_item->getName()); // account for corrections
