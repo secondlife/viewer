@@ -102,6 +102,9 @@ namespace LLError
 	LL_COMMON_API FatalFunction getFatalFunction();
 		// Retrieve the previously-set FatalFunction
 
+	LL_COMMON_API std::string getFatalMessage();
+		// Retrieve the message last passed to FatalFunction, if any
+
 	/// temporarily override the FatalFunction for the duration of a
 	/// particular scope, e.g. for unit tests
 	class LL_COMMON_API OverrideFatalFunction

@@ -109,6 +109,12 @@ public:
         mMessages.push_back(message);
     }
 
+    friend inline
+    std::ostream& operator<<(std::ostream& out, const CaptureLogRecorder& log)
+    {
+        return log.streamto(out);
+    }
+
     /// Don't assume the message we want is necessarily the LAST log message
     /// emitted by the underlying code; search backwards through all messages
     /// for the sought string.
@@ -126,7 +132,7 @@ public:
 
         throw tut::failure(STRINGIZE("failed to find '" << search
                                      << "' in captured log messages:\n"
-                                     << boost::ref(*this)));
+                                     << *this));
     }
 
     std::ostream& streamto(std::ostream& out) const
@@ -199,11 +205,5 @@ private:
     LLError::SettingsStoragePtr mOldSettings;
 	LLError::RecorderPtr mRecorder;
 };
-
-inline
-std::ostream& operator<<(std::ostream& out, const CaptureLogRecorder& log)
-{
-    return log.streamto(out);
-}
 
 #endif /* ! defined(LL_WRAPLLERRS_H) */
