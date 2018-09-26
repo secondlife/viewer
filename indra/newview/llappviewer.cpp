@@ -1083,26 +1083,6 @@ bool LLAppViewer::init()
 		}
 	}
 
-// don't nag developers who need to run the executable directly
-#if LL_RELEASE_FOR_DOWNLOAD
-	// MAINT-8305: If we're processing a SLURL, skip the launcher check.
-	if (gSavedSettings.getString("CmdLineLoginLocation").empty())
-	{
-		const char* PARENT = getenv("PARENT");
-		if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
-		{
-			// Don't directly run this executable. Please run the launcher, which
-			// will run the viewer itself.
-			// Naturally we do not consider this bulletproof. The point is to
-			// gently remind a user who *inadvertently* finds him/herself in this
-			// situation to do things the Right Way. Anyone who intentionally
-			// bypasses this mechanism needs no reminder that s/he's shooting
-			// him/herself in the foot.
-			LLNotificationsUtil::add("RunLauncher");
-		}
-	}
-#endif
-
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{
@@ -1149,6 +1129,23 @@ bool LLAppViewer::init()
 	}
 
 	gGLActive = FALSE;
+
+#if LL_WINDOWS
+	std::vector<std::string> updater
+		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe") };
+#elif LL_DARWIN
+	// explicitly run the system Python interpreter on updater.py
+	std::vector<std::string> updater
+		{ "python", gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py") };
+#else
+	std::vector<std::string> updater
+		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater") };
+#endif
+	// add LEAP mode command-line argument to whichever of these we selected
+	updater.push_back("leap");
+
+	// Run the updater. An exception from the updater should bother us.
+	LLLeap::create("updater process", updater, true);
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.

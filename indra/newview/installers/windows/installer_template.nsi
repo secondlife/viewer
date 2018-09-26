@@ -299,7 +299,7 @@ StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
 CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
 SetOutPath "$INSTDIR"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
+				"$INSTDIR\$VIEWER_EXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 
 
 WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
@@ -317,9 +317,9 @@ CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
 # Other shortcuts
 SetOutPath "$INSTDIR"
 CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
+        "$INSTDIR\$VIEWER_EXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
+        "$INSTDIR\$VIEWER_EXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$VIEWER_EXE"
 CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' ''
 
@@ -327,7 +327,7 @@ CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$VIEWER_EXE"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "Publisher" "Linden Research, Inc."
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLInfoAbout" "http://secondlife.com/whatis/"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLUpdateInfo" "http://secondlife.com/support/downloads/"
@@ -338,10 +338,10 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninst
 WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "EstimatedSize" "0x0001D500"		# ~117 MB
 
 # from FS:Ansariel
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayIcon" '"$INSTDIR\$INSTEXE"'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayIcon" '"$INSTDIR\$VIEWER_EXE"'
 
 # BUG-2707 Disable SEHOP for installed viewer.
-WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$INSTEXE" "DisableExceptionChainValidation" 1
+WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$VIEWER_EXE" "DisableExceptionChainValidation" 1
 
 # Write URL registry info
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
@@ -358,9 +358,8 @@ WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$
 # URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
 WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
 
-# Only allow Launcher to be the icon
-WriteRegStr HKEY_CLASSES_ROOT "Applications\$INSTEXE" "IsHostApp" ""
-WriteRegStr HKEY_CLASSES_ROOT "Applications\${VIEWER_EXE}" "NoStartPage" ""
+WriteRegStr HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "IsHostApp" ""
+##WriteRegStr HKEY_CLASSES_ROOT "Applications\${VIEWER_EXE}" "NoStartPage" ""
 
 # Write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
@@ -398,8 +397,8 @@ Call un.CloseSecondLife
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
 # BUG-2707 Remove entry that disabled SEHOP
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$INSTEXE"
-DeleteRegKey HKEY_CLASSES_ROOT "Applications\$INSTEXE"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$VIEWER_EXE"
+##DeleteRegKey HKEY_CLASSES_ROOT "Applications\$INSTEXE"
 DeleteRegKey HKEY_CLASSES_ROOT "Applications\${VIEWER_EXE}"
 
 # Clean up shortcuts
@@ -537,6 +536,7 @@ Function RemoveProgFilesOnInst
 
 # Remove old SecondLife.exe to invalidate any old shortcuts to it that may be in non-standard locations. See MAINT-3575
 Delete "$INSTDIR\$INSTEXE"
+Delete "$INSTDIR\$VIEWER_EXE"
 
 # Remove old shader files first so fallbacks will work. See DEV-5663
 RMDir /r "$INSTDIR\app_settings\shaders"
@@ -673,7 +673,7 @@ FunctionEnd
 ;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
-Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
+        Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
         Push $R0
         Push $0
         ;; MAINT-7812: Only write nsis.winstall file with /marker switch
@@ -694,8 +694,21 @@ Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launc
         Pop $R0
         Push $R0					# Option value, unused# 
         StrCmp $SKIP_AUTORUN "true" +2;
-# Assumes SetOutPath $INSTDIR
-	Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTSHORTCUT.lnk"'
+        # Assumes SetOutPath $INSTDIR
+        # Run INSTEXE (our updater), passing VIEWER_EXE plus the command-line
+        # arguments built into our shortcuts. This gives the updater a chance
+        # to verify that the viewer we just installed is appropriate for the
+        # running system -- or, if not, to download and install a different
+        # viewer. For instance, if a user running 32-bit Windows installs a
+        # 64-bit viewer, it cannot run on this system. But since the updater
+        # is a 32-bit executable even in the 64-bit viewer package, the
+        # updater can detect the problem and adapt accordingly.
+        # Once everything is in order, the updater will run the specified
+        # viewer with the specified params.
+        # Quote the updater executable and the viewer executable because each
+        # must be a distinct command-line token, but DO NOT quote the language
+        # string because it must decompose into separate command-line tokens.
+        Exec '"$INSTDIR\$INSTEXE" precheck "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
         Pop $R0
 # 
 FunctionEnd
