@@ -232,6 +232,8 @@ void LLPanelEnvironmentInfo::refresh()
    
     udpateApparentTimeOfDay();
 
+    updateEditFloater(mCurrentEnvironment, canEdit());
+
 #if 1 
     // hiding the controls until Rider can get the simulator code to adjust altitudes done.
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
@@ -312,14 +314,14 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater(bool create)
 }
 
 
-void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv)
+void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv, bool enable)
 {
     LLFloaterEditExtDayCycle *dayeditor(getEditFloater(false));
 
     if (!dayeditor)
         return;
 
-    if (!nextenv || !nextenv->mDayCycle)
+    if (!nextenv || !nextenv->mDayCycle || !enable)
     {
         if (mCommitConnection.connected())
             mCommitConnection.disconnect();
@@ -331,7 +333,10 @@ void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentI
     }
     else
     {
-        /*TODO: Swap in new day to edit?*/
+        // Ignore dirty
+        // If parcel selection changed whatever we do except saving to inventory with
+        // old settings will be invalid.
+        dayeditor->setEditDayCycle(nextenv->mDayCycle);
     }
 }
 
@@ -363,7 +368,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
         getChild<LLUICtrl>(PNL_DISABLED)->setVisible(true);
         getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
 
-        updateEditFloater(mCurrentEnvironment);
+        updateEditFloater(mCurrentEnvironment, false);
 
         return false;
     }
