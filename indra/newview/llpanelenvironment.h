@@ -132,7 +132,7 @@ protected:
 
     LLFloaterSettingsPicker *   getSettingsPicker(bool create = true);
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
-    void                        updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv);
+    void                        updateEditFloater(const LLEnvironment::EnvironmentInfo::ptr_t &nextenv, bool enable);
 
     void                        setCrossRegion(bool val) { mCrossRegion = val; }
     void                        setNoSelection(bool val) { mNoSelection = val; }
