@@ -116,6 +116,8 @@ void LLTeleportHistory::handleLoginComplete()
 
 void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 {
+	if (!gAgent.getRegion()) return;
+
 	if (!mTeleportHistoryStorage)
 	{
 		mTeleportHistoryStorage = LLTeleportHistoryStorage::getInstance();

@@ -8277,6 +8277,13 @@ Failed to save snapshot to [PATH]: Directory does not exist.
     type="notifytip">
 Error saving preset [NAME].
   </notification>
+    
+  <notification
+    icon="notifytip.tga"
+    name="DefaultPresetNotSaved"
+    type="notifytip">
+Can not overwrite default preset.
+  </notification>
 
   <notification
     icon="notifytip.tga"
