@@ -96,12 +96,14 @@ public:
 	 * and associated with the socket.
 	 * @param type The type of socket to create
 	 * @param port The port for the socket
+	 * @param hostname e.g. APR_ANYADDR to listen openly, or "127.0.0.1"
 	 * @return A valid socket shared pointer if the call worked.
 	 */
 	static ptr_t create(
 		apr_pool_t* pool,
 		EType type,
-		U16 port = PORT_EPHEMERAL);
+		U16 port = PORT_EPHEMERAL,
+		const char *hostname = APR_ANYADDR);
 
 	/** 
 	 * @brief Create a LLSocket when you already have an apr socket.

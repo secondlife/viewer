@@ -67,6 +67,7 @@ public:
         IT_SETTINGS = 25,
 		IT_COUNT = 26,
 
+		IT_UNKNOWN = 255,
 		IT_NONE = -1
 	};
 
@@ -117,6 +118,7 @@ public:
         ICONNAME_SETTINGS_DAY,
 
 		ICONNAME_INVALID,
+		ICONNAME_UNKNOWN,
 		ICONNAME_COUNT,
 		ICONNAME_NONE = -1
 	};

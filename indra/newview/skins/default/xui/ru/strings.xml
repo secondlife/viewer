@@ -71,7 +71,7 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Дальность отрисовки: [DRAW_DISTANCE] м
 Ширина канала: [NET_BANDWITH] кбит/с
 Коэффициент детализации: [LOD_FACTOR]
-Качество визуализации: [RENDER_QUALITY] / 7
+Качество визуализации: [RENDER_QUALITY]
 Расширенная модель освещения: [GPU_SHADERS]
 Память текстур: [TEXTURE_MEMORY] МБ
 Время создания VFS (кэш): [VFS_TIME]

@@ -71,7 +71,7 @@ Ajustement de la taille de la police : [FONT_SIZE_ADJUSTMENT] pts
 Limite d’affichage : [DRAW_DISTANCE] m
 Bande passante : [NET_BANDWITH] kbit/s
 Facteur LOD (niveau de détail) : [LOD_FACTOR]
-Qualité de rendu : [RENDER_QUALITY] / 7
+Qualité de rendu : [RENDER_QUALITY]
 Modèle d’éclairage avancé : [GPU_SHADERS]
 Mémoire textures : [TEXTURE_MEMORY] Mo
 Durée de création VFS (cache) : [VFS_TIME]

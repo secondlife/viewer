@@ -1285,7 +1285,8 @@ BOOL LLImageGL::createGLTexture()
 	stop_glerror();
 	if (!mTexName)
 	{
-		LL_ERRS() << "LLImageGL::createGLTexture failed to make an empty texture" << LL_ENDL;
+		LL_WARNS() << "LLImageGL::createGLTexture failed to make an empty texture" << LL_ENDL;
+		return FALSE;
 	}
 
 	return TRUE ;
@@ -1418,7 +1419,16 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	}
 	if (!mTexName)
 	{
-		LL_ERRS() << "LLImageGL::createGLTexture failed to make texture" << LL_ENDL;
+		if (old_name)
+		{
+			sGlobalTextureMemory -= mTextureMemory;
+			LLImageGL::deleteTextures(1, &old_name);
+			disclaimMem(mTextureMemory);
+			stop_glerror();
+		}
+
+		LL_WARNS() << "LLImageGL::createGLTexture failed to make texture" << LL_ENDL;
+		return FALSE;
 	}
 
 	if (mUseMipMaps)

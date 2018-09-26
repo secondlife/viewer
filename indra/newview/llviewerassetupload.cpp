@@ -60,7 +60,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
         LLAssetType::EType assetType, std::string name, std::string description,
         S32 compressionInfo, LLFolderType::EType destinationType,
         LLInventoryType::EType inventoryType, U32 nextOWnerPerms,
-        U32 groupPerms, U32 everyonePerms, S32 expectedCost) :
+        U32 groupPerms, U32 everyonePerms, S32 expectedCost, bool showInventory) :
     mTransactionId(transactId),
     mAssetType(assetType),
     mName(name),
@@ -72,6 +72,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
     mGroupPerms(groupPerms),
     mEveryonePerms(everyonePerms),
     mExpectedUploadCost(expectedCost),
+    mShowInventory(showInventory),
     mFolderId(LLUUID::null),
     mItemId(LLUUID::null),
     mAssetId(LLAssetID::null)
@@ -81,7 +82,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
 LLResourceUploadInfo::LLResourceUploadInfo(std::string name, 
         std::string description, S32 compressionInfo, 
         LLFolderType::EType destinationType, LLInventoryType::EType inventoryType, 
-        U32 nextOWnerPerms, U32 groupPerms, U32 everyonePerms, S32 expectedCost):
+        U32 nextOWnerPerms, U32 groupPerms, U32 everyonePerms, S32 expectedCost, bool showInventory) :
     mName(name),
     mDescription(description),
     mCompressionInfo(compressionInfo),
@@ -91,6 +92,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(std::string name,
     mGroupPerms(groupPerms),
     mEveryonePerms(everyonePerms),
     mExpectedUploadCost(expectedCost),
+    mShowInventory(showInventory),
     mTransactionId(),
     mAssetType(LLAssetType::AT_NONE),
     mFolderId(LLUUID::null),
@@ -112,6 +114,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLAssetID assetId, LLAssetType::EType
     mGroupPerms(0),
     mEveryonePerms(0),
     mExpectedUploadCost(0),
+    mShowInventory(true),
     mTransactionId(),
     mFolderId(LLUUID::null),
     mItemId(LLUUID::null)
@@ -331,10 +334,11 @@ LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     U32 nextOWnerPerms,
     U32 groupPerms,
     U32 everyonePerms,
-    S32 expectedCost) :
+    S32 expectedCost,
+    bool show_inventory) :
     LLResourceUploadInfo(name, description, compressionInfo,
     destinationType, inventoryType,
-    nextOWnerPerms, groupPerms, everyonePerms, expectedCost),
+    nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory),
     mFileName(fileName)
 {
 }

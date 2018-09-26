@@ -698,7 +698,7 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
                      &processInfo) == FALSE)
       // Could not start application -> call 'GetLastError()'
 	{
-        LL_WARNS("CrashReport Launch") << "CreateProcess failed " << GetLastError() << LL_ENDL;
+        LL_WARNS("CrashReport") << "CreateProcess failed " << GetLastError() << LL_ENDL;
         return;
     }
 }
