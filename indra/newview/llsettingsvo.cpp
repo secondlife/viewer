@@ -114,7 +114,7 @@ void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, cons
 
     create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
         parent_id, LLTransactionID::tnull,
-        LLSettingsType::getDefaultName(stype), "new settings collection.",
+        LLSettingsType::getDefaultName(stype), "",
         stype, nextOwnerPerm, cb);
 }
 
@@ -143,7 +143,7 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
     }
     create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
         parent_id, tid,
-        settings_name, "new settings collection.",
+        settings_name, "",
         settings->getSettingsTypeValue(), nextOwnerPerm, cb);
 }
 
