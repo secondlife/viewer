@@ -289,7 +289,11 @@ bool LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 		return false;
 	}
 
-	raw_image->resize(width, height, ncomponents);
+	if (!raw_image->resize(width, height, ncomponents))
+	{
+		setLastError("llImageDXT failed to resize image!");
+		return false;
+	}
 	memcpy(raw_image->getData(), data, image_size);	/* Flawfinder: ignore */
 
 	return true;

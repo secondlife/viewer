@@ -40,6 +40,7 @@
 # include <unistd.h>
 #endif // !LL_WINDOWS
 #include <vector>
+#include "string.h"
 
 #include "llapp.h"
 #include "llapr.h"
@@ -530,21 +531,16 @@ namespace LLError
 		mTags(new const char* [tag_count]),
 		mTagCount(tag_count)
 	{
-		for (int i = 0; i < tag_count; i++)
-		{
-			mTags[i] = tags[i];
-		}
-
 		switch (mLevel)
 		{
-		case LEVEL_DEBUG:		mLevelString = "DEBUG:";	break;
-		case LEVEL_INFO:		mLevelString = "INFO:";		break;
-		case LEVEL_WARN:		mLevelString = "WARNING:";	break;
-		case LEVEL_ERROR:		mLevelString = "ERROR:";	break;
-		default:				mLevelString = "XXX:";		break;
+        case LEVEL_DEBUG: mLevelString = "DEBUG";   break;
+        case LEVEL_INFO:  mLevelString = "INFO";    break;
+        case LEVEL_WARN:  mLevelString = "WARNING"; break;
+        case LEVEL_ERROR: mLevelString = "ERROR";   break;
+        default:          mLevelString = "XXX";     break;
 		};
 
-		mLocationString = llformat("%s(%d) :", abbreviateFile(mFile).c_str(), mLine);
+		mLocationString = llformat("%s(%d)", abbreviateFile(mFile).c_str(), mLine);
 #if LL_WINDOWS
 		// DevStudio: __FUNCTION__ already includes the full class name
 #else
@@ -558,13 +554,23 @@ namespace LLError
 			mFunctionString = className(mClassInfo) + "::";
 		}
 #endif
-		mFunctionString += std::string(mFunction) + ":";
-        const std::string tag_hash("#");
+		mFunctionString += std::string(mFunction);
+
+		for (int i = 0; i < tag_count; i++)
+		{
+            if (strchr(tags[i], ' '))
+            {
+                LL_ERRS() << "Space is not allowed in a log tag at " << mLocationString << LL_ENDL;
+            }
+			mTags[i] = tags[i];
+		}
+
+        mTagString.append("#");
+        // always construct a tag sequence; will be just a single # if no tag
 		for (size_t i = 0; i < mTagCount; i++)
 		{
-            mTagString.append(tag_hash);
 			mTagString.append(mTags[i]);
-            mTagString.append((i == mTagCount - 1) ? ";" : ",");
+            mTagString.append("#");
 		}
 	}
 
@@ -899,7 +905,46 @@ namespace LLError
 
 namespace
 {
-	void writeToRecorders(const LLError::CallSite& site, const std::string& message, bool show_location = true, bool show_time = true, bool show_tags = true, bool show_level = true, bool show_function = true)
+    void addEscapedMessage(std::ostream& out, const std::string& message)
+    {
+        size_t written_out = 0;
+        size_t all_content = message.length();
+        size_t escape_char_index; // always relative to start of message
+        // Use find_first_of to find the next character in message that needs escaping
+        for ( escape_char_index = message.find_first_of("\\\n\r");
+              escape_char_index != std::string::npos && written_out < all_content;
+              // record what we've written this iteration, scan for next char that needs escaping
+              written_out = escape_char_index + 1, escape_char_index = message.find_first_of("\\\n\r", written_out)
+             )
+        {
+            // found a character that needs escaping, so write up to that with the escape prefix
+            // note that escape_char_index is relative to the start, not to the written_out offset
+            out << message.substr(written_out, escape_char_index - written_out) << '\\';
+
+            // write out the appropriate second character in the escape sequence
+            char found = message[escape_char_index];
+            switch ( found )
+            {
+            case '\\':
+                out << '\\';
+                break;
+            case '\n':
+                out << 'n';
+                break;
+            case '\r':
+                out << 'r';
+                break;
+            }
+        }
+
+        if ( written_out < all_content ) // if the loop above didn't write everything
+        {
+            // write whatever was left
+            out << message.substr(written_out, std::string::npos);
+        }
+    }
+
+	void writeToRecorders(const LLError::CallSite& site, const std::string& escaped_message, bool show_location = true, bool show_time = true, bool show_tags = true, bool show_level = true, bool show_function = true)
 	{
 		LLError::ELevel level = site.mLevel;
 		LLError::SettingsConfigPtr s = LLError::Settings::getInstance()->getSettingsConfig();
@@ -912,32 +957,37 @@ namespace
 			
 			std::ostringstream message_stream;
 
-			if (show_time && r->wantsTime() && s->mTimeFunction != NULL)
+			if (r->wantsTime() && s->mTimeFunction != NULL)
 			{
-				message_stream << s->mTimeFunction() << " ";
+				message_stream << s->mTimeFunction();
 			}
-
+            message_stream << " ";
+            
 			if (show_level && r->wantsLevel())
             {
-				message_stream << site.mLevelString << " ";
+				message_stream << site.mLevelString;
             }
+            message_stream << " ";
 				
-			if (show_tags && r->wantsTags())
+			if (r->wantsTags())
 			{
 				message_stream << site.mTagString;
 			}
+            message_stream << " ";
 
-            if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
+            if (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation)
             {
-                message_stream << site.mLocationString << " ";
+                message_stream << site.mLocationString;
             }
+            message_stream << " ";
 
 			if (show_function && r->wantsFunctionName())
 			{
-				message_stream << site.mFunctionString << " ";
+				message_stream << site.mFunctionString;
 			}
+            message_stream << " : ";
 
-			message_stream << message;
+			message_stream << escaped_message;
 
 			r->recordMessage(level, message_stream.str());
 		}
@@ -1180,11 +1230,6 @@ namespace LLError
 			delete out;
 		}
 
-		if (site.mLevel == LEVEL_ERROR)
-		{
-			writeToRecorders(site, "error", true, true, true, false, false);
-		}
-		
 		std::ostringstream message_stream;
 
 		if (site.mPrintOnce)
@@ -1210,8 +1255,8 @@ namespace LLError
 			}
 		}
 		
-		message_stream << message;
-		
+		addEscapedMessage(message_stream, message);
+
 		writeToRecorders(site, message_stream.str());
 		
 		if (site.mLevel == LEVEL_ERROR  &&  s->mCrashFunction)

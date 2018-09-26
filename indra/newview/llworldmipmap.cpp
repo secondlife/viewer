@@ -100,7 +100,7 @@ void LLWorldMipmap::equalizeBoostLevels()
 		}
 	}
 #if DEBUG_TILES_STAT
-	LL_INFOS("World Map") << "LLWorldMipmap tile stats : total requested = " << nb_tiles << ", visible = " << nb_visible << ", missing = " << nb_missing << LL_ENDL;
+	LL_INFOS("WorldMap") << "LLWorldMipmap tile stats : total requested = " << nb_tiles << ", visible = " << nb_visible << ", missing = " << nb_missing << LL_ENDL;
 #endif // DEBUG_TILES_STAT
 }
 
@@ -187,7 +187,7 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32
 	// Use a local jpeg for every tile to test map speed without S3 access
 	//imageurl = "file://C:\\Develop\\mapserver-distribute-3\\indra\\build-vc80\\mapserver\\relwithdebinfo\\regions\\00995\\01001\\region-995-1001-prims.jpg";
 	// END DEBUG
-	//LL_INFOS("World Map") << "LLWorldMipmap::loadObjectsTile(), URL = " << imageurl << LL_ENDL;
+	//LL_INFOS("WorldMap") << "LLWorldMipmap::loadObjectsTile(), URL = " << imageurl << LL_ENDL;
 
 	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::getFetchedTextureFromUrl(imageurl, FTT_MAP_TILE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	img->setBoostLevel(LLGLTexture::BOOST_MAP);

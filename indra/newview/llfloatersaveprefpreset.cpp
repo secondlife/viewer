@@ -34,6 +34,7 @@
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llpresetsmanager.h"
+#include "lltrans.h"
 
 LLFloaterSavePrefPreset::LLFloaterSavePrefPreset(const LLSD &key)
 :	LLFloater(key)
@@ -77,7 +78,7 @@ void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 
 	setTitle(floater_title);
 
-	EDefaultOptions option = DEFAULT_TOP;
+	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 
 	onPresetNameEdited();
@@ -87,7 +88,11 @@ void LLFloaterSavePrefPreset::onBtnSave()
 {
 	std::string name = mPresetCombo->getSimple();
 
-	if (!LLPresetsManager::getInstance()->savePreset(mSubdirectory, name))
+	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (name == PRESETS_DEFAULT))
+	{
+		LLNotificationsUtil::add("DefaultPresetNotSaved");
+	}
+	else if (!LLPresetsManager::getInstance()->savePreset(mSubdirectory, name))
 	{
 		LLSD args;
 		args["NAME"] = name;
@@ -99,7 +104,7 @@ void LLFloaterSavePrefPreset::onBtnSave()
 
 void LLFloaterSavePrefPreset::onPresetsListChange()
 {
-	EDefaultOptions option = DEFAULT_TOP;
+	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 }
 

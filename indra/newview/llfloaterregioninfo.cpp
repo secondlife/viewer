@@ -3248,14 +3248,14 @@ void LLPanelEnvironmentInfo::sendRegionSunUpdate()
 		param_set.setAll(sky_map.beginMap()->second);
 		F32 sun_angle = param_set.getSunAngle();
 
-		LL_DEBUGS("Windlight Sync") << "Old sun hour: " << region_info.mSunHour << LL_ENDL;
+		LL_DEBUGS("WindlightSync") << "Old sun hour: " << region_info.mSunHour << LL_ENDL;
 		// convert value range from 0..2pi to 6..30
 		region_info.mSunHour = fmodf((sun_angle / F_TWO_PI) * 24.f, 24.f) + 6.f;
 	}
 
 	region_info.setUseFixedSun(region_use_fixed_sky);
 	region_info.mUseEstateSun = !region_use_fixed_sky;
-	LL_DEBUGS("Windlight Sync") << "Sun hour: " << region_info.mSunHour << LL_ENDL;
+	LL_DEBUGS("WindlightSync") << "Sun hour: " << region_info.mSunHour << LL_ENDL;
 
 	region_info.sendRegionTerrain(LLFloaterRegionInfo::getLastInvoice());
 }

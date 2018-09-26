@@ -74,10 +74,18 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 
 LLVoiceChannel::~LLVoiceChannel()
 {
-	// Must check instance exists here, the singleton MAY have already been destroyed.
-	if(LLVoiceClient::instanceExists())
+	if (sSuspendedVoiceChannel == this)
 	{
-		LLVoiceClient::getInstance()->removeObserver(this);
+		sSuspendedVoiceChannel = NULL;
+	}
+	if (sCurrentVoiceChannel == this)
+	{
+		sCurrentVoiceChannel = NULL;
+		// Must check instance exists here, the singleton MAY have already been destroyed.
+		if(LLVoiceClient::instanceExists())
+		{
+			LLVoiceClient::getInstance()->removeObserver(this);
+		}
 	}
 	
 	sVoiceChannelMap.erase(mSessionID);
