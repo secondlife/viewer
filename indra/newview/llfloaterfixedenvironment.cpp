@@ -571,19 +571,7 @@ bool LLFloaterFixedEnvironment::canApplyRegion() const
 
 bool LLFloaterFixedEnvironment::canApplyParcel() const
 {
-    LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
-    LLParcel *parcel(nullptr);
-
-    if (handle)
-        parcel = handle->getParcel();
-    if (!parcel)
-        parcel = LLViewerParcelMgr::instance().getAgentParcel();
-
-    if (!parcel)
-        return false;
-
-    return parcel->allowModifyBy(gAgent.getID(), gAgent.getGroupID()) && 
-        LLEnvironment::instance().isExtendedEnvironmentEnabled();
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
 }
 
 //=========================================================================

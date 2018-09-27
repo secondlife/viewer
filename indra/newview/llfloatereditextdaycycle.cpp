@@ -1423,19 +1423,7 @@ bool LLFloaterEditExtDayCycle::canApplyRegion() const
 
 bool LLFloaterEditExtDayCycle::canApplyParcel() const
 {
-    LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
-    LLParcel *parcel(nullptr);
-
-    if (handle)
-        parcel = handle->getParcel();
-    if (!parcel)
-        parcel = LLViewerParcelMgr::instance().getAgentParcel();
-
-    if (!parcel)
-        return false;
-
-    return parcel->allowTerraformBy(gAgent.getID()) &&
-        LLEnvironment::instance().isExtendedEnvironmentEnabled();
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::startPlay()
