@@ -173,8 +173,11 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 		// data space
 		if (rawImage != NULL)
 		{
-			rawImage->resize(static_cast<U16>(mWidth),
-				static_cast<U16>(mHeight), mChannels);
+			if (!rawImage->resize(static_cast<U16>(mWidth),
+				static_cast<U16>(mHeight), mChannels))
+			{
+				LLTHROW(PngError("Failed to resize image"));
+			}
 			U8 *dest = rawImage->getData();
 			int offset = mWidth * mChannels;
 
@@ -204,6 +207,12 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 	catch (const PngError& msg)
 	{
 		mErrorMessage = msg.what();
+		releaseResources();
+		return (FALSE);
+	}
+	catch (std::bad_alloc)
+	{
+		mErrorMessage = "LLPngWrapper";
 		releaseResources();
 		return (FALSE);
 	}

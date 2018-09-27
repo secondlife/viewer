@@ -93,6 +93,7 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_MESH,	 				new IconEntry("Inv_Mesh"));
 
 	addEntry(LLInventoryType::ICONNAME_INVALID, 				new IconEntry("Inv_Invalid"));
+	addEntry(LLInventoryType::ICONNAME_UNKNOWN, 				new IconEntry("Inv_Unknown"));
 
 	addEntry(LLInventoryType::ICONNAME_NONE, 					new IconEntry("NONE"));
 }
@@ -166,6 +167,8 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_MESH:
 			idx = LLInventoryType::ICONNAME_MESH;
+		case LLAssetType::AT_UNKNOWN:
+			idx = LLInventoryType::ICONNAME_UNKNOWN;
 		default:
 			break;
 	}
