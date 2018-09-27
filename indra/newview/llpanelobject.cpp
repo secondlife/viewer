@@ -341,21 +341,17 @@ void LLPanelObject::getState( )
 		return;
 	}
 
-	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && objectp->permModify();
-	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-
 	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
 						 && (selected_count == 1);
 
-	if (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() > 1)
-	{
-		enable_move = FALSE;
-		enable_scale = FALSE;
-		enable_rotate = FALSE;
-	}
+	bool enable_move;
+	bool enable_modify;
+
+	LLSelectMgr::getInstance()->selectGetEditMoveLinksetPermissions(enable_move, enable_modify);
+
+	BOOL enable_scale = enable_modify;
+	BOOL enable_rotate = enable_move; // already accounts for a case of children, which needs permModify() as well
 
 	LLVector3 vec;
 	if (enable_move)

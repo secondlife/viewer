@@ -575,6 +575,17 @@ protected:
 	static std::string sPrefix;
 };
 
+class LLUnknownItemBridge : public LLItemBridge
+{
+public:
+	LLUnknownItemBridge(LLInventoryPanel* inventory,
+		LLFolderView* root,
+		const LLUUID& uuid) :
+		LLItemBridge(inventory, root, uuid) {}
+	virtual LLUIImagePtr getIcon() const;
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+};
+
 class LLLinkFolderBridge : public LLItemBridge
 {
 public:
@@ -747,6 +758,7 @@ class LLFolderViewGroupedItemBridge: public LLFolderViewGroupedItemModel
 public:
     LLFolderViewGroupedItemBridge();
     virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
+    bool canWearSelected(uuid_vec_t item_ids);
 };
 
 #endif // LL_LLINVENTORYBRIDGE_H
