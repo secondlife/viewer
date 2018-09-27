@@ -1130,21 +1130,29 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-#if LL_WINDOWS
 	std::vector<std::string> updater
+#if LL_WINDOWS
 		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe") };
 #elif LL_DARWIN
 	// explicitly run the system Python interpreter on updater.py
-	std::vector<std::string> updater
 		{ "python", gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py") };
 #else
-	std::vector<std::string> updater
 		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater") };
 #endif
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.push_back("leap");
+	// UpdaterServiceSettings
+	updater.push_back(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+	// channel
+	updater.push_back(LLVersionInfo::getChannel());
+	// testok
+	updater.push_back(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+	// UpdaterServiceURL
+	updater.push_back(gSavedSettings.getString("UpdaterServiceURL"));
+	// ForceAddressSize
+	updater.push_back(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
-	// Run the updater. An exception from the updater should bother us.
+	// Run the updater. An exception from launching the updater should bother us.
 	LLLeap::create("updater process", updater, true);
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if

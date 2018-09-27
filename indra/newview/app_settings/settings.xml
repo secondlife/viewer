@@ -4316,6 +4316,17 @@
       <key>Value</key>
       <real>96.0</real>
     </map>
+    <key>ForceAddressSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Force Windows update to 32-bit or 64-bit viewer.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ForceAssetFail</key>
     <map>
       <key>Comment</key>
