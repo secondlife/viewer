@@ -146,11 +146,22 @@ const int LL_ERR_NOERR = 0;
 	
 	will result in messages like:
 	
-		WARN: LLFoo::doSomething: called with a big value for i: 283
+		WARN #FooBarTag# llcommon/llfoo(100) LLFoo::doSomething : called with a big value for i: 283
 	
+    the syntax is:
+        <timestamp> SPACE <level> SPACE <tags> SPACE <location> SPACE <function> SPACE COLON SPACE <message>
+
+    where each SPACE is a single space character; note that if a field is empty (such as when no
+    tags are specified), all the SPACEs are still present.
+
+    The tags must be a single word (may not contain a space); if more than one tag is specified,
+    they are all surrounded by '#' ( #FooTag#BarTag# ).
+
 	Which messages are logged and which are suppressed can be controlled at run
-	time from the live file logcontrol.xml based on function, class and/or 
-	source file.  See etc/logcontrol-dev.xml for details.
+	time from the configuration file. The default configuration is in newview/app_settings/logcontrol.xml
+    A copy of that file named logcontrol-dev.xml can be made in the users personal settings
+    directory; that will override the installed default file.  See the logcontrol.xml
+    file or http://wiki.secondlife.com/wiki/Logging_System_Overview for configuration details.
 	
 	Lastly, logging is now very efficient in both compiled code and execution
 	when skipped.  There is no need to wrap messages, even debugging ones, in

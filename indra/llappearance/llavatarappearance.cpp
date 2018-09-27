@@ -1566,9 +1566,10 @@ BOOL LLAvatarAppearance::allocateCollisionVolumes( U32 num )
         delete_and_clear_array(mCollisionVolumes);
         mNumCollisionVolumes = 0;
 
-        mCollisionVolumes = new LLAvatarJointCollisionVolume[num];
+        mCollisionVolumes = new(std::nothrow) LLAvatarJointCollisionVolume[num];
         if (!mCollisionVolumes)
         {
+            LL_WARNS() << "Failed to allocate collision volumes" << LL_ENDL;
             return FALSE;
         }
         

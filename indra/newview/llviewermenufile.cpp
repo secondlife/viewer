@@ -689,7 +689,8 @@ LLUUID upload_new_resource(
 	const std::string& display_name,
 	LLAssetStorage::LLStoreAssetCallback callback,
 	S32 expected_upload_cost,
-	void *userdata)
+	void *userdata,
+	bool show_inventory)
 {	
 
     LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
@@ -697,7 +698,7 @@ LLUUID upload_new_resource(
         name, desc, compression_info,
         destination_folder_type, inv_type,
         next_owner_perms, group_perms, everyone_perms,
-        expected_upload_cost));
+        expected_upload_cost, show_inventory));
     upload_new_resource(uploadInfo, callback, userdata);
 
     return LLUUID::null;

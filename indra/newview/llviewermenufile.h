@@ -55,7 +55,8 @@ LLUUID upload_new_resource(
     const std::string& display_name,
     LLAssetStorage::LLStoreAssetCallback callback,
     S32 expected_upload_cost,
-    void *userdata);
+    void *userdata,
+    bool show_inventory = true);
 
 void upload_new_resource(
     LLResourceUploadInfo::ptr_t &uploadInfo,
