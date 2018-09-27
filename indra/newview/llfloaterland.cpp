@@ -147,7 +147,7 @@ class LLPanelLandEnvironment
 public:
                         LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
     
-    virtual bool        isRegion() const override { return true; }
+    virtual bool        isRegion() const override { return false; }
 
     virtual BOOL        postBuild() override;
     virtual void        refresh() override;
