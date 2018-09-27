@@ -52,7 +52,6 @@
 #include "llviewerwindow.h"
 #include "llvocache.h"
 #include "llcontrolavatar.h"
-#include "llcallstack.h"
 #include "lldrawpoolavatar.h"
 
 const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
@@ -730,6 +729,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
+    if (isRoot() && mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+    {
+        mVObjp->getControlAvatar()->matchVolumeTransform();
+    }
 
 	if (mSpatialBridge)
 	{

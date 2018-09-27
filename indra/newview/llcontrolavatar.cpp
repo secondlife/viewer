@@ -175,7 +175,16 @@ void LLControlAvatar::matchVolumeTransform()
             // complexity info and such line up better. Should defer
             // this until avatars also get fixed.
 
-            LLQuaternion obj_rot = mRootVolp->getRotation();
+            LLQuaternion obj_rot;
+            if (mRootVolp->mDrawable)
+            {
+                obj_rot = mRootVolp->mDrawable->getRotation();
+            }
+            else
+            {
+                obj_rot = mRootVolp->getRotation();
+            }
+            
 			LLMatrix3 bind_mat;
 
             LLQuaternion bind_rot;
