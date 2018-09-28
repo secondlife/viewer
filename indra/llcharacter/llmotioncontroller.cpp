@@ -441,7 +441,8 @@ BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate
 {
 	// if already inactive, return false
 	LLMotion *motion = findMotion(id);
-	return stopMotionInstance(motion, stop_immediate);
+    // SL-1290: always stop immediate if paused 
+	return stopMotionInstance(motion, stop_immediate||mPaused);
 }
 
 BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediate)
