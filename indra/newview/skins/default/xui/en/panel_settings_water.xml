@@ -141,7 +141,7 @@
         </layout_panel>
         <layout_panel
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 visible="true">
             <layout_stack name="water_stack2"
                     left="5"
@@ -154,7 +154,7 @@
                         border="true"
                         bevel_style="in"
                         auto_resize="true"
-                        user_resize="true"
+                        user_resize="false"
                         visible="true"
                         min_width="460"
                         width="50">
@@ -276,7 +276,7 @@
                         border="true"
                         bevel_style="in"
                         auto_resize="true"
-                        user_resize="true"
+                        user_resize="false"
                         width="50"
                         visible="true">
                     <text

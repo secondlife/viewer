@@ -20,7 +20,7 @@
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 visible="true"
                 height="75">
             <text
@@ -131,7 +131,7 @@
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 visible="true"
                 height="75">
             <text
