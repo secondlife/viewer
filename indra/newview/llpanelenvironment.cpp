@@ -126,6 +126,8 @@ LLPanelEnvironmentInfo::~LLPanelEnvironmentInfo()
 {
     if (mChangeMonitor.connected())
         mChangeMonitor.disconnect();
+    if (mCommitConnection.connected())
+        mCommitConnection.disconnect();
 }
 
 BOOL LLPanelEnvironmentInfo::postBuild()
