@@ -19,7 +19,7 @@
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 visible="true"
                 height="350">
             <text
@@ -181,7 +181,7 @@
                 border="false"
                 bevel_style="in"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 visible="true"
                 height="350">
             <layout_stack 
@@ -195,7 +195,7 @@
                         border="true"
                         bevel_style="in"
                         auto_resize="true"
-                        user_resize="true"
+                        user_resize="false"
                         visible="true"
                         height="220">
                     <text

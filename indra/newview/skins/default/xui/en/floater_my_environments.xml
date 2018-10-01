@@ -88,17 +88,34 @@
                 name="list_panel"
                 label="Environments"
                 font="SansSerifBold">
-            <inventory_panel
-                    allow_multi_select="false"
-                    bg_visible="true"
-                    bg_alpha_color="DkGray2"
-                    border="true"
-                    follows="left|top|right|bottom"
+            <panel
+                    name="pnl_inv_wrap"
+                    label="pnl_inv_wrap"
+                    follows="all"
+                    layout="topleft"
                     left="2"
-                    name="pnl_settings"
                     top="2"
                     right="-2"
-                    bottom="-36" /> 
+                    bottom="-2"
+                    background_visible="true"
+                    bg_alpha_color="DkGray2"
+                    border="true">
+                <inventory_panel
+                       left="0"
+                       top="0"
+                       right="-1"
+                       bottom="-1"
+                       allow_multi_select="false"
+                       follows="all"
+                       layout="topleft"
+                       name="pnl_settings"/>
+            </panel>
+        </layout_panel>
+        <layout_panel
+                auto_resize="false"
+                user_resize="false"
+                tab_group="1"
+                height="14">
             <check_box
                     follows="left|bottom"
                     height="14"
@@ -106,8 +123,7 @@
                     label="Show Empty Folders"
                     layout="topleft"
                     name="chk_showfolders"
-                    top="-20"
-                    top_pad="0"
+                    top="0"
                     left_delta="-3"
                     width="200" />
         </layout_panel>

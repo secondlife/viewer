@@ -33,7 +33,7 @@
         <layout_panel name="name_and_import"
                 border="false"
                 auto_resize="false"
-                user_resize="true"
+                user_resize="false"
                 height="29"
                 min_height="29"
                 background_visible="false">
@@ -73,7 +73,7 @@
         <layout_panel name="content"
                 border="false"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 background_visible="false">
             <layout_stack name="content_stack"
                     width="705"
@@ -85,7 +85,7 @@
                         border="false"
                         bevel_style="in"
                         auto_resize="false"
-                        user_resize="true"
+                        user_resize="false"
                         height="150"
                         min_height="0"
                         visible="true">
@@ -424,7 +424,7 @@
                 </layout_panel>
                 <layout_panel name="frame_edit_controls"
                         auto_resize="false"
-                        user_resize="true"
+                        user_resize="false"
                         height="30"
                         width="700"
                         min_height="30"
@@ -446,7 +446,7 @@ Select a key frame from the timeline above to edit settings.
                 </layout_panel>
                 <layout_panel name="frame_settings_water"
                         auto_resize="true"
-                        user_resize="true"
+                        user_resize="false"
                         height="420"
                         width="700"
                         min_height="0"
@@ -476,7 +476,7 @@ Select a key frame from the timeline above to edit settings.
                 </layout_panel>
                 <layout_panel name="frame_settings_sky"
                         auto_resize="true"
-                        user_resize="true"
+                        user_resize="false"
                         height="420"
                         width="700"
                         min_height="0"
@@ -538,7 +538,7 @@ Select a key frame from the timeline above to edit settings.
         </layout_panel>
         <layout_panel name="buttons"
                 auto_resize="false"
-                user_resize="true"
+                user_resize="false"
                 height="26"
                 min_height="26"
                 visible="true"

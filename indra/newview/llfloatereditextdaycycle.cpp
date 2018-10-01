@@ -436,6 +436,7 @@ void LLFloaterEditExtDayCycle::refresh()
 
 void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
 {
+    mExpectingAssetId.setNull();
     mEditDay = pday->buildDeepCloneAndUncompress();
 
     if (mEditDay->isTrackEmpty(LLSettingsDay::TRACK_WATER))
@@ -463,6 +464,7 @@ void LLFloaterEditExtDayCycle::setEditDefaultDayCycle()
 {
     mInventoryItem = nullptr;
     mInventoryId.setNull();
+    mExpectingAssetId = LLSettingsDay::GetDefaultAssetId();
     LLSettingsVOBase::getSettingsAsset(LLSettingsDay::GetDefaultAssetId(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
@@ -1086,12 +1088,20 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
 
+    mExpectingAssetId = mInventoryItem->getAssetUUID();
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
 void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
 {
+    if (asset_id != mExpectingAssetId)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Expecting {" << mExpectingAssetId << "} got {" << asset_id << "} - throwing away." << LL_ENDL;
+        return;
+    }
+    mExpectingAssetId.setNull();
+
     if ((mInventoryItem && mInventoryItem->getAssetUUID() != asset_id)
         || (!mInventoryItem && LLSettingsDay::GetDefaultAssetId() != asset_id))
     {
@@ -1413,19 +1423,7 @@ bool LLFloaterEditExtDayCycle::canApplyRegion() const
 
 bool LLFloaterEditExtDayCycle::canApplyParcel() const
 {
-    LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
-    LLParcel *parcel(nullptr);
-
-    if (handle)
-        parcel = handle->getParcel();
-    if (!parcel)
-        parcel = LLViewerParcelMgr::instance().getAgentParcel();
-
-    if (!parcel)
-        return false;
-
-    return parcel->allowTerraformBy(gAgent.getID()) &&
-        LLEnvironment::instance().isExtendedEnvironmentEnabled();
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::startPlay()

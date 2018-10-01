@@ -69,7 +69,7 @@
         </layout_panel>
         <layout_panel name="tab_area"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 height="11"
                 min_height="0"
                 visible="true">
