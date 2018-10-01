@@ -103,37 +103,6 @@ public:
 
     typedef boost::signals2::connection     connection_t;
 
-    class UserPrefs
-    {
-        friend class LLEnvironment;
-    public:
-        UserPrefs();
-
-        bool            getUseRegionSettings() const { return mUseRegionSettings; }
-        bool            getUseDayCycle() const { return mUseDayCycle; }
-        bool            getUseFixedSky() const { return !getUseDayCycle(); }
-
-        std::string     getWaterPresetName() const { return mWaterPresetName; }
-        std::string     getSkyPresetName() const { return mSkyPresetName; }
-        std::string     getDayCycleName() const { return mDayCycleName; }
-
-        void            setUseRegionSettings(bool val);
-        void            setUseWaterPreset(const std::string& name);
-        void            setUseSkyPreset(const std::string& name);
-        void            setUseDayCycle(const std::string& name);
-
-    private:
-        void            load();
-        void            store();
-
-        bool			mUseRegionSettings;
-        bool			mUseDayCycle;
-        bool            mPersistEnvironment;
-        std::string		mWaterPresetName;
-        std::string		mSkyPresetName;
-        std::string		mDayCycleName;
-    };
-
     typedef std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t> fixedEnvironment_t;
     typedef std::function<void(S32, EnvironmentInfo::ptr_t)>        environment_apply_fn;
     typedef boost::signals2::signal<void(EnvSelection_t)>           env_changed_signal_t;
@@ -142,10 +111,6 @@ public:
     typedef std::vector<F32>                                        altitudes_vect_t;
 
     virtual                     ~LLEnvironment();
-
-    void                        loadPreferences();
-    void                        updatePreferences();
-    const UserPrefs &           getPreferences() const { return mUserPrefs; }
 
     bool                        canEdit() const;
     bool                        isExtendedEnvironmentEnabled() const;
@@ -349,8 +314,6 @@ private:
     LLSettingsBlender::ptr_t    mBlenderWater;
 
     env_changed_signal_t        mSignalEnvChanged;
-
-    UserPrefs                   mUserPrefs;
 
     S32                         mCurrentTrack;
     altitude_list_t             mTrackAltitudes;
