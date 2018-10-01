@@ -1465,7 +1465,6 @@ bool idle_startup()
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
 
-        LLEnvironment::instance().loadPreferences();
 		gSky.init();
 
 		LLGLState::checkStates();
