@@ -874,8 +874,22 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
         {
 	        mSunTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
         }
+
+        LLViewerTexture* current_tex0 = mFace[FACE_SUN]->getTexture(LLRender::DIFFUSE_MAP);
+        LLViewerTexture* current_tex1 = mFace[FACE_SUN]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
+
+        if (current_tex0 && (mSunTexturep[0] != current_tex0) && current_tex0->isViewerMediaTexture())
+        {
+            static_cast<LLViewerMediaTexture*>(current_tex0)->removeMediaFromFace(mFace[FACE_SUN]);
+        }
+
+        if (current_tex1 && (mSunTexturep[1] != current_tex1) && current_tex1->isViewerMediaTexture())
+        {
+            static_cast<LLViewerMediaTexture*>(current_tex1)->removeMediaFromFace(mFace[FACE_SUN]);
+        }
+
         mFace[FACE_SUN]->setTexture(LLRender::DIFFUSE_MAP, mSunTexturep[0]);
-    
+
         if (mSunTexturep[1])
         {
 	        mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);            
