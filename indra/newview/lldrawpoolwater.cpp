@@ -695,43 +695,19 @@ void LLDrawPoolWater::shade()
 		water_color.mV[3] = 0.9f;
 	}
 
-	{
-		LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
+	{		
 		LLGLDisable cullface(GL_CULL_FACE);
-		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			iter != mDrawFace.end(); iter++)
+
+        sNeedsReflectionUpdate = TRUE;			
+        sNeedsDistortionUpdate = TRUE;
+
+        for (std::vector<LLFace*>::iterator iter = mDrawFace.begin(); iter != mDrawFace.end(); iter++)
 		{
 			LLFace *face = *iter;
-
-			if (voskyp->isReflFace(face))
-			{
-				continue;
-			}
-
-			LLVOWater* water = (LLVOWater*) face->getViewerObject();
 			gGL.getTexUnit(diffTex)->bind(face->getTexture());
-
-			sNeedsReflectionUpdate = TRUE;
-			
-			if (water->getUseTexture() || !water->getIsEdgePatch())
-			{
-				sNeedsDistortionUpdate = TRUE;
-				face->renderIndexed();
-			}
-            // using squash clip for deferred rendering makes the horizon lines match
-            // between ALM and non-ALM rendering (SL-1655), but introduces an ugly seem between
-            // near and far water(SL-9696)...we're going to live with the former and not cause the latter 
-            else if (gGLManager.mHasDepthClamp || deferred_render)
-            {
-				face->renderIndexed();
-			}
-			else
-			{
-				LLGLSquashToFarClip far_clip(get_current_projection());
-				face->renderIndexed();
-			}
+            face->renderIndexed();
 		}
-	}
+    }
 	
 	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 	shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);	
