@@ -756,6 +756,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isVisible() const;
+    virtual bool    shouldRenderRigged() const;
 	void			setVisibilityRank(U32 rank);
     U32				getVisibilityRank() const { return mVisibilityRank; }
 	static S32 		sNumVisibleAvatars; // Number of instances of this class

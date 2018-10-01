@@ -574,3 +574,17 @@ std::string LLControlAvatar::getFullname() const
         return "AO_no_root_vol";
     }
 }
+
+// virtual
+bool LLControlAvatar::shouldRenderRigged() const
+{
+    if (mRootVolp && mRootVolp->isAttachment())
+    {
+        LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
+        if (attached_av)
+        {
+            return attached_av->shouldRenderRigged();
+        }
+    }
+    return true;
+}

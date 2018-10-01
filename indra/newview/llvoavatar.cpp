@@ -7464,6 +7464,12 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 	updateMeshTextures();
 }
 
+// virtual
+bool LLVOAvatar::shouldRenderRigged() const
+{
+    return true;
+}
+
 // FIXME: We have an mVisible member, set in updateVisibility(), but this
 // function doesn't return it! isVisible() and mVisible are used
 // different places for different purposes. mVisible seems to be more

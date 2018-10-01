@@ -2701,6 +2701,12 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 	}
 }
 
+// virtual
+bool LLVOAvatarSelf::shouldRenderRigged() const
+{
+    return gAgent.needsRenderAvatar(); 
+}
+
 // HACK: this will null out the avatar's local texture IDs before the TE message is sent
 //       to ensure local texture IDs are not sent to other clients in the area.
 //       this is a short-term solution. The long term solution will be to not set the texture

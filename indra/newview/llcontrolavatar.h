@@ -73,6 +73,8 @@ public:
 
     virtual std::string getFullname() const;
 
+    /* virtual */ bool shouldRenderRigged() const;
+    
     bool mPlaying;
 
     F32 mGlobalScale;
