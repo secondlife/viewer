@@ -373,7 +373,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(true);
     getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
 
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(isRegion());
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(isRegion() && LLEnvironment::instance().isExtendedEnvironmentEnabled());
 
     S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
 
