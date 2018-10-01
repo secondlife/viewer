@@ -236,10 +236,6 @@ void LLPanelEnvironmentInfo::refresh()
 
     updateEditFloater(mCurrentEnvironment, canEdit());
 
-#if 1 
-    // hiding the controls until Rider can get the simulator code to adjust altitudes done.
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
-#else
     LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
     if (altitudes.size() > 0)
     {
@@ -252,7 +248,6 @@ void LLPanelEnvironmentInfo::refresh()
         }
         readjustAltLabels();
     }
-#endif
 
 }
 
@@ -378,12 +373,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(true);
     getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
 
-#if 1 
-    // hiding the controls until Rider can get the simulator code to adjust altitudes done.
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
-#else
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(isRegion());
-#endif
 
     S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
 
@@ -636,8 +626,18 @@ void LLPanelEnvironmentInfo::doApply()
     if (getIsDirtyFlag(DIRTY_FLAG_MASK))
     {
         LLHandle<LLPanel> that_h = getHandle();
+        LLEnvironment::altitudes_vect_t alts;
 
         S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+
+        if (isRegion() && getIsDirtyFlag(DIRTY_FLAG_ALTITUDES))
+        {
+            altitudes_data_t::iterator it;
+            for (auto alt : mAltitudes)
+            {
+                alts.push_back(alt.second.mAltitude);
+            }
+        }
 
         if (rdo_selection == 0)
         {
@@ -647,13 +647,13 @@ void LLPanelEnvironmentInfo::doApply()
         else if (rdo_selection == 1)
         {
             LLEnvironment::instance().updateParcel(parcel_id,
-                mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(),
+                mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
         else
         {
             LLEnvironment::instance().updateParcel(parcel_id,
-                mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), 
+                mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
 

@@ -1037,12 +1037,12 @@ void LLEnvironment::requestRegion(environment_apply_fn cb)
     requestParcel(INVALID_PARCEL_ID, cb);
 }
 
-void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
-    updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset, cb);
+    updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset, altitudes, cb);
 }
 
-void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     if (!isExtendedEnvironmentEnabled())
     {
@@ -1051,17 +1051,17 @@ void LLEnvironment::updateRegion(const LLUUID &asset_id, S32 day_length, S32 day
         return;
     }
 
-    updateParcel(INVALID_PARCEL_ID, asset_id, day_length, day_offset, cb);
+    updateParcel(INVALID_PARCEL_ID, asset_id, day_length, day_offset, altitudes, cb);
 }
 
-void LLEnvironment::updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
-    updateParcel(INVALID_PARCEL_ID, psky, day_length, day_offset, cb);
+    updateParcel(INVALID_PARCEL_ID, psky, day_length, day_offset, altitudes, cb);
 }
 
-void LLEnvironment::updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
-    updateParcel(INVALID_PARCEL_ID, pwater, day_length, day_offset, cb);
+    updateParcel(INVALID_PARCEL_ID, pwater, day_length, day_offset, altitudes, cb);
 }
 
 
@@ -1101,15 +1101,15 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
         [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        [this, parcel_id, asset_id, day_length, day_offset, cb]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
-            LLSettingsDay::ptr_t(), asset_id, day_length, day_offset, cb); });
+        [this, parcel_id, asset_id, day_length, day_offset, altitudes, cb]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
+            LLSettingsDay::ptr_t(), asset_id, day_length, day_offset, altitudes, cb); });
 }
 
-void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset)
+void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes)
 {
     if (status)
     {
@@ -1134,27 +1134,27 @@ void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::p
         return;
     }
 
-    updateParcel(parcel_id, pday, day_length, day_offset);
+    updateParcel(parcel_id, pday, day_length, day_offset, altitudes);
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, psky);
-    updateParcel(parcel_id, pday, day_length, day_offset, cb);
+    updateParcel(parcel_id, pday, day_length, day_offset, altitudes, cb);
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, pwater);
-    updateParcel(parcel_id, pday, day_length, day_offset, cb);
+    updateParcel(parcel_id, pday, day_length, day_offset, altitudes, cb);
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        [this, parcel_id, pday, day_length, day_offset, cb]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
-            pday, LLUUID::null, day_length, day_offset, cb); });
+        [this, parcel_id, pday, day_length, day_offset, altitudes, cb]() { coroUpdateEnvironment(parcel_id, NO_TRACK,
+            pday, LLUUID::null, day_length, day_offset, altitudes, cb); });
 }
 
 
@@ -1223,7 +1223,8 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
 //     }
 }
 
-void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, LLUUID settings_asset, S32 day_length, S32 day_offset, LLEnvironment::environment_apply_fn apply)
+void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, 
+        LLUUID settings_asset, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, LLEnvironment::environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1234,30 +1235,40 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSetting
     if (url.empty())
         return;
 
-    if (day_length < 1)
-    {
-        day_length = getEnvironmentDayLength((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL).value();
-        if ((day_length < 1) && (parcel_id != INVALID_PARCEL_ID))
-            day_length = getEnvironmentDayLength(ENV_REGION).value();
-    }
-
-    if (day_offset < 1)
-    {
-        day_offset = getEnvironmentDayOffset((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL).value();
-        if ((day_offset < 1) && (parcel_id != INVALID_PARCEL_ID))
-            day_offset = getEnvironmentDayOffset(ENV_REGION).value();
-    }
+//     if (day_length < 1)
+//     {
+//         day_length = getEnvironmentDayLength((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL).value();
+//         if ((day_length < 1) && (parcel_id != INVALID_PARCEL_ID))
+//             day_length = getEnvironmentDayLength(ENV_REGION).value();
+//     }
+// 
+//     if (day_offset < 1)
+//     {
+//         day_offset = getEnvironmentDayOffset((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL).value();
+//         if ((day_offset < 1) && (parcel_id != INVALID_PARCEL_ID))
+//             day_offset = getEnvironmentDayOffset(ENV_REGION).value();
+//     }
 
     LLSD body(LLSD::emptyMap());
     body[KEY_ENVIRONMENT] = LLSD::emptyMap();
 
     if (track_no == NO_TRACK)
     {   // day length and offset are only applicable if we are addressing the entire day cycle.
-        if (day_length >= 0)
+        if (day_length > 0)
             body[KEY_ENVIRONMENT][KEY_DAYLENGTH] = day_length;
-        if (day_offset >= 0)
+        if (day_offset > 0)
             body[KEY_ENVIRONMENT][KEY_DAYOFFSET] = day_offset;
+
+        if ((parcel_id == INVALID_PARCEL_ID) && (altitudes.size() == 3))
+        {   // only test for altitude changes if we are changing the region.
+            body[KEY_ENVIRONMENT][KEY_TRACKALTS] = LLSD::emptyArray();
+            for (S32 i = 0; i < 3; ++i)
+            {
+                body[KEY_ENVIRONMENT][KEY_TRACKALTS][i] = altitudes[i];
+            }
+        }
     }
+
     if (pday)
         body[KEY_ENVIRONMENT][KEY_DAYCYCLE] = pday->getSettings();
     else if (!settings_asset.isNull())
