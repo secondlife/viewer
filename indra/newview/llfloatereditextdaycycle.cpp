@@ -1281,13 +1281,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
     }
     else if (where == ACTION_APPLY_PARCEL)
     {
-        LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
-        LLParcel *parcel(nullptr);
-
-        if (handle)
-            parcel = handle->getParcel();
-        if (!parcel || (parcel->getLocalID() == INVALID_PARCEL_ID))
-            parcel = LLViewerParcelMgr::instance().getAgentParcel();
+        LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
 
         if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
         {
