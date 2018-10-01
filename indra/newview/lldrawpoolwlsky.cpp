@@ -132,6 +132,7 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 {
     llassert_always(NULL != shader);
 
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 
 	//chop off translation
@@ -158,6 +159,7 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 
     gSky.mVOWLSkyp->drawDome();
 
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 }
 
@@ -191,6 +193,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
+        LLGLDisable cull(GL_CULL_FACE);
         renderFsSky(camPosLocal, camHeightLocal, sky_shader);
         
 		sky_shader->unbind();
@@ -565,28 +568,23 @@ void LLDrawPoolWLSky::render(S32 pass)
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
 	renderSkyHaze(origin, camHeightLocal);
-
-    bool use_advanced = gPipeline.useAdvancedAtmospherics();
     
-    if (!use_advanced)
-    {
-	    gGL.pushMatrix();
+	gGL.pushMatrix();
 
-        // MAINT-9006 keep sun position consistent between ALM and non-ALM rendering
-		//gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+    // MAINT-9006 keep sun position consistent between ALM and non-ALM rendering
+	//gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
-		// *NOTE: have to bind a texture here since register combiners blending in
-		// renderStars() requires something to be bound and we might as well only
-		// bind the moon's texture once.		
-		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
-        gGL.getTexUnit(1)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP));
+	// *NOTE: have to bind a texture here since register combiners blending in
+	// renderStars() requires something to be bound and we might as well only
+	// bind the moon's texture once.		
+	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+    gGL.getTexUnit(1)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP));
 
-		renderHeavenlyBodies();
+    renderHeavenlyBodies();
 
-		renderStars();
+	renderStars();
 
-	    gGL.popMatrix();
-    }
+	gGL.popMatrix();
 
 	renderSkyClouds(origin, camHeightLocal);
 
