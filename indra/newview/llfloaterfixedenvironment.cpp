@@ -428,13 +428,7 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
     }
     else if (where == ACTION_APPLY_PARCEL)
     {
-        LLParcelSelectionHandle handle(LLViewerParcelMgr::instance().getParcelSelection());
-        LLParcel *parcel(nullptr);
-
-        if (handle)
-            parcel = handle->getParcel();
-        if (!parcel)
-            parcel = LLViewerParcelMgr::instance().getAgentParcel();
+        LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
 
         if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
         {

@@ -223,7 +223,6 @@ set(viewer_SOURCE_FILES
     llfloaterconversationpreview.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
-    llfloatereditdaycycle.cpp
     llfloatereditextdaycycle.cpp
     llfloaterevent.cpp
     llfloaterexperiencepicker.cpp

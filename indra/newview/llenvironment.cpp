@@ -277,7 +277,6 @@ LLEnvironment::LLEnvironment():
     mSelectedSky(),
     mSelectedWater(),
     mSelectedDay(),
-    mUserPrefs(),
     mSelectedEnvironment(LLEnvironment::ENV_LOCAL),
     mCurrentTrack(1)
 {
@@ -307,16 +306,6 @@ void LLEnvironment::initSingleton()
 
 LLEnvironment::~LLEnvironment()
 {
-}
-
-void LLEnvironment::loadPreferences()
-{
-    mUserPrefs.load();
-}
-
-void LLEnvironment::updatePreferences()
-{
-    /*NOOP for now.  TODO record prefs and store.*/
 }
 
 bool LLEnvironment::canEdit() const
@@ -1382,41 +1371,6 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
 
 
 //=========================================================================
-LLEnvironment::UserPrefs::UserPrefs() :
-    mUseRegionSettings(true),
-    mUseDayCycle(true),
-    mPersistEnvironment(false),
-    mWaterPresetName(),
-    mSkyPresetName(),
-    mDayCycleName()
-{}
-
-
-void LLEnvironment::UserPrefs::load()
-{
-    mPersistEnvironment = gSavedSettings.getBOOL("EnvironmentPersistAcrossLogin");
-
-    mWaterPresetName = gSavedSettings.getString("WaterPresetName");
-    mSkyPresetName = gSavedSettings.getString("SkyPresetName");
-    mDayCycleName = gSavedSettings.getString("DayCycleName");
-
-    mUseRegionSettings = mPersistEnvironment ? gSavedSettings.getBOOL("UseEnvironmentFromRegion") : true;
-    mUseDayCycle = mPersistEnvironment ? gSavedSettings.getBOOL("UseDayCycle") : true;
-}
-
-void LLEnvironment::UserPrefs::store()
-{
-    gSavedSettings.setBOOL("EnvironmentPersistAcrossLogin", mPersistEnvironment);
-    if (mPersistEnvironment)
-    {
-        gSavedSettings.setString("WaterPresetName", getWaterPresetName());
-        gSavedSettings.setString("SkyPresetName", getSkyPresetName());
-        gSavedSettings.setString("DayCycleName", getDayCycleName());
-
-        gSavedSettings.setBOOL("UseEnvironmentFromRegion", getUseRegionSettings());
-        gSavedSettings.setBOOL("UseDayCycle", getUseDayCycle());
-    }
-}
 
 LLEnvironment::EnvironmentInfo::EnvironmentInfo():
     mParcelId(INVALID_PARCEL_ID),
