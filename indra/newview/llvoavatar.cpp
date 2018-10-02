@@ -4169,7 +4169,7 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
         if (cav)
         {
             // SL-1350: Moved to LLDrawable::updateXform()
-            //cav->matchVolumeTransform();
+            cav->matchVolumeTransform();
         }
         else
         {

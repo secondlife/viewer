@@ -35,6 +35,8 @@
 #include "llviewerregion.h"
 #include "llskinningutil.h"
 
+//#pragma optimize("", off)
+
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
 const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
 
@@ -111,9 +113,16 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
             LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
                                       << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
         }
-        else if (offset_dist < max_legal_offset-1 && mPositionConstraintFixup.length()>0.01f)
+        else if (offset_dist < max_legal_offset-1)
         {
-            new_pos_fixup = mPositionConstraintFixup * 0.9;
+			if (mPositionConstraintFixup.length()>0.01f)
+			{
+				new_pos_fixup = mPositionConstraintFixup * 0.9;
+			}
+			else
+			{
+				new_pos_fixup = LLVector3();
+			}
             LL_DEBUGS("ConstraintFix") << getFullname() << " pos fixup reduced " 
                                       << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
         }

@@ -53,6 +53,9 @@
 #include "llvolumemgr.h"
 #include "lltextureatlas.h"
 #include "llviewershadermgr.h"
+#include "llcontrolavatar.h"
+
+//#pragma optimize("", off)
 
 static LLTrace::BlockTimerStatHandle FTM_FRUSTUM_CULL("Frustum Culling");
 static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound Partition");
@@ -2170,7 +2173,19 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
                     	gGL.diffuseColor4f(0,0.5f,0,1); // dark green
 						break;
 				default:
-                    	gGL.diffuseColor4f(1,0,1,1); // magenta
+						LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(drawable->getVObj()->asAvatar());
+						if (cav)
+						{
+							bool has_pos_constraint = (cav->mPositionConstraintFixup != LLVector3());
+							bool has_scale_constraint = (cav->mScaleConstraintFixup != 1.0f);
+							F32 r = 1.0f * has_scale_constraint;
+							F32 g = 1.0f * has_pos_constraint;
+							gGL.diffuseColor4f(r,g,0,1); 
+						}
+						else
+						{
+							gGL.diffuseColor4f(1,0,1,1); // magenta
+						}
 						break;
 			}
 		}
