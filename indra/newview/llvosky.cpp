@@ -477,7 +477,7 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(vars, side, tile);
+			createSkyTexture(vars, side, tile, false);
 		}
 	}
 
@@ -603,7 +603,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile)
+void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, bool skip_sky_tex)
 {
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
@@ -612,11 +612,21 @@ void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32
 	S32 tile_y_pos = tile_y * sTileResY;
 
 	S32 x, y;
+    if (!skip_sky_tex)
+    {
+        for (y = tile_y_pos; y < (tile_y_pos + sTileResY); ++y)
+	    {
+		    for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
+		    {
+                mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y)), x, y);
+		    }
+	    }
+    }
+
 	for (y = tile_y_pos; y < (tile_y_pos + sTileResY); ++y)
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-            mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y)), x, y);
 			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y), true), x, y);
 		}
 	}
@@ -684,8 +694,6 @@ bool LLVOSky::updateSky()
 		direction.normalize();
 		const F32 dot_lighting = direction * mLastLightingDirection;
 
-        //_WARNS("LAPRAS") << " <" << direction.getValue() << "> dot <" << mLastLightingDirection << "> = " << dot_lighting << " (threshold is " << LIGHT_DIRECTION_THRESHOLD << ")" << LL_ENDL;
-
 		LLColor3 delta_color;
 		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
 							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
@@ -697,6 +705,8 @@ bool LLVOSky::updateSky()
         mForceUpdate = mForceUpdate || light_direction_changed;
         mForceUpdate = mForceUpdate || color_changed;
         mForceUpdate = mForceUpdate || !mInitialized;
+
+        bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
 
         if (mForceUpdate && mForceUpdateThrottle.hasExpired())
 		{
@@ -741,7 +751,7 @@ bool LLVOSky::updateSky()
 					{
 						for (int tile = 0; tile < NUM_TILES; tile++) 
 						{
-							createSkyTexture(vars, side, tile);
+							createSkyTexture(vars, side, tile, is_alm_wl_sky);
 						}
 					}
 
@@ -751,10 +761,14 @@ bool LLVOSky::updateSky()
 					{
                         LLImageRaw* raw1 = nullptr;
                         LLImageRaw* raw2 = nullptr;
-						raw1 = mSkyTex[side].getImageRaw(TRUE);
-						raw2 = mSkyTex[side].getImageRaw(FALSE);
-						raw2->copy(raw1);
-						mSkyTex[side].createGLImage(tex);
+
+                        if (!is_alm_wl_sky)
+                        {
+						    raw1 = mSkyTex[side].getImageRaw(TRUE);
+						    raw2 = mSkyTex[side].getImageRaw(FALSE);
+						    raw2->copy(raw1);
+						    mSkyTex[side].createGLImage(tex);
+                        }
 
 						raw1 = mShinyTex[side].getImageRaw(TRUE);
 						raw2 = mShinyTex[side].getImageRaw(FALSE);
@@ -764,9 +778,16 @@ bool LLVOSky::updateSky()
 					next_frame = 0;	
 
 			        // update the sky texture
-			        for (S32 i = 0; i < 6; ++i)
+                    if (!is_alm_wl_sky)
+                    {
+			            for (S32 i = 0; i < 6; ++i)
+			            {
+                            mSkyTex[i].create(1.0f);
+			            }
+                    }
+
+                    for (S32 i = 0; i < 6; ++i)
 			        {
-                        mSkyTex[i].create(1.0f);
 				        mShinyTex[i].create(1.0f);
 			        }
 
