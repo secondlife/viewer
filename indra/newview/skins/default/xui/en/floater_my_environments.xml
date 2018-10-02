@@ -2,6 +2,8 @@
 <floater
         positioning="cascading"
         save_rect="true"
+        single_instance="true"
+        reuse_instance="true"
         legacy_header_height="18"
         can_resize="true"
         height="465"
