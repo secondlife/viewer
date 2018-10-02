@@ -392,8 +392,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 	if (gSky.mVOSkyp->getSun().getDraw() && face && face->getGeomCount())
 	{
-		LLViewerTexture* tex_a = face->getTexture(LLRender::DIFFUSE_MAP);
-        LLViewerTexture* tex_b = face->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
+		LLPointer<LLViewerTexture> tex_a = face->getTexture(LLRender::DIFFUSE_MAP);
+        LLPointer<LLViewerTexture> tex_b = face->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
