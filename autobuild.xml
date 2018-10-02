@@ -2526,9 +2526,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bb8bed08fd5973a040c509ef8b545ec8</string>
+              <string>2c17cfd900c88914e06947fe0f1fdae4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/490/1046/ogg_vorbis-1.2.2-1.3.2.500397-darwin64-500397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/25395/199641/ogg_vorbis-1.3.3-1.3.6.520171-darwin64-520171.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2562,9 +2562,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7edf86dcf2d9be7bee98c91256fa569</string>
+              <string>1818627d4d1f05b49709717e240bdcf4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/512/1108/ogg_vorbis-1.2.2-1.3.2.500397-windows-500397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/25396/199634/ogg_vorbis-1.3.3-1.3.6.520171-windows-520171.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2574,16 +2574,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>497ec6ac26c2e136ee65acbed86cb2ef</string>
+              <string>d124788c798684c890c1803fca541a10</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/511/1105/ogg_vorbis-1.2.2-1.3.2.500397-windows64-500397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/25397/199631/ogg_vorbis-1.3.3-1.3.6.520171-windows64-520171.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.2.2-1.3.2.500397</string>
+        <string>1.3.3-1.3.6.520171</string>
       </map>
       <key>open-libndofdev</key>
       <map>
