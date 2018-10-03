@@ -2259,6 +2259,17 @@
     <key>Value</key>
     <real>64.0</real>
   </map>
+  <key>AnimatedObjectsPosLerp</key>
+  <map>
+    <key>Comment</key>
+    <string>How strongly to weight new position vs. previous frame in position constraints.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
   <key>AvatarBoundingBoxComplexity</key>
   <map>
     <key>Comment</key>

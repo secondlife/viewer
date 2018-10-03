@@ -87,6 +87,11 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
     {
         max_legal_size = gSavedSettings.getF32("AnimatedObjectsMaxLegalSize");
     }
+	F32 lerp_weight = 0.5f; // hysteresis. 1.0 = immediately slam to new value, 0.0 = ignore new value
+	if (gSavedSettings.getControl("AnimatedObjectsPosLerp"))
+	{
+		lerp_weight = gSavedSettings.getF32("AnimatedObjectsPosLerp");
+	}
     
     new_pos_fixup = LLVector3();
     new_scale_fixup = 1.0f;
@@ -102,7 +107,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
         // correction to the control avatar position if
         // needed.
         const LLVector3 *extents = getLastAnimExtents();
-		LLVector unshift_extents;
+		LLVector3 unshift_extents[2];
 		unshift_extents[0] = extents[0] - mPositionConstraintFixup;
 		unshift_extents[1] = extents[1] - mPositionConstraintFixup;
         LLVector3 box_dims = extents[1]-extents[0];
@@ -116,6 +121,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
             LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
                                       << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
         }
+		new_pos_fixup = lerp_weight * new_pos_fixup + (1.0f - lerp_weight)*mPositionConstraintFixup;
         if (max_size/mScaleConstraintFixup > max_legal_size)
         {
             new_scale_fixup = mScaleConstraintFixup*max_legal_size/max_size;
