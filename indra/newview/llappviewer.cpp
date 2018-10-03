@@ -1130,30 +1130,35 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-	std::vector<std::string> updater
+	LLProcess::Params updater;
+	updater.desc = "updater process";
+	// Because it's the updater, it MUST persist beyond the lifespan of the
+	// viewer itself.
+	updater.autokill = false;
 #if LL_WINDOWS
-		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe") };
+	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe");
 #elif LL_DARWIN
 	// explicitly run the system Python interpreter on updater.py
-		{ "python", gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py") };
+	updater.executable = "python";
+	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py"));
 #else
-		{ gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater") };
+	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater");
 #endif
 	// add LEAP mode command-line argument to whichever of these we selected
-	updater.push_back("leap");
+	updater.args.add("leap");
 	// UpdaterServiceSettings
-	updater.push_back(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
 	// channel
-	updater.push_back(LLVersionInfo::getChannel());
+	updater.args.add(LLVersionInfo::getChannel());
 	// testok
-	updater.push_back(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
 	// UpdaterServiceURL
-	updater.push_back(gSavedSettings.getString("UpdaterServiceURL"));
+	updater.args.add(gSavedSettings.getString("UpdaterServiceURL"));
 	// ForceAddressSize
-	updater.push_back(stringize(gSavedSettings.getU32("ForceAddressSize")));
+	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
 	// Run the updater. An exception from launching the updater should bother us.
-	LLLeap::create("updater process", updater, true);
+	LLLeap::create(updater, true);
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.
@@ -3916,12 +3921,6 @@ void LLAppViewer::requestQuit()
 
 	// Try to send metrics back to the grid
 	metricsSend(!gDisconnected);
-
-	// Try to send last batch of avatar rez metrics.
-	if (!gDisconnected && isAgentAvatarValid())
-	{
-		gAgentAvatarp->updateAvatarRezMetrics(true); // force a last packet to be sent.
-	}
 
 	// Try to send last batch of avatar rez metrics.
 	if (!gDisconnected && isAgentAvatarValid())
