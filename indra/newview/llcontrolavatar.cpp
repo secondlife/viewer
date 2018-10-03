@@ -87,15 +87,10 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
     {
         max_legal_size = gSavedSettings.getF32("AnimatedObjectsMaxLegalSize");
     }
-	F32 lerp_weight = 0.5f; // hysteresis. 1.0 = immediately slam to new value, 0.0 = ignore new value
-	if (gSavedSettings.getControl("AnimatedObjectsPosLerp"))
-	{
-		lerp_weight = gSavedSettings.getF32("AnimatedObjectsPosLerp");
-	}
     
     new_pos_fixup = LLVector3();
     new_scale_fixup = 1.0f;
-    LLVector3 vol_pos = mRootVolp->getRenderPosition();
+	LLVector3 vol_pos = mRootVolp->getRenderPosition();
 
     // Fix up position if needed to prevent visual encroachment
     if (box_valid_and_non_zero(getLastAnimExtents())) // wait for state to settle down
@@ -111,22 +106,26 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 		unshift_extents[0] = extents[0] - mPositionConstraintFixup;
 		unshift_extents[1] = extents[1] - mPositionConstraintFixup;
         LLVector3 box_dims = extents[1]-extents[0];
-        F32 max_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
-        LLVector3 pos_box_offset = point_to_box_offset(vol_pos, unshift_extents);
-        F32 offset_dist = pos_box_offset.length();
-        if (offset_dist > max_legal_offset)
+        F32 box_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
+
+		if (!mRootVolp->isAttachment())
+		{
+			LLVector3 pos_box_offset = point_to_box_offset(vol_pos, unshift_extents);
+			F32 offset_dist = pos_box_offset.length();
+			if (offset_dist > max_legal_offset || mPositionConstraintFixup != LLVector3())
+			{
+				F32 target_dist = (offset_dist - max_legal_offset);
+				new_pos_fixup = (target_dist/offset_dist)*pos_box_offset;
+				LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
+										   << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
+			}
+		}
+        if (box_size/mScaleConstraintFixup > max_legal_size)
         {
-            F32 target_dist = (offset_dist - max_legal_offset);
-            new_pos_fixup = (target_dist/offset_dist)*pos_box_offset;
-            LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
-                                      << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
-        }
-		new_pos_fixup = lerp_weight * new_pos_fixup + (1.0f - lerp_weight)*mPositionConstraintFixup;
-        if (max_size/mScaleConstraintFixup > max_legal_size)
-        {
-            new_scale_fixup = mScaleConstraintFixup*max_legal_size/max_size;
-            LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, max_size " << max_size << " fixup " 
-                                      << mScaleConstraintFixup << " -> " << new_scale_fixup << LL_ENDL;
+            new_scale_fixup = mScaleConstraintFixup*max_legal_size/box_size;
+            LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, box_size " << box_size << " fixup " 
+									   << mScaleConstraintFixup << " max legal " << max_legal_size 
+									   << " -> new scale " << new_scale_fixup << LL_ENDL;
         }
     }
 }
@@ -135,6 +134,12 @@ void LLControlAvatar::matchVolumeTransform()
 {
     if (mRootVolp)
     {
+		LLVector3 new_pos_fixup;
+		F32 new_scale_fixup;
+		getNewConstraintFixups(new_pos_fixup, new_scale_fixup);
+		mPositionConstraintFixup = new_pos_fixup;
+		mScaleConstraintFixup = new_scale_fixup;
+
         if (mRootVolp->isAttachment())
         {
             LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
@@ -151,6 +156,9 @@ void LLControlAvatar::matchVolumeTransform()
                 mRoot->setWorldPosition(obj_pos + joint_pos);
                 mRoot->setWorldRotation(obj_rot * joint_rot);
                 setRotation(mRoot->getRotation());
+
+				F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
+				setGlobalScale(global_scale * mScaleConstraintFixup);
             }
             else
             {
@@ -161,13 +169,6 @@ void LLControlAvatar::matchVolumeTransform()
         {
             LLVector3 vol_pos = mRootVolp->getRenderPosition();
 
-            LLVector3 new_pos_fixup;
-            F32 new_scale_fixup;
-            getNewConstraintFixups(new_pos_fixup, new_scale_fixup);
-
-            mPositionConstraintFixup = new_pos_fixup;
-            mScaleConstraintFixup = new_scale_fixup;
-            
             // FIXME: Currently if you're doing something like playing an
             // animation that moves the pelvis (on an avatar or
             // animated object), the name tag and debug text will be
