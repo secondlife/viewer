@@ -170,7 +170,7 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
         }
 
         gIdleCallbacks.deleteFunction(onIdlePlay, this);
-        LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
+        LLFloaterEditExtDayCycle *dayeditor = getEditFloater(false);
         if (mCommitConnection.connected())
             mCommitConnection.disconnect();
 
@@ -179,7 +179,10 @@ void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
             if (dayeditor->isDirty())
                 dayeditor->refresh();
             else
+            {
                 dayeditor->closeFloater();
+                mEditFloater.markDead();
+            }
         }
     }
 
