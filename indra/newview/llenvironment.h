@@ -108,6 +108,7 @@ public:
     typedef boost::signals2::signal<void(EnvSelection_t)>           env_changed_signal_t;
     typedef env_changed_signal_t::slot_type                         env_changed_fn;
     typedef std::array<F32, 4>                                      altitude_list_t;
+    typedef std::vector<F32>                                        altitudes_vect_t;
 
     virtual                     ~LLEnvironment();
 
@@ -194,16 +195,16 @@ public:
     connection_t                setEnvironmentChanged(env_changed_fn cb)    { return mSignalEnvChanged.connect(cb); }
 
     void                        requestRegion(environment_apply_fn cb = environment_apply_fn());
-    void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
-    void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
-    void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
-    void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        resetRegion(environment_apply_fn cb = environment_apply_fn());
     void                        requestParcel(S32 parcel_id, environment_apply_fn cb = environment_apply_fn());
-    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
-    void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
-    void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
-    void                        updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        resetParcel(S32 parcel_id, environment_apply_fn cb = environment_apply_fn());
 
     void                        selectAgentEnvironment();
@@ -327,7 +328,7 @@ private:
     void                        onParcelChange();
 
     void                        coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
-    void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, LLUUID settings_asset, S32 day_length, S32 day_offset, environment_apply_fn apply);
+    void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, LLUUID settings_asset, S32 day_length, S32 day_offset, altitudes_vect_t altitudes, environment_apply_fn apply);
     void                        coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
 
     void                        recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
@@ -335,7 +336,7 @@ private:
     void                        onAgentPositionHasChanged(const LLVector3 &localpos);
 
     void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 status);
-    void                        onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset);
+    void                        onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes);
 
 };
 
