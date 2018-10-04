@@ -218,6 +218,10 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 {
 	LLScopedLock lock(mMutexp) ;
 
+    // this should be called in tandem with getVolatileAPRPool
+    // so this assert triggering indicates a mismatch in that pairing
+    llassert_always(mNumActiveRef > 0) ;
+
 	if(mNumActiveRef > 0)
 	{
 		mNumActiveRef--;
@@ -238,11 +242,7 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 			}
 		}
 	}
-	else
-	{
-		llassert_always(mNumActiveRef > 0) ;
-	}
-
+	
 	if (mNumTotalRef > (FULL_VOLATILE_APR_POOL << 2))
     {
         LL_WARNS() << "LLVolatileAPRPool has " << mNumTotalRef << " total refs > " << (FULL_VOLATILE_APR_POOL << 2) << LL_ENDL;
@@ -251,8 +251,9 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 
 BOOL LLVolatileAPRPool::isFull()
 {
-	return mNumTotalRef > FULL_VOLATILE_APR_POOL ;
+	return mNumTotalRef >= FULL_VOLATILE_APR_POOL;
 }
+
 //---------------------------------------------------------------------
 //
 // LLScopedLock
@@ -334,19 +335,9 @@ LLAPRFile::~LLAPRFile()
 
 apr_status_t LLAPRFile::close() 
 {
-	apr_status_t ret = APR_SUCCESS ;
-	if(mFile)
-	{
-		ret = apr_file_close(mFile);
-		mFile = NULL ;
-	}
-
-	if(mCurrentFilePoolp)
-	{
-		mCurrentFilePoolp->clearVolatileAPRPool() ;
-		mCurrentFilePoolp = NULL ;
-	}
-
+    apr_status_t ret = close(mFile, mCurrentFilePoolp);
+    mFile = NULL;
+    mCurrentFilePoolp = NULL;
 	return ret ;
 }
 
@@ -491,7 +482,6 @@ apr_status_t LLAPRFile::close(apr_file_t* file_handle, LLVolatileAPRPool* pool)
 	if(file_handle)
 	{
 		ret = apr_file_close(file_handle);
-		file_handle = NULL ;
 	}
 
 	if(pool)

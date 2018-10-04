@@ -255,10 +255,8 @@ namespace
 
 // Tuning/Parameterization Constants
 
-static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER      = 100;  // Maximum requests to have active in HTTP (pipelined)
-static const S32 HTTP_PIPE_REQUESTS_LOW_WATER       = 50;	// Active level at which to refill
-static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER   = 40;
-static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER    = 20;
+static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER      = 256;  // Maximum requests to have active in HTTP (pipelined)
+static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER   = 64;
 static const S32 MAX_HTTP_WAITER_COUNT              = 8;
 
 // BUG-3323/SH-4375
@@ -1156,39 +1154,47 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			std::string extension = filename.substr(filename.size() - 3, 3);
 			mImageCodec           = LLImageBase::getCodecFromExtension(extension);
 
+            if (!LLFile::isfile(filename))
+            {
+                // no file by that name...
+                setState(DONE);
+				return false;
+            }
+
 			if (mImageCodec != IMG_CODEC_INVALID)
 			{
-				mFileSize = LLAPRFile::size(filename);
+                llifstream file;
+                file.open(filename, std::ios_base::in|std::ios_base::binary);
+
+                if (!file.is_open())
+                {
+                    // could not open the file...
+                    setState(DONE);
+				    return false;
+                }
+
+				mFileSize = llifstream_size(file);
+
 				if (mFileSize)
 				{
-					U8* data = (U8*)ll_aligned_malloc_16(mFileSize);
-					S32 bytes_read = LLAPRFile::readEx(filename, data, 0, mFileSize);
-					if (bytes_read == mFileSize)
+					char* data = (char*)ll_aligned_malloc_16(mFileSize);
+					file.read(data, mFileSize);
+					mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, getFetcher().getJpegDecoderType());
+					mFormattedImage->setData((U8*)data, mFileSize);
+					if (!mFormattedImage->updateData())
 					{
-						mFormattedImage = LLImageFormatted::createFromTypeWithImpl(mImageCodec, getFetcher().getJpegDecoderType());
-						mFormattedImage->setData(data, bytes_read);
-						if (!mFormattedImage->updateData())
-						{
-							setState(DONE);
-							return false;
-						}
-
-						mFormattedImage->setDiscardLevel(0);
-						mImageCodec = mFormattedImage->getCodec();
-						mHaveAllData = TRUE;
-						mDesiredSize = mFileSize;
-						mLoaded = TRUE;
-						mWriteToCacheState = NOT_WRITE; // don't cache textures loaded from local disk
-						setState(CACHE_POST);
-                        add(LLTextureFetch::sCacheHit, 1.0); // count tex from local disk as a cache hit...
-					}
-					else
-					{
-						LL_WARNS(LOG_TXT) << "Failed to load local image " << filename << LL_ENDL;
-						ll_aligned_free_16(data);                   
 						setState(DONE);
 						return false;
 					}
+
+					mFormattedImage->setDiscardLevel(0);
+					mImageCodec = mFormattedImage->getCodec();
+					mHaveAllData = TRUE;
+					mDesiredSize = mFileSize;
+					mLoaded = TRUE;
+					mWriteToCacheState = NOT_WRITE; // don't cache textures loaded from local disk
+					setState(CACHE_POST);
+                    add(LLTextureFetch::sCacheHit, 1.0); // count tex from local disk as a cache hit...
 				}
 			}
 		}
@@ -1426,7 +1432,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		//
 		// If it looks like we're busy, keep this request here.
 		// Otherwise, advance into the HTTP states.
-		if ((mFetcher->getHttpWaitersCount() > MAX_HTTP_WAITER_COUNT) || !acquireHttpSemaphore())
+		if (!acquireHttpSemaphore())
 		{
 			setState(WAIT_HTTP_RESOURCE2);
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
@@ -2342,7 +2348,6 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool qa_mode)
 	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	mHttpMetricsPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_REPORTING);
 	mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
-	mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
 	mHttpSemaphore = 0;
 }
 
@@ -2804,12 +2809,10 @@ void LLTextureFetch::commonUpdate()
 	if (LLAppViewer::instance()->getAppCoreHttp().isPipelined(LLAppCoreHttp::AP_TEXTURE))
 	{
 		mHttpHighWater = HTTP_PIPE_REQUESTS_HIGH_WATER;
-		mHttpLowWater = HTTP_PIPE_REQUESTS_LOW_WATER;
 	}
 	else
 	{
 		mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
-		mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
 	}
 
 	// Release waiters
@@ -3440,106 +3443,39 @@ bool LLTextureFetch::isHttpWaiter(const LLUUID & tid)
 // Locks:  -Mw (must not hold any worker when called)
 void LLTextureFetch::releaseHttpWaiters()
 {
-	// Use mHttpSemaphore rather than mHTTPTextureQueue.size()
-	// to avoid a lock.  
-	if (mHttpSemaphore >= mHttpLowWater)
-		return;
-	S32 needed(mHttpHighWater - mHttpSemaphore);
-	if (needed <= 0)
+	S32 available(mHttpHighWater - mHttpSemaphore);
+	if (available <= 0)
 	{
-		// Would only happen if High/LowWater were changed behind
-		// our back.  In that case, defer fill until usage falls within
-		// limits.
 		return;
 	}
 
-	// Quickly make a copy of all the LLUIDs.  Get off the
-	// mutex as early as possible.
-	typedef std::vector<LLUUID> uuid_vec_t;
-	uuid_vec_t tids;
+    mNetworkQueueMutex.lock();											// +Mfnq
 
-	{
-		LLMutexLock lock(&mNetworkQueueMutex);							// +Mfnq
+    S32 released = 0;
+    wait_http_res_queue_t::iterator iter;
+    for (iter = mHttpWaitResource.begin(); iter != mHttpWaitResource.end(); ++iter)
+    {
+		LLTextureFetchWorker * worker(getWorker(*iter));
 
-		if (mHttpWaitResource.empty())
-			return;
-		tids.reserve(mHttpWaitResource.size());
-		tids.assign(mHttpWaitResource.begin(), mHttpWaitResource.end());
-	}																	// -Mfnq
-
-	// Now lookup the UUUIDs to find valid requests and sort
-	// them in priority order, highest to lowest.  We're going
-	// to modify priority later as a side-effect of releasing
-	// these objects.  That, in turn, would violate the partial
-	// ordering assumption of std::set, std::map, etc. so we
-	// don't use those containers.  We use a vector and an explicit
-	// sort to keep the containers valid later.
-	typedef std::vector<LLTextureFetchWorker *> worker_list_t;
-	worker_list_t tids2;
-
-	tids2.reserve(tids.size());
-	for (uuid_vec_t::iterator iter(tids.begin());
-		 tids.end() != iter;
-		 ++iter)
-	{
-		LLTextureFetchWorker * worker(getWorker(* iter));
+        // if we have a worker, let it proceed to make a request
+        // if it's not in the map, we want it removed anyway...
 		if (worker)
 		{
-			tids2.push_back(worker);
-		}
-		else
-		{
-			// If worker isn't found, this should be due to a request
-			// for deletion.  We signal our recognition that this
-			// uuid shouldn't be used for resource waiting anymore by
-			// erasing it from the resource waiter list.  That allows
-			// deleteOK to do final deletion on the worker.
-			removeHttpWaiter(* iter);
-		}
-	}
-	tids.clear();
+            if (!worker->acquireHttpSemaphore())
+		    {
+			    // Out of active slots, quit
+			    break;
+		    }
 
-	// Sort into priority order, if necessary and only as much as needed
-	if (tids2.size() > needed)
-	{
-		LLTextureFetchWorker::Compare compare;
-		std::partial_sort(tids2.begin(), tids2.begin() + needed, tids2.end(), compare);
+            worker->lockWorkMutex();										// +Mw
+		    worker->setState(LLTextureFetchWorker::SEND_HTTP_REQ);            
+		    worker->unlockWorkMutex();										// -Mw
+        }
+        released++;
 	}
 
-	// Release workers up to the high water mark.  Since we aren't
-	// holding any locks at this point, we can be in competition
-	// with other callers.  Do defensive things like getting
-	// refreshed counts of requests and checking if someone else
-	// has moved any worker state around....
-	for (worker_list_t::iterator iter2(tids2.begin()); tids2.end() != iter2; ++iter2)
-	{
-		LLTextureFetchWorker * worker(* iter2);
-
-		worker->lockWorkMutex();										// +Mw
-		if (LLTextureFetchWorker::WAIT_HTTP_RESOURCE2 != worker->mState)
-		{
-			// Not in expected state, remove it, try the next one
-			worker->unlockWorkMutex();									// -Mw
-			LL_WARNS(LOG_TXT) << "Resource-waited texture " << worker->mID
-							  << " in unexpected state:  " << worker->mState
-							  << ".  Removing from wait list."
-							  << LL_ENDL;
-			removeHttpWaiter(worker->mID);
-			continue;
-		}
-
-		if (! worker->acquireHttpSemaphore())
-		{
-			// Out of active slots, quit
-			worker->unlockWorkMutex();									// -Mw
-			break;
-		}
-		
-		worker->setState(LLTextureFetchWorker::SEND_HTTP_REQ);
-		worker->unlockWorkMutex();										// -Mw
-
-		removeHttpWaiter(worker->mID);
-	}
+    mHttpWaitResource.erase(mHttpWaitResource.begin(), iter);
+    mNetworkQueueMutex.unlock();											// -Mfnq
 }
 
 // Threads:  T*

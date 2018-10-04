@@ -3584,7 +3584,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         }
         else
         {
-            if (cofVersion <= lastRcv)
+            if (cofVersion < lastRcv)
             {
                 LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
                     << " but requesting for " << cofVersion << LL_ENDL;

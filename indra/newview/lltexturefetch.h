@@ -357,7 +357,6 @@ private:
 	LLCore::HttpHeaders::ptr_t			mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpMetricsPolicyClass;		// T*
 	S32									mHttpHighWater;					// Ttf
-	S32									mHttpLowWater;					// Ttf
 	
 	// We use a resource semaphore to keep HTTP requests in
 	// WAIT_HTTP_RESOURCE2 if there aren't sufficient slots in the

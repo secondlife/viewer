@@ -49,7 +49,7 @@
 // be open at a time.
 
 const F64 LLAppCoreHttp::MAX_THREAD_WAIT_TIME(10.0);
-const long LLAppCoreHttp::PIPELINING_DEPTH(5L);
+const long LLAppCoreHttp::PIPELINING_DEPTH(8L);
 
 //  Default and dynamic values for classes
 static const struct
@@ -64,12 +64,12 @@ static const struct
 } init_data[LLAppCoreHttp::AP_COUNT] =
 {
 	{ // AP_DEFAULT
-		8,		8,		8,		0,		false,
+		8,		4,		8,		0,		false,
 		"",
 		"other"
 	},
 	{ // AP_TEXTURE
-		8,		1,		12,		0,		true,
+		8,		1,		32,		0,		true,
 		"TextureFetchConcurrency",
 		"texture fetch"
 	},
@@ -99,7 +99,7 @@ static const struct
 		"long poll"
 	},
 	{ // AP_INVENTORY
-		4,		1,		4,		0,		false,
+		4,		1,		16,		0,		true,
 		"",
 		"inventory"
 	},
