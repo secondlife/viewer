@@ -48,6 +48,8 @@
 #include "llcallbacklist.h"
 #include "llviewerparcelmgr.h"
 
+#include "llinventorymodel.h"
+
 //=========================================================================
 namespace 
 {
@@ -256,15 +258,7 @@ void LLPanelEnvironmentInfo::refresh()
 
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
 {
-    LLFloaterSettingsPicker *picker = getSettingsPicker();
-
-    if (!picker)
-    {   
-        LL_WARNS("ENVPANEL") << "Couldn't instantiate picker." << LL_ENDL;
-        return std::string();
-    }
-
-    std::string name(picker->findItemName(asset_id, false, false));
+    std::string name(LLFloaterSettingsPicker::findItemName(asset_id, false, false));
 
     if (name.empty())
         return getString(STR_LABEL_UNKNOWNINV);
@@ -614,8 +608,13 @@ void LLPanelEnvironmentInfo::onBtnSelect()
     LLFloaterSettingsPicker *picker = getSettingsPicker();
     if (picker)
     {
+        LLUUID item_id;
+        if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
+        {
+            item_id = LLFloaterSettingsPicker::findItemID(mCurrentEnvironment->mDayCycle->getAssetId(), false, false);
+        }
         picker->setSettingsFilter(LLSettingsType::ST_NONE);
-        picker->setSettingsAssetId((mCurrentEnvironment && mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getAssetId() : LLUUID::null);
+        picker->setSettingsItemId(item_id);
         picker->openFloater();
         picker->setFocus(TRUE);
     }
@@ -710,13 +709,17 @@ void LLPanelEnvironmentInfo::onIdlePlay(void *data)
     ((LLPanelEnvironmentInfo *)data)->udpateApparentTimeOfDay();
 }
 
-void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID asset_id)
+void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id)
 {
-    LLSettingsVOBase::getSettingsAsset(asset_id, [this](LLUUID, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { 
-        if (status)
-            return;
-        onPickerAssetDownloaded(settings);
-    });
+    LLInventoryItem *itemp = gInventory.getItem(item_id);
+    if (itemp)
+    {
+        LLSettingsVOBase::getSettingsAsset(itemp->getAssetUUID(), [this](LLUUID, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) {
+            if (status)
+                return;
+            onPickerAssetDownloaded(settings);
+        });
+    }
 }
 
 void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
