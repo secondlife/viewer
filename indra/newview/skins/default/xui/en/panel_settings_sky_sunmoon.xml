@@ -148,7 +148,7 @@
                     layout="topleft"
                     left_delta="5"
                     min_val="0"
-                    max_val="2"
+                    max_val="1.99"
                     name="glow_size"
                     top_delta="15"
                     width="250"
