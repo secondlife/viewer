@@ -290,21 +290,12 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
     }
 }
 
-void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID asset_id)
+void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID item_id)
 {
-    mInventoryItem = NULL;
-    mInventoryId.setNull();
-    if (!mInventoryFloater.isDead())
-    {
-        LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
-        if (picker)
-        {
-            mInventoryId = picker->findItemID(asset_id, false);
-            mInventoryItem = gInventory.getItem(mInventoryId);
-        }
-    }
+    mInventoryId = item_id;
+    mInventoryItem = gInventory.getItem(mInventoryId);
 
-    LLSettingsVOBase::getSettingsAsset(asset_id,
+    LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 

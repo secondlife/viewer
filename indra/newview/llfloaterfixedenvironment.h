@@ -120,7 +120,7 @@ private:
     void                    onButtonApply(LLUICtrl *ctrl, const LLSD &data);
     void                    onButtonLoad();
 
-    void                    onPickerCommitSetting(LLUUID asset_id);
+    void                    onPickerCommitSetting(LLUUID item_id);
     void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status);
 
     bool                    mIsDirty;

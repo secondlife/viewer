@@ -46,9 +46,9 @@ class LLFloaterSettingsPicker : public LLFloater
 public:
     typedef std::function<void (LLUUID id)>                 commit_callback_t;
     typedef std::function<void()>                           close_callback_t;
-    typedef std::function<void(const LLUUID& asset_id)>     id_changed_callback_t;
+    typedef std::function<void(const LLUUID& item_id)>     id_changed_callback_t;
 
-    LLFloaterSettingsPicker(LLView * owner, LLUUID setting_asset_id, const std::string &label, const LLSD &params = LLSD());
+    LLFloaterSettingsPicker(LLView * owner, LLUUID setting_item_id, const std::string &label, const LLSD &params = LLSD());
 
     virtual                 ~LLFloaterSettingsPicker() override;
 
@@ -58,11 +58,8 @@ public:
     virtual void	        onClose(bool app_quitting) override;
     virtual void            draw() override;
 
-    void                    setSettingsAssetId(const LLUUID &settings_id, bool set_selection = true);
-    LLUUID                  getSettingsAssetId() const              { return mSettingAssetID; }
-
-    void                    setDefaultSettingsAssetID(LLUUID id)    { mDefaultSettingsAssetID = id; }
-    LLUUID                  getDefaultSettingsAssetID() const       { return mDefaultSettingsAssetID; }
+    void                    setSettingsItemId(const LLUUID &settings_id, bool set_selection = true);
+    LLUUID                  getSettingsItemId() const              { return mSettingItemID; }
 
     void                    setSettingsFilter(LLSettingsType::type_e type);
     LLSettingsType::type_e  getSettingsFilter() const { return mSettingsType; }
@@ -71,7 +68,7 @@ public:
     virtual void            setValue(const LLSD& value) override;
     virtual LLSD            getValue() const override;
 
-    LLUUID                  findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false) 
+    static LLUUID                findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false) 
     {
         LLInventoryItem *pitem = findItem(asset_id, copyable_only, ignore_library);
         if (pitem)
@@ -79,7 +76,7 @@ public:
         return LLUUID::null;
     }
 
-    std::string             findItemName(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false)
+    static std::string           findItemName(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false)
     {
         LLInventoryItem *pitem = findItem(asset_id, copyable_only, ignore_library);
         if (pitem)
@@ -87,7 +84,7 @@ public:
         return std::string();
     }
 
-    LLInventoryItem *       findItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library);
+    static LLInventoryItem *     findItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library);
 
 private:
     typedef std::deque<LLFolderViewItem *>  itemlist_t;
@@ -101,8 +98,7 @@ private:
 
     LLHandle<LLView>        mOwnerHandle;
     std::string             mLabel;
-    LLUUID				    mSettingAssetID; 
-    LLUUID                  mDefaultSettingsAssetID;
+    LLUUID				    mSettingItemID; 
 
     LLFilterEditor *        mFilterEdit;
     LLInventoryPanel *      mInventoryPanel;
@@ -120,7 +116,7 @@ private:
 
 //     boost::signals2::signal<void(LLUUID id)>                mCommitSignal;
     boost::signals2::signal<void()>                         mCloseSignal;
-    boost::signals2::signal<void(const LLUUID& asset_id)>   mChangeIDSignal;
+    boost::signals2::signal<void(const LLUUID& item_id)>   mChangeIDSignal;
 };
 
 #endif  // LL_LLTEXTURECTRL_H

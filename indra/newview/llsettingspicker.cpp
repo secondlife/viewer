@@ -31,6 +31,7 @@
 #include "llfiltereditor.h"
 #include "llfolderviewmodel.h"
 #include "llinventory.h"
+#include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
@@ -57,13 +58,13 @@ namespace
 }
 //=========================================================================
 
-LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_asset_id, const std::string &label, const LLSD &params):
+LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_item_id, const std::string &label, const LLSD &params):
     LLFloater(params),
     mOwnerHandle(),
     mLabel(label),
     mActive(true),
     mContextConeOpacity(0.0f),
-    mSettingAssetID(initial_asset_id),
+    mSettingItemID(initial_item_id),
     mImmediateFilterPermMask(PERM_NONE)
 {
     mOwnerHandle = owner->getHandle();
@@ -115,9 +116,10 @@ BOOL LLFloaterSettingsPicker::postBuild()
 
         // don't put keyboard focus on selected item, because the selection callback
         // will assume that this was user input
-        if (!mSettingAssetID.isNull())
+        if (!mSettingItemID.isNull())
         {
-            mInventoryPanel->setSelection(findItemID(mSettingAssetID, false), TAKE_FOCUS_NO);
+            //todo: this is bad idea
+            mInventoryPanel->setSelection(mSettingItemID, TAKE_FOCUS_NO);
         }
     }
 
@@ -147,12 +149,12 @@ void LLFloaterSettingsPicker::onClose(bool app_quitting)
 
 void LLFloaterSettingsPicker::setValue(const LLSD& value)
 {
-    mSettingAssetID = value.asUUID();
+    mSettingItemID = value.asUUID();
 }
 
 LLSD LLFloaterSettingsPicker::getValue() const 
 {
-    return LLSD(mSettingAssetID);
+    return LLSD(mSettingItemID);
 }
 
 void LLFloaterSettingsPicker::setSettingsFilter(LLSettingsType::type_e type)
@@ -267,24 +269,24 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
     if (items.size())
     {
         LLFolderViewItem* first_item = items.front();
-        LLInventoryItem* itemp = gInventory.getItem(static_cast<LLFolderViewModelItemInventory*>(first_item->getViewModelItem())->getUUID());
-        mNoCopySettingsSelected = false;
-        if (itemp)
-        {
-//             if (!mChangeIDSignal.empty())
-//             {
-//                 mChangeIDSignal(itemp);
-//             }
-            if (!itemp->getPermissions().allowCopyBy(gAgent.getID()))
-            {
-                mNoCopySettingsSelected = true;
-            }
-            setSettingsAssetId(itemp->getAssetUUID(), false);
-            mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 
-            if (user_action)
+        mNoCopySettingsSelected = false;
+        if (first_item)
+        {
+            LLItemBridge *bridge_model = dynamic_cast<LLItemBridge *>(first_item->getViewModelItem());
+            if (bridge_model && bridge_model->getItem())
             {
-                mChangeIDSignal(mSettingAssetID);
+                if (!bridge_model->isItemCopyable())
+                {
+                    mNoCopySettingsSelected = true;
+                }
+                setSettingsItemId(bridge_model->getItem()->getUUID(), false);
+                mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+
+                if (user_action)
+                {
+                    mChangeIDSignal(mSettingItemID);
+                }
             }
         }
     }
@@ -298,24 +300,23 @@ void LLFloaterSettingsPicker::onButtonCancel()
 void LLFloaterSettingsPicker::onButtonSelect()
 {
     if (mCommitSignal)
-        (*mCommitSignal)(this, LLSD(mSettingAssetID));
+        (*mCommitSignal)(this, LLSD(mSettingItemID));
     closeFloater();
 }
 
 BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-    if (mSettingAssetID.notNull()
+    BOOL result = FALSE;
+    if (mSettingItemID.notNull()
         && mInventoryPanel)
     {
-        LLUUID item_id = findItemID(mSettingAssetID, FALSE);
         S32 inventory_x = x - mInventoryPanel->getRect().mLeft;
         S32 inventory_y = y - mInventoryPanel->getRect().mBottom;
-        if (item_id.notNull()
-            && mInventoryPanel->parentPointInView(inventory_x, inventory_y))
+        if (mInventoryPanel->parentPointInView(inventory_x, inventory_y))
         {
             // make sure item (not folder) is selected
-            LLFolderViewItem* item_viewp = mInventoryPanel->getItemByID(item_id);
-            if (item_viewp && item_viewp->isSelected())
+            LLFolderViewItem* item_viewp = mInventoryPanel->getItemByID(mSettingItemID);
+            if (item_viewp && item_viewp->getIsCurSelection())
             {
                 LLRect target_rect;
                 item_viewp->localRectToOtherView(item_viewp->getLocalRect(), &target_rect, this);
@@ -323,14 +324,20 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                 {
                     // Quick-apply
                     if (mCommitSignal)
-                        (*mCommitSignal)(this, LLSD(mSettingAssetID));
+                        (*mCommitSignal)(this, LLSD(mSettingItemID));
                     closeFloater();
-                    return TRUE;
                 }
             }
+            // hit inside panel on free place or (de)unselected item, double click should do nothing
+            result = TRUE;
         }
     }
-    return LLFloater::handleDoubleClick(x, y, mask);
+
+    if (!result)
+    {
+        result = LLFloater::handleDoubleClick(x, y, mask);
+    }
+    return result;
 }
 
 //=========================================================================
@@ -339,15 +346,14 @@ void LLFloaterSettingsPicker::setActive(bool active)
     mActive = active;
 }
 
-void LLFloaterSettingsPicker::setSettingsAssetId(const LLUUID &settings_id, bool set_selection)
+void LLFloaterSettingsPicker::setSettingsItemId(const LLUUID &settings_id, bool set_selection)
 {
-    if (mSettingAssetID != settings_id && mActive)
+    if (mSettingItemID != settings_id && mActive)
     {
         mNoCopySettingsSelected = false;
         mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-        mSettingAssetID = settings_id;
-        LLUUID item_id = findItemID(mSettingAssetID, FALSE);
-        if (item_id.isNull())
+        mSettingItemID = settings_id;
+        if (mSettingItemID.isNull())
         {
             mInventoryPanel->getRootFolder()->clearSelection();
         }

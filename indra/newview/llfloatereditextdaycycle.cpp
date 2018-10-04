@@ -565,14 +565,14 @@ void LLFloaterEditExtDayCycle::onButtonImport()
 
 void LLFloaterEditExtDayCycle::onButtonLoadFrame()
 {
-    LLUUID curassetId;
+    LLUUID curitemId = mInventoryId;
 
-    if (mCurrentEdit)
+    if (mCurrentEdit && curitemId.notNull())
     { 
-        curassetId = mCurrentEdit->getAssetId();
+        curitemId = LLFloaterSettingsPicker::findItemID(mCurrentEdit->getAssetId(), false, false);
     }
     
-    doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY, curassetId);
+    doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY, curitemId);
 }
 
 void LLFloaterEditExtDayCycle::onAddTrack()
@@ -999,7 +999,7 @@ void LLFloaterEditExtDayCycle::updateTimeAndLabel()
     // Update blender here:
 }
 
-void LLFloaterEditExtDayCycle::addSliderFrame(const F32 frame, LLSettingsBase::ptr_t &setting, bool update_ui)
+void LLFloaterEditExtDayCycle::addSliderFrame(const F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui)
 {
     // multi slider distinguishes elements by key/name in string format
     // store names to map to be able to recall dependencies
@@ -1485,7 +1485,7 @@ void LLFloaterEditExtDayCycle::clearDirtyFlag()
 
 }
 
-void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID currasset)
+void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem)
 {
 //  LLUI::sWindow->setCursor(UI_CURSOR_WAIT);
     LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
@@ -1502,7 +1502,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
     }
 
     picker->setSettingsFilter(type);
-    picker->setSettingsAssetId(currasset);
+    picker->setSettingsItemId(curritem);
     picker->openFloater();
     picker->setFocus(TRUE);
 }
@@ -1517,16 +1517,21 @@ void LLFloaterEditExtDayCycle::doCloseInventoryFloater(bool quitting)
     }
 }
 
-void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID asset_id)
+void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id)
 {
     LLSettingsBase::TrackPosition frame(mTimeSlider->getCurSliderValue());
     S32 track = mCurrentTrack;
-
-    LLSettingsVOBase::getSettingsAsset(asset_id,
-        [this, track, frame](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoadedForFrame(asset_id, settings, status, track, frame); });
+    LLViewerInventoryItem *itemp = gInventory.getItem(item_id);
+    if (itemp)
+    {
+        mInventoryId = item_id;
+        mInventoryItem = itemp;
+        LLSettingsVOBase::getSettingsAsset(itemp->getAssetUUID(),
+            [this, track, frame, item_id](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoadedForFrame(item_id, asset_id, settings, status, track, frame); });
+    }
 }
 
-void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 track, LLSettingsBase::TrackPosition frame)
+void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID item_id, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 track, LLSettingsBase::TrackPosition frame)
 {
     std::function<void()> cb = [this, settings, frame, track]()
     {
@@ -1541,6 +1546,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettings
             return;
         }
         mEditDay->setSettingsAtKeyframe(settings, frame, track);
+        addSliderFrame(frame, settings, false);
         reblendSettings();
         synchronizeTabs();
     };
@@ -1551,13 +1557,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettings
         return;
     }
 
-    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
-    LLInventoryItem *inv_item(nullptr);
-
-    if (picker)
-    {
-        inv_item = picker->findItem(asset_id, false, false);
-    }
+    LLInventoryItem *inv_item = gInventory.getItem(item_id);
 
     if (inv_item
         && mInventoryItem
