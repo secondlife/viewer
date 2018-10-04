@@ -333,8 +333,17 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 		// temp2.x is 0 at the sun and increases away from sun
 	temp2.mV[0] = llmax(temp2.mV[0], .001f);	
 		// Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-	temp2.mV[0] *= glow.mV[0];
+
+	if (glow.mV[0] > 0) // don't pow(zero,negative value), glow from 0 to 2
+	{
 		// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
+		temp2.mV[0] *= glow.mV[0];
+	}
+	else
+	{
+		temp2.mV[0] = F32_MIN;
+	}
+
 	temp2.mV[0] = pow(temp2.mV[0], glow.mV[2]);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
