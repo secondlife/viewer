@@ -1102,13 +1102,6 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     }
     mExpectingAssetId.setNull();
 
-    if ((mInventoryItem && mInventoryItem->getAssetUUID() != asset_id)
-        || (!mInventoryItem && LLSettingsDay::GetDefaultAssetId() != asset_id))
-    {
-        LL_WARNS("ENVDAYEDIT") << "Discarding obsolete asset callback" << LL_ENDL;
-        return;
-    }
-
     if (!settings || status)
     {
         LLSD args;
@@ -1537,6 +1530,16 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettings
 {
     std::function<void()> cb = [this, settings, frame, track]()
     {
+        if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+        {
+            LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
+            return;
+        }
+        if (!mFramesSlider->canAddSliders())
+        {
+            LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
+            return;
+        }
         mEditDay->setSettingsAtKeyframe(settings, frame, track);
         reblendSettings();
         synchronizeTabs();
@@ -1556,30 +1559,26 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID asset_id, LLSettings
         inv_item = picker->findItem(asset_id, false, false);
     }
 
-    if (inv_item)
+    if (inv_item
+        && mInventoryItem
+        && mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID())
+        && !inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
     {
-        if (mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+        LLSD args;
+
+        // create and show confirmation textbox
+        LLNotificationsUtil::add("SettingsMakeNoTrans", args, LLSD(),
+            [this, cb](const LLSD&notif, const LLSD&resp)
         {
-            if (!inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+            if (opt == 0)
             {
-                LLSD args;
-
-                // create and show confirmation textbox
-                LLNotificationsUtil::add("SettingsMakeNoTrans", args, LLSD(),
-                    [this, cb](const LLSD&notif, const LLSD&resp)
-                    {
-                        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
-                        if (opt == 0)
-                        {
-                            mMakeNoTrans = true;
-                            mEditDay->setFlag(LLSettingsBase::FLAG_NOTRANS);
-                            cb();
-                        }
-                    });
-                return;
+                mMakeNoTrans = true;
+                mEditDay->setFlag(LLSettingsBase::FLAG_NOTRANS);
+                cb();
             }
-        }
-
+        });
+        return;
     }
     
     cb();
