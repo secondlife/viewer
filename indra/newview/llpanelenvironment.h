@@ -171,6 +171,8 @@ private:
     LLHandle<LLFloater>             mSettingsFloater;
     LLHandle<LLFloater>             mEditFloater;
     S32                             mDirtyFlag;
+    S32                             mEditorLastParcelId;
+    LLUUID                          mEditorLastRegionId;
     bool                            mCrossRegion;
     bool                            mNoSelection;
     bool                            mNoEnvironment;
