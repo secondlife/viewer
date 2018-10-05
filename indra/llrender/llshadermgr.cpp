@@ -1320,6 +1320,11 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("irradiance_texture");
     mReservedUniforms.push_back("blend_factor");
     mReservedUniforms.push_back("no_atmo");
+    mReservedUniforms.push_back("moisture_level");
+    mReservedUniforms.push_back("droplet_radius");
+    mReservedUniforms.push_back("ice_level");
+    mReservedUniforms.push_back("rainbow_map");
+    mReservedUniforms.push_back("halo_map");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

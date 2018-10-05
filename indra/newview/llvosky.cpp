@@ -429,7 +429,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mHeavenlyBodyUpdated = FALSE ;
 
 	mDrawRefl = 0;
-	mInterpVal = 0.f;
+	mInterpVal = 0.f;    
 }
 
 
@@ -492,6 +492,9 @@ void LLVOSky::init()
 	mInitialized = true;
 
 	mHeavenlyBodyUpdated = FALSE ;
+
+    mRainbowMap = LLViewerTextureManager::getFetchedTexture(psky->getRainbowTextureId(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mHaloMap    = LLViewerTextureManager::getFetchedTexture(psky->getHaloTextureId(),  FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 }
 
 void LLVOSky::initCubeMap() 

@@ -42,25 +42,46 @@ uniform sampler2D transmittance_texture;
 uniform sampler3D scattering_texture;
 uniform sampler3D single_mie_scattering_texture;
 uniform sampler2D irradiance_texture;
+uniform sampler2D rainbow_map;
+uniform sampler2D halo_map;
+
+uniform float moisture_level;
+uniform float droplet_radius;
+uniform float ice_level;
 
 vec3 GetSolarLuminance();
 vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
 vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
 
+vec3 rainbow(float d)
+{
+   float rad = (droplet_radius - 5.0f) / 1024.0f;
+   return pow(texture2D(rainbow_map, vec2(rad, d)).rgb, vec3(1.8)) * moisture_level;
+}
+
+vec3 halo22(float d)
+{
+   float v = sqrt(max(0, 1 - (d*d)));
+   return texture2D(halo_map, vec2(0, v)).rgb * ice_level;
+}
+
 void main()
 {
-    vec3 pos      = vec3((vary_frag * 2.0) - vec2(1.0, 1.0), 0.0);
+    vec3 pos      = vec3((vary_frag * 2.0) - vec2(1.0, 1.0f), 1.0);
     vec4 view_pos = (inv_proj * vec4(pos, 1.0f));
+
     view_pos /= view_pos.w;
-    vec3 view_ray = (inv_modelview * vec4(view_pos.xyz, 0.0f)).xyz;
+
+    vec3 view_ray = (inv_modelview * vec4(view_pos.xyz, 0.0f)).xyz + camPosLocal;
 
     vec3 view_direction = normalize(view_ray);
     vec3 sun_direction  = normalize(sun_dir);
+    vec3 earth_center   = vec3(0, 0, -6360.0f);
+    vec3 camPos = (camPosLocal / 1000.0f) - earth_center;
 
-    vec3 camPos = (camPosLocal / 1000.0f) + vec3(0, 0, 6360.0f);
     vec3 transmittance;
     vec3 radiance_sun  = GetSkyLuminance(camPos, view_direction, 0.0f, sun_direction, transmittance);
-    vec3 solar_luminance = transmittance * GetSolarLuminance();
+    vec3 solar_luminance = GetSolarLuminance();
 
     // If the view ray intersects the Sun, add the Sun radiance.
     float s = dot(view_direction, sun_direction);
@@ -68,11 +89,20 @@ void main()
     // cheesy solar disc...
     if (s >= (sun_size * 0.999))
     {
-        radiance_sun += pow(smoothstep(0.0, 1.3, (s - (sun_size * 0.9))), 2.0) * solar_luminance;
+        radiance_sun += pow(smoothstep(0.0, 1.3, (s - (sun_size * 0.9))), 2.0) * solar_luminance * transmittance;
     }
     s = smoothstep(0.9, 1.0, s) * 16.0f;
 
     vec3 color = vec3(1.0) - exp(-radiance_sun * 0.0001);
+
+    float optic_d = dot(view_direction, sun_direction);
+
+    vec3 halo_22 = halo22(optic_d);
+
+    if (optic_d <= 0)
+    color.rgb += rainbow(optic_d);
+
+    color.rgb += halo_22;
 
     color = pow(color, vec3(1.0 / 2.2));
 

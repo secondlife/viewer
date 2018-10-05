@@ -37,6 +37,8 @@ namespace {
     const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
     const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
     const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
+    const LLUUID IMG_RAINBOW("12149143-f599-91a7-77ac-b52a3c0f59cd");
+    const LLUUID IMG_HALO("11b4c57c-56b3-04ed-1f82-2004363882e4");
 }
 
 namespace {
@@ -80,6 +82,8 @@ const std::string LLSettingsSky::SETTING_HAZE_DENSITY("haze_density");
 const std::string LLSettingsSky::SETTING_HAZE_HORIZON("haze_horizon");
 
 const std::string LLSettingsSky::SETTING_BLOOM_TEXTUREID("bloom_id");
+const std::string LLSettingsSky::SETTING_RAINBOW_TEXTUREID("rainbow_id");
+const std::string LLSettingsSky::SETTING_HALO_TEXTUREID("halo_id");
 const std::string LLSettingsSky::SETTING_CLOUD_COLOR("cloud_color");
 const std::string LLSettingsSky::SETTING_CLOUD_POS_DENSITY1("cloud_pos_density1");
 const std::string LLSettingsSky::SETTING_CLOUD_POS_DENSITY2("cloud_pos_density2");
@@ -127,6 +131,7 @@ const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_ter
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
 
 const std::string LLSettingsSky::SETTING_SKY_MOISTURE_LEVEL("moisture_level");
+const std::string LLSettingsSky::SETTING_SKY_DROPLET_RADIUS("droplet_radius");
 const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("ff64f04e-097f-40bc-9063-d8d48c308739");
@@ -391,7 +396,9 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     mNextSunTextureId(),
     mNextMoonTextureId(),
     mNextCloudTextureId(),
-    mNextBloomTextureId()
+    mNextBloomTextureId(),
+    mNextRainbowTextureId(),
+    mNextHaloTextureId()
 {
 }
 
@@ -400,7 +407,9 @@ LLSettingsSky::LLSettingsSky():
     mNextSunTextureId(),
     mNextMoonTextureId(),
     mNextCloudTextureId(),
-    mNextBloomTextureId()
+    mNextBloomTextureId(),
+    mNextRainbowTextureId(),
+    mNextHaloTextureId()
 {
 }
 
@@ -411,6 +420,8 @@ void LLSettingsSky::replaceSettings(LLSD settings)
     mNextMoonTextureId.setNull();
     mNextCloudTextureId.setNull();
     mNextBloomTextureId.setNull();
+    mNextRainbowTextureId.setNull();
+    mNextHaloTextureId.setNull();
 }
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
@@ -426,6 +437,8 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
         mNextMoonTextureId = other->getMoonTextureId();
         mNextCloudTextureId = other->getCloudNoiseTextureId();
         mNextBloomTextureId = other->getBloomTextureId();
+        mNextRainbowTextureId = other->getRainbowTextureId();
+        mNextHaloTextureId = other->getHaloTextureId();
     }
     else
     {
@@ -500,6 +513,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
 
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_RAINBOW_TEXTUREID,   false,  LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_HALO_TEXTUREID,      false,  LLSD::TypeUUID));
+
         validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray, 
             boost::bind(&Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
@@ -564,6 +580,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
         validation.push_back(Validator(SETTING_SKY_MOISTURE_LEVEL,      false,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
+        validation.push_back(Validator(SETTING_SKY_DROPLET_RADIUS,      false,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(5.0f)(1000.0f)))));
 
         validation.push_back(Validator(SETTING_SKY_ICE_LEVEL,      false,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
@@ -675,6 +694,8 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_CLOUD_TEXTUREID]    = GetDefaultCloudNoiseTextureId();
         dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
         dfltsetting[SETTING_SUN_TEXTUREID]      = GetDefaultSunTextureId();
+        dfltsetting[SETTING_RAINBOW_TEXTUREID]  = GetDefaultRainbowTextureId();
+        dfltsetting[SETTING_HALO_TEXTUREID]     = GetDefaultHaloTextureId();
 
         dfltsetting[SETTING_TYPE] = "sky";
 
@@ -685,6 +706,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00045f;
 
         dfltsetting[SETTING_SKY_MOISTURE_LEVEL] = 0.0f;
+        dfltsetting[SETTING_SKY_DROPLET_RADIUS] = 800.0f;
         dfltsetting[SETTING_SKY_ICE_LEVEL]      = 0.0f;
 
         dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
@@ -995,6 +1017,11 @@ void LLSettingsSky::setSkyMoistureLevel(F32 moisture_level)
     mSettings[SETTING_SKY_MOISTURE_LEVEL] = moisture_level;
 }
 
+void LLSettingsSky::setSkyDropletRadius(F32 radius)
+{
+    mSettings[SETTING_SKY_DROPLET_RADIUS] = radius;
+}
+
 void LLSettingsSky::setSkyIceLevel(F32 ice_level)
 {
     mSettings[SETTING_SKY_ICE_LEVEL] = ice_level;
@@ -1190,6 +1217,16 @@ LLUUID LLSettingsSky::GetDefaultBloomTextureId()
     return IMG_BLOOM1;
 }
 
+LLUUID LLSettingsSky::GetDefaultRainbowTextureId()
+{
+    return IMG_RAINBOW;
+}
+
+LLUUID LLSettingsSky::GetDefaultHaloTextureId()
+{
+    return IMG_HALO;
+}
+
 F32 LLSettingsSky::getPlanetRadius() const
 {
     return mSettings[SETTING_PLANET_RADIUS].asReal();
@@ -1198,6 +1235,11 @@ F32 LLSettingsSky::getPlanetRadius() const
 F32 LLSettingsSky::getSkyMoistureLevel() const
 {
     return mSettings[SETTING_SKY_MOISTURE_LEVEL].asReal();
+}
+
+F32 LLSettingsSky::getSkyDropletRadius() const
+{
+    return mSettings[SETTING_SKY_DROPLET_RADIUS].asReal();
 }
 
 F32 LLSettingsSky::getSkyIceLevel() const
@@ -1276,6 +1318,16 @@ void LLSettingsSky::setAbsorptionConfigs(const LLSD& absorptionConfig)
 LLUUID LLSettingsSky::getBloomTextureId() const
 {
     return mSettings[SETTING_BLOOM_TEXTUREID].asUUID();
+}
+
+LLUUID LLSettingsSky::getRainbowTextureId() const
+{
+    return mSettings[SETTING_RAINBOW_TEXTUREID].asUUID();
+}
+
+LLUUID LLSettingsSky::getHaloTextureId() const
+{
+    return mSettings[SETTING_HALO_TEXTUREID].asUUID();
 }
 
 //---------------------------------------------------------------------

@@ -263,15 +263,18 @@ public:
 	bool isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
 	LLFace* getReflFace() const							{ return mFace[FACE_REFLECTION]; }
 
-	LLViewerTexture*	getSunTex() const					{ return mSunTexturep[0]; }
-	LLViewerTexture*	getMoonTex() const					{ return mMoonTexturep[0]; }
-	LLViewerTexture*	getBloomTex() const					{ return mBloomTexturep[0]; }
-    LLViewerTexture*	getCloudNoiseTex() const			{ return mCloudNoiseTexturep[0]; }
+	LLViewerTexture*	getSunTex() const				{ return mSunTexturep[0]; }
+	LLViewerTexture*	getMoonTex() const				{ return mMoonTexturep[0]; }
+	LLViewerTexture*	getBloomTex() const			    { return mBloomTexturep[0]; }
+    LLViewerTexture*	getCloudNoiseTex() const		{ return mCloudNoiseTexturep[0]; }
 
-    LLViewerTexture*	getSunTexNext() const					{ return mSunTexturep[1]; }
-	LLViewerTexture*	getMoonTexNext() const					{ return mMoonTexturep[1]; }
-	LLViewerTexture*	getBloomTexNext() const					{ return mBloomTexturep[1]; }
-    LLViewerTexture*	getCloudNoiseTexNext() const			{ return mCloudNoiseTexturep[1]; }
+    LLViewerTexture*	getRainbowTex() const			{ return mRainbowMap; }
+    LLViewerTexture*	getHaloTex() const			{ return mHaloMap;  }
+
+    LLViewerTexture*	getSunTexNext() const			{ return mSunTexturep[1]; }
+	LLViewerTexture*	getMoonTexNext() const			{ return mMoonTexturep[1]; }
+	LLViewerTexture*	getBloomTexNext() const			{ return mBloomTexturep[1]; }
+    LLViewerTexture*	getCloudNoiseTexNext() const	{ return mCloudNoiseTexturep[1]; }
 
     void setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next);
     void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
@@ -299,6 +302,8 @@ protected:
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
     LLPointer<LLViewerFetchedTexture> mCloudNoiseTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mBloomTexturep[2];
+    LLPointer<LLViewerFetchedTexture> mRainbowMap;
+    LLPointer<LLViewerFetchedTexture> mHaloMap;
 
     F32 mSunScale  = 1.0f;
     F32 mMoonScale = 1.0f;

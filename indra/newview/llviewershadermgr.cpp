@@ -2110,10 +2110,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLSkyProgram.mName = "Deferred Windlight Sky Shader";
 		//gWLSkyProgram.mFeatures.hasGamma = true;
         gDeferredWLSkyProgram.mShaderFiles.clear();
+        gDeferredWLSkyProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredWLSkyProgram.mFeatures.hasTransport = true;
         gDeferredWLSkyProgram.mFeatures.hasGamma = true;
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
-        gDeferredWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
+        gDeferredWLSkyProgram.mShaderLevel = gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics") ? 3 : mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
         if (gAtmosphere && mVertexShaderLevel[SHADER_WINDLIGHT] > 1)
         {
@@ -2127,12 +2129,14 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredWLCloudProgram.mName = "Deferred Windlight Cloud Program";
 		gDeferredWLCloudProgram.mShaderFiles.clear();
+        gDeferredWLCloudProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredWLCloudProgram.mFeatures.hasTransport = true;
         gDeferredWLCloudProgram.mFeatures.hasGamma = true;
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredWLCloudProgram.mShaderLevel = gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics") ? 3 : mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        if (gAtmosphere && mVertexShaderLevel[SHADER_WINDLIGHT] >= 3)
+        if (gAtmosphere && mVertexShaderLevel[SHADER_WINDLIGHT] > 1)
         {
             gDeferredWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
         }
