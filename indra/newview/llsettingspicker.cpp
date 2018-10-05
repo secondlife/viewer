@@ -48,7 +48,6 @@ namespace
 
     const std::string FLT_INVENTORY_SEARCH("flt_inventory_search");
     const std::string PNL_INVENTORY("pnl_inventory");
-    const std::string CHK_SHOWFOLDERS("chk_showfolders");
     const std::string BTN_SELECT("btn_select");
     const std::string BTN_CANCEL("btn_cancel");
 
@@ -91,9 +90,6 @@ BOOL LLFloaterSettingsPicker::postBuild()
 
         setTitle(pick + mLabel);
     }
-
-//    childSetCommitCallback(CHK_SHOWFOLDERS, onShowFolders, this);
-    getChildView(CHK_SHOWFOLDERS)->setVisible(FALSE);
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
