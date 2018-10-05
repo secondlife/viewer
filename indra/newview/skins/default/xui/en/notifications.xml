@@ -3862,6 +3862,32 @@ Click OK to download and install.
 
   <notification
    icon="alertmodal.tga"
+   name="OptionalUpdateReady"
+   type="alertmodal">
+Version [VERSION] has been downloaded and is ready to install.
+Click OK to install.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PromptOptionalUpdate"
+   type="alertmodal">
+Version [VERSION] has been downloaded and is ready to install.
+Proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Not Now"
+     name="yesnocancelbuttons"
+     notext="Skip"
+     yestext="Install"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginFailedUnknown"
    type="alertmodal">
 Sorry, login failed for an unrecognized reason.
