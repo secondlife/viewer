@@ -388,6 +388,8 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(enabled);
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(enabled && (rdo_selection != 0) && !is_legacy);
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(enabled && (rdo_selection != 0) && !is_legacy);
+    getChild<LLUICtrl>(SLD_ALTITUDES)->setEnabled(enabled && isRegion() && !is_legacy);
+    getChild<LLUICtrl>(ICN_GROUND)->setColor((enabled && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(enabled && isRegion() && !is_legacy);
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && isRegion() && !is_legacy);
     getChild<LLUICtrl>(BTN_APPLY)->setEnabled(enabled && (mDirtyFlag != 0));

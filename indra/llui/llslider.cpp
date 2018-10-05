@@ -42,7 +42,6 @@ static LLDefaultChildRegistry::Register<LLSlider> r1("slider_bar");
 
 LLSlider::Params::Params()
 :	orientation ("orientation", std::string ("horizontal")),
-	track_color("track_color"),
 	thumb_outline_color("thumb_outline_color"),
 	thumb_center_color("thumb_center_color"),
 	thumb_image("thumb_image"),
@@ -60,7 +59,6 @@ LLSlider::LLSlider(const LLSlider::Params& p)
 :	LLF32UICtrl(p),
 	mMouseOffset( 0 ),
 	mOrientation ((p.orientation() == "horizontal") ? HORIZONTAL : VERTICAL),
-	mTrackColor(p.track_color()),
 	mThumbOutlineColor(p.thumb_outline_color()),
 	mThumbCenterColor(p.thumb_center_color()),
 	mThumbImage(p.thumb_image),

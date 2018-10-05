@@ -731,7 +731,14 @@ void LLMultiSlider::draw()
 			// the draw command
 			if (mThumbImagep)
 			{
-				mThumbImagep->draw(mIt->second);
+				if (getEnabled())
+				{
+					mThumbImagep->draw(mIt->second);
+				}
+				else
+				{
+					mThumbImagep->draw(mIt->second, LLColor4::grey % 0.8f);
+				}
 			}
 			else if (capture == this)
 			{
@@ -748,7 +755,14 @@ void LLMultiSlider::draw()
 		{
 			if (mThumbImagep)
 			{
-				mThumbImagep->draw(curSldrIt->second);
+				if (getEnabled())
+				{
+					mThumbImagep->draw(curSldrIt->second);
+				}
+				else
+				{
+					mThumbImagep->draw(curSldrIt->second, LLColor4::grey % 0.8f);
+				}
 			}
 			else if (capture == this)
 			{
