@@ -126,6 +126,9 @@ const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR("exp_s
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM("linear_term");
 const std::string LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM("constant_term");
 
+const std::string LLSettingsSky::SETTING_SKY_MOISTURE_LEVEL("moisture_level");
+const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
+
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("ff64f04e-097f-40bc-9063-d8d48c308739");
 
 static const LLUUID DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
@@ -559,6 +562,12 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(0.1f)))));
 
+        validation.push_back(Validator(SETTING_SKY_MOISTURE_LEVEL,      false,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
+        validation.push_back(Validator(SETTING_SKY_ICE_LEVEL,      false,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
         validation.push_back(Validator(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers));
@@ -674,6 +683,9 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_SKY_BOTTOM_RADIUS]  = 6360.0f;
         dfltsetting[SETTING_SKY_TOP_RADIUS]     = 6420.0f;
         dfltsetting[SETTING_SUN_ARC_RADIANS]    = 0.00045f;
+
+        dfltsetting[SETTING_SKY_MOISTURE_LEVEL] = 0.0f;
+        dfltsetting[SETTING_SKY_ICE_LEVEL]      = 0.0f;
 
         dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
         dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
@@ -953,6 +965,41 @@ F32 LLSettingsSky::getDistanceMultiplier() const
     return 0.8f;
 }
 
+void LLSettingsSky::setPlanetRadius(F32 radius)
+{
+    mSettings[SETTING_PLANET_RADIUS] = radius;
+}
+
+void LLSettingsSky::setSkyBottomRadius(F32 radius)
+{
+    mSettings[SETTING_SKY_BOTTOM_RADIUS] = radius;
+}
+
+void LLSettingsSky::setSkyTopRadius(F32 radius)
+{
+    mSettings[SETTING_SKY_TOP_RADIUS] = radius;
+}
+
+void LLSettingsSky::setSunArcRadians(F32 radians)
+{
+    mSettings[SETTING_SUN_ARC_RADIANS] = radians;
+}
+
+void LLSettingsSky::setMieAnisotropy(F32 aniso_factor)
+{
+    getMieConfig()[SETTING_MIE_ANISOTROPY_FACTOR] = aniso_factor;
+}
+
+void LLSettingsSky::setSkyMoistureLevel(F32 moisture_level)
+{
+    mSettings[SETTING_SKY_MOISTURE_LEVEL] = moisture_level;
+}
+
+void LLSettingsSky::setSkyIceLevel(F32 ice_level)
+{
+    mSettings[SETTING_SKY_ICE_LEVEL] = ice_level;
+}
+
 void LLSettingsSky::setBlueDensity(const LLColor3 &val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_DENSITY] = val.getValue();
@@ -1146,6 +1193,16 @@ LLUUID LLSettingsSky::GetDefaultBloomTextureId()
 F32 LLSettingsSky::getPlanetRadius() const
 {
     return mSettings[SETTING_PLANET_RADIUS].asReal();
+}
+
+F32 LLSettingsSky::getSkyMoistureLevel() const
+{
+    return mSettings[SETTING_SKY_MOISTURE_LEVEL].asReal();
+}
+
+F32 LLSettingsSky::getSkyIceLevel() const
+{
+    return mSettings[SETTING_SKY_ICE_LEVEL].asReal();
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const

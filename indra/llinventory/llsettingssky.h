@@ -87,6 +87,8 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_LINEAR_TERM;
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
         
+    static const std::string SETTING_SKY_MOISTURE_LEVEL;
+    static const std::string SETTING_SKY_ICE_LEVEL;
 
     static const std::string SETTING_LEGACY_HAZE;
 
@@ -117,6 +119,9 @@ public:
     F32 getSunArcRadians() const;
     F32 getMieAnisotropy() const;   
 
+    F32 getSkyMoistureLevel() const;
+    F32 getSkyIceLevel() const;
+
     // Return first (only) profile layer represented in LLSD
     LLSD getRayleighConfig() const;
     LLSD getMieConfig() const;
@@ -132,6 +137,15 @@ public:
     void setRayleighConfigs(const LLSD& rayleighConfig);
     void setMieConfigs(const LLSD& mieConfig);
     void setAbsorptionConfigs(const LLSD& absorptionConfig);
+
+    void setPlanetRadius(F32 radius);
+    void setSkyBottomRadius(F32 radius);
+    void setSkyTopRadius(F32 radius);
+    void setSunArcRadians(F32 radians);
+    void setMieAnisotropy(F32 aniso_factor);
+
+    void setSkyMoistureLevel(F32 moisture_level);
+    void setSkyIceLevel(F32 ice_level);
 
     //---------------------------------------------------------------------
     LLColor3 getAmbientColor() const;
