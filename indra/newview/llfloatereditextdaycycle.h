@@ -89,6 +89,9 @@ public:
 
     void                        setEditDayCycle(const LLSettingsDay::ptr_t &pday);
     void                        setEditDefaultDayCycle();
+    LLUUID                      getEditingAssetId() { return mEditDay ? mEditDay->getAssetId() : LLUUID::null; }
+    LLUUID                      getEditingInventoryId() { return mInventoryId; }
+
 
     BOOL			            handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
 

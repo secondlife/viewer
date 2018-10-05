@@ -116,6 +116,7 @@ const std::string alt_labels[] = {
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
     mCurrentEnvironment(),
     mDirtyFlag(0),
+    mEditorLastParcelId(INVALID_PARCEL_ID),
     mCrossRegion(false),
     mNoSelection(false),
     mNoEnvironment(false),
@@ -325,11 +326,15 @@ void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentI
         else
             dayeditor->closeFloater();
     }
-    else
+    else if (dayeditor->getEditingAssetId() != nextenv->mDayCycle->getAssetId()
+            || mEditorLastParcelId != nextenv->mParcelId
+            || mEditorLastRegionId != nextenv->mRegionId)
     {
         // Ignore dirty
         // If parcel selection changed whatever we do except saving to inventory with
         // old settings will be invalid.
+        mEditorLastParcelId = nextenv->mParcelId;
+        mEditorLastRegionId = nextenv->mRegionId;
         dayeditor->setEditDayCycle(nextenv->mDayCycle);
     }
 }

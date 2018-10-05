@@ -289,7 +289,14 @@ BOOL LLXYVector::handleMouseUp(S32 x, S32 y, MASK mask)
         make_ui_sound("UISndClickRelease");
     }
 
-    return TRUE;
+    if (mTouchArea->getRect().pointInRect(x, y))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return LLUICtrl::handleMouseUp(x, y, mask);
+    }
 }
 
 BOOL LLXYVector::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -299,8 +306,12 @@ BOOL LLXYVector::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         gFocusMgr.setMouseCapture(this);
         make_ui_sound("UISndClick");
-    }
 
-    return TRUE;
+        return TRUE;
+    }
+    else
+    {
+        return LLUICtrl::handleMouseDown(x, y, mask);
+    }
 }
 
