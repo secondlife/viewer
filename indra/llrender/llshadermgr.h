@@ -234,6 +234,11 @@ public:
         BLEND_FACTOR,
 
         NO_ATMO,
+        MOISTURE_LEVEL,
+        DROPLET_RADIUS,
+        ICE_LEVEL,
+        RAINBOW_MAP,
+        HALO_MAP,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

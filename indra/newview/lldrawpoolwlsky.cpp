@@ -176,6 +176,13 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+        LLViewerTexture* rainbow_tex = gSky.mVOSkyp->getRainbowTex();
+        LLViewerTexture* halo_tex  = gSky.mVOSkyp->getHaloTex();
+
+        sky_shader->bindTexture(LLShaderMgr::RAINBOW_MAP, rainbow_tex);
+        sky_shader->bindTexture(LLShaderMgr::HALO_MAP,  halo_tex);
+
         LLVector3 sun_dir  = LLEnvironment::instance().getSunDirection();
         LLVector3 moon_dir = LLEnvironment::instance().getMoonDirection();
 
@@ -183,6 +190,14 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
         sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, sun_dir.mV);
         sky_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, moon_dir.mV);
+
+        F32 moisture_level  = (float)psky->getSkyMoistureLevel();
+        F32 droplet_radius  = (float)psky->getSkyDropletRadius();
+        F32 ice_level       = (float)psky->getSkyIceLevel();
+
+        sky_shader->uniform1f(LLShaderMgr::MOISTURE_LEVEL, moisture_level);
+        sky_shader->uniform1f(LLShaderMgr::DROPLET_RADIUS, droplet_radius);
+        sky_shader->uniform1f(LLShaderMgr::ICE_LEVEL, ice_level);
 
         llassert(sky_shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX));
 
@@ -195,7 +210,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
         LLGLDisable cull(GL_CULL_FACE);
         renderFsSky(camPosLocal, camHeightLocal, sky_shader);
-        
+
 		sky_shader->unbind();
 	}
 }

@@ -661,6 +661,10 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
         param_map[SETTING_MAX_Y] = LLShaderMgr::MAX_Y;
         param_map[SETTING_SUNLIGHT_COLOR] = LLShaderMgr::SUNLIGHT_COLOR;
 
+        param_map[SETTING_SKY_MOISTURE_LEVEL] = LLShaderMgr::MOISTURE_LEVEL;
+        param_map[SETTING_SKY_DROPLET_RADIUS] = LLShaderMgr::DROPLET_RADIUS;
+        param_map[SETTING_SKY_ICE_LEVEL] = LLShaderMgr::ICE_LEVEL;
+
 // AdvancedAtmospherics TODO
 // Provide mappings for new shader params here
     }

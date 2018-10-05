@@ -42,6 +42,8 @@ class LLSettingsSky: public LLSettingsBase
 public:
     static const std::string SETTING_AMBIENT;
     static const std::string SETTING_BLOOM_TEXTUREID;
+    static const std::string SETTING_RAINBOW_TEXTUREID;
+    static const std::string SETTING_HALO_TEXTUREID;
     static const std::string SETTING_BLUE_DENSITY;
     static const std::string SETTING_BLUE_HORIZON;
     static const std::string SETTING_DENSITY_MULTIPLIER;
@@ -88,6 +90,7 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
         
     static const std::string SETTING_SKY_MOISTURE_LEVEL;
+    static const std::string SETTING_SKY_DROPLET_RADIUS;
     static const std::string SETTING_SKY_ICE_LEVEL;
 
     static const std::string SETTING_LEGACY_HAZE;
@@ -120,6 +123,7 @@ public:
     F32 getMieAnisotropy() const;   
 
     F32 getSkyMoistureLevel() const;
+    F32 getSkyDropletRadius() const;
     F32 getSkyIceLevel() const;
 
     // Return first (only) profile layer represented in LLSD
@@ -133,6 +137,8 @@ public:
     LLSD getAbsorptionConfigs() const;
 
     LLUUID getBloomTextureId() const;
+    LLUUID getRainbowTextureId() const;
+    LLUUID getHaloTextureId() const;
 
     void setRayleighConfigs(const LLSD& rayleighConfig);
     void setMieConfigs(const LLSD& mieConfig);
@@ -145,6 +151,7 @@ public:
     void setMieAnisotropy(F32 aniso_factor);
 
     void setSkyMoistureLevel(F32 moisture_level);
+    void setSkyDropletRadius(F32 radius);
     void setSkyIceLevel(F32 ice_level);
 
     //---------------------------------------------------------------------
@@ -272,6 +279,8 @@ public:
     static LLUUID GetDefaultMoonTextureId();
     static LLUUID GetDefaultCloudNoiseTextureId();
     static LLUUID GetDefaultBloomTextureId();
+    static LLUUID GetDefaultRainbowTextureId();
+    static LLUUID GetDefaultHaloTextureId();
 
     static LLSD createDensityProfileLayer(
                     F32 width,
@@ -326,6 +335,8 @@ private:
     LLUUID      mNextMoonTextureId;
     LLUUID      mNextCloudTextureId;
     LLUUID      mNextBloomTextureId;
+    LLUUID      mNextRainbowTextureId;
+    LLUUID      mNextHaloTextureId;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
