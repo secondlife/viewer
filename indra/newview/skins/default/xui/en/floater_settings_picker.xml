@@ -29,8 +29,6 @@
             left="6"
             right="-6"
             bottom="-10"
-            auto_resize="true"
-            user_resize="true"
             orientation="vertical">
         <layout_panel name="temp"
                 border="false"
@@ -49,30 +47,29 @@
                     name="flt_inventory_search"
                     top="4"
                     right="-2" />
-            <inventory_panel
+            <panel
+              name="pnl_inv_wrap"
+              follows="all"
+              layout="topleft"
+              left="2"
+              top="2"
+              right="-2"
+              bottom="-2"
+              background_visible="true"
+              bg_alpha_color="DkGray2">
+                <inventory_panel
                     allow_multi_select="false"
                     suppress_folder_menu="true"
                     bg_visible="true"
                     bg_alpha_color="DkGray2"
                     border="false"
-                    follows="left|top|right|bottom"
+                    follows="all"
                     left_delta="0"
                     name="pnl_inventory"
-                    top="31"
+                    top="1"
                     right="-4"
-                    bottom="-26"
-                     /> 
-            <check_box
-                    follows="left|bottom"
-                    height="14"
-                    initial_value="false"
-                    label="Show folders"
-                    layout="topleft"
-                    name="chk_showfolders"
-                    top="-20"
-                    top_pad="0"
-                    left_delta="-3"
-                    width="200" />
+                    bottom="-1" />
+            </panel>
         </layout_panel>
         <layout_panel name="temp"
                 border="false"

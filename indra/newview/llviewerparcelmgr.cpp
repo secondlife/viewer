@@ -1609,7 +1609,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
             }
         }
 
-        bool environment_changed = (parcel->getParcelEnvironmentVersion() != parcel_environment_version);
+        S32 cur_parcel_environment_version = parcel->getParcelEnvironmentVersion();
+        bool environment_changed = (cur_parcel_environment_version != parcel_environment_version);
 
 		parcel->init(owner_id,
 			FALSE, FALSE, FALSE,
@@ -1636,8 +1637,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		parcel->setRegionDenyAnonymousOverride(region_deny_anonymous_override);
 		parcel->setRegionDenyAgeUnverifiedOverride(region_deny_age_unverified_override);
         parcel->setRegionAllowAccessOverride(region_allow_access_override);
-
-        parcel->setParcelEnvironmentVersion(parcel_environment_version);
+        parcel->setParcelEnvironmentVersion(cur_parcel_environment_version);
         parcel->setRegionAllowEnvironmentOverride(region_allow_environment_override);
 
 		parcel->unpackMessage(msg);
@@ -1670,13 +1670,14 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 					instance->mTeleportFinishedSignal(instance->mTeleportInProgressPosition, false);
 				}
 			}
-
+            parcel->setParcelEnvironmentVersion(parcel_environment_version);
             LL_WARNS("LAPRAS") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
             // Notify anything that wants to know when the agent changes parcels
             gAgent.changeParcels();
         }
         else if (agent_parcel_update)
         {
+            parcel->setParcelEnvironmentVersion(parcel_environment_version);
             // updated agent parcel
             parcel_mgr.mAgentParcel->unpackMessage(msg);
             if ((LLEnvironment::instance().isExtendedEnvironmentEnabled() && environment_changed))

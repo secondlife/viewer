@@ -125,8 +125,8 @@
                     label="Show Empty Folders"
                     layout="topleft"
                     name="chk_showfolders"
-                    top="0"
-                    left_delta="-3"
+                    top="2"
+                    left_delta="-1"
                     width="200" />
         </layout_panel>
         <layout_panel
@@ -139,7 +139,7 @@
             <panel
                     background_visible="true"
                     bevel_style="none"
-                    top_pad="0"
+                    top_pad="1"
                     follows="top|left|right"
                     height="30"
                     label="bottom_panel"
