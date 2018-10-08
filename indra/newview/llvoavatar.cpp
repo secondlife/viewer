@@ -1418,14 +1418,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     // Stretch bounding box by rigged mesh joint boxes
     if (box_detail>=3)
     {
-        // FIXME could try to cache unless something has changed about attached rigged meshes, 
-        // but needs more logic based on volume states.
-
-        //if (mRiggingInfoTab.needsUpdate())
-        {
-            updateRiggingInfo();
-            //mJointRiggingInfoTab.setNeedsUpdate(false);
-        }
+		updateRiggingInfo();
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
         {
             LLJoint *joint = getJoint(joint_num);
@@ -9624,9 +9617,31 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 void LLVOAvatar::updateRiggingInfo()
 {
     LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
-    mJointRiggingInfoTab.clear();
     std::vector<LLVOVolume*> volumes;
     getAssociatedVolumes(volumes);
+
+	// Get current rigging info key
+	std::map<LLUUID,S32> curr_rigging_info_key;
+    for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+    {
+        LLVOVolume *vol = *it;
+		if (vol->isMesh() && vol->getVolume())
+		{
+			const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
+			S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
+			curr_rigging_info_key[mesh_id] = max_lod;
+		}
+	}
+
+	// Check for key change, which indicates some change in volume composition or LOD.
+	if (curr_rigging_info_key == mLastRiggingInfoKey)
+	{
+		return;
+	}
+
+	// Something changed. Update.
+	mLastRiggingInfoKey = curr_rigging_info_key;
+    mJointRiggingInfoTab.clear();
     for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
     {
         LLVOVolume *vol = *it;
