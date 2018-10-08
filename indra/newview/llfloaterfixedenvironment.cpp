@@ -37,6 +37,7 @@
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
 #include "llfilepicker.h"
+#include "lllocalbitmaps.h"
 #include "llsettingspicker.h"
 #include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewerparcelmgr.h"
@@ -51,6 +52,7 @@
 #include "llenvironment.h"
 #include "llagent.h"
 #include "llparcel.h"
+#include "lltrans.h"
 
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
@@ -339,6 +341,62 @@ void LLFloaterFixedEnvironment::onButtonImport()
 void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 {
     std::string ctrl_action = ctrl->getName();
+
+    std::string local_desc;
+    bool is_local = false; // because getString can be empty
+    if (mSettings->getSettingsType() == "water")
+    {
+        LLSettingsWater::ptr_t water = std::static_pointer_cast<LLSettingsWater>(mSettings);
+        if (water)
+        {
+            // LLViewerFetchedTexture and check for FTT_LOCAL_FILE or check LLLocalBitmapMgr
+            if (LLLocalBitmapMgr::isLocal(water->getNormalMapID()))
+            {
+                local_desc = LLTrans::getString("EnvironmentNormalMap");
+                is_local = true;
+            }
+            else if (LLLocalBitmapMgr::isLocal(water->getTransparentTextureID()))
+            {
+                local_desc = LLTrans::getString("EnvironmentTransparent");
+                is_local = true;
+            }
+        }
+    }
+    else if (mSettings->getSettingsType() == "sky")
+    {
+        LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(mSettings);
+        if (sky)
+        {
+            if (LLLocalBitmapMgr::isLocal(sky->getSunTextureId()))
+            {
+                local_desc = LLTrans::getString("EnvironmentSun");
+                is_local = true;
+            }
+            else if (LLLocalBitmapMgr::isLocal(sky->getMoonTextureId()))
+            {
+                local_desc = LLTrans::getString("EnvironmentMoon");
+                is_local = true;
+            }
+            else if (LLLocalBitmapMgr::isLocal(sky->getCloudNoiseTextureId()))
+            {
+                local_desc = LLTrans::getString("EnvironmentCloudNoise");
+                is_local = true;
+            }
+            else if (LLLocalBitmapMgr::isLocal(sky->getBloomTextureId()))
+            {
+                local_desc = LLTrans::getString("EnvironmentBloom");
+                is_local = true;
+            }
+        }
+    }
+
+    if (is_local)
+    {
+        LLSD args;
+        args["FIELD"] = local_desc;
+        LLNotificationsUtil::add("WLLocalTextureFixedBlock", args);
+        return;
+    }
 
     if (ctrl_action == ACTION_SAVE)
     {

@@ -6072,6 +6072,22 @@ Sorry, the settings couldn't be applied to the region. Reason: [FAIL_REASON]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="WLLocalTextureDayBlock"
+   type="alertmodal">
+A Local texture is in use on track [TRACK], frame #[FRAMENO] ([FRAME]%) in field [FIELD].
+Settings may not be saved using local textures.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="WLLocalTextureFixedBlock"
+   type="alertmodal">
+A local texture is in use in field [FIELD].
+Settings may not be saved using local textures.
+  </notification>
+
+  <notification
    functor="GenericAcknowledge"
    icon="alertmodal.tga"
    name="EnvCannotDeleteLastDayCycleKey"

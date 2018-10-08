@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llloadingindicator.h"
+#include "lllocalbitmaps.h"
 #include "llmultisliderctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -346,7 +347,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         getChild<LLButton>(track_tabs[idx + 1], true)->setLabel(formatted_label.getString());
     }
 
-    for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++) //skies #2 through #4
+    for (U32 i = 2; i < LLSettingsDay::TRACK_MAX; i++) //skies #2 through #4
     {
         getChild<LLButton>(track_tabs[i])->setEnabled(extended_env);
     }
@@ -511,6 +512,81 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     {
         LL_WARNS("ENVDAYEDIT") << "Unable to clone daycylce from editor." << LL_ENDL;
         return;
+    }
+
+    // brute-force local texture scan
+    for (U32 i = 0; i <= LLSettingsDay::TRACK_MAX; i++)
+    {
+        LLSettingsDay::CycleTrack_t &day_track = dayclone->getCycleTrack(i);
+
+        LLSettingsDay::CycleTrack_t::iterator iter = day_track.begin();
+        LLSettingsDay::CycleTrack_t::iterator end = day_track.end();
+        S32 frame_num = 0;
+
+        while (iter != end)
+        {
+            frame_num++;
+            std::string desc;
+            bool is_local = false; // because getString can be empty
+            if (i == LLSettingsDay::TRACK_WATER)
+            {
+                LLSettingsWater::ptr_t water = std::static_pointer_cast<LLSettingsWater>(iter->second);
+                if (water)
+                {
+                    // LLViewerFetchedTexture and check for FTT_LOCAL_FILE or check LLLocalBitmapMgr
+                    if (LLLocalBitmapMgr::isLocal(water->getNormalMapID()))
+                    {
+                        desc = LLTrans::getString("EnvironmentNormalMap");
+                        is_local = true;
+                    }
+                    else if (LLLocalBitmapMgr::isLocal(water->getTransparentTextureID()))
+                    {
+                        desc = LLTrans::getString("EnvironmentTransparent");
+                        is_local = true;
+                    }
+                }
+            }
+            else
+            {
+                LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(iter->second);
+                if (sky)
+                {
+                    if (LLLocalBitmapMgr::isLocal(sky->getSunTextureId()))
+                    {
+                        desc = LLTrans::getString("EnvironmentSun");
+                        is_local = true;
+                    }
+                    else if (LLLocalBitmapMgr::isLocal(sky->getMoonTextureId()))
+                    {
+                        desc = LLTrans::getString("EnvironmentMoon");
+                        is_local = true;
+                    }
+                    else if (LLLocalBitmapMgr::isLocal(sky->getCloudNoiseTextureId()))
+                    {
+                        desc = LLTrans::getString("EnvironmentCloudNoise");
+                        is_local = true;
+                    }
+                    else if (LLLocalBitmapMgr::isLocal(sky->getBloomTextureId()))
+                    {
+                        desc = LLTrans::getString("EnvironmentBloom");
+                        is_local = true;
+                    }
+                }
+            }
+
+            if (is_local)
+            {
+                LLSD args;
+                LLButton* button = getChild<LLButton>(track_tabs[i], true);
+                args["TRACK"] = button->getCurrentLabel();
+                args["FRAME"] = iter->first * 100; // %
+                args["FIELD"] = desc;
+                args["FRAMENO"] = frame_num;
+                LLNotificationsUtil::add("WLLocalTextureDayBlock", args);
+                return;
+            }
+            iter++;
+        }
     }
 
     if (ctrl_action == ACTION_SAVE)
@@ -817,7 +893,7 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
         return;
     }
 
-    for (int i = 0; i < LLSettingsDay::TRACK_MAX; i++) // use max value
+    for (U32 i = 0; i < LLSettingsDay::TRACK_MAX; i++) // use max value
     {
         getChild<LLButton>(track_tabs[i], true)->setToggleState(i == mCurrentTrack);
     }
