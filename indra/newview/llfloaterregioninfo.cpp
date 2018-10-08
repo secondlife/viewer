@@ -191,6 +191,7 @@ public:
     void                refreshFromEstate();
 
     virtual BOOL        postBuild() override;
+    virtual void        onOpen(const LLSD& key) override {};
 
     virtual S32         getParcelId() override { return INVALID_PARCEL_ID; }
 
