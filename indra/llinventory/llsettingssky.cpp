@@ -102,6 +102,8 @@ const std::string LLSettingsSky::SETTING_MAX_Y("max_y");
 const std::string LLSettingsSky::SETTING_MOON_ROTATION("moon_rotation");
 const std::string LLSettingsSky::SETTING_MOON_SCALE("moon_scale");
 const std::string LLSettingsSky::SETTING_MOON_TEXTUREID("moon_id");
+const std::string LLSettingsSky::SETTING_MOON_BRIGHTNESS("moon_brightness");
+
 const std::string LLSettingsSky::SETTING_STAR_BRIGHTNESS("star_brightness");
 const std::string LLSettingsSky::SETTING_SUNLIGHT_COLOR("sunlight_color");
 const std::string LLSettingsSky::SETTING_SUN_ROTATION("sun_rotation");
@@ -555,6 +557,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_MOON_SCALE,          false, LLSD::TypeReal,
                 boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.25f)(20.0f))), LLSD::Real(1.0)));
         validation.push_back(Validator(SETTING_MOON_TEXTUREID,      false, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_MOON_BRIGHTNESS,     false,  LLSD::TypeReal, 
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+
         validation.push_back(Validator(SETTING_STAR_BRIGHTNESS,     true,  LLSD::TypeReal, 
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(500.0f)))));
         validation.push_back(Validator(SETTING_SUNLIGHT_COLOR,      true,  LLSD::TypeArray, 
@@ -686,6 +691,9 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
     
         dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
         dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
+        dfltsetting[SETTING_MOON_BRIGHTNESS]    = LLSD::Real(0.5f);
+        dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
+
         dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(256.0000);
         dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
         dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
@@ -1494,6 +1502,16 @@ LLUUID LLSettingsSky::getMoonTextureId() const
 void LLSettingsSky::setMoonTextureId(LLUUID id)
 {
     setValue(SETTING_MOON_TEXTUREID, id);
+}
+
+F32  LLSettingsSky::getMoonBrightness() const
+{
+    return mSettings[SETTING_MOON_BRIGHTNESS].asReal();
+}
+
+void LLSettingsSky::setMoonBrightness(F32 brightness_factor)
+{
+    setValue(SETTING_MOON_BRIGHTNESS, brightness_factor);
 }
 
 F32 LLSettingsSky::getStarBrightness() const

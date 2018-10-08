@@ -66,6 +66,8 @@ public:
     static const std::string SETTING_MOON_ROTATION;
     static const std::string SETTING_MOON_SCALE;
     static const std::string SETTING_MOON_TEXTUREID;
+    static const std::string SETTING_MOON_BRIGHTNESS;
+
     static const std::string SETTING_STAR_BRIGHTNESS;
     static const std::string SETTING_SUNLIGHT_COLOR;
     static const std::string SETTING_SUN_ROTATION;
@@ -204,6 +206,9 @@ public:
 
     LLUUID getMoonTextureId() const;
     void setMoonTextureId(LLUUID id);
+
+    F32  getMoonBrightness() const;
+    void setMoonBrightness(F32 brightness_factor);
 
     F32 getStarBrightness() const;
     void setStarBrightness(F32 val);

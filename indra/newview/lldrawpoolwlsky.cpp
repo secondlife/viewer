@@ -224,6 +224,22 @@ void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightL
         LLGLDisable blend(GL_BLEND);
         sky_shader->bind();
 
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+        LLViewerTexture* rainbow_tex = gSky.mVOSkyp->getRainbowTex();
+        LLViewerTexture* halo_tex  = gSky.mVOSkyp->getHaloTex();
+
+        sky_shader->bindTexture(LLShaderMgr::RAINBOW_MAP, rainbow_tex);
+        sky_shader->bindTexture(LLShaderMgr::HALO_MAP,  halo_tex);
+
+        F32 moisture_level  = (float)psky->getSkyMoistureLevel();
+        F32 droplet_radius  = (float)psky->getSkyDropletRadius();
+        F32 ice_level       = (float)psky->getSkyIceLevel();
+
+        sky_shader->uniform1f(LLShaderMgr::MOISTURE_LEVEL, moisture_level);
+        sky_shader->uniform1f(LLShaderMgr::DROPLET_RADIUS, droplet_radius);
+        sky_shader->uniform1f(LLShaderMgr::ICE_LEVEL, ice_level);
+
         /// Render the skydome
         renderDome(origin, camHeightLocal, sky_shader);	
 
@@ -483,6 +499,12 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
                 moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
                 moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
             }
+
+            LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+            F32 moon_brightness = (float)psky->getMoonBrightness();
+
+            moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS,  moon_brightness);
 
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);                
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
