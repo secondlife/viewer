@@ -123,6 +123,7 @@ private:
     void                    onSunImageChanged();
     void                    onMoonRotationChanged();
     void                    onMoonScaleChanged();
+    void                    onMoonBrightnessChanged();
     void                    onMoonImageChanged();
 };
 

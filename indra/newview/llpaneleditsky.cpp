@@ -72,6 +72,7 @@ namespace
     const std::string   FIELD_SKY_MOON_ROTATION("moon_rotation");
     const std::string   FIELD_SKY_MOON_IMAGE("moon_image");
     const std::string   FIELD_SKY_MOON_SCALE("moon_scale");
+    const std::string   FIELD_SKY_MOON_BRIGHTNESS("moon_brightness");
 
     const std::string   FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL("rayleigh_exponential");
     const std::string   FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE("rayleigh_exponential_scale");
@@ -398,6 +399,7 @@ BOOL LLPanelSettingsSkySunMoonTab::postBuild()
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowNoTexture(TRUE);
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowLocalTexture(FALSE);
     getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonScaleChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonBrightnessChanged(); });
 
     refresh();
 
@@ -411,6 +413,9 @@ void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
     getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setEnabled(enabled);
 }
 
 void LLPanelSettingsSkySunMoonTab::refresh()
@@ -438,6 +443,7 @@ void LLPanelSettingsSkySunMoonTab::refresh()
     getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(mSkySettings->getMoonRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setValue(mSkySettings->getMoonTextureId());
     getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setValue(mSkySettings->getMoonScale());
+    getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setValue(mSkySettings->getMoonBrightness());
 }
 
 //-------------------------------------------------------------------------
@@ -513,6 +519,12 @@ void LLPanelSettingsSkySunMoonTab::onMoonScaleChanged()
     setIsDirty();
 }
 
+void LLPanelSettingsSkySunMoonTab::onMoonBrightnessChanged()
+{
+    mSkySettings->setMoonBrightness((getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->getValue().asReal()));
+    mSkySettings->update();
+    setIsDirty();
+}
  
 LLPanelSettingsSkyDensityTab::LLPanelSettingsSkyDensityTab()
 {    

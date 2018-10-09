@@ -39,6 +39,7 @@ vec3 fullbrightScaleSoftClip(vec3 light);
 uniform vec4 color;
 uniform vec4 sunlight_color;
 uniform vec3 lumWeights;
+uniform float moon_brightness;
 uniform float minLuminance;
 uniform sampler2D diffuseMap;
 uniform sampler2D altDiffuseMap;
@@ -51,13 +52,22 @@ void main()
 	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(moonA, moonB, blend_factor);
 
-    c.rgb = pow(c.rgb, vec3(0.45f));
+    if (c.a < 0.1f)
+    {
+        discard;
+    }
+
+	c.rgb = pow(c.rgb, vec3(0.7f));
 	c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
+
     // mix factor which blends when sunlight is brighter
     // and shows true moon color at night
-    vec3 luma_weights = vec3(0.1, 0.3, 0.0);
-    float mix = 1.0f - dot(sunlight_color.rgb, luma_weights);
-	frag_color = vec4(c.rgb, mix * c.a);
+    vec3 luma_weights = vec3(0.2, 0.3, 0.2);
+    float mix = 1.0f - dot(normalize(sunlight_color.rgb), luma_weights);
+
+    c.rgb = pow(c.rgb, 1.2 - vec3(mix * moon_brightness));
+
+	frag_color = vec4(c.rgb, mix * (moon_brightness + (c.a * 0.25)));
 }
 

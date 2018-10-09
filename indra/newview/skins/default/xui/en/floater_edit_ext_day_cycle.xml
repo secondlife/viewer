@@ -6,9 +6,9 @@
         save_rect="false"
         title="Edit Day Cycle"
         width="705"
-        height="650"
+        height="700"
         min_width="705"
-        min_height="650"
+        min_height="700"
         single_instance="true" 
         can_resize="false">
 
@@ -25,7 +25,7 @@
     <!-- Layout -->
     <layout_stack name="outer_stack"
             width="705"
-            height="650"
+            height="700"
             follows="all"
             animate="false"
             top="0"

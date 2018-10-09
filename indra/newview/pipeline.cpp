@@ -88,6 +88,7 @@
 #include "llvocache.h"
 #include "llvoground.h"
 #include "llvosky.h"
+#include "llvowlsky.h"
 #include "llvotree.h"
 #include "llvovolume.h"
 #include "llvosurfacepatch.h"
@@ -2415,21 +2416,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		{
 			LLVector3 pnorm;
 			F32 height = region->getWaterHeight();
-			if (water_clip < 0)
-			{ //camera is above water, clip plane points up
-				pnorm.setVec(0,0,1);
-				plane.setVec(pnorm, -height);
-			}
-			else if (water_clip > 0)
-			{	//camera is below water, clip plane points down
-				pnorm = LLVector3(0,0,-1);
-				plane.setVec(pnorm, height);
-			}
+            pnorm.setVec(0,0,-(F32)water_clip);
+            plane.setVec(pnorm, height * pnorm.mV[VZ]);
 		}
 	}
 	
 	glh::matrix4f modelview = get_last_modelview();
-	glh::matrix4f proj = get_last_projection();
+	glh::matrix4f proj      = get_last_projection();
+
 	LLGLUserClipPlane clip(plane, modelview, proj, water_clip != 0 && LLPipeline::sReflectionRender);
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -2455,9 +2449,9 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
-		if (water_clip != 0)
+		if (water_clip != 0 && LLPipeline::sReflectionRender)
 		{
-			LLPlane plane(LLVector3(0,0, (F32) -water_clip), (F32) water_clip*region->getWaterHeight());
+			LLPlane plane(LLVector3(0,0, -(F32)water_clip),  water_clip  * region->getWaterHeight());
 			camera.setUserClipPlane(plane);
 		}
 		else
@@ -2513,7 +2507,20 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		sCull->pushDrawable(gSky.mVOGroundp->mDrawable);
 	}
 	
+    if (hasRenderType(LLPipeline::RENDER_TYPE_WL_SKY) && 
+		gPipeline.canUseWindLightShaders() &&
+		gSky.mVOWLSkyp.notNull() && 
+		gSky.mVOWLSkyp->mDrawable.notNull())
+	{
+		gSky.mVOWLSkyp->mDrawable->setVisible(camera);
+		sCull->pushDrawable(gSky.mVOWLSkyp->mDrawable);
+	}
 	
+    if (hasRenderType(LLPipeline::RENDER_TYPE_WATER))
+    {
+        LLWorld::getInstance()->precullWaterObjects(camera, sCull, hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER));
+    }
+
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -9823,20 +9830,22 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		F32 plane_d;
 
 		S32 water_clip = 0;
-		if (!LLViewerCamera::getInstance()->cameraUnderWater())
-		{ //camera is above water, clip plane points up
-			pnorm.setVec(0,0,1);
-            plane_d = -water_height;
-			plane.setVec(pnorm, -distance_to_water);
-			water_clip = -1;
+    
+        if (LLViewerCamera::getInstance()->cameraUnderWater())
+		{ 
+            //camera is below water, clip plane points down
+			water_clip = 1;            
 		}
 		else
-		{	//camera is below water, clip plane points down
-			pnorm = LLVector3(0,0,-1);
-            plane_d = water_height;
-			plane.setVec(pnorm, distance_to_water);
-			water_clip = 1;
+		{	
+            //camera is above water, clip plane points up
+			water_clip = -1;
 		}
+
+        //camera is below water, clip plane points down
+		pnorm = LLVector3(0,0,-(F32)water_clip);
+        plane_d = water_height * pnorm.mV[VZ];
+		plane.setVec(pnorm, distance_to_water * pnorm.mV[VZ]);
 
 		bool materials_in_water = false;
 

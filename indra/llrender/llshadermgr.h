@@ -239,6 +239,10 @@ public:
         ICE_LEVEL,
         RAINBOW_MAP,
         HALO_MAP,
+
+        MOON_BRIGHTNESS,
+        MOON_PHASE,
+
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
