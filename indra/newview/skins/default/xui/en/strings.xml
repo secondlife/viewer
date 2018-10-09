@@ -2782,6 +2782,13 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="RegionSettings">Region Settings</string>
 	<string name="NoEnvironmentSettings">This Region does not support environmental settings.</string>
 
+	<string name="EnvironmentSun">Sun</string>
+	<string name="EnvironmentMoon">Moon</string>
+	<string name="EnvironmentBloom">Bloom</string>
+	<string name="EnvironmentCloudNoise">Cloud Noise</string>
+	<string name="EnvironmentNormalMap">Normal Map</string>
+	<string name="EnvironmentTransparent">Transparent</string>
+
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>

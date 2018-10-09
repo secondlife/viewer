@@ -976,6 +976,19 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 	return world_id;
 }
 
+bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
+{
+    for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getWorldID() == world_id)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 {
 	std::string filename = "";

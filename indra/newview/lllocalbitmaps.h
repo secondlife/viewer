@@ -123,6 +123,7 @@ class LLLocalBitmapMgr
 		static bool 		checkTextureDimensions(std::string filename);
 
 		static LLUUID       getWorldID(LLUUID tracking_id);
+		static bool         isLocal(const LLUUID world_id);
 		static std::string  getFilename(LLUUID tracking_id);
 		
 		static void         feedScrollList(LLScrollListCtrl* ctrl);
