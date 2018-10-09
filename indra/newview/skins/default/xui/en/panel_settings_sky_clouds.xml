@@ -95,6 +95,29 @@
                     left_delta="-5"
                     top_delta="25"
                     width="200">
+                Cloud Variance:
+            </text>
+            <slider
+                    decimal_digits="2"
+                    follows="left|top"
+                    height="16"
+                    increment="0.01"
+                    initial_value="0"
+                    layout="topleft"
+                    left_delta="5"
+                    min_val="0"
+                    max_val="1.0"
+                    name="cloud_variance"
+                    top_delta="20"
+                    width="214"
+                    can_edit_text="true"/>
+            <text
+                    follows="left|top"
+                    height="10"
+                    layout="topleft"
+                    left_delta="-5"
+                    top_delta="25"
+                    width="200">
                 Cloud Scroll:
             </text>
             <xy_vector

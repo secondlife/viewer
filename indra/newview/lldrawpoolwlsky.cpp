@@ -394,8 +394,13 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
         cloud_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
         cloud_shader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
 
-        F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+        F32 blend_factor   = psky ? psky->getBlendFactor()   : 0.0f;
+        F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
+
         cloud_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+        cloud_shader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
 
 		/// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloud_shader);

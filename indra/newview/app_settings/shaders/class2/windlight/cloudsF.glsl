@@ -36,10 +36,6 @@ out vec4 frag_color;
 VARYING vec4 vary_CloudColorSun;
 VARYING vec4 vary_CloudColorAmbient;
 VARYING float vary_CloudDensity;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
-VARYING vec2 vary_texcoord3;
 
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D cloud_noise_texture_next;
@@ -47,16 +43,23 @@ uniform float blend_factor;
 uniform vec4 cloud_pos_density1;
 uniform vec4 cloud_pos_density2;
 uniform vec4 gamma;
+uniform float cloud_scale;
+uniform float cloud_variance;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_texcoord3;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
 
 vec4 cloudNoise(vec2 uv)
 {
-    vec4 a = texture2D(cloud_noise_texture, uv);
-    vec4 b = texture2D(cloud_noise_texture_next, uv);
-    vec4 samp = mix(a, b, blend_factor);
-	return samp;
+   vec4 a = texture2D(cloud_noise_texture, uv);
+   vec4 b = texture2D(cloud_noise_texture_next, uv);
+   vec4 cloud_noise_sample = mix(a, b, blend_factor);
+   return cloud_noise_sample;
 }
 
 void main()
@@ -71,26 +74,28 @@ void main()
 	vec2 uv3 = vary_texcoord2.xy;
 	vec2 uv4 = vary_texcoord3.xy;
 
+    vec2 disturbance = vec2(cloudNoise(uv1 / 16.0f).x, cloudNoise((uv3 + uv1) / 16.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
+
 	// Offset texture coords
-	uv1 += cloud_pos_density1.xy;	//large texture, visible density
+	uv1 += cloud_pos_density1.xy + disturbance;	//large texture, visible density
 	uv2 += cloud_pos_density1.xy;	//large texture, self shadow
-	uv3 += cloud_pos_density2.xy;	//small texture, visible density
+	uv3 += cloud_pos_density2.xy + disturbance;	//small texture, visible density
 	uv4 += cloud_pos_density2.xy;	//small texture, self shadow
 
 
 	// Compute alpha1, the main cloud opacity
+
 	float alpha1 = (cloudNoise(uv1).x - 0.5) + (cloudNoise(uv3).x - 0.5) * cloud_pos_density2.z;
-	alpha1 = min(max(alpha1 + cloudDensity, 0.) * 10. * cloud_pos_density1.z, 1.);
+	alpha1 = min(max(alpha1 + cloudDensity, 0.) * (10. + disturbance.y) * cloud_pos_density1.z, 1.);
 
 	// And smooth
 	alpha1 = 1. - alpha1 * alpha1;
 	alpha1 = 1. - alpha1 * alpha1;	
 
-
 	// Compute alpha2, for self shadowing effect
 	// (1 - alpha2) will later be used as percentage of incoming sunlight
 	float alpha2 = (cloudNoise(uv2).x - 0.5);
-	alpha2 = min(max(alpha2 + cloudDensity, 0.) * 2.5 * cloud_pos_density1.z, 1.);
+	alpha2 = min(max(alpha2 + cloudDensity, 0.) * (2.5 + disturbance.x) * cloud_pos_density1.z, 1.);
 
 	// And smooth
 	alpha2 = 1. - alpha2;
