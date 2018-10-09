@@ -696,7 +696,6 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
         dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
         dfltsetting[SETTING_MOON_BRIGHTNESS]    = LLSD::Real(0.5f);
-        dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
 
         dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(256.0000);
         dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
