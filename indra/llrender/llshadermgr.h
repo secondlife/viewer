@@ -243,6 +243,8 @@ public:
         MOON_BRIGHTNESS,
         MOON_PHASE,
 
+        CLOUD_VARIANCE,
+
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

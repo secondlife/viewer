@@ -95,6 +95,7 @@ private:
     void                    onCloudColorChanged();
     void                    onCloudCoverageChanged();
     void                    onCloudScaleChanged();
+    void                    onCloudVarianceChanged();
     void                    onCloudScrollChanged();
     void                    onCloudMapChanged();
     void                    onCloudDensityChanged();

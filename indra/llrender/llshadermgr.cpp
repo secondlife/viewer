@@ -1327,6 +1327,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("halo_map");
     mReservedUniforms.push_back("moon_brightness");
     mReservedUniforms.push_back("moon_phase");
+    mReservedUniforms.push_back("cloud_variance");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

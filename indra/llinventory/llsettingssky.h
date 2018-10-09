@@ -57,6 +57,8 @@ public:
     static const std::string SETTING_CLOUD_SCROLL_RATE;
     static const std::string SETTING_CLOUD_SHADOW;
     static const std::string SETTING_CLOUD_TEXTUREID;
+    static const std::string SETTING_CLOUD_VARIANCE;
+
     static const std::string SETTING_DOME_OFFSET;
     static const std::string SETTING_DOME_RADIUS;
     static const std::string SETTING_GAMMA;
@@ -184,6 +186,9 @@ public:
     F32 getCloudShadow() const;
     void setCloudShadow(F32 val);
     
+    F32 getCloudVariance() const;
+    void setCloudVariance(F32 val);
+
     F32 getDomeOffset() const;
     F32 getDomeRadius() const;
 

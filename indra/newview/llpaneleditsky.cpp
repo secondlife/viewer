@@ -53,6 +53,8 @@ namespace
     const std::string   FIELD_SKY_CLOUD_COLOR("cloud_color");
     const std::string   FIELD_SKY_CLOUD_COVERAGE("cloud_coverage");
     const std::string   FIELD_SKY_CLOUD_SCALE("cloud_scale");
+    const std::string   FIELD_SKY_CLOUD_VARIANCE("cloud_variance");
+
     const std::string   FIELD_SKY_CLOUD_SCROLL_XY("cloud_scroll_xy");
     const std::string   FIELD_SKY_CLOUD_MAP("cloud_map");
     const std::string   FIELD_SKY_CLOUD_DENSITY_X("cloud_density_x");
@@ -254,6 +256,8 @@ BOOL LLPanelSettingsSkyCloudTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COLOR)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudColorChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudCoverageChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudScaleChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudVarianceChanged(); });
+
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudScrollChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
@@ -278,6 +282,7 @@ void LLPanelSettingsSkyCloudTab::setEnabled(BOOL enabled)
     LLPanelSettingsSky::setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->setEnabled(enabled);
@@ -301,6 +306,7 @@ void LLPanelSettingsSkyCloudTab::refresh()
     getChild<LLColorSwatchCtrl>(FIELD_SKY_CLOUD_COLOR)->set(mSkySettings->getCloudColor());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setValue(mSkySettings->getCloudShadow());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setValue(mSkySettings->getCloudScale());
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->setValue(mSkySettings->getCloudVariance());
 
     LLVector2 cloudScroll(mSkySettings->getCloudScrollRate());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->setValue(cloudScroll.getValue());
@@ -336,6 +342,12 @@ void LLPanelSettingsSkyCloudTab::onCloudCoverageChanged()
 void LLPanelSettingsSkyCloudTab::onCloudScaleChanged()
 {
     mSkySettings->setCloudScale(getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->getValue().asReal());
+    setIsDirty();
+}
+
+void LLPanelSettingsSkyCloudTab::onCloudVarianceChanged()
+{
+    mSkySettings->setCloudVariance(getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->getValue().asReal());
     setIsDirty();
 }
 

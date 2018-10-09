@@ -91,6 +91,7 @@ const std::string LLSettingsSky::SETTING_CLOUD_SCALE("cloud_scale");
 const std::string LLSettingsSky::SETTING_CLOUD_SCROLL_RATE("cloud_scroll_rate");
 const std::string LLSettingsSky::SETTING_CLOUD_SHADOW("cloud_shadow");
 const std::string LLSettingsSky::SETTING_CLOUD_TEXTUREID("cloud_id");
+const std::string LLSettingsSky::SETTING_CLOUD_VARIANCE("cloud_variance");
 
 const std::string LLSettingsSky::SETTING_DOME_OFFSET("dome_offset");
 const std::string LLSettingsSky::SETTING_DOME_RADIUS("dome_radius");
@@ -539,6 +540,8 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_CLOUD_SHADOW,        true,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_CLOUD_TEXTUREID,     false, LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_CLOUD_VARIANCE,      false,  LLSD::TypeReal,  
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
 
         validation.push_back(Validator(SETTING_DOME_OFFSET,         false, LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
@@ -683,7 +686,8 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
         dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = LLSDArray(0.0f)(0.0f);
         dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
-    
+        dfltsetting[SETTING_CLOUD_VARIANCE]     = LLSD::Real(0.0);
+
         dfltsetting[SETTING_DOME_OFFSET]        = LLSD::Real(0.96f);
         dfltsetting[SETTING_DOME_RADIUS]        = LLSD::Real(15000.f);
         dfltsetting[SETTING_GAMMA]              = LLSD::Real(1.0);
@@ -692,7 +696,6 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_MAX_Y]              = LLSD::Real(1605);
         dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
         dfltsetting[SETTING_MOON_BRIGHTNESS]    = LLSD::Real(0.5f);
-        dfltsetting[SETTING_MOON_TEXTUREID]     = GetDefaultMoonTextureId();
 
         dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(256.0000);
         dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
@@ -1429,6 +1432,16 @@ F32 LLSettingsSky::getCloudShadow() const
 void LLSettingsSky::setCloudShadow(F32 val)
 {
     setValue(SETTING_CLOUD_SHADOW, val);
+}
+
+F32 LLSettingsSky::getCloudVariance() const
+{
+    return mSettings[SETTING_CLOUD_VARIANCE].asReal();
+}
+
+void LLSettingsSky::setCloudVariance(F32 val)
+{
+    setValue(SETTING_CLOUD_VARIANCE, val);
 }
 
 F32 LLSettingsSky::getDomeOffset() const
