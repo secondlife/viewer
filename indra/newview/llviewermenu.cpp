@@ -8452,20 +8452,7 @@ class LLWorldEnvSettings : public view_listener_t
         }
         else if (event_name == "my_environs")
         {
-            LLUUID asset_id;
-
-            LLSettingsBase::ptr_t cur(LLEnvironment::instance().getCurrentDay());
-            if (!cur)
-            {
-                cur = LLEnvironment::instance().getCurrentSky();
-            } 
-
-            if (cur)
-            {
-                asset_id = cur->getAssetId();
-            }
-              
-            LLFloaterReg::showInstance("my_environments", LLSDMap("asset_id", LLSD::UUID(asset_id)));
+            LLFloaterReg::showInstance("my_environments");
         }
     
 		return true;
