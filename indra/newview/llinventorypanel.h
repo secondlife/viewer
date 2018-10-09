@@ -319,9 +319,7 @@ protected:
 	static LLUIColor			sLibraryColor;
 	static LLUIColor			sLinkColor;
 	
-	virtual LLFolderViewItem*	buildNewViews(const LLUUID& id);
-	LLFolderViewItem*			buildNewViews(const LLUUID& id, LLInventoryObject const* objectp);
-	virtual void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item);
+	LLFolderViewItem*	buildNewViews(const LLUUID& id);
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
     virtual LLFolderView * createFolderRoot(LLUUID root_id );

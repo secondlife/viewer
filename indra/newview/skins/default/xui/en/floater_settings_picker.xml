@@ -57,7 +57,7 @@
               bottom="-2"
               background_visible="true"
               bg_alpha_color="DkGray2">
-                <asset_filtered_inv_panel
+                <inventory_panel
                     allow_multi_select="false"
                     suppress_folder_menu="true"
                     bg_visible="true"
@@ -68,8 +68,7 @@
                     name="pnl_inventory"
                     top="1"
                     right="-4"
-                    bottom="-1"
-                    filter_asset_type="settings" />
+                    bottom="-1" />
             </panel>
         </layout_panel>
         <layout_panel name="temp"
