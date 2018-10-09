@@ -76,6 +76,10 @@ private:
     void                    onDensityMultipChanged();
     void                    onDistanceMultipChanged();
     void                    onMaxAltChanged();
+    void                    onMoistureLevelChanged();
+    void                    onDropletRadiusChanged();
+    void                    onIceLevelChanged();
+
 };
 
 class LLPanelSettingsSkyCloudTab : public LLPanelSettingsSky
@@ -160,9 +164,6 @@ protected:
     void onAbsorptionLinearChanged();
     void onAbsorptionConstantChanged();
     void onAbsorptionMaxAltitudeChanged();
-    void onMoistureLevelChanged();
-    void onDropletRadiusChanged();
-    void onIceLevelChanged();
 
     // update the settings for our profile type
     void updateProfile();

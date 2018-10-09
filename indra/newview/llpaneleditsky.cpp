@@ -137,7 +137,9 @@ BOOL LLPanelSettingsSkyAtmosTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onDensityMultipChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onDistanceMultipChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMaxAltChanged(); });
-
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoistureLevelChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onDropletRadiusChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onIceLevelChanged(); });
     refresh();
 
     return TRUE;
@@ -153,6 +155,9 @@ void LLPanelSettingsSkyAtmosTab::setEnabled(BOOL enabled)
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setEnabled(enabled);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setEnabled(enabled);
 }
 
 void LLPanelSettingsSkyAtmosTab::refresh()
@@ -178,6 +183,13 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->setValue(mSkySettings->getDistanceMultiplier());
     getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->setValue(mSkySettings->getMaxY());
 
+    F32 moisture_level  = mSkySettings->getSkyMoistureLevel();
+    F32 droplet_radius  = mSkySettings->getSkyDropletRadius();
+    F32 ice_level       = mSkySettings->getSkyIceLevel();
+
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setValue(moisture_level);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setValue(droplet_radius);
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setValue(ice_level);
 }
 
 //-------------------------------------------------------------------------
@@ -244,12 +256,35 @@ void LLPanelSettingsSkyAtmosTab::onMaxAltChanged()
     setIsDirty();
 }
 
+void LLPanelSettingsSkyAtmosTab::onMoistureLevelChanged()
+{
+    F32 moisture_level  = getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->getValue().asReal();
+    mSkySettings->setSkyMoistureLevel(moisture_level);
+    mSkySettings->update();
+    setIsDirty();
+}
+
+void LLPanelSettingsSkyAtmosTab::onDropletRadiusChanged()
+{    
+    F32 droplet_radius = getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->getValue().asReal();
+    mSkySettings->setSkyDropletRadius(droplet_radius);
+    mSkySettings->update();
+    setIsDirty();
+}
+
+void LLPanelSettingsSkyAtmosTab::onIceLevelChanged()
+{
+    F32 ice_level = getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->getValue().asReal();
+    mSkySettings->setSkyIceLevel(ice_level);
+    mSkySettings->update();
+    setIsDirty();
+}
+
 //==========================================================================
 LLPanelSettingsSkyCloudTab::LLPanelSettingsSkyCloudTab() :
     LLPanelSettingsSky()
 {
 }
-
 
 BOOL LLPanelSettingsSkyCloudTab::postBuild()
 {
@@ -564,10 +599,6 @@ BOOL LLPanelSettingsSkyDensityTab::postBuild()
 
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionMaxAltitudeChanged(); });
 
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoistureLevelChanged(); });
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onDropletRadiusChanged(); });
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onIceLevelChanged(); });
-
     refresh();
     return TRUE;
 }
@@ -594,11 +625,6 @@ void LLPanelSettingsSkyDensityTab::setEnabled(BOOL enabled)
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_LINEAR)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_CONSTANT)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setEnabled(enabled);
-
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setEnabled(enabled);
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setEnabled(enabled);
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setEnabled(enabled);
-
 }
 
 void LLPanelSettingsSkyDensityTab::refresh()
@@ -637,10 +663,6 @@ void LLPanelSettingsSkyDensityTab::refresh()
     F32 absorption_constant_term     = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
     F32 absorption_max_alt           = absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
 
-    F32 moisture_level  = mSkySettings->getSkyMoistureLevel();
-    F32 droplet_radius  = mSkySettings->getSkyDropletRadius();
-    F32 ice_level       = mSkySettings->getSkyIceLevel();
-
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->setValue(rayleigh_exponential_term);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->setValue(rayleigh_exponential_scale);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_LINEAR)->setValue(rayleigh_linear_term);
@@ -659,10 +681,6 @@ void LLPanelSettingsSkyDensityTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_LINEAR)->setValue(absorption_linear_term);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_CONSTANT)->setValue(absorption_constant_term);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setValue(absorption_max_alt);
-
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setValue(moisture_level);
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setValue(droplet_radius);
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setValue(ice_level);
 }
 
 void LLPanelSettingsSkyDensityTab::updateProfile()
@@ -690,10 +708,6 @@ void LLPanelSettingsSkyDensityTab::updateProfile()
     LLSD mie_config         = LLSettingsSky::createSingleLayerDensityProfile(mie_max_alt, mie_exponential_term, mie_exponential_scale, mie_linear_term, mie_constant_term, mie_aniso_factor);
     LLSD absorption_layer   = LLSettingsSky::createSingleLayerDensityProfile(absorption_max_alt, absorption_exponential_term, absorption_exponential_scale, absorption_linear_term, absorption_constant_term);
 
-    F32 moisture_level  = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->getValueF32();
-    F32 droplet_radius  = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->getValueF32();
-    F32 ice_level       = getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->getValueF32();
-
     static LLSD absorption_layer_ozone = LLSettingsSky::createDensityProfileLayer(0.0f, 0.0f, 0.0f, -1.0f / 15000.0f, 8.0f / 3.0f);
 
     LLSD absorption_config;
@@ -703,9 +717,6 @@ void LLPanelSettingsSkyDensityTab::updateProfile()
     mSkySettings->setRayleighConfigs(rayleigh_config);
     mSkySettings->setMieConfigs(mie_config);
     mSkySettings->setAbsorptionConfigs(absorption_config);
-    mSkySettings->setSkyMoistureLevel(moisture_level);
-    mSkySettings->setSkyDropletRadius(droplet_radius);
-    mSkySettings->setSkyIceLevel(ice_level);
     mSkySettings->update();
     setIsDirty();
 
@@ -793,21 +804,6 @@ void LLPanelSettingsSkyDensityTab::onAbsorptionConstantChanged()
 }
 
 void LLPanelSettingsSkyDensityTab::onAbsorptionMaxAltitudeChanged()
-{
-    updateProfile();
-}
-
-void LLPanelSettingsSkyDensityTab::onMoistureLevelChanged()
-{
-    updateProfile();
-}
-
-void LLPanelSettingsSkyDensityTab::onDropletRadiusChanged()
-{
-    updateProfile();
-}
-
-void LLPanelSettingsSkyDensityTab::onIceLevelChanged()
 {
     updateProfile();
 }

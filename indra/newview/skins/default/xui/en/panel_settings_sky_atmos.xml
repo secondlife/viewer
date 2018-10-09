@@ -154,6 +154,69 @@
                             left_delta="-5"
                             top_delta="25"
                             width="80">
+                        Moisture Level:
+                    </text>
+                     <slider
+                            decimal_digits="3"
+                            follows="left|top"
+                            height="14"
+                            increment="0.001"
+                            initial_value="0"
+                            layout="topleft"
+                            min_val="0"
+                            max_val="1"
+                            name="moisture_level"
+                            width="207"
+                            can_edit_text="true"/>
+                    <text
+                            follows="left|top"
+                            height="10"
+                            layout="topleft"
+                            left_delta="-5"
+                            top_delta="25"
+                            width="80">
+                        Droplet Radius:
+                    </text>
+                    <slider
+                            decimal_digits="2"
+                            follows="left|top"
+                            height="14"
+                            increment="0.01"
+                            initial_value="0"
+                            layout="topleft"
+                            min_val="5.0"
+                            max_val="1000.0"
+                            name="droplet_radius"
+                            width="207"
+                            can_edit_text="true"/>
+                    <text
+                            follows="left|top"
+                            height="10"
+                            layout="topleft"
+                            left_delta="-5"
+                            top_delta="25"
+                            width="80">
+                        Ice Level:
+                    </text>
+                    <slider
+                            decimal_digits="1"
+                            follows="left|top"
+                            height="14"
+                            increment="0.1"
+                            initial_value="0"
+                            layout="topleft"
+                            min_val="0"
+                            max_val="1"
+                            name="ice_level"
+                            width="207"
+                            can_edit_text="true"/>
+                    <text
+                            follows="left|top"
+                            height="10"
+                            layout="topleft"
+                            left_delta="-5"
+                            top_delta="25"
+                            width="80">
                         Scene Gamma:
                     </text>
                     <slider
