@@ -11,33 +11,40 @@
   <string
      name="message_max_lines_count"
      value="14" />
+  <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel
-     bevel_style="none"
-     follows="all"
-     height="120"
-     label="info_panel"
-     layout="topleft"
-     left="0"
-     name="info_panel"
-     top="0"
-     width="305">
-    <text
-     follows="all"
-     font="SansSerif"
-     height="110" 
-     layout="topleft"
-     left="10"
-     mouse_opaque="false"
-     name="text_editor_box"
-     read_only="true"
-     text_color="white"
-     text_readonly_color="white"
-     top="0"
-     width="285"
-     wrap="true"
-     parse_highlights="true"
-     parse_urls="true"/>
-  </panel> 
+      bevel_style="none"
+      follows="all"
+      height="120"
+      label="info_panel"
+      layout="topleft"
+      left="0"
+      name="info_panel"
+      top="0"
+      width="305">
+    <text_editor
+      bg_readonly_color="Transparent"
+      border_visible="false"
+      embedded_items="false"
+      enabled="true"
+      follows="all"
+      font="SansSerif"
+      height="120" 
+      layout="topleft"
+      left="10"
+      mouse_opaque="false"
+      name="text_editor_box"
+      read_only="true"
+      tab_stop="false"
+      text_color="White"
+      text_readonly_color="White"
+      top="0"
+      visible="true"
+      width="285"
+      wrap="true"
+      parse_highlights="true"
+      parse_urls="true"/>
+  </panel>
   <panel
      bevel_style="none"
      follows="left|right|bottom"
