@@ -102,7 +102,7 @@
                     background_visible="true"
                     bg_alpha_color="DkGray2"
                     border="true">
-                <inventory_panel
+                <asset_filtered_inv_panel
                        left="0"
                        top="0"
                        right="-1"
@@ -110,7 +110,8 @@
                        allow_multi_select="false"
                        follows="all"
                        layout="topleft"
-                       name="pnl_settings"/>
+                       name="pnl_settings"
+                       filter_asset_type="settings"/>
             </panel>
         </layout_panel>
         <layout_panel
