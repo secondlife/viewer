@@ -4943,22 +4943,52 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 	left *= mImpostorDim.mV[0];
 	up *= mImpostorDim.mV[1];
 
-	LLGLEnable test(GL_ALPHA_TEST);
-	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_IMPOSTORS))
+	{
+		LLGLEnable blend(GL_BLEND);
+		gGL.setSceneBlendType(LLRender::BT_ADD);
+		gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 
-	gGL.color4ubv(color.mV);
-	gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
-	gGL.begin(LLRender::QUADS);
-	gGL.texCoord2f(0,0);
-	gGL.vertex3fv((pos+left-up).mV);
-	gGL.texCoord2f(1,0);
-	gGL.vertex3fv((pos-left-up).mV);
-	gGL.texCoord2f(1,1);
-	gGL.vertex3fv((pos-left+up).mV);
-	gGL.texCoord2f(0,1);
-	gGL.vertex3fv((pos+left+up).mV);
-	gGL.end();
-	gGL.flush();
+		// gGL.begin(LLRender::QUADS);
+		// gGL.vertex3fv((pos+left-up).mV);
+		// gGL.vertex3fv((pos-left-up).mV);
+		// gGL.vertex3fv((pos-left+up).mV);
+		// gGL.vertex3fv((pos+left+up).mV);
+		// gGL.end();
+
+
+		gGL.begin(LLRender::LINES); 
+		gGL.color4f(1.f,1.f,1.f,1.f);
+		glLineWidth(2.f);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.end();
+		gGL.flush();
+	}
+	{
+		LLGLEnable test(GL_ALPHA_TEST);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
+
+		gGL.color4ubv(color.mV);
+		gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
+		gGL.begin(LLRender::QUADS);
+		gGL.texCoord2f(0,0);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.texCoord2f(1,0);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.texCoord2f(1,1);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.texCoord2f(0,1);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.end();
+		gGL.flush();
+	}
 
 	return 6;
 }
