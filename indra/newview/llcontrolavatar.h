@@ -73,7 +73,9 @@ public:
 
     virtual std::string getFullname() const;
 
-    /* virtual */ bool shouldRenderRigged() const;
+    virtual bool shouldRenderRigged() const;
+
+	virtual BOOL isImpostor(); 
     
     bool mPlaying;
 

@@ -590,3 +590,18 @@ bool LLControlAvatar::shouldRenderRigged() const
     }
     return true;
 }
+
+// virtual
+BOOL LLControlAvatar::isImpostor()
+{
+    if (mRootVolp && mRootVolp->isAttachment())
+    {
+		// Attached animated objects should match state of their attached av.
+        LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
+		if (attached_av)
+		{
+			return attached_av->isImpostor();
+		}
+    }
+	return LLVOAvatar::isImpostor();
+}

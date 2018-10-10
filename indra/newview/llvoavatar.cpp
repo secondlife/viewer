@@ -9721,6 +9721,7 @@ void LLVOAvatar::updateImpostors()
 	LLCharacter::sAllowInstancesChange = TRUE;
 }
 
+// virtual
 BOOL LLVOAvatar::isImpostor()
 {
 	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
