@@ -718,11 +718,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		bool		identical_color	= false;
 
 		if(mColorSwatch)
-			{
+		{
 			LLSelectedTE::getColor(color, identical_color);
+			LLColor4 prev_color = mColorSwatch->get();
 
 			mColorSwatch->setOriginal(color);
-			mColorSwatch->set(color, TRUE);
+			mColorSwatch->set(color, force_set_values || (prev_color != color) || !editable);
 
 			mColorSwatch->setValid(editable);
 			mColorSwatch->setEnabled( editable );
@@ -1318,8 +1319,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				//
 				if (!material->getSpecularID().isNull())
 				{
-					getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(material->getSpecularLightColor());
-					getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
+					LLColorSwatchCtrl*	shiny_swatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
+					LLColor4 new_color = material->getSpecularLightColor();
+					LLColor4 old_color = shiny_swatch->get();
+
+					shiny_swatch->setOriginal(new_color);
+					shiny_swatch->set(new_color, force_set_values || old_color != new_color || !editable);
 				}
 
 				// Bumpy (normal)
