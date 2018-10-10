@@ -61,6 +61,8 @@
 #include "llcorehttputil.h"
 #include "llhttpretrypolicy.h"
 
+#include "llfile.h"
+
 LLTrace::CountStatHandle<F64> LLTextureFetch::sCacheHit("texture_cache_hit");
 LLTrace::CountStatHandle<F64> LLTextureFetch::sCacheAttempt("texture_cache_attempt");
 

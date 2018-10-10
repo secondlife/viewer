@@ -174,6 +174,13 @@ class LL_COMMON_API llofstream	:	public	std::ofstream
               ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 };
 
+#else // ! LL_WINDOWS
+
+// on non-windows, llifstream and llofstream are just mapped directly to the std:: equivalents
+typedef std::ifstream llifstream;
+typedef std::ofstream llofstream;
+
+#endif // LL_WINDOWS or ! LL_WINDOWS
 
 /**
  * @breif filesize helpers.
@@ -184,13 +191,5 @@ class LL_COMMON_API llofstream	:	public	std::ofstream
  */
 std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
 std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
-
-#else // ! LL_WINDOWS
-
-// on non-windows, llifstream and llofstream are just mapped directly to the std:: equivalents
-typedef std::ifstream llifstream;
-typedef std::ofstream llofstream;
-
-#endif // LL_WINDOWS or ! LL_WINDOWS
 
 #endif // not LL_LLFILE_H
