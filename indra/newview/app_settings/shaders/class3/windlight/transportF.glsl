@@ -30,8 +30,6 @@
 vec3 getAdditiveColor();
 vec3 getAtmosAttenuation();
 
-uniform sampler2D cloudMap;
-uniform vec4 cloud_pos_density1;
 uniform int no_atmo;
 
 vec3 atmosFragTransport(vec3 light, vec3 atten, vec3 additive) {
