@@ -259,7 +259,6 @@ namespace
 
 static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER      = 256;  // Maximum requests to have active in HTTP (pipelined)
 static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER   = 64;
-static const S32 MAX_HTTP_WAITER_COUNT              = 8;
 
 // BUG-3323/SH-4375
 // *NOTE:  This is a heuristic value.  Texture fetches have a habit of using a
