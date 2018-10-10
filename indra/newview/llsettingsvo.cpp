@@ -791,7 +791,7 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
     LLSD legacy(LLSD::emptyMap());
     LLSD settings = pwater->getSettings();
 
-    legacy[SETTING_LEGACY_BLUR_MULTIPILER] = settings[SETTING_BLUR_MULTIPILER];
+    legacy[SETTING_LEGACY_BLUR_MULTIPLIER] = settings[SETTING_BLUR_MULTIPLIER];
     legacy[SETTING_LEGACY_FOG_COLOR] = ensure_array_4(settings[SETTING_FOG_COLOR], 1.0f);
     legacy[SETTING_LEGACY_FOG_DENSITY] = settings[SETTING_FOG_DENSITY];
     legacy[SETTING_LEGACY_FOG_MOD] = settings[SETTING_FOG_MOD];

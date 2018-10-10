@@ -481,8 +481,10 @@ void LLPanelSettingsSkySunMoonTab::refresh()
 
     LLColor3 glow(mSkySettings->getGlow());
     
+    // takes 40 - 0.2 range -> 0 - 1.99 UI range
     getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setValue(2.0 - (glow.mV[0] / SLIDER_SCALE_GLOW_R));
     getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setValue(glow.mV[2] / SLIDER_SCALE_GLOW_B);
+
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setValue(mSkySettings->getStarBrightness());
     getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->setRotation(mSkySettings->getSunRotation());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setValue(mSkySettings->getSunTextureId());
@@ -509,6 +511,7 @@ void LLPanelSettingsSkySunMoonTab::onGlowChanged()
 {
     LLColor3 glow(getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal(), 0.0f, getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal());
 
+    // takes 0 - 1.99 UI range -> 40 -> 0.2 range
     glow.mV[0] = (2.0f - glow.mV[0]) * SLIDER_SCALE_GLOW_R; 
     glow.mV[2] *= SLIDER_SCALE_GLOW_B;
 

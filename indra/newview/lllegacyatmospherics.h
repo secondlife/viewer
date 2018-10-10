@@ -218,6 +218,7 @@ public:
     F32       haze_density;
     F32       haze_horizon;
     F32       density_multiplier;
+    F32       distance_multiplier;
     F32       max_y;
     LLVector4 sun_norm;
     LLColor3  sunlight;
