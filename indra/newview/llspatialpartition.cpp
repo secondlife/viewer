@@ -2178,9 +2178,14 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 						{
 							bool has_pos_constraint = (cav->mPositionConstraintFixup != LLVector3());
 							bool has_scale_constraint = (cav->mScaleConstraintFixup != 1.0f);
-							F32 r = 0.5 + 0.5 * has_scale_constraint;
-							F32 g = 0.5 + 0.5 * has_pos_constraint;
-							gGL.diffuseColor4f(r,g,0,1); 
+							if (has_pos_constraint || has_scale_constraint)
+							{
+								gGL.diffuseColor4f(1,0,0,1); 
+							}
+							else
+							{
+								gGL.diffuseColor4f(0,1,0.5,1); 
+							}
 						}
 						else
 						{
