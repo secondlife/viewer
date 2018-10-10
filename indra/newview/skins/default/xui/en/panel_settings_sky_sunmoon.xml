@@ -285,7 +285,7 @@
                             max_val="1.0"
                             name="moon_brightness"
                             top_delta="15"
-                            width="250"
+                            width="130"
                             can_edit_text="true"/>
                 </layout_panel>
             </layout_stack>
