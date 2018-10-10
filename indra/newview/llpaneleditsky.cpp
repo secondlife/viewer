@@ -317,7 +317,7 @@ void LLPanelSettingsSkyCloudTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setValue(cloudDensity[1]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->setValue(cloudDensity[2]);
 
-    LLVector3 cloudDetail(mSkySettings->getCloudPosDensity1().getValue());
+    LLVector3 cloudDetail(mSkySettings->getCloudPosDensity2().getValue());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_X)->setValue(cloudDetail[0]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_Y)->setValue(cloudDetail[1]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_D)->setValue(cloudDetail[2]);
