@@ -42,8 +42,3 @@ vec3 scaleDownLightFrag(vec3 light)
 	return (light / scene_light_strength );
 }
 
-vec3 scaleUpLightFrag(vec3 light)
-{
-	return (light * scene_light_strength);
-}
-

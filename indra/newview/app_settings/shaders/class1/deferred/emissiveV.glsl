@@ -36,9 +36,6 @@ void calcAtmospherics(vec3 inPositionEye);
 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
-vec3 scaleUpLight(vec3 light);
-
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
