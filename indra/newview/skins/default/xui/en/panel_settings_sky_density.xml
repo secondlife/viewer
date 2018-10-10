@@ -269,55 +269,5 @@
                     label_width="160"
                     can_edit_text="true"/>
         </layout_panel>
-        <layout_panel
-                border="true"
-                bevel_style="in"
-                auto_resize="true"
-                user_resize="false"
-                visible="true"
-                height="14">
-             <slider
-                    decimal_digits="3"
-                    follows="left|top"
-                    height="14"
-                    increment="0.001"
-                    initial_value="0"
-                    layout="topleft"
-                    min_val="0"
-                    max_val="1"
-                    name="moisture_level"
-                    label="Moisture Level:"
-                    width="400"
-                    label_width="160"
-                    can_edit_text="true"/>
-            <slider
-                    decimal_digits="2"
-                    follows="left|top"
-                    height="14"
-                    increment="0.01"
-                    initial_value="0"
-                    layout="topleft"
-                    min_val="5.0"
-                    max_val="1000.0"
-                    name="droplet_radius"
-                    label="Droplet Radius:"
-                    width="400"
-                    label_width="160"
-                    can_edit_text="true"/>
-            <slider
-                    decimal_digits="1"
-                    follows="left|top"
-                    height="14"
-                    increment="0.1"
-                    initial_value="0"
-                    layout="topleft"
-                    min_val="0"
-                    max_val="1"
-                    name="ice_level"
-                    label="Ice Level:"
-                    width="400"
-                    label_width="160"
-                    can_edit_text="true"/>
-        </layout_panel>
     </layout_stack>
 </panel> 

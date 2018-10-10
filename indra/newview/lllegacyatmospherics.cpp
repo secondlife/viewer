@@ -264,6 +264,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
     F32         haze_horizon = vars.haze_horizon;
     F32         haze_density = vars.haze_density;
     F32         density_multiplier = vars.density_multiplier;
+    //F32         distance_multiplier = vars.distance_multiplier;
     F32         max_y = vars.max_y;
     LLVector4   sun_norm = vars.sun_norm;
 
@@ -323,7 +324,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	temp2.mV[2] = Plen * density_multiplier;
 
 	// Transparency (-> temp1)
-	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
+	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);// * distance_multiplier);
 
 
 	// Compute haze glow
@@ -510,6 +511,7 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.haze_density = psky->getHazeDensity();
     vars.haze_horizon = psky->getHazeHorizon();
     vars.density_multiplier = psky->getDensityMultiplier();
+    vars.distance_multiplier = psky->getDistanceMultiplier();
     vars.max_y = psky->getMaxY();
     vars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
     vars.sunlight = psky->getSunlightColor();

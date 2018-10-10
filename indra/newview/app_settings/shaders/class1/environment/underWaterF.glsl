@@ -47,7 +47,6 @@ uniform float kd;
 uniform vec4 waterPlane;
 uniform vec3 eyeVec;
 uniform vec4 waterFogColor;
-uniform float waterFogDensity;
 uniform float waterFogKS;
 uniform vec2 screenRes;
 

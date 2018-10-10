@@ -33,7 +33,7 @@
 class LLSettingsWater : public LLSettingsBase
 {
 public:
-    static const std::string SETTING_BLUR_MULTIPILER;
+    static const std::string SETTING_BLUR_MULTIPLIER;
     static const std::string SETTING_FOG_COLOR;
     static const std::string SETTING_FOG_DENSITY;
     static const std::string SETTING_FOG_MOD;
@@ -71,12 +71,12 @@ public:
     //---------------------------------------------------------------------
     F32 getBlurMultiplier() const
     {   
-        return mSettings[SETTING_BLUR_MULTIPILER].asReal();
+        return mSettings[SETTING_BLUR_MULTIPLIER].asReal();
     }
 
     void setBlurMultiplier(F32 val)
     {
-        setValue(SETTING_BLUR_MULTIPILER, val);
+        setValue(SETTING_BLUR_MULTIPLIER, val);
     }
 
     LLColor3 getWaterFogColor() const
@@ -223,7 +223,7 @@ public:
     static LLUUID GetDefaultOpaqueTextureAssetId();
 
 protected:
-    static const std::string SETTING_LEGACY_BLUR_MULTIPILER;
+    static const std::string SETTING_LEGACY_BLUR_MULTIPLIER;
     static const std::string SETTING_LEGACY_FOG_COLOR;
     static const std::string SETTING_LEGACY_FOG_DENSITY;
     static const std::string SETTING_LEGACY_FOG_MOD;
