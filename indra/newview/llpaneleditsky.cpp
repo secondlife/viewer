@@ -297,7 +297,6 @@ BOOL LLPanelSettingsSkyCloudTab::postBuild()
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(TRUE);
-    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowLocalTexture(FALSE);
 
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudDensityChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudDensityChanged(); });
@@ -353,7 +352,7 @@ void LLPanelSettingsSkyCloudTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setValue(cloudDensity[1]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->setValue(cloudDensity[2]);
 
-    LLVector3 cloudDetail(mSkySettings->getCloudPosDensity1().getValue());
+    LLVector3 cloudDetail(mSkySettings->getCloudPosDensity2().getValue());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_X)->setValue(cloudDetail[0]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_Y)->setValue(cloudDetail[1]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_D)->setValue(cloudDetail[2]);
@@ -395,7 +394,8 @@ void LLPanelSettingsSkyCloudTab::onCloudScrollChanged()
 
 void LLPanelSettingsSkyCloudTab::onCloudMapChanged()
 {
-    mSkySettings->setCloudNoiseTextureId(getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->getValue().asUUID());
+    LLTextureCtrl* ctrl = getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP);
+    mSkySettings->setCloudNoiseTextureId(ctrl->getValue().asUUID());
     setIsDirty();
 }
 
@@ -438,13 +438,11 @@ BOOL LLPanelSettingsSkySunMoonTab::postBuild()
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setBlankImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setDefaultImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setAllowNoTexture(TRUE);
-    getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setAllowLocalTexture(FALSE);
     getChild<LLUICtrl>(FIELD_SKY_MOON_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonRotationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_IMAGE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonImageChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setDefaultImageAssetID(LLSettingsSky::GetDefaultMoonTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setBlankImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowNoTexture(TRUE);
-    getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowLocalTexture(FALSE);
     getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonScaleChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonBrightnessChanged(); });
 

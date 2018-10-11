@@ -988,7 +988,6 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryO
 				 ++item_iter)
 			{
 				const LLViewerInventoryItem* item = (*item_iter);
-                if (item->getType() == LLAssetType::AT_SETTINGS)
 				buildNewViews(item->getUUID());
 			}
 		}
@@ -1769,8 +1768,8 @@ public:
     ~LLAssetFilteredInventoryPanel() {}
 
 protected:
-    /*virtual*/ LLFolderViewItem*	buildNewViews(const LLUUID& id);
-    /*virtual*/ void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item);
+    /*virtual*/ LLFolderViewItem*	buildNewViews(const LLUUID& id) override;
+    /*virtual*/ void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
 
 private:
     LLAssetType::EType mAssetType;
@@ -1785,11 +1784,10 @@ void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
     filter_cats &= ~(1ULL << LLFolderType::FT_TRASH);
     filter_cats &= ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS);
     getFilter().setFilterCategoryTypes(filter_cats);
-    // turn off marketplace for recent items
     getFilter().setFilterNoMarketplaceFolder();
 }
 
-LLFolderViewItem*	LLAssetFilteredInventoryPanel::buildNewViews(const LLUUID& id)
+LLFolderViewItem* LLAssetFilteredInventoryPanel::buildNewViews(const LLUUID& id)
 {
     LLInventoryObject const* objectp = gInventory.getObject(id);
 
@@ -1806,7 +1804,7 @@ LLFolderViewItem*	LLAssetFilteredInventoryPanel::buildNewViews(const LLUUID& id)
     return LLInventoryPanel::buildNewViews(id, objectp);
 }
 
-void	LLAssetFilteredInventoryPanel::itemChanged(const LLUUID& id, U32 mask, const LLInventoryObject* model_item)
+void LLAssetFilteredInventoryPanel::itemChanged(const LLUUID& id, U32 mask, const LLInventoryObject* model_item)
 {
     if (!model_item)
     {
