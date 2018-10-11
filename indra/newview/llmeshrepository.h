@@ -535,13 +535,6 @@ private:
 
     // Estimated triangle counts derived from the LOD sizes. LOD 0=lowest, 3=highest.
     std::vector<F32> mEstTrisByLOD;
-
-    // Estimated triangle counts for the largest LOD. Typically this
-    // is also the "high" LOD, but not necessarily.
-    F32 mEstTrisMax;
-
-    // Sum of all LOD sizes.
-    S32 mSizeTotal;
 };
 
 class LLMeshRepository

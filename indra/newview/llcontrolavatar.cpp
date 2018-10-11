@@ -124,6 +124,10 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 			{
 				LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
 										   << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
+				LL_DEBUGS("ConstraintFix") << "vol_pos " << vol_pos << LL_ENDL;
+				LL_DEBUGS("ConstraintFix") << "extents " << extents[0] << " " << extents[1] << LL_ENDL;
+				LL_DEBUGS("ConstraintFix") << "unshift_extents " << unshift_extents[0] << " " << unshift_extents[1] << LL_ENDL;
+				
 			}
 		}
         if (box_size/mScaleConstraintFixup > max_legal_size)
