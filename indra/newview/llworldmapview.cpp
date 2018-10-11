@@ -177,7 +177,7 @@ LLWorldMapView::LLWorldMapView()
 	mMouseDownY( 0 ),
 	mSelectIDStart(0)
 {
-	//LL_INFOS("World Map") << "Creating the Map -> LLWorldMapView::LLWorldMapView()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << "Creating the Map -> LLWorldMapView::LLWorldMapView()" << LL_ENDL;
 
 	clearLastClick();
 }
@@ -217,7 +217,7 @@ BOOL LLWorldMapView::postBuild()
 
 LLWorldMapView::~LLWorldMapView()
 {
-	//LL_INFOS("World Map") << "Destroying the map -> LLWorldMapView::~LLWorldMapView()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << "Destroying the map -> LLWorldMapView::~LLWorldMapView()" << LL_ENDL;
 	cleanupTextures();
 }
 
@@ -616,7 +616,7 @@ void LLWorldMapView::drawMipmap(S32 width, S32 height)
 	}
 	else
 	{
-		//LL_INFOS("World Map") << "Render complete, don't draw background..." << LL_ENDL;
+		//LL_INFOS("WorldMap") << "Render complete, don't draw background..." << LL_ENDL;
 	}
 
 	// Render the current level
@@ -705,7 +705,7 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
 				//else
 				//{
 				//	Waiting for a tile -> the level is not complete
-				//	LL_INFOS("World Map") << "Unfetched tile. level = " << level << LL_ENDL;
+				//	LL_INFOS("WorldMap") << "Unfetched tile. level = " << level << LL_ENDL;
 				//}
 			}
 			else
@@ -1668,7 +1668,7 @@ void LLWorldMapView::updateVisibleBlocks()
 	S32 world_bottom = world_center_y - S32(half_height / sMapScale) - 1;
 	S32 world_top    = world_center_y + S32(half_height / sMapScale) + 1;
 
-	//LL_INFOS("World Map") << "LLWorldMapView::updateVisibleBlocks() : sMapScale = " << sMapScale << ", left = " << world_left << ", right = " << world_right << ", bottom  = " << world_bottom << ", top = " << world_top << LL_ENDL;
+	//LL_INFOS("WorldMap") << "LLWorldMapView::updateVisibleBlocks() : sMapScale = " << sMapScale << ", left = " << world_left << ", right = " << world_right << ", bottom  = " << world_bottom << ", top = " << world_top << LL_ENDL;
 	LLWorldMap::getInstance()->updateRegions(world_left, world_bottom, world_right, world_top);
 }
 

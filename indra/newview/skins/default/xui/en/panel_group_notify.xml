@@ -43,6 +43,7 @@
          layout="topleft"
          left_pad="10"
          name="title"
+         parse_urls="false"
          text_color="GroupNotifyTextColor"
          top="5"
          use_ellipses="true"
