@@ -135,6 +135,7 @@ std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 
 const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 const U32 MAX_INV_FILE_READ_FAILS = 25;
+const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
@@ -1132,7 +1133,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	// Use getPosition, not getPositionRegion, since this is what we're comparing directly against.
 	LLVector3 test_pos_parent = getPosition();
 
-	U8  data[60+16]; // This needs to match the largest size below.
+	// This needs to match the largest size below. See switch(length)
+	U8  data[MAX_OBJECT_BINARY_DATA_SIZE]; 
+
 #ifdef LL_BIG_ENDIAN
 	U16 valswizzle[4];
 #endif
@@ -1199,7 +1202,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				mesgsys->getU8Fast(  _PREHASH_ObjectData, _PREHASH_ClickAction, click_action, block_num); 
 				mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_Scale, new_scale, block_num );
 				length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
-				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num);
+				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
 
 				mTotalCRC = crc;
 
@@ -1507,7 +1510,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				LL_INFOS() << "TI:" << getID() << LL_ENDL;
 #endif
 				length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
-				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num);
+				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
 				count = 0;
 				LLVector4 collision_plane;
 				
