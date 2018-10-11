@@ -82,11 +82,14 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
     {
         max_legal_offset = gSavedSettings.getF32("AnimatedObjectsMaxLegalOffset");
     }
+	max_legal_offset = llmax(max_legal_offset,0.f);
+
     F32 max_legal_size = MAX_LEGAL_SIZE;
     if (gSavedSettings.getControl("AnimatedObjectsMaxLegalSize"))
     {
         max_legal_size = gSavedSettings.getF32("AnimatedObjectsMaxLegalSize");
     }
+	max_legal_size = llmax(max_legal_size, 1.f);
     
     new_pos_fixup = LLVector3();
     new_scale_fixup = 1.0f;
@@ -112,10 +115,13 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 		{
 			LLVector3 pos_box_offset = point_to_box_offset(vol_pos, unshift_extents);
 			F32 offset_dist = pos_box_offset.length();
-			if (offset_dist > max_legal_offset || mPositionConstraintFixup != LLVector3())
+			if (offset_dist > max_legal_offset && offset_dist > 0.f)
 			{
 				F32 target_dist = (offset_dist - max_legal_offset);
 				new_pos_fixup = (target_dist/offset_dist)*pos_box_offset;
+			}
+			if (new_pos_fixup != mPositionConstraintFixup)
+			{
 				LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
 										   << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
 			}
@@ -418,9 +424,9 @@ void LLControlAvatar::updateDebugText()
                 type_string += "-";
             }
         }
-        addDebugText(llformat("CAV obj %d anim %d active %s impost %d strcst %f",
+        addDebugText(llformat("CAV obj %d anim %d active %s impost %d upprd %d strcst %f",
                               total_linkset_count, animated_volume_count, 
-                              active_string.c_str(), (S32) isImpostor(), streaming_cost));
+                              active_string.c_str(), (S32) isImpostor(), getUpdatePeriod(), streaming_cost));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
         addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
