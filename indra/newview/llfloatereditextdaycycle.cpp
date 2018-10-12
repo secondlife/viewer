@@ -1600,8 +1600,6 @@ void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id)
     LLViewerInventoryItem *itemp = gInventory.getItem(item_id);
     if (itemp)
     {
-        mInventoryId = item_id;
-        mInventoryItem = itemp;
         LLSettingsVOBase::getSettingsAsset(itemp->getAssetUUID(),
             [this, track, frame, item_id](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoadedForFrame(item_id, asset_id, settings, status, track, frame); });
     }

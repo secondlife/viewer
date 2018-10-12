@@ -232,7 +232,7 @@ void LLPanelEnvironmentInfo::refresh()
     F32Hours daylength(mCurrentEnvironment->mDayLength);
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
-    if (dayoffset.value() > 8.0f)
+    if (dayoffset.value() > 12.0f)
         dayoffset -= F32Hours(24.0);
 
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
