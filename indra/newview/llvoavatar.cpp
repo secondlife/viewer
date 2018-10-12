@@ -1295,7 +1295,7 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_EXTENT_UPDATE("Avatar Update Extent");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_EXTENT_UPDATE("Av Upd Extent");
 
 void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
@@ -9647,30 +9647,44 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
     }
 }
 
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_INFO_UPDATE("Av Upd Rig Info");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_KEY_UPDATE("Av Upd Rig Key");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_AVOL_UPDATE("Av Upd Avol");
+
 // virtual
 void LLVOAvatar::updateRiggingInfo()
 {
-    LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
-    std::vector<LLVOVolume*> volumes;
-    getAssociatedVolumes(volumes);
+    LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_INFO_UPDATE);
 
-	// Get current rigging info key
-	std::map<LLUUID,S32> curr_rigging_info_key;
-    for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
-    {
-        LLVOVolume *vol = *it;
-		if (vol->isMesh() && vol->getVolume())
-		{
-			const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
-			S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
-			curr_rigging_info_key[mesh_id] = max_lod;
-		}
+    LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
+
+    std::vector<LLVOVolume*> volumes;
+
+	{
+		LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_AVOL_UPDATE);
+		getAssociatedVolumes(volumes);
 	}
 
-	// Check for key change, which indicates some change in volume composition or LOD.
-	if (curr_rigging_info_key == mLastRiggingInfoKey)
+	std::map<LLUUID,S32> curr_rigging_info_key;
 	{
-		return;
+		LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_KEY_UPDATE);
+		// Get current rigging info key
+		for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+		{
+			LLVOVolume *vol = *it;
+			if (vol->isMesh() && vol->getVolume())
+			{
+				const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
+				S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
+				curr_rigging_info_key[mesh_id] = max_lod;
+			}
+		}
+		
+		// Check for key change, which indicates some change in volume composition or LOD.
+		if (curr_rigging_info_key == mLastRiggingInfoKey)
+		{
+			return;
+		}
 	}
 
 	// Something changed. Update.
