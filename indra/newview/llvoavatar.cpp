@@ -1110,6 +1110,8 @@ void LLVOAvatar::initClass()
 
     // Where should this be set initially?
     LLJoint::setDebugJointNames(gSavedSettings.getString("DebugAvatarJoints"));
+
+	LLControlAvatar::sRegionChangedSlot = gAgent.addRegionChangedCallback(&LLControlAvatar::onRegionChanged);
 }
 
 

@@ -90,7 +90,10 @@ public:
 
     static const F32 MAX_LEGAL_OFFSET;
     static const F32 MAX_LEGAL_SIZE;
-    
+
+	static void onRegionChanged();
+	bool mRegionChanged;
+	static boost::signals2::connection sRegionChangedSlot;
 };
 
 typedef std::map<LLUUID, S32> signaled_animation_map_t;

@@ -40,13 +40,17 @@
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
 const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
 
+//static
+boost::signals2::connection LLControlAvatar::sRegionChangedSlot;
+
 LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp),
     mPlaying(false),
     mGlobalScale(1.0f),
     mMarkedForDeath(false),
     mRootVolp(NULL),
-    mScaleConstraintFixup(1.0)
+    mScaleConstraintFixup(1.0),
+	mRegionChanged(false)
 {
     mIsDummy = TRUE;
     mIsControlAvatar = true;
@@ -146,7 +150,16 @@ void LLControlAvatar::matchVolumeTransform()
     {
 		LLVector3 new_pos_fixup;
 		F32 new_scale_fixup;
-		getNewConstraintFixups(new_pos_fixup, new_scale_fixup);
+		if (mRegionChanged)
+		{
+			new_scale_fixup = mScaleConstraintFixup;
+			new_pos_fixup = mPositionConstraintFixup;
+			mRegionChanged = false;
+		}
+		else
+		{
+			getNewConstraintFixups(new_pos_fixup, new_scale_fixup);
+		}
 		mPositionConstraintFixup = new_pos_fixup;
 		mScaleConstraintFixup = new_scale_fixup;
 
@@ -614,4 +627,16 @@ BOOL LLControlAvatar::isImpostor()
 		}
     }
 	return LLVOAvatar::isImpostor();
+}
+
+//static
+void LLControlAvatar::onRegionChanged()
+{
+	std::vector<LLCharacter*>::iterator it = LLCharacter::sInstances.begin();
+	for ( ; it != LLCharacter::sInstances.end(); ++it)
+	{
+		LLControlAvatar* cav = dynamic_cast<LLControlAvatar*>(*it);
+		if (!cav) continue;
+		cav->mRegionChanged = true;
+	}
 }
