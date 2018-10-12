@@ -48,6 +48,7 @@
 #include "llsidepanelinventory.h"
 #include "llstartup.h"
 #include "lltrans.h"
+#include "llviewerassettype.h"
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
@@ -1762,10 +1763,16 @@ public:
 
     void initFromParams(const Params& p);
 protected:
-    LLAssetFilteredInventoryPanel(const Params& p) : LLInventoryPanel(p) { mAcceptsDragAndDrop = false; }
+    LLAssetFilteredInventoryPanel(const Params& p) : LLInventoryPanel(p) {}
     friend class LLUICtrlFactory;
 public:
     ~LLAssetFilteredInventoryPanel() {}
+
+    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+                                       EDragAndDropType cargo_type,
+                                       void* cargo_data,
+                                       EAcceptance* accept,
+                                       std::string& tooltip_msg) override;
 
 protected:
     /*virtual*/ LLFolderViewItem*	buildNewViews(const LLUUID& id) override;
@@ -1784,6 +1791,28 @@ void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
     filter_cats &= ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS);
     getFilter().setFilterCategoryTypes(filter_cats);
     getFilter().setFilterNoMarketplaceFolder();
+}
+
+BOOL LLAssetFilteredInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    EDragAndDropType cargo_type,
+    void* cargo_data,
+    EAcceptance* accept,
+    std::string& tooltip_msg)
+{
+    BOOL result = FALSE;
+
+    if (mAcceptsDragAndDrop)
+    {
+        EDragAndDropType allow_type = LLViewerAssetType::lookupDragAndDropType(mAssetType);
+        // Don't allow DAD_CATEGORY here since it can contain other items besides required assets
+        // We should see everything we drop!
+        if (allow_type == cargo_type)
+        {
+            result = LLInventoryPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+        }
+    }
+
+    return result;
 }
 
 LLFolderViewItem* LLAssetFilteredInventoryPanel::buildNewViews(const LLUUID& id)
