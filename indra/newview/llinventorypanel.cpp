@@ -1781,7 +1781,6 @@ void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
     mAssetType = LLAssetType::lookup(p.filter_asset_type.getValue());
     LLInventoryPanel::initFromParams(p);
     U64 filter_cats = getFilter().getFilterCategoryTypes();
-    filter_cats &= ~(1ULL << LLFolderType::FT_TRASH);
     filter_cats &= ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS);
     getFilter().setFilterCategoryTypes(filter_cats);
     getFilter().setFilterNoMarketplaceFolder();
@@ -1806,12 +1805,15 @@ LLFolderViewItem* LLAssetFilteredInventoryPanel::buildNewViews(const LLUUID& id)
 
 void LLAssetFilteredInventoryPanel::itemChanged(const LLUUID& id, U32 mask, const LLInventoryObject* model_item)
 {
-    if (!model_item)
+    if (!model_item && !getItemByID(id))
     {
+        // remove operation, but item is not in panel already
         return;
     }
 
-    if (model_item->getType() != mAssetType && model_item->getType() != LLAssetType::AT_CATEGORY)
+    if (model_item
+        && model_item->getType() != mAssetType
+        && model_item->getType() != LLAssetType::AT_CATEGORY)
     {
         return;
     }
