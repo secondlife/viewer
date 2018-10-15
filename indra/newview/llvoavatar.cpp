@@ -1271,8 +1271,18 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
         calculateSpatialExtents(newMin,newMax);
         mLastAnimExtents[0].set(newMin.getF32ptr());
         mLastAnimExtents[1].set(newMax.getF32ptr());
+		mLastAnimBasePos = mPelvisp->getWorldPosition();
         mNeedsExtentUpdate = false;
     }
+	else
+	{
+		LLVector3 new_base_pos = mPelvisp->getWorldPosition();
+		LLVector3 shift = new_base_pos-mLastAnimBasePos;
+		mLastAnimExtents[0] += shift;
+		mLastAnimExtents[1] += shift;
+		mLastAnimBasePos = new_base_pos;
+
+	}
           
 	if (isImpostor() && !needsImpostorUpdate())
 	{
@@ -2443,7 +2453,16 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	}
 
     // Update should be happening max once per frame.
-    mNeedsExtentUpdate = true;
+	const S32 upd_freq = 4; // force update every upd_freq frames.
+	if ((mLastAnimExtents[0]==LLVector3())||
+		(mLastAnimExtents[1])==LLVector3())
+	{
+		mNeedsExtentUpdate = true;
+	}
+	else
+	{
+		mNeedsExtentUpdate = ((LLDrawable::getCurrentFrame()+mID.mData[0])%upd_freq==0);
+	}
     
     LLScopedContextString str("avatar_idle_update " + getFullname());
     
