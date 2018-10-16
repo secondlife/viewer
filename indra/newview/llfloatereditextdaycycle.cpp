@@ -1531,6 +1531,7 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
     self->mSkyBlender->setPosition(new_frame);
     self->mWaterBlender->setPosition(new_frame);
     self->synchronizeTabs();
+    self->updateTimeAndLabel();
 
 }
 
