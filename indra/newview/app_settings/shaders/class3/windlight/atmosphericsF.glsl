@@ -26,9 +26,7 @@
 vec3 getAdditiveColor();
 vec3 getAtmosAttenuation();
 
-uniform sampler2D cloudMap;
 uniform vec4 gamma;
-uniform vec4 cloud_pos_density1;
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 ambient;
