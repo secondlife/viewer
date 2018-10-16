@@ -26,6 +26,8 @@
 
 #import "llappdelegate-objc.h"
 #if defined(LL_BUGSPLAT)
+#include <boost/filesystem.hpp>
+#include <vector>
 @import BugsplatMac;
 // derived from BugsplatMac's BugsplatTester/AppDelegate.m
 @interface LLAppDelegate () <BugsplatStartupManagerDelegate>
@@ -271,25 +273,59 @@
     infos("bugsplatStartupManagerWillSendCrashReport");
 }
 
-- (BugsplatAttachment *)attachmentForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    std::string logfile = CrashMetadata_instance().logFilePathname;
-    // Still to do:
-    // userSettingsPathname
-    // staticDebugPathname
-    // but the BugsplatMac version 1.0.5 BugsplatStartupManagerDelegate API
-    // doesn't yet provide a way to attach more than one file.
-    NSString *ns_logfile = [NSString stringWithCString:logfile.c_str()
-                                              encoding:NSUTF8StringEncoding];
-    NSData *data = [NSData dataWithContentsOfFile:ns_logfile];
+struct AttachmentInfo
+{
+    AttachmentInfo(const std::string& path, const std::string& type):
+        pathname(path),
+        basename(boost::filesystem::path(path).filename().string()),
+        mimetype(type)
+    {}
 
-    // Apologies for the hard-coded log-file basename, but I do not know the
-    // incantation for "$(basename "$logfile")" in this language.
-    BugsplatAttachment *attachment = 
-        [[BugsplatAttachment alloc] initWithFilename:@"SecondLife.log"
-                                      attachmentData:data
-                                         contentType:@"text/plain"];
-    infos("attachmentForBugsplatStartupManager attaching " + logfile);
-    return attachment;
+    std::string pathname, basename, mimetype;
+};
+
+- (NSArray<BugsplatAttachment *> *)attachmentsForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    const CrashMetadata& metadata(CrashMetadata_instance());
+
+    // Since we must do very similar processing for each of several file
+    // pathnames, start by collecting them into a vector so we can iterate
+    // instead of spelling out the logic for each.
+    std::vector<AttachmentInfo> info{
+        AttachmentInfo(metadata.logFilePathname,      "text/plain"),
+        AttachmentInfo(metadata.userSettingsPathname, "text/xml"),
+        AttachmentInfo(metadata.staticDebugPathname,  "text/xml")
+    };
+
+    // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
+    // the fact that BugsplatMac only notices a crash during the viewer run
+    // following the crash. Replace .old with .log to reduce confusion.
+    info[0].basename = 
+        boost::filesystem::path(info[0].pathname).stem().string() + ".log";
+
+    NSMutableArray *attachments = [[NSMutableArray alloc] init];
+
+    // Iterate over each AttachmentInfo in info vector
+    for (const AttachmentInfo& attach : info)
+    {
+        NSString *nspathname = [NSString stringWithCString:attach.pathname.c_str()
+                                                  encoding:NSUTF8StringEncoding];
+        NSString *nsbasename = [NSString stringWithCString:attach.basename.c_str()
+                                                  encoding:NSUTF8StringEncoding];
+        NSString *nsmimetype = [NSString stringWithCString:attach.mimetype.c_str()
+                                                  encoding:NSUTF8StringEncoding];
+        NSData *nsdata = [NSData dataWithContentsOfFile:nspathname];
+
+        BugsplatAttachment *attachment =
+            [[BugsplatAttachment alloc] initWithFilename:nsbasename
+                                          attachmentData:nsdata
+                                             contentType:nsmimetype];
+
+        [attachments addObject:attachment];
+        infos("attachmentsForBugsplatStartupManager attaching " + attach.pathname);
+    }
+
+    return attachments;
 }
 
 - (void)bugsplatStartupManagerDidFinishSendingCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
