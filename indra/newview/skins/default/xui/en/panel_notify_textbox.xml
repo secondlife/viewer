@@ -35,7 +35,6 @@
       mouse_opaque="false"
       name="text_editor_box"
       read_only="true"
-      tab_stop="false"
       text_color="White"
       text_readonly_color="White"
       top="0"
