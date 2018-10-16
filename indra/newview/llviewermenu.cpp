@@ -8409,6 +8409,20 @@ class LLToolsSelectTool : public view_listener_t
 /// WINDLIGHT callbacks
 class LLWorldEnvSettings : public view_listener_t
 {	
+    void defocusEnvFloaters()
+    {
+        //currently there is only one instance of each floater
+        std::vector<std::string> env_floaters_names = { "env_edit_extdaycycle", "env_fixed_environmentent_water", "env_fixed_environmentent_sky" };
+        for (std::vector<std::string>::const_iterator it = env_floaters_names.begin(); it != env_floaters_names.end(); ++it)
+        {
+            LLFloater* env_floater = LLFloaterReg::findTypedInstance<LLFloater>(*it);
+            if (env_floater)
+            {
+                env_floater->setFocus(FALSE);
+            }
+        }
+    }
+
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string event_name = userdata.asString();
@@ -8418,30 +8432,35 @@ class LLWorldEnvSettings : public view_listener_t
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().updateEnvironment();
+            defocusEnvFloaters();
 		}
 		else if (event_name == "noon")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDDAY);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().updateEnvironment();
+            defocusEnvFloaters();
         }
 		else if (event_name == "sunset")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().updateEnvironment();
+            defocusEnvFloaters();
         }
 		else if (event_name == "midnight")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().updateEnvironment();
+            defocusEnvFloaters();
         }
         else if (event_name == "region")
 		{
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().updateEnvironment();
+            defocusEnvFloaters();
         }
         else if (event_name == "pause_clouds")
         {
