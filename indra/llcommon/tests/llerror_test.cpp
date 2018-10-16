@@ -884,7 +884,7 @@ namespace tut
 namespace tut
 {
     template<> template<>
-    void ErrorTestObject::test<19>()
+    void ErrorTestObject::test<5>()
         // backslash, return, and newline are not escaped with backslashes
     {
         LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
