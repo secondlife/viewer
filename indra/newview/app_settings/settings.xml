@@ -13991,17 +13991,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>VerboseLogs</key>
-    <map>
-      <key>Comment</key>
-      <string>Display source file and line number for each log item for debugging purposes</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>VertexShaderEnable</key>
     <map>
       <key>Comment</key>

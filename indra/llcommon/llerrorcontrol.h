@@ -148,13 +148,22 @@ namespace LLError
 		bool wantsLevel();
 		bool wantsLocation(); 
 		bool wantsFunctionName();
+        bool wantsMultiline();
+
+		void showTime(bool show);
+		void showTags(bool show);
+		void showLevel(bool show);
+		void showLocation(bool show); 
+		void showFunctionName(bool show);
+		void showMultiline(bool show);
 
 	protected:
-		bool	mWantsTime,
-				mWantsTags,
-				mWantsLevel,
-				mWantsLocation,
-				mWantsFunctionName;
+		bool mWantsTime;
+        bool mWantsTags;
+        bool mWantsLevel;
+        bool mWantsLocation;
+        bool mWantsFunctionName;
+        bool mWantsMultiline;
 	};
 
 	typedef boost::shared_ptr<Recorder> RecorderPtr;
