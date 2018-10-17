@@ -888,9 +888,6 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         bool found_in_settings = psetting->mSettings.has(it.first);
         bool found_in_legacy_settings = !found_in_settings && psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first);
 
-        if (!found_in_settings && !found_in_legacy_settings)
-            continue;
-
         if (found_in_settings)
         {
             value = psetting->mSettings[it.first];
@@ -898,6 +895,51 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         else if (found_in_legacy_settings)
         {
             value = psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE][it.first];
+        }
+        else if (psetting->getSettingsType() == "sky")
+        {
+            // Legacy atmospherics is a special case,
+            // these values either have non zero defaults when they are not present
+            // in LLSD or need to be acounted for (reset) even if they are not present
+            // Todo: consider better options, for example make LLSettingsSky init these options
+            // Todo: we should reset shaders for all missing fields, not just these ones
+            LLSettingsSky::ptr_t skyp = std::static_pointer_cast<LLSettingsSky>(psetting);
+            if (it.first == LLSettingsSky::SETTING_BLUE_DENSITY)
+            {
+                value = skyp->getBlueDensity().getValue();
+            }
+            else if (it.first == LLSettingsSky::SETTING_BLUE_HORIZON)
+            {
+                value = skyp->getBlueHorizon().getValue();
+            }
+            else if (it.first == LLSettingsSky::SETTING_DENSITY_MULTIPLIER)
+            {
+                value = skyp->getDensityMultiplier();
+            }
+            else if (it.first == LLSettingsSky::SETTING_DISTANCE_MULTIPLIER)
+            {
+                value = skyp->getDistanceMultiplier();
+            }
+            else if (it.first == LLSettingsSky::SETTING_HAZE_DENSITY)
+            {
+                value = skyp->getHazeDensity();
+            }
+            else if (it.first == LLSettingsSky::SETTING_HAZE_HORIZON)
+            {
+                value = skyp->getHazeHorizon();
+            }
+            else if (it.first == LLSettingsSky::SETTING_AMBIENT)
+            {
+                value = skyp->getAmbientColor().getValue();
+            }
+            else
+            {
+                continue;
+            }
+        }
+        else
+        {
+            continue;
         }
 
         LLSD::Type setting_type = value.type();
