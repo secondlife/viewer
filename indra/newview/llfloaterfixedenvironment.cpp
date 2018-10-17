@@ -769,7 +769,7 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
 
     loadInventoryItem(LLUUID::null);
 
-    clearDirtyFlag();
+    setDirtyFlag();
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
     setEditSettings(legacysky);
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
