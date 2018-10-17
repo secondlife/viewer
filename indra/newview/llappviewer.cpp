@@ -707,6 +707,22 @@ LLAppViewer::LLAppViewer()
 	//
 
 	LLLoginInstance::instance().setPlatformInfo(gPlatform, LLOSInfo::instance().getOSVersionString(), LLOSInfo::instance().getOSStringSimple());
+
+	// Under some circumstances we want to read the static_debug_info.log file
+	// from the previous viewer run between this constructor call and the
+	// init() call, which will overwrite the static_debug_info.log file for
+	// THIS run. So setDebugFileNames() early.
+#if LL_BUGSPLAT
+	// MAINT-8917: don't create a dump directory just for the
+	// static_debug_info.log file
+	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+#else // ! LL_BUGSPLAT
+	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
+	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+#endif // ! LL_BUGSPLAT
+	mDumpPath = logdir;
+	setMiniDumpDir(logdir);
+	setDebugFileNames(logdir);
 }
 
 LLAppViewer::~LLAppViewer()
@@ -780,13 +796,6 @@ bool LLAppViewer::init()
 	//set the max heap size.
 	initMaxHeapSize() ;
 	LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
-
-	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
-	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-	mDumpPath = logdir;
-	setMiniDumpDir(logdir);
-	logdir += gDirUtilp->getDirDelimiter();
-    setDebugFileNames(logdir);
 
 
 	// Although initLoggingAndGetLastDuration() is the right place to mess with
@@ -2182,6 +2191,12 @@ void errorCallback(const std::string &error_string)
 	//Set the ErrorActivated global so we know to create a marker file
 	gLLErrorActivated = true;
 
+	gDebugInfo["FatalMessage"] = error_string;
+	// We're not already crashing -- we simply *intend* to crash. Since we
+	// haven't actually trashed anything yet, we can afford to write the whole
+	// static info file.
+	LLAppViewer::instance()->writeDebugInfo();
+
 	LLError::crashAndLoop(error_string);
 }
 
@@ -3049,14 +3064,11 @@ void LLAppViewer::writeDebugInfo(bool isStatic)
         ? getStaticDebugFile()
         : getDynamicDebugFile() );
 
-	LL_INFOS() << "Opening debug file " << *debug_filename << LL_ENDL;
-	llofstream out_file(debug_filename->c_str());
+    LL_INFOS() << "Writing debug file " << *debug_filename << LL_ENDL;
+    llofstream out_file(debug_filename->c_str());
 
     isStatic ?  LLSDSerialize::toPrettyXML(gDebugInfo, out_file)
              :  LLSDSerialize::toPrettyXML(gDebugInfo["Dynamic"], out_file);
-
-
-	out_file.close();
 }
 
 LLSD LLAppViewer::getViewerInfo() const
