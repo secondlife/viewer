@@ -26,19 +26,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
-import sys
-import os
-import os.path
-import shutil
 import errno
 import json
+import os
+import os.path
 import plistlib
 import random
 import re
+import shutil
 import stat
 import subprocess
+import sys
 import tarfile
 import time
+import zipfile
 
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
@@ -63,7 +64,7 @@ class ViewerManifest(LLManifest):
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
         if self.is_packaging_viewer():
-            with self.prefix(src="app_settings"):
+            with self.prefix(src_dst="app_settings"):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
@@ -85,7 +86,7 @@ class ViewerManifest(LLManifest):
             
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                with self.prefix(src=pkgdir,dst=""):
+                with self.prefix(src=pkgdir):
                     self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
@@ -107,17 +108,18 @@ class ViewerManifest(LLManifest):
                                         Type='String',
                                         Value=''))
                 settings_install = {}
-                if 'sourceid' in self.args and self.args['sourceid']:
+                sourceid = self.args.get('sourceid')
+                if sourceid:
                     settings_install['sourceid'] = settings_template['sourceid'].copy()
-                    settings_install['sourceid']['Value'] = self.args['sourceid']
-                    print "Set sourceid in settings_install.xml to '%s'" % self.args['sourceid']
+                    settings_install['sourceid']['Value'] = sourceid
+                    print "Set sourceid in settings_install.xml to '%s'" % sourceid
 
-                if 'channel_suffix' in self.args and self.args['channel_suffix']:
+                if self.args.get('channel_suffix'):
                     settings_install['CmdLineChannel'] = settings_template['CmdLineChannel'].copy()
                     settings_install['CmdLineChannel']['Value'] = self.channel_with_pkg_suffix()
                     print "Set CmdLineChannel in settings_install.xml to '%s'" % self.channel_with_pkg_suffix()
 
-                if 'grid' in self.args and self.args['grid']:
+                if self.args.get('grid'):
                     settings_install['CmdLineGridChoice'] = settings_template['CmdLineGridChoice'].copy()
                     settings_install['CmdLineGridChoice']['Value'] = self.grid()
                     print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
@@ -129,20 +131,20 @@ class ViewerManifest(LLManifest):
                                  src="environment")
 
 
-            with self.prefix(src="character"):
+            with self.prefix(src_dst="character"):
                 self.path("*.llm")
                 self.path("*.xml")
                 self.path("*.tga")
 
             # Include our fonts
-            with self.prefix(src="fonts"):
+            with self.prefix(src_dst="fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
 
             # skins
-            with self.prefix(src="skins"):
+            with self.prefix(src_dst="skins"):
                     # include the entire textures directory recursively
-                    with self.prefix(src="*/textures"):
+                    with self.prefix(src_dst="*/textures"):
                             self.path("*/*.tga")
                             self.path("*/*.j2c")
                             self.path("*/*.jpg")
@@ -170,7 +172,7 @@ class ViewerManifest(LLManifest):
 
 
             # local_assets dir (for pre-cached textures)
-            with self.prefix(src="local_assets"):
+            with self.prefix(src_dst="local_assets"):
                 self.path("*.j2c")
                 self.path("*.tga")
 
@@ -186,6 +188,10 @@ class ViewerManifest(LLManifest):
                             "Address Size":self.address_size,
                             "Update Service":"https://update.secondlife.com/update",
                             }
+            # Only store this if it's both present and non-empty
+            bugsplat_db = self.args.get('bugsplat')
+            if bugsplat_db:
+                build_data_dict["BugSplat DB"] = bugsplat_db
             build_data_dict = self.finish_build_data_dict(build_data_dict)
             with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
                 json.dump(build_data_dict,build_data_handle)
@@ -206,8 +212,9 @@ class ViewerManifest(LLManifest):
 
     def channel_with_pkg_suffix(self):
         fullchannel=self.channel()
-        if 'channel_suffix' in self.args and self.args['channel_suffix']:
-            fullchannel+=' '+self.args['channel_suffix']
+        channel_suffix = self.args.get('channel_suffix')
+        if channel_suffix:
+            fullchannel+=' '+channel_suffix
         return fullchannel
 
     def channel_variant(self):
@@ -215,8 +222,7 @@ class ViewerManifest(LLManifest):
         return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
 
     def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
-        global CHANNEL_VENDOR_BASE
-        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        channel_qualifier=self.channel_variant().lower()
         if channel_qualifier.startswith('release'):
             channel_type='release'
         elif channel_qualifier.startswith('beta'):
@@ -234,11 +240,12 @@ class ViewerManifest(LLManifest):
         if self.channel_type() == 'release':
             suffix=suffix.replace('Release', '').strip()
         # for the base release viewer, suffix will now be null - for any other, append what remains
-        if len(suffix) > 0:
-            suffix = "_"+ ("_".join(suffix.split()))
+        if suffix:
+            suffix = "_".join([''] + suffix.split())
         # the additional_packages mechanism adds more to the installer name (but not to the app name itself)
-        if 'channel_suffix' in self.args and self.args['channel_suffix']:
-            suffix+='_'+("_".join(self.args['channel_suffix'].split()))
+        # ''.split() produces empty list, so suffix only changes if
+        # channel_suffix is non-empty
+        suffix = "_".join([suffix] + self.args.get('channel_suffix', '').split())
         return suffix
 
     def installer_base_name(self):
@@ -488,19 +495,19 @@ class WindowsManifest(ViewerManifest):
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP"), dst=""):
+            with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('updater.exe')
                 #IUM is not normally executed directly, just imported.  No exe needed.
                 self.path("InstallerUserMessage.py")
 
-            with self.prefix(src=self.icon_path(), dst="vmp_icons"):
-                self.path("secondlife.ico")
-
-            #VMP  Tkinter icons
-            with self.prefix("vmp_icons"):
-                self.path("*.png")
-                self.path("*.gif")
+            with self.prefix(dst="vmp_icons"):
+                with self.prefix(src=self.icon_path()):
+                    self.path("secondlife.ico")
+                #VMP  Tkinter icons
+                with self.prefix(src="vmp_icons"):
+                    self.path("*.png")
+                    self.path("*.gif")
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -508,8 +515,8 @@ class WindowsManifest(ViewerManifest):
                            "slplugin.exe")
         
         # Get shared libs from the shared libs staging directory
-        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
-                       dst=""):
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                          'sharedlibs', self.args['configuration'])):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
@@ -575,6 +582,17 @@ class WindowsManifest(ViewerManifest):
             # Hunspell
             self.path("libhunspell.dll")
 
+            # BugSplat
+            if self.args.get('bugsplat'):
+                if(self.address_size == 64):
+                    self.path("BsSndRpt64.exe")
+                    self.path("BugSplat64.dll")
+                    self.path("BugSplatRc64.dll")
+                else:
+                    self.path("BsSndRpt.exe")
+                    self.path("BugSplat.dll")
+                    self.path("BugSplatRc.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -584,114 +602,116 @@ class WindowsManifest(ViewerManifest):
             except:
                 print "Skipping libtcmalloc_minimal.dll"
 
-
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
 
-        with self.prefix(src=pkgdir,dst=""):
+        with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
         # Media plugins - CEF
-        with self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_cef.dll")
+        with self.prefix(dst="llplugin"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
+                with self.prefix(src=os.path.join('cef', self.args['configuration'])):
+                    self.path("media_plugin_cef.dll")
 
-        # Media plugins - LibVLC
-        with self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_libvlc.dll")
+                # Media plugins - LibVLC
+                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
+                    self.path("media_plugin_libvlc.dll")
 
-        # Media plugins - Example (useful for debugging - not shipped with release viewer)
-        if self.channel_type() != 'release':
-            with self.prefix(src='../media_plugins/example/%s' % self.args['configuration'], dst="llplugin"):
-                self.path("media_plugin_example.dll")
+                # Media plugins - Example (useful for debugging - not shipped with release viewer)
+                if self.channel_type() != 'release':
+                    with self.prefix(src=os.path.join('example', self.args['configuration'])):
+                        self.path("media_plugin_example.dll")
 
-        # CEF runtime files - debug
-        # CEF runtime files - not debug (release, relwithdebinfo etc.)
-        config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-        with self.prefix(src=os.path.join(pkgdir, 'bin', config), dst="llplugin"):
-            self.path("chrome_elf.dll")
-            self.path("d3dcompiler_43.dll")
-            self.path("d3dcompiler_47.dll")
-            self.path("libcef.dll")
-            self.path("libEGL.dll")
-            self.path("libGLESv2.dll")
-            self.path("dullahan_host.exe")
-            self.path("natives_blob.bin")
-            self.path("snapshot_blob.bin")
-            self.path("widevinecdmadapter.dll")
+            # CEF runtime files - debug
+            # CEF runtime files - not debug (release, relwithdebinfo etc.)
+            config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
+            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
+                self.path("chrome_elf.dll")
+                self.path("d3dcompiler_43.dll")
+                self.path("d3dcompiler_47.dll")
+                self.path("libcef.dll")
+                self.path("libEGL.dll")
+                self.path("libGLESv2.dll")
+                self.path("dullahan_host.exe")
+                self.path("natives_blob.bin")
+                self.path("snapshot_blob.bin")
+                self.path("widevinecdmadapter.dll")
 
-        # MSVC DLLs needed for CEF and have to be in same directory as plugin
-        with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release'), dst="llplugin"):
-            self.path("msvcp120.dll")
-            self.path("msvcr120.dll")
+            # MSVC DLLs needed for CEF and have to be in same directory as plugin
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                              'sharedlibs', 'Release')):
+                self.path("msvcp120.dll")
+                self.path("msvcr120.dll")
 
-        # CEF files common to all configurations
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="llplugin"):
-            self.path("cef.pak")
-            self.path("cef_100_percent.pak")
-            self.path("cef_200_percent.pak")
-            self.path("cef_extensions.pak")
-            self.path("devtools_resources.pak")
-            self.path("icudtl.dat")
+            # CEF files common to all configurations
+            with self.prefix(src=os.path.join(pkgdir, 'resources')):
+                self.path("cef.pak")
+                self.path("cef_100_percent.pak")
+                self.path("cef_200_percent.pak")
+                self.path("cef_extensions.pak")
+                self.path("devtools_resources.pak")
+                self.path("icudtl.dat")
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('llplugin', 'locales')):
-            self.path("am.pak")
-            self.path("ar.pak")
-            self.path("bg.pak")
-            self.path("bn.pak")
-            self.path("ca.pak")
-            self.path("cs.pak")
-            self.path("da.pak")
-            self.path("de.pak")
-            self.path("el.pak")
-            self.path("en-GB.pak")
-            self.path("en-US.pak")
-            self.path("es-419.pak")
-            self.path("es.pak")
-            self.path("et.pak")
-            self.path("fa.pak")
-            self.path("fi.pak")
-            self.path("fil.pak")
-            self.path("fr.pak")
-            self.path("gu.pak")
-            self.path("he.pak")
-            self.path("hi.pak")
-            self.path("hr.pak")
-            self.path("hu.pak")
-            self.path("id.pak")
-            self.path("it.pak")
-            self.path("ja.pak")
-            self.path("kn.pak")
-            self.path("ko.pak")
-            self.path("lt.pak")
-            self.path("lv.pak")
-            self.path("ml.pak")
-            self.path("mr.pak")
-            self.path("ms.pak")
-            self.path("nb.pak")
-            self.path("nl.pak")
-            self.path("pl.pak")
-            self.path("pt-BR.pak")
-            self.path("pt-PT.pak")
-            self.path("ro.pak")
-            self.path("ru.pak")
-            self.path("sk.pak")
-            self.path("sl.pak")
-            self.path("sr.pak")
-            self.path("sv.pak")
-            self.path("sw.pak")
-            self.path("ta.pak")
-            self.path("te.pak")
-            self.path("th.pak")
-            self.path("tr.pak")
-            self.path("uk.pak")
-            self.path("vi.pak")
-            self.path("zh-CN.pak")
-            self.path("zh-TW.pak")
+            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+                self.path("am.pak")
+                self.path("ar.pak")
+                self.path("bg.pak")
+                self.path("bn.pak")
+                self.path("ca.pak")
+                self.path("cs.pak")
+                self.path("da.pak")
+                self.path("de.pak")
+                self.path("el.pak")
+                self.path("en-GB.pak")
+                self.path("en-US.pak")
+                self.path("es-419.pak")
+                self.path("es.pak")
+                self.path("et.pak")
+                self.path("fa.pak")
+                self.path("fi.pak")
+                self.path("fil.pak")
+                self.path("fr.pak")
+                self.path("gu.pak")
+                self.path("he.pak")
+                self.path("hi.pak")
+                self.path("hr.pak")
+                self.path("hu.pak")
+                self.path("id.pak")
+                self.path("it.pak")
+                self.path("ja.pak")
+                self.path("kn.pak")
+                self.path("ko.pak")
+                self.path("lt.pak")
+                self.path("lv.pak")
+                self.path("ml.pak")
+                self.path("mr.pak")
+                self.path("ms.pak")
+                self.path("nb.pak")
+                self.path("nl.pak")
+                self.path("pl.pak")
+                self.path("pt-BR.pak")
+                self.path("pt-PT.pak")
+                self.path("ro.pak")
+                self.path("ru.pak")
+                self.path("sk.pak")
+                self.path("sl.pak")
+                self.path("sr.pak")
+                self.path("sv.pak")
+                self.path("sw.pak")
+                self.path("ta.pak")
+                self.path("te.pak")
+                self.path("th.pak")
+                self.path("tr.pak")
+                self.path("uk.pak")
+                self.path("vi.pak")
+                self.path("zh-CN.pak")
+                self.path("zh-TW.pak")
 
-        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="llplugin"):
-            self.path("libvlc.dll")
-            self.path("libvlccore.dll")
-            self.path("plugins/")
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins/")
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
@@ -873,6 +893,12 @@ class DarwinManifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
+
+    def is_rearranging(self):
+        # That said, some stuff should still only be performed once.
+        # Are either of these actions in 'actions'? Is the set intersection
+        # non-empty?
+        return bool(set(["package", "unpacked"]).intersection(self.args['actions']))
 
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
@@ -1362,19 +1388,19 @@ class LinuxManifest(ViewerManifest):
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         self.path("licenses-linux.txt","licenses.txt")
-        with self.prefix("linux_tools", dst=""):
+        with self.prefix("linux_tools"):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
-            with self.prefix(src="", dst="etc"):
+            with self.prefix(dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
                 self.path("refresh_desktop_app_entry.sh")
                 self.path("launch_url.sh")
             self.path("install.sh")
 
-        with self.prefix(src="", dst="bin"):
+        with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin") 
@@ -1388,9 +1414,9 @@ class LinuxManifest(ViewerManifest):
         # Get the icons based on the channel type
         icon_path = self.icon_path()
         print "DEBUG: icon_path '%s'" % icon_path
-        with self.prefix(src=icon_path, dst="") :
+        with self.prefix(src=icon_path) :
             self.path("secondlife_256.png","secondlife_icon.png")
-            with self.prefix(src="",dst="res-sdl") :
+            with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
         # plugins
@@ -1412,7 +1438,7 @@ class LinuxManifest(ViewerManifest):
 
         self.path("featuretable_linux.txt")
 
-        with self.prefix(src=pkgdir,dst=""):
+        with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
@@ -1468,7 +1494,7 @@ class Linux_i686_Manifest(LinuxManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        with self.prefix(relpkgdir, dst="lib"):
+        with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so")
             self.path("libapr-1.so.0")
             self.path("libapr-1.so.0.4.5")
@@ -1554,4 +1580,8 @@ class Linux_x86_64_Manifest(LinuxManifest):
 ################################################################
 
 if __name__ == "__main__":
-    main()
+    extra_arguments = [
+        dict(name='bugsplat', description="""BugSplat database to which to post crashes,
+             if BugSplat crash reporting is desired""", default=''),
+        ]
+    main(extra=extra_arguments)
