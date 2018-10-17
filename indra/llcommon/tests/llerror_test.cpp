@@ -498,6 +498,39 @@ namespace
 	}
 }
 
+namespace
+{
+    void writeMsgNeedsEscaping()
+    {
+        LL_DEBUGS("WriteTag") << "backslash\\" << LL_ENDL;
+        LL_INFOS("WriteTag") << "newline\nafternewline" << LL_ENDL;
+        LL_WARNS("WriteTag") << "return\rafterreturn" << LL_ENDL;
+
+        LL_DEBUGS("WriteTag") << "backslash\\backslash\\" << LL_ENDL;
+        LL_INFOS("WriteTag") << "backslash\\newline\nanothernewline\nafternewline" << LL_ENDL;
+        LL_WARNS("WriteTag") << "backslash\\returnnewline\r\n\\afterbackslash" << LL_ENDL;
+    }
+};
+
+namespace tut
+{
+    template<> template<>
+    void ErrorTestObject::test<5>()
+        // backslash, return, and newline are not escaped with backslashes
+    {
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        setWantsMultiline(true); 
+        writeMsgNeedsEscaping(); // but should not be now
+        ensure_message_field_equals(0, MSG_FIELD, "backslash\\");
+        ensure_message_field_equals(1, MSG_FIELD, "newline\nafternewline");
+        ensure_message_field_equals(2, MSG_FIELD, "return\rafterreturn");
+        ensure_message_field_equals(3, MSG_FIELD, "backslash\\backslash\\");
+        ensure_message_field_equals(4, MSG_FIELD, "backslash\\newline\nanothernewline\nafternewline");
+        ensure_message_field_equals(5, MSG_FIELD, "backslash\\returnnewline\r\n\\afterbackslash");
+        ensure_message_count(6);
+    }
+}
+
 namespace tut
 {
 	template<> template<>
@@ -820,20 +853,6 @@ namespace tut
 	}
 }
 
-namespace
-{
-    void writeMsgNeedsEscaping()
-    {
-        LL_DEBUGS("WriteTag") << "backslash\\" << LL_ENDL;
-        LL_INFOS("WriteTag") << "newline\nafternewline" << LL_ENDL;
-        LL_WARNS("WriteTag") << "return\rafterreturn" << LL_ENDL;
-
-        LL_DEBUGS("WriteTag") << "backslash\\backslash\\" << LL_ENDL;
-        LL_INFOS("WriteTag") << "backslash\\newline\nanothernewline\nafternewline" << LL_ENDL;
-        LL_WARNS("WriteTag") << "backslash\\returnnewline\r\n\\afterbackslash" << LL_ENDL;
-    }
-};
-
 namespace tut
 {
     template<> template<>
@@ -878,25 +897,6 @@ namespace tut
 		ensure_message_field_equals(0, LEVEL_FIELD, "ERROR");
 		ensure_message_field_equals(0, MSG_FIELD, expected);
 		ensure("fatal callback called", fatalWasCalled);
-    }
-}
-
-namespace tut
-{
-    template<> template<>
-    void ErrorTestObject::test<5>()
-        // backslash, return, and newline are not escaped with backslashes
-    {
-        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-        setWantsMultiline(true); 
-        writeMsgNeedsEscaping(); // but should not be now
-        ensure_message_field_equals(0, MSG_FIELD, "backslash\\");
-        ensure_message_field_equals(1, MSG_FIELD, "newline\nafternewline");
-        ensure_message_field_equals(2, MSG_FIELD, "return\rafterreturn");
-        ensure_message_field_equals(3, MSG_FIELD, "backslash\\backslash\\");
-        ensure_message_field_equals(4, MSG_FIELD, "backslash\\newline\nanothernewline\nafternewline");
-        ensure_message_field_equals(5, MSG_FIELD, "backslash\\returnnewline\r\n\\afterbackslash");
-        ensure_message_count(6);
     }
 }
 
