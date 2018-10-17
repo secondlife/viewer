@@ -58,9 +58,6 @@ public:
     static const F32Seconds     TRANSITION_SLOW;
     static const F32Seconds     TRANSITION_ALTITUDE;
 
-    static const LLUUID         KNOWN_SKY_DEFAULT;
-    static const LLUUID         KNOWN_WATER_DEFAULT;
-    static const LLUUID         KNOWN_DAY_DEFAULT;
     static const LLUUID         KNOWN_SKY_SUNRISE;
     static const LLUUID         KNOWN_SKY_MIDDAY;
     static const LLUUID         KNOWN_SKY_SUNSET;

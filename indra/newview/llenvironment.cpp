@@ -261,10 +261,10 @@ const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
-const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("4204c687-f9e4-4893-8c1b-46761c0d2021");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("07589e0e-8e2e-4864-8e58-07b516efd9c3");
-const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("8113ba47-3223-46ba-bae6-12c875091b32");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("90187088-d7f3-4656-8c27-8ba0e19e21e9");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("7e1489ce-fdc8-2971-c3a4-f1fe0cd70d20");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("9db06848-8b1f-501d-eeae-ecf487f40dd6");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("95882e1b-7741-f082-d9d6-3a34ec644c66");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("d8e50d02-a15b-17a7-3425-523bc20f67b8");
 
 const S32 LLEnvironment::NO_TRACK(-1);
 
