@@ -629,7 +629,7 @@ void LLFloaterEditExtDayCycle::onSaveAsCommit(const LLSD& notification, const LL
 void LLFloaterEditExtDayCycle::onClickCloseBtn(bool app_quitting /*= false*/)
 {
     if (!app_quitting)
-        checkAndConfirmSettingsLoss([this](){ closeFloater(); });
+        checkAndConfirmSettingsLoss([this](){ closeFloater(); clearDirtyFlag(); });
     else
         closeFloater();
 }
@@ -1177,6 +1177,7 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         return;
     }
     mExpectingAssetId.setNull();
+    clearDirtyFlag();
 
     if (!settings || status)
     {
