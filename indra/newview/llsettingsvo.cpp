@@ -158,6 +158,14 @@ void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSetti
         if (pitem)
         {
             asset_id = pitem->getAssetUUID();
+
+            LLPermissions perm = pitem->getPermissions();
+            if (perm.getMaskEveryone() != PERM_COPY)
+            {
+                perm.setMaskEveryone(PERM_COPY);
+                pitem->setPermissions(perm);
+                pitem->updateServer(FALSE);
+            }
         }
         if (callback)
             callback(asset_id, inventoryId, LLUUID::null, LLSD());
